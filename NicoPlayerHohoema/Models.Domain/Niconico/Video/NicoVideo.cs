@@ -77,7 +77,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
             set { SetProperty(ref _MylistCount, value); }
         }
 
-        public string Description { get; set; }
+        private string _Description;
+        public string Description
+        {
+            get { return _Description; }
+            set { SetProperty(ref _Description, value); }
+        }
 
         public double LoudnessCollectionValue { get; set; } = 1.0;
 
@@ -88,9 +93,21 @@ namespace Hohoema.Models.Domain.Niconico.Video
         /// [[deprecated]] ce.api経由では動画フォーマットが取得できない
         /// </summary>
         public MovieType MovieType { get; set; } = MovieType.Mp4;
-        public List<NicoVideoTag> Tags { get; set; }
 
-        public string DescriptionWithHtml { get; set; }
+
+        private List<NicoVideoTag> _tag;
+        public List<NicoVideoTag> Tags
+        {
+            get { return _tag; }
+            set { SetProperty(ref _tag, value); }
+        }
+
+        private string _DescriptionWithHtml;
+        public string DescriptionWithHtml
+        {
+            get { return _DescriptionWithHtml; }
+            set { SetProperty(ref _DescriptionWithHtml, value); }
+        }
 
         public DateTime LastUpdated { get; set; }
 
@@ -101,7 +118,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
             set { SetProperty(ref _isDeleted, value); }
         }
 
-        public PrivateReasonType PrivateReasonType { get; set; }
+        private PrivateReasonType _privateReasonType;
+        public PrivateReasonType PrivateReasonType
+        {
+            get { return _privateReasonType; }
+            set { SetProperty(ref _privateReasonType, value); }
+        }
 
         [BsonIgnore]
         public string Id => VideoId ?? RawVideoId;

@@ -11,7 +11,7 @@ namespace Hohoema.Models.Domain.Subscriptions
 {
     public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<SubscriptionSourceEntity>
     {
-        public SubscriptionRegistrationRepository(ILiteDatabase database)
+        public SubscriptionRegistrationRepository(LiteDatabase database)
             : base(database)
         {
 

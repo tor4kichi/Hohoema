@@ -28,6 +28,7 @@ using Hohoema.Models.Domain.Niconico.UserFeature;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Live;
+using Uno.Extensions;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -94,6 +95,20 @@ namespace Hohoema.Presentation.ViewModels
             ActivityFeedSettings.DisplayNicoRepoItemTopics = DisplayNicoRepoItemTopics.Distinct().ToList();
 
             base.OnNavigatedFrom(parameters);
+        }
+
+        protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
+        {
+            if (!ActivityFeedSettings.DisplayNicoRepoItemTopics.All(x => DisplayNicoRepoItemTopics.Any(y => x == y)))
+            {
+                DisplayNicoRepoItemTopics.Clear();
+                DisplayNicoRepoItemTopics.AddRange(ActivityFeedSettings.DisplayNicoRepoItemTopics);
+
+                _NicoRepoItemTopicsChanged = false;
+                return true;
+            }
+            
+            return base.CheckNeedUpdateOnNavigateTo(mode);
         }
 
         protected override IIncrementalSource<HohoemaListingPageItemBase> GenerateIncrementalSource()

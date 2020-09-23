@@ -180,7 +180,7 @@
               </Grid>
               <Grid x:Name="AppDisplayModeSettingLayout">
                 <TextBlock Text="{Binding Source=ApplicationInteractionMode, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=OverrideInteractionModeList}" SelectedItem="{Binding AppearanceSettings.OverrideIntractionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" IsSynchronizedWithCurrentItem="False">
+                <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=OverrideInteractionModeList}" SelectedValue="{Binding AppearanceSettings.OverrideInteractionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" IsSynchronizedWithCurrentItem="False">
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
                       <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}, FallbackValue={Binding Source=NoSelected, Converter={StaticResource LocalizeConverter}}}" />
@@ -334,6 +334,17 @@
                             </StackPanel>
                             
                             -->
+            </StackPanel>
+          </StackPanel>
+          <!-- バックアップ -->
+          <StackPanel>
+            <toolkit:DockPanel Margin="0 8">
+              <TextBlock Text="{Binding Source=UserDataSettings, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+            </toolkit:DockPanel>
+            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}" Orientation="Horizontal" HorizontalAlignment="Right">
+              <Button Content="{Binding Source=BackupUserData, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExportBackupCommand}" />
+              <Button Content="{Binding Source=RestoreUserData, Converter={StaticResource LocalizeConverter}}" Command="{Binding ImportBackupCommand}" />
             </StackPanel>
           </StackPanel>
           <!-- このアプリについて -->

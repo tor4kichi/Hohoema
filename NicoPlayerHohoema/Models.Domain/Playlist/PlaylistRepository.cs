@@ -49,7 +49,7 @@ namespace Hohoema.Models.Domain.Playlist
     {
         public sealed class PlaylistDbService : LiteDBServiceBase<PlaylistEntity>
         {
-            public PlaylistDbService(ILiteDatabase liteDatabase) : base(liteDatabase)
+            public PlaylistDbService(LiteDatabase liteDatabase) : base(liteDatabase)
             {
             }
 
@@ -62,11 +62,16 @@ namespace Hohoema.Models.Domain.Playlist
             {
                 return _collection.Find(x => x.PlaylistOrigin == playlistOrigin);
             }
+
+            public PlaylistEntity[] GetAllPlaylist()
+            {
+                return _collection.FindAll().ToArray();
+            }
         }
 
         public sealed class PlaylistItemsDbService : LiteDBServiceBase<PlaylistItemEntity>
         {
-            public PlaylistItemsDbService(ILiteDatabase liteDatabase)
+            public PlaylistItemsDbService(LiteDatabase liteDatabase)
                 : base(liteDatabase)
             {
                 _collection.EnsureIndex(nameof(PlaylistItemEntity.PlaylistId));
@@ -111,17 +116,22 @@ namespace Hohoema.Models.Domain.Playlist
             return _playlistDbService.Get(playlistId);
         }
 
+        public PlaylistEntity[] GetAllPlaylist()
+        {
+            return _playlistDbService.GetAllPlaylist();
+        }
+
         public IEnumerable<PlaylistEntity> GetPlaylistsFromOrigin(PlaylistOrigin origin)
         {
             return _playlistDbService.GetPlaylistsFromOrigin(origin);
         }
 
-        public void Upsert(PlaylistEntity playlist)
+        public void UpsertPlaylist(PlaylistEntity playlist)
         {
             _playlistDbService.UpdateItem(playlist);
         }
 
-        public bool Delete(string playlistId)
+        public bool DeletePlaylist(string playlistId)
         {
             return _playlistDbService.DeleteItem(playlistId);
         }

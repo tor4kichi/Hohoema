@@ -65,7 +65,7 @@ namespace Hohoema.Presentation.ViewModels
         public List<UserSeriesItemViewModel> UserSeriesList
         {
             get { return _userSeriesList; }
-            set { SetProperty(ref _userSeriesList, value); }
+            private set { SetProperty(ref _userSeriesList, value); }
         }
 
 
@@ -73,7 +73,14 @@ namespace Hohoema.Presentation.ViewModels
         public UserViewModel User
         {
             get { return _user; }
-            set { SetProperty(ref _user, value); }
+            private set { SetProperty(ref _user, value); }
+        }
+
+        private bool _nowUpdating;
+        public bool NowUpdating
+        {
+            get { return _nowUpdating; }
+            set { SetProperty(ref _nowUpdating, value); }
         }
 
 
@@ -91,14 +98,22 @@ namespace Hohoema.Presentation.ViewModels
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            if (parameters.TryGetValue("id", out string id))
+            NowUpdating = true;
+            try
             {
-                var serieses = await _seriesRepository.GetUserSeriesAsync(id);
-                UserSeriesList = serieses.Select(x => new UserSeriesItemViewModel(x)).ToList();
+                if (parameters.TryGetValue("id", out string id))
+                {
+                    var serieses = await _seriesRepository.GetUserSeriesAsync(id);
+                    UserSeriesList = serieses.Select(x => new UserSeriesItemViewModel(x)).ToList();
 
-                
-//                var userInfo = await _userProvider.GetUserDetail(id);
-//                User = new UserViewModel(userInfo);
+
+                    var userInfo = await _userProvider.GetUserDetail(id);
+                    User = new UserViewModel(userInfo);
+                }
+            }
+            finally
+            {
+                NowUpdating = false;
             }
         }
 

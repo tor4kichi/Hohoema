@@ -29,7 +29,7 @@ namespace Hohoema.Models.Domain.Niconico.Channel
 
     public class NicoChannelCacheRepository : LiteDBServiceBase<NicoChannelInfo>
     {
-        public NicoChannelCacheRepository(ILiteDatabase liteDatabase) : base(liteDatabase)
+        public NicoChannelCacheRepository(LiteDatabase liteDatabase) : base(liteDatabase)
         {
             _collection.EnsureIndex(x => x.Id);
         }

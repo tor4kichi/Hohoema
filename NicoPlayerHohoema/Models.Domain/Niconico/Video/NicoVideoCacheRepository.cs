@@ -8,16 +8,15 @@ namespace Hohoema.Models.Domain.Niconico.Video
 {
     public sealed class NicoVideoCacheRepository : LiteDBServiceBase<NicoVideo>
     {
-        public NicoVideoCacheRepository(LiteDB.ILiteDatabase liteDatabase) : base(liteDatabase)
+        public NicoVideoCacheRepository(LiteDB.LiteDatabase liteDatabase) : base(liteDatabase)
         {
         }
 
         public NicoVideo Get(string videoId)
         {
             return _collection
-                .Query()
                 .Include(x => x.Owner)
-                .Where(x => x.RawVideoId == videoId)
+                .Find(x => x.RawVideoId == videoId)
                 .SingleOrDefault()
                 ?? new NicoVideo() { RawVideoId = videoId };
 

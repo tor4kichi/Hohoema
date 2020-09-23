@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Application;
+using Uno.Extensions;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -52,8 +53,7 @@ namespace Hohoema.Presentation.ViewModels
             _favoriteRankingGenreGroupItem = new FavoriteRankingGenreGroupItem()
             {
                 Label = "FavoriteRankingTag".Translate(),
-                IsDisplay = true,
-                Items = new AdvancedCollectionView(FavoriteItems),
+                Items = new AdvancedCollectionView(FavoriteItems)
             };
             _RankingGenreItemsSource.Add(_favoriteRankingGenreGroupItem);
             
@@ -65,15 +65,23 @@ namespace Hohoema.Presentation.ViewModels
                     var rankingItems = ToRankingItem(genre, _rankingProvider.GetRankingGenreTagsFromCache(genre));
                     var acv = new AdvancedCollectionView(new ObservableCollection<RankingItem>(rankingItems), isLiveShaping: true)
                     {
-                        Filter = (item) => (item as RankingItem).IsDisplay,
+                        Filter = (item) => 
+                        {
+                            if (item is RankingItem rankingItem && rankingItem.Genre != null)
+                            {
+                                return !(RankingSettings.IsHiddenGenre(rankingItem.Genre.Value) || RankingSettings.IsHiddenTag(rankingItem.Genre.Value, rankingItem.Tag));
+                            }
+                            else
+                            {
+                                return true;
+                            }
+                        },
                     };
-                    acv.ObserveFilterProperty(nameof(RankingItem.IsDisplay));
 
                     return new RankingGenreItem()
                     {
                         Genre = genre,
                         Label = genre.Translate(),
-                        IsDisplay = !RankingSettings.IsHiddenGenre(genre),
                         Items = acv
                     };
                 });
@@ -83,19 +91,13 @@ namespace Hohoema.Presentation.ViewModels
                 _RankingGenreItemsSource.Add(genreItem);
             }
 
-
             foreach (var item in _RankingGenreItemsSource)
             {
-                if (item.Genre == null)
-                {
-                    _RankingGenreItems.Add(item);
-                }
-                else if (!RankingSettings.IsHiddenGenre(item.Genre.Value))
+                if (item.Genre == null || !RankingSettings.IsHiddenGenre(item.Genre.Value))
                 {
                     _RankingGenreItems.Add(item);
                 }
             }
-            
 
             {
                 RankingGenreItems = new CollectionViewSource()
@@ -113,7 +115,6 @@ namespace Hohoema.Presentation.ViewModels
                     var genreItem = _RankingGenreItemsSource.First(x => x.Genre == args.RankingGenre);
                     if (string.IsNullOrEmpty(args.Tag))
                     {
-                        genreItem.IsDisplay = true;
                         RankingSettings.RemoveHiddenGenre(args.RankingGenre);
                         
                         _RankingGenreItems.Clear();
@@ -136,9 +137,10 @@ namespace Hohoema.Presentation.ViewModels
                         var sameTagItem = genreItem.Items.SourceCollection.Cast<RankingItem>().FirstOrDefault(x => x.Tag == args.Tag);
                         if (sameTagItem != null)
                         {
-                            sameTagItem.IsDisplay = true;
                             RankingSettings.RemoveHiddenTag(args.RankingGenre, args.Tag);
                             
+                            genreItem.Items.RefreshFilter();
+
                             System.Diagnostics.Debug.WriteLine($"Tag Show: {args.Tag}");
                         }
                     }
@@ -152,7 +154,6 @@ namespace Hohoema.Presentation.ViewModels
                     var genreItem = _RankingGenreItemsSource.First(x => x.Genre == args.RankingGenre);
                     if (string.IsNullOrEmpty(args.Tag))
                     {
-                        genreItem.IsDisplay = false;
                         RankingSettings.AddHiddenGenre(args.RankingGenre);
                         
                         _RankingGenreItems.Clear();
@@ -175,9 +176,10 @@ namespace Hohoema.Presentation.ViewModels
                         var sameTagItem = genreItem.Items.SourceCollection.Cast<RankingItem>().FirstOrDefault(x => x.Tag == args.Tag);
                         if (sameTagItem != null)
                         {
-                            sameTagItem.IsDisplay = false;
                             RankingSettings.AddHiddenTag(sameTagItem.Genre.Value, sameTagItem.Tag, sameTagItem.Label);
-                            
+
+                            genreItem.Items.RefreshFilter();
+
                             System.Diagnostics.Debug.WriteLine($"Tag Hidden: {args.Tag}");
                         }
                     }                    
@@ -192,15 +194,24 @@ namespace Hohoema.Presentation.ViewModels
                         var addedItem = new RankingItem()
                         {
                             Genre = args.RankingGenre,
-                            IsDisplay = true,
-                            IsFavorite = true,
                             Label = args.Label,
+                            IsFavorite = true,
                             Tag = args.Tag
                         };
 
                         FavoriteItems.Add(addedItem);
                         RankingSettings.AddFavoriteTag(addedItem.Genre.Value, addedItem.Tag, addedItem.Label);
-                        
+
+                        var genreGroup = _RankingGenreItems.FirstOrDefault(x => x.Genre == args.RankingGenre);
+                        if (genreGroup != null)
+                        {
+                            var favItem = genreGroup.Items.Cast<RankingItem>().FirstOrDefault(x => x.Tag == args.Tag);
+                            if (favItem != null)
+                            {
+                                favItem.IsFavorite = true;
+                            }
+                        }
+
                         System.Diagnostics.Debug.WriteLine($"Favorite added: {args.Label}");
                     }
                 })
@@ -214,8 +225,19 @@ namespace Hohoema.Presentation.ViewModels
                     {
                         FavoriteItems.Remove(unFavoriteItem);
                         RankingSettings.RemoveFavoriteTag(unFavoriteItem.Genre.Value, unFavoriteItem.Tag);
-                        
+
+                        unFavoriteItem.IsFavorite = false;
                         System.Diagnostics.Debug.WriteLine($"Favorite removed: {args.RankingGenre} {args.Tag}");
+                    }
+
+                    var genreGroup = _RankingGenreItems.FirstOrDefault(x => x.Genre == args.RankingGenre);
+                    if (genreGroup != null)
+                    {
+                        var favItem = genreGroup.Items.Cast<RankingItem>().FirstOrDefault(x => x.Tag == args.Tag);
+                        if (favItem != null)
+                        {
+                            favItem.IsFavorite = false;
+                        }
                     }
                 })
                 .AddTo(_CompositeDisposable);
@@ -230,10 +252,9 @@ namespace Hohoema.Presentation.ViewModels
                  .Select(y => new RankingItem()
                  {
                      Genre = y.Genre,
-                     IsDisplay = true,
                      Label = y.Label,
                      Tag = y.Tag,
-                     IsFavorite = true
+                     IsFavorite = true,
                  });
         }
 
@@ -276,16 +297,27 @@ namespace Hohoema.Presentation.ViewModels
         private readonly IEventAggregator _eventAggregator;
         private readonly AppFlagsRepository _appFlagsRepository;
         private readonly RankingProvider _rankingProvider;
-
+        
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            SettingsRestoredTempraryFlags.Instance.WhenRankingRestored(() =>
+            {
+                FavoriteItems.Clear();
+                FavoriteItems.AddRange(GetFavoriteRankingItems());
+                RefreshFilter();
+            });
+
+
             if (!_appFlagsRepository.IsRankingInitialUpdate)
             {
+                _appFlagsRepository.IsRankingInitialUpdate = true;
                 try
                 {
-                    foreach (var genreItem in _RankingGenreItems)
+                    foreach (var genreItem in _RankingGenreItems.Cast<RankingGenreItem>())
                     {
                         if (genreItem.Genre == null) { continue; }
+                        if (genreItem.Items.Any()) { continue; }
+
                         var genre = genreItem.Genre.Value;
                         var tags = await _rankingProvider.GetRankingGenreTagsAsync(genre, true);
 
@@ -296,7 +328,6 @@ namespace Hohoema.Presentation.ViewModels
                                 .Select(y => new RankingItem()
                                 {
                                     Genre = genre,
-                                    IsDisplay = !RankingSettings.IsHiddenTag(genre, y.Tag),
                                     Label = y.Label,
                                     Tag = y.Tag
                                 }
@@ -313,21 +344,21 @@ namespace Hohoema.Presentation.ViewModels
                 }
                 finally
                 {
-                    _appFlagsRepository.IsRankingInitialUpdate = true;
                 }
             }
             else
             {
                 if (_prevSelectedGenre != null)
                 {
-                    var updateTargetGenre = _RankingGenreItems.FirstOrDefault(x => x.Genre == _prevSelectedGenre);
+                    var updateTargetGenre = _RankingGenreItems.Cast<RankingGenreItem>().FirstOrDefault(x => x.Genre == _prevSelectedGenre);
                     if (updateTargetGenre != null)
                     {
-                        updateTargetGenre.Items.Clear();
                         var items = await _rankingProvider.GetRankingGenreTagsAsync(updateTargetGenre.Genre.Value, true);
-
-                        if (items?.Any() ?? false)
+                        var genreTags = updateTargetGenre.Items.Cast<RankingItem>().Select(x => x.Tag).ToArray();
+                        if ((items?.Any() ?? false) && !items.Skip(1).Select(x => x.Tag).SequenceEqual(genreTags))
                         {
+
+                            updateTargetGenre.Items.Clear();
                             using (updateTargetGenre.Items.DeferRefresh())
                             {
                                 var genre = updateTargetGenre.Genre.Value;
@@ -342,6 +373,23 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
+        void RefreshFilter()
+        {
+            _RankingGenreItems.Clear();
+            foreach (var item in _RankingGenreItemsSource)
+            {
+                if (item.Genre == null || !RankingSettings.IsHiddenGenre(item.Genre.Value))
+                {
+                    _RankingGenreItems.Add(item);
+                }
+            }
+
+            foreach (var genreGroup in _RankingGenreItems.Cast<RankingGenreItem>())
+            {
+                genreGroup.Items.RefreshFilter();
+            }
+        }
+
 
         List<RankingItem> ToRankingItem(RankingGenre genre, List<RankingGenreTag> tags)
         {
@@ -350,9 +398,9 @@ namespace Hohoema.Presentation.ViewModels
                 .Select(y => new RankingItem()
                 {
                     Genre = genre,
-                    IsDisplay = !RankingSettings.IsHiddenTag(genre, y.Tag),
                     Label = y.Label,
-                    Tag = y.Tag
+                    Tag = y.Tag,
+                    IsFavorite = RankingSettings.IsFavoriteTag(genre, y.Tag)
                 }
             ).ToList();
         }
@@ -382,15 +430,7 @@ namespace Hohoema.Presentation.ViewModels
                 var hiddenGenres = rankingGenres.Where(x => !result.Any(y => x == y.Genre));
                 RankingSettings.ResetHiddenGenre(hiddenGenres);
 
-                _RankingGenreItems.Clear();
-                _RankingGenreItems.Add(_favoriteRankingGenreGroupItem);
-                foreach (var displayGenre in _RankingGenreItemsSource)
-                {
-                    if (result.Any(x => x.Genre == displayGenre.Genre))
-                    {
-                        _RankingGenreItems.Add(displayGenre);
-                    }
-                }
+                RefreshFilter();
             }));
 
         DelegateCommand _ShowDisplayGenreTagSelectDialogCommand;
@@ -410,18 +450,7 @@ namespace Hohoema.Presentation.ViewModels
                     RankingSettings.RemoveHiddenTag(removeHiddenTag.Genre, removeHiddenTag.Tag);
                 }
 
-                foreach (var displayTag in result)
-                {
-                    var genreGroup =  _RankingGenreItemsSource.FirstOrDefault(x => x.Genre == displayTag.Genre);
-                    if (genreGroup != null)
-                    {
-                        var tagItem = genreGroup.Items.SourceCollection.Cast<RankingItem>().FirstOrDefault(x => x.Tag == displayTag.Tag);
-                        if (tagItem is RankingItem item)
-                        {
-                            item.IsDisplay = true;
-                        }
-                    }
-                }
+                RefreshFilter();
             }));
     }
 
@@ -440,20 +469,12 @@ namespace Hohoema.Presentation.ViewModels
         public RankingGenre? Genre { get; set; }
         public string Tag { get; set; }
 
-        private bool _IsDisplay;
-        public bool IsDisplay
-        {
-            get => _IsDisplay;
-            set => SetProperty(ref _IsDisplay, value);
-        }
-
         private bool _IsFavorite;
         public bool IsFavorite
         {
-            get => _IsFavorite;
-            set => SetProperty(ref _IsFavorite, value);
+            get { return _IsFavorite; }
+            set { SetProperty(ref _IsFavorite, value); }
         }
-
     }
 
     public class RankingGenreItem : RankingItem

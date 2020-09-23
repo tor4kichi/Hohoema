@@ -15,7 +15,7 @@ namespace Hohoema.Models.Domain.Subscriptions
     {
         public static int FeedResultVideosCapacity = 100;
 
-        public SubscriptionFeedResultRepository(ILiteDatabase database)
+        public SubscriptionFeedResultRepository(LiteDatabase database)
             : base(database)
         {
             _collection.EnsureIndex(x => x.SourceType);

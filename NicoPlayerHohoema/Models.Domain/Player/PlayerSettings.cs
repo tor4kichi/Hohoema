@@ -342,6 +342,6 @@ namespace Hohoema.Models.Domain.Player
 			set { SetProperty(ref _AutoMoveNextVideoOnPlaylistEmpty, value); }
 		}
 
-		#endregion
-	}
+        #endregion
+    }
 }

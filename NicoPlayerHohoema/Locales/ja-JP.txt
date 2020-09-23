@@ -215,6 +215,12 @@ ShowErrorLogButtonTitle = エラーログ
 CopyAppVersionToClipboard = バージョン番号をコピー
 EnableDebugModeToggleSwitchTitle = デバッグモードを有効
 
+UserDataSettings = バックアップ
+BackupUserData = バックアップを書き出す
+RestoreUserData = バックアップを読み込む
+BackupRestoreComplete = バックアップから復元が完了しました
+BackupRestoreFailed = バックアップからの復元に失敗しました
+
 
 #### Niconico General ####
 PrivateReasonType.PostedBy = 投稿者削除
@@ -825,8 +831,7 @@ MylistDefaultSort.Length_Descending = 動画時間が短い順
 
 #### User Series ####
 UserSeriesListWithOwnerName = {0} のシリーズ一覧
-
-
+NoItems_UserSeries = シリーズはありません
 
 
 

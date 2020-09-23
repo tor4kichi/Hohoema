@@ -31,7 +31,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
     public sealed class NicoVideoOwnerRepository : LiteDBServiceBase<NicoVideoOwner>
     {
-        public NicoVideoOwnerRepository(ILiteDatabase liteDatabase) : base(liteDatabase)
+        public NicoVideoOwnerRepository(LiteDatabase liteDatabase) : base(liteDatabase)
         {
         }
 
@@ -47,7 +47,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         public List<NicoVideoOwner> SearchFromScreenName(string keyword)
         {
-            return _collection.Query().Where(x => x.ScreenName.Contains(keyword)).ToList();
+            return _collection.Find(x => x.ScreenName.Contains(keyword)).ToList();
         }
 
     }

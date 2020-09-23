@@ -33,6 +33,8 @@ using Hohoema.Models.UseCase.NicoVideoPlayer;
 using System.Reactive.Disposables;
 using System.Collections.ObjectModel;
 using Uno.Extensions;
+using Windows.Storage.Pickers;
+using I18NPortable;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -51,10 +53,11 @@ namespace Hohoema.Presentation.ViewModels
             AppearanceSettings appearanceSettings,
             VideoCacheSettings cacheSettings,
             ApplicationLayoutManager applicationLayoutManager,
-            VideoFilteringSettings videoFilteringRepository
+            VideoFilteringSettings videoFilteringRepository,
+            BackupManager backupManager
             )
         {
-            ToastNotificationService = toastService;
+            _notificationService = toastService;
             RankingSettings = rankingSettings;
             _HohoemaDialogService = dialogService;
             PlayerSettings = playerSettings;
@@ -63,6 +66,7 @@ namespace Hohoema.Presentation.ViewModels
             CacheSettings = cacheSettings;
             ApplicationLayoutManager = applicationLayoutManager;
             _videoFilteringRepository = videoFilteringRepository;
+            _backupManager = backupManager;
 
             // NG Video Owner User Id
             NGVideoOwnerUserIdEnable = _videoFilteringRepository.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable)
@@ -232,9 +236,10 @@ namespace Hohoema.Presentation.ViewModels
 
         Services.DialogService _HohoemaDialogService;
         private readonly VideoFilteringSettings _videoFilteringRepository;
+        private readonly BackupManager _backupManager;
         private readonly CommentFiltering _commentFiltering;
 
-        public NotificationService ToastNotificationService { get; private set; }
+        public NotificationService _notificationService { get; private set; }
         public PlayerSettings PlayerSettings { get; }
         public VideoRankingSettings RankingSettings { get; }
         public NicoRepoSettings ActivityFeedSettings { get; }
@@ -602,11 +607,103 @@ namespace Hohoema.Presentation.ViewModels
         {
             _videoFilteringRepository.RemoveHiddenVideoOwnerId(userId);
         }
+
+
+
+        #region Backup
+
+        private DelegateCommand _ExportBackupCommand;
+        public DelegateCommand ExportBackupCommand =>
+            _ExportBackupCommand ?? (_ExportBackupCommand = new DelegateCommand(ExecuteExportBackupCommand));
+
+        async void ExecuteExportBackupCommand()
+        {
+            var picker = new FileSavePicker();
+            picker.DefaultFileExtension = ".json";
+            picker.SuggestedFileName = $"hohoema-backup-{DateTime.Today:yyyy-MM-dd}";
+            picker.FileTypeChoices.Add("Hohoema backup File", new List<string>() { ".json" });
+            var file = await picker.PickSaveFileAsync();
+            if (file != null)
+            {
+                await _backupManager.BackupAsync(file, default);
+
+                _notificationService.ShowInAppNotification(new InAppNotificationPayload { Content = "バックアップを保存しました" });
+            }
+        }
+
+
+        private DelegateCommand _ImportBackupCommand;
+        public DelegateCommand ImportBackupCommand =>
+            _ImportBackupCommand ?? (_ImportBackupCommand = new DelegateCommand(ExecuteImportBackupCommand));
+
+        async void ExecuteImportBackupCommand()
+        {
+            var picker = new FileOpenPicker();
+            picker.ViewMode = PickerViewMode.List;
+            picker.FileTypeFilter.Add(".json");
+            var file = await picker.PickSingleFileAsync();
+            if (file != null)
+            {
+                try
+                {
+                    var backup = await _backupManager.ReadBackupContainerAsync(file, default);
+
+                    Action<BackupContainer>[] BackupActions = new Action<BackupContainer>[]
+                    {
+                        _backupManager.RestoreLocalMylist,
+                        _backupManager.RestoreSubscription,
+                        _backupManager.RestorePin,
+                        _backupManager.RestoreRankingSettings,
+                        _backupManager.RestoreVideoFilteringSettings,
+                        _backupManager.RestorePlayerSettings,
+                        _backupManager.RestoreAppearanceSettings,
+                        _backupManager.RestoreNicoRepoSettings,
+                        _backupManager.RestoreCommentSettings,
+                    };
+
+                    List<Exception> exceptions = new List<Exception>();
+                    foreach (var backupAction in BackupActions)
+                    {
+                        try
+                        {
+                            backupAction(backup);
+                        }
+                        catch (Exception e)
+                        {
+                            exceptions.Add(e);
+                        }
+                    }
+ 
+                    _notificationService.ShowInAppNotification(new InAppNotificationPayload { Content = "BackupRestoreComplete".Translate() });
+
+                    NGVideoOwnerUserIds = _videoFilteringRepository.GetVideoOwnerIdFilteringEntries();
+                    RaisePropertyChanged(nameof(NGVideoOwnerUserIds));
+
+                    VideoTitleFilteringItems.Clear();
+                    VideoTitleFilteringItems.AddRange(_videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
+                        new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText))
+                        );
+
+                    if (exceptions.Any())
+                    {
+                        throw new AggregateException(exceptions);
+                    }
+                }
+                catch
+                {
+                    _notificationService.ShowInAppNotification(new InAppNotificationPayload { Content = "BackupRestoreFailed".Translate() });
+                    throw;
+                }
+            }
+        }
+
+
+        #endregion
     }
 
 
 
-	public class RemovableListItem<T> : IRemovableListItem
+    public class RemovableListItem<T> : IRemovableListItem
 
     {
 		public T Source { get; private set; }

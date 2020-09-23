@@ -6,7 +6,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 {
     public sealed class NicoVideoOwnerCacheRepository : LiteDBServiceBase<NicoVideoOwner>
     {
-        public NicoVideoOwnerCacheRepository(LiteDB.ILiteDatabase liteDatabase) : base(liteDatabase)
+        public NicoVideoOwnerCacheRepository(LiteDB.LiteDatabase liteDatabase) : base(liteDatabase)
         {
         }
 

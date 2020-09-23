@@ -238,7 +238,12 @@ namespace Hohoema.Presentation.ViewModels
 
         SubscriptionToken _watchedDisposable;
 
-        public bool IsInitialized { get; private set; }
+        private bool _IsInitialized;
+        public bool IsInitialized
+        {
+            get { return _IsInitialized; }
+            set { SetProperty(ref _IsInitialized, value); }
+        }
 
         static FastAsyncLock _initializeLock = new FastAsyncLock();
 
@@ -411,7 +416,7 @@ namespace Hohoema.Presentation.ViewModels
                     SetTitle(Data.Title);
                 }
 
-                if (Data == null)
+                if (Data?.Title == null)
                 {
                     var data = await Task.Run(async () =>
                     {

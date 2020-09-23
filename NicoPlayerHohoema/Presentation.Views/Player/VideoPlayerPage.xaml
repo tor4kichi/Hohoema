@@ -308,7 +308,9 @@
                   <!-- 左上 -->
                   <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
                     <!-- 閉じる -->
-                    <Button x:Name="CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" Background="Transparent" UseSystemFocusVisuals="True" Width="48" Height="48">
+                    <Button x:Name="CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" Background="Transparent" UseSystemFocusVisuals="True" Width="48" Height="48"
+                            XYFocusRight="{x:Bind ActionsCommandBar}"
+                            >
                       <iconPack:PackIconMaterial Kind="Close" />
                     </Button>
 
@@ -320,7 +322,9 @@
                     </Button>
                   </StackPanel>
                   <!-- 右上 -->
-                  <CommandBar x:Name="ActionsCommandBar" toolkit:DockPanel.Dock="Right" >
+                  <CommandBar x:Name="ActionsCommandBar" toolkit:DockPanel.Dock="Right" 
+                              XYFocusLeft="{x:Bind CloseButton}"
+                              >
                     <CommandBar.PrimaryCommands>
                       <AppBarButton x:Name="ShowVideoInfoButon" Label="{Binding Source=VideoInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
                       <AppBarButton Command="{x:Bind SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="{Binding Source=RelatedInfomation, Converter={StaticResource LocalizeConverter}}" />

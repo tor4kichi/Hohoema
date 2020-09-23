@@ -16,6 +16,7 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Uno.Disposables;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -65,8 +66,8 @@ namespace Hohoema.Presentation.ViewModels
         public LocalPlaylistDeleteCommand LocalPlaylistDeleteCommand { get; }
         public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
 
-        private IReadOnlyCollection<IVideoContent> _PlaylistItems;
-        public IReadOnlyCollection<IVideoContent> PlaylistItems
+        private IReadOnlyCollection<VideoInfoControlViewModel> _PlaylistItems;
+        public IReadOnlyCollection<VideoInfoControlViewModel> PlaylistItems
         {
             get { return _PlaylistItems; }
             set { SetProperty(ref _PlaylistItems, value); }
@@ -103,12 +104,20 @@ namespace Hohoema.Presentation.ViewModels
             RefreshItems();
         }
 
+        public override void OnNavigatedFrom(INavigationParameters parameters)
+        {
+            PlaylistItems.DisposeAll();
+            PlaylistItems = null;
+
+            base.OnNavigatedFrom(parameters);
+        }
+
 
         void RefreshItems()
         {
             if (Playlist is LocalPlaylist localPlaylist)
             {
-                var localPlaylistItems = new ObservableCollection<IVideoContent>(localPlaylist.GetPlaylistItems().ToList());
+                var localPlaylistItems = new ObservableCollection<VideoInfoControlViewModel>(localPlaylist.GetPlaylistItems().Select(x => new VideoInfoControlViewModel(x)).ToList());
                 PlaylistItems = localPlaylistItems;
 
                 Observable.FromEventPattern<LocalPlaylistItemRemovedEventArgs>(

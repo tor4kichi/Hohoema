@@ -104,6 +104,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         private readonly VideoIdFilteringRepository _videoIdFilteringRepository;
 
+
+        public List<VideoIdFilteringEntry> GetVideoIdFilteringEntries()
+        {
+            return _videoIdFilteringRepository.ReadAllItems();
+        }
+
         public bool IsHiddenVideoId(string id)
         {
             return _videoIdFilteringRepository.Exists(x => x.VideoId == id);
@@ -127,7 +133,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         public sealed class VideoIdFilteringRepository : LiteDBServiceBase<VideoIdFilteringEntry>
         {
-            public VideoIdFilteringRepository(ILiteDatabase liteDatabase) : base(liteDatabase)
+            public VideoIdFilteringRepository(LiteDatabase liteDatabase) : base(liteDatabase)
             {
             }
         }
@@ -177,7 +183,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         
         public sealed class VideoOwnerIdFilteringRepository : LiteDBServiceBase<VideoOwnerIdFilteringEntry>
         {
-            public VideoOwnerIdFilteringRepository(ILiteDatabase liteDatabase) : base(liteDatabase)
+            public VideoOwnerIdFilteringRepository(LiteDatabase liteDatabase) : base(liteDatabase)
             {
             }
 
@@ -215,6 +221,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         public VideoTitleFilteringEntry CreateVideoTitleFiltering()
         {
+            _cacheTitleFilteringEntry ??= _videoTitleFilteringRepository.ReadAllItems();
             var entry = _videoTitleFilteringRepository.CreateItem(new VideoTitleFilteringEntry());
             _cacheTitleFilteringEntry.Add(entry);
             return entry;
@@ -249,7 +256,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         public sealed class VideoTitleFilteringRepository : LiteDBServiceBase<VideoTitleFilteringEntry>
         {
-            public VideoTitleFilteringRepository(ILiteDatabase liteDatabase) : base(liteDatabase)
+            public VideoTitleFilteringRepository(LiteDatabase liteDatabase) : base(liteDatabase)
             {
                 _collection.EnsureIndex(x => x.Keyword);
             }

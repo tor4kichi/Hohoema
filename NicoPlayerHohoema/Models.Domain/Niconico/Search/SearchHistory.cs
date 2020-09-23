@@ -12,7 +12,7 @@ namespace Hohoema.Models.Domain.Niconico.Search
 {
     public class SearchHistoryRepository : LiteDBServiceBase<SearchHistory>
     {
-        public SearchHistoryRepository(ILiteDatabase liteDatabase) : base(liteDatabase)
+        public SearchHistoryRepository(LiteDatabase liteDatabase) : base(liteDatabase)
         {
             _collection.EnsureIndex(x => x.Keyword);
             _collection.EnsureIndex(x => x.Target);
@@ -20,13 +20,13 @@ namespace Hohoema.Models.Domain.Niconico.Search
 
         public List<SearchHistory> Get(int start, int count)
         {
-            return _collection.Query().Offset(start).Limit(count).ToList();
+            return _collection.Find(Query.All(), start, count).ToList();
         }
 
         public SearchTarget? LastSearchedTarget(string keyword)
         {
-            return _collection.Query()
-                .Where(x => x.Keyword == keyword)
+            return _collection
+                .Find(x => x.Keyword == keyword)
                 .OrderByDescending(x => x.LastUpdated)
                 .FirstOrDefault()?.Target;
         }

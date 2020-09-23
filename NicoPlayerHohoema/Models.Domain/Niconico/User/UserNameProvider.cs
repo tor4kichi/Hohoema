@@ -37,7 +37,7 @@
 
         public class UserNameRepository : LiteDBServiceBase<UserNameEntity>
         {
-            public UserNameRepository(ILiteDatabase database) : base(database)
+            public UserNameRepository(LiteDatabase database) : base(database)
             {
             }
 
