@@ -359,7 +359,7 @@
                 <TextBlock HorizontalAlignment="Right">
                                 v<Run Text="{Binding VersionText}" /></TextBlock>
               </Grid>
-              <Button Content="{Binding Source=ShowUpdateNote, Converter={StaticResource LocalizeConverter}}" Command="{Binding ShowUpdateNoticeCommand}" CommandParameter="{Binding CurrentVersion}" HorizontalAlignment="Right" />
+              <HyperlinkButton Content="{Binding Source=ShowUpdateNote, Converter={StaticResource LocalizeConverter}}" Command="{Binding ShowUpdateNoticeCommand}" CommandParameter="{Binding CurrentVersion}" HorizontalAlignment="Right" />
               <HyperlinkButton Content="{Binding Source=DevelopProjectPage_LinkTitle, Converter={StaticResource LocalizeConverter}}" Margin="0 0 0 8" NavigateUri="https://github.com/tor4kichi/Hohoema" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
               <HyperlinkButton Content="{Binding Source=PrivacyPolicy, Converter={StaticResource LocalizeConverter}}" Margin="0 0 0 8" NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
             </StackPanel>
