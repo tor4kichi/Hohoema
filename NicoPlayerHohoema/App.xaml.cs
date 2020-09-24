@@ -62,6 +62,7 @@ using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Niconico.UserFeature;
 using Prism.Commands;
+using Windows.System;
 
 namespace Hohoema
 {
@@ -565,12 +566,7 @@ namespace Hohoema
                 try
                 {
                     var dialogService = Container.Resolve<DialogService>();
-                    if (AppUpdateNotice.IsMinorVersionUpdated)
-                    {
-                        _ = dialogService.ShowLatestUpdateNotice();
-                        AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
-                    }
-                    else if (AppUpdateNotice.IsUpdated)
+                    if (AppUpdateNotice.IsUpdated)
                     {
                         var version = Windows.ApplicationModel.Package.Current.Id.Version;
                         var notificationService = Container.Resolve<NotificationService>();
@@ -584,11 +580,11 @@ namespace Hohoema
                             {
                                 new InAppNotificationCommand()
                                 {
-                                    Command = new DelegateCommand(() =>
+                                    Command = new DelegateCommand(async () =>
                                     {
-                                        _ = dialogService.ShowLatestUpdateNotice();
+                                        AppUpdateNotice.ShowReleaseNotePageOnBrowserAsync();
                                     }),
-                                    Label = "更新情報を確認"
+                                    Label = "更新情報を確認（ブラウザで表示）"
                                 }
                             }
                         });

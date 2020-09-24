@@ -830,7 +830,6 @@
       <SubType>Designer</SubType>
     </AppxManifest>
     <Content Include="Assets\Square44x44Logo.targetsize-32.png" />
-    <Content Include="Assets\_UpdateNotice.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
   </ItemGroup>

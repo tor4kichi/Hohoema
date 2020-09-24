@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.System;
 
 namespace Hohoema.Models.Domain.Helpers
 {
@@ -19,7 +20,7 @@ namespace Hohoema.Models.Domain.Helpers
 
 #if DEBUG
         private static bool __ForceNoticeIsMinorVersionUpdated = false;
-        private static bool __ForceNoticeUpdate = false;
+        private static bool __ForceNoticeUpdate = true;
 #endif
 
         private static List<Version> _UpdateNoticeAvairableVersions;
@@ -113,6 +114,10 @@ namespace Hohoema.Models.Domain.Helpers
             return await FileIO.ReadTextAsync(file);
         }
 
+        public static async Task<bool> ShowReleaseNotePageOnBrowserAsync()
+        {
+            return await Launcher.LaunchUriAsync(new Uri("https://github.com/tor4kichi/Hohoema/releases"));
+        }
 
 
     }
