@@ -59,14 +59,38 @@ namespace Hohoema.Models.Domain
             )
         {
             UpdateServiceStatus(NiconicoSignInStatus.Failed);
-
+            
             NetworkInformation.NetworkStatusChanged += (args) =>
             {
-                Scheduler.Schedule(async () => 
+                if (Helpers.InternetConnection.IsInternet())
                 {
-                    await CheckSignedInStatus();
-                });
+                    var lastStatus = this.ServiceStatus;
+                    Scheduler.Schedule(async () =>
+                    {
+                        if (lastStatus == HohoemaAppServiceLevel.LoggedIn)
+                        {
+                            var status = await CheckSignedInStatus();
+
+                            if (status == NiconicoSignInStatus.Failed)
+                            {
+                                status = await SignInWithPrimaryAccount();
+                            }
+                        }
+                        else
+                        {
+                            UpdateServiceStatus();
+                        }
+                    });
+                }
+                else
+                {
+                    Scheduler.Schedule(async () =>
+                    {
+                        UpdateServiceStatus();
+                    });
+                }
             };
+            
             Scheduler = scheduler;
         }
 

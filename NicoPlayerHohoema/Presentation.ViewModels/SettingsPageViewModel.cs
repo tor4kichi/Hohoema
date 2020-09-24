@@ -35,6 +35,7 @@ using System.Collections.ObjectModel;
 using Uno.Extensions;
 using Windows.Storage.Pickers;
 using I18NPortable;
+using Hohoema.Models.Domain.Helpers;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -414,7 +415,7 @@ namespace Hohoema.Presentation.ViewModels
                 return _ShowUpdateNoticeCommand
                     ?? (_ShowUpdateNoticeCommand = new DelegateCommand(async () =>
                     {
-                        await _HohoemaDialogService.ShowLatestUpdateNotice();
+                        await AppUpdateNotice.ShowReleaseNotePageOnBrowserAsync();
                     }));
             }
         }

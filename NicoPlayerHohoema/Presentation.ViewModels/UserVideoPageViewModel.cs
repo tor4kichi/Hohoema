@@ -80,6 +80,7 @@ namespace Hohoema.Presentation.ViewModels
                 if (User != null)
                 {
                     UserInfo.Value = new UserInfoViewModel(User.User.Nickname, User.User.Id.ToString(), User.User.Icons.Small.OriginalString);
+                    UserName = User.User.Nickname;
                 }
                 else
                 {
