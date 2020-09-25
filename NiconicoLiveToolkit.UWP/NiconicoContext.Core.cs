@@ -14,6 +14,7 @@ using NiconicoLiveToolkit.Live.Search;
 using Windows.Storage.Streams;
 using System.IO;
 using NiconicoLiveToolkit.User;
+using NiconicoLiveToolkit.Video;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -36,6 +37,7 @@ namespace NiconicoLiveToolkit
             Live = new LiveClient(this);
             Account = new AccountClient(this);
             User = new UserClient(this);
+            Video = new VideoClient(this);
         }
 
         public HttpClient HttpClient { get; }
@@ -46,6 +48,8 @@ namespace NiconicoLiveToolkit
         public LiveClient Live { get; }
 
         public UserClient User { get; }
+
+        public VideoClient Video { get; }
 
         #region 
 
