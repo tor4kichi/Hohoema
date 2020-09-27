@@ -454,8 +454,10 @@ namespace Hohoema.Presentation.ViewModels
                         topicType == NicoRepoItemTopic.NicoVideo_Channel_Video_Upload)
                 {
                     var vm = new NicoRepoVideoTimeline(item, topicType);
-                    await vm.InitializeAsync(ct);
+                    
                     yield return vm;
+
+                    _ = vm.InitializeAsync(ct);
                 }
                 else
                 {

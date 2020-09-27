@@ -420,8 +420,12 @@ namespace Hohoema.Presentation.ViewModels
         }
 
 
+        static FastAsyncLock _initializeLock = new FastAsyncLock();
+
         public async Task InitializeAsync(CancellationToken ct)
         {
+            using var releaser = await _initializeLock.LockAsync(ct);
+
             if (Data?.Title != null)
             {
                 SetTitle(Data.Title);
@@ -520,6 +524,8 @@ namespace Hohoema.Presentation.ViewModels
             SetThumbnailImage(data.ThumbnailUrl.OriginalString);
             SetSubmitDate(data.SubmitTime);
             SetVideoDuration(data.Length);
+
+            IsInitialized = true;
         }
 
 
@@ -533,6 +539,8 @@ namespace Hohoema.Presentation.ViewModels
             SetSubmitDate(data.CreateTime);
             SetVideoDuration(data.Length);
             SetDescription((int)data.ViewCount, (int)data.CommentCount, (int)data.MylistCount);
+
+            IsInitialized = true;
         }
 
 
@@ -547,6 +555,8 @@ namespace Hohoema.Presentation.ViewModels
             SetSubmitDate(data.Video.UploadTime);
             SetVideoDuration(data.Video.Length);
             SetDescription((int)data.Video.ViewCount, (int)data.Thread.GetCommentCount(), (int)data.Video.MylistCount);
+
+            IsInitialized = true;
         }
     }
 

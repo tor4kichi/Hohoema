@@ -389,8 +389,9 @@ namespace Hohoema.Presentation.ViewModels
                 vm.SetThumbnailImage(moreData.ThumbnailUrl);
                 vm.SetSubmitDate(item.PubDate.DateTime);
                 */
-                await vm.InitializeAsync(ct);
                 yield return vm;
+
+                _ = vm.InitializeAsync(ct).ConfigureAwait(false);
 
                 index++;
 
