@@ -29,20 +29,20 @@ using Hohoema.Models.Domain.Niconico.UserFeature;
 
 namespace Hohoema.Presentation.ViewModels
 {
-
-
-    public class VideoInfoControlViewModel : HohoemaListingPageItemBase, IVideoContentWritable, Views.Extensions.ListViewBase.IDeferInitialize
+    public class VideoInfoControlViewModel : BindableBase, IVideoContent, IDisposable
     {
-        public VideoInfoControlViewModel(NicoVideo data)            
+        static VideoInfoControlViewModel()
         {
-            VideoCacheManager = App.Current.Container.Resolve<VideoCacheManager>();
-            NicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
+            _nicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
             _ngSettings = App.Current.Container.Resolve<VideoFilteringSettings>();
             _cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
             _scheduler = App.Current.Container.Resolve<IScheduler>();
             _nicoVideoRepository = App.Current.Container.Resolve<NicoVideoCacheRepository>();
             _videoPlayedHistoryRepository = App.Current.Container.Resolve<VideoPlayedHistoryRepository>();
+        }
 
+        public VideoInfoControlViewModel(NicoVideo data)            
+        {
             RawVideoId = data?.RawVideoId ?? RawVideoId;
             Data = data;
 
@@ -77,13 +77,11 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        protected override void OnDispose()
+        void IDisposable.Dispose()
         {
             _ngSettings.VideoOwnerFilterAdded -= _ngSettings_VideoOwnerFilterAdded;
             _ngSettings.VideoOwnerFilterRemoved -= _ngSettings_VideoOwnerFilterRemoved;
             UnsubscriptionWatched();
-
-            base.OnDispose();
         }
 
 
@@ -140,13 +138,12 @@ namespace Hohoema.Presentation.ViewModels
         }
 
 
-        public NicoVideoProvider NicoVideoProvider { get; }
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
-        private readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
-        public VideoCacheManager VideoCacheManager { get; }
-        private VideoFilteringSettings _ngSettings { get; }
-        private VideoCacheManager _cacheManager;
-        private readonly IScheduler _scheduler;
+        private static readonly NicoVideoProvider _nicoVideoProvider;
+        private static readonly NicoVideoCacheRepository _nicoVideoRepository;
+        private static readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
+        private static readonly VideoFilteringSettings _ngSettings;
+        private static readonly VideoCacheManager _cacheManager;
+        private static readonly IScheduler _scheduler;
 
         public string RawVideoId { get; }
         public NicoVideo Data { get; private set; }
@@ -162,8 +159,13 @@ namespace Hohoema.Presentation.ViewModels
 
         public VideoStatus VideoStatus { get; private set; }
 
-        bool Views.Extensions.ListViewBase.IDeferInitialize.IsInitialized { get; set; }
 
+        private string _title;
+        public string Label
+        {
+            get { return _title; }
+            set { SetProperty(ref _title, value); }
+        }
 
         private TimeSpan _length;
         public TimeSpan Length
@@ -172,6 +174,13 @@ namespace Hohoema.Presentation.ViewModels
             set { SetProperty(ref _length, value); }
         }
 
+
+        private string _Description;
+        public string Description
+        {
+            get { return _Description; }
+            set { SetProperty(ref _Description, value); }
+        }
 
         private DateTime _postedAt;
         public DateTime PostedAt
@@ -218,8 +227,6 @@ namespace Hohoema.Presentation.ViewModels
             set { SetProperty(ref _isDeleted, value); }
         }
 
-        bool IVideoContent.IsDeleted => IsDeleted;
-
 
         private FilteredResult _VideoHiddenInfo;
         public FilteredResult VideoHiddenInfo
@@ -245,7 +252,13 @@ namespace Hohoema.Presentation.ViewModels
             set { SetProperty(ref _IsInitialized, value); }
         }
 
-        static FastAsyncLock _initializeLock = new FastAsyncLock();
+        private PrivateReasonType? _PrivateReason;
+        public PrivateReasonType? PrivateReason
+        {
+            get { return _PrivateReason; }
+            set { SetProperty(ref _PrivateReason, value); }
+        }
+
 
         #region 
 
@@ -407,73 +420,38 @@ namespace Hohoema.Presentation.ViewModels
         }
 
 
-        async Task Views.Extensions.ListViewBase.IDeferInitialize.DeferInitializeAsync(CancellationToken ct)
+        public async Task InitializeAsync(CancellationToken ct)
         {
-            //using (await _initializeLock.LockAsync(ct))
+            if (Data?.Title != null)
             {
-                if (Data?.Title != null)
-                {
-                    SetTitle(Data.Title);
-                }
+                SetTitle(Data.Title);
+            }
 
-                if (Data?.Title == null)
-                {
-                    var data = await Task.Run(async () =>
-                    {
-                        if (IsDisposed)
-                        {
-                            Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
-                            return null;
-                        }
+            if (Data?.Title == null || Data?.ProviderId == null)
+            {
+                var data = await _nicoVideoProvider.GetNicoVideoInfo(RawVideoId);
 
-                        if (NicoVideoProvider != null)
-                        {
-                            return await NicoVideoProvider.GetNicoVideoInfo(RawVideoId);
-                        }
+                Data = data;
+            }
 
-                    // オフライン時はローカルDBの情報を利用する
-                    if (Data == null)
-                        {
-                            return _nicoVideoRepository.Get(RawVideoId);
-                        }
-
-                        return null;
-                    }, ct);
-
-                    if (data == null) { return; }
-
-                    Data = data;
-                }
+            if (Data != null)
+            {
+                SetupFromThumbnail(Data);
 
                 SubscriptionWatchedIfNotWatch(Data);
                 UpdateIsHidenVideoOwner(Data);
                 SubscribeCacheState(Data);
-
-                ct.ThrowIfCancellationRequested();
-
-                if (IsDisposed)
-                {
-                    Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
-                    return;
-                }
-
-                ct.ThrowIfCancellationRequested();
-
-                SetupFromThumbnail(Data);
-
-                IsInitialized = true;
-
-                await Task.Delay(25);
             }
+
+            ct.ThrowIfCancellationRequested();
+
+            IsInitialized = true;
         }
 
 
-        bool _isTitleNgCheckProcessed = false;
-        bool _isOwnerIdNgCheckProcessed = false;
-
         public void SetupFromThumbnail(NicoVideo info)
         {
-            Debug.WriteLine("thumbnail reflect : " + info.RawVideoId);
+//            Debug.WriteLine("thumbnail reflect : " + info.RawVideoId);
             
             Label = info.Title;
             PostedAt = info.PostedAt;
@@ -482,60 +460,8 @@ namespace Hohoema.Presentation.ViewModels
             MylistCount = info.MylistCount;
             CommentCount = info.CommentCount;
             ThumbnailUrl = info.ThumbnailUrl;
-
-            // NG判定
-            /*
-            if (_ngSettings != null)
-            {
-                NGResult ngResult = null;
-
-                // タイトルをチェック
-                if (!_isTitleNgCheckProcessed && !string.IsNullOrEmpty(info.Title))
-                {
-                    ngResult = _ngSettings.IsNGVideoTitle(info.Title);
-                    _isTitleNgCheckProcessed = true;
-                }
-
-                // 投稿者IDをチェック
-                if (ngResult == null && 
-                    !_isOwnerIdNgCheckProcessed && 
-                    !string.IsNullOrEmpty(info.Owner?.OwnerId)
-                    )
-                {
-                    ngResult = _ngSettings.IsNgVideoOwnerId(info.Owner.OwnerId);
-                    _isOwnerIdNgCheckProcessed = true;
-                }
-
-                if (ngResult != null)
-                {
-                    IsVisible = false;
-                    var ngDesc = !string.IsNullOrWhiteSpace(ngResult.NGDescription) ? ngResult.NGDescription : ngResult.Content;
-                    InvisibleDescription = $"NG動画";
-                }
-            }*/
-
-            UpdateIsHidenVideoOwner(info);
-
-
-            SetTitle(info.Title);
-            SetThumbnailImage(info.ThumbnailUrl);
-            SetSubmitDate(info.PostedAt);
-            SetVideoDuration(info.Length);
-            if (!info.IsDeleted)
-            {
-                SetDescription(info.ViewCount, info.CommentCount, info.MylistCount);
-            }
-            else
-            {
-                if (info.PrivateReasonType != PrivateReasonType.None)
-                {
-                    Description = info.PrivateReasonType.Translate();
-                }
-                else
-                {
-                    Description = "視聴不可（配信終了など）";
-                }
-            }
+            IsDeleted = info.IsDeleted;
+            PrivateReason = Data.PrivateReasonType;
 
             if (info.Owner != null)
             {
@@ -548,7 +474,9 @@ namespace Hohoema.Presentation.ViewModels
 
         internal void SetDescription(int viewcount, int commentCount, int mylistCount)
         {
-            Description = $"再生:{viewcount.ToString("N0")} コメ:{commentCount.ToString("N0")} マイ:{mylistCount.ToString("N0")}";
+            ViewCount = viewcount;
+            CommentCount = commentCount;
+            MylistCount = mylistCount;
         }
 
         internal void SetTitle(string title)
@@ -557,31 +485,17 @@ namespace Hohoema.Presentation.ViewModels
         }
         internal void SetSubmitDate(DateTime submitDate)
         {
-            OptionText = submitDate.ToString("yyyy/MM/dd HH:mm");
             PostedAt = submitDate;
         }
 
         internal void SetVideoDuration(TimeSpan duration)
         {
             Length = duration;
-            string timeText;
-            if (duration.Hours > 0)
-            {
-                timeText = duration.ToString(@"hh\:mm\:ss");
-            }
-            else
-            {
-                timeText = duration.ToString(@"mm\:ss");
-            }
-            ImageCaption = timeText;
         }
 
         internal void SetThumbnailImage(string thumbnailImage)
         {
-            if (!string.IsNullOrWhiteSpace(thumbnailImage))
-            {
-                AddImageUrl(thumbnailImage);
-            }
+            ThumbnailUrl = thumbnailImage;
         }
 
 
@@ -634,7 +548,6 @@ namespace Hohoema.Presentation.ViewModels
             SetVideoDuration(data.Video.Length);
             SetDescription((int)data.Video.ViewCount, (int)data.Thread.GetCommentCount(), (int)data.Video.MylistCount);
         }
-
     }
 
 

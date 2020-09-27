@@ -33,8 +33,6 @@
               xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
               IsItemClickEnabled="True"
               Padding="{x:Bind ItemsPanelPadding, Mode=OneWay}"
-              xmlns:ex="using:Hohoema.Presentation.Views.Extensions"
-              ex:ListViewBase.DeferInitialize="True"
               >
 
       <i:Interaction.Behaviors>

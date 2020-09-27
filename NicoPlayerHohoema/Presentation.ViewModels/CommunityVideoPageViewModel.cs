@@ -180,7 +180,8 @@ namespace Hohoema.Presentation.ViewModels
 
 			foreach (var item in Items.Skip(start).Take(count))
             {
-				yield return new CommunityVideoInfoViewModel(item);
+				var vm = new CommunityVideoInfoViewModel(item);
+				yield return vm;
 
 				ct.ThrowIfCancellationRequested();
 			}

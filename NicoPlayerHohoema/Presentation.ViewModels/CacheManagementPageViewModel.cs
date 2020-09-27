@@ -325,6 +325,7 @@ namespace Hohoema.Presentation.ViewModels
             {
                 var vm = new CacheVideoViewModel(item.VideoId);
                 vm.CacheRequestTime = item.RequestAt;
+                await vm.InitializeAsync(ct);
                 yield return vm;
 
                 ct.ThrowIfCancellationRequested();

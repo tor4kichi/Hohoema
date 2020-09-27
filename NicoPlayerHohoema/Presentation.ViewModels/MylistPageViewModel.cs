@@ -799,7 +799,7 @@ namespace Hohoema.Presentation.ViewModels
 
             foreach (var item in items)
             {
-                yield return item;
+                yield return new VideoInfoControlViewModel(item);
             }
         }
 

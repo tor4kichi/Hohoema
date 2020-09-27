@@ -173,7 +173,8 @@ namespace Hohoema.Presentation.ViewModels
                 vm.SetThumbnailImage(item.Thumbnail.ListingUrl.OriginalString);
                 vm.SetSubmitDate(item.RegisteredAt.DateTime);
                 vm.SetVideoDuration(TimeSpan.FromSeconds(item.Duration));
-
+                vm.SetDescription((int)item.Count.View, (int)item.Count.Comment, (int)item.Count.Mylist);
+                await vm.InitializeAsync(ct);
                 yield return vm;
 
                 ct.ThrowIfCancellationRequested();

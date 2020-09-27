@@ -124,7 +124,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
             return mylistGroups;
         }
 
-        public async Task<List<IVideoContent>> GetLoginUserMylistItemsAsync(IMylist mylist, MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
+        public async Task<List<NicoVideo>> GetLoginUserMylistItemsAsync(IMylist mylist, MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
         {
             if (mylist.UserId != NiconicoSession.UserIdString)
             {
@@ -146,7 +146,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
                     _loginUserMylistItemIdRepository.AddItem(item.ItemId.ToString(), mylist.Id, item.WatchId);
                 }
 
-                return items.Select(x => MylistDataToNicoVideoData(x)).Cast<IVideoContent>().ToList();
+                return items.Select(x => MylistDataToNicoVideoData(x)).Cast<NicoVideo>().ToList();
 
             }
             else
@@ -163,7 +163,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
                     _loginUserMylistItemIdRepository.AddItem(item.ItemId.ToString(), mylist.Id, item.WatchId);
                 }
 
-                return items.Select(x => MylistDataToNicoVideoData(x)).Cast<IVideoContent>().ToList();
+                return items.Select(x => MylistDataToNicoVideoData(x)).ToList();
             }
         }
 

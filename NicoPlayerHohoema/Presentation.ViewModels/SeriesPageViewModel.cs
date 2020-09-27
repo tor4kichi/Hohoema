@@ -159,6 +159,7 @@ namespace Hohoema.Presentation.ViewModels
                 itemVM.SetVideoDuration(item.Duration);
                 itemVM.SetDescription(item.WatchCount, item.CommentCount, item.MylistCount);
                 itemVM.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
+                await itemVM.InitializeAsync(ct);
                 yield return itemVM;
 
                 ct.ThrowIfCancellationRequested();

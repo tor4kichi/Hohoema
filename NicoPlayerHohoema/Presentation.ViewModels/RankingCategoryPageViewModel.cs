@@ -380,15 +380,16 @@ namespace Hohoema.Presentation.ViewModels
             foreach (var item in RankingRss.Items.Skip(head).Take(count))
             {
                 var vm = new RankedVideoInfoControlViewModel(item.GetVideoId());
-                    
-                vm.Rank = (uint)(head + index + 1);
 
+                vm.Rank = (uint)(head + index + 1);
+                /*
                 vm.SetTitle(item.GetRankTrimmingTitle());
                 var moreData = item.GetMoreData();
                 vm.SetVideoDuration(moreData.Length);
                 vm.SetThumbnailImage(moreData.ThumbnailUrl);
                 vm.SetSubmitDate(item.PubDate.DateTime);
-
+                */
+                await vm.InitializeAsync(ct);
                 yield return vm;
 
                 index++;
