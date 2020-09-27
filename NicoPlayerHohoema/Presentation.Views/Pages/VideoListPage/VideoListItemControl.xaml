@@ -80,6 +80,9 @@
           <Run Text="{Binding PostedAt, Converter={StaticResource DateTimeToString}, Mode=OneWay}" />
           <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_PostAt_Short}" />
         </TextBlock>
+        <TextBlock x:Name="PrivteReasonTextBlock" Visibility="Collapsed" Opacity="0.7" FontSize="13" Foreground="{ThemeResource SystemAccentColor}" TextLineBounds="Tight">
+          <Run Text="{Binding PrivateReasonType, Converter={StaticResource LocalizeConverter}}" />
+        </TextBlock>
       </StackPanel>
 
 
@@ -155,6 +158,17 @@
           <VisualState.Setters>
             <Setter Target="UserControlRoot.Opacity"
                     Value="0.7" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsDeleted}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PrivteReasonTextBlock.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

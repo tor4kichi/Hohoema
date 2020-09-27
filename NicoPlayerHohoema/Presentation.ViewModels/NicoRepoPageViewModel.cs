@@ -32,7 +32,7 @@ using Uno.Extensions;
 
 namespace Hohoema.Presentation.ViewModels
 {
-    public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<HohoemaListingPageItemBase>, INavigatedAwareAsync
+    public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<INicoRepoItem>, INavigatedAwareAsync
     {
         public NicoRepoPageViewModel(
             IScheduler scheduler,
@@ -111,7 +111,7 @@ namespace Hohoema.Presentation.ViewModels
             return base.CheckNeedUpdateOnNavigateTo(mode);
         }
 
-        protected override IIncrementalSource<HohoemaListingPageItemBase> GenerateIncrementalSource()
+        protected override IIncrementalSource<INicoRepoItem> GenerateIncrementalSource()
         {
             if (DisplayNicoRepoItemTopics.Count == 0)
             {
@@ -156,7 +156,7 @@ namespace Hohoema.Presentation.ViewModels
     }
 
 
-    public class NicoRepoLiveTimeline : LiveInfoListItemViewModel, ILiveContent
+    public class NicoRepoLiveTimeline : LiveInfoListItemViewModel, ILiveContent, INicoRepoItem
     {
         public NicoRepoLiveTimeline(NicoRepoTimelineItem timelineItem, NicoRepoItemTopic itemTopic) 
             : base(timelineItem.Program.Id)
@@ -207,7 +207,12 @@ namespace Hohoema.Presentation.ViewModels
         public string BroadcasterId => CommunityGlobalId.ToString();
     }
 
-    public class NicoRepoVideoTimeline : VideoInfoControlViewModel, IVideoContent
+    public interface INicoRepoItem
+    {
+        NicoRepoItemTopic ItemTopic { get; }
+    }
+
+    public class NicoRepoVideoTimeline : VideoInfoControlViewModel, IVideoContent, INicoRepoItem
     {
         public NicoRepoVideoTimeline(NicoRepoTimelineItem timelineItem, NicoRepoItemTopic itemType) 
             : base(timelineItem.Video.Id)
@@ -220,13 +225,14 @@ namespace Hohoema.Presentation.ViewModels
                 this.Label = TimelineItem.Video.Title;
                 if (TimelineItem.Video.ThumbnailUrl.Small != null)
                 {
-                    AddImageUrl(TimelineItem.Video.ThumbnailUrl.Small);
+                    ThumbnailUrl = TimelineItem.Video.ThumbnailUrl.Small;
                 }
                 else if (TimelineItem.Video.ThumbnailUrl.Normal != null)
                 {
-                    AddImageUrl(TimelineItem.Video.ThumbnailUrl.Normal);
+                    ThumbnailUrl = TimelineItem.Video.ThumbnailUrl.Normal;
                 }
-                this.OptionText = $"{TimelineItem.CreatedAt.ToString()}";
+
+//                this.OptionText = $"{TimelineItem.CreatedAt.ToString()}";
             }
 
             ItempTopicDescription = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, TimelineItem);
@@ -307,7 +313,7 @@ namespace Hohoema.Presentation.ViewModels
     }
 
 
-    public class LoginUserNicoRepoTimelineSource : HohoemaIncrementalSourceBase<HohoemaListingPageItemBase>
+    public class LoginUserNicoRepoTimelineSource : HohoemaIncrementalSourceBase<INicoRepoItem>
     {
         public List<NicoRepoItemTopic> AllowedNicoRepoItemType { get; }
 
@@ -396,7 +402,7 @@ namespace Hohoema.Presentation.ViewModels
 
         DateTime NiconamaDisplayTime = DateTime.Now - TimeSpan.FromHours(6);
 
-        protected override async IAsyncEnumerable<HohoemaListingPageItemBase> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
+        protected override async IAsyncEnumerable<INicoRepoItem> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             var tail = head + count;
             var prevCount = TimelineItems.Count;
@@ -447,7 +453,11 @@ namespace Hohoema.Presentation.ViewModels
                         topicType == NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video ||
                         topicType == NicoRepoItemTopic.NicoVideo_Channel_Video_Upload)
                 {
-                    yield return new NicoRepoVideoTimeline(item, topicType);
+                    var vm = new NicoRepoVideoTimeline(item, topicType);
+                    
+                    yield return vm;
+
+                    _ = vm.InitializeAsync(ct);
                 }
                 else
                 {

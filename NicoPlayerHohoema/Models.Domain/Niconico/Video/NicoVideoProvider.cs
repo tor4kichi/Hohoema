@@ -37,7 +37,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         }
 
 
-       
+        NiconicoLiveToolkit.Video.VideoClient VideoClient => NiconicoSession.LiveContext.Video;
 
 
         static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(5);
@@ -97,22 +97,22 @@ namespace Hohoema.Models.Domain.Niconico.Video
                 {
                     var res = await ContextActionAsync(async context =>
                     {
-                        return await context.Search.GetVideoInfoAsync(rawVideoId);
+                        return await VideoClient.GetVideoInfoAsync(rawVideoId);
                     });
 
-                    if (res.Status == "ok")
+                    if (res.IsOK)
                     {
                         var video = res.Video;
 
                         info.Title = video.Title;
                         info.VideoId = video.Id;
-                        info.Length = video.Length;
-                        info.PostedAt = video.FirstRetrieve;
+                        info.Length = TimeSpan.FromSeconds(video.LengthInSeconds);
+                        info.PostedAt = video.FirstRetrieve.DateTime;
                         info.ThumbnailUrl = video.ThumbnailUrl.OriginalString;
 
-                        info.ViewCount = (int)video.ViewCount;
-                        info.MylistCount = (int)video.MylistCount;
-                        info.CommentCount = (int)res.Thread.GetCommentCount();
+                        info.ViewCount = (int)video.ViewCounter;
+                        info.MylistCount = (int)video.MylistCounter;
+                        info.CommentCount = (int)res.Thread.NumRes;
                         info.Tags = res.Tags.TagInfo.Select(x => new NicoVideoTag(x.Tag)).ToList();
 
                         if (res.Video.ProviderType == "channel")
@@ -127,17 +127,17 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         {
                             info.Owner = new NicoVideoOwner()
                             {
-                                OwnerId = res.Video.UserId,
+                                OwnerId = res.Video.UserId.ToString(),
                                 UserType = res.Video.ProviderType == "regular" ? NicoVideoUserType.User : NicoVideoUserType.Channel
                             };
                         }
 
-                        info.IsDeleted = res.Video.IsDeleted;
-                        if (info.IsDeleted && int.TryParse(res.Video.__deleted, out int deleteType))
+                        info.IsDeleted = res.Video.Deleted != 0;
+                        if (info.IsDeleted)
                         {
                             try
                             {
-                                info.PrivateReasonType = (PrivateReasonType)deleteType;
+                                info.PrivateReasonType = (PrivateReasonType)res.Video.Deleted;
                             }
                             catch { }
                         }

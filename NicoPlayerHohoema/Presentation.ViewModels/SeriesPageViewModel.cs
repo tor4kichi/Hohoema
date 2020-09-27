@@ -161,6 +161,8 @@ namespace Hohoema.Presentation.ViewModels
                 itemVM.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
                 yield return itemVM;
 
+                _ = itemVM.InitializeAsync(ct);
+
                 ct.ThrowIfCancellationRequested();
             }
         }

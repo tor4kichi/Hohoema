@@ -40,7 +40,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
             return items;
         }
 
-        public Task<List<IVideoContent>> GetLoginUserMylistItemsAsync(MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
+        public Task<List<NicoVideo>> GetLoginUserMylistItemsAsync(MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
         {
             return _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this, sortKey, sortOrder, pageSize, page);
         }
