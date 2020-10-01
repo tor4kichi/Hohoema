@@ -463,7 +463,7 @@ namespace Hohoema.Presentation.ViewModels
             ViewCount = info.ViewCount;
             MylistCount = info.MylistCount;
             CommentCount = info.CommentCount;
-            ThumbnailUrl = info.ThumbnailUrl;
+            ThumbnailUrl ??= info.ThumbnailUrl;
             IsDeleted = info.IsDeleted;
             PrivateReason = Data.PrivateReasonType;
 
