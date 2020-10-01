@@ -27,6 +27,9 @@ namespace Hohoema.Models.UseCase.Playlist.Commands
 
         protected override void Execute(object parameter)
         {
+            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+
             if (parameter is IWatchHistory watchHistory)
             {
                 _ = _watchHistoryManager.RemoveHistoryAsync(watchHistory);

@@ -30,6 +30,9 @@ namespace Hohoema.Models.UseCase.Page.Commands
 
         protected override void Execute(object parameter)
         {
+            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+
             if (parameter is string text)
             {
                 var searched = _searchHistoryRepository.LastSearchedTarget(text);

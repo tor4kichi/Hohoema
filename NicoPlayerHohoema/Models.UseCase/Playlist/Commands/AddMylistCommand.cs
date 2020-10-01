@@ -39,6 +39,9 @@ namespace Hohoema.Models.UseCase.Playlist.Commands
         {
             if (parameter is IVideoContent content)
             {
+                var currentMethod= System.Reflection.MethodBase.GetCurrentMethod();
+                Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+
                 Mntone.Nico2.ContentManageResult result = Mntone.Nico2.ContentManageResult.Failed;
                 var targetMylist = await _playlistSelectDialogService.ChoiceMylist();
                 if (targetMylist is LocalPlaylist localPlaylist)

@@ -139,6 +139,9 @@ namespace Hohoema.Presentation.ViewModels
         // call from PrimaryWindowsCoreLayout.xaml.cs
         public void AddPin(HohoemaPin pin)
         {
+            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+
             if (pin != null)
             {
                 PinSettings.CreateItem(pin);
@@ -187,6 +190,9 @@ namespace Hohoema.Presentation.ViewModels
 
         void ExecuteRemovePinCommand(HohoemaPin pin)
         {
+            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+
             PinSettings.DeleteItem(pin.Id);
             Pins.Remove(pin);
         }
@@ -199,6 +205,9 @@ namespace Hohoema.Presentation.ViewModels
 
         async void ExecuteChangePinOverrideLabelCommand(HohoemaPin pin)
         {
+            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+
             var name = pin.OverrideLabel ?? $"{pin.Label} ({pin.PageType.Translate()})";
             var result = await _dialogService.GetTextAsync(
                 $"RenameX".Translate(name),

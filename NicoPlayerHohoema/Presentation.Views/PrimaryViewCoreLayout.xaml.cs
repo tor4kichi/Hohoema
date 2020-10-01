@@ -38,6 +38,9 @@ using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using Hohoema.Presentation.Services.Player;
 using Hohoema.Models.Domain.Application;
+using Microsoft.AppCenter.Analytics;
+using System.Text;
+using Microsoft.AppCenter.Crashes;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -61,7 +64,7 @@ namespace Hohoema.Presentation.Views
                 Debug.WriteLine(e.SourcePageType.AssemblyQualifiedName);
                 Debug.WriteLine(e.Exception.ToString());
 
-                _ = (App.Current as App).OutputErrorFile(e.Exception, e.SourcePageType?.AssemblyQualifiedName);
+                Crashes.TrackError(e.Exception);
             };
             
             // Resolve Page Title 
@@ -251,9 +254,9 @@ namespace Hohoema.Presentation.Views
                     //{
                     //    PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
                     //}
-
                     var prefix = behavior == NavigationStackBehavior.Root ? "/" : String.Empty;
-                    var result = await _contentFrameNavigationService.NavigateAsync($"{prefix}{pageType.ToString()}", parameter);
+                    var pageName = $"{prefix}{pageType}";
+                    var result = await _contentFrameNavigationService.NavigateAsync(pageName, parameter);
                     if (result.Success)
                     {
                         if (behavior == NavigationStackBehavior.NotRemember /*|| IsIgnoreRecordPageType(oldPageType)*/)
@@ -265,6 +268,11 @@ namespace Hohoema.Presentation.Views
 
                         GoBackCommand.RaiseCanExecuteChanged();
                     }
+
+                    Analytics.TrackEvent("PageNavigation", new Dictionary<string, string> 
+                    {
+                        { "PageType",  pageName },
+                    });
 
                     Debug.WriteLineIf(!result.Success, result.Exception?.ToString());
                 }

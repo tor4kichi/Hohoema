@@ -16,6 +16,7 @@ using System.Diagnostics;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Live;
+using Microsoft.AppCenter.Analytics;
 
 namespace Hohoema.Presentation.Services.Player
 {
@@ -95,6 +96,15 @@ namespace Hohoema.Presentation.Services.Player
                         var name = ResolveContentName(pageName, parameters);
                         _view.Title = name != null ? $"{name}" : string.Empty;
                     }
+
+                    Analytics.TrackEvent("PlayerNavigation", new Dictionary<string, string> 
+                    {
+                        { "PageType",  pageName },
+                        { "DisplayMode", DisplayMode.ToString() },
+                        { "ViewType", "Primary" },
+                        { "CompactOverlay", (_view.ViewMode == ApplicationViewMode.CompactOverlay).ToString() },
+                        { "FullScreen", _view.IsFullScreenMode.ToString() }
+                    });
                 }
             });
 

@@ -36,13 +36,14 @@ using Uno.Extensions;
 using Windows.Storage.Pickers;
 using I18NPortable;
 using Hohoema.Models.Domain.Helpers;
+using Microsoft.AppCenter.Crashes;
+using Microsoft.AppCenter.Analytics;
 
 namespace Hohoema.Presentation.ViewModels
 {
     public class SettingsPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
 	{
         private static Uri AppIssuePageUri = new Uri("https://github.com/tor4kichi/Hohoema/issues");
-
 
         public SettingsPageViewModel(
             PageManager pageManager,
@@ -198,6 +199,19 @@ namespace Hohoema.Presentation.ViewModels
                 .AddTo(_CompositeDisposable);
             TwitterAccountScreenName = new ReactiveProperty<string>(/*TwitterHelper.TwitterUser?.ScreenName ?? ""*/)
                 .AddTo(_CompositeDisposable);
+
+
+            // アプリの使用状況
+            this.ObserveProperty(x => x.IsEnableCrashReport, isPushCurrentValueAtFirst: false)
+                .Where(x => !_NowNavigateProccess)
+                .Subscribe(async x => { await Crashes.SetEnabledAsync(x); })
+                .AddTo(_CompositeDisposable);
+
+            this.ObserveProperty(x => x.IsEnableAnalyticsReport, isPushCurrentValueAtFirst: false)
+                .Where(x => !_NowNavigateProccess)
+                .Subscribe(async x => { await Analytics.SetEnabledAsync(x); })
+                .AddTo(_CompositeDisposable);
+
 
 
             // アバウト
@@ -388,6 +402,23 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
+        // レポート
+        private bool _IsEnableCrashReport;
+        public bool IsEnableCrashReport
+        {
+            get { return _IsEnableCrashReport; }
+            set { SetProperty(ref _IsEnableCrashReport, value); }
+        }
+
+        private bool _IsEnableAnalyticsReport;
+        public bool IsEnableAnalyticsReport
+        {
+            get { return _IsEnableAnalyticsReport; }
+            set { SetProperty(ref _IsEnableAnalyticsReport, value); }
+        }
+
+
+
 
         // アバウト
         public string VersionText { get; private set; }
@@ -492,20 +523,6 @@ namespace Hohoema.Presentation.ViewModels
             set { SetProperty(ref _IsExistErrorFilesFolder, value); }
         }
 
-        private DelegateCommand _ShowErrorFilesFolderCommand;
-        public DelegateCommand ShowErrorFilesFolderCommand
-        {
-            get
-            {
-                return _ShowErrorFilesFolderCommand
-                    ?? (_ShowErrorFilesFolderCommand = new DelegateCommand(async () =>
-                    {
-                        await (App.Current as App).ShowErrorLogFolder();
-                    }));
-            }
-        }
-
-
         private DelegateCommand _CopyVersionTextToClipboardCommand;
         public DelegateCommand CopyVersionTextToClipboardCommand
         {
@@ -560,28 +577,42 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
+        bool _NowNavigateProccess = false;
+
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            VideoTitleFilteringItems.Clear();
-            VideoTitleFilteringItems.AddRange(_videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
-                new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText))
-                );
+            _NowNavigateProccess = true;
 
             try
             {
-                var listing = await Models.Domain.Purchase.HohoemaPurchase.GetAvailableCheersAddOn();
-                PurchaseItems = listing.ProductListings.Select(x => new ProductViewModel(x.Value)).ToList();
-                RaisePropertyChanged(nameof(PurchaseItems));
-            }
-            catch { }
+                VideoTitleFilteringItems.Clear();
+                VideoTitleFilteringItems.AddRange(_videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
+                    new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText))
+                    );
 
-            try
+                IsEnableCrashReport = await Crashes.IsEnabledAsync();
+                IsEnableAnalyticsReport = await Analytics.IsEnabledAsync();
+
+                try
+                {
+                    var listing = await Models.Domain.Purchase.HohoemaPurchase.GetAvailableCheersAddOn();
+                    PurchaseItems = listing.ProductListings.Select(x => new ProductViewModel(x.Value)).ToList();
+                    RaisePropertyChanged(nameof(PurchaseItems));
+                }
+                catch { }
+
+                try
+                {
+                    IsExistErrorFilesFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("error") != null;
+                }
+                catch { }
+
+            }
+            finally
             {
-                IsExistErrorFilesFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("error") != null;
+                _NowNavigateProccess = false;
             }
-            catch { }
-
         }
 
 

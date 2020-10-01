@@ -9,6 +9,7 @@ using System.Diagnostics;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.Services;
+using System.Reflection;
 
 namespace Hohoema.Commands.Mylist
 {
@@ -33,6 +34,9 @@ namespace Hohoema.Commands.Mylist
 
         protected override async void Execute(object parameter)
         {
+            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+
             var data = new Dialogs.MylistGroupEditData() { };
             var result = await DialogService.ShowCreateMylistGroupDialogAsync(data);
             if (result)

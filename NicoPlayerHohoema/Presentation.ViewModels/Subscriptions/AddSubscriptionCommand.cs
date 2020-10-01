@@ -13,6 +13,7 @@ using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain.Niconico;
+using Microsoft.AppCenter.Analytics;
 
 namespace Hohoema.Presentation.ViewModels.Subscriptions
 {
@@ -91,6 +92,11 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions
                     Content = "Notification_SuccessAddSubscriptionSourceWithLabel".Translate(subscription.Label),
                     IsShowDismissButton = false,
                 });
+
+                Analytics.TrackEvent("Subscription_Added", new Dictionary<string, string>
+                    {
+                        { "SourceType", result.sourceType.ToString() }
+                    });
             }
         }
 

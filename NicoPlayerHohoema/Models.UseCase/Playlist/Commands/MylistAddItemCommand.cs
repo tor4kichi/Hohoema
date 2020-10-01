@@ -23,6 +23,9 @@ namespace Hohoema.Models.UseCase.Playlist.Commands
 
         protected override async void Execute(IVideoContent content)
         {
+            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+
             var result = await _playlist.AddItem(content.Id);
             _notificationService.ShowInAppNotification(
                 InAppNotificationPayload.CreateRegistrationResultNotification(

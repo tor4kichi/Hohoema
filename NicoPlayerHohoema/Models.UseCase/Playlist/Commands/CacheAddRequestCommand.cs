@@ -34,6 +34,9 @@ namespace Hohoema.Models.UseCase.Playlist.Commands
 
         protected override void Execute(IVideoContent content)
         {
+            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+
             VideoCacheManager.RequestCache(content.Id, VideoQuality);
         }
     }

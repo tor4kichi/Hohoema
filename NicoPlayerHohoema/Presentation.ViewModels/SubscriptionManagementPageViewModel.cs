@@ -25,6 +25,7 @@ using Hohoema.Presentation.Services.Page;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Application;
+using Microsoft.AppCenter.Analytics;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -219,22 +220,24 @@ namespace Hohoema.Presentation.ViewModels
 
         void ExecuteAllUpdateCommand()
         {
-                _scheduler.Schedule(async () =>
+            _scheduler.Schedule(async () =>
+            {
+                using (_cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
                 {
-                    using (_cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
+                    try
                     {
-                        try
-                        {
-                            await _subscriptionUpdateManager.UpdateAsync(_cancellationTokenSource.Token);
-                        }
-                        catch (OperationCanceledException)
-                        {
-                        
-                        }
+                        await _subscriptionUpdateManager.UpdateAsync(_cancellationTokenSource.Token);
                     }
+                    catch (OperationCanceledException)
+                    {
+                        
+                    }
+                }
 
-                    _subscriptionUpdateManager.RestartIfTimerNotRunning();
-                });
+                _subscriptionUpdateManager.RestartIfTimerNotRunning();
+            });
+
+            Analytics.TrackEvent("Subscription_Update");
         }
 
 
@@ -341,7 +344,11 @@ namespace Hohoema.Presentation.ViewModels
             {
                 NowUpdating = false;
             }
-        }
+
+            Analytics.TrackEvent("Subscription_Update", new Dictionary<string, string>
+                {
+                });
+            }
 
         private DelegateCommand _PlayUnwatchVideosCommand;
         public DelegateCommand PlayUnwatchVideosCommand =>
@@ -388,6 +395,11 @@ namespace Hohoema.Presentation.ViewModels
             if (result)
             {
                 _subscriptionManager.RemoveSubscription(_source);
+
+                Analytics.TrackEvent("Subscription_Removed", new Dictionary<string, string>
+                    {
+                        { "SourceType", _source.SourceType.ToString() }
+                    });
             }
         }
 

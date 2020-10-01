@@ -875,12 +875,10 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
                 Requested?.Invoke(this, req);
                 TriggerCacheStateChangedEventOnUIThread(req, req.CacheState);
             }
-            catch (Exception e)
+            finally
             {
-                await (App.Current as App).OutputErrorFile(e);
+                _ = TryNextCacheRequestedVideoDownload();
             }
-
-            _ = TryNextCacheRequestedVideoDownload();
         }
 
 
@@ -911,12 +909,11 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
                     RequestCanceled?.Invoke(this, request);
                     TriggerCacheStateChangedEventOnUIThread(canceled, request.CacheState);
                 }
-                catch (Exception e)
+                finally
                 {
-                    await (App.Current as App).OutputErrorFile(e);
+                    _CachePendingItemsChangedSubject.OnNext(Unit.Default);
                 }
 
-                _CachePendingItemsChangedSubject.OnNext(Unit.Default);
                 return true;
             }
             else

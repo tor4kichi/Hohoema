@@ -63,6 +63,11 @@ using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Niconico.UserFeature;
 using Prism.Commands;
 using Windows.System;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
+using Windows.UI.Popups;
+using System.Collections.Generic;
 
 namespace Hohoema
 {
@@ -104,6 +109,20 @@ namespace Hohoema
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.RetryCount = 3;
             
             AnimationSet.UseComposition = true;
+
+
+            // see@ https://www.typea.info/blog/index.php/2017/08/06/uwp_1/
+            try
+            {
+                var appcenter_settings = new Windows.ApplicationModel.Resources.ResourceLoader(".appcenter");
+                var appcenterSecrets = appcenter_settings.GetString("AppCenter_Secrets");
+
+                Crashes.SendingErrorReport += (sender, args) => { Debug.WriteLine(args.Report.ToString()); };
+                Crashes.SentErrorReport += (sender, args) => { Debug.WriteLine(args.Report.ToString()); };
+                AppCenter.SetUserId(Guid.NewGuid().ToString());
+                AppCenter.Start(appcenterSecrets, typeof(Analytics), typeof(Crashes));
+            }
+            catch { }
 
             this.InitializeComponent();
         }
@@ -347,7 +366,6 @@ namespace Hohoema
             {
                 if (isInitialized) { return; }
                 isInitialized = true;
-
 
                 Type[] migrateTypes = new Type[]
                 {
@@ -727,21 +745,7 @@ namespace Hohoema
                 
                 if (!isHandled)
                 {
-                    if (arguments == ACTIVATION_WITH_ERROR)
-                    {
-                        await ShowErrorLog().ConfigureAwait(false);
-                    }
-                    else if (arguments == ACTIVATION_WITH_ERROR_COPY_LOG)
-                    {
-                        var error = await GetMostRecentErrorText();
-
-                        ClipboardHelper.CopyToClipboard(error);
-                    }
-                    else if (arguments == ACTIVATION_WITH_ERROR_OPEN_LOG)
-                    {
-                        await ShowErrorLogFolder();
-                    }
-                    else if (arguments.StartsWith("cache_cancel"))
+                    if (arguments.StartsWith("cache_cancel"))
                     {
                         var query = arguments.Split('?')[1];
                         var decode = new WwwFormUrlDecoder(query);
@@ -1066,147 +1070,33 @@ namespace Hohoema
             }
         }
 
-        public async Task<string> GetMostRecentErrorText()
-        {
-            var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("error", CreationCollisionOption.OpenIfExists);
-            var errorFiles = await folder.GetItemsAsync();
-
-            var errorFile = errorFiles
-                .OrderBy(x => x.DateCreated)
-                .LastOrDefault()
-                as StorageFile;
-
-            if (errorFile != null)
-            {
-                return await FileIO.ReadTextAsync(errorFile);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        private async Task ShowErrorLog()
-        {
-            var text = await GetMostRecentErrorText();
-
-            if (text != null)
-            {
-                var contentDialog = new ContentDialog();
-                contentDialog.Title = "Hohoemaで発生したエラー詳細";
-                contentDialog.PrimaryButtonText = "OK";
-                contentDialog.Content = new TextBox()
-                {
-                    Text = text,
-                    IsReadOnly = true,
-                    TextWrapping = TextWrapping.Wrap,
-                };
-
-                await contentDialog.ShowAsync().AsTask();
-            }
-        }
-
-        public async Task ShowErrorLogFolder()
-        {
-            var folder = await ApplicationData.Current.LocalFolder.GetFolderAsync("error");
-            if (folder != null)
-            {
-                await Windows.System.Launcher.LaunchFolderAsync(folder);
-            }
-        }
-
         private async void PrismUnityApplication_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
             e.Handled = true;
 
-            Debug.Write(e.Message);
-
-            if (IsDebugModeEnabled)
-            {
-                await OutputErrorFile(e.Exception);
-
-                ShowErrorToast(e.Message);
-            }
-        }
-
-
-        struct ErrorReport
-        {
-            public string DeviceType { get; set; }
-            public string OperatingSystem { get; set; }
-            public string OperatingSystemVersion { get; set; }
-            public string OperatingSystemArchitecture { get; set; }
-
-            public string ApplicationVersion { get; set; }
-            public DateTime Time { get; set; }
-            public string RecentOpenedPageName { get; set; }
-            public string ErrorMessage { get; set; }
-
-            public bool IsInternetAvailable { get; set; }
-            public bool IsLoggedIn { get; set; }
-            public bool IsPremiumAccount { get; set; }
-
-        }
-
-        public async Task OutputErrorFile(Exception e, string pageName = null)
-        {
-            if (pageName == null)
+            if (!(e.Exception is OperationCanceledException || e.Exception is TaskCanceledException))
             {
                 var pageManager = Container.Resolve<PageManager>();
-                pageName = pageManager.CurrentPageType.ToString();
-            }
+                var pageName = pageManager.CurrentPageType.ToString();
+                var niconicoSession = Container.Resolve<NiconicoSession>();
 
-            var niconicoSession = Container.Resolve<NiconicoSession>();
-
-
-            try
-            {
-                var v = Package.Current.Id.Version;
-                var versionText = $"{v.Major}.{v.Minor}.{v.Build}.{v.Revision}";
-                var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("error", CreationCollisionOption.OpenIfExists);
-                var errorFile = await folder.CreateFileAsync($"Hohoema-{versionText.Replace('.', '_')}-{Path.GetFileNameWithoutExtension(Path.GetRandomFileName())}.txt", CreationCollisionOption.OpenIfExists);
-
-                var errorReport = new ErrorReport()
+                Crashes.TrackError(e.Exception, new Dictionary<string, string> 
                 {
-                    ApplicationVersion = versionText,
-                    Time = DateTime.Now,
-                    RecentOpenedPageName = pageName,
-                    IsInternetAvailable = InternetConnection.IsInternet(),
-                    IsLoggedIn = niconicoSession.IsLoggedIn,
-                    IsPremiumAccount = niconicoSession.IsPremiumAccount,
-                    ErrorMessage = e.ToString(),
-                    DeviceType = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.DeviceFamily,
-                    OperatingSystem = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.OperatingSystem,
-                    OperatingSystemArchitecture = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.OperatingSystemArchitecture.ToString(),
-                    OperatingSystemVersion = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.OperatingSystemVersion.ToString(),
-                };
+                    { "IsInternetAvailable", InternetConnection.IsInternet().ToString() },
+                    { "IsLoggedIn", niconicoSession.IsLoggedIn.ToString() },
+                    { "IsPremiumAccount", niconicoSession.IsPremiumAccount.ToString() },
+                    { "RecentOpenPageName", pageName },
+                    { "OperatingSystemArchitecture", Microsoft.Toolkit.Uwp.Helpers.SystemInformation.OperatingSystemArchitecture.ToString() }
+                });
 
-                var errorReportJsonText = Newtonsoft.Json.JsonConvert.SerializeObject(
-                    errorReport, 
-                    Newtonsoft.Json.Formatting.Indented, 
-                    new Newtonsoft.Json.JsonSerializerSettings()
-                    {
-                        TypeNameHandling = Newtonsoft.Json.TypeNameHandling.None,
-                    });
+                Debug.Write(e.Message);
 
-                await FileIO.WriteTextAsync(errorFile, errorReportJsonText);
-            }
-            catch { }
-        }
-
-        public void ShowErrorToast(string message)
-        {
-            var toast = Container.Resolve<NotificationService>();
-            toast.ShowToast("ToastNotification_ExceptionHandled".Translate()
-                , message
-                , Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
-                , luanchContent: ACTIVATION_WITH_ERROR
-                ,  toastButtons: new[] 
+                if (IsDebugModeEnabled)
                 {
-                    new ToastButton("OpenErrorLog".Translate(), ACTIVATION_WITH_ERROR_COPY_LOG) { ActivationType = ToastActivationType.Background },
-                    new ToastButton("OpenErrorLogFolder".Translate(), ACTIVATION_WITH_ERROR_OPEN_LOG) { ActivationType = ToastActivationType.Background },
+                    var report = await Crashes.GetLastSessionCrashReportAsync();
+                    
                 }
-                );
+            }
         }
 
 
@@ -1241,22 +1131,7 @@ namespace Hohoema
 
         private async Task ProcessToastNotificationActivation(string arguments, ValueSet userInput)
         {
-            
-            // Perform tasks
-            if (arguments == ACTIVATION_WITH_ERROR)
-            {
-                await ShowErrorLog().ConfigureAwait(false);
-            }
-            else if (arguments == ACTIVATION_WITH_ERROR_COPY_LOG)
-            {
-                var error = await GetMostRecentErrorText();
-                ClipboardHelper.CopyToClipboard(error);
-            }
-            else if (arguments == ACTIVATION_WITH_ERROR_OPEN_LOG)
-            {
-                await ShowErrorLogFolder();
-            }
-            else if (arguments.StartsWith("cache_cancel"))
+            if (arguments.StartsWith("cache_cancel"))
             {
                 var cacheManager = Container.Resolve<VideoCacheManager>();
 
@@ -1269,26 +1144,6 @@ namespace Hohoema
                 await cacheManager.CancelCacheRequest(videoId);
             }
         }
-
-
-        /*
-        private async void UINavigationManager_Pressed(Views.UINavigationManager sender, Views.UINavigationButtons buttons)
-        {
-            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                if (buttons == Views.UINavigationButtons.Up ||
-                buttons == Views.UINavigationButtons.Down ||
-                buttons == Views.UINavigationButtons.Right ||
-                buttons == Views.UINavigationButtons.Left
-                )
-                {
-                    var focused = FocusManager.GetFocusedElement();
-                    Debug.WriteLine("現在のフォーカス:" + focused?.ToString());
-                }
-            });
-        }
-        */
-
 
 
 #endregion

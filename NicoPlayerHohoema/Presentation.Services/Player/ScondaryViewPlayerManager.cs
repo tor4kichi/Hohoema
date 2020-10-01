@@ -18,6 +18,10 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Animation;
 using Hohoema.Models.Domain.Niconico.Live;
+using Microsoft.AppCenter.Analytics;
+using System.Collections.Generic;
+using System.Text;
+using System.Linq;
 
 namespace Hohoema.Presentation.Services
 {
@@ -300,6 +304,14 @@ namespace Hohoema.Presentation.Services
                     {
                         await ApplicationViewSwitcher.TryShowAsStandaloneAsync(this.SecondaryAppView.Id, ViewSizePreference.Default, MainViewId, ViewSizePreference.UseNone);
                     }
+
+                    Analytics.TrackEvent("PlayerNavigation", new Dictionary<string, string>
+                    {
+                        { "PageType",  pageName },
+                        { "ViewType", "Secondary" },
+                        { "CompactOverlay", (SecondaryAppView.ViewMode == ApplicationViewMode.CompactOverlay).ToString() },
+                        { "FullScreen", SecondaryAppView.IsFullScreenMode.ToString() },
+                    });
                 });
 
 //                await ShowSecondaryViewAsync();

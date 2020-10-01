@@ -49,6 +49,9 @@ namespace Hohoema.Models.UseCase.Playlist.Commands
 
         protected override async void Execute(IEnumerable<IVideoContent> items)
         {
+            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+
             var anyCached = items.Any(x => VideoCacheManager.CheckCachedAsyncUnsafe(x.Id));
             if (anyCached)
             {

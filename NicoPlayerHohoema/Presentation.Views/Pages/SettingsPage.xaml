@@ -115,7 +115,6 @@
             <Border Background="Transparent" IsHitTestVisible="True" Margin="0 0 0 0"></Border>
           </CommandBar.Content>
           <CommandBar.PrimaryCommands>
-            <AppBarButton Content="{Binding Source=ShowErrorLogButtonTitle, Converter={StaticResource LocalizeConverter}}" Command="{Binding ShowErrorFilesFolderCommand}" Visibility="{Binding IsDebugModeEnabled.Value, Converter={StaticResource BooleanToVisibility}}" />
             <AppBarButton Background="Transparent">
               <AppBarButton.Flyout>
                 <MenuFlyout>
@@ -347,6 +346,25 @@
               <Button Content="{Binding Source=RestoreUserData, Converter={StaticResource LocalizeConverter}}" Command="{Binding ImportBackupCommand}" />
             </StackPanel>
           </StackPanel>
+
+          <!-- アプリの使用状況 -->
+          <StackPanel>
+            <toolkit:DockPanel Margin="0 8">
+              <TextBlock Text="{Binding Source=ApplicationDiagnosticsReport, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+            </toolkit:DockPanel>
+            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
+              <Grid>
+                <TextBlock Text="{Binding Source=EnableCrashReport, Converter={StaticResource LocalizeConverter}}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch x:Name="EnableCrashToggleSwitch" IsOn="{Binding IsEnableCrashReport, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
+              <Grid>
+                <TextBlock Text="{Binding Source=EnableAnalyticsReport, Converter={StaticResource LocalizeConverter}}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch x:Name="EnableAnalyticsToggleSwitch" IsOn="{Binding IsEnableAnalyticsReport, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
+            </StackPanel>
+          </StackPanel>
+          
           <!-- このアプリについて -->
           <StackPanel>
             <toolkit:DockPanel Margin="0 8">
