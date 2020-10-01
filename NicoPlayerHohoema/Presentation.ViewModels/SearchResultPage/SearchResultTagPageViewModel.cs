@@ -22,6 +22,7 @@ using Hohoema.Models.Domain.Subscriptions;
 using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Models.Domain.Niconico;
+using Microsoft.AppCenter.Analytics;
 
 namespace Hohoema.Presentation.ViewModels
 {

@@ -221,6 +221,10 @@ RestoreUserData = 读取备份
 BackupRestoreComplete = 从备份还原完成
 BackupRestoreFailed = 从备份还原失败
 
+ApplicationDiagnosticsReport = 应用使用情况报告
+EnableCrashReport = 发送应用错误信息
+EnableAnalyticsReport = 发送应用程序功能/页面使用状态
+
 
 #### Niconico General ####
 PrivateReasonType.PostedBy = 投稿者删除

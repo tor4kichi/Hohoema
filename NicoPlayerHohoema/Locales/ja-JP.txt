@@ -221,6 +221,10 @@ RestoreUserData = バックアップを読み込む
 BackupRestoreComplete = バックアップから復元が完了しました
 BackupRestoreFailed = バックアップからの復元に失敗しました
 
+ApplicationDiagnosticsReport = アプリの使用状況レポート
+EnableCrashReport = アプリのエラー情報を送信する
+EnableAnalyticsReport = アプリ機能・ページの利用状況を送信する
+
 
 #### Niconico General ####
 PrivateReasonType.PostedBy = 投稿者削除

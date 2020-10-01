@@ -414,6 +414,8 @@ namespace Hohoema.Presentation.ViewModels
 
                                         // TODO: IsPublicなどの情報を表示
 
+                                        Microsoft.AppCenter.Analytics.Analytics.TrackEvent("Mylist_Edit");
+
                                         break;
                                     }
                                 }
@@ -458,6 +460,8 @@ namespace Hohoema.Presentation.ViewModels
 
 
                             PageManager.OpenPage(HohoemaPageType.UserMylist, OwnerUserId);
+
+                            Microsoft.AppCenter.Analytics.Analytics.TrackEvent("Mylist_Removed");
                         }));
 
                         dialog.Commands.Add(new UICommand("Cancel".Translate()));

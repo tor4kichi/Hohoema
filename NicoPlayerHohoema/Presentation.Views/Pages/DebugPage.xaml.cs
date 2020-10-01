@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AppCenter.Crashes;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -30,6 +31,11 @@ namespace Hohoema.Presentation.Views
         private void ForceThrowException(object sender, RoutedEventArgs e)
         {
             throw new Exception("例外テスト");
+        }
+
+        private void TestCrashReport_Click(object sender, RoutedEventArgs e)
+        {
+            Crashes.GenerateTestCrash();
         }
     }
 }

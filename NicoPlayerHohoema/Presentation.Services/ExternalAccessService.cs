@@ -4,6 +4,7 @@ using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
+using Microsoft.AppCenter.Analytics;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
@@ -71,6 +72,11 @@ namespace Hohoema.Presentation.Services
                 {
                     Helpers.ClipboardHelper.CopyToClipboard(content.ToString());
                 }
+
+                Analytics.TrackEvent("CopyToClipboardCommand", new Dictionary<string, string>
+                {
+
+                });
             }
             , content => content != null
             ));
@@ -97,6 +103,11 @@ namespace Hohoema.Presentation.Services
                 {
                     Helpers.ClipboardHelper.CopyToClipboard(content.ToString());
                 }
+
+                Analytics.TrackEvent("CopyToClipboardWithShareTextCommand", new Dictionary<string, string>
+                {
+
+                });
             }
             , content => content != null
             ));
@@ -124,6 +135,11 @@ namespace Hohoema.Presentation.Services
                 if (uri != null)
                 {
                     _ = Windows.System.Launcher.LaunchUriAsync(uri);
+
+                    Analytics.TrackEvent("OpenLinkCommand", new Dictionary<string, string>
+                    {
+                        
+                    });
                 }
             }
             , content =>
@@ -144,6 +160,11 @@ namespace Hohoema.Presentation.Services
             {
                 var shareContent = Services.Helpers.ShareHelper.MakeShareText(content);
                 Services.Helpers.ShareHelper.Share(shareContent);
+
+                Analytics.TrackEvent("OpenShareUICommand", new Dictionary<string, string> 
+                {
+                    { "ContentType", content.GetType().Name }
+                });
             }
             , content => Windows.ApplicationModel.DataTransfer.DataTransferManager.IsSupported() 
                         && content?.Id != null

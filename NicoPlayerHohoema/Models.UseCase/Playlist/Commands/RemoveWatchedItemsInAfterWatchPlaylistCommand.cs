@@ -23,6 +23,9 @@ namespace Hohoema.Models.UseCase.Playlist.Commands
 
         protected override void Execute(object parameter)
         {
+            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+
             var removed = _hohoemaPlaylist.RemoveWatchAfterIfWatched();
 
             System.Diagnostics.Debug.WriteLine("あとで見るから視聴済みを削除： " + removed);

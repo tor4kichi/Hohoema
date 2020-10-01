@@ -8,7 +8,8 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-        <Button Content="例外を発生させる" Click="ForceThrowException" />
-    </Grid>
+  <StackPanel Spacing="16">
+    <Button Content="例外を発生させる" Click="ForceThrowException" />
+    <Button Content="クラッシュレポートをテスト" Click="TestCrashReport_Click" />
+  </StackPanel>
 </Page>
