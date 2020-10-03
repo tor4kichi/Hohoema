@@ -1,5 +1,4 @@
 ﻿using Mntone.Nico2;
-using Hohoema.Models.UseCase.Playlist.Commands;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -7,9 +6,25 @@ using Prism.Ioc;
 using Mntone.Nico2.Users.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.Services;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
 {
+    public sealed class MylistItemRemovedEventArgs
+    {
+        public string MylistId { get; internal set; }
+        public IReadOnlyCollection<string> SuccessedItems { get; internal set; }
+        public IReadOnlyCollection<string> FailedItems { get; internal set; }
+    }
+
+
+    public sealed class MylistItemAddedEventArgs
+    {
+        public string MylistId { get; internal set; }
+        public IReadOnlyCollection<string> SuccessedItems { get; internal set; }
+        public IReadOnlyCollection<string> FailedItems { get; internal set; }
+    }
+
     public class LoginUserMylistPlaylist : MylistPlaylist
     {
         LoginUserMylistProvider _loginUserMylistProvider;

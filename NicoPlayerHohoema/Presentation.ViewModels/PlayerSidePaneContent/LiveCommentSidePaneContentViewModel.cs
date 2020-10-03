@@ -13,14 +13,14 @@ using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Player;
-using Hohoema.Models.UseCase.NicoVideoPlayer;
+using Hohoema.Models.UseCase.NicoVideos.Player;
 
 namespace Hohoema.Presentation.ViewModels.PlayerSidePaneContent
 {
 	public class LiveCommentSidePaneContentViewModel : SidePaneContentViewModelBase
 	{
 		public LiveCommentSidePaneContentViewModel(
-            CommentFiltering commentFiltering, 
+            CommentFilteringFacade commentFiltering, 
             Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView comments,
             Services.ExternalAccessService externalAccessService,
             IScheduler scheduler,
@@ -71,7 +71,7 @@ namespace Hohoema.Presentation.ViewModels.PlayerSidePaneContent
 
 
         Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView _Comments;
-        private readonly CommentFiltering _playerSettings;
+        private readonly CommentFilteringFacade _playerSettings;
         private readonly IScheduler _scheduler;
         private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
         

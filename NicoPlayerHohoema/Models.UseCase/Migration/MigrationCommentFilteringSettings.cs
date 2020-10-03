@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Legacy;
-using Hohoema.Models.UseCase.NicoVideoPlayer;
+using Hohoema.Models.UseCase.NicoVideos.Player;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,12 +14,12 @@ namespace Hohoema.Models.UseCase.Migration
     {
         private readonly AppFlagsRepository _appFlagsRepository;
         private readonly PlayerSettings _playerSettings;
-        private readonly CommentFiltering _commentFiltering;
+        private readonly CommentFilteringFacade _commentFiltering;
 
         public MigrationCommentFilteringSettings(
             AppFlagsRepository appFlagsRepository,
             PlayerSettings playerSettings,
-            CommentFiltering commentFiltering
+            CommentFilteringFacade commentFiltering
             )
         {
             _appFlagsRepository = appFlagsRepository;

@@ -9,7 +9,6 @@ using Prism.Commands;
 using Unity;
 using Prism.Unity;
 using I18NPortable;
-using Hohoema.Models.UseCase.NicoVideoPlayer.Commands;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.Threading;
@@ -19,6 +18,7 @@ using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.Niconico;
+using Hohoema.Presentation.ViewModels.Live.Commands;
 
 namespace Hohoema.Presentation.ViewModels
 {

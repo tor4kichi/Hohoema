@@ -12,7 +12,7 @@ using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
 using Unity;
 using Hohoema.Database;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using System.Reactive.Concurrency;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.Domain.Niconico.Video;

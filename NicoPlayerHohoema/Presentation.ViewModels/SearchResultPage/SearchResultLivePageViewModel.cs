@@ -1,33 +1,26 @@
-﻿using Hohoema.Models.Domain;
+﻿using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Domain.Niconico.Live;
+using Hohoema.Models.Domain.Niconico.Search;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.UseCase;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Presentation.Services.Page;
+using Hohoema.Presentation.ViewModels.Live.Commands;
+using I18NPortable;
+using Mntone.Nico2.Live;
+using Mntone.Nico2.Searches.Live;
+using Prism.Commands;
+using Prism.Navigation;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Hohoema.Models.Domain.Helpers;
-using Mntone.Nico2.Searches.Live;
-using Prism.Commands;
-using Mntone.Nico2;
-using Reactive.Bindings;
 using System.Reactive.Linq;
-using Reactive.Bindings.Extensions;
-using Hohoema.Presentation.Services.Page;
-
-using Unity;
-using Hohoema.Presentation.Services;
-using Prism.Navigation;
-using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.UseCase.NicoVideoPlayer.Commands;
-
-using Hohoema.Models.UseCase;
-using I18NPortable;
-using Hohoema.Models.Domain.Live;
-using Mntone.Nico2.Live;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Hohoema.Models.Domain.PageNavigation;
+using System.Threading.Tasks;
 using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
-using Hohoema.Models.Domain.Niconico.Search;
-using Hohoema.Models.Domain.Niconico.Live;
 
 namespace Hohoema.Presentation.ViewModels
 {

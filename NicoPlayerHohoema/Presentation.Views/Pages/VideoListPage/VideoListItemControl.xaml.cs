@@ -1,5 +1,5 @@
 ﻿using I18NPortable;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using System;
 using System.Collections.Generic;
 using System.IO;

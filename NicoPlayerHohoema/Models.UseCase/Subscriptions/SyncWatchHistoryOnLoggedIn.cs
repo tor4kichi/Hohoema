@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico.UserFeature;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using System;
 using System.Collections.Generic;
 using System.Linq;

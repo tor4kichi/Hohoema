@@ -1,39 +1,35 @@
 ﻿using Hohoema.Models.Domain;
+using Hohoema.Models.Domain.Niconico.Channel;
+using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Domain.Player.Video;
+using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Domain.Subscriptions;
+using Hohoema.Models.UseCase;
+using Hohoema.Models.UseCase.NicoVideos.Player;
+using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Page;
-using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideoPlayer;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Presentation.Services.Player;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
+using Hohoema.Presentation.ViewModels.Player.Commands;
+using Hohoema.Presentation.ViewModels.Subscriptions;
+using I18NPortable;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Navigation;
-using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
-using Hohoema.Presentation.Services.Player;
-using Hohoema.Models.UseCase.NicoVideoPlayer.Commands;
-using I18NPortable;
-using Hohoema.Models.Domain.PageNavigation;
-using System.Reactive.Disposables;
-using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
-using Hohoema.Presentation.ViewModels.Subscriptions;
-using Hohoema.Models.Domain.Player.Video;
-using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.Domain.Player.Video.Comment;
-using Hohoema.Models.Domain.Player;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -66,8 +62,8 @@ namespace Hohoema.Presentation.ViewModels
             DialogService dialogService,
             ExternalAccessService externalAccessService,
             ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand,
-            Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
-            Commands.Mylist.CreateMylistCommand createMylistCommand,
+            CreateLocalMylistCommand createLocalMylistCommand,
+            CreateMylistCommand createMylistCommand,
             VideoStreamingOriginOrchestrator videoStreamingOriginOrchestrator,
             VideoPlayer videoPlayer,
             CommentPlayer commentPlayer,
@@ -146,8 +142,8 @@ namespace Hohoema.Presentation.ViewModels
         public PageManager PageManager { get; }
         public ScondaryViewPlayerManager PlayerViewManager { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
-        public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
-        public Commands.Mylist.CreateMylistCommand CreateMylistCommand { get; }
+        public CreateLocalMylistCommand CreateLocalMylistCommand { get; }
+        public CreateMylistCommand CreateMylistCommand { get; }
 
 
         public MediaPlayer MediaPlayer { get; }

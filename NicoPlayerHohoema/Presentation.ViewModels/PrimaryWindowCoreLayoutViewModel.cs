@@ -1,35 +1,29 @@
 ﻿using I18NPortable;
-using Mntone.Nico2.Live;
-using Hohoema.Commands;
-
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.Services.Player;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.Page.Commands;
-using Hohoema.Models.UseCase.Pin;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
-using Prism.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reactive.Disposables;
-using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Presentation.ViewModels.UserFeature;
 using Hohoema.Models.Domain.Application;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using Uno.Extensions;
+using Hohoema.Presentation.ViewModels.Page.Commands;
+using Hohoema.Models.UseCase.NicoVideos.Player;
 
 namespace Hohoema.Presentation.ViewModels
 {

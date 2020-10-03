@@ -2,7 +2,7 @@
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideoPlayer;
+using Hohoema.Models.UseCase.NicoVideos.Player;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
@@ -19,11 +19,11 @@ namespace Hohoema.Presentation.ViewModels.PlayerSidePaneContent
 {
     public sealed class VideoCommentSizePaneContentViewModel : BindableBase, IDisposable
     {
-        public CommentFiltering CommentFiltering { get; }
+        public CommentFilteringFacade CommentFiltering { get; }
 
         public VideoCommentSizePaneContentViewModel(
             CommentPlayer commentPlayer,
-            CommentFiltering  commentFiltering,
+            CommentFilteringFacade  commentFiltering,
             Services.DialogService dialogService
             )
         {
@@ -38,24 +38,24 @@ namespace Hohoema.Presentation.ViewModels.PlayerSidePaneContent
             {
                 new[]
                 {
-                Observable.FromEventPattern<CommentFiltering.CommentOwnerIdFilteredEventArgs>(
+                Observable.FromEventPattern<CommentFilteringFacade.CommentOwnerIdFilteredEventArgs>(
                     h => CommentFiltering.FilteringCommentOwnerIdAdded += h,
                     h => CommentFiltering.FilteringCommentOwnerIdAdded -= h
                     ).ToUnit(),
-                Observable.FromEventPattern<CommentFiltering.CommentOwnerIdFilteredEventArgs>(
+                Observable.FromEventPattern<CommentFilteringFacade.CommentOwnerIdFilteredEventArgs>(
                     h => CommentFiltering.FilteringCommentOwnerIdRemoved += h,
                     h => CommentFiltering.FilteringCommentOwnerIdRemoved -= h
                     ).ToUnit(),
 
-                Observable.FromEventPattern<CommentFiltering.FilteringCommentTextKeywordEventArgs>(
+                Observable.FromEventPattern<CommentFilteringFacade.FilteringCommentTextKeywordEventArgs>(
                     h => CommentFiltering.FilterKeywordAdded += h,
                     h => CommentFiltering.FilterKeywordAdded -= h
                     ).ToUnit(),
-                Observable.FromEventPattern<CommentFiltering.FilteringCommentTextKeywordEventArgs>(
+                Observable.FromEventPattern<CommentFilteringFacade.FilteringCommentTextKeywordEventArgs>(
                     h => CommentFiltering.FilterKeywordUpdated += h,
                     h => CommentFiltering.FilterKeywordUpdated -= h
                     ).ToUnit(),
-                Observable.FromEventPattern<CommentFiltering.FilteringCommentTextKeywordEventArgs>(
+                Observable.FromEventPattern<CommentFilteringFacade.FilteringCommentTextKeywordEventArgs>(
                     h => CommentFiltering.FilterKeywordRemoved += h,
                     h => CommentFiltering.FilterKeywordRemoved -= h
                     ).ToUnit(),

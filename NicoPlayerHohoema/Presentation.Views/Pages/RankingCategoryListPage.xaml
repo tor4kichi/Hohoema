@@ -18,7 +18,6 @@
     xmlns:deviceTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
-  xmlns:mycommands="using:Hohoema.Presentation.Services.Commands.Ranking"
       xmlns:windowsStateTriggers="using:WindowsStateTriggers"
       NavigationCacheMode="Enabled"
     DataContext="{x:Null}"

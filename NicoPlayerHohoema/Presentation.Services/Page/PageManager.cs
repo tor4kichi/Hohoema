@@ -11,7 +11,7 @@ using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;

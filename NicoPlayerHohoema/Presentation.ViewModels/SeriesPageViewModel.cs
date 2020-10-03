@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2.Videos.Series;
 using Hohoema.Models.Domain.Helpers;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
 using System;

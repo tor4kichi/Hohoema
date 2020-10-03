@@ -24,7 +24,7 @@ using System.Threading;
 using Uno.Threading;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
-using Hohoema.Models.UseCase.Playlist.Events;
+using Hohoema.Models.UseCase.NicoVideos.Events;
 using Hohoema.Models.Domain.Niconico.UserFeature;
 
 namespace Hohoema.Presentation.ViewModels

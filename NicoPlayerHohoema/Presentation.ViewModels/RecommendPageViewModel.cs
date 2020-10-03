@@ -13,7 +13,7 @@ using Reactive.Bindings.Extensions;
 using Reactive.Bindings;
 using Prism.Navigation;
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Models.UseCase;
 using System.Threading;
 using System.Runtime.CompilerServices;

@@ -29,7 +29,7 @@ using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.UserFeature;
 using Hohoema.Models.Domain.Application;
-using Hohoema.Models.UseCase.NicoVideoPlayer;
+using Hohoema.Models.UseCase.NicoVideos.Player;
 using System.Reactive.Disposables;
 using System.Collections.ObjectModel;
 using Uno.Extensions;
@@ -252,7 +252,7 @@ namespace Hohoema.Presentation.ViewModels
         Services.DialogService _HohoemaDialogService;
         private readonly VideoFilteringSettings _videoFilteringRepository;
         private readonly BackupManager _backupManager;
-        private readonly CommentFiltering _commentFiltering;
+        private readonly CommentFilteringFacade _commentFiltering;
 
         public NotificationService _notificationService { get; private set; }
         public PlayerSettings PlayerSettings { get; }

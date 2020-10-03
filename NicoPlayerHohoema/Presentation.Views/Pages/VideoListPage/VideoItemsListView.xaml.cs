@@ -14,7 +14,7 @@ using Windows.UI.Xaml.Input;
 using Prism.Ioc;
 using System.Windows.Input;
 using Hohoema.Presentation.Views.Flyouts;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using System.Threading.Tasks;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.Domain.Playlist;

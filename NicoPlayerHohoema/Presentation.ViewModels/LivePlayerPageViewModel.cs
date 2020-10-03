@@ -11,9 +11,8 @@ using Hohoema.Models.Domain.Niconico.User;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideoPlayer;
-using Hohoema.Models.UseCase.NicoVideoPlayer.Commands;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos.Player;
+using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.Services.Player;
@@ -51,6 +50,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Hohoema.Models.Domain.Application;
+using Hohoema.Presentation.ViewModels.Player.Commands;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -110,7 +110,7 @@ namespace Hohoema.Presentation.ViewModels
 
         private readonly UserNameProvider _userNameRepository;
         private NotificationService _NotificationService;
-        private readonly CommentFiltering _commentFiltering;
+        private readonly CommentFilteringFacade _commentFiltering;
         
         public MediaPlayer MediaPlayer { get; private set; }
         public ObservableMediaPlayer ObservableMediaPlayer { get; }
@@ -414,7 +414,7 @@ namespace Hohoema.Presentation.ViewModels
             ShowPrimaryViewCommand showPrimaryViewCommand,
             MediaPlayerSoundVolumeManager soundVolumeManager,
             CommentCommandEditerViewModel commentCommandEditerViewModel,
-            CommentFiltering commentFiltering
+            CommentFilteringFacade commentFiltering
             )
         {
             _scheduler = scheduler;

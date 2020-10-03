@@ -3,17 +3,14 @@ using Unity;
 using Windows.UI.Xaml;
 using Prism.Ioc;
 using Hohoema.Models.Domain;
-using Hohoema.Commands.Mylist;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using Windows.UI.Xaml.Controls.Primitives;
-using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.UseCase.Playlist.Commands;
+using Hohoema.Models.UseCase.NicoVideos;
 using System.Collections.Generic;
 using System.Linq;
 using Hohoema.Presentation.Views.Helpers;
 using I18NPortable;
-using Hohoema.Models.UseCase.Page.Commands;
 using System;
 using Prism.Commands;
 using Microsoft.Toolkit.Uwp.UI.Extensions;
@@ -26,6 +23,8 @@ using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Presentation.ViewModels.Page.Commands;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.Views.Flyouts
 {
@@ -80,8 +79,8 @@ namespace Hohoema.Presentation.Views.Flyouts
         public SubscriptionManager SubscriptionManager { get; }
         public VideoCacheManager VideoCacheManager { get; }
         public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
-        public Commands.Mylist.CreateMylistCommand CreateMylistCommand { get; }
-        public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
+        public CreateMylistCommand CreateMylistCommand { get; }
+        public CreateLocalMylistCommand CreateLocalMylistCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
 

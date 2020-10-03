@@ -11,7 +11,7 @@ using System.Reactive.Linq;
 using Hohoema.Presentation.Services.Page;
 using Prism.Navigation;
 using System.Threading.Tasks;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Search;

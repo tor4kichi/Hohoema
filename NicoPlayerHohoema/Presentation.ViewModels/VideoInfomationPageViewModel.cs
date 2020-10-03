@@ -18,8 +18,7 @@ using Hohoema.Models.Domain.Player.Video.Cache;
 using Prism.Navigation;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.UseCase.Playlist.Commands;
+using Hohoema.Models.UseCase.NicoVideos;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using Hohoema.Models.UseCase;
@@ -32,6 +31,7 @@ using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Models.Domain.Application;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.ViewModels
 {

@@ -1,8 +1,8 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.UseCase.Playlist.Commands;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 using Prism.Navigation;
 using System;
 using System.Collections.Generic;

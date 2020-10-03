@@ -21,7 +21,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reactive.Concurrency;
 using Prism.Events;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 
 using I18NPortable;
 using Hohoema.Models.UseCase;

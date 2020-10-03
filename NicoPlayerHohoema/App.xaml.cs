@@ -38,7 +38,7 @@ using Prism.Events;
 using Hohoema.Models.UseCase;
 using I18NPortable;
 using Newtonsoft.Json;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using Hohoema.Presentation.ViewModels;
 using LiteDB;
@@ -48,7 +48,7 @@ using Hohoema.Models.Domain.Helpers;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.UserFeature.Follow;
 using Hohoema.Models.Domain.Player.Video;
-using Hohoema.Models.UseCase.NicoVideoPlayer;
+using Hohoema.Models.UseCase.NicoVideos.Player;
 using Hohoema.Models.UseCase.Subscriptions;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.Services.Player;
@@ -287,7 +287,7 @@ namespace Hohoema
             // UseCase
             unityContainer.RegisterType<VideoPlayer>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<CommentPlayer>(new PerThreadLifetimeManager());
-            unityContainer.RegisterType<CommentFiltering>(new PerThreadLifetimeManager());
+            unityContainer.RegisterType<CommentFilteringFacade>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<MediaPlayerSoundVolumeManager>(new PerThreadLifetimeManager());
             unityContainer.RegisterSingleton<HohoemaPlaylist>();
             unityContainer.RegisterSingleton<LocalMylistManager>();

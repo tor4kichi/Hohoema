@@ -10,7 +10,6 @@ using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideoPlayer.Commands;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Page;
 using Prism.Commands;
@@ -31,6 +30,7 @@ using Windows.System;
 using Windows.UI.Xaml;
 using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
 using Hohoema.Models.Domain.Application;
+using Hohoema.Presentation.ViewModels.Live.Commands;
 
 namespace Hohoema.Presentation.ViewModels
 {

@@ -13,16 +13,16 @@ using Hohoema.Models.Domain.Helpers;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Page;
 using Prism.Navigation;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.UseCase;
 using I18NPortable;
-using Hohoema.Commands.Mylist;
 using System.Runtime.CompilerServices;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.User;
 using Hohoema.Models.Domain.Playlist;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.ViewModels
 {

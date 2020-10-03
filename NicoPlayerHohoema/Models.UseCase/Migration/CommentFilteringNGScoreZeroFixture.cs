@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Application;
-using Hohoema.Models.UseCase.NicoVideoPlayer;
+using Hohoema.Models.UseCase.NicoVideos.Player;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +12,10 @@ namespace Hohoema.Models.UseCase.Migration
     public sealed class CommentFilteringNGScoreZeroFixture
     {
         private readonly AppFlagsRepository _appFlagsRepository;
-        private readonly CommentFiltering _commentFiltering;
+        private readonly CommentFilteringFacade _commentFiltering;
 
         public CommentFilteringNGScoreZeroFixture(
-            CommentFiltering commentFiltering,
+            CommentFilteringFacade commentFiltering,
             AppFlagsRepository appFlagsRepository
             )
         {

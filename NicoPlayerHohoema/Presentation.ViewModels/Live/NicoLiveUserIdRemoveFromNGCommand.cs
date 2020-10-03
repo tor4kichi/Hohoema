@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain;
-using Hohoema.Models.UseCase.NicoVideoPlayer;
+using Hohoema.Models.UseCase.NicoVideos.Player;
 using Prism.Commands;
 using Unity;
 
@@ -7,9 +7,9 @@ namespace Hohoema.Presentation.ViewModels.Live
 {
     public sealed class NicoLiveUserIdRemoveFromNGCommand : DelegateCommandBase
     {
-        private readonly CommentFiltering _playerSettings;
+        private readonly CommentFilteringFacade _playerSettings;
 
-        public NicoLiveUserIdRemoveFromNGCommand(CommentFiltering playerSettings)
+        public NicoLiveUserIdRemoveFromNGCommand(CommentFilteringFacade playerSettings)
         {
             _playerSettings = playerSettings;
         }

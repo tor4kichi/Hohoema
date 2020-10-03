@@ -3,7 +3,7 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Page;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;

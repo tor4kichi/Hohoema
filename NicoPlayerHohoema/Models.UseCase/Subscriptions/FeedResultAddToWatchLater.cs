@@ -2,7 +2,7 @@
 using Hohoema.Models.Domain.Helpers;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;

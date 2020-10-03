@@ -1,7 +1,7 @@
 ﻿using I18NPortable;
 using Mntone.Nico2.Users.Series;
 using Hohoema.Presentation.Services.Page;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;

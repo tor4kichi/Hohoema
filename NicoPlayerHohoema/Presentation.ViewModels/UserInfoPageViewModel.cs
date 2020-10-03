@@ -6,7 +6,7 @@ using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;

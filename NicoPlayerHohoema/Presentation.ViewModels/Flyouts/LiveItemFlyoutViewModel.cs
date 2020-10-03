@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.UseCase.NicoVideoPlayer.Commands;
+﻿using Hohoema.Presentation.ViewModels.Live.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;

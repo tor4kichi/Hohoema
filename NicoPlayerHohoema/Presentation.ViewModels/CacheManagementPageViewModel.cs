@@ -11,7 +11,7 @@ using Hohoema.Models.Domain.Helpers;
 using Prism.Commands;
 using Windows.System;
 using Prism.Navigation;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Models.UseCase;
 using I18NPortable;
 using System.Runtime.CompilerServices;

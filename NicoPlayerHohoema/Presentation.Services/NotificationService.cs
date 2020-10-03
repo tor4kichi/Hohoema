@@ -8,7 +8,7 @@ using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.Niconico.User;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services.Helpers;
 using Prism.Commands;
 using Prism.Events;

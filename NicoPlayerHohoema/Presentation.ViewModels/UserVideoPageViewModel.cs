@@ -8,7 +8,7 @@ using Prism.Commands;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using Prism.Navigation;
 using Hohoema.Presentation.Services.Page;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using System;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.UseCase;

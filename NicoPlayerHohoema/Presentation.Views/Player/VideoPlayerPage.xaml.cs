@@ -21,7 +21,7 @@ using Reactive.Bindings.Extensions;
 using Windows.UI;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Hohoema.Models.Domain;
-using Hohoema.Models.UseCase.NicoVideoPlayer;
+using Hohoema.Models.UseCase.NicoVideos.Player;
 using Hohoema.Models.Domain.Application;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236

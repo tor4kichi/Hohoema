@@ -1,7 +1,6 @@
 ﻿using Hohoema.Presentation.Services.Page;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.UseCase.Playlist.Commands;
+using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -17,6 +16,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Uno.Disposables;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.ViewModels
 {

@@ -13,12 +13,11 @@ using System.Reactive.Linq;
 using System.Threading;
 using Prism.Navigation;
 using Hohoema.Presentation.Services.Page;
-using Hohoema.Models.UseCase.Playlist;
-
-using Hohoema.Models.UseCase.Playlist.Commands;
+using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Models.UseCase;
 using System.Runtime.CompilerServices;
 using Hohoema.Models.Domain.Niconico;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.ViewModels
 {

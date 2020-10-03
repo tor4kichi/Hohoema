@@ -20,7 +20,7 @@ using Hohoema.Database;
 using Reactive.Bindings.Extensions;
 using System.Collections.ObjectModel;
 using Prism.Navigation;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using I18NPortable;
 using Hohoema.Models.UseCase;
 using Mntone.Nico2.Users.Mylist;

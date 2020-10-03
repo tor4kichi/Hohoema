@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
