@@ -1,4 +1,4 @@
-﻿<Page x:Class="Hohoema.Presentation.Views.LivePlayerPage" 
+﻿<Page x:Class="Hohoema.Presentation.Views.Player.LivePlayerPage" 
       x:Name="PageRoot" 
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

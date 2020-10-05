@@ -17,6 +17,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using Hohoema.Models.Domain.Niconico.UserFeature;
 
 namespace Hohoema.Models.Domain.Legacy
 {

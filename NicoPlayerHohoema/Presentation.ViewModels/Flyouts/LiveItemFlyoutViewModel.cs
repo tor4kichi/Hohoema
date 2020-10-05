@@ -1,4 +1,4 @@
-﻿using Hohoema.Presentation.ViewModels.Live.Commands;
+﻿using Hohoema.Presentation.ViewModels.LivePages.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;

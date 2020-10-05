@@ -307,17 +307,17 @@ namespace Hohoema.Presentation.Views
 
         private Type[] PreventGoBackPageTypes = new Type[]
         {
-            typeof(Views.RankingCategoryListPage),
-            typeof(Views.FollowManagePage),
+            typeof(Views.Pages.VideoPages.RankingCategoryListPage),
+            typeof(Views.Pages.UserFeaturePages.FollowManagePage),
         };
 
         private Type[] ForgetOwnNavigationPageTypes = new Type[]
         {
-            typeof(Views.LivePlayerPage),
-            typeof(Views.VideoPlayerPage),
+            typeof(Views.Player.LivePlayerPage),
+            typeof(Views.Player.VideoPlayerPage),
         };
 
-        static readonly Type FallbackPageType = typeof(RankingCategoryListPage);
+        static readonly Type FallbackPageType = typeof(Pages.VideoPages.RankingCategoryListPage);
 
 
         private List<INavigationParameters> BackParametersStack = new List<INavigationParameters>();

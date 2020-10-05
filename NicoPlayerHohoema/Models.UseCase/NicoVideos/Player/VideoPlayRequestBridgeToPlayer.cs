@@ -47,7 +47,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             _eventAggregator.GetEvent<PlayerPlayVideoRequest>()
                 .Subscribe(async e => 
                 {
-                    var pageName = nameof(Presentation.Views.VideoPlayerPage);
+                    var pageName = nameof(Presentation.Views.Player.VideoPlayerPage);
                     var parameters = new NavigationParameters($"id={e.VideoId}&position={(int)e.Position.TotalSeconds}");
                     
                     await PlayWithCurrentView(DisplayMode, pageName, parameters);
@@ -56,7 +56,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             _eventAggregator.GetEvent<PlayerPlayLiveRequest>()
                 .Subscribe(async e =>
                 {
-                    var pageName = nameof(Presentation.Views.LivePlayerPage);
+                    var pageName = nameof(Presentation.Views.Player.LivePlayerPage);
                     var parameters = new NavigationParameters("id=" + e.LiveId);
                     
                     await PlayWithCurrentView(DisplayMode, pageName, parameters);

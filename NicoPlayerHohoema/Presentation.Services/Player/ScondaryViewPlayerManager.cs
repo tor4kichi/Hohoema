@@ -323,7 +323,7 @@ namespace Hohoema.Presentation.Services
 
         string ResolveContentName(string pageName, INavigationParameters parameters)
         {
-            if (pageName == nameof(Views.VideoPlayerPage))
+            if (pageName == nameof(Views.Player.VideoPlayerPage))
             {
                 if (parameters.TryGetValue("id", out string videoId))
                 {
@@ -331,7 +331,7 @@ namespace Hohoema.Presentation.Services
                     return videoData.Title;
                 }
             }
-            else if (pageName == nameof(Views.LivePlayerPage))
+            else if (pageName == nameof(Views.Player.LivePlayerPage))
             {
                 if (parameters.TryGetValue("id", out string liveId))
                 {

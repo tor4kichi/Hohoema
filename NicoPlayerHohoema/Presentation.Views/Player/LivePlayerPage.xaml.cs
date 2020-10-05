@@ -24,7 +24,7 @@ using Hohoema.Models.Domain.Application;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace Hohoema.Presentation.Views
+namespace Hohoema.Presentation.Views.Player
 {
     public sealed partial class LivePlayerPage : Page
     {

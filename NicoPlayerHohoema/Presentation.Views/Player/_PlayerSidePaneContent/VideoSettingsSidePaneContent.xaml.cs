@@ -1,4 +1,4 @@
-﻿using Hohoema.Presentation.ViewModels.PlayerSidePaneContent;
+﻿using Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent;
 using System;
 using System.Collections.Generic;
 using System.IO;

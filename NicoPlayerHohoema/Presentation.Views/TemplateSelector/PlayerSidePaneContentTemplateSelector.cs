@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Presentation.Views.Player;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,15 +19,15 @@ namespace Hohoema.Presentation.Views.TemplateSelector
 
         protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
-            if (item is ViewModels.PlayerSidePaneContent.LiveCommentSidePaneContentViewModel)
+            if (item is ViewModels.Player.PlayerSidePaneContent.LiveCommentSidePaneContentViewModel)
             {
                 return Comments;
             }
-            else if (item is ViewModels.PlayerSidePaneContent.EmptySidePaneContentViewModel)
+            else if (item is ViewModels.Player.PlayerSidePaneContent.EmptySidePaneContentViewModel)
             {
                 return Empty;
             }
-            else if (item is ViewModels.PlayerSidePaneContent.SettingsSidePaneContentViewModel)
+            else if (item is ViewModels.Player.PlayerSidePaneContent.SettingsSidePaneContentViewModel)
             {
                 return Settings;
             }

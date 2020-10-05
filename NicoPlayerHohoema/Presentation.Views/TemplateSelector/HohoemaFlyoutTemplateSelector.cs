@@ -1,6 +1,8 @@
 ﻿
 using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Presentation.ViewModels;
+using Hohoema.Presentation.ViewModels.Pages.SearchPages;
+using Hohoema.Presentation.ViewModels.VideoListPage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +32,7 @@ namespace Hohoema.Presentation.Views.TemplateSelector
             {
                 return LiveFlyoutTemplate;
             }
-            else if (item is SearchHistoryListItem)
+            else if (item is SearchHistoryListItemViewModel)
             {
                 return SearchHistoryFlyoutTemplate;
             }

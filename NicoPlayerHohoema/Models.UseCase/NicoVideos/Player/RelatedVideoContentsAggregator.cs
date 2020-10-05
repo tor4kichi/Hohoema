@@ -13,6 +13,7 @@ using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Presentation.Services.Page;
+using Hohoema.Presentation.ViewModels.VideoListPage;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {

@@ -26,7 +26,7 @@ using Hohoema.Models.Domain.Application;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace Hohoema.Presentation.Views
+namespace Hohoema.Presentation.Views.Player
 {
 
     public enum PlayerSidePaneContentType
@@ -137,7 +137,7 @@ namespace Hohoema.Presentation.Views
         bool _prevMediaPlayerPlaying;
         private void CommentTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (DataContext is ViewModels.VideoPlayerPageViewModel vm)
+            if (DataContext is ViewModels.Player.VideoPlayerPageViewModel vm)
             {
                 if (vm.PlayerSettings.PauseWithCommentWriting)
                 {
@@ -149,7 +149,7 @@ namespace Hohoema.Presentation.Views
 
         private void CommentTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            if (DataContext is ViewModels.VideoPlayerPageViewModel vm)
+            if (DataContext is ViewModels.Player.VideoPlayerPageViewModel vm)
             {
                 if (vm.PlayerSettings.PauseWithCommentWriting)
                 {

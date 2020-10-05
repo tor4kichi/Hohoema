@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Presentation.ViewModels.Pages.SearchPages;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,15 +18,15 @@ namespace Hohoema.Presentation.Views.TemplateSelector
 
         protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
-            if (item is ViewModels.VideoSearchOptionViewModelBase)
+            if (item is VideoSearchOptionViewModelBase)
             {
                 return Video;
             }
-            else if (item is ViewModels.MylistSearchOptionViewModel)
+            else if (item is MylistSearchOptionViewModel)
             {
                 return Mylist;
             }
-            else if (item is ViewModels.CommunitySearchOptionViewModel)
+            else if (item is CommunitySearchOptionViewModel)
             {
                 return Community;
             }

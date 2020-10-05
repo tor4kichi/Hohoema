@@ -17,12 +17,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Hohoema.Presentation.ViewModels.UserFeature;
+using Hohoema.Presentation.ViewModels.Pages.UserFeaturePages;
 using Hohoema.Models.Domain.Application;
 using System.Diagnostics;
 using System.Reactive.Linq;
 using Uno.Extensions;
-using Hohoema.Presentation.ViewModels.Page.Commands;
+using Hohoema.Presentation.ViewModels.Navigation.Commands;
 using Hohoema.Models.UseCase.NicoVideos.Player;
 
 namespace Hohoema.Presentation.ViewModels
