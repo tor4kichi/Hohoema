@@ -12,7 +12,7 @@ namespace Hohoema.Presentation.Views.Extensions
      * ItemContextFlyoutTemplate または ItemContextFlyoutTemplateSelector を設定する
      * 
      * 例）
-     * xmlns:myExtensions="using:NicoPlayerHohoema.Presentation.Views.Extensions"
+     * xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
      * myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
      * 
      * 

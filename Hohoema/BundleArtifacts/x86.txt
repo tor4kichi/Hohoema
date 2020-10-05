@@ -1,0 +1,2 @@
+MainPackage=G:\tor4k\Documents\Repo\Hohoema\NicoPlayerHohoema\bin\x86\Release\Hohoema_0.25.4.0_x86.appx
+SymbolPackage=G:\tor4k\Documents\Repo\Hohoema\NicoPlayerHohoema\obj\x86\Release\Symbols\Hohoema_0.25.4.0_x86.appxsym

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hohoema", "NicoPlayerHohoema\Hohoema.csproj", "{9E535220-1265-4F11-B548-9FD4FADAA25D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hohoema", "Hohoema\Hohoema.csproj", "{9E535220-1265-4F11-B548-9FD4FADAA25D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mntone.Nico2.UWP", "OpenNiconico2\Mntone.Nico2.UWP\Mntone.Nico2.UWP.csproj", "{BBF8857D-550A-4228-B9FC-52C38D5346F1}"
 EndProject

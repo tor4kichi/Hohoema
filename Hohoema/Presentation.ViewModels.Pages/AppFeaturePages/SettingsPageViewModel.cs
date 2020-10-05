@@ -516,13 +516,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
         public ReactiveProperty<bool> IsDebugModeEnabled { get; }
 
 
-        private bool _IsExistErrorFilesFolder;
-        public bool IsExistErrorFilesFolder
-        {
-            get { return _IsExistErrorFilesFolder; }
-            set { SetProperty(ref _IsExistErrorFilesFolder, value); }
-        }
-
         private DelegateCommand _CopyVersionTextToClipboardCommand;
         public DelegateCommand CopyVersionTextToClipboardCommand
         {
@@ -599,12 +592,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
                     var listing = await Models.Domain.Purchase.HohoemaPurchase.GetAvailableCheersAddOn();
                     PurchaseItems = listing.ProductListings.Select(x => new ProductViewModel(x.Value)).ToList();
                     RaisePropertyChanged(nameof(PurchaseItems));
-                }
-                catch { }
-
-                try
-                {
-                    IsExistErrorFilesFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("error") != null;
                 }
                 catch { }
 
