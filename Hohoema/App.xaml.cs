@@ -330,14 +330,14 @@ namespace Hohoema
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.CommunityPages.CommunityVideoPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.LivePages.LiveInfomationPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.MylistPages.UserMylistPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.MylistPages.MylistVideosPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.MylistPages.MylistPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultTagPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultMylistPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultKeywordPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultCommunityPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultLivePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SeriesPages.SeriesVideosPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SeriesPages.SeriesPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SeriesPages.UserSeriesPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.LoginPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.FollowManagePage>();

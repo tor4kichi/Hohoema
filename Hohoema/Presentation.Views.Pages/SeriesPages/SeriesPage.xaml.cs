@@ -20,9 +20,9 @@ namespace Hohoema.Presentation.Views.Pages.SeriesPages
     /// <summary>
     /// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
     /// </summary>
-    public sealed partial class SeriesVideosPage : Page
+    public sealed partial class SeriesPage : Page
     {
-        public SeriesVideosPage()
+        public SeriesPage()
         {
             this.InitializeComponent();
         }

@@ -45,7 +45,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
         public MylistSortOrder Order { get; set; }
     }
 
-    public class MylistVideosPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class MylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {
@@ -62,7 +62,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             return Mylist.Select(x => x?.Label);
         }
 
-        public MylistVideosPageViewModel(
+        public MylistPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             NiconicoSession niconicoSession,

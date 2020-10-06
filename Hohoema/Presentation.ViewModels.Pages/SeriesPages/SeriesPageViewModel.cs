@@ -21,7 +21,7 @@ using Hohoema.Presentation.ViewModels.Subscriptions.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.SeriesPages
 {
-    public sealed class SeriesVideosPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigationAware, INavigatedAwareAsync, ITitleUpdatablePage, IPinablePage
+    public sealed class SeriesPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigationAware, INavigatedAwareAsync, ITitleUpdatablePage, IPinablePage
     {
         public HohoemaPin GetPin()
         {
@@ -40,7 +40,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SeriesPages
         }
 
 
-        public SeriesVideosPageViewModel(
+        public SeriesPageViewModel(
             HohoemaPlaylist hohoemaPlaylist,
             SeriesRepository seriesRepository,
             AddSubscriptionCommand addSubscriptionCommand

@@ -328,7 +328,7 @@
     <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\SeparatorMenuItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\VideoMenuSubPageContent.cs" />
     <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\WatchAfterMenuItemViewModel.cs" />
-    <Compile Include="Presentation.ViewModels.Pages\SeriesPages\SeriesVideosPageViewModel.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\SeriesPages\SeriesPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\SubscriptionManagementPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\Subscriptions.Commands\AddKeywordSearchSubscriptionCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\Subscriptions.Commands\AddSubscriptionCommand.cs" />
@@ -485,7 +485,7 @@
     <Compile Include="Models.Domain\PageNavigation\ISearchHistory.cs" />
     <Compile Include="Presentation.ViewModels\Player\LivePlayerPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\UserFeaturePages\LoginPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels.Pages\MylistPages\MylistVideosPageViewModel.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\MylistPages\MylistPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\UserFeaturePages\NicoRepoPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Player\PlayerSidePaneContent\EmptySidePaneContentViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Player\PlayerSidePaneContent\SettingsSidePaneContentViewModel.cs" />
@@ -591,8 +591,8 @@
     <Compile Include="Presentation.Views.Pages\SearchPages\SearchSummaryPage.xaml.cs">
       <DependentUpon>SearchSummaryPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\SeriesPages\SeriesVideosPage.xaml.cs">
-      <DependentUpon>SeriesVideosPage.xaml</DependentUpon>
+    <Compile Include="Presentation.Views.Pages\SeriesPages\SeriesPage.xaml.cs">
+      <DependentUpon>SeriesPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\AppFeaturePages\SubscriptionManagementPage.xaml.cs">
       <DependentUpon>SubscriptionManagementPage.xaml</DependentUpon>
@@ -727,8 +727,8 @@
     <Compile Include="Presentation.Views.Pages\UserFeaturePages\LoginPage.xaml.cs">
       <DependentUpon>LoginPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\MylistPages\MylistVideosPage.xaml.cs">
-      <DependentUpon>MylistVideosPage.xaml</DependentUpon>
+    <Compile Include="Presentation.Views.Pages\MylistPages\MylistPage.xaml.cs">
+      <DependentUpon>MylistPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\SearchPages\SearchPage.xaml.cs">
       <DependentUpon>SearchPage.xaml</DependentUpon>
@@ -1029,7 +1029,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views.Pages\SeriesPages\SeriesVideosPage.xaml">
+    <Page Include="Presentation.Views.Pages\SeriesPages\SeriesPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1166,7 +1166,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views.Pages\MylistPages\MylistVideosPage.xaml">
+    <Page Include="Presentation.Views.Pages\MylistPages\MylistPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
