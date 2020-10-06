@@ -153,18 +153,6 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsInitialized, Mode=OneWay,Converter={StaticResource BoolNegation}}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="UserControlRoot.Opacity"
-                    Value="0.7" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
             <StateTrigger IsActive="{Binding IsDeleted}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
