@@ -20,12 +20,26 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature
                 return new List<UserFollowItem>();
             }
 
+            const int PageSize = 100;
+
+            List<UserFollowItem> followers = new List<UserFollowItem>();
             var res = await ContextActionWithPageAccessWaitAsync(async context =>
             {
-                return await context.User.GetFollowUsersAsync();
+                return await context.User.GetFollowUsersAsync(PageSize);
             });
 
-            return res.Data.Items;
+            followers.AddRange(res.Data.Items);
+            while (res.Data.Summary.HasNext)
+            {
+                res = await ContextActionWithPageAccessWaitAsync(async context =>
+                {
+                    return await context.User.GetFollowUsersAsync(PageSize, res);
+                });
+
+                followers.AddRange(res.Data.Items);
+            }
+
+            return followers;
         }
 
         public async Task<ContentManageResult> AddFollowAsync(string id)

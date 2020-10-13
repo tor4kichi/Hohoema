@@ -255,7 +255,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
             var items = videoIdList.Select(x => _loginUserMylistItemIdRepository.GetItemId(sourceMylistGroupId, x));
             return await ContextActionAsync(async context =>
             {
-                return await context.User.CopyMylistItemAsync(sourceMylistGroupId, targetGroupId, NiconicoItemType.Video, items.ToArray());
+                return await context.User.CopyMylistItemAsync(sourceMylistGroupId, targetGroupId, items.ToArray());
             });
         }
 
@@ -265,7 +265,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
             var items = videoIdList.Select(x => _loginUserMylistItemIdRepository.GetItemId(sourceMylistGroupId, x));
             return await ContextActionAsync(async context =>
             {
-                return await context.User.MoveMylistItemAsync(sourceMylistGroupId, targetGroupId, NiconicoItemType.Video, items.ToArray());
+                return await context.User.MoveMylistItemAsync(sourceMylistGroupId, targetGroupId, items.ToArray());
             });
         }
     }
