@@ -1,0 +1,71 @@
+﻿<UserControl
+    x:Class="Hohoema.Presentation.Views.Pages.VideoListPage.VideoItemsListView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Hohoema.Presentation.Views.Pages.VideoListPage"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:actions="using:Hohoema.Presentation.Views.Actions"
+  xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+  xmlns:trigger="using:Hohoema.Presentation.Views.StateTrigger"
+  mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+  
+  >
+
+  <Grid>
+
+    <ListView x:Name="ItemsList"
+              ItemsSource="{x:Bind ItemsSource, Mode=OneWay}"
+              ItemTemplate="{x:Bind ItemTemplate, Mode=OneWay}"
+              Header="{x:Bind Header}"
+              IncrementalLoadingTrigger="Edge"
+              UseSystemFocusVisuals="True"
+              SelectionMode="None"
+              HorizontalContentAlignment="Stretch"
+              ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+              uwpExtension:ScrollViewerExtensions.VerticalScrollBarMargin="0 48 0 0"
+              xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
+              IsItemClickEnabled="True"
+              Padding="{x:Bind ItemsPanelPadding, Mode=OneWay}"
+              >
+
+      <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="ItemClick">
+          <core:InvokeCommandAction Command="{x:Bind ItemCommand, Mode=OneWay}"
+                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+        </core:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+      <ListView.ItemContainerTransitions>
+        <TransitionCollection>
+
+        </TransitionCollection>
+      </ListView.ItemContainerTransitions>
+
+    </ListView>
+
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _selectionContext.IsSelectionEnabled, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+
+          <VisualState.Setters>
+            <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
+            <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
+            <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
+            
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</UserControl>
