@@ -1357,7 +1357,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Presentation.Services\CoreLayoutEvents\" />
-    <Folder Include="Presentation.Views\Pages\" />
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>

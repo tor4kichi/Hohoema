@@ -246,7 +246,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
             if (itemId == null) { return ContentManageResult.Failed; }
             return await ContextActionAsync(async context =>
             {
-                return await context.User.RemoveMylistItemAsync(mylistGroupid, NiconicoItemType.Video, itemId);
+                return await context.User.RemoveMylistItemAsync(mylistGroupid, itemId);
             });
         }
 
