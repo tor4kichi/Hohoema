@@ -63,8 +63,10 @@ namespace Hohoema.Presentation.ViewModels.Player
             DialogService dialogService,
             ExternalAccessService externalAccessService,
             AddSubscriptionCommand addSubscriptionCommand,
-            CreateLocalMylistCommand createLocalMylistCommand,
-            CreateMylistCommand createMylistCommand,
+            LocalPlaylistCreateCommand createLocalMylistCommand,
+            MylistAddItemCommand addMylistCommand,
+            LocalPlaylistAddItemCommand localPlaylistAddItemCommand,
+            MylistCreateCommand createMylistCommand,
             VideoStreamingOriginOrchestrator videoStreamingOriginOrchestrator,
             VideoPlayer videoPlayer,
             CommentPlayer commentPlayer,
@@ -99,6 +101,8 @@ namespace Hohoema.Presentation.ViewModels.Player
             ExternalAccessService = externalAccessService;
             AddSubscriptionCommand = addSubscriptionCommand;
             CreateLocalMylistCommand = createLocalMylistCommand;
+            AddMylistCommand = addMylistCommand;
+            LocalPlaylistAddItemCommand = localPlaylistAddItemCommand;
             CreateMylistCommand = createMylistCommand;
             _videoStreamingOriginOrchestrator = videoStreamingOriginOrchestrator;
             VideoPlayer = videoPlayer;
@@ -143,8 +147,10 @@ namespace Hohoema.Presentation.ViewModels.Player
         public PageManager PageManager { get; }
         public ScondaryViewPlayerManager PlayerViewManager { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
-        public CreateLocalMylistCommand CreateLocalMylistCommand { get; }
-        public CreateMylistCommand CreateMylistCommand { get; }
+        public LocalPlaylistCreateCommand CreateLocalMylistCommand { get; }
+        public MylistAddItemCommand AddMylistCommand { get; }
+        public LocalPlaylistAddItemCommand LocalPlaylistAddItemCommand { get; }
+        public MylistCreateCommand CreateMylistCommand { get; }
 
 
         public MediaPlayer MediaPlayer { get; }

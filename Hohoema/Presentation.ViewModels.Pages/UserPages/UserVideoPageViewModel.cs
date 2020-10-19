@@ -22,6 +22,7 @@ using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Subscriptions.Commands;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.UserPages
 {
@@ -48,7 +49,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserPages
             SubscriptionManager subscriptionManager,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            AddSubscriptionCommand addSubscriptionCommand
+            AddSubscriptionCommand addSubscriptionCommand,
+            SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             SubscriptionManager = subscriptionManager;
@@ -57,7 +59,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserPages
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             AddSubscriptionCommand = addSubscriptionCommand;
-
+            SelectionModeToggleCommand = selectionModeToggleCommand;
             UserInfo = new ReactiveProperty<UserInfoViewModel>();
         }
 
@@ -68,7 +70,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserPages
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
-
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public ReactiveProperty<UserInfoViewModel> UserInfo { get; }
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)

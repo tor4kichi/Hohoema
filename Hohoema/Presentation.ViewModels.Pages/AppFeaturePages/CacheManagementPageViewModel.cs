@@ -20,6 +20,7 @@ using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 {
@@ -34,7 +35,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
             PageManager pageManager,
             DialogService dialogService,
             NotificationService notificationService,
-            HohoemaPlaylist hohoemaPlaylist
+            HohoemaPlaylist hohoemaPlaylist,
+            SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -45,6 +47,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
             HohoemaDialogService = dialogService;
             NotificationService = notificationService;
             HohoemaPlaylist = hohoemaPlaylist;
+            SelectionModeToggleCommand = selectionModeToggleCommand;
             IsRequireUpdateCacheSaveFolder = new ReactiveProperty<bool>(false);
 
             IsCacheUserAccepted = CacheSettings.ObserveProperty(x => x.IsUserAcceptedCache)
@@ -129,6 +132,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
         public NicoVideoProvider NicoVideoProvider { get; }
         public NotificationService NotificationService { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public DialogService HohoemaDialogService { get; }
 
 

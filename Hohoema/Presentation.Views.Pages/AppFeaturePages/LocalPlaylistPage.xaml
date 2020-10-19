@@ -58,6 +58,9 @@
                                 Label="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                                 Command="{Binding PlaylistPlayAllCommand}"
                                 CommandParameter="{Binding Playlist}"></AppBarButton>
+
+                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
+
                   <AppBarButton x:Name="ScrollToTopButton"
                                 Icon="Up"
                                 Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">

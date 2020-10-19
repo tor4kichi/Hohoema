@@ -67,6 +67,9 @@
               </ListView>
               <CommandBar>
                 <CommandBar.PrimaryCommands>
+
+                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
+
                   <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Click">

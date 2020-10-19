@@ -33,13 +33,8 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
             : base(id)
         {
             _loginUserMylistProvider = loginUserMylistProvider;
-            ItemsRemoveCommand = new MylistRemoveItemCommand(this);
-            ItemsAddCommand = new MylistAddItemCommand(this, App.Current.Container.Resolve<NotificationService>());
         }
-
-        public MylistRemoveItemCommand ItemsRemoveCommand { get; }
-        public MylistAddItemCommand ItemsAddCommand { get; }
-
+        
         public async Task<List<IVideoContent>> GetAll(MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
             List<IVideoContent> items = new List<IVideoContent>();

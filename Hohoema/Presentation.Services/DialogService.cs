@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.UI.Popups;
 using Windows.Web.Http;
+using Hohoema.Presentation.Views.Dialogs;
 
 namespace Hohoema.Presentation.Services
 {
@@ -303,9 +304,72 @@ namespace Hohoema.Presentation.Services
         }
         
 
-        #region
+        #region AdvancedSelectDialog
 
-        
+        public async Task<T> ShowSingleSelectDialogAsync<T>(
+            List<T> sourceItems, 
+            string displayMemberPath, 
+            Func<T, string, bool> filter,
+            string dialogTitle,
+            string dialogPrimaryButtonText,
+            string dialogSecondaryButtonText = null,
+            Func<Task<T>> SecondaryButtonAction = null
+            )
+        {
+            var advancedSelectDialog = new AdvancedSelectDialog();
+            advancedSelectDialog.Title = dialogTitle;
+            advancedSelectDialog.PrimaryButtonText = dialogPrimaryButtonText;
+            advancedSelectDialog.CloseButtonText = "Cancel".Translate();
+            advancedSelectDialog.SetSourceItems(sourceItems, filter != null ? (x, s) => filter((T)x, s) : default(Func<object, string, bool>));
+            advancedSelectDialog.ItemDisplayMemberPath = displayMemberPath;
+            advancedSelectDialog.IsMultiSelection = false;
+            if (dialogSecondaryButtonText != null)
+            {
+                advancedSelectDialog.SecondaryButtonText = dialogSecondaryButtonText;
+            }
+
+            var result = await advancedSelectDialog.ShowAsync();
+            if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                return (T)advancedSelectDialog.GetResultItems().FirstOrDefault();
+            }
+            else if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Secondary)
+            {
+                return await SecondaryButtonAction?.Invoke();
+            }
+            else
+            {
+                return default(T);
+            }
+        }
+
+        public async Task<List<T>> ShowMultiSelectDialogAsync<T>(
+            List<T> sourceItems,
+            string displayMemberPath,
+            Func<T, string, bool> filter,
+            string dialogTitle,
+            string dialogPrimaryButtonText
+            )
+        {
+            var advancedSelectDialog = new AdvancedSelectDialog();
+            advancedSelectDialog.Title = dialogTitle;
+            advancedSelectDialog.PrimaryButtonText = dialogPrimaryButtonText;
+            advancedSelectDialog.SecondaryButtonText = "Cancel".Translate();
+            advancedSelectDialog.SetSourceItems(sourceItems, filter != null ? (x, s) => filter((T)x, s) : default(Func<object, string, bool>));
+            advancedSelectDialog.ItemDisplayMemberPath = displayMemberPath;
+            advancedSelectDialog.IsMultiSelection = true;
+            var result = await advancedSelectDialog.ShowAsync();
+            if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                return advancedSelectDialog.GetResultItems().Cast<T>().ToList();
+            }
+            else
+            {
+                return new List<T>();
+            }
+        }
+
+
 
         #endregion
     }

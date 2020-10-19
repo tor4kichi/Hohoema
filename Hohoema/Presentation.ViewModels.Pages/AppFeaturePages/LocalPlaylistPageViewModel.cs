@@ -49,7 +49,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
             HohoemaPlaylist hohoemaPlaylist,
             PlaylistAggregateGetter playlistAggregate,
             LocalPlaylistDeleteCommand localPlaylistDeleteCommand,
-            PlaylistPlayAllCommand playlistPlayAllCommand
+            PlaylistPlayAllCommand playlistPlayAllCommand,
+            SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -59,6 +60,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
             _playlistAggregate = playlistAggregate;
             LocalPlaylistDeleteCommand = localPlaylistDeleteCommand;
             PlaylistPlayAllCommand = playlistPlayAllCommand;
+            SelectionModeToggleCommand = selectionModeToggleCommand;
         }
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -66,6 +68,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public LocalPlaylistDeleteCommand LocalPlaylistDeleteCommand { get; }
         public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 
         private IReadOnlyCollection<VideoInfoControlViewModel> _PlaylistItems;
         public IReadOnlyCollection<VideoInfoControlViewModel> PlaylistItems

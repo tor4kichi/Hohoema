@@ -19,6 +19,7 @@ using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Subscriptions.Commands;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 {
@@ -45,6 +46,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public AddKeywordSearchSubscriptionCommand AddKeywordSearchSubscriptionCommand { get; }
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public SubscriptionManager SubscriptionManager { get; }
 
         public SearchResultKeywordPageViewModel(
@@ -54,7 +56,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             SearchHistoryRepository searchHistoryRepository,
-            AddKeywordSearchSubscriptionCommand addKeywordSearchSubscriptionCommand
+            AddKeywordSearchSubscriptionCommand addKeywordSearchSubscriptionCommand,
+            SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             FailLoading = new ReactiveProperty<bool>(false)
@@ -94,6 +97,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
             PageManager = pageManager;
             _searchHistoryRepository = searchHistoryRepository;
             AddKeywordSearchSubscriptionCommand = addKeywordSearchSubscriptionCommand;
+            SelectionModeToggleCommand = selectionModeToggleCommand;
             SubscriptionManager = subscriptionManager;
         }
 
