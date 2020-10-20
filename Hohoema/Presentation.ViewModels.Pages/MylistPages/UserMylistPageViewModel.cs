@@ -53,7 +53,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             UserMylistManager userMylistManager,
             LocalMylistManager localMylistManager,
             HohoemaPlaylist hohoemaPlaylist,
-            CreateLocalMylistCommand createLocalMylistCommand
+            LocalPlaylistCreateCommand createLocalMylistCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -245,7 +245,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
         public DelegateCommand<IPlaylist> RemoveMylistGroupCommand { get; private set; }
         public DelegateCommand<IPlaylist> EditMylistGroupCommand { get; private set; }
         
-        public CreateLocalMylistCommand CreateLocalMylistCommand { get; private set; }
+        public LocalPlaylistCreateCommand CreateLocalMylistCommand { get; private set; }
 
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)

@@ -101,17 +101,17 @@
 
   </MenuFlyoutSubItem>
 
-  <MenuFlyoutSubItem x:Name="AddToMylistSubItem"
+  <MenuFlyoutItem x:Name="AddToMylistItem"
                      Text="{Binding Source=MylistAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                      >
     <!-- items add from code behind -->
-  </MenuFlyoutSubItem>
+  </MenuFlyoutItem>
 
-  <MenuFlyoutSubItem x:Name="LocalMylistSubItem"
+  <MenuFlyoutItem x:Name="LocalMylistItem"
                      Text="{Binding Source=LocalMylistAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                     >
     <!-- items add from code behind -->
-  </MenuFlyoutSubItem>
+  </MenuFlyoutItem>
 
 
 

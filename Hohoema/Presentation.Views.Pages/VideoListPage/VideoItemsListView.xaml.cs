@@ -19,6 +19,11 @@ using System.Threading.Tasks;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain;
+using I18NPortable;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
+using Hohoema.Models.Domain.Niconico;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -163,9 +168,19 @@ namespace Hohoema.Presentation.Views.Pages.VideoListPage
 
 
         private readonly VideoItemsSelectionContext _selectionContext;
-
-
-
+        private readonly NiconicoSession _niconicoSession;
+        private readonly LocalMylistManager _localPlaylistManager;
+        private readonly UserMylistManager _mylistManager;
+        private readonly HohoemaPlaylist _hohoemaPlaylist;
+        private readonly MylistAddItemCommand _addMylistCommand;
+        private readonly MylistRemoveItemCommand _removeMylistCommand;
+        private readonly LocalPlaylistAddItemCommand _localMylistAddCommand;
+        private readonly WatchHistoryRemoveItemCommand _removeWatchHistoryCommand;
+        private readonly MylistCopyItemCommand _copyMylistItemCommand;
+        private readonly MylistMoveItemCommand _moveMylistItemCommand;
+        private readonly LocalPlaylistRemoveItemCommand _localMylistRemoveCommand;
+        private readonly WatchAfterAddItemCommand _addWatchAfterCommand;
+        private readonly WatchAfterRemoveItemCommand _removeWatchAfterCommand;
 
         public VideoItemsListView()
         {
@@ -173,6 +188,18 @@ namespace Hohoema.Presentation.Views.Pages.VideoListPage
 
             // Selection
             _selectionContext = App.Current.Container.Resolve<VideoItemsSelectionContext>();
+            _niconicoSession = App.Current.Container.Resolve<NiconicoSession>();
+            _localPlaylistManager = App.Current.Container.Resolve<LocalMylistManager>();
+            _mylistManager = App.Current.Container.Resolve<UserMylistManager>();
+            _hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
+
+            _addWatchAfterCommand = App.Current.Container.Resolve<WatchAfterAddItemCommand>();
+            _removeWatchAfterCommand = App.Current.Container.Resolve<WatchAfterRemoveItemCommand>();
+            _addMylistCommand = App.Current.Container.Resolve<MylistAddItemCommand>();
+            _localMylistAddCommand = new LocalPlaylistAddItemCommand();
+            _removeWatchHistoryCommand = App.Current.Container.Resolve<WatchHistoryRemoveItemCommand>();
+            _copyMylistItemCommand = App.Current.Container.Resolve<MylistCopyItemCommand>();
+            _moveMylistItemCommand = App.Current.Container.Resolve<MylistMoveItemCommand>();
 
             Loaded += VideoItemsListView_Loaded;
             Unloaded += VideoItemsListView_Unloaded;
@@ -180,6 +207,8 @@ namespace Hohoema.Presentation.Views.Pages.VideoListPage
 
         private void VideoItemsListView_Loaded(object sender, RoutedEventArgs e)
         {
+            UpdateSelectActionsDisplay();
+
             // Selection
             _selectionContext.RequestSelectAll += _selectionContext_RequestSelectAll;
             _selectionContext.SelectionStarted += _selectionContext_SelectionStarted;
@@ -228,6 +257,75 @@ namespace Hohoema.Presentation.Views.Pages.VideoListPage
                             }
                         }
                     }
+                }
+
+                UpdateSelectActionsDisplay();
+            }
+        }
+
+        private void UpdateSelectActionsDisplay()
+        {
+
+            SelectActions_AddWatchAfter.Visibility = Visibility.Collapsed;
+            SelectActions_RemoveWatchAfter.Visibility = Visibility.Collapsed;
+            SelectActions_AddMylist.Visibility = Visibility.Collapsed;
+            SelectActions_RemoveMylist.Visibility = Visibility.Collapsed;
+            SelectActions_CopyMylist.Visibility = Visibility.Collapsed;
+            SelectActions_MoveMylist.Visibility = Visibility.Collapsed; 
+            SelectActions_AddLocalMylist.Visibility = Visibility.Collapsed;
+            SelectActions_RemoveLocalMylist.Visibility = Visibility.Collapsed;
+            SelectActions_RemoveWatchHistory.Visibility = Visibility.Collapsed;
+            SelectActions_RemoveButtonSeparator.Visibility = Visibility.Collapsed;
+            SelectActions_EditButtonSeparator.Visibility = Visibility.Collapsed;
+
+            if (_selectionContext.SelectionItems.Any())
+            {
+                SelectActions_AddWatchAfter.Visibility = Visibility.Visible;
+                SelectActions_AddLocalMylist.Visibility = Visibility.Visible;
+
+                if (PlaylistPassToFlyout?.IsWatchAfterPlaylist() ?? false
+                    || _selectionContext.SelectionItems.Any(x => _hohoemaPlaylist.WatchAfterPlaylist.Any(y => x.Id == y.Id))
+                    )
+                {
+                    SelectActions_RemoveWatchAfter.Visibility = Visibility.Visible;
+                    SelectActions_RemoveButtonSeparator.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    var origin = PlaylistPassToFlyout?.GetOrigin();
+                    if (origin == PlaylistOrigin.Mylist && PlaylistPassToFlyout is LoginUserMylistPlaylist loginUserMylist)
+                    {
+                        if (_niconicoSession.IsLoggedIn)
+                        {
+                            SelectActions_RemoveMylist.Visibility = Visibility.Visible;
+                            SelectActions_RemoveMylist.Command = new MylistRemoveItemCommand(loginUserMylist);
+                            SelectActions_RemoveButtonSeparator.Visibility = Visibility.Visible;
+
+                            SelectActions_CopyMylist.Visibility = Visibility.Visible;
+                            SelectActions_MoveMylist.Visibility = Visibility.Visible;
+                            _copyMylistItemCommand.SourceMylist = loginUserMylist;
+                            _moveMylistItemCommand.SourceMylist = loginUserMylist;
+
+                            SelectActions_EditButtonSeparator.Visibility = Visibility.Visible;
+                        }
+                    }
+                    else if (origin == PlaylistOrigin.Local && PlaylistPassToFlyout is LocalPlaylist localPlaylist)
+                    {
+                        SelectActions_RemoveLocalMylist.Visibility = Visibility.Visible;
+                        SelectActions_RemoveMylist.Command = new LocalPlaylistRemoveItemCommand(localPlaylist);
+                        SelectActions_RemoveButtonSeparator.Visibility = Visibility.Visible;
+                    }
+                }
+
+                if (_niconicoSession.IsLoggedIn)
+                {
+                    SelectActions_AddMylist.Visibility = Visibility.Visible;
+                }
+
+                if (_selectionContext.SelectionItems.Any(x => x is IWatchHistory))
+                {
+                    SelectActions_RemoveWatchHistory.Visibility = Visibility.Visible;
+                    SelectActions_RemoveButtonSeparator.Visibility = Visibility.Visible;
                 }
             }
         }

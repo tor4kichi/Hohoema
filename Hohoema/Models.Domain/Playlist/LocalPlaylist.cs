@@ -30,12 +30,7 @@ namespace Hohoema.Models.Domain.Playlist
             Id = id;
             _playlistRepository = playlistRepository;
             _nicoVideoRepository = nicoVideoRepository;
-            ItemsAddCommand = new LocalPlaylistAddItemCommand(this);
-            ItemsRemoveCommand = new LocalPlaylistRemoveItemCommand(this);
         }
-
-        public LocalPlaylistAddItemCommand ItemsAddCommand { get; }
-        public LocalPlaylistRemoveItemCommand ItemsRemoveCommand { get; }
 
         public string Id { get; }
 

@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
 {
-    public sealed class RemoveHiddenVideoOwnerCommand : DelegateCommandBase
+    public sealed class HiddenVideoOwnerRemoveCommand : DelegateCommandBase
     {
         private readonly VideoFilteringSettings _ngSettings;
 
-        public RemoveHiddenVideoOwnerCommand(VideoFilteringSettings ngSettings)
+        public HiddenVideoOwnerRemoveCommand(VideoFilteringSettings ngSettings)
         {
             _ngSettings = ngSettings;
         }

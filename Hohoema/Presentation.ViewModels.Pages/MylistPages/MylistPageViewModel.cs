@@ -35,6 +35,7 @@ using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Subscriptions.Commands;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
 {
@@ -79,7 +80,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             Services.DialogService dialogService,
             NiconicoFollowToggleButtonService followToggleButtonService,
             PlaylistAggregateGetter playlistAggregate,
-            AddSubscriptionCommand addSubscriptionCommand
+            AddSubscriptionCommand addSubscriptionCommand,
+            SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -99,6 +101,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             FollowToggleButtonService = followToggleButtonService;
             _playlistAggregate = playlistAggregate;
             AddSubscriptionCommand = addSubscriptionCommand;
+            SelectionModeToggleCommand = selectionModeToggleCommand;
             Mylist = new ReactiveProperty<MylistPlaylist>();
 
             SelectedSortItem = new ReactiveProperty<MylistSortViewModel>();
@@ -295,8 +298,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
         public DialogService DialogService { get; }
         public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 
-       
         public ReactiveProperty<MylistPlaylist> Mylist { get; private set; }
 
         private ICollection<IVideoContent> _mylistItems;
@@ -615,6 +618,24 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
                         }
                     })
                     .AddTo(_NavigatingCompositeDisposable);
+                
+                Observable.FromEventPattern<MylistItemMovedEventArgs>(
+                h => loginMylist.MylistMoved += h,
+                h => loginMylist.MylistMoved -= h
+                )
+                .Subscribe(e =>
+                {
+                    var args = e.EventArgs;
+                    if (args.SourceMylistId == Mylist.Value.Id)
+                    {
+                        foreach (var id in args.SuccessedItems)
+                        {
+                            var removeTarget = MylistItems.FirstOrDefault(x => x.Id == id);
+                            MylistItems.Remove(removeTarget);
+                        }
+                    }
+                })
+                .AddTo(_NavigatingCompositeDisposable);
             }
 
             MylistItems = await CreateItemsSourceAsync(mylist);

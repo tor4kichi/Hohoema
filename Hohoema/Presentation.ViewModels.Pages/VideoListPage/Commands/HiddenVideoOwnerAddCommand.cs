@@ -9,9 +9,9 @@ using Windows.UI.Popups;
 
 namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
 {
-    public sealed class AddToHiddenUserCommand : DelegateCommandBase
+    public sealed class HiddenVideoOwnerAddCommand : DelegateCommandBase
     {
-        public AddToHiddenUserCommand(
+        public HiddenVideoOwnerAddCommand(
             VideoFilteringSettings ngSettings,
             ChannelProvider channelProvider,
             UserProvider userProvider,

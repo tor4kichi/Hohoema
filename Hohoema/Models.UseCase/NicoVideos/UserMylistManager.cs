@@ -225,17 +225,19 @@ namespace Hohoema.Models.UseCase.NicoVideos
             }
 		}
 
-		public async Task<string> AddMylist(string name, string description, bool isPublic, MylistSortKey sortKey, MylistSortOrder sortOrder)
+		public async Task<LoginUserMylistPlaylist> AddMylist(string name, string description, bool isPublic, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
             var result = await _loginUserMylistProvider.AddMylist(name, description, isPublic, sortKey, sortOrder);
-
             if (result != null)
             {
                 await SyncMylistGroups();
+                return _mylists.FirstOrDefault(x => x.Id == result);
             }
-
-            return result;
-		}
+            else
+            {
+                return null;
+            }
+        }
 
 		
 		public async Task<bool> RemoveMylist(string mylistGroupId)

@@ -18,6 +18,7 @@ using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Subscriptions.Commands;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.SeriesPages
 {
@@ -43,18 +44,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.SeriesPages
         public SeriesPageViewModel(
             HohoemaPlaylist hohoemaPlaylist,
             SeriesRepository seriesRepository,
-            AddSubscriptionCommand addSubscriptionCommand
+            AddSubscriptionCommand addSubscriptionCommand,
+            SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             HohoemaPlaylist = hohoemaPlaylist;
             _seriesRepository = seriesRepository;
             AddSubscriptionCommand = addSubscriptionCommand;
+            SelectionModeToggleCommand = selectionModeToggleCommand;
         }
 
         private readonly SeriesRepository _seriesRepository;
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 
         private UserSeriesItemViewModel _series;
         public UserSeriesItemViewModel Series

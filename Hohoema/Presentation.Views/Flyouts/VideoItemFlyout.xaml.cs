@@ -80,8 +80,8 @@ namespace Hohoema.Presentation.Views.Flyouts
         public SubscriptionManager SubscriptionManager { get; }
         public VideoCacheManager VideoCacheManager { get; }
         public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
-        public CreateMylistCommand CreateMylistCommand { get; }
-        public CreateLocalMylistCommand CreateLocalMylistCommand { get; }
+        public MylistCreateCommand CreateMylistCommand { get; }
+        public LocalPlaylistCreateCommand CreateLocalMylistCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
 
@@ -94,8 +94,8 @@ namespace Hohoema.Presentation.Views.Flyouts
 
             SelectedVideoItems = new List<IVideoContent>();
 
-            CreateMylistCommand = App.Current.Container.Resolve<CreateMylistCommand>();
-            CreateLocalMylistCommand = App.Current.Container.Resolve<CreateLocalMylistCommand>();
+            CreateMylistCommand = App.Current.Container.Resolve<MylistCreateCommand>();
+            CreateLocalMylistCommand = App.Current.Container.Resolve<LocalPlaylistCreateCommand>();
             HohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
             ExternalAccessService = App.Current.Container.Resolve<ExternalAccessService>();
             PageManager = App.Current.Container.Resolve<PageManager>();
@@ -117,13 +117,16 @@ namespace Hohoema.Presentation.Views.Flyouts
             CopyVideoLink.Command = ExternalAccessService.CopyToClipboardCommand;
             CopyShareText.Command = ExternalAccessService.CopyToClipboardWithShareTextCommand;
 
+            LocalMylistItem.Command = App.Current.Container.Resolve<LocalPlaylistAddItemCommand>();
+            AddToMylistItem.Command = App.Current.Container.Resolve<MylistAddItemCommand>();
+
             AddSusbcriptionItem.Command = App.Current.Container.Resolve<AddSubscriptionCommand>();
 
             CacheRequest.Command = App.Current.Container.Resolve<CacheAddRequestCommand>();
             DeleteCacheRequest.Command = App.Current.Container.Resolve<CacheDeleteRequestCommand>();
 
-            AddNgUser.Command = App.Current.Container.Resolve<AddToHiddenUserCommand>();
-            RemoveNgUser.Command = App.Current.Container.Resolve<RemoveHiddenVideoOwnerCommand>();
+            AddNgUser.Command = App.Current.Container.Resolve<HiddenVideoOwnerAddCommand>();
+            RemoveNgUser.Command = App.Current.Container.Resolve<HiddenVideoOwnerRemoveCommand>();
             SelectionStart.Command = App.Current.Container.Resolve<SelectionStartCommand>();
             SelectionEnd.Command = App.Current.Container.Resolve<SelectionExitCommand>();
             SelectionAll.Command = App.Current.Container.Resolve<SelectionAllSelectCommand>();
@@ -154,7 +157,7 @@ namespace Hohoema.Presentation.Views.Flyouts
             if (playlist is LocalPlaylist localPlaylist)
             {
                 RemoveLocalPlaylistItem.CommandParameter = dataContext;
-                RemoveLocalPlaylistItem.Command = localPlaylist.ItemsRemoveCommand;
+                RemoveLocalPlaylistItem.Command = new LocalPlaylistRemoveItemCommand(localPlaylist);
                 RemoveLocalPlaylistItem.Visibility = Visibility.Visible;
             }
             else
@@ -166,7 +169,7 @@ namespace Hohoema.Presentation.Views.Flyouts
             if (playlist is LoginUserMylistPlaylist mylistPlaylist)
             {
                 RemoveMylistItem.CommandParameter = dataContext;
-                RemoveMylistItem.Command = mylistPlaylist.ItemsRemoveCommand;
+                RemoveMylistItem.Command = new MylistRemoveItemCommand(mylistPlaylist);
                 RemoveMylistItem.Visibility = Visibility.Visible;
             }
             else
@@ -231,27 +234,9 @@ namespace Hohoema.Presentation.Views.Flyouts
 
 
             // マイリスト
-            AddToMylistSubItem.Items.Clear();
-            AddToMylistSubItem.Visibility = UserMylistManager.IsLoginUserMylistReady ? Visibility.Visible : Visibility.Collapsed;
-            if (UserMylistManager.IsLoginUserMylistReady)
-            {
-                AddToMylistSubItem.Items.Add(new MenuFlyoutItem()
-                {
-                    Text = _localizedText_CreateNew,
-                    Command = CreateMylistCommand,
-                    CommandParameter = dataContext
-                });
+            AddToMylistItem.Visibility = UserMylistManager.IsLoginUserMylistReady ? Visibility.Visible : Visibility.Collapsed;
+            AddToMylistItem.CommandParameter = dataContext;
 
-                foreach (var mylist in UserMylistManager.Mylists)
-                {
-                    AddToMylistSubItem.Items.Add(new MenuFlyoutItem()
-                    {
-                        Text = mylist.Label,
-                        Command = mylist.ItemsAddCommand,
-                        CommandParameter = dataContext
-                    });
-                }
-            }
 
             var visibleSingleSelectionItem = isMultipleSelection.ToInvisibility();
             OpenVideoInfoPage.Visibility = visibleSingleSelectionItem;
@@ -269,23 +254,8 @@ namespace Hohoema.Presentation.Views.Flyouts
 
 
             // プレイリスト
-            LocalMylistSubItem.Items.Clear();
-            LocalMylistSubItem.Items.Add(new MenuFlyoutItem()
-            {
-                Text = _localizedText_CreateNew,
-                Command = CreateLocalMylistCommand,
-                CommandParameter = dataContext
-            });
-
-            foreach (var localMylist in LocalMylistManager.LocalPlaylists)
-            {
-                LocalMylistSubItem.Items.Add(new MenuFlyoutItem()
-                {
-                    Text = localMylist.Label,
-                    Command = localMylist.ItemsAddCommand,
-                    CommandParameter = dataContext
-                });
-            }
+            LocalMylistItem.CommandParameter = dataContext;
+            
 
             // NG投稿者
             AddNgUser.Visibility = AddNgUser.Command.CanExecute(content).ToVisibility();

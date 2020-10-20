@@ -1,38 +1,36 @@
-﻿using I18NPortable;
-using Hohoema.Models.Domain;
+﻿using Hohoema.Dialogs;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Playlist;
-using Hohoema.Presentation.Services;
-using Prism.Commands;
 using Hohoema.Models.UseCase.NicoVideos;
-using System.Linq;
-using System.Collections.Generic;
-using Hohoema.Dialogs;
-using Uno.Extensions;
+using Hohoema.Presentation.Services;
+using I18NPortable;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
 {
-    public sealed class MylistAddItemCommand : VideoContentSelectionCommandBase
+    public sealed class MylistMoveItemCommand : VideoContentSelectionCommandBase
     {
         private readonly DialogService _dialogService;
+        private readonly NotificationService _notificationService;
         private readonly UserMylistManager _userMylistManager;
 
-        public MylistAddItemCommand(
-            NotificationService notificationService,
+        public MylistMoveItemCommand(
+            UserMylistManager userMylistManager,
             DialogService dialogService,
-            UserMylistManager userMylistManager
+            NotificationService notificationService
             )
         {
-            NotificationService = notificationService;
-            _dialogService = dialogService;
             _userMylistManager = userMylistManager;
+            _dialogService = dialogService;
+            _notificationService = notificationService;
         }
 
-        public NotificationService NotificationService { get; }
-        public DialogService DialogService { get; }
+        public LoginUserMylistPlaylist SourceMylist { get; set; }
+        public LoginUserMylistPlaylist TargetMylist { get; set; }
 
         protected override void Execute(IVideoContent content)
         {
@@ -44,35 +42,42 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            var targetMylist = _userMylistManager.Mylists.Any() ?
+            if (SourceMylist == null) { throw new NullReferenceException(); }
+
+            var targetMylist = TargetMylist;
+            if (targetMylist == null)
+            {
+                targetMylist = _userMylistManager.Mylists.Any() ?
                     await _dialogService.ShowSingleSelectDialogAsync(
-                    _userMylistManager.Mylists.ToList(),
+                    _userMylistManager.Mylists.Where(x => x.Id != SourceMylist.Id).ToList(),
                     nameof(LoginUserMylistPlaylist.Label),
                     (mylist, s) => mylist.Label.Contains(s),
-                    "SelectMylist".Translate(),
+                    "SelectMoveTargetMylist".Translate(),
                     "Select".Translate(),
                     "CreateNew".Translate(),
                     () => CreateMylistAsync()
                     )
                     : await CreateMylistAsync()
                     ;
+            }
 
             if (targetMylist != null)
             {
-                var addedResult = await targetMylist.AddItem(items.Select(x => x.Id));
-                if (addedResult.SuccessedItems.Any() && addedResult.FailedItems.Empty())
+                var itemsCount = items.Count();
+                var result = await SourceMylist.MoveItemAsync(targetMylist.Id, items.Select(x => x.Id).ToArray());
+                if (result != Mntone.Nico2.ContentManageResult.Failed)
                 {
-                    NotificationService.ShowInAppNotification(
+                    _notificationService.ShowInAppNotification(
                         InAppNotificationPayload.CreateReadOnlyNotification(
-                            "InAppNotification_MylistAddedItems_Success".Translate(targetMylist.Label, addedResult.SuccessedItems.Count)
+                            "InAppNotification_MylistMovedItems_Success".Translate(targetMylist.Label, itemsCount)
                             )
                         );
                 }
                 else
                 {
-                    NotificationService.ShowInAppNotification(
+                    _notificationService.ShowInAppNotification(
                         InAppNotificationPayload.CreateReadOnlyNotification(
-                            "InAppNotification_MylistAddedItems_Fail".Translate(targetMylist.Label)
+                            "InAppNotification_MylistMovedItems_Fail".Translate(targetMylist.Label)
                             )
                         );
                 }

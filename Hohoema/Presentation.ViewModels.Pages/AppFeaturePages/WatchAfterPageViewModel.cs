@@ -26,18 +26,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public RemoveWatchedItemsInAfterWatchPlaylistCommand RemoveWatchedItemsInAfterWatchPlaylistCommand { get; }
         public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 
         public WatchAfterPageViewModel(
             HohoemaPlaylist hohoemaPlaylist,
             ApplicationLayoutManager applicationLayoutManager,
             RemoveWatchedItemsInAfterWatchPlaylistCommand removeWatchedItemsInAfterWatchPlaylistCommand,
-            PlaylistPlayAllCommand playlistPlayAllCommand
+            PlaylistPlayAllCommand playlistPlayAllCommand,
+            SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             _hohoemaPlaylist = hohoemaPlaylist;
             ApplicationLayoutManager = applicationLayoutManager;
             RemoveWatchedItemsInAfterWatchPlaylistCommand = removeWatchedItemsInAfterWatchPlaylistCommand;
             PlaylistPlayAllCommand = playlistPlayAllCommand;
+            SelectionModeToggleCommand = selectionModeToggleCommand;
             _watchAfterPlaylist = _hohoemaPlaylist.WatchAfterPlaylist;
             PlaylistItems = _watchAfterPlaylist;
         }

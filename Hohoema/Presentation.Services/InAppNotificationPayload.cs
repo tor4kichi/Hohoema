@@ -75,15 +75,15 @@ namespace Hohoema.Presentation.Services
             string notifyContent = null;
             if (registrationResult == Mntone.Nico2.ContentManageResult.Success)
             {
-                notifyContent = "CompleteRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerKindLabel, targetTitle);
+                notifyContent = "CompleteRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerTitle, targetTitle);
             }
             else if (registrationResult == Mntone.Nico2.ContentManageResult.Exist)
             {
-                notifyContent = "ExistRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerKindLabel, targetTitle);
+                notifyContent = "ExistRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerTitle, targetTitle);
             }
             else
             {
-                notifyContent = "FailedRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerKindLabel, targetTitle);
+                notifyContent = "FailedRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerTitle, targetTitle);
             }
 
             return new InAppNotificationPayload()

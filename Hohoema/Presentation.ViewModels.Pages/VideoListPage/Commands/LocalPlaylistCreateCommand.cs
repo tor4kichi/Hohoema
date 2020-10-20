@@ -13,9 +13,9 @@ using Hohoema.Presentation.Services;
 
 namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
 {
-    public sealed class CreateLocalMylistCommand : DelegateCommandBase
+    public sealed class LocalPlaylistCreateCommand : DelegateCommandBase
     {
-        public CreateLocalMylistCommand(
+        public LocalPlaylistCreateCommand(
             LocalMylistManager localMylistManager,
             DialogService dialogService
             )
