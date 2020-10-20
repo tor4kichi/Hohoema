@@ -225,7 +225,6 @@ ApplicationDiagnosticsReport = アプリの使用状況レポート
 EnableCrashReport = アプリのエラー情報を送信する
 EnableAnalyticsReport = アプリ機能・ページの利用状況を送信する
 
-
 #### Niconico General ####
 PrivateReasonType.PostedBy = 投稿者削除
 PrivateReasonType.Private = 非公開設定
@@ -714,9 +713,9 @@ MylistRegisteredCountLimit = 上限
 MylistRegisteredCountSum = 合計
 
 # ex) マイリストに登録完了\n「作業用BGM」に「動画タイトル」を追加しました
-CompleteRegisrationForKind0_AddItem2_ToKindTitle1 = 【{0}に追加完了】「{1}」に 「{2}」を追加しました
-ExistRegisrationForKind0_AddItem2_ToKindTitle1 = 【{0}に追加済み】「{1}」に「{2}」を追加済みです
-FailedRegisrationForKind0_AddItem2_ToKindTitle1 = 【{0}への追加失敗】「{1}」に「{2}」を追加できませんでした
+CompleteRegisrationForKind0_AddItem2_ToKindTitle1 = {0}に登録完了\n「{1}」に「{2}」を追加しました
+ExistRegisrationForKind0_AddItem2_ToKindTitle1 = {0}に既に追加済み\n「{1}」に「{2}」を追加済みです
+FailedRegisrationForKind0_AddItem2_ToKindTitle1 = {0}に登録失敗\n「{1}」に「{2}」を追加できませんでした
 
 InAppNotification_MylistAddedItems_Success = {0} に {1} 個の動画を追加しました
 InAppNotification_MylistAddedItems_Fail = {0} への追加に失敗
@@ -739,10 +738,19 @@ MylistSort = 並び替え
 RemoveWatchHisotryItem = 視聴履歴から削除
 LocalMylistRemoveItem = ローカルマイリストから削除
 MylistRemoveItem = マイリストから削除
+MylistCopyItem = 別のマイリストへコピー
+SelectCopyTargetMylist = コピー先のマイリストを選択
+InAppNotification_MylistCopiedItems_Success = {0} に {1} 個の動画をコピーしました
+InAppNotification_MylistCopiedItems_Fail = {0} への動画のコピーに失敗しました
+MylistMoveItem = 別のマイリストへ移動
+SelectMoveTargetMylist = 移動先のマイリストを選択
+InAppNotification_MylistMovedItems_Success = {0} に {1} 個の動画を移動しました
+InAppNotification_MylistMovedItems_Fail = {0} への動画の移動に失敗しました
 WatchAfterAddItem = あとで見るに追加
 WatchAfterRemoveItem = あとで見るから削除
 MylistAddItem = マイリストに追加
 LocalMylistAddItem = ローカルマイリストに追加
+SelectLocalMylist = ローカルマイリストを選択
 SubscriptionAddVideoOwner = 投稿者を購読に追加
 AllPlayFromHere = ここから連続再生
 
@@ -840,6 +848,7 @@ NoItems_UserSeries = シリーズはありません
 
 
 
+
 #### Ichiba ####
 IchibaNoItems = 表示できるアイテムはありません
 
@@ -867,3 +876,4 @@ CommunityVidoes = コミュニティ動画
 #### Channel ####
 ChannelVideoNoItems = チャンネル動画はありません
 InAppNotification_CanNotCacheChannelVideos_ForContentProtection = チャンネル動画はコンテンツ保護のためキャッシュできません
+

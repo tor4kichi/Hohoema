@@ -25,6 +25,22 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
         public IReadOnlyCollection<string> FailedItems { get; internal set; }
     }
 
+    public sealed class MylistItemCopyEventArgs
+    {
+        public string SourceMylistId { get; internal set; }
+        public string TargetMylistId { get; internal set; }
+        public IReadOnlyCollection<string> SuccessedItems { get; internal set; }
+        public IReadOnlyCollection<string> FailedItems { get; internal set; }
+    }
+
+    public sealed class MylistItemMovedEventArgs
+    {
+        public string SourceMylistId { get; internal set; }
+        public string TargetMylistId { get; internal set; }
+        public IReadOnlyCollection<string> SuccessedItems { get; internal set; }
+        public IReadOnlyCollection<string> FailedItems { get; internal set; }
+    }
+
     public class LoginUserMylistPlaylist : MylistPlaylist
     {
         LoginUserMylistProvider _loginUserMylistProvider;
@@ -127,9 +143,43 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
             return args;
         }
 
+        public async Task<ContentManageResult> CopyItemAsync(string targetMylistId, params string[] itemIds)
+        {
+            var result = await _loginUserMylistProvider.CopyMylistTo(this.Id, targetMylistId, itemIds);
+            if (result == ContentManageResult.Success)
+            {
+                MylistCopied?.Invoke(this, new MylistItemCopyEventArgs()
+                {
+                    SourceMylistId = this.Id,
+                    TargetMylistId = targetMylistId,
+                    SuccessedItems = itemIds
+                });
+            }
+
+            return result;
+        }
+
+        public async Task<ContentManageResult> MoveItemAsync(string targetMylistId, params string[] itemIds)
+        {
+            var result = await _loginUserMylistProvider.MoveMylistTo(this.Id, targetMylistId, itemIds);
+            if (result == ContentManageResult.Success)
+            {
+                MylistMoved?.Invoke(this, new MylistItemMovedEventArgs()
+                {
+                    SourceMylistId = this.Id,
+                    TargetMylistId = targetMylistId,
+                    SuccessedItems = itemIds
+                });
+            }
+
+            return result;
+        }
+
         public event EventHandler<MylistItemAddedEventArgs> MylistItemAdded;
         public event EventHandler<MylistItemRemovedEventArgs> MylistItemRemoved;
 
+        public event EventHandler<MylistItemCopyEventArgs> MylistCopied;
+        public event EventHandler<MylistItemMovedEventArgs> MylistMoved;
 
     }
 }

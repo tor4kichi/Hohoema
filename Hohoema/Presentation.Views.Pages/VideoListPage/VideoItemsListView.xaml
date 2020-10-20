@@ -40,7 +40,11 @@
           </i:Interaction.Behaviors>
         </AppBarButton>
         <AppBarSeparator />
+        <AppBarButton x:Name="SelectActions_CopyMylist" Label="{Binding Source=MylistCopyItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _copyMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+        <AppBarButton x:Name="SelectActions_MoveMylist" Label="{Binding Source=MylistMoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _moveMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
 
+        <AppBarSeparator x:Name="SelectActions_EditButtonSeparator" />
+        
         <AppBarButton x:Name="SelectActions_RemoveMylist" Label="{Binding Source=MylistRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
         <AppBarButton x:Name="SelectActions_RemoveWatchAfter" Label="{Binding Source=WatchAfterRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeWatchAfterCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
         <AppBarButton x:Name="SelectActions_RemoveLocalMylist" Label="{Binding Source=LocalMylistRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _localMylistRemoveCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />

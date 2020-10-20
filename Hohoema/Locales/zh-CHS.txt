@@ -225,7 +225,6 @@ ApplicationDiagnosticsReport = 应用使用情况报告
 EnableCrashReport = 发送应用错误信息
 EnableAnalyticsReport = 发送应用程序功能/页面使用状态
 
-
 #### Niconico General ####
 PrivateReasonType.PostedBy = 投稿者删除
 PrivateReasonType.Private = 非公开设定
@@ -739,10 +738,19 @@ MylistSort = 排序
 RemoveWatchHisotryItem = 从观看记录中删除
 LocalMylistRemoveItem = 从本地我的列表中删除
 MylistRemoveItem = 从我的清单中删除
+MylistCopyItem = 复制到另一个我的清单
+SelectCopyTargetMylist = 选择我的复制目的地列表
+InAppNotification_MylistCopiedItems_Success = 将{1}个视频复制到{0}
+InAppNotification_MylistCopiedItems_Fail = 无法将视频复制到{0}
+MylistMoveItem = 移至另一个我的列表
+SelectMoveTargetMylist = 选择目的地我的列表
+InAppNotification_MylistMovedItems_Success = 将{1}个视频移到了{0}
+InAppNotification_MylistMovedItems_Fail = 无法将视频移至{0}
 WatchAfterAddItem = 稍后添加观看
 WatchAfterRemoveItem = 从以后删除
 MylistAddItem = 加到我的清单
 LocalMylistAddItem = 添加到本地我的列表
+SelectLocalMylist = 选择本地我的列表
 SubscriptionAddVideoOwner = 将作者添加到订阅
 AllPlayFromHere = 从这里连续播放
 
@@ -868,3 +876,4 @@ CommunityVidoes = 社区视频
 #### Channel ####
 ChannelVideoNoItems = 无频道影片
 InAppNotification_CanNotCacheChannelVideos_ForContentProtection = 频道视频无法缓存以进行内容保护
+

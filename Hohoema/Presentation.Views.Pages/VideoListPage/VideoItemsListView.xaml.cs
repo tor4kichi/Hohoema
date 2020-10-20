@@ -171,10 +171,13 @@ namespace Hohoema.Presentation.Views.Pages.VideoListPage
         private readonly NiconicoSession _niconicoSession;
         private readonly LocalMylistManager _localPlaylistManager;
         private readonly UserMylistManager _mylistManager;
+        private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly MylistAddItemCommand _addMylistCommand;
         private readonly MylistRemoveItemCommand _removeMylistCommand;
         private readonly LocalPlaylistAddItemCommand _localMylistAddCommand;
         private readonly WatchHistoryRemoveItemCommand _removeWatchHistoryCommand;
+        private readonly MylistCopyItemCommand _copyMylistItemCommand;
+        private readonly MylistMoveItemCommand _moveMylistItemCommand;
         private readonly LocalPlaylistRemoveItemCommand _localMylistRemoveCommand;
         private readonly WatchAfterAddItemCommand _addWatchAfterCommand;
         private readonly WatchAfterRemoveItemCommand _removeWatchAfterCommand;
@@ -188,13 +191,16 @@ namespace Hohoema.Presentation.Views.Pages.VideoListPage
             _niconicoSession = App.Current.Container.Resolve<NiconicoSession>();
             _localPlaylistManager = App.Current.Container.Resolve<LocalMylistManager>();
             _mylistManager = App.Current.Container.Resolve<UserMylistManager>();
+            _hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
 
             _addWatchAfterCommand = App.Current.Container.Resolve<WatchAfterAddItemCommand>();
             _removeWatchAfterCommand = App.Current.Container.Resolve<WatchAfterRemoveItemCommand>();
             _addMylistCommand = App.Current.Container.Resolve<MylistAddItemCommand>();
             _localMylistAddCommand = new LocalPlaylistAddItemCommand();
             _removeWatchHistoryCommand = App.Current.Container.Resolve<WatchHistoryRemoveItemCommand>();
-            
+            _copyMylistItemCommand = App.Current.Container.Resolve<MylistCopyItemCommand>();
+            _moveMylistItemCommand = App.Current.Container.Resolve<MylistMoveItemCommand>();
+
             Loaded += VideoItemsListView_Loaded;
             Unloaded += VideoItemsListView_Unloaded;
         }
@@ -264,17 +270,22 @@ namespace Hohoema.Presentation.Views.Pages.VideoListPage
             SelectActions_RemoveWatchAfter.Visibility = Visibility.Collapsed;
             SelectActions_AddMylist.Visibility = Visibility.Collapsed;
             SelectActions_RemoveMylist.Visibility = Visibility.Collapsed;
+            SelectActions_CopyMylist.Visibility = Visibility.Collapsed;
+            SelectActions_MoveMylist.Visibility = Visibility.Collapsed; 
             SelectActions_AddLocalMylist.Visibility = Visibility.Collapsed;
             SelectActions_RemoveLocalMylist.Visibility = Visibility.Collapsed;
             SelectActions_RemoveWatchHistory.Visibility = Visibility.Collapsed;
             SelectActions_RemoveButtonSeparator.Visibility = Visibility.Collapsed;
+            SelectActions_EditButtonSeparator.Visibility = Visibility.Collapsed;
 
             if (_selectionContext.SelectionItems.Any())
             {
                 SelectActions_AddWatchAfter.Visibility = Visibility.Visible;
                 SelectActions_AddLocalMylist.Visibility = Visibility.Visible;
 
-                if (PlaylistPassToFlyout?.IsWatchAfterPlaylist() ?? false)
+                if (PlaylistPassToFlyout?.IsWatchAfterPlaylist() ?? false
+                    || _selectionContext.SelectionItems.Any(x => _hohoemaPlaylist.WatchAfterPlaylist.Any(y => x.Id == y.Id))
+                    )
                 {
                     SelectActions_RemoveWatchAfter.Visibility = Visibility.Visible;
                     SelectActions_RemoveButtonSeparator.Visibility = Visibility.Visible;
@@ -289,6 +300,13 @@ namespace Hohoema.Presentation.Views.Pages.VideoListPage
                             SelectActions_RemoveMylist.Visibility = Visibility.Visible;
                             SelectActions_RemoveMylist.Command = new MylistRemoveItemCommand(loginUserMylist);
                             SelectActions_RemoveButtonSeparator.Visibility = Visibility.Visible;
+
+                            SelectActions_CopyMylist.Visibility = Visibility.Visible;
+                            SelectActions_MoveMylist.Visibility = Visibility.Visible;
+                            _copyMylistItemCommand.SourceMylist = loginUserMylist;
+                            _moveMylistItemCommand.SourceMylist = loginUserMylist;
+
+                            SelectActions_EditButtonSeparator.Visibility = Visibility.Visible;
                         }
                     }
                     else if (origin == PlaylistOrigin.Local && PlaylistPassToFlyout is LocalPlaylist localPlaylist)

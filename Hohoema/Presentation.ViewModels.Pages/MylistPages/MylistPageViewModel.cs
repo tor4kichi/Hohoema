@@ -618,6 +618,24 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
                         }
                     })
                     .AddTo(_NavigatingCompositeDisposable);
+                
+                Observable.FromEventPattern<MylistItemMovedEventArgs>(
+                h => loginMylist.MylistMoved += h,
+                h => loginMylist.MylistMoved -= h
+                )
+                .Subscribe(e =>
+                {
+                    var args = e.EventArgs;
+                    if (args.SourceMylistId == Mylist.Value.Id)
+                    {
+                        foreach (var id in args.SuccessedItems)
+                        {
+                            var removeTarget = MylistItems.FirstOrDefault(x => x.Id == id);
+                            MylistItems.Remove(removeTarget);
+                        }
+                    }
+                })
+                .AddTo(_NavigatingCompositeDisposable);
             }
 
             MylistItems = await CreateItemsSourceAsync(mylist);

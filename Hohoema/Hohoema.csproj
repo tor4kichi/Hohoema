@@ -137,6 +137,8 @@
     </Compile>
     <Compile Include="Models.Domain\Niconico\UserFeature\NicoRepoItemTopic.cs" />
     <Compile Include="Presentation.ViewModels.Pages\UserPages\UserInfoViewModel.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\MylistCopyItemCommand.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\MylistMoveItemCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\SelectionModeToggleCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoPages\Ranking\Events\RankingGenreCustomizeEvent.cs" />
     <Compile Include="Models.Domain\Application\AppearanceSettings.cs" />
