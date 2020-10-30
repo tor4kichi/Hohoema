@@ -451,6 +451,11 @@ namespace Hohoema.Presentation.ViewModels.Player
         {
             Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
 
+            if (VideoInfo != null)
+            {
+                HohoemaPlaylist.PlayDone(VideoInfo, MediaPlayer.PlaybackSession.Position);
+            }
+
             MediaPlayer.Source = null;
 
             _ = VideoPlayer.ClearCurrentSessionAsync();
@@ -462,11 +467,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             var smtc = SystemMediaTransportControls.GetForCurrentView();
             smtc.DisplayUpdater.ClearAll();
             smtc.DisplayUpdater.Update();
-
-            if (VideoInfo != null)
-            {
-                HohoemaPlaylist.PlayDone(VideoInfo);
-            }
 
             CloseTimers();
 

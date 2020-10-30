@@ -565,7 +565,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
         }
 
         Events.VideoPlayedEvent _videoPlayedEvent;
-        public void PlayDone(IVideoContent playedItem)
+        public void PlayDone(IVideoContent playedItem, TimeSpan playedPosition)
         {
             // あとで見るプレイリストから視聴済みを削除
             var watchAfterItem = WatchAfterPlaylist.FirstOrDefault(x => x.Id == playedItem.Id);
@@ -575,7 +575,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             }
 
             // アイテムを視聴済みにマーク
-            var history = _videoPlayedHistoryRepository.VideoPlayed(playedItem.Id);
+            var history = _videoPlayedHistoryRepository.VideoPlayed(playedItem.Id, playedPosition);
             System.Diagnostics.Debug.WriteLine("視聴完了: " + playedItem.Label);
 
             // 視聴完了のイベントをトリガー
@@ -586,11 +586,11 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 _videoPlayedEvent = _eventAggregator.GetEvent<Events.VideoPlayedEvent>();
             }
 
-            _videoPlayedEvent.Publish(new Events.VideoPlayedEvent.VideoPlayedEventArgs() { ContentId = playedItem.Id });
+            _videoPlayedEvent.Publish(new Events.VideoPlayedEvent.VideoPlayedEventArgs() { ContentId = playedItem.Id, PlayedPosition = playedPosition });
         }
 
 
-        public bool PlayDoneAndTryMoveNext()
+        public bool PlayDoneAndTryMoveNext(TimeSpan playedPosition)
         {
             var playedItem = _player.Current;
             var result = (_player?.CanGoNext ?? false);
@@ -602,7 +602,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
             Task.Delay(250).ContinueWith(_ => 
             {
-                PlayDone(playedItem);
+                PlayDone(playedItem, playedPosition);
             });
 
             return result;

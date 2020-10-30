@@ -54,6 +54,16 @@ OpenErrorLogFolder = ログフォルダを開く
 ## Clipboard action
 InAppNotification_ContentDetectedFromClipboard = {0} をお探しですか？
 
+#### Time ####
+RelationalDateTime_JustNow = 今さっき
+RelationalDateTime_SomeMinutesAgo = {0} 分前
+RelationalDateTime_SomeHoursAgo = {0} 時間前
+RelationalDateTime_SomeDaysAgo = {0} 日前
+RelationalDateTime_SomeWeeksAgo = {0} 週前
+RelationalDateTime_SomeMonthAgo = {0} ヶ月前
+RelationalDateTime_SomeYearsAgo = {0} 年前
+
+
 
 #### PageType ####
 HohoemaPageType.ChannelInfo = チャンネル情報
@@ -876,4 +886,3 @@ CommunityVidoes = コミュニティ動画
 #### Channel ####
 ChannelVideoNoItems = チャンネル動画はありません
 InAppNotification_CanNotCacheChannelVideos_ForContentProtection = チャンネル動画はコンテンツ保護のためキャッシュできません
-

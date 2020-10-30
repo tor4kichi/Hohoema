@@ -1,4 +1,5 @@
-﻿using System;
+﻿using I18NPortable;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,11 +16,13 @@ namespace Hohoema.Presentation.Views.Converters
 		}
 		private static DurationToTextConvertInfo[] DurationToText = new DurationToTextConvertInfo[]
 			{
-				new DurationToTextConvertInfo{ Duration = TimeSpan.FromMinutes(1), GetText = (t) => "今さっき"},
-				new DurationToTextConvertInfo{ Duration = TimeSpan.FromHours(1), GetText = (t) => $"{(int)Math.Floor(t.TotalMinutes)}分前"},
-				new DurationToTextConvertInfo{ Duration = TimeSpan.FromDays(1), GetText = (t) => $"{(int)Math.Floor(t.TotalHours)}時間前"},
-				new DurationToTextConvertInfo{ Duration = TimeSpan.FromDays(7), GetText = (t) => $"{(int)Math.Floor(t.TotalDays)}日前"},
-				new DurationToTextConvertInfo{ Duration = TimeSpan.FromDays(31), GetText = (t) => $"{(int)Math.Floor(t.TotalDays/7)}週間前"},
+				new DurationToTextConvertInfo{ Duration = TimeSpan.FromMinutes(2), GetText = (t) => "RelationalDateTime_JustNow".Translate()},
+				new DurationToTextConvertInfo{ Duration = TimeSpan.FromMinutes(60), GetText = (t) => "RelationalDateTime_SomeMinutesAgo".Translate((int)Math.Floor(t.TotalMinutes))},
+				new DurationToTextConvertInfo{ Duration = TimeSpan.FromHours(24), GetText = (t) => "RelationalDateTime_SomeHoursAgo".Translate((int)Math.Floor(t.TotalHours))},
+				new DurationToTextConvertInfo{ Duration = TimeSpan.FromDays(7), GetText = (t) => "RelationalDateTime_SomeDaysAgo".Translate((int)Math.Floor(t.TotalDays))},
+				new DurationToTextConvertInfo{ Duration = TimeSpan.FromDays(30), GetText = (t) => "RelationalDateTime_SomeWeeksAgo".Translate((int)Math.Floor(t.TotalDays/7))},
+				new DurationToTextConvertInfo{ Duration = TimeSpan.FromDays(365), GetText = (t) => "RelationalDateTime_SomeMonthAgo".Translate((int)Math.Floor(t.TotalDays/30))},
+				new DurationToTextConvertInfo{ Duration = TimeSpan.MaxValue, GetText = (t) => "RelationalDateTime_SomeYearsAgo".Translate((int)Math.Floor(t.TotalDays/365))},
 			};
 
 
@@ -36,7 +39,7 @@ namespace Hohoema.Presentation.Views.Converters
 				}
 				else
 				{
-					return $"一ヶ月以上昔";
+					return value;
 				}
 			}
 			else

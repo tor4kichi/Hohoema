@@ -139,6 +139,7 @@
     <Compile Include="Presentation.ViewModels.Pages\UserPages\UserInfoViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\MylistCopyItemCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\MylistMoveItemCommand.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\OpenVideoOwnerPageCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\SelectionModeToggleCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoPages\Ranking\Events\RankingGenreCustomizeEvent.cs" />
     <Compile Include="Models.Domain\Application\AppearanceSettings.cs" />
@@ -337,6 +338,9 @@
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\Subscriptions.Commands\AddTagSearchSubscriptionCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\SeriesPages\UserSeriesPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\WatchAfterPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\VideoListPage\VideoListItemCardLandscape.xaml.cs">
+      <DependentUpon>VideoListItemCardLandscape.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Presentation.Views\Controls\DelayedAutoTriggerButton.xaml.cs">
       <DependentUpon>DelayedAutoTriggerButton.xaml</DependentUpon>
     </Compile>
@@ -904,6 +908,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Presentation.Views.Pages\VideoListPage\VideoListItemCardLandscape.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Presentation.Views\Dialogs\AdvancedSelectDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -120,7 +120,8 @@
                        HorizontalTextAlignment="Left"
                        Width="70"
                        FontWeight="Bold" />
-            <videolistPage:VideoListItemControl />
+            
+            <videolistPage:VideoListItemCardLandscape />
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>

@@ -11,6 +11,11 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
 {
     public abstract class VideoContentSelectionCommandBase : DelegateCommandBase
     {
+        public VideoContentSelectionCommandBase()
+        {
+            IsActive = true;
+        }
+
         protected override bool CanExecute(object parameter)
         {
             return parameter is IVideoContent

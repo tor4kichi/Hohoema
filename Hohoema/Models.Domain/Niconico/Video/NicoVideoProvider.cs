@@ -109,7 +109,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         info.Length = TimeSpan.FromSeconds(video.LengthInSeconds);
                         info.PostedAt = video.FirstRetrieve.DateTime;
                         info.ThumbnailUrl = video.ThumbnailUrl.OriginalString;
-
+                        info.Description = video.Description;
                         info.ViewCount = (int)video.ViewCounter;
                         info.MylistCount = (int)video.MylistCounter;
                         info.CommentCount = (int)res.Thread.NumRes;

@@ -26,6 +26,11 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.UseCase.NicoVideos.Events;
 using Hohoema.Models.Domain.Niconico.UserFeature;
+using Hohoema.Models.Domain.Niconico.User;
+using Hohoema.Models.Domain.Niconico.Channel;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
+using Hohoema.Presentation.ViewModels.Navigation.Commands;
+using Hohoema.Presentation.ViewModels.Pages.VideoListPage.Commands;
 
 namespace Hohoema.Presentation.ViewModels.VideoListPage
 {
@@ -39,6 +44,10 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             _scheduler = App.Current.Container.Resolve<IScheduler>();
             _nicoVideoRepository = App.Current.Container.Resolve<NicoVideoCacheRepository>();
             _videoPlayedHistoryRepository = App.Current.Container.Resolve<VideoPlayedHistoryRepository>();
+            _userNameProvider = App.Current.Container.Resolve<UserNameProvider>();
+            _channelProvider =  App.Current.Container.Resolve<ChannelProvider>();
+            _addWatchAfterCommand = App.Current.Container.Resolve<WatchAfterAddItemCommand>();
+            _openVideoOwnerPageCommand = App.Current.Container.Resolve<OpenVideoOwnerPageCommand>();
         }
 
         public VideoInfoControlViewModel(NicoVideo data)            
@@ -141,9 +150,18 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         private static readonly NicoVideoProvider _nicoVideoProvider;
         private static readonly NicoVideoCacheRepository _nicoVideoRepository;
         private static readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
+        private static readonly UserNameProvider _userNameProvider;
+        private static readonly ChannelProvider _channelProvider;
         private static readonly VideoFilteringSettings _ngSettings;
         private static readonly VideoCacheManager _cacheManager;
         private static readonly IScheduler _scheduler;
+
+        private static readonly WatchAfterAddItemCommand _addWatchAfterCommand;
+        public WatchAfterAddItemCommand AddWatchAfterCommand => _addWatchAfterCommand;
+
+        private static readonly OpenVideoOwnerPageCommand _openVideoOwnerPageCommand;
+        public OpenVideoOwnerPageCommand OpenVideoOwnerPageCommand => _openVideoOwnerPageCommand;
+
 
         public string RawVideoId { get; }
         public NicoVideo Data { get; private set; }
@@ -152,7 +170,14 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
 
         public string ProviderId { get; set; }
-        public string ProviderName { get; set; }
+        
+        private string _ProviderName;
+        public string ProviderName
+        {
+            get { return _ProviderName; }
+            set { SetProperty(ref _ProviderName, value); }
+        }
+
         public NicoVideoUserType ProviderType { get; set; }
 
         public IMylist OnwerPlaylist { get; }
@@ -260,14 +285,58 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
+        private double _LastWatchedPositionInterpolation;
+        public double LastWatchedPositionInterpolation
+        {
+            get { return _LastWatchedPositionInterpolation; }
+            set { SetProperty(ref _LastWatchedPositionInterpolation, value); }
+        }
+
+
         #region 
 
-        public CacheRequest CacheRequest { get; private set; }
-        public bool HasCacheProgress { get; private set; }
-        public double DownloadProgress { get; private set; }
-        public bool IsProgressUnknown { get; private set; }
-        public NicoVideoQuality? CacheProgressQuality { get; private set; }
-        public bool IsRequirePayment { get; internal set; }
+        private CacheRequest _CacheRequest;
+        public CacheRequest CacheRequest
+        {
+            get { return _CacheRequest; }
+            set { SetProperty(ref _CacheRequest, value); }
+        }
+
+        private bool _HasCacheProgress;
+        public bool HasCacheProgress
+        {
+            get { return _HasCacheProgress; }
+            set { SetProperty(ref _HasCacheProgress, value); }
+        }
+
+        private double _DownloadProgress;
+        public double DownloadProgress
+        {
+            get { return _DownloadProgress; }
+            set { SetProperty(ref _DownloadProgress, value); }
+        }
+
+        private bool _IsProgressUnknown;
+        public bool IsProgressUnknown
+        {
+            get { return _IsProgressUnknown; }
+            set { SetProperty(ref _IsProgressUnknown, value); }
+        }
+
+        private NicoVideoQuality? _CacheProgressQuality;
+        public NicoVideoQuality? CacheProgressQuality
+        {
+            get { return _CacheProgressQuality; }
+            set { SetProperty(ref _CacheProgressQuality, value); }
+        }
+
+        private bool _IsRequirePayment;
+        public bool IsRequirePayment
+        {
+            get { return _IsRequirePayment; }
+            set { SetProperty(ref _IsRequirePayment, value); }
+        }
+
 
         private void SubscribeCacheState(IVideoContent video)
         {
@@ -394,6 +463,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 var palyedEvent = eventAggregator.GetEvent<VideoPlayedEvent>();
                 palyedEvent.Unsubscribe(_watchedDisposable);
                 _watchedDisposable = null;
+                LastWatchedPositionInterpolation = Math.Clamp(args.PlayedPosition.TotalSeconds / video.Length.TotalSeconds, 0.0, 1.0);
             }
         }
 
@@ -403,13 +473,20 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             if (video != null)
             {
-                var watched = _videoPlayedHistoryRepository.IsVideoPlayed(video.Id);
+                var watched = _videoPlayedHistoryRepository.IsVideoPlayed(video.Id, out var hisotory);
                 IsWatched = watched;
                 if (!watched)
                 {
                     var eventAggregator = App.Current.Container.Resolve<IEventAggregator>();
                     var palyedEvent = eventAggregator.GetEvent<VideoPlayedEvent>();
                     _watchedDisposable = palyedEvent.Subscribe(Watched, ThreadOption.UIThread);
+                }
+                else
+                {
+                    LastWatchedPositionInterpolation = hisotory.LastPlayedPosition != TimeSpan.Zero 
+                        ? Math.Clamp(hisotory.LastPlayedPosition.TotalSeconds / video.Length.TotalSeconds, 0.0, 1.0)
+                        : 1.0
+                        ;
                 }
             }
         }
@@ -433,9 +510,31 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             if (Data?.Title == null || Data?.ProviderId == null)
             {
-                var data = await _nicoVideoProvider.GetNicoVideoInfo(RawVideoId);
+                var data = await _nicoVideoProvider.GetNicoVideoInfo(RawVideoId, Data?.ProviderId == null);
 
                 Data = data;
+            }
+
+            if (Data?.Owner?.ScreenName == null)
+            {
+                try
+                {
+                    if (Data.Owner.UserType == NicoVideoUserType.User)
+                    {
+                        Data.Owner.ScreenName = await _userNameProvider.ResolveUserNameAsync(uint.Parse(Data.Owner.OwnerId));
+                        _nicoVideoRepository.UpdateItem(Data);
+                    }
+                    else if (Data.Owner.UserType == NicoVideoUserType.Channel)
+                    {
+                        var channelInfo = await _channelProvider.GetChannelInfo(Data.Owner.OwnerId);
+                        Data.Owner.ScreenName = channelInfo.Name;
+                        _nicoVideoRepository.UpdateItem(Data);
+                    }
+                }
+                catch
+                {
+                    Debug.WriteLine($"Failed video owner ScreenName resolving. (Id is {Data.Owner.OwnerId})");
+                }
             }
 
             if (Data != null)
@@ -446,6 +545,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 UpdateIsHidenVideoOwner(Data);
                 SubscribeCacheState(Data);
             }
+
+
 
             ct.ThrowIfCancellationRequested();
 
@@ -466,6 +567,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             ThumbnailUrl ??= info.ThumbnailUrl;
             IsDeleted = info.IsDeleted;
             PrivateReason = Data.PrivateReasonType;
+            Description = Data.Description;
 
             if (info.Owner != null)
             {

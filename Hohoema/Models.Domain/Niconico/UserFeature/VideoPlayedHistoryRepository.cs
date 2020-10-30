@@ -14,7 +14,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature
         {
         }
 
-        public VideoPlayHistoryEntry VideoPlayed(string videoId)
+        public VideoPlayHistoryEntry VideoPlayed(string videoId, TimeSpan playedPosition)
         {
             var history = _collection.FindById(videoId);
             if (history != null)
@@ -27,7 +27,8 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature
                 {
                     VideoId = videoId,
                     PlayCount = 1,
-                    LastPlayed = DateTime.Now
+                    LastPlayed = DateTime.Now,
+                    LastPlayedPosition = playedPosition
                 };
             }
 
@@ -41,10 +42,16 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature
             return _collection.FindById(videoId);
         }
 
-
         public bool IsVideoPlayed(string videoId)
         {
             return _collection.FindById(videoId)?.PlayCount > 0;
+        }
+
+        public bool IsVideoPlayed(string videoId, out VideoPlayHistoryEntry history)
+        {
+            var entry = _collection.FindById(videoId);
+            history = entry;
+            return entry?.PlayCount > 0;
         }
 
         public int ClearAllHistories()
@@ -57,6 +64,8 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature
     {
         [BsonId]
         public string VideoId { get; set; }
+
+        public TimeSpan LastPlayedPosition { get; set; }
 
         public uint PlayCount { get; set; } = 0;
 
