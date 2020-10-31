@@ -135,6 +135,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models.Domain\Application\FeatureFlags.cs" />
     <Compile Include="Models.Domain\Niconico\UserFeature\NicoRepoItemTopic.cs" />
     <Compile Include="Presentation.ViewModels.Pages\UserPages\UserInfoViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\MylistCopyItemCommand.cs" />
@@ -340,6 +341,9 @@
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\WatchAfterPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\VideoListPage\VideoListItemCardLandscape.xaml.cs">
       <DependentUpon>VideoListItemCardLandscape.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presentation.Views\Controls\BooleanViewSwitcher.xaml.cs">
+      <DependentUpon>BooleanViewSwitcher.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views\Controls\DelayedAutoTriggerButton.xaml.cs">
       <DependentUpon>DelayedAutoTriggerButton.xaml</DependentUpon>
@@ -909,6 +913,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Presentation.Views.Pages\VideoListPage\VideoListItemCardLandscape.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation.Views\Controls\BooleanViewSwitcher.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -16,8 +16,8 @@
     xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:actions="using:Hohoema.Presentation.Views.Actions"
-      xmlns:windowsStateTriggers="using:WindowsStateTriggers"
-      DataContext="{x:Null}"
+      xmlns:windowsStateTriggers="using:WindowsStateTriggers" xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
+  DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
@@ -102,7 +102,18 @@
               </StackPanel>
             </Grid>
             <!-- 操作 -->
-            <local:VideoInfoControl />
+            <controls:BooleanViewSwitcher IsSwitchView="{Binding Source={StaticResource FeatureFlags}, Path=UseNewCardViewForVideoListView}">
+              <controls:BooleanViewSwitcher.DefaultViewTemplate>
+                <DataTemplate>
+                  <videolistPage:VideoListItemControl />
+                </DataTemplate>
+              </controls:BooleanViewSwitcher.DefaultViewTemplate>
+              <controls:BooleanViewSwitcher.SwitchedViewTemplate>
+                <DataTemplate>
+                  <videolistPage:VideoListItemCardLandscape />
+                </DataTemplate>
+              </controls:BooleanViewSwitcher.SwitchedViewTemplate>
+            </controls:BooleanViewSwitcher>
           </Grid>
         </DataTemplate>
       </ListView.ItemTemplate>
