@@ -131,7 +131,7 @@
         </CommandBar>
       </StackPanel>
       <ScrollViewer MaxWidth="480" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <StackPanel x:Name="ContentPanel" Spacing="16">
+        <StackPanel x:Name="ContentPanel" Spacing="16" Padding="0 0 0 32">
           <!-- アプリの表示設定 -->
           <StackPanel>
             <toolkit:DockPanel Margin="0 8">
@@ -527,6 +527,25 @@
               </ListView.ItemTemplate>
             </ListView>
           </StackPanel>
+          
+          <!-- 実験的機能 -->
+          <uwptoolkitControl:Expander>
+
+            <uwptoolkitControl:Expander.Header>
+              <TextBlock Text="実験的機能" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+            </uwptoolkitControl:Expander.Header>
+            <StackPanel Spacing="8" Margin="0 16">
+
+              <TextBlock Text="有効にする前にユーザーデータのバックアップを推奨" Foreground="Red" FontWeight="Bold" />
+
+              <ToggleSwitch Header="動画リストアイテムを新しいカードUIで表示する" IsOn="{Binding Source={StaticResource FeatureFlags}, Path=UseNewCardViewForVideoListView, Mode=TwoWay}"
+                            HorizontalContentAlignment="Right"
+                            HorizontalAlignment="Right"
+                            />
+
+            </StackPanel>
+          </uwptoolkitControl:Expander>
+          
         </StackPanel>
       </ScrollViewer>
     </uwptoolkitControl:DockPanel>

@@ -54,6 +54,16 @@ OpenErrorLogFolder = 打开日志文件夹
 ## Clipboard action
 InAppNotification_ContentDetectedFromClipboard = 寻找{0}？
 
+#### Time ####
+RelationalDateTime_JustNow = 现在
+RelationalDateTime_SomeMinutesAgo = {0}分钟前
+RelationalDateTime_SomeHoursAgo = {0}小时前
+RelationalDateTime_SomeDaysAgo = {0}天前
+RelationalDateTime_SomeWeeksAgo = {0}周前
+RelationalDateTime_SomeMonthAgo = {0}个月前
+RelationalDateTime_SomeYearsAgo = {0}年前
+
+
 
 #### PageType ####
 HohoemaPageType.ChannelInfo = 频道信息
@@ -876,4 +886,3 @@ CommunityVidoes = 社区视频
 #### Channel ####
 ChannelVideoNoItems = 无频道影片
 InAppNotification_CanNotCacheChannelVideos_ForContentProtection = 频道视频无法缓存以进行内容保护
-

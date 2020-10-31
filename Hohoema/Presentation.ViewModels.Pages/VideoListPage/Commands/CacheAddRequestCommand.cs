@@ -17,7 +17,7 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
             VideoCacheManager videoCacheManager,
             DialogService dialogService
             )
-        {
+        {            
             VideoCacheManager = videoCacheManager;
             DialogService = dialogService;
         }
@@ -26,11 +26,6 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
         public DialogService DialogService { get; }
 
         public NicoVideoQuality VideoQuality { get; set; } = NicoVideoQuality.Unknown;
-
-        protected override bool CanExecute(object parameter)
-        {
-            return parameter is IVideoContent;
-        }
 
         protected override void Execute(IVideoContent content)
         {

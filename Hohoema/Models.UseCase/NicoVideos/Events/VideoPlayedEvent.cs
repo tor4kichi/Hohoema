@@ -12,6 +12,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Events
         public sealed class VideoPlayedEventArgs
         {
             public string ContentId { get; set; }
+            public TimeSpan PlayedPosition { get; set; }
         }
     }
 }
