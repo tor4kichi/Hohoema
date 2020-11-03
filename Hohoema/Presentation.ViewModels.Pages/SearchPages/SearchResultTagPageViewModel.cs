@@ -320,8 +320,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 
         protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new VideoSearchSource(SearchOption, SearchProvider);
-		}
+            return new VideoSearchSource(SearchOption.Keyword, SearchOption.SearchTarget == SearchTarget.Tag, SearchOption.Sort, SearchOption.Order, SearchProvider);
+        }
 
 		
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)

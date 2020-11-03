@@ -237,13 +237,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
             get { return _SearchOptionText; }
             set { SetProperty(ref _SearchOptionText, value); }
         }
-        
+
+        #region Commands
 
 
-		#region Commands
-
-
-		private DelegateCommand _ShowSearchHistoryCommand;
+        private DelegateCommand _ShowSearchHistoryCommand;
         private readonly SearchHistoryRepository _searchHistoryRepository;
 
         public DelegateCommand ShowSearchHistoryCommand
@@ -288,7 +286,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 
         protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-            return new VideoSearchSource(SearchOption, SearchProvider);
+            return new VideoSearchSource(SearchOption.Keyword, SearchOption.SearchTarget == SearchTarget.Tag, SearchOption.Sort, SearchOption.Order, SearchProvider);
 		}
 
 		protected override void PostResetList()
@@ -305,5 +303,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
         }
         #endregion
 
+    }    
+
+
+    public enum VideoSearchMode
+    {
+        Keyword,
+        Tag
     }
 }

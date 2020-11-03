@@ -431,7 +431,13 @@
             </uwpToolkitControls:DockPanel>
             <!-- Search Box -->
             <Border uwpToolkitControls:DockPanel.Dock="Top">
-              <TextBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" UseSystemFocusVisuals="True" TabIndex="103" Margin="8" IsFocusEngagementEnabled="True" >
+              <AutoSuggestBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" UseSystemFocusVisuals="True" TabIndex="103" Margin="8" IsFocusEngagementEnabled="True" 
+                              ItemsSource="{Binding SearchAutoSuggestItems}"
+                              QuerySubmitted="SearchTextBox_QuerySubmitted"
+                              TextChanged="SearchTextBox_TextChanged"
+                              UpdateTextOnSelect="False"
+                              GotFocus="SearchTextBox_GotFocus"
+                              >
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="GotFocus">
                     <core:CallMethodAction MethodName="SelectAll" />
@@ -440,7 +446,13 @@
                     <core:InvokeCommandAction Command="{Binding SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
                   </mybehavior:KeyboardTrigger>
                 </i:Interaction.Behaviors>
-              </TextBox>
+
+                <AutoSuggestBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Id, Converter={StaticResource LocalizeConverter}}" />
+                  </DataTemplate>
+                </AutoSuggestBox.ItemTemplate>
+              </AutoSuggestBox>
             </Border>
 
             <Border x:Name="TV_OpenSearchPageButton" Visibility="Collapsed" uwpToolkitControls:DockPanel.Dock="Top">
@@ -610,7 +622,15 @@
                   </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
               </Border>
-              <TextBox x:Name="Mobile_SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" UseSystemFocusVisuals="True" TabIndex="103" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="120 0 32 0">
+              <AutoSuggestBox x:Name="Mobile_SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" UseSystemFocusVisuals="True" 
+                              TabIndex="103" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="120 0 32 0"
+                              ItemsSource="{Binding SearchAutoSuggestItems}"
+                              QuerySubmitted="SearchTextBox_QuerySubmitted"
+                              TextChanged="SearchTextBox_TextChanged"
+                              UpdateTextOnSelect="False"
+                              GotFocus="SearchTextBox_GotFocus"
+                              >
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="GotFocus">
                     <core:CallMethodAction MethodName="SelectAll" />
@@ -623,7 +643,12 @@
                     <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="NowMobileSearchTextInput" Value="False" />
                   </mybehavior:KeyboardTrigger>
                 </i:Interaction.Behaviors>
-              </TextBox>
+                <AutoSuggestBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Id, Converter={StaticResource LocalizeConverter}}" />
+                  </DataTemplate>
+                </AutoSuggestBox.ItemTemplate>
+              </AutoSuggestBox>
             </Grid>
             <Grid x:Name="MenuBackgroundGrid"
                   Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"

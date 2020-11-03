@@ -598,6 +598,11 @@ HiddenThisRankingGenre = このジャンルを隠す
 
 
 #### Search ####
+VideoSearchSuggest = 動画検索
+LiveSearchSuggest = 生放送検索
+DetailSearchSuggest = 詳細検索
+
+
 SearchTarget.Keyword = キーワード
 SearchTarget.Tag = タグ
 SearchTarget.Mylist = マイリスト

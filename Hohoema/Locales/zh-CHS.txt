@@ -598,6 +598,11 @@ HiddenThisRankingGenre = 隐藏此类型
 
 
 #### Search ####
+VideoSearchSuggest = 影片搜寻
+LiveSearchSuggest = 直播搜索
+DetailSearchSuggest = 详细搜索
+
+
 SearchTarget.Keyword = 关键字
 SearchTarget.Tag = 标签
 SearchTarget.Mylist = Mylist

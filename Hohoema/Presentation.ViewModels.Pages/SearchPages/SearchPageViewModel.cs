@@ -25,6 +25,7 @@ using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
 using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Prism.Navigation;
 
 namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 {
@@ -247,22 +248,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
                     ));
             }
         }
-        /*
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			// コミュニティ検索はログインが必要            
 
-			// ContentVM側のページタイトルが後で呼び出されるように、SearchPage側を先に呼び出す
-			base.OnNavigatedTo(e, viewModelState);
-        }
-
-        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        public override void OnNavigatedTo(INavigationParameters parameters)
         {
-            _LastSelectedTarget = SelectedTarget.Value;
-            _LastKeyword = SearchText.Value;
-            base.OnNavigatingFrom(e, viewModelState, suspending);
+
+
+            base.OnNavigatedTo(parameters);
         }
-        */
+
     }
 
 
@@ -759,28 +752,37 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 
 	public class VideoSearchSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
 	{
-        public VideoSearchSource(VideoSearchOption searchOption, SearchProvider searchProvider)
+        public VideoSearchSource(string keyword, bool isTagSearch, Sort sort, Order order, SearchProvider searchProvider)
         {
-            SearchOption = searchOption;
+            Keyword = keyword;
+            IsTagSearch = isTagSearch;
+			SearchSort = sort;
+			SearchOrder = order;
             SearchProvider = searchProvider;
         }
 
-        public SearchProvider SearchProvider { get; }
-		public VideoSearchOption SearchOption { get; }
+		public string Keyword { get; }
 
+		public bool IsTagSearch { get;  }
+
+		public Sort SearchSort { get;  }
+		public Order SearchOrder { get; }
+
+		public SearchProvider SearchProvider { get; }
+		
 
 		
 
         protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             VideoListingResponse res = null;
-            if (SearchOption.SearchTarget == SearchTarget.Keyword)
+            if (!IsTagSearch)
             {
-                res = await SearchProvider.GetKeywordSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
+                res = await SearchProvider.GetKeywordSearch(Keyword, (uint)head, (uint)count, SearchSort, SearchOrder);
             }
-            else if (SearchOption.SearchTarget == SearchTarget.Tag)
+            else 
             {
-                res = await SearchProvider.GetTagSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
+                res = await SearchProvider.GetTagSearch(Keyword, (uint)head, (uint)count, SearchSort, SearchOrder);
             }
 
 			ct.ThrowIfCancellationRequested();
@@ -806,15 +808,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
         protected override async Task<int> ResetSourceImpl()
         {
             int totalCount = 0;
-            if (SearchOption.SearchTarget == SearchTarget.Keyword)
+            if (!IsTagSearch)
             {
-                var res = await SearchProvider.GetKeywordSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
+                var res = await SearchProvider.GetKeywordSearch(Keyword, 0, 2, SearchSort, SearchOrder);
                 totalCount = (int)res.GetTotalCount();
 
             }
-            else if (SearchOption.SearchTarget == SearchTarget.Tag)
+            else 
             {
-                var res = await SearchProvider.GetTagSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
+                var res = await SearchProvider.GetTagSearch(Keyword, 0, 2, SearchSort, SearchOrder);
                 totalCount = (int)res.GetTotalCount();
             }
 
