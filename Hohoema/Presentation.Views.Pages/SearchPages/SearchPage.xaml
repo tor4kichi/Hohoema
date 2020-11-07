@@ -140,7 +140,7 @@
             </windowsStateTriggers:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="ContentLayout.Margin" Value="0 32 0 0" />
+            <Setter Target="ContentLayout.Margin" Value="0 0 0 0" />
             <Setter Target="ContentLayout.Padding" Value="{StaticResource ContentPageMargin_Desktop}" />
             <Setter Target="SearchTargetListView.Margin" Value="120 8 0 8" />
           </VisualState.Setters>
