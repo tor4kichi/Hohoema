@@ -64,33 +64,7 @@
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
             <StackPanel>
-              <ListView xmlns:ee="using:Hohoema.Models.Domain"
-                        SelectionMode="Single"
-                        IsItemClickEnabled="True"
-                        ItemsSource="{Binding SearchTargets}"
-                        SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}"
-                        Style="{StaticResource BandListViewStyle}"
-                        ItemContainerStyle="{StaticResource SimpleListViewItemStyle}"
-                        SingleSelectionFollowsFocus="False"
-                        HorizontalAlignment="Right">
-                <i:Interaction.Behaviors>
-                  <core:EventTriggerBehavior EventName="ItemClick">
-                    <core:InvokeCommandAction Command="{Binding ChangeSearchTargetCommand}"
-                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-                  </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-                <ListView.ItemTemplate>
-                  <DataTemplate>
-                    <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                  </DataTemplate>
-                </ListView.ItemTemplate>
-                <ListView.ItemsPanel>
-                  <ItemsPanelTemplate>
-                    <ItemsWrapGrid Orientation="Horizontal" />
-                  </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
-              </ListView>
-              <CommandBar toolkit:DockPanel.Dock="Right" Margin="8 0">
+              <CommandBar toolkit:DockPanel.Dock="Right" Margin="0">
                 <CommandBar.PrimaryCommands>
                   <AppBarButton x:Name="ScrollToTopButton" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
                     <i:Interaction.Behaviors>
@@ -102,11 +76,8 @@
                   <AppBarButton Background="Transparent" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding RefreshCommand}" Icon="Refresh" />
                 </CommandBar.PrimaryCommands>
                 <CommandBar.Content>
-                  <Border Margin="16 0 0 0" x:Name="TitleLayout">
+                  <Border Margin="0 0 0 0" x:Name="TitleLayout">
                     <toolkit:DockPanel VerticalAlignment="Center">
-                      <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}" CommandParameter="Search" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 16 0" toolkit:DockPanel.Dock="Left" VerticalAlignment="Stretch">
-                        <SymbolIcon Symbol="Find" />
-                      </HyperlinkButton>
                       <uwpcontrols:WrapPanel Orientation="Horizontal">
                         <!-- LiveStatus -->
                         <ListView ItemsSource="{Binding LiveSearchLiveStatusListItems}" 
@@ -168,6 +139,7 @@
     </ListView>
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
+      <!--
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -206,6 +178,7 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      -->
       
     </VisualStateManager.VisualStateGroups>
   </Grid>

@@ -41,6 +41,7 @@ using Hohoema.Models.Domain.Application;
 using Microsoft.AppCenter.Analytics;
 using System.Text;
 using Microsoft.AppCenter.Crashes;
+using System.Windows.Input;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -803,6 +804,28 @@ namespace Hohoema.Presentation.Views
 
 
 
+        private void SearchTextBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            sender.IsSuggestionListOpen = !string.IsNullOrWhiteSpace(sender.Text);
+        }
+
+        private void SearchTextBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            if (args.ChosenSuggestion is SearchAutoSuggestItemViewModel tag)
+            {
+                tag.SearchAction(args.QueryText);
+            }
+            else
+            {
+                (_viewModel.SearchCommand as ICommand).Execute(args.QueryText);
+            }
+        }
+
+        private void SearchTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            var asb = (sender as AutoSuggestBox);
+            asb.IsSuggestionListOpen = !string.IsNullOrWhiteSpace(asb.Text);
+        }
     }
 
     public static class NavigationParametersExtensions

@@ -106,6 +106,25 @@ namespace Hohoema.Presentation.ViewModels
                     Task.Run(() => { SettingsRestoredTempraryFlags.Instance.WhenPinsRestored(); });
                     
                 });
+
+            SearchAutoSuggestItems = new ObservableCollection<SearchAutoSuggestItemViewModel>
+            {
+                new SearchAutoSuggestItemViewModel()
+                {
+                    Id = "VideoSearchSuggest",
+                    SearchAction = (s) => PageManager.Search(SearchTarget.Keyword, s),
+                },
+                new SearchAutoSuggestItemViewModel()
+                {
+                    Id = "LiveSearchSuggest",
+                    SearchAction = (s) => PageManager.Search(SearchTarget.Niconama, s),
+                },
+                new SearchAutoSuggestItemViewModel()
+                {
+                    Id = "DetailSearchSuggest",
+                    SearchAction = (s) => PageManager.OpenPage(HohoemaPageType.Search, ""),
+                },
+            };
         }
 
         public IEventAggregator EventAggregator { get; }
@@ -129,6 +148,7 @@ namespace Hohoema.Presentation.ViewModels
 
         public ObservableCollection<HohoemaPin> Pins { get; }
 
+        public ObservableCollection<SearchAutoSuggestItemViewModel> SearchAutoSuggestItems { get; set; }
 
         // call from PrimaryWindowsCoreLayout.xaml.cs
         public void AddPin(HohoemaPin pin)
@@ -213,8 +233,29 @@ namespace Hohoema.Presentation.ViewModels
             pin.OverrideLabel = string.IsNullOrEmpty(result) ? null : result;
             PinSettings.UpdateItem(pin);
         }
+
+
+
+
+        #region Search
+
+        private DelegateCommand<SearchAutoSuggestItemViewModel> _SuggestSelectedCommand;
+        public DelegateCommand<SearchAutoSuggestItemViewModel> SuggestSelectedCommand =>
+            _SuggestSelectedCommand ?? (_SuggestSelectedCommand = new DelegateCommand<SearchAutoSuggestItemViewModel>(ExecuteSuggestSelectedCommand));
+
+        void ExecuteSuggestSelectedCommand(SearchAutoSuggestItemViewModel parameter)
+        {
+
+        }
+
+        #endregion
     }
 
+    public sealed class SearchAutoSuggestItemViewModel
+    {
+        public string Id { get; set; }
+        public Action<string> SearchAction { get; set; }
+    }
 
     
 

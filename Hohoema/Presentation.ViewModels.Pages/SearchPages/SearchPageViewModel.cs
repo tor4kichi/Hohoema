@@ -25,12 +25,115 @@ using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
 using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Prism.Navigation;
+using I18NPortable;
 
 namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 {
-    public class SearchPageViewModel : HohoemaViewModelBase
+    public class SearchPageViewModel : HohoemaViewModelBase, ITitleUpdatablePage, IPinablePage
     {
-        public SearchPageViewModel(
+
+		public ApplicationLayoutManager ApplicationLayoutManager { get; }
+		public NiconicoSession NiconicoSession { get; }
+		public SearchProvider SearchProvider { get; }
+		public PageManager PageManager { get; }
+		private readonly SearchHistoryRepository _searchHistoryRepository;
+
+
+		public ISearchPagePayloadContent RequireSearchOption { get; private set; }
+
+
+		public ReactiveCommand DoSearchCommand { get; private set; }
+
+		public ReactiveProperty<string> SearchText { get; private set; }
+		public List<SearchTarget> TargetListItems { get; private set; }
+		public ReactiveProperty<SearchTarget> SelectedTarget { get; private set; }
+
+		private static SearchTarget _LastSelectedTarget;
+		private static string _LastKeyword;
+
+		public ReactiveProperty<bool> IsNavigationFailed { get; }
+		public ReactiveProperty<string> NavigationFailedReason { get; }
+
+
+
+		public ObservableCollection<SearchHistoryListItemViewModel> SearchHistoryItems { get; private set; } = new ObservableCollection<SearchHistoryListItemViewModel>();
+
+
+		private DelegateCommand _ShowSearchHistoryCommand;
+		public DelegateCommand ShowSearchHistoryCommand
+		{
+			get
+			{
+				return _ShowSearchHistoryCommand
+					?? (_ShowSearchHistoryCommand = new DelegateCommand(() =>
+					{
+						PageManager.OpenPage(HohoemaPageType.Search);
+					}));
+			}
+		}
+
+
+		private DelegateCommand _DeleteAllSearchHistoryCommand;
+		public DelegateCommand DeleteAllSearchHistoryCommand
+		{
+			get
+			{
+				return _DeleteAllSearchHistoryCommand
+					?? (_DeleteAllSearchHistoryCommand = new DelegateCommand(() =>
+					{
+						_searchHistoryRepository.Clear();
+
+						SearchHistoryItems.Clear();
+						RaisePropertyChanged(nameof(SearchHistoryItems));
+					},
+					() => _searchHistoryRepository.Count() > 0
+					));
+			}
+		}
+
+		private DelegateCommand<SearchHistoryListItemViewModel> _SearchHistoryItemCommand;
+		public DelegateCommand<SearchHistoryListItemViewModel> SearchHistoryItemCommand
+		{
+			get
+			{
+				return _SearchHistoryItemCommand
+					?? (_SearchHistoryItemCommand = new DelegateCommand<SearchHistoryListItemViewModel>((item) =>
+					{
+						SearchText.Value = item.Keyword;
+						if (DoSearchCommand.CanExecute())
+                        {
+							DoSearchCommand.Execute();
+						}
+					}
+					));
+			}
+		}
+
+
+		private DelegateCommand<SearchHistory> _DeleteSearchHistoryItemCommand;
+		public DelegateCommand<SearchHistory> DeleteSearchHistoryItemCommand
+		{
+			get
+			{
+				return _DeleteSearchHistoryItemCommand
+					?? (_DeleteSearchHistoryItemCommand = new DelegateCommand<SearchHistory>((item) =>
+					{
+						_searchHistoryRepository.Remove(item.Keyword, item.Target);
+						var itemVM = SearchHistoryItems.FirstOrDefault(x => x.Keyword == item.Keyword && x.Target == item.Target);
+						if (itemVM != null)
+						{
+							SearchHistoryItems.Remove(itemVM);
+						}
+					}
+					));
+			}
+		}
+
+
+		public INavigationService NavigationService => Views.Pages.SearchPages.SearchPage.ContentNavigationService;
+
+		public SearchPageViewModel(
 			ApplicationLayoutManager applicationLayoutManager,
 			NiconicoSession niconicoSession,
             SearchProvider searchProvider,
@@ -70,60 +173,33 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
             SelectedTarget = new ReactiveProperty<SearchTarget>(_LastSelectedTarget)
                 .AddTo(_CompositeDisposable);
 
-            SearchOptionVM = new ReactiveProperty<SearchOptionViewModelBase>();
-            SearchOptionVMDict = new Dictionary<SearchTarget, SearchOptionViewModelBase>();
-
-            SelectedTarget.Subscribe(x =>
-            {
-                RaiseSearchTargetFlags();
-
-                var keyword = SearchOptionVM.Value?.Keyword ?? "";
-                SearchOptionViewModelBase searchOptionVM = null;
-                if (SearchOptionVMDict.ContainsKey(x))
-                {
-                    searchOptionVM = SearchOptionVMDict[x];
-                }
-                else
-                {
-                    searchOptionVM = SearchOptioniViewModelHelper.CreateFromTarget(x);
-                    SearchOptionVMDict.Add(x, searchOptionVM);
-                }
-
-                searchOptionVM.Keyword = keyword;
-
-                SearchOptionVM.Value = searchOptionVM;
-
-            });
-
-
-
-            DoSearchCommand =
-                SearchText.Select(x => !String.IsNullOrEmpty(x))
-                .ToReactiveCommand()
+            DoSearchCommand = new ReactiveCommand()
                 .AddTo(_CompositeDisposable);
-
-            SearchText.Subscribe(x =>
+#if DEBUG
+			SearchText.Subscribe(x =>
             {
                 Debug.WriteLine($"検索：{x}");
             });
+#endif
 
-
-            DoSearchCommand.CanExecuteChangedAsObservable()
+#if DEBUG
+			DoSearchCommand.CanExecuteChangedAsObservable()
                 .Subscribe(x =>
                 {
                     Debug.WriteLine(DoSearchCommand.CanExecute());
                 });
-            DoSearchCommand.Subscribe(_ =>
+#endif
+
+			DoSearchCommand.Subscribe(async _ =>
             {
+				await Task.Delay(50);
+
                 if (SearchText.Value.Length == 0) { return; }
 
-                // Note: Keywordの管理はSearchPage側で行うべき？
-                SearchOptionVM.Value.Keyword = SearchText.Value;
+				if (_LastSelectedTarget == SelectedTarget.Value && _LastKeyword == SearchText.Value) { return; }
 
-                var searchOption = SearchOptionVM.Value.MakePayload();
-
-                // 検索結果を表示
-                PageManager.Search(searchOption.SearchTarget, searchOption.Keyword);
+				// 検索結果を表示
+				PageManager.Search(SelectedTarget.Value, SearchText.Value);
 
                 var searched = _searchHistoryRepository.Searched(SearchText.Value, SelectedTarget.Value);
 
@@ -136,133 +212,89 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 
             })
             .AddTo(_CompositeDisposable);
-        }
 
-		public ApplicationLayoutManager ApplicationLayoutManager { get; }
-		public NiconicoSession NiconicoSession { get; }
-        public SearchProvider SearchProvider { get; }
-        public PageManager PageManager { get; }
+			IsNavigationFailed = new ReactiveProperty<bool>();
+		    NavigationFailedReason = new ReactiveProperty<string>();
+		}       
 
-        public ISearchPagePayloadContent RequireSearchOption { get; private set; }
+        public override async void OnNavigatedTo(INavigationParameters parameters)
+        {
+			IsNavigationFailed.Value = false;
+			NavigationFailedReason.Value = null;
+
+			try
+            {
+				string keyword = null;
+				if (parameters.TryGetValue("keyword", out keyword))
+				{
+					keyword = Uri.UnescapeDataString(keyword);
+				}
 
 
-		public ReactiveCommand DoSearchCommand { get; private set; }
+				SearchTarget target = SearchTarget.Keyword;
+				if (!parameters.TryGetValue("service", out string modeString)
+					|| !Enum.TryParse<SearchTarget>(modeString, out target)
+					)
+				{
+					Debug.Assert(true);
 
-		public ReactiveProperty<string> SearchText { get; private set; }
-		public List<SearchTarget> TargetListItems { get; private set; }
-		public ReactiveProperty<SearchTarget> SelectedTarget { get; private set; }
+					target = SearchTarget.Keyword;
+				}
+				
+				var pageName = target switch
+				{
+					SearchTarget.Keyword => nameof(Views.Pages.SearchPages.SearchResultKeywordPage),
+					SearchTarget.Tag => nameof(Views.Pages.SearchPages.SearchResultTagPage),
+					SearchTarget.Niconama => nameof(Views.Pages.SearchPages.SearchResultLivePage),
+					SearchTarget.Mylist => nameof(Views.Pages.SearchPages.SearchResultMylistPage),
+					SearchTarget.Community => nameof(Views.Pages.SearchPages.SearchResultCommunityPage),
+					_ => null
+				};
 
-        private static SearchTarget _LastSelectedTarget;
-        private static string _LastKeyword;
-
-        public Dictionary<SearchTarget, SearchOptionViewModelBase> SearchOptionVMDict { get; private set; }
-		public ReactiveProperty<SearchOptionViewModelBase> SearchOptionVM { get; private set; }
-
-		public bool IsSearchKeyword => RequireSearchOption is KeywordSearchPagePayloadContent;
-
-		public bool IsSearchTag => RequireSearchOption is TagSearchPagePayloadContent;
-
-		public bool IsSearchMylist => RequireSearchOption is MylistSearchPagePayloadContent;
-
-		public bool IsSearchCommunity => RequireSearchOption is CommunitySearchPagePayloadContent;
-
-		public bool IsSearchNiconama => RequireSearchOption is LiveSearchPagePayloadContent;
-
-        
-        public ObservableCollection<SearchHistoryListItemViewModel> SearchHistoryItems { get; private set; } = new ObservableCollection<SearchHistoryListItemViewModel>();
-
-        private void RaiseSearchTargetFlags()
-		{
-			RaisePropertyChanged(nameof(IsSearchKeyword));
-			RaisePropertyChanged(nameof(IsSearchTag));
-			RaisePropertyChanged(nameof(IsSearchMylist));
-			RaisePropertyChanged(nameof(IsSearchCommunity));
-			RaisePropertyChanged(nameof(IsSearchNiconama));
-		}
-
-        private DelegateCommand _ShowSearchHistoryCommand;
-		public DelegateCommand ShowSearchHistoryCommand
-		{
-			get
-			{
-				return _ShowSearchHistoryCommand
-					?? (_ShowSearchHistoryCommand = new DelegateCommand(() => 
+				if (pageName != null && keyword != null)
+                {
+					var result = await NavigationService.NavigateAsync(pageName, ("keyword", keyword));
+					if (!result.Success)
 					{
-						PageManager.OpenPage(HohoemaPageType.Search);
-					}));
+						throw result.Exception;
+					}
+				}
+
+				SearchText.Value = keyword;
+				SelectedTarget.Value = target;
+
+				_LastSelectedTarget = target;
+				_LastKeyword = keyword;
 			}
-		}
-
-
-        private DelegateCommand _DeleteAllSearchHistoryCommand;
-        public DelegateCommand DeleteAllSearchHistoryCommand
-        {
-            get
+			catch (Exception e)
             {
-                return _DeleteAllSearchHistoryCommand
-                    ?? (_DeleteAllSearchHistoryCommand = new DelegateCommand(() =>
-                    {
-						_searchHistoryRepository.Clear();
+				IsNavigationFailed.Value = true;
+#if DEBUG
+				NavigationFailedReason.Value = e.Message;
+#endif
+				Debug.WriteLine(e.ToString());
+			}
 
-                        SearchHistoryItems.Clear();
-                        RaisePropertyChanged(nameof(SearchHistoryItems));
-                    },
-                    () => _searchHistoryRepository.Count() > 0
-                    ));
-            }
+			base.OnNavigatedTo(parameters);
         }
 
-        private DelegateCommand<SearchHistoryListItemViewModel> _SearchHistoryItemCommand;
-        public DelegateCommand<SearchHistoryListItemViewModel> SearchHistoryItemCommand
+        public IObservable<string> GetTitleObservable()
         {
-            get
-            {
-                return _SearchHistoryItemCommand
-                    ?? (_SearchHistoryItemCommand = new DelegateCommand<SearchHistoryListItemViewModel>((item) =>
-                    {
-                        SearchText.Value = item.Keyword;
-                    }
-                    ));
-            }
+			return Observable.Empty<string>();
+			return SearchText.Select(x => x);
         }
 
-
-        private DelegateCommand<SearchHistory> _DeleteSearchHistoryItemCommand;
-        private readonly SearchHistoryRepository _searchHistoryRepository;
-
-        public DelegateCommand<SearchHistory> DeleteSearchHistoryItemCommand
+        public HohoemaPin GetPin()
         {
-            get
-            {
-                return _DeleteSearchHistoryItemCommand
-                    ?? (_DeleteSearchHistoryItemCommand = new DelegateCommand<SearchHistory>((item) =>
-                    {
-						_searchHistoryRepository.Remove(item.Keyword, item.Target);
-                        var itemVM = SearchHistoryItems.FirstOrDefault(x => x.Keyword == item.Keyword && x.Target == item.Target);
-                        if (itemVM != null)
-                        {
-                            SearchHistoryItems.Remove(itemVM);
-                        }
-                    }
-                    ));
-            }
+			if (_LastKeyword == null) { return null; }
+			
+			return new HohoemaPin()
+			{
+				Label = _LastKeyword + $" - {_LastSelectedTarget.Translate()}",
+				PageType = HohoemaPageType.Search,
+				Parameter = $"keyword={System.Net.WebUtility.UrlEncode(_LastKeyword)}&service={SelectedTarget.Value}",
+			};
         }
-        /*
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			// コミュニティ検索はログインが必要            
-
-			// ContentVM側のページタイトルが後で呼び出されるように、SearchPage側を先に呼び出す
-			base.OnNavigatedTo(e, viewModelState);
-        }
-
-        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-        {
-            _LastSelectedTarget = SelectedTarget.Value;
-            _LastKeyword = SearchText.Value;
-            base.OnNavigatingFrom(e, viewModelState, suspending);
-        }
-        */
     }
 
 
@@ -282,6 +314,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 				case SearchTarget.Community:
 					return new CommunitySearchOptionViewModel();
 				case SearchTarget.Niconama:
+					return null;
 					//return new LiveSearchOptionViewModel();
 				default:
 					break;
@@ -759,28 +792,37 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 
 	public class VideoSearchSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
 	{
-        public VideoSearchSource(VideoSearchOption searchOption, SearchProvider searchProvider)
+        public VideoSearchSource(string keyword, bool isTagSearch, Sort sort, Order order, SearchProvider searchProvider)
         {
-            SearchOption = searchOption;
+            Keyword = keyword;
+            IsTagSearch = isTagSearch;
+			SearchSort = sort;
+			SearchOrder = order;
             SearchProvider = searchProvider;
         }
 
-        public SearchProvider SearchProvider { get; }
-		public VideoSearchOption SearchOption { get; }
+		public string Keyword { get; }
 
+		public bool IsTagSearch { get;  }
+
+		public Sort SearchSort { get;  }
+		public Order SearchOrder { get; }
+
+		public SearchProvider SearchProvider { get; }
+		
 
 		
 
         protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             VideoListingResponse res = null;
-            if (SearchOption.SearchTarget == SearchTarget.Keyword)
+            if (!IsTagSearch)
             {
-                res = await SearchProvider.GetKeywordSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
+                res = await SearchProvider.GetKeywordSearch(Keyword, (uint)head, (uint)count, SearchSort, SearchOrder);
             }
-            else if (SearchOption.SearchTarget == SearchTarget.Tag)
+            else 
             {
-                res = await SearchProvider.GetTagSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
+                res = await SearchProvider.GetTagSearch(Keyword, (uint)head, (uint)count, SearchSort, SearchOrder);
             }
 
 			ct.ThrowIfCancellationRequested();
@@ -806,15 +848,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
         protected override async Task<int> ResetSourceImpl()
         {
             int totalCount = 0;
-            if (SearchOption.SearchTarget == SearchTarget.Keyword)
+            if (!IsTagSearch)
             {
-                var res = await SearchProvider.GetKeywordSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
+                var res = await SearchProvider.GetKeywordSearch(Keyword, 0, 2, SearchSort, SearchOrder);
                 totalCount = (int)res.GetTotalCount();
 
             }
-            else if (SearchOption.SearchTarget == SearchTarget.Tag)
+            else 
             {
-                var res = await SearchProvider.GetTagSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
+                var res = await SearchProvider.GetTagSearch(Keyword, 0, 2, SearchSort, SearchOrder);
                 totalCount = (int)res.GetTotalCount();
             }
 

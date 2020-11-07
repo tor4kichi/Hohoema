@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Hohoema.Presentation.ViewModels.Pages.SearchPages;
+using Prism.Navigation;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,6 +14,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Prism.Ioc;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -22,9 +25,14 @@ namespace Hohoema.Presentation.Views.Pages.SearchPages
     /// </summary>
     public sealed partial class SearchPage : Page
     {
+        public static IPlatformNavigationService ContentNavigationService { get; private set; }
+        private readonly SearchPageViewModel _viewModel;
+
         public SearchPage()
         {
             this.InitializeComponent();
+
+            ContentNavigationService = NavigationService.Create(SearchResultFrame, new Gestures[] { });
         }
     }
 }
