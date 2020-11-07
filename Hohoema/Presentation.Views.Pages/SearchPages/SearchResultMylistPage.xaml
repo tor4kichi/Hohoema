@@ -40,7 +40,7 @@
               UseSystemFocusVisuals="True"
               SelectionMode="None"
               HorizontalContentAlignment="Stretch"
-              Padding="16 0"
+              Padding="0 0"
               uwpExtensions:ScrollViewerExtensions.VerticalScrollBarMargin="0 96 0 0">
       <GridView.ItemContainerTransitions>
         <TransitionCollection></TransitionCollection>
@@ -65,31 +65,6 @@
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
             <StackPanel>
-              <ListView xmlns:ee="using:Hohoema.Models.Domain"
-                        SelectionMode="Single"
-                        IsItemClickEnabled="True"
-                        ItemsSource="{Binding SearchTargets}"
-                        SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}"
-                        Style="{StaticResource BandListViewStyle}"
-                        ItemContainerStyle="{StaticResource SimpleListViewItemStyle}"
-                        HorizontalAlignment="Right">
-                <i:Interaction.Behaviors>
-                  <core:EventTriggerBehavior EventName="ItemClick">
-                    <core:InvokeCommandAction Command="{Binding ChangeSearchTargetCommand}"
-                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-                  </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-                <ListView.ItemTemplate>
-                  <DataTemplate>
-                    <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                  </DataTemplate>
-                </ListView.ItemTemplate>
-                <ListView.ItemsPanel>
-                  <ItemsPanelTemplate>
-                    <ItemsWrapGrid Orientation="Horizontal" />
-                  </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
-              </ListView>
               <CommandBar>
                 <CommandBar.PrimaryCommands>
                   <AppBarButton x:Name="ScrollToTopButton" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
@@ -102,43 +77,9 @@
                   <AppBarButton Background="Transparent" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding RefreshCommand}" Icon="Refresh" />
                 </CommandBar.PrimaryCommands>
                 <CommandBar.Content>
-                  <toolkit:DockPanel x:Name="TitleLayout" Margin="16 0 0 0">
-                    <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}" CommandParameter="Search" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 16 0" toolkit:DockPanel.Dock="Left" VerticalAlignment="Stretch" Height="48">
-                      <SymbolIcon Symbol="Find" />
-                    </HyperlinkButton>
-                    <HyperlinkButton toolkit:DockPanel.Dock="Left" Margin="8 0">
-                      <i:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="Click">
-                          <mybehavior:OpenFlyout />
-                        </core:EventTriggerBehavior>
-                      </i:Interaction.Behaviors>
-                      <TextBlock Text="{Binding SearchOptionText}" Style="{StaticResource CaptionTextBlockStyle}"></TextBlock>
-                      <FlyoutBase.AttachedFlyout>
-                        <Flyout>
-                          <StackPanel MaxWidth="300">
-                            <ListView ItemsSource="{Binding MylistSearchOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectionMode="Single" SingleSelectionFollowsFocus="False">
-                              <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                  <Setter Property="Width" Value="140" />
-                                </Style>
-                              </ListView.ItemContainerStyle>
-                              <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                  <ItemsWrapGrid Orientation="Horizontal" />
-                                </ItemsPanelTemplate>
-                              </ListView.ItemsPanel>
-                            </ListView>
-                          </StackPanel>
-                        </Flyout>
-                      </FlyoutBase.AttachedFlyout>
-                    </HyperlinkButton>
-                    <StackPanel Background="Transparent" IsHitTestVisible="True">
-                      <i:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="Tapped">
-                          <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="ListPosition" Value="0.0" />
-                        </core:EventTriggerBehavior>
-                      </i:Interaction.Behaviors>
-                    </StackPanel>
+                  <toolkit:DockPanel x:Name="TitleLayout" Margin="0 0 0 0">
+                    <ComboBox ItemsSource="{Binding MylistSearchOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                    </ComboBox>
                   </toolkit:DockPanel>
                 </CommandBar.Content>
               </CommandBar>
@@ -154,6 +95,7 @@
     </GridView>
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
+      <!--
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -192,6 +134,7 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      -->
       
     </VisualStateManager.VisualStateGroups>
   </Grid>

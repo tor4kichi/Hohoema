@@ -16,35 +16,13 @@ namespace Hohoema.Presentation.Services.Page
     {
         public static void Search(this PageManager pageManager, SearchTarget target, string keyword, bool forgetLastSearch = false)
         {
-            HohoemaPageType resultPageType = HohoemaPageType.Search;
-            switch (target)
-            {
-                case SearchTarget.Keyword:
-                    resultPageType = HohoemaPageType.SearchResultKeyword;
-                    break;
-                case SearchTarget.Tag:
-                    resultPageType = HohoemaPageType.SearchResultTag;
-                    break;
-                case SearchTarget.Niconama:
-                    resultPageType = HohoemaPageType.SearchResultLive;
-                    break;
-                case SearchTarget.Mylist:
-                    resultPageType = HohoemaPageType.SearchResultMylist;
-                    break;
-                case SearchTarget.Community:
-                    resultPageType = HohoemaPageType.SearchResultCommunity;
-                    break;
-                default:
-                    break;
-            }
-
             var p = new NavigationParameters
             {
                 { "keyword", System.Net.WebUtility.UrlEncode(keyword) },
-                { "target", resultPageType }
+                { "service", target }
             };
 
-            pageManager.OpenPage(resultPageType, p, forgetLastSearch ? NavigationStackBehavior.NotRemember : NavigationStackBehavior.Push);
+            pageManager.OpenPage(HohoemaPageType.Search, p, forgetLastSearch ? NavigationStackBehavior.NotRemember : NavigationStackBehavior.Push);
         }
         /*
         public static void SearchKeyword(this PageManager pageManager, string content, bool isForgetNavigation = false)

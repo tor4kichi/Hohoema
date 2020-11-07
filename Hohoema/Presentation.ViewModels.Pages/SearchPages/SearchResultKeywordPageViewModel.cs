@@ -286,7 +286,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 
         protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-            return new VideoSearchSource(SearchOption.Keyword, SearchOption.SearchTarget == SearchTarget.Tag, SearchOption.Sort, SearchOption.Order, SearchProvider);
+            return new VideoSearchSource(SearchOption.Keyword, false, SearchOption.Sort, SearchOption.Order, SearchProvider);
 		}
 
 		protected override void PostResetList()
