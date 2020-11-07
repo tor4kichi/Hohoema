@@ -26,10 +26,11 @@ using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Prism.Navigation;
+using I18NPortable;
 
 namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 {
-    public class SearchPageViewModel : HohoemaViewModelBase
+    public class SearchPageViewModel : HohoemaViewModelBase, ITitleUpdatablePage, IPinablePage
     {
 
 		public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -277,7 +278,24 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 			base.OnNavigatedTo(parameters);
         }
 
-	}
+        public IObservable<string> GetTitleObservable()
+        {
+			return Observable.Empty<string>();
+			return SearchText.Select(x => x);
+        }
+
+        public HohoemaPin GetPin()
+        {
+			if (_LastKeyword == null) { return null; }
+			
+			return new HohoemaPin()
+			{
+				Label = _LastKeyword + $" - {_LastSelectedTarget.Translate()}",
+				PageType = HohoemaPageType.Search,
+				Parameter = $"keyword={System.Net.WebUtility.UrlEncode(_LastKeyword)}&service={SelectedTarget.Value}",
+			};
+        }
+    }
 
 
 
