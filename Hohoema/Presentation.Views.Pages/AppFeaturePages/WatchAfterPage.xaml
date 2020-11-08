@@ -46,14 +46,15 @@
                                 Command="{Binding RemoveWatchedItemsInAfterWatchPlaylistCommand}"
                                 Icon="Delete"
                                 />
+                  <AppBarSeparator />
                   <!-- 非選択中 -->
+                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
+                  
                   <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                                 Command="{Binding PlaylistPlayAllCommand}"
                                 CommandParameter="{Binding Playlist}"></AppBarButton>
-
-                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
 
                   <AppBarButton x:Name="ScrollToTopButton"
                                 Icon="Up"

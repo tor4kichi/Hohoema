@@ -69,8 +69,8 @@
               <CommandBar.PrimaryCommands>
                 <!-- 非選択中 -->
                 <AppBarToggleButton x:Name="ToggleMylistFavoriteButton" IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}" Command="{Binding FollowToggleButtonService.ToggleFollowCommand}" Visibility="Collapsed" Icon="Favorite" Label="{Binding Source=Follow, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />
-                <AppBarButton x:Name="PlayAllButton" Icon="Play" Label="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding PlayAllVideosFromHeadCommand}"></AppBarButton>
                 <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
+                <AppBarButton x:Name="PlayAllButton" Icon="Play" Label="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding PlayAllVideosFromHeadCommand}"></AppBarButton>
                 <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
                   <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Click">
