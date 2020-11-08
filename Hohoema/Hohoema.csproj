@@ -136,6 +136,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Models.Domain\Application\FeatureFlags.cs" />
+    <Compile Include="Models.Domain\Niconico\Channel\ChannelNameCacheRepository.cs" />
     <Compile Include="Models.Domain\Niconico\UserFeature\NicoRepoItemTopic.cs" />
     <Compile Include="Models.UseCase\Migration\SearchPageQueryMigrate_0_26_0.cs" />
     <Compile Include="Presentation.ViewModels.Pages\UserPages\UserInfoViewModel.cs" />

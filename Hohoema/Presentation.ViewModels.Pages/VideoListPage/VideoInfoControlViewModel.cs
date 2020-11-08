@@ -526,8 +526,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                     }
                     else if (Data.Owner.UserType == NicoVideoUserType.Channel)
                     {
-                        var channelInfo = await _channelProvider.GetChannelInfo(Data.Owner.OwnerId);
-                        Data.Owner.ScreenName = channelInfo.Name;
+                        Data.Owner.ScreenName = await _channelProvider.GetChannelNameWithCacheAsync(Data.Owner.OwnerId);
                         _nicoVideoRepository.UpdateItem(Data);
                     }
                 }
