@@ -22,7 +22,38 @@ namespace NiconicoLiveToolkit.Video
             var res = await _context.GetJsonAsAsync<NicoVideoInfoResponseContainer>(url);
             return res.NicovideoVideoResponse;
         }
+
+        public async Task<NicovideoVideoManyResponse> GetVideoInfoManyAsync(IEnumerable<string> videoIdList)
+        {
+            string url = $"http://api.ce.nicovideo.jp/nicoapi/v1/video.array?v={string.Join(Uri.EscapeDataString(","), videoIdList)}&__format=json";
+            var res = await _context.GetJsonAsAsync<NicoVideoInfoManyResponseContainer>(url);
+            return res.NicovideoVideoResponse;
+        }
     }
+
+    public partial class NicoVideoInfoManyResponseContainer
+    {
+        [JsonPropertyName("nicovideo_video_response")]
+        public NicovideoVideoManyResponse NicovideoVideoResponse { get; set; }
+    }
+
+    public class NicovideoVideoManyResponse
+    {
+        [JsonPropertyName("video_info")]
+        [JsonConverter(typeof(SingleOrArrayConverter<List<NicovideoVideoResponse>, NicovideoVideoResponse>))]
+        public List<NicovideoVideoResponse> Videos { get; set; }
+
+        [JsonPropertyName("count")]
+        [JsonConverter(typeof(LongToStringConverter))]
+        public long Count { get; set; }
+
+        [JsonPropertyName("@status")]
+        public string Status { get; set; }
+
+
+        public bool IsOK => Status == "ok";
+    }
+
 
     public partial class NicoVideoInfoResponseContainer
     {

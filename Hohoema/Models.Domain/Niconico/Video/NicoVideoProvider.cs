@@ -12,6 +12,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Application;
+using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {
@@ -167,6 +170,69 @@ namespace Hohoema.Models.Domain.Niconico.Video
                 return info;
             }
         }
+
+
+        public async IAsyncEnumerable<NicoVideo> GetVideoInfoManyAsync(IEnumerable<string> idItems)
+        {
+            using (await _ThumbnailAccessLock.LockAsync())
+            {
+                var res = await VideoClient.GetVideoInfoManyAsync(idItems);
+
+                if (res.IsOK && res.Count == 0)
+                {
+                    yield break;
+                }
+
+                Debug.Assert(idItems.Count() == res.Count);
+
+                foreach (var item in res.Videos)
+                {
+                    var info = _nicoVideoRepository.Get(item.Video.Id);
+                    var video = item.Video;
+
+                    info.Title = video.Title;
+                    info.VideoId = video.Id;
+                    info.Length = TimeSpan.FromSeconds(video.LengthInSeconds);
+                    info.PostedAt = video.FirstRetrieve.DateTime;
+                    info.ThumbnailUrl = video.ThumbnailUrl.OriginalString;
+                    info.Description = video.Description;
+                    info.ViewCount = (int)video.ViewCounter;
+                    info.MylistCount = (int)video.MylistCounter;
+                    info.CommentCount = (int)item.Thread.NumRes;
+                    info.Tags = item.Tags?.TagInfo.Select(x => new NicoVideoTag(x.Tag)).ToList() ?? info.Tags;
+
+                    if (item.Video.ProviderType == "channel")
+                    {
+                        info.Owner = new NicoVideoOwner()
+                        {
+                            OwnerId = item.Video.CommunityId,
+                            UserType = NicoVideoUserType.Channel
+                        };
+                    }
+                    else
+                    {
+                        info.Owner = new NicoVideoOwner()
+                        {
+                            OwnerId = item.Video.UserId.ToString(),
+                            UserType = item.Video.ProviderType == "regular" ? NicoVideoUserType.User : NicoVideoUserType.Channel
+                        };
+                    }
+
+                    info.IsDeleted = item.Video.Deleted != 0;
+                    if (info.IsDeleted)
+                    {
+                        try
+                        {
+                            info.PrivateReasonType = (PrivateReasonType)item.Video.Deleted;
+                        }
+                        catch { }
+                    }
+
+                    yield return info;
+                }
+            }
+        }
+
 
         public async Task<DmcWatchData> GetDmcWatchResponse(string rawVideoId)
         {
