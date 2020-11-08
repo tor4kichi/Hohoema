@@ -370,7 +370,7 @@ namespace Hohoema
 
                 Type[] migrateTypes = new Type[]
                 {
-                    typeof(DatabaseMigrate_0_25_0)
+                    typeof(DatabaseMigrate_0_25_0),
                 };
 
                 
@@ -399,10 +399,18 @@ namespace Hohoema
                 
                 Container.Resolve<MigrationCommentFilteringSettings>().Migration();
                 Container.Resolve<CommentFilteringNGScoreZeroFixture>().Migration();
+
                 await Task.Run(async () => { await Container.Resolve<SettingsMigration_V_0_23_0>().MigrateAsync(); });
-                
+
+                Container.Resolve<SearchPageQueryMigrate_0_26_0>().Migrate();
 
 
+                // 機能切り替え管理クラスをDIコンテナに登録
+                // Xaml側で扱いやすくするためApp.xaml上でインスタンス生成させている
+                {
+                    var unityContainer = Container.GetContainer();
+                    unityContainer.RegisterInstance(Resources["FeatureFlags"] as FeatureFlags);
+                }
 
                 // ローカリゼーション用のライブラリを初期化
                 try

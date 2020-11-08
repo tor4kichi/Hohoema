@@ -19,6 +19,7 @@ using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Subscriptions.Commands;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 {
@@ -45,6 +46,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public AddKeywordSearchSubscriptionCommand AddKeywordSearchSubscriptionCommand { get; }
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public SubscriptionManager SubscriptionManager { get; }
 
         public SearchResultKeywordPageViewModel(
@@ -54,7 +56,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             SearchHistoryRepository searchHistoryRepository,
-            AddKeywordSearchSubscriptionCommand addKeywordSearchSubscriptionCommand
+            AddKeywordSearchSubscriptionCommand addKeywordSearchSubscriptionCommand,
+            SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             FailLoading = new ReactiveProperty<bool>(false)
@@ -94,6 +97,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
             PageManager = pageManager;
             _searchHistoryRepository = searchHistoryRepository;
             AddKeywordSearchSubscriptionCommand = addKeywordSearchSubscriptionCommand;
+            SelectionModeToggleCommand = selectionModeToggleCommand;
             SubscriptionManager = subscriptionManager;
         }
 
@@ -233,13 +237,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
             get { return _SearchOptionText; }
             set { SetProperty(ref _SearchOptionText, value); }
         }
-        
+
+        #region Commands
 
 
-		#region Commands
-
-
-		private DelegateCommand _ShowSearchHistoryCommand;
+        private DelegateCommand _ShowSearchHistoryCommand;
         private readonly SearchHistoryRepository _searchHistoryRepository;
 
         public DelegateCommand ShowSearchHistoryCommand
@@ -284,7 +286,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 
         protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-            return new VideoSearchSource(SearchOption, SearchProvider);
+            return new VideoSearchSource(SearchOption.Keyword, false, SearchOption.Sort, SearchOption.Order, SearchProvider);
 		}
 
 		protected override void PostResetList()
@@ -301,5 +303,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
         }
         #endregion
 
+    }    
+
+
+    public enum VideoSearchMode
+    {
+        Keyword,
+        Tag
     }
 }

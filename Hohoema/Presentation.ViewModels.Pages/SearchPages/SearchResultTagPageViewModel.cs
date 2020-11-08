@@ -25,6 +25,7 @@ using Hohoema.Models.Domain.Niconico;
 using Microsoft.AppCenter.Analytics;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Subscriptions.Commands;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 {
@@ -56,7 +57,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
             SearchHistoryRepository searchHistoryRepository,
             Services.DialogService dialogService,
             AddTagSearchSubscriptionCommand addTagSearchSubscriptionCommand,
-            NiconicoFollowToggleButtonService followButtonService
+            NiconicoFollowToggleButtonService followButtonService,
+            SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             SearchProvider = searchProvider;
@@ -69,6 +71,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
             HohoemaDialogService = dialogService;
             AddTagSearchSubscriptionCommand = addTagSearchSubscriptionCommand;
             FollowButtonService = followButtonService;
+            SelectionModeToggleCommand = selectionModeToggleCommand;
             FailLoading = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
 
@@ -112,6 +115,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
         public Services.DialogService HohoemaDialogService { get; }
         public AddTagSearchSubscriptionCommand AddTagSearchSubscriptionCommand { get; }
         public NiconicoFollowToggleButtonService FollowButtonService { get; }
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 
         static private List<SearchSortOptionListItem> _VideoSearchOptionListItems = new List<SearchSortOptionListItem>()
         {
@@ -316,8 +320,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 
         protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new VideoSearchSource(SearchOption, SearchProvider);
-		}
+            return new VideoSearchSource(SearchOption.Keyword, SearchOption.SearchTarget == SearchTarget.Tag, SearchOption.Sort, SearchOption.Order, SearchProvider);
+        }
 
 		
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)

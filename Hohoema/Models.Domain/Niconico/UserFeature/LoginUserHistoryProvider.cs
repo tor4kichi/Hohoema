@@ -35,7 +35,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature
 
             foreach (var history in res?.Histories ?? Enumerable.Empty<History>())
             {
-                _videoPlayedHistoryRepository.VideoPlayed(history.Id);
+                _videoPlayedHistoryRepository.VideoPlayed(history.Id, TimeSpan.MaxValue);
             }
 
             return res;

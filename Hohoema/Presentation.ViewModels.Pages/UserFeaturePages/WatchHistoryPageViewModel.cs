@@ -30,7 +30,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
             WatchHistoryManager watchHistoryManager,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            WatchHistoryRemoveAllCommand watchHistoryRemoveAllCommand
+            WatchHistoryRemoveAllCommand watchHistoryRemoveAllCommand,
+            SelectionModeToggleCommand selectionModeToggleCommand
             )
 		{
             ApplicationLayoutManager = applicationLayoutManager;
@@ -39,6 +40,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             WatchHistoryRemoveAllCommand = watchHistoryRemoveAllCommand;
+            SelectionModeToggleCommand = selectionModeToggleCommand;
             Histories = new ObservableCollection<HistoryVideoInfoControlViewModel>();
         }
 
@@ -49,6 +51,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public WatchHistoryRemoveAllCommand WatchHistoryRemoveAllCommand { get; }
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public ObservableCollection<HistoryVideoInfoControlViewModel> Histories { get; }
 
         HistoriesResponse _HistoriesResponse;

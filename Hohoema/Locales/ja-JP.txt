@@ -54,6 +54,16 @@ OpenErrorLogFolder = ログフォルダを開く
 ## Clipboard action
 InAppNotification_ContentDetectedFromClipboard = {0} をお探しですか？
 
+#### Time ####
+RelationalDateTime_JustNow = 今さっき
+RelationalDateTime_SomeMinutesAgo = {0} 分前
+RelationalDateTime_SomeHoursAgo = {0} 時間前
+RelationalDateTime_SomeDaysAgo = {0} 日前
+RelationalDateTime_SomeWeeksAgo = {0} 週前
+RelationalDateTime_SomeMonthAgo = {0} ヶ月前
+RelationalDateTime_SomeYearsAgo = {0} 年前
+
+
 
 #### PageType ####
 HohoemaPageType.ChannelInfo = チャンネル情報
@@ -224,7 +234,6 @@ BackupRestoreFailed = バックアップからの復元に失敗しました
 ApplicationDiagnosticsReport = アプリの使用状況レポート
 EnableCrashReport = アプリのエラー情報を送信する
 EnableAnalyticsReport = アプリ機能・ページの利用状況を送信する
-
 
 #### Niconico General ####
 PrivateReasonType.PostedBy = 投稿者削除
@@ -589,6 +598,11 @@ HiddenThisRankingGenre = このジャンルを隠す
 
 
 #### Search ####
+VideoSearchSuggest = 動画検索
+LiveSearchSuggest = 生放送検索
+DetailSearchSuggest = 詳細検索
+
+
 SearchTarget.Keyword = キーワード
 SearchTarget.Tag = タグ
 SearchTarget.Mylist = マイリスト
@@ -739,10 +753,19 @@ MylistSort = 並び替え
 RemoveWatchHisotryItem = 視聴履歴から削除
 LocalMylistRemoveItem = ローカルマイリストから削除
 MylistRemoveItem = マイリストから削除
+MylistCopyItem = 別のマイリストへコピー
+SelectCopyTargetMylist = コピー先のマイリストを選択
+InAppNotification_MylistCopiedItems_Success = {0} に {1} 個の動画をコピーしました
+InAppNotification_MylistCopiedItems_Fail = {0} への動画のコピーに失敗しました
+MylistMoveItem = 別のマイリストへ移動
+SelectMoveTargetMylist = 移動先のマイリストを選択
+InAppNotification_MylistMovedItems_Success = {0} に {1} 個の動画を移動しました
+InAppNotification_MylistMovedItems_Fail = {0} への動画の移動に失敗しました
 WatchAfterAddItem = あとで見るに追加
 WatchAfterRemoveItem = あとで見るから削除
 MylistAddItem = マイリストに追加
 LocalMylistAddItem = ローカルマイリストに追加
+SelectLocalMylist = ローカルマイリストを選択
 SubscriptionAddVideoOwner = 投稿者を購読に追加
 AllPlayFromHere = ここから連続再生
 
@@ -836,6 +859,7 @@ MylistDefaultSort.Length_Descending = 動画時間が短い順
 #### User Series ####
 UserSeriesListWithOwnerName = {0} のシリーズ一覧
 NoItems_UserSeries = シリーズはありません
+
 
 
 

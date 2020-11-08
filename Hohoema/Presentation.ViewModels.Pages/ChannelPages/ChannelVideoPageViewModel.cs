@@ -19,6 +19,7 @@ using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.ChannelPages
 {
@@ -54,7 +55,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.ChannelPages
             PageManager pageManager,
             HohoemaPlaylist hohoemaPlaylist,
             ExternalAccessService externalAccessService,
-            NiconicoFollowToggleButtonService followToggleButtonService
+            NiconicoFollowToggleButtonService followToggleButtonService,
+            SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -64,6 +66,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.ChannelPages
             HohoemaPlaylist = hohoemaPlaylist;
             ExternalAccessService = externalAccessService;
             FollowToggleButtonService = followToggleButtonService;
+            SelectionModeToggleCommand = selectionModeToggleCommand;
         }
 
         public string RawChannelId { get; set; }
@@ -176,7 +179,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.ChannelPages
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public ExternalAccessService ExternalAccessService { get; }
         public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
-        
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
     }
 
     public sealed class ChannelVideoListItemViewModel : VideoInfoControlViewModel

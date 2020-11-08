@@ -30,10 +30,14 @@
           <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
             <CommandBar >
               <CommandBar.PrimaryCommands>
+                
                 <AppBarButton Label="{Binding Source=SubscriptionAdd, Converter={StaticResource LocalizeConverter}}"
                               Command="{Binding AddSubscriptionCommand}"
                               CommandParameter="{Binding Series}"
                               />
+
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
+
                 <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
                   <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Click">
@@ -52,14 +56,18 @@
       <videolistPage:VideoItemsListView.ItemTemplate>
         <DataTemplate>
           <Grid>
-            <videolistPage:VideoListItemControl />
-
-            <Grid HorizontalAlignment="Right"
-                                    >
-              <StackPanel>
-              </StackPanel>
-
-            </Grid>
+            <controls:BooleanViewSwitcher IsSwitchView="{Binding Source={StaticResource FeatureFlags}, Path=UseNewCardViewForVideoListView}">
+              <controls:BooleanViewSwitcher.DefaultViewTemplate>
+                <DataTemplate>
+                  <videolistPage:VideoListItemControl />
+                </DataTemplate>
+              </controls:BooleanViewSwitcher.DefaultViewTemplate>
+              <controls:BooleanViewSwitcher.SwitchedViewTemplate>
+                <DataTemplate>
+                  <videolistPage:VideoListItemCardLandscape />
+                </DataTemplate>
+              </controls:BooleanViewSwitcher.SwitchedViewTemplate>
+            </controls:BooleanViewSwitcher>
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>

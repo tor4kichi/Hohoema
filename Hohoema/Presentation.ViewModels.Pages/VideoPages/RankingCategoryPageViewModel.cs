@@ -30,6 +30,7 @@ using System.Threading;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
 {
@@ -79,7 +80,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
             RankingProvider rankingProvider,
             VideoRankingSettings rankingSettings,
             IScheduler scheduler,
-            IEventAggregator eventAggregator
+            IEventAggregator eventAggregator,
+            SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -90,6 +92,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
             RankingSettings = rankingSettings;
             _scheduler = scheduler;
             _eventAggregator = eventAggregator;
+            SelectionModeToggleCommand = selectionModeToggleCommand;
             IsFailedRefreshRanking = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
             CanChangeRankingParameter = new ReactiveProperty<bool>(false)
@@ -178,6 +181,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public VideoRankingSettings RankingSettings { get; }
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public RankingProvider RankingProvider { get; }
         
         private static RankingGenre? _previousRankingGenre;

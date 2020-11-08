@@ -52,12 +52,16 @@
                                 Icon="Delete"
                                 Visibility="Collapsed"
                                 />
+                  
+                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
+                  
                   <!-- 非選択中 -->
                   <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                                 Command="{Binding PlaylistPlayAllCommand}"
                                 CommandParameter="{Binding Playlist}"></AppBarButton>
+
                   <AppBarButton x:Name="ScrollToTopButton"
                                 Icon="Up"
                                 Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
@@ -86,7 +90,18 @@
       <videolistPage:VideoItemsListView.ItemTemplate>
         <DataTemplate>
           <Grid>
-            <videolistPage:VideoListItemControl />
+            <controls:BooleanViewSwitcher IsSwitchView="{Binding Source={StaticResource FeatureFlags}, Path=UseNewCardViewForVideoListView}">
+              <controls:BooleanViewSwitcher.DefaultViewTemplate>
+                <DataTemplate>
+                  <videolistPage:VideoListItemControl />
+                </DataTemplate>
+              </controls:BooleanViewSwitcher.DefaultViewTemplate>
+              <controls:BooleanViewSwitcher.SwitchedViewTemplate>
+                <DataTemplate>
+                  <videolistPage:VideoListItemCardLandscape />
+                </DataTemplate>
+              </controls:BooleanViewSwitcher.SwitchedViewTemplate>
+            </controls:BooleanViewSwitcher>
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>

@@ -71,7 +71,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
             Services.NotificationService notificationService,
             Services.DialogService dialogService,
             Services.ExternalAccessService externalAccessService,
-            AddMylistCommand addMylistCommand,
+            MylistAddItemCommand addMylistCommand,
+            LocalPlaylistAddItemCommand localPlaylistAddItemCommand,
             AddSubscriptionCommand addSubscriptionCommand
             )
         {
@@ -92,6 +93,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
             DialogService = dialogService;
             ExternalAccessService = externalAccessService;
             AddMylistCommand = addMylistCommand;
+            LocalPlaylistAddItemCommand = localPlaylistAddItemCommand;
             AddSubscriptionCommand = addSubscriptionCommand;
             NowLoading = new ReactiveProperty<bool>(false);
             IsLoadFailed = new ReactiveProperty<bool>(false);
@@ -364,7 +366,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
         public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
         public Services.ExternalAccessService ExternalAccessService { get; }
-        public AddMylistCommand AddMylistCommand { get; }
+        public MylistAddItemCommand AddMylistCommand { get; }
+        public LocalPlaylistAddItemCommand LocalPlaylistAddItemCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
         private INicoVideoDetails _VideoDetails;

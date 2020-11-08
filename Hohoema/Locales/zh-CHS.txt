@@ -54,6 +54,16 @@ OpenErrorLogFolder = 打开日志文件夹
 ## Clipboard action
 InAppNotification_ContentDetectedFromClipboard = 寻找{0}？
 
+#### Time ####
+RelationalDateTime_JustNow = 现在
+RelationalDateTime_SomeMinutesAgo = {0}分钟前
+RelationalDateTime_SomeHoursAgo = {0}小时前
+RelationalDateTime_SomeDaysAgo = {0}天前
+RelationalDateTime_SomeWeeksAgo = {0}周前
+RelationalDateTime_SomeMonthAgo = {0}个月前
+RelationalDateTime_SomeYearsAgo = {0}年前
+
+
 
 #### PageType ####
 HohoemaPageType.ChannelInfo = 频道信息
@@ -224,7 +234,6 @@ BackupRestoreFailed = 从备份还原失败
 ApplicationDiagnosticsReport = 应用使用情况报告
 EnableCrashReport = 发送应用错误信息
 EnableAnalyticsReport = 发送应用程序功能/页面使用状态
-
 
 #### Niconico General ####
 PrivateReasonType.PostedBy = 投稿者删除
@@ -589,6 +598,11 @@ HiddenThisRankingGenre = 隐藏此类型
 
 
 #### Search ####
+VideoSearchSuggest = 影片搜寻
+LiveSearchSuggest = 直播搜索
+DetailSearchSuggest = 详细搜索
+
+
 SearchTarget.Keyword = 关键字
 SearchTarget.Tag = 标签
 SearchTarget.Mylist = Mylist
@@ -739,10 +753,19 @@ MylistSort = 排序
 RemoveWatchHisotryItem = 从观看记录中删除
 LocalMylistRemoveItem = 从本地我的列表中删除
 MylistRemoveItem = 从我的清单中删除
+MylistCopyItem = 复制到另一个我的清单
+SelectCopyTargetMylist = 选择我的复制目的地列表
+InAppNotification_MylistCopiedItems_Success = 将{1}个视频复制到{0}
+InAppNotification_MylistCopiedItems_Fail = 无法将视频复制到{0}
+MylistMoveItem = 移至另一个我的列表
+SelectMoveTargetMylist = 选择目的地我的列表
+InAppNotification_MylistMovedItems_Success = 将{1}个视频移到了{0}
+InAppNotification_MylistMovedItems_Fail = 无法将视频移至{0}
 WatchAfterAddItem = 稍后添加观看
 WatchAfterRemoveItem = 从以后删除
 MylistAddItem = 加到我的清单
 LocalMylistAddItem = 添加到本地我的列表
+SelectLocalMylist = 选择本地我的列表
 SubscriptionAddVideoOwner = 将作者添加到订阅
 AllPlayFromHere = 从这里连续播放
 

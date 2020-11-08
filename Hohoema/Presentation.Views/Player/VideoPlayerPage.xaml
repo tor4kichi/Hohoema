@@ -341,30 +341,16 @@
                       <AppBarButton x:Name="AddContentButton" Label="{Binding Source=Add, Converter={StaticResource LocalizeConverter}}" Icon="Add">
                         <AppBarButton.Flyout>
                           <MenuFlyout x:Name="AddToMenuFlyout">
-                            <MenuFlyoutSubItem Text="{Binding Source=MylistAddItem, Converter={StaticResource LocalizeConverter}}">
-                              <i:Interaction.Behaviors>
-                                <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding UserMylistManager.Mylists}" CustomObjectToTag="{Binding}">
-                                  <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                                    <DataTemplate>
-                                      <MenuFlyoutItem Text="{Binding Label}" Command="{Binding ItemsAddCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.VideoInfo}"></MenuFlyoutItem>
-                                    </DataTemplate>
-                                  </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                                </mybehavior:MenuFlyoutSubItemItemsSetter>
-                              </i:Interaction.Behaviors>
-                              <MenuFlyoutItem Text="{Binding Source=CreateNew, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateMylistCommand}" CommandParameter="{Binding VideoInfo}" />
-                            </MenuFlyoutSubItem>
-                            <MenuFlyoutSubItem Text="{Binding Source=LocalMylistAddItem, Converter={StaticResource LocalizeConverter}}">
-                              <i:Interaction.Behaviors>
-                                <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding LocalMylistManager.LocalPlaylists}" CustomObjectToTag="{Binding}">
-                                  <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                                    <DataTemplate>
-                                      <MenuFlyoutItem Text="{Binding Label}" Command="{Binding ItemsAddCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.VideoInfo}"></MenuFlyoutItem>
-                                    </DataTemplate>
-                                  </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                                </mybehavior:MenuFlyoutSubItemItemsSetter>
-                              </i:Interaction.Behaviors>
-                              <MenuFlyoutItem Text="{Binding Source=CreateNew, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateLocalMylistCommand}" CommandParameter="{Binding VideoInfo}" />
-                            </MenuFlyoutSubItem>
+                            <MenuFlyoutItem Text="{Binding Source=MylistAddItem, Converter={StaticResource LocalizeConverter}}"
+                                            Command="{Binding AddMylistCommand}"
+                                            CommandParameter="{Binding VideoInfo}"
+                                            />
+
+                            <MenuFlyoutItem Text="{Binding Source=LocalMylistAddItem, Converter={StaticResource LocalizeConverter}}"
+                                            Command="{Binding LocalPlaylistAddItemCommand}"
+                                            CommandParameter="{Binding VideoInfo}"
+                                            />
+
                             <MenuFlyoutItem Text="{Binding Source=SubscriptionAddUser, Converter={StaticResource LocalizeConverter}}"
                                                Command="{Binding AddSubscriptionCommand}"
                                             CommandParameter="{Binding VideoInfo}"

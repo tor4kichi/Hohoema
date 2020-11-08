@@ -12,7 +12,7 @@
     <DefaultLanguage>ja-JP</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.17763.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -135,8 +135,15 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models.Domain\Application\FeatureFlags.cs" />
+    <Compile Include="Models.Domain\Niconico\Channel\ChannelNameCacheRepository.cs" />
     <Compile Include="Models.Domain\Niconico\UserFeature\NicoRepoItemTopic.cs" />
+    <Compile Include="Models.UseCase\Migration\SearchPageQueryMigrate_0_26_0.cs" />
     <Compile Include="Presentation.ViewModels.Pages\UserPages\UserInfoViewModel.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\MylistCopyItemCommand.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\MylistMoveItemCommand.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\OpenVideoOwnerPageCommand.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\SelectionModeToggleCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoPages\Ranking\Events\RankingGenreCustomizeEvent.cs" />
     <Compile Include="Models.Domain\Application\AppearanceSettings.cs" />
     <Compile Include="Models.Domain\Application\PinSettings.cs" />
@@ -224,16 +231,16 @@
     <Compile Include="Models.UseCase\NicoVideos\Player\MediaPlayerSoundVolumeManager.cs" />
     <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenPageWithIdCommand.cs" />
     <Compile Include="Presentation.ViewModels\Navigation.Commands\SearchCommand.cs" />
-    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\AddMylistCommand.cs" />
-    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\AddToHiddenUserCommand.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\MylistAddItemCommand.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\HiddenVideoOwnerAddCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\CacheAddRequestCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\CacheDeleteRequestCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoPages\Ranking\FavoriteRankingGenreItemCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoPages\Ranking\HiddenRankingGenreItemCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoPages\Ranking\UnFavoriteRankingGenreItemCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\UserFeaturePages\LogoutFromNiconicoCommand.cs" />
-    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\CreateLocalMylistCommand.cs" />
-    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\CreateMylistCommand.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\LocalPlaylistCreateCommand.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\MylistCreateCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\LivePages\Commands\NicoLiveUserIdAddToNGCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\LivePages\Commands\NicoLiveUserIdRemoveFromNGCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\LivePages\Commands\OpenBroadcasterInfoCommand.cs" />
@@ -252,14 +259,13 @@
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\LocalPlaylistRemoveItemCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\MylistRemoveItemCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\PlaylistPlayAllCommand.cs" />
-    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\RemoveHiddenVideoOwnerCommand.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\HiddenVideoOwnerRemoveCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\RemoveWatchedItemsInAfterWatchPlaylistCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\SelectionAllSelectCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\SelectionExitCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\SelectionStartCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\WatchAfterAddItemCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\LocalPlaylistAddItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\MylistAddItemCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\PlayWithPlaylistCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\WatchAfterRemoveItemCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\VideoContentSelectionCommandBase.cs" />
@@ -335,6 +341,12 @@
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\Subscriptions.Commands\AddTagSearchSubscriptionCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\SeriesPages\UserSeriesPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\WatchAfterPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\VideoListPage\VideoListItemCardLandscape.xaml.cs">
+      <DependentUpon>VideoListItemCardLandscape.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presentation.Views\Controls\BooleanViewSwitcher.xaml.cs">
+      <DependentUpon>BooleanViewSwitcher.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Presentation.Views\Controls\DelayedAutoTriggerButton.xaml.cs">
       <DependentUpon>DelayedAutoTriggerButton.xaml</DependentUpon>
     </Compile>
@@ -347,6 +359,9 @@
     <Compile Include="Presentation.Views\Converters\MylistSortLocalizeConverter.cs" />
     <Compile Include="Presentation.Views\Converters\StringToUriConverter.cs" />
     <Compile Include="Presentation.Views\Converters\TimeSpanToSecondsConverter.cs" />
+    <Compile Include="Presentation.Views\Dialogs\AdvancedSelectDialog.xaml.cs">
+      <DependentUpon>AdvancedSelectDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Presentation.Views\Dialogs\NiconicoLoginDialog.xaml.cs">
       <DependentUpon>NiconicoLoginDialog.xaml</DependentUpon>
     </Compile>
@@ -899,6 +914,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Presentation.Views.Pages\VideoListPage\VideoListItemCardLandscape.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation.Views\Controls\BooleanViewSwitcher.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation.Views\Dialogs\AdvancedSelectDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Styles\SettingsControlStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

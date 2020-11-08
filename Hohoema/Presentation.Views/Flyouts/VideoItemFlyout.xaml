@@ -20,8 +20,6 @@
                   Visibility="Collapsed"
                   />
 
-
-
   <!-- ローカルプレイリスト -->
   <MenuFlyoutItem x:Name="RemoveLocalPlaylistItem" 
                   Text="{Binding Source=LocalMylistRemoveItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
@@ -34,21 +32,43 @@
                   Visibility="Collapsed"
                   />
 
-  <!-- あとで見る -->
-  <MenuFlyoutItem x:Name="AddWatchAfter"
-                  Text="{Binding Source=WatchAfterAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                  Visibility="Collapsed"
-                                />
-  <MenuFlyoutItem x:Name="RemoveWatchAfter" 
-                  Text="{Binding Source=WatchAfterRemoveItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                  Visibility="Collapsed"
-                  />
-
   <MenuFlyoutItem x:Name="AllPlayFromHereWithWatchAfter"
                   Text="{Binding Source=AllPlayFromHere, Converter={StaticResource LocalizeConverter}}" 
                   Visibility="Collapsed"
                   />
-  
+
+  <!-- あとで見る -->
+  <MenuFlyoutItem x:Name="RemoveWatchAfter" 
+                  Text="{Binding Source=WatchAfterRemoveItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  Visibility="Collapsed"
+                  />
+  <MenuFlyoutItem x:Name="AddWatchAfter"
+                  Text="{Binding Source=WatchAfterAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  Visibility="Collapsed"
+                                />
+
+
+  <MenuFlyoutItem x:Name="AddToMylistItem"
+                     Text="{Binding Source=MylistAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                     >
+    <!-- items add from code behind -->
+  </MenuFlyoutItem>
+
+  <MenuFlyoutItem x:Name="LocalMylistItem"
+                     Text="{Binding Source=LocalMylistAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                    >
+    <!-- items add from code behind -->
+  </MenuFlyoutItem>
+
+
+  <MenuFlyoutItem x:Name="AddSusbcriptionItem"
+                     Text="{Binding Source=SubscriptionAddVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  CommandParameter="{Binding}"
+                    >
+  </MenuFlyoutItem>
+
+
+
   <MenuFlyoutSeparator x:Name="PlaylistSpecialItemSeparator" />
 
 
@@ -67,13 +87,6 @@
 
   <MenuFlyoutSeparator x:Name="VideoInfoItemSeparator" />
 
-  <MenuFlyoutItem x:Name="AddSusbcriptionItem"
-                     Text="{Binding Source=SubscriptionAddVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                  CommandParameter="{Binding}"
-                    >
-  </MenuFlyoutItem>
-
-  <MenuFlyoutSeparator />
 
   <MenuFlyoutItem x:Name="Share"
                   Text="{Binding Source=Share, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
@@ -101,23 +114,8 @@
 
   </MenuFlyoutSubItem>
 
-  <MenuFlyoutSubItem x:Name="AddToMylistSubItem"
-                     Text="{Binding Source=MylistAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                     >
-    <!-- items add from code behind -->
-  </MenuFlyoutSubItem>
 
-  <MenuFlyoutSubItem x:Name="LocalMylistSubItem"
-                     Text="{Binding Source=LocalMylistAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                    >
-    <!-- items add from code behind -->
-  </MenuFlyoutSubItem>
-
-
-
-
-
-  <MenuFlyoutSeparator />
+  <MenuFlyoutSeparator x:Name="ExternalActionsSeparator" />
 
   <MenuFlyoutItem x:Name="CacheRequest"
                   Text="{Binding Source=CacheRequest, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
@@ -131,18 +129,5 @@
   
   <MenuFlyoutItem x:Name="AddNgUser" Text="{Binding Source=AddHiddenVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" CommandParameter="{Binding}" />
   <MenuFlyoutItem x:Name="RemoveNgUser" Text="{Binding Source=RemoveHiddenVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" CommandParameter="{Binding}" />
-
-  <MenuFlyoutSeparator x:Name="SelectionSeparator" />
   
-  <MenuFlyoutItem x:Name="SelectionAll"
-                  Text="{Binding Source=SelectAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                  CommandParameter="{Binding}"
-                  />
-  <MenuFlyoutItem x:Name="SelectionStart"
-                  Text="{Binding Source=SelectStart, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                  CommandParameter="{Binding}"
-                  />
-  <MenuFlyoutItem x:Name="SelectionEnd"
-                  Text="{Binding Source=SelectEnd, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                  />
 </MenuFlyout>

@@ -14,9 +14,9 @@ using Hohoema.Models.UseCase.NicoVideos;
 
 namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
 {
-    public sealed class CreateMylistCommand : DelegateCommandBase
+    public sealed class MylistCreateCommand : DelegateCommandBase
     {
-        public CreateMylistCommand(
+        public MylistCreateCommand(
             UserMylistManager userMylistManager,
             DialogService dialogService
             )
@@ -42,9 +42,7 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
             var result = await DialogService.ShowCreateMylistGroupDialogAsync(data);
             if (result)
             {
-                var mylistId = await UserMylistManager.AddMylist(data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder);
-                var mylist = UserMylistManager.Mylists.FirstOrDefault(x => x.Id == mylistId);
-
+                var mylist = await UserMylistManager.AddMylist(data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder);
                 if (mylist == null) { return; }
 
                 if (parameter is IVideoContent content)

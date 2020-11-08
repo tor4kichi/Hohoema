@@ -15,7 +15,7 @@
     xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
     xmlns:system="using:System"
     xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts" 
-  xmlns:locales="using:Hohoema.Locales">
+  xmlns:locales="using:Hohoema.Locales" xmlns:appModels="using:Hohoema.Models.Domain.Application">
 
   <prism:PrismApplication.Resources>
 
@@ -30,6 +30,8 @@
 
         <ResourceDictionary Source="Presentation.Views/Controls/TransientContainer/TransientContainer.xaml"/>
       </ResourceDictionary.MergedDictionaries>
+
+      <appModels:FeatureFlags x:Key="FeatureFlags" />
 
       <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
       <SolidColorBrush x:Key="HohoemaThemeBackgroundBrush"

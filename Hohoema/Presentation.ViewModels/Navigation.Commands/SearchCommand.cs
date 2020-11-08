@@ -35,10 +35,10 @@ namespace Hohoema.Presentation.ViewModels.Navigation.Commands
 
             if (parameter is string text)
             {
-                var searched = _searchHistoryRepository.LastSearchedTarget(text);
-                SearchTarget searchType = searched ?? SearchTarget.Keyword;
+//                var searched = _searchHistoryRepository.LastSearchedTarget(text);
+//                SearchTarget searchType = searched ?? SearchTarget.Keyword;
 
-                _pageManager.Search(searchType, text);
+                _pageManager.Search(SearchTarget.Keyword, text);
             }
         }
     }

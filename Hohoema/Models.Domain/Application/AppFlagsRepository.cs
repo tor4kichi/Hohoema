@@ -60,5 +60,11 @@ namespace Hohoema.Models.Domain.Application
             set => Save(value);
         }
 
+
+        public bool IsSearchQueryInPinsMigration_V_0_26_0
+        {
+            get => Read<bool>();
+            set => Save(value);
+        }
     }
 }
