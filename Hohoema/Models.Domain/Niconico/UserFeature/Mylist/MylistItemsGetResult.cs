@@ -12,7 +12,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
         public bool IsDefaultMylist { get; set; }
         public int ItemsHeadPosition { get; set; }
         public int TotalCount { get; set; }
-        public IReadOnlyCollection<IVideoContent> Items { get; set; }
+        public IReadOnlyCollection<NicoVideo> Items { get; set; }
 
         public int Count => Items.Count;
     }

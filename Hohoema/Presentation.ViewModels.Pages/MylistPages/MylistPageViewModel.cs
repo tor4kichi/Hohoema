@@ -767,7 +767,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
                     isEndReached = result.Items.Count != OneTimeLoadCount;
                     foreach (var item in result.Items)
                     {
-                        yield return item;
+                        var vm = new VideoInfoControlViewModel(item);
+                        yield return vm;
+                        _ = vm.InitializeAsync(ct).ConfigureAwait(false);
                     }
                 }
             }
@@ -826,7 +828,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
 
             foreach (var item in items)
             {
-                yield return new VideoInfoControlViewModel(item);
+                var vm = new VideoInfoControlViewModel(item);
+                yield return vm;
+                _ = vm.InitializeAsync(ct).ConfigureAwait(false);
             }
         }
 
