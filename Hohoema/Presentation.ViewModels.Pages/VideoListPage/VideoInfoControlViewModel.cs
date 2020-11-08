@@ -651,12 +651,13 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             if (data.Video.Id != RawVideoId) { throw new Exception(); }
 
-
             SetTitle(data.Video.Title);
             SetThumbnailImage(data.Video.ThumbnailUrl.OriginalString);
             SetSubmitDate(data.Video.UploadTime);
             SetVideoDuration(data.Video.Length);
             SetDescription((int)data.Video.ViewCount, (int)data.Thread.GetCommentCount(), (int)data.Video.MylistCount);
+            ProviderId = data.Video.UserId ?? data.Video.CommunityId;
+            ProviderType = data.Thread.GroupType == "channel" ? NicoVideoUserType.Channel : NicoVideoUserType.User;
 
             IsInitialized = true;
         }

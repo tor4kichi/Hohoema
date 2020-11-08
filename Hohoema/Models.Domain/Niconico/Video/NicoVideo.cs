@@ -164,6 +164,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
             set => Owner.UserType = value;
         }
 
+        [BsonIgnore]
+        public string ProviderName
+        {
+            get => Owner?.ScreenName;
+        }
+
         public bool Equals(IVideoContent other)
         {
             return Id == other.Id;

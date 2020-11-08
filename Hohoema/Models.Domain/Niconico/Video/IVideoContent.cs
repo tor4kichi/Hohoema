@@ -11,6 +11,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
     {
         string ProviderId { get; }
         NicoVideoUserType ProviderType { get; }
+        string ProviderName { get; }
 
         TimeSpan Length { get; }
         DateTime PostedAt { get; }
