@@ -24,26 +24,40 @@ using System.Reactive.Linq;
 using Uno.Extensions;
 using Hohoema.Presentation.ViewModels.Navigation.Commands;
 using Hohoema.Models.UseCase.NicoVideos.Player;
+using Prism.Navigation;
 
 namespace Hohoema.Presentation.ViewModels
-{
-
-
-    public enum NiconicoServiceType
-    {
-        Video,
-        Live
-    }
-
-    
-
-    
-
-    
-
-  
+{  
     public sealed class PrimaryWindowCoreLayoutViewModel : BindableBase
     {
+
+        public IEventAggregator EventAggregator { get; }
+        public NiconicoSession NiconicoSession { get; }
+        public PageManager PageManager { get; }
+        public PinSettings PinSettings { get; }
+        public AppearanceSettings AppearanceSettings { get; }
+        public SearchCommand SearchCommand { get; }
+        public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
+        public ObservableMediaPlayer ObservableMediaPlayer { get; }
+        public NiconicoLoginService NiconicoLoginService { get; }
+        public LogoutFromNiconicoCommand LogoutFromNiconicoCommand { get; }
+        public WindowService WindowService { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
+        public RestoreNavigationManager RestoreNavigationManager { get; }
+        public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
+
+        private readonly DialogService _dialogService;
+
+
+        public ObservableCollection<HohoemaPin> Pins { get; }
+
+        public ObservableCollection<SearchAutoSuggestItemViewModel> SearchAutoSuggestItems { get; set; }
+
+        public ObservableCollection<HohoemaListingPageItemBase> MenuItems_Offline { get; private set; }
+        public ObservableCollection<HohoemaListingPageItemBase> MenuItems_LoggedIn { get; private set; }
+
+        WatchAfterMenuItemViewModel _watchAfterMenuItemViewModel;
+
         public PrimaryWindowCoreLayoutViewModel(
             IEventAggregator eventAggregator,
             NiconicoSession niconicoSession,
@@ -52,16 +66,15 @@ namespace Hohoema.Presentation.ViewModels
             AppearanceSettings appearanceSettings,
             SearchCommand searchCommand,
             DialogService dialogService,
-            VideoMenuSubPageContent videoMenuSubPageContent,
-            LiveMenuSubPageContent liveMenuSubPageContent,
             PrimaryViewPlayerManager primaryViewPlayerManager,
             ObservableMediaPlayer observableMediaPlayer,
             NiconicoLoginService niconicoLoginService,
             LogoutFromNiconicoCommand logoutFromNiconicoCommand,
-            VideoItemsSelectionContext videoItemsSelectionContext,
             WindowService windowService,
             ApplicationLayoutManager applicationLayoutManager,
-            RestoreNavigationManager restoreNavigationManager
+            RestoreNavigationManager restoreNavigationManager,
+            VideoItemsSelectionContext videoItemsSelectionContext,
+            WatchAfterMenuItemViewModel watchAfterMenuItemViewModel
             )
         {
             EventAggregator = eventAggregator;
@@ -71,17 +84,14 @@ namespace Hohoema.Presentation.ViewModels
             AppearanceSettings = appearanceSettings;
             SearchCommand = searchCommand;
             _dialogService = dialogService;
-            VideoMenu = videoMenuSubPageContent;
-            LiveMenu = liveMenuSubPageContent;
             PrimaryViewPlayerManager = primaryViewPlayerManager;
             ObservableMediaPlayer = observableMediaPlayer;
             NiconicoLoginService = niconicoLoginService;
             LogoutFromNiconicoCommand = logoutFromNiconicoCommand;
-            VideoItemsSelectionContext = videoItemsSelectionContext;
             WindowService = windowService;
             ApplicationLayoutManager = applicationLayoutManager;
             RestoreNavigationManager = restoreNavigationManager;
-            
+            VideoItemsSelectionContext = videoItemsSelectionContext;
             Pins = new ObservableCollection<HohoemaPin>(PinSettings.ReadAllItems());
             Pins.CollectionChangedAsObservable()
                 .Throttle(TimeSpan.FromSeconds(0.1))
@@ -125,30 +135,37 @@ namespace Hohoema.Presentation.ViewModels
                     SearchAction = (s) => PageManager.OpenPage(HohoemaPageType.Search, ""),
                 },
             };
+
+            _watchAfterMenuItemViewModel = watchAfterMenuItemViewModel;
+
+            var pinsMenuItem = new PinsMenuSubItemViewModel("Pins".Translate(), PinSettings);
+
+            // メニュー項目の初期化
+            MenuItems_LoggedIn = new ObservableCollection<HohoemaListingPageItemBase>()
+            {
+                pinsMenuItem,
+                new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
+                new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo),
+                new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage),
+                new MenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory),
+                new SeparatorMenuItemViewModel(),
+                _watchAfterMenuItemViewModel,
+                new MenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
+                new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
+            };
+
+            MenuItems_Offline = new ObservableCollection<HohoemaListingPageItemBase>()
+            {
+                pinsMenuItem,
+                new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
+                new SeparatorMenuItemViewModel(),
+                _watchAfterMenuItemViewModel,
+                new MenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
+                new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
+            };
         }
 
-        public IEventAggregator EventAggregator { get; }
-        public NiconicoSession NiconicoSession { get; }
-        public PageManager PageManager { get; }
-        public PinSettings PinSettings { get; }
-        public AppearanceSettings AppearanceSettings { get; }
-        public SearchCommand SearchCommand { get; }
-        public VideoMenuSubPageContent VideoMenu { get; set; }
-        public LiveMenuSubPageContent LiveMenu { get; set; }
-        public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
-        public ObservableMediaPlayer ObservableMediaPlayer { get; }
-        public NiconicoLoginService NiconicoLoginService { get; }
-        public LogoutFromNiconicoCommand LogoutFromNiconicoCommand { get; }
-        public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
-        public WindowService WindowService { get; }
-        public ApplicationLayoutManager ApplicationLayoutManager { get; }
-        public RestoreNavigationManager RestoreNavigationManager { get; }
-        private readonly DialogService _dialogService;
 
-
-        public ObservableCollection<HohoemaPin> Pins { get; }
-
-        public ObservableCollection<SearchAutoSuggestItemViewModel> SearchAutoSuggestItems { get; set; }
 
         // call from PrimaryWindowsCoreLayout.xaml.cs
         public void AddPin(HohoemaPin pin)
@@ -257,7 +274,38 @@ namespace Hohoema.Presentation.ViewModels
         public Action<string> SearchAction { get; set; }
     }
 
-    
+    public abstract class MenuSubItemViewModelBase : HohoemaListingPageItemBase
+    {
+        public ObservableCollection<MenuItemViewModel> Items { get; protected set; }
+    }
 
-    
+
+
+
+    public class PinsMenuSubItemViewModel : MenuSubItemViewModelBase
+    {
+        private readonly PinSettings _pinSettings;
+
+        public PinsMenuSubItemViewModel(string label, PinSettings pinSettings)
+        {
+            Label = label;
+
+            IsSelected = false;
+            _pinSettings = pinSettings;
+
+            Items = new ObservableCollection<MenuItemViewModel>(_pinSettings.ReadAllItems().Select(x => new PinMenuItemViewModel(x)));
+        }
+    }
+
+
+    public class PinMenuItemViewModel : MenuItemViewModel
+    {
+        private readonly HohoemaPin _pin;
+
+        public PinMenuItemViewModel(HohoemaPin pin) 
+            : base(pin.OverrideLabel ?? pin.Label, pin.PageType, new NavigationParameters(pin.Parameter))
+        {
+            _pin = pin;
+        }
+    }
 }

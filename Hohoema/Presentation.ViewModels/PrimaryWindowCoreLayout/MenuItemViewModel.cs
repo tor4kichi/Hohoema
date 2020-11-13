@@ -24,4 +24,6 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
         public HohoemaPageType PageType { get; set; }
         public INavigationParameters Parameter { get; set; }
     }
+
+    
 }

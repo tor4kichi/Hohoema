@@ -19,6 +19,7 @@
              xmlns:servicesPlayer="using:Hohoema.Presentation.Services.Player" 
              xmlns:winui="using:Windows.UI.Xaml.Controls" 
              xmlns:models="using:Hohoema.Models.Domain.Application"  
+             xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
              xmlns:viewModels="using:Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout"
              x:Name="UserControlRoot"
              mc:Ignorable="d"
@@ -188,32 +189,34 @@
 
     <templateSelector:TypeBasedTemplateSelector x:Key="MenuItemTemplateSelector" >
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout.SeparatorMenuItemViewModel, Converter={StaticResource StringToType}}" >
-        <Border />
+        <muxc:NavigationViewItemSeparator />
       </DataTemplate>
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout.MenuItemViewModel, Converter={StaticResource StringToType}}" >
-        <StackPanel Orientation="Horizontal" Opacity="0.85" Margin="16 0 0 0">
-          <ContentControl Content="{Binding PageType}" ContentTemplateSelector="{StaticResource PageTypeIconTemplateSelector}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Opacity="0.7" Width="24" Height="24" />
-          <Border Height="4" Width="16" />
-          <TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="15" />
-        </StackPanel>
+        <muxc:NavigationViewItem>
+          <TextBlock Text="{Binding Label}" />
+        </muxc:NavigationViewItem>
       </DataTemplate>
 
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout.WatchAfterMenuItemViewModel, Converter={StaticResource StringToType}}" >
-        <uwpToolkitControls:DockPanel Margin="16 0 0 0" Opacity="0.85">
-          <StackPanel  Orientation="Horizontal" uwpToolkitControls:DockPanel.Dock="Left">
-            <ContentControl Content="{Binding PageType}" ContentTemplateSelector="{StaticResource PageTypeIconTemplateSelector}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Opacity="0.7" Width="24" Height="24"  />
-            <Border Height="4" Width="16" />
-          </StackPanel>
-          <Button Command="{Binding PlayWatchAfterPlaylistCommand}" uwpToolkitControls:DockPanel.Dock="Right" Background="Transparent" Padding="0" Width="64">
-            <Grid CornerRadius="60" Background="Gray" Height="32" Width="32" Padding="0 0 0 1">
-              <TextBlock Text="{Binding WatchAfterPlaylistCount.Value}" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
-            </Grid>
-          </Button>
+        <muxc:NavigationViewItem>
+          <muxc:NavigationViewItem.Icon>
+            <SymbolIcon Symbol="Play" />
+          </muxc:NavigationViewItem.Icon>
 
-          <TextBlock Text="{Binding Source=HohoemaPageType.WatchAfter, Converter={StaticResource LocalizeConverter}}" VerticalAlignment="Center" FontSize="15" />
-        </uwpToolkitControls:DockPanel>
+          <TextBlock VerticalAlignment="Center">
+              <Run Text="{Binding Source=HohoemaPageType.WatchAfter, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding WatchAfterPlaylistCount.Value}" />
+          </TextBlock>
+        </muxc:NavigationViewItem>
       </DataTemplate>
 
+
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.MenuSubItemViewModelBase, Converter={StaticResource StringToType}}" >
+        <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
+                                 Icon="Pin"
+                                 >
+          <TextBlock Text="{Binding Label}" />
+        </muxc:NavigationViewItem>
+      </DataTemplate>
     </templateSelector:TypeBasedTemplateSelector>
     
     <DataTemplate x:Key="PinMenuItemTemplate">
@@ -233,25 +236,7 @@
         </StackPanel>
       </StackPanel>
     </DataTemplate>
-    <DataTemplate x:Key="SingleMenuItemTemplate">
-      <ListView IsItemClickEnabled="True"
-                SelectionMode="None"
-                IsTabStop="False"
-                >
-        <i:Interaction.Behaviors>
-          <core:EventTriggerBehavior EventName="ItemClick">
-            <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
-                                      InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-          </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
-        <ListView.ItemContainerStyle>
-          <Style TargetType="ListViewItem">
-            <Setter Property="Padding" Value="0" />
-          </Style>
-        </ListView.ItemContainerStyle>
-        <ListViewItem ContentTemplateSelector="{StaticResource MenuItemTemplateSelector}" Content="{Binding}"></ListViewItem>
-      </ListView>
-    </DataTemplate>
+    
     <DataTemplate x:Name="VideoSubMenuContentTemplate">
       <StackPanel>
         <ListView ItemsSource="{Binding MenuItems}"
@@ -317,31 +302,7 @@
         <TextBlock Text="{Binding Label}" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" TextWrapping="Wrap" />
       </uwpToolkitControls:DockPanel>
     </DataTemplate>
-    <DataTemplate x:Name="LiveSubMenuContentTemplate">
-      <StackPanel>
-        <ListView ItemsSource="{Binding MenuItems}"
-                  ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
-                  IsItemClickEnabled="True"
-                  SelectionMode="None"
-                  IsTabStop="False"
-                  Background="Transparent"
-                  ScrollViewer.VerticalScrollMode="Disabled">
-          <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="ItemClick">
-              <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
-                                        InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-            </core:EventTriggerBehavior>
-          </i:Interaction.Behaviors>
-        </ListView>
-      </StackPanel>
-    </DataTemplate>
-    <templateSelector:MenuSubPageTemplateSelector x:Name="MenuSubPageTemplateSelector" Video="{StaticResource VideoSubMenuContentTemplate}" Live="{StaticResource LiveSubMenuContentTemplate}">
-      <templateSelector:MenuSubPageTemplateSelector.Empty>
-        <DataTemplate>
-          <Border />
-        </DataTemplate>
-      </templateSelector:MenuSubPageTemplateSelector.Empty>
-    </templateSelector:MenuSubPageTemplateSelector>
+    
     <Style x:Key="BaseStyle" TargetType="uwpToolkitControls:ImageExBase">
       <Setter Property="IsCacheEnabled" Value="True" />
       <Setter Property="Stretch" Value="UniformToFill" />
@@ -365,131 +326,44 @@
               x:Name="MobilePlayerTopMargin"
               Height="{Binding ElementName=PlayerFrame, Path=ActualHeight, Mode=OneWay}"
               Visibility="Collapsed" />
-      <SplitView x:Name="ContentSplitView"
-                 CompactPaneLength="88"
-                 DisplayMode="CompactInline"
-                 IsPaneOpen="True"
-                 IsTabStop="False"
-                 PaneBackground="{StaticResource MenuBackgroundBrush}">
-        <SplitView.Pane>
-          <uwpToolkitControls:DockPanel x:Name="PaneLayout">
-            <Border Height="{StaticResource TitleBarDummyHeight}"
-                    uwpToolkitControls:DockPanel.Dock="Top" />
-            
-            <!-- Account and Settings -->
-            <uwpToolkitControls:DockPanel uwpToolkitControls:DockPanel.Dock="Top"
-                                          HorizontalAlignment="Stretch">
-              <Button Command="{Binding PageManager.OpenPageCommand}"
-                      CommandParameter="Settings"
-                      uwpToolkitControls:DockPanel.Dock="Right"
-                      Background="Transparent"
-                      TabIndex="101">
-                <SymbolIcon Symbol="Setting" />
-              </Button>
-              <Grid>
-                <Button x:Name="OpenAccountButton"
-                        Padding="16 0 0 0"
-                        Background="Transparent"
-                        HorizontalAlignment="Stretch"
-                        HorizontalContentAlignment="Left"
-                        VerticalContentAlignment="Center"
-                        TabIndex="100">
-                  <Button.Flyout>
-                    <MenuFlyout>
-                      <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
-                                      Visibility="Collapsed" Text="{Binding Source=LogInUserInfo, Converter={StaticResource LocalizeConverter}}"
-                                      Command="{Binding OpenAccountInfoCommand}" />
-                      <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
-                                      Visibility="Collapsed" Text="{Binding Source=LogOut, Converter={StaticResource LocalizeConverter}}"
-                                      Command="{Binding LogoutFromNiconicoCommand}" />
-                      <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
-                                      Visibility="Collapsed" Text="{Binding Source=LogIn, Converter={StaticResource LocalizeConverter}}"
-                                      Command="{Binding NiconicoLoginService.LoginCommand}" />
-                      <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
-                                      Visibility="Collapsed" Text="Open Debug Page"
-                                      Command="{Binding OpenDebugPageCommand}" />
-                    </MenuFlyout>
-                  </Button.Flyout>
-                  <StackPanel>
-                    <TextBlock Text="{Binding NiconicoSession.ServiceStatus, Converter={StaticResource LocalizeConverter}}"
-                               x:Name="ServiceStateText" />
-                    <uwpToolkitControls:DockPanel Margin="0 0"
-                                                  x:Name="AccountInfoLayout"
-                                                  Visibility="Collapsed">
-                      <Image Source="{Binding NiconicoSession.UserIconUrl,Mode=OneWay}"
-                             uwpToolkitControls:DockPanel.Dock="Left"
-                             Height="24"
-                             Width="24"
-                             Margin="0 0 8 0" />
-                      <StackPanel>
-                        <TextBlock Text="{x:Bind _viewModel.NiconicoSession.UserName,Mode=OneWay}" />
-                      </StackPanel>
-                    </uwpToolkitControls:DockPanel>
-                  </StackPanel>
-                </Button>
-              </Grid>
-            </uwpToolkitControls:DockPanel>
-            <!-- Search Box -->
-            <Border uwpToolkitControls:DockPanel.Dock="Top">
-              <AutoSuggestBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" UseSystemFocusVisuals="True" TabIndex="103" Margin="8" IsFocusEngagementEnabled="True" 
-                              ItemsSource="{Binding SearchAutoSuggestItems}"
-                              QuerySubmitted="SearchTextBox_QuerySubmitted"
-                              TextChanged="SearchTextBox_TextChanged"
-                              UpdateTextOnSelect="False"
-                              GotFocus="SearchTextBox_GotFocus"
-                              >
-                <i:Interaction.Behaviors>
-                  <core:EventTriggerBehavior EventName="GotFocus">
-                    <core:CallMethodAction MethodName="SelectAll" />
-                  </core:EventTriggerBehavior>
-                  <mybehavior:KeyboardTrigger Key="Enter" x:Name="SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
-                    <core:InvokeCommandAction Command="{Binding SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
-                  </mybehavior:KeyboardTrigger>
-                </i:Interaction.Behaviors>
-
-                <AutoSuggestBox.ItemTemplate>
-                  <DataTemplate>
-                    <TextBlock Text="{Binding Id, Converter={StaticResource LocalizeConverter}}" />
-                  </DataTemplate>
-                </AutoSuggestBox.ItemTemplate>
-              </AutoSuggestBox>
-            </Border>
-
-            <Border x:Name="TV_OpenSearchPageButton" Visibility="Collapsed" uwpToolkitControls:DockPanel.Dock="Top">
-              <Button  Background="Transparent" Command="{x:Bind _viewModel.PageManager.OpenPageCommand}" CommandParameter="Search"
-                       HorizontalAlignment="Stretch"
-                       HorizontalContentAlignment="Left"
-                       Padding="16 8"
-                       >
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <SymbolIcon Symbol="Find" />
-                  <TextBlock Text="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" />
-                </StackPanel>
-              </Button>
-            </Border>
-
-            <!-- Pins / Video / Live / Mylist -->
-            <ScrollViewer HorizontalScrollMode="Disabled"
-                          VerticalScrollMode="Auto"
-                          VerticalScrollBarVisibility="Hidden">
-              <StackPanel x:Name="PaneScrollableContentLayout">
-                <StackPanel>
-                  <uwpToolkitControls:DockPanel Margin="0">
-                    <Button Command="{x:Bind AddPinCurrentPageCommand}"
+      <muxc:NavigationView x:Name="CoreNavigationView"
+                      MenuItemsSource="{Binding MenuItems_Offline}"
+                      MenuItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                          PaneDisplayMode="Auto"
+                           ItemInvoked="CoreNavigationView_ItemInvoked"
+                      >
+        <muxc:NavigationView.Header>
+          <Grid x:Name="MenuBackgroundGrid"
+                  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                  IsTapEnabled="True"
+                  IsHitTestVisible="True">
+            <TextBlock x:Name="MenuTitleText" Text="{x:Bind PageTitle,Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="16 8 64 8" VerticalAlignment="Center" IsHitTestVisible="False" MaxLines="1" />
+            <StackPanel x:Name="MenuTitleText_WithOptional" Margin="16 0 16 0" Spacing="0" VerticalAlignment="Top" Visibility="Collapsed">
+              <TextBlock x:Name="PageTitleText_WithOptionl" Text="{x:Bind PageTitle,Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
+              <TextBlock x:Name="OptionalPageTitleText" Text="{x:Bind OptionalPageTitle,Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 0 64 0" MaxLines="1" />
+            </StackPanel>
+          </Grid>
+        </muxc:NavigationView.Header>
+        <muxc:NavigationView.PaneHeader>
+          <Border />
+          <!--
+          <StackPanel Visibility="Collapsed">
+            <uwpToolkitControls:DockPanel Margin="0">
+              <Button Command="{x:Bind AddPinCurrentPageCommand}"
                             Background="Transparent"
                             Height="24"
                             uwpToolkitControls:DockPanel.Dock="Right"
                             Margin="0 0 8 0">
-                      <SymbolIcon Symbol="Add" ToolTipService.ToolTip="{Binding Source=PinCurrentPage, Converter={StaticResource LocalizeConverter}}"
+                <SymbolIcon Symbol="Add" ToolTipService.ToolTip="{Binding Source=PinCurrentPage, Converter={StaticResource LocalizeConverter}}"
                                   Opacity="0.55" />
-                    </Button>
-                    <TextBlock Text="{Binding Source=Pin, Converter={StaticResource LocalizeConverter}}"
+              </Button>
+              <TextBlock Text="{Binding Source=Pin, Converter={StaticResource LocalizeConverter}}"
                                VerticalAlignment="Center"
                                FontSize="14"
                                Margin="16 0 0 0"
                                Opacity="0.55" />
-                  </uwpToolkitControls:DockPanel>
-                  <ListView ItemsSource="{Binding Pins}"
+            </uwpToolkitControls:DockPanel>
+            <ListView ItemsSource="{Binding Pins}"
                             ItemTemplate="{StaticResource PinMenuItemTemplate}"
                             IsItemClickEnabled="True"
                             SelectionMode="None"
@@ -498,55 +372,122 @@
                             AllowDrop="True"
                             xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
                             myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding}">
-                    <i:Interaction.Behaviors>
-                      <core:EventTriggerBehavior EventName="ItemClick">
-                        <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+              <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="ItemClick">
+                  <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
                                                   InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-                      </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                    <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
-                      <DataTemplate>
-                        <MenuFlyout>
-                          <MenuFlyoutItem Text="{Binding Source=PinChangeArias, Converter={StaticResource LocalizeConverter}}"
+                </core:EventTriggerBehavior>
+              </i:Interaction.Behaviors>
+              <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+                <DataTemplate>
+                  <MenuFlyout>
+                    <MenuFlyoutItem Text="{Binding Source=PinChangeArias, Converter={StaticResource LocalizeConverter}}"
                                           Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.ChangePinOverrideLabelCommand}"
                                           CommandParameter="{Binding}" />
-                          <MenuFlyoutSeparator />
-                          <MenuFlyoutItem Text="{Binding Source=PinRemove, Converter={StaticResource LocalizeConverter}}"
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem Text="{Binding Source=PinRemove, Converter={StaticResource LocalizeConverter}}"
                                           Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.RemovePinCommand}"
                                           CommandParameter="{Binding}" />
-                        </MenuFlyout>
-                      </DataTemplate>
-                    </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
-                  </ListView>
-                  <StackPanel Visibility="{Binding PinSettings.Pins, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
+                  </MenuFlyout>
+                </DataTemplate>
+              </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+            </ListView>
+            <StackPanel Visibility="{Binding Pins, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
                               Margin="0 8">
-                    <TextBlock Opacity="0.7"
+              <TextBlock Opacity="0.7"
                                FontSize="12"
                                Margin="24 0 0 0">
                       <Run Text="{Binding Source=PinHowToAddition, Converter={StaticResource LocalizeConverter}}" />
-                    </TextBlock>
-                  </StackPanel>
-                </StackPanel>
-                <Pivot >
+              </TextBlock>
+            </StackPanel>
+          </StackPanel>
+          -->
+        </muxc:NavigationView.PaneHeader>
 
-                  <Pivot.ItemContainerStyle>
-                    <Style TargetType="PivotItem">
-                      <Setter Property="Margin"
-                              Value="0" />
-                    </Style>
-                  </Pivot.ItemContainerStyle>
-                  <PivotItem Header="{Binding Source=NiconicoServiceType.Video, Converter={StaticResource LocalizeConverter}}"
-                             Content="{Binding VideoMenu}"
-                             ContentTemplate="{StaticResource VideoSubMenuContentTemplate}" />
-                  <PivotItem Header="{Binding Source=NiconicoServiceType.Live, Converter={StaticResource LocalizeConverter}}"
-                             Content="{Binding LiveMenu}"
-                             ContentTemplate="{StaticResource LiveSubMenuContentTemplate}" />
-                </Pivot>
-              </StackPanel>
-            </ScrollViewer>
+        <muxc:NavigationView.PaneFooter>
+          <uwpToolkitControls:DockPanel uwpToolkitControls:DockPanel.Dock="Top"
+                                          HorizontalAlignment="Stretch">
+            <Button Command="{Binding PageManager.OpenPageCommand}"
+                      CommandParameter="Settings"
+                      uwpToolkitControls:DockPanel.Dock="Right"
+                      Background="Transparent"
+                      TabIndex="101">
+              <SymbolIcon Symbol="Setting" />
+            </Button>
+            <Grid>
+              <Button x:Name="OpenAccountButton"
+                        Padding="16 0 0 0"
+                        Background="Transparent"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        TabIndex="100">
+                <Button.Flyout>
+                  <MenuFlyout>
+                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
+                                      Visibility="Collapsed" Text="{Binding Source=LogInUserInfo, Converter={StaticResource LocalizeConverter}}"
+                                      Command="{Binding OpenAccountInfoCommand}" />
+                    <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
+                                      Visibility="Collapsed" Text="{Binding Source=LogOut, Converter={StaticResource LocalizeConverter}}"
+                                      Command="{Binding LogoutFromNiconicoCommand}" />
+                    <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
+                                      Visibility="Collapsed" Text="{Binding Source=LogIn, Converter={StaticResource LocalizeConverter}}"
+                                      Command="{Binding NiconicoLoginService.LoginCommand}" />
+                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
+                                      Visibility="Collapsed" Text="Open Debug Page"
+                                      Command="{Binding OpenDebugPageCommand}" />
+                  </MenuFlyout>
+                </Button.Flyout>
+                <StackPanel>
+                  <TextBlock Text="{Binding NiconicoSession.ServiceStatus, Converter={StaticResource LocalizeConverter}}"
+                               x:Name="ServiceStateText" />
+                  <uwpToolkitControls:DockPanel Margin="0 0"
+                                                  x:Name="AccountInfoLayout"
+                                                  Visibility="Collapsed">
+                    <Image Source="{Binding NiconicoSession.UserIconUrl,Mode=OneWay}"
+                             uwpToolkitControls:DockPanel.Dock="Left"
+                             Height="24"
+                             Width="24"
+                             Margin="0 0 8 0" />
+                    <StackPanel>
+                      <TextBlock Text="{x:Bind _viewModel.NiconicoSession.UserName,Mode=OneWay}" />
+                    </StackPanel>
+                  </uwpToolkitControls:DockPanel>
+                </StackPanel>
+              </Button>
+            </Grid>
           </uwpToolkitControls:DockPanel>
-        </SplitView.Pane>
-        <SplitView.Content>
+        </muxc:NavigationView.PaneFooter>
+
+        <muxc:NavigationView.AutoSuggestBox>
+          <AutoSuggestBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" 
+                          TabIndex="103" Margin="0" IsFocusEngagementEnabled="True" 
+                              ItemsSource="{Binding SearchAutoSuggestItems}"
+                              QuerySubmitted="SearchTextBox_QuerySubmitted"
+                              TextChanged="SearchTextBox_TextChanged"
+                              UpdateTextOnSelect="False"
+                              GotFocus="SearchTextBox_GotFocus"
+                          AutoMaximizeSuggestionArea="True"
+                          MinWidth="120"
+                              >
+            <i:Interaction.Behaviors>
+              <core:EventTriggerBehavior EventName="GotFocus">
+                <core:CallMethodAction MethodName="SelectAll" />
+              </core:EventTriggerBehavior>
+              <mybehavior:KeyboardTrigger Key="Enter" x:Name="SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
+                <core:InvokeCommandAction Command="{Binding SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
+              </mybehavior:KeyboardTrigger>
+            </i:Interaction.Behaviors>
+
+            <AutoSuggestBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Id, Converter={StaticResource LocalizeConverter}}" />
+              </DataTemplate>
+            </AutoSuggestBox.ItemTemplate>
+          </AutoSuggestBox>
+        </muxc:NavigationView.AutoSuggestBox>
+
+        <muxc:NavigationView.Content>
           <Grid x:Name="SplitViewContentLayout">
             <!-- ページ毎のコンテンツ -->
             <Grid>
@@ -572,95 +513,10 @@
               <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="Mobile_BarrierSearchTextBoxBorder" Visibility="Collapsed" IsHitTestVisible="True" Opacity="0.8" />
             </Grid>
             <Border x:Name="TopMenuDesktopTitleberBackground" Visibility="Visible" uwpToolkitControls:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}" VerticalAlignment="Top" />
-            <uwpToolkitControls:DockPanel >
-              <Border x:Name="TopMenuDesktopTitleBarSpace" uwpToolkitControls:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}" />
-              <!-- ページヘッダー -->
-              <uwpToolkitControls:DockPanel x:Name="TopMenuLayout" uwpToolkitControls:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}" VerticalAlignment="Top" HorizontalAlignment="Left">
-                <StackPanel Orientation="Horizontal" uwpToolkitControls:DockPanel.Dock="Left" Spacing="4">
-                  <!-- モバイル時のメニュー開閉ボタン -->
-                  <Button x:Name="MenuToggleButton" Visibility="Collapsed" Width="40" Background="Transparent" Command="{x:Bind TogglePageOpenCommand}">
-                    <iconPack:PackIconMaterial Kind="Menu" Width="16" Height="16" Opacity="0.9" />
-                  </Button>
-                  <Border x:Name="Mobile_BackButtonLayout" Margin="0 0 0 0" Visibility="Collapsed">
-                    <Button Width="40" Background="Transparent" VerticalContentAlignment="Center" Command="{x:Bind GoBackCommand}">
-                      <SymbolIcon Symbol="Back" Height="16" Width="16" />
-                    </Button>
-                  </Border>
-                </StackPanel>
-                <Grid>
-                  <TextBlock x:Name="MenuTitleText" Text="{x:Bind PageTitle,Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="16 8 64 8" VerticalAlignment="Center" IsHitTestVisible="False" MaxLines="1" />
-                  <StackPanel x:Name="MenuTitleText_WithOptional" Margin="16 0 16 0" Spacing="0" VerticalAlignment="Top" Visibility="Collapsed">
-                    <TextBlock x:Name="PageTitleText_WithOptionl" Text="{x:Bind PageTitle,Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
-                    <TextBlock x:Name="OptionalPageTitleText" Text="{x:Bind OptionalPageTitle,Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 0 64 0" MaxLines="1" />
-                  </StackPanel>
-                </Grid>
-              </uwpToolkitControls:DockPanel>
-              <Border />
-            </uwpToolkitControls:DockPanel>
             
-            <Grid x:Name="Mobile_SearchLayout" Margin="0 32 0 0" VerticalAlignment="Top">
-              <Button x:Name="Mobile_ShowSearchButton" Background="Transparent" VerticalAlignment="Top" HorizontalAlignment="Right" Visibility="Collapsed" Padding="16 0">
-                <i:Interaction.Behaviors>
-                  <core:EventTriggerBehavior EventName="Click">
-                    <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="NowMobileSearchTextInput" Value="True" />
-                    <mybehavior:SetFocus TargetObject="{Binding ElementName=Mobile_SearchTextBox}" Delay="0:0:0.1" />
-                  </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-                <StackPanel Orientation="Horizontal">
-                  <SymbolIcon Symbol="Find" Opacity="0.7" Margin="0 0 8 0" VerticalAlignment="Center">
-                    <SymbolIcon.RenderTransform>
-                      <ScaleTransform ScaleX="0.8" ScaleY="0.8" CenterX="13" CenterY="13" />
-                    </SymbolIcon.RenderTransform>
-                  </SymbolIcon>
-                  <TextBlock Text="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" Opacity="0.7" VerticalAlignment="Center" FontSize="13" />
-                </StackPanel>
-              </Button>
-              <Border Background="{StaticResource MenuBackgroundBrush}" x:Name="Mobile_BlindSearchTextBoxBorder" IsHitTestVisible="True" Visibility="Collapsed">
-                <i:Interaction.Behaviors>
-                  <core:EventTriggerBehavior EventName="Tapped">
-                    <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="NowMobileSearchTextInput" Value="False" />
-                  </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-              </Border>
-              <AutoSuggestBox x:Name="Mobile_SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                              PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" UseSystemFocusVisuals="True" 
-                              TabIndex="103" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="120 0 32 0"
-                              ItemsSource="{Binding SearchAutoSuggestItems}"
-                              QuerySubmitted="SearchTextBox_QuerySubmitted"
-                              TextChanged="SearchTextBox_TextChanged"
-                              UpdateTextOnSelect="False"
-                              GotFocus="SearchTextBox_GotFocus"
-                              >
-                <i:Interaction.Behaviors>
-                  <core:EventTriggerBehavior EventName="GotFocus">
-                    <core:CallMethodAction MethodName="SelectAll" />
-                  </core:EventTriggerBehavior>
-                  <core:EventTriggerBehavior EventName="LostFocus">
-                    <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="NowMobileSearchTextInput" Value="False" />
-                  </core:EventTriggerBehavior>
-                  <mybehavior:KeyboardTrigger Key="Enter" x:Name="Mobile_SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
-                    <core:InvokeCommandAction Command="{Binding SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
-                    <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="NowMobileSearchTextInput" Value="False" />
-                  </mybehavior:KeyboardTrigger>
-                </i:Interaction.Behaviors>
-                <AutoSuggestBox.ItemTemplate>
-                  <DataTemplate>
-                    <TextBlock Text="{Binding Id, Converter={StaticResource LocalizeConverter}}" />
-                  </DataTemplate>
-                </AutoSuggestBox.ItemTemplate>
-              </AutoSuggestBox>
-            </Grid>
-            <Grid x:Name="MenuBackgroundGrid"
-                  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                  Opacity="0.5"
-                  Visibility="Collapsed"
-                  IsTapEnabled="True"
-                  IsHitTestVisible="True">
-              <UserControl IsTabStop="True" />
-            </Grid>
           </Grid>
-        </SplitView.Content>
-      </SplitView>
+        </muxc:NavigationView.Content>
+      </muxc:NavigationView>
     </uwpToolkitControls:DockPanel>
     <Grid x:Name="PlayerLayout"
           Visibility="Collapsed">
@@ -713,16 +569,6 @@
       <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent">
         <TextBlock x:Name="TitleBarTextBlock" Text="Hohoema" Margin="12 0 0 0" VerticalAlignment="Center" Opacity="0.9" FontSize="13" HorizontalAlignment="Left" ></TextBlock>
       </Border>
-      <Border x:Name="BackButtonLayout" Margin="280 0 0 0" Visibility="Visible" >
-        <Button MinHeight="{StaticResource TitleBarDummyHeight}"
-                Background="Transparent"
-                VerticalContentAlignment="Center"
-                Command="{x:Bind GoBackCommand}">
-          <SymbolIcon Symbol="Back"
-                      Height="13"
-                      Width="13" />
-        </Button>
-      </Border>
 
       <StackPanel x:Name="DebugUIPanel" Orientation="Horizontal" Visibility="Collapsed" HorizontalAlignment="Right" Margin="0 0 140 0" Spacing="8" Opacity="0.8">
         
@@ -743,22 +589,6 @@
         </VisualState>
       </VisualStateGroup>
       
-      <!-- デスクトップ向けのバックボタンを表示する条件 -->
-      <VisualStateGroup xmlns:vsmEx="using:Hohoema.Presentation.Views.Extensions.VIsualStateManager" vsmEx:VisualStateManagerExtensions.DebugCurrentState="True">
-        <VisualState x:Name="VS_BackButtonCollapsed">
-          <VisualState.StateTriggers>
-            <windowsTriggers:CompositeStateTrigger Operator="Or">
-              <windowsTriggers:NotEqualStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" NotEqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PrimaryPlayerDisplayMode.Fill}" />
-              <mytrigger:CompactOverlayViewModeTrigger />
-            </windowsTriggers:CompositeStateTrigger>
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="BackButtonLayout.Visibility" Value="Collapsed" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-      
       
       <!-- プレイヤーとページレイアウトの表示状態 -->
       <VisualStateGroup x:Name="VSG_PlayerAndMenu" xmlns:vsmEx="using:Hohoema.Presentation.Views.Extensions.VIsualStateManager" vsmEx:VisualStateManagerExtensions.DebugCurrentState="True">
@@ -769,7 +599,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="ContentSplitView.Visibility" Value="Collapsed" />
+            <Setter Target="CoreNavigationView.Visibility" Value="Collapsed" />
             <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
@@ -792,13 +622,9 @@
 
             <Setter Target="MenuTitleText.Margin" Value="16 5 16 8" />
             <Setter Target="PaneLayout.Margin" Value="48 27 0 27" />
-            <Setter Target="TopMenuLayout.Padding" Value="16 0 0 0" />
             <Setter Target="ContentFrame.Margin" Value="0 0 0 0" />
             <Setter Target="ContentFrameTopSpace.Visibility" Value="Collapsed" />
             
-            <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
-            <Setter Target="TV_OpenSearchPageButton.Visibility" Value="Visible" />
-
           </VisualState.Setters>
         </VisualState>
 
@@ -818,8 +644,7 @@
             <Setter Target="PlayerLayout.Margin" Value="0 0 8 0" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Bottom" />
             <Setter Target="PlayerLayout.HorizontalAlignment" Value="Right" />
-            <Setter Target="BackButtonLayout.Margin" Value="280 0 0 0" />
-
+            
             <Setter Target="ContentFrame.Margin" Value="0 32 0 0" />
             <Setter Target="ContentFrameTopSpace.Visibility" Value="Collapsed" />
           </VisualState.Setters>
@@ -840,17 +665,10 @@
             <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
             <Setter Target="MobilePlayerTopMargin.Height" Value="280" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
-            <Setter Target="BackButtonLayout.Margin" Value="0 246 0 0" />
-            <Setter Target="Mobile_SearchLayout.Margin" Value="0 0 0 0" />
             <Setter Target="TopMenuDesktopTitleBarSpace.Visibility" Value="Collapsed" />
             
             <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
             <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
-            <Setter Target="TopMenuLayout.Background" Value="{StaticResource MenuBackgroundBrush}" />
-            <Setter Target="TopMenuLayout.HorizontalAlignment" Value="Stretch" />
-            <Setter Target="Mobile_ShowSearchButton.Visibility" Value="Visible" />
-            <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
-            <Setter Target="Mobile_BackButtonLayout.Visibility" Value="Visible" />
             <Setter Target="ContentFrame.Margin" Value="0 48 0 0" />
             <Setter Target="ContentFrameTopSpace.Visibility" Value="Collapsed" />
           </VisualState.Setters>
@@ -871,17 +689,10 @@
             <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
             <Setter Target="MobilePlayerTopMargin.Height" Value="180" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
-            <Setter Target="Mobile_SearchLayout.Margin" Value="0 0 0 0" />
-            <Setter Target="BackButtonLayout.Margin" Value="0 188 0 0" />
-          
+
             <Setter Target="TopMenuDesktopTitleBarSpace.Visibility" Value="Collapsed" />
             <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
             <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
-            <Setter Target="TopMenuLayout.Background" Value="{StaticResource MenuBackgroundBrush}" />
-            <Setter Target="TopMenuLayout.HorizontalAlignment" Value="Stretch" />
-            <Setter Target="Mobile_ShowSearchButton.Visibility" Value="Visible" />
-            <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
-            <Setter Target="Mobile_BackButtonLayout.Visibility" Value="Visible" />
             <Setter Target="ContentFrame.Margin" Value="0 48 0 0" />
             <Setter Target="ContentFrameTopSpace.Visibility" Value="Collapsed" />
           </VisualState.Setters>
@@ -894,12 +705,8 @@
           <VisualState.Setters>
             <Setter Target="MenuTitleText.Margin" Value="16 5 16 8" />
             <Setter Target="PaneLayout.Margin" Value="48 27 0 27" />
-            <Setter Target="TopMenuLayout.Padding" Value="16 0 0 0" />
             <Setter Target="ContentFrameTopSpace.Visibility" Value="Collapsed" />
-            
-            <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
-            <Setter Target="TV_OpenSearchPageButton.Visibility" Value="Visible" />
-
+           
           </VisualState.Setters>
         </VisualState>
         <!-- Desktop -->
@@ -920,11 +727,6 @@
           <VisualState.Setters>
             <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
             <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
-            <Setter Target="TopMenuLayout.Background" Value="{StaticResource MenuBackgroundBrush}" />
-            <Setter Target="TopMenuLayout.HorizontalAlignment" Value="Stretch" />
-            <Setter Target="Mobile_ShowSearchButton.Visibility" Value="Visible" />
-            <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
-            <Setter Target="Mobile_BackButtonLayout.Visibility" Value="Visible" />
             <Setter Target="ContentFrame.Margin" Value="0 48 0 0" />
           </VisualState.Setters>
         </VisualState>
@@ -936,11 +738,6 @@
           <VisualState.Setters>
             <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
             <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
-            <Setter Target="TopMenuLayout.Background" Value="{StaticResource MenuBackgroundBrush}" />
-            <Setter Target="TopMenuLayout.HorizontalAlignment" Value="Stretch" />
-            <Setter Target="Mobile_ShowSearchButton.Visibility" Value="Visible" />
-            <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
-            <Setter Target="Mobile_BackButtonLayout.Visibility" Value="Visible" />
             <Setter Target="ContentFrame.Margin" Value="0 48 0 0" />
           </VisualState.Setters>
         </VisualState>
@@ -959,7 +756,6 @@
             </mytrigger:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="ContentSplitView.IsPaneOpen" Value="True" />
           </VisualState.Setters>
           <VisualState.Storyboard>
             <Storyboard>
@@ -973,7 +769,6 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
           </VisualState.Setters>
           <VisualState.Storyboard>
             <Storyboard>
@@ -987,9 +782,7 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="ContentSplitView.DisplayMode" Value="CompactInline" />
-            <Setter Target="ContentSplitView.IsPaneOpen" Value="True" />
-            <Setter Target="ContentSplitView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength}" />
+            <Setter Target="CoreNavigationView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength}" />
           </VisualState.Setters>
         </VisualState>
         <!-- Table -->
@@ -998,9 +791,7 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
-            <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
-            <Setter Target="ContentSplitView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength}" />
+            <Setter Target="CoreNavigationView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength}" />
           </VisualState.Setters>
         </VisualState>
         <!-- Mobile -->
@@ -1009,9 +800,7 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
-            <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
-            <Setter Target="ContentSplitView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength}" />
+            <Setter Target="CoreNavigationView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -1034,7 +823,7 @@
           <VisualState.Setters>
             <Setter Target="TopMenuDesktopTitleberBackground.Height" Value="32" />
             <Setter Target="TopMenuDesktopTitleBarSpace.Height" Value="32" />
-            <Setter Target="ContentFrameTopSpace.Height" Value="32" />
+            <Setter Target="ContentFrameTopSpace.Height" Value="0" />
           </VisualState.Setters>
         </VisualState>
         <!-- フルスクリーン時はステータスバーが非表示になる -->
@@ -1056,7 +845,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PaneLayout.Margin" Value="40 0 0 0" />
-            <Setter Target="TopMenuLayout.Margin" Value="0 0 0 0" />
           </VisualState.Setters>
         </VisualState>
         <!-- モバイルかつ縦持ち状態 -->
@@ -1069,7 +857,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PaneLayout.Margin" Value="0 24 0 0" />
-            <Setter Target="TopMenuLayout.Margin" Value="0 24 0 0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -1081,7 +868,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
-            <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
         <VisualState x:Name="ServiceUnavailableState">
@@ -1116,14 +902,13 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger  Value="{Binding ElementName=ContentSplitView, Path=DisplayMode, Mode=OneWay}" EqualTo="{x:Bind winui:SplitViewDisplayMode.CompactInline}" />
-            <windowsTriggers:EqualsStateTrigger  Value="{Binding ElementName=ContentSplitView, Path=DisplayMode, Mode=OneWay}" EqualTo="{x:Bind winui:SplitViewDisplayMode.Inline}" />
+            <windowsTriggers:EqualsStateTrigger  Value="{Binding ElementName=CoreNavigationView, Path=DisplayMode, Mode=OneWay}" EqualTo="{x:Bind winui:NavigationViewDisplayMode.Minimal}" />
           </VisualState.StateTriggers>
           <VisualState.Setters></VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding ElementName=ContentSplitView, Path=IsPaneOpen,Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding ElementName=CoreNavigationView, Path=IsPaneOpen,Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuBackgroundGrid.Visibility" Value="Visible" />
@@ -1139,21 +924,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-      <!-- モバイルの検索ボックスをフォーカス -->
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind NowMobileSearchTextInput, Mode=OneWay}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="Mobile_BlindSearchTextBoxBorder.Visibility" Value="Visible" />
-            <Setter Target="Mobile_SearchTextBox.Visibility"
-                    Value="Visible" />
-            <Setter Target="Mobile_BarrierSearchTextBoxBorder.Visibility" Value="Visible" />
-            <Setter Target="Mobile_SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

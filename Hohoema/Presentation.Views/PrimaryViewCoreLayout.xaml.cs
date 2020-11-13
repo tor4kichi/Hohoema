@@ -42,6 +42,7 @@ using Microsoft.AppCenter.Analytics;
 using System.Text;
 using Microsoft.AppCenter.Crashes;
 using System.Windows.Input;
+using Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -201,9 +202,9 @@ namespace Hohoema.Presentation.Views
 
         private void PrimaryWindowCoreLayout_GettingFocus(UIElement sender, GettingFocusEventArgs e)
         {
-            var isFocusOnMenu = e.NewFocusedElement?.FindAscendantByName(PaneLayout.Name) != null;
-            _isFocusMenu.Value = isFocusOnMenu;
-            Debug.WriteLine("Focus on Menu : " + _isFocusMenu.Value);
+//            var isFocusOnMenu = e.NewFocusedElement?.FindAscendantByName(Core.Name) != null;
+//            _isFocusMenu.Value = isFocusOnMenu;
+//            Debug.WriteLine("Focus on Menu : " + _isFocusMenu.Value);
         }
 
         ReactiveProperty<bool> _isFocusMenu = new ReactiveProperty<bool>();
@@ -219,14 +220,6 @@ namespace Hohoema.Presentation.Views
 
         private void ContentFrame_Navigating(object sender, NavigatingCancelEventArgs e)
         {
-            // 狭い画面の時にメニュー項目を選択したらペインを閉じるようにする
-            if (ContentSplitView.DisplayMode == SplitViewDisplayMode.CompactOverlay 
-                || ContentSplitView.DisplayMode == SplitViewDisplayMode.Overlay
-                )
-            {
-                ContentSplitView.IsPaneOpen = false;
-            }
-
             if (_viewModel.ApplicationLayoutManager.AppLayout == ApplicationLayout.TV)
             {
                 _isFocusMenu.Value = false;
@@ -741,7 +734,7 @@ namespace Hohoema.Presentation.Views
 
         void ToggelPaneOpen()
         {
-            ContentSplitView.IsPaneOpen = !ContentSplitView.IsPaneOpen;
+            CoreNavigationView.IsPaneOpen = !CoreNavigationView.IsPaneOpen;
         }
 
 
@@ -825,6 +818,26 @@ namespace Hohoema.Presentation.Views
         {
             var asb = (sender as AutoSuggestBox);
             asb.IsSuggestionListOpen = !string.IsNullOrWhiteSpace(asb.Text);
+        }
+
+        private void CoreNavigationView_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
+        {
+            if (args.InvokedItemContainer?.DataContext is IPageNavigatable menuItemVM)
+            {
+                _viewModel.PageManager.OpenPageCommand.Execute(menuItemVM);
+            }
+            else if (args.InvokedItem is IPageNavigatable menuItem)
+            {
+                _viewModel.PageManager.OpenPageCommand.Execute(menuItem);
+            }
+            else if ((args.InvokedItem as FrameworkElement)?.DataContext is IPageNavigatable item)
+            {
+                _viewModel.PageManager.OpenPageCommand.Execute(item);
+            }
+            else if (args.IsSettingsInvoked)
+            {
+                _viewModel.PageManager.OpenPage(HohoemaPageType.Settings);
+            }
         }
     }
 

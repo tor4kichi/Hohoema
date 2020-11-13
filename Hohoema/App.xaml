@@ -15,6 +15,7 @@
     xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
     xmlns:system="using:System"
     xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts" 
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
   xmlns:locales="using:Hohoema.Locales" xmlns:appModels="using:Hohoema.Models.Domain.Application">
 
   <prism:PrismApplication.Resources>
@@ -29,7 +30,12 @@
         <ResourceDictionary Source="Styles/SettingsControlStyles.xaml"/>
 
         <ResourceDictionary Source="Presentation.Views/Controls/TransientContainer/TransientContainer.xaml"/>
+
+        <muxc:XamlControlsResources  />
+
       </ResourceDictionary.MergedDictionaries>
+
+      
 
       <appModels:FeatureFlags x:Key="FeatureFlags" />
 

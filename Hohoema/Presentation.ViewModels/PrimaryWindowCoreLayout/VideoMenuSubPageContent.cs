@@ -66,7 +66,6 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
         private void ResetMenuItems()
         {
             MenuItems.Clear();
-            _watchAfterMenuItemViewModel ??= App.Current.Container.Resolve<WatchAfterMenuItemViewModel>();
             if (NiconicoSession.IsLoggedIn)
             {
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList));
