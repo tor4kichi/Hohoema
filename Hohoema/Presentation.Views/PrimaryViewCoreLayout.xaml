@@ -332,6 +332,7 @@
                           PaneDisplayMode="{Binding AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}"
                            ItemInvoked="CoreNavigationView_ItemInvoked"
                           Background="{ThemeResource MenuBackgroundBrush}"
+                           BackRequested="CoreNavigationView_BackRequested"
                       >
         <muxc:NavigationView.Header>
           <Grid x:Name="MenuBackgroundGrid"
@@ -469,6 +470,7 @@
                               GotFocus="SearchTextBox_GotFocus"
                           AutoMaximizeSuggestionArea="True"
                           MinWidth="120"
+                          
                               >
             <i:Interaction.Behaviors>
               <core:EventTriggerBehavior EventName="GotFocus">

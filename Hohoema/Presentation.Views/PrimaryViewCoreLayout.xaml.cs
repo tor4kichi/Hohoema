@@ -276,6 +276,8 @@ namespace Hohoema.Presentation.Views
                     _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
                 }
             });
+
+            CoreNavigationView.IsBackEnabled = _contentFrameNavigationService.CanGoBack();
         }
 
         
@@ -837,6 +839,14 @@ namespace Hohoema.Presentation.Views
             else if (args.IsSettingsInvoked)
             {
                 _viewModel.PageManager.OpenPage(HohoemaPageType.Settings);
+            }
+        }
+
+        private void CoreNavigationView_BackRequested(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewBackRequestedEventArgs args)
+        {
+            if (_GoBackCommand.CanExecute())
+            {
+                _GoBackCommand.Execute();
             }
         }
     }
