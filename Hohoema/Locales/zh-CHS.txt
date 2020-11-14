@@ -184,6 +184,12 @@ Notification_SuccessAddToWatchLaterWithAddedCount = 已将新视频{0}添加到�
 
 
 #### Settings ####
+MenuPaneDisplayMode = 如何显示菜单
+NavigationViewPaneDisplayMode.Auto = 自动
+NavigationViewPaneDisplayMode.Left = 始终显示在左侧
+NavigationViewPaneDisplayMode.Top = 始终显示在顶部
+NavigationViewPaneDisplayMode.LeftCompact = 左侧紧凑型显示屏
+NavigationViewPaneDisplayMode.LeftMinimal = 左侧最小显示
 AppearanceSettings = 显示设定
 ApplicationDisplayMode = 显示方式
 ApplicationDisplayMode.TV = 电视台

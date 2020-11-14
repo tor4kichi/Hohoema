@@ -184,6 +184,12 @@ Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を あ�
 
 
 #### Settings ####
+MenuPaneDisplayMode = メニューの表示方法
+NavigationViewPaneDisplayMode.Auto = 自動
+NavigationViewPaneDisplayMode.Left = 左に常に表示
+NavigationViewPaneDisplayMode.Top = 上部に常に表示
+NavigationViewPaneDisplayMode.LeftCompact = 左にコンパクト表示
+NavigationViewPaneDisplayMode.LeftMinimal = 左に最小表示
 AppearanceSettings = 表示設定
 ApplicationDisplayMode = 表示モード
 ApplicationDisplayMode.TV = テレビ

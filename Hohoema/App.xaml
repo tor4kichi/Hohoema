@@ -53,7 +53,7 @@
       <x:Double x:Key="WidthBreakPoint_MiddleToNallow">520</x:Double>
       <x:Double x:Key="WidthBreakPoint_NallowToVeryNallow">300</x:Double>
       <!-- 27 (safe area) + 48 (Page title) = 75 -->
-      <Thickness x:Key="ContentListViewHeaderMargin_TV">16 27 48 0</Thickness>
+      <Thickness x:Key="ContentListViewHeaderMargin_TV">16 0 48 0</Thickness>
       <Thickness x:Key="ContentListViewBodyMargin_TV">16 0 48 27</Thickness>
       <Thickness x:Key="ContentPageMargin_TV">16 27 48 27</Thickness>
       <!-- 32 (TitleBar) + 48 (Page title) = 80 -->

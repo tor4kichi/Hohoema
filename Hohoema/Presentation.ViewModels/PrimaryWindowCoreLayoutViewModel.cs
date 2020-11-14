@@ -138,7 +138,7 @@ namespace Hohoema.Presentation.ViewModels
 
             _watchAfterMenuItemViewModel = watchAfterMenuItemViewModel;
 
-            var pinsMenuItem = new PinsMenuSubItemViewModel("Pins".Translate(), PinSettings);
+            var pinsMenuItem = new PinsMenuSubItemViewModel("Pin".Translate(), PinSettings);
 
             // メニュー項目の初期化
             MenuItems_LoggedIn = new ObservableCollection<HohoemaListingPageItemBase>()

@@ -38,6 +38,7 @@ using I18NPortable;
 using Hohoema.Models.Domain.Helpers;
 using Microsoft.AppCenter.Crashes;
 using Microsoft.AppCenter.Analytics;
+using Microsoft.UI.Xaml.Controls;
 
 namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 {
@@ -284,6 +285,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
             VideoTitleFilteringItems.Insert(0, new VideoFilteringTitleViewModel(entry, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText));
         }
 
+
+        public List<NavigationViewPaneDisplayMode> PaneDisplayModeItems { get; } = Enum.GetValues(typeof(NavigationViewPaneDisplayMode)).Cast<NavigationViewPaneDisplayMode>().ToList();
 
         
         public ReactiveProperty<ElementTheme> SelectedTheme { get; private set; }

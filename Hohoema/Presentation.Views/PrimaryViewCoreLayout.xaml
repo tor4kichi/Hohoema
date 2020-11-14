@@ -329,14 +329,17 @@
       <muxc:NavigationView x:Name="CoreNavigationView"
                       MenuItemsSource="{Binding MenuItems_Offline}"
                       MenuItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
-                          PaneDisplayMode="Auto"
+                          PaneDisplayMode="{Binding AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}"
                            ItemInvoked="CoreNavigationView_ItemInvoked"
+                          Background="{ThemeResource MenuBackgroundBrush}"
                       >
         <muxc:NavigationView.Header>
           <Grid x:Name="MenuBackgroundGrid"
                   Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                   IsTapEnabled="True"
-                  IsHitTestVisible="True">
+                  IsHitTestVisible="True"
+                VerticalAlignment="Top"
+                >
             <TextBlock x:Name="MenuTitleText" Text="{x:Bind PageTitle,Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="16 8 64 8" VerticalAlignment="Center" IsHitTestVisible="False" MaxLines="1" />
             <StackPanel x:Name="MenuTitleText_WithOptional" Margin="16 0 16 0" Spacing="0" VerticalAlignment="Top" Visibility="Collapsed">
               <TextBlock x:Name="PageTitleText_WithOptionl" Text="{x:Bind PageTitle,Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
@@ -407,21 +410,16 @@
         <muxc:NavigationView.PaneFooter>
           <uwpToolkitControls:DockPanel uwpToolkitControls:DockPanel.Dock="Top"
                                           HorizontalAlignment="Stretch">
-            <Button Command="{Binding PageManager.OpenPageCommand}"
-                      CommandParameter="Settings"
-                      uwpToolkitControls:DockPanel.Dock="Right"
-                      Background="Transparent"
-                      TabIndex="101">
-              <SymbolIcon Symbol="Setting" />
-            </Button>
             <Grid>
               <Button x:Name="OpenAccountButton"
-                        Padding="16 0 0 0"
+                        Padding="8 0 0 0"
                         Background="Transparent"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Left"
                         VerticalContentAlignment="Center"
-                        TabIndex="100">
+                        TabIndex="100"
+                      Height="48"
+                      >
                 <Button.Flyout>
                   <MenuFlyout>
                     <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
@@ -444,11 +442,13 @@
                   <uwpToolkitControls:DockPanel Margin="0 0"
                                                   x:Name="AccountInfoLayout"
                                                   Visibility="Collapsed">
-                    <Image Source="{Binding NiconicoSession.UserIconUrl,Mode=OneWay}"
+                    <uwpToolkitControls:ImageEx Source="{Binding NiconicoSession.UserIconUrl,Mode=OneWay}"
                              uwpToolkitControls:DockPanel.Dock="Left"
-                             Height="24"
-                             Width="24"
-                             Margin="0 0 8 0" />
+                             Height="18"
+                             Width="18"
+                             Margin="2 0 12 0"
+                                 CornerRadius="60"
+                                 />
                     <StackPanel>
                       <TextBlock Text="{x:Bind _viewModel.NiconicoSession.UserName,Mode=OneWay}" />
                     </StackPanel>
@@ -492,7 +492,6 @@
             <!-- ページ毎のコンテンツ -->
             <Grid>
               <uwpToolkitControls:DockPanel>
-                <Border x:Name="ContentFrameTopSpace" uwpToolkitControls:DockPanel.Dock="Top" Visibility="Visible" />
                 <Frame x:Name="ContentFrame" VerticalContentAlignment="Stretch" DataContext="{x:Null}" Margin="0 0 0 0">
                   <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
                     <templateSelector:HohoemaFlyoutTemplateSelector>
@@ -510,10 +509,8 @@
                   </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
                 </Frame>
               </uwpToolkitControls:DockPanel>
-              <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="Mobile_BarrierSearchTextBoxBorder" Visibility="Collapsed" IsHitTestVisible="True" Opacity="0.8" />
             </Grid>
             <Border x:Name="TopMenuDesktopTitleberBackground" Visibility="Visible" uwpToolkitControls:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}" VerticalAlignment="Top" />
-            
           </Grid>
         </muxc:NavigationView.Content>
       </muxc:NavigationView>
@@ -588,8 +585,7 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
-      
+            
       <!-- プレイヤーとページレイアウトの表示状態 -->
       <VisualStateGroup x:Name="VSG_PlayerAndMenu" xmlns:vsmEx="using:Hohoema.Presentation.Views.Extensions.VIsualStateManager" vsmEx:VisualStateManagerExtensions.DebugCurrentState="True">
         <!-- プレイヤーを画面全体表示 -->
@@ -621,9 +617,6 @@
             <Setter Target="PlayerLayout.HorizontalAlignment" Value="Right" />
 
             <Setter Target="MenuTitleText.Margin" Value="16 5 16 8" />
-            <Setter Target="PaneLayout.Margin" Value="48 27 0 27" />
-            <Setter Target="ContentFrame.Margin" Value="0 0 0 0" />
-            <Setter Target="ContentFrameTopSpace.Visibility" Value="Collapsed" />
             
           </VisualState.Setters>
         </VisualState>
@@ -644,9 +637,6 @@
             <Setter Target="PlayerLayout.Margin" Value="0 0 8 0" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Bottom" />
             <Setter Target="PlayerLayout.HorizontalAlignment" Value="Right" />
-            
-            <Setter Target="ContentFrame.Margin" Value="0 32 0 0" />
-            <Setter Target="ContentFrameTopSpace.Visibility" Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
         <!-- プレイヤーを小窓表示（Tablet） -->
@@ -665,12 +655,8 @@
             <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
             <Setter Target="MobilePlayerTopMargin.Height" Value="280" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
-            <Setter Target="TopMenuDesktopTitleBarSpace.Visibility" Value="Collapsed" />
             
-            <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
             <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
-            <Setter Target="ContentFrame.Margin" Value="0 48 0 0" />
-            <Setter Target="ContentFrameTopSpace.Visibility" Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
         <!-- プレイヤーを小窓表示（Mobile） -->
@@ -690,11 +676,7 @@
             <Setter Target="MobilePlayerTopMargin.Height" Value="180" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
 
-            <Setter Target="TopMenuDesktopTitleBarSpace.Visibility" Value="Collapsed" />
-            <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
             <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
-            <Setter Target="ContentFrame.Margin" Value="0 48 0 0" />
-            <Setter Target="ContentFrameTopSpace.Visibility" Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
         <!-- TV -->
@@ -704,9 +686,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuTitleText.Margin" Value="16 5 16 8" />
-            <Setter Target="PaneLayout.Margin" Value="48 27 0 27" />
-            <Setter Target="ContentFrameTopSpace.Visibility" Value="Collapsed" />
-           
           </VisualState.Setters>
         </VisualState>
         <!-- Desktop -->
@@ -715,8 +694,6 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="ContentFrame.Margin" Value="0 32 0 0" />
-            <Setter Target="ContentFrameTopSpace.Visibility" Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
         <!-- Tablet -->
@@ -725,9 +702,7 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
             <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
-            <Setter Target="ContentFrame.Margin" Value="0 48 0 0" />
           </VisualState.Setters>
         </VisualState>
         <!-- Mobile -->
@@ -736,9 +711,7 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
             <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
-            <Setter Target="ContentFrame.Margin" Value="0 48 0 0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -759,7 +732,9 @@
           </VisualState.Setters>
           <VisualState.Storyboard>
             <Storyboard>
+              <!--
               <DoubleAnimation Storyboard.TargetName="PaneLayout" Storyboard.TargetProperty="Opacity" From="0.5" To="1.0" Duration="0:0:0.125" />
+              -->
             </Storyboard>
           </VisualState.Storyboard>
         </VisualState>
@@ -772,7 +747,9 @@
           </VisualState.Setters>
           <VisualState.Storyboard>
             <Storyboard>
+              <!--
               <DoubleAnimation Storyboard.TargetName="PaneLayout" Storyboard.TargetProperty="Opacity" From="1.0" To="0.5" Duration="0:0:0.125" />
+              -->
             </Storyboard>
           </VisualState.Storyboard>
         </VisualState>
@@ -811,9 +788,9 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <!--
             <Setter Target="TopMenuDesktopTitleberBackground.Height" Value="32" />
-            <Setter Target="TopMenuDesktopTitleBarSpace.Height" Value="27" />
-            
+            -->
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -821,9 +798,9 @@
             <windowsTriggers:DeviceFamilyStateTrigger DeviceFamily="Desktop" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <!--
             <Setter Target="TopMenuDesktopTitleberBackground.Height" Value="32" />
-            <Setter Target="TopMenuDesktopTitleBarSpace.Height" Value="32" />
-            <Setter Target="ContentFrameTopSpace.Height" Value="0" />
+            -->
           </VisualState.Setters>
         </VisualState>
         <!-- フルスクリーン時はステータスバーが非表示になる -->
@@ -844,7 +821,9 @@
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <!--
             <Setter Target="PaneLayout.Margin" Value="40 0 0 0" />
+            -->
           </VisualState.Setters>
         </VisualState>
         <!-- モバイルかつ縦持ち状態 -->
@@ -856,7 +835,9 @@
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <!--
             <Setter Target="PaneLayout.Margin" Value="0 24 0 0" />
+            -->
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -895,24 +876,7 @@
             <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-      <!-- ペインの開閉状態 -->
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger  Value="{Binding ElementName=CoreNavigationView, Path=DisplayMode, Mode=OneWay}" EqualTo="{x:Bind winui:NavigationViewDisplayMode.Minimal}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters></VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding ElementName=CoreNavigationView, Path=IsPaneOpen,Mode=OneWay}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="MenuBackgroundGrid.Visibility" Value="Visible" />
-            <Setter Target="SplitViewContentLayout.IsHitTestVisible" Value="False" />
+            <Setter Target="CoreNavigationView.MenuItemsSource" Value="{Binding MenuItems_LoggedIn}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
