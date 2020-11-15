@@ -20,11 +20,13 @@
              xmlns:winui="using:Windows.UI.Xaml.Controls" 
              xmlns:models="using:Hohoema.Models.Domain.Application"  
              xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-             xmlns:viewModels="using:Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout"
+             xmlns:viewModels="using:Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout" xmlns:pageNavigation="using:Hohoema.Models.Domain.PageNavigation"
              x:Name="UserControlRoot"
              mc:Ignorable="d"
              d:DesignHeight="300"
-             d:DesignWidth="400">
+             d:DesignWidth="400"
+            
+             >
   <UserControl.Resources>
     <x:String x:Key="SideMenuPaneLength">280</x:String>
     <x:String x:Key="SideMenuPaneLength_TVMode">340</x:String>
@@ -187,10 +189,46 @@
       
     </templateSelector:ValueDataTemplateSelector>
 
+
+    <MenuFlyout x:Key="PinsMenuSubItemFlyout">
+      <MenuFlyoutItem Text="{Binding Source=PinCurrentPage, Converter={StaticResource LocalizeConverter}}" 
+                      Command="{x:Bind AddPinCurrentPageCommand}"
+                      />
+    </MenuFlyout>
+    
+    
+    
     <templateSelector:TypeBasedTemplateSelector x:Key="MenuItemTemplateSelector" >
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout.SeparatorMenuItemViewModel, Converter={StaticResource StringToType}}" >
         <muxc:NavigationViewItemSeparator />
       </DataTemplate>
+
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PinMenuItemViewModel, Converter={StaticResource StringToType}}">
+        <muxc:NavigationViewItem>
+          <muxc:NavigationViewItem.ContextFlyout>
+            <MenuFlyout>
+              <MenuFlyoutItem Text="{Binding Source=PinChangeArias, Converter={StaticResource LocalizeConverter}}" Command="{Binding OverridePinCommand}" CommandParameter="{Binding}" />
+              <MenuFlyoutSubItem Text="{Binding Source=Pin_Move, Converter={StaticResource LocalizeConverter}}">
+                <MenuFlyoutItem Text="{Binding Source=Pin_MoveToHead, Converter={StaticResource LocalizeConverter}}" Command="{Binding MovePinToMostTopCommand}" CommandParameter="{Binding}" />
+                <MenuFlyoutItem Text="{Binding Source=Pin_MovePreview, Converter={StaticResource LocalizeConverter}}" Command="{Binding MovePinToTopCommand}" CommandParameter="{Binding}" />
+                <MenuFlyoutItem Text="{Binding Source=Pin_MoveNext, Converter={StaticResource LocalizeConverter}}" Command="{Binding MovePinToBottomCommand}" CommandParameter="{Binding}" />
+                <MenuFlyoutItem Text="{Binding Source=Pin_MoveToTail, Converter={StaticResource LocalizeConverter}}" Command="{Binding MovePinToMostBottomCommand}" CommandParameter="{Binding}" />
+              </MenuFlyoutSubItem>
+              <MenuFlyoutSeparator />
+              <MenuFlyoutItem Text="{Binding Source=PinRemove, Converter={StaticResource LocalizeConverter}}" Command="{Binding DeletePinCommand}" CommandParameter="{Binding}" />
+            </MenuFlyout>
+          </muxc:NavigationViewItem.ContextFlyout>
+          <StackPanel>
+            <Grid>
+              <TextBlock Text="{Binding Pin.Label, Mode=OneTime}" Visibility="{Binding Pin.OverrideLabel, Converter={StaticResource EmptyStringToBoolean}}" />
+              <TextBlock Text="{Binding Pin.OverrideLabel}" Visibility="{Binding Pin.OverrideLabel, Converter={StaticResource NotEmptyStringToBoolean}}" />
+            </Grid>
+
+            <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.7" />
+          </StackPanel>
+        </muxc:NavigationViewItem>
+      </DataTemplate>
+      
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout.MenuItemViewModel, Converter={StaticResource StringToType}}" >
         <muxc:NavigationViewItem>
           <TextBlock Text="{Binding Label}" />
@@ -210,9 +248,17 @@
       </DataTemplate>
 
 
-      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.MenuSubItemViewModelBase, Converter={StaticResource StringToType}}" >
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PinsMenuSubItemViewModel, Converter={StaticResource StringToType}}" >
         <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
                                  Icon="Pin"
+                                 ContextFlyout="{StaticResource PinsMenuSubItemFlyout}"
+                                 >
+          <TextBlock Text="{Binding Label}" />
+        </muxc:NavigationViewItem>
+      </DataTemplate>
+
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.MenuSubItemViewModelBase, Converter={StaticResource StringToType}}" >
+        <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
                                  >
           <TextBlock Text="{Binding Label}" />
         </muxc:NavigationViewItem>
@@ -336,7 +382,7 @@
                       >
         <muxc:NavigationView.Header>
           <Grid x:Name="MenuBackgroundGrid"
-                  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                  Background="{ThemeResource MenuBackgroundBrush}"
                   IsTapEnabled="True"
                   IsHitTestVisible="True"
                 VerticalAlignment="Top"
@@ -409,6 +455,7 @@
         </muxc:NavigationView.PaneHeader>
 
         <muxc:NavigationView.PaneFooter>
+          
           <uwpToolkitControls:DockPanel uwpToolkitControls:DockPanel.Dock="Top"
                                           HorizontalAlignment="Stretch">
             <Grid>
@@ -423,18 +470,50 @@
                       >
                 <Button.Flyout>
                   <MenuFlyout>
+
                     <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
                                       Visibility="Collapsed" Text="{Binding Source=LogInUserInfo, Converter={StaticResource LocalizeConverter}}"
                                       Command="{Binding OpenAccountInfoCommand}" />
+
+                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenFollowManage"
+                                    Visibility="Collapsed"
+                                      Text="{Binding Source=HohoemaPageType.FollowManage, Converter={StaticResource LocalizeConverter}}"
+                                      Command="{Binding PageManager.OpenPageCommand}"
+                                    CommandParameter="{x:Bind pageNavigation:HohoemaPageType.FollowManage}"
+                                    />
+                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenMylistManage"
+                                    Visibility="Collapsed"
+                                      Text="{Binding Source=HohoemaPageType.UserMylist, Converter={StaticResource LocalizeConverter}}"
+                                      Command="{Binding PageManager.OpenPageCommand}"
+                                    CommandParameter="{x:Bind pageNavigation:HohoemaPageType.UserMylist}"
+                                    />
+                    
                     <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
                                       Visibility="Collapsed" Text="{Binding Source=LogOut, Converter={StaticResource LocalizeConverter}}"
                                       Command="{Binding LogoutFromNiconicoCommand}" />
+                    
                     <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
                                       Visibility="Collapsed" Text="{Binding Source=LogIn, Converter={StaticResource LocalizeConverter}}"
                                       Command="{Binding NiconicoLoginService.LoginCommand}" />
+
+                    <MenuFlyoutSeparator />
+                    
+                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenSubscriptionManagement"
+                                      Text="{Binding Source=HohoemaPageType.SubscriptionManagement, Converter={StaticResource LocalizeConverter}}"
+                                      Command="{Binding PageManager.OpenPageCommand}"
+                                    CommandParameter="{x:Bind pageNavigation:HohoemaPageType.SubscriptionManagement}"
+                                    />
+                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenVideoCacheManagement"
+                                      Text="{Binding Source=HohoemaPageType.CacheManagement, Converter={StaticResource LocalizeConverter}}"
+                                      Command="{Binding PageManager.OpenPageCommand}"
+                                    CommandParameter="{x:Bind pageNavigation:HohoemaPageType.CacheManagement}"
+                                    />
+
+                                       
                     <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
                                       Visibility="Collapsed" Text="Open Debug Page"
                                       Command="{Binding OpenDebugPageCommand}" />
+                    
                   </MenuFlyout>
                 </Button.Flyout>
                 <StackPanel>
@@ -876,7 +955,9 @@
           <VisualState.Setters>
             <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
             <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
+            <Setter Target="MenuFlyoutItem_OpenFollowManage.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
+            <Setter Target="MenuFlyoutItem_OpenMylistManage.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
             <Setter Target="CoreNavigationView.MenuItemsSource" Value="{Binding MenuItems_LoggedIn}" />
           </VisualState.Setters>

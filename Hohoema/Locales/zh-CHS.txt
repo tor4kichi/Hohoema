@@ -115,6 +115,12 @@ PinChangeArias = 别名针
 PinRemove = 取消固定
 PinHowToAddition = 打开您喜欢的页面，然后使用“ +”按钮将其固定
 PinRenameDialogPlacefolder_EmptyToDefault = 示例）音乐排名（保留空白以返回默认名称）
+Pin_Move = 移动销钉位置
+Pin_MovePreview = 上移一个
+Pin_MoveNext = 下移一个
+Pin_MoveToHead = 移至开头
+Pin_MoveToTail = 移到最后
+
 
 
 #### Video Cache feature ####

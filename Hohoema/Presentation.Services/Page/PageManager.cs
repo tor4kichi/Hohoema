@@ -105,6 +105,9 @@ namespace Hohoema.Presentation.Services.Page
             {
                 switch (parameter)
                 {
+                    case HohoemaPageType rawPageType:
+                        OpenPage(rawPageType);
+                        break;
                     case string s:
                         {
                             if (Enum.TryParse<HohoemaPageType>(s, out var pageType))

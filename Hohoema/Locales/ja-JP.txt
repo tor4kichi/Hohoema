@@ -115,6 +115,12 @@ PinChangeArias = ピンに別名を付ける
 PinRemove = ピン留めを解除
 PinHowToAddition = 好きなページを開いて「＋ボタン」でピン留め
 PinRenameDialogPlacefolder_EmptyToDefault = 例）音楽のランキング （空欄にすることでデフォルト名に戻せます）
+Pin_Move = ピンの位置を移動
+Pin_MovePreview = 一つ上へ移動
+Pin_MoveNext = 一つ下へ移動
+Pin_MoveToHead = 先頭へ移動
+Pin_MoveToTail = 最後尾へ移動
+
 
 
 #### Video Cache feature ####
