@@ -49,6 +49,14 @@
                       Command="{x:Bind AddPinCurrentPageCommand}"
                       />
     </MenuFlyout>
+
+    <MenuFlyout x:Key="WatchAfterMenuItemFlyout">
+      <MenuFlyoutItem Text="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}}" 
+                      Command="{Binding PlayWatchAfterPlaylistCommand}"
+                      >
+        
+      </MenuFlyoutItem>
+    </MenuFlyout>
     
     
     
@@ -90,14 +98,23 @@
       </DataTemplate>
 
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout.WatchAfterMenuItemViewModel, Converter={StaticResource StringToType}}" >
-        <muxc:NavigationViewItem>
+        <muxc:NavigationViewItem ContextFlyout="{StaticResource WatchAfterMenuItemFlyout}">
           <muxc:NavigationViewItem.Icon>
             <SymbolIcon Symbol="Play" />
           </muxc:NavigationViewItem.Icon>
 
-          <TextBlock VerticalAlignment="Center">
-              <Run Text="{Binding Source=HohoemaPageType.WatchAfter, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding WatchAfterPlaylistCount.Value}" />
-          </TextBlock>
+          <uwpToolkitControls:DockPanel>
+
+            <Border uwpToolkitControls:DockPanel.Dock="Right" Background="{ThemeResource SystemBaseMediumLowColor}" CornerRadius="60" Width="32" Height="32">
+              <TextBlock Text="{Binding WatchAfterPlaylistCount.Value}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Border>
+              
+            <TextBlock VerticalAlignment="Center">
+              <Run Text="{Binding Source=HohoemaPageType.WatchAfter, Converter={StaticResource LocalizeConverter}}" />
+            </TextBlock>
+            
+
+          </uwpToolkitControls:DockPanel>
         </muxc:NavigationViewItem>
       </DataTemplate>
 
