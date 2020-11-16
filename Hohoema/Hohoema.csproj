@@ -357,6 +357,7 @@
     <Compile Include="Presentation.Views\Controls\ScrollHeaderCustom\StickyHeaderBehavior.cs" />
     <Compile Include="Presentation.Views\Converters\ItemClickEventArgsConverter.cs" />
     <Compile Include="Presentation.Views\Converters\MylistSortLocalizeConverter.cs" />
+    <Compile Include="Presentation.Views\Converters\PageTypeToIconConverter.cs" />
     <Compile Include="Presentation.Views\Converters\StringToUriConverter.cs" />
     <Compile Include="Presentation.Views\Converters\TimeSpanToSecondsConverter.cs" />
     <Compile Include="Presentation.Views\Dialogs\AdvancedSelectDialog.xaml.cs">

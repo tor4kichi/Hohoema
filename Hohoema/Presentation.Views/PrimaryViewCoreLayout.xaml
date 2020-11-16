@@ -20,7 +20,7 @@
              xmlns:winui="using:Windows.UI.Xaml.Controls" 
              xmlns:models="using:Hohoema.Models.Domain.Application"  
              xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-             xmlns:viewModels="using:Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout" xmlns:pageNavigation="using:Hohoema.Models.Domain.PageNavigation"
+             xmlns:viewModels="using:Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout" xmlns:pageNavigation="using:Hohoema.Models.Domain.PageNavigation" xmlns:converter="using:Hohoema.Presentation.Views.Converters"
              x:Name="UserControlRoot"
              mc:Ignorable="d"
              d:DesignHeight="300"
@@ -40,154 +40,8 @@
         </Setter.Value>
       </Setter>
     </Style>
-    <templateSelector:ValueDataTemplateSelector x:Key="PageTypeIconTemplateSelector">
-      <templateSelector:ValueDataTemplate Value="RankingCategoryList">
-        <DataTemplate>
-          <SymbolIcon Symbol="Flag" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="RankingCategory">
-        <DataTemplate>
-          <SymbolIcon Symbol="Flag" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="UserMylist">
-        <DataTemplate>
-          <SymbolIcon Symbol="List" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="Mylist">
-        <DataTemplate>
-          <SymbolIcon Symbol="List" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="FollowManage">
-        <DataTemplate>
-          <iconPack:PackIconMaterial Kind="Star" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="WatchHistory">
-        <DataTemplate>
-          <SymbolIcon Symbol="Clock" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="Search">
-        <DataTemplate>
-          <SymbolIcon Symbol="Find" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="SearchSummary">
-        <DataTemplate>
-          <SymbolIcon Symbol="Find" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="SearchResultCommunity">
-        <DataTemplate>
-          <SymbolIcon Symbol="Find" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="SearchResultTag">
-        <DataTemplate>
-          <SymbolIcon Symbol="Find" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="SearchResultKeyword">
-        <DataTemplate>
-          <SymbolIcon Symbol="Find" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="SearchResultMylist">
-        <DataTemplate>
-          <SymbolIcon Symbol="Find" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="SearchResultLive">
-        <DataTemplate>
-          <SymbolIcon Symbol="Find" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="UserInfo">
-        <DataTemplate>
-          <SymbolIcon Symbol="Account" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="UserVideo">
-        <DataTemplate>
-          <SymbolIcon Symbol="List" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="Community">
-        <DataTemplate>
-          <SymbolIcon Symbol="People" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="CommunityVideo">
-        <DataTemplate>
-          <SymbolIcon Symbol="People" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="VideoInfomation">
-        <DataTemplate>
-          <iconPack:PackIconMaterial Kind="Information" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="CacheManagement">
-        <DataTemplate>
-          <SymbolIcon Symbol="Download" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="Settings">
-        <DataTemplate>
-          <SymbolIcon Symbol="Setting" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="NicoRepo">
-        <DataTemplate>
-          <SymbolIcon Symbol="List" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="Recommend">
-        <DataTemplate>
-          <iconPack:PackIconMaterial Kind="ThumbUp" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="Subscription">
-        <DataTemplate>
-          <iconPack:PackIconMaterial Kind="ClockFast" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="LiveInfomation">
-        <DataTemplate>
-          <iconPack:PackIconMaterial Kind="Information" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="Timeshift">
-        <DataTemplate>
-          <SymbolIcon Symbol="Clock" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="ChannelInfo">
-        <DataTemplate>
-          <iconPack:PackIconMaterial Kind="Group" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="ChannelVideo">
-        <DataTemplate>
-          <SymbolIcon Symbol="List" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="WatchAfter">
-        <DataTemplate>
-          <iconPack:PackIconMaterial Kind="PlaylistPlay" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      <templateSelector:ValueDataTemplate Value="SubscriptionManagement">
-        <DataTemplate>
-          <iconPack:PackIconMaterial Kind="Rss" />
-        </DataTemplate>
-      </templateSelector:ValueDataTemplate>
-      
-    </templateSelector:ValueDataTemplateSelector>
+
+    <converter:PageTypeToIconConverter x:Key="PageTypeToIconConverter" />
 
 
     <MenuFlyout x:Key="PinsMenuSubItemFlyout">
@@ -230,7 +84,7 @@
       </DataTemplate>
       
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout.MenuItemViewModel, Converter={StaticResource StringToType}}" >
-        <muxc:NavigationViewItem>
+        <muxc:NavigationViewItem Icon="{Binding PageType, Converter={StaticResource PageTypeToIconConverter}}">
           <TextBlock Text="{Binding Label}" />
         </muxc:NavigationViewItem>
       </DataTemplate>
@@ -247,6 +101,13 @@
         </muxc:NavigationViewItem>
       </DataTemplate>
 
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.MylistSubMenuMenu, Converter={StaticResource StringToType}}" >
+        <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
+                                 Icon="List"
+                                 >
+          <TextBlock Text="{Binding Label}" />
+        </muxc:NavigationViewItem>
+      </DataTemplate>
 
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PinsMenuSubItemViewModel, Converter={StaticResource StringToType}}" >
         <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
@@ -532,8 +393,9 @@
                     <listItemControls:BooleanViewSwitcher.DefaultViewTemplate>
                       <DataTemplate>
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                          <SymbolIcon Symbol="Setting" Margin="3 0 0 0" Height="18" Width="18" />
+                          <SymbolIcon Symbol="Setting" Margin="3 0 0 0" Height="18" Width="24" />
                           <TextBlock Text="{Binding Source=AccountAndSettings, Converter={StaticResource LocalizeConverter}}"
+                                     Margin="2 0 0 0"
                              />
                         </StackPanel>
                       </DataTemplate>
@@ -545,9 +407,9 @@
                                                       >
                           <uwpToolkitControls:ImageEx Source="{Binding NiconicoSession.UserIconUrl,Mode=OneWay}"
                              uwpToolkitControls:DockPanel.Dock="Left"
-                             Height="18"
-                             Width="18"
-                             Margin="8 0 0 0"
+                             Height="24"
+                             Width="24"
+                             Margin="0 0 0 0"
                                  CornerRadius="60"
                                  />
                           <StackPanel Margin="11 0 0 0">
