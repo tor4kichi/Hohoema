@@ -109,6 +109,8 @@ LogInUserInfo = 登录用户信息
 LogOut = 登出
 LogIn = 已登陆
 
+AccountAndSettings = 帐户和设置
+
 Pin = 固定
 PinCurrentPage = 固定当前页
 PinChangeArias = 别名针

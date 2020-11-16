@@ -379,6 +379,7 @@
                            ItemInvoked="CoreNavigationView_ItemInvoked"
                           Background="{ThemeResource MenuBackgroundBrush}"
                            BackRequested="CoreNavigationView_BackRequested"
+                           IsSettingsVisible="False"
                       >
         <muxc:NavigationView.Header>
           <Grid x:Name="MenuBackgroundGrid"
@@ -395,7 +396,11 @@
           </Grid>
         </muxc:NavigationView.Header>
         <muxc:NavigationView.PaneHeader>
-          <Border />
+          <Border Margin="8 0">
+            <TextBlock Text="{Binding NiconicoSession.ServiceStatus, Converter={StaticResource LocalizeConverter}}"
+                       x:Name="ServiceStateText" 
+                       />
+          </Border>
           <!--
           <StackPanel Visibility="Collapsed">
             <uwpToolkitControls:DockPanel Margin="0">
@@ -508,32 +513,51 @@
                                       Command="{Binding PageManager.OpenPageCommand}"
                                     CommandParameter="{x:Bind pageNavigation:HohoemaPageType.CacheManagement}"
                                     />
+                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenSettings"
+                                      Text="{Binding Source=HohoemaPageType.Settings, Converter={StaticResource LocalizeConverter}}"
+                                      Command="{Binding PageManager.OpenPageCommand}"
+                                    CommandParameter="{x:Bind pageNavigation:HohoemaPageType.Settings}"
+                                    />
 
-                                       
+
                     <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
                                       Visibility="Collapsed" Text="Open Debug Page"
                                       Command="{Binding OpenDebugPageCommand}" />
                     
                   </MenuFlyout>
                 </Button.Flyout>
-                <StackPanel>
-                  <TextBlock Text="{Binding NiconicoSession.ServiceStatus, Converter={StaticResource LocalizeConverter}}"
-                               x:Name="ServiceStateText" />
-                  <uwpToolkitControls:DockPanel Margin="0 0"
+                <Grid>
+
+                  <listItemControls:BooleanViewSwitcher IsSwitchView="{Binding NiconicoSession.IsLoggedIn}" >
+                    <listItemControls:BooleanViewSwitcher.DefaultViewTemplate>
+                      <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <SymbolIcon Symbol="Setting" Margin="3 0 0 0" Height="18" Width="18" />
+                          <TextBlock Text="{Binding Source=AccountAndSettings, Converter={StaticResource LocalizeConverter}}"
+                             />
+                        </StackPanel>
+                      </DataTemplate>
+                    </listItemControls:BooleanViewSwitcher.DefaultViewTemplate>
+                    <listItemControls:BooleanViewSwitcher.SwitchedViewTemplate>
+                      <DataTemplate>
+                        <uwpToolkitControls:DockPanel Margin="0 0"
                                                   x:Name="AccountInfoLayout"
-                                                  Visibility="Collapsed">
-                    <uwpToolkitControls:ImageEx Source="{Binding NiconicoSession.UserIconUrl,Mode=OneWay}"
+                                                      >
+                          <uwpToolkitControls:ImageEx Source="{Binding NiconicoSession.UserIconUrl,Mode=OneWay}"
                              uwpToolkitControls:DockPanel.Dock="Left"
                              Height="18"
                              Width="18"
-                             Margin="3 0 0 0"
+                             Margin="8 0 0 0"
                                  CornerRadius="60"
                                  />
-                    <StackPanel Margin="11 0 0 0">
-                      <TextBlock Text="{x:Bind _viewModel.NiconicoSession.UserName,Mode=OneWay}" />
-                    </StackPanel>
-                  </uwpToolkitControls:DockPanel>
-                </StackPanel>
+                          <StackPanel Margin="11 0 0 0">
+                            <TextBlock Text="{Binding NiconicoSession.UserName,Mode=OneWay}" VerticalAlignment="Center" />
+                          </StackPanel>
+                        </uwpToolkitControls:DockPanel>
+                      </DataTemplate>
+                    </listItemControls:BooleanViewSwitcher.SwitchedViewTemplate>
+                  </listItemControls:BooleanViewSwitcher>
+                </Grid>
               </Button>
             </Grid>
           </uwpToolkitControls:DockPanel>
@@ -959,6 +983,7 @@
             <windowsTriggers:EqualsStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.WithoutLoggedIn}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
             <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
@@ -968,7 +993,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
-            <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_OpenFollowManage.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_OpenMylistManage.Visibility" Value="Visible" />
