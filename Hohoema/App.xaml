@@ -22,7 +22,6 @@
 
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
         <ResourceDictionary Source="Styles/VideoProgressBarStyle.xaml"/>
         <ResourceDictionary Source="Styles/HohoemaListItemStyle.xaml"/>
         <ResourceDictionary Source="Styles/UWPUIControlsDefaultStyles.xaml"/>
@@ -33,6 +32,7 @@
 
         <muxc:XamlControlsResources  />
 
+        <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
       </ResourceDictionary.MergedDictionaries>
 
       

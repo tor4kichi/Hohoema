@@ -526,10 +526,10 @@
                              uwpToolkitControls:DockPanel.Dock="Left"
                              Height="18"
                              Width="18"
-                             Margin="2 0 12 0"
+                             Margin="3 0 0 0"
                                  CornerRadius="60"
                                  />
-                    <StackPanel>
+                    <StackPanel Margin="11 0 0 0">
                       <TextBlock Text="{x:Bind _viewModel.NiconicoSession.UserName,Mode=OneWay}" />
                     </StackPanel>
                   </uwpToolkitControls:DockPanel>
@@ -663,6 +663,20 @@
           <VisualState.Setters>
             <Setter Target="DebugUIPanel.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_OpenDebugPage.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Top}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="AccountInfoLayout.Width" Value="32" />
+            <Setter Target="AccountInfoLayout.Padding" Value="4 0 0 0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

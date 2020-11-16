@@ -24,8 +24,7 @@
     https://msdn.microsoft.com/ja-jp/library/windows/apps/mt299109.aspx
     -->
   <Style TargetType="Button">
-    <Setter Property="Height" Value="48" />
-    <Setter Property="MinHeight" Value="32" />
+    <Setter Property="MinHeight" Value="48" />
     <Setter Property="MinWidth" Value="48" />
     <Setter Property="Background" Value="{ThemeResource SystemControlBackgroundBaseLowBrush}" />
     <Setter Property="Foreground" Value="{ThemeResource SystemControlForegroundBaseHighBrush}" />
@@ -120,7 +119,7 @@
   </Style>
 
   <Style TargetType="ToggleButton" >
-    <Setter Property="MinHeight" Value="40" />
+    <Setter Property="MinHeight" Value="48" />
     <Setter Property="MinWidth" Value="48" />
     <Setter Property="BorderThickness" Value="0" />
   </Style>
