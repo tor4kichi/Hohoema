@@ -34,7 +34,7 @@
     <Border>
       <Grid Margin="0 0 0 0" MaxWidth="960">
         <toolkit:DockPanel Margin="0 24 0 0" x:Name="ContentLayout">
-          <toolkit:DockPanel Margin="0" toolkit:DockPanel.Dock="Top">
+          <toolkit:DockPanel Margin="0" toolkit:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}">
             <!-- ターゲット（Keyword, Tag etc） -->
             <Border Margin="0 0" toolkit:DockPanel.Dock="Top">
               <ListView x:Name="SearchTargetListView" ItemsSource="{Binding TargetListItems}" SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}" 

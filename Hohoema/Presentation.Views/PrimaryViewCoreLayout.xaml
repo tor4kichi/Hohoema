@@ -258,6 +258,7 @@
                           Background="{ThemeResource MenuBackgroundBrush}"
                            BackRequested="CoreNavigationView_BackRequested"
                            IsSettingsVisible="False"
+                           IsTitleBarAutoPaddingEnabled="True"
                       >
         <muxc:NavigationView.Header>
           <Grid x:Name="MenuBackgroundGrid"
@@ -274,11 +275,12 @@
           </Grid>
         </muxc:NavigationView.Header>
         <muxc:NavigationView.PaneHeader>
-          <Border Margin="8 0">
+          <Grid >
             <TextBlock Text="{Binding NiconicoSession.ServiceStatus, Converter={StaticResource LocalizeConverter}}"
                        x:Name="ServiceStateText" 
+                       Margin="8 0"
                        />
-          </Border>
+          </Grid>
           <!--
           <StackPanel Visibility="Collapsed">
             <uwpToolkitControls:DockPanel Margin="0">
@@ -476,7 +478,9 @@
             <!-- ページ毎のコンテンツ -->
             <Grid>
               <uwpToolkitControls:DockPanel>
-                <Frame x:Name="ContentFrame" VerticalContentAlignment="Stretch" DataContext="{x:Null}" Margin="0 0 0 0">
+                <Frame x:Name="ContentFrame" VerticalContentAlignment="Stretch" DataContext="{x:Null}" Margin="0 0 0 0"
+                       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                       >
                   <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
                     <templateSelector:HohoemaFlyoutTemplateSelector>
                       <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
@@ -580,6 +584,18 @@
           <VisualState.Setters>
             <Setter Target="AccountInfoLayout.Width" Value="32" />
             <Setter Target="AccountInfoLayout.Padding" Value="4 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      <!-- Win10タブレットの場合 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:UserInteractionModeTrigger InteractionMode="Touch" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CoreNavigationView.Margin" Value="0 32 0 0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

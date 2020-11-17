@@ -21,7 +21,7 @@
   <Grid>
     <ScrollViewer>
       <toolkit:DockPanel x:Name="ContentLayout" Margin="0 0 0 0">
-        <Border Height="80" toolkit:DockPanel.Dock="Top" />
+        <Border Height="32" toolkit:DockPanel.Dock="Top" />
         <!-- NG投稿者指定された動画の情報 -->
         <Border toolkit:DockPanel.Dock="Top" Visibility="{Binding IsSelfZoningContent, Converter={StaticResource BooleanToVisibility}}" Margin="0 16" Padding="16" BorderBrush="DarkRed" BorderThickness="2">
           <toolkit:WrapPanel Orientation="Horizontal">
@@ -323,7 +323,7 @@
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
             <Setter Target="ContentLayout.Margin" Value="{StaticResource ContentPageMargin_TV}" />
-            <Setter Target="HeaderCommandBar.Margin" Value="16 48 0 0" />
+            <Setter Target="HeaderCommandBar.Margin" Value="16 0 0 0" />
             <Setter Target="HeaderCommandBar.HorizontalAlignment" Value="Left" />
           </VisualState.Setters>
         </VisualState>
@@ -334,7 +334,7 @@
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
             <Setter Target="ContentLayout.Margin" Value="{StaticResource ContentPageMargin_Desktop}" />
-            <Setter Target="HeaderCommandBar.Margin" Value="0 48 0 0" />
+            <Setter Target="HeaderCommandBar.Margin" Value="0 0 0 0" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
