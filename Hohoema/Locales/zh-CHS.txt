@@ -720,6 +720,7 @@ DeleteLocalPlaylistTitle = 删除{0}
 
 
 #### Local Playlist ####
+LocalPlaylist = 本地我的清单
 LocalPlaylistDelete = 删除播放列表
 LocalPlaylistNoItems = 播放列表为空
 InAppNotification_LocalPlaylistAddedItems = 已将{1}个视频添加到{0}

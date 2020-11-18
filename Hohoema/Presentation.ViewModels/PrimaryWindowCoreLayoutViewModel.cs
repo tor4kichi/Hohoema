@@ -27,6 +27,7 @@ using Hohoema.Models.UseCase.NicoVideos.Player;
 using Prism.Navigation;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using System.Windows.Input;
+using Hohoema.Models.Domain.Playlist;
 
 namespace Hohoema.Presentation.ViewModels
 {  
@@ -48,6 +49,7 @@ namespace Hohoema.Presentation.ViewModels
         public RestoreNavigationManager RestoreNavigationManager { get; }
         public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
         private readonly UserMylistManager _userMylistManager;
+        private readonly LocalMylistManager _localMylistManager;
         private readonly DialogService _dialogService;
 
 
@@ -58,6 +60,8 @@ namespace Hohoema.Presentation.ViewModels
 
         private readonly WatchAfterMenuItemViewModel _watchAfterMenuItemViewModel;
         private readonly PinsMenuSubItemViewModel _pinsMenuSubItemViewModel;
+
+        public LocalMylistSubMenuItemViewModel _localMylistMenuSubItemViewModel { get; }
 
         public PrimaryWindowCoreLayoutViewModel(
             IEventAggregator eventAggregator,
@@ -76,7 +80,8 @@ namespace Hohoema.Presentation.ViewModels
             RestoreNavigationManager restoreNavigationManager,
             VideoItemsSelectionContext videoItemsSelectionContext,
             WatchAfterMenuItemViewModel watchAfterMenuItemViewModel,
-            UserMylistManager userMylistManager
+            UserMylistManager userMylistManager,
+            LocalMylistManager localMylistManager
             )
         {
             EventAggregator = eventAggregator;
@@ -125,7 +130,9 @@ namespace Hohoema.Presentation.ViewModels
 
             _watchAfterMenuItemViewModel = watchAfterMenuItemViewModel;
             _userMylistManager = userMylistManager;
+            _localMylistManager = localMylistManager;
             _pinsMenuSubItemViewModel = new PinsMenuSubItemViewModel("Pin".Translate(), PinSettings, _dialogService);
+            _localMylistMenuSubItemViewModel = new LocalMylistSubMenuItemViewModel(_localMylistManager);
 
             // メニュー項目の初期化
             MenuItems_LoggedIn = new ObservableCollection<HohoemaListingPageItemBase>()
@@ -137,6 +144,7 @@ namespace Hohoema.Presentation.ViewModels
                 new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo),
                 new MenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory),
                 new MylistSubMenuMenu(_userMylistManager),
+                _localMylistMenuSubItemViewModel,
             };
 
             MenuItems_Offline = new ObservableCollection<HohoemaListingPageItemBase>()
@@ -145,6 +153,7 @@ namespace Hohoema.Presentation.ViewModels
                 _watchAfterMenuItemViewModel,
                 new SeparatorMenuItemViewModel(),
                 new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
+                _localMylistMenuSubItemViewModel,
             };
         }
 
@@ -444,6 +453,46 @@ namespace Hohoema.Presentation.ViewModels
         }
     }
 
+    public class LocalMylistSubMenuItemViewModel : MenuSubItemViewModelBase
+    {
+        private readonly LocalMylistManager _localMylistManager;
+
+        public LocalMylistSubMenuItemViewModel(LocalMylistManager localMylistManager)
+        {
+            Label = "LocalPlaylist".Translate();
+
+            _localMylistManager = localMylistManager;
+
+            _localMylistManager.LocalPlaylists.CollectionChangedAsObservable()
+                .Subscribe(e => 
+                {
+                    if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+                    {
+                        var items = e.OldItems.Cast<LocalPlaylist>();
+                        foreach (var removedItem in items)
+                        {
+                            var removeMenuItem = Items.FirstOrDefault(x => (x as LocalMylistItemViewModel).LocalPlaylist.Id == removedItem.Id);
+                            if (removeMenuItem != null)
+                            {
+                                Items.Remove(removeMenuItem);
+                            }
+                        }
+                    }
+                    else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+                    {
+                        var items = e.NewItems.Cast<LocalPlaylist>();
+                        foreach (var item in items)
+                        {
+                            Items.Add(new LocalMylistItemViewModel(item));
+                        }
+                    }
+                });
+
+            Items = new ObservableCollection<MenuItemViewModel>(_localMylistManager.LocalPlaylists.Select(x => new LocalMylistItemViewModel(x)));
+        }
+    }
+
+
     public class MylistMenuItemViewModel : MenuItemViewModel
     {
         public MylistMenuItemViewModel(LoginUserMylistPlaylist mylist) 
@@ -455,4 +504,15 @@ namespace Hohoema.Presentation.ViewModels
         public LoginUserMylistPlaylist Mylist { get; }
     }
 
+
+    public class LocalMylistItemViewModel : MenuItemViewModel
+    {
+        public LocalMylistItemViewModel(LocalPlaylist localPlaylist)
+            : base(localPlaylist.Label, HohoemaPageType.LocalPlaylist, new NavigationParameters(("id", localPlaylist.Id)))
+        {
+            LocalPlaylist = localPlaylist;
+        }
+
+        public LocalPlaylist LocalPlaylist { get; }
+    }
 }

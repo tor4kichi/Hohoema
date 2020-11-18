@@ -126,6 +126,14 @@
         </muxc:NavigationViewItem>
       </DataTemplate>
 
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.LocalMylistSubMenuItemViewModel, Converter={StaticResource StringToType}}" >
+        <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
+                                 Icon="List"
+                                 >
+          <TextBlock Text="{Binding Label}" />
+        </muxc:NavigationViewItem>
+      </DataTemplate>
+
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PinsMenuSubItemViewModel, Converter={StaticResource StringToType}}" >
         <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
                                  Icon="Pin"
@@ -242,6 +250,8 @@
       <Setter Property="Height" Value="48" />
       <Setter Property="CornerRadius" Value="999" />
     </Style>
+
+    
   </UserControl.Resources>
   <Grid x:Name="RootLayout" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <!-- Player -->
@@ -259,6 +269,8 @@
                            BackRequested="CoreNavigationView_BackRequested"
                            IsSettingsVisible="False"
                            IsTitleBarAutoPaddingEnabled="True"
+                           SelectionFollowsFocus="Disabled"
+                           Padding="48 27 0 27"
                       >
         <muxc:NavigationView.Header>
           <Grid x:Name="MenuBackgroundGrid"
@@ -445,8 +457,11 @@
         </muxc:NavigationView.PaneFooter>
 
         <muxc:NavigationView.AutoSuggestBox>
-          <AutoSuggestBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" 
-                          TabIndex="103" Margin="0" IsFocusEngagementEnabled="True" 
+          <AutoSuggestBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                          PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" 
+                          TabIndex="103" Margin="0" 
+                          UseSystemFocusVisuals="True"
+                          IsFocusEngagementEnabled="True" 
                               ItemsSource="{Binding SearchAutoSuggestItems}"
                               QuerySubmitted="SearchTextBox_QuerySubmitted"
                               TextChanged="SearchTextBox_TextChanged"
@@ -454,7 +469,6 @@
                               GotFocus="SearchTextBox_GotFocus"
                           AutoMaximizeSuggestionArea="True"
                           MinWidth="120"
-                          
                               >
             <i:Interaction.Behaviors>
               <core:EventTriggerBehavior EventName="GotFocus">
@@ -472,7 +486,7 @@
             </AutoSuggestBox.ItemTemplate>
           </AutoSuggestBox>
         </muxc:NavigationView.AutoSuggestBox>
-
+        
         <muxc:NavigationView.Content>
           <Grid x:Name="SplitViewContentLayout">
             <!-- ページ毎のコンテンツ -->
@@ -596,6 +610,16 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CoreNavigationView.Margin" Value="0 32 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger EqualTo="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" Value="{x:Bind models:ApplicationLayout.TV}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CoreNavigationView.IsBackButtonVisible" Value="Collapsed" />
+            <Setter Target="CoreNavigationView.Margin" Value="27 48 0 48" />
+            <Setter Target="CoreNavigationView.Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

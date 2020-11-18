@@ -7,6 +7,7 @@ using Windows.UI.Xaml;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Infrastructure;
 using Microsoft.UI.Xaml.Controls;
+using Hohoema.Presentation.Services.Helpers;
 
 namespace Hohoema.Models.Domain.Application
 {
@@ -25,7 +26,7 @@ namespace Hohoema.Models.Domain.Application
                 _ => throw new NotSupportedException()
             };
 
-            _menuPaneDisplayMode = Read(Internal_PaneDisplayMode.Auto, nameof(MenuPaneDisplayMode)) switch
+            _menuPaneDisplayMode = Read(DeviceTypeHelper.IsXbox ? Internal_PaneDisplayMode.LeftMinimal : Internal_PaneDisplayMode.Auto, nameof(MenuPaneDisplayMode)) switch
             {
                 Internal_PaneDisplayMode.Auto => NavigationViewPaneDisplayMode.Auto,
                 Internal_PaneDisplayMode.Left => NavigationViewPaneDisplayMode.Auto,

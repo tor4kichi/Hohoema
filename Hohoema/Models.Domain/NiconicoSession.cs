@@ -182,7 +182,7 @@ namespace Hohoema.Models.Domain
         private NiconicoLiveToolkit.NiconicoContext _LiveContext;
         public NiconicoLiveToolkit.NiconicoContext LiveContext
         {
-            get { return _LiveContext ??= new NiconicoLiveToolkit.NiconicoContext(_Context.HttpClient); }
+            get => _LiveContext ??= new NiconicoLiveToolkit.NiconicoContext(Context.HttpClient);
             private set { SetProperty(ref _LiveContext, value); }
         }
 

@@ -21,7 +21,7 @@
 
   <Grid>
 
-    <videolistPage:VideoItemsListView ItemsSource="{Binding PlaylistItems}"
+    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
                                       ItemCommand="{Binding PlayWithCurrentPlaylistCommand}"
                                       RefreshCommand="{Binding RefreshCommand}"
                                       PlaylistPassToFlyout="{Binding Playlist}"
