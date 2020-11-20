@@ -145,6 +145,7 @@ namespace Hohoema.Presentation.ViewModels
                 new MenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory),
                 new MylistSubMenuMenu(_userMylistManager),
                 _localMylistMenuSubItemViewModel,
+                new MenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift),
             };
 
             MenuItems_Offline = new ObservableCollection<HohoemaListingPageItemBase>()
