@@ -43,6 +43,10 @@ namespace Hohoema.Presentation.ViewModels
         protected CompositeDisposable _CompositeDisposable { get; private set; }
         protected CompositeDisposable _NavigatingCompositeDisposable { get; private set; }
 
+        private CancellationTokenSource _navigationCancellationTokenSource;
+
+        protected CancellationToken NavigationCancellationToken => _navigationCancellationTokenSource?.Token ?? default;
+
         public virtual void Destroy()
         {
             _CompositeDisposable?.Dispose();
@@ -52,6 +56,8 @@ namespace Hohoema.Presentation.ViewModels
         public virtual void OnNavigatingTo(INavigationParameters parameters) 
         {
             Views.PrimaryWindowCoreLayout.SetCurrentNavigationParameters(parameters);
+            _navigationCancellationTokenSource = new CancellationTokenSource()
+                .AddTo(_NavigatingCompositeDisposable);
         }
 
         public virtual void OnNavigatedTo(INavigationParameters parameters)
@@ -60,6 +66,7 @@ namespace Hohoema.Presentation.ViewModels
 
         public virtual void OnNavigatedFrom(INavigationParameters parameters)
         {
+            _navigationCancellationTokenSource?.Cancel();
             _NavigatingCompositeDisposable.Dispose();
             _NavigatingCompositeDisposable = new CompositeDisposable();
         }

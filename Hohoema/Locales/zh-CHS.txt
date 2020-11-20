@@ -109,12 +109,20 @@ LogInUserInfo = 登录用户信息
 LogOut = 登出
 LogIn = 已登陆
 
+AccountAndSettings = 帐户和设置
+
 Pin = 固定
 PinCurrentPage = 固定当前页
 PinChangeArias = 别名针
 PinRemove = 取消固定
 PinHowToAddition = 打开您喜欢的页面，然后使用“ +”按钮将其固定
 PinRenameDialogPlacefolder_EmptyToDefault = 示例）音乐排名（保留空白以返回默认名称）
+Pin_Move = 移动销钉位置
+Pin_MovePreview = 上移一个
+Pin_MoveNext = 下移一个
+Pin_MoveToHead = 移至开头
+Pin_MoveToTail = 移到最后
+
 
 
 #### Video Cache feature ####
@@ -184,6 +192,12 @@ Notification_SuccessAddToWatchLaterWithAddedCount = 已将新视频{0}添加到�
 
 
 #### Settings ####
+MenuPaneDisplayMode = 如何显示菜单
+NavigationViewPaneDisplayMode.Auto = 自动
+NavigationViewPaneDisplayMode.Left = 始终显示在左侧
+NavigationViewPaneDisplayMode.Top = 始终显示在顶部
+NavigationViewPaneDisplayMode.LeftCompact = 左侧紧凑型显示屏
+NavigationViewPaneDisplayMode.LeftMinimal = 左侧最小显示
 AppearanceSettings = 显示设定
 ApplicationDisplayMode = 显示方式
 ApplicationDisplayMode.TV = 电视台
@@ -706,6 +720,7 @@ DeleteLocalPlaylistTitle = 删除{0}
 
 
 #### Local Playlist ####
+LocalPlaylist = 本地我的清单
 LocalPlaylistDelete = 删除播放列表
 LocalPlaylistNoItems = 播放列表为空
 InAppNotification_LocalPlaylistAddedItems = 已将{1}个视频添加到{0}

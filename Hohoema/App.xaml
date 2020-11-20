@@ -15,13 +15,13 @@
     xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
     xmlns:system="using:System"
     xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts" 
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
   xmlns:locales="using:Hohoema.Locales" xmlns:appModels="using:Hohoema.Models.Domain.Application">
 
   <prism:PrismApplication.Resources>
 
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
         <ResourceDictionary Source="Styles/VideoProgressBarStyle.xaml"/>
         <ResourceDictionary Source="Styles/HohoemaListItemStyle.xaml"/>
         <ResourceDictionary Source="Styles/UWPUIControlsDefaultStyles.xaml"/>
@@ -29,7 +29,13 @@
         <ResourceDictionary Source="Styles/SettingsControlStyles.xaml"/>
 
         <ResourceDictionary Source="Presentation.Views/Controls/TransientContainer/TransientContainer.xaml"/>
+
+        <muxc:XamlControlsResources  />
+
+        <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
       </ResourceDictionary.MergedDictionaries>
+
+      
 
       <appModels:FeatureFlags x:Key="FeatureFlags" />
 
@@ -47,7 +53,7 @@
       <x:Double x:Key="WidthBreakPoint_MiddleToNallow">520</x:Double>
       <x:Double x:Key="WidthBreakPoint_NallowToVeryNallow">300</x:Double>
       <!-- 27 (safe area) + 48 (Page title) = 75 -->
-      <Thickness x:Key="ContentListViewHeaderMargin_TV">16 27 48 0</Thickness>
+      <Thickness x:Key="ContentListViewHeaderMargin_TV">16 0 48 0</Thickness>
       <Thickness x:Key="ContentListViewBodyMargin_TV">16 0 48 27</Thickness>
       <Thickness x:Key="ContentPageMargin_TV">16 27 48 27</Thickness>
       <!-- 32 (TitleBar) + 48 (Page title) = 80 -->

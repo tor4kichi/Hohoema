@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Infrastructure;
+using Microsoft.UI.Xaml.Controls;
+using Hohoema.Presentation.Services.Helpers;
 
 namespace Hohoema.Models.Domain.Application
 {
@@ -21,6 +23,16 @@ namespace Hohoema.Models.Domain.Application
                 Internal_ElementTheme.Default => ElementTheme.Default,
                 Internal_ElementTheme.Light => ElementTheme.Light,
                 Internal_ElementTheme.Dark => ElementTheme.Dark,
+                _ => throw new NotSupportedException()
+            };
+
+            _menuPaneDisplayMode = Read(DeviceTypeHelper.IsXbox ? Internal_PaneDisplayMode.LeftMinimal : Internal_PaneDisplayMode.Auto, nameof(MenuPaneDisplayMode)) switch
+            {
+                Internal_PaneDisplayMode.Auto => NavigationViewPaneDisplayMode.Auto,
+                Internal_PaneDisplayMode.Left => NavigationViewPaneDisplayMode.Auto,
+                Internal_PaneDisplayMode.Top => NavigationViewPaneDisplayMode.Top,
+                Internal_PaneDisplayMode.LeftCompact => NavigationViewPaneDisplayMode.LeftCompact,
+                Internal_PaneDisplayMode.LeftMinimal => NavigationViewPaneDisplayMode.LeftMinimal,
                 _ => throw new NotSupportedException()
             };
         }
@@ -77,6 +89,57 @@ namespace Hohoema.Models.Domain.Application
             Light,
             Dark,
         }
+
+
+
+        private NavigationViewPaneDisplayMode _menuPaneDisplayMode;
+        public NavigationViewPaneDisplayMode MenuPaneDisplayMode
+        {
+            get { return _menuPaneDisplayMode; }
+            set
+            {
+                if (_menuPaneDisplayMode != value)
+                {
+                    var internal_theme = value switch
+                    {
+                        NavigationViewPaneDisplayMode.Auto => Internal_PaneDisplayMode.Auto,
+                        NavigationViewPaneDisplayMode.Left => Internal_PaneDisplayMode.Left,
+                        NavigationViewPaneDisplayMode.Top => Internal_PaneDisplayMode.Top,
+                        NavigationViewPaneDisplayMode.LeftCompact => Internal_PaneDisplayMode.LeftCompact,
+                        NavigationViewPaneDisplayMode.LeftMinimal => Internal_PaneDisplayMode.LeftMinimal,
+                        _ => throw new NotSupportedException()
+                    };
+                    Save(internal_theme);
+
+                    _menuPaneDisplayMode = value;
+                    RaisePropertyChanged();
+                }
+            }
+        }
+
+        enum Internal_PaneDisplayMode
+        {
+            Auto = 0,
+            //
+            // 概要:
+            //     The pane is shown on the left side of the control in its fully open state.
+            Left = 1,
+            //
+            // 概要:
+            //     The pane is shown at the top of the control.
+            Top = 2,
+            //
+            // 概要:
+            //     The pane is shown on the left side of the control. Only the pane icons are shown
+            //     by default.
+            LeftCompact = 3,
+            //
+            // 概要:
+            //     The pane is shown on the left side of the control. Only the pane menu button
+            //     is shown by default.
+            LeftMinimal = 4
+        }
     }
 
+    
 }

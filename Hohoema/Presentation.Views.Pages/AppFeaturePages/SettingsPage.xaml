@@ -139,6 +139,19 @@
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
+              <Grid x:Name="MenuPaneDisplayModeLayout">
+                <TextBlock Text="{Binding Source=MenuPaneDisplayMode, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ComboBox ItemsSource="{Binding PaneDisplayModeItems}" 
+                          SelectedItem="{Binding AppearanceSettings.MenuPaneDisplayMode, Mode=TwoWay}"  
+                          HorizontalAlignment="Right" 
+                          >
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </Grid>
               <Grid x:Name="DisplayLanguageLayout" Visibility="Collapsed">
                 <TextBlock Text="{Binding Source=DisplayLanguage, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=AvairableLocales}" HorizontalAlignment="Right" SelectedItem="{Binding AppearanceSettings.Locale, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">

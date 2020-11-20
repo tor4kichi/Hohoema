@@ -18,10 +18,13 @@ using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Uno.Disposables;
 using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using System.Threading;
+using System.Runtime.CompilerServices;
+using Hohoema.Models.Domain.Helpers;
 
 namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 {
-    public sealed class LocalPlaylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public sealed class LocalPlaylistPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -70,22 +73,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
         public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 
-        private IReadOnlyCollection<VideoInfoControlViewModel> _PlaylistItems;
-        public IReadOnlyCollection<VideoInfoControlViewModel> PlaylistItems
-        {
-            get { return _PlaylistItems; }
-            set { SetProperty(ref _PlaylistItems, value); }
-        }
-
-
-        private IPlaylist _Playlist;
-        public IPlaylist Playlist
+        private LocalPlaylist _Playlist;
+        public LocalPlaylist Playlist
         {
             get { return _Playlist; }
             set { SetProperty(ref _Playlist, value); }
         }
 
-        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             string id = null;
 
@@ -103,17 +98,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
             if (playlist is MylistPlaylist) { return; }
             if (playlist == null) { return; }
 
-            Playlist = playlist;
+            Playlist = playlist as LocalPlaylist;
 
             RefreshItems();
+
+            await base.OnNavigatedToAsync(parameters);
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
-            PlaylistItems.DisposeAll();
-            PlaylistItems = null;
-
             base.OnNavigatedFrom(parameters);
+        }
+
+
+        protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
+        {
+            return new LocalPlaylistIncrementalLoadingSource(Playlist);
         }
 
 
@@ -121,9 +121,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
         {
             if (Playlist is LocalPlaylist localPlaylist)
             {
-                var localPlaylistItems = new ObservableCollection<VideoInfoControlViewModel>(localPlaylist.GetPlaylistItems().Select(x => new VideoInfoControlViewModel(x)).ToList());
-                PlaylistItems = localPlaylistItems;
-
                 Observable.FromEventPattern<LocalPlaylistItemRemovedEventArgs>(
                     h => localPlaylist.ItemRemoved += h,
                     h => localPlaylist.ItemRemoved -= h
@@ -133,10 +130,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
                         var args = e.EventArgs;
                         foreach (var itemId in args.RemovedItems)
                         {
-                            var removedItem = PlaylistItems.FirstOrDefault(x => x.Id == itemId);
+                            var removedItem = ItemsView.Cast<VideoInfoControlViewModel>().FirstOrDefault(x => x.Id == itemId);
                             if (removedItem != null)
                             {
-                                localPlaylistItems.Remove(removedItem);
+                                ItemsView.Remove(removedItem);
                             }
                         }
                     })
@@ -168,5 +165,34 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
                     ));
             }
         }
+    }
+
+    public class LocalPlaylistIncrementalLoadingSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
+    {
+        private readonly LocalPlaylist _playlist;
+
+        public List<NicoVideo> _Items { get; private set; }
+
+        public LocalPlaylistIncrementalLoadingSource(LocalPlaylist playlist)
+        {
+            _playlist = playlist;
+        }
+
+        protected override Task<int> ResetSourceImpl()
+        {
+            _Items = _playlist.GetPlaylistItems();
+            return Task.FromResult(_Items.Count);
+        }
+
+        protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct)
+        {
+            foreach (var item in _Items.Skip(head).Take(count))
+            {
+                var vm = new VideoInfoControlViewModel(item);
+                await vm.InitializeAsync(ct);
+                yield return vm;
+            }
+        }
+
     }
 }

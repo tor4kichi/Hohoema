@@ -68,7 +68,7 @@ namespace Hohoema.Models.Domain.Playlist
 
 
 
-        public IEnumerable<NicoVideo> GetPlaylistItems()
+        public List<NicoVideo> GetPlaylistItems()
         {
             var items = _playlistRepository.GetItems(Id);
             return _nicoVideoRepository.Get(items.Select(x => x.ContentId));

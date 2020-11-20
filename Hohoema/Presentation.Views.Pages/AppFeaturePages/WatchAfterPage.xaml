@@ -41,21 +41,17 @@
                               Margin="16 0 0 0"></StackPanel>
                 </CommandBar.Content>
                 <CommandBar.PrimaryCommands>
-                  <AppBarButton x:Name="RemoveWatchedItemsButton"
-                                Label="{Binding Source=RemoveWatchedItems, Converter={StaticResource LocalizeConverter}}"
-                                Command="{Binding RemoveWatchedItemsInAfterWatchPlaylistCommand}"
-                                Icon="Delete"
-                                />
-                  <AppBarSeparator />
-                  <!-- 非選択中 -->
-                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
-                  
+
                   <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                                 Command="{Binding PlaylistPlayAllCommand}"
                                 CommandParameter="{Binding Playlist}"></AppBarButton>
 
+                  
+                  <!-- 非選択中 -->
+                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
+                  
                   <AppBarButton x:Name="ScrollToTopButton"
                                 Icon="Up"
                                 Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
@@ -67,6 +63,14 @@
                     </i:Interaction.Behaviors>
                   </AppBarButton>
                 </CommandBar.PrimaryCommands>
+                <CommandBar.SecondaryCommands>
+                  <AppBarButton x:Name="RemoveWatchedItemsButton"
+                                Label="{Binding Source=RemoveWatchedItems, Converter={StaticResource LocalizeConverter}}"
+                                Command="{Binding RemoveWatchedItemsInAfterWatchPlaylistCommand}"
+                                Icon="Delete"
+                                />
+                  <AppBarSeparator />
+                </CommandBar.SecondaryCommands>
               </CommandBar>
             </StackPanel>
           </controls:ScrollHeader>

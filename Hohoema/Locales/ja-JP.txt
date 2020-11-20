@@ -109,12 +109,20 @@ LogInUserInfo = ログインユーザー情報
 LogOut = ログアウト
 LogIn = ログイン
 
+AccountAndSettings = アカウントと設定
+
 Pin = ピン留め
 PinCurrentPage = 現在のページをピン留めする
 PinChangeArias = ピンに別名を付ける
 PinRemove = ピン留めを解除
 PinHowToAddition = 好きなページを開いて「＋ボタン」でピン留め
 PinRenameDialogPlacefolder_EmptyToDefault = 例）音楽のランキング （空欄にすることでデフォルト名に戻せます）
+Pin_Move = ピンの位置を移動
+Pin_MovePreview = 一つ上へ移動
+Pin_MoveNext = 一つ下へ移動
+Pin_MoveToHead = 先頭へ移動
+Pin_MoveToTail = 最後尾へ移動
+
 
 
 #### Video Cache feature ####
@@ -184,6 +192,12 @@ Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を あ�
 
 
 #### Settings ####
+MenuPaneDisplayMode = メニューの表示方法
+NavigationViewPaneDisplayMode.Auto = 自動
+NavigationViewPaneDisplayMode.Left = 左に常に表示
+NavigationViewPaneDisplayMode.Top = 上部に常に表示
+NavigationViewPaneDisplayMode.LeftCompact = 左にコンパクト表示
+NavigationViewPaneDisplayMode.LeftMinimal = 左に最小表示
 AppearanceSettings = 表示設定
 ApplicationDisplayMode = 表示モード
 ApplicationDisplayMode.TV = テレビ
@@ -706,6 +720,7 @@ DeleteLocalPlaylistTitle = {0} を削除します
 
 
 #### Local Playlist ####
+LocalPlaylist = ローカルマイリスト
 LocalPlaylistDelete = プレイリストを削除
 LocalPlaylistNoItems = プレイリストは空です
 InAppNotification_LocalPlaylistAddedItems = {0} に {1} 個の動画を追加しました
