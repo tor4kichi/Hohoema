@@ -16,7 +16,7 @@
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:actions="using:Hohoema.Presentation.Views.Actions"
-      xmlns:windowsStateTriggers="using:WindowsStateTriggers" xmlns:livePages="using:Hohoema.Presentation.Views.Pages.LivePages"
+      xmlns:windowsStateTriggers="using:WindowsStateTriggers" xmlns:livePages="using:Hohoema.Presentation.Views.Pages.LivePages" xmlns:myTrigger="using:Hohoema.Presentation.Views.StateTrigger"
   DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
@@ -137,7 +137,26 @@
         </Style>
       </ListView.ItemContainerStyle>
     </ListView>
+    
+    
+    <Grid x:Name="EmptyItemsLayout" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <TextBlock Text="{Binding Source=LiveSearchNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
+    </Grid>
+    
     <VisualStateManager.VisualStateGroups>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding HasItem.Value, Converter={StaticResource BoolNegation}}"/>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="EmptyItemsLayout.Opacity" Value="1.0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      
       <!-- レイアウトモード -->
       <!--
       <VisualStateGroup>

@@ -81,10 +81,10 @@
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>
     </videolistPage:VideoItemsListView>
-    <Grid x:Name="VideosPrivateNoticeLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Grid x:Name="VideosPrivateNoticeLayout" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center">
       <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" TextWrapping="Wrap" Text="{Binding Source=UserVideosIsPrivate, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"></TextBlock>
     </Grid>
-    <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Grid x:Name="EmptyItemsLayout" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center">
       <TextBlock Text="{Binding Source=UserVideosNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
     </Grid>
     <VisualStateManager.VisualStateGroups>
@@ -152,15 +152,15 @@
           <VisualState.Setters></VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      
+      
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding NowLoading.Value}" />
+            <StateTrigger IsActive="{Binding HasItem.Value, Converter={StaticResource BoolNegation}}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="FeedRegstrationButton.Visibility" Value="Collapsed" />
-            <Setter Target="ScrollToTopButton.IsEnabled" Value="False" />
-            <Setter Target="RefreshButton.IsEnabled" Value="False" />
+            <Setter Target="EmptyItemsLayout.Opacity" Value="1.0" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -168,18 +168,11 @@
             <StateTrigger IsActive="{Binding IsOwnerVideoPrivate}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="VideosPrivateNoticeLayout.Visibility" Value="Visible" />
-            <Setter Target="FeedRegstrationButton.Visibility" Value="Collapsed" />
+            <Setter Target="VideosPrivateNoticeLayout.Opacity" Value="1.0" />
+            <Setter Target="FeedRegstrationButton.IsEnabled" Value="False" />
           </VisualState.Setters>
         </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ItemsView.Count}" EqualTo="0" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
+        
       </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
   </Grid>

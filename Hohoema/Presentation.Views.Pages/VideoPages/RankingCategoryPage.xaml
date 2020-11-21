@@ -187,18 +187,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding NowLoading.Value}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="ScrollToTopButton.IsEnabled" Value="False" />
-            <Setter Target="RefreshButton.IsEnabled" Value="False" />
-            <Setter Target="GenreTagSelector.IsEnabled" Value="False" />
-            <Setter Target="RankingTermSelector.IsEnabled" Value="False" />
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ItemsView.Count}" EqualTo="0" />
+            <StateTrigger IsActive="{Binding HasItem.Value, Converter={StaticResource BoolNegation}}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />

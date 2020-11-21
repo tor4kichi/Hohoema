@@ -623,8 +623,11 @@ SearchTarget.Mylist = マイリスト
 SearchTarget.Community = コミュニティ
 SearchTarget.Niconama = 生放送
 
-TagSearchNoItems = タグに一致するアイテムはありません
-KeywordSearchNoItems = キーワードに一致するアイテムはありません
+TagSearchNoItems = タグに一致する動画はありません
+KeywordSearchNoItems = キーワードに一致する動画はありません
+LiveSearchNoItems = キーワードに一致する生放送はありません
+MylistSearchNoItems = キーワードに一致するマイリストはありません
+CommunitySearchNoItems = キーワードに一致するコミュニティはありません
 
 SearchHistory = 検索履歴
 RemoveSearchHistory = 検索履歴から削除

@@ -623,8 +623,11 @@ SearchTarget.Mylist = Mylist
 SearchTarget.Community = 社区
 SearchTarget.Niconama = 直播
 
-TagSearchNoItems = 没有与标签匹配的项目
-KeywordSearchNoItems = 没有与您的关键字匹配的项目
+TagSearchNoItems = 没有与标签匹配的视频
+KeywordSearchNoItems = 没有与关键字匹配的视频
+LiveSearchNoItems = 没有与关键字匹配的直播
+MylistSearchNoItems = 没有与关键字匹配的“我的列表”
+CommunitySearchNoItems = 没有与关键字匹配的社区
 
 SearchHistory = 搜索记录
 RemoveSearchHistory = 从搜索记录中删除
