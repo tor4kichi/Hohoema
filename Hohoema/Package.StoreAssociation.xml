@@ -416,42 +416,42 @@
       <PackageInfo>
         <OsMinVersion>0.0.0.0</OsMinVersion>
         <PackageArchitecture>X86</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.22.2.0</PackageMaxArchitectureVersion>
+        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
       </PackageInfo>
       <PackageInfo>
         <OsMinVersion>0.0.0.0</OsMinVersion>
         <PackageArchitecture>X64</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.22.2.0</PackageMaxArchitectureVersion>
+        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
       </PackageInfo>
       <PackageInfo>
         <OsMinVersion>0.0.0.0</OsMinVersion>
         <PackageArchitecture>Arm</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.22.2.0</PackageMaxArchitectureVersion>
+        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
       </PackageInfo>
       <PackageInfo>
         <OsMinVersion>0.0.0.0</OsMinVersion>
         <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.22.2.0</PackageMaxArchitectureVersion>
+        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
       </PackageInfo>
       <PackageInfo>
         <OsMinVersion>0.0.0.0</OsMinVersion>
         <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.22.2.0</PackageMaxArchitectureVersion>
+        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
       </PackageInfo>
       <PackageInfo>
         <OsMinVersion>0.0.0.0</OsMinVersion>
         <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.22.2.0</PackageMaxArchitectureVersion>
+        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
       </PackageInfo>
       <PackageInfo>
         <OsMinVersion>0.0.0.0</OsMinVersion>
         <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.22.2.0</PackageMaxArchitectureVersion>
+        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
       </PackageInfo>
       <PackageInfo>
         <OsMinVersion>0.0.0.0</OsMinVersion>
         <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.22.2.0</PackageMaxArchitectureVersion>
+        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
       </PackageInfo>
     </BundleInfo>
   </PackageInfoList>
