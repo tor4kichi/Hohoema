@@ -515,7 +515,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 Data = data;
             }
 
-            if (Data?.Owner?.ScreenName == null)
+            if (Data?.Owner != null && Data?.Owner.ScreenName == null)
             {
                 try
                 {

@@ -192,7 +192,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
             video.MylistCount = (int)item.Video.Count.Mylist;
             video.CommentCount = (int)item.Video.Count.Comment;
 
-            video.Owner = new NicoVideoOwner()
+            video.Owner = item.Video.Owner.Id == null ? null : new NicoVideoOwner()
             {
                 OwnerId = item.Video.Owner.Id,
                 ScreenName = item.Video.Owner.Name,
@@ -203,7 +203,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
                     OwnerType.User => NicoVideoUserType.User,
                     _ => throw new NotSupportedException(),
                 },
-                IconUrl = item.Video.Owner.IconUrl.OriginalString,
+                IconUrl = item.Video.Owner.IconUrl?.OriginalString,
             };
 
             _nicoVideoRepository.AddOrUpdate(video);
