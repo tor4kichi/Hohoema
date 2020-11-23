@@ -85,7 +85,7 @@
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>
     </videolistPage:VideoItemsListView>
-    <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Grid x:Name="EmptyItemsLayout" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center">
       <TextBlock Text="{Binding Source=WatchHistoryNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
     </Grid>
     <VisualStateManager.VisualStateGroups>
@@ -157,10 +157,10 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding Histories.Count}" EqualTo="0" />
+            <StateTrigger IsActive="{Binding HasItem.Value, Converter={StaticResource BoolNegation}}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
+            <Setter Target="EmptyItemsLayout.Opacity" Value="1.0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

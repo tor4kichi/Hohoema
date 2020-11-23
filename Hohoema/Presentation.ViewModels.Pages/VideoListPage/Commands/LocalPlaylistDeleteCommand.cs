@@ -38,7 +38,7 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
             {
                 if (await _dialogService.ShowMessageDialog(
                     "DeleteLocalPlaylistDescription".Translate(localPlaylist.Label),
-                    "DeleteLocalPlaylistTitle".Translate(),
+                    "DeleteLocalPlaylistTitle".Translate(localPlaylist.Label),
                     "Delete".Translate(),
                     "Cancel".Translate()
                     ))

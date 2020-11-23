@@ -116,6 +116,7 @@ namespace Hohoema.Presentation.ViewModels
                 ItemsView = null;
                 RaisePropertyChanged(nameof(ItemsView));
 
+                NowLoading.Value = true;
                 HasItem.Value = true;
                 LoadedItemsCount.Value = 0;
 

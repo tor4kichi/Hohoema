@@ -76,6 +76,7 @@
     </templateSelector:TypeBasedTemplateSelector>
   </Page.Resources>
   <Grid>
+
     <ListView x:Name="ItemsList"
               ItemsSource="{Binding ItemsView, Mode=OneWay}"
               ItemTemplateSelector="{StaticResource NicoRepoItemTemplateSelector}"
@@ -123,10 +124,16 @@
                     </i:Interaction.Behaviors>
                   </AppBarButton>
                   <AppBarButton x:Name="RefreshButton" Icon="Refresh" Background="Transparent" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding RefreshCommand}" />
-                  <AppBarButton Icon="Setting">
-                    <AppBarButton.Flyout>
-                      <Flyout x:Name="TopicsEditFlyout" Closed="TopicsEditFlyout_Closed">
-                        <ListView ItemsSource="{Binding DisplayCandidateNicoRepoItemTopicList, Mode=OneTime}" SelectionMode="Multiple" IsMultiSelectCheckBoxEnabled="True" ext:ListViewExtensions.BindableSelection="{Binding DisplayNicoRepoItemTopics, Mode=TwoWay}">
+                </CommandBar.PrimaryCommands>
+
+                <CommandBar.Content>
+                  <DropDownButton Background="Transparent">
+                    <TextBlock>
+                      <Run Text="{Binding Source=NicoRepoDisplayOptions, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding NicoRepoType.Value, Converter={StaticResource LocalizeConverter}}" />
+                    </TextBlock>
+                    <DropDownButton.Flyout>
+                      <Flyout x:Name="TopicsEditFlyout" >
+                        <ListView ItemsSource="{Binding NicoRepoTypeList, Mode=OneTime}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="False" SelectedItem="{Binding NicoRepoType.Value, Mode=TwoWay}">
                           <ListView.ItemTemplate>
                             <DataTemplate>
                               <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
@@ -134,9 +141,10 @@
                           </ListView.ItemTemplate>
                         </ListView>
                       </Flyout>
-                    </AppBarButton.Flyout>
-                  </AppBarButton>
-                </CommandBar.PrimaryCommands>
+                    </DropDownButton.Flyout>
+                  </DropDownButton>
+                  
+                </CommandBar.Content>
               </CommandBar>
             </StackPanel>
           </controls:ScrollHeader>
@@ -156,6 +164,7 @@
                  VerticalAlignment="Center"
                  HorizontalAlignment="Center" />
     </Grid>
+
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
       <VisualStateGroup>

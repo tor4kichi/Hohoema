@@ -543,6 +543,21 @@ FollowInfoIsRequireLogIn = 您需要登录才能查看关注信息
 
 
 #### Nicorepo ####
+NicoRepoDisplayOptions = 显示条件
+NicoRepoType.All = 所有
+NicoRepoType.Video = 影片发布
+NicoRepoType.Program = 直播开始
+NicoRepoType.Image = 发布插图
+NicoRepoType.ComicStory = 漫画贴
+NicoRepoType.Article = 文章发布
+NicoRepoType.Game = 游戏
+NicoRepoDisplayTarget.All = 所有
+NicoRepoDisplayTarget.Self = 我
+NicoRepoDisplayTarget.User = 用户
+NicoRepoDisplayTarget.Channel = 渠道
+NicoRepoDisplayTarget.Community = 社区
+NicoRepoDisplayTarget.Mylist = 我的列表
+
 NicoRepoItemTopic.Unknown = 不明
 NicoRepoItemTopic.Live_Channel_Program_Onairs = 直播开始（频道）
 NicoRepoItemTopic.Live_Channel_Program_Reserve = 直播预定（频道）
@@ -623,8 +638,11 @@ SearchTarget.Mylist = Mylist
 SearchTarget.Community = 社区
 SearchTarget.Niconama = 直播
 
-TagSearchNoItems = 没有与标签匹配的项目
-KeywordSearchNoItems = 没有与您的关键字匹配的项目
+TagSearchNoItems = 没有与标签匹配的视频
+KeywordSearchNoItems = 没有与关键字匹配的视频
+LiveSearchNoItems = 没有与关键字匹配的直播
+MylistSearchNoItems = 没有与关键字匹配的“我的列表”
+CommunitySearchNoItems = 没有与关键字匹配的社区
 
 SearchHistory = 搜索记录
 RemoveSearchHistory = 从搜索记录中删除

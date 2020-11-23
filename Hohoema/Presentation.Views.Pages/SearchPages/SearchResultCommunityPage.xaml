@@ -78,7 +78,7 @@
                     <StackPanel Orientation="Horizontal">
                       <ComboBox ItemsSource="{Binding CommunitySearchSortOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" >
                       </ComboBox>
-                      <ComboBox ItemsSource="{Binding CommunitySearchModeOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}" Margin="0 16 0 0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                      <ComboBox ItemsSource="{Binding CommunitySearchModeOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
                       </ComboBox>
                     </StackPanel>
                   </toolkit:DockPanel>
@@ -102,6 +102,12 @@
       <TextBlock Text="コミュニティを検索するには「ログイン」が必要です" Margin="16 0 16 16" />
       <Button Content="ログイン" Command="{Binding NiconicoLoginService.LoginCommand}" />
     </StackPanel>
+
+    <Grid x:Name="EmptyItemsLayout" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <TextBlock Text="{Binding Source=CommunitySearchNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
+    </Grid>
+
+
     <VisualStateManager.VisualStateGroups>
       <!-- ログインしている場合に有効になるサービスを表示する -->
       <VisualStateGroup>
@@ -113,7 +119,16 @@
             <Setter Target="RequireLoginNoticePanel.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding HasItem.Value, Converter={StaticResource BoolNegation}}"/>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="EmptyItemsLayout.Opacity" Value="1.0" />
+          </VisualState.Setters>
+        </VisualState>
       </VisualStateGroup>
+      
       <!-- レイアウトモード -->
       <!--
       <VisualStateGroup>
