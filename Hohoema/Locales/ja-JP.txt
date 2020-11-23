@@ -543,6 +543,21 @@ FollowInfoIsRequireLogIn = フォロー情報を確認するにはログイン�
 
 
 #### Nicorepo ####
+NicoRepoDisplayOptions = 表示条件
+NicoRepoType.All = すべて
+NicoRepoType.Video = 動画投稿
+NicoRepoType.Program = 生放送開始
+NicoRepoType.Image = イラスト投稿
+NicoRepoType.ComicStory = マンガ投稿
+NicoRepoType.Article = 記事投稿
+NicoRepoType.Game = ゲーム
+NicoRepoDisplayTarget.All = すべて
+NicoRepoDisplayTarget.Self = 自分
+NicoRepoDisplayTarget.User = ユーザー
+NicoRepoDisplayTarget.Channel = チャンネル
+NicoRepoDisplayTarget.Community = コミュニティ
+NicoRepoDisplayTarget.Mylist = マイリスト
+
 NicoRepoItemTopic.Unknown = 不明
 NicoRepoItemTopic.Live_Channel_Program_Onairs = 生放送開始（チャンネル）
 NicoRepoItemTopic.Live_Channel_Program_Reserve = 生放送の予約（チャンネル）

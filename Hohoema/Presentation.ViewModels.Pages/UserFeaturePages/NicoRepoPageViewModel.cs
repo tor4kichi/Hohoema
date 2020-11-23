@@ -14,10 +14,13 @@ using Mntone.Nico2.Live;
 using Mntone.Nico2.NicoRepo;
 using Prism.Commands;
 using Prism.Navigation;
+using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -49,30 +52,37 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
             LoginUserNicoRepoProvider = loginUserNicoRepoProvider;
             SubscriptionManager = subscriptionManager;
             _openLiveContentCommand = openLiveContentCommand;
-            DisplayNicoRepoItemTopics = new ObservableCollection<NicoRepoItemTopic>(ActivityFeedSettings.DisplayNicoRepoItemTopics);
+            
+            NicoRepoType = new ReactiveProperty<NicoRepoType>(Mntone.Nico2.NicoRepo.NicoRepoType.Video);
+            NicoRepoDisplayTarget = new ReactiveProperty<NicoRepoDisplayTarget>();
 
-            DisplayNicoRepoItemTopics.CollectionChangedAsObservable()
-                .Subscribe(_ =>
-                {
-                    _NicoRepoItemTopicsChanged = true;
-                })
-                .AddTo(_CompositeDisposable);
+            new[]
+            {
+                NicoRepoType.ToUnit(),
+                NicoRepoDisplayTarget.ToUnit()
+            }
+            .Merge()
+            .Subscribe(_ => 
+            {
+                var __ = ResetList();
+            })
+            .AddTo(_CompositeDisposable);
         }
 
         bool _NicoRepoItemTopicsChanged;
 
-        public static IList<NicoRepoItemTopic> DisplayCandidateNicoRepoItemTopicList { get; } = new List<NicoRepoItemTopic>()
+        public ImmutableArray<NicoRepoType> NicoRepoTypeList { get; } = new[]
         {
-            NicoRepoItemTopic.NicoVideo_User_Video_Upload,
-            NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video,
-            NicoRepoItemTopic.NicoVideo_Channel_Video_Upload,
-            NicoRepoItemTopic.Live_Channel_Program_Onairs,
-            NicoRepoItemTopic.Live_Channel_Program_Reserve,
-            NicoRepoItemTopic.Live_User_Program_OnAirs,
-            NicoRepoItemTopic.Live_User_Program_Reserve,
-        };
+            Mntone.Nico2.NicoRepo.NicoRepoType.All,
+            Mntone.Nico2.NicoRepo.NicoRepoType.Video,
+            Mntone.Nico2.NicoRepo.NicoRepoType.Program,
+        }
+        .ToImmutableArray();
 
-        public ObservableCollection<NicoRepoItemTopic> DisplayNicoRepoItemTopics { get; }
+
+        public ReactiveProperty<NicoRepoType> NicoRepoType { get; }
+        public ReactiveProperty<NicoRepoDisplayTarget> NicoRepoDisplayTarget { get; }
+
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoRepoSettings ActivityFeedSettings { get; }
@@ -84,18 +94,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
             // ニレコポ表示設定をニコレポの設定に書き戻し
-            var saveTopics = DisplayNicoRepoItemTopics.Distinct().ToList();
-            if (saveTopics.Count == 0)
-            {
-                saveTopics.Add(NicoRepoItemTopic.NicoVideo_User_Video_Upload);
-            }
-            ActivityFeedSettings.DisplayNicoRepoItemTopics = DisplayNicoRepoItemTopics.Distinct().ToList();
+//            ActivityFeedSettings.DisplayNicoRepoItemTopics = DisplayNicoRepoItemTopics.Distinct().ToList();
 
             base.OnNavigatedFrom(parameters);
         }
 
         protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
         {
+            /*
             if (!ActivityFeedSettings.DisplayNicoRepoItemTopics.All(x => DisplayNicoRepoItemTopics.Any(y => x == y)))
             {
                 DisplayNicoRepoItemTopics.Clear();
@@ -104,17 +110,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
                 _NicoRepoItemTopicsChanged = false;
                 return true;
             }
+            */
             
             return base.CheckNeedUpdateOnNavigateTo(mode);
         }
 
         protected override IIncrementalSource<INicoRepoItem> GenerateIncrementalSource()
         {
-            if (DisplayNicoRepoItemTopics.Count == 0)
-            {
-                DisplayNicoRepoItemTopics.Add(NicoRepoItemTopic.NicoVideo_User_Video_Upload);
-            }
-            return new LoginUserNicoRepoTimelineSource(LoginUserNicoRepoProvider, SubscriptionManager, DisplayNicoRepoItemTopics);
+            return new LoginUserNicoRepoTimelineSource(LoginUserNicoRepoProvider, SubscriptionManager, NicoRepoType.Value, NicoRepoDisplayTarget.Value);
         }
 
 
@@ -138,66 +141,38 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
                     }
                 }
             }));
-
-
-        public void OnResetNicoRepoItemTopicsEditCompleted()
-        {
-            if (_NicoRepoItemTopicsChanged)
-            {
-                _ = ResetList();
-
-                _NicoRepoItemTopicsChanged = false;
-            }
-        }
-
     }
 
 
     public class NicoRepoLiveTimeline : LiveInfoListItemViewModel, ILiveContent, INicoRepoItem
     {
-        public NicoRepoLiveTimeline(NicoRepoTimelineItem timelineItem, NicoRepoItemTopic itemTopic) 
-            : base(timelineItem.Program.Id)
+        private readonly NicoRepoEntry _nicoRepoEntry;
+
+        public NicoRepoLiveTimeline(NicoRepoEntry nicoRepoEntry, NicoRepoItemTopic itemTopic) 
+            : base(nicoRepoEntry.GetContentId())
         {
-            TimelineItem = timelineItem;
+            _nicoRepoEntry = nicoRepoEntry;
             ItemTopic = itemTopic;
-            if (TimelineItem.Program != null)
-            {
-                this.Label = TimelineItem.Program.Title;
-                AddImageUrl(TimelineItem.Program.ThumbnailUrl);
-                this.OptionText = "LiveStreamingStartAtWithDateTime".Translate(TimelineItem.Program.BeginAt.ToString());
-                CommunityThumbnail = TimelineItem.Program.ThumbnailUrl;
-                if (TimelineItem.Community != null)
-                {
-                    CommunityGlobalId = TimelineItem.Community.Id;
-                    CommunityName = TimelineItem.Community.Name;
-                }
-                else
-                {
-                    CommunityGlobalId = TimelineItem.SenderChannel.Id.ToString();
-                    CommunityName = TimelineItem.SenderChannel.Name;
-                }
-            }
+            this.Label = nicoRepoEntry.Object.Name;
+            this.OptionText = "LiveStreamingStartAtWithDateTime".Translate(_nicoRepoEntry.Updated.ToString());
 
-            if (timelineItem.SenderChannel != null)
-            {
-                this.CommunityType = CommunityType.Channel;
-            }
-            else if (timelineItem.Community != null)
-            {
-                this.CommunityType = CommunityType.Community;
-            }
-            else
-            {
-                this.CommunityType = CommunityType.Official;
-            }
+            ThumbnailUrl = _nicoRepoEntry.Object.Image.OriginalString;
+            CommunityThumbnail = _nicoRepoEntry.Actor.Icon.OriginalString;
+            CommunityGlobalId = _nicoRepoEntry.MuteContext.Sender.Id;
+            CommunityName = _nicoRepoEntry.Actor.Name;
 
-            ItempTopicDescription = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, TimelineItem);
+            this.CommunityType = _nicoRepoEntry.MuteContext.Sender.IdType switch
+            {
+                SenderIdTypeEnum.User => CommunityType.Community,
+                SenderIdTypeEnum.Channel => CommunityType.Channel,
+            };
+
+            ItempTopicDescription = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, _nicoRepoEntry);
         }
 
+        public string ThumbnailUrl { get; set; }
+
         public string ItempTopicDescription { get; }
-
-
-        public NicoRepoTimelineItem TimelineItem { get; private set; }
 
         public NicoRepoItemTopic ItemTopic { get; private set; }
 
@@ -211,28 +186,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
 
     public class NicoRepoVideoTimeline : VideoInfoControlViewModel, IVideoContent, INicoRepoItem
     {
-        public NicoRepoVideoTimeline(NicoRepoTimelineItem timelineItem, NicoRepoItemTopic itemType) 
-            : base(timelineItem.Video.Id)
+        private readonly NicoRepoEntry _nicoRepoEntry;
+
+        public NicoRepoVideoTimeline(NicoRepoEntry nicoRepoEntry, NicoRepoItemTopic itemType) 
+            : base(nicoRepoEntry.GetContentId())
         {
-            TimelineItem = timelineItem;
+            _nicoRepoEntry = nicoRepoEntry;
             ItemTopic = itemType;
 
-            if (TimelineItem.Video != null)
-            {
-                this.Label = TimelineItem.Video.Title;
-                if (TimelineItem.Video.ThumbnailUrl.Small != null)
-                {
-                    ThumbnailUrl = TimelineItem.Video.ThumbnailUrl.Small;
-                }
-                else if (TimelineItem.Video.ThumbnailUrl.Normal != null)
-                {
-                    ThumbnailUrl = TimelineItem.Video.ThumbnailUrl.Normal;
-                }
+            Label = _nicoRepoEntry.Object.Name;
+            ThumbnailUrl = _nicoRepoEntry.Object.Image.OriginalString;
 
-//                this.OptionText = $"{TimelineItem.CreatedAt.ToString()}";
-            }
-
-            ItempTopicDescription = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, TimelineItem);
+            ItempTopicDescription = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, _nicoRepoEntry);
             /*
 
             if (TimelineItem.SenderNiconicoUser != null)
@@ -260,8 +225,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
 
         public string ItempTopicDescription { get; }
 
-        public NicoRepoTimelineItem TimelineItem { get; private set; }
-
         public NicoRepoItemTopic ItemTopic { get; private set; }
     }
 
@@ -269,28 +232,28 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
     public static class NicoRepoTimelineVM 
     {
       
-        public static string ItemTopictypeToDescription(NicoRepoItemTopic topicType, NicoRepoTimelineItem timelineItem)
+        public static string ItemTopictypeToDescription(NicoRepoItemTopic topicType, NicoRepoEntry timelineItem)
         {
             switch (topicType)
             {
                 case NicoRepoItemTopic.Unknown:
                     return "Unknown".Translate();
                 case NicoRepoItemTopic.NicoVideo_User_Video_Upload:
-                    return "NicoRepo_Video_UserVideoUpload".Translate(timelineItem.SenderNiconicoUser.Nickname);
+                    return "NicoRepo_Video_UserVideoUpload".Translate(timelineItem.Actor.Name);
                 case NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video:
-                    return "NicoRepo_Video_UserMylistAddVideo".Translate(timelineItem.SenderNiconicoUser.Nickname);
+                    return "NicoRepo_Video_UserMylistAddVideo".Translate(timelineItem.Actor.Name);
                 case NicoRepoItemTopic.NicoVideo_User_Community_Video_Add:
-                    return "NicoRepo_Video_CommunityAddVideo".Translate(timelineItem.Community.Name);
+                    return "NicoRepo_Video_CommunityAddVideo".Translate(timelineItem.Actor.Name);
                 case NicoRepoItemTopic.NicoVideo_Channel_Video_Upload:
-                    return "NicoRepo_Video_ChannelVideoUpload".Translate(timelineItem.SenderChannel.Name);
+                    return "NicoRepo_Video_ChannelVideoUpload".Translate(timelineItem.Actor.Name);
                 case NicoRepoItemTopic.Live_User_Program_OnAirs:
-                    return "NicoRepo_Live_UserProgramOnAirs".Translate(timelineItem.SenderNiconicoUser.Nickname);
+                    return "NicoRepo_Live_UserProgramOnAirs".Translate(timelineItem.Actor.Name);
                 case NicoRepoItemTopic.Live_User_Program_Reserve:
-                    return "NicoRepo_Live_UserProgramReserve".Translate(timelineItem.SenderNiconicoUser.Nickname);
+                    return "NicoRepo_Live_UserProgramReserve".Translate(timelineItem.Actor.Name);
                 case NicoRepoItemTopic.Live_Channel_Program_Onairs:
-                    return "NicoRepo_Live_ChannelProgramOnAirs".Translate(timelineItem.SenderChannel.Name);
+                    return "NicoRepo_Live_ChannelProgramOnAirs".Translate(timelineItem.Actor.Name);
                 case NicoRepoItemTopic.Live_Channel_Program_Reserve:
-                    return "NicoRepo_Live_ChannelProgramReserve".Translate(timelineItem.SenderChannel.Name);
+                    return "NicoRepo_Live_ChannelProgramReserve".Translate(timelineItem.Actor.Name);
                 default:
                     return string.Empty;
             }
@@ -312,18 +275,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
 
     public class LoginUserNicoRepoTimelineSource : HohoemaIncrementalSourceBase<INicoRepoItem>
     {
-        public List<NicoRepoItemTopic> AllowedNicoRepoItemType { get; }
-
-        
-
-        List<NicoRepoTimelineItem> TimelineItems { get; } = new List<NicoRepoTimelineItem>();
-
-        NicoRepoTimelineItem _LastItem = null;
-
         // 通常10だが、ニコレポの表示フィルタを掛けた場合に
         // 追加読み込み時に表示対象が見つからない場合
         // 追加読み込みが途絶えるため、多めに設定している
-        public override uint OneTimeLoadCount => 10;
+        public override uint OneTimeLoadCount => 25;
 
         public LoginUserNicoRepoProvider LoginUserNicoRepoProvider { get; }
         public SubscriptionManager SubscriptionManager { get; }
@@ -331,114 +286,65 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
         public LoginUserNicoRepoTimelineSource(
             LoginUserNicoRepoProvider loginUserNicoRepoProvider,
             SubscriptionManager subscriptionManager,
-            IEnumerable<NicoRepoItemTopic> allowedNicoRepoTypes
+            NicoRepoType nicoRepoType,
+            NicoRepoDisplayTarget nicoRepoTarget
             )
         {
-            AllowedNicoRepoItemType = allowedNicoRepoTypes.ToList();
             LoginUserNicoRepoProvider = loginUserNicoRepoProvider;
             SubscriptionManager = subscriptionManager;
+            _nicoRepoType = nicoRepoType;
+            _nicoRepoDisplayTarget = nicoRepoTarget;
         }
 
-        
+
+        NicoRepoEntriesResponse _firstRes;
 
         protected override async Task<int> ResetSourceImpl()
         {
-            TimelineItems.Clear();
+            var nicoRepoResponse = await LoginUserNicoRepoProvider.GetLoginUserNicoRepoAsync(_nicoRepoType, _nicoRepoDisplayTarget);
 
-            var nicoRepoResponse = await LoginUserNicoRepoProvider.GetLoginUserNicoRepo(NicoRepoTimelineType.all);
-
-            if (nicoRepoResponse.IsStatusOK)
+            if (nicoRepoResponse.Data?.Any() ?? false)
             {
-                foreach (var item in nicoRepoResponse.TimelineItems)
-                {
-                    if (CheckCanDisplayTimelineItem(item))
-                    {
-                        TimelineItems.Add(item);
-                    }
-                }
-                _LastItem = nicoRepoResponse.LastTimelineItem;
-                return nicoRepoResponse.Meta.Limit;
+                _firstRes = nicoRepoResponse;
+                return 500;
             }
             else
             {
-                return 0;
-            }
-        }
-
-
-        private bool CheckCanDisplayTimelineItem(NicoRepoTimelineItem item)
-        {
-            var topicType = NicoRepoItemTopicExtension.ToNicoRepoTopicType(item.Topic);
-            if (!AllowedNicoRepoItemType.Any(x => x == topicType))
-            {
-                return false;
-            }
-
-            if (topicType == NicoRepoItemTopic.Live_User_Program_OnAirs
-            || topicType == NicoRepoItemTopic.Live_User_Program_Reserve
-            || topicType == NicoRepoItemTopic.Live_Channel_Program_Onairs
-            || topicType == NicoRepoItemTopic.Live_Channel_Program_Reserve)
-            {
-                if (item.Program != null)
-                {
-                    // 放送開始が現時点より６時間以上前の場合には既に終了済みとして表示しない
-                    if (item.Program.BeginAt < NiconamaDisplayTime)
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
-            }
-            else
-            {
-                return true;
+                return 500;
             }
         }
 
 
         DateTime NiconamaDisplayTime = DateTime.Now - TimeSpan.FromHours(6);
+        private readonly NicoRepoType _nicoRepoType;
+        private readonly NicoRepoDisplayTarget _nicoRepoDisplayTarget;
 
         protected override async IAsyncEnumerable<INicoRepoItem> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
-            var tail = head + count;
-            var prevCount = TimelineItems.Count;
-            if (TimelineItems.Count < tail)
+            NicoRepoEntriesResponse nicoRepoResponse;
+            if (head == 0 && _firstRes != null)
             {
-                while(prevCount == TimelineItems.Count)
-                {
-                    var nicoRepoResponse = await LoginUserNicoRepoProvider.GetLoginUserNicoRepo(NicoRepoTimelineType.all, _LastItem?.Id);
-
-                    ct.ThrowIfCancellationRequested();
-
-                    if (nicoRepoResponse.IsStatusOK)
-                    {
-                        foreach (var item in nicoRepoResponse.TimelineItems)
-                        {
-                            if (CheckCanDisplayTimelineItem(item))
-                            {
-                                TimelineItems.Add(item);
-                            }
-                        }
-                        _LastItem = nicoRepoResponse.LastTimelineItem;
-
-                        if (nicoRepoResponse.TimelineItems.Count == 0)
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
+                nicoRepoResponse = _firstRes;
+            }
+            else
+            {
+                nicoRepoResponse = await LoginUserNicoRepoProvider.GetLoginUserNicoRepoAsync(_nicoRepoType, _nicoRepoDisplayTarget);
             }
 
             ct.ThrowIfCancellationRequested();
 
-            foreach (var item in TimelineItems.Skip(head).Take(count).ToArray())
+            if (nicoRepoResponse.Meta.Status != 200) { yield break; }
+
+#if DEBUG
+            List<string> triggers = new List<string>();
+#endif
+            foreach (var item in nicoRepoResponse.Data)
             {
-                var topicType = NicoRepoItemTopicExtension.ToNicoRepoTopicType(item.Topic);
+#if DEBUG
+                triggers.AddDistinct(item.MuteContext.Trigger);
+#endif
+
+                var topicType = NicoRepoItemTopicExtension.ToNicoRepoTopicType(item.MuteContext.Trigger);
                 if (topicType == NicoRepoItemTopic.Live_User_Program_OnAirs
                 || topicType == NicoRepoItemTopic.Live_User_Program_Reserve
                 || topicType == NicoRepoItemTopic.Live_Channel_Program_Onairs
@@ -458,11 +364,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
                 }
                 else
                 {
-                    throw new NotSupportedException(topicType.ToString());
+                    //throw new NotSupportedException(topicType.ToString());
                 }
 
                 ct.ThrowIfCancellationRequested();
             }
+
+#if DEBUG
+            Debug.WriteLine(string.Join(" ", triggers));
+#endif
         }
 
     }
@@ -474,6 +384,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
             NicoRepoItemTopic topicType = NicoRepoItemTopic.Unknown;
             switch (topic)
             {
+                case "video.nicovideo_user_video_upload":
+                    topicType = NicoRepoItemTopic.NicoVideo_User_Video_Upload;
+                    break;
+                case "program.live_user_program_onairs":
+                    topicType = NicoRepoItemTopic.Live_User_Program_OnAirs;
+                    break;
+
+
                 case "live.user.program.onairs":
                     topicType = NicoRepoItemTopic.Live_User_Program_OnAirs;
                     break;

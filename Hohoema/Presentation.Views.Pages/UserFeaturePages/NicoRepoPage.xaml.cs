@@ -47,13 +47,5 @@ namespace Hohoema.Presentation.Views.Pages.UserFeaturePages
         {
             this.InitializeComponent();
         }
-
-        private void TopicsEditFlyout_Closed(object sender, object e)
-        {
-            if (DataContext is NicoRepoPageViewModel vm)
-            {
-                vm.OnResetNicoRepoItemTopicsEditCompleted();
-            }
-        }
     }
 }

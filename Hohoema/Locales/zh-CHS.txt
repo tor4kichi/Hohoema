@@ -543,6 +543,21 @@ FollowInfoIsRequireLogIn = 您需要登录才能查看关注信息
 
 
 #### Nicorepo ####
+NicoRepoDisplayOptions = 显示条件
+NicoRepoType.All = 所有
+NicoRepoType.Video = 影片发布
+NicoRepoType.Program = 直播开始
+NicoRepoType.Image = 发布插图
+NicoRepoType.ComicStory = 漫画贴
+NicoRepoType.Article = 文章发布
+NicoRepoType.Game = 游戏
+NicoRepoDisplayTarget.All = 所有
+NicoRepoDisplayTarget.Self = 我
+NicoRepoDisplayTarget.User = 用户
+NicoRepoDisplayTarget.Channel = 渠道
+NicoRepoDisplayTarget.Community = 社区
+NicoRepoDisplayTarget.Mylist = 我的列表
+
 NicoRepoItemTopic.Unknown = 不明
 NicoRepoItemTopic.Live_Channel_Program_Onairs = 直播开始（频道）
 NicoRepoItemTopic.Live_Channel_Program_Reserve = 直播预定（频道）
