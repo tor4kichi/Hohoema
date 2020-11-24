@@ -110,7 +110,6 @@ namespace Hohoema.Presentation.Services
             {
                 Content = "InAppNotification_ContentDetectedFromClipboard".Translate(nicoVideo.Title),
                 ShowDuration = DefaultNotificationShowDuration,
-                SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,
                 Commands = {
                         new InAppNotificationCommand()
@@ -159,7 +158,6 @@ namespace Hohoema.Presentation.Services
             {
                 Content = "InAppNotification_ContentDetectedFromClipboard".Translate(liveTitle),
                 ShowDuration = DefaultNotificationShowDuration,
-                SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,
                 Commands = {
                         new InAppNotificationCommand()
@@ -219,7 +217,6 @@ namespace Hohoema.Presentation.Services
             {
                 Content = "InAppNotification_ContentDetectedFromClipboard".Translate(mylistDetail.Name),
                 ShowDuration = DefaultNotificationShowDuration,
-                SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,
                 Commands = {
                         new InAppNotificationCommand()
@@ -252,7 +249,6 @@ namespace Hohoema.Presentation.Services
             {
                 Content = "InAppNotification_ContentDetectedFromClipboard".Translate(communityInfo.Name),
                 ShowDuration = DefaultNotificationShowDuration,
-                SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,
                 Commands = {
                         new InAppNotificationCommand()
@@ -279,7 +275,6 @@ namespace Hohoema.Presentation.Services
             {
                 Content = "InAppNotification_ContentDetectedFromClipboard".Translate(user.ScreenName),
                 ShowDuration = DefaultNotificationShowDuration,
-                SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,
                 Commands = {
                         new InAppNotificationCommand()

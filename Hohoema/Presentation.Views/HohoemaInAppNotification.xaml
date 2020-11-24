@@ -20,11 +20,29 @@
         <toolkit:DockPanel Margin="0 0 8 0" 
                                             MinHeight="48"
                                             >
+          <Image Source="{Binding Icon}"
+                 Visibility="{Binding Icon, Converter={StaticResource NotEmptyStringToBoolean}}"
+                                           Height="49" Width="48" 
+                                           Margin="0 0 16 0" 
+                                           toolkit:DockPanel.Dock="Left"
+                                           VerticalAlignment="Center"
+                                           />
+
+          <Image Source="ms-appx:///Assets/NewStoreLogo.scale-100.png"
+                 Visibility="{Binding Icon, Converter={StaticResource EmptyStringToBoolean}}"
+                                           Height="49" Width="48" 
+                                           Margin="0 0 16 0" 
+                                           toolkit:DockPanel.Dock="Left"
+                                           VerticalAlignment="Center"
+                                           />
+
+
           <ItemsControl ItemsSource="{Binding Commands}"
                         toolkit:DockPanel.Dock="Bottom"
                         x:Name="CommandsItemsControl"
                         HorizontalAlignment="Right"
                         Margin="0 8 0 0"
+                          
                         >
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
@@ -33,26 +51,34 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Button Content="{Binding Label}" Command="{Binding Command}" />
+                <Button Content="{Binding Label}" Command="{Binding Command}"
+                        Background="Transparent"
+                        Style="{StaticResource ButtonRevealStyle}"
+                          BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
+                          BorderThickness="1"
+                        />
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
-          
-          <Image Source="ms-appx:///Assets/NewStoreLogo.scale-100.png" 
-                                           Height="32" Width="32" 
-                                           Margin="0 0 16 0" 
-                                           toolkit:DockPanel.Dock="Left"
-                                           VerticalAlignment="Center"
-                                           />
 
-          
 
-          <TextBlock VerticalAlignment="Center"
+
+          <StackPanel VerticalAlignment="Center">
+            <TextBlock Text="{Binding Title}" 
+                       Visibility="{Binding Title, Converter={StaticResource NotEmptyStringToBoolean}}"
+                       FontSize="13"
+                       Opacity="0.7"
+                       />
+
+            <TextBlock VerticalAlignment="Center"
                       Text="{Binding Content}"
                       TextWrapping="Wrap"
                       />
+          </StackPanel>
+
 
         </toolkit:DockPanel>
+
       </uwpcontrol:InAppNotification.Content>
     </uwpcontrol:InAppNotification>
 
@@ -64,12 +90,11 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommandsItemsControl.(toolkit:DockPanel.Dock)" Value="Right" />
-            <Setter Target="CommandsItemsControl.HorizontalAlignment" Value="Strech" />
+            <Setter Target="CommandsItemsControl.HorizontalAlignment" Value="Stretch" />
             <Setter Target="CommandsItemsControl.Margin" Value="0 0 0 0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
   </Grid>
-  
 </UserControl>

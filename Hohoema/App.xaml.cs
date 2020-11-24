@@ -602,7 +602,6 @@ namespace Hohoema
                             Content = $"Hohoema v{version.Major}.{version.Minor}.{version.Build} に更新しました",
                             ShowDuration = TimeSpan.FromSeconds(7),
                             IsShowDismissButton = true,
-                            SymbolIcon = Symbol.Refresh,
                             Commands =
                             {
                                 new InAppNotificationCommand()

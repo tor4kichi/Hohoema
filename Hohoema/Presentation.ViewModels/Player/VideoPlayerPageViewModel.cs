@@ -230,7 +230,29 @@ namespace Hohoema.Presentation.ViewModels.Player
             }
         }
 
+        // ニコニコの「いいね」
 
+        private bool _isLikedVideo;
+        public bool IsLikedVideo
+        {
+            get { return _isLikedVideo; }
+            set { SetProperty(ref _isLikedVideo, value); }
+        }
+
+        private string _LikeThanksMessage;
+        public string LikeThanksMessage
+        {
+            get { return _LikeThanksMessage; }
+            private set { SetProperty(ref _LikeThanksMessage, value); }
+        }
+
+
+        private bool _NowLikeProcessing;
+        public bool NowLikeProcessing
+        {
+            get { return _NowLikeProcessing; }
+            private set { SetProperty(ref _NowLikeProcessing, value); }
+        }
 
 
         // 再生できない場合の補助
@@ -270,7 +292,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             CloseTimers();
 
             _TimerDiposable = new CompositeDisposable();
-            Observable.Timer(TimeSpan.FromSeconds(0.5), TimeSpan.FromSeconds(0.5), _scheduler)
+            Observable.Timer(TimeSpan.FromSeconds(0.5), TimeSpan.FromSeconds(2.5), _scheduler)
                 .Subscribe(_ =>
                 {
                     //if (PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
@@ -338,6 +360,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             VideoDetails = result.VideoDetails;
 
             SoundVolumeManager.LoudnessCorrectionValue = VideoDetails.LoudnessCorrectionValue;
+            IsLikedVideo = VideoDetails.IsLikedVideo;
 
             // 動画再生コンテンツをセット
             await VideoPlayer.UpdatePlayingVideoAsync(result.VideoSessionProvider);
@@ -390,6 +413,14 @@ namespace Hohoema.Presentation.ViewModels.Player
             VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails.Series);
             Debug.WriteLine("次シリーズ動画: " + VideoDetails.Series?.NextVideo?.Title);
 
+            // 好きの切り替え
+            this.ObserveProperty(x => x.IsLikedVideo, isPushCurrentValueAtFirst: false)
+                .Where(x => !NowLikeProcessing)
+                .Subscribe(async like => 
+                {
+                    await ProcessLikeAsync(like);
+                })
+                .AddTo(_NavigatingCompositeDisposable);
 
             InitializeTimers();
 
@@ -400,7 +431,56 @@ namespace Hohoema.Presentation.ViewModels.Player
             App.Current.Suspending += Current_Suspending;
         }
 
-       
+        
+        private async Task ProcessLikeAsync(bool like)
+        {
+            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+
+            NowLikeProcessing = true;
+
+            try
+            {
+                if (like)
+                {
+                    var res = await NiconicoSession.Context.User.DoLikeVideoAsync(this.VideoId);
+                    if (!res.IsOK)
+                    {
+                        this.IsLikedVideo = false;
+                    }
+                    else
+                    {
+                        LikeThanksMessage = res.ThanksMessage;
+
+                        if (!string.IsNullOrEmpty(LikeThanksMessage))
+                        {
+                            _NotificationService.ShowInAppNotification(new InAppNotificationPayload()
+                            {
+                                Title = "LikeThanksMessageDescWithVideoOwnerName".Translate(VideoInfo.Owner?.ScreenName),
+                                Icon = VideoInfo.Owner?.IconUrl,
+                                Content = LikeThanksMessage,
+                                IsShowDismissButton = true,
+                                ShowDuration = TimeSpan.FromSeconds(15),
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    LikeThanksMessage = null;
+
+                    var res = await NiconicoSession.Context.User.UnDoLikeVideoAsync(this.VideoId);
+                    if (!res.IsOK)
+                    {
+                        this.IsLikedVideo = true;
+                    }
+                }
+            }
+            finally
+            {
+                NowLikeProcessing = false;
+            }
+        }
 
         private async Task CheckDeleted(NicoVideo videoInfo)
         {

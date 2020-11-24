@@ -22,7 +22,8 @@ namespace Hohoema.Presentation.Services
 
     public sealed class InAppNotificationPayload
     {
-        public Symbol? SymbolIcon { get; set; }
+        public string Title { get; set; }
+        public string Icon { get; set; }
         public string Content { get; set; } = string.Empty;
         public bool IsShowDismissButton { get; set; } = true;
         public TimeSpan? ShowDuration { get; set; }
@@ -31,8 +32,7 @@ namespace Hohoema.Presentation.Services
         readonly static TimeSpan MinShowDuration = TimeSpan.FromSeconds(3);
         public static InAppNotificationPayload CreateReadOnlyNotification(
             string content,
-            TimeSpan? showDuration = null,
-            Symbol? symbolIcon = null
+            TimeSpan? showDuration = null
             )
         {
             if (showDuration == null || showDuration <= MinShowDuration)
@@ -43,7 +43,6 @@ namespace Hohoema.Presentation.Services
             return new InAppNotificationPayload()
             {
                 Content = content,
-                SymbolIcon = symbolIcon,
                 ShowDuration = showDuration,
                 IsShowDismissButton = true
             };

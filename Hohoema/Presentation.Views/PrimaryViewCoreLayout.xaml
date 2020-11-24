@@ -251,7 +251,8 @@
       <Setter Property="CornerRadius" Value="999" />
     </Style>
 
-    
+    <Thickness x:Key="NavigationViewHeaderMargin">0</Thickness>
+
   </UserControl.Resources>
   <Grid x:Name="RootLayout" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <!-- Player -->
@@ -270,7 +271,6 @@
                            IsSettingsVisible="False"
                            IsTitleBarAutoPaddingEnabled="True"
                            SelectionFollowsFocus="Disabled"
-                           Padding="48 27 0 27"
                       >
         <muxc:NavigationView.Header>
           <Grid x:Name="MenuBackgroundGrid"
@@ -488,32 +488,24 @@
         </muxc:NavigationView.AutoSuggestBox>
         
         <muxc:NavigationView.Content>
-          <Grid x:Name="SplitViewContentLayout">
-            <!-- ページ毎のコンテンツ -->
-            <Grid>
-              <uwpToolkitControls:DockPanel>
-                <Frame x:Name="ContentFrame" VerticalContentAlignment="Stretch" DataContext="{x:Null}" Margin="0 0 0 0"
+          <Frame x:Name="ContentFrame" VerticalContentAlignment="Stretch" DataContext="{x:Null}" Margin="0 0 0 0"
                        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                        >
-                  <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
-                    <templateSelector:HohoemaFlyoutTemplateSelector>
-                      <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-                        <DataTemplate>
-                          <listItemControls:LiveListItemFlyout />
-                        </DataTemplate>
-                      </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-                      <templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
-                        <DataTemplate>
-                          <local:SearchHistoryListItemFlyout />
-                        </DataTemplate>
-                      </templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
-                    </templateSelector:HohoemaFlyoutTemplateSelector>
-                  </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
-                </Frame>
-              </uwpToolkitControls:DockPanel>
-            </Grid>
-            <Border x:Name="TopMenuDesktopTitleberBackground" Visibility="Visible" uwpToolkitControls:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}" VerticalAlignment="Top" />
-          </Grid>
+            <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
+              <templateSelector:HohoemaFlyoutTemplateSelector>
+                <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
+                  <DataTemplate>
+                    <listItemControls:LiveListItemFlyout />
+                  </DataTemplate>
+                </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
+                <templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
+                  <DataTemplate>
+                    <local:SearchHistoryListItemFlyout />
+                  </DataTemplate>
+                </templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
+              </templateSelector:HohoemaFlyoutTemplateSelector>
+            </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
+          </Frame>
         </muxc:NavigationView.Content>
       </muxc:NavigationView>
     </uwpToolkitControls:DockPanel>
@@ -609,7 +601,9 @@
             <windowsTriggers:UserInteractionModeTrigger InteractionMode="Touch" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="CoreNavigationView.Margin" Value="0 32 0 0" />
+            <Setter Target="CoreNavigationView.Margin" Value="0 0 0 0" />
+            <Setter Target="TitleBarTextBlock.Opacity" Value="0" />
+            <Setter Target="DraggableContent.Height" Value="0" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -826,9 +820,6 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <!--
-            <Setter Target="TopMenuDesktopTitleberBackground.Height" Value="32" />
-            -->
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -836,9 +827,6 @@
             <windowsTriggers:DeviceFamilyStateTrigger DeviceFamily="Desktop" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <!--
-            <Setter Target="TopMenuDesktopTitleberBackground.Height" Value="32" />
-            -->
           </VisualState.Setters>
         </VisualState>
         <!-- フルスクリーン時はステータスバーが非表示になる -->

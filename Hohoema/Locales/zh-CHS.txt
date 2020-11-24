@@ -399,6 +399,14 @@ NicoScript_Jump = ＠跳
 DesktopSettings = 桌面设置
 SoundVolumeChangeValueWithMouseScroll = 鼠标滚动音量更改
 
+# Likes いいね機能
+NicoLike = ❤喜欢
+LikeThanksMessageDescWithVideoOwnerName = 从{0}到“喜欢”的感谢消息
+
+
+
+
+
 
 #### Live ####
 LivePlayingQuality = 直播影像质量

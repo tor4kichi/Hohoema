@@ -39,6 +39,8 @@ namespace Hohoema.Models.Domain.Player.Video
 
         bool IsSeriesVideo { get; }
         Series Series { get; }
+
+        bool IsLikedVideo { get; }
     }
 
 
@@ -98,6 +100,8 @@ namespace Hohoema.Models.Domain.Player.Video
 
         public bool IsSeriesVideo => _dmcWatchRes?.Series != null;
         public Series Series => _dmcWatchRes?.Series;
+
+        public bool IsLikedVideo => _dmcWatchRes.Context.IsLiked;
     }
 
     public class WatchApiVideoDetails : INicoVideoDetails
@@ -142,6 +146,8 @@ namespace Hohoema.Models.Domain.Player.Video
         public bool IsSeriesVideo => false;
 
         public Series Series => null;
+
+        public bool IsLikedVideo => false;
     }
 
     public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCommentSessionProvider

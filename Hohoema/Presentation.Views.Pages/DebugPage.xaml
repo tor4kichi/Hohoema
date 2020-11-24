@@ -9,6 +9,7 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
   <StackPanel Spacing="16">
+    <Button Content="内部通知をテスト" Click="TestInAppNotification" />
     <Button Content="例外を発生させる" Click="ForceThrowException" />
     <Button Content="クラッシュレポートをテスト" Click="TestCrashReport_Click" />
   </StackPanel>

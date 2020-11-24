@@ -399,6 +399,14 @@ NicoScript_Jump = ＠ジャンプ
 DesktopSettings = デスクトップ向けの設定
 SoundVolumeChangeValueWithMouseScroll = マウススクロール音量変化量
 
+# Likes いいね機能
+NicoLike = ❤ いいね
+LikeThanksMessageDescWithVideoOwnerName = {0} さんから、「いいね」へのお礼のメッセージ
+
+
+
+
+
 
 #### Live ####
 LivePlayingQuality = 生放送画質

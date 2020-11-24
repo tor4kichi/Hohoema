@@ -1,4 +1,5 @@
-﻿using Microsoft.AppCenter.Crashes;
+﻿using Hohoema.Presentation.Services;
+using Microsoft.AppCenter.Crashes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +14,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Prism.Ioc;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -36,6 +38,21 @@ namespace Hohoema.Presentation.Views
         private void TestCrashReport_Click(object sender, RoutedEventArgs e)
         {
             Crashes.GenerateTestCrash();
+        }
+
+        private void TestInAppNotification(object sender, RoutedEventArgs e)
+        {
+            var notificationService = App.Current.Container.Resolve<NotificationService>();
+            notificationService.ShowInAppNotification(new InAppNotificationPayload() 
+            {
+                Title = "通知テスト",
+                Content = "通知テスト\nあああああああああああああああああああああああああああああ",
+                Commands = 
+                {
+                    new InAppNotificationCommand() { Label = "コマンドテスト１" },
+                    new InAppNotificationCommand() { Label = "コマンドテスト２" },
+                }                
+            });        
         }
     }
 }

@@ -34,6 +34,8 @@ using Hohoema.Models.Domain.Application;
 using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Subscriptions.Commands;
+using Hohoema.Presentation.Services;
+using I18NPortable;
 
 namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
 {
@@ -141,6 +143,33 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
             get { return _descriptionHtmlFileUri; }
             set { SetProperty(ref _descriptionHtmlFileUri, value); }
         }
+
+
+
+        // ニコニコの「いいね」
+
+        private bool _isLikedVideo;
+        public bool IsLikedVideo
+        {
+            get { return _isLikedVideo; }
+            set { SetProperty(ref _isLikedVideo, value); }
+        }
+
+        private string _LikeThanksMessage;
+        public string LikeThanksMessage
+        {
+            get { return _LikeThanksMessage; }
+            private set { SetProperty(ref _LikeThanksMessage, value); }
+        }
+
+
+        private bool _NowLikeProcessing;
+        public bool NowLikeProcessing
+        {
+            get { return _NowLikeProcessing; }
+            private set { SetProperty(ref _NowLikeProcessing, value); }
+        }
+
 
 
         private DelegateCommand _OpenFilterSettingPageCommand;
@@ -402,6 +431,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
 
                     OpenOwnerUserPageCommand.RaiseCanExecuteChanged();
                     OpenOwnerUserVideoPageCommand.RaiseCanExecuteChanged();
+
+                    // 好きの切り替え
+                    this.ObserveProperty(x => x.IsLikedVideo)
+                        .Where(x => !NowLikeProcessing)
+                        .Subscribe(async like =>
+                        {
+                            await ProcessLikeAsync(like);
+                        })
+                        .AddTo(_NavigatingCompositeDisposable);
                 }                
             }
             catch (Exception ex)
@@ -427,6 +465,58 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
 
             base.OnNavigatedFrom(parameters);
         }
+
+
+
+        private async Task ProcessLikeAsync(bool like)
+        {
+            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
+            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+
+            NowLikeProcessing = true;
+
+            try
+            {
+                if (like)
+                {
+                    var res = await NiconicoSession.Context.User.DoLikeVideoAsync(this.VideoInfo.VideoId);
+                    if (!res.IsOK)
+                    {
+                        this.IsLikedVideo = false;
+                    }
+                    else
+                    {
+                        LikeThanksMessage = res.ThanksMessage;
+
+                        if (!string.IsNullOrEmpty(LikeThanksMessage))
+                        {
+                            NotificationService.ShowInAppNotification(new InAppNotificationPayload()
+                            {
+                                Title = "LikeThanksMessageDescWithVideoOwnerName".Translate(VideoInfo.Owner?.ScreenName),
+                                Content = LikeThanksMessage,
+                                IsShowDismissButton = true,
+                                ShowDuration = TimeSpan.FromSeconds(15),
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    LikeThanksMessage = null;
+
+                    var res = await NiconicoSession.Context.User.UnDoLikeVideoAsync(this.VideoInfo.VideoId);
+                    if (!res.IsOK)
+                    {
+                        this.IsLikedVideo = true;
+                    }
+                }
+            }
+            finally
+            {
+                NowLikeProcessing = false;
+            }
+        }
+
 
         bool _IsInitializedIchibaItems = false;
         public async void InitializeIchibaItems()
@@ -490,7 +580,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
                     var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.RawVideoId);
                     VideoDetails = res.GetVideoDetails();
 
-                    
+
                     //VideoTitle = details.VideoTitle;
                     //Tags = details.Tags.ToList();
                     //ThumbnailUrl = details.ThumbnailUrl;
@@ -503,6 +593,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
                     //ProviderName = details.ProviderName;
                     //OwnerIconUrl = details.OwnerIconUrl;
                     //IsChannelOwnedVideo = details.IsChannelOwnedVideo;
+
+                    NowLikeProcessing = true;
+                    IsLikedVideo = VideoDetails.IsLikedVideo;
+                    NowLikeProcessing = false;
                 }
                 catch
                 {
