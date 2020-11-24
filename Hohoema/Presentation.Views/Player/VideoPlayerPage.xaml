@@ -341,6 +341,7 @@
                               XYFocusLeft="{x:Bind CloseButton}"
                               >
                     <CommandBar.PrimaryCommands>
+                      <AppBarToggleButton x:Name="LikeToggleButton" Label="{Binding Source=NicoLike, Converter={StaticResource LocalizeConverter}}" IsChecked="{Binding IsLikedVideo, Mode=TwoWay}" IsEnabled="{Binding NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
                       <AppBarButton x:Name="ShowVideoInfoButon" Label="{Binding Source=VideoInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
                       <AppBarButton Command="{x:Bind SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="{Binding Source=RelatedInfomation, Converter={StaticResource LocalizeConverter}}" />
                       <AppBarButton x:Name="ShareButton" Label="{Binding Source=Share, Converter={StaticResource LocalizeConverter}}" Icon="Link" Visibility="Collapsed" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding VideoInfo}"></AppBarButton>
@@ -843,6 +844,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentLayout.Visibility" Value="Visible" />
+            <Setter Target="LikeToggleButton.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

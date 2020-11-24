@@ -299,7 +299,7 @@
         </CommandBar.SecondaryCommands>
         <AppBarButton Icon="Play" Label="{Binding Source=PlayVideo, Converter={StaticResource LocalizeConverter}}" Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoInfo}" />
         <AppBarButton Icon="Download" Label="{Binding Source=CacheRequest, Converter={StaticResource LocalizeConverter}}" Command="{Binding VideoCacheManager.AddCacheRequestCommand}" CommandParameter="{Binding VideoInfo}" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}" />
-
+        <AppBarToggleButton x:Name="LikeToggleButton" Label="{Binding Source=NicoLike, Converter={StaticResource LocalizeConverter}}" IsChecked="{Binding IsLikedVideo, Mode=TwoWay}" IsEnabled="{Binding NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
         <AppBarButton Icon="Add" Label="{Binding Source=Add, Converter={StaticResource LocalizeConverter}}"> 
           <AppBarButton.Flyout>
             <MenuFlyout Placement="Bottom">
@@ -424,6 +424,18 @@
             <StateTrigger IsActive="{Binding IsLoadFailed.Value}" />
           </VisualState.StateTriggers>
           <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      <!-- ログインしている場合に有効になるサービスを表示する -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="LikeToggleButton.Visibility" Value="Visible" />
+          </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>

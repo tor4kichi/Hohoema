@@ -300,7 +300,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
                                 {
                                     Content = $"「{selectedTag.Label}」は人気のタグの一覧から外れたようです",
                                     ShowDuration = TimeSpan.FromSeconds(5),
-                                    SymbolIcon = Windows.UI.Xaml.Controls.Symbol.Important
                                 });
                             }
                         }

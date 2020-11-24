@@ -88,7 +88,6 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions.Commands
                 _notificationService.ShowInAppNotification(new InAppNotificationPayload() 
                 {
                     ShowDuration = TimeSpan.FromSeconds(7),
-                    SymbolIcon = Windows.UI.Xaml.Controls.Symbol.Accept,
                     Content = "Notification_SuccessAddSubscriptionSourceWithLabel".Translate(subscription.Label),
                     IsShowDismissButton = false,
                 });
