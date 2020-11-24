@@ -84,14 +84,14 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     return;
                 }
 
-                if (TryPlaylistEndActionPlayerClosed())
+                if (_hohoemaPlaylist.PlayDoneAndTryMoveNext(_mediaPlayer.PlaybackSession.Position))
                 {
                     HasRecomend.Value = HasNextVideo && IsEnded.Value;
                     _endedProcessed = true;
                     return;
                 }
 
-                if (_hohoemaPlaylist.PlayDoneAndTryMoveNext(_mediaPlayer.PlaybackSession.Position))
+                if (TryPlaylistEndActionPlayerClosed())
                 {
                     HasRecomend.Value = HasNextVideo && IsEnded.Value;
                     _endedProcessed = true;
