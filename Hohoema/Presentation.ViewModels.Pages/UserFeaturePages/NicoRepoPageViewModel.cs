@@ -53,8 +53,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
             SubscriptionManager = subscriptionManager;
             _openLiveContentCommand = openLiveContentCommand;
             
-            NicoRepoType = new ReactiveProperty<NicoRepoType>(Mntone.Nico2.NicoRepo.NicoRepoType.Video);
-            NicoRepoDisplayTarget = new ReactiveProperty<NicoRepoDisplayTarget>();
+            NicoRepoType = new ReactiveProperty<NicoRepoType>(Mntone.Nico2.NicoRepo.NicoRepoType.Video, mode:ReactivePropertyMode.DistinctUntilChanged);
+            NicoRepoDisplayTarget = new ReactiveProperty<NicoRepoDisplayTarget>(mode: ReactivePropertyMode.DistinctUntilChanged);
 
             new[]
             {
@@ -154,7 +154,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
             _nicoRepoEntry = nicoRepoEntry;
             ItemTopic = itemTopic;
             this.Label = nicoRepoEntry.Object.Name;
-            this.OptionText = "LiveStreamingStartAtWithDateTime".Translate(_nicoRepoEntry.Updated.ToString());
+            this.OptionText = "LiveStreamingStartAtWithDateTime".Translate(_nicoRepoEntry.Updated.ToString("f"));
 
             ThumbnailUrl = _nicoRepoEntry.Object.Image.OriginalString;
             CommunityThumbnail = _nicoRepoEntry.Actor.Icon.OriginalString;
