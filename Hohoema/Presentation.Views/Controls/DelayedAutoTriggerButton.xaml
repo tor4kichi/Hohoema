@@ -15,7 +15,7 @@
     <Button Width="240"
             HorizontalAlignment="Center"
             x:Name="CancelButton"
-            Tapped="{x:Bind Cancel}" 
+            Tapped="{x:Bind Cancel_Internal}" 
             uwpControls:DockPanel.Dock="Bottom"
             Margin="8"
             >

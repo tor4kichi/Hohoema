@@ -91,36 +91,39 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     return;
                 }
 
+                if (_playerSettings.AutoMoveNextVideoOnPlaylistEmpty)
+                {
+                    if (_videoPlayer.PlayingVideoId == null)
+                    {
+                        _endedProcessed = true;
+                        _scheduler.Schedule(() =>
+                        {
+                            HasNextVideo = _videoRelatedContents?.NextVideo != null;
+                            NextVideoTitle = _videoRelatedContents?.NextVideo?.Label;
+                            HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                        });
+                        return;
+                    }
+
+                    if (_series?.NextVideo != null)
+                    {
+                        _scheduler.Schedule(() =>
+                        {
+                            HasNextVideo = true;
+                            NextVideoTitle = _series.NextVideo.Title;
+                            HasRecomend.Value = true;
+
+                            Debug.WriteLine("シリーズ情報から次の動画を提示: " + _series.NextVideo.Title);
+                        });
+
+                        return;
+                    }
+                }
+
                 if (TryPlaylistEndActionPlayerClosed())
                 {
                     HasRecomend.Value = HasNextVideo && IsEnded.Value;
                     _endedProcessed = true;
-                    return;
-                }
-
-                if (_videoPlayer.PlayingVideoId == null)
-                {
-                    _endedProcessed = true;
-                    _scheduler.Schedule(() =>
-                    {
-                        HasNextVideo = _videoRelatedContents?.NextVideo != null;
-                        NextVideoTitle = _videoRelatedContents?.NextVideo?.Label;
-                        HasRecomend.Value = HasNextVideo && IsEnded.Value;
-                    });
-                    return;
-                }
-
-                if (_series?.NextVideo != null)
-                {
-                    _scheduler.Schedule(() =>
-                    {
-                        HasNextVideo = true;
-                        NextVideoTitle = _series.NextVideo.Title;
-                        HasRecomend.Value = true;
-
-                        Debug.WriteLine("シリーズ情報から次の動画を提示: " + _series.NextVideo.Title);
-                    });
-
                     return;
                 }
 
@@ -231,6 +234,21 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         public void SetCurrentVideoSeries(Series series)
         {
             _series = series;
+        }
+
+
+        private DelegateCommand _CanceledNextPartMoveCommand;
+        public DelegateCommand CanceledNextPartMoveCommand =>
+            _CanceledNextPartMoveCommand ?? (_CanceledNextPartMoveCommand = new DelegateCommand(ExecuteCanceledNextPartMoveCommand));
+
+        void ExecuteCanceledNextPartMoveCommand()
+        {
+            if (TryPlaylistEndActionPlayerClosed())
+            {
+                HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                _endedProcessed = true;
+                return;
+            }
         }
     }
 }

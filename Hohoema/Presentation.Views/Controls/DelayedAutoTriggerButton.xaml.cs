@@ -75,6 +75,19 @@ namespace Hohoema.Presentation.Views.Controls
 
 
 
+        public ICommand CancelCommand
+        {
+            get { return (ICommand)GetValue(CancelCommandProperty); }
+            set { SetValue(CancelCommandProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for CancelCommand.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty CancelCommandProperty =
+            DependencyProperty.Register("CancelCommand", typeof(ICommand), typeof(DelayedAutoTriggerButton), new PropertyMetadata(null));
+
+
+
+
         public bool IsCanceled
         {
             get { return (bool)GetValue(IsCanceledProperty); }
@@ -126,6 +139,17 @@ namespace Hohoema.Presentation.Views.Controls
                     Command.Execute(null);
                 }
             }
+        }
+
+
+        private void Cancel_Internal()
+        {
+            if (CancelCommand?.CanExecute(null) ?? false)
+            {
+                CancelCommand.Execute(null);
+            }
+
+            Cancel();
         }
 
         public void Cancel()
