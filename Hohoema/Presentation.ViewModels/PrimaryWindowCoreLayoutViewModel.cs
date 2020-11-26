@@ -268,7 +268,7 @@ namespace Hohoema.Presentation.ViewModels
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
             Items.Remove(item);
-            _pinSettings.DeleteItem(item.Pin);
+            _pinSettings.DeleteItem(item.Pin.Id);
         }
 
 
