@@ -157,10 +157,20 @@ namespace Hohoema.Presentation.Views
                     this.RequestedTheme = theme;
                 });
 
+            CoreNavigationView.ObserveDependencyProperty(Microsoft.UI.Xaml.Controls.NavigationView.IsPaneOpenProperty)
+                .Subscribe(_ => 
+                {
+                    if (CoreNavigationView.IsPaneOpen)
+                    {
+                        var pinsNVItem = CoreNavigationView.ContainerFromMenuItem(viewModel._pinsMenuSubItemViewModel);
+                        if (pinsNVItem is Microsoft.UI.Xaml.Controls.NavigationViewItem nvi)
+                        {
+                            nvi.IsExpanded = true;
+                        }
+                    }
 
+                });
         }
-
-       
 
 
         #region Debug
