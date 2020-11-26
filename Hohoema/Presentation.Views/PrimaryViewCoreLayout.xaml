@@ -138,6 +138,8 @@
         <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
                                  Icon="Pin"
                                  ContextFlyout="{StaticResource PinsMenuSubItemFlyout}"
+                                 IsExpanded="True"
+                                 Tag="Pins"
                                  >
           <TextBlock Text="{Binding Label}" />
         </muxc:NavigationViewItem>

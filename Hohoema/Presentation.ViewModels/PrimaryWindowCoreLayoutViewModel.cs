@@ -58,8 +58,8 @@ namespace Hohoema.Presentation.ViewModels
         public ObservableCollection<HohoemaListingPageItemBase> MenuItems_Offline { get; private set; }
         public ObservableCollection<HohoemaListingPageItemBase> MenuItems_LoggedIn { get; private set; }
 
-        private readonly WatchAfterMenuItemViewModel _watchAfterMenuItemViewModel;
-        private readonly PinsMenuSubItemViewModel _pinsMenuSubItemViewModel;
+        internal readonly WatchAfterMenuItemViewModel _watchAfterMenuItemViewModel;
+        internal readonly PinsMenuSubItemViewModel _pinsMenuSubItemViewModel;
 
         public LocalMylistSubMenuItemViewModel _localMylistMenuSubItemViewModel { get; }
 
