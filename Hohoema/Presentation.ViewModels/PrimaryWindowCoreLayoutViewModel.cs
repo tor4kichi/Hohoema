@@ -292,7 +292,8 @@ namespace Hohoema.Presentation.ViewModels
                 name,
                 (s) => true
                 );
-            
+
+            pin.OverrideLabel = result;
             _pinSettings.UpdateItem(pin);
         }
 
