@@ -387,8 +387,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
                 case "video.nicovideo_user_video_upload":
                     topicType = NicoRepoItemTopic.NicoVideo_User_Video_Upload;
                     break;
+                case "video.nicovideo_channel_video_upload":
+                    topicType = NicoRepoItemTopic.NicoVideo_Channel_Video_Upload;
+                    break;
+
                 case "program.live_user_program_onairs":
                     topicType = NicoRepoItemTopic.Live_User_Program_OnAirs;
+                    break;
+                case "program.live_channel_program_onairs":
+                    topicType = NicoRepoItemTopic.Live_Channel_Program_Onairs;
+                    break;
+                case "program.live_user_program_reserve":
+                    topicType = NicoRepoItemTopic.Live_User_Program_Reserve;
+                    break;
+                case "program.live_channel_program_reserve":
+                    topicType = NicoRepoItemTopic.Live_Channel_Program_Reserve;
                     break;
 
 
