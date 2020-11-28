@@ -616,6 +616,7 @@
             <Setter Target="CoreNavigationView.IsBackButtonVisible" Value="Collapsed" />
             <Setter Target="CoreNavigationView.Margin" Value="27 48 0 48" />
             <Setter Target="CoreNavigationView.Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}" />
+            <Setter Target="DraggableContent.Height" Value="0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
