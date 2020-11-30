@@ -50,6 +50,9 @@
         <StackPanel>
           <CommandBar Background="Transparent"
                       Margin="0 0 0 0">
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{Binding Title}" />
+            </CommandBar.Content>
             <CommandBar.PrimaryCommands>
               <AppBarButton Label="{Binding Source=Settings, Converter={StaticResource LocalizeConverter}}"
                             Icon="Setting">

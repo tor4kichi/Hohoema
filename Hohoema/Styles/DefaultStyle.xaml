@@ -480,4 +480,8 @@
     </Setter>
   </Style>
 
+  <Style TargetType="AppBarElementContainer">
+    <Setter Property="IsTabStop" Value="False" />
+  </Style>
+
 </ResourceDictionary>

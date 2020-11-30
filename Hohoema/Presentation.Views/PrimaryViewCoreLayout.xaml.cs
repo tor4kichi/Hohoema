@@ -75,7 +75,7 @@ namespace Hohoema.Presentation.Views
                 _navigationDisposable?.Dispose();
                 _navigationDisposable = new CompositeDisposable();
 
-                OptionalPageTitle = string.Empty;
+                PageTitle = string.Empty;
                 Action<Page, NavigationEventArgs> UpdateOptionalTitleAction = (page, args) =>
                 {
                     if (page.DataContext is ITitleUpdatablePage pageVM)
@@ -83,10 +83,27 @@ namespace Hohoema.Presentation.Views
                         pageVM.GetTitleObservable()
                         .Subscribe(title =>
                         {
-                            OptionalPageTitle = title;
+                            PageTitle = title;
+                            if (pageVM is HohoemaViewModelBase vm)
+                            {
+                                vm.Title = title;
+                            }
                         })
                         .AddTo(_navigationDisposable);
                     }
+                    else if (page.DataContext is HohoemaViewModelBase vm)
+                    {
+                        var pageNameRaw = e.SourcePageType.FullName.Split('.').LastOrDefault();
+                        var pageName = pageNameRaw.Split('_').FirstOrDefault();
+                        if (Enum.TryParse(pageName.Substring(0, pageName.Length - 4), out HohoemaPageType pageType))
+                        {
+                            PageTitle = vm.Title = pageType.Translate();
+                        }
+                        else
+                        {
+                            PageTitle = vm.Title = pageType.ToString();
+                        }
+                    }                    
                 };
 
                 var page = e.Content as Page;
@@ -102,13 +119,6 @@ namespace Hohoema.Presentation.Views
                 else
                 {
                     UpdateOptionalTitleAction(page, e);
-                }
-
-                var pageNameRaw = e.SourcePageType.FullName.Split('.').LastOrDefault();
-                var pageName = pageNameRaw.Split('_').FirstOrDefault();
-                if (Enum.TryParse(pageName.Substring(0, pageName.Length - 4), out HohoemaPageType pageType))
-                {
-                    PageTitle = pageType.Translate();
                 }
             };
 

@@ -62,32 +62,28 @@
                       XYFocusLeftNavigationStrategy="RectilinearDistance"
                       HorizontalAlignment="Right"
                       >
-              <CommandBar.PrimaryCommands>
-                <AppBarButton Visibility="Collapsed" Icon="Play" Command="{Binding PlayAllUnwatchedCommand}">
-
-                </AppBarButton>
-                <AppBarButton Visibility="Collapsed" Icon="Add" Label="{Binding Source=Add, Converter={StaticResource LocalizeConverter}}" Command="{Binding AddSubscriptionSourceCommand}">
-
-                </AppBarButton>
-
-                <AppBarButton Icon="Refresh" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}}" Command="{Binding AllUpdateCommand}" >
-
-                </AppBarButton>
-              </CommandBar.PrimaryCommands>
-
               <CommandBar.Content>
-                <Grid Margin="8 0" HorizontalAlignment="Right">
-                  <StackPanel Orientation="Horizontal" x:Name="AutoUpdateRunningStatusLayout" Spacing="8" Opacity="0.0">
-                    <TextBlock>
+                <mycontrols:AppTitleBar Title="{Binding Title}" />
+              </CommandBar.Content>
+
+              <CommandBar.PrimaryCommands>
+                <AppBarElementContainer IsEnabled="False">
+                  <Grid Margin="8 0" HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal" x:Name="AutoUpdateRunningStatusLayout" Spacing="8" Opacity="0.0">
+                      <TextBlock>
                     <Run Text="{Binding Source=SubscriptionsAutoUpdateRunning, Converter={StaticResource LocalizeConverter}}" />
                     <Run Text="{Binding Source=SubscriptionsNextUpdateTime, Converter={StaticResource LocalizeConverter}}" />:<Run Text="{Binding NextUpdateTime.Value, Converter={StaticResource DateTimeToString}, ConverterParameter=t}" />
-                    </TextBlock>
-                  </StackPanel>
-                  <StackPanel Orientation="Horizontal" x:Name="AutoUpdateNotRunningStatusLayout" Spacing="8" Opacity="0.0">
-                    <TextBlock Text="{Binding Source=SubscriptionsAutoNotUpdateRunning, Converter={StaticResource LocalizeConverter}}" />
-                  </StackPanel>
-                </Grid>
-              </CommandBar.Content>
+                      </TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" x:Name="AutoUpdateNotRunningStatusLayout" Spacing="8" Opacity="0.0">
+                      <TextBlock Text="{Binding Source=SubscriptionsAutoNotUpdateRunning, Converter={StaticResource LocalizeConverter}}" />
+                    </StackPanel>
+                  </Grid>
+                </AppBarElementContainer>
+                <AppBarButton Visibility="Collapsed" Icon="Play" Command="{Binding PlayAllUnwatchedCommand}" />
+                <AppBarButton Visibility="Collapsed" Icon="Add" Label="{Binding Source=Add, Converter={StaticResource LocalizeConverter}}" Command="{Binding AddSubscriptionSourceCommand}" />
+                <AppBarButton Icon="Refresh" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}}" Command="{Binding AllUpdateCommand}"  />
+              </CommandBar.PrimaryCommands>
             </CommandBar>
           </Grid>
         </mycontrols:ScrollHeader>

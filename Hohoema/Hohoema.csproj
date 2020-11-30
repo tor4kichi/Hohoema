@@ -628,6 +628,9 @@
     <Compile Include="Presentation.Views.Pages\VideoPages\VideoInfomationPage.xaml.cs">
       <DependentUpon>VideoInfomationPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Presentation.Views\Controls\AppTitleBar.xaml.cs">
+      <DependentUpon>AppTitleBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Presentation.Views\Controls\BooleanViewSwitcher.xaml.cs">
       <DependentUpon>BooleanViewSwitcher.xaml</DependentUpon>
     </Compile>
@@ -1188,6 +1191,10 @@
     <Page Include="Presentation.Views.Pages\VideoPages\VideoInfomationPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Presentation.Views\Controls\AppTitleBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Presentation.Views\Controls\BooleanViewSwitcher.xaml">
       <Generator>MSBuild:Compile</Generator>

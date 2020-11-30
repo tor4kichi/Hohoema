@@ -31,6 +31,9 @@
           <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
             <Grid>
               <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+                <CommandBar.Content>
+                  <controls:AppTitleBar Title="{Binding Title}" />
+                </CommandBar.Content>
                 <CommandBar.PrimaryCommands>
 
                   <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />

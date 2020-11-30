@@ -280,6 +280,10 @@
     </ScrollViewer>
     <StackPanel x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}" VerticalAlignment="Top" HorizontalAlignment="Stretch">
       <CommandBar x:Name="HeaderCommandBar">
+
+        <CommandBar.Content>
+          <controls:AppTitleBar Title="{Binding Title}" />
+        </CommandBar.Content>
         <CommandBar.SecondaryCommands>
           <AppBarButton x:Name="AddSubscriptionButton" Label="{Binding Source=SubscriptionAddUser, Converter={StaticResource LocalizeConverter}}" Icon="Add"
                         Command="{Binding AddSubscriptionCommand}"

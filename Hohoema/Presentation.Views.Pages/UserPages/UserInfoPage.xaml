@@ -20,11 +20,16 @@
       DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
+  xmlns:controls="using:Hohoema.Presentation.Views.Controls"
     >
   <Grid>
     <toolkit:DockPanel>
       <Border x:Name="HeaderLayout" toolkit:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}" >
         <CommandBar x:Name="HeaderCommandBar" >
+          <CommandBar.Content>
+            <controls:AppTitleBar Title="{Binding Title}" />
+          </CommandBar.Content>
+
           <AppBarToggleButton x:Name="UserFollowButton" Background="Transparent" IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}" Command="{Binding FollowToggleButtonService.ToggleFollowCommand}" Visibility="Collapsed" Icon="Favorite" Label="フォロー" />
           <AppBarButton x:Name="FeedRegstrationButton" Label="購読に追加" Icon="Add" Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}"
                         Command="{Binding AddSubscriptionCommand}"

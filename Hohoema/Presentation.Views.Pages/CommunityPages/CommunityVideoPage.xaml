@@ -37,6 +37,10 @@
             <toolkit:DockPanel>
               <StackPanel>
                 <CommandBar x:Name="TopCommandBar">
+                  <CommandBar.Content>
+                    <controls:AppTitleBar Title="{Binding Title}" />
+                  </CommandBar.Content>
+                  
                   <CommandBar.PrimaryCommands>
                     <AppBarButton x:Name="ScrollToTopButton" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
                       <i:Interaction.Behaviors>

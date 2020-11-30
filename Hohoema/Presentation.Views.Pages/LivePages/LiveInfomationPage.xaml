@@ -328,6 +328,8 @@
     </ScrollViewer>
     <uwptoolkit:DockPanel x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}" VerticalAlignment="Top">
 
+      <controls:AppTitleBar Title="{Binding Title}" uwptoolkit:DockPanel.Dock="Top" />
+
       <uwptoolkit:WrapPanel Orientation="Horizontal"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Right"

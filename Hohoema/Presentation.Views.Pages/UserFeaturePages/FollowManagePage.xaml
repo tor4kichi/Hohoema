@@ -93,6 +93,10 @@
     
     <Border x:Name="HeaderLayout" Background="{ThemeResource MenuBackgroundBrush}" toolkit:DockPanel.Dock="Top" VerticalAlignment="Top">
       <CommandBar x:Name="TopCommandBar" Background="Transparent" HorizontalAlignment="Right">
+        <CommandBar.Content>
+          <controls:AppTitleBar Title="{Binding Title}" />
+        </CommandBar.Content>
+        
         <CommandBar.PrimaryCommands>
           <AppBarButton Command="{Binding UpdateFavListCommand}" Background="Transparent">
             <SymbolIcon Symbol="Refresh" />

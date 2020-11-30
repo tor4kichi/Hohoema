@@ -115,7 +115,29 @@
           <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
             <StackPanel x:Name="HeaderLayout">
               <CommandBar x:Name="TopCommandBar">
+                <CommandBar.Content>
+                  <controls:AppTitleBar Title="{Binding Title}" />
+                </CommandBar.Content>
+
                 <CommandBar.PrimaryCommands>
+                  <AppBarElementContainer VerticalContentAlignment="Stretch">
+                    <DropDownButton Background="Transparent" VerticalAlignment="Stretch">
+                      <TextBlock>
+                      <Run Text="{Binding Source=NicoRepoDisplayOptions, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding NicoRepoType.Value, Converter={StaticResource LocalizeConverter}}" />
+                      </TextBlock>
+                      <DropDownButton.Flyout>
+                        <Flyout x:Name="TopicsEditFlyout" >
+                          <ListView ItemsSource="{Binding NicoRepoTypeList, Mode=OneTime}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="False" SelectedItem="{Binding NicoRepoType.Value, Mode=TwoWay}">
+                            <ListView.ItemTemplate>
+                              <DataTemplate>
+                                <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+                              </DataTemplate>
+                            </ListView.ItemTemplate>
+                          </ListView>
+                        </Flyout>
+                      </DropDownButton.Flyout>
+                    </DropDownButton>
+                  </AppBarElementContainer>
                   <AppBarButton x:Name="ScrollToTopButton" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Click">
@@ -125,26 +147,6 @@
                   </AppBarButton>
                   <AppBarButton x:Name="RefreshButton" Icon="Refresh" Background="Transparent" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding RefreshCommand}" />
                 </CommandBar.PrimaryCommands>
-
-                <CommandBar.Content>
-                  <DropDownButton Background="Transparent">
-                    <TextBlock>
-                      <Run Text="{Binding Source=NicoRepoDisplayOptions, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding NicoRepoType.Value, Converter={StaticResource LocalizeConverter}}" />
-                    </TextBlock>
-                    <DropDownButton.Flyout>
-                      <Flyout x:Name="TopicsEditFlyout" >
-                        <ListView ItemsSource="{Binding NicoRepoTypeList, Mode=OneTime}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="False" SelectedItem="{Binding NicoRepoType.Value, Mode=TwoWay}">
-                          <ListView.ItemTemplate>
-                            <DataTemplate>
-                              <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                            </DataTemplate>
-                          </ListView.ItemTemplate>
-                        </ListView>
-                      </Flyout>
-                    </DropDownButton.Flyout>
-                  </DropDownButton>
-                  
-                </CommandBar.Content>
               </CommandBar>
             </StackPanel>
           </controls:ScrollHeader>

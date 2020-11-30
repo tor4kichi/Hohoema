@@ -194,7 +194,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
             {
 				await Task.Delay(50);
 
-                if (SearchText.Value.Length == 0) { return; }
+                if (SearchText.Value?.Length == 0) { return; }
 
 				if (_LastSelectedTarget == SelectedTarget.Value && _LastKeyword == SearchText.Value) { return; }
 
@@ -280,8 +280,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 
         public IObservable<string> GetTitleObservable()
         {
-			return Observable.Empty<string>();
-			return SearchText.Select(x => x);
+			return SearchText.Select(x => $"{"Search".Translate()} '{x}'");
         }
 
         public HohoemaPin GetPin()
