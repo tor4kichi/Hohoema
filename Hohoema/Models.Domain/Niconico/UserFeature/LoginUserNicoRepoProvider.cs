@@ -23,11 +23,11 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature
             });
         }
 
-        public async Task<NicoRepoEntriesResponse> GetLoginUserNicoRepoAsync(NicoRepoType type, NicoRepoDisplayTarget target, NicoRepoResponse prevRes = null)
+        public async Task<NicoRepoEntriesResponse> GetLoginUserNicoRepoAsync(NicoRepoType type, NicoRepoDisplayTarget target, NicoRepoEntriesResponse prevRes = null)
         {
             return await ContextActionAsync(async context =>
             {
-                return await context.NicoRepo.GetLoginUserNicoRepoEntriesAsync(type, target, prevRes?.Meta?.MaxId);
+                return await context.NicoRepo.GetLoginUserNicoRepoEntriesAsync(type, target, prevRes?.Meta?.MinId);
             });
         }
     }
