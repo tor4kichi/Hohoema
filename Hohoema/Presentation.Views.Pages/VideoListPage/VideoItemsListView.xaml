@@ -56,6 +56,7 @@
                             >
               <CommandBar OverflowButtonVisibility="Collapsed" DefaultLabelPosition="Right" uwpcontrol:DockPanel.Dock="Left"
                     IsDynamicOverflowEnabled="False"
+                          
                     >
                 <AppBarButton x:Name="SelectActions_Exit" Label="{Binding Source=SelectEnd, Converter={StaticResource LocalizeConverter}}"
                           Icon="Clear"
@@ -80,10 +81,10 @@
               <!-- 単品選択時のアクションはコンテキストメニューで実装するため、複数選択時は考慮しない -->
               <CommandBar x:Name="SelectActions_Default"
                   DefaultLabelPosition="Right"
-                  OverflowButtonVisibility="Visible"
-                  UseSystemFocusVisuals="True"
-                          
-                  Margin="0 0 0 8"
+                  UseSystemFocusVisuals="True"        
+                  Margin="0 0 0 0"
+                          IsDynamicOverflowEnabled="True"
+                          OverflowButtonVisibility="Visible"
                   >
 
 
