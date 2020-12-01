@@ -256,7 +256,8 @@
     <Thickness x:Key="NavigationViewHeaderMargin">0</Thickness>
 
   </UserControl.Resources>
-  <Grid x:Name="RootLayout" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+  <Grid x:Name="RootLayout" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+        >
     <!-- Player -->
     <uwpToolkitControls:DockPanel>
       <Border uwpToolkitControls:DockPanel.Dock="Top"
@@ -273,26 +274,16 @@
                            IsSettingsVisible="False"
                            IsTitleBarAutoPaddingEnabled="True"
                            SelectionFollowsFocus="Disabled"
+                           AlwaysShowHeader="False"
+                           XYFocusLeftNavigationStrategy="Projection"
+                           XYFocusRightNavigationStrategy="Projection"
                       >
-        <muxc:NavigationView.Header>
-          <Grid x:Name="MenuBackgroundGrid"
-                  Background="{ThemeResource MenuBackgroundBrush}"
-                  IsTapEnabled="True"
-                  IsHitTestVisible="True"
-                VerticalAlignment="Top"
-                >
-            <TextBlock x:Name="MenuTitleText" Text="{x:Bind PageTitle,Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="16 8 64 8" VerticalAlignment="Center" IsHitTestVisible="False" MaxLines="1" />
-            <StackPanel x:Name="MenuTitleText_WithOptional" Margin="16 0 16 0" Spacing="0" VerticalAlignment="Top" Visibility="Collapsed">
-              <TextBlock x:Name="PageTitleText_WithOptionl" Text="{x:Bind PageTitle,Mode=OneWay}" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
-              <TextBlock x:Name="OptionalPageTitleText" Text="{x:Bind OptionalPageTitle,Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 0 64 0" MaxLines="1" />
-            </StackPanel>
-          </Grid>
-        </muxc:NavigationView.Header>
         <muxc:NavigationView.PaneHeader>
           <Grid >
             <TextBlock Text="{Binding NiconicoSession.ServiceStatus, Converter={StaticResource LocalizeConverter}}"
                        x:Name="ServiceStateText" 
                        Margin="8 0"
+                       Visibility="Collapsed"
                        />
           </Grid>
           <!--
@@ -517,7 +508,9 @@
              DataContext="{x:Null}"
              CacheSize="1"
              HorizontalContentAlignment="Stretch"
-             VerticalContentAlignment="Stretch">
+             VerticalContentAlignment="Stretch"
+             XYFocusKeyboardNavigation="Disabled"
+             >
         <Frame.ContentTransitions>
           <TransitionCollection>
             <NavigationThemeTransition>
@@ -594,6 +587,15 @@
             <Setter Target="AccountInfoLayout.Padding" Value="4 0 0 0" />
           </VisualState.Setters>
         </VisualState>
+
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.LeftMinimal}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CoreNavigationView.PaneTitle" Value="{x:Bind PageTitle, Mode=OneWay}" />
+          </VisualState.Setters>
+        </VisualState>
       </VisualStateGroup>
       
       <!-- Win10タブレットの場合 -->
@@ -616,6 +618,7 @@
             <Setter Target="CoreNavigationView.IsBackButtonVisible" Value="Collapsed" />
             <Setter Target="CoreNavigationView.Margin" Value="27 48 0 48" />
             <Setter Target="CoreNavigationView.Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}" />
+            <Setter Target="DraggableContent.Height" Value="0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -649,9 +652,6 @@
             <Setter Target="PlayerLayout.Margin" Value="0 0 8 0" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Bottom" />
             <Setter Target="PlayerLayout.HorizontalAlignment" Value="Right" />
-
-            <Setter Target="MenuTitleText.Margin" Value="16 5 16 8" />
-            
           </VisualState.Setters>
         </VisualState>
 
@@ -689,8 +689,6 @@
             <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
             <Setter Target="MobilePlayerTopMargin.Height" Value="280" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
-            
-            <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
           </VisualState.Setters>
         </VisualState>
         <!-- プレイヤーを小窓表示（Mobile） -->
@@ -709,8 +707,6 @@
             <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
             <Setter Target="MobilePlayerTopMargin.Height" Value="180" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
-
-            <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
           </VisualState.Setters>
         </VisualState>
         <!-- TV -->
@@ -719,7 +715,6 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="MenuTitleText.Margin" Value="16 5 16 8" />
           </VisualState.Setters>
         </VisualState>
         <!-- Desktop -->
@@ -736,7 +731,6 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
           </VisualState.Setters>
         </VisualState>
         <!-- Mobile -->
@@ -745,7 +739,6 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -918,19 +911,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind OptionalPageTitle, Mode=OneWay, Converter={StaticResource NotEmptyStringToBoolean}}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="MenuTitleText_WithOptional.Visibility"
-                    Value="Visible" />
-            <Setter Target="MenuTitleText.Visibility"
-                    Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

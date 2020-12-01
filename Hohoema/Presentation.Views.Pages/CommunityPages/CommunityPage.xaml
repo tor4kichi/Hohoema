@@ -144,6 +144,10 @@
     <Grid x:Name="HeaderLayout" VerticalAlignment="Top" HorizontalAlignment="Stretch" Background="{StaticResource MenuBackgroundBrush}">
       <Border Height="48" />
       <CommandBar HorizontalAlignment="Right">
+        <CommandBar.Content>
+          <controls:AppTitleBar Title="{Binding Title}" />
+        </CommandBar.Content>
+
         <AppBarToggleButton Background="Transparent" IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}" Command="{Binding FollowToggleButtonService.ToggleFollowCommand}" Icon="Favorite" Label="フォロー" Visibility="Collapsed" x:Name="CommunityFollowButton" />
         <AppBarButton Label="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenCommunityWebPagePageCommand}" VerticalAlignment="Center" UseSystemFocusVisuals="True" />
       </CommandBar>

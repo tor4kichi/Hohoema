@@ -9,7 +9,9 @@
   xmlns:viewModels="using:Hohoema.Presentation.ViewModels.Pages.SeriesPages" 
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-  xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions" xmlns:wst="using:WindowsStateTriggers"
+  xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions" 
+  xmlns:wst="using:WindowsStateTriggers"
+  xmlns:controls="using:Hohoema.Presentation.Views.Controls"
   mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   NavigationCacheMode="Enabled"
@@ -40,7 +42,9 @@
 
       <GridView.Header>
         <CommandBar>
-          
+          <CommandBar.Content>
+            <controls:AppTitleBar Title="{Binding Title}" />
+          </CommandBar.Content>
         </CommandBar>
       </GridView.Header>
 

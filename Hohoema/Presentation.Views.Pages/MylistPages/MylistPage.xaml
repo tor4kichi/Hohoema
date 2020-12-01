@@ -38,22 +38,30 @@
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-            <CommandBar x:Name="VideoListCommandBar" Background="Transparent" toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right">
+            <CommandBar x:Name="VideoListCommandBar" Background="Transparent" toolkit:DockPanel.Dock="Right">
 
               <CommandBar.Content>
-                <StackPanel x:Name="TitleLayout" Margin="16 0 0 0" Orientation="Horizontal">
-                  <StackPanel Orientation="Horizontal" Margin="0 0 0 0" Visibility="{Binding UserName, Converter={StaticResource NotNullToVisibility}}">
-                    <TextBlock FontSize="14">
+                <controls:AppTitleBar Title="{Binding Title}" />
+              </CommandBar.Content>
+              <CommandBar.PrimaryCommands>
+                <AppBarElementContainer IsEnabled="False">
+                  <StackPanel Orientation="Horizontal">
+
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 0" Visibility="{Binding UserName, Converter={StaticResource NotNullToVisibility}}">
+                      <TextBlock FontSize="14">
                         <Run Text="{Binding Source=ContentOwner, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding UserName}" /></TextBlock>
-                    <Border x:Name="DefaultMylistRegistrationCount" Visibility="{Binding IsLoginUserDeflist, Converter={StaticResource BooleanToVisibility}}" Margin="8 0 0 0">
-                      <TextBlock>
+                      <Border x:Name="DefaultMylistRegistrationCount" Visibility="{Binding IsLoginUserDeflist, Converter={StaticResource BooleanToVisibility}}" Margin="8 0 0 0">
+                        <TextBlock>
                         (<Run Text="{Binding Source=MylistRegisteredCount}" />:<Run Text="{Binding DeflistRegistrationCount}" /> <Run Text="{Binding Source=MylistRegisteredCountLimit}" />:<Run Text="{Binding DeflistRegistrationCapacity}" />)</TextBlock>
-                    </Border>
-                    <Border x:Name="MylistRegistrationCount" Visibility="{Binding IsLoginUserMylistWithoutDeflist, Converter={StaticResource BooleanToVisibility}}" Margin="8 0 0 0">
-                      <TextBlock>
+                      </Border>
+                      <Border x:Name="MylistRegistrationCount" Visibility="{Binding IsLoginUserMylistWithoutDeflist, Converter={StaticResource BooleanToVisibility}}" Margin="8 0 0 0">
+                        <TextBlock>
                         (<Run Text="{Binding Source=MylistRegisteredCount}" />:<Run Text="{Binding MaxItemsCount}" /> <Run Text="{Binding Source=MylistRegisteredCountSum}" />:<Run Text="{Binding MylistRegistrationCount}" /> 上限:<Run Text="{Binding MylistRegistrationCapacity}" />)</TextBlock>
-                    </Border>
+                      </Border>
+                    </StackPanel>
                   </StackPanel>
+                </AppBarElementContainer>
+                <AppBarElementContainer>
                   <ComboBox ItemsSource="{Binding SortItems}"
                                 SelectedItem="{Binding SelectedSortItem.Value, Mode=TwoWay}"
                                 >
@@ -64,9 +72,8 @@
                       </DataTemplate>
                     </ComboBox.ItemTemplate>
                   </ComboBox>
-                </StackPanel>
-              </CommandBar.Content>
-              <CommandBar.PrimaryCommands>
+
+                </AppBarElementContainer>
                 <!-- 非選択中 -->
                 <AppBarToggleButton x:Name="ToggleMylistFavoriteButton" IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}" Command="{Binding FollowToggleButtonService.ToggleFollowCommand}" Visibility="Collapsed" Icon="Favorite" Label="{Binding Source=Follow, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />
                 <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />

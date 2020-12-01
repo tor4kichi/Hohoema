@@ -24,6 +24,7 @@ using Hohoema.Models.Domain;
 using I18NPortable;
 using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Application;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -31,7 +32,14 @@ namespace Hohoema.Presentation.Views.Pages.VideoListPage
 {
     public sealed partial class VideoItemsListView : UserControl
     {
+        private static AppearanceSettings _AppearanceSettings { get; }
 
+        static VideoItemsListView()
+        {
+            _AppearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();
+        }
+
+        private AppearanceSettings AppearanceSettings => _AppearanceSettings;
 
         public object Header
         {
@@ -353,6 +361,12 @@ namespace Hohoema.Presentation.Views.Pages.VideoListPage
             {
                 ItemsList.SelectAll();
             }
+        }
+
+
+        public void OnEndSelection()
+        {
+            ItemsList.Focus(FocusState.Programmatic);
         }
 
         #endregion

@@ -52,6 +52,10 @@
           <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
             <mycontrols:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
               <CommandBar toolkit:DockPanel.Dock="Right" Background="Transparent">
+                <CommandBar.Content>
+                  <mycontrols:AppTitleBar Title="{Binding Title}" />
+                </CommandBar.Content>
+                
                 <AppBarButton Background="Transparent" Label="並べ替え" Icon="Sort" Visibility="Collapsed">
                   <AppBarButton.Flyout>
                     <MenuFlyout>

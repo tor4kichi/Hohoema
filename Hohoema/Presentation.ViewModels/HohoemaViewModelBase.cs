@@ -47,6 +47,13 @@ namespace Hohoema.Presentation.ViewModels
 
         protected CancellationToken NavigationCancellationToken => _navigationCancellationTokenSource?.Token ?? default;
 
+        private string _title;
+        public string Title
+        {
+            get => _title;
+            set => SetProperty(ref _title, value);
+        }
+
         public virtual void Destroy()
         {
             _CompositeDisposable?.Dispose();

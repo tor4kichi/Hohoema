@@ -319,6 +319,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
         private readonly NicoRepoType _nicoRepoType;
         private readonly NicoRepoDisplayTarget _nicoRepoDisplayTarget;
 
+        NicoRepoEntriesResponse _prevRes;
+
         protected override async IAsyncEnumerable<INicoRepoItem> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             NicoRepoEntriesResponse nicoRepoResponse;
@@ -328,13 +330,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
             }
             else
             {
-                nicoRepoResponse = await LoginUserNicoRepoProvider.GetLoginUserNicoRepoAsync(_nicoRepoType, _nicoRepoDisplayTarget);
+                nicoRepoResponse = await LoginUserNicoRepoProvider.GetLoginUserNicoRepoAsync(_nicoRepoType, _nicoRepoDisplayTarget, _prevRes);
             }
 
             ct.ThrowIfCancellationRequested();
 
             if (nicoRepoResponse.Meta.Status != 200) { yield break; }
 
+            _prevRes = nicoRepoResponse;
 #if DEBUG
             List<string> triggers = new List<string>();
 #endif

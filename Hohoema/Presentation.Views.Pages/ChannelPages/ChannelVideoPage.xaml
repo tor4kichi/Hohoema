@@ -32,9 +32,6 @@
   </Page.Transitions>
 
   <Grid>
-
-    
-
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
                                       ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
@@ -46,6 +43,10 @@
         <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
           <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
             <CommandBar x:Name="VideoListCommandBar" HorizontalAlignment="Right">
+              <CommandBar.Content>
+                <controls:AppTitleBar Title="{Binding Title}" />
+              </CommandBar.Content>
+              
               <CommandBar.PrimaryCommands>
                 <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
 

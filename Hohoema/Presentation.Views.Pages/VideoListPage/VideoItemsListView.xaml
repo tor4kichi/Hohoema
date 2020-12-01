@@ -12,6 +12,8 @@
   xmlns:actions="using:Hohoema.Presentation.Views.Actions"
   xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
   xmlns:trigger="using:Hohoema.Presentation.Views.StateTrigger"
+  xmlns:wst="using:WindowsStateTriggers" 
+  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
   mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"
@@ -20,46 +22,21 @@
 
   <Grid>
 
-    <uwpcontrol:DockPanel>
+    <i:Interaction.Behaviors>
+      <core:DataTriggerBehavior Binding="{x:Bind _selectionContext.IsSelectionEnabled, Mode=OneWay}" Value="False">
+        <core:CallMethodAction TargetObject="{x:Bind}" MethodName="OnEndSelection" />
+      </core:DataTriggerBehavior>
+    </i:Interaction.Behaviors>
 
-      <!-- 単品選択時のアクションはコンテキストメニューで実装するため、複数選択時は考慮しない -->
-      <CommandBar x:Name="SelectActions_Default" uwpcontrol:DockPanel.Dock="Bottom" Visibility="Collapsed">
-        <AppBarButton x:Name="SelectActions_Exit" Label="{Binding Source=SelectEnd, Converter={StaticResource LocalizeConverter}}">
-          <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Tapped">
-              <core:CallMethodAction TargetObject="{x:Bind _selectionContext}" MethodName="EndSelectioin" />
-            </core:EventTriggerBehavior>
-          </i:Interaction.Behaviors>
-        </AppBarButton>
-        <AppBarSeparator />
-        <AppBarButton x:Name="SelectActions_SwitchAll" Label="{Binding Source=SelectAll, Converter={StaticResource LocalizeConverter}}">
-          <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Tapped">
-              <core:CallMethodAction TargetObject="{x:Bind _selectionContext}" MethodName="ToggleSelectAll" />
-            </core:EventTriggerBehavior>
-          </i:Interaction.Behaviors>
-        </AppBarButton>
-        <AppBarSeparator />
-        <AppBarButton x:Name="SelectActions_CopyMylist" Label="{Binding Source=MylistCopyItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _copyMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-        <AppBarButton x:Name="SelectActions_MoveMylist" Label="{Binding Source=MylistMoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _moveMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-
-        <AppBarSeparator x:Name="SelectActions_EditButtonSeparator" />
-        
-        <AppBarButton x:Name="SelectActions_RemoveMylist" Label="{Binding Source=MylistRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-        <AppBarButton x:Name="SelectActions_RemoveWatchAfter" Label="{Binding Source=WatchAfterRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeWatchAfterCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-        <AppBarButton x:Name="SelectActions_RemoveLocalMylist" Label="{Binding Source=LocalMylistRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _localMylistRemoveCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-        <AppBarButton x:Name="SelectActions_RemoveWatchHistory" Label="{Binding Source=RemoveWatchHisotryItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeWatchHistoryCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-        <AppBarSeparator x:Name="SelectActions_RemoveButtonSeparator" />
-        
-        <AppBarButton x:Name="SelectActions_AddWatchAfter" Label="{Binding Source=WatchAfterAddItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _addWatchAfterCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-        <AppBarButton x:Name="SelectActions_AddMylist" Label="{Binding Source=MylistAddItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _addMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-        <AppBarButton x:Name="SelectActions_AddLocalMylist" Label="{Binding Source=LocalMylistAddItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _localMylistAddCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-      </CommandBar>
+    <uwpcontrol:DockPanel >
       
+
+     
+
+
       <ListView x:Name="ItemsList"
               ItemsSource="{x:Bind ItemsSource, Mode=OneWay}"
               ItemTemplate="{x:Bind ItemTemplate, Mode=OneWay}"
-              Header="{x:Bind Header}"
               IncrementalLoadingTrigger="Edge"
               UseSystemFocusVisuals="True"
               SelectionMode="None"
@@ -70,6 +47,66 @@
               IsItemClickEnabled="True"
               Padding="{x:Bind ItemsPanelPadding, Mode=OneWay}"
               >
+        <ListView.Header>
+          <Grid Background="{StaticResource MenuBackgroundBrush}">
+            <ContentControl Content="{x:Bind Header}" x:Name="HeaderContent" HorizontalContentAlignment="Stretch" IsTabStop="False" />
+
+            <uwpcontrol:DockPanel x:Name="SelectActionsContainer" Visibility="Collapsed"
+                            uwpcontrol:DockPanel.Dock="Top" 
+                            >
+              <CommandBar OverflowButtonVisibility="Collapsed" DefaultLabelPosition="Right" uwpcontrol:DockPanel.Dock="Left"
+                    IsDynamicOverflowEnabled="False"
+                    >
+                <AppBarButton x:Name="SelectActions_Exit" Label="{Binding Source=SelectEnd, Converter={StaticResource LocalizeConverter}}"
+                          Icon="Clear"
+                          >
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <core:CallMethodAction TargetObject="{x:Bind _selectionContext}" MethodName="EndSelectioin" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+                <AppBarButton x:Name="SelectActions_SwitchAll" Label="{Binding Source=SelectAll, Converter={StaticResource LocalizeConverter}}"
+                          Icon="List"
+                          >
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <core:CallMethodAction TargetObject="{x:Bind _selectionContext}" MethodName="ToggleSelectAll" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+              </CommandBar>
+
+              <!-- 単品選択時のアクションはコンテキストメニューで実装するため、複数選択時は考慮しない -->
+              <CommandBar x:Name="SelectActions_Default"
+                  DefaultLabelPosition="Right"
+                  OverflowButtonVisibility="Visible"
+                  UseSystemFocusVisuals="True"
+                          
+                  Margin="0 0 0 8"
+                  >
+
+
+                <AppBarButton x:Name="SelectActions_CopyMylist" Label="{Binding Source=MylistCopyItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _copyMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_MoveMylist" Label="{Binding Source=MylistMoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _moveMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+
+                <AppBarSeparator x:Name="SelectActions_EditButtonSeparator" />
+
+                <AppBarButton x:Name="SelectActions_RemoveMylist" Label="{Binding Source=MylistRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_RemoveWatchAfter" Label="{Binding Source=WatchAfterRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeWatchAfterCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_RemoveLocalMylist" Label="{Binding Source=LocalMylistRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _localMylistRemoveCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_RemoveWatchHistory" Label="{Binding Source=RemoveWatchHisotryItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeWatchHistoryCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarSeparator x:Name="SelectActions_RemoveButtonSeparator" />
+
+                <AppBarButton x:Name="SelectActions_AddWatchAfter" Label="{Binding Source=WatchAfterAddItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _addWatchAfterCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_AddMylist" Label="{Binding Source=MylistAddItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _addMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_AddLocalMylist" Label="{Binding Source=LocalMylistAddItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _localMylistAddCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+              </CommandBar>
+
+            </uwpcontrol:DockPanel>
+
+          </Grid>
+        </ListView.Header>
 
         <i:Interaction.Behaviors>
           <core:EventTriggerBehavior EventName="ItemClick">
@@ -99,11 +136,40 @@
             <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
             <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
 
-            <Setter Target="SelectActions_Default.Visibility" Value="Visible" />
+            <Setter Target="SelectActionsContainer.Visibility" Value="Visible" />
+            <Setter Target="HeaderContent.Visibility" Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <wst:EqualsStateTrigger Value="{x:Bind AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.LeftMinimal}"  />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="SelectActionsContainer.Margin" Value="80 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="641" />
+            <wst:EqualsStateTrigger Value="{x:Bind AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Left}"  />
+            <wst:EqualsStateTrigger Value="{x:Bind AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.LeftCompact}"  />
+            <wst:EqualsStateTrigger Value="{x:Bind AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Top}"  />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="SelectActionsContainer.Margin" Value="0 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="SelectActionsContainer.Margin" Value="80 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
   </Grid>
 </UserControl>

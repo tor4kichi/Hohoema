@@ -17,7 +17,10 @@
       xmlns:myconverters="using:Hohoema.Presentation.Views.Converters"
       xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
       xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector"
-      xmlns:windowsStateTriggers="using:WindowsStateTriggers" xmlns:locales="using:Hohoema.Locales" DataContext="{x:Null}"
+      xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
+      xmlns:locales="using:Hohoema.Locales"
+      xmlns:controls="using:Hohoema.Presentation.Views.Controls" 
+      DataContext="{x:Null}"
       mc:Ignorable="d"
       x:Name="PageRoot"
       >
@@ -112,7 +115,7 @@
       <StackPanel x:Name="HeaderPanel" uwptoolkitControl:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}" HorizontalAlignment="Stretch">
         <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
           <CommandBar.Content>
-            <Border Background="Transparent" IsHitTestVisible="True" Margin="0 0 0 0"></Border>
+            <controls:AppTitleBar Title="{Binding Title}" />
           </CommandBar.Content>
           <CommandBar.PrimaryCommands>
             <AppBarButton Background="Transparent">

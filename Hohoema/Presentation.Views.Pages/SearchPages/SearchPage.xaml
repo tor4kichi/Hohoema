@@ -29,91 +29,108 @@
       </toolkit:DockPanel>
     </DataTemplate>
   </Page.Resources>
-  <Grid>
-    
-    <Border>
-      <Grid Margin="0 0 0 0" MaxWidth="960">
-        <toolkit:DockPanel Margin="0 24 0 0" x:Name="ContentLayout">
-          <toolkit:DockPanel Margin="0" toolkit:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}">
-            <!-- ターゲット（Keyword, Tag etc） -->
-            <Border Margin="0 0" toolkit:DockPanel.Dock="Top">
-              <ListView x:Name="SearchTargetListView" ItemsSource="{Binding TargetListItems}" SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}" 
+  <Grid MaxWidth="960">
+
+    <toolkit:DockPanel Margin="0 0 0 0" x:Name="ContentLayout">
+
+      <CommandBar toolkit:DockPanel.Dock="Top">
+        <CommandBar.Content>
+          <controls:AppTitleBar Title="{Binding Title}" />
+        </CommandBar.Content>
+      </CommandBar>      
+      
+      <toolkit:DockPanel Margin="0" toolkit:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}">
+
+        <ComboBox x:Name="SearchTargetListView" ItemsSource="{Binding TargetListItems}" SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}" 
                         HorizontalAlignment="Stretch" TabIndex="1" IsTabStop="True" UseSystemFocusVisuals="True" 
-                        SingleSelectionFollowsFocus="False"
-                        SelectionMode="Single"
-                        Margin="120 8 0 8"
-                        IsItemClickEnabled="True"
+                  toolkit:DockPanel.Dock="Left"
+                  VerticalAlignment="Center"
+                  Margin="0 0 8 0"
                         >
-                <i:Interaction.Behaviors>
-                  <core:EventTriggerBehavior EventName="ItemClick">
-                    <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
-                  </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-                <ListView.ItemTemplate>
-                  <DataTemplate>
-                    <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                  </DataTemplate>
-                </ListView.ItemTemplate>
-                <ListView.ItemsPanel>
-                  <ItemsPanelTemplate>
-                    <ItemsWrapGrid Orientation="Horizontal" />
-                  </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
-              </ListView>
-            </Border>
-            <!-- 検索 -->
-            <toolkit:DockPanel Margin="0 0 0 8">
-              <DropDownButton toolkit:DockPanel.Dock="Right"
+          <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="SelectionChanged">
+              <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
+            </core:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+          <ComboBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        
+        <!-- 検索 -->
+        <toolkit:DockPanel Margin="0 0 0 0" MaxWidth="960">
+          <DropDownButton toolkit:DockPanel.Dock="Right"
                               Margin="0 0 8 0"
-                              Height="48"
+                              Height="40"
                               Width="64"
                               >
-                <DropDownButton.Content>
-                  <SymbolIcon Symbol="Clock" />
-                </DropDownButton.Content>
-                <DropDownButton.Flyout>
-                  <Flyout>
-                    <ListView ItemsSource="{Binding SearchHistoryItems}" DisplayMemberPath="Keyword"
+            <DropDownButton.Content>
+              <SymbolIcon Symbol="Clock" />
+            </DropDownButton.Content>
+            <DropDownButton.Flyout>
+              <Flyout>
+                <ListView ItemsSource="{Binding SearchHistoryItems}" DisplayMemberPath="Keyword"
                               SelectionMode="None"
                               IsItemClickEnabled="True"
                               >
-                      <i:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="ItemClick">
-                          <core:InvokeCommandAction Command="{Binding SearchHistoryItemCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-                        </core:EventTriggerBehavior>
-                      </i:Interaction.Behaviors>
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="ItemClick">
+                      <core:InvokeCommandAction Command="{Binding SearchHistoryItemCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
 
-                    </ListView>
-                  </Flyout>
-                </DropDownButton.Flyout>
-              </DropDownButton>
-              
-              <Button Margin="8 0" Command="{Binding DoSearchCommand}" Width="80" Height="48" toolkit:DockPanel.Dock="Right" UseSystemFocusVisuals="True">
-                <StackPanel Orientation="Horizontal">
-                  <SymbolIcon Symbol="Find" />
-                </StackPanel>
-              </Button>
+                </ListView>
+              </Flyout>
+            </DropDownButton.Flyout>
+          </DropDownButton>
 
-              <TextBox Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" ext:TextBoxFocusExtensions.AutoSelectOnFocus="True" VerticalAlignment="Stretch" InputScope="Search" x:Name="SearchTextBox" Margin="0 0 0 0" Height="48" FontSize="18" Style="{StaticResource BGTransparentTextBoxStyle}">
-                <i:Interaction.Behaviors>
-                  <mybehavior:KeyboardTrigger Key="Enter">
-                    <mybehavior:KeyboardTrigger.Actions>
-                      <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
-                      <mybehavior:HideInputPaneAction />
-                    </mybehavior:KeyboardTrigger.Actions>
-                  </mybehavior:KeyboardTrigger>
-                </i:Interaction.Behaviors>
-              </TextBox>
-            </toolkit:DockPanel>
-          </toolkit:DockPanel>
+          <Button Margin="8 0" Command="{Binding DoSearchCommand}" Width="80" Height="40" MinHeight="40" toolkit:DockPanel.Dock="Right" UseSystemFocusVisuals="True">
+            <StackPanel Orientation="Horizontal">
+              <SymbolIcon Symbol="Find" />
+            </StackPanel>
+          </Button>
 
-          <Frame x:Name="SearchResultFrame" CacheSize="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" DataContext="{x:Null}" />
-
+          <TextBox Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" ext:TextBoxFocusExtensions.AutoSelectOnFocus="True" VerticalAlignment="Stretch" InputScope="Search" x:Name="SearchTextBox" Margin="0 0 0 0" Height="40" FontSize="16" Style="{StaticResource BGTransparentTextBoxStyle}">
+            <i:Interaction.Behaviors>
+              <mybehavior:KeyboardTrigger Key="Enter">
+                <mybehavior:KeyboardTrigger.Actions>
+                  <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
+                  <mybehavior:HideInputPaneAction />
+                </mybehavior:KeyboardTrigger.Actions>
+              </mybehavior:KeyboardTrigger>
+            </i:Interaction.Behaviors>
+          </TextBox>
         </toolkit:DockPanel>
-        
-      </Grid>
-    </Border>
+      </toolkit:DockPanel>
+
+      <Frame x:Name="SearchResultFrame" CacheSize="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" DataContext="{x:Null}" />
+
+    </toolkit:DockPanel>
+    
     <VisualStateManager.VisualStateGroups>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="641" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="TitleText.Margin" Value="0 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="TitleText.Margin" Value="72 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      
       <!-- レイアウトモード -->
       <VisualStateGroup>
         <VisualState>

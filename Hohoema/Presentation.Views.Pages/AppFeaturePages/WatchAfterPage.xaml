@@ -37,9 +37,9 @@
                           Background="Transparent"
                           OverflowButtonVisibility="Auto">
                 <CommandBar.Content>
-                  <StackPanel x:Name="TitleLayout"
-                              Margin="16 0 0 0"></StackPanel>
+                  <controls:AppTitleBar Title="{Binding Title}" />
                 </CommandBar.Content>
+                
                 <CommandBar.PrimaryCommands>
 
                   <AppBarButton x:Name="PlayAllButton"

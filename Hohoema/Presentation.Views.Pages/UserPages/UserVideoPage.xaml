@@ -37,6 +37,10 @@
           <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
             <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
               <CommandBar x:Name="VideoListCommandBar" Background="{StaticResource MenuBackgroundBrush}" HorizontalAlignment="Right">
+                <CommandBar.Content>
+                  <controls:AppTitleBar Title="{Binding Title}" />
+                </CommandBar.Content>
+                
                 <CommandBar.PrimaryCommands>
                   <AppBarButton Label="{Binding Source=VideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding OpenVideoOwnerUserPageCommand}"
                                 />

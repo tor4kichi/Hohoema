@@ -39,6 +39,10 @@
                                >
           <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
             <CommandBar >
+              <CommandBar.Content>
+                <controls:AppTitleBar Title="{Binding Title}" />
+              </CommandBar.Content>
+              
               <CommandBar.PrimaryCommands>
                 <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
 
