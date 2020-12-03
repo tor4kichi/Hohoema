@@ -297,20 +297,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
         private readonly IEventAggregator _eventAggregator;
         private readonly AppFlagsRepository _appFlagsRepository;
         private readonly RankingProvider _rankingProvider;
-        
-        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+
+        public override async void OnNavigatedTo(INavigationParameters parameters)
         {
-            SettingsRestoredTempraryFlags.Instance.WhenRankingRestored(() =>
-            {
-                FavoriteItems.Clear();
-                FavoriteItems.AddRange(GetFavoriteRankingItems());
-                RefreshFilter();
-            });
-
-
             if (!_appFlagsRepository.IsRankingInitialUpdate)
             {
                 _appFlagsRepository.IsRankingInitialUpdate = true;
+
+                bool isCanceled = false;
+                NavigationCancellationToken.Register(() => isCanceled = true);
+
                 try
                 {
                     foreach (var genreItem in _RankingGenreItems.Cast<RankingGenreItem>())
@@ -339,8 +335,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
                             }
                         }
 
-                        await Task.Delay(500);
+                        await Task.Delay(250);
+
+                        if (isCanceled) 
+                        {
+                            _appFlagsRepository.IsRankingInitialUpdate = false;
+                            break; 
+                        }
                     }
+                }
+                catch (OperationCanceledException)
+                {
+                    _appFlagsRepository.IsRankingInitialUpdate = false;
                 }
                 finally
                 {
@@ -371,6 +377,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
                     }
                 }
             }
+            base.OnNavigatedTo(parameters);
+        }
+
+        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        {
+            SettingsRestoredTempraryFlags.Instance.WhenRankingRestored(() =>
+            {
+                FavoriteItems.Clear();
+                FavoriteItems.AddRange(GetFavoriteRankingItems());
+                RefreshFilter();
+            });
         }
 
         void RefreshFilter()
