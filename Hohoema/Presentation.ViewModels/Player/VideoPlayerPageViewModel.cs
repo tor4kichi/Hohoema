@@ -460,7 +460,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                                 Icon = VideoInfo.Owner?.IconUrl,
                                 Content = LikeThanksMessage,
                                 IsShowDismissButton = true,
-                                ShowDuration = TimeSpan.FromSeconds(15),
+                                ShowDuration = TimeSpan.FromSeconds(7),
                             });
                         }
                     }
