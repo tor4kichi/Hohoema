@@ -299,6 +299,7 @@ namespace Hohoema
 
 
 
+
             // ViewModels
             unityContainer.RegisterSingleton<Presentation.ViewModels.Pages.VideoPages.RankingCategoryListPageViewModel>();
 
@@ -570,6 +571,7 @@ namespace Hohoema
 
                     unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheResumingObserver>());
                     unityContainer.RegisterInstance(unityContainer.Resolve<VideoPlayRequestBridgeToPlayer>());
+                    unityContainer.RegisterInstance(unityContainer.Resolve<CloseToastNotificationWhenPlayStarted>());
                 }
 
                 // バックグラウンドでのトースト通知ハンドリングを初期化

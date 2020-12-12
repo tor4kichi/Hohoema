@@ -305,6 +305,7 @@
     <Compile Include="Models.UseCase\Migration\MigrationCommentFilteringSettings.cs" />
     <Compile Include="Models.UseCase\Migration\SearchPageQueryMigrate_0_26_0.cs" />
     <Compile Include="Models.UseCase\Migration\SettingsMigration_V_0_23_0.cs" />
+    <Compile Include="Models.UseCase\NicoVideos\CloseToastNotificationWhenPlayStarted.cs" />
     <Compile Include="Models.UseCase\NicoVideos\Events\VideoPlayedEvent.cs" />
     <Compile Include="Models.UseCase\NicoVideos\HohoemaPlaylist.cs" />
     <Compile Include="Models.UseCase\NicoVideos\LocalMylistManager.cs" />
