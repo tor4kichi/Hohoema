@@ -285,11 +285,19 @@
           <controls:AppTitleBar Title="{Binding Title}" />
         </CommandBar.Content>
         <CommandBar.SecondaryCommands>
-          <AppBarButton x:Name="AddSubscriptionButton" Label="{Binding Source=SubscriptionAddUser, Converter={StaticResource LocalizeConverter}}" Icon="Add"
+          <AppBarButton x:Name="AddSubscriptionButton" 
+                        Label="{Binding Source=SubscriptionAddUser, Converter={StaticResource LocalizeConverter}}" Icon="Add"
                         Command="{Binding AddSubscriptionCommand}"
                         CommandParameter="{Binding VideoInfo}"
-                        >
-          </AppBarButton>
+                        />
+
+          <AppBarButton x:Name="AddSubscriptionSeriesButton" 
+                        Label="{Binding Source=SubscriptionAddSeries, Converter={StaticResource LocalizeConverter}}" Icon="Add"
+                        Command="{Binding AddSubscriptionCommand}"
+                        CommandParameter="{Binding VideoSeries}"
+                        Visibility="{Binding VideoSeries, Converter={StaticResource NotNullToBoolean}}"
+                        />
+
           <AppBarButton Label="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.OpenLinkCommand}" CommandParameter="{Binding VideoInfo}" />
           <AppBarButton Label="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}}">
             <AppBarButton.Flyout>

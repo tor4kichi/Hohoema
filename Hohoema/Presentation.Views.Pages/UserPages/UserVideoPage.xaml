@@ -44,7 +44,7 @@
                 <CommandBar.PrimaryCommands>
                   <AppBarButton Label="{Binding Source=VideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding OpenVideoOwnerUserPageCommand}"
                                 />
-                  <AppBarButton x:Name="FeedRegstrationButton" Label="{Binding Source=SubscriptionAddVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Add" Visibility="Visible"
+                  <AppBarButton x:Name="FeedRegstrationButton" Label="{Binding Source=SubscriptionAddUser, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Add" Visibility="Visible"
                                 Command="{Binding AddSubscriptionCommand}"
                                 CommandParameter="{Binding UserInfo.Value}"
                                 >

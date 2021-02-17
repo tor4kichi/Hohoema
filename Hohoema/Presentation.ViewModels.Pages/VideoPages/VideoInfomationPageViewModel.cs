@@ -109,6 +109,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
             set { SetProperty(ref _VideoInfo, value); }
         }
 
+        private VideoSeriesViewModel _VideoSeries;
+        public VideoSeriesViewModel VideoSeries
+        {
+            get { return _VideoSeries; }
+            set { SetProperty(ref _VideoSeries, value); }
+        }
+        
+
         public NicoVideoSessionProvider NicoVideo { get; private set; }
 
         public ReactiveProperty<bool> NowLoading { get; private set; }
@@ -495,7 +503,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
                                 Title = "LikeThanksMessageDescWithVideoOwnerName".Translate(VideoInfo.Owner?.ScreenName),
                                 Content = LikeThanksMessage,
                                 IsShowDismissButton = true,
-                                ShowDuration = TimeSpan.FromSeconds(15),
+                                ShowDuration = TimeSpan.FromSeconds(7),
                             });
                         }
                     }
@@ -593,6 +601,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
                     //ProviderName = details.ProviderName;
                     //OwnerIconUrl = details.OwnerIconUrl;
                     //IsChannelOwnedVideo = details.IsChannelOwnedVideo;
+
+                    VideoSeries = VideoDetails.Series is not null and var series ? new VideoSeriesViewModel(series) : null;
 
                     NowLikeProcessing = true;
                     IsLikedVideo = VideoDetails.IsLikedVideo;
@@ -712,5 +722,31 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
     {
         public string Label { get; set; }
         public Uri Url { get; set; }
+    }
+
+    public class VideoSeriesViewModel : ISeries
+    {
+        private readonly Mntone.Nico2.Videos.Dmc.Series _userSeries;
+
+        public VideoSeriesViewModel(Mntone.Nico2.Videos.Dmc.Series userSeries)
+        {
+            _userSeries = userSeries;
+        }
+
+        public string Id => _userSeries.Id.ToString();
+
+        public string Title => _userSeries.Title;
+
+        public bool IsListed => throw new NotSupportedException();
+
+        public string Description => throw new NotSupportedException();
+
+        public string ThumbnailUrl => _userSeries.ThumbnailUrl;
+
+        public int ItemsCount => throw new NotSupportedException();
+
+        public string ProviderType => throw new NotSupportedException();
+
+        public string ProviderId => throw new NotSupportedException();
     }
 }

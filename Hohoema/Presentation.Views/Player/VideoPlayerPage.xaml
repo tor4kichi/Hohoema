@@ -368,11 +368,16 @@
                                             />
 
                             <MenuFlyoutItem Text="{Binding Source=SubscriptionAddUser, Converter={StaticResource LocalizeConverter}}"
-                                               Command="{Binding AddSubscriptionCommand}"
+                                            Command="{Binding AddSubscriptionCommand}"
                                             CommandParameter="{Binding VideoInfo}"
-                                               >
-                              
-                            </MenuFlyoutItem>
+                                            />
+                            <MenuFlyoutItem Text="{Binding Source=SubscriptionAddSeries, Converter={StaticResource LocalizeConverter}}"
+                                            Command="{Binding AddSubscriptionCommand}"
+                                            CommandParameter="{Binding VideoSeries}"
+                                            Visibility="{Binding VideoSeries, Converter={StaticResource NotNullToBoolean}}"
+                                            />
+
+
                           </MenuFlyout>
                         </AppBarButton.Flyout>
                       </AppBarButton>

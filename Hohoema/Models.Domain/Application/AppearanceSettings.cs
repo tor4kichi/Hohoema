@@ -29,7 +29,7 @@ namespace Hohoema.Models.Domain.Application
             _menuPaneDisplayMode = Read(DeviceTypeHelper.IsXbox ? Internal_PaneDisplayMode.LeftMinimal : Internal_PaneDisplayMode.Auto, nameof(MenuPaneDisplayMode)) switch
             {
                 Internal_PaneDisplayMode.Auto => NavigationViewPaneDisplayMode.Auto,
-                Internal_PaneDisplayMode.Left => NavigationViewPaneDisplayMode.Auto,
+                Internal_PaneDisplayMode.Left => NavigationViewPaneDisplayMode.Left,
                 Internal_PaneDisplayMode.Top => NavigationViewPaneDisplayMode.Top,
                 Internal_PaneDisplayMode.LeftCompact => NavigationViewPaneDisplayMode.LeftCompact,
                 Internal_PaneDisplayMode.LeftMinimal => NavigationViewPaneDisplayMode.LeftMinimal,

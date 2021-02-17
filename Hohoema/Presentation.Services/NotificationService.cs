@@ -307,18 +307,24 @@ namespace Hohoema.Presentation.Services
     public sealed class NotificationService
 	{
         public IEventAggregator EventAggregator { get; }
-        
+
+        private readonly ToastNotifier _notifier;
+
+        private ToastNotification _prevToastNotification;
+
         public NotificationService(
             IEventAggregator ea
             )
 		{
             EventAggregator = ea;
+            _notifier = ToastNotificationManager.CreateToastNotifier();
+            ToastNotificationManager.History.Clear();
         }
 
 
 		public void ShowToast(string title, string content, ToastDuration duration = ToastDuration.Short, bool isSuppress = false, string luanchContent = null, Action toastActivatedAction = null)
 		{
-			var toust = new ToastContent();
+            var toust = new ToastContent();
 			toust.Visual = new ToastVisual()
 			{
 				BindingGeneric = new ToastBindingGeneric()
@@ -353,8 +359,9 @@ namespace Hohoema.Presentation.Services
 				toast.Activated += (ToastNotification sender, object args) => toastActivatedAction();
 			}
 
-            ToastNotificationManager.CreateToastNotifier().Show(toast);
-		}
+            _notifier.Show(toast);
+            _prevToastNotification = toast;
+        }
 
         public void ShowToast(string title, string content, ToastDuration duration = ToastDuration.Short, bool isSuppress = false, string luanchContent = null, Action toastActivatedAction = null, params ToastButton[] toastButtons)
         {
@@ -400,7 +407,8 @@ namespace Hohoema.Presentation.Services
                 toast.Activated += (ToastNotification sender, object args) => toastActivatedAction();
             }
 
-            ToastNotificationManager.CreateToastNotifier().Show(toast);
+            _notifier.Show(toast);
+            _prevToastNotification = toast;
         }
 
 
@@ -420,7 +428,9 @@ namespace Hohoema.Presentation.Services
             notificationDismissEvent.Publish(0);
         }
 
-
-
+        public void HideToast()
+        {
+            ToastNotificationManager.History.Clear();
+        }
     }
 }
