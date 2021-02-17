@@ -62,7 +62,7 @@
 
 
   <MenuFlyoutItem x:Name="AddSusbcriptionItem"
-                     Text="{Binding Source=SubscriptionAddVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                     Text="{Binding Source=SubscriptionAddUser, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   CommandParameter="{Binding}"
                     >
   </MenuFlyoutItem>

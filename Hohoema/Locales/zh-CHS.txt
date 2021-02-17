@@ -165,6 +165,7 @@ SubscriptionAddUser = 将作者添加到订阅
 SubscriptionAddMylist = 将我的列表添加到订阅
 SubscriptionAddKeyword = 将关键字添加到订阅
 SubscriptionAddTag = 将标签添加到订阅
+SubscriptionAddSeries = 将系列添加到订阅
 
 SubscriptionSourceType.User = 用户名
 SubscriptionSourceType.Channel = 频道
@@ -807,7 +808,6 @@ WatchAfterRemoveItem = 从以后删除
 MylistAddItem = 加到我的清单
 LocalMylistAddItem = 添加到本地我的列表
 SelectLocalMylist = 选择本地我的列表
-SubscriptionAddVideoOwner = 将作者添加到订阅
 AllPlayFromHere = 从这里连续播放
 
 OpenVideoInfo = 影片资讯

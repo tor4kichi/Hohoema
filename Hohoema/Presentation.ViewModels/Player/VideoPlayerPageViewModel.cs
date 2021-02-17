@@ -198,6 +198,8 @@ namespace Hohoema.Presentation.ViewModels.Player
         public IVideoContent VideoContent { get; private set; }
 
 
+        public VideoSeriesViewModel VideoSeries { get; private set; }
+
         NotificationService _NotificationService;
         DialogService _HohoemaDialogService;
 
@@ -413,6 +415,9 @@ namespace Hohoema.Presentation.ViewModels.Player
             VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails.Series);
             Debug.WriteLine("次シリーズ動画: " + VideoDetails.Series?.NextVideo?.Title);
 
+            VideoSeries = VideoDetails.Series is not null and var series ? new VideoSeriesViewModel(series) : null;
+            RaisePropertyChanged(nameof(VideoSeries));
+
             // 好きの切り替え
             this.ObserveProperty(x => x.IsLikedVideo, isPushCurrentValueAtFirst: false)
                 .Where(x => !NowLikeProcessing)
@@ -625,4 +630,29 @@ namespace Hohoema.Presentation.ViewModels.Player
 
     }
 
+    public class VideoSeriesViewModel : ISeries
+    {
+        private readonly Mntone.Nico2.Videos.Dmc.Series _userSeries;
+
+        public VideoSeriesViewModel(Mntone.Nico2.Videos.Dmc.Series userSeries)
+        {
+            _userSeries = userSeries;
+        }
+
+        public string Id => _userSeries.Id.ToString();
+
+        public string Title => _userSeries.Title;
+
+        public bool IsListed => throw new NotSupportedException();
+
+        public string Description => throw new NotSupportedException();
+
+        public string ThumbnailUrl => _userSeries.ThumbnailUrl;
+
+        public int ItemsCount => throw new NotSupportedException();
+
+        public string ProviderType => throw new NotSupportedException();
+
+        public string ProviderId => throw new NotSupportedException();
+    }
 }

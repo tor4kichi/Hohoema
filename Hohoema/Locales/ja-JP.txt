@@ -165,6 +165,7 @@ SubscriptionAddUser = 投稿者を購読に追加
 SubscriptionAddMylist = マイリストを購読に追加
 SubscriptionAddKeyword = キーワードを購読に追加
 SubscriptionAddTag = タグを購読に追加
+SubscriptionAddSeries = シリーズを購読に追加
 
 SubscriptionSourceType.User = ユーザー
 SubscriptionSourceType.Channel = チャンネル
@@ -807,7 +808,6 @@ WatchAfterRemoveItem = あとで見るから削除
 MylistAddItem = マイリストに追加
 LocalMylistAddItem = ローカルマイリストに追加
 SelectLocalMylist = ローカルマイリストを選択
-SubscriptionAddVideoOwner = 投稿者を購読に追加
 AllPlayFromHere = ここから連続再生
 
 OpenVideoInfo = 動画情報
