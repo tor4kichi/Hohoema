@@ -69,18 +69,7 @@
       <videolistPage:VideoItemsListView.ItemTemplate>
         <DataTemplate>
           <Grid>
-            <controls:BooleanViewSwitcher IsSwitchView="{Binding Source={StaticResource FeatureFlags}, Path=UseNewCardViewForVideoListView}">
-              <controls:BooleanViewSwitcher.DefaultViewTemplate>
-                <DataTemplate>
-                  <videolistPage:VideoListItemControl />
-                </DataTemplate>
-              </controls:BooleanViewSwitcher.DefaultViewTemplate>
-              <controls:BooleanViewSwitcher.SwitchedViewTemplate>
-                <DataTemplate>
-                  <videolistPage:VideoListItemCardLandscape />
-                </DataTemplate>
-              </controls:BooleanViewSwitcher.SwitchedViewTemplate>
-            </controls:BooleanViewSwitcher>
+            <videolistPage:VideoListItemControl />
 
             <Grid toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right"
                                     >

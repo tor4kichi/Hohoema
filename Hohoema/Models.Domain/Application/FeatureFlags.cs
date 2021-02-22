@@ -9,10 +9,6 @@ namespace Hohoema.Models.Domain.Application
 {
     public sealed class FeatureFlags : FlagsRepositoryBase
     {
-        public bool UseNewCardViewForVideoListView
-        {
-            get => Read(false);
-            set => Save(value);
-        }
+        
     }
 }

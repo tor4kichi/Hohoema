@@ -326,14 +326,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
         {
             ct.ThrowIfCancellationRequested();
 
-            foreach (var item in VideoCacheManager.GetCacheRequests(head, count))
+            var reqItems = VideoCacheManager.GetCacheRequests(head, count);
+            var items = await NicoVideoProvider.GetVideoInfoManyAsync(reqItems.Select(x => x.VideoId)).ToListAsync(ct);
+            foreach (var item in reqItems)
             {
-                var vm = new CacheVideoViewModel(item.VideoId);
+                var video = items.FirstOrDefault(x => x.VideoId == item.VideoId);
+                var vm = video is not null ? new CacheVideoViewModel(video) : new CacheVideoViewModel(item.VideoId);
                 vm.CacheRequestTime = item.RequestAt;
                 
                 yield return vm;
 
-                _ = vm.InitializeAsync(ct).ConfigureAwait(false);
+                if (video is null)
+                {
+                    _ = vm.InitializeAsync(ct).ConfigureAwait(false);
+                }
 
                 ct.ThrowIfCancellationRequested();
             }

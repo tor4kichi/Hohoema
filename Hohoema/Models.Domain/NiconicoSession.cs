@@ -78,7 +78,10 @@ namespace Hohoema.Models.Domain
                         }
                         else
                         {
-                            UpdateServiceStatus();
+                            using (await SigninLock.LockAsync())
+                            {
+                                UpdateServiceStatus();
+                            }
                         }
                     });
                 }
@@ -86,7 +89,10 @@ namespace Hohoema.Models.Domain
                 {
                     Scheduler.Schedule(async () =>
                     {
-                        UpdateServiceStatus();
+                        using (await SigninLock.LockAsync())
+                        {
+                            UpdateServiceStatus();
+                        }
                     });
                 }
             };

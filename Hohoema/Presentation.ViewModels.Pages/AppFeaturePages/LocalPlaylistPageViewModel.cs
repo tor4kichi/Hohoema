@@ -189,7 +189,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
             foreach (var item in _Items.Skip(head).Take(count))
             {
                 var vm = new VideoInfoControlViewModel(item);
-                await vm.InitializeAsync(ct);
+                _ = vm.InitializeAsync(ct).ConfigureAwait(false);
                 yield return vm;
             }
         }
