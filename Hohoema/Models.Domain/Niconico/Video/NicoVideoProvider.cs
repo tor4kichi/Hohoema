@@ -172,11 +172,24 @@ namespace Hohoema.Models.Domain.Niconico.Video
         }
 
 
-        public async IAsyncEnumerable<NicoVideo> GetVideoInfoManyAsync(IEnumerable<string> idItems)
+        public async IAsyncEnumerable<NicoVideo> GetVideoInfoManyAsync(IEnumerable<string> idItems, bool isLatestRequired = true)
         {
             using (await _ThumbnailAccessLock.LockAsync())
             {
-                var res = await VideoClient.GetVideoInfoManyAsync(idItems);
+                if (isLatestRequired is false)
+                {
+                    if (idItems.All(x => _nicoVideoRepository.Exists(y => y.VideoId == x)))
+                    {
+                        foreach (var id in idItems)
+                        {
+                            yield return _nicoVideoRepository.Get(id);
+                        }
+
+                        yield break;
+                    }
+                }
+
+                var res = await Task.Run(async () => await VideoClient.GetVideoInfoManyAsync(idItems));
 
                 if (res.IsOK && res.Count == 0)
                 {
@@ -227,6 +240,8 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         }
                         catch { }
                     }
+
+                    _nicoVideoRepository.UpdateItem(info);
 
                     yield return info;
                 }

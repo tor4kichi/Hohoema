@@ -167,7 +167,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SeriesPages
                 itemVM.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
                 yield return itemVM;
 
-                _ = itemVM.InitializeAsync(ct);
+                //_ = itemVM.InitializeAsync(ct);
 
                 ct.ThrowIfCancellationRequested();
             }

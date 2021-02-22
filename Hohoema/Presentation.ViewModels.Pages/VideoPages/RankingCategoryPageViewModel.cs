@@ -31,6 +31,7 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
+using Hohoema.Models.Domain.Application;
 
 namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
 {
@@ -333,7 +334,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
             IIncrementalSource<RankedVideoInfoControlViewModel> source = null;
             try
             {
-                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour);
+                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, NicoVideoProvider);
 
                 CanChangeRankingParameter.Value = true;
             }
@@ -359,13 +360,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
         public CategoryRankingLoadingSource(
             RankingGenre genre,
             string tag,
-            RankingTerm term
+            RankingTerm term,
+            NicoVideoProvider nicoVideoProvider
             )
             : base()
         {
             Genre = genre;
             Term = term;
+            _nicoVideoProvider = nicoVideoProvider;
             Tag = tag;
+
         }
 
         public RankingGenre Genre { get; }
@@ -373,6 +377,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
         public string Tag { get; }
 
         Mntone.Nico2.RssVideoResponse RankingRss;
+        private readonly NicoVideoProvider _nicoVideoProvider;
+        private readonly FeatureFlags _featureFlags = new FeatureFlags();
 
         #region Implements HohoemaPreloadingIncrementalSourceBase		
 
@@ -381,21 +387,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
         protected override async IAsyncEnumerable<RankedVideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             int index = 0;
-            foreach (var item in RankingRss.Items.Skip(head).Take(count))
+            var videoInfoItems = _nicoVideoProvider.GetVideoInfoManyAsync(RankingRss.Items.Skip(head).Take(count).Select(x => x.GetVideoId()));
+            await foreach (var item in videoInfoItems)
             {
-                var vm = new RankedVideoInfoControlViewModel(item.GetVideoId());
+                var vm = new RankedVideoInfoControlViewModel(item);
 
                 vm.Rank = (uint)(head + index + 1);
-                /*
-                vm.SetTitle(item.GetRankTrimmingTitle());
-                var moreData = item.GetMoreData();
-                vm.SetVideoDuration(moreData.Length);
-                vm.SetThumbnailImage(moreData.ThumbnailUrl);
-                vm.SetSubmitDate(item.PubDate.DateTime);
-                */
-                yield return vm;
 
-                _ = vm.InitializeAsync(ct).ConfigureAwait(false);
+                yield return vm;
 
                 index++;
 

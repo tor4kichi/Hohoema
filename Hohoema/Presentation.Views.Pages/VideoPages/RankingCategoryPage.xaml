@@ -111,19 +111,7 @@
                        Width="70"
                        FontWeight="Bold" />
 
-            <controls:BooleanViewSwitcher IsSwitchView="{Binding Source={StaticResource FeatureFlags}, Path=UseNewCardViewForVideoListView}">
-              <controls:BooleanViewSwitcher.DefaultViewTemplate>
-                <DataTemplate>
-                  <videolistPage:VideoListItemControl />
-                </DataTemplate>
-              </controls:BooleanViewSwitcher.DefaultViewTemplate>
-              <controls:BooleanViewSwitcher.SwitchedViewTemplate>
-                <DataTemplate>
-                  <videolistPage:VideoListItemCardLandscape />
-                </DataTemplate>
-              </controls:BooleanViewSwitcher.SwitchedViewTemplate>
-            </controls:BooleanViewSwitcher>
-            
+            <videolistPage:VideoListItemControl />
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>

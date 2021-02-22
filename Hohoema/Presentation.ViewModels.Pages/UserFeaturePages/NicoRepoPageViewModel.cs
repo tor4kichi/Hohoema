@@ -363,7 +363,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
                     
                     yield return vm;
 
-                    _ = vm.InitializeAsync(ct);
+                    _ = vm.InitializeAsync(ct).ConfigureAwait(false);
                 }
                 else
                 {
