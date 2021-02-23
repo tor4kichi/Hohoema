@@ -80,7 +80,8 @@ namespace Hohoema.Models.Domain
                         {
                             using (await SigninLock.LockAsync())
                             {
-                                UpdateServiceStatus();
+                                // ログインセッションが時間切れしていた場合、自動でログイン状態に復帰する
+                                await SignInWithPrimaryAccount();
                             }
                         }
                     });
