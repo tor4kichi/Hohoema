@@ -80,7 +80,8 @@ namespace Hohoema.Models.Domain
                         {
                             using (await SigninLock.LockAsync())
                             {
-                                UpdateServiceStatus();
+                                // ログインセッションが時間切れしていた場合、自動でログイン状態に復帰する
+                                await SignInWithPrimaryAccount();
                             }
                         }
                     });
@@ -179,7 +180,7 @@ namespace Hohoema.Models.Domain
         private NiconicoContext _Context;
         public NiconicoContext Context
         {
-            get { return _Context ??= new NiconicoContext(); }
+            get { return _Context ??= new NiconicoContext() { AdditionalUserAgent = HohoemaUserAgent }; }
             private set { SetProperty(ref _Context, value); }
         }
 
@@ -261,7 +262,7 @@ namespace Hohoema.Models.Domain
         {
             if (Context != null)
             {
-                var context = new NiconicoContext(Context.AuthenticationToken);
+                var context = new NiconicoContext(Context.AuthenticationToken) { AdditionalUserAgent = HohoemaUserAgent };
 
                 if (await context.SignInAsync() == NiconicoSignInStatus.Success)
                 {
@@ -275,8 +276,8 @@ namespace Hohoema.Models.Domain
         {
             UpdateServiceStatus();
 
-            Context?.Dispose();
-            Context = new NiconicoContext();
+            _Context?.Dispose();
+            Context = null;
 
             LogInFailed?.Invoke(this, new NiconicoSessionLoginErrorEventArgs()
             {
@@ -357,7 +358,7 @@ namespace Hohoema.Models.Domain
                 if (!Helpers.InternetConnection.IsInternet())
                 {
                     Context?.Dispose();
-                    Context = new NiconicoContext();
+                    Context = null;
                     return NiconicoSignInStatus.Failed;
                 }
 
@@ -500,7 +501,7 @@ namespace Hohoema.Models.Domain
                 }
                 finally
                 {
-                    Context = new NiconicoContext();
+                    Context = null;
                     _LiveContext = null;
                 }
             }
@@ -548,9 +549,9 @@ namespace Hohoema.Models.Domain
                     // ログイン処理時には例外を捕捉するが、ログイン状態チェックでは例外は無視する
                     result = NiconicoSignInStatus.Failed;
                 }
-            }
 
-            UpdateServiceStatus(result);
+                UpdateServiceStatus(result);
+            }
 
             return result;
         }

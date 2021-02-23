@@ -44,7 +44,7 @@ namespace Hohoema.Presentation.Services.Helpers
             CopyToClipboard(Helpers.ShareHelper.MakeShareText(video));
         }
 
-        static readonly Regex NicoContentRegex = new Regex("https?:\\/\\/([\\w\\W]*?)\\/((\\w*)\\/)?([\\w-]*)");
+        static readonly Regex NicoContentRegex = new Regex("https?:\\/\\/([\\w\\W]*?)\\/((\\w*)\\/)*([\\w-]*)");
 
         static private string prevContent = string.Empty;
         static public void SetIgnoreClipboardCheckingOnce(string ignoredContent)

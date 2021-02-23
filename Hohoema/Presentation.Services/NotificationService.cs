@@ -79,10 +79,10 @@ namespace Hohoema.Presentation.Services
                     notificationPayload = SubmitMylistContentSuggestion(id);
                     break;
                 case ContentType.Community:
-                    notificationPayload = SubmitMylistContentSuggestion(id);
+                    notificationPayload = SubmitCommunityContentSuggestion(id);
                     break;
                 case ContentType.User:
-                    notificationPayload = SubmitMylistContentSuggestion(id);
+                    notificationPayload = SubmitUserSuggestion(id);
                     break;
                 case ContentType.Channel:
 
