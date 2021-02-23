@@ -180,7 +180,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserPages
                 vm.SetDescription((int)item.Count.View, (int)item.Count.Comment, (int)item.Count.Mylist);
                 yield return vm;
 
-                _ = vm.InitializeAsync(ct);
+                _ = vm.InitializeAsync(ct).ConfigureAwait(false);
 
                 ct.ThrowIfCancellationRequested();
             }

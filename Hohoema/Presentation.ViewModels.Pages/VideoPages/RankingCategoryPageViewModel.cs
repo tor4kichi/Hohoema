@@ -396,6 +396,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
 
                 yield return vm;
 
+                _ = vm.InitializeAsync(ct).ConfigureAwait(false);
+
                 index++;
 
                 ct.ThrowIfCancellationRequested();

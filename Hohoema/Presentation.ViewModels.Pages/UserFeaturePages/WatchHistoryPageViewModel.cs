@@ -186,8 +186,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
                 vm.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
                 vm.SetVideoDuration(item.Length);
 
-                _ =  vm.InitializeAsync(ct);
                 yield return vm;
+
+                _ = vm.InitializeAsync(ct).ConfigureAwait(false);
 
                 ct.ThrowIfCancellationRequested();
             }
