@@ -59,7 +59,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
             {
                 var res = await ContextActionAsync(async context =>
                 {
-                    return await context.User.GetMylistGroupItemsAsync(int.Parse(mylistGroupid), Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Asc, 1, 0);
+                    return await context.User.GetMylistGroupItemsAsync(int.Parse(mylistGroupid), Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Asc, 2, 0);
                 });
 
                 if (res.Meta.Status != 200)
@@ -103,7 +103,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
 
                 nicoVideo.Owner = new NicoVideoOwner()
                 {
-                    OwnerId = item.Video.Owner.Id,
+                    OwnerId = item.Video.Owner.Id ,
                     UserType = item.Video.Owner.OwnerType switch
                     {
                         OwnerType.Channel => NicoVideoUserType.Channel,
@@ -112,6 +112,12 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
                         _ => throw new NotSupportedException(),
                     }
                 };
+
+                // OwnerType.Hiddenだった場合にOwnerIdのNull例外が発生するのでオーナー情報を削除しておく
+                if (nicoVideo.Owner.UserType is NicoVideoUserType.Hidden)
+                {
+                    nicoVideo.Owner = null;
+                }
 
                 _nicoVideoRepository.AddOrUpdate(nicoVideo);
 
