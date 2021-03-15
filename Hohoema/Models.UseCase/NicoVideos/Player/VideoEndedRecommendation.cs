@@ -105,15 +105,15 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                         return;
                     }
 
-                    if (_series?.NextVideo != null)
+                    if (_series?.Video.Next is not null and var nextVideo)
                     {
                         _scheduler.Schedule(() =>
                         {
                             HasNextVideo = true;
-                            NextVideoTitle = _series.NextVideo.Title;
+                            NextVideoTitle = nextVideo.Title;
                             HasRecomend.Value = true;
 
-                            Debug.WriteLine("シリーズ情報から次の動画を提示: " + _series.NextVideo.Title);
+                            Debug.WriteLine("シリーズ情報から次の動画を提示: " + nextVideo.Title);
                         });
 
                         return;
@@ -220,9 +220,9 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     var nextVideo = _videoRelatedContents.NextVideo;
                     _hohoemaPlaylist.Play(nextVideo);
                 }
-                else if (_series.NextVideo != null)
+                else if (_series.Video.Next is not null and var nextVideo)
                 {
-                    _hohoemaPlaylist.Play(_series.NextVideo.Id);
+                    _hohoemaPlaylist.Play(nextVideo.Id);
                 }
 
                 IsEnded.Value = false;

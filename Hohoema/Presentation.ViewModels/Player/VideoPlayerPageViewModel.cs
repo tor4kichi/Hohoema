@@ -413,7 +413,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             // 実行順依存：VideoPlayerで再生開始後に次シリーズ動画を設定する
             VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails.Series);
-            Debug.WriteLine("次シリーズ動画: " + VideoDetails.Series?.NextVideo?.Title);
+            Debug.WriteLine("次シリーズ動画: " + VideoDetails.Series?.Video.Next?.Title);
 
             VideoSeries = VideoDetails.Series is not null and var series ? new VideoSeriesViewModel(series) : null;
             RaisePropertyChanged(nameof(VideoSeries));
@@ -647,7 +647,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         public string Description => throw new NotSupportedException();
 
-        public string ThumbnailUrl => _userSeries.ThumbnailUrl;
+        public string ThumbnailUrl => _userSeries.ThumbnailUrl.OriginalString;
 
         public int ItemsCount => throw new NotSupportedException();
 
