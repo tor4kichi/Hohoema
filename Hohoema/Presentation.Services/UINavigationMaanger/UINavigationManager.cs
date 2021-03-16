@@ -153,8 +153,6 @@ namespace Hohoema.Presentation.Views
         {
             if (_IsDisposed) { return; }
 
-            if (UINavigationController.UINavigationControllers.Count > 0) { return; }
-
             _PollingTimer?.Dispose();
             _PollingTimer = null;
         }
