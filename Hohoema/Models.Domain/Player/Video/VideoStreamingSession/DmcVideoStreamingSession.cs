@@ -146,7 +146,7 @@ namespace Hohoema.Models.Domain.Player.Video
                     {
                         clearPreviousSession = _DmcSessionResponse;
                         _DmcSessionResponse = null;
-                        DmcWatchResponse = await NiconicoSession.Context.Video.GetDmcWatchJsonAsync(DmcWatchResponse.Video.Id, _DmcWatchData.DmcWatchEnvironment.PlaylistToken);
+                        DmcWatchResponse = await NiconicoSession.Context.Video.GetDmcWatchJsonAsync(DmcWatchResponse.Client.WatchId, NiconicoSession.IsLoggedIn, DmcWatchResponse.Client.WatchTrackId);
                     }
                 }
 

@@ -97,7 +97,7 @@ namespace Hohoema.Models.Domain.Player.Video
         public bool IsSeriesVideo => _dmcWatchRes?.Series != null;
         public Series Series => _dmcWatchRes?.Series;
 
-        public bool IsLikedVideo => _dmcWatchRes.Video.Viewer.Like.IsLiked;
+        public bool IsLikedVideo => _dmcWatchRes.Video.Viewer?.Like.IsLiked ?? false;
     }
 
     public class WatchApiVideoDetails : INicoVideoDetails
@@ -389,7 +389,7 @@ namespace Hohoema.Models.Domain.Player.Video
                 ServerUrl = dmcRes.Comment.Threads[0].Server.OriginalString,
                 VideoId = contentId,
                 DefaultThreadId = dmcRes.Comment.Threads[0].Id,
-                ViewerUserId = dmcRes.Viewer.Id,
+                ViewerUserId = dmcRes.Viewer?.Id ?? 0,
                 ThreadKeyRequired = dmcRes.Comment.Threads[0].IsThreadkeyRequired
             };
 
