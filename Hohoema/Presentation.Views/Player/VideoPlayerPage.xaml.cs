@@ -31,6 +31,7 @@ namespace Hohoema.Presentation.Views.Player
 
     public enum PlayerSidePaneContentType
     {
+        None,
         Playlist,
         Comment,
         Setting,
@@ -313,16 +314,15 @@ namespace Hohoema.Presentation.Views.Player
 
 
 
-        public PlayerSidePaneContentType? SidePaneType
+        public PlayerSidePaneContentType SidePaneType
         {
-            get { return (PlayerSidePaneContentType?)GetValue(SidePaneTypeProperty); }
+            get { return (PlayerSidePaneContentType)GetValue(SidePaneTypeProperty); }
             set { SetValue(SidePaneTypeProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for SidePaneType.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SidePaneTypeProperty =
-            DependencyProperty.Register("SidePaneType", typeof(PlayerSidePaneContentType?), typeof(VideoPlayerPage), new PropertyMetadata(default(PlayerSidePaneContentType?)));
-
+            DependencyProperty.Register("SidePaneType", typeof(PlayerSidePaneContentType), typeof(VideoPlayerPage), new PropertyMetadata(PlayerSidePaneContentType.None));
 
         DelegateCommand<string> _selectSidePaneCommand;
         DelegateCommand<string> SelectSidePaneCommand => _selectSidePaneCommand
@@ -330,14 +330,15 @@ namespace Hohoema.Presentation.Views.Player
             {
                 if (Enum.TryParse<PlayerSidePaneContentType>(str, out var type))
                 {
-                    if (SidePaneType == type)
+                    if (type == SidePaneType || type == PlayerSidePaneContentType.None)
                     {
                         PlayerSplitView.IsPaneOpen = false;
-                        SidePaneType = null;
+                        SidePaneType = PlayerSidePaneContentType.None;
                     }
                     else
                     {
                         SidePaneType = type;
+                        PlayerSplitView.IsPaneOpen = true;
                     }
                 }
             }));

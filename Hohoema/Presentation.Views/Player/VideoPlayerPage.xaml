@@ -28,7 +28,7 @@
       xmlns:controls="using:Hohoema.Presentation.Views.Controls"
       xmlns:system1="using:System"
       xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector"
-      xmlns:windowsTriggers="using:WindowsStateTriggers"
+      xmlns:windowsTriggers="using:WindowsStateTriggers" xmlns:players="using:Hohoema.Presentation.Views.Player"
       DataContext="{x:Null}"
       x:Name="RootLayout"
       NavigationCacheMode="Required"
@@ -144,19 +144,11 @@
       <toolkit:LayoutTransformControl.Transform>
         <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
       </toolkit:LayoutTransformControl.Transform>
-      <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False">
+      <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" IsPaneOpen="False">
         <i:Interaction.Behaviors>
-          <!-- サイドペインのコンテンツVMが指定されたらサイドペインを開く -->
-          <!-- 条件に{x:Null}ではなく PlayerSidePaneContentType.None を指定しているのは
-                         nullの場合、閉じた後のバインディングエラーによって
-                         意図しない値が書き戻される可能性があるためです
-                    -->
-          <core:DataTriggerBehavior Binding="{x:Bind SidePaneType, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}">
-            <core:ChangePropertyAction PropertyName="IsPaneOpen" Value="True" />
-          </core:DataTriggerBehavior>
           <!-- サイドペインが閉じられたら コンテンツVMをリセット -->
           <core:EventTriggerBehavior EventName="PaneClosed">
-            <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="SidePaneType" Value="{x:Null}" />
+            <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="SidePaneType" Value="{x:Bind players:PlayerSidePaneContentType.None}" />
           </core:EventTriggerBehavior>
         </i:Interaction.Behaviors>
         <SplitView.Pane>
