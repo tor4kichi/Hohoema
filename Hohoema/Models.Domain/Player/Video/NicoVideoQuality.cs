@@ -42,19 +42,19 @@ namespace Hohoema.Models.Domain
     {
         public static NicoVideoQuality VideoContentToQuality(VideoContent content)
         {
-            if (content.Bitrate >= 4000_000)
+            if (content.Metadata.Bitrate >= 4000_000)
             {
                 return NicoVideoQuality.Dmc_SuperHigh;
             }
-            else if (content.Bitrate >= 1400_000)
+            else if (content.Metadata.Bitrate >= 1400_000)
             {
                 return NicoVideoQuality.Dmc_High;
             }
-            else if (content.Bitrate >= 1000_000)
+            else if (content.Metadata.Bitrate >= 1000_000)
             {
                 return NicoVideoQuality.Dmc_Midium;
             }
-            else if (content.Bitrate >= 600_000)
+            else if (content.Metadata.Bitrate >= 600_000)
             {
                 return NicoVideoQuality.Dmc_Low;
             }

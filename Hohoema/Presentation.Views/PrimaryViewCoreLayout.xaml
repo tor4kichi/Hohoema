@@ -437,7 +437,7 @@
                                  CornerRadius="60"
                                  />
                           <StackPanel Margin="11 0 0 0">
-                            <TextBlock Text="{Binding NiconicoSession.UserName,Mode=OneWay}" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" />
                           </StackPanel>
                         </uwpToolkitControls:DockPanel>
                       </DataTemplate>

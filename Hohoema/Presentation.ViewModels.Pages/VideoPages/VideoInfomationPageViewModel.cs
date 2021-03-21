@@ -741,7 +741,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
 
         public string Description => throw new NotSupportedException();
 
-        public string ThumbnailUrl => _userSeries.ThumbnailUrl;
+        public string ThumbnailUrl => _userSeries.ThumbnailUrl.OriginalString;
 
         public int ItemsCount => throw new NotSupportedException();
 

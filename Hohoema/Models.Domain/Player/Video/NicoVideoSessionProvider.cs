@@ -11,6 +11,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using System.Collections.Immutable;
 using Windows.Foundation;
 using Hohoema.Models.Domain.Player.Video.Comment;
+using Uno.Extensions;
 
 namespace Hohoema.Models.Domain.Player.Video
 {
@@ -51,29 +52,29 @@ namespace Hohoema.Models.Domain.Player.Video
         internal DmcVideoDetails(DmcWatchData dmcWatchData)
         {
             _dmcWatchRes = dmcWatchData.DmcWatchResponse;
-            Tags = _dmcWatchRes.Tags.Select(x => new NicoVideoTag(x.Name)).ToArray();
+            Tags = _dmcWatchRes.Tag.Items.Select(x => new NicoVideoTag(x.Name)).ToArray();
         }
 
         public string VideoTitle => _dmcWatchRes.Video.Title;
 
         public NicoVideoTag[] Tags { get; }
 
-        public string ThumbnailUrl => _dmcWatchRes.Video.ThumbnailURL;
+        public string ThumbnailUrl => _dmcWatchRes.Video.Thumbnail.Url.OriginalString;
 
         public TimeSpan VideoLength => TimeSpan.FromSeconds(_dmcWatchRes.Video.Duration);
 
-        public DateTime SubmitDate => DateTime.Parse(_dmcWatchRes.Video.PostedDateTime);
+        public DateTime SubmitDate => _dmcWatchRes.Video.RegisteredAt.DateTime;
 
-        public int ViewCount => _dmcWatchRes.Video.ViewCount;
+        public int ViewCount => _dmcWatchRes.Video.Count.View;
 
-        public int CommentCount => _dmcWatchRes.Thread.CommentCount;
+        public int CommentCount => _dmcWatchRes.Video.Count.Comment;
 
-        public int MylistCount => _dmcWatchRes.Video.MylistCount;
+        public int MylistCount => _dmcWatchRes.Video.Count.Mylist;
 
-        public string ProviderId => _dmcWatchRes.Owner?.Id ?? _dmcWatchRes.Channel?.GlobalId;
+        public string ProviderId => _dmcWatchRes.Owner?.Id.ToString() ?? _dmcWatchRes.Channel?.Id;
         public string ProviderName => _dmcWatchRes.Owner?.Nickname ?? _dmcWatchRes.Channel?.Name;
 
-        public string OwnerIconUrl => _dmcWatchRes.Owner?.IconURL ?? _dmcWatchRes.Channel?.IconURL;
+        public string OwnerIconUrl => _dmcWatchRes.Owner?.IconUrl.OriginalString ?? _dmcWatchRes.Channel?.Thumbnail.Url.OriginalString;
 
         public bool IsChannelOwnedVideo => _dmcWatchRes.Channel != null;
 
@@ -83,16 +84,11 @@ namespace Hohoema.Models.Domain.Player.Video
         {
             get
             {
-                var audio = _dmcWatchRes.Video.DmcInfo?.Quality.Audios.FirstOrDefault()?.LoudnessCorrectionValue.FirstOrDefault();
-                if (audio != null)
+                try
                 {
-                    return audio.Value;
+                    return _dmcWatchRes.Media.Delivery.Movie.Audios[0].Metadata.VideoLoudnessCollection;
                 }
-
-                if (_dmcWatchRes.Video.SmileInfo != null)
-                {
-                    return _dmcWatchRes.Video.SmileInfo.LoudnessCorrectionValue?.First(x => x.Type == "video").Value ?? 1.0;
-                }
+                catch { }
 
                 return 1.0;
             }
@@ -101,7 +97,7 @@ namespace Hohoema.Models.Domain.Player.Video
         public bool IsSeriesVideo => _dmcWatchRes?.Series != null;
         public Series Series => _dmcWatchRes?.Series;
 
-        public bool IsLikedVideo => _dmcWatchRes.Context.IsLiked;
+        public bool IsLikedVideo => _dmcWatchRes.Video.Viewer?.Like.IsLiked ?? false;
     }
 
     public class WatchApiVideoDetails : INicoVideoDetails
@@ -204,14 +200,16 @@ namespace Hohoema.Models.Domain.Player.Video
             _ownershipManager = ownershipManager;
             _dmcWatchData = dmcWatchData;
             IsSuccess = _dmcWatchData != null;
-            if (_dmcWatchData?.DmcWatchResponse.Video.DmcInfo != null)
+            if (_dmcWatchData?.DmcWatchResponse.Media.Delivery is not null and var delivery)
             {
-                AvailableQualities = _dmcWatchData.DmcWatchResponse.Video.DmcInfo.Quality.Videos
-                    .Select(x => new NicoVideoQualityEntity(x.Available, QualityIdToNicoVideoQuality(x.Id), x.Id, x.Bitrate, x.Resolution?.Width, x.Resolution?.Height))
+                AvailableQualities = delivery.Movie.Videos
+                    .Select(x => new NicoVideoQualityEntity(x.IsAvailable, QualityIdToNicoVideoQuality(x.Id), x.Id, x.Metadata.Bitrate, x.Metadata.Resolution.Width, x.Metadata.Resolution.Height))
                     .ToImmutableArray();
             }
-            else if (_dmcWatchData.DmcWatchResponse.Video.SmileInfo != null)
+            else //if (_dmcWatchData.DmcWatchResponse.Media.DeliveryLegacy != null)
             {
+                throw new NotSupportedException("DmcWatchResponse.Media.DeliveryLegacy not supported");
+                /*
                 var video = _dmcWatchData.DmcWatchResponse.Video;
                 var smileInfo = _dmcWatchData.DmcWatchResponse.Video.SmileInfo;
                 var quality = smileInfo.Url.EndsWith("low") ? NicoVideoQuality.Smile_Low : NicoVideoQuality.Smile_Original;
@@ -222,6 +220,7 @@ namespace Hohoema.Models.Domain.Player.Video
                     new NicoVideoQualityEntity(false, NicoVideoQuality.Smile_Original, "", null, video.Width, video.Height),
                 }
                 .ToImmutableArray();
+                */
             }
         }
 
@@ -243,10 +242,10 @@ namespace Hohoema.Models.Domain.Player.Video
 
         public async Task<List<NicoVideo>> GetRelatedVideos()
         {
-            if (_dmcWatchData?.DmcWatchResponse.Playlist != null)
+            if (_dmcWatchData?.DmcWatchResponse != null)
             {
                 // TODO: 動画プレイリスト情報の取得をProvider.NicoVideoProviderへ移す
-                var res = await _niconicoSession.Context.Video.GetVideoPlaylistAsync(_dmcWatchData.DmcWatchResponse.Video.Id, _dmcWatchData?.DmcWatchResponse.Playlist.Referer);
+                var res = await _niconicoSession.Context.Video.GetVideoPlaylistAsync(_dmcWatchData.DmcWatchResponse.Video.Id, "");
 
                 if (res.Status == "ok")
                 {
@@ -303,7 +302,7 @@ namespace Hohoema.Models.Domain.Player.Video
             }
             else if (_dmcWatchData != null)
             {
-                if (_dmcWatchData.DmcWatchResponse.Video.DmcInfo != null)
+                if (_dmcWatchData.DmcWatchResponse.Media.Delivery is not null and var delivery)
                 {
                     var qualityEntity = AvailableQualities.Where(x => x.IsAvailable).FirstOrDefault(x => x.Quality == quality);
                     if (qualityEntity == null)
@@ -318,14 +317,17 @@ namespace Hohoema.Models.Domain.Player.Video
                     }
                     
                 }
-                else if (_dmcWatchData.DmcWatchResponse.Video.SmileInfo != null)
+                else if (_dmcWatchData.DmcWatchResponse.Media.DeliveryLegacy != null)
                 {
+                    throw new NotSupportedException("DmcWatchResponse.Media.DeliveryLegacy is not supported");
+                    /*
                     var ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_dmcWatchData.DmcWatchResponse.Video.Id, !IsForCacheDownload);
                     if (ownership != null)
                     {
                         streamingSession = new SmileVideoStreamingSession(
                             new Uri(_dmcWatchData.DmcWatchResponse.Video.SmileInfo.Url), _niconicoSession, ownership);
                     }
+                    */
                 }
                 else
                 {
@@ -384,22 +386,22 @@ namespace Hohoema.Models.Domain.Player.Video
             var dmcRes = watchData.DmcWatchResponse;
             commentClient.CommentServerInfo = new CommentServerInfo()
             {
-                ServerUrl = dmcRes.Thread.ServerUrl,
+                ServerUrl = dmcRes.Comment.Threads[0].Server.OriginalString,
                 VideoId = contentId,
-                DefaultThreadId = int.Parse(dmcRes.Thread.Ids.Default),
-                ViewerUserId = dmcRes.Viewer.Id,
-                ThreadKeyRequired = dmcRes.Video.IsOfficial
+                DefaultThreadId = dmcRes.Comment.Threads[0].Id,
+                ViewerUserId = dmcRes.Viewer?.Id ?? 0,
+                ThreadKeyRequired = dmcRes.Comment.Threads[0].IsThreadkeyRequired
             };
 
             // チャンネル動画ではOnwerはnullになる
-            commentClient.VideoOwnerId = dmcRes.Owner?.Id;
+            commentClient.VideoOwnerId = dmcRes.Owner?.Id.ToString();
 
             commentClient.DmcWatch = dmcRes;
 
-            if (int.TryParse(dmcRes.Thread.Ids.Community, out var communityThreadId))
+            var communityThread = dmcRes.Comment.Threads.FirstOrDefault(x => x.Label == "community");
+            if (communityThread != null)
             {
-                commentClient.CommentServerInfo.CommunityThreadId = communityThreadId;
-                Debug.WriteLine("dmcRes.Video.DmcInfo.Thread.PostkeyAvailable: " + dmcRes.Video.DmcInfo?.Thread?.PostkeyAvailable);
+                commentClient.CommentServerInfo.CommunityThreadId = communityThread.Id;
             }
 
             return Task.FromResult(new VideoCommentService(commentClient) as ICommentSession);
@@ -606,12 +608,14 @@ namespace Hohoema.Models.Domain.Player.Video
             {
                 throw new NotSupportedException("動画は削除されています");
             }
-            if (dmcRes?.DmcWatchResponse.Video.DmcInfo != null)
+            if (dmcRes?.DmcWatchResponse.Media.Delivery == null)
             {
-                if (dmcRes.DmcWatchResponse.Video?.DmcInfo?.Quality == null)
+                throw new NotSupportedException("動画の視聴権がありません");
+                /*if (dmcRes.DmcWatchResponse.Media.Delivery.Movie.Session.== null)
                 {
-                    throw new NotSupportedException("動画の視聴権がありません");
+                    
                 }
+                */
             }
             
             if (dmcRes != null)
@@ -743,10 +747,10 @@ namespace Hohoema.Models.Domain.Player.Video
     {
         public static NicoVideoQuality ToNicoVideoQuality(this DmcWatchData dmcWatchData, string qualityId)
         {
-            var dmcVideoContent = dmcWatchData?.DmcWatchResponse.Video.DmcInfo.Quality.Videos.FirstOrDefault(x => x.Id == qualityId);
+            var dmcVideoContent = dmcWatchData?.DmcWatchResponse.Media.Delivery.Movie.Videos.FirstOrDefault(x => x.Id == qualityId);
             if (dmcVideoContent != null)
             {
-                var qualities = dmcWatchData.DmcWatchResponse.Video.DmcInfo.Quality.Videos;
+                var qualities = dmcWatchData.DmcWatchResponse.Media.Delivery.Movie.Videos;
 
                 var index = qualities.IndexOf(dmcVideoContent);
 
@@ -757,7 +761,7 @@ namespace Hohoema.Models.Domain.Player.Video
                 // この差を吸収するため、
                 // indexを Dmc_Mobile(6)~Dmc_SuperHigh(2) の空間に変換する
                 // (qualities.Count - index - 1) によってDmc_Mobileの場合が 0 になる
-                var nicoVideoQualityIndex = (int)NicoVideoQuality.Dmc_Mobile - (qualities.Count - index - 1);
+                var nicoVideoQualityIndex = (int)NicoVideoQuality.Dmc_Mobile - (qualities.Length - index - 1);
                 var quality = (NicoVideoQuality)nicoVideoQualityIndex;
                 if (!quality.IsDmc())
                 {

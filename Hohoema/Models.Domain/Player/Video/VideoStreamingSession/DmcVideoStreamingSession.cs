@@ -111,17 +111,17 @@ namespace Hohoema.Models.Domain.Player.Video
 
 #if DEBUG
             Debug.WriteLine($"Id/Bitrate/Resolution/Available");
-            foreach (var q in _DmcWatchData.DmcWatchResponse.Video.DmcInfo.Quality.Videos)
+            foreach (var q in _DmcWatchData.DmcWatchResponse.Media.Delivery.Movie.Videos)
             {
-                Debug.WriteLine($"{q.Id}/{q.Bitrate}/{q.Available}/{q.Resolution}");
+                Debug.WriteLine($"{q.Id}/{q.Metadata.Bitrate}/{q.IsAvailable}/{q.Metadata.Resolution}");
             }
 #endif
 
-            VideoContent = DmcWatchResponse.Video.DmcInfo.Quality.Videos.FirstOrDefault(x => x.Id == qualityId);
+            VideoContent = DmcWatchResponse.Media.Delivery.Movie.Videos.FirstOrDefault(x => x.Id == qualityId);
 
             if (VideoContent != null)
             {
-                Debug.WriteLine($"{VideoContent.Id}/{VideoContent.Bitrate}/{VideoContent.Available}/w={VideoContent.Resolution.Width} h={VideoContent.Resolution.Height}");
+                Debug.WriteLine($"{VideoContent.Id}/{VideoContent.Metadata.Bitrate}/{VideoContent.IsAvailable}/w={VideoContent.Metadata.Resolution.Width} h={VideoContent.Metadata.Resolution.Height}");
             }
         }
 
@@ -129,7 +129,7 @@ namespace Hohoema.Models.Domain.Player.Video
         {
             if (DmcWatchResponse == null) { return null; }
 
-            if (DmcWatchResponse.Video.DmcInfo == null) { return null; }
+            if (DmcWatchResponse.Media == null) { return null; }
 
             if (VideoContent == null)
             {
@@ -146,7 +146,7 @@ namespace Hohoema.Models.Domain.Player.Video
                     {
                         clearPreviousSession = _DmcSessionResponse;
                         _DmcSessionResponse = null;
-                        DmcWatchResponse = await NiconicoSession.Context.Video.GetDmcWatchJsonAsync(DmcWatchResponse.Video.Id, _DmcWatchData.DmcWatchEnvironment.PlaylistToken);
+                        DmcWatchResponse = await NiconicoSession.Context.Video.GetDmcWatchJsonAsync(DmcWatchResponse.Client.WatchId, NiconicoSession.IsLoggedIn, DmcWatchResponse.Client.WatchTrackId);
                     }
                 }
 
@@ -181,9 +181,10 @@ namespace Hohoema.Models.Domain.Player.Video
 
             if (session == null)
             {
-                if (DmcWatchResponse.Video.SmileInfo != null)
+                if (DmcWatchResponse.Media.DeliveryLegacy != null)
                 {
-                    return MediaSource.CreateFromUri(new Uri(DmcWatchResponse.Video.SmileInfo.Url));
+                    throw new NotSupportedException("DmcWatchResponse.Media.DeliveryLegacy not supported");
+                    //return MediaSource.CreateFromUri(new Uri(DmcWatchResponse.Video.SmileInfo.Url));
                 }
                 else
                 {
@@ -206,7 +207,7 @@ namespace Hohoema.Models.Domain.Player.Video
                 var amsResult = await AdaptiveMediaSource.CreateFromUriAsync(uri, this.NiconicoSession.Context.HttpClient);
                 if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
                 {
-                    await NiconicoSession.Context.Video.SendOfficialHlsWatchAsync(DmcWatchResponse.Video.Id, DmcWatchResponse.Video.DmcInfo.TrackingId);
+                    await NiconicoSession.Context.Video.SendOfficialHlsWatchAsync(DmcWatchResponse.Video.Id, DmcWatchResponse.Media.Delivery.TrackingId);
 
                     return MediaSource.CreateFromAdaptiveMediaSource(amsResult.MediaSource);
                 }

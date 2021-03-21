@@ -78,11 +78,8 @@ namespace Hohoema.Models.Domain
                         }
                         else
                         {
-                            using (await SigninLock.LockAsync())
-                            {
-                                // ログインセッションが時間切れしていた場合、自動でログイン状態に復帰する
-                                await SignInWithPrimaryAccount();
-                            }
+                            // ログインセッションが時間切れしていた場合、自動でログイン状態に復帰する
+                            await SignInWithPrimaryAccount();
                         }
                     });
                 }
@@ -90,10 +87,7 @@ namespace Hohoema.Models.Domain
                 {
                     Scheduler.Schedule(async () =>
                     {
-                        using (await SigninLock.LockAsync())
-                        {
-                            UpdateServiceStatus();
-                        }
+                        await SignOut();
                     });
                 }
             };
@@ -181,7 +175,16 @@ namespace Hohoema.Models.Domain
         public NiconicoContext Context
         {
             get { return _Context ??= new NiconicoContext() { AdditionalUserAgent = HohoemaUserAgent }; }
-            private set { SetProperty(ref _Context, value); }
+            private set 
+            {
+                if (SetProperty(ref _Context, value))
+                {
+                    if (_Context == null)
+                    {
+                        _LiveContext = null;
+                    }
+                }
+            }
         }
 
 
@@ -360,13 +363,6 @@ namespace Hohoema.Models.Domain
                     Context?.Dispose();
                     Context = null;
                     return NiconicoSignInStatus.Failed;
-                }
-
-                if (Context != null
-                    && Context.AuthenticationToken?.MailOrTelephone == mailOrTelephone
-                    && Context.AuthenticationToken?.Password == password)
-                {
-                    return NiconicoSignInStatus.Success;
                 }
             }
 

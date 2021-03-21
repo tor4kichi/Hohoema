@@ -196,10 +196,10 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     yield break;
                 }
 
-                Debug.Assert(idItems.Count() == res.Count);
-
-                foreach (var item in res.Videos)
+                foreach (var data in idItems)
                 {
+                    var item = res.Videos.FirstOrDefault(x => x.Video.Id == data) ?? await VideoClient.GetVideoInfoAsync(data);
+
                     var info = _nicoVideoRepository.Get(item.Video.Id);
                     var video = item.Video;
 
@@ -293,42 +293,26 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         info.VideoId = res.Video.Id;
                         info.Title = res.Video.Title;
                         info.Length = TimeSpan.FromSeconds(res.Video.Duration);
-                        info.PostedAt = DateTime.Parse(res.Video.PostedDateTime);
-                        info.ThumbnailUrl = res.Video.ThumbnailURL;
+                        info.PostedAt = res.Video.RegisteredAt.DateTime;
+                        info.ThumbnailUrl = res.Video.Thumbnail.Url.OriginalString;
                         info.DescriptionWithHtml = res.Video.Description;
-                        info.ViewCount = res.Video.ViewCount;
-                        info.MylistCount = res.Video.MylistCount;
-                        info.CommentCount = res.Thread.CommentCount;
+                        info.ViewCount = res.Video.Count.View;
+                        info.MylistCount = res.Video.Count.Mylist;
+                        info.CommentCount = res.Video.Count.Comment;
 
-                        if (res.Video.DmcInfo?.Quality.Audios != null)
+                        if (res.Media?.Delivery?.Movie.Audios is not null and var audios)
                         {
-                            info.LoudnessCollectionValue = res.Video.DmcInfo.Quality.Audios[0].VideoLoudnessCorrectionValue;
-                        }
-                        else if (res.Video.SmileInfo != null)
-                        {
-                            info.LoudnessCollectionValue = res.Video.SmileInfo.VideoLoudnessCorrectionValue;
+                            info.LoudnessCollectionValue = audios[0].Metadata.VideoLoudnessCollection;
                         }
 
+                        info.MovieType = MovieType.Mp4;
 
-                        switch (res.Video.MovieType)
-                        {
-                            case @"mp4":
-                                info.MovieType = MovieType.Mp4;
-                                break;
-                            case @"flv":
-                                info.MovieType = MovieType.Flv;
-                                break;
-                            case @"swf":
-                                info.MovieType = MovieType.Swf;
-                                break;
-                        }
-
-                        info.Tags = res.Tags.Select(x => new NicoVideoTag(x.Id)
+                        info.Tags = res.Tag.Items.Select(x => new NicoVideoTag(x.Name)
                         {
                             Tag = x.Name,
                             IsCategoryTag = x.IsCategory,
                             IsLocked = x.IsLocked,
-                            IsDictionaryExists = x.IsDictionaryExists
+                            IsDictionaryExists = x.IsNicodicArticleExists
                         }).ToList();
 
                         if (res.Owner != null)
@@ -336,8 +320,8 @@ namespace Hohoema.Models.Domain.Niconico.Video
                             info.Owner = new NicoVideoOwner()
                             {
                                 ScreenName = res.Owner.Nickname,
-                                IconUrl = res.Owner.IconURL,
-                                OwnerId = res.Owner.Id,
+                                IconUrl = res.Owner.IconUrl.OriginalString,
+                                OwnerId = res.Owner.Id.ToString(),
                                 UserType = NicoVideoUserType.User
                             };
 
@@ -348,8 +332,8 @@ namespace Hohoema.Models.Domain.Niconico.Video
                             info.Owner = new NicoVideoOwner()
                             {
                                 ScreenName = res.Channel.Name,
-                                IconUrl = res.Channel.IconURL,
-                                OwnerId = res.Channel.GlobalId,
+                                IconUrl = res.Channel.Thumbnail.Url.OriginalString,
+                                OwnerId = res.Channel.Id,
                                 UserType = NicoVideoUserType.Channel
                             };
                         }
