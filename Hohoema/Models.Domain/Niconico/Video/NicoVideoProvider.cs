@@ -195,9 +195,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
                 {
                     yield break;
                 }
-#if DEBUG
-                Debug.Assert(idItems.Count() == res.Count);
-#endif
 
                 foreach (var data in idItems)
                 {
