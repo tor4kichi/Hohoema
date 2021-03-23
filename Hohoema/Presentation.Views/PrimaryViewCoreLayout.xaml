@@ -122,7 +122,19 @@
         <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
                                  Icon="List"
                                  >
-          <TextBlock Text="{Binding Label}" />
+          <muxc:NavigationViewItem.Content>
+            <TextBlock Text="{Binding Label}" />
+          </muxc:NavigationViewItem.Content>
+
+          <muxc:NavigationViewItem.ContextFlyout>
+            <MenuFlyout>
+              <MenuFlyoutItem Text="{Binding Source=HohoemaPageType.UserMylist, Converter={StaticResource LocalizeConverter}}"
+                              Command="{Binding MylistPageOpenCommand}"
+                              CommandParameter="{Binding Source=UserMylist}"
+                              />
+            </MenuFlyout>
+          </muxc:NavigationViewItem.ContextFlyout>
+
         </muxc:NavigationViewItem>
       </DataTemplate>
 
@@ -361,22 +373,22 @@
                 <Button.Flyout>
                   <MenuFlyout>
 
+                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenSettings"
+                                      Text="{Binding Source=HohoemaPageType.Settings, Converter={StaticResource LocalizeConverter}}"
+                                      Command="{Binding PageManager.OpenPageCommand}"
+                                    CommandParameter="{x:Bind pageNavigation:HohoemaPageType.Settings}"
+                                    />
+
+                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
+                                      Visibility="Collapsed" Text="Open Debug Page"
+                                      Command="{Binding OpenDebugPageCommand}" />
+
+
                     <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
                                       Visibility="Collapsed" Text="{Binding Source=LogInUserInfo, Converter={StaticResource LocalizeConverter}}"
                                       Command="{Binding OpenAccountInfoCommand}" />
 
-                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenFollowManage"
-                                    Visibility="Collapsed"
-                                      Text="{Binding Source=HohoemaPageType.FollowManage, Converter={StaticResource LocalizeConverter}}"
-                                      Command="{Binding PageManager.OpenPageCommand}"
-                                    CommandParameter="{x:Bind pageNavigation:HohoemaPageType.FollowManage}"
-                                    />
-                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenMylistManage"
-                                    Visibility="Collapsed"
-                                      Text="{Binding Source=HohoemaPageType.UserMylist, Converter={StaticResource LocalizeConverter}}"
-                                      Command="{Binding PageManager.OpenPageCommand}"
-                                    CommandParameter="{x:Bind pageNavigation:HohoemaPageType.UserMylist}"
-                                    />
+                    <MenuFlyoutSeparator />
                     
                     <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
                                       Visibility="Collapsed" Text="{Binding Source=LogOut, Converter={StaticResource LocalizeConverter}}"
@@ -386,28 +398,6 @@
                                       Visibility="Collapsed" Text="{Binding Source=LogIn, Converter={StaticResource LocalizeConverter}}"
                                       Command="{Binding NiconicoLoginService.LoginCommand}" />
 
-                    <MenuFlyoutSeparator />
-                    
-                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenSubscriptionManagement"
-                                      Text="{Binding Source=HohoemaPageType.SubscriptionManagement, Converter={StaticResource LocalizeConverter}}"
-                                      Command="{Binding PageManager.OpenPageCommand}"
-                                    CommandParameter="{x:Bind pageNavigation:HohoemaPageType.SubscriptionManagement}"
-                                    />
-                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenVideoCacheManagement"
-                                      Text="{Binding Source=HohoemaPageType.CacheManagement, Converter={StaticResource LocalizeConverter}}"
-                                      Command="{Binding PageManager.OpenPageCommand}"
-                                    CommandParameter="{x:Bind pageNavigation:HohoemaPageType.CacheManagement}"
-                                    />
-                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenSettings"
-                                      Text="{Binding Source=HohoemaPageType.Settings, Converter={StaticResource LocalizeConverter}}"
-                                      Command="{Binding PageManager.OpenPageCommand}"
-                                    CommandParameter="{x:Bind pageNavigation:HohoemaPageType.Settings}"
-                                    />
-
-
-                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
-                                      Visibility="Collapsed" Text="Open Debug Page"
-                                      Command="{Binding OpenDebugPageCommand}" />
                     
                   </MenuFlyout>
                 </Button.Flyout>
@@ -895,9 +885,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
-            <Setter Target="MenuFlyoutItem_OpenFollowManage.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
-            <Setter Target="MenuFlyoutItem_OpenMylistManage.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
             <Setter Target="CoreNavigationView.MenuItemsSource" Value="{Binding MenuItems_LoggedIn}" />
           </VisualState.Setters>

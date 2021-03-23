@@ -143,9 +143,12 @@ namespace Hohoema.Presentation.ViewModels
                 new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
                 new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo),
                 new MenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory),
-                new MylistSubMenuMenu(_userMylistManager),
+                new MylistSubMenuMenu(_userMylistManager, PageManager.OpenPageCommand),
                 _localMylistMenuSubItemViewModel,
+                new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage),
                 new MenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift),
+                new MenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
+                new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
             };
 
             MenuItems_Offline = new ObservableCollection<HohoemaListingPageItemBase>()
@@ -155,6 +158,8 @@ namespace Hohoema.Presentation.ViewModels
                 new SeparatorMenuItemViewModel(),
                 new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
                 _localMylistMenuSubItemViewModel,
+                new MenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
+                new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
             };
         }
 
@@ -415,12 +420,12 @@ namespace Hohoema.Presentation.ViewModels
     {
         private readonly UserMylistManager _userMylistManager;
 
-        public MylistSubMenuMenu(UserMylistManager userMylistManager)
+        public MylistSubMenuMenu(UserMylistManager userMylistManager, ICommand mylistPageOpenCommand)
         {
             Label = "Mylist".Translate();
 
             _userMylistManager = userMylistManager;
-
+            MylistPageOpenCommand = mylistPageOpenCommand;
             _userMylistManager.Mylists.CollectionChangedAsObservable()
                 .Subscribe(e => 
                 {
@@ -448,6 +453,8 @@ namespace Hohoema.Presentation.ViewModels
 
             Items = new ObservableCollection<MenuItemViewModel>(_userMylistManager.Mylists.Select(ToMenuItem));
         }
+
+        public ICommand MylistPageOpenCommand { get; }
 
         private MenuItemViewModel ToMenuItem(LoginUserMylistPlaylist mylist)
         {
