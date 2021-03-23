@@ -332,6 +332,7 @@ namespace Hohoema
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.LivePages.LiveInfomationPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.MylistPages.UserMylistPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.MylistPages.MylistPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.MylistPages.OwnerMylistPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultTagPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultMylistPage>();
@@ -368,26 +369,39 @@ namespace Hohoema
             {
                 if (isInitialized) { return; }
                 isInitialized = true;
-
-                Type[] migrateTypes = new Type[]
-                {
-                    typeof(DatabaseMigrate_0_25_0),
-                };
-
                 
-                foreach (var migrateType in migrateTypes)
+
+                async Task TryMigrationAsync(Type[] migrateTypes)
                 {
-                    Debug.WriteLine($"try migrate {migrateType.Name}");
-                    var migrater = Container.Resolve(migrateType);
-                    if (migrater is IMigrate migrateSycn)
+                    foreach (var migrateType in migrateTypes)
                     {
-                        migrateSycn.Migrate();
-                    }
-                    else if (migrater is IMigrateAsync migrateAsync)
-                    {
-                        await migrateAsync.MigrateAsync();
+                        try
+                        {
+                            Debug.WriteLine($"Try migrate: {migrateType.Name}");
+                            var migrater = Container.Resolve(migrateType);
+                            if (migrater is IMigrate migrateSycn)
+                            {
+                                migrateSycn.Migrate();
+                            }
+                            else if (migrater is IMigrateAsync migrateAsync)
+                            {
+                                await migrateAsync.MigrateAsync();
+                            }
+
+                            Debug.WriteLine("Migration complete : " + migrateType.Name);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.WriteLine(e.ToString());
+                            Debug.WriteLine("Migration failed : " + migrateType.Name);
+                        }
                     }
                 }
+
+                await TryMigrationAsync(new Type[]
+                {
+                    typeof(DatabaseMigrate_0_25_0),
+                });
 
                 {
                     var unityContainer = Container.GetContainer();
@@ -397,14 +411,15 @@ namespace Hohoema
                     LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
                     unityContainer.RegisterInstance<LiteDatabase>(db);
                 }
-                
-                Container.Resolve<MigrationCommentFilteringSettings>().Migration();
-                Container.Resolve<CommentFilteringNGScoreZeroFixture>().Migration();
 
-                await Task.Run(async () => { await Container.Resolve<SettingsMigration_V_0_23_0>().MigrateAsync(); });
-
-                Container.Resolve<SearchPageQueryMigrate_0_26_0>().Migrate();
-
+                await TryMigrationAsync(new Type[]
+                {
+                    typeof(MigrationCommentFilteringSettings),
+                    typeof(CommentFilteringNGScoreZeroFixture),
+                    typeof(SettingsMigration_V_0_23_0),
+                    typeof(SearchPageQueryMigrate_0_26_0),
+                    typeof(LocalMylistThumbnailImageMigration_V_0_28_0),
+                });
 
                 // 機能切り替え管理クラスをDIコンテナに登録
                 // Xaml側で扱いやすくするためApp.xaml上でインスタンス生成させている

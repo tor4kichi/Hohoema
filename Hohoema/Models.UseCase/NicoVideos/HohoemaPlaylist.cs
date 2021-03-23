@@ -933,6 +933,10 @@ namespace Hohoema.Models.UseCase.NicoVideos
         public string Id { get; }
 
         public string Label { get; }
+
+        public Uri[] ThumbnailImages => null;
+
+        public Uri ThumbnailImage => null;
     }
     
     public class LiveVideoPlaylistItem : INiconicoContent

@@ -25,6 +25,9 @@ namespace Hohoema.Models.Domain.Playlist
 
         [BsonField]
         public int Count { get; set; }
+
+        [BsonField]
+        public Uri ThumbnailImage { get; set; }
     }
 
 
@@ -78,9 +81,9 @@ namespace Hohoema.Models.Domain.Playlist
                 _collection.EnsureIndex(nameof(PlaylistItemEntity.ContentId));
             }
 
-            public IEnumerable<PlaylistItemEntity> GetItems(string playlistId)
+            public List<PlaylistItemEntity> GetItems(string playlistId, int start, int count)
             {
-                return _collection.Find(x => x.PlaylistId == playlistId);
+                return _collection.Find(x => x.PlaylistId == playlistId).Skip(start).Take(count).ToList();
             }
 
             public int ClearPlaylistItems(string playlistId)
@@ -97,6 +100,11 @@ namespace Hohoema.Models.Domain.Playlist
             {
                 var hashSet = contentId.ToHashSet();
                 return _collection.DeleteMany(x => x.PlaylistId == playlistId && hashSet.Contains(x.ContentId));
+            }
+
+            public int CountPlaylisItems(string playlistId)
+            {
+                return _collection.Count(x => x.PlaylistId == playlistId);
             }
         }
 
@@ -138,9 +146,14 @@ namespace Hohoema.Models.Domain.Playlist
 
 
 
-        public IEnumerable<PlaylistItemEntity> GetItems(string playlistId)
+        public List<PlaylistItemEntity> GetItems(string playlistId, int start = 0, int count = int.MaxValue)
         {
-            return _itemsDbService.GetItems(playlistId);
+            return _itemsDbService.GetItems(playlistId, start, count);
+        }
+
+        public int GetCount(string playlistId)
+        {
+            return _itemsDbService.CountPlaylisItems(playlistId);
         }
 
         public int ClearItems(string playlistId)

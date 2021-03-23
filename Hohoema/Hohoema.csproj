@@ -302,6 +302,7 @@
     <Compile Include="Models.UseCase\Migration\CommentFilteringNGScoreZeroFixture.cs" />
     <Compile Include="Models.UseCase\Migration\DatabaseMigrate_0_25_0.cs" />
     <Compile Include="Models.UseCase\Migration\IMigateAsync.cs" />
+    <Compile Include="Models.UseCase\Migration\LocalMylistThumbnailImageMigration_V_0_28_0.cs" />
     <Compile Include="Models.UseCase\Migration\MigrationCommentFilteringSettings.cs" />
     <Compile Include="Models.UseCase\Migration\SearchPageQueryMigrate_0_26_0.cs" />
     <Compile Include="Models.UseCase\Migration\SettingsMigration_V_0_23_0.cs" />
@@ -396,6 +397,7 @@
     <Compile Include="Presentation.ViewModels.Pages\LivePages\LiveInfoListItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\LivePages\LiveInfomationPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\MylistPages\MylistPageViewModel.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\MylistPages\OwnerMylistPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\MylistPages\UserMylistPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\SearchPages\RemoveSearchHistoryCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\SearchPages\SearchPageViewModel.cs" />
@@ -544,6 +546,9 @@
     </Compile>
     <Compile Include="Presentation.Views.Pages\MylistPages\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presentation.Views.Pages\MylistPages\OwnerMylistPage.xaml.cs">
+      <DependentUpon>OwnerMylistPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\MylistPages\UserMylistPage.xaml.cs">
       <DependentUpon>UserMylistPage.xaml</DependentUpon>
@@ -1080,6 +1085,10 @@
     <Page Include="Presentation.Views.Pages\MylistPages\MylistPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Presentation.Views.Pages\MylistPages\OwnerMylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Presentation.Views.Pages\MylistPages\UserMylistPage.xaml">
       <Generator>MSBuild:Compile</Generator>

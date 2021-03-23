@@ -31,7 +31,7 @@
 
         </VisualStateManager.VisualStateGroups>
 
-        <Image Source="{Binding ThumnailUrl}"
+    <Image Source="{Binding ThumbnailImage}"
                                        VerticalAlignment="Top"
                                            />
         <toolkit:DockPanel

@@ -31,7 +31,8 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
                 {
                     Label = detail.Name ?? "DefaultMylist".Translate(),
                     Count = (int)detail.TotalItemCount,
-                    IsPublic = true
+                    IsPublic = true,
+                    ThumbnailImages = detail.SampleItems?.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
                 };
                 return mylist;
             }
@@ -47,6 +48,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
                     SortIndex = 0,
                     UserId = detail.Owner.Id,
                     Description = detail.Description,
+                    ThumbnailImages = detail.SampleItems?.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
                 };
                 return mylist;
             }
@@ -62,7 +64,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
                 return new MylistPlaylist(x.Id.ToString(), MylistProvider)
                 {
                     Label = x.Name,
-                    Count = (int)x.TotalItemCount,
+                    Count = (int)(x.ItemsCount == 0 ? x.TotalItemCount : x.ItemsCount),
                     SortIndex = i,
                     UserId = x.Owner.Id,
                     Description = x.Description,
@@ -70,6 +72,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
                     CreateTime = x.CreatedAt.DateTime,
                     DefaultSortKey = x.DefaultSortKey,
                     DefaultSortOrder = x.DefaultSortOrder,
+                    ThumbnailImages = x.SampleItems.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray()
                 };
             }
             ).ToList();

@@ -20,8 +20,6 @@ using Windows.Storage;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {
-    
-
     public sealed class LocalMylistManager : IDisposable
     {
         public LocalMylistManager(
@@ -40,7 +38,8 @@ namespace Hohoema.Models.UseCase.NicoVideos
             var localPlaylists = localPlaylistEntities.Select(x => new LocalPlaylist(x.Id, _playlistRepository, _nicoVideoRepository) 
             {
                 Label = x.Label,
-                Count = x.Count
+                Count = _playlistRepository.GetCount(x.Id),
+                ThumbnailImage = x.ThumbnailImage,
             }).ToList();
 
             _playlists = new ObservableCollection<LocalPlaylist>(localPlaylists);
@@ -52,7 +51,6 @@ namespace Hohoema.Models.UseCase.NicoVideos
             {
                 _playlistIdToEntity.Add(entity.Id, entity);
             }
-
         }
 
         private readonly PlaylistRepository _playlistRepository;

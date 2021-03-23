@@ -74,5 +74,7 @@ namespace Hohoema.Models.Domain.PageNavigation
         WatchAfter, // @view
 
         SubscriptionManagement,
+        
+        OwnerMylist,
     }
 }

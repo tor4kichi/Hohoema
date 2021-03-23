@@ -76,7 +76,8 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
             {
                 Label = "DefaultMylist".Translate(),
                 Count = (int)defMylist.Data.Mylist.TotalItemCount,
-                UserId = NiconicoSession.UserIdString 
+                UserId = NiconicoSession.UserIdString,
+                ThumbnailImages = defMylist.Data.Mylist.Items.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
             };
         }
 
@@ -115,7 +116,8 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
                     //IconType = mylistGroup.co,
                     DefaultSortKey = mylistGroup.DefaultSortKey,
                     DefaultSortOrder = mylistGroup.DefaultSortOrder,
-                    SortIndex = res.Data.Mylists.IndexOf(mylistGroup)
+                    SortIndex = res.Data.Mylists.IndexOf(mylistGroup),
+                    ThumbnailImages = mylistGroup.SampleItems.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
                 };
 
                 mylistGroups.Add(mylist);

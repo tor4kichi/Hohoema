@@ -130,7 +130,7 @@
             <MenuFlyout>
               <MenuFlyoutItem Text="{Binding Source=HohoemaPageType.UserMylist, Converter={StaticResource LocalizeConverter}}"
                               Command="{Binding MylistPageOpenCommand}"
-                              CommandParameter="{Binding Source=UserMylist}"
+                              CommandParameter="{Binding Source=OwnerMylist}"
                               />
             </MenuFlyout>
           </muxc:NavigationViewItem.ContextFlyout>
