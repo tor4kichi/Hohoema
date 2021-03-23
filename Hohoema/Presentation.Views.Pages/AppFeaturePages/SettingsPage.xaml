@@ -133,8 +133,8 @@
           </CommandBar.PrimaryCommands>
         </CommandBar>
       </StackPanel>
-      <ScrollViewer MaxWidth="480" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <StackPanel x:Name="ContentPanel" Spacing="16" Padding="0 0 0 32">
+      <ScrollViewer Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel x:Name="ContentPanel" Spacing="16" Padding="0 0 0 32" MaxWidth="480" >
           <!-- アプリの表示設定 -->
           <StackPanel>
             <toolkit:DockPanel Margin="0 8">
