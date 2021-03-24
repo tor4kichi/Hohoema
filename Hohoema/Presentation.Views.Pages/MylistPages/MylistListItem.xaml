@@ -10,71 +10,47 @@
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
+  
+  <Grid Width="180" Height="140" Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
+        >
+    <Image Source="{Binding ThumbnailImage}" VerticalAlignment="Top" />
+    <StackPanel Padding="8" VerticalAlignment="Bottom">
+      <StackPanel.Background>
+        <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" Opacity="0.7" />
+      </StackPanel.Background>
 
-    <Grid Width="180"
-            Height="140"
-                Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
-            >
+      <TextBlock Text="{Binding Label}" TextWrapping="Wrap" />
 
-        <VisualStateManager.VisualStateGroups>
+      <Grid>
+        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7">
+          <Run Text="{Binding Count}" />
+        </TextBlock>
 
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <myTrigger:EqualConditionStateTrigger Condition="Local" Value="{Binding Origin}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="OtherUserOwnedStatusText.Visibility" Value="Visible" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
+        <TextBlock Text="Local"
+              x:Name="OtherUserOwnedStatusText"
+              Style="{StaticResource CaptionTextBlockStyle}"
+              Opacity="0.0"
+              HorizontalAlignment="Right"
+            />
 
-        </VisualStateManager.VisualStateGroups>
-
-    <Image Source="{Binding ThumbnailImage}"
-                                       VerticalAlignment="Top"
-                                           />
-        <toolkit:DockPanel
-                                
-                                >
-            <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom">
-
-                <StackPanel 
-                                                    Padding="8"
-                                                    >
-                    <StackPanel.Background>
-                        <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" Opacity="0.7" />
-                    </StackPanel.Background>
-
-                    <TextBlock Text="{Binding Label}"   
-                                                       TextWrapping="Wrap"
-                                           />
-
-                    <Grid>
-                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}"
-                                                           Opacity="0.7"
-                                                           >
-                                                    <Run Text="{Binding Count}" />
-                        </TextBlock>
-
-                        <TextBlock Text="Local"
-                                                           x:Name="OtherUserOwnedStatusText"
-                                                           Visibility="Collapsed"
-                                                           Style="{StaticResource CaptionTextBlockStyle}"
-                                                           Opacity="0.7"
-                                                           HorizontalAlignment="Right"
-                                                       />
-
-                    </Grid>
-
-                </StackPanel>
-
-            </toolkit:DockPanel>
+      </Grid>
+    </StackPanel>
 
 
-            <Border />
+    <VisualStateManager.VisualStateGroups>
 
-        </toolkit:DockPanel>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:IsAssignableFromStateTrigger Value="{Binding}" TargetType="{Binding Source=Hohoema.Models.Domain.Playlist.LocalPlaylist, Converter={StaticResource StringToType}}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="OtherUserOwnedStatusText.Opacity" Value="0.7" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
 
-    </Grid>
+    </VisualStateManager.VisualStateGroups>
+
+  </Grid>
 </UserControl>

@@ -832,6 +832,7 @@
     <Compile Include="Presentation.Views\StateTrigger\IsShowWithSecondaryViewTrigger.cs" />
     <Compile Include="Presentation.Views\StateTrigger\IsSupportCompactOverlayTrigger.cs" />
     <Compile Include="Presentation.Views\StateTrigger\PointerFocusTrigger.cs" />
+    <Compile Include="Presentation.Views\StateTrigger\IsAssignableFromStateTrigger.cs" />
     <Compile Include="Presentation.Views\StateTrigger\UIIntractionTriggerBase.cs" />
     <Compile Include="Presentation.Views\StateTrigger\WindowActiveTrigger.cs" />
     <Compile Include="Presentation.Views\StateTrigger\WindowInWindowViewModeTrigger.cs" />

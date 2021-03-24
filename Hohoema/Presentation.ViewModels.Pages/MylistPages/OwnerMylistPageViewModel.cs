@@ -3,6 +3,7 @@ using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Page;
@@ -37,6 +38,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
         private readonly UserMylistManager _userMylistManager;
         private readonly LocalMylistManager _localMylistManager;
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
+
         public ReactiveCommand<IPlaylist> OpenMylistCommand { get; private set; }
         public DelegateCommand AddMylistGroupCommand { get; private set; }
         public DelegateCommand<IPlaylist> RemoveMylistGroupCommand { get; private set; }
@@ -50,6 +53,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             NiconicoSession niconicoSession,
             PageManager pageManager,
             Services.DialogService dialogService,
+            ApplicationLayoutManager applicationLayoutManager,
             UserMylistManager userMylistManager,
             LocalMylistManager localMylistManager,
             LocalPlaylistCreateCommand createLocalMylistCommand
@@ -58,6 +62,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             _niconicoSession = niconicoSession;
             _pageManager = pageManager;
             _dialogService = dialogService;
+            ApplicationLayoutManager = applicationLayoutManager;
             _userMylistManager = userMylistManager;
             _localMylistManager = localMylistManager;
             CreateLocalMylistCommand = createLocalMylistCommand;
