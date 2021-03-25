@@ -114,6 +114,7 @@ namespace Hohoema.Presentation.Views.Flyouts
             RemoveWatchAfter.Command = App.Current.Container.Resolve<QueueRemoveItemCommand>();
 
             OpenVideoInfoPage.Command = PageManager.OpenPageCommand;
+            OpenOwnerMylistsPage.Command = new OpenPageWithIdCommand(HohoemaPageType.UserMylist, PageManager);
             OpenOwnerVideosPage.Command = PageManager.OpenVideoListPageCommand;
             OpenOwnerSeriesPage.Command = new OpenPageWithIdCommand(HohoemaPageType.UserSeries, PageManager);
             Share.Command = ExternalAccessService.OpenShareUICommand;
@@ -248,11 +249,16 @@ namespace Hohoema.Presentation.Views.Flyouts
 
             if (!isMultipleSelection)
             {
-                OpenOwnerSeriesPage.Visibility = (content?.ProviderType == NicoVideoUserType.User && content?.ProviderId != null).ToVisibility();
+                bool isUserProvidedVideo = (content?.ProviderType == NicoVideoUserType.User && content?.ProviderId != null);
+                OpenOwnerMylistsPage.Visibility = 
+                OpenOwnerSeriesPage.Visibility = isUserProvidedVideo.ToVisibility();
+
+                OpenOwnerMylistsPage.CommandParameter =
                 OpenOwnerSeriesPage.CommandParameter = content?.ProviderId;
             }
             else
             {
+                OpenOwnerMylistsPage.Visibility = Visibility.Collapsed;
                 OpenOwnerSeriesPage.Visibility = Visibility.Collapsed;
             }
 

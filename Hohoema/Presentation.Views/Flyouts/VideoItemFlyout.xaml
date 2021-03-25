@@ -81,6 +81,9 @@
                   Text="{Binding Source=OpenOwnerVideos, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   CommandParameter="{Binding}"
                   />
+  <MenuFlyoutItem x:Name="OpenOwnerMylistsPage"
+                  Text="{Binding Source=OpenOwnerMylists, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  />
   <MenuFlyoutItem x:Name="OpenOwnerSeriesPage" 
                   Text="{Binding Source=OpenOwnerSeries, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
                   />

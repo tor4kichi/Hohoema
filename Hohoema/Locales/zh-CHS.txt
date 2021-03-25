@@ -818,6 +818,7 @@ AllPlayFromHere = 从这里连续播放
 
 OpenVideoInfo = 影片资讯
 OpenOwnerVideos = 贡献者的视频列表
+OpenOwnerMylists = 我的贡献者名单
 OpenOwnerSeries = 贡献者系列一览
 AddHiddenVideoOwner = 隐藏作者
 Dialog_HiddenVideoOwnerDesc = 您可以从设置页面撤消此更改

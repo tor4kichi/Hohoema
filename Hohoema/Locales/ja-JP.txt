@@ -818,6 +818,7 @@ AllPlayFromHere = ここから連続再生
 
 OpenVideoInfo = 動画情報
 OpenOwnerVideos = 投稿者の動画一覧
+OpenOwnerMylists = 投稿者のマイリスト一覧
 OpenOwnerSeries = 投稿者のシリーズ一覧
 AddHiddenVideoOwner = 投稿者を非表示に設定
 Dialog_HiddenVideoOwnerDesc = この変更は設定ページから取り消すことができます
