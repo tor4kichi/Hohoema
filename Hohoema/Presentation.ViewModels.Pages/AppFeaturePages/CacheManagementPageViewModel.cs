@@ -338,7 +338,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 
                 if (video is null)
                 {
-                    _ = vm.InitializeAsync(ct).ConfigureAwait(false);
+                    await vm.InitializeAsync(ct).ConfigureAwait(false);
                 }
 
                 ct.ThrowIfCancellationRequested();
