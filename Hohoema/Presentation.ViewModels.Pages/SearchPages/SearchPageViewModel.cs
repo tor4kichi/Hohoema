@@ -840,7 +840,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 					
                     yield return vm;
 
-					_ = vm.InitializeAsync(ct).ConfigureAwait(false);
+					await vm.InitializeAsync(ct).ConfigureAwait(false);
 
 					ct.ThrowIfCancellationRequested();
                 }

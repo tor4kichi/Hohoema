@@ -28,9 +28,9 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         public async Task<IPlaylist> FindPlaylistAsync(string id)
         {
-            if (HohoemaPlaylist.WatchAfterPlaylistId == id)
+            if (HohoemaPlaylist.QueuePlaylistId == id)
             {
-                return _hohoemaPlaylist.WatchAfterPlaylist;
+                return _hohoemaPlaylist.QueuePlaylist;
             }
             else if (_localMylistManager.HasPlaylist(id))
             {

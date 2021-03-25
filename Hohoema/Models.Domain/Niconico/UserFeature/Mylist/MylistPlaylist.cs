@@ -42,8 +42,10 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
         public MylistSortKey DefaultSortKey { get; internal set; }
         public MylistSortOrder DefaultSortOrder { get; internal set; }
 
+        public Uri[] ThumbnailImages { get; internal set; }
 
-        
+        public Uri ThumbnailImage => ThumbnailImages?.FirstOrDefault();
+
         public DateTime CreateTime { get; internal set; }
 
 

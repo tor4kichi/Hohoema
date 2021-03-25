@@ -94,12 +94,12 @@
                 <AppBarSeparator x:Name="SelectActions_EditButtonSeparator" />
 
                 <AppBarButton x:Name="SelectActions_RemoveMylist" Label="{Binding Source=MylistRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarButton x:Name="SelectActions_RemoveWatchAfter" Label="{Binding Source=WatchAfterRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeWatchAfterCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_RemoveWatchAfter" Label="{Binding Source=WatchAfterRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
                 <AppBarButton x:Name="SelectActions_RemoveLocalMylist" Label="{Binding Source=LocalMylistRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _localMylistRemoveCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
                 <AppBarButton x:Name="SelectActions_RemoveWatchHistory" Label="{Binding Source=RemoveWatchHisotryItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeWatchHistoryCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
                 <AppBarSeparator x:Name="SelectActions_RemoveButtonSeparator" />
 
-                <AppBarButton x:Name="SelectActions_AddWatchAfter" Label="{Binding Source=WatchAfterAddItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _addWatchAfterCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_AddWatchAfter" Label="{Binding Source=QueueAddItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _addQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
                 <AppBarButton x:Name="SelectActions_AddMylist" Label="{Binding Source=MylistAddItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _addMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
                 <AppBarButton x:Name="SelectActions_AddLocalMylist" Label="{Binding Source=LocalMylistAddItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _localMylistAddCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
               </CommandBar>

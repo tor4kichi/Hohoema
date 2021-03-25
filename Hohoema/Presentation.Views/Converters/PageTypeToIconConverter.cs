@@ -33,8 +33,9 @@ namespace Hohoema.Presentation.Views.Converters
                     HohoemaPageType.Timeshift => new SymbolIcon(Symbol.Clock),
                     HohoemaPageType.Subscription => new SymbolIcon(Symbol.Important),
                     HohoemaPageType.LocalPlaylist => new SymbolIcon(Symbol.List),
-                    HohoemaPageType.WatchAfter => new SymbolIcon(Symbol.Play),
+                    HohoemaPageType.VideoQueue => new SymbolIcon(Symbol.Play),
                     HohoemaPageType.NicoRepo => new SymbolIcon(Symbol.Bookmarks),
+                    HohoemaPageType.SubscriptionManagement => new SymbolIcon(Symbol.Globe),
                     _ => throw new NotSupportedException(),
                 };
             }

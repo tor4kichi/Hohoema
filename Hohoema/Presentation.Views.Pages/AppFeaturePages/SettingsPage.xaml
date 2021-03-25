@@ -108,6 +108,10 @@
               Value="8 0 0 0" />
     </Style>
 
+    <Style x:Key="SettingsTitleContainerStyle" TargetType="toolkit:DockPanel">
+      <Setter Property="Margin" Value="0 32" />
+    </Style>
+    
     <locales:LocaleToDisplayNameConverter x:Key="LocaleToDisplayNameConverter" />
   </Page.Resources>
   <Grid>
@@ -133,11 +137,11 @@
           </CommandBar.PrimaryCommands>
         </CommandBar>
       </StackPanel>
-      <ScrollViewer MaxWidth="480" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <StackPanel x:Name="ContentPanel" Spacing="16" Padding="0 0 0 32">
+      <ScrollViewer Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel x:Name="ContentPanel" Spacing="16" Padding="0 0 0 32" MaxWidth="480" >
           <!-- アプリの表示設定 -->
           <StackPanel>
-            <toolkit:DockPanel Margin="0 8">
+            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
               <TextBlock Text="{Binding Source=AppearanceSettings, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
@@ -207,7 +211,7 @@
           </StackPanel>
           <!-- NG設定 -->
           <StackPanel>
-            <toolkit:DockPanel Margin="0 8">
+            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
               <TextBlock Text="{Binding Source=FilterSettings, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
@@ -283,7 +287,7 @@
           </StackPanel>
           <!-- キャッシュ設定 -->
           <StackPanel>
-            <toolkit:DockPanel Margin="0 8">
+            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
               <TextBlock Text="{Binding Source=CacheSettings, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
@@ -353,7 +357,7 @@
           </StackPanel>
           <!-- バックアップ -->
           <StackPanel>
-            <toolkit:DockPanel Margin="0 8">
+            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
               <TextBlock Text="{Binding Source=UserDataSettings, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
@@ -365,7 +369,7 @@
 
           <!-- アプリの使用状況 -->
           <StackPanel>
-            <toolkit:DockPanel Margin="0 8">
+            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
               <TextBlock Text="{Binding Source=ApplicationDiagnosticsReport, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
@@ -383,7 +387,7 @@
           
           <!-- このアプリについて -->
           <StackPanel>
-            <toolkit:DockPanel Margin="0 8">
+            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
               <TextBlock Text="{Binding Source=AboutThisApp, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
@@ -399,7 +403,7 @@
             </StackPanel>
           </StackPanel>
           <StackPanel>
-            <toolkit:DockPanel Margin="0 8">
+            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
               <TextBlock Text="{Binding Source=Feedback, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
@@ -409,7 +413,7 @@
           </StackPanel>
           <!--  -->
           <StackPanel>
-            <toolkit:DockPanel Margin="0 8">
+            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
               <TextBlock Text="{Binding Source=ThirdPartyLibraryDependencies, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
@@ -511,7 +515,7 @@
           </StackPanel>
           <!-- その他 -->
           <StackPanel>
-            <toolkit:DockPanel Margin="0 8">
+            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
               <TextBlock Text="{Binding Source=Others, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>

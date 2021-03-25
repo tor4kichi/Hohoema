@@ -25,21 +25,40 @@ namespace Hohoema.Models.Domain.Playlist
         private readonly PlaylistRepository _playlistRepository;
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
 
-        internal LocalPlaylist(string id, PlaylistRepository playlistRepository, NicoVideoCacheRepository nicoVideoRepository)
+        internal LocalPlaylist(string id, string label, PlaylistRepository playlistRepository, NicoVideoCacheRepository nicoVideoRepository)
         {
             Id = id;
+            Label = label;
             _playlistRepository = playlistRepository;
             _nicoVideoRepository = nicoVideoRepository;
         }
 
         public string Id { get; }
 
-        public string Label { get; set; }
+        public string Label { get; private set; }
+
+        public void UpdateLabel(string label)
+        {
+            if (string.IsNullOrWhiteSpace(label)) { throw new InvalidOperationException(); }
+
+            if (string.Compare(Label, label) != 0)
+            {
+                Label = label;
+                UpdatePlaylistInfo();
+            }
+        }
 
         public int Count { get; set; }
 
         public int SortIndex { get; set; }
 
+        Uri[] _thumbnailImages = new Uri[1];
+        public Uri[] ThumbnailImages => _thumbnailImages;
+        public Uri ThumbnailImage
+        {
+            get => _thumbnailImages[0];
+            set => _thumbnailImages[0] = value;
+        }
 
         public event EventHandler<LocalPlaylistItemRemovedEventArgs> ItemRemoved;
         public event EventHandler<LocalPlaylistItemAddedEventArgs> ItemAdded;
@@ -53,7 +72,20 @@ namespace Hohoema.Models.Domain.Playlist
                 PlaylistId = Id,
                 AddedItems = new[] { item.Id }
             });
+
+            Count = _playlistRepository.GetCount(Id);
+            if (Count == 1)
+            {
+                UpdateThumbnailImage(new Uri(item.ThumbnailUrl));
+            }
         }
+
+        public void UpdateThumbnailImage(Uri thumbnailImage)
+        {
+            this.ThumbnailImage = thumbnailImage;
+            UpdatePlaylistInfo();
+        }
+
 
         public void AddPlaylistItem(IEnumerable<IVideoContent> items)
         {
@@ -86,6 +118,9 @@ namespace Hohoema.Models.Domain.Playlist
                     RemovedItems = new[] { item.Id }
                 });
             }
+
+            Count = _playlistRepository.GetCount(Id);
+
             return result;
         }
 
@@ -103,7 +138,23 @@ namespace Hohoema.Models.Domain.Playlist
                 });
             }
 
+            Count = _playlistRepository.GetCount(Id);
+
             return result;
+        }
+
+
+
+        private void UpdatePlaylistInfo()
+        {
+            _playlistRepository.UpsertPlaylist(new PlaylistEntity()
+            {
+                Id = this.Id,
+                Label = this.Label,
+                Count = 1,
+                PlaylistOrigin = PlaylistOrigin.Local,
+                ThumbnailImage = this.ThumbnailImage,
+            });
         }
     }
     

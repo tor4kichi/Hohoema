@@ -24,7 +24,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
         private readonly NotificationService _notificationService;
 
         static readonly string OpenSubscriptionManagementPageParam = new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.SubscriptionManagement }.ToParameterString();
-        static readonly string PlayWithWatchAfterPlaylistParam = new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = $"playlist_id={HohoemaPlaylist.WatchAfterPlaylistId}" }.ToParameterString();
+        static readonly string PlayWithWatchAfterPlaylistParam = new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = $"playlist_id={HohoemaPlaylist.QueuePlaylistId}" }.ToParameterString();
 
         List<SubscriptionFeedUpdateResult> Results = new List<SubscriptionFeedUpdateResult>();
 

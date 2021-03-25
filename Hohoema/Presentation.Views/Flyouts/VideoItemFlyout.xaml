@@ -39,11 +39,11 @@
 
   <!-- あとで見る -->
   <MenuFlyoutItem x:Name="RemoveWatchAfter" 
-                  Text="{Binding Source=WatchAfterRemoveItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  Text="{Binding Source=QueueRemoveItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   Visibility="Collapsed"
                   />
   <MenuFlyoutItem x:Name="AddWatchAfter"
-                  Text="{Binding Source=WatchAfterAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  Text="{Binding Source=QueueAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   Visibility="Collapsed"
                                 />
 
@@ -80,6 +80,9 @@
   <MenuFlyoutItem x:Name="OpenOwnerVideosPage"
                   Text="{Binding Source=OpenOwnerVideos, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   CommandParameter="{Binding}"
+                  />
+  <MenuFlyoutItem x:Name="OpenOwnerMylistsPage"
+                  Text="{Binding Source=OpenOwnerMylists, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   />
   <MenuFlyoutItem x:Name="OpenOwnerSeriesPage" 
                   Text="{Binding Source=OpenOwnerSeries, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 

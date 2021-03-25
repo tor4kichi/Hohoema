@@ -77,14 +77,6 @@
                   </AppBarButton.Flyout>
                   <SymbolIcon Symbol="Sort" />
                 </AppBarButton>
-                <AppBarButton Background="Transparent" Label="追加" Icon="Add" Visibility="Collapsed" x:Name="LoginUserMylistActions">
-                  <AppBarButton.Flyout>
-                    <MenuFlyout>
-                      <MenuFlyoutItem Text="{Binding Source=LocalPlaylistCreate, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateLocalMylistCommand}" />
-                      <MenuFlyoutItem Text="{Binding Source=MylistCreate, Converter={StaticResource LocalizeConverter}}" Command="{Binding AddMylistGroupCommand}" />
-                    </MenuFlyout>
-                  </AppBarButton.Flyout>
-                </AppBarButton>
               </CommandBar>
             </mycontrols:ScrollHeader>
           </Grid>
@@ -138,17 +130,6 @@
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
             <Setter Target="ItemsPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-      
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsLoginUserMylist.Value}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="LoginUserMylistActions.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

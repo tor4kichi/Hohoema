@@ -13,7 +13,7 @@ using System.Windows.Input;
 
 namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 {
-    public sealed class WatchAfterPageViewModel : HohoemaViewModelBase, INavigationAware
+    public sealed class VideoQueuePageViewModel : HohoemaViewModelBase, INavigationAware
     {
         private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly PlaylistObservableCollection _watchAfterPlaylist;
@@ -28,7 +28,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
         public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 
-        public WatchAfterPageViewModel(
+        public VideoQueuePageViewModel(
             HohoemaPlaylist hohoemaPlaylist,
             ApplicationLayoutManager applicationLayoutManager,
             RemoveWatchedItemsInAfterWatchPlaylistCommand removeWatchedItemsInAfterWatchPlaylistCommand,
@@ -41,7 +41,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
             RemoveWatchedItemsInAfterWatchPlaylistCommand = removeWatchedItemsInAfterWatchPlaylistCommand;
             PlaylistPlayAllCommand = playlistPlayAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
-            _watchAfterPlaylist = _hohoemaPlaylist.WatchAfterPlaylist;
+            _watchAfterPlaylist = _hohoemaPlaylist.QueuePlaylist;
             PlaylistItems = _watchAfterPlaylist;
         }
 

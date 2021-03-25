@@ -1,4 +1,5 @@
 ﻿using Prism.Commands;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -16,5 +17,8 @@ namespace Hohoema.Models.Domain.Playlist
 
         int SortIndex { get; }
         int Count { get; }
+
+        Uri[] ThumbnailImages { get; }
+        Uri ThumbnailImage { get; }
     }
 }

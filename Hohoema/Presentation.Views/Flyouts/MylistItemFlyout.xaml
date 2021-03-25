@@ -12,13 +12,13 @@
                   Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PlayAllCommand}"
                   CommandParameter="{Binding}" />
   <!--
-    <MenuFlyoutItem Text="名前を変更"
-                    Command="{Binding ElementName=ContentLayout, Path=DataContext.EditMylistGroupCommand}"
-                    CommandParameter="{Binding}"
-                    />
-    <MenuFlyoutItem Text="削除"
-                    Command="{Binding ElementName=ContentLayout, Path=DataContext.RemoveMylistGroupCommand}"
-                    CommandParameter="{Binding}"
-                    />
-    -->
+  <MenuFlyoutItem Text="名前を変更"
+                  Command="{Binding ElementName=ContentLayout, Path=DataContext.EditMylistGroupCommand}"
+                  CommandParameter="{Binding}"
+                  />
+  <MenuFlyoutItem Text="削除"
+                  Command="{Binding ElementName=ContentLayout, Path=DataContext.RemoveMylistGroupCommand}"
+                  CommandParameter="{Binding}"
+                  />
+  -->
 </MenuFlyout>

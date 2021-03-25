@@ -156,8 +156,7 @@
             <StateTrigger IsActive="{Binding IsLoginUserDeflist}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="OpenUserPageButton.Visibility" Value="Visible" />
-            <Setter Target="EditMylistButton.Visibility" Value="Visible" />
+            <Setter Target="FeedRegstrationButton.Visibility" Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>

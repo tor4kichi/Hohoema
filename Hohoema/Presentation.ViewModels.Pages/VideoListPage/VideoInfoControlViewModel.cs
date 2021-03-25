@@ -46,7 +46,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             _videoPlayedHistoryRepository = App.Current.Container.Resolve<VideoPlayedHistoryRepository>();
             _userNameProvider = App.Current.Container.Resolve<UserNameProvider>();
             _channelProvider =  App.Current.Container.Resolve<ChannelProvider>();
-            _addWatchAfterCommand = App.Current.Container.Resolve<WatchAfterAddItemCommand>();
+            _addWatchAfterCommand = App.Current.Container.Resolve<QueueAddItemCommand>();
             _openVideoOwnerPageCommand = App.Current.Container.Resolve<OpenVideoOwnerPageCommand>();
         }
 
@@ -156,8 +156,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         private static readonly VideoCacheManager _cacheManager;
         private static readonly IScheduler _scheduler;
 
-        private static readonly WatchAfterAddItemCommand _addWatchAfterCommand;
-        public WatchAfterAddItemCommand AddWatchAfterCommand => _addWatchAfterCommand;
+        private static readonly QueueAddItemCommand _addWatchAfterCommand;
+        public QueueAddItemCommand AddWatchAfterCommand => _addWatchAfterCommand;
 
         private static readonly OpenVideoOwnerPageCommand _openVideoOwnerPageCommand;
         public OpenVideoOwnerPageCommand OpenVideoOwnerPageCommand => _openVideoOwnerPageCommand;

@@ -202,6 +202,11 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                         if (_mediaPlayer.Source == null 
                         || session.PlaybackState == MediaPlaybackState.None)
                         {
+                            if (session.NaturalDuration - _prevPosition < TimeSpan.FromSeconds(1))
+                            {
+                                _prevPosition = TimeSpan.Zero;
+                            }
+
                             await PlayAsync(startPosition: _prevPosition ?? TimeSpan.Zero);
                         }
                         else if (session.PlaybackState == MediaPlaybackState.Playing)

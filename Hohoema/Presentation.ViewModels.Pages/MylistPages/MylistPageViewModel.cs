@@ -829,7 +829,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             {
                 var vm = new VideoInfoControlViewModel(item);
                 yield return vm;
-                _ = vm.InitializeAsync(ct).ConfigureAwait(false);
+                await vm.InitializeAsync(ct).ConfigureAwait(false);
             }
         }
 

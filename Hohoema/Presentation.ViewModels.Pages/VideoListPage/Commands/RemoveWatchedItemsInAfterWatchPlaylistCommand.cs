@@ -27,7 +27,7 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            var removed = _hohoemaPlaylist.RemoveWatchAfterIfWatched();
+            var removed = _hohoemaPlaylist.RemoveQueueIfWatched();
 
             System.Diagnostics.Debug.WriteLine("あとで見るから視聴済みを削除： " + removed);
         }

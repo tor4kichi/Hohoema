@@ -66,5 +66,12 @@ namespace Hohoema.Models.Domain.Application
             get => Read<bool>();
             set => Save(value);
         }
+
+        public bool IsLocalMylistThumbnailImageMigration_V_0_28_0
+        {
+            get => Read<bool>();
+            set => Save(value);
+        }
+
     }
 }
