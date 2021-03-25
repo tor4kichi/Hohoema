@@ -51,6 +51,24 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
             _loginUserMylistProvider = loginUserMylistProvider;
         }
         
+        public async Task<bool> UpdateMylistInfo(string mylistId, string name, string description, bool isPublic, MylistSortKey sortKey, MylistSortOrder sortOrder)
+        {
+            if (await _loginUserMylistProvider.UpdateMylist(mylistId, name, description, isPublic, sortKey, sortOrder))
+            {
+                this.Label = name;
+                this.Description = description;
+                this.IsPublic = IsPublic;
+                this.DefaultSortKey = sortKey;
+                this.DefaultSortOrder = sortOrder;
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public async Task<List<IVideoContent>> GetAll(MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
             List<IVideoContent> items = new List<IVideoContent>();

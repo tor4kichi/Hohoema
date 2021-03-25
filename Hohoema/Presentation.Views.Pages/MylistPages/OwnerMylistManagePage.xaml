@@ -20,7 +20,9 @@
                 IsItemClickEnabled="True"
                 SelectionMode="None"
                 Padding="8 0 8 24"
-                xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions">
+                xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
+              myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding}"
+              >
       <i:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="ItemClick">
           <core:InvokeCommandAction Command="{Binding OpenMylistCommand}"
@@ -29,7 +31,12 @@
       </i:Interaction.Behaviors>
       <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
         <DataTemplate>
-          <flyouts:MylistItemFlyout />
+          <MenuFlyout>
+            <MenuFlyoutItem Text="{Binding Source=MylistOpenVideoList, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.OpenMylistCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PlaylistPlayAllCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{Binding Source=Edit, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.EditMylistGroupCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{Binding Source=Delete, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.RemoveMylistGroupCommand}" CommandParameter="{Binding}" />
+          </MenuFlyout>
         </DataTemplate>
       </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
       <GridView.Header>

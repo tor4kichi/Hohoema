@@ -901,7 +901,7 @@ MylistDefaultSort.MylistCount_Ascending = マイリストに追加が多い順
 MylistDefaultSort.MylistCount_Descending = マイリストに追加が少ない順
 MylistDefaultSort.Length_Ascending = 動画時間が長い順
 MylistDefaultSort.Length_Descending = 動画時間が短い順
-
+MylistOpenVideoList = 動画一覧を開く
 
 #### User Series ####
 UserSeriesListWithOwnerName = {0} のシリーズ一覧

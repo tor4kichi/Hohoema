@@ -40,17 +40,19 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
 
-        public ReactiveCommand<IPlaylist> OpenMylistCommand { get;  }
+        public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
+        public ReactiveCommand<LoginUserMylistPlaylist> OpenMylistCommand { get;  }
         public DelegateCommand AddMylistGroupCommand { get; }
-        public DelegateCommand<IPlaylist> RemoveMylistGroupCommand { get; }
-        public DelegateCommand<IPlaylist> EditMylistGroupCommand { get; }
+        public DelegateCommand<LoginUserMylistPlaylist> RemoveMylistGroupCommand { get; }
+        public DelegateCommand<LoginUserMylistPlaylist> EditMylistGroupCommand { get; }
 
         public OwnerMylistManagePageViewModel(
             NiconicoSession niconicoSession,
             PageManager pageManager,
             Services.DialogService dialogService,
             ApplicationLayoutManager applicationLayoutManager,
-            UserMylistManager userMylistManager
+            UserMylistManager userMylistManager,
+            PlaylistPlayAllCommand playlistPlayAllCommand
             )
         {
             _niconicoSession = niconicoSession;
@@ -58,10 +60,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             _dialogService = dialogService;
             ApplicationLayoutManager = applicationLayoutManager;
             _userMylistManager = userMylistManager;
-            
+            PlaylistPlayAllCommand = playlistPlayAllCommand;
+
             ItemsView = new AdvancedCollectionView(_sourcePlaylistItems);
 
-            OpenMylistCommand = new ReactiveCommand<IPlaylist>()
+            OpenMylistCommand = new ReactiveCommand<LoginUserMylistPlaylist>()
                 .AddTo(_CompositeDisposable);
 
             OpenMylistCommand.Subscribe(listItem =>
@@ -108,40 +111,19 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             , () => _userMylistManager.Mylists.Count < _userMylistManager.MaxMylistGroupCountCurrentUser
             );
 
-            RemoveMylistGroupCommand = new DelegateCommand<IPlaylist>(async (item) =>
+            RemoveMylistGroupCommand = new DelegateCommand<LoginUserMylistPlaylist>(async (mylist) =>
             {
-                {
-                    if (item is LocalPlaylist localPlaylist)
-                    {
-                        if (localPlaylist.IsQueuePlaylist()) { return; }
-                    }
-                    else if (item is LoginUserMylistPlaylist loginUserMylist)
-                    {
-                        if (loginUserMylist.IsDefaultMylist()) { return; }
-                    }
-                }
+                if (mylist.IsDefaultMylist()) { return; }
 
                 // 確認ダイアログ
-                var contentMessage = "ConfirmDeleteX_ImpossibleReDo".Translate(item.Label);
+                var contentMessage = "ConfirmDeleteX_ImpossibleReDo".Translate(mylist.Label);
 
-                var dialog = new MessageDialog(contentMessage, "ConfirmDeleteX".Translate(item.GetOrigin().Translate()));
+                var dialog = new MessageDialog(contentMessage, "ConfirmDeleteX".Translate("Mylist".Translate()));
                 dialog.Commands.Add(new UICommand("Delete".Translate(), async (i) =>
                 {
-                    if (item is LocalPlaylist localPlaylist)
+                    if (await _userMylistManager.RemoveMylist(mylist.Id))
                     {
-                        /*
-                        if (_localMylistManager.RemovePlaylist(localPlaylist))
-                        {
-                            await RefreshPlaylistItems();
-                        }
-                        */
-                    }
-                    else if (item is LoginUserMylistPlaylist loginUserMylist)
-                    {
-                        if (await _userMylistManager.RemoveMylist(item.Id))
-                        {
-                            await RefreshPlaylistItems();
-                        }
+                        await RefreshPlaylistItems();
                     }
                 }));
 
@@ -153,69 +135,37 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             });
 
 
-            EditMylistGroupCommand = new DelegateCommand<IPlaylist>(async item =>
+            EditMylistGroupCommand = new DelegateCommand<LoginUserMylistPlaylist>(async mylist =>
             {
-                throw new NotImplementedException();
-                /*
-                if (item is LocalPlaylist localPlaylist)
+                if (mylist.IsDefaultMylist())
                 {
-                    if (item.Id == HohoemaPlaylist.WatchAfterPlaylistId)
-                    {
-                        return;
-                    }
-
-                    var resultText = await DialogService.GetTextAsync("RenameLocalPlaylist".Translate(),
-                        localPlaylist.Label,
-                        localPlaylist.Label,
-                        (tempName) => !string.IsNullOrWhiteSpace(tempName)
-                        );
-
-                    if (!string.IsNullOrWhiteSpace(resultText))
-                    {
-                        localPlaylist.Label = resultText;
-                    }
+                    return;
                 }
-                else if (item is LoginUserMylistPlaylist loginUserMylist)
+
+                MylistGroupEditData data = new MylistGroupEditData()
                 {
-                    if (loginUserMylist.IsDefaultMylist())
+                    Name = mylist.Label,
+                    Description = mylist.Description,
+                    IsPublic = mylist.IsPublic,
+                    DefaultSortKey = mylist.DefaultSortKey,
+                    DefaultSortOrder = mylist.DefaultSortOrder,
+                };
+
+                // 成功するかキャンセルが押されるまで繰り返す
+                while (true)
+                {
+                    if (true == await _dialogService.ShowCreateMylistGroupDialogAsync(data))
                     {
-                        return;
-                    }
-
-                    MylistGroupEditData data = new MylistGroupEditData()
-                    {
-                        Name = loginUserMylist.Label,
-                        Description = loginUserMylist.Description,
-                        IsPublic = loginUserMylist.IsPublic,
-                        DefaultSortKey = loginUserMylist.DefaultSort,
-                        IconType = loginUserMylist.IconType,
-                    };
-
-                    // 成功するかキャンセルが押されるまで繰り返す
-                    while (true)
-                    {
-                        if (true == await DialogService.ShowCreateMylistGroupDialogAsync(data))
-                        {
-                            var result = await loginUserMylist.UpdateMylist(data);
-
-                            if (result == Mntone.Nico2.ContentManageResult.Success)
-                            {
-                                loginUserMylist.Label = data.Name;
-                                loginUserMylist.Description = data.Description;
-                                loginUserMylist.IsPublic = data.IsPublic;
-                                loginUserMylist.DefaultSort = data.DefaultSortKey;
-                                loginUserMylist.IconType = data.IconType;
-
-                                break;
-                            }
-                        }
-                        else
+                        if (await mylist.UpdateMylistInfo(mylist.Id, data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder))
                         {
                             break;
                         }
                     }
+                    else
+                    {
+                        break;
+                    }
                 }
-                */
             });
         }
 

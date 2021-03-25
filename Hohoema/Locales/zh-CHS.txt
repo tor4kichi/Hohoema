@@ -901,7 +901,7 @@ MylistDefaultSort.MylistCount_Ascending = 最多添加到我的列表
 MylistDefaultSort.MylistCount_Descending = 添加到“我的列表”最少的顺序
 MylistDefaultSort.Length_Ascending = 最长的录像时间
 MylistDefaultSort.Length_Descending = 视频时间最短
-
+MylistOpenVideoList = 打开视频列表
 
 #### User Series ####
 UserSeriesListWithOwnerName = {0}系列列表
