@@ -754,6 +754,8 @@ LocalPlaylistDelete = 删除播放列表
 LocalPlaylistNoItems = 播放列表为空
 InAppNotification_LocalPlaylistAddedItems = 已将{1}个视频添加到{0}
 InAppNotification_LocalPlaylistRemovedItems = {1}个视频已从{0}中删除
+LocalPlaylistOpenVideoList = 打开视频列表
+LocalPlaylistChangeThumbnail = 更改缩略图
 
 
 #### Queue ####

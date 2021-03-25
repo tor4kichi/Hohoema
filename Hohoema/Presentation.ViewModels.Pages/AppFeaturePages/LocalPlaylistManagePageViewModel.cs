@@ -5,6 +5,7 @@ using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 using Microsoft.Toolkit.Uwp.UI;
+using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -24,16 +25,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 
         public AdvancedCollectionView ItemsView { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
+        public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
         public LocalPlaylistCreateCommand CreateLocalMylistCommand { get; }
         public LocalPlaylistDeleteCommand DeleteLocalPlaylistCommand { get; }
         public ReactiveCommand<IPlaylist> OpenMylistCommand { get; }
-
+        public DelegateCommand<LocalPlaylist> RenameLocalPlaylistCommand { get; }
 
         public LocalPlaylistManagePageViewModel(
             PageManager pageManager,
             Services.DialogService dialogService,
             ApplicationLayoutManager applicationLayoutManager,
             LocalMylistManager localMylistManager,
+            PlaylistPlayAllCommand playlistPlayAllCommand,
             LocalPlaylistCreateCommand localPlaylistCreateCommand,
             LocalPlaylistDeleteCommand localPlaylistDeleteCommand
             )
@@ -41,6 +44,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
             _pageManager = pageManager;
             ApplicationLayoutManager = applicationLayoutManager;
             _localMylistManager = localMylistManager;
+            PlaylistPlayAllCommand = playlistPlayAllCommand;
             CreateLocalMylistCommand = localPlaylistCreateCommand;
             DeleteLocalPlaylistCommand = localPlaylistDeleteCommand;
             ItemsView = new AdvancedCollectionView(_localMylistManager.LocalPlaylists);
@@ -53,6 +57,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
                 _pageManager.OpenPageWithId(HohoemaPageType.LocalPlaylist, listItem.Id);
             });
 
+
+            RenameLocalPlaylistCommand = new DelegateCommand<LocalPlaylist>(async playlist => 
+            {
+                var result = await dialogService.GetTextAsync(
+                    "RenameLocalPlaylist",
+                    "RenameLocalPlaylist_Placeholder",
+                    playlist.Label,
+                    name => !string.IsNullOrWhiteSpace(name)
+                    );
+
+                if (result is not null)
+                {
+                    playlist.UpdateLabel(result);
+                }
+            });
         }
 
         public override void OnNavigatedTo(INavigationParameters parameters)

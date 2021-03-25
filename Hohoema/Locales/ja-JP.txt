@@ -754,6 +754,8 @@ LocalPlaylistDelete = プレイリストを削除
 LocalPlaylistNoItems = プレイリストは空です
 InAppNotification_LocalPlaylistAddedItems = {0} に {1} 個の動画を追加しました
 InAppNotification_LocalPlaylistRemovedItems = {0} から {1} 個の動画を削除しました
+LocalPlaylistOpenVideoList = 動画一覧を開く
+LocalPlaylistChangeThumbnail = サムネイル画像を変更
 
 
 #### Queue ####

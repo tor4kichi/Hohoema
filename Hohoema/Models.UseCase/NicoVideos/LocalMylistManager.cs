@@ -35,9 +35,8 @@ namespace Hohoema.Models.UseCase.NicoVideos
             _notificationService = notificationService;
 
             var localPlaylistEntities = _playlistRepository.GetPlaylistsFromOrigin(PlaylistOrigin.Local);
-            var localPlaylists = localPlaylistEntities.Select(x => new LocalPlaylist(x.Id, _playlistRepository, _nicoVideoRepository) 
+            var localPlaylists = localPlaylistEntities.Select(x => new LocalPlaylist(x.Id, x.Label,_playlistRepository, _nicoVideoRepository) 
             {
-                Label = x.Label,
                 Count = _playlistRepository.GetCount(x.Id),
                 ThumbnailImage = x.ThumbnailImage,
             }).ToList();
@@ -91,10 +90,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             _playlistRepository.UpsertPlaylist(entity);
             _playlistIdToEntity.Add(entity.Id, entity);
 
-            var playlist = new LocalPlaylist(entity.Id, _playlistRepository, _nicoVideoRepository)
-            { 
-                Label = label,
-            };
+            var playlist = new LocalPlaylist(entity.Id, label, _playlistRepository, _nicoVideoRepository);
 
             HandleItemsChanged(playlist);
 

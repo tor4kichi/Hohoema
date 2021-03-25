@@ -25,16 +25,28 @@ namespace Hohoema.Models.Domain.Playlist
         private readonly PlaylistRepository _playlistRepository;
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
 
-        internal LocalPlaylist(string id, PlaylistRepository playlistRepository, NicoVideoCacheRepository nicoVideoRepository)
+        internal LocalPlaylist(string id, string label, PlaylistRepository playlistRepository, NicoVideoCacheRepository nicoVideoRepository)
         {
             Id = id;
+            Label = label;
             _playlistRepository = playlistRepository;
             _nicoVideoRepository = nicoVideoRepository;
         }
 
         public string Id { get; }
 
-        public string Label { get; set; }
+        public string Label { get; private set; }
+
+        public void UpdateLabel(string label)
+        {
+            if (string.IsNullOrWhiteSpace(label)) { throw new InvalidOperationException(); }
+
+            if (string.Compare(Label, label) != 0)
+            {
+                Label = label;
+                UpdatePlaylistInfo();
+            }
+        }
 
         public int Count { get; set; }
 
@@ -71,14 +83,7 @@ namespace Hohoema.Models.Domain.Playlist
         public void UpdateThumbnailImage(Uri thumbnailImage)
         {
             this.ThumbnailImage = thumbnailImage;
-            _playlistRepository.UpsertPlaylist(new PlaylistEntity()
-            {
-                Id = this.Id,
-                Label = this.Label,
-                Count = 1,
-                PlaylistOrigin = PlaylistOrigin.Local,
-                ThumbnailImage = this.ThumbnailImage,
-            });
+            UpdatePlaylistInfo();
         }
 
 
@@ -136,6 +141,20 @@ namespace Hohoema.Models.Domain.Playlist
             Count = _playlistRepository.GetCount(Id);
 
             return result;
+        }
+
+
+
+        private void UpdatePlaylistInfo()
+        {
+            _playlistRepository.UpsertPlaylist(new PlaylistEntity()
+            {
+                Id = this.Id,
+                Label = this.Label,
+                Count = 1,
+                PlaylistOrigin = PlaylistOrigin.Local,
+                ThumbnailImage = this.ThumbnailImage,
+            });
         }
     }
     

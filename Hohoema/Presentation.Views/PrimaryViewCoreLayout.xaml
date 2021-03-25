@@ -93,12 +93,20 @@
       
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout.MenuItemViewModel, Converter={StaticResource StringToType}}" >
         <muxc:NavigationViewItem Icon="{Binding PageType, Converter={StaticResource PageTypeToIconConverter}}">
+          <winui:ToolTipService.ToolTip>
+            <TextBlock Text="{Binding Label}" />
+          </winui:ToolTipService.ToolTip>
+
           <TextBlock Text="{Binding Label}" />
         </muxc:NavigationViewItem>
       </DataTemplate>
 
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout.QueueMenuItemViewModel, Converter={StaticResource StringToType}}" >
         <muxc:NavigationViewItem ContextFlyout="{StaticResource QueueMenuItemFlyout}">
+          <winui:ToolTipService.ToolTip>
+            <TextBlock Text="{Binding Source=HohoemaPageType.VideoQueue, Converter={StaticResource LocalizeConverter}}" />
+          </winui:ToolTipService.ToolTip>
+
           <muxc:NavigationViewItem.Icon>
             <SymbolIcon Symbol="Play" />
           </muxc:NavigationViewItem.Icon>
@@ -122,6 +130,10 @@
         <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
                                  Icon="List"
                                  >
+          <winui:ToolTipService.ToolTip>
+            <TextBlock Text="{Binding Label}" />
+          </winui:ToolTipService.ToolTip>
+
           <muxc:NavigationViewItem.Content>
             <TextBlock Text="{Binding Label}" />
           </muxc:NavigationViewItem.Content>
@@ -142,6 +154,10 @@
         <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
                                  Icon="List"
                                  >
+          <winui:ToolTipService.ToolTip>
+            <TextBlock Text="{Binding Label}" />
+          </winui:ToolTipService.ToolTip>
+
           <TextBlock Text="{Binding Label}" />
 
           <muxc:NavigationViewItem.ContextFlyout>
@@ -162,6 +178,10 @@
                                  IsExpanded="True"
                                  Tag="Pins"
                                  >
+          <winui:ToolTipService.ToolTip>
+            <TextBlock Text="{Binding Label}" />
+          </winui:ToolTipService.ToolTip>
+
           <TextBlock Text="{Binding Label}" />
         </muxc:NavigationViewItem>
       </DataTemplate>
@@ -169,6 +189,10 @@
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.MenuSubItemViewModelBase, Converter={StaticResource StringToType}}" >
         <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
                                  >
+          <winui:ToolTipService.ToolTip>
+            <TextBlock Text="{Binding Label}" />
+          </winui:ToolTipService.ToolTip>
+
           <TextBlock Text="{Binding Label}" />
         </muxc:NavigationViewItem>
       </DataTemplate>
