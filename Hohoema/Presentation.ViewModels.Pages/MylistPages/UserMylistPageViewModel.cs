@@ -96,7 +96,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             {
                 // ログインユーザー用のマイリスト一覧ページにリダイレクト
                 PageManager.ForgetLastPage();
-                PageManager.OpenPage(HohoemaPageType.OwnerMylist);
+                PageManager.OpenPage(HohoemaPageType.OwnerMylistManage);
 
                 return;
             }

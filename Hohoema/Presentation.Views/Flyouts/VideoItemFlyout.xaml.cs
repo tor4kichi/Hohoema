@@ -110,8 +110,8 @@ namespace Hohoema.Presentation.Views.Flyouts
             SelectedVideoItems = new List<IVideoContent>();
 
             RemoveWatchHisotryItem.Command = App.Current.Container.Resolve<WatchHistoryRemoveItemCommand>();
-            AddWatchAfter.Command = App.Current.Container.Resolve<WatchAfterAddItemCommand>();
-            RemoveWatchAfter.Command = App.Current.Container.Resolve<WatchAfterRemoveItemCommand>();
+            AddWatchAfter.Command = App.Current.Container.Resolve<QueueAddItemCommand>();
+            RemoveWatchAfter.Command = App.Current.Container.Resolve<QueueRemoveItemCommand>();
 
             OpenVideoInfoPage.Command = PageManager.OpenPageCommand;
             OpenOwnerVideosPage.Command = PageManager.OpenVideoListPageCommand;
@@ -184,10 +184,10 @@ namespace Hohoema.Presentation.Views.Flyouts
             RemoveWatchAfter.CommandParameter = dataContext;
             if (isMultipleSelection)
             {
-                AddWatchAfter.Visibility = SelectedVideoItems.All(x => HohoemaPlaylist.WatchAfterPlaylist.Contains(x)).ToInvisibility();
-                RemoveWatchAfter.Visibility = SelectedVideoItems.Any(x => HohoemaPlaylist.WatchAfterPlaylist.Contains(x)).ToVisibility();
+                AddWatchAfter.Visibility = SelectedVideoItems.All(x => HohoemaPlaylist.QueuePlaylist.Contains(x)).ToInvisibility();
+                RemoveWatchAfter.Visibility = SelectedVideoItems.Any(x => HohoemaPlaylist.QueuePlaylist.Contains(x)).ToVisibility();
             }
-            else if (HohoemaPlaylist.WatchAfterPlaylist.Contains(content))
+            else if (HohoemaPlaylist.QueuePlaylist.Contains(content))
             {
                 AddWatchAfter.Visibility = Visibility.Collapsed;
                 RemoveWatchAfter.Visibility = Visibility.Visible;
@@ -202,7 +202,7 @@ namespace Hohoema.Presentation.Views.Flyouts
             // ここから連続再生
             if ((SourceVideoItems?.Any() ?? false)
                 && !isMultipleSelection 
-                && Playlist?.Id == HohoemaPlaylist.WatchAfterPlaylistId
+                && Playlist?.Id == HohoemaPlaylist.QueuePlaylistId
                 )
             {
                 AllPlayFromHereWithWatchAfter.Visibility = Visibility.Visible;
@@ -215,13 +215,13 @@ namespace Hohoema.Presentation.Views.Flyouts
                     {
                         foreach (var videoItem in items)
                         {
-                            HohoemaPlaylist.AddWatchAfterPlaylist(videoItem, ContentInsertPosition.Head);
+                            HohoemaPlaylist.AddQueuePlaylist(videoItem, ContentInsertPosition.Head);
                         }
                     }
 
                     if (items.Count >= 1)
                     {
-                        HohoemaPlaylist.Play(items.Last(), HohoemaPlaylist.WatchAfterPlaylist);
+                        HohoemaPlaylist.Play(items.Last(), HohoemaPlaylist.QueuePlaylist);
                     }
                 });
                 AllPlayFromHereWithWatchAfter.CommandParameter = dataContext;

@@ -297,7 +297,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 
         public ObservableCollection<VideoInfoControlViewModel> Videos { get; } = new ObservableCollection<VideoInfoControlViewModel>();
 
-        public IPlaylist WatchAfterPlaylist => _hohoemaPlaylist.WatchAfterPlaylist;
+        public IPlaylist WatchAfterPlaylist => _hohoemaPlaylist.QueuePlaylist;
 
         private DateTime _lastUpdatedAt;
         public DateTime LastUpdatedAt
@@ -412,7 +412,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 
         void ExecutePlayVideoItemCommand(VideoInfoControlViewModel videoVM)
         {
-            _hohoemaPlaylist.Play(videoVM, _hohoemaPlaylist.WatchAfterPlaylist);
+            _hohoemaPlaylist.Play(videoVM, _hohoemaPlaylist.QueuePlaylist);
         }
 
 

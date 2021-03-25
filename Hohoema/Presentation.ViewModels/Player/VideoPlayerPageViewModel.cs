@@ -516,9 +516,9 @@ namespace Hohoema.Presentation.ViewModels.Player
                     // ローカルプレイリストの場合は勝手に消しておく
                     if (HohoemaPlaylist.CurrentPlaylist is LocalPlaylist localPlaylist)
                     {
-                        if (localPlaylist.IsWatchAfterPlaylist())
+                        if (localPlaylist.IsQueuePlaylist())
                         {
-                            HohoemaPlaylist.RemoveWatchAfter(videoInfo);
+                            HohoemaPlaylist.RemoveQueue(videoInfo);
                         }
                     }
                 }

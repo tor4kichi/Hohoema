@@ -74,7 +74,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
 
             return new LoginUserMylistPlaylist(MylistPlaylistExtension.DefailtMylistId, this) 
             {
-                Label = "DefaultMylist".Translate(),
+                Label = "WatchAfterMylist".Translate(),
                 Count = (int)defMylist.Data.Mylist.TotalItemCount,
                 UserId = NiconicoSession.UserIdString,
                 ThumbnailImages = defMylist.Data.Mylist.Items.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),

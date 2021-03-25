@@ -48,7 +48,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
                     {
                         foreach (var newVideo in items.SelectMany(x => x.NewVideos))
                         {
-                            _hohoemaPlaylist.AddWatchAfterPlaylist(newVideo);
+                            _hohoemaPlaylist.AddQueuePlaylist(newVideo);
 
                             Debug.WriteLine("[FeedResultAddToWatchLater] added: " + newVideo.Label);
                         }
@@ -59,9 +59,9 @@ namespace Hohoema.Models.UseCase.Subscriptions
                         // 新着動画が無くても購読を上から順番に全部更新し通知するという仕様に依存する
                         // キチンとやるなら 新着の無い購読ソースの動画が歯抜けにならぬよう SubscriptionManager.GetAllSubscriptionInfo() を利用して埋める必要がある
 
-                        var backup = _hohoemaPlaylist.WatchAfterPlaylist.ToImmutableArray();
-                        var watchAfterItems = _hohoemaPlaylist.WatchAfterPlaylist.ToDictionary(x => x.Id);
-                        _hohoemaPlaylist.WatchAfterPlaylist.ClearOnScheduler();
+                        var backup = _hohoemaPlaylist.QueuePlaylist.ToImmutableArray();
+                        var watchAfterItems = _hohoemaPlaylist.QueuePlaylist.ToDictionary(x => x.Id);
+                        _hohoemaPlaylist.QueuePlaylist.ClearOnScheduler();
                         
                         List<NicoVideo> videos = new List<NicoVideo>();
                         foreach (var subscUpdateResult in items)
@@ -126,13 +126,13 @@ namespace Hohoema.Models.UseCase.Subscriptions
                         // 購読ソース毎タイトルでソート済みの動画 と あとで見るに追加されていたが購読ソースと関連しない動画 を連結してあとで見るに追加
                         try
                         {
-                            _hohoemaPlaylist.WatchAfterPlaylist.AddRangeOnScheduler(
+                            _hohoemaPlaylist.QueuePlaylist.AddRangeOnScheduler(
                                 videos.Concat(watchAfterItems.Values)
                                 );
                         }
                         catch
                         {
-                            _hohoemaPlaylist.WatchAfterPlaylist.AddRangeOnScheduler(backup);
+                            _hohoemaPlaylist.QueuePlaylist.AddRangeOnScheduler(backup);
                         }
                     }
                     

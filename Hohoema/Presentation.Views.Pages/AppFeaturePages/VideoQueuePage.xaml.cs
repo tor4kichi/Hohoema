@@ -20,9 +20,9 @@ namespace Hohoema.Presentation.Views.Pages.AppFeaturePages
     /// <summary>
     /// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
     /// </summary>
-    public sealed partial class WatchAfterPage : Page
+    public sealed partial class VideoQueuePage : Page
     {
-        public WatchAfterPage()
+        public VideoQueuePage()
         {
             this.InitializeComponent();
         }

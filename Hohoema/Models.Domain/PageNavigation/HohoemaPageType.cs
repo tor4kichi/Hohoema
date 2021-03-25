@@ -71,10 +71,11 @@ namespace Hohoema.Models.Domain.PageNavigation
         UserSeries,
         Series,
 
-        WatchAfter, // @view
+        VideoQueue, // @view
 
         SubscriptionManagement,
         
-        OwnerMylist,
+        OwnerMylistManage,
+        LocalPlaylistManage,
     }
 }

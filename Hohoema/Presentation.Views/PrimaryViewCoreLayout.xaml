@@ -50,9 +50,9 @@
                       />
     </MenuFlyout>
 
-    <MenuFlyout x:Key="WatchAfterMenuItemFlyout">
+    <MenuFlyout x:Key="QueueMenuItemFlyout">
       <MenuFlyoutItem Text="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}}" 
-                      Command="{Binding PlayWatchAfterPlaylistCommand}"
+                      Command="{Binding PlayQueuePlaylistCommand}"
                       >
         
       </MenuFlyoutItem>
@@ -97,8 +97,8 @@
         </muxc:NavigationViewItem>
       </DataTemplate>
 
-      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout.WatchAfterMenuItemViewModel, Converter={StaticResource StringToType}}" >
-        <muxc:NavigationViewItem ContextFlyout="{StaticResource WatchAfterMenuItemFlyout}">
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout.QueueMenuItemViewModel, Converter={StaticResource StringToType}}" >
+        <muxc:NavigationViewItem ContextFlyout="{StaticResource QueueMenuItemFlyout}">
           <muxc:NavigationViewItem.Icon>
             <SymbolIcon Symbol="Play" />
           </muxc:NavigationViewItem.Icon>
@@ -106,11 +106,11 @@
           <uwpToolkitControls:DockPanel>
 
             <Border uwpToolkitControls:DockPanel.Dock="Right" Background="{ThemeResource SystemBaseMediumLowColor}" CornerRadius="60" Width="32" Height="32">
-              <TextBlock Text="{Binding WatchAfterPlaylistCount.Value}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+              <TextBlock Text="{Binding QueuePlaylistCount.Value}" VerticalAlignment="Center" HorizontalAlignment="Center" />
             </Border>
               
             <TextBlock VerticalAlignment="Center">
-              <Run Text="{Binding Source=HohoemaPageType.WatchAfter, Converter={StaticResource LocalizeConverter}}" />
+              <Run Text="{Binding Source=HohoemaPageType.VideoQueue, Converter={StaticResource LocalizeConverter}}" />
             </TextBlock>
             
 
@@ -130,7 +130,7 @@
             <MenuFlyout>
               <MenuFlyoutItem Text="{Binding Source=HohoemaPageType.UserMylist, Converter={StaticResource LocalizeConverter}}"
                               Command="{Binding MylistPageOpenCommand}"
-                              CommandParameter="{Binding Source=OwnerMylist}"
+                              CommandParameter="{Binding Source=OwnerMylistManage}"
                               />
             </MenuFlyout>
           </muxc:NavigationViewItem.ContextFlyout>
@@ -143,6 +143,15 @@
                                  Icon="List"
                                  >
           <TextBlock Text="{Binding Label}" />
+
+          <muxc:NavigationViewItem.ContextFlyout>
+            <MenuFlyout>
+              <MenuFlyoutItem Text="{Binding Source=HohoemaPageType.LocalPlaylistManage, Converter={StaticResource LocalizeConverter}}"
+                              Command="{Binding OpenLocalPlaylistManageCommand}"
+                              CommandParameter="{Binding Source=LocalPlaylistManage}"
+                              />
+            </MenuFlyout>
+          </muxc:NavigationViewItem.ContextFlyout>
         </muxc:NavigationViewItem>
       </DataTemplate>
 
@@ -578,6 +587,7 @@
           </VisualState.Setters>
         </VisualState>
 
+        <!--
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.LeftMinimal}" />
@@ -586,7 +596,9 @@
             <Setter Target="CoreNavigationView.PaneTitle" Value="{x:Bind PageTitle, Mode=OneWay}" />
           </VisualState.Setters>
         </VisualState>
+        -->
       </VisualStateGroup>
+        
       
       <!-- Win10タブレットの場合 -->
       <VisualStateGroup>

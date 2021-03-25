@@ -62,7 +62,7 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
         public ReadOnlyReactiveCollection<HohoemaListingPageItemBase> LocalMylists { get; }
         public ReadOnlyReactiveCollection<HohoemaListingPageItemBase> Mylists { get; }
 
-        WatchAfterMenuItemViewModel _watchAfterMenuItemViewModel;
+        QueueMenuItemViewModel _watchAfterMenuItemViewModel;
         private void ResetMenuItems()
         {
             MenuItems.Clear();

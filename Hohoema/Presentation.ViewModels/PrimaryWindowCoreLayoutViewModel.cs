@@ -58,7 +58,7 @@ namespace Hohoema.Presentation.ViewModels
         public ObservableCollection<HohoemaListingPageItemBase> MenuItems_Offline { get; private set; }
         public ObservableCollection<HohoemaListingPageItemBase> MenuItems_LoggedIn { get; private set; }
 
-        internal readonly WatchAfterMenuItemViewModel _watchAfterMenuItemViewModel;
+        internal readonly QueueMenuItemViewModel _queueMenuItemViewModel;
         internal readonly PinsMenuSubItemViewModel _pinsMenuSubItemViewModel;
 
         public LocalMylistSubMenuItemViewModel _localMylistMenuSubItemViewModel { get; }
@@ -79,7 +79,7 @@ namespace Hohoema.Presentation.ViewModels
             ApplicationLayoutManager applicationLayoutManager,
             RestoreNavigationManager restoreNavigationManager,
             VideoItemsSelectionContext videoItemsSelectionContext,
-            WatchAfterMenuItemViewModel watchAfterMenuItemViewModel,
+            QueueMenuItemViewModel queueMenuItemViewModel,
             UserMylistManager userMylistManager,
             LocalMylistManager localMylistManager
             )
@@ -128,21 +128,22 @@ namespace Hohoema.Presentation.ViewModels
                 },
             };
 
-            _watchAfterMenuItemViewModel = watchAfterMenuItemViewModel;
+            _queueMenuItemViewModel = queueMenuItemViewModel;
             _userMylistManager = userMylistManager;
             _localMylistManager = localMylistManager;
             _pinsMenuSubItemViewModel = new PinsMenuSubItemViewModel("Pin".Translate(), PinSettings, _dialogService);
-            _localMylistMenuSubItemViewModel = new LocalMylistSubMenuItemViewModel(_localMylistManager);
+            _localMylistMenuSubItemViewModel = new LocalMylistSubMenuItemViewModel(_localMylistManager, PageManager.OpenPageCommand);
 
             // メニュー項目の初期化
             MenuItems_LoggedIn = new ObservableCollection<HohoemaListingPageItemBase>()
             {
                 _pinsMenuSubItemViewModel,
-                _watchAfterMenuItemViewModel,
+                _queueMenuItemViewModel,
                 new SeparatorMenuItemViewModel(),
                 new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
                 new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo),
                 new MenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory),
+                new MenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters("id=0")),
                 new MylistSubMenuMenu(_userMylistManager, PageManager.OpenPageCommand),
                 _localMylistMenuSubItemViewModel,
                 new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage),
@@ -154,7 +155,7 @@ namespace Hohoema.Presentation.ViewModels
             MenuItems_Offline = new ObservableCollection<HohoemaListingPageItemBase>()
             {
                 _pinsMenuSubItemViewModel,
-                _watchAfterMenuItemViewModel,
+                _queueMenuItemViewModel,
                 new SeparatorMenuItemViewModel(),
                 new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
                 _localMylistMenuSubItemViewModel,
@@ -466,12 +467,12 @@ namespace Hohoema.Presentation.ViewModels
     {
         private readonly LocalMylistManager _localMylistManager;
 
-        public LocalMylistSubMenuItemViewModel(LocalMylistManager localMylistManager)
+        public LocalMylistSubMenuItemViewModel(LocalMylistManager localMylistManager, ICommand openLocalPlaylistManageCommand)
         {
             Label = "LocalPlaylist".Translate();
 
             _localMylistManager = localMylistManager;
-
+            OpenLocalPlaylistManageCommand = openLocalPlaylistManageCommand;
             _localMylistManager.LocalPlaylists.CollectionChangedAsObservable()
                 .Subscribe(e => 
                 {
@@ -499,6 +500,8 @@ namespace Hohoema.Presentation.ViewModels
 
             Items = new ObservableCollection<MenuItemViewModel>(_localMylistManager.LocalPlaylists.Select(x => new LocalMylistItemViewModel(x)));
         }
+
+        public ICommand OpenLocalPlaylistManageCommand { get; }
     }
 
 

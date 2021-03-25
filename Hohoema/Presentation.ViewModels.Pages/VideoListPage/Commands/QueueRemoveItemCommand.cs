@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
 {
-    public class WatchAfterRemoveItemCommand : VideoContentSelectionCommandBase
+    public class QueueRemoveItemCommand : VideoContentSelectionCommandBase
     {
         private readonly HohoemaPlaylist _hohoemaPlaylist;
 
-        public WatchAfterRemoveItemCommand(HohoemaPlaylist hohoemaPlaylist)
+        public QueueRemoveItemCommand(HohoemaPlaylist hohoemaPlaylist)
         {
             _hohoemaPlaylist = hohoemaPlaylist;
         }
@@ -23,7 +23,7 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            _hohoemaPlaylist.RemoveWatchAfter(content);
+            _hohoemaPlaylist.RemoveQueue(content);
         }
     }
 }

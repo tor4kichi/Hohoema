@@ -26,7 +26,8 @@ using Windows.UI.Popups;
 
 namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
 {
-    public class OwnerMylistPageViewModel : HohoemaViewModelBase
+
+    public class OwnerMylistManagePageViewModel : HohoemaViewModelBase
     {
         ObservableCollection<IPlaylist> _sourcePlaylistItems = new ObservableCollection<IPlaylist>();
         public AdvancedCollectionView ItemsView { get; }
@@ -36,27 +37,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
         private readonly PageManager _pageManager;
         private readonly DialogService _dialogService;
         private readonly UserMylistManager _userMylistManager;
-        private readonly LocalMylistManager _localMylistManager;
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
 
-        public ReactiveCommand<IPlaylist> OpenMylistCommand { get; private set; }
-        public DelegateCommand AddMylistGroupCommand { get; private set; }
-        public DelegateCommand<IPlaylist> RemoveMylistGroupCommand { get; private set; }
-        public DelegateCommand<IPlaylist> EditMylistGroupCommand { get; private set; }
-        public LocalPlaylistCreateCommand CreateLocalMylistCommand { get; private set; }
+        public ReactiveCommand<IPlaylist> OpenMylistCommand { get;  }
+        public DelegateCommand AddMylistGroupCommand { get; }
+        public DelegateCommand<IPlaylist> RemoveMylistGroupCommand { get; }
+        public DelegateCommand<IPlaylist> EditMylistGroupCommand { get; }
 
-
-
-
-        public OwnerMylistPageViewModel(
+        public OwnerMylistManagePageViewModel(
             NiconicoSession niconicoSession,
             PageManager pageManager,
             Services.DialogService dialogService,
             ApplicationLayoutManager applicationLayoutManager,
-            UserMylistManager userMylistManager,
-            LocalMylistManager localMylistManager,
-            LocalPlaylistCreateCommand createLocalMylistCommand
+            UserMylistManager userMylistManager
             )
         {
             _niconicoSession = niconicoSession;
@@ -64,12 +58,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             _dialogService = dialogService;
             ApplicationLayoutManager = applicationLayoutManager;
             _userMylistManager = userMylistManager;
-            _localMylistManager = localMylistManager;
-            CreateLocalMylistCommand = createLocalMylistCommand;
-
+            
             ItemsView = new AdvancedCollectionView(_sourcePlaylistItems);
 
-            OpenMylistCommand = new ReactiveCommand<IPlaylist>();
+            OpenMylistCommand = new ReactiveCommand<IPlaylist>()
+                .AddTo(_CompositeDisposable);
 
             OpenMylistCommand.Subscribe(listItem =>
             {
@@ -120,7 +113,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
                 {
                     if (item is LocalPlaylist localPlaylist)
                     {
-                        if (localPlaylist.IsWatchAfterPlaylist()) { return; }
+                        if (localPlaylist.IsQueuePlaylist()) { return; }
                     }
                     else if (item is LoginUserMylistPlaylist loginUserMylist)
                     {
@@ -136,11 +129,19 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
                 {
                     if (item is LocalPlaylist localPlaylist)
                     {
-                        _localMylistManager.RemovePlaylist(localPlaylist);
+                        /*
+                        if (_localMylistManager.RemovePlaylist(localPlaylist))
+                        {
+                            await RefreshPlaylistItems();
+                        }
+                        */
                     }
                     else if (item is LoginUserMylistPlaylist loginUserMylist)
                     {
-                        await _userMylistManager.RemoveMylist(item.Id);
+                        if (await _userMylistManager.RemoveMylist(item.Id))
+                        {
+                            await RefreshPlaylistItems();
+                        }
                     }
                 }));
 
@@ -222,14 +223,24 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
         {
             new[]
             {
-                _niconicoSession.ObserveProperty(x => x.IsLoggedIn),
+                _niconicoSession.ObserveProperty(x => x.IsLoggedIn).ToUnit(),
             }
-                .Merge()
-                .Subscribe(async _ =>
-                {
-                    await RefreshPlaylistItems();
-                })
-                .AddTo(_NavigatingCompositeDisposable);
+            .Merge()
+            .Subscribe(async _ =>
+            {
+                await RefreshPlaylistItems();
+            })
+            .AddTo(_NavigatingCompositeDisposable);
+
+            /*
+            new[]
+            {
+                SelectedDisplayMylistKind.ToUnit()
+            }
+            .Merge()
+            .Subscribe(_ => ItemsView.RefreshFilter())
+            .AddTo(_NavigatingCompositeDisposable);
+            */
         }
 
         private async Task RefreshPlaylistItems()
@@ -237,18 +248,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             NowLoading.Value = true;
             try
             {
-                _sourcePlaylistItems.Clear();
-
-                // TODO: タイムアウト処理を追加する
-                using var _ = await _niconicoSession.SigninLock.LockAsync();
-                await _userMylistManager.WaitUpdate();
-
-                if (_niconicoSession.IsLoggedIn)
+                using (ItemsView.DeferRefresh())
                 {
-                    _sourcePlaylistItems.AddRange(_userMylistManager.Mylists);
-                }
+                    _sourcePlaylistItems.Clear();
 
-                _sourcePlaylistItems.AddRange(_localMylistManager.LocalPlaylists);
+                    // TODO: タイムアウト処理を追加する
+                    using var _ = await _niconicoSession.SigninLock.LockAsync();
+                    await _userMylistManager.WaitUpdate();
+
+                    _sourcePlaylistItems.AddRange(_userMylistManager.Mylists.Where(x => x.IsDefaultMylist() is false));
+                }
             }
             finally
             {
@@ -257,10 +266,5 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
 
             AddMylistGroupCommand.RaiseCanExecuteChanged();
         }
-
-
-
-
-
     }
 }

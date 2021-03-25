@@ -29,7 +29,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
             {
                 var mylist = new MylistPlaylist(detail.Id.ToString(), MylistProvider)
                 {
-                    Label = detail.Name ?? "DefaultMylist".Translate(),
+                    Label = detail.Name ?? "WatchAfterMylist".Translate(),
                     Count = (int)detail.TotalItemCount,
                     IsPublic = true,
                     ThumbnailImages = detail.SampleItems?.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),

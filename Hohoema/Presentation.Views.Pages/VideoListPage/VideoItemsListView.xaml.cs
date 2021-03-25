@@ -187,8 +187,8 @@ namespace Hohoema.Presentation.Views.Pages.VideoListPage
         private readonly MylistCopyItemCommand _copyMylistItemCommand;
         private readonly MylistMoveItemCommand _moveMylistItemCommand;
         private readonly LocalPlaylistRemoveItemCommand _localMylistRemoveCommand;
-        private readonly WatchAfterAddItemCommand _addWatchAfterCommand;
-        private readonly WatchAfterRemoveItemCommand _removeWatchAfterCommand;
+        private readonly QueueAddItemCommand _addQueueCommand;
+        private readonly QueueRemoveItemCommand _removeQueueCommand;
 
         public VideoItemsListView()
         {
@@ -201,8 +201,8 @@ namespace Hohoema.Presentation.Views.Pages.VideoListPage
             _mylistManager = App.Current.Container.Resolve<UserMylistManager>();
             _hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
 
-            _addWatchAfterCommand = App.Current.Container.Resolve<WatchAfterAddItemCommand>();
-            _removeWatchAfterCommand = App.Current.Container.Resolve<WatchAfterRemoveItemCommand>();
+            _addQueueCommand = App.Current.Container.Resolve<QueueAddItemCommand>();
+            _removeQueueCommand = App.Current.Container.Resolve<QueueRemoveItemCommand>();
             _addMylistCommand = App.Current.Container.Resolve<MylistAddItemCommand>();
             _localMylistAddCommand = new LocalPlaylistAddItemCommand();
             _removeWatchHistoryCommand = App.Current.Container.Resolve<WatchHistoryRemoveItemCommand>();
@@ -291,8 +291,8 @@ namespace Hohoema.Presentation.Views.Pages.VideoListPage
                 SelectActions_AddWatchAfter.Visibility = Visibility.Visible;
                 SelectActions_AddLocalMylist.Visibility = Visibility.Visible;
 
-                if (PlaylistPassToFlyout?.IsWatchAfterPlaylist() ?? false
-                    || _selectionContext.SelectionItems.Any(x => _hohoemaPlaylist.WatchAfterPlaylist.Any(y => x.Id == y.Id))
+                if (PlaylistPassToFlyout?.IsQueuePlaylist() ?? false
+                    || _selectionContext.SelectionItems.Any(x => _hohoemaPlaylist.QueuePlaylist.Any(y => x.Id == y.Id))
                     )
                 {
                     SelectActions_RemoveWatchAfter.Visibility = Visibility.Visible;

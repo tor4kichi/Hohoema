@@ -100,9 +100,10 @@ HohoemaPageType.VideoInfomation = 動画情報
 HohoemaPageType.WatchHistory = 視聴履歴
 HohoemaPageType.LocalPlaylist = プレイリスト
 HohoemaPageType.Mylist = マイリスト
-HohoemaPageType.WatchAfter = あとで見る
+HohoemaPageType.VideoQueue = キュー
 HohoemaPageType.SubscriptionManagement = 購読管理
-
+HohoemaPageType.OwnerMylistManage = マイリスト管理
+HohoemaPageType.LocalPlaylistManage = ローカルマイリスト管理
 
 #### Menu ####
 LogInUserInfo = ログインユーザー情報
@@ -215,6 +216,7 @@ Theme = テーマ
 ElementTheme.Default = システム設定に準じる
 ElementTheme.Light = Light
 ElementTheme.Dark = Dark
+IsGamePadIntractionEnabled = コントローラー入力を有効化する
 FilterSettings = フィルタ設定
 FilterEnableWithVideoOwnerID = 動画投稿者IDでフィルターする
 ShowFilteredVideoOwnerNames = フィルターした動画投稿者名を表示
@@ -754,13 +756,13 @@ InAppNotification_LocalPlaylistAddedItems = {0} に {1} 個の動画を追加し
 InAppNotification_LocalPlaylistRemovedItems = {0} から {1} 個の動画を削除しました
 
 
-#### Watch After ####
-@view = あとで見る
+#### Queue ####
+@view = キュー
 RemoveWatchedItems = 視聴済みを削除
 
 
 #### Mylist ####
-DefaultMylist = とりあえずマイリスト
+WatchAfterMylist = あとで見る
 MylistOwner = オーナー情報
 MylistEditInfo = マイリスト情報を編集
 MylistDelete = マイリストを削除
@@ -803,6 +805,8 @@ MylistMoveItem = 別のマイリストへ移動
 SelectMoveTargetMylist = 移動先のマイリストを選択
 InAppNotification_MylistMovedItems_Success = {0} に {1} 個の動画を移動しました
 InAppNotification_MylistMovedItems_Fail = {0} への動画の移動に失敗しました
+QueueAddItem = キューに追加
+QueueRemoveItem = キューから削除
 WatchAfterAddItem = あとで見るに追加
 WatchAfterRemoveItem = あとで見るから削除
 MylistAddItem = マイリストに追加

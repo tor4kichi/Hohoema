@@ -39,11 +39,11 @@
 
   <!-- あとで見る -->
   <MenuFlyoutItem x:Name="RemoveWatchAfter" 
-                  Text="{Binding Source=WatchAfterRemoveItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  Text="{Binding Source=QueueRemoveItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   Visibility="Collapsed"
                   />
   <MenuFlyoutItem x:Name="AddWatchAfter"
-                  Text="{Binding Source=WatchAfterAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  Text="{Binding Source=QueueAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   Visibility="Collapsed"
                                 />
 

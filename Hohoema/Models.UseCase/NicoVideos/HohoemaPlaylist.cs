@@ -82,14 +82,14 @@ namespace Hohoema.Models.UseCase.NicoVideos
             }
         }
 
-        public static bool IsWatchAfterPlaylist(this IPlaylist localPlaylist)
+        public static bool IsQueuePlaylist(this IPlaylist localPlaylist)
         {
-            return localPlaylist?.Id == HohoemaPlaylist.WatchAfterPlaylistId;
+            return localPlaylist?.Id == HohoemaPlaylist.QueuePlaylistId;
         }
 
         public static bool IsUniquePlaylist(this IPlaylist playlist)
         {
-            return IsWatchAfterPlaylist(playlist);
+            return IsQueuePlaylist(playlist);
         }
     }
 
@@ -138,7 +138,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
         // PageManagerに動画情報を渡すまでをやる
 
 
-        public const string WatchAfterPlaylistId = "@view";
+        public const string QueuePlaylistId = "@view";
 
 
         static bool IsVideoId(string videoId)
@@ -176,18 +176,18 @@ namespace Hohoema.Models.UseCase.NicoVideos
             _videoPlayedHistoryRepository = videoPlayedHistoryRepository;
             _playerSettings = playerSettings;
 
-            WatchAfterPlaylist = new PlaylistObservableCollection(WatchAfterPlaylistId, WatchAfterPlaylistId.Translate(), _scheduler);
-            _ = ResolveItemsAsync(WatchAfterPlaylist)
+            QueuePlaylist = new PlaylistObservableCollection(QueuePlaylistId, QueuePlaylistId.Translate(), _scheduler);
+            _ = ResolveItemsAsync(QueuePlaylist)
                 .ContinueWith(prevTask =>
                 {
                     var items = prevTask.Result;
                     foreach (var item in items)
                     {
-                        AddWatchAfterPlaylist(item);
+                        AddQueuePlaylist(item);
                     }
 
-                    WatchAfterPlaylist.CollectionChangedAsObservable()
-                        .Subscribe(args => PlaylistObservableCollectionChanged(WatchAfterPlaylist, args))
+                    QueuePlaylist.CollectionChangedAsObservable()
+                        .Subscribe(args => PlaylistObservableCollectionChanged(QueuePlaylist, args))
                         .AddTo(_disposable);
                 });
 
@@ -276,7 +276,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
         private readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
         private readonly PlayerSettings _playerSettings;
 
-        public PlaylistObservableCollection WatchAfterPlaylist { get; }
+        public PlaylistObservableCollection QueuePlaylist { get; }
 
         public ReadOnlyObservableCollection<IVideoContent> PlaylistItems => _player.Items;
 
@@ -402,9 +402,9 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 // _player.Itemsは同期的に扱えない
                 // SetSource使用時は_player.Itemsを回避した初期アイテム設定にする
                 IEnumerable<IVideoContent> items = null;
-                if (playlist == WatchAfterPlaylist)
+                if (playlist == QueuePlaylist)
                 {
-                    _player.SetSource(items = WatchAfterPlaylist);
+                    _player.SetSource(items = QueuePlaylist);
                 }
                 else
                 {
@@ -449,9 +449,9 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 {
                     _player.SetSource(Enumerable.Empty<IVideoContent>());
                 }
-                else if (playlist == WatchAfterPlaylist)
+                else if (playlist == QueuePlaylist)
                 {
-                    _player.SetSource(WatchAfterPlaylist);
+                    _player.SetSource(QueuePlaylist);
                 }
                 else
                 {
@@ -465,7 +465,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
         }
 
 
-        public async void AddWatchAfterPlaylist(string videoId, ContentInsertPosition position = ContentInsertPosition.Tail)
+        public async void AddQueuePlaylist(string videoId, ContentInsertPosition position = ContentInsertPosition.Tail)
         {
             if (!IsVideoId(videoId))
             {
@@ -474,36 +474,36 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
             var videoContent = await ResolveVideoItemAsync(videoId);
 
-            AddWatchAfterPlaylist(videoContent, position);
+            AddQueuePlaylist(videoContent, position);
         }
 
         
-        public void AddWatchAfterPlaylist(IVideoContent item, ContentInsertPosition position = ContentInsertPosition.Tail)
+        public void AddQueuePlaylist(IVideoContent item, ContentInsertPosition position = ContentInsertPosition.Tail)
         {
-            WatchAfterPlaylist.RemoveOnScheduler(item);
+            QueuePlaylist.RemoveOnScheduler(item);
 
             if (position == ContentInsertPosition.Tail)
             {
-                WatchAfterPlaylist.AddOnScheduler(item);
+                QueuePlaylist.AddOnScheduler(item);
             }
             else if (position == ContentInsertPosition.Head)
             {
-                WatchAfterPlaylist.InsertOnScheduler(0, item);
+                QueuePlaylist.InsertOnScheduler(0, item);
             }
         }
 
-        public void RemoveWatchAfter(IVideoContent item)
+        public void RemoveQueue(IVideoContent item)
         {
-            WatchAfterPlaylist.RemoveOnScheduler(item);
+            QueuePlaylist.RemoveOnScheduler(item);
         }
 
-        public int RemoveWatchAfterIfWatched()
+        public int RemoveQueueIfWatched()
         {
-            var playedItems = WatchAfterPlaylist.Where(x => _videoPlayedHistoryRepository.IsVideoPlayed(x.Id)).ToList();
+            var playedItems = QueuePlaylist.Where(x => _videoPlayedHistoryRepository.IsVideoPlayed(x.Id)).ToList();
             int removeCount = 0;
             foreach (var item in playedItems)
             {
-                WatchAfterPlaylist.RemoveOnScheduler(item);
+                QueuePlaylist.RemoveOnScheduler(item);
                 removeCount++;
             }
 
@@ -567,11 +567,11 @@ namespace Hohoema.Models.UseCase.NicoVideos
         Events.VideoPlayedEvent _videoPlayedEvent;
         public void PlayDone(IVideoContent playedItem, TimeSpan playedPosition)
         {
-            // あとで見るプレイリストから視聴済みを削除
-            var watchAfterItem = WatchAfterPlaylist.FirstOrDefault(x => x.Id == playedItem.Id);
-            if (watchAfterItem != null)
+            // キュープレイリストから視聴済みを削除
+            var queueItem = QueuePlaylist.FirstOrDefault(x => x.Id == playedItem.Id);
+            if (queueItem != null)
             {
-                RemoveWatchAfter(watchAfterItem);
+                RemoveQueue(queueItem);
             }
 
             // アイテムを視聴済みにマーク

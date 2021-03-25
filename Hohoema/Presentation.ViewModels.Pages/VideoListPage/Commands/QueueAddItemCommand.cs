@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
 {
-    public sealed class WatchAfterAddItemCommand : VideoContentSelectionCommandBase
+    public sealed class QueueAddItemCommand : VideoContentSelectionCommandBase
     {
         private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly NotificationService _notificationService;
 
-        public WatchAfterAddItemCommand(
+        public QueueAddItemCommand(
             HohoemaPlaylist hohoemaPlaylist,
             NotificationService notificationService
             )
@@ -37,11 +37,11 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
 
             foreach (var content in items)
             {
-                _hohoemaPlaylist.AddWatchAfterPlaylist(content);
+                _hohoemaPlaylist.AddQueuePlaylist(content);
             }
             _notificationService.ShowInAppNotification(
                 InAppNotificationPayload.CreateReadOnlyNotification(
-                    "InAppNotification_MylistAddedItems_Success".Translate("HohoemaPageType.WatchAfter".Translate(), items.Count())
+                    "InAppNotification_MylistAddedItems_Success".Translate("HohoemaPageType.VideoQueue".Translate(), items.Count())
                     )
                 );
         }

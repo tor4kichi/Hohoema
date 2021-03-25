@@ -378,13 +378,14 @@
     <Compile Include="Presentation.Services\UINavigationMaanger\UINavigationButtons.cs" />
     <Compile Include="Presentation.Services\UINavigationMaanger\UINavigationManager.cs" />
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\CacheManagementPageViewModel.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\LocalPlaylistManagePageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\LocalPlaylistPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\SettingsPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\SubscriptionManagementPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\Subscriptions.Commands\AddKeywordSearchSubscriptionCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\Subscriptions.Commands\AddSubscriptionCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\Subscriptions.Commands\AddTagSearchSubscriptionCommand.cs" />
-    <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\WatchAfterPageViewModel.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\AppFeaturePages\VideoQueuePageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\BlankPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\ChannelPages\ChannelVideoPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\CommunityPages\CommunityPageViewModel.cs" />
@@ -397,7 +398,7 @@
     <Compile Include="Presentation.ViewModels.Pages\LivePages\LiveInfoListItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\LivePages\LiveInfomationPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\MylistPages\MylistPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels.Pages\MylistPages\OwnerMylistPageViewModel.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\MylistPages\OwnerMylistManagePageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\MylistPages\UserMylistPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels.Pages\SearchPages\RemoveSearchHistoryCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\SearchPages\SearchPageViewModel.cs" />
@@ -444,8 +445,8 @@
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\SelectionModeToggleCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\SelectionStartCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\VideoContentSelectionCommandBase.cs" />
-    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\WatchAfterAddItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\WatchAfterRemoveItemCommand.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\QueueAddItemCommand.cs" />
+    <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\QueueRemoveItemCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\WatchHistoryRemoveAllCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\Commands\WatchHistoryRemoveItemCommand.cs" />
     <Compile Include="Presentation.ViewModels.Pages\VideoListPage\VideoInfoControlViewModel.cs" />
@@ -488,10 +489,13 @@
     <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\MenuItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\SeparatorMenuItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\VideoMenuSubPageContent.cs" />
-    <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\WatchAfterMenuItemViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\QueueMenuItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\SelectableItem.cs" />
     <Compile Include="Presentation.Views.Pages\AppFeaturePages\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presentation.Views.Pages\AppFeaturePages\LocalPlaylistManagePage.xaml.cs">
+      <DependentUpon>LocalPlaylistManagePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\AppFeaturePages\LocalPlaylistPage.xaml.cs">
       <DependentUpon>LocalPlaylistPage.xaml</DependentUpon>
@@ -502,8 +506,8 @@
     <Compile Include="Presentation.Views.Pages\AppFeaturePages\SubscriptionManagementPage.xaml.cs">
       <DependentUpon>SubscriptionManagementPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\AppFeaturePages\WatchAfterPage.xaml.cs">
-      <DependentUpon>WatchAfterPage.xaml</DependentUpon>
+    <Compile Include="Presentation.Views.Pages\AppFeaturePages\VideoQueuePage.xaml.cs">
+      <DependentUpon>VideoQueuePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\BlankPage.xaml.cs">
       <DependentUpon>BlankPage.xaml</DependentUpon>
@@ -547,8 +551,8 @@
     <Compile Include="Presentation.Views.Pages\MylistPages\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\MylistPages\OwnerMylistPage.xaml.cs">
-      <DependentUpon>OwnerMylistPage.xaml</DependentUpon>
+    <Compile Include="Presentation.Views.Pages\MylistPages\OwnerMylistManagePage.xaml.cs">
+      <DependentUpon>OwnerMylistManagePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\MylistPages\UserMylistPage.xaml.cs">
       <DependentUpon>UserMylistPage.xaml</DependentUpon>
@@ -1015,6 +1019,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Presentation.Views.Pages\AppFeaturePages\LocalPlaylistManagePage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Presentation.Views.Pages\AppFeaturePages\LocalPlaylistPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1027,7 +1035,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\AppFeaturePages\WatchAfterPage.xaml">
+    <Page Include="Presentation.Views.Pages\AppFeaturePages\VideoQueuePage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1087,7 +1095,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\MylistPages\OwnerMylistPage.xaml">
+    <Page Include="Presentation.Views.Pages\MylistPages\OwnerMylistManagePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

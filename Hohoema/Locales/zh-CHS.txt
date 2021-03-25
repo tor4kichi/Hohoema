@@ -100,9 +100,10 @@ HohoemaPageType.VideoInfomation = 动画信息
 HohoemaPageType.WatchHistory = 播放历史
 HohoemaPageType.LocalPlaylist = 播放清单
 HohoemaPageType.Mylist = Mylist
-HohoemaPageType.WatchAfter = 以后再看
+HohoemaPageType.VideoQueue = 队列
 HohoemaPageType.SubscriptionManagement = 订阅管理
-
+HohoemaPageType.OwnerMylistManage = Mylist管理
+HohoemaPageType.LocalPlaylistManage = Local Mylist管理
 
 #### Menu ####
 LogInUserInfo = 登录用户信息
@@ -215,6 +216,7 @@ Theme = 主题
 ElementTheme.Default = 根据系统设置
 ElementTheme.Light = 轻便
 ElementTheme.Dark = 黑暗的
+IsGamePadIntractionEnabled = 启用控制器输入
 FilterSettings = 筛选器设定
 FilterEnableWithVideoOwnerID = 按视频提供者ID过滤
 ShowFilteredVideoOwnerNames = 显示过滤的视频提供者名称
@@ -754,13 +756,13 @@ InAppNotification_LocalPlaylistAddedItems = 已将{1}个视频添加到{0}
 InAppNotification_LocalPlaylistRemovedItems = {1}个视频已从{0}中删除
 
 
-#### Watch After ####
-@view = 稍后观看
+#### Queue ####
+@view = 队列
 RemoveWatchedItems = 删除观看
 
 
 #### Mylist ####
-DefaultMylist = 暂时是我的清单
+WatchAfterMylist = 以后再看
 MylistOwner = 车主信息
 MylistEditInfo = 编辑我的清单信息
 MylistDelete = 删除我的清单
@@ -803,6 +805,8 @@ MylistMoveItem = 移至另一个我的列表
 SelectMoveTargetMylist = 选择目的地我的列表
 InAppNotification_MylistMovedItems_Success = 将{1}个视频移到了{0}
 InAppNotification_MylistMovedItems_Fail = 无法将视频移至{0}
+QueueAddItem = 添加到队列
+QueueRemoveItem = 从队列中删除
 WatchAfterAddItem = 稍后添加观看
 WatchAfterRemoveItem = 从以后删除
 MylistAddItem = 加到我的清单
