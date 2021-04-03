@@ -1104,6 +1104,7 @@ namespace Hohoema
             {
                 var pageManager = Container.Resolve<PageManager>();
                 var pageName = pageManager.CurrentPageType.ToString();
+                var pageParameter = pageManager.CurrentPageNavigationParameters is not null ? JsonConvert.SerializeObject(pageManager.CurrentPageNavigationParameters) : "null";
                 var niconicoSession = Container.Resolve<NiconicoSession>();
 
                 Crashes.TrackError(e.Exception, new Dictionary<string, string> 
@@ -1112,6 +1113,7 @@ namespace Hohoema
                     { "IsLoggedIn", niconicoSession.IsLoggedIn.ToString() },
                     { "IsPremiumAccount", niconicoSession.IsPremiumAccount.ToString() },
                     { "RecentOpenPageName", pageName },
+                    { "RecentOpenPageParameters", pageParameter },
                     { "OperatingSystemArchitecture", Microsoft.Toolkit.Uwp.Helpers.SystemInformation.OperatingSystemArchitecture.ToString() }
                 });
 

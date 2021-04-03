@@ -1003,7 +1003,7 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
                     }
                 }
 
-                var uri = await videoStreamingSession.GetDownloadUrlAndSetupDonwloadSession();
+                var uri = await videoStreamingSession.GetDownloadUrlAndSetupDownloadSession();
 
                 var downloader = new BackgroundDownloader()
                 {
