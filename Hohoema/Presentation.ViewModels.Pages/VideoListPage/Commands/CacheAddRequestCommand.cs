@@ -14,7 +14,7 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
     public sealed class CacheAddRequestCommand : VideoContentSelectionCommandBase
     {
         public CacheAddRequestCommand(
-            VideoCacheManager videoCacheManager,
+            VideoCacheManagerLegacy videoCacheManager,
             DialogService dialogService
             )
         {            
@@ -22,7 +22,7 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
             DialogService = dialogService;
         }
 
-        public VideoCacheManager VideoCacheManager { get; }
+        public VideoCacheManagerLegacy VideoCacheManager { get; }
         public DialogService DialogService { get; }
 
         public NicoVideoQuality VideoQuality { get; set; } = NicoVideoQuality.Unknown;

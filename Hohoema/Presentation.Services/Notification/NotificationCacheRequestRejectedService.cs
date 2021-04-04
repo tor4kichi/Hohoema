@@ -12,7 +12,7 @@ namespace Hohoema.Presentation.Services.Notification
     {
         public NotificationCacheRequestRejectedService(
             NotificationService notificationService,
-            VideoCacheManager videoCacheManager
+            VideoCacheManagerLegacy videoCacheManager
             )
         {
             NotificationService = notificationService;
@@ -31,6 +31,6 @@ namespace Hohoema.Presentation.Services.Notification
 
         public HohoemaNotificationService HohoemaNotificationService { get; }
         public NotificationService NotificationService { get; }
-        public VideoCacheManager VideoCacheManager { get; }
+        public VideoCacheManagerLegacy VideoCacheManager { get; }
     }
 }

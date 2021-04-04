@@ -69,6 +69,7 @@ using Microsoft.AppCenter.Crashes;
 using Windows.UI.Popups;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Hohoema.Models.UseCase.VideoCache;
 
 namespace Hohoema
 {
@@ -280,9 +281,11 @@ namespace Hohoema
             unityContainer.RegisterSingleton<UserMylistManager>();
             unityContainer.RegisterSingleton<FollowManager>();
 
-            unityContainer.RegisterSingleton<VideoCacheManager>();
+            unityContainer.RegisterSingleton<VideoCacheManagerLegacy>();
             unityContainer.RegisterSingleton<SubscriptionManager>();
 
+            unityContainer.RegisterSingleton<Models.Domain.VideoCache.VideoCacheManager>();
+            unityContainer.RegisterSingleton<Models.Domain.VideoCache.VideoCacheSettings>();
 
 
             // UseCase
@@ -588,23 +591,12 @@ namespace Hohoema
                     unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheResumingObserver>());
                     unityContainer.RegisterInstance(unityContainer.Resolve<VideoPlayRequestBridgeToPlayer>());
                     unityContainer.RegisterInstance(unityContainer.Resolve<CloseToastNotificationWhenPlayStarted>());
+
+                    unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheDownloadOperationManager>());
                 }
 
                 // バックグラウンドでのトースト通知ハンドリングを初期化
                 await RegisterDebugToastNotificationBackgroundHandling();
-
-
-                try
-                {
-                    var cacheManager = Container.Resolve<VideoCacheManager>();
-                    _ = cacheManager.Initialize();
-                }
-                catch { }
-
-
-
-
-
 
 
                 // 更新通知を表示
@@ -779,7 +771,7 @@ namespace Hohoema
                         var videoId = decode.GetFirstValueByName("id");
                         var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
 
-                        var cacheManager = Container.Resolve<VideoCacheManager>();
+                        var cacheManager = Container.Resolve<VideoCacheManagerLegacy>();
                         await cacheManager.CancelCacheRequest(videoId);
                     }
                     else
@@ -1161,7 +1153,7 @@ namespace Hohoema
         {
             if (arguments.StartsWith("cache_cancel"))
             {
-                var cacheManager = Container.Resolve<VideoCacheManager>();
+                var cacheManager = Container.Resolve<VideoCacheManagerLegacy>();
 
                 var query = arguments.Split('?')[1];
                 var decode = new WwwFormUrlDecoder(query);

@@ -264,9 +264,9 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
     /// ニコニコ動画の動画やサムネイル画像、
     /// 動画情報など動画に関わるメディアを管理します
     /// </summary>
-    public class VideoCacheManager : AsyncInitialize, IDisposable
+    public class VideoCacheManagerLegacy : AsyncInitialize, IDisposable
     {
-        public VideoCacheManager(
+        public VideoCacheManagerLegacy(
             IScheduler scheduler,
             NiconicoSession niconicoSession,
             NicoVideoProvider nicoVideoProvider,
@@ -293,6 +293,7 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
             };
 
             _CachePendingItemsChangedSubject = new BehaviorSubject<Unit>(Unit.Default);
+
             Observable.Merge(
                 _DownloadOperations.ObserveRemoveChanged().ToUnit(),
                 _CachePendingItemsChangedSubject.ToUnit(),
@@ -596,7 +597,7 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
             {
                 try
                 {
-                    var _info = VideoCacheManager.CacheRequestInfoFromFileName(operation.ResultFile);
+                    var _info = VideoCacheManagerLegacy.CacheRequestInfoFromFileName(operation.ResultFile);
                     if (!_cacheRequestRepository.TryGet(_info.VideoId, out var req))
                     {
                         // リポジトリに記録されてないリクエストはキャンセル済みとして処理
@@ -1014,7 +1015,7 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
                 downloader.FailureToastNotification = MakeFailureToastNotification(videoInfo);
 
                 // 保存先ファイルの確保
-                var filename = VideoCacheManager.MakeCacheVideoFileName(
+                var filename = VideoCacheManagerLegacy.MakeCacheVideoFileName(
                     videoInfo.Title,
                     nextRequest.VideoId,
                     videoInfo.MovieType,

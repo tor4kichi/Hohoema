@@ -17,7 +17,7 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
 
         public CacheDeleteRequestCommand(
-            VideoCacheManager videoCacheManager,
+            VideoCacheManagerLegacy videoCacheManager,
             DialogService dialogService
             )
         {
@@ -79,7 +79,7 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
         }
 
 
-        public VideoCacheManager VideoCacheManager { get; }
+        public VideoCacheManagerLegacy VideoCacheManager { get; }
         public DialogService DialogService { get; }
     }
 }

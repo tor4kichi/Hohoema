@@ -40,7 +40,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             _nicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
             _ngSettings = App.Current.Container.Resolve<VideoFilteringSettings>();
-            _cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
+            _cacheManager = App.Current.Container.Resolve<VideoCacheManagerLegacy>();
             _scheduler = App.Current.Container.Resolve<IScheduler>();
             _nicoVideoRepository = App.Current.Container.Resolve<NicoVideoCacheRepository>();
             _videoPlayedHistoryRepository = App.Current.Container.Resolve<VideoPlayedHistoryRepository>();
@@ -153,7 +153,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         private static readonly UserNameProvider _userNameProvider;
         private static readonly ChannelProvider _channelProvider;
         private static readonly VideoFilteringSettings _ngSettings;
-        private static readonly VideoCacheManager _cacheManager;
+        private static readonly VideoCacheManagerLegacy _cacheManager;
         private static readonly IScheduler _scheduler;
 
         private static readonly QueueAddItemCommand _addWatchAfterCommand;

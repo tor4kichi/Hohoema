@@ -15,12 +15,12 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
 
         public ImmutableArray<NicoVideoQualityEntity> AvailableQualities { get; }
 
-        private readonly VideoCacheManager _videoCacheManager;
+        private readonly VideoCacheManagerLegacy _videoCacheManager;
         private readonly Dictionary<NicoVideoQuality, NicoVideoCached> _cachedQualities;
 
 
 
-        public CachedVideoSessionProvider(string contentId, VideoCacheManager videoCacheManager, IEnumerable<NicoVideoCached> qualities)
+        public CachedVideoSessionProvider(string contentId, VideoCacheManagerLegacy videoCacheManager, IEnumerable<NicoVideoCached> qualities)
         {
             ContentId = contentId;
             _videoCacheManager = videoCacheManager;
