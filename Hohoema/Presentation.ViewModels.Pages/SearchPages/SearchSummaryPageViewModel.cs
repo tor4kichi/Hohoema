@@ -87,21 +87,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
                 .SelectMany(async (x, i, cancelToken) =>
                 {
                     RelatedLiveTags.Clear();
-                    var res = await SearchProvider.LiveSearchAsync(x, 0, 10);
-                    if (res.IsOK)
+                    var res = await SearchProvider.LiveSearchAsync(NiconicoLiveToolkit.Live.Search.LiveSearchOptionsQuery.Create(x, NiconicoLiveToolkit.Live.LiveStatus.Onair));
+                    if (res.IsSuccess)
                     {
-                        LiveSearchItemsTotalCount = res.Meta.TotalCount ?? 0;
-                        return res.Data?.AsEnumerable() ?? Enumerable.Empty<Mntone.Nico2.Searches.Live.LiveSearchResultItem>();
+                        LiveSearchItemsTotalCount = res.Data.TotalCount;
+                        return res.Data.SearchResultItems;
                     }
                     else
                     {
-                        return Enumerable.Empty<Mntone.Nico2.Searches.Live.LiveSearchResultItem>();
+                        return Enumerable.Empty<NiconicoLiveToolkit.Live.Search.LiveSearchPageLiveContentItem>();
                     }
                 })
                 .SelectMany(x => x)
                 .Select(x =>
                 {
-                    var liveInfoVM = new LiveInfoListItemViewModel(x.ContentId);
+                    var liveInfoVM = new LiveInfoListItemViewModel(x.LiveId);
                     liveInfoVM.Setup(x);
                     return liveInfoVM;
                 })

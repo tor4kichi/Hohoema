@@ -1,7 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Searches;
 using Mntone.Nico2.Searches.Community;
-using Mntone.Nico2.Searches.Live;
 using Mntone.Nico2.Searches.Mylist;
 using Mntone.Nico2.Searches.Video;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
@@ -12,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Hohoema.Models.Domain.Niconico.Search
 {
@@ -50,22 +50,13 @@ namespace Hohoema.Models.Domain.Niconico.Search
             
         }
 
-        public async Task<Mntone.Nico2.Searches.Live.LiveSearchResponse> LiveSearchAsync(
-            string q,
-            int offset,
-            int limit,
-            SearchTargetType targets = SearchTargetType.All,
-            LiveSearchFieldType fields = LiveSearchFieldType.All,
-            LiveSearchSortType sortType = LiveSearchSortType.StartTime | LiveSearchSortType.SortDecsending,
-            Expression<Func<SearchFilterField, bool>> filterExpression = null
+        public async Task<NiconicoLiveToolkit.Live.Search.LiveSearchPageScrapingResult> LiveSearchAsync(
+            NiconicoLiveToolkit.Live.Search.LiveSearchOptionsQuery query
             )
         {
             return await ContextActionWithPageAccessWaitAsync(async context =>
             {
-                return await context.Search.LiveSearchAsync(
-                    q, offset, limit, targets, fields, sortType, filterExpression
-                );
-
+                return await NiconicoSession.LiveContext.Live.Search.GetLiveSearchPageScrapingResultAsync(query, CancellationToken.None);
             });
             
         }

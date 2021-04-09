@@ -63,7 +63,8 @@ RelationalDateTime_SomeWeeksAgo = {0} 週前
 RelationalDateTime_SomeMonthAgo = {0} ヶ月前
 RelationalDateTime_SomeYearsAgo = {0} 年前
 
-
+TimeSpanHoursAndMinites = {0}時間 {1}分
+TimeSpanMinutes = {0}分
 
 #### PageType ####
 HohoemaPageType.ChannelInfo = チャンネル情報
@@ -495,21 +496,42 @@ DisallowCommentInTimeshift = タイムシフト視聴時はコメントできま
 LivePlayerSettings = 生放送プレイヤーの設定
 
 # Live ListViewItem
-LiveContentElement.Provider_Community = コミュニティ
-LiveContentElement.Provider_Channel = チャンネル
-LiveContentElement.Provider_Official = 公式
-LiveContentElement.Status_Pending = 放送前
-LiveContentElement.Status_Open = 放送中（開演前）
-LiveContentElement.Status_Start = 放送中
-LiveContentElement.Status_Closed = 放送終了
-LiveContentElement.Timeshift_Enable = タイムシフト
-LiveContentElement.Timeshift_Preserved = タイムシフト（予約済み）
-LiveContentElement.Timeshift_OutDated = タイムシフト（期限切れ）
-LiveContentElement.Timeshift_Watch = タイムシフト（予約済み）
-LiveContentElement.MemberOnly = メンバー限定
+ProviderType.Channel = チャンネル
+ProviderType.Community = ユーザー
+ProviderType.Official = 公式
+LiveStatus.Reserved = 放送予定
+LiveStatus.Onair = 放送中
+LiveStatus.Past = 過去の放送
+LiveContentPayRequired = 有料
+LiveContentChannelContent = CH
+LiveContentOfficialContent = 公式
+LiveContentTimeshiftEnabled = TS
+LiveContentCommunityMemberOnly = 限定
+LiveSearchPageSortOrder.RecentDesc = 放送日時が近い順
+LiveSearchPageSortOrder.RecentAsc = 放送日時が遠い順
+LiveSearchPageSortOrder.TimeshiftCountDesc = タイムシフト予約数が多い順
+LiveSearchPageSortOrder.TimeshiftCountAsc = タイムシフト予約数が少ない順
+LiveSearchPageSortOrder.ViewCountDesc = 来場者数が多い順
+LiveSearchPageSortOrder.ViewCountAsc = 来場者数が少ない順
+LiveSearchPageSortOrder.CommentCountDesc = コメント数が多い順
+LiveSearchPageSortOrder.CommentCountAsc = コメント数が少ない順
+LiveSearchPageSortOrder.UserLevelDesc = ユーザーレベルが高い順
+LiveSearchPageSortOrder.UserLevelAsc = ユーザーレベルが低い順
+LiveSearchDisplayWithIsTagSearch = 検索対象をタグに限定する
+LiveSearchDisplayWIthIsTimeshiftAvairable = タイムシフト視聴できる番組のみ表示する
+LiveSearchDisplayWithIsDisableGrouping = 同じ放送者の番組をまとめずに表示する
+LiveSearchDisplayWithIsHideMemberOnly = コミュニティ限定番組を除いて表示する
+LiveContentThumbnailBadgeReserved = 放送予定
+LiveContentThumbnailBadgeOnair = LIVE
+LiveContentThumbnailBadgePastAndTimeshiftPresent = タイムシフト
+LiveContentThumbnailBadgePastAndTimeshiftNotPresent = 公開終了
 
 LiveViewCount = 来場
 LiveCommentCount = コメ
+TimeshiftCount = TS
+
+
+
 
 
 #### Comment ####
@@ -726,6 +748,11 @@ LiveSearchSortType.ViewCounter_Descending = 来場者数が多い順
 LiveSearchSortType.ViewCounter_Ascending = 来場者数が少ない順
 LiveSearchSortType.CommentCounter_Descending = コメントが多い順
 LiveSearchSortType.CommentCounter_Ascending = コメントが少ない順
+
+LiveScheduledAt = 開始予定
+LiveElapsedAt = 経過
+LiveStartedAt = 開始
+
 
 NicoliveSearchMode.OnAir = 放送中
 NicoliveSearchMode.Reserved = 放送予定

@@ -22,6 +22,7 @@
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"
+  xmlns:localize="using:I18NPortable.Xaml.Extensions"
     >
   <Page.Transitions>
     <TransitionCollection>
@@ -63,56 +64,88 @@
       <ListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
-            <StackPanel>
-              <CommandBar toolkit:DockPanel.Dock="Right" Margin="0">
+            <StackPanel Spacing="8">
+
+              <uwpcontrols:WrapPanel Orientation="Horizontal">
+                <!-- LiveStatus -->
+                <ListView ItemsSource="{Binding LiveStatusItems}" 
+                          SelectedItem="{Binding SelectedLiveStatus.Value, Mode=TwoWay}" 
+                          SelectionMode="Single"
+                          ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                                  >
+                  <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <ItemsStackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                  </ListView.ItemsPanel>
+                </ListView>
+              </uwpcontrols:WrapPanel>
+
+
+              <CommandBar Margin="0">
                 <CommandBar.PrimaryCommands>
-                  <AppBarButton x:Name="ScrollToTopButton" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
+                  <AppBarElementContainer>
+                    <DropDownButton Content="絞り込み">
+                      <DropDownButton.Flyout>
+                        <Flyout Closed="Flyout_Closed">
+                          <StackPanel Spacing="8">
+                            <ToggleSwitch IsOn="{Binding IsTagSearch.Value, Mode=TwoWay}" 
+                                                    Header="{localize:Localize Key=LiveSearchDisplayWithIsTagSearch}"
+                                          />
+
+                            <ToggleSwitch IsOn="{Binding IsTimeshiftAvairable.Value, Mode=TwoWay}" 
+                                                    Header="{localize:Localize Key=LiveSearchDisplayWIthIsTimeshiftAvairable}"  />
+
+                            <ToggleSwitch IsOn="{Binding IsDisableGrouping.Value, Mode=TwoWay}" 
+                                                    Header="{localize:Localize Key=LiveSearchDisplayWithIsDisableGrouping}"  />
+
+                            <ToggleSwitch IsOn="{Binding IsHideMemberOnly.Value, Mode=TwoWay}" 
+                                                    Header="{localize:Localize Key=LiveSearchDisplayWithIsHideMemberOnly}"  />
+                          </StackPanel>
+                        </Flyout>
+                      </DropDownButton.Flyout>
+                    </DropDownButton>
+                  </AppBarElementContainer>
+                  
+                  <AppBarSeparator />
+
+                  <AppBarButton x:Name="ScrollToTopButton" Label="{localize:Localize Key=ReturnToPageTop}" Icon="Up">
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Click">
                         <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
                       </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                   </AppBarButton>
-                  <AppBarButton Background="Transparent" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding RefreshCommand}" Icon="Refresh" />
+                  <AppBarButton Background="Transparent" Label="{localize:Localize Key=Refresh}" Command="{Binding RefreshCommand}" Icon="Refresh" />
                 </CommandBar.PrimaryCommands>
                 <CommandBar.Content>
-                  <Border Margin="0 0 0 0" x:Name="TitleLayout">
-                    <toolkit:DockPanel VerticalAlignment="Center">
-                      <uwpcontrols:WrapPanel Orientation="Horizontal">
-                        <!-- LiveStatus -->
-                        <ListView ItemsSource="{Binding LiveSearchLiveStatusListItems}" 
-                                  SelectedValue="{Binding SelectedLiveStatus.Value, Mode=TwoWay}" 
-                                  DisplayMemberPath="Label"
-                                  SelectionMode="Single"
-                                  >
-                          <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                              <ItemsStackPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                          </ListView.ItemsPanel>
-                        </ListView>
-                        
-                        <!-- Sort -->
-                        <ComboBox ItemsSource="{Binding LiveSearchSortOptionListItems}" 
-                                  SelectedValue="{Binding SelectedSearchSort.Value, Mode=TwoWay}" 
-                                  DisplayMemberPath="Label"
-                                  />
+                  <StackPanel Orientation="Horizontal" Margin="0 0 0 0" Spacing="8">
+                    <!-- Sort -->
+                    <ComboBox ItemsSource="{Binding SortOptionItems}" 
+                              SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" 
+                              ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                              >
+                    </ComboBox>
 
-                        <Button Content="絞り込み" Visibility="Collapsed">
-                          <Button.Flyout>
-                            <MenuFlyout>
-                              <ToggleMenuFlyoutItem IsChecked="{Binding IsTagSearch.Value, Mode=TwoWay}" 
-                                                    Text="タグを対象に検索"  />
-
-                              <ToggleMenuFlyoutItem IsChecked="{Binding IsExcludeCommunityMemberOnly.Value, Mode=TwoWay}" 
-                                                    Text="タグを対象に検索"  />
-                              
-                            </MenuFlyout>
-                          </Button.Flyout>
-                        </Button>
-                      </uwpcontrols:WrapPanel>
-                    </toolkit:DockPanel>
-                  </Border>
+                    <ListView ItemsSource="{Binding ProvidersItems}" 
+                              ext:ListViewExtensions.BindableSelection="{Binding SelectedProviders, Mode=TwoWay}"
+                              SelectionMode="Multiple"
+                              IsMultiSelectCheckBoxEnabled="False"
+                              ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                              >
+                      <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                          <Setter Property="BorderBrush" Value="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
+                          <Setter Property="BorderThickness" Value="1" />
+                        </Style>
+                      </ListView.ItemContainerStyle>
+                      <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                          <ItemsStackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                      </ListView.ItemsPanel>
+                    </ListView>
+                  </StackPanel>
                 </CommandBar.Content>
               </CommandBar>
             </StackPanel>
@@ -121,9 +154,7 @@
       </ListView.Header>
       <ListView.ItemTemplate>
         <DataTemplate>
-          <Grid Margin="0 0 0 0">
-            <livePages:LiveVideoListItem />
-          </Grid>
+          <livePages:LiveVideoListItem />
         </DataTemplate>
       </ListView.ItemTemplate>
       <ListView.ItemContainerStyle>
@@ -140,7 +171,7 @@
     
     
     <Grid x:Name="EmptyItemsLayout" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{Binding Source=LiveSearchNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
+      <TextBlock Text="{localize:Localize Key=LiveSearchNoItems}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
     </Grid>
     
     <VisualStateManager.VisualStateGroups>

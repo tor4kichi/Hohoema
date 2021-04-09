@@ -148,29 +148,35 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
     {
         private readonly NicoRepoEntry _nicoRepoEntry;
 
+        public string OptionText { get; }
+
+        public string Title { get; }
+
         public NicoRepoLiveTimeline(NicoRepoEntry nicoRepoEntry, NicoRepoItemTopic itemTopic) 
             : base(nicoRepoEntry.GetContentId())
         {
             _nicoRepoEntry = nicoRepoEntry;
             ItemTopic = itemTopic;
-            this.Label = nicoRepoEntry.Object.Name;
-            this.OptionText = "LiveStreamingStartAtWithDateTime".Translate(_nicoRepoEntry.Updated.ToString("f"));
+            LiveTitle = nicoRepoEntry.Object.Name;
+            StartTime = _nicoRepoEntry.Updated.LocalDateTime;
 
+            OptionText = "LiveStreamingStartAtWithDateTime".Translate(_nicoRepoEntry.Updated.ToString("f"));
+
+            Title = _nicoRepoEntry.Title;
             ThumbnailUrl = _nicoRepoEntry.Object.Image.OriginalString;
             CommunityThumbnail = _nicoRepoEntry.Actor.Icon.OriginalString;
             CommunityGlobalId = _nicoRepoEntry.MuteContext.Sender.Id;
-            CommunityName = _nicoRepoEntry.Actor.Name;
+            CommunityName = _nicoRepoEntry.Actor.Name;            
 
             this.CommunityType = _nicoRepoEntry.MuteContext.Sender.IdType switch
             {
                 SenderIdTypeEnum.User => CommunityType.Community,
                 SenderIdTypeEnum.Channel => CommunityType.Channel,
+                _ => throw new NotSupportedException()
             };
 
             ItempTopicDescription = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, _nicoRepoEntry);
         }
-
-        public string ThumbnailUrl { get; set; }
 
         public string ItempTopicDescription { get; }
 

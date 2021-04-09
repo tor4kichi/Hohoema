@@ -35,8 +35,6 @@
         <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
       </ResourceDictionary.MergedDictionaries>
 
-      
-
       <appModels:FeatureFlags x:Key="FeatureFlags" />
 
       <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
@@ -154,6 +152,9 @@
       <myconv:DateTimeToStringConverter x:Key="DateTimeToString" />
       <myconv:ExpiredDateTimeToStringConverter x:Key="ExpiredDateTimeToString" />
       <myconv:ToKMGTPEZYConverter x:Key="ToKMGTPEZY" />
+      <myconv:TiemSpanToLocalizedStringConverter x:Key="TiemSpanToLocalizedString" />
+
+      <uwpconv:StringFormatConverter x:Key="StringFormatConverter" />
 
       <uwpconv:BoolToObjectConverter x:Name="BoolToAvairableOpacityConverter">
         <uwpconv:BoolToObjectConverter.TrueValue>
@@ -165,6 +166,12 @@
       </uwpconv:BoolToObjectConverter>
 
       <locales:LocalizeConverter x:Key="LocalizeConverter" />
+
+      <DataTemplate x:Key="LocalizedTextItemTemplate">
+        <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}"/>
+      </DataTemplate>
+      
+
 
       <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />
 

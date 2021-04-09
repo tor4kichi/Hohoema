@@ -178,7 +178,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
                 var tsItem = _TimeshiftList?.Items.FirstOrDefault(y => y.Id == item.Id);
 
                 var liveInfoVM = new LiveInfoListItemViewModel(item.Id);
-                liveInfoVM.ExpiredAt = tsItem?.WatchTimeLimit ?? item.ExpiredAt;
+                liveInfoVM.ExpiredAt = (tsItem?.WatchTimeLimit ?? item.ExpiredAt).LocalDateTime;
                 liveInfoVM.Setup(liveData.Data);
 
                 liveInfoVM.SetReservation(item);

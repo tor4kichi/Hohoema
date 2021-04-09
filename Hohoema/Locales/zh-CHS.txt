@@ -63,7 +63,8 @@ RelationalDateTime_SomeWeeksAgo = {0}周前
 RelationalDateTime_SomeMonthAgo = {0}个月前
 RelationalDateTime_SomeYearsAgo = {0}年前
 
-
+TimeSpanHoursAndMinites = {0}小时 {1}分钟
+TimeSpanMinutes = {0}分钟
 
 #### PageType ####
 HohoemaPageType.ChannelInfo = 频道信息
@@ -495,21 +496,42 @@ DisallowCommentInTimeshift = 观看时移时您无法发表评论
 LivePlayerSettings = 直播播放器设置
 
 # Live ListViewItem
-LiveContentElement.Provider_Community = 社区活动
-LiveContentElement.Provider_Channel = 频道
-LiveContentElement.Provider_Official = 官方的
-LiveContentElement.Status_Pending = 播放前
-LiveContentElement.Status_Open = 广播（开始之前）
-LiveContentElement.Status_Start = 播出
-LiveContentElement.Status_Closed = 广播结束
-LiveContentElement.Timeshift_Enable = 时移
-LiveContentElement.Timeshift_Preserved = 时移（保留）
-LiveContentElement.Timeshift_OutDated = 时移（过期）
-LiveContentElement.Timeshift_Watch = 时移（保留）
-LiveContentElement.MemberOnly = 仅限会员
+ProviderType.Channel = 渠道
+ProviderType.Community = 用户
+ProviderType.Official = 官方的
+LiveStatus.Reserved = 广播时间表
+LiveStatus.Onair = 正在播出
+LiveStatus.Past = 过去的广播
+LiveContentPayRequired = 有薪酬的
+LiveContentChannelContent = CH
+LiveContentOfficialContent = 官方的
+LiveContentTimeshiftEnabled = TS
+LiveContentCommunityMemberOnly = 有限的
+LiveSearchPageSortOrder.RecentDesc = 最接近的广播日期和时间
+LiveSearchPageSortOrder.RecentAsc = 广播日期和时间按远距离顺序
+LiveSearchPageSortOrder.TimeshiftCountDesc = 预约数量从大到小的时移
+LiveSearchPageSortOrder.TimeshiftCountAsc = 时移预约的数量从小到大
+LiveSearchPageSortOrder.ViewCountDesc = 参观人数按降序排列
+LiveSearchPageSortOrder.ViewCountAsc = 参观人数按升序排列
+LiveSearchPageSortOrder.CommentCountDesc = 按评论数降序排列
+LiveSearchPageSortOrder.CommentCountAsc = 以评论的升序
+LiveSearchPageSortOrder.UserLevelDesc = 最高用户级别
+LiveSearchPageSortOrder.UserLevelAsc = 按用户级别升序
+LiveSearchDisplayWithIsTagSearch = 将搜索限制为标签
+LiveSearchDisplayWIthIsTimeshiftAvairable = 仅显示可以时移的程序
+LiveSearchDisplayWithIsDisableGrouping = 在不分组的情况下显示同一广播公司的节目
+LiveSearchDisplayWithIsHideMemberOnly = 显示不包括社区的程序
+LiveContentThumbnailBadgeReserved = 广播时间表
+LiveContentThumbnailBadgeOnair = 居住
+LiveContentThumbnailBadgePastAndTimeshiftPresent = 时移
+
 
 LiveViewCount = 来访
-LiveCommentCount = 米饭
+LiveCommentCount = 评论
+TimeshiftCount = TS
+
+
+
 
 
 #### Comment ####

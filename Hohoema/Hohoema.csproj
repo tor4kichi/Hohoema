@@ -690,6 +690,7 @@
     <Compile Include="Presentation.Views\Converters\SoundVolumeConveter.cs" />
     <Compile Include="Presentation.Views\Converters\StringToUriConverter.cs" />
     <Compile Include="Presentation.Views\Converters\SwipeSeekValueToTimeSpan.cs" />
+    <Compile Include="Presentation.Views\Converters\TiemSpanToLocalizedStringConverter.cs" />
     <Compile Include="Presentation.Views\Converters\TimeSpanToMovieLengthStringValueConverter.cs" />
     <Compile Include="Presentation.Views\Converters\TimeSpanToSecondsConverter.cs" />
     <Compile Include="Presentation.Views\Converters\ToKMGTPEZYConverter.cs" />
@@ -739,6 +740,7 @@
     <Compile Include="Presentation.Views\Extensions\ListViewBase\ListViewItemDeferInitialize.cs" />
     <Compile Include="Presentation.Views\Extensions\ListViewBase\ListViewSelectedItemsGetter.cs" />
     <Compile Include="Presentation.Views\Extensions\ListViewBase\ListViewVerticalOffsetGetter.cs" />
+    <Compile Include="Presentation.Views\Extensions\LocalizeExtension.cs" />
     <Compile Include="Presentation.Views\Extensions\MediaPlayer\MediaPlayerElementContentHeightGetter.cs" />
     <Compile Include="Presentation.Views\Extensions\MediaPlayer\MediaPlayerSetter.cs" />
     <Compile Include="Presentation.Views\Extensions\VIsualStateManager\DebugCurrentState.cs" />

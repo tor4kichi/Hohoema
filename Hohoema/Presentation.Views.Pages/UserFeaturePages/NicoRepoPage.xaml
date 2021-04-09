@@ -21,7 +21,7 @@
       xmlns:listitem="using:Hohoema.Presentation.Views.HohoemaListItem"
       xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
       xmlns:viewModels="using:Hohoema.Presentation.ViewModels"
-      xmlns:videoListPage="using:Hohoema.Presentation.Views.Pages.VideoListPage" xmlns:windowsStateTriggers="using:WindowsStateTriggers" DataContext="{x:Null}"
+      xmlns:videoListPage="using:Hohoema.Presentation.Views.Pages.VideoListPage" xmlns:windowsStateTriggers="using:WindowsStateTriggers" xmlns:live="using:Hohoema.Presentation.Views.Pages.LivePages" DataContext="{x:Null}"
       NavigationCacheMode="Enabled"
       mc:Ignorable="d">
   <Page.Resources>
@@ -53,13 +53,29 @@
       <!-- Live Item -->
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.Pages.UserFeaturePages.NicoRepoLiveTimeline, Converter={StaticResource StringToType}}"
                     >
-        <Grid>
-          <TextBlock Text="{Binding ItempTopicDescription}"
-                     Opacity="0.7"
-                     FontSize="12"
-                     HorizontalAlignment="Right"
-                     VerticalAlignment="Bottom" />
-          <listitem:HohoemaListItemVideo />
+        <Grid Margin="8 0 8 0">
+          <StackPanel>
+            <uwpcontrols:DockPanel Margin="0 0 0 0">
+              <uwpcontrols:ImageEx Source="{Binding ThumbnailUrl}" Width="36" Height="36" CornerRadius="24" uwpcontrols:DockPanel.Dock="Left" />
+              <TextBlock Text="{Binding StartTime, Converter={StaticResource ToRelationalTime}}" uwpcontrols:DockPanel.Dock="Right" 
+                           VerticalAlignment="Center"                         
+                           />
+
+              <TextBlock Text="{Binding ItempTopicDescription}"
+                           Margin="8 0 0 0"
+                           VerticalAlignment="Center"
+                     />
+            </uwpcontrols:DockPanel>
+
+            <StackPanel Margin="42 0 0 0" Spacing="8">
+              <uwpcontrols:DockPanel>
+                <uwpcontrols:ImageEx Source="{Binding CommunityThumbnail}" CornerRadius="4" Height="64" Stretch="Uniform" />
+                <TextBlock Text="{Binding LiveTitle}" VerticalAlignment="Center" Margin="8 0" TextTrimming="CharacterEllipsis" MaxLines="2" TextWrapping="Wrap" />
+              </uwpcontrols:DockPanel>
+
+            </StackPanel>
+          </StackPanel>
+          
         </Grid>
       </DataTemplate>
     </templateSelector:TypeBasedTemplateSelector>
