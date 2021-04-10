@@ -138,6 +138,7 @@
     <Compile Include="Live\Events\CommentServerDisconnectedEventArgs.cs" />
     <Compile Include="Live\LiveClient.cs" />
     <Compile Include="Live\LiveStatus.cs" />
+    <Compile Include="Live\Notify\LiveNotifyClient.cs" />
     <Compile Include="Live\ProviderType.cs" />
     <Compile Include="Live\Search\EnumHelper.cs" />
     <Compile Include="Live\Search\LiveSearchClient.cs" />

@@ -1,0 +1,8 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+
+  <Color x:Key="NiconicoColor_ProviderOfficial">#0080ff</Color>
+  <Color x:Key="NiconicoColor_ProviderChannel">#d9a300</Color>
+</ResourceDictionary>
