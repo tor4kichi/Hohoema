@@ -15,6 +15,7 @@
     xmlns:uwpconverter="using:Microsoft.Toolkit.Uwp.UI.Converters"
     xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
     xmlns:models="using:Hohoema.Models.Domain.Application" 
+  xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:local="using:Hohoema.Presentation.Views" 
   mc:Ignorable="d"
     d:DesignHeight="800"
@@ -52,21 +53,21 @@
                       Spacing="16"
                       >
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
-          <toolkit:DockPanel>
+          <uwpControls:DockPanel>
             <TextBlock Text="{Binding Source=VideoPlayerSettings, Converter={StaticResource LocalizeConverter}}"
                             FontSize="18"
                             VerticalAlignment="Center"
                         FontWeight="SemiBold"
-                            toolkit:DockPanel.Dock="Left"
+                            uwpControls:DockPanel.Dock="Left"
                         />
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
           <!--
                 BGM再生機能が利用可能になるまで利用できなくします
-                <toolkit:DockPanel Margin="0 8">
+                <uwpControls:DockPanel Margin="0 8">
 
                     <TextBlock Text="再生中は画面を点灯したままにする"
-                        toolkit:DockPanel.Dock="Left"
+                        uwpControls:DockPanel.Dock="Left"
                         VerticalAlignment="Center"
                         />
 
@@ -75,15 +76,15 @@
                             HorizontalAlignment="Right"
                             />
 
-                </toolkit:DockPanel>
+                </uwpControls:DockPanel>
 
                 -->
           <!--
 
-                <toolkit:DockPanel Margin="0 8">
+                <uwpControls:DockPanel Margin="0 8">
 
                     <TextBlock Text="UIが非表示になるまでの時間（秒）"
-                        toolkit:DockPanel.Dock="Left"
+                        uwpControls:DockPanel.Dock="Left"
                         VerticalAlignment="Center"
                         />
 
@@ -96,7 +97,7 @@
                                            Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
                                     />
                     
-                </toolkit:DockPanel>
+                </uwpControls:DockPanel>
                 -->
           <Grid>
             <TextBlock Text="{Binding Source=PlaybackRate, Converter={StaticResource LocalizeConverter}}"
@@ -145,15 +146,15 @@
           </Grid>
         </StackPanel>
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
-          <toolkit:DockPanel>
+          <uwpControls:DockPanel>
             <TextBlock Text="{Binding Source=CommentSubmitSettings, Converter={StaticResource LocalizeConverter}}"
                             FontSize="18"
                             VerticalAlignment="Center"
                         FontWeight="SemiBold"
-                            toolkit:DockPanel.Dock="Left"
+                            uwpControls:DockPanel.Dock="Left"
                         />
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
           <Grid>
             <TextBlock Text="{Binding Source=EnableAnonimityCommentCommandAsDefault, Converter={StaticResource LocalizeConverter}}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
@@ -173,15 +174,15 @@
           </Grid>
         </StackPanel>
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
-          <toolkit:DockPanel>
+          <uwpControls:DockPanel>
             <TextBlock Text="{Binding Source=CommentDisplaySettings, Converter={StaticResource LocalizeConverter}}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
-                            toolkit:DockPanel.Dock="Left"
+                            uwpControls:DockPanel.Dock="Left"
                         />
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
           <Grid>
             <TextBlock Text="{Binding Source=CommentDisplayDuration, Converter={StaticResource LocalizeConverter}}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
@@ -201,7 +202,7 @@
           </Grid>
           <Grid>
             <TextBlock Text="{Binding Source=CommentDisplaySize, Converter={StaticResource LocalizeConverter}}"
-                           toolkit:DockPanel.Dock="Left"
+                           uwpControls:DockPanel.Dock="Left"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
             <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.DefaultCommentFontScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -258,15 +259,15 @@
         </StackPanel>
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
           <!--NGコメント-->
-          <toolkit:DockPanel>
+          <uwpControls:DockPanel>
             <TextBlock Text="{Binding Source=CommentFilteringSettings, Converter={StaticResource LocalizeConverter}}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
-                            toolkit:DockPanel.Dock="Left"
+                            uwpControls:DockPanel.Dock="Left"
                         />
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
           <!-- NGコメント -->
           <!-- NG共有スコア -->
           <Grid Visibility="Visible">
@@ -288,9 +289,9 @@
           
           <!-- NG ユーザーID -->
           <!--
-                    <toolkit:DockPanel Margin="8">
+                    <uwpControls:DockPanel Margin="8">
                         <TextBlock Text="ユーザーIDによるNGコメント機能を有効にする"
-                           toolkit:DockPanel.Dock="Left"
+                           uwpControls:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
                         <ToggleButton Width="32" Height="32" 
@@ -298,7 +299,7 @@
                                   IsChecked="{Binding NGCommentUserIdEnable.Value, Mode=TwoWay}"
                                   HorizontalAlignment="Right"
                                           />
-                    </toolkit:DockPanel>
+                    </uwpControls:DockPanel>
 
 
                     <ListView ItemsSource="{Binding NGCommentUserIds}"
@@ -322,9 +323,9 @@
           <ItemsControl ItemsSource="{Binding FilteringKeywords}" x:Name="FilteringKeywordItems">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <toolkit:DockPanel>
+                <uwpControls:DockPanel>
 
-                  <Button toolkit:DockPanel.Dock="Right" Height="32" Background="Transparent">
+                  <Button uwpControls:DockPanel.Dock="Right" Height="32" Background="Transparent">
                     <Button.Content>
                       <SymbolIcon Symbol="More" />
                     </Button.Content>
@@ -352,7 +353,7 @@
                       </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                   </TextBox>
-                </toolkit:DockPanel>
+                </uwpControls:DockPanel>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
@@ -368,9 +369,9 @@
           <ItemsControl ItemsSource="{Binding VideoCommentTransformConditions}" x:Name="TransformConditionItems">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <toolkit:DockPanel Margin="0 0 0 8">
+                <uwpControls:DockPanel Margin="0 0 0 8">
 
-                  <ToggleSwitch IsOn="{Binding IsEnabled, Mode=TwoWay}" toolkit:DockPanel.Dock="Left"
+                  <ToggleSwitch IsOn="{Binding IsEnabled, Mode=TwoWay}" uwpControls:DockPanel.Dock="Left"
                                 >
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Toggled">
@@ -379,7 +380,7 @@
                     </i:Interaction.Behaviors>
                   </ToggleSwitch>
 
-                  <Button toolkit:DockPanel.Dock="Right" Height="32" Background="Transparent">
+                  <Button uwpControls:DockPanel.Dock="Right" Height="32" Background="Transparent">
                     <Button.Content>
                       <SymbolIcon Symbol="More" />
                     </Button.Content>
@@ -392,9 +393,9 @@
                     </Button.Flyout>
                   </Button>
 
-                  <toolkit:DockPanel>
+                  <uwpControls:DockPanel>
 
-                    <StackPanel toolkit:DockPanel.Dock="Right" Orientation="Horizontal">
+                    <StackPanel uwpControls:DockPanel.Dock="Right" Orientation="Horizontal">
 
                       <SymbolIcon Symbol="Forward" Margin="8 0" />
 
@@ -417,9 +418,9 @@
                         </core:EventTriggerBehavior>
                       </i:Interaction.Behaviors>
                     </TextBox>
-                  </toolkit:DockPanel>
+                  </uwpControls:DockPanel>
 
-                </toolkit:DockPanel>
+                </uwpControls:DockPanel>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
@@ -431,15 +432,15 @@
         
         <!-- ニコスクリプト設定 -->
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
-          <toolkit:DockPanel>
+          <uwpControls:DockPanel>
             <TextBlock Text="{Binding Source=NicoScriptSettings, Converter={StaticResource LocalizeConverter}}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
-                            toolkit:DockPanel.Dock="Left"
+                            uwpControls:DockPanel.Dock="Left"
                         />
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
           <Grid>
             <TextBlock Text="{Binding Source=NicoScript_Default, Converter={StaticResource LocalizeConverter}}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
@@ -487,15 +488,15 @@
                     -->
         </StackPanel>
         <StackPanel x:Name="DesktopPlayerSettingsLayout" Style="{StaticResource SettingsGroupStackPanel}">
-          <toolkit:DockPanel>
+          <uwpControls:DockPanel>
             <TextBlock Text="{Binding Source=DesktopSettings, Converter={StaticResource LocalizeConverter}}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
-                            toolkit:DockPanel.Dock="Left"
+                            uwpControls:DockPanel.Dock="Left"
                         />
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
           <Grid>
             <TextBlock Text="{Binding Source=SoundVolumeChangeValueWithMouseScroll, Converter={StaticResource LocalizeConverter}}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"

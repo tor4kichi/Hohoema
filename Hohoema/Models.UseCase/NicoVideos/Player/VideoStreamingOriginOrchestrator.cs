@@ -50,7 +50,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
         public VideoStreamingOriginOrchestrator(
             NiconicoSession niconicoSession,
-            VideoCacheManager videoCacheManager,
+            VideoCacheManagerLegacy videoCacheManager,
             NicoVideoSessionProvider nicoVideoSessionProvider,
             DialogService dialogService,
             VideoCacheCommentRepository commentRepository,
@@ -66,7 +66,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         }
 
         private readonly NiconicoSession _niconicoSession;
-        private readonly VideoCacheManager _videoCacheManager;
+        private readonly VideoCacheManagerLegacy _videoCacheManager;
         private readonly NicoVideoSessionProvider _nicoVideoSessionProvider;
         private readonly DialogService _dialogService;
         private readonly VideoCacheCommentRepository _commentRepository;

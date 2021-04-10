@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AngleSharp.Html.Parser;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -8,8 +9,12 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using System.IO;
+using AngleSharp.Html.Dom;
+using AngleSharp.Dom;
 
 namespace NiconicoLiveToolkit.Live.Search
 {
@@ -24,275 +29,589 @@ namespace NiconicoLiveToolkit.Live.Search
             _context = context;
         }
 
-        private readonly JsonSerializerOptions _options = new JsonSerializerOptions()
-		{
-			Converters =
-			{
-				new JsonStringEnumMemberConverter(),
-			}
-		};
         private readonly NiconicoContext _context;
 
-		public Task<LiveSearchResponse> GetLiveSearchAsync(
-			string q,
-			int offset,
-			int limit,
-			string contextParameter
+		public async Task<LiveSearchPageScrapingResult> GetLiveSearchPageScrapingResultAsync(
+			string keyword,
+			LiveStatus liveStatus,
+			int? pageStartWith0,
+			LiveSearchPageSortOrder? sortOrder,
+			string channelId,
+			int? userId,
+			ProviderType[] providerTypes,
+			bool? isTagSearch,
+			bool? disableGrouping,
+			bool? timeshiftIsAvailable,
+			bool? hideMemberOnly,
+			CancellationToken cancellationToken
 			)
 		{
-			return GetLiveSearchAsync(
-				q,
-				offset,
-				limit,
-				contextParameter,
-				searchFilter: default(ISearchFilter)
-				);
-		}
+			StringBuilder sb = new StringBuilder("https://live.nicovideo.jp/search");
 
+            #region Make query string to sb
 
-		public Task<LiveSearchResponse> GetLiveSearchAsync(
-			string q,
-			int offset,
-			int limit,
-			string contextParameter,
-			SearchTargetType targets = SearchTargetType.All,
-			LiveSearchFieldType fields = LiveSearchFieldType.All,
-			LiveSearchSortType sortType = LiveSearchSortType.StartTime | LiveSearchSortType.SortDecsending,
-			Expression<Func<SearchFilterField, bool>> filterExpression = null
-			)
-		{
-			return GetLiveSearchAsync(
-				q, 
-				offset, 
-				limit, 
-				contextParameter,
-				targets, 
-				fields, 
-				sortType,
-				searchFilter: filterExpression != null ? new ExpressionSearchFilter(filterExpression) : default(ISearchFilter)
-				);
-		}
-
-
-		public async Task<LiveSearchResponse> GetLiveSearchAsync(
-			string q,
-			int offset,
-			int limit,
-			string contextParameter,
-			SearchTargetType targets = SearchTargetType.All,
-			LiveSearchFieldType fields = LiveSearchFieldType.All,
-			LiveSearchSortType sortType = LiveSearchSortType.StartTime | LiveSearchSortType.SortDecsending,
-			ISearchFilter searchFilter = null
-			)
-        {
-			if (string.IsNullOrWhiteSpace(q))
-			{
-				throw new ArgumentException("q value must contains any character.");
-			}
-			if (offset < 0 || offset >= SearchConstants.MaxSearchOffset)
-			{
-				throw new ArgumentException("offset value out of bounds. (0 <= offset <= 1600)");
-			}
-
-			if (limit < 0 || limit >= SearchConstants.MaxSearchLimit)
-			{
-				throw new ArgumentException("limit value out of bounds. (0 <= limit <= 100)");
-			}
-
-			var parameters = new NameValueCollection()
-			{
-				{ SearchConstants.QuaryParameter, q },
-				{ SearchConstants.OffsetParameter, offset.ToString() },
-				{ SearchConstants.LimitParameter, limit.ToString() },
-				{ SearchConstants.TargetsParameter, SearchHelpers.ToQueryString(targets) },				
-			};
-
-			if (!string.IsNullOrEmpty(contextParameter))
+            sb.Append("?keyword=");
+			sb.Append(Uri.EscapeDataString(keyword));
+			
+			if (pageStartWith0 is not null and var pageValue)
             {
-				parameters.Add(SearchConstants.ContextParameter, contextParameter);
-            }
-
-			if (fields != LiveSearchFieldType.None)
-			{
-				parameters.Add(SearchConstants.FieldsParameter, SearchHelpers.ToQueryString(fields));
+				sb.Append($"&page=");
+				sb.Append(pageValue + 1);
 			}
 
-			if (sortType != LiveSearchSortType.None)
-			{
-				parameters.Add(SearchConstants.SortParameter, SearchHelpers.ToQueryString(sortType));
-			}
+			sb.Append($"&status=");
+			sb.Append(liveStatus.ToString().ToLower());
 
-			if (searchFilter != null)
+			if (sortOrder is not null and var sortOrderValue)
             {
-				var filters = searchFilter.GetFilterKeyValues();
-				foreach (var f in filters)
+				sb.Append($"&sortOrder=");
+				sb.Append(sortOrderValue switch
                 {
-					parameters.Add(f.Key, f.Value);
-                }
+                    LiveSearchPageSortOrder.RecentDesc => "recentDesc",
+                    LiveSearchPageSortOrder.RecentAsc => "recentAsc",
+                    LiveSearchPageSortOrder.TimeshiftCountDesc => "timeshiftCountDesc",
+                    LiveSearchPageSortOrder.TimeshiftCountAsc => "timeshiftCountAsc",
+                    LiveSearchPageSortOrder.ViewCountDesc => "viewCountDesc",
+                    LiveSearchPageSortOrder.ViewCountAsc => "viewCountAsc",
+                    LiveSearchPageSortOrder.CommentCountDesc => "commentCountDesc",
+                    LiveSearchPageSortOrder.CommentCountAsc => "commentCountAsc",
+                    LiveSearchPageSortOrder.UserLevelDesc => "userLevelDesc",
+                    LiveSearchPageSortOrder.UserLevelAsc => "userLevelAsc",
+					_ => throw new NotSupportedException(),
+                });
 			}
 
-			return await _context.GetJsonAsAsync<LiveSearchResponse>(SearchConstants.LiveSearchEndPoint + parameters.ToQueryString(), _options);
+			if (disableGrouping is not null and bool disableGroupingValue)
+			{
+				sb.Append($"&disableGrouping=");
+				sb.Append(disableGroupingValue.ToString().ToLower());
+			}
+
+			if (channelId is not null and string channelIdValue)
+			{
+				sb.Append($"&channelId=");
+				sb.Append(channelIdValue);
+			}
+
+			if (userId is not null and int userIdValue)
+			{
+				sb.Append($"&userId=");
+				sb.Append(userIdValue);
+			}
+
+			if (providerTypes is not null)
+			{
+				foreach (var providerType in providerTypes)
+                {
+					sb.Append($"&providerTypes=");
+					sb.Append(providerType switch
+                    {
+						ProviderType.Official => "official",
+						ProviderType.Channel => "channel",
+						ProviderType.Community => "community",
+						_ => throw new NotSupportedException(),
+                    });
+				}
+			}
+
+			if (isTagSearch is not null and bool isTagSearchValue)
+            {
+				sb.Append($"&isTagSearch=");
+				sb.Append(isTagSearchValue.ToString().ToLower());
+			}
+
+			if (timeshiftIsAvailable is not null and bool timeshiftIsAvailableValue)
+			{
+				sb.Append($"&timeshiftIsAvailable=");
+				sb.Append(timeshiftIsAvailableValue.ToString().ToLower());
+			}
+
+			if (hideMemberOnly is not null and bool hideMemberOnlyValue)
+			{
+				sb.Append($"&hideMemberOnly=");
+				sb.Append(hideMemberOnlyValue.ToString().ToLower());
+			}
+
+            #endregion
+
+            string urlWithQuery = sb.ToString();
+			try
+			{
+				var responseMessage = await _context.GetAsync(urlWithQuery, ct: cancellationToken);
+				using (var inputStream = await responseMessage.Content.ReadAsInputStreamAsync())
+                {
+					var parser = new HtmlParser();
+					var document = await parser.ParseDocumentAsync(inputStream.AsStreamForRead(), cancellationToken);
+
+					return LiveSearchPageScrapingResult.Success(new LiveSearchPageData(document, keyword, pageStartWith0 ?? 0, liveStatus));
+				}
+			}
+			catch (Exception e)
+            {
+				return LiveSearchPageScrapingResult.Failed(e);
+			}
+		}
+
+		public Task<LiveSearchPageScrapingResult> GetLiveSearchPageScrapingResultAsync(LiveSearchOptionsQuery query, CancellationToken cancellationToken)
+        {
+			return GetLiveSearchPageScrapingResultAsync(
+				query.Keyword,
+				query.LiveStatus,
+				query.PageStartWith0,
+				query.SortOrder,
+				query.ChannelId,
+				query.UserId,
+				query.ProviderTypes,
+				query.IsTagSearch,
+				query.DisableGrouping,
+				query.TimeshiftIsAvailable,
+				query.HideMemberOnly,
+				cancellationToken
+				);
+		}
+	}
+
+	public sealed class LiveSearchOptionsQuery
+    {
+		public string Keyword { get; }
+        public LiveStatus LiveStatus { get; }
+        public int? PageStartWith0 { get; private set; }
+		public LiveSearchPageSortOrder? SortOrder { get; private set; }
+		public ProviderType[] ProviderTypes { get; private set; }
+		public string ChannelId { get; private set; }
+		public int? UserId { get; private set; }
+		public bool? IsTagSearch { get; private set; }
+		public bool? DisableGrouping { get; private set; }
+		public bool? TimeshiftIsAvailable { get; private set; }
+		public bool? HideMemberOnly { get; private set; }
+
+
+		public static LiveSearchOptionsQuery Create(string keyword, LiveStatus liveStatus)
+        {
+			return new LiveSearchOptionsQuery(keyword, liveStatus);
+        }
+
+		private LiveSearchOptionsQuery(string keyword, LiveStatus liveStatus)
+        {
+			Keyword = keyword;
+            LiveStatus = liveStatus;
+        }
+		
+		public LiveSearchOptionsQuery UsePage(int pageStartWith0)
+		{
+			PageStartWith0 = pageStartWith0;
+			return this;
+		}
+
+		public LiveSearchOptionsQuery UseSortOrder(LiveSearchPageSortOrder sortOrder)
+        {
+			SortOrder = sortOrder;
+			return this;
+        }
+
+		public LiveSearchOptionsQuery UseDisableGrouping(bool disableGrouping)
+		{
+			DisableGrouping = disableGrouping;
+			return this;
+		}
+
+
+		public LiveSearchOptionsQuery UseChannelId(string channelId, bool? disableGrouping = true)
+		{
+			if (UserId is not null) { throw new ArgumentException(); }
+			ChannelId = channelId;
+			DisableGrouping = disableGrouping ?? DisableGrouping;
+			return this;
+		}
+
+
+		public LiveSearchOptionsQuery UseUserId(int userId, bool? disableGrouping = true)
+		{
+			if (ChannelId is not null) { throw new ArgumentException(); }
+			UserId = userId;
+			DisableGrouping = disableGrouping ?? DisableGrouping;
+			return this;
+		}
+
+		public LiveSearchOptionsQuery UseProviderTypes(params ProviderType[] providerTypes)
+        {
+			ProviderTypes = providerTypes;
+			return this;
+		}
+
+		public LiveSearchOptionsQuery UseProviderTypes(IEnumerable<ProviderType> providerTypes)
+		{
+			ProviderTypes = providerTypes.ToArray();
+			return this;
+		}
+
+		public LiveSearchOptionsQuery UseIsTagSearch(bool isTagSearch)
+		{
+			IsTagSearch = isTagSearch;
+			return this;
+		}
+
+		public LiveSearchOptionsQuery UseTimeshiftIsAvailable(bool timeshiftIsAvailable)
+		{
+			TimeshiftIsAvailable = timeshiftIsAvailable;
+			return this;
+		}
+
+		public LiveSearchOptionsQuery UseHideMemberOnly(bool hideMemberOnly)
+		{
+			HideMemberOnly = hideMemberOnly;
+			return this;
 		}
 	}
 
 
+	public enum LiveSearchPageSortOrder
+    {
+		RecentDesc,
+		RecentAsc,
+		TimeshiftCountDesc,
+		TimeshiftCountAsc,
+		ViewCountDesc,
+		ViewCountAsc,
+		CommentCountDesc,
+		CommentCountAsc,
+		UserLevelDesc,
+		UserLevelAsc,
+	}
 
 
-    public class LiveSearchFilterSettings : ISearchFilter
+	public sealed class LiveSearchPageScrapingResult
+    {
+		public static LiveSearchPageScrapingResult Failed(Exception e)
+        {
+			return new LiveSearchPageScrapingResult(e);
+		}
+
+		private LiveSearchPageScrapingResult(Exception e)
+        {
+			IsSuccess = false;
+			Exception = e;
+
+		}
+
+
+		public static LiveSearchPageScrapingResult Success(LiveSearchPageData data)
+		{
+			return new LiveSearchPageScrapingResult(data);
+		}
+
+		private LiveSearchPageScrapingResult(LiveSearchPageData data)
+		{
+			IsSuccess = true;
+			Data = data;
+		}
+
+		public bool IsSuccess { get; }
+
+		public LiveSearchPageData Data { get; }
+
+		public Exception Exception { get; }
+	}	
+
+
+	public static class AngleSharpNodeExtensions
+    {
+		public static int ToIntWithQuerySelector(this IParentNode node, string selector, int @default = 0)
+        {
+			var selectorNode = node.QuerySelector(selector);
+			var value = selectorNode.TextContent.Trim();
+			return int.TryParse(value, out var val) ? val : @default;
+		}
+
+		public static string ToStringWithQuerySelector(this IParentNode node, string selector)
+		{
+			return node.QuerySelector(selector).TextContent.Trim();
+		}
+	}
+
+	public sealed class LiveSearchPageData
+    {
+        private readonly IHtmlDocument _document;
+        private readonly LiveStatus _targetLiveStatus;
+
+        public string Keyword { get; }
+
+		public int Page { get; }
+
+		private int? _TotalCount;
+		public int TotalCount => _TotalCount ??= AngleSharpNodeExtensions.ToIntWithQuerySelector(_document, "#page_cover > div.search-input-area > div > p > strong:nth-child(2)");
+
+		public LiveSearchPageLiveContentItem[] SearchResultItems => _targetLiveStatus switch
+		{
+			LiveStatus.Reserved => ReservedItems,
+			LiveStatus.Onair => OnAirItems,
+			LiveStatus.Past => PastItems,
+			_ => throw new NotSupportedException()
+		};
+
+
+        private LiveSearchPageLiveContentItem[] _OnAirItems;
+		public LiveSearchPageLiveContentItem[] OnAirItems => _OnAirItems ??= MakeItems(_OnAirItemsElement);
+
+		private LiveSearchPageLiveContentItem[] _ReservedItems;
+		public LiveSearchPageLiveContentItem[] ReservedItems => _ReservedItems ??= MakeItems(_ReservedItemsElement);
+
+		private LiveSearchPageLiveContentItem[] _PastItems;
+		public LiveSearchPageLiveContentItem[] PastItems => _PastItems ??= MakeItems(_PastItemsElement);
+
+		IElement _OnAirItemsElement;
+		IElement _ReservedItemsElement;
+		IElement _PastItemsElement;
+
+		public LiveSearchPageData(IHtmlDocument document, string keyword, int page, LiveStatus targetLiveStatus)
+        {
+            _document = document;
+            Keyword = keyword;
+            Page = page;
+            _targetLiveStatus = targetLiveStatus;
+            var itemsElements = _document.GetElementsByClassName("searchPage-Layout_Section");
+            switch (targetLiveStatus)
+            {
+                case LiveStatus.Onair:
+					_OnAirItemsElement = itemsElements.ElementAtOrDefault(0);
+					_PastItemsElement = itemsElements.ElementAtOrDefault(1);
+					break;
+				case LiveStatus.Reserved:
+					_ReservedItemsElement = itemsElements.ElementAtOrDefault(0);
+					_OnAirItemsElement = itemsElements.ElementAtOrDefault(1);
+					_PastItemsElement = itemsElements.ElementAtOrDefault(2);
+					break;
+				case LiveStatus.Past:
+					_PastItemsElement = itemsElements.ElementAtOrDefault(0);
+					_OnAirItemsElement = itemsElements.ElementAtOrDefault(1);
+					break;
+            }
+        }
+
+
+        private LiveSearchPageLiveContentItem[] MakeItems(IElement itemsElement)
+		{
+			var itemList = itemsElement.GetElementsByClassName("searchPage-ProgramList_Item");
+			return itemList.Select(elem => new LiveSearchPageLiveContentItem(elem)).ToArray();
+		}
+
+
+    }
+
+
+	public enum LiveSearchItemStatus
+    {
+		Reserved,
+		OnAir,
+		PastAndPresentTimeshift,
+		PastAndNotPresentTimeshift,
+    }
+
+	public sealed class LiveSearchPageLiveContentItem
 	{
-		List<ISearchFilter> _filters;
+		private readonly IElement _element;
 
-		public LiveSearchFilterSettings()
-        {
-			_filters = new List<ISearchFilter>();
-		}		
-
-		public LiveSearchFilterSettings AddCompareFilter(LiveSearchIntegerFilterFieldType filterFieldType, int value, SearchFilterCompareCondition condition)
-        {
-			_filters.Add(new CompareSearchFilter<int>((LiveSearchFilterType)filterFieldType, value, condition));
-			return this;
-		}
-
-		public LiveSearchFilterSettings AddCompareFilter(LiveSearchDateTimeFilterFieldType filterFieldType, DateTime value, SearchFilterCompareCondition condition)
+		public LiveSearchPageLiveContentItem(IElement element)
 		{
-			_filters.Add(new CompareSearchFilter<DateTime>((LiveSearchFilterType)filterFieldType, value, condition));
-			return this;
+			_element = element;
 		}
 
-		public LiveSearchFilterSettings AddContainsFilter(LiveSearchIntegerFilterFieldType filterFieldType, int value)
-        {
-			_filters.Add(new ValueContainsSearchFilter<int>((LiveSearchFilterType)filterFieldType, value));
-			return this;
-		}
+		private string _liveId;
+		public string LiveId => _liveId ??= _element.QuerySelector("a").GetAttribute("href").Split('/')[1];
 
-		public LiveSearchFilterSettings AddContainsFilter(LiveSearchDateTimeFilterFieldType filterFieldType, DateTime value)
+		private LiveSearchItemStatus? _liveStatus;
+		public LiveSearchItemStatus LiveStatus => _liveStatus ??= _element.QuerySelector("a > div").ClassName switch 
 		{
-			_filters.Add(new ValueContainsSearchFilter<DateTime>((LiveSearchFilterType)filterFieldType, value));
-			return this;
-		}
+			"searchPage-ProgramList_StatusLabel-live" => LiveSearchItemStatus.OnAir,
+			"searchPage-ProgramList_StatusLabel-future" => LiveSearchItemStatus.Reserved,
+			"searchPage-ProgramList_StatusLabel-timeshift" => LiveSearchItemStatus.PastAndPresentTimeshift,
+			"searchPage-ProgramList_StatusLabel-close" => LiveSearchItemStatus.PastAndNotPresentTimeshift,
+		};
 
-		public LiveSearchFilterSettings AddContainsFilter(LiveSearchStringFilterFieldType filterFieldType, string value)
+		private Uri _thumbnail;
+		public Uri Thumbnail => _thumbnail ??= new Uri(_element.QuerySelector("a > figure > img").GetAttribute("src"));
+
+		private string _title;
+		public string Title => _title ??= _element.QuerySelector("div > h1 > a").GetAttribute("title");
+
+		private string _shortDescription;
+		public string ShortDescription => _shortDescription ??= _element.QuerySelector("div > p").TextContent.Trim();
+
+
+		readonly static char[] _TimeSplitter = { '/', ' ', ':', ':', '開', '始', '（', '）', '時', '間', '分' };
+
+		private (DateTime startAt, TimeSpan duration) GetStartAtAndDuration()
 		{
-			_filters.Add(new ValueContainsSearchFilter<string>((LiveSearchFilterType)filterFieldType, value));
-			return this;
-		}
+			var dateText = _element.QuerySelector("ul > li:nth-child(1) > span").TextContent;
+			var dateTextSplit = dateText.Split(_TimeSplitter).Where(x => !string.IsNullOrWhiteSpace(x) && x.All(c => char.IsDigit(c))).Select(x => int.Parse(x)).ToArray();
 
-		public LiveSearchFilterSettings AddContainsFilter(LiveSearchBooleanFilterFieldType filterFieldType, bool value)
-		{
-			_filters.Add(new ValueContainsSearchFilter<bool>((LiveSearchFilterType)filterFieldType, value));
-			return this;
-		}
-
-
-
-
-		public IEnumerable<KeyValuePair<string, string>> GetFilterKeyValues()
-        {
-			return _filters.SelectMany(x => x.GetFilterKeyValues());
-        }
-    }
-
-	public interface ISearchFilter
-    {
-		IEnumerable<KeyValuePair<string, string>> GetFilterKeyValues();
-    }
-
-
-	public static class SearchHelpers
-    {
-		public static string ToQueryString(SearchTargetType targets)
-        {
-			return targets switch
+			switch (LiveStatus)
 			{
-				SearchTargetType.Title => "title",
-				SearchTargetType.Tags => "tags",
-				SearchTargetType.Description => "description",
-				SearchTargetType.Title | SearchTargetType.Tags => "title,tags",
-				SearchTargetType.Title | SearchTargetType.Description => "title,description",
-				SearchTargetType.Tags | SearchTargetType.Description => "tags,description",
-				SearchTargetType.All => "title,description,tags",
-				_ => "title,description,tags"
-			};
-        }
+				case LiveSearchItemStatus.Reserved:
+					// 2021/4/5 19:15 開始
+					return (new DateTime(dateTextSplit[0], dateTextSplit[1], dateTextSplit[2], dateTextSplit[3], dateTextSplit[4], 0), TimeSpan.Zero);
+					break;
+				case LiveSearchItemStatus.OnAir:
+					// 2時間14分 経過
+					if (dateTextSplit.Length == 1)
+					{
+						var duration = new TimeSpan(0, dateTextSplit[0], 0);
+						return (DateTime.Now - duration, duration);
+					}
+					else if (dateTextSplit.Length == 2)
+					{
+						var duration = new TimeSpan(dateTextSplit[0], dateTextSplit[1], 0);
+						return (DateTime.Now - duration, duration);
+					}
+					else
+					{
+						// ???
+					}
 
-		public static string ToQueryString(SearchFilterCompareCondition condition)
-        {
-			return condition switch
-			{
-				SearchFilterCompareCondition.EQ => "0",
-				SearchFilterCompareCondition.GT => "gt",
-				SearchFilterCompareCondition.GTE => "gte",
-				SearchFilterCompareCondition.LT => "lt",
-				SearchFilterCompareCondition.LTE => "lte",
-				_ => throw new ArgumentException(condition.ToString())
-			};
-        }
+					break;
+				case LiveSearchItemStatus.PastAndPresentTimeshift:
+				case LiveSearchItemStatus.PastAndNotPresentTimeshift:
+					// 2021/4/5 18:40 開始 （1時間30分）
+					{
+						var startAt = new DateTime(dateTextSplit[0], dateTextSplit[1], dateTextSplit[2], dateTextSplit[3], dateTextSplit[4], 0);
 
+						if (dateTextSplit.Length == 6)
+						{
+							var duration = new TimeSpan(0, dateTextSplit[5], 0);
+							return (startAt, duration);
+						}
+						else if (dateTextSplit.Length == 7)
+						{
+							var duration = new TimeSpan(dateTextSplit[5], dateTextSplit[6], 0);
+							return (startAt, duration);
+						}
+						else
+						{
+							// ????
+						}
+					}
 
-		public static string GetParameterName(SearchFieldType searchFieldType)
-        {
-			return _fieldTypeToQueryParameterName[searchFieldType];
-
-		}
-
-		static readonly LiveSearchFieldType[] _liveSearchFieldTypes = Enum.GetValues(typeof(LiveSearchFieldType)).Cast<LiveSearchFieldType>()
-			.Where(x => x != LiveSearchFieldType.None && x != LiveSearchFieldType.All).ToArray();
-
-		static readonly IDictionary<SearchFieldType, string> _fieldTypeToQueryParameterName;
-		static SearchHelpers()
-        {
-			_fieldTypeToQueryParameterName = 
-				Enum.GetValues(typeof(SearchFieldType))
-				.Cast<SearchFieldType>()
-				.ToDictionary(x => x, x => x.GetDescription())
-				;
-		}
-
-		public static string ToQueryString(LiveSearchFieldType fieldType)
-        {
-			return string.Join(",", 
-				_liveSearchFieldTypes
-					.Where(x => fieldType.HasFlag(x))
-					.Select(x => (SearchFieldType)x)
-					.Select(x => _fieldTypeToQueryParameterName[x])
-					)
-				;
-        }
-
-		public static string ToQueryString(LiveSearchSortType sortType)
-        {
-			if (sortType.HasFlag(LiveSearchSortType.SortAcsending))
-            {
-				return SearchConstants.SortOrder_Acsending + _fieldTypeToQueryParameterName[(SearchFieldType)(sortType - LiveSearchSortType.SortAcsending)];
+					break;
+				default:
+					throw new NotSupportedException();
 			}
-			else
-            {
-				return _fieldTypeToQueryParameterName[(SearchFieldType)sortType];
+
+			return (DateTime.MinValue, TimeSpan.Zero);
+		}
+
+
+		private DateTime? _startAt;
+		public DateTime StartAt
+        {
+			get
+			{
+				if (_startAt is not null) { return _startAt.Value; }
+
+				(_startAt, _duration) = GetStartAtAndDuration();
+				return _startAt.Value;
 			}
         }
-    }
 
-	public static class SearchConstants
-    {
-		public static readonly string VideSearchEndPoint = "https://api.search.nicovideo.jp/api/v2/video/contents/search";
-		public static readonly string LiveSearchEndPoint = "https://api.search.nicovideo.jp/api/v2/live/contents/search";
+		
+		private TimeSpan? _duration;
+        public TimeSpan Duration
+        {
+			get
+            {
+				if (_duration is not null) { return _duration.Value; }
 
-		public static readonly string SortOrder_Acsending = "+";
-		public static readonly string SortOrder_Decsending = "-";
+				(_startAt, _duration) = GetStartAtAndDuration();
+				return _duration.Value;
+			}
+        }
 
-		public static readonly int MaxSearchOffset = 1600;
-		public static readonly int MaxSearchLimit = 100;
 
-		public static readonly string QuaryParameter = "q";
-		public static readonly string TargetsParameter = "targets";
-		public static readonly string FieldsParameter = "fields";
-		public static readonly string FiltersParameter = "filters";
-		public static readonly string JsonFilterParameter = "jsonFilter";
+		private ProviderType? _providerType;
+		public ProviderType ProviderType
+        {
+			get
+            {
+				if (_providerType is not null) { return _providerType.Value; }
 
-		public static readonly string SortParameter = "_sort";
-		public static readonly string OffsetParameter = "_offset";
-		public static readonly string LimitParameter = "_limit";
-		public static readonly string ContextParameter = "_context";
+				ParseTitleIcon();
+				return _providerType.Value;
+			}
+        }
+
+
+		private void ParseTitleIcon()
+        {
+			var titleIconSpanItems = _element.QuerySelectorAll<IHtmlSpanElement>("div > h1 > span");
+			_providerType = ProviderType.Community;
+			_IsRequerePay = false;
+			_isMemberOnly = false;
+			foreach (var titleIconSpan in titleIconSpanItems)
+            {
+                switch (titleIconSpan.ClassName)
+                {
+					case "searchPage-ProgramList_TitleIcon-channel":
+						_providerType = ProviderType.Channel;
+						break;
+					case "searchPage-ProgramList_TitleIcon-official":
+						_providerType = ProviderType.Official;
+						break;
+					case "searchPage-ProgramList_TitleIcon-pay":
+						_IsRequerePay = true;
+						break;
+					case "searchPage-ProgramList_TitleIcon-private":
+						_isMemberOnly = true;
+						break;
+				}
+			}
+		}
+
+		private string _providerId;
+		public string ProviderId => _providerId ??= _element.QuerySelector<IHtmlAnchorElement>("div > div > div > p > a").Href.Split('/').Last();
+
+		private string _providerName;
+		public string ProviderName => _providerName ??= _element.QuerySelector("div > div > div > p > a").TextContent.Trim();
+
+		private Uri _providerIcon;
+		public Uri ProviderIcon => _providerIcon ??= new Uri(_element.QuerySelector("div > div > figure > a > img").GetAttribute("src"));
+
+		private int? _visitorCount;
+		public int VisitorCount => _visitorCount ??= _element.ToIntWithQuerySelector("div > ul > li:nth-child(2) > span.searchPage-ProgramList_DataText");
+		private int? _commentCount;
+		public int CommentCount => _commentCount ??= _element.ToIntWithQuerySelector("div > ul > li:nth-child(3) > span.searchPage-ProgramList_DataText");
+		private int? _timeshiftCount;
+		public int TimeshiftCount => _timeshiftCount ??= _element.ToIntWithQuerySelector("div > ul > li:nth-child(4) > span.searchPage-ProgramList_DataText");
+
+
+		private bool? _IsRequerePay;
+		public bool IsRequerePay
+		{
+			get
+			{
+				if (_IsRequerePay is not null) { return _IsRequerePay.Value; }
+
+				ParseTitleIcon();
+				return _IsRequerePay.Value;
+			}
+		}
+
+		private bool? _isMemberOnly;
+		public bool IsMemberOnly 
+		{
+			get
+			{
+				if (_isMemberOnly is not null) { return _isMemberOnly.Value; }
+
+				ParseTitleIcon();
+				return _isMemberOnly.Value;
+			}
+		}
+
+		private bool? _isTimeshiftAvairable;
+		public bool IsTimeshiftAvairable => _isTimeshiftAvairable ??= _element.QuerySelector("div > div > div.searchPage-ProgramList_TimeShift.timeShift") is not null;
+
+
+
+
 	}
 
 }

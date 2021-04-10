@@ -28,6 +28,8 @@ namespace Hohoema.Models.Domain.Player.Video
         MediaPlayer _PlayingMediaPlayer;
         private readonly NicoVideoSessionOwnershipManager.VideoSessionOwnership _videoSessionOwnership;
 
+        public event EventHandler StopStreamingFromOwnerShipReturned;
+
         public VideoStreamingSession(NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager.VideoSessionOwnership videoSessionOwnership)
         {
             NiconicoSession = niconicoSession;
@@ -42,6 +44,8 @@ namespace Hohoema.Models.Domain.Player.Video
         private void _videoSessionOwnership_ReturnOwnershipRequested(object sender, EventArgs e)
         {
             Dispose();
+
+            StopStreamingFromOwnerShipReturned?.Invoke(this, e);
         }
 
         public async Task StartPlayback(MediaPlayer player, TimeSpan initialPosition = default)

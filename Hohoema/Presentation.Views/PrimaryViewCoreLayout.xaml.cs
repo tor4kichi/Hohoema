@@ -848,6 +848,10 @@ namespace Hohoema.Presentation.Views
             {
                 _viewModel.PageManager.OpenPageCommand.Execute(menuItemVM);
             }
+            else if (args.InvokedItemContainer?.DataContext is LiveContentMenuItemViewModel live)
+            {
+                (_viewModel.OpenLiveContentCommand as ICommand).Execute(live);
+            }
             else if (args.InvokedItem is IPageNavigatable menuItem)
             {
                 _viewModel.PageManager.OpenPageCommand.Execute(menuItem);

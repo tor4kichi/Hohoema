@@ -23,7 +23,7 @@ namespace Hohoema.Presentation.Services.Notification
         /// <param name="notificationService"></param>
         public NotificationCacheVideoDeletedService(
             IEventAggregator eventAggregator,
-            VideoCacheManager videoCacheManager,
+            VideoCacheManagerLegacy videoCacheManager,
             Services.NotificationService notificationService
             )
         {
@@ -47,7 +47,7 @@ namespace Hohoema.Presentation.Services.Notification
         }
 
         public IEventAggregator EventAggregator { get; }
-        public VideoCacheManager VideoCacheManager { get; }
+        public VideoCacheManagerLegacy VideoCacheManager { get; }
         public NotificationService NotificationService { get; }
     }
 }

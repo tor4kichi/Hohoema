@@ -23,5 +23,10 @@ namespace Hohoema.Presentation.Views.Pages.SearchPages
 		{
 			this.InitializeComponent();
 		}
-	}
+
+        private void Flyout_Closed(object sender, object e)
+        {
+			(DataContext as ViewModels.Pages.SearchPages.SearchResultLivePageViewModel).SearchOptionsUpdatedCommand.Execute();
+        }
+    }
 }

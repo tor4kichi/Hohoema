@@ -12,7 +12,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
     public interface IVideoStreamingDownloadSession : IVideoStreamingSession
     {
-        Task<Uri> GetDownloadUrlAndSetupDonwloadSession();
+        Task<Uri> GetDownloadUrlAndSetupDownloadSession();
     }
 
 }

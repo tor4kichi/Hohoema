@@ -216,7 +216,7 @@ namespace Hohoema.Models.Domain.Player.Video
             throw new NotSupportedException("");
         }
 
-        public async Task<Uri> GetDownloadUrlAndSetupDonwloadSession()
+        public async Task<Uri> GetDownloadUrlAndSetupDownloadSession()
         {
             var session = await GetDmcSessionAsync();
             var videoUri = session != null ? new Uri(session.Data.Session.ContentUri) : null;

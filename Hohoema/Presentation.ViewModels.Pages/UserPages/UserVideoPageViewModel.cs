@@ -146,7 +146,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserPages
 	{
 		public uint UserId { get; }
 		public UserProvider UserProvider { get; }
-		public VideoCacheManager MediaManager { get; }
+		public VideoCacheManagerLegacy MediaManager { get; }
 
         public override uint OneTimeLoadCount => 25;
 

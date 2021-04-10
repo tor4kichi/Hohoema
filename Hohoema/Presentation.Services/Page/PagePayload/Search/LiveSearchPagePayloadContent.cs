@@ -1,8 +1,8 @@
-﻿using Mntone.Nico2.Live;
-using Mntone.Nico2.Searches.Live;
-using Hohoema.Models.Domain;
+﻿using Hohoema.Models.Domain;
 using System.Runtime.Serialization;
 using Hohoema.Models.Domain.PageNavigation;
+using NiconicoLiveToolkit.Live.Search;
+using NiconicoLiveToolkit.Live;
 
 namespace Hohoema.Presentation.Services.Page
 {
@@ -15,16 +15,16 @@ namespace Hohoema.Presentation.Services.Page
 		public bool IsTagSearch { get; set; }
 
 		[DataMember]
-		public Mntone.Nico2.Live.CommunityType? Provider { get; set; }
-
-        [DataMember]
-        public LiveSearchSortType Sort { get; set; } = LiveSearchSortType.StartTime | LiveSearchSortType.SortDecsending;
+		public ProviderType[] Providers { get; set; } = new ProviderType[0];
 
 		[DataMember]
-		public StatusType LiveStatus { get; set; } = StatusType.OnAir;
+        public LiveSearchPageSortOrder Sort { get; set; } = LiveSearchPageSortOrder.RecentDesc;
 
 		[DataMember]
-		public bool IsExcludeCommunityMemberOnly { get; set; }
+		public LiveStatus LiveStatus { get; set; } = LiveStatus.Onair;
+
+		[DataMember]
+		public bool IsHideMemberOnly { get; set; }
 
 	}
 }

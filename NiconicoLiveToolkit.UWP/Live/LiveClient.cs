@@ -1,4 +1,5 @@
-﻿using NiconicoLiveToolkit.Live.Search;
+﻿using NiconicoLiveToolkit.Live.Notify;
+using NiconicoLiveToolkit.Live.Search;
 using NiconicoLiveToolkit.Live.WatchPageProp;
 using NiconicoLiveToolkit.Live.WatchSession;
 using System;
@@ -23,10 +24,12 @@ namespace NiconicoLiveToolkit.Live
             _context = context;
             Search = new LiveSearchClient(context);
             CasApi = new Cas.CasLiveClient(context);
+            LiveNotify = new LiveNotifyClient(context);
         }
 
         public LiveSearchClient Search { get; }
         public Cas.CasLiveClient CasApi { get; }
+        public LiveNotifyClient LiveNotify { get; }
 
 
 

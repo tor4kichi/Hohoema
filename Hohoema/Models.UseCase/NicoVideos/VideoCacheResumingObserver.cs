@@ -19,13 +19,13 @@ namespace Hohoema.Models.UseCase.NicoVideos
         private readonly IScheduler _scheduler;
         private readonly NiconicoSession _niconicoSession;
         private readonly ScondaryViewPlayerManager _playerViewManager;
-        private readonly VideoCacheManager _videoCacheManager;
+        private readonly VideoCacheManagerLegacy _videoCacheManager;
 
         public VideoCacheResumingObserver(
             IScheduler scheduler,
             NiconicoSession niconicoSession,
             ScondaryViewPlayerManager playerViewManager,
-            VideoCacheManager videoCacheManager
+            VideoCacheManagerLegacy videoCacheManager
             )
         {
             _scheduler = scheduler;

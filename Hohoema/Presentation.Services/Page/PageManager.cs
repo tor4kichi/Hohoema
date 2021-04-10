@@ -357,6 +357,8 @@ namespace Hohoema.Presentation.Services.Page
 
 		public void OpenPage(HohoemaPageType pageType, INavigationParameters parameter = null, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
 		{
+            CurrentPageType = pageType;
+            CurrentPageNavigationParameters = parameter;
             EventAggregator.GetEvent<PageNavigationEvent>()
                 .Publish(new PageNavigationEventArgs()
                 {
@@ -370,27 +372,13 @@ namespace Hohoema.Presentation.Services.Page
         public void OpenPage(HohoemaPageType pageType, string parameterString, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
         {
             INavigationParameters parameter = new NavigationParameters(parameterString);
-            EventAggregator.GetEvent<PageNavigationEvent>()
-                .Publish(new PageNavigationEventArgs()
-                {
-                    PageName = _pageTypeToName[pageType],
-                    Paramter = parameter,
-                    IsMainViewTarget = true,
-                    Behavior = stackBehavior,
-                });
+            OpenPage(pageType, parameter, stackBehavior);
         }
 
         public void OpenPageWithId(HohoemaPageType pageType, string id, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
         {
             INavigationParameters parameter = new NavigationParameters($"id={id}");
-            EventAggregator.GetEvent<PageNavigationEvent>()
-                .Publish(new PageNavigationEventArgs()
-                {
-                    PageName = _pageTypeToName[pageType],
-                    Paramter = parameter,
-                    IsMainViewTarget = true,
-                    Behavior = stackBehavior,
-                });
+            OpenPage(pageType, parameter, stackBehavior);
         }
 
 

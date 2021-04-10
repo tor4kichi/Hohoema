@@ -19,23 +19,29 @@ using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Presentation.ViewModels.LivePages.Commands;
+using NiconicoLiveToolkit.Live.Search;
+using Prism.Mvvm;
 
 namespace Hohoema.Presentation.ViewModels.Pages.LivePages
 {
-    public class LiveInfoListItemViewModel : HohoemaListingPageItemBase, ILiveContent, Views.Extensions.ListViewBase.IDeferInitialize
+    public class LiveInfoListItemViewModel : BindableBase, ILiveContent
     {
-        public LiveInfoListItemViewModel(string liveId)
+        static LiveInfoListItemViewModel()
         {
-            LiveId = liveId;
             PageManager = App.Current.Container.Resolve<PageManager>();
             ExternalAccessService = App.Current.Container.Resolve<Services.ExternalAccessService>();
             OpenLiveContentCommand = App.Current.Container.Resolve<OpenLiveContentCommand>();
+        }
+
+        public LiveInfoListItemViewModel(string liveId)
+        {
+            LiveId = liveId;
             _niconicoSession = App.Current.Container.Resolve<NiconicoSession>();
         }
 
-        public PageManager PageManager { get; }
-        public ExternalAccessService ExternalAccessService { get; }
-        public OpenLiveContentCommand OpenLiveContentCommand { get; }
+        public static PageManager PageManager { get; }
+        public static ExternalAccessService ExternalAccessService { get; }
+        public static OpenLiveContentCommand OpenLiveContentCommand { get; }
 
         private readonly NiconicoSession _niconicoSession;
 
@@ -50,27 +56,27 @@ namespace Hohoema.Presentation.ViewModels.Pages.LivePages
 		public Mntone.Nico2.Live.CommunityType CommunityType { get; protected set; }
 
 		public string LiveTitle { get; protected set; }
-		public int ViewCounter { get; protected set; }
-		public int CommentCount { get; protected set; }
-		public DateTimeOffset OpenTime { get; private set; }
-		public DateTimeOffset StartTime { get; private set; }
+        public string ShortDescription { get; protected set; }
+        public int ViewCounter { get; protected set; }
+        public int CommentCount { get; protected set; }
+        public int TimeshiftCount { get; protected set; }
+        public DateTime StartTime { get; protected set; }
 		public bool HasEndTime { get; private set; }
-		public DateTimeOffset EndTime { get; private set; }
-		public string DurationText { get; private set; }
-		public bool IsTimeshiftEnabled { get; private set; }
-		public bool IsCommunityMemberOnly { get; private set; }
+		public DateTime? EndTime { get; protected set; }
+        public TimeSpan Duration { get; protected set; }
+        public LiveStatus LiveStatus { get; protected set; }
+
+        public bool IsTimeshiftEnabled { get; protected set; }
+		public bool IsCommunityMemberOnly { get; protected set; }
+        public bool IsOfficialContent { get; protected set; }
+        public bool IsChannelContent { get; protected set; }
+        public bool IsPayRequired { get; protected set; }
+
+        public string ThumbnailUrl { get; protected set; }
 
         public bool IsXbox => Services.Helpers.DeviceTypeHelper.IsXbox;
 
-
-
-        public bool NowLive => Elements.Any(x => x == LiveContentElement.Status_Open || x == LiveContentElement.Status_Start);
-
-        public bool IsReserved => Elements.Any(x => x == LiveContentElement.Timeshift_Preserved || x == LiveContentElement.Timeshift_Watch);
-        public bool IsTimedOut => Elements.Any(x => x == LiveContentElement.Timeshift_OutDated);
-
-        public ObservableCollection<LiveContentElement> Elements { get; } = new ObservableCollection<LiveContentElement>();
-        public DateTimeOffset ExpiredAt { get; internal set; }
+        public DateTime ExpiredAt { get; internal set; }
         public Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus? ReservationStatus { get; internal set; }
 
 
@@ -89,23 +95,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.LivePages
 
         string INiconicoObject.Label => LiveTitle;
 
-
-
-
-        bool Views.Extensions.ListViewBase.IDeferInitialize.IsInitialized { get; set; }
-        
-        Task Views.Extensions.ListViewBase.IDeferInitialize.DeferInitializeAsync(CancellationToken ct)
-        {
-            ResetElements();
-            return Task.CompletedTask;
-        }
-
-
-
         public void SetReservation(Mntone.Nico2.Live.ReservationsInDetail.Program reservationInfo)
         {
             Reservation = reservationInfo;
-            ReservationStatus = NowLive ? null : reservationInfo?.GetReservationStatus();
+            ReservationStatus = LiveStatus is LiveStatus.Onair ? null : reservationInfo?.GetReservationStatus();
             DeleteReservationCommand.RaiseCanExecuteChanged();
             AddReservationCommand.RaiseCanExecuteChanged();
         }
@@ -118,13 +111,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.LivePages
             CommunityType = liveVideoInfo.ProviderType;
 
             LiveTitle = liveVideoInfo.Title;
-            OpenTime = liveVideoInfo.OpenTime;
-            StartTime = liveVideoInfo.StartTime;
+            StartTime = liveVideoInfo.StartTime.LocalDateTime;
 
             IsTimeshiftEnabled = false;
-            //IsCommunityMemberOnly = liveVideoInfo.Video.CommunityOnly;
 
-            AddImageUrl(CommunityThumbnail);
+            ThumbnailUrl = CommunityThumbnail;
 
             //Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
 
@@ -133,206 +124,149 @@ namespace Hohoema.Presentation.ViewModels.Pages.LivePages
                 case Mntone.Nico2.Live.StatusType.Invalid:
                     break;
                 case Mntone.Nico2.Live.StatusType.OnAir:
-                    DurationText = $"{StartTime - DateTimeOffset.Now} 経過";
+                    Duration = DateTime.Now - liveVideoInfo.StartTime;
+                    LiveStatus = LiveStatus.Onair;
                     break;
                 case Mntone.Nico2.Live.StatusType.ComingSoon:
-                    DurationText = $"開始予定: {StartTime.LocalDateTime.ToString("g")}";
+                    Duration = TimeSpan.Zero;
+                    LiveStatus = LiveStatus.Reserved;
                     break;
                 case Mntone.Nico2.Live.StatusType.Closed:
-                    DurationText = $"放送終了";
+                    //Duration = liveVideoInfo.end;
+                    // 放送中のリコメンドであるためタイムシフトはオススメに表示ｓれない
+                    LiveStatus = LiveStatus.Past;
+                    throw new NotSupportedException();
                     break;
                 default:
                     break;
             }
-
-            OptionText = DurationText;
-
-            var endTime = liveVideoInfo.CurrentStatus == StatusType.Closed ? DateTimeOffset.Now + TimeSpan.FromMinutes(60) : DateTime.MaxValue;
         }
 
-
-        public void Setup(LiveSearchResultItem liveVideoInfo)
+        public void Setup(LiveSearchPageLiveContentItem item)
         {
-            CommunityName = liveVideoInfo.CommunityText;
-            CommunityThumbnail = liveVideoInfo.CommunityIcon ?? liveVideoInfo.ThumbnailUrl;
+            CommunityName = item.ProviderName;
+            CommunityThumbnail = item.ProviderIcon?.OriginalString;
 
-            CommunityGlobalId = liveVideoInfo.CommunityId?.ToString() ?? liveVideoInfo.ChannelId?.ToString() ?? string.Empty;
-            CommunityType = liveVideoInfo.GetCommunityType();
+            CommunityGlobalId = item.ProviderId;
+            CommunityType = item.ProviderType switch
+            {
+                ProviderType.Channel => CommunityType.Channel,
+                ProviderType.Community => CommunityType.Community,
+                ProviderType.Official => CommunityType.Official,
+                _ => throw new NotSupportedException(),
+            };
 
-            LiveTitle = liveVideoInfo.Title;
-            ViewCounter = liveVideoInfo.ViewCounter ?? 0;
-            CommentCount = liveVideoInfo.CommentCounter ?? 0;
-            OpenTime = new DateTimeOffset(liveVideoInfo.OpenTime ?? DateTime.MinValue, TimeSpan.FromHours(9));
-            StartTime = new DateTimeOffset(liveVideoInfo.StartTime ?? DateTime.MinValue, TimeSpan.FromHours(9));
-            EndTime = new DateTimeOffset(liveVideoInfo.LiveEndTime ?? DateTime.MinValue, TimeSpan.FromHours(9));
-            IsTimeshiftEnabled = liveVideoInfo.TimeshiftEnabled ?? false;
-            IsCommunityMemberOnly = liveVideoInfo.MemberOnly ?? false;
+            LiveTitle = item.Title;
+            ShortDescription = new string(item.ShortDescription.Where(x => x is not '\n' && x is not '\t').ToArray());
+            ViewCounter = item.VisitorCount;
+            CommentCount = item.CommentCount;
+            TimeshiftCount = item.TimeshiftCount;
+            StartTime = item.StartAt;
+            IsTimeshiftEnabled = item.IsTimeshiftAvairable || item.LiveStatus == LiveSearchItemStatus.PastAndPresentTimeshift;
+            IsCommunityMemberOnly = item.IsMemberOnly;
+            IsOfficialContent = item.ProviderType is ProviderType.Official;
+            IsChannelContent = item.ProviderType is ProviderType.Channel;
+            IsPayRequired = item.IsRequerePay;
 
-            Label = liveVideoInfo.Title;
-            AddImageUrl(CommunityThumbnail);
+            ThumbnailUrl = item.Thumbnail?.OriginalString;
 
-            Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
+            LiveStatus = item.LiveStatus switch
+            {
+                LiveSearchItemStatus.Reserved => LiveStatus.Reserved,
+                LiveSearchItemStatus.OnAir => LiveStatus.Onair,
+                LiveSearchItemStatus.PastAndPresentTimeshift => LiveStatus.Past,
+                LiveSearchItemStatus.PastAndNotPresentTimeshift => LiveStatus.Past,
+            };
 
-            if (StartTime > DateTimeOffset.Now)
+            if (item.LiveStatus is LiveSearchItemStatus.Reserved)
             {
                 // 予約
-                DurationText = $" 開始予定: {StartTime.LocalDateTime.ToString("g")}";
+                //Duration = DateTime.Now - StartTime.LocalDateTime;
             }
-            else if (EndTime > DateTimeOffset.Now)
+            else if (item.LiveStatus is LiveSearchItemStatus.OnAir)
             {
-                var duration = DateTimeOffset.Now - StartTime;
-                // 放送中
-                if (duration.Hours > 0)
-                {
-                    DurationText = $"{duration.Hours}時間 {duration.Minutes}分 経過";
-                }
-                else
-                {
-                    DurationText = $"{duration.Minutes}分 経過";
-                }
+                Duration = DateTimeOffset.Now - StartTime;                
             }
             else
             {
-                var duration = EndTime - StartTime;
-                // 終了
-                if (duration.Hours > 0)
-                {
-                    DurationText = $"{EndTime.ToString("g")} 終了（{duration.Hours}時間 {duration.Minutes}分）";
-                }
-                else
-                {
-                    DurationText = $"{EndTime.ToString("g")} 終了（{duration.Minutes}分）";
-                }
+                Duration = item.Duration;
+                EndTime = item.StartAt + item.Duration;
             }
-
-            OptionText = DurationText;
         }
 
         public void Setup(NicoLive liveData)
         {
             CommunityName = liveData.BroadcasterName;
-            if (liveData.ThumbnailUrl != null)
-            {
-                CommunityThumbnail = liveData.ThumbnailUrl;
-            }
-            else
-            {
-                CommunityThumbnail = liveData.PictureUrl;
-            }
+            CommunityThumbnail = liveData.PictureUrl;
 
             CommunityGlobalId = liveData.BroadcasterId;
             CommunityType = liveData.ProviderType;
 
             LiveTitle = liveData.Title;
+            ShortDescription = liveData.Description;
             ViewCounter = liveData.ViewCount;
             CommentCount = liveData.CommentCount;
-            OpenTime = liveData.OpenTime;
-            StartTime = liveData.StartTime;
-            EndTime = liveData.EndTime;
+            StartTime = liveData.StartTime.LocalDateTime;
+            EndTime = liveData.EndTime.LocalDateTime;
             IsTimeshiftEnabled = liveData.TimeshiftEnabled;
             IsCommunityMemberOnly = liveData.IsMemberOnly;
 
-            Label = LiveTitle;
-            AddImageUrl(CommunityThumbnail);
-
-            Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
+            ThumbnailUrl = liveData.ThumbnailUrl;
 
             if (StartTime > DateTimeOffset.Now)
             {
-                // 予約
-                DurationText = $" 開始予定: {StartTime.LocalDateTime.ToString("g")}";
+                LiveStatus = LiveStatus.Reserved;
             }
             else if (EndTime > DateTimeOffset.Now)
             {
-                var duration = DateTimeOffset.Now - StartTime;
-                // 放送中
-                if (duration.Hours > 0)
-                {
-                    DurationText = $"{duration.Hours}時間 {duration.Minutes}分 経過";
-                }
-                else
-                {
-                    DurationText = $"{duration.Minutes}分 経過";
-                }
+                LiveStatus = LiveStatus.Onair;
+                Duration = DateTimeOffset.Now - StartTime;
             }
             else
             {
-                var duration = EndTime - StartTime;
-                // 終了
-                if (duration.Hours > 0)
-                {
-                    DurationText = $"{EndTime.LocalDateTime.ToString("g")} 終了（{duration.Hours}時間 {duration.Minutes}分）";
-                }
-                else
-                {
-                    DurationText = $"{EndTime.LocalDateTime.ToString("g")} 終了（{duration.Minutes}分）";
-                }
+                LiveStatus = LiveStatus.Past;
+                Duration = EndTime.Value - StartTime;
             }
-
-            OptionText = DurationText;
         }
 
         public void Setup(Mntone.Nico2.Nicocas.Live.NicoCasLiveProgramData liveData)
         {
             //CommunityName = data.;
-            
-            if (liveData.ThumbnailUrl != null)
-            {
-                CommunityThumbnail = liveData.ThumbnailUrl;
-            }
+
+            ThumbnailUrl = liveData.ThumbnailUrl;
+            CommunityThumbnail = liveData.ThumbnailUrl;
 
             CommunityGlobalId = liveData.ProviderId;
             CommunityType = liveData.CommunityType;
 
             LiveTitle = liveData.Title;
+            ShortDescription = liveData.Description;
             ViewCounter = liveData.Viewers;
             CommentCount = liveData.Comments;
-            OpenTime = liveData.OnAirTime.BeginAt;
             StartTime = liveData.ShowTime.BeginAt;
             EndTime = liveData.ShowTime.EndAt;
             IsTimeshiftEnabled = liveData.Timeshift.Enabled;
             IsCommunityMemberOnly = liveData.IsMemberOnly;
 
-            Label = LiveTitle;
-            AddImageUrl(CommunityThumbnail);
-
-            Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
 
             if (StartTime > DateTimeOffset.Now)
             {
                 // 予約
-                DurationText = $" 開始予定: {StartTime.LocalDateTime.ToString("g")}";
+                LiveStatus = LiveStatus.Reserved;
             }
             else if (EndTime > DateTimeOffset.Now)
             {
-                var duration = DateTimeOffset.Now - StartTime;
-                // 放送中
-                if (duration.Hours > 0)
-                {
-                    DurationText = $"{duration.Hours}時間 {duration.Minutes}分 経過";
-                }
-                else
-                {
-                    DurationText = $"{duration.Minutes}分 経過";
-                }
+                LiveStatus = LiveStatus.Onair;
+                Duration = DateTimeOffset.Now - StartTime;
             }
             else
             {
-                var duration = EndTime - StartTime;
-                // 終了
-                if (duration.Hours > 0)
-                {
-                    DurationText = $"{EndTime.LocalDateTime.ToString("g")} 終了（{duration.Hours}時間 {duration.Minutes}分）";
-                }
-                else
-                {
-                    DurationText = $"{EndTime.LocalDateTime.ToString("g")} 終了（{duration.Minutes}分）";
-                }
+                LiveStatus = LiveStatus.Past;
+                Duration = EndTime.Value - StartTime;
             }
-
-            OptionText = DurationText;
         }
 
+        /*
         private void ResetElements()
         {
             Elements.Clear();
@@ -395,6 +329,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.LivePages
                 Elements.Add(LiveContentElement.Timeshift_Enable);
             }
         }
+        */
 
 
 
@@ -406,7 +341,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.LivePages
                 return _DeleteReservationCommand
                     ?? (_DeleteReservationCommand = new DelegateCommand(async () =>
                     {
-                        var isDeleted = await DeleteReservation(LiveId, Label);
+                        var isDeleted = await DeleteReservation(LiveId, LiveTitle);
 
                         if (isDeleted)
                         {
@@ -415,8 +350,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.LivePages
                             RaisePropertyChanged(nameof(Reservation));
                             ReservationStatus = null;
                             RaisePropertyChanged(nameof(ReservationStatus));
-
-                            ResetElements();
 
                             AddReservationCommand.RaiseCanExecuteChanged();
                         }
@@ -490,7 +423,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.LivePages
                 return _AddReservationCommand
                     ?? (_AddReservationCommand = new DelegateCommand(async () =>
                     {
-                        var result = await AddReservationAsync(LiveId, Label);
+                        var result = await AddReservationAsync(LiveId, LiveTitle);
                         if (result)
                         {
                             var reservationProvider = App.Current.Container.Resolve<LoginUserLiveReservationProvider>();
@@ -503,10 +436,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.LivePages
 
                             RaisePropertyChanged(nameof(Reservation));
                             RaisePropertyChanged(nameof(ReservationStatus));
-                            ResetElements();
                         }
                     }
-                    , () => IsTimeshiftEnabled && (OpenTime - TimeSpan.FromMinutes(30) > DateTime.Now || _niconicoSession.IsPremiumAccount) &&  Reservation == null
+                    , () => IsTimeshiftEnabled && (StartTime - TimeSpan.FromMinutes(30) > DateTime.Now || _niconicoSession.IsPremiumAccount) &&  Reservation == null
                     ));
             }
         }
@@ -572,23 +504,4 @@ namespace Hohoema.Presentation.ViewModels.Pages.LivePages
     }
 
 
-
-    public enum LiveContentElement 
-    {
-        Provider_Community,
-        Provider_Channel,
-        Provider_Official,
-
-        Status_Pending,
-        Status_Open,
-        Status_Start,
-        Status_Closed,
-
-        Timeshift_Enable,
-        Timeshift_Preserved,
-        Timeshift_OutDated,
-        Timeshift_Watch,
-
-        MemberOnly, 
-    }
 }

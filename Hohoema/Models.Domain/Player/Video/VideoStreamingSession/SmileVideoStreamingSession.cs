@@ -83,7 +83,7 @@ namespace Hohoema.Models.Domain.Player.Video
         }
 
 
-        public async Task<Uri> GetDownloadUrlAndSetupDonwloadSession()
+        public async Task<Uri> GetDownloadUrlAndSetupDownloadSession()
         {
             var videoUri = await GetPlyaingVideoMediaSource();
 

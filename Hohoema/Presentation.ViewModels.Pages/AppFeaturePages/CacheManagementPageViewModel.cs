@@ -29,7 +29,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
         public CacheManagementPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             VideoCacheSettings cacheSettings,
-            VideoCacheManager videoCacheManager,
+            VideoCacheManagerLegacy videoCacheManager,
             CacheSaveFolder cacheSaveFolder,
             NicoVideoProvider nicoVideoProvider,
             PageManager pageManager,
@@ -127,7 +127,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public VideoCacheSettings CacheSettings { get; }
-        public VideoCacheManager VideoCacheManager { get; }
+        public VideoCacheManagerLegacy VideoCacheManager { get; }
         public CacheSaveFolder CacheSaveFolder { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public NotificationService NotificationService { get; }
@@ -310,14 +310,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 	public class CacheVideoInfoLoadingSource : HohoemaIncrementalSourceBase<CacheVideoViewModel>
 	{
 
-        public CacheVideoInfoLoadingSource(VideoCacheManager cacheManager, NicoVideoProvider nicoVideoProvider)
+        public CacheVideoInfoLoadingSource(VideoCacheManagerLegacy cacheManager, NicoVideoProvider nicoVideoProvider)
             : base()
         {
             VideoCacheManager = cacheManager;
             NicoVideoProvider = nicoVideoProvider;
         }
 
-        public VideoCacheManager VideoCacheManager { get; }
+        public VideoCacheManagerLegacy VideoCacheManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
 
         public override uint OneTimeLoadCount => (uint)10;

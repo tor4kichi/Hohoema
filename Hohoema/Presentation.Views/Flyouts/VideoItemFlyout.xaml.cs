@@ -78,7 +78,7 @@ namespace Hohoema.Presentation.Views.Flyouts
         public static UserMylistManager UserMylistManager { get; }
         public static LocalMylistManager LocalMylistManager { get; }
         public static SubscriptionManager SubscriptionManager { get; }
-        public static VideoCacheManager VideoCacheManager { get; }
+        public static VideoCacheManagerLegacy VideoCacheManager { get; }
         public static VideoItemsSelectionContext VideoItemsSelectionContext { get; }
         public static MylistCreateCommand CreateMylistCommand { get; }
         public static LocalPlaylistCreateCommand CreateLocalMylistCommand { get; }
@@ -98,7 +98,7 @@ namespace Hohoema.Presentation.Views.Flyouts
             UserMylistManager = App.Current.Container.Resolve<UserMylistManager>();
             LocalMylistManager = App.Current.Container.Resolve<LocalMylistManager>();
             SubscriptionManager = App.Current.Container.Resolve<SubscriptionManager>();
-            VideoCacheManager = App.Current.Container.Resolve<VideoCacheManager>();
+            VideoCacheManager = App.Current.Container.Resolve<VideoCacheManagerLegacy>();
             VideoItemsSelectionContext = App.Current.Container.Resolve<VideoItemsSelectionContext>();
         }
 

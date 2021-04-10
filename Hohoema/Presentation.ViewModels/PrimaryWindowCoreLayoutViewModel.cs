@@ -28,6 +28,10 @@ using Prism.Navigation;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using System.Windows.Input;
 using Hohoema.Models.Domain.Playlist;
+using Windows.UI.Xaml;
+using NiconicoLiveToolkit.Live.Notify;
+using Hohoema.Presentation.ViewModels.LivePages.Commands;
+using NiconicoLiveToolkit.Live;
 
 namespace Hohoema.Presentation.ViewModels
 {  
@@ -50,6 +54,7 @@ namespace Hohoema.Presentation.ViewModels
         public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
         private readonly UserMylistManager _userMylistManager;
         private readonly LocalMylistManager _localMylistManager;
+        public OpenLiveContentCommand OpenLiveContentCommand { get; }
         private readonly DialogService _dialogService;
 
 
@@ -81,7 +86,8 @@ namespace Hohoema.Presentation.ViewModels
             VideoItemsSelectionContext videoItemsSelectionContext,
             QueueMenuItemViewModel queueMenuItemViewModel,
             UserMylistManager userMylistManager,
-            LocalMylistManager localMylistManager
+            LocalMylistManager localMylistManager,
+            OpenLiveContentCommand openLiveContentCommand
             )
         {
             EventAggregator = eventAggregator;
@@ -131,6 +137,7 @@ namespace Hohoema.Presentation.ViewModels
             _queueMenuItemViewModel = queueMenuItemViewModel;
             _userMylistManager = userMylistManager;
             _localMylistManager = localMylistManager;
+            OpenLiveContentCommand = openLiveContentCommand;
             _pinsMenuSubItemViewModel = new PinsMenuSubItemViewModel("Pin".Translate(), PinSettings, _dialogService);
             _localMylistMenuSubItemViewModel = new LocalMylistSubMenuItemViewModel(_localMylistManager, PageManager.OpenPageCommand);
 
@@ -139,6 +146,7 @@ namespace Hohoema.Presentation.ViewModels
             {
                 _pinsMenuSubItemViewModel,
                 _queueMenuItemViewModel,
+                new LogginUserLiveSummaryItemViewModel(NiconicoSession, OpenLiveContentCommand),
                 new SeparatorMenuItemViewModel(),
                 new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
                 new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo),
@@ -527,4 +535,128 @@ namespace Hohoema.Presentation.ViewModels
 
         public LocalPlaylist LocalPlaylist { get; }
     }
+
+
+    public sealed class LogginUserLiveSummaryItemViewModel : HohoemaListingPageItemBase
+    {
+        private readonly NiconicoSession _niconicoSession;
+        private readonly DispatcherTimer _timer;
+
+        private long _NotifyCount;
+        public long NotifyCount
+        {
+            get => _NotifyCount;
+            set => SetProperty(ref _NotifyCount, value);
+        }
+
+        private bool _IsUnread;
+        public bool IsUnread
+        {
+            get => _IsUnread;
+            set => SetProperty(ref _IsUnread, value);
+        }
+
+
+        public ObservableCollection<LiveContentMenuItemViewModel> Items { get; }
+        public OpenLiveContentCommand OpenLiveContentCommand { get; }
+
+        public LogginUserLiveSummaryItemViewModel(NiconicoSession niconicoSession, OpenLiveContentCommand openLiveContentCommand)
+        {
+            _niconicoSession = niconicoSession;
+            OpenLiveContentCommand = openLiveContentCommand;
+            Items = new ObservableCollection<LiveContentMenuItemViewModel>();
+
+            _timer = new Windows.UI.Xaml.DispatcherTimer()
+            {
+                Interval = TimeSpan.FromMinutes(1),
+            };
+
+            _timer.Tick += Timer_Tick;
+
+            if (_niconicoSession.IsLoggedIn)
+            {
+                _timer.Start();
+            }
+            else
+            {
+                _timer.Stop();
+            }
+
+            _niconicoSession.LogIn += _niconicoSession_LogIn;
+            _niconicoSession.LogOut += _niconicoSession_LogOut;
+        }
+
+        private void Timer_Tick(object sender, object e)
+        {
+            UpdateNotify();
+        }
+
+        private async void UpdateNotify()
+        {
+            var unread = await _niconicoSession.LiveContext.Live.LiveNotify.GetUnreadLiveNotifyAsync();
+            IsUnread = unread.Data.IsUnread;
+            NotifyCount = unread.Data.Count;
+        }
+
+        private void _niconicoSession_LogOut(object sender, EventArgs e)
+        {
+            _timer.Stop();
+        }
+
+        private void _niconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
+        {
+            _timer.Interval = e.IsPremium ? TimeSpan.FromMinutes(1) : TimeSpan.FromMinutes(3);
+            _timer.Start();
+            UpdateNotify();
+        }
+
+        DateTime _nextRefreshAvairableAt = DateTime.Now;
+
+        public async void RefreshItems()
+        {
+            if (_nextRefreshAvairableAt > DateTime.Now)
+            {
+                return;
+            }
+
+            _nextRefreshAvairableAt = DateTime.Now + TimeSpan.FromMinutes(1);
+
+            var res = await _niconicoSession.LiveContext.Live.LiveNotify.GetLiveNotifyAsync();
+            Items.Clear();
+            foreach (var data in res.Data.NotifyboxContent)
+            {
+                Items.Add(new LiveContentMenuItemViewModel(data));
+            }
+
+            IsUnread = false;
+        }
+    }
+
+    public sealed class LiveContentMenuItemViewModel : HohoemaListingPageItemBase, Models.Domain.Niconico.Live.ILiveContent
+    {
+        private readonly NotifyboxContent _content;
+
+        public string Title => _content.Title;
+        public string CommunityName => _content.CommunityName;
+        public string ThumbnailUrl => _content.ThumbnailUrl.OriginalString;
+        private string _liveId;
+        public string LiveId => _liveId ??= "lv" + _content.Id;
+
+        public string ProviderId => throw new NotImplementedException();
+        public string ProviderName => CommunityName;
+        public ProviderType ProviderType => _content.ProviderType;
+        public string Id => LiveId;
+
+        public TimeSpan? _elapsedTime;
+        public TimeSpan ElapsedTime => _elapsedTime ??= TimeSpan.FromSeconds(_content.ElapsedTime);
+
+        public bool IsChannelContent => ProviderType is ProviderType.Channel;
+        public bool IsOfficialContent => ProviderType is ProviderType.Official;
+
+        public LiveContentMenuItemViewModel(NotifyboxContent content)
+        {
+            _content = content;
+        }
+    }
+
 }
