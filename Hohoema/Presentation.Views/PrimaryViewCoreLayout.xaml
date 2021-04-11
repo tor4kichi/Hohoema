@@ -596,7 +596,7 @@
 
             <AutoSuggestBox.ItemTemplate>
               <DataTemplate>
-                <TextBlock Text="{Binding Id}" />
+                <TextBlock Text="{Binding Id, Converter={StaticResource LocalizeConverter}}" />
               </DataTemplate>
             </AutoSuggestBox.ItemTemplate>
           </AutoSuggestBox>
