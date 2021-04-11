@@ -118,7 +118,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
 
                             vm.RemoveToken = _HistoriesResponse.Token;
 
-                            _ = vm.InitializeAsync(default);
+                            await vm.InitializeAsync(default).ConfigureAwait(false);
 
                             Histories.Add(vm);
                         }
@@ -185,11 +185,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
                 vm.SetTitle(item.Title);
                 vm.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
                 vm.SetVideoDuration(item.Length);
-
-                yield return vm;
-
                 await vm.InitializeAsync(ct).ConfigureAwait(false);
-
+                yield return vm;
                 ct.ThrowIfCancellationRequested();
             }
         }

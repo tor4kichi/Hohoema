@@ -394,9 +394,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
 
                 vm.Rank = (uint)(head + index + 1);
 
-                yield return vm;
-
                 await vm.InitializeAsync(ct).ConfigureAwait(false);
+
+                yield return vm;
 
                 index++;
 

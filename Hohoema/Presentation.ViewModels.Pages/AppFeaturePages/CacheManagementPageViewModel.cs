@@ -333,13 +333,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
                 var video = items.FirstOrDefault(x => x.VideoId == item.VideoId);
                 var vm = video is not null ? new CacheVideoViewModel(video) : new CacheVideoViewModel(item.VideoId);
                 vm.CacheRequestTime = item.RequestAt;
-                
-                yield return vm;
 
                 if (video is null)
                 {
                     await vm.InitializeAsync(ct).ConfigureAwait(false);
                 }
+
+                yield return vm;
 
                 ct.ThrowIfCancellationRequested();
             }

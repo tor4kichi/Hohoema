@@ -165,9 +165,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.SeriesPages
                 itemVM.SetVideoDuration(item.Duration);
                 itemVM.SetDescription(item.WatchCount, item.CommentCount, item.MylistCount);
                 itemVM.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
-                yield return itemVM;
 
-                _ = itemVM.InitializeAsync(ct).ConfigureAwait(false);
+                await itemVM.InitializeAsync(ct).ConfigureAwait(false);
+
+                yield return itemVM;
 
                 ct.ThrowIfCancellationRequested();
             }

@@ -157,7 +157,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
                     _nicoVideoRepository.AddOrUpdate(video);
 
                     var vm = new RecommendVideoListItem(item);
-                    vm.SetupFromThumbnail(video);
+                    vm.Setup(video);
                     yield return vm;
 
                     ct.ThrowIfCancellationRequested();

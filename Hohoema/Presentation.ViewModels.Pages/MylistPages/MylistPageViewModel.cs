@@ -828,8 +828,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             foreach (var item in items)
             {
                 var vm = new VideoInfoControlViewModel(item);
-                yield return vm;
                 await vm.InitializeAsync(ct).ConfigureAwait(false);
+                yield return vm;
             }
         }
 

@@ -178,9 +178,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserPages
                 vm.SetSubmitDate(item.RegisteredAt.DateTime);
                 vm.SetVideoDuration(TimeSpan.FromSeconds(item.Duration));
                 vm.SetDescription((int)item.Count.View, (int)item.Count.Comment, (int)item.Count.Mylist);
-                yield return vm;
 
                 await vm.InitializeAsync(ct).ConfigureAwait(false);
+                yield return vm;
 
                 ct.ThrowIfCancellationRequested();
             }

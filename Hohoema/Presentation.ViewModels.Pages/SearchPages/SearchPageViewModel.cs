@@ -837,10 +837,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
                     var vm = new VideoInfoControlViewModel(item.Video.Id);
 
                     vm.SetupDisplay(item);
-					
-                    yield return vm;
 
 					await vm.InitializeAsync(ct).ConfigureAwait(false);
+
+					yield return vm;
 
 					ct.ThrowIfCancellationRequested();
                 }

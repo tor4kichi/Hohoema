@@ -57,13 +57,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             if (Data != null)
             {
-                Label = Data.Title;
-                PostedAt = Data.PostedAt;
-                Length = Data.Length;
-                ViewCount = Data.ViewCount;
-                MylistCount = Data.MylistCount;
-                CommentCount = Data.CommentCount;
-                ThumbnailUrl = Data.ThumbnailUrl;
+                Setup(Data);
             }
 
             _ngSettings.VideoOwnerFilterAdded += _ngSettings_VideoOwnerFilterAdded;
@@ -499,9 +493,9 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         static FastAsyncLock _initializeLock = new FastAsyncLock();
 
-        public async Task InitializeAsync(CancellationToken ct)
+        public async ValueTask InitializeAsync(CancellationToken ct)
         {
-            using var releaser = await _initializeLock.LockAsync(ct);
+//            
 
             if (Data?.Title != null)
             {
@@ -540,11 +534,10 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             if (Data != null)
             {
-                SetupFromThumbnail(Data);
-
-                SubscriptionWatchedIfNotWatch(Data);
-                UpdateIsHidenVideoOwner(Data);
-                SubscribeCacheState(Data);
+                using (await _initializeLock.LockAsync(ct))
+                {
+                    Setup(Data);
+                }
             }
 
 
@@ -555,7 +548,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        public void SetupFromThumbnail(NicoVideo info)
+        public void Setup(NicoVideo info)
         {
 //            Debug.WriteLine("thumbnail reflect : " + info.RawVideoId);
             
@@ -577,6 +570,9 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 ProviderType = info.Owner.UserType;
             }
 
+            SubscriptionWatchedIfNotWatch(info);
+            UpdateIsHidenVideoOwner(info);
+            SubscribeCacheState(info);
         }
 
         internal void SetDescription(int viewcount, int commentCount, int mylistCount)
