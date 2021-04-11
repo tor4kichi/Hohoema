@@ -185,24 +185,24 @@
                   </uwptoolkit:DockPanel>
 
                   <StackPanel Orientation="Horizontal" XYFocusUpNavigationStrategy="NavigationDirectionDistance"
-                              Visibility="{Binding VideoDetails.Series.PrevVideo, Converter={StaticResource NotNullToVisibility}}"
+                              Visibility="{Binding VideoDetails.Series.Video.Prev, Converter={StaticResource NotNullToVisibility}}"
                               >
                     <TextBlock VerticalAlignment="Center" Margin="0 0 8 0">
                     <Run Text="{i18nExt:Localize Key=Preview}" />:
                     </TextBlock>
-                    <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetails.Series.PrevVideo.Id}">
-                      <TextBlock Text="{Binding VideoDetails.Series.PrevVideo.Title}" />
+                    <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetails.Series.Video.Prev.Id}">
+                      <TextBlock Text="{Binding VideoDetails.Series.Video.Prev.Title}" />
                     </HyperlinkButton>
                   </StackPanel>
 
                   <StackPanel Orientation="Horizontal"
-                              Visibility="{Binding VideoDetails.Series.NextVideo, Converter={StaticResource NotNullToVisibility}}"
+                              Visibility="{Binding VideoDetails.Series.Video.Next, Converter={StaticResource NotNullToVisibility}}"
                               >
                     <TextBlock VerticalAlignment="Center" Margin="0 0 8 0">
                     <Run Text="{i18nExt:Localize Key=Next}" />:
                     </TextBlock>
-                    <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetails.Series.NextVideo.Id}">
-                      <TextBlock Text="{Binding VideoDetails.Series.NextVideo.Title}" />
+                    <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetails.Series.Video.Next.Id}">
+                      <TextBlock Text="{Binding VideoDetails.Series.Video.Next.Title}" />
                     </HyperlinkButton>
                   </StackPanel>
 
