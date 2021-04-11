@@ -16,7 +16,8 @@
     xmlns:system="using:System"
     xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts" 
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-  xmlns:locales="using:Hohoema.Locales" xmlns:appModels="using:Hohoema.Models.Domain.Application">
+  xmlns:locales="using:Hohoema.Locales" 
+  xmlns:appModels="using:Hohoema.Models.Domain.Application">
 
   <prism:PrismApplication.Resources>
 
@@ -214,7 +215,7 @@
           <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                Visibility="{Binding IsCached.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                >
-                        (<Run Text="{Binding CacheState.Value}" />)
+                        (<Run Text="{Binding CacheState.Value, Converter={StaticResource LocalizeConverter}}" />)
           </TextBlock>
         </StackPanel>
       </DataTemplate>

@@ -16,11 +16,8 @@
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
-
-    
-    <Grid>
-
-        <!--
+  <Grid>
+    <!--
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
                 <VisualState>
@@ -37,19 +34,19 @@
         -->
 
 
-        <toolkit:DockPanel>
+    <toolkit:DockPanel>
 
 
-            <Border toolkit:DockPanel.Dock="Bottom" >
+      <Border toolkit:DockPanel.Dock="Bottom" >
 
-                <ItemsControl ItemsSource="{Binding CachedQualityVideos}"
+        <ItemsControl ItemsSource="{Binding CachedQualityVideos}"
                               HorizontalContentAlignment="Stretch"
                               IsTabStop="False"
                               >
 
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <!-- 画質ごとのキャッシュ状態を表示 
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <!-- 画質ごとのキャッシュ状態を表示 
                             
                             キャッシュリクエストされていない -> 非表示
                             キャッシュ待機中 -> 灰色
@@ -57,78 +54,71 @@
                             キャッシュ済み -> 緑色
                             
                             -->
-                            <Grid Visibility="{Binding IsCacheDownloading.Value, Converter={StaticResource BooleanToVisibility}}">
-                                <ProgressBar Maximum="100.0" 
+              <Grid Visibility="{Binding IsCacheDownloading.Value, Converter={StaticResource BooleanToVisibility}}">
+                <ProgressBar Maximum="100.0" 
                                      Minimum="0.0" 
                                      Value="{Binding ProgressPercent.Value}"
                                              Height="24"
                                      />
-                                <toolkit:DockPanel 
+                <toolkit:DockPanel 
                                Margin="8 4"
                                >
-                                    <TextBlock toolkit:DockPanel.Dock="Left" 
+                  <TextBlock toolkit:DockPanel.Dock="Left" 
                                            Margin="8 0"
                                            FontSize="14"
                                            VerticalAlignment="Center"
                                                 >
                                         <Run Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />画質
-                                    </TextBlock>
+                  </TextBlock>
 
-                                    <TextBlock toolkit:DockPanel.Dock="Right" 
+                  <TextBlock toolkit:DockPanel.Dock="Right" 
                                            Margin="8 0 0 0"
                                            FontSize="14"
                                            VerticalAlignment="Center"
                                                 >
                                         <Run Text="{Binding ProgressPercent.Value}" />%
-                                    </TextBlock>
+                  </TextBlock>
 
 
 
 
-                                    <Border />
+                  <Border />
 
-                                </toolkit:DockPanel>
+                </toolkit:DockPanel>
 
-                            </Grid>
-                            
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+              </Grid>
+
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
 
 
-            </Border>
+      </Border>
 
-            <Grid >
+      <Grid >
 
-                <hohoemalistitem:HohoemaListItemMiniCard />
+        <hohoemalistitem:HohoemaListItemMiniCard />
 
-                <ItemsControl ItemsSource="{Binding CachedQualityVideos}"
+        <ItemsControl ItemsSource="{Binding CachedQualityVideos}"
                               ItemTemplate="{StaticResource QualityVideoTemplate_TV}"
                               HorizontalAlignment="Right"
                               VerticalAlignment="Bottom"
                               IsTabStop="False"
                               >
-                    <!--
+          <!--
                     <ItemsControl.ItemContainerStyle>
                         <Style TargetType="ContentPresenter">
                             <Setter Property="Margin" Value="8 0 0 0" />
                         </Style>
                     </ItemsControl.ItemContainerStyle>
                     -->
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
-
-
-
-            </Grid>
-
-
-        </toolkit:DockPanel>
-
-    </Grid>
-
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+        </ItemsControl>
+      </Grid>
+    </toolkit:DockPanel>
+  </Grid>
 </UserControl>

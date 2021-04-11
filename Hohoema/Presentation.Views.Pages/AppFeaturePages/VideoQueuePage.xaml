@@ -10,7 +10,11 @@
     xmlns:mvvm="using:Prism.Mvvm"
     xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
-    xmlns:controls="using:Hohoema.Presentation.Views.Controls" xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage" xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts" xmlns:windowsTriggers="using:WindowsStateTriggers"
+    xmlns:controls="using:Hohoema.Presentation.Views.Controls" 
+  xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage" 
+  xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts" 
+  xmlns:windowsTriggers="using:WindowsStateTriggers"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   NavigationCacheMode="Enabled"
@@ -44,17 +48,17 @@
 
                   <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
-                                Label="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                                Label="{i18nExt:Localize Key=PlayAll}"
                                 Command="{Binding PlaylistPlayAllCommand}"
                                 CommandParameter="{Binding Playlist}"></AppBarButton>
 
                   
                   <!-- 非選択中 -->
-                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
+                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
                   
                   <AppBarButton x:Name="ScrollToTopButton"
                                 Icon="Up"
-                                Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                                Label="{i18nExt:Localize Key=ReturnToPageTop}">
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Click">
                         <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}"
@@ -65,7 +69,7 @@
                 </CommandBar.PrimaryCommands>
                 <CommandBar.SecondaryCommands>
                   <AppBarButton x:Name="RemoveWatchedItemsButton"
-                                Label="{Binding Source=RemoveWatchedItems, Converter={StaticResource LocalizeConverter}}"
+                                Label="{i18nExt:Localize Key=RemoveWatchedItems}"
                                 Command="{Binding RemoveWatchedItemsInAfterWatchPlaylistCommand}"
                                 Icon="Delete"
                                 />
@@ -88,7 +92,7 @@
     </videolistPage:VideoItemsListView>
 
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{Binding Source=LocalPlaylistNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+      <TextBlock Text="{i18nExt:Localize Key=LocalPlaylistNoItems}"
                      Style="{StaticResource SubtitleTextBlockStyle}"
                      Opacity="0.8"
                      />

@@ -4,19 +4,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:local="using:Hohoema.Presentation.Views"
-    xmlns:mvvm="using:Prism.Mvvm"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:i="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
-    xmlns:controls="using:Hohoema.Presentation.Views.Controls"
-    xmlns:hohoemalistItem="using:Hohoema.Presentation.Views.HohoemaListItem"
-    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
-    xmlns:actions="using:Hohoema.Presentation.Views.Actions"
-      xmlns:windowsStateTriggers="using:WindowsStateTriggers" xmlns:communityViews="using:Hohoema.Presentation.Views.Pages.CommunityPages"
+  xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
+  xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+  xmlns:actions="using:Hohoema.Presentation.Views.Actions"
+  xmlns:communityViews="using:Hohoema.Presentation.Views.Pages.CommunityPages"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
@@ -64,14 +60,14 @@
             <StackPanel >
               <CommandBar>
                 <CommandBar.PrimaryCommands>
-                  <AppBarButton x:Name="ScrollToTopButton" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
+                  <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Click">
                         <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
                       </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                   </AppBarButton>
-                  <AppBarButton Background="Transparent" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding RefreshCommand}"  Icon="Refresh" />
+                  <AppBarButton Background="Transparent" Label="{i18nExt:Localize Key=Refresh}" Command="{Binding RefreshCommand}"  Icon="Refresh" />
                 </CommandBar.PrimaryCommands>
                 <CommandBar.Content>
                   <toolkit:DockPanel Margin="0 0 0 0" x:Name="TitleLayout">
@@ -104,7 +100,7 @@
     </StackPanel>
 
     <Grid x:Name="EmptyItemsLayout" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{Binding Source=CommunitySearchNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
+      <TextBlock Text="{i18nExt:Localize Key=CommunitySearchNoItems}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
     </Grid>
 
 

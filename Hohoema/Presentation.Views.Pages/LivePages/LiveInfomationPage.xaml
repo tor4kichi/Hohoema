@@ -21,7 +21,10 @@
       xmlns:recommend="using:Mntone.Nico2.Live.Recommend"
       xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
       xmlns:live="using:Mntone.Nico2.Live"
-      xmlns:windowsStateTriggers="using:WindowsStateTriggers" xmlns:liveVM="using:Hohoema.Presentation.ViewModels.Pages.LivePages" xmlns:liveViews="using:Hohoema.Presentation.Views.Pages.LivePages"
+      xmlns:windowsStateTriggers="using:WindowsStateTriggers"
+      xmlns:liveVM="using:Hohoema.Presentation.ViewModels.Pages.LivePages" 
+      xmlns:liveViews="using:Hohoema.Presentation.Views.Pages.LivePages"
+      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       DataContext="{x:Null}"
       NavigationCacheMode="Enabled">
   <Grid>
@@ -66,11 +69,11 @@
                           Margin="16 8"
                           >
                 <TextBlock Opacity="0.7">
-                                <Run Text="{Binding Source=LiveStreamingStartAt, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding LiveProgram.ShowTime.BeginAt, Converter={StaticResource DateTimeToString}}" /><LineBreak />
-                                <Run Text="{Binding Source=LiveStreamingEndAt, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding LiveProgram.ShowTime.EndAt, Converter={StaticResource DateTimeToString}}" /></TextBlock>
+                                <Run Text="{i18nExt:Localize Key=LiveStreamingStartAt}" /> <Run Text="{Binding LiveProgram.ShowTime.BeginAt, Converter={StaticResource DateTimeToString}}" /><LineBreak />
+                                <Run Text="{i18nExt:Localize Key=LiveStreamingEndAt}" /> <Run Text="{Binding LiveProgram.ShowTime.EndAt, Converter={StaticResource DateTimeToString}}" /></TextBlock>
               </StackPanel>
               <StackPanel>
-                <TextBlock Text="{Binding Source=LiveStreamingDescription, Converter={StaticResource LocalizeConverter}}"
+                <TextBlock Text="{i18nExt:Localize Key=LiveStreamingDescription}"
                            Margin="0 16 8 8"
                            Style="{StaticResource SubtitleTextBlockStyle}" />
                 <TextBox Text="{Binding LiveProgram.Description}"
@@ -97,7 +100,7 @@
                                    x:Name="DescriptionHyperlinkItems">
                 <uwptoolkit:Expander.HeaderTemplate>
                   <DataTemplate>
-                    <TextBlock Text="{Binding Source=LinkItemsInLiveStreamingDescription, Converter={StaticResource LocalizeConverter}}"
+                    <TextBlock Text="{i18nExt:Localize Key=LinkItemsInLiveStreamingDescription}"
                                Style="{StaticResource SubtitleTextBlockStyle}" />
                   </DataTemplate>
                 </uwptoolkit:Expander.HeaderTemplate>
@@ -128,10 +131,10 @@
               </uwptoolkit:Expander>
               <!-- タグ -->
               <StackPanel>
-                <TextBlock Text="{Binding Source=Tag, Converter={StaticResource LocalizeConverter}}"
+                <TextBlock Text="{i18nExt:Localize Key=Tag}"
                            Margin="0 16 8 8"
                            Style="{StaticResource SubtitleTextBlockStyle}" />
-                <TextBlock Text="{Binding Source=NoTags, Converter={StaticResource LocalizeConverter}}"
+                <TextBlock Text="{i18nExt:Localize Key=NoTags}"
                            Opacity="0.7"
                            Visibility="{Binding LiveTags, Converter={StaticResource EmptyCollectionVisibilityConverter}}" />
                 <ItemsControl ItemsSource="{Binding LiveTags}">
@@ -202,7 +205,7 @@
             <PivotItem.Header>
               <StackPanel>
                 <StackPanel Orientation="Horizontal">
-                  <TextBlock Text="{Binding Source=LiveStreamOwner, Converter={StaticResource LocalizeConverter}}" />
+                  <TextBlock Text="{i18nExt:Localize Key=LiveStreamOwner}" />
                 </StackPanel>
               </StackPanel>
             </PivotItem.Header>
@@ -219,11 +222,11 @@
                                 Visibility="Collapsed"
                                 Margin="8 0 0 16">
                       <TextBlock>
-                            <Run Text="{Binding Source=CommunityMemberCount, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding Community.UserCount}" />
+                            <Run Text="{i18nExt:Localize Key=CommunityMemberCount}" /> : <Run Text="{Binding Community.UserCount}" />
                       </TextBlock>
                       <Border Width="16" />
                       <TextBlock>
-                                <Run Text="{Binding Source=CommunityLevel, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding Community.Level}" /></TextBlock>
+                                <Run Text="{i18nExt:Localize Key=CommunityLevel}" /> : <Run Text="{Binding Community.Level}" /></TextBlock>
                     </StackPanel>
                     <TextBlock Text="{Binding Community.Label}"
                                Style="{StaticResource TitleTextBlockStyle}"
@@ -236,7 +239,7 @@
                         toolkit:DockPanel.Dock="Top" />
                 <StackPanel Orientation="Horizontal"
                             toolkit:DockPanel.Dock="Top">
-                  <Button Content="{Binding Source=CommunityDetail, Converter={StaticResource LocalizeConverter}}"
+                  <Button Content="{i18nExt:Localize Key=CommunityDetail}"
                           Command="{Binding PageManager.OpenPageCommand}"
                           CommandParameter="{Binding Community}"
                           Visibility="{Binding Community, Converter={StaticResource NotNullToVisibility}}" />
@@ -251,13 +254,13 @@
               </toolkit:DockPanel>
               <Grid x:Name="BroadcasterDesc_Official"
                     Visibility="Collapsed">
-                <TextBlock Text="{Binding Source=ThisStreamingIsPresentedByOfficial, Converter={StaticResource LocalizeConverter}}" />
+                <TextBlock Text="{i18nExt:Localize Key=ThisStreamingIsPresentedByOfficial}" />
               </Grid>
             </Grid>
           </PivotItem>
-          <PivotItem x:Name="IchibaPivotItem" Header="{Binding Source=NiconicoIchiba, Converter={StaticResource LocalizeConverter}}">
+          <PivotItem x:Name="IchibaPivotItem" Header="{i18nExt:Localize Key=NiconicoIchiba}">
             <Grid Visibility="{Binding IsIchibaInitialized}">
-              <TextBlock Text="{Binding Source=IchibaNoItems, Converter={StaticResource LocalizeConverter}}"
+              <TextBlock Text="{i18nExt:Localize Key=IchibaNoItems}"
                          Visibility="{Binding IsEmptyIchibaItems}"
                          Opacity="0.7"
                          Margin="16" />
@@ -282,10 +285,10 @@
               </ItemsControl>
             </Grid>
           </PivotItem>
-          <PivotItem x:Name="RecommendItemsPivotItem" Header="{Binding Source=Recommend, Converter={StaticResource LocalizeConverter}}">
+          <PivotItem x:Name="RecommendItemsPivotItem" Header="{i18nExt:Localize Key=Recommend}">
             <StackPanel Visibility="{Binding IsLiveRecommendInitialized}">
               <TextBlock Visibility="{Binding IsEmptyLiveRecommendItems}" 
-                         Text="{Binding Source=RecommendNotFound, Converter={StaticResource LocalizeConverter}}"
+                         Text="{i18nExt:Localize Key=RecommendNotFound}"
                          Opacity="0.7"
                          Margin="16" />
               <ListView ItemsSource="{Binding ReccomendItems}"
@@ -345,23 +348,23 @@
                 Height="48"
                 Padding="16 0">
           <StackPanel>
-            <TextBlock Text="{Binding Source=WatchLiveStreaming, Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{i18nExt:Localize Key=WatchLiveStreaming}"
                        HorizontalAlignment="Center" />
             <TextBlock Visibility="{Binding ExpiredTime, Converter={StaticResource NotNullToVisibility}}"
                        Opacity="0.8">
-                                    (<Run Text="{Binding Source=TimeShift_WatchLimit, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding ExpiredTime, Converter={StaticResource ExpiredDateTimeToString}}" />)</TextBlock>
+                                    (<Run Text="{i18nExt:Localize Key=TimeShift_WatchLimit}" /> <Run Text="{Binding ExpiredTime, Converter={StaticResource ExpiredDateTimeToString}}" />)</TextBlock>
           </StackPanel>
         </Button>
-        <Button x:Name="AddTimeshiftButton" Content="{Binding Source=AddTimeshift, Converter={StaticResource LocalizeConverter}}"
+        <Button x:Name="AddTimeshiftButton" Content="{i18nExt:Localize Key=AddTimeshift}"
                 Command="{Binding TogglePreserveTimeshift}"
                 Visibility="{Binding IsShowAddTimeshiftButton.Value}"
                 Margin="0 0 8 0" />
-        <Button x:Name="DeleteTimeshiftButton" Content="{Binding Source=AlreadyAddedTimeshift, Converter={StaticResource LocalizeConverter}}"
+        <Button x:Name="DeleteTimeshiftButton" Content="{i18nExt:Localize Key=AlreadyAddedTimeshift}"
                 Visibility="{Binding IsShowDeleteTimeshiftButton.Value}"
                 Margin="0 0 8 0">
           <Button.Flyout>
             <MenuFlyout>
-              <MenuFlyoutItem Text="{Binding Source=DeleteTimeshift, Converter={StaticResource LocalizeConverter}}"
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=DeleteTimeshift}"
                               Command="{Binding TogglePreserveTimeshift}" />
             </MenuFlyout>
           </Button.Flyout>
@@ -370,22 +373,22 @@
           <SymbolIcon Symbol="More" />
           <Button.Flyout>
             <MenuFlyout>
-              <MenuFlyoutItem Text="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}"
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenWithBrowser}"
                               Command="{Binding ExternalAccessService.OpenLinkCommand}"
                               CommandParameter="{Binding Live}" />
-              <MenuFlyoutItem Text="{Binding Source=Share, Converter={StaticResource LocalizeConverter}}"
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=Share}"
                               Command="{Binding ExternalAccessService.OpenShareUICommand}"
                               CommandParameter="{Binding Live}"
                               Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}" />
-              <MenuFlyoutSubItem Text="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}}"
+              <MenuFlyoutSubItem Text="{i18nExt:Localize Key=Copy}"
                                  Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}">
-                <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingLink, Converter={StaticResource LocalizeConverter}}"
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingLink}"
                                 Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
                                 CommandParameter="{Binding Live}" />
-                <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingId, Converter={StaticResource LocalizeConverter}}"
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingId}"
                                 Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
                                 CommandParameter="{Binding Id}" />
-                <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingShareText, Converter={StaticResource LocalizeConverter}}"
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingShareText}"
                                 Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}"
                                 CommandParameter="{Binding Live}" />
               </MenuFlyoutSubItem>

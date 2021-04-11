@@ -3,23 +3,14 @@
     x:Class="Hohoema.Presentation.Views.Pages.UserFeaturePages.WatchHistoryPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Hohoema.Presentation.Views"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:mvvm="using:Prism.Mvvm"
-    xmlns:view="using:Hohoema.Presentation.Views"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:i="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-    xmlns:controls="using:Hohoema.Presentation.Views.Controls"
-    xmlns:iconPack="using:MahApps.Metro.IconPacks"
-    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
-    xmlns:actions="using:Hohoema.Presentation.Views.Actions"
-    xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:controls="using:Hohoema.Presentation.Views.Controls"
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
@@ -36,24 +27,24 @@
                 </CommandBar.Content>
                 <CommandBar.PrimaryCommands>
 
-                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
+                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
-                  <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                  <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Click">
                         <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
                       </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                   </AppBarButton>
-                  <AppBarButton Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" x:Name="RefreshButton" VerticalAlignment="Center"></AppBarButton>
+                  <AppBarButton Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" x:Name="RefreshButton" VerticalAlignment="Center"></AppBarButton>
                 </CommandBar.PrimaryCommands>
                 <CommandBar.SecondaryCommands>
-                  <AppBarButton Label="{Binding Source=WatchHistoryRemoveAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" IsEnabled="{Binding HasItem.Value}" Icon="Delete" AllowFocusOnInteraction="True">
+                  <AppBarButton Label="{i18nExt:Localize Key=WatchHistoryRemoveAll}" IsEnabled="{Binding HasItem.Value}" Icon="Delete" AllowFocusOnInteraction="True">
                     <AppBarButton.Flyout>
                       <Flyout>
                         <StackPanel Margin="8" Width="240">
-                          <TextBlock Margin="0 0 0 16" LineHeight="20" TextWrapping="Wrap" Text="{Binding Source=WatchHistoryConfirmRemoveDescription, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"></TextBlock>
-                          <Button Content="{Binding Source=WatchHistoryConfirmRemove, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding WatchHistoryRemoveAllCommand}" HorizontalAlignment="Stretch" />
+                          <TextBlock Margin="0 0 0 16" LineHeight="20" TextWrapping="Wrap" Text="{i18nExt:Localize Key=WatchHistoryConfirmRemoveDescription}"></TextBlock>
+                          <Button Content="{i18nExt:Localize Key=WatchHistoryConfirmRemove}" Command="{Binding WatchHistoryRemoveAllCommand}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                       </Flyout>
                     </AppBarButton.Flyout>
@@ -78,7 +69,7 @@
       </videolistPage:VideoItemsListView.ItemTemplate>
     </videolistPage:VideoItemsListView>
     <Grid x:Name="EmptyItemsLayout" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{Binding Source=WatchHistoryNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
+      <TextBlock Text="{i18nExt:Localize Key=WatchHistoryNoItems}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
     </Grid>
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->

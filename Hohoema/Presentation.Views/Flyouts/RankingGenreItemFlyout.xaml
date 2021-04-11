@@ -6,9 +6,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:myCommands="using:Hohoema.Presentation.ViewModels.Ranking"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   mc:Ignorable="d">
 
-  <MenuFlyoutItem Text="{Binding Source=AddFavoriteRankingTag, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=AddFavoriteRankingTag}"
                   CommandParameter="{Binding}"
                   Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}"
                   >
@@ -17,7 +18,7 @@
     </MenuFlyoutItem.Command>
   </MenuFlyoutItem>
 
-  <MenuFlyoutItem Text="{Binding Source=RemoveFavoriteRankingTag, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=RemoveFavoriteRankingTag}"
                   CommandParameter="{Binding}"
                   Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
                   >
@@ -28,7 +29,7 @@
 
   <MenuFlyoutSeparator Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}" />
 
-  <MenuFlyoutItem Text="{Binding Source=HiddenThisRankingTag, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=HiddenThisRankingTag}"
                   CommandParameter="{Binding}"
                   Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}"
                   >

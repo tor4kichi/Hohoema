@@ -6,8 +6,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:myCommands="using:Hohoema.Presentation.ViewModels.Ranking"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   mc:Ignorable="d">
-  <MenuFlyoutItem Text="{Binding Source=HiddenThisRankingGenre, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=HiddenThisRankingGenre}" 
                   CommandParameter="{Binding}"
                   >
     <MenuFlyoutItem.Command>

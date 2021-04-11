@@ -2,23 +2,15 @@
     x:Class="Hohoema.Presentation.Views.Pages.SearchPages.SearchResultTagPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Hohoema.Presentation.Views"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:mvvm="using:Prism.Mvvm"
-    xmlns:view="using:Hohoema.Presentation.Views"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:i="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
-    xmlns:controls="using:Hohoema.Presentation.Views.Controls"
-    xmlns:iconPack="using:MahApps.Metro.IconPacks"
-    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
-    xmlns:actions="using:Hohoema.Presentation.Views.Actions"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:controls="using:Hohoema.Presentation.Views.Controls"
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
@@ -41,20 +33,20 @@
               <CommandBar>
                 <CommandBar.PrimaryCommands>
 
-                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
+                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
-                  <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                  <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Click">
                         <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
                       </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                   </AppBarButton>
-                  <AppBarButton x:Name="RefreshButton" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
-                  <AppBarToggleButton x:Name="TagFollowButton" Label="{Binding Source=Follow, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Favorite" IsChecked="{Binding FollowButtonService.IsFollowTarget.Value, Mode=TwoWay}" Command="{Binding FollowButtonService.ToggleFollowCommand}" Visibility="Collapsed" />
+                  <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
+                  <AppBarToggleButton x:Name="TagFollowButton" Label="{i18nExt:Localize Key=Follow}" Icon="Favorite" IsChecked="{Binding FollowButtonService.IsFollowTarget.Value, Mode=TwoWay}" Command="{Binding FollowButtonService.ToggleFollowCommand}" Visibility="Collapsed" />
                 </CommandBar.PrimaryCommands>
                 <CommandBar.SecondaryCommands>
-                  <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{Binding Source=SubscriptionAddTag, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{i18nExt:Localize Key=SubscriptionAddTag}"
                                 Command="{Binding AddTagSearchSubscriptionCommand}"
                                 CommandParameter="{Binding Keyword}"
                                 >
@@ -83,7 +75,7 @@
       </videolistPage:VideoItemsListView.ItemTemplate>
     </videolistPage:VideoItemsListView>
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{Binding Source=TagSearchNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
+      <TextBlock Text="{i18nExt:Localize Key=TagSearchNoItems}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
     </Grid>
     <VisualStateManager.VisualStateGroups>
       <!-- ログインしている場合に有効になるサービスを表示する -->

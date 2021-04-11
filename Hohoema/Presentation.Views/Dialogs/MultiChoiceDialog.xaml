@@ -2,7 +2,6 @@
     x:Class="Hohoema.Dialogs.MultiChoiceDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Hohoema.Presentation.Views.Service"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -15,8 +14,9 @@
     d:DesignHeight="300"
     d:DesignWidth="400"
     VerticalAlignment="Center"
-    PrimaryButtonText="{Binding Source=Select, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-    SecondaryButtonText="{Binding Source=Cancel, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+    xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+    PrimaryButtonText="{i18nExt:Localize Key=Select}"
+    SecondaryButtonText="{i18nExt:Localize Key=Cancel}"
     >
 
     <ListView ItemsSource="{x:Bind Items}"

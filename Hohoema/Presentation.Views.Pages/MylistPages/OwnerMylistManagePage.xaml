@@ -11,6 +11,7 @@
   xmlns:mycontrols="using:Hohoema.Presentation.Views.Controls"
   xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -32,10 +33,10 @@
       <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
         <DataTemplate>
           <MenuFlyout>
-            <MenuFlyoutItem Text="{Binding Source=MylistOpenVideoList, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.OpenMylistCommand}" CommandParameter="{Binding}" />
-            <MenuFlyoutItem Text="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PlaylistPlayAllCommand}" CommandParameter="{Binding}" />
-            <MenuFlyoutItem Text="{Binding Source=Edit, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.EditMylistGroupCommand}" CommandParameter="{Binding}" />
-            <MenuFlyoutItem Text="{Binding Source=Delete, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.RemoveMylistGroupCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=MylistOpenVideoList}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.OpenMylistCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayAll}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PlaylistPlayAllCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=Edit}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.EditMylistGroupCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=Delete}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.RemoveMylistGroupCommand}" CommandParameter="{Binding}" />
           </MenuFlyout>
         </DataTemplate>
       </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
@@ -49,7 +50,7 @@
 
               <AppBarButton x:Name="LoginUserMylistActions"
                             Icon="Add" Background="Transparent" 
-                            Label="{Binding Source=MylistCreate, Converter={StaticResource LocalizeConverter}}" 
+                            Label="{i18nExt:Localize Key=MylistCreate}" 
                             Command="{Binding AddMylistGroupCommand}"
                             />
 

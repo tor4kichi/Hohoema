@@ -4,50 +4,51 @@
             xmlns:local="using:Hohoema.Presentation.Views.Controls"
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+            xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
             mc:Ignorable="d">
 
-  <MenuFlyoutItem Text="{Binding Source=WatchLiveStreaming, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=WatchLiveStreaming}"
                   Command="{Binding OpenLiveContentCommand}"
                   CommandParameter="{Binding}" />
 
   <MenuFlyoutSeparator />
 
-  <MenuFlyoutItem Text="{Binding Source=HohoemaPageType.LiveInfomation, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=HohoemaPageType.LiveInfomation}"
                   Command="{Binding PageManager.OpenPageCommand}"
                   CommandParameter="{Binding}" />
 
-  <MenuFlyoutItem Text="{Binding Source=LiveBroadcasterInfomation, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=LiveBroadcasterInfomation}"
                   Command="{Binding PageManager.OpenContentOwnerPageCommand}"
                   CommandParameter="{Binding}" />
 
   <MenuFlyoutSeparator />
 
-  <MenuFlyoutItem Text="{Binding Source=Share, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=Share}"
                   Command="{Binding ExternalAccessService.OpenShareUICommand}"
                   CommandParameter="{Binding}"
                   Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}" />
 
-  <MenuFlyoutSubItem Text="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+  <MenuFlyoutSubItem Text="{i18nExt:Localize Key=Copy}"
                      Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}">
-    <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingLink, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+    <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingLink}"
                     Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
                     CommandParameter="{Binding}" />
-    <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingId, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+    <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingId}"
                     Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
                     CommandParameter="{Binding LiveId}" />
-    <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingShareText, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+    <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingShareText}"
                     Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}"
                     CommandParameter="{Binding}" />
   </MenuFlyoutSubItem>
 
   <MenuFlyoutSeparator />
 
-  <MenuFlyoutItem Text="{Binding Source=DeleteTimeshift, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=DeleteTimeshift}"
                     Command="{Binding DeleteReservationCommand}"
                     Visibility="{Binding ReservationStatus, Converter={StaticResource NotNullToVisibility}}"
                     />
 
-  <MenuFlyoutItem Text="{Binding Source=AddTimeshift, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=AddTimeshift}"
                     Command="{Binding AddReservationCommand}"
                     Visibility="{Binding ReservationStatus, Converter={StaticResource NullToVisibility}}"
                     />

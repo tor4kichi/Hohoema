@@ -15,6 +15,7 @@
              xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
              xmlns:models="using:Hohoema.Models.Domain.Application" 
              xmlns:local="using:Hohoema.Presentation.Views"
+             xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="400">
@@ -52,7 +53,7 @@
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}" Visibility="Collapsed">
           <toolkit:DockPanel x:Name="LivePlayerSettingsPanel"
                          Visibility="Collapsed">
-            <TextBlock Text="{Binding Source=LivePlayerSettings, Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{i18nExt:Localize Key=LivePlayerSettings}"
                    FontSize="18"
                    VerticalAlignment="Center"
                    FontWeight="SemiBold"
@@ -62,7 +63,7 @@
         </StackPanel>
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
           <toolkit:DockPanel>
-            <TextBlock Text="{Binding Source=CommentSubmitSettings , Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{i18nExt:Localize Key=CommentSubmitSettings}"
                             FontSize="18"
                             VerticalAlignment="Center"
                         FontWeight="SemiBold"
@@ -71,7 +72,7 @@
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
           </toolkit:DockPanel>
           <Grid>
-            <TextBlock Text="{Binding Source=EnableAnonimityCommentCommandAsDefault , Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{i18nExt:Localize Key=EnableAnonimityCommentCommandAsDefault}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
             <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.IsDefaultCommentWithAnonymous, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
@@ -81,7 +82,7 @@
         </StackPanel>
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
           <toolkit:DockPanel>
-            <TextBlock Text="{Binding Source=CommentDisplaySettings , Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{i18nExt:Localize Key=CommentDisplaySettings}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
@@ -90,7 +91,7 @@
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
           </toolkit:DockPanel>
           <Grid>
-            <TextBlock Text="{Binding Source=CommentDisplayDuration , Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{i18nExt:Localize Key=CommentDisplayDuration}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
             <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.CommentDisplayDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToDoubleConverter}}"
@@ -107,7 +108,7 @@
                           />
           </Grid>
           <Grid>
-            <TextBlock Text="{Binding Source=CommentDisplaySize , Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{i18nExt:Localize Key=CommentDisplaySize}"
                            toolkit:DockPanel.Dock="Left"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
@@ -126,7 +127,7 @@
                                        />
           </Grid>
           <Grid>
-            <TextBlock Text="{Binding Source=CommentOpacity , Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{i18nExt:Localize Key=CommentOpacity}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
             <Slider Value="{x:Bind _viewModel.PlayerSettings.CommentOpacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -143,7 +144,7 @@
                           />
           </Grid>
           <Grid>
-            <TextBlock Text="{Binding Source=CommentDefaultColor , Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{i18nExt:Localize Key=CommentDefaultColor}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
             <ComboBox ItemsSource="{x:Bind CommentColorList}"
@@ -166,7 +167,7 @@
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
           <!--NGコメント-->
           <toolkit:DockPanel>
-            <TextBlock Text="{Binding Source=CommentFilteringSettings , Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{i18nExt:Localize Key=CommentFilteringSettings}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
@@ -177,7 +178,7 @@
           <!-- NGコメント -->
           <!-- NG共有スコア -->
           <Grid Visibility="Visible">
-            <TextBlock Text="{Binding Source=AppearShareNGScore , Converter={StaticResource LocalizeConverter}}" 
+            <TextBlock Text="{i18nExt:Localize Key=AppearShareNGScore}" 
                                Style="{StaticResource SettingsOptionTitleTextBlock}"
                                />
             <ComboBox ItemsSource="{x:Bind _NGScoreShareLevels}"
@@ -216,7 +217,7 @@
                     -->
           <!-- NG キーワード -->
           <Grid>
-            <TextBlock Text="{Binding Source=EnableCommentFilteringWithFreeWord , Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{i18nExt:Localize Key=EnableCommentFilteringWithFreeWord}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
             <ToggleSwitch IsOn="{Binding NGCommentKeywordEnable.Value, Mode=TwoWay}"
@@ -229,18 +230,18 @@
             <TextBox Text="{Binding NGCommentKeywords.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              AcceptsReturn="True"
                              Height="120"
-                             Width="240" PlaceholderText="{Binding Source=PlacefolderCommentFilteringFreeWord , Converter={StaticResource LocalizeConverter}}"
+                             Width="240" PlaceholderText="{i18nExt:Localize Key=PlacefolderCommentFilteringFreeWord}"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                      IsFocusEngagementEnabled="True"
                              />
             <TextBlock Text="{Binding NGCommentKeywordError.Value}" />
-            <TextBlock Margin="0 8" Foreground="Gray" TextWrapping="Wrap" Text="{Binding Source=CommentFilteringHowToUse , Converter={StaticResource LocalizeConverter}}" />
+            <TextBlock Margin="0 8" Foreground="Gray" TextWrapping="Wrap" Text="{i18nExt:Localize Key=CommentFilteringHowToUse}" />
           </StackPanel>
         </StackPanel>
        
         <StackPanel x:Name="DesktopPlayerSettingsLayout" Style="{StaticResource SettingsGroupStackPanel}">
           <toolkit:DockPanel>
-            <TextBlock Text="{Binding Source=DesktopSettings , Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{i18nExt:Localize Key=DesktopSettings}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
@@ -249,7 +250,7 @@
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
           </toolkit:DockPanel>
           <Grid>
-            <TextBlock Text="{Binding Source=SoundVolumeChangeValueWithMouseScroll, Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{i18nExt:Localize Key=SoundVolumeChangeValueWithMouseScroll}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
             <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.SoundVolumeChangeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"

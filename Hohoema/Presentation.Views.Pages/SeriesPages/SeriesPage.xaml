@@ -9,6 +9,7 @@
   xmlns:controls="using:Hohoema.Presentation.Views.Controls" 
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   NavigationCacheMode="Enabled"
@@ -34,12 +35,12 @@
               </CommandBar.Content>
 
               <CommandBar.PrimaryCommands>
-                <AppBarButton Label="{Binding Source=SubscriptionAdd, Converter={StaticResource LocalizeConverter}}"
+                <AppBarButton Label="{i18nExt:Localize Key=SubscriptionAdd}"
                               Command="{Binding AddSubscriptionCommand}"
                               CommandParameter="{Binding Series}"
                               />
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
-                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                   <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Click">
                       <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
@@ -65,7 +66,7 @@
     </videolistPage:VideoItemsListView>
 
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{Binding Source=SeriesVideoNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+      <TextBlock Text="{i18nExt:Localize Key=SeriesVideoNoItems}"
                      Style="{StaticResource SubtitleTextBlockStyle}"
                      Opacity="0.8"
                      />

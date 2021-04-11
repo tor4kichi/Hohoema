@@ -10,11 +10,10 @@
       xmlns:toolkit="using:WinRTXamlToolkit.Controls"
       xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:iconPack="using:MahApps.Metro.IconPacks"
-      xmlns:mvvm="using:Prism.Mvvm"
       xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-      xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
       xmlns:windowsStateTriggers="using:WindowsStateTriggers"
+      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       DataContext="{x:Null}"
       NavigationCacheMode="Enabled"
       mc:Ignorable="d">
@@ -28,7 +27,7 @@
             <StackPanel Orientation="Horizontal">
               <iconPack:PackIconMaterial Kind="Information" Margin="0 0 16 0" Width="32" Height="32" VerticalAlignment="Center" />
               <TextBlock FontSize="20" Margin="0 0 0 8">
-                  <Run Text="{Binding Source=ThisVideoIsHidden, Converter={StaticResource LocalizeConverter}}" />
+                  <Run Text="{i18nExt:Localize Key=ThisVideoIsHidden}" />
                   <LineBreak />
                   <Run Text="{Binding SelfZoningInfo.NGReason}" />
                   <Run Text=":" />
@@ -36,7 +35,7 @@
                   <Run Text="{Binding SelfZoningInfo.Description}" />
               </TextBlock>
             </StackPanel>
-            <Button Content="{Binding Source=OpenFilterSettings, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenFilterSettingPageCommand}" Margin="0 0 0 0" />
+            <Button Content="{i18nExt:Localize Key=OpenFilterSettings}" Command="{Binding OpenFilterSettingPageCommand}" Margin="0 0 0 0" />
           </toolkit:WrapPanel>
         </Border>
         <!-- ヘッダー ページタイトルやサムネイル -->
@@ -55,17 +54,17 @@
             <StackPanel Margin="8 16 0 8" toolkit:DockPanel.Dock="Bottom" Spacing="8">
               <StackPanel Orientation="Horizontal" Margin="0 0 0 0" Spacing="8">
                 <TextBlock >
-                                    <Run Text="{Binding Source=ViewCount, Converter={StaticResource LocalizeConverter}}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />:
+                                    <Run Text="{i18nExt:Localize Key=ViewCount}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />:
                                     <Run Text="{Binding VideoInfo.ViewCount, Converter={StaticResource ToUserFriendlyNumber}}" /></TextBlock>
                 <TextBlock >
-                                    <Run Text="{Binding Source=CommentCount, Converter={StaticResource LocalizeConverter}}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />:
+                                    <Run Text="{i18nExt:Localize Key=CommentCount}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />:
                                     <Run Text="{Binding VideoInfo.CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" /></TextBlock>
                 <TextBlock >
-                                    <Run Text="{Binding Source=MylistCount, Converter={StaticResource LocalizeConverter}}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />:
+                                    <Run Text="{i18nExt:Localize Key=MylistCount}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />:
                                     <Run Text="{Binding VideoInfo.MylistCount, Converter={StaticResource ToUserFriendlyNumber}}" /></TextBlock>
               </StackPanel>
               <TextBlock>
-                                    <Run Text="{Binding Source=VideoPostAt, Converter={StaticResource LocalizeConverter}}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />:
+                                    <Run Text="{i18nExt:Localize Key=VideoPostAt}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />:
                                     <Run Text="{Binding VideoInfo.PostedAt, Converter={StaticResource DateTimeToString}}" /></TextBlock>
             </StackPanel>
             <Border Background="Transparent" IsHitTestVisible="True" Margin="8 0 48 0">
@@ -86,7 +85,7 @@
               </core:DataTriggerBehavior>
             </i:Interaction.Behaviors>
             <!-- 投稿者・タグ・動画説明 -->
-            <PivotItem x:Name="VideoDescPivotItem" Header="{Binding Source=VideoDescription, Converter={StaticResource LocalizeConverter}}">
+            <PivotItem x:Name="VideoDescPivotItem" Header="{i18nExt:Localize Key=VideoDescription}">
               <StackPanel>
                 <TextBlock Text="タグ" Style="{StaticResource SubtitleTextBlockStyle}" />
                 <ItemsControl ItemsSource="{Binding VideoDetails.Tags}" Margin="0 8" x:Name="TagsList" IsTabStop="False">
@@ -109,7 +108,7 @@
                   </ItemsControl.ItemsPanel>
                 </ItemsControl>
                 <Border Height="16" />
-                <TextBlock Text="{Binding Source=VideoOwner, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Text="{i18nExt:Localize Key=VideoOwner}" Style="{StaticResource SubtitleTextBlockStyle}" />
                 <StackPanel Orientation="Horizontal" Margin="0 8 0 16">
                   <Button>
                     <StackPanel Orientation="Horizontal">
@@ -118,14 +117,14 @@
                     </StackPanel>
                     <Button.Flyout>
                       <MenuFlyout>
-                        <MenuFlyoutItem Text="{Binding Source=VideoOwnerDetail, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding VideoInfo}" />
-                        <MenuFlyoutItem Text="{Binding Source=OpenOwnerVideos, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenVideoListPageCommand}" CommandParameter="{Binding VideoInfo}"></MenuFlyoutItem>
-                        <MenuFlyoutItem Text="{Binding Source=HohoemaPageType.UserSeries, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenUserSeriesPageCommand}" />
+                        <MenuFlyoutItem Text="{i18nExt:Localize Key=VideoOwnerDetail}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding VideoInfo}" />
+                        <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenOwnerVideos}" Command="{Binding PageManager.OpenVideoListPageCommand}" CommandParameter="{Binding VideoInfo}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="{i18nExt:Localize Key=HohoemaPageType.UserSeries}" Command="{Binding OpenUserSeriesPageCommand}" />
                       </MenuFlyout>
                     </Button.Flyout>
                   </Button>
                 </StackPanel>
-                <TextBlock Text="{Binding Source=VideoIntroduction, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Text="{i18nExt:Localize Key=VideoIntroduction}" Style="{StaticResource SubtitleTextBlockStyle}" />
                 <WebView Source="{Binding DescriptionHtmlFileUri}" MinWidth="320" Margin="0 8 16 8" DefaultBackgroundColor="Transparent" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollMode="Disabled" xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions" myExtensions:WebView.IgnoreScrolling="True" myExtensions:WebView.UriNotifyCommand="{Binding ScriptNotifyCommand}">
                   <i:Interaction.Behaviors>
                     <mybehavior:WebViewAutoResizeToContent />
@@ -136,7 +135,7 @@
                 <uwptoolkit:Expander Margin="0 16 0 8" HorizontalContentAlignment="Left">
                   <uwptoolkit:Expander.HeaderTemplate>
                     <DataTemplate>
-                      <TextBlock Text="{Binding Source=LinkInVideoIntroduction, Converter={StaticResource LocalizeConverter}}" />
+                      <TextBlock Text="{i18nExt:Localize Key=LinkInVideoIntroduction}" />
                     </DataTemplate>
                   </uwptoolkit:Expander.HeaderTemplate>
                   <GridView ItemsSource="{Binding VideoDescriptionHyperlinkItems, Mode=OneWay}"
@@ -174,11 +173,11 @@
                 </uwptoolkit:Expander>
 
                 <StackPanel Visibility="{Binding VideoDetails.Series, Converter={StaticResource NotNullToVisibility}}">
-                  <TextBlock Text="{Binding Source=HohoemaPageType.Series, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 16 0 0" />
+                  <TextBlock Text="{i18nExt:Localize Key=HohoemaPageType.Series}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 16 0 0" />
 
                   <uwptoolkit:DockPanel Margin="0 8" XYFocusUpNavigationStrategy="NavigationDirectionDistance">
                     <uwptoolkit:ImageEx Source="{Binding VideoDetails.Series.ThumbnailUrl}" uwptoolkit:DockPanel.Dock="Left" Width="140" />
-                    <TextBlock Text="{Binding Source=Series, Converter={StaticResource LocalizeConverter}}" uwptoolkit:DockPanel.Dock="Top" Opacity="0.7" Margin="8 0 0 0" />
+                    <TextBlock Text="{i18nExt:Localize Key=Series}" uwptoolkit:DockPanel.Dock="Top" Opacity="0.7" Margin="8 0 0 0" />
 
                     <HyperlinkButton Command="{Binding OpenVideoBelongSeriesPageCommand}"  VerticalAlignment="Top">
                       <TextBlock Text="{Binding VideoDetails.Series.Title}" Margin="16 0"  />
@@ -189,7 +188,7 @@
                               Visibility="{Binding VideoDetails.Series.PrevVideo, Converter={StaticResource NotNullToVisibility}}"
                               >
                     <TextBlock VerticalAlignment="Center" Margin="0 0 8 0">
-                    <Run Text="{Binding Source=Preview, Converter={StaticResource LocalizeConverter}}" />:
+                    <Run Text="{i18nExt:Localize Key=Preview}" />:
                     </TextBlock>
                     <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetails.Series.PrevVideo.Id}">
                       <TextBlock Text="{Binding VideoDetails.Series.PrevVideo.Title}" />
@@ -200,7 +199,7 @@
                               Visibility="{Binding VideoDetails.Series.NextVideo, Converter={StaticResource NotNullToVisibility}}"
                               >
                     <TextBlock VerticalAlignment="Center" Margin="0 0 8 0">
-                    <Run Text="{Binding Source=Next, Converter={StaticResource LocalizeConverter}}" />:
+                    <Run Text="{i18nExt:Localize Key=Next}" />:
                     </TextBlock>
                     <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetails.Series.NextVideo.Id}">
                       <TextBlock Text="{Binding VideoDetails.Series.NextVideo.Title}" />
@@ -208,7 +207,7 @@
                   </StackPanel>
 
                   <HyperlinkButton Visibility="Collapsed">
-                    <TextBlock Text="{Binding Source=AllPlaySeriesVideos, Converter={StaticResource LocalizeConverter}}" />
+                    <TextBlock Text="{i18nExt:Localize Key=AllPlaySeriesVideos}" />
                   </HyperlinkButton>
                 </StackPanel>
                 
@@ -217,7 +216,7 @@
               </StackPanel>
             </PivotItem>
             <!-- ニコニコ市場 -->
-            <PivotItem x:Name="IchibaPivotItem" Header="{Binding Source=NiconicoIchiba, Converter={StaticResource LocalizeConverter}}">
+            <PivotItem x:Name="IchibaPivotItem" Header="{i18nExt:Localize Key=NiconicoIchiba}">
               <Grid>
                 <TextBlock Text="No items" Opacity="0.6" Margin="16" Visibility="{Binding IchibaItems, Mode=OneWay, Converter={StaticResource EmptyCollectionVisibilityConverter}}" />
                 <ItemsControl ItemsSource="{Binding IchibaItems}" IsTabStop="False">
@@ -240,9 +239,9 @@
               </Grid>
             </PivotItem>
             <!-- 関連動画 -->
-            <PivotItem x:Name="RelatedVideosPivotItem" Header="{Binding Source=RelatedVideos, Converter={StaticResource LocalizeConverter}}">
+            <PivotItem x:Name="RelatedVideosPivotItem" Header="{i18nExt:Localize Key=RelatedVideos}">
               <Grid>
-                <TextBlock Text="{Binding Source=NoItems_RelatedVideos, Converter={StaticResource LocalizeConverter}}" Opacity="0.6" Margin="16" Visibility="{Binding RelatedVideos, Mode=OneWay, Converter={StaticResource EmptyCollectionVisibilityConverter}}" />
+                <TextBlock Text="{i18nExt:Localize Key=NoItems_RelatedVideos}" Opacity="0.6" Margin="16" Visibility="{Binding RelatedVideos, Mode=OneWay, Converter={StaticResource EmptyCollectionVisibilityConverter}}" />
                 <ListView ItemsSource="{Binding RelatedVideos, Mode=OneWay}"
                           IsItemClickEnabled="True"
                           SelectionMode="None"
@@ -269,9 +268,9 @@
             </Border>
             <Border x:Name="FailedLayout" Visibility="{Binding IsLoadFailed.Value, Converter={StaticResource BooleanToVisibility}}" Background="#77000000">
               <StackPanel>
-                <TextBlock Text="{Binding Source=FailedLoading_VideoInfomation, Converter={StaticResource LocalizeConverter}}" />
-                <Button Content="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}}" Command="{Binding UpdateCommand}" />
-                <HyperlinkButton Content="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.OpenLinkCommand}" CommandParameter="{Binding}" />
+                <TextBlock Text="{i18nExt:Localize Key=FailedLoading_VideoInfomation}" />
+                <Button Content="{i18nExt:Localize Key=Refresh}" Command="{Binding UpdateCommand}" />
+                <HyperlinkButton Content="{i18nExt:Localize Key=OpenWithBrowser}" Command="{Binding ExternalAccessService.OpenLinkCommand}" CommandParameter="{Binding}" />
               </StackPanel>
             </Border>
           </Grid>
@@ -286,43 +285,43 @@
         </CommandBar.Content>
         <CommandBar.SecondaryCommands>
           <AppBarButton x:Name="AddSubscriptionButton" 
-                        Label="{Binding Source=SubscriptionAddUser, Converter={StaticResource LocalizeConverter}}" Icon="Add"
+                        Label="{i18nExt:Localize Key=SubscriptionAddUser}" Icon="Add"
                         Command="{Binding AddSubscriptionCommand}"
                         CommandParameter="{Binding VideoInfo}"
                         />
 
           <AppBarButton x:Name="AddSubscriptionSeriesButton" 
-                        Label="{Binding Source=SubscriptionAddSeries, Converter={StaticResource LocalizeConverter}}" Icon="Add"
+                        Label="{i18nExt:Localize Key=SubscriptionAddSeries}" Icon="Add"
                         Command="{Binding AddSubscriptionCommand}"
                         CommandParameter="{Binding VideoSeries}"
                         Visibility="{Binding VideoSeries, Converter={StaticResource NotNullToBoolean}}"
                         />
 
-          <AppBarButton Label="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.OpenLinkCommand}" CommandParameter="{Binding VideoInfo}" />
-          <AppBarButton Label="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}}">
+          <AppBarButton Label="{i18nExt:Localize Key=OpenWithBrowser}" Command="{Binding ExternalAccessService.OpenLinkCommand}" CommandParameter="{Binding VideoInfo}" />
+          <AppBarButton Label="{i18nExt:Localize Key=Copy}">
             <AppBarButton.Flyout>
               <MenuFlyout Placement="Bottom">
-                <MenuFlyoutItem Text="{Binding Source=CopyVideoLink, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoInfo}" />
-                <MenuFlyoutItem Text="{Binding Source=CopyVideoId, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoInfo.RawVideoId}" />
-                <MenuFlyoutItem Text="{Binding Source=CopyShareText, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding VideoInfo}" />
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoLink}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoInfo}" />
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoId}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoInfo.RawVideoId}" />
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyShareText}" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding VideoInfo}" />
               </MenuFlyout>
             </AppBarButton.Flyout>
           </AppBarButton>
         </CommandBar.SecondaryCommands>
-        <AppBarButton Icon="Play" Label="{Binding Source=PlayVideo, Converter={StaticResource LocalizeConverter}}" Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoInfo}" />
-        <AppBarButton Icon="Download" Label="{Binding Source=CacheRequest, Converter={StaticResource LocalizeConverter}}" Command="{Binding VideoCacheManager.AddCacheRequestCommand}" CommandParameter="{Binding VideoInfo}" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}" />
-        <AppBarToggleButton x:Name="LikeToggleButton" Label="{Binding Source=NicoLike, Converter={StaticResource LocalizeConverter}}" IsChecked="{Binding IsLikedVideo, Mode=TwoWay}" IsEnabled="{Binding NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
-        <AppBarButton Icon="Add" Label="{Binding Source=Add, Converter={StaticResource LocalizeConverter}}"> 
+        <AppBarButton Icon="Play" Label="{i18nExt:Localize Key=PlayVideo}" Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoInfo}" />
+        <AppBarButton Icon="Download" Label="{i18nExt:Localize Key=CacheRequest}" Command="{Binding VideoCacheManager.AddCacheRequestCommand}" CommandParameter="{Binding VideoInfo}" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}" />
+        <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{Binding IsLikedVideo, Mode=TwoWay}" IsEnabled="{Binding NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
+        <AppBarButton Icon="Add" Label="{i18nExt:Localize Key=Add}"> 
           <AppBarButton.Flyout>
             <MenuFlyout Placement="Bottom">
-              <MenuFlyoutItem Text="{Binding Source=MylistAddItem, Converter={StaticResource LocalizeConverter}}" Command="{Binding AddMylistCommand}" CommandParameter="{Binding VideoInfo}" />
-              <MenuFlyoutItem Text="{Binding Source=LocalMylistAddItem, Converter={StaticResource LocalizeConverter}}" Command="{Binding LocalPlaylistAddItemCommand}" CommandParameter="{Binding VideoInfo}" />
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=MylistAddItem}" Command="{Binding AddMylistCommand}" CommandParameter="{Binding VideoInfo}" />
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=LocalMylistAddItem}" Command="{Binding LocalPlaylistAddItemCommand}" CommandParameter="{Binding VideoInfo}" />
             </MenuFlyout>
           </AppBarButton.Flyout>
         </AppBarButton>
         
-        <AppBarButton x:Name="ShareSubButton" Label="{Binding Source=Share, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding VideoInfo}" />
-        <AppBarButton x:Name="ShareSubButton_TV" Visibility="Collapsed" Label="{Binding Source=Share, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding VideoInfo}" />
+        <AppBarButton x:Name="ShareSubButton" Label="{i18nExt:Localize Key=Share}" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding VideoInfo}" />
+        <AppBarButton x:Name="ShareSubButton_TV" Visibility="Collapsed" Label="{i18nExt:Localize Key=Share}" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding VideoInfo}" />
       </CommandBar>
     </StackPanel>
     <VisualStateManager.VisualStateGroups>

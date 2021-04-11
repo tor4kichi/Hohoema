@@ -1,22 +1,19 @@
 ﻿<Page
-    x:Class="Hohoema.Presentation.Views.Pages.UserFeaturePages.RecommendPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Hohoema.Presentation.Views"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:i="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:mvvm="using:Prism.Mvvm"
-    xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
-    xmlns:controls="using:Hohoema.Presentation.Views.Controls"
-    xmlns:iconPack="using:MahApps.Metro.IconPacks"
-    xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
-    xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:actions="using:Hohoema.Presentation.Views.Actions"
-      xmlns:windowsStateTriggers="using:WindowsStateTriggers" xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
+  x:Class="Hohoema.Presentation.Views.Pages.UserFeaturePages.RecommendPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+  xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
+  xmlns:controls="using:Hohoema.Presentation.Views.Controls"
+  xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+  xmlns:actions="using:Hohoema.Presentation.Views.Actions"
+  xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
+  xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
@@ -58,7 +55,7 @@
               
               <CommandBar.SecondaryCommands></CommandBar.SecondaryCommands>
               <CommandBar.PrimaryCommands>
-                <AppBarButton x:Name="ScrollToTopButton" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
+                <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
                   <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Click">
                       <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
@@ -66,7 +63,7 @@
                   </i:Interaction.Behaviors>
                 </AppBarButton>
                 <AppBarButton x:Name="UpdateButton" Command="{Binding RefreshCommand}" Background="Transparent" Icon="Refresh" Label="更新" />
-                <AppBarButton Label="{Binding Source=RelatedTags, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Tag">
+                <AppBarButton Label="{i18nExt:Localize Key=RelatedTags}" Icon="Tag">
                   <AppBarButton.Flyout>
                     <Flyout>
                       <ListView ItemsSource="{Binding RecommendSourceTags}"

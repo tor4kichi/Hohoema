@@ -18,6 +18,7 @@
     xmlns:actions="using:Hohoema.Presentation.Views.Actions"
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
@@ -48,9 +49,9 @@
               </CommandBar.Content>
               
               <CommandBar.PrimaryCommands>
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
-                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                   <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Click">
                       <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
@@ -59,7 +60,7 @@
                 </AppBarButton>
 
                 <AppBarButton x:Name="RefreshButton"
-                              Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
+                              Label="{i18nExt:Localize Key=Refresh}" 
                               Icon="Refresh"
                               Command="{Binding RefreshCommand}"
                               IsEnabled="{Binding CanChangeSort.Value}"
@@ -72,12 +73,12 @@
                                     IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}"
                                     Command="{Binding FollowToggleButtonService.ToggleFollowCommand}"
                                     Icon="Favorite"
-                                    Label="{Binding Source=Follow, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                                    Label="{i18nExt:Localize Key=Follow}"
                                     Visibility="Collapsed"
                                     />
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
-                <AppBarButton Label="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                <AppBarButton Label="{i18nExt:Localize Key=OpenWithBrowser}"
                                             Command="{Binding ExternalAccessService.OpenLinkCommand}"
                                               CommandParameter="{Binding ChannelInfo}"
                                             VerticalAlignment="Center"
@@ -110,7 +111,7 @@
     </videolistPage:VideoItemsListView>
 
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{Binding Source=ChannelVideoNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+      <TextBlock Text="{i18nExt:Localize Key=ChannelVideoNoItems}"
                      Style="{StaticResource SubtitleTextBlockStyle}"
                      Opacity="0.8"
                      />

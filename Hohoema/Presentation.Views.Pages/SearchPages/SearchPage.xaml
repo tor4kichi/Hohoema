@@ -18,7 +18,9 @@
     xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector" 
-  xmlns:windowsStateTriggers="using:WindowsStateTriggers" xmlns:appModels="using:Hohoema.Models.Domain.Application"
+  xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
+  xmlns:appModels="using:Hohoema.Models.Domain.Application"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   DataContext="{x:Null}"
   NavigationCacheMode="Required"
     mc:Ignorable="d">

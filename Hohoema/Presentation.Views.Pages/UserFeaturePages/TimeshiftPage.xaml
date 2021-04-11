@@ -1,26 +1,30 @@
 ﻿<Page
-    x:Class="Hohoema.Presentation.Views.Pages.UserFeaturePages.TimeshiftPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Hohoema.Presentation.Views"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:i="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:mvvm="using:Prism.Mvvm"
-    xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
-    xmlns:controls="using:Hohoema.Presentation.Views.Pages.LivePages"
-    xmlns:iconPack="using:MahApps.Metro.IconPacks"
-    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
-    xmlns:actions="using:Hohoema.Presentation.Views.Actions"
-    xmlns:viewmodels="using:Hohoema.Presentation.ViewModels"
-    xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector"
-    DataContext="{x:Null}"
-    NavigationCacheMode="Enabled"
-    xmlns:liveDetail="using:Mntone.Nico2.Live.ReservationsInDetail" xmlns:windowsStateTriggers="using:WindowsStateTriggers" xmlns:controls1="using:Hohoema.Presentation.Views.Controls" mc:Ignorable="d"
+  x:Class="Hohoema.Presentation.Views.Pages.UserFeaturePages.TimeshiftPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Hohoema.Presentation.Views"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+  xmlns:mvvm="using:Prism.Mvvm"
+  xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
+  xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+  xmlns:controls="using:Hohoema.Presentation.Views.Pages.LivePages"
+  xmlns:iconPack="using:MahApps.Metro.IconPacks"
+  xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+  xmlns:actions="using:Hohoema.Presentation.Views.Actions"
+  xmlns:viewmodels="using:Hohoema.Presentation.ViewModels"
+  xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector"
+  xmlns:liveDetail="using:Mntone.Nico2.Live.ReservationsInDetail" 
+  xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
+  xmlns:controls1="using:Hohoema.Presentation.Views.Controls" 
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  DataContext="{x:Null}"
+  NavigationCacheMode="Enabled"
+  mc:Ignorable="d"
     >
   <Page.Resources>
     <DataTemplate x:Key="TimeshiftItem_Reserved">
@@ -95,11 +99,11 @@
                   <controls1:AppTitleBar Title="{Binding Title}" />
                 </CommandBar.Content>
                 <CommandBar.SecondaryCommands>
-                  <AppBarButton Label="{Binding Source=DeleteOutdatedReservationConfirm_Title, Converter={StaticResource LocalizeConverter}}" Icon="Delete" Command="{Binding DeleteOutdatedReservations}" />
+                  <AppBarButton Label="{i18nExt:Localize Key=DeleteOutdatedReservationConfirm_Title}" Icon="Delete" Command="{Binding DeleteOutdatedReservations}" />
                 </CommandBar.SecondaryCommands>
                 <CommandBar.PrimaryCommands>
                   <AppBarButton x:Name="ScrollToTopButton"
-                                  Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
+                                  Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Click">
                         <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
@@ -110,7 +114,7 @@
                                   Command="{Binding RefreshCommand}"
                                   Background="Transparent"
                                   Icon="Refresh"
-                                  Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />
+                                  Label="{i18nExt:Localize Key=Refresh}" />
                 </CommandBar.PrimaryCommands>
               </CommandBar>
             </Grid>

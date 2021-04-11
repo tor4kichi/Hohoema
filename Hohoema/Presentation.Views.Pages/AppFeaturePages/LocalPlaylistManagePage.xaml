@@ -12,6 +12,7 @@
   xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
   xmlns:local1="using:Hohoema.Presentation.Views.Pages.MylistPages"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -33,11 +34,11 @@
       <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
         <DataTemplate>
           <MenuFlyout>
-            <MenuFlyoutItem Text="{Binding Source=LocalPlaylistOpenVideoList, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.OpenMylistCommand}" CommandParameter="{Binding}" />
-            <MenuFlyoutItem Text="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PlaylistPlayAllCommand}" CommandParameter="{Binding}" />
-            <MenuFlyoutItem Text="{Binding Source=Rename, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.RenameLocalPlaylistCommand}" CommandParameter="{Binding}" />
-            <MenuFlyoutItem Text="{Binding Source=LocalPlaylistChangeThumbnail, Converter={StaticResource LocalizeConverter}}" Visibility="Collapsed" />
-            <MenuFlyoutItem Text="{Binding Source=Delete, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.DeleteLocalPlaylistCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=LocalPlaylistOpenVideoList}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.OpenMylistCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayAll}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PlaylistPlayAllCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=Rename}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.RenameLocalPlaylistCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=LocalPlaylistChangeThumbnail}" Visibility="Collapsed" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=Delete}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.DeleteLocalPlaylistCommand}" CommandParameter="{Binding}" />
           </MenuFlyout>
         </DataTemplate>
       </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
@@ -49,7 +50,7 @@
                 <mycontrols:AppTitleBar Title="{Binding Title}" />
               </CommandBar.Content>
 
-              <AppBarButton Background="Transparent" Label="{Binding Source=LocalPlaylistCreate, Converter={StaticResource LocalizeConverter}}" Icon="Add" x:Name="LoginUserMylistActions"
+              <AppBarButton Background="Transparent" Label="{i18nExt:Localize Key=LocalPlaylistCreate}" Icon="Add" x:Name="LoginUserMylistActions"
                             Command="{Binding CreateLocalMylistCommand}"
                             />
 

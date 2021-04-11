@@ -10,13 +10,14 @@
              xmlns:core="using:Microsoft.Xaml.Interactions.Core"
              xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
              x:Name="UserControlRoot"
+             xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="400">
   <UserControl.Resources>
     <DataTemplate x:Key="BigTemplate">
       <Border Height="24">
-        <TextBlock Text="{Binding Source=CommentSizeCommandSampleText, Converter={StaticResource LocalizeConverter}}"
+        <TextBlock Text="{i18nExt:Localize Key=CommentSizeCommandSampleText}"
                    FontSize="36"
                    VerticalAlignment="Bottom"
                    TextLineBounds="TrimToBaseline" />
@@ -24,7 +25,7 @@
     </DataTemplate>
     <DataTemplate x:Key="MidiumTemplate">
       <Border Height="24">
-        <TextBlock Text="{Binding Source=CommentSizeCommandSampleText, Converter={StaticResource LocalizeConverter}}"
+        <TextBlock Text="{i18nExt:Localize Key=CommentSizeCommandSampleText}"
                    FontSize="24"
                    VerticalAlignment="Bottom"
                    TextLineBounds="TrimToBaseline" />
@@ -32,7 +33,7 @@
     </DataTemplate>
     <DataTemplate x:Key="SmallTemplate">
       <Border Height="24">
-        <TextBlock Text="{Binding Source=CommentSizeCommandSampleText, Converter={StaticResource LocalizeConverter}}"
+        <TextBlock Text="{i18nExt:Localize Key=CommentSizeCommandSampleText}"
                    FontSize="14"
                    VerticalAlignment="Bottom"
                    TextLineBounds="TrimToBaseline" />
@@ -40,21 +41,21 @@
     </DataTemplate>
     <DataTemplate x:Key="UeTemplate">
       <Border Height="48">
-        <TextBlock Text="{Binding Source=CommentVerticalPositionTopCommandText, Converter={StaticResource LocalizeConverter}}"
+        <TextBlock Text="{i18nExt:Localize Key=CommentVerticalPositionTopCommandText}"
                    FontSize="20"
                    VerticalAlignment="Top" />
       </Border>
     </DataTemplate>
     <DataTemplate x:Key="NakaTemplate">
       <Border Height="48">
-        <TextBlock Text="{Binding Source=CommentVerticalPositionMiddleCommandText, Converter={StaticResource LocalizeConverter}}"
+        <TextBlock Text="{i18nExt:Localize Key=CommentVerticalPositionMiddleCommandText}"
                    FontSize="20"
                    VerticalAlignment="Center" />
       </Border>
     </DataTemplate>
     <DataTemplate x:Key="ShitaTemplate">
       <Border Height="48">
-        <TextBlock Text="{Binding Source=CommentVerticalPositionBottomCommandText, Converter={StaticResource LocalizeConverter}}"
+        <TextBlock Text="{i18nExt:Localize Key=CommentVerticalPositionBottomCommandText}"
                    FontSize="20"
                    VerticalAlignment="Bottom" />
       </Border>
@@ -245,19 +246,19 @@
   <Grid Width="280">
     <StackPanel Spacing="16">
       <Grid>
-        <HyperlinkButton Content="{Binding Source=OpenAboutCommentCommand, Converter={StaticResource LocalizeConverter}}"
+        <HyperlinkButton Content="{i18nExt:Localize Key=OpenAboutCommentCommand}"
                          NavigateUri="https://dic.nicovideo.jp/a/%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89" />
-        <Button Content="{Binding Source=Reset, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+        <Button Content="{i18nExt:Localize Key=Reset}"
                 HorizontalAlignment="Right"
                 Click="AllCommandReset" />
       </Grid>
       <Grid>
         <StackPanel HorizontalAlignment="Left">
-          <TextBlock Text="{Binding Source=CommentSubmitWithAnonymous, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+          <TextBlock Text="{i18nExt:Localize Key=CommentSubmitWithAnonymous}"
                      VerticalAlignment="Center"
                       />
           <TextBlock x:Name="AnonymousCommentCanNotEnableInChannelOrCommunityVideo"
-                     Text="{Binding Source=CommentSubmitWithAnonymousDescription, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                     Text="{i18nExt:Localize Key=CommentSubmitWithAnonymousDescription}"
                      FontSize="12"
                      Width="150"
                      TextWrapping="Wrap"
@@ -271,7 +272,7 @@
       <Grid>
         <TextBlock HorizontalAlignment="Left"
                    VerticalAlignment="Center"
-                   Text="{Binding Source=CommentSize, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />
+                   Text="{i18nExt:Localize Key=CommentSize}" />
         
         <ListView x:Name="CommentSizePallete"
                   ItemsSource="{x:Bind SizeCommandItems}"
@@ -300,7 +301,7 @@
       <Grid>
         <TextBlock HorizontalAlignment="Left"
                    VerticalAlignment="Center"
-                   Text="{Binding Source=CommentVerticalAlignment, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                   Text="{i18nExt:Localize Key=CommentVerticalAlignment}"
                    />
         <Border BorderBrush="Black"
                 BorderThickness="0 1"
@@ -331,7 +332,7 @@
         </Border>
       </Grid>
       <Grid>
-        <TextBlock Text="{Binding Source=CommentColor, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+        <TextBlock Text="{i18nExt:Localize Key=CommentColor}"
                    HorizontalAlignment="Left"
                    VerticalAlignment="Center"
                    />
@@ -359,7 +360,7 @@
       </Grid>
       
       <Grid>
-        <TextBlock Text="{Binding Source=UseFreeInputCommand, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBlock Text="{i18nExt:Localize Key=UseFreeInputCommand}" HorizontalAlignment="Left" VerticalAlignment="Center" />
         <ToggleSwitch x:Name="UserInputCommandToggleSwitch"
                       IsOn="{Binding IsUseCustomCommandText.Value, Mode=TwoWay}"
                       HorizontalAlignment="Right" />
@@ -367,7 +368,7 @@
       <toolkit:DockPanel>
         <TextBox x:Name="UserInputCommand"
                  Text="{Binding CustomCommandText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                 PlaceholderText="{Binding Source=FreeInputCommandTextBoxPlacefolderText, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                 PlaceholderText="{i18nExt:Localize Key=FreeInputCommandTextBoxPlacefolderText}"
                  Visibility="Collapsed"
                  />
       </toolkit:DockPanel>

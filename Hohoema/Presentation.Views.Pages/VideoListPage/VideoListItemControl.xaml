@@ -8,6 +8,7 @@
   xmlns:toolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
   xmlns:windowsStateTrigger="using:WindowsStateTriggers" 
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -81,7 +82,7 @@
           <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_PostAt_Short}" />
         </TextBlock>
         <TextBlock x:Name="PrivteReasonTextBlock" Visibility="Collapsed" Opacity="0.7" FontSize="13" Foreground="{ThemeResource SystemAccentColor}" TextLineBounds="Tight">
-          <Run Text="{Binding PrivateReasonType, Converter={StaticResource LocalizeConverter}}" />
+          <Run Text="{Binding PrivateReason, Converter={StaticResource LocalizeConverter}}" />
         </TextBlock>
       </StackPanel>
 
@@ -114,7 +115,7 @@
     <Grid x:Name="HiddenVideoOwnerLayout" Opacity="0.0" IsHitTestVisible="False">
       <StackPanel x:Name="HiddenVideoOwnerRevealedLayout" Visibility="Collapsed" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
         <!--
-        <Button Content="{Binding Source=RemoveHiddenVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+        <Button Content="{i18nExt:Localize Key=RemoveHiddenVideoOwner}"
                 x:Name="UnregistrationHiddenVideoOwnerButton"
                 Click="UnregistrationHiddenVideoOwnerButton_Click"
                 Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
@@ -123,7 +124,7 @@
                 />
         -->
 
-        <Button Content="{Binding Source=ExitOnceReveal, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+        <Button Content="{i18nExt:Localize Key=ExitOnceReveal}"
                 x:Name="ExitRevealButton"
                 Click="ExitRevealButton_Click"
                 Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
@@ -137,9 +138,9 @@
                    VerticalAlignment="Center"
                    HorizontalAlignment="Center"
                    Margin="0 0 128 0">
-          <Run Text="{Binding Source=HiddenVideo, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" />
+          <Run Text="{i18nExt:Localize Key=HiddenVideo}" />
         </TextBlock>
-        <Button Content="{Binding Source=OnceReveal, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
+        <Button Content="{i18nExt:Localize Key=OnceReveal}" 
                 x:Name="HiddenVideoOnceRevealButton" Click="HiddenVideoOnceRevealButton_Click"
                 HorizontalAlignment="Right"
                 Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
