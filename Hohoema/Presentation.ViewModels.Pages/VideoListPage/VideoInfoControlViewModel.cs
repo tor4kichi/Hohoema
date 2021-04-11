@@ -515,6 +515,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 Data = data;
             }
 
+            /*
             if (Data?.Owner != null && Data?.Owner.ScreenName == null)
             {
                 try
@@ -535,6 +536,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                     Debug.WriteLine($"Failed video owner ScreenName resolving. (Id is {Data.Owner.OwnerId})");
                 }
             }
+            */
 
             if (Data != null)
             {
