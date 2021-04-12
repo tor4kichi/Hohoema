@@ -118,7 +118,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
 
                             vm.RemoveToken = _HistoriesResponse.Token;
 
-                            await vm.InitializeAsync(default).ConfigureAwait(false);
+                            await vm.InitializeAsync(default);
 
                             Histories.Add(vm);
                         }
