@@ -165,7 +165,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
             }
         }
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override async ValueTask<int> ResetSourceImpl()
         {
             _RecommendResponse = await LoginUserRecommendProvider.GetRecommendFirstAsync();
             if (_RecommendResponse.FirstData.Status == "ok")

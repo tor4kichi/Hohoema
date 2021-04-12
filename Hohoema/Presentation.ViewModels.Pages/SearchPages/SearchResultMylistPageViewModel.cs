@@ -269,7 +269,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 		}
 
 
-		public async Task<int> ResetSource()
+		public async ValueTask<int> ResetSource()
 		{
 			// Note: 件数が1だとJsonのParseがエラーになる
 			var res = await SearchProvider.MylistSearchAsync(

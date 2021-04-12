@@ -1098,6 +1098,8 @@ namespace Hohoema
                 var pageName = pageManager.CurrentPageType.ToString();
                 var pageParameter = pageManager.CurrentPageNavigationParameters is not null ? JsonConvert.SerializeObject(pageManager.CurrentPageNavigationParameters) : "null";
                 var niconicoSession = Container.Resolve<NiconicoSession>();
+                var primaryPlayerManager = Container.Resolve<PrimaryViewPlayerManager>();
+                var secondaryPlayerManager = Container.Resolve<ScondaryViewPlayerManager>();
 
                 Crashes.TrackError(e.Exception, new Dictionary<string, string> 
                 {
@@ -1106,7 +1108,9 @@ namespace Hohoema
                     { "IsPremiumAccount", niconicoSession.IsPremiumAccount.ToString() },
                     { "RecentOpenPageName", pageName },
                     { "RecentOpenPageParameters", pageParameter },
-                    { "OperatingSystemArchitecture", Microsoft.Toolkit.Uwp.Helpers.SystemInformation.OperatingSystemArchitecture.ToString() }
+                    { "OperatingSystemArchitecture", Microsoft.Toolkit.Uwp.Helpers.SystemInformation.OperatingSystemArchitecture.ToString() },
+                    { "PrimaryWindowPlayerDisplayMode", primaryPlayerManager.DisplayMode.ToString() },
+                    { "IsShowSecondaryView", secondaryPlayerManager.IsShowSecondaryView.ToString() },
                 });
 
                 Debug.Write(e.Message);
@@ -1114,7 +1118,6 @@ namespace Hohoema
                 if (IsDebugModeEnabled)
                 {
                     var report = await Crashes.GetLastSessionCrashReportAsync();
-                    
                 }
             }
         }

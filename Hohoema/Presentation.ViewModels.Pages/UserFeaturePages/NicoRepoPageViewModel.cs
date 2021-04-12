@@ -305,7 +305,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
 
         NicoRepoEntriesResponse _firstRes;
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override async ValueTask<int> ResetSourceImpl()
         {
             var nicoRepoResponse = await LoginUserNicoRepoProvider.GetLoginUserNicoRepoAsync(_nicoRepoType, _nicoRepoDisplayTarget);
 

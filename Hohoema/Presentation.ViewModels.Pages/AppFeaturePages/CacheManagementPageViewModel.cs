@@ -345,9 +345,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
             }
         }
 
-        protected override Task<int> ResetSourceImpl()
+        protected override ValueTask<int> ResetSourceImpl()
         {
-            return Task.FromResult(VideoCacheManager.GetCacheRequestCount());
+            return new ValueTask<int>(VideoCacheManager.GetCacheRequestCount());
         }
     }
 

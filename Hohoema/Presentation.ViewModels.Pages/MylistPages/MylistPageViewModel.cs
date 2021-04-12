@@ -733,7 +733,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
         public MylistSortKey DefaultSortKey { get; }
         public MylistSortOrder DefaultSortOrder { get; }
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override async ValueTask<int> ResetSourceImpl()
         {
             var result = await _mylist.GetItemsAsync(DefaultSortKey, DefaultSortOrder, OneTimeLoadCount, 0);
             _firstResult = result;
@@ -805,10 +805,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
 
         #region Implements HohoemaPreloadingIncrementalSourceBase		
 
-        protected override Task<int> ResetSourceImpl()
+        protected override ValueTask<int> ResetSourceImpl()
         {
             isEndReached = false;
-            return Task.FromResult(_mylist.Count);
+            return new ValueTask<int>(_mylist.Count);
         }
 
         bool isEndReached;

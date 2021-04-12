@@ -17,7 +17,7 @@ namespace Hohoema.Models.Domain.Helpers
 	public interface IIncrementalSource<T>
 	{
 		uint OneTimeLoadCount { get; }
-		Task<int> ResetSource();
+		ValueTask<int> ResetSource();
 		IAsyncEnumerable<T> GetPagedItems(int head, int count, CancellationToken ct = default);
 	}
 

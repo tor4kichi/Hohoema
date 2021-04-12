@@ -39,7 +39,7 @@
       </ResourceDictionary.MergedDictionaries>
 
       <appModels:FeatureFlags x:Key="FeatureFlags" />
-
+      
       <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
       <SolidColorBrush x:Key="HohoemaThemeBackgroundBrush"
                              Color="{StaticResource HohoemaThemeColor}"

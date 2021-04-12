@@ -7,6 +7,15 @@ namespace I18NPortable.Xaml.Extensions
     [MarkupExtensionReturnType(ReturnType = typeof(string))]
     public class LocalizeExtension : MarkupExtension
     {
+        public LocalizeExtension() { }
+
+        public LocalizeExtension(string key)
+        {
+            Key = key;
+        }
+
+
+
         public object Key { get; set; }
 
         public object[] Parameters { get; set; }
@@ -30,7 +39,7 @@ namespace I18NPortable.Xaml.Extensions
             }
             else
             {
-                throw new NotSupportedException("not supported localize Type: " + Key?.GetType().Name);
+                 throw new NotSupportedException("not supported localize Type: " + Key?.GetType().Name);
             }
         }
     }

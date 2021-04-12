@@ -847,7 +847,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
             }
         }
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override async ValueTask<int> ResetSourceImpl()
         {
             int totalCount = 0;
             if (!IsTagSearch)

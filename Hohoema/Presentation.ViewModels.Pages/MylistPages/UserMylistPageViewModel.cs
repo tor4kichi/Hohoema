@@ -159,7 +159,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.MylistPages
             }
         }
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override async ValueTask<int> ResetSourceImpl()
         {
             try
             {

@@ -178,10 +178,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
             _playlist = playlist;
         }
 
-        protected override Task<int> ResetSourceImpl()
+        protected override ValueTask<int> ResetSourceImpl()
         {
             _Items = _playlist.GetPlaylistItems();
-            return Task.FromResult(_Items.Count);
+            return new ValueTask<int>(_Items.Count);
         }
 
         protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct)

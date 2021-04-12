@@ -191,9 +191,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
             }
         }
 
-        protected override Task<int> ResetSourceImpl()
+        protected override ValueTask<int> ResetSourceImpl()
         {
-            return Task.FromResult(_HistoriesResponse?.Histories.Count ?? 0);
+            return new ValueTask<int>(_HistoriesResponse?.Histories.Count ?? 0);
         }
     }
 }

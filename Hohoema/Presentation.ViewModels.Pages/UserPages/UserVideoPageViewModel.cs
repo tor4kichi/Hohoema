@@ -186,7 +186,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserPages
             }
         }
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override async ValueTask<int> ResetSourceImpl()
         {
             _firstRes = await UserProvider.GetUserVideos(UserId, (uint)0);
             return (int)_firstRes.Data.TotalCount;

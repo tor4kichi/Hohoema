@@ -404,7 +404,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
             }
         }
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override async ValueTask<int> ResetSourceImpl()
         {
             RankingRss = await NiconicoRanking.GetRankingRssAsync(Genre, Tag, Term);
 
