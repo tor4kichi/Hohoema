@@ -1,48 +1,32 @@
 ﻿using I18NPortable;
-using Microsoft.Toolkit.Uwp.UI.Extensions;
-
-using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Helpers;
 using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Helpers;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.ViewModels;
 using Prism.Commands;
-using Prism.Events;
 using Prism.Navigation;
-using Prism.Services;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Core;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using Hohoema.Presentation.Services.Player;
 using Hohoema.Models.Domain.Application;
 using Microsoft.AppCenter.Analytics;
-using System.Text;
 using Microsoft.AppCenter.Crashes;
 using System.Windows.Input;
-using Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -872,6 +856,47 @@ namespace Hohoema.Presentation.Views
             {
                 _GoBackCommand.Execute();
             }
+        }
+
+
+
+
+
+        public bool IsDebugModeEnabled
+        {
+            get { return (bool)GetValue(IsDebugModeEnabledProperty); }
+            set { SetValue(IsDebugModeEnabledProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsDebugModeEnabled.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsDebugModeEnabledProperty =
+            DependencyProperty.Register("IsDebugModeEnabled", typeof(bool), typeof(PrimaryWindowCoreLayout), new PropertyMetadata(false));
+
+
+
+
+
+        public void OpenErrorTeachingTip(ICommand sentErrorCommand, Action onClosing)
+        {
+            AppErrorTeachingTip.ActionButtonCommand = sentErrorCommand;
+            AppErrorTeachingTip.IsOpen = true;
+
+            _onErrorTeachingTipClosed = onClosing;
+        }
+
+        Action _onErrorTeachingTipClosed;
+
+
+        public void CloseErrorTeachingTip()
+        {
+            AppErrorTeachingTip.IsOpen = false;
+        }
+
+        private void AppErrorTeachingTip_Closed(Microsoft.UI.Xaml.Controls.TeachingTip sender, Microsoft.UI.Xaml.Controls.TeachingTipClosedEventArgs args)
+        {
+            _onErrorTeachingTipClosed?.Invoke();
+            _onErrorTeachingTipClosed = null;
+            AppErrorTeachingTip.ActionButtonCommand = null;
         }
     }
 

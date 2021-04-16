@@ -140,7 +140,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         }
 
 
-        static LocalObjectStorageHelper _localObjectStorage = new LocalObjectStorageHelper();
+        static LocalObjectStorageHelper _localObjectStorage = new LocalObjectStorageHelper(new JsonObjectSerializer());
         void SaveDisplayMode()
         {
             _localObjectStorage.Save(nameof(PlayerDisplayView), DisplayMode);

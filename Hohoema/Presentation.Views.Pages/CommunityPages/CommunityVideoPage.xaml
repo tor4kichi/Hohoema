@@ -9,10 +9,11 @@
       xmlns:toolkit="using:WinRTXamlToolkit.Controls"
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
       xmlns:controls="using:Hohoema.Presentation.Views.Controls"
-      xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+      xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI"
       xmlns:actions="using:Hohoema.Presentation.Views.Actions" 
       xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
-      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+      xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
       DataContext="{x:Null}" 
       NavigationCacheMode="Enabled" 
       mc:Ignorable="d"
@@ -34,6 +35,8 @@
         <TransitionCollection></TransitionCollection>
       </ListView.ItemContainerTransitions>
       <i:Interaction.Behaviors>
+        <behaviors:StickyHeaderBehavior />
+        
         <mybehavior:KeyboardTrigger Key="F5">
           <mybehavior:KeyboardTrigger.Actions>
             <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
@@ -50,31 +53,31 @@
       </i:Interaction.Behaviors>
       <ListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-          <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
-            <toolkit:DockPanel>
-              <StackPanel>
-                <CommandBar x:Name="TopCommandBar">
-                  <CommandBar.Content>
-                    <controls:AppTitleBar Title="{Binding Title}" />
-                  </CommandBar.Content>
-                  
-                  <CommandBar.PrimaryCommands>
-                    <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
-                      <i:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="Click">
-                          <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
-                        </core:EventTriggerBehavior>
-                      </i:Interaction.Behaviors>
-                    </AppBarButton>
-                    <AppBarButton x:Name="OpenCommunityPageButton" Command="{Binding OpenCommunityPageCommand}">
-                      <TextBlock>
+
+          <toolkit:DockPanel>
+            <StackPanel>
+              <CommandBar x:Name="TopCommandBar">
+                <CommandBar.Content>
+                  <controls:AppTitleBar Title="{Binding Title}" />
+                </CommandBar.Content>
+
+                <CommandBar.PrimaryCommands>
+                  <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="Click">
+                        <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                  </AppBarButton>
+                  <AppBarButton x:Name="OpenCommunityPageButton" Command="{Binding OpenCommunityPageCommand}">
+                    <TextBlock>
                                         <Run Text="{Binding CommunityName}" /></TextBlock>
-                    </AppBarButton>
-                  </CommandBar.PrimaryCommands>
-                </CommandBar>
-              </StackPanel>
-            </toolkit:DockPanel>
-          </controls:ScrollHeader>
+                  </AppBarButton>
+                </CommandBar.PrimaryCommands>
+              </CommandBar>
+            </StackPanel>
+          </toolkit:DockPanel>
+
         </Grid>
       </ListView.Header>
       <ListView.ItemTemplate>

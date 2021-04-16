@@ -10,7 +10,7 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior ="using:Hohoema.Presentation.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
-    xmlns:uwpextention="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:uwpextention="using:Microsoft.Toolkit.Uwp.UI"
     d:DesignHeight="300"
     d:DesignWidth="400"
     VerticalAlignment="Center"

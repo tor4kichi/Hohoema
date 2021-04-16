@@ -26,36 +26,34 @@
     <videolistPage:VideoItemsListView x:Name="VideoItemsListView" ItemsSource="{Binding ItemsView}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}">
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-          <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
-            <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-              <CommandBar x:Name="VideoListCommandBar" Background="{StaticResource MenuBackgroundBrush}" HorizontalAlignment="Right">
-                <CommandBar.Content>
-                  <controls:AppTitleBar Title="{Binding Title}" />
-                </CommandBar.Content>
-                
-                <CommandBar.PrimaryCommands>
-                  <AppBarButton Label="{i18nExt:Localize Key=VideoOwner}" Command="{Binding OpenVideoOwnerUserPageCommand}"
+          <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <CommandBar x:Name="VideoListCommandBar" Background="{StaticResource MenuBackgroundBrush}" HorizontalAlignment="Right">
+              <CommandBar.Content>
+                <controls:AppTitleBar Title="{Binding Title}" />
+              </CommandBar.Content>
+
+              <CommandBar.PrimaryCommands>
+                <AppBarButton Label="{i18nExt:Localize Key=VideoOwner}" Command="{Binding OpenVideoOwnerUserPageCommand}"
                                 />
-                  <AppBarButton x:Name="FeedRegstrationButton" Label="{i18nExt:Localize Key=SubscriptionAddUser}" Icon="Add" Visibility="Visible"
+                <AppBarButton x:Name="FeedRegstrationButton" Label="{i18nExt:Localize Key=SubscriptionAddUser}" Icon="Add" Visibility="Visible"
                                 Command="{Binding AddSubscriptionCommand}"
                                 CommandParameter="{Binding UserInfo.Value}"
                                 >
-                  </AppBarButton>
+                </AppBarButton>
 
-                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
-                  <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
-                    <i:Interaction.Behaviors>
-                      <core:EventTriggerBehavior EventName="Click">
-                        <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                      </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                  </AppBarButton>
-                  <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" VerticalAlignment="Center"></AppBarButton>
-                </CommandBar.PrimaryCommands>
-              </CommandBar>
-            </Grid>
-          </controls:ScrollHeader>
+                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" VerticalAlignment="Center"></AppBarButton>
+              </CommandBar.PrimaryCommands>
+            </CommandBar>
+          </Grid>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
       <videolistPage:VideoItemsListView.ItemTemplate>
@@ -119,7 +117,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
-            <Setter Target="ScrollHeader.Mode" Value="None" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>

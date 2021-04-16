@@ -23,7 +23,7 @@ namespace Hohoema.Presentation.ViewModels
 
 		public virtual uint OneTimeLoadCount => DefaultOneTimeLoadCount;
 
-		public async IAsyncEnumerable<T> GetPagedItems(int head, int count, CancellationToken ct = default)
+		public async IAsyncEnumerable<T> GetPagedItems(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
 		{
             using (var releaser = await _PageLoadingLock.LockAsync())
             {

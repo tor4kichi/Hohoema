@@ -12,7 +12,7 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:hohoemalistitem="using:Hohoema.Presentation.Views.HohoemaListItem" 
   xmlns:videoListPage="using:Hohoema.Presentation.Views.Pages.VideoListPage" mc:Ignorable="d"

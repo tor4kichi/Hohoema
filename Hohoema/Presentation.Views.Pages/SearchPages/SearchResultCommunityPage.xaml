@@ -1,23 +1,24 @@
 ﻿<Page
-    x:Class="Hohoema.Presentation.Views.Pages.SearchPages.SearchResultCommunityPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  x:Class="Hohoema.Presentation.Views.Pages.SearchPages.SearchResultCommunityPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:toolkit="using:WinRTXamlToolkit.Controls"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-  xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
-  xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+  xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:actions="using:Hohoema.Presentation.Views.Actions"
   xmlns:communityViews="using:Hohoema.Presentation.Views.Pages.CommunityPages"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
   DataContext="{x:Null}"
-    NavigationCacheMode="Enabled"
-    mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
+  NavigationCacheMode="Enabled"
+  mc:Ignorable="d"
+  d:DesignHeight="300"
+  d:DesignWidth="400"
+  >
   <Page.Transitions>
     <TransitionCollection>
       <NavigationThemeTransition>
@@ -26,7 +27,6 @@
     </TransitionCollection>
   </Page.Transitions>
   <Grid>
-
     <ListView x:Name="ItemsList"
               ItemsSource="{Binding ItemsView, Mode=OneWay}"
               IsItemClickEnabled="True"
@@ -40,6 +40,8 @@
         <TransitionCollection></TransitionCollection>
       </ListView.ItemContainerTransitions>
       <i:Interaction.Behaviors>
+        <behaviors:StickyHeaderBehavior />
+        
         <mybehavior:KeyboardTrigger Key="F5">
           <mybehavior:KeyboardTrigger.Actions>
             <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
@@ -56,32 +58,30 @@
       </i:Interaction.Behaviors>
       <ListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-          <uwpcontrols:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
-            <StackPanel >
-              <CommandBar>
-                <CommandBar.PrimaryCommands>
-                  <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
-                    <i:Interaction.Behaviors>
-                      <core:EventTriggerBehavior EventName="Click">
-                        <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
-                      </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                  </AppBarButton>
-                  <AppBarButton Background="Transparent" Label="{i18nExt:Localize Key=Refresh}" Command="{Binding RefreshCommand}"  Icon="Refresh" />
-                </CommandBar.PrimaryCommands>
-                <CommandBar.Content>
-                  <toolkit:DockPanel Margin="0 0 0 0" x:Name="TitleLayout">
-                    <StackPanel Orientation="Horizontal">
-                      <ComboBox ItemsSource="{Binding CommunitySearchSortOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" >
-                      </ComboBox>
-                      <ComboBox ItemsSource="{Binding CommunitySearchModeOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
-                      </ComboBox>
-                    </StackPanel>
-                  </toolkit:DockPanel>
-                </CommandBar.Content>
-              </CommandBar>
-            </StackPanel>
-          </uwpcontrols:ScrollHeader>
+          <StackPanel >
+            <CommandBar>
+              <CommandBar.PrimaryCommands>
+                <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+                <AppBarButton Background="Transparent" Label="{i18nExt:Localize Key=Refresh}" Command="{Binding RefreshCommand}"  Icon="Refresh" />
+              </CommandBar.PrimaryCommands>
+              <CommandBar.Content>
+                <toolkit:DockPanel Margin="0 0 0 0" x:Name="TitleLayout">
+                  <StackPanel Orientation="Horizontal">
+                    <ComboBox ItemsSource="{Binding CommunitySearchSortOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" >
+                    </ComboBox>
+                    <ComboBox ItemsSource="{Binding CommunitySearchModeOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                    </ComboBox>
+                  </StackPanel>
+                </toolkit:DockPanel>
+              </CommandBar.Content>
+            </CommandBar>
+          </StackPanel>
         </Grid>
       </ListView.Header>
       <ListView.ItemTemplate>

@@ -15,7 +15,7 @@
     xmlns:controls="using:Hohoema.Presentation.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:actions="using:Hohoema.Presentation.Views.Actions"
     xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage" 
@@ -36,37 +36,32 @@
                                       >
       <videolistPage:VideoItemsListView.Header>
 
-        <controls:ScrollHeader x:Name="ScrollHeader"
-                               Mode="Sticky"
-                               Background="{StaticResource MenuBackgroundBrush}"
-                               >
-          <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-            <CommandBar >
-              <CommandBar.Content>
-                <controls:AppTitleBar Title="{Binding Title}" />
-              </CommandBar.Content>
-              
-              <CommandBar.PrimaryCommands>
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+          <CommandBar >
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{Binding Title}" />
+            </CommandBar.Content>
 
-                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
-              </CommandBar.PrimaryCommands>
-              <CommandBar.SecondaryCommands>
-                <AppBarButton Label="{Binding CacheSaveFolderPath.Value}" IsEnabled="False" />
-                <AppBarButton Label="{i18nExt:Localize Key=OpenCacheFolder}" Command="{Binding OpenCurrentCacheFolderCommand}" />
-                <AppBarSeparator />
-                <AppBarButton Label="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{Binding ChangeCacheFolderCommand}" />
-                <AppBarButton Label="{i18nExt:Localize Key=OpenHohoemaCacheVideoFairUsePolicyText}" Command="{Binding ReadCacheAcceptTextCommand}" />
-              </CommandBar.SecondaryCommands>
-            </CommandBar>
-          </Grid>
-        </controls:ScrollHeader>
+            <CommandBar.PrimaryCommands>
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Click">
+                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+              <AppBarButton Label="{Binding CacheSaveFolderPath.Value}" IsEnabled="False" />
+              <AppBarButton Label="{i18nExt:Localize Key=OpenCacheFolder}" Command="{Binding OpenCurrentCacheFolderCommand}" />
+              <AppBarSeparator />
+              <AppBarButton Label="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{Binding ChangeCacheFolderCommand}" />
+              <AppBarButton Label="{i18nExt:Localize Key=OpenHohoemaCacheVideoFairUsePolicyText}" Command="{Binding ReadCacheAcceptTextCommand}" />
+            </CommandBar.SecondaryCommands>
+          </CommandBar>
+        </Grid>
       </videolistPage:VideoItemsListView.Header>
 
       <videolistPage:VideoItemsListView.ItemTemplate>

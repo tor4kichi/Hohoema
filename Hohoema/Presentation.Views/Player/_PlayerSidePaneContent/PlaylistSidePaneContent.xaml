@@ -9,7 +9,7 @@
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
   xmlns:toolkit="using:WinRTXamlToolkit.Controls"
   xmlns:iconPack="using:MahApps.Metro.IconPacks"
-  xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+  xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" 
   xmlns:videoList="using:Hohoema.Presentation.Views.Pages.VideoListPage" 
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
@@ -59,7 +59,15 @@
         </Button>
       </toolkit:DockPanel>
 
-      <ListView x:Name="ItemsListView" ItemsSource="{x:Bind _viewModel.CollectionViewSource.View}" SelectionMode="None" SingleSelectionFollowsFocus="False" IsItemClickEnabled="True" IsFocusEngagementEnabled="True" uwpext:ListViewExtensions.AlternateColor="{ThemeResource ToggleSwitchTrackDisabledBackgroundThemeBrush}" uwpext:ListViewExtensions.StretchItemContainerDirection="Horizontal">
+      <ListView x:Name="ItemsListView"
+                ItemsSource="{x:Bind _viewModel.CollectionViewSource.View}" 
+                SelectionMode="None" 
+                SingleSelectionFollowsFocus="False"
+                IsItemClickEnabled="True"
+                IsFocusEngagementEnabled="True" 
+                uwpext:ListViewExtensions.AlternateColor="{ThemeResource ToggleSwitchTrackDisabledBackgroundThemeBrush}"
+                uwpext:ListViewExtensions.ItemContainerStretchDirection="Horizontal"
+                >
         <i:Interaction.Behaviors>
           <core:EventTriggerBehavior EventName="ItemClick">
             <core:InvokeCommandAction Command="{x:Bind _viewModel.PlayWithCurrentPlaylistCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />

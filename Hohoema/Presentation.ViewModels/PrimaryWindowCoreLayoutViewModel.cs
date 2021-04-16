@@ -32,6 +32,10 @@ using Windows.UI.Xaml;
 using NiconicoLiveToolkit.Live.Notify;
 using Hohoema.Presentation.ViewModels.LivePages.Commands;
 using NiconicoLiveToolkit.Live;
+using Windows.UI.Popups;
+using Hohoema.Presentation.Views.Dialogs;
+using Windows.UI.Xaml.Media.Imaging;
+using Microsoft.AppCenter.Crashes;
 
 namespace Hohoema.Presentation.ViewModels
 {  
@@ -55,6 +59,8 @@ namespace Hohoema.Presentation.ViewModels
         private readonly UserMylistManager _userMylistManager;
         private readonly LocalMylistManager _localMylistManager;
         public OpenLiveContentCommand OpenLiveContentCommand { get; }
+
+        private readonly ErrorTrackingManager _errorTrackingManager;
         private readonly DialogService _dialogService;
 
 
@@ -69,6 +75,7 @@ namespace Hohoema.Presentation.ViewModels
         public LocalMylistSubMenuItemViewModel _localMylistMenuSubItemViewModel { get; }
 
         public PrimaryWindowCoreLayoutViewModel(
+            ErrorTrackingManager errorTrackingManager,
             IEventAggregator eventAggregator,
             NiconicoSession niconicoSession,
             PageManager pageManager,
@@ -90,6 +97,7 @@ namespace Hohoema.Presentation.ViewModels
             OpenLiveContentCommand openLiveContentCommand
             )
         {
+            _errorTrackingManager = errorTrackingManager;
             EventAggregator = eventAggregator;
             NiconicoSession = niconicoSession;
             PageManager = pageManager;
@@ -223,6 +231,37 @@ namespace Hohoema.Presentation.ViewModels
         }
 
         #endregion
+
+        #region
+
+        
+
+        private DelegateCommand _RequestApplicationRestartCommand;
+        public DelegateCommand RequestApplicationRestartCommand
+        {
+            get
+            {
+                return _RequestApplicationRestartCommand
+                    ?? (_RequestApplicationRestartCommand = new DelegateCommand(async () =>
+                    {
+                        var result = await Windows.ApplicationModel.Core.CoreApplication.RequestRestartAsync(string.Empty);
+                    }));
+            }
+        }
+
+        #endregion
+    }
+
+
+    public sealed class LiteIssueDummyException : Exception
+    {
+        public LiteIssueDummyException()
+        {
+        }
+
+        public LiteIssueDummyException(string message) : base(message)
+        {
+        }
     }
 
     public sealed class SearchAutoSuggestItemViewModel
@@ -381,6 +420,8 @@ namespace Hohoema.Presentation.ViewModels
                 _pinSettings.UpdateItem(pin.Pin);
             }
         }
+
+
     }
 
 

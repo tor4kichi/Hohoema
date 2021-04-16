@@ -1,22 +1,21 @@
 ﻿<Page
-    x:Class="Hohoema.Presentation.Views.Pages.SearchPages.SearchResultTagPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  x:Class="Hohoema.Presentation.Views.Pages.SearchPages.SearchResultTagPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:toolkit="using:WinRTXamlToolkit.Controls"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-  xmlns:controls="using:Hohoema.Presentation.Views.Controls"
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   DataContext="{x:Null}"
-    NavigationCacheMode="Enabled"
-    mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400"
-    >
+  NavigationCacheMode="Enabled"
+  mc:Ignorable="d"
+  d:DesignHeight="300"
+  d:DesignWidth="400"
+  >
   <Page.Transitions>
     <TransitionCollection>
       <NavigationThemeTransition>
@@ -28,42 +27,40 @@
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}" x:Name="VideoItemsListView">
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-          <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
-            <StackPanel >
-              <CommandBar>
-                <CommandBar.PrimaryCommands>
+          <StackPanel >
+            <CommandBar>
+              <CommandBar.PrimaryCommands>
 
-                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
-                  <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
-                    <i:Interaction.Behaviors>
-                      <core:EventTriggerBehavior EventName="Click">
-                        <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                      </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                  </AppBarButton>
-                  <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
-                  <AppBarToggleButton x:Name="TagFollowButton" Label="{i18nExt:Localize Key=Follow}" Icon="Favorite" IsChecked="{Binding FollowButtonService.IsFollowTarget.Value, Mode=TwoWay}" Command="{Binding FollowButtonService.ToggleFollowCommand}" Visibility="Collapsed" />
-                </CommandBar.PrimaryCommands>
-                <CommandBar.SecondaryCommands>
-                  <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{i18nExt:Localize Key=SubscriptionAddTag}"
+                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
+                <AppBarToggleButton x:Name="TagFollowButton" Label="{i18nExt:Localize Key=Follow}" Icon="Favorite" IsChecked="{Binding FollowButtonService.IsFollowTarget.Value, Mode=TwoWay}" Command="{Binding FollowButtonService.ToggleFollowCommand}" Visibility="Collapsed" />
+              </CommandBar.PrimaryCommands>
+              <CommandBar.SecondaryCommands>
+                <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{i18nExt:Localize Key=SubscriptionAddTag}"
                                 Command="{Binding AddTagSearchSubscriptionCommand}"
                                 CommandParameter="{Binding Keyword}"
                                 >
-                  </AppBarButton>
-                </CommandBar.SecondaryCommands>
-                <CommandBar.Content>
-                  <toolkit:DockPanel x:Name="TitleLayout" Margin="0 0 0 0">
-                    <ComboBox ItemsSource="{Binding VideoSearchOptionListItems}" 
+                </AppBarButton>
+              </CommandBar.SecondaryCommands>
+              <CommandBar.Content>
+                <toolkit:DockPanel x:Name="TitleLayout" Margin="0 0 0 0">
+                  <ComboBox ItemsSource="{Binding VideoSearchOptionListItems}" 
                                 DisplayMemberPath="Label" 
                                 SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" 
                                 Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
-                    </ComboBox>
-                  </toolkit:DockPanel>
-                </CommandBar.Content>
-              </CommandBar>
-            </StackPanel>
-          </controls:ScrollHeader>
+                  </ComboBox>
+                </toolkit:DockPanel>
+              </CommandBar.Content>
+            </CommandBar>
+          </StackPanel>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
       <videolistPage:VideoItemsListView.ItemTemplate>

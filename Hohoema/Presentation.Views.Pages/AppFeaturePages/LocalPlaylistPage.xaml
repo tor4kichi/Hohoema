@@ -36,54 +36,51 @@
 
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-          <controls:ScrollHeader x:Name="ScrollHeader"
-                                 Mode="Sticky">
-            <StackPanel>
-              <CommandBar x:Name="VideoListCommandBar"
+          <StackPanel>
+            <CommandBar x:Name="VideoListCommandBar"
                           Background="Transparent"
                           OverflowButtonVisibility="Auto">
-                <CommandBar.Content>
-                  <controls:AppTitleBar Title="{Binding Title}" />
-                </CommandBar.Content>
-                <CommandBar.PrimaryCommands>
-                  <AppBarButton x:Name="RemoveWatchedItemsButton"
+              <CommandBar.Content>
+                <controls:AppTitleBar Title="{Binding Title}" />
+              </CommandBar.Content>
+              <CommandBar.PrimaryCommands>
+                <AppBarButton x:Name="RemoveWatchedItemsButton"
                                 Label="{i18nExt:Localize Key=RemoveWatchedItems}"
                                 Command="{Binding RemoveWatchedItemsInAfterWatchPlaylistCommand}"
                                 Icon="Delete"
                                 Visibility="Collapsed"
                                 />
-                  
-                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
-                  
-                  <!-- 非選択中 -->
-                  <AppBarButton x:Name="PlayAllButton"
+
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+
+                <!-- 非選択中 -->
+                <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"
                                 Command="{Binding PlaylistPlayAllCommand}"
                                 CommandParameter="{Binding Playlist}"></AppBarButton>
 
-                  <AppBarButton x:Name="ScrollToTopButton"
+                <AppBarButton x:Name="ScrollToTopButton"
                                 Icon="Up"
                                 Label="{i18nExt:Localize Key=ReturnToPageTop}">
-                    <i:Interaction.Behaviors>
-                      <core:EventTriggerBehavior EventName="Click">
-                        <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}"
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}"
                                                MethodName="ResetScrollPosition" />
-                      </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                  </AppBarButton>
-                </CommandBar.PrimaryCommands>
-                <CommandBar.SecondaryCommands>
-                  <AppBarButton x:Name="DeletePlaylistButton"
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+              </CommandBar.PrimaryCommands>
+              <CommandBar.SecondaryCommands>
+                <AppBarButton x:Name="DeletePlaylistButton"
                                 Command="{Binding LocalPlaylistDeleteCommand}"
                                 CommandParameter="{Binding Playlist}"
                                 Background="Transparent"
                                 Icon="Delete"
                                 Label="{i18nExt:Localize Key=LocalPlaylistDelete}"></AppBarButton>
-                </CommandBar.SecondaryCommands>
-              </CommandBar>
-            </StackPanel>
-          </controls:ScrollHeader>
+              </CommandBar.SecondaryCommands>
+            </CommandBar>
+          </StackPanel>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
 

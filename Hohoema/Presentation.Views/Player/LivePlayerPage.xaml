@@ -22,7 +22,7 @@
       xmlns:controls="using:Hohoema.Presentation.Views.Controls" 
       xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector" 
       xmlns:windowsTrigger="using:WindowsStateTriggers" 
-      xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions" 
+      xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI" 
       xmlns:playerService="using:Hohoema.Presentation.Services.Player" 
       xmlns:models="using:Hohoema.Models.Domain.Application" 
       xmlns:liveToolkitWatchSession="using:NiconicoLiveToolkit.Live.WatchSession" 

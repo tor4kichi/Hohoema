@@ -28,41 +28,39 @@
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}" x:Name="VideoItemsListView">
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-          <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky" IsTabStop="False">
-            <StackPanel >
-              <CommandBar>
-                <CommandBar.PrimaryCommands>
+          <StackPanel >
+            <CommandBar>
+              <CommandBar.PrimaryCommands>
 
-                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
-                  <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
-                    <i:Interaction.Behaviors>
-                      <core:EventTriggerBehavior EventName="Click">
-                        <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                      </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                  </AppBarButton>
-                  <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
-                </CommandBar.PrimaryCommands>
-                <CommandBar.SecondaryCommands>
-                  <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{i18nExt:Localize Key=SubscriptionAddKeyword}"
+                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
+              </CommandBar.PrimaryCommands>
+              <CommandBar.SecondaryCommands>
+                <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{i18nExt:Localize Key=SubscriptionAddKeyword}"
                                 Command="{Binding AddKeywordSearchSubscriptionCommand}"
                                 CommandParameter="{Binding Keyword}"
                                 >
-                  </AppBarButton>
-                </CommandBar.SecondaryCommands>
-                <CommandBar.Content>
-                  <toolkit:DockPanel x:Name="TitleLayout" Margin="0 0 0 0">
-                    <ComboBox ItemsSource="{Binding VideoSearchOptionListItems}" 
+                </AppBarButton>
+              </CommandBar.SecondaryCommands>
+              <CommandBar.Content>
+                <toolkit:DockPanel x:Name="TitleLayout" Margin="0 0 0 0">
+                  <ComboBox ItemsSource="{Binding VideoSearchOptionListItems}" 
                                 DisplayMemberPath="Label" 
                                 SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" 
                                 Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
-                    </ComboBox>
-                  </toolkit:DockPanel>
-                </CommandBar.Content>
-              </CommandBar>
-            </StackPanel>
-          </controls:ScrollHeader>
+                  </ComboBox>
+                </toolkit:DockPanel>
+              </CommandBar.Content>
+            </CommandBar>
+          </StackPanel>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
       <videolistPage:VideoItemsListView.ItemTemplate>

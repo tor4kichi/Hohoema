@@ -9,15 +9,16 @@
   xmlns:toolkit="using:WinRTXamlToolkit.Controls"
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
   xmlns:controls="using:Hohoema.Presentation.Views.Controls"
-  xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+  xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:actions="using:Hohoema.Presentation.Views.Actions"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
   DataContext="{x:Null}"
-    NavigationCacheMode="Enabled"
-    mc:Ignorable="d"
-    >
+  NavigationCacheMode="Enabled"
+  mc:Ignorable="d"
+  >
   <Grid>
 
     <ListView x:Name="ItemsList"
@@ -32,6 +33,8 @@
               xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
               myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}">
       <i:Interaction.Behaviors>
+        <behaviors:StickyHeaderBehavior />
+        
         <mybehavior:KeyboardTrigger Key="F5">
           <mybehavior:KeyboardTrigger.Actions>
             <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
@@ -44,47 +47,45 @@
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
       <ListView.Header>
-        <controls:ScrollHeader x:Name="ScrollHeader" Mode="QuickReturn">
-          <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <CommandBar x:Name="TopCommandBar" toolkit:DockPanel.Dock="Right" VerticalContentAlignment="Bottom">
+        <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+          <CommandBar x:Name="TopCommandBar" toolkit:DockPanel.Dock="Right" VerticalContentAlignment="Bottom">
 
-              <CommandBar.Content>
-                <controls:AppTitleBar Title="{Binding Title}" />
-              </CommandBar.Content>
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{Binding Title}" />
+            </CommandBar.Content>
 
-              
-              <CommandBar.SecondaryCommands></CommandBar.SecondaryCommands>
-              <CommandBar.PrimaryCommands>
-                <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
-                <AppBarButton x:Name="UpdateButton" Command="{Binding RefreshCommand}" Background="Transparent" Icon="Refresh" Label="更新" />
-                <AppBarButton Label="{i18nExt:Localize Key=RelatedTags}" Icon="Tag">
-                  <AppBarButton.Flyout>
-                    <Flyout>
-                      <ListView ItemsSource="{Binding RecommendSourceTags}"
+
+            <CommandBar.SecondaryCommands></CommandBar.SecondaryCommands>
+            <CommandBar.PrimaryCommands>
+              <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Click">
+                    <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+              <AppBarButton x:Name="UpdateButton" Command="{Binding RefreshCommand}" Background="Transparent" Icon="Refresh" Label="更新" />
+              <AppBarButton Label="{i18nExt:Localize Key=RelatedTags}" Icon="Tag">
+                <AppBarButton.Flyout>
+                  <Flyout>
+                    <ListView ItemsSource="{Binding RecommendSourceTags}"
                                 IsItemClickEnabled="True"
                                 SelectionMode="None"
                                 DisplayMemberPath="Tag">
-                        <i:Interaction.Behaviors>
-                          <core:EventTriggerBehavior EventName="ItemClick">
-                            <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                      <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="ItemClick">
+                          <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
                                                       InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-                          </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-                      </ListView>
-                    </Flyout>
-                  </AppBarButton.Flyout>
-                </AppBarButton>
-              </CommandBar.PrimaryCommands>
-              
-            </CommandBar>
-          </StackPanel>
-        </controls:ScrollHeader>
+                        </core:EventTriggerBehavior>
+                      </i:Interaction.Behaviors>
+                    </ListView>
+                  </Flyout>
+                </AppBarButton.Flyout>
+              </AppBarButton>
+            </CommandBar.PrimaryCommands>
+
+          </CommandBar>
+        </StackPanel>
       </ListView.Header>
       <ListView.ItemTemplate>
         <DataTemplate>
@@ -112,7 +113,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
-            <Setter Target="ScrollHeader.Mode" Value="None" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>

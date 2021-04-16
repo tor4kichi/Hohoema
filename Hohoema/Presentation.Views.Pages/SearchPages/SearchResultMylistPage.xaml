@@ -8,11 +8,11 @@
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-  xmlns:controls="using:Hohoema.Presentation.Views.Controls"
-  xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+  xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:actions="using:Hohoema.Presentation.Views.Actions"
   xmlns:mylistPages="using:Hohoema.Presentation.Views.Pages.MylistPages"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
   DataContext="{x:Null}"
   NavigationCacheMode="Enabled"
   mc:Ignorable="d"
@@ -41,6 +41,8 @@
         <TransitionCollection></TransitionCollection>
       </GridView.ItemContainerTransitions>
       <i:Interaction.Behaviors>
+        <behaviors:StickyHeaderBehavior />
+        
         <mybehavior:KeyboardTrigger Key="F5">
           <mybehavior:KeyboardTrigger.Actions>
             <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
@@ -58,28 +60,26 @@
       </i:Interaction.Behaviors>
       <GridView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-          <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
-            <StackPanel>
-              <CommandBar>
-                <CommandBar.PrimaryCommands>
-                  <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
-                    <i:Interaction.Behaviors>
-                      <core:EventTriggerBehavior EventName="Click">
-                        <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
-                      </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                  </AppBarButton>
-                  <AppBarButton Background="Transparent" Label="{i18nExt:Localize Key=Refresh}" Command="{Binding RefreshCommand}" Icon="Refresh" />
-                </CommandBar.PrimaryCommands>
-                <CommandBar.Content>
-                  <toolkit:DockPanel x:Name="TitleLayout" Margin="0 0 0 0">
-                    <ComboBox ItemsSource="{Binding MylistSearchOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
-                    </ComboBox>
-                  </toolkit:DockPanel>
-                </CommandBar.Content>
-              </CommandBar>
-            </StackPanel>
-          </controls:ScrollHeader>
+          <StackPanel>
+            <CommandBar>
+              <CommandBar.PrimaryCommands>
+                <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+                <AppBarButton Background="Transparent" Label="{i18nExt:Localize Key=Refresh}" Command="{Binding RefreshCommand}" Icon="Refresh" />
+              </CommandBar.PrimaryCommands>
+              <CommandBar.Content>
+                <toolkit:DockPanel x:Name="TitleLayout" Margin="0 0 0 0">
+                  <ComboBox ItemsSource="{Binding MylistSearchOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                  </ComboBox>
+                </toolkit:DockPanel>
+              </CommandBar.Content>
+            </CommandBar>
+          </StackPanel>
         </Grid>
       </GridView.Header>
       <GridView.ItemTemplate>

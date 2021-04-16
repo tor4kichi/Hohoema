@@ -15,7 +15,7 @@
       xmlns:uwptoolkitControl="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
       xmlns:myconverters="using:Hohoema.Presentation.Views.Converters"
-      xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+      xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
       xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector"
       xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
       xmlns:locales="using:Hohoema.Locales"

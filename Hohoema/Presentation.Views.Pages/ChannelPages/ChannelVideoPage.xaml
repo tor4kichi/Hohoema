@@ -14,7 +14,7 @@
     xmlns:controls="using:Hohoema.Presentation.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:actions="using:Hohoema.Presentation.Views.Actions"
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
@@ -41,34 +41,33 @@
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
-        <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
-          <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-            <CommandBar x:Name="VideoListCommandBar" HorizontalAlignment="Right">
-              <CommandBar.Content>
-                <controls:AppTitleBar Title="{Binding Title}" />
-              </CommandBar.Content>
-              
-              <CommandBar.PrimaryCommands>
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+          <CommandBar x:Name="VideoListCommandBar" HorizontalAlignment="Right">
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{Binding Title}" />
+            </CommandBar.Content>
 
-                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
+            <CommandBar.PrimaryCommands>
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
-                <AppBarButton x:Name="RefreshButton"
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Click">
+                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+
+              <AppBarButton x:Name="RefreshButton"
                               Label="{i18nExt:Localize Key=Refresh}" 
                               Icon="Refresh"
                               Command="{Binding RefreshCommand}"
                               IsEnabled="{Binding CanChangeSort.Value}"
                               VerticalAlignment="Center"
                           >
-                </AppBarButton>
+              </AppBarButton>
 
-                <AppBarToggleButton x:Name="ChannelFollowButton"
+              <AppBarToggleButton x:Name="ChannelFollowButton"
                                     Background="Transparent"
                                     IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}"
                                     Command="{Binding FollowToggleButtonService.ToggleFollowCommand}"
@@ -76,19 +75,18 @@
                                     Label="{i18nExt:Localize Key=Follow}"
                                     Visibility="Collapsed"
                                     />
-              </CommandBar.PrimaryCommands>
-              <CommandBar.SecondaryCommands>
-                <AppBarButton Label="{i18nExt:Localize Key=OpenWithBrowser}"
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+              <AppBarButton Label="{i18nExt:Localize Key=OpenWithBrowser}"
                                             Command="{Binding ExternalAccessService.OpenLinkCommand}"
                                               CommandParameter="{Binding ChannelInfo}"
                                             VerticalAlignment="Center"
                                             UseSystemFocusVisuals="True"
                                             />
 
-              </CommandBar.SecondaryCommands>
-            </CommandBar>
-          </Grid>
-        </controls:ScrollHeader>
+            </CommandBar.SecondaryCommands>
+          </CommandBar>
+        </Grid>
       </videolistPage:VideoItemsListView.Header>
 
       <videolistPage:VideoItemsListView.ItemTemplate>
@@ -140,7 +138,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="VideoItemsListView.Padding" Value="48 0 48 27" />
-            <Setter Target="ScrollHeader.Mode" Value="None" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>

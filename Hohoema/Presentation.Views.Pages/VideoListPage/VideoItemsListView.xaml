@@ -7,10 +7,10 @@
   xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-  xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+  xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:wst="using:WindowsStateTriggers" 
   xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
   mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"
@@ -102,6 +102,8 @@
         </ListView.Header>
 
         <i:Interaction.Behaviors>
+          <behaviors:StickyHeaderBehavior />
+          
           <core:EventTriggerBehavior EventName="ItemClick">
             <core:InvokeCommandAction Command="{x:Bind ItemCommand, Mode=OneWay}"
                                     InputConverter="{StaticResource ItemClickEventArgsConverter}" />

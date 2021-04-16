@@ -19,40 +19,38 @@
     <videolistPage:VideoItemsListView x:Name="VideoItemsListView" ItemsSource="{Binding Histories}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}" >
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-          <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
-            <Grid>
-              <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
-                <CommandBar.Content>
-                  <controls:AppTitleBar Title="{Binding Title}" />
-                </CommandBar.Content>
-                <CommandBar.PrimaryCommands>
+          <Grid>
+            <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+              <CommandBar.Content>
+                <controls:AppTitleBar Title="{Binding Title}" />
+              </CommandBar.Content>
+              <CommandBar.PrimaryCommands>
 
-                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
-                  <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
-                    <i:Interaction.Behaviors>
-                      <core:EventTriggerBehavior EventName="Click">
-                        <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                      </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                  </AppBarButton>
-                  <AppBarButton Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" x:Name="RefreshButton" VerticalAlignment="Center"></AppBarButton>
-                </CommandBar.PrimaryCommands>
-                <CommandBar.SecondaryCommands>
-                  <AppBarButton Label="{i18nExt:Localize Key=WatchHistoryRemoveAll}" IsEnabled="{Binding HasItem.Value}" Icon="Delete" AllowFocusOnInteraction="True">
-                    <AppBarButton.Flyout>
-                      <Flyout>
-                        <StackPanel Margin="8" Width="240">
-                          <TextBlock Margin="0 0 0 16" LineHeight="20" TextWrapping="Wrap" Text="{i18nExt:Localize Key=WatchHistoryConfirmRemoveDescription}"></TextBlock>
-                          <Button Content="{i18nExt:Localize Key=WatchHistoryConfirmRemove}" Command="{Binding WatchHistoryRemoveAllCommand}" HorizontalAlignment="Stretch" />
-                        </StackPanel>
-                      </Flyout>
-                    </AppBarButton.Flyout>
-                  </AppBarButton>
-                </CommandBar.SecondaryCommands>
-              </CommandBar>
-            </Grid>
-          </controls:ScrollHeader>
+                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+                <AppBarButton Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" x:Name="RefreshButton" VerticalAlignment="Center"></AppBarButton>
+              </CommandBar.PrimaryCommands>
+              <CommandBar.SecondaryCommands>
+                <AppBarButton Label="{i18nExt:Localize Key=WatchHistoryRemoveAll}" IsEnabled="{Binding HasItem.Value}" Icon="Delete" AllowFocusOnInteraction="True">
+                  <AppBarButton.Flyout>
+                    <Flyout>
+                      <StackPanel Margin="8" Width="240">
+                        <TextBlock Margin="0 0 0 16" LineHeight="20" TextWrapping="Wrap" Text="{i18nExt:Localize Key=WatchHistoryConfirmRemoveDescription}"></TextBlock>
+                        <Button Content="{i18nExt:Localize Key=WatchHistoryConfirmRemove}" Command="{Binding WatchHistoryRemoveAllCommand}" HorizontalAlignment="Stretch" />
+                      </StackPanel>
+                    </Flyout>
+                  </AppBarButton.Flyout>
+                </AppBarButton>
+              </CommandBar.SecondaryCommands>
+            </CommandBar>
+          </Grid>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
       <videolistPage:VideoItemsListView.ItemTemplate>
@@ -121,7 +119,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="VideoItemsListView.Padding" Value="48 0 48 27" />
-            <Setter Target="ScrollHeader.Mode" Value="None" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>

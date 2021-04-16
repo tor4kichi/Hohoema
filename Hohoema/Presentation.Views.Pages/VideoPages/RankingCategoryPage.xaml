@@ -32,58 +32,56 @@
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
-        <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky" IsTabStop="False">
-          <Grid Background="{ThemeResource MenuBackgroundBrush}">
-            <CommandBar x:Name="VideoListCommandBar" HorizontalAlignment="Stretch" >
-              <CommandBar.Content>
-                <controls:AppTitleBar Title="{Binding Title}" />
-              </CommandBar.Content>
+        <Grid Background="{ThemeResource MenuBackgroundBrush}">
+          <CommandBar x:Name="VideoListCommandBar" HorizontalAlignment="Stretch" >
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{Binding Title}" />
+            </CommandBar.Content>
 
-              <CommandBar.PrimaryCommands>
-                
-                <AppBarElementContainer>
-                  <ComboBox x:Name="GenreTagSelector"
+            <CommandBar.PrimaryCommands>
+
+              <AppBarElementContainer>
+                <ComboBox x:Name="GenreTagSelector"
                             ItemsSource="{Binding PickedTags}"
                             SelectedItem="{Binding SelectedRankingTag.Value, Mode=TwoWay}"
                             DisplayMemberPath="Label"
                             >
-                  </ComboBox>
-                </AppBarElementContainer>
+                </ComboBox>
+              </AppBarElementContainer>
 
-                <AppBarElementContainer>
-                  <ComboBox x:Name="RankingTermSelector"
+              <AppBarElementContainer>
+                <ComboBox x:Name="RankingTermSelector"
                             ItemsSource="{Binding CurrentSelectableRankingTerms.Value}"
                             SelectedItem="{Binding SelectedRankingTerm.Value, Mode=TwoWay}"
                             >
-                    <ComboBox.ItemTemplate>
-                      <DataTemplate>
-                        <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                      </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                  </ComboBox>
-                </AppBarElementContainer>
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </AppBarElementContainer>
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
-                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Click">
+                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
 
-                <AppBarButton x:Name="RefreshButton"
+              <AppBarButton x:Name="RefreshButton"
                               Label="{i18nExt:Localize Key=Refresh}" 
                               Icon="Refresh"
                               Command="{Binding RefreshCommand}"
                               IsEnabled="{Binding CanChangeSort.Value}"
                               VerticalAlignment="Center"
                           >
-                </AppBarButton>
-              </CommandBar.PrimaryCommands>
-            </CommandBar>
-          </Grid>
-        </controls:ScrollHeader>
+              </AppBarButton>
+            </CommandBar.PrimaryCommands>
+          </CommandBar>
+        </Grid>
       </videolistPage:VideoItemsListView.Header>
 
       <videolistPage:VideoItemsListView.ItemTemplate>

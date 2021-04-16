@@ -1,24 +1,27 @@
-﻿<Page x:Class="Hohoema.Presentation.Views.Pages.UserFeaturePages.NicoRepoPage"
-      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:i="using:Microsoft.Xaml.Interactivity"
-      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-      xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-      xmlns:controls="using:Hohoema.Presentation.Views.Controls"
-      xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
-      xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
-      xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
-      xmlns:listitem="using:Hohoema.Presentation.Views.HohoemaListItem"
-      xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
-      xmlns:viewModels="using:Hohoema.Presentation.ViewModels"
-      xmlns:videoListPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
-      xmlns:windowsStateTriggers="using:WindowsStateTriggers"
-      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
-      DataContext="{x:Null}"
-      NavigationCacheMode="Enabled"
-      mc:Ignorable="d">
+﻿<Page
+  x:Class="Hohoema.Presentation.Views.Pages.UserFeaturePages.NicoRepoPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
+  xmlns:controls="using:Hohoema.Presentation.Views.Controls"
+  xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI"
+  xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
+  xmlns:listitem="using:Hohoema.Presentation.Views.HohoemaListItem"
+  xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
+  xmlns:viewModels="using:Hohoema.Presentation.ViewModels"
+  xmlns:videoListPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
+  xmlns:windowsStateTriggers="using:WindowsStateTriggers"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
+  DataContext="{x:Null}"
+  NavigationCacheMode="Enabled"
+  mc:Ignorable="d"
+  >
   <Page.Resources>
     <templateSelector:TypeBasedTemplateSelector x:Key="NicoRepoItemTemplateSelector">
       <templateSelector:TypeBasedTemplateSelector.DefaultTemplate>
@@ -105,6 +108,8 @@
         </templateSelector:HohoemaFlyoutTemplateSelector>
       </myExtensions:ListViewBase.ItemContextFlyoutTemplateSelector>
       <i:Interaction.Behaviors>
+        <behaviors:StickyHeaderBehavior />
+        
         <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
         <core:EventTriggerBehavior EventName="ItemClick">
           <core:InvokeCommandAction Command="{Binding OpenNicoRepoItemCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
@@ -112,44 +117,42 @@
       </i:Interaction.Behaviors>
       <ListView.Header>
         <Grid Background="{StaticResource MenuBackgroundBrush}">
-          <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
-            <StackPanel x:Name="HeaderLayout">
-              <CommandBar x:Name="TopCommandBar">
-                <CommandBar.Content>
-                  <controls:AppTitleBar Title="{Binding Title}" />
-                </CommandBar.Content>
+          <StackPanel x:Name="HeaderLayout">
+            <CommandBar x:Name="TopCommandBar">
+              <CommandBar.Content>
+                <controls:AppTitleBar Title="{Binding Title}" />
+              </CommandBar.Content>
 
-                <CommandBar.PrimaryCommands>
-                  <AppBarElementContainer VerticalContentAlignment="Stretch">
-                    <DropDownButton Background="Transparent" VerticalAlignment="Stretch">
-                      <TextBlock>
+              <CommandBar.PrimaryCommands>
+                <AppBarElementContainer VerticalContentAlignment="Stretch">
+                  <DropDownButton Background="Transparent" VerticalAlignment="Stretch">
+                    <TextBlock>
                       <Run Text="{i18nExt:Localize Key=NicoRepoDisplayOptions}" /> : <Run Text="{Binding NicoRepoType.Value, Converter={StaticResource LocalizeConverter}}" />
-                      </TextBlock>
-                      <DropDownButton.Flyout>
-                        <Flyout x:Name="TopicsEditFlyout" >
-                          <ListView ItemsSource="{Binding NicoRepoTypeList, Mode=OneTime}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="False" SelectedItem="{Binding NicoRepoType.Value, Mode=TwoWay}">
-                            <ListView.ItemTemplate>
-                              <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                              </DataTemplate>
-                            </ListView.ItemTemplate>
-                          </ListView>
-                        </Flyout>
-                      </DropDownButton.Flyout>
-                    </DropDownButton>
-                  </AppBarElementContainer>
-                  <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
-                    <i:Interaction.Behaviors>
-                      <core:EventTriggerBehavior EventName="Click">
-                        <core:CallMethodAction TargetObject="{x:Bind}" MethodName="ResetScrollPosition" />
-                      </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                  </AppBarButton>
-                  <AppBarButton x:Name="RefreshButton" Icon="Refresh" Background="Transparent" Label="{i18nExt:Localize Key=Refresh}" Command="{Binding RefreshCommand}" />
-                </CommandBar.PrimaryCommands>
-              </CommandBar>
-            </StackPanel>
-          </controls:ScrollHeader>
+                    </TextBlock>
+                    <DropDownButton.Flyout>
+                      <Flyout x:Name="TopicsEditFlyout" >
+                        <ListView ItemsSource="{Binding NicoRepoTypeList, Mode=OneTime}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="False" SelectedItem="{Binding NicoRepoType.Value, Mode=TwoWay}">
+                          <ListView.ItemTemplate>
+                            <DataTemplate>
+                              <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+                            </DataTemplate>
+                          </ListView.ItemTemplate>
+                        </ListView>
+                      </Flyout>
+                    </DropDownButton.Flyout>
+                  </DropDownButton>
+                </AppBarElementContainer>
+                <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <core:CallMethodAction TargetObject="{x:Bind}" MethodName="ResetScrollPosition" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+                <AppBarButton x:Name="RefreshButton" Icon="Refresh" Background="Transparent" Label="{i18nExt:Localize Key=Refresh}" Command="{Binding RefreshCommand}" />
+              </CommandBar.PrimaryCommands>
+            </CommandBar>
+          </StackPanel>
         </Grid>
       </ListView.Header>
       <ListView.ItemsPanel>
