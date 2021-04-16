@@ -667,14 +667,12 @@
       </Grid>
     </Grid>
     <Grid Height="32" VerticalAlignment="Top">
-
-
       <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent">
         <TextBlock x:Name="TitleBarTextBlock" Text="Hohoema" Margin="12 0 0 0" VerticalAlignment="Center" Opacity="0.9" FontSize="13" HorizontalAlignment="Left" ></TextBlock>
       </Border>
 
       <StackPanel x:Name="ErrorTrackingUI" Orientation="Horizontal" Visibility="Collapsed" HorizontalAlignment="Right" Margin="0 0 200 0" Spacing="8">
-        <Button Height="32" ToolTipService.ToolTip="ErrorTrankingTool" Background="Transparent">
+        <Button Height="32" ToolTipService.ToolTip="ErrorTrankingTool" Background="Transparent" Opacity="0.5">
           <Button.Content>
             <iconPack:PackIconMaterial Kind="Bug" />
           </Button.Content>
