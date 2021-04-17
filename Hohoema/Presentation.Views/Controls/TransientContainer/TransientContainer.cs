@@ -71,18 +71,22 @@ namespace Hohoema.Presentation.Views.Controls
             _container = GetTemplateChild("ContentContainer") as FrameworkElement;
 
             this.ObserveDependencyProperty(IsAutoHideEnabledProperty)
-                .ObserveOnUIDispatcher()
-                .Subscribe(_ =>
+                .Subscribe(__ =>
                 {
-                    ResetAnimation();
+                    _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+                    {
+                        ResetAnimation();
+                    });
                 })
                 .AddTo(_CompositeDisposable);
 
             this.ObserveDependencyProperty(ContentProperty)
-                .ObserveOnUIDispatcher()
-                .Subscribe(_ =>
+                .Subscribe(__ =>
                 {
-                    ResetAnimation();
+                    _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        ResetAnimation();
+                    });
                 })
                 .AddTo(_CompositeDisposable);
 

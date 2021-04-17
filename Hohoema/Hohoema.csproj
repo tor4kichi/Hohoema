@@ -982,6 +982,9 @@
     <PackageReference Include="Microsoft.AppCenter.Crashes">
       <Version>4.2.0</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.ObjectPool">
+      <Version>5.0.5</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.9</Version>
     </PackageReference>

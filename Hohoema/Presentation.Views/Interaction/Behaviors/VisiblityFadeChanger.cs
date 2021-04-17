@@ -44,8 +44,6 @@ namespace Hohoema.Presentation.Views.Behaviors
         public static void OnIsAutoHideEnabledPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
         {
             VisiblityFadeChanger source = (VisiblityFadeChanger)sender;
-
-            Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 自動非表示変更：{source.IsAutoHideEnabled}");
             source.ChangeVisible();
         }
 
@@ -174,10 +172,6 @@ namespace Hohoema.Presentation.Views.Behaviors
         {
             if (_SkipChangeVisible) { return; }
 
-            Debug.WriteLine($"表示切替:{IsVisible}");
-
-            // 表示への切り替え、または非表示切り替え中に
-            //if (IsVisible || (!IsVisible && _CurrentAnimation?.State == AnimationSetState.Running))
             if (IsVisible)
             {
                 Show();
@@ -228,13 +222,10 @@ namespace Hohoema.Presentation.Views.Behaviors
                     {
                         AutoHideSubject.OnNext(0);
                     }
-
-                    Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 表示アニメーション開始 (自動非表示:{IsAutoHideEnabled})");
                 }
                 else
                 {
                     AssociatedObject.Opacity = 1.0;
-                    Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 表示");
                 }
             }
         }
@@ -254,13 +245,10 @@ namespace Hohoema.Presentation.Views.Behaviors
                     var ct = CreateAnimationCancellationToken();
                     _ = AnimationBuilder.Create().Opacity(0.0).StartAsync(this.AssociatedObject, ct)
                         .ContinueWith(prevTask => HideAnimation_Completed());
-
-                    Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 非表示アニメーション開始");
                 }
                 else
                 {
                     AssociatedObject.Opacity = 0.0;
-                    Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 非表示");
                 }
             }
         }
@@ -278,8 +266,6 @@ namespace Hohoema.Presentation.Views.Behaviors
                 {
                     _SkipChangeVisible = false;
                 }
-
-                Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 非表示アニメーション完了");
             });
         }
 
