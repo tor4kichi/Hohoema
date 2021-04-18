@@ -44,18 +44,17 @@
                            >
       <Grid Margin="0 0 12 0"
                   toolkit:DockPanel.Dock="Left"
-                  Width="114"
-                  Height="62"
+            Width="132"
+            Height="72"
                   >
         <toolkit:ImageEx Source="{Binding ThumbnailUrl, Mode=OneWay}" 
-            Width="114"
-            Height="108"
             Visibility="{Binding ThumbnailUrl, Converter={StaticResource NotNullToVisibility}}"
             Stretch="Uniform"
             VerticalAlignment="Center"
             VerticalContentAlignment="Center" 
                          IsCacheEnabled="{x:Bind IsThumbnailUseCache}"
             IsTabStop="False"
+                         Height="100"
                    >
         </toolkit:ImageEx>
 

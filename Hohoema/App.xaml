@@ -254,6 +254,7 @@
         <Setter Property="UseSystemFocusVisuals" Value="True" />
         <Setter Property="BorderThickness" Value="0 0 0 1" />
         <Setter Property="BorderBrush" Value="#44707070" />
+        
       </Style>
 
 
