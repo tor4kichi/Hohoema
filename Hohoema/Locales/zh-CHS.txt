@@ -111,7 +111,7 @@ LogInUserInfo = 登录用户信息
 LogOut = 登出
 LogIn = 已登陆
 
-AccountAndSettings = 帐户和设置
+Account  = 帐户
 
 Pin = 固定
 PinCurrentPage = 固定当前页
@@ -748,6 +748,11 @@ LiveSearchSortType.ViewCounter_Descending = 参观人数最多
 LiveSearchSortType.ViewCounter_Ascending = 参观人数升序
 LiveSearchSortType.CommentCounter_Descending = 大多数评论
 LiveSearchSortType.CommentCounter_Ascending = 以评论的升序
+
+LiveScheduledAt = 预定开始
+LiveElapsedAt = 进步
+LiveStartedAt = 开始
+
 
 NicoliveSearchMode.OnAir = 播出
 NicoliveSearchMode.Reserved = 广播

@@ -111,7 +111,7 @@ LogInUserInfo = ログインユーザー情報
 LogOut = ログアウト
 LogIn = ログイン
 
-AccountAndSettings = アカウントと設定
+Account = アカウント
 
 Pin = ピン留め
 PinCurrentPage = 現在のページをピン留めする

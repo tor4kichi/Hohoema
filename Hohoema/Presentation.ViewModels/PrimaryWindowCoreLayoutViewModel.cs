@@ -178,6 +178,8 @@ namespace Hohoema.Presentation.ViewModels
                 new MenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
                 new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
             };
+
+
         }
 
 
@@ -274,9 +276,6 @@ namespace Hohoema.Presentation.ViewModels
     {
         public ObservableCollection<MenuItemViewModel> Items { get; protected set; }
     }
-
-
-
 
     public class PinsMenuSubItemViewModel : MenuSubItemViewModelBase
     {

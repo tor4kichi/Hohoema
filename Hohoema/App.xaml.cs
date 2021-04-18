@@ -1186,12 +1186,6 @@ namespace Hohoema
                 errorTrankingManager.SendReportWithAttatchments(e.Exception);
             }
 
-#if DEBUG
-            if (Debugger.IsAttached)
-            {
-                Debugger.Break();
-            }
-#endif
             e.Handled = true;
         }
 

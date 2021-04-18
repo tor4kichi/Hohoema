@@ -414,7 +414,7 @@
                            ItemInvoked="CoreNavigationView_ItemInvoked"
                           Background="{ThemeResource MenuBackgroundBrush}"
                            BackRequested="CoreNavigationView_BackRequested"
-                           IsSettingsVisible="False"
+                           IsSettingsVisible="True"
                            IsTitleBarAutoPaddingEnabled="True"
                            SelectionFollowsFocus="Disabled"
                            AlwaysShowHeader="False"
@@ -491,6 +491,7 @@
 
           <Button x:Name="OpenAccountButton"
                         Padding="8 0 0 0"
+                  MinHeight="40"
                         Background="Transparent"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Left"
@@ -498,12 +499,13 @@
                         TabIndex="100"
                       >
             <Button.Flyout>
-              <MenuFlyout>
+              <MenuFlyout x:Name="AccountMenuFlyout" Placement="RightEdgeAlignedTop">
 
                 <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenSettings"
                                       Text="{i18nExt:Localize Key=HohoemaPageType.Settings}"
                                       Command="{Binding PageManager.OpenPageCommand}"
                                     CommandParameter="{x:Bind pageNavigation:HohoemaPageType.Settings}"
+                                Visibility="Collapsed"
                                     />
 
                 <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
@@ -534,8 +536,8 @@
                   <x:Boolean>False</x:Boolean>
                 </uwpToolkitControls:Case.Value>
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                  <SymbolIcon Symbol="Setting" Margin="3 0 0 0" Height="18" Width="24" />
-                  <TextBlock Text="{i18nExt:Localize Key=AccountAndSettings}"
+                  <iconPack:PackIconMaterial Kind="Account" Margin="0 4 0 0" Height="16" Width="24" Foreground="Gray" />
+                  <TextBlock Text="{i18nExt:Localize Key=Account}"
                                      Margin="2 0 0 0"
                              />
                 </StackPanel>
@@ -556,7 +558,7 @@
                                  CornerRadius="60"
                                  />
                   <StackPanel Margin="11 0 0 0">
-                    <TextBlock Text="{Binding NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" TextLineBounds="TrimToBaseline" />
                   </StackPanel>
                 </uwpToolkitControls:DockPanel>
               </uwpToolkitControls:Case>
@@ -739,8 +741,9 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Top}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="AccountInfoLayout.Width" Value="32" />
-            <Setter Target="AccountInfoLayout.Padding" Value="4 0 0 0" />
+            <Setter Target="OpenAccountButton.Width" Value="32" />
+            <Setter Target="OpenAccountButton.Padding" Value="12 0 0 0" />
+            <Setter Target="AccountMenuFlyout.Placement" Value="BottomEdgeAlignedRight" />
           </VisualState.Setters>
         </VisualState>
 
