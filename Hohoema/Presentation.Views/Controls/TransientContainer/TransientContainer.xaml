@@ -6,30 +6,33 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:ani="using:Microsoft.Toolkit.Uwp.UI.Animations"
+    xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
     mc:Ignorable="d">
 
-    <Style TargetType="local:TransientContainer">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="local:TransientContainer">
-                    <Border x:Name="ContentContainer" 
+  <Style TargetType="local:TransientContainer">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="local:TransientContainer">
+          <Border x:Name="ContentContainer" 
                         >
-                        <Grid 
+            
+            <Grid 
                               Background="{TemplateBinding Background}"
                               BorderBrush="{TemplateBinding BorderBrush}"
                               BorderThickness="{TemplateBinding BorderThickness}"
                               Padding="{TemplateBinding Padding}"
                               >
-                            
 
-                            <ContentPresenter Content="{TemplateBinding Content}"
+
+              <ContentPresenter Content="{TemplateBinding Content}"
                                           ContentTemplate="{TemplateBinding ContentTemplate}"
                                     />
-                        </Grid>
-                    </Border>
-                    
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+            </Grid>
+          </Border>
+
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 </ResourceDictionary>

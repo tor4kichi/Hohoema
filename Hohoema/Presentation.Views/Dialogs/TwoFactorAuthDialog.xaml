@@ -8,22 +8,23 @@
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"
-               PrimaryButtonText="{Binding Source=Submit, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-               SecondaryButtonText="{Binding Source=Cancel, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-               Title="{Binding Source=TwoFactorAuth_InputCode, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+    xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+    PrimaryButtonText="{i18nExt:Localize Key=Submit}"
+    SecondaryButtonText="{i18nExt:Localize Key=Cancel}"
+    Title="{i18nExt:Localize Key=TwoFactorAuth_InputCode}"
   >
   <StackPanel Spacing="8">
     <TextBox x:Name="CodeTextBox"
              InputScope="Digits"
              MaxLength="6"
-             PlaceholderText="{Binding Source=CodeTextBoxPlacefolder_Input6digit, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+             PlaceholderText="{i18nExt:Localize Key=CodeTextBoxPlacefolder_Input6digit}"
              />
 
     <ToggleSwitch x:Name="IsTrustedDeviceToggleSwitch"
-                  Header="{Binding Source=IsTrustedDevice, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
+                  Header="{i18nExt:Localize Key=IsTrustedDevice}" 
                   />
 
-    <TextBlock Text="{Binding Source=IsTrustedDevice_Desc, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+    <TextBlock Text="{i18nExt:Localize Key=IsTrustedDevice_Desc}"
                Style="{StaticResource CaptionTextBlockStyle}"
                Opacity="0.7"
                />

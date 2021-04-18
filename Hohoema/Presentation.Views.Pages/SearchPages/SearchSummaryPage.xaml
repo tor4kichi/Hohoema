@@ -14,7 +14,7 @@
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
       xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
       xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-      xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+      xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI"
       xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:controls="using:Hohoema.Presentation.Views.Controls"
       xmlns:windowsStateTriggers="using:WindowsStateTriggers"
@@ -99,11 +99,9 @@
 
     <ScrollViewer>
       <ScrollViewer.TopHeader>
-        <controls:ScrollHeader Mode="QuickReturn">
-          <Grid x:Name="HeaderLayout"
-                toolkit:DockPanel.Dock="Top">
-          </Grid>
-        </controls:ScrollHeader>
+        <Grid x:Name="HeaderLayout"
+              toolkit:DockPanel.Dock="Top">
+        </Grid>
       </ScrollViewer.TopHeader>
 
       <StackPanel>

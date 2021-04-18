@@ -271,7 +271,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
        
 
         private LiveSearchPageScrapingResult _firstResult;
-		public async Task<int> ResetSource()
+		public async ValueTask<int> ResetSource()
 		{
 			int totalCount = 0;
 			try

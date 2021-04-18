@@ -121,7 +121,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             start = newStart;
             end = newEnd;
 
-#if DEBUG
+#if false
             var hasNewStart = prevStart != newStart;
             var hasNewEnd = prevEnd != newEnd;
 

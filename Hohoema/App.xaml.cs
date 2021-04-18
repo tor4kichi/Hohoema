@@ -39,7 +39,7 @@ using Hohoema.Models.UseCase;
 using I18NPortable;
 using Newtonsoft.Json;
 using Hohoema.Models.UseCase.NicoVideos;
-using Microsoft.Toolkit.Uwp.UI.Animations;
+using Microsoft.Toolkit.Uwp.UI;
 using Hohoema.Presentation.ViewModels;
 using LiteDB;
 using Hohoema.Models.Domain.Subscriptions;
@@ -70,6 +70,8 @@ using Windows.UI.Popups;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Hohoema.Models.UseCase.VideoCache;
+using Microsoft.Toolkit.Uwp.UI.Animations;
+using Microsoft.Toolkit.Uwp.Helpers;
 
 namespace Hohoema
 {
@@ -110,9 +112,6 @@ namespace Hohoema
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 1000;
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.RetryCount = 3;
             
-            AnimationSet.UseComposition = true;
-
-
             // see@ https://www.typea.info/blog/index.php/2017/08/06/uwp_1/
             try
             {
@@ -123,6 +122,7 @@ namespace Hohoema
                 Crashes.SentErrorReport += (sender, args) => { Debug.WriteLine(args.Report.ToString()); };
                 AppCenter.SetUserId(Guid.NewGuid().ToString());
                 AppCenter.Start(appcenterSecrets, typeof(Analytics), typeof(Crashes));
+                Crashes.NotifyUserConfirmation(UserConfirmation.AlwaysSend);
             }
             catch { }
 
@@ -140,7 +140,7 @@ namespace Hohoema
 #endif
                 _IsPreLaunch = launchArgs.PrelaunchActivated;
 
-                Microsoft.Toolkit.Uwp.Helpers.SystemInformation.TrackAppUse(launchArgs);
+                Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.TrackAppUse(launchArgs);
             }
 
             await EnsureInitializeAsync();
@@ -159,14 +159,14 @@ namespace Hohoema
                         await Task.Delay(50);
                     }
                     _isNavigationStackRestored = true;
-//                    await _primaryWindowCoreLayout.RestoreNavigationStack();
+                    //                    await _primaryWindowCoreLayout.RestoreNavigationStack();
 #else
                     var navigationService = Container.Resolve<PageManager>();
                     var settings = Container.Resolve<AppearanceSettings>();
                     navigationService.OpenPage(settings.FirstAppearPageType);
 #endif
                     // TODO: 前回再生中に終了したコンテンツを表示するかユーザーに確認
-                    /*
+#if DEBUG
                     var vm = _primaryWindowCoreLayout.DataContext as PrimaryWindowCoreLayoutViewModel;
                     var lastPlaying = vm.RestoreNavigationManager.GetCurrentPlayerEntry();
                     if (lastPlaying != null)
@@ -183,7 +183,7 @@ namespace Hohoema
                             hohoemaPlaylist.Play(lastPlaying.ContentId, position: lastPlaying.Position);
                         }
                     }
-                    */
+#endif
                 }
 
             }
@@ -239,6 +239,8 @@ namespace Hohoema
             _primaryWindowCoreLayout.FocusEngaged += (__, args) => Debug.WriteLine("focus engagad: " + args.OriginalSource.ToString());
 #endif
 
+            _primaryWindowCoreLayout.IsDebugModeEnabled = IsDebugModeEnabled;
+
             return grid;
         }
 
@@ -249,12 +251,16 @@ namespace Hohoema
             MonkeyCache.LiteDB.Barrel.ApplicationId = nameof(Hohoema);
             unityContainer.RegisterInstance<MonkeyCache.IBarrel>(MonkeyCache.LiteDB.Barrel.Current);
 
+            var mainWindowsScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
             // 各ウィンドウごとのスケジューラを作るように
-            unityContainer.RegisterType<IScheduler>(new PerThreadLifetimeManager(), new InjectionFactory(c => SynchronizationContext.Current != null ? new SynchronizationContextScheduler(SynchronizationContext.Current) : null));
+            unityContainer.RegisterType<IScheduler>(new PerThreadLifetimeManager(), new InjectionFactory(c => SynchronizationContext.Current != null ? new SynchronizationContextScheduler(SynchronizationContext.Current) : mainWindowsScheduler));
+            unityContainer.RegisterInstance<IScheduler>("MainWindowsScheduler", mainWindowsScheduler);
 
             // MediaPlayerを各ウィンドウごとに一つずつ作るように
             unityContainer.RegisterType<MediaPlayer>(new PerThreadLifetimeManager());
-            
+
+            unityContainer.RegisterType<LocalObjectStorageHelper>(new InjectionConstructor(new JsonObjectSerializer()));
+
             // Service
             unityContainer.RegisterSingleton<PageManager>();
             unityContainer.RegisterSingleton<PrimaryViewPlayerManager>();
@@ -287,6 +293,7 @@ namespace Hohoema
             unityContainer.RegisterSingleton<Models.Domain.VideoCache.VideoCacheManager>();
             unityContainer.RegisterSingleton<Models.Domain.VideoCache.VideoCacheSettings>();
 
+            unityContainer.RegisterSingleton<ErrorTrackingManager>();
 
             // UseCase
             unityContainer.RegisterType<VideoPlayer>(new PerThreadLifetimeManager());
@@ -489,8 +496,6 @@ namespace Hohoema
                 {
 
                 }
-
-
 
 #if DEBUG
                 Resources["IsDebug"] = true;
@@ -1027,10 +1032,10 @@ namespace Hohoema
         }
 
 
-#endregion
+        #endregion
 
 
-#region Theme 
+        #region Theme 
 
 
         const string ThemeTypeKey = "Theme";
@@ -1085,38 +1090,118 @@ namespace Hohoema
             set
             {
                 ApplicationData.Current.LocalSettings.Values[DEBUG_MODE_ENABLED_KEY] = value;
+                _primaryWindowCoreLayout.IsDebugModeEnabled = value;
             }
         }
 
-        private async void PrismUnityApplication_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
+        bool isFirstCrashe = true;
+
+        private void PrismUnityApplication_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
-            e.Handled = true;
+            Debug.Write(e.Message);
 
-            if (!(e.Exception is OperationCanceledException || e.Exception is TaskCanceledException))
+            if (e.Exception is OperationCanceledException)
             {
-                var pageManager = Container.Resolve<PageManager>();
-                var pageName = pageManager.CurrentPageType.ToString();
-                var pageParameter = pageManager.CurrentPageNavigationParameters is not null ? JsonConvert.SerializeObject(pageManager.CurrentPageNavigationParameters) : "null";
-                var niconicoSession = Container.Resolve<NiconicoSession>();
-
-                Crashes.TrackError(e.Exception, new Dictionary<string, string> 
-                {
-                    { "IsInternetAvailable", InternetConnection.IsInternet().ToString() },
-                    { "IsLoggedIn", niconicoSession.IsLoggedIn.ToString() },
-                    { "IsPremiumAccount", niconicoSession.IsPremiumAccount.ToString() },
-                    { "RecentOpenPageName", pageName },
-                    { "RecentOpenPageParameters", pageParameter },
-                    { "OperatingSystemArchitecture", Microsoft.Toolkit.Uwp.Helpers.SystemInformation.OperatingSystemArchitecture.ToString() }
-                });
-
-                Debug.Write(e.Message);
-
-                if (IsDebugModeEnabled)
-                {
-                    var report = await Crashes.GetLastSessionCrashReportAsync();
-                    
-                }
+                e.Handled = true;
+                return;
             }
+
+            if (e.Exception is ObjectDisposedException)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            if (!isFirstCrashe)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            isFirstCrashe = false;
+
+            if (IsDebugModeEnabled)
+            {
+                bool isSentError = false;
+                var scheduler = Container.Resolve<IScheduler>("MainWindowsScheduler");
+                scheduler.Schedule(() =>
+                {
+                    var sentErrorCommand = new DelegateCommand(async () =>
+                    {
+                        try
+                        {
+                            var errorTrankingManager = Container.Resolve<ErrorTrackingManager>();
+                            var dialogService = Container.Resolve<DialogService>();
+                            var rtb = await GetApplicationContentImage();
+                            var result = await Presentation.Views.Dialogs.HohoemaErrorReportDialog.ShowAsync(e.Exception, sendScreenshot: true, rtb);
+
+                            if (result.IsSendRequested is false) { return; }
+
+                            var attachmentLogs = new List<ErrorAttachmentLog>();
+                            if (!string.IsNullOrEmpty(result.Data.InputText))
+                            {
+                                attachmentLogs.Add(ErrorTrackingManager.CreateTextAttachmentLog(result.Data.InputText));
+
+                                Debug.WriteLine("ReportLatestError: Add UserInputText Attachment");
+                            }
+
+                            if (result.Data.UseScreenshot)
+                            {
+                                try
+                                {
+                                    attachmentLogs.Add(await ErrorTrackingManager.CreateScreenshotAttachmentLog(rtb));
+                                    Debug.WriteLine("ReportLatestError: Add Screenshot Attachment");
+                                }
+                                catch
+                                {
+                                    Debug.WriteLine("エラー報告用のスクショ生成に失敗");
+                                }
+                            }
+
+                            errorTrankingManager.SendReportWithAttatchments(e.Exception, attachmentLogs.ToArray());
+
+                            // isSentError を変更した後にErrorTeachingTipを閉じることでClose時の判定が走る
+                            isSentError = true;
+                        }
+                        catch { }
+                        finally
+                        {
+                            _primaryWindowCoreLayout.CloseErrorTeachingTip();
+                        }
+                    });
+
+                    _primaryWindowCoreLayout.OpenErrorTeachingTip(sentErrorCommand, () => 
+                    {
+                        if (isSentError is false)
+                        {
+                            var errorTrankingManager = Container.Resolve<ErrorTrackingManager>();
+                            errorTrankingManager.SendReportWithAttatchments(e.Exception);
+                        }
+                    });                    
+                });
+            }
+            else
+            {
+                var errorTrankingManager = Container.Resolve<ErrorTrackingManager>();
+                errorTrankingManager.SendReportWithAttatchments(e.Exception);
+            }
+
+            e.Handled = true;
+        }
+
+        // エラー報告用に画面のスクショを取れるように
+        public async Task<Windows.UI.Xaml.Media.Imaging.RenderTargetBitmap> GetApplicationContentImage()
+        {
+            var rtb = new Windows.UI.Xaml.Media.Imaging.RenderTargetBitmap();
+            await rtb.RenderAsync(_primaryWindowCoreLayout);
+            return rtb;
+        }
+
+        public async Task<Windows.UI.Xaml.Media.Imaging.RenderTargetBitmap> GetApplicationContentImage(int scaledWidth, int scaledHeight)
+        {
+            var rtb = new Windows.UI.Xaml.Media.Imaging.RenderTargetBitmap();
+            await rtb.RenderAsync(_primaryWindowCoreLayout, scaledWidth, scaledHeight);
+            return rtb;
         }
 
 

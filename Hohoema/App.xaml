@@ -16,7 +16,8 @@
     xmlns:system="using:System"
     xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts" 
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-  xmlns:locales="using:Hohoema.Locales" xmlns:appModels="using:Hohoema.Models.Domain.Application">
+  xmlns:locales="using:Hohoema.Locales" 
+  xmlns:appModels="using:Hohoema.Models.Domain.Application">
 
   <prism:PrismApplication.Resources>
 
@@ -38,7 +39,7 @@
       </ResourceDictionary.MergedDictionaries>
 
       <appModels:FeatureFlags x:Key="FeatureFlags" />
-
+      
       <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
       <SolidColorBrush x:Key="HohoemaThemeBackgroundBrush"
                              Color="{StaticResource HohoemaThemeColor}"
@@ -214,7 +215,7 @@
           <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                Visibility="{Binding IsCached.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                >
-                        (<Run Text="{Binding CacheState.Value}" />)
+                        (<Run Text="{Binding CacheState.Value, Converter={StaticResource LocalizeConverter}}" />)
           </TextBlock>
         </StackPanel>
       </DataTemplate>
@@ -253,6 +254,7 @@
         <Setter Property="UseSystemFocusVisuals" Value="True" />
         <Setter Property="BorderThickness" Value="0 0 0 1" />
         <Setter Property="BorderBrush" Value="#44707070" />
+        
       </Style>
 
 

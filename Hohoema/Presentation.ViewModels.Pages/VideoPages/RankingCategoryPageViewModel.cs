@@ -394,9 +394,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
 
                 vm.Rank = (uint)(head + index + 1);
 
-                yield return vm;
-
                 await vm.InitializeAsync(ct).ConfigureAwait(false);
+
+                yield return vm;
 
                 index++;
 
@@ -404,7 +404,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
             }
         }
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override async ValueTask<int> ResetSourceImpl()
         {
             RankingRss = await NiconicoRanking.GetRankingRssAsync(Genre, Tag, Term);
 

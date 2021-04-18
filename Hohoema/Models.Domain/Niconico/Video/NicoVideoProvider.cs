@@ -67,7 +67,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         /// </summary>
         /// <param name="rawVideoId"></param>
         /// <returns></returns>
-        public async Task<NicoVideo> GetNicoVideoInfo(string rawVideoId, bool requireLatest = false)
+        public async ValueTask<NicoVideo> GetNicoVideoInfo(string rawVideoId, bool requireLatest = false)
         {
             if (NiconicoSession.ServiceStatus.IsOutOfService())
             {

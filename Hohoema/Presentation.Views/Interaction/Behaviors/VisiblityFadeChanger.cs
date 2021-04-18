@@ -5,6 +5,7 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 
 using Microsoft.Toolkit.Uwp.UI.Animations;
+using Microsoft.Toolkit.Uwp.UI.Helpers;
 using System.Diagnostics;
 using Windows.UI.Xaml.Input;
 using Hohoema.Models.Domain.Helpers;
@@ -43,8 +44,6 @@ namespace Hohoema.Presentation.Views.Behaviors
         public static void OnIsAutoHideEnabledPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
         {
             VisiblityFadeChanger source = (VisiblityFadeChanger)sender;
-
-            Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 自動非表示変更：{source.IsAutoHideEnabled}");
             source.ChangeVisible();
         }
 
@@ -57,21 +56,13 @@ namespace Hohoema.Presentation.Views.Behaviors
             DependencyProperty.Register("Duration"
                     , typeof(TimeSpan)
                     , typeof(VisiblityFadeChanger)
-                    , new PropertyMetadata(TimeSpan.FromSeconds(0.5), OnDuratiRaisePropertyChanged)
+                    , new PropertyMetadata(TimeSpan.FromSeconds(0.5))
                 );
 
         public TimeSpan Duration
         {
             get { return (TimeSpan)GetValue(DurationProperty); }
             set { SetValue(DurationProperty, value); }
-        }
-
-        public static void OnDuratiRaisePropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
-        {
-            VisiblityFadeChanger source = (VisiblityFadeChanger)sender;
-
-            var duration = source.Duration;
-            source._CurrentAnimation?.SetDuration(duration);
         }
 
         #endregion
@@ -164,7 +155,6 @@ namespace Hohoema.Presentation.Views.Behaviors
 
         #endregion
 
-        AnimationSet _CurrentAnimation;
         AsyncLock _AnimationGenerateLock = new AsyncLock();
 
         bool _SkipChangeVisible = false;
@@ -182,10 +172,6 @@ namespace Hohoema.Presentation.Views.Behaviors
         {
             if (_SkipChangeVisible) { return; }
 
-            Debug.WriteLine($"表示切替:{IsVisible}");
-
-            // 表示への切り替え、または非表示切り替え中に
-            //if (IsVisible || (!IsVisible && _CurrentAnimation?.State == AnimationSetState.Running))
             if (IsVisible)
             {
                 Show();
@@ -197,34 +183,49 @@ namespace Hohoema.Presentation.Views.Behaviors
         }
 
 
+        CancellationTokenSource _animCts = new CancellationTokenSource();
+
+        private void StopAnimation()
+        {
+            if (_animCts == null) { return; }
+            
+            _animCts.Cancel();
+            _animCts.Dispose();
+            _animCts = null;
+        }
+
+        private CancellationToken CreateAnimationCancellationToken()
+        {
+            if (_animCts != null)
+            {
+                StopAnimation();
+            }
+
+            _animCts = new CancellationTokenSource();
+            return _animCts.Token;
+        }
+
         private async void Show()
 		{
-            using (var releaser = await _AnimationGenerateLock.LockAsync())
+            using (await _AnimationGenerateLock.LockAsync())
             {
                 if (this.AssociatedObject == null) { return; }
 
-                Debug.WriteLine($"{_CurrentAnimation?.State}");
-
-                _CurrentAnimation?.Dispose();
-                _CurrentAnimation = null;
+                StopAnimation();
 
                 if (IsAnimationEnabled)
                 {
-                    _CurrentAnimation = AssociatedObject.Fade(1.0f, Duration.TotalMilliseconds);
-
-                    _CurrentAnimation?.StartAsync().ConfigureAwait(false);
+                    var ct = CreateAnimationCancellationToken();
+                    _ = AnimationBuilder.Create().Opacity(1.0).StartAsync(this.AssociatedObject, ct);
 
                     if (IsAutoHideEnabled)
                     {
                         AutoHideSubject.OnNext(0);
                     }
-
-                    Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 表示アニメーション開始 (自動非表示:{IsAutoHideEnabled})");
                 }
                 else
                 {
                     AssociatedObject.Opacity = 1.0;
-                    Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 表示");
                 }
             }
         }
@@ -237,45 +238,39 @@ namespace Hohoema.Presentation.Views.Behaviors
             {
                 if (this.AssociatedObject == null) { return; }
 
-                _CurrentAnimation?.Dispose();
-                _CurrentAnimation = null;
+                StopAnimation();
 
                 if (IsAnimationEnabled)
                 {
-                    var dispatcher = Dispatcher;
-
-                    _CurrentAnimation = AssociatedObject.Fade(0, Duration.TotalMilliseconds);
-                    _CurrentAnimation.Completed += HideAnimation_Completed;
-
-                    _CurrentAnimation?.StartAsync().ConfigureAwait(false);
-
-                    Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 非表示アニメーション開始");
+                    var ct = CreateAnimationCancellationToken();
+                    _ = AnimationBuilder.Create().Opacity(0.0).StartAsync(this.AssociatedObject, ct)
+                        .ContinueWith(prevTask => HideAnimation_Completed());
                 }
                 else
                 {
                     AssociatedObject.Opacity = 0.0;
-                    Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 非表示");
                 }
             }
         }
 
-        private void HideAnimation_Completed(object sender, AnimationSetCompletedEventArgs e)
+        private void HideAnimation_Completed()
         {
-            // 別のアニメーションが実行中の場合はキャンセル
-            if (_CurrentAnimation?.State == AnimationSetState.Running) { return; }
-
-            try
+            _ = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
             {
-                _SkipChangeVisible = true;
-                IsVisible = false;
-            }
-            finally
-            {
-                _SkipChangeVisible = false;
-            }
-
-            Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 非表示アニメーション完了");
+                try
+                {
+                    _SkipChangeVisible = true;
+                    IsVisible = false;
+                }
+                finally
+                {
+                    _SkipChangeVisible = false;
+                }
+            });
         }
+
+
+
 
         public void Toggle()
         {
@@ -333,7 +328,6 @@ namespace Hohoema.Presentation.Views.Behaviors
 		{
 			base.OnDetaching();
 
-            _CurrentAnimation?.Dispose();
             _AutoHideThrottlingDisposer?.Dispose();
             _CompositeDisposable?.Dispose();
 

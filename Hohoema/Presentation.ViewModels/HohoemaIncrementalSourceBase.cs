@@ -23,7 +23,7 @@ namespace Hohoema.Presentation.ViewModels
 
 		public virtual uint OneTimeLoadCount => DefaultOneTimeLoadCount;
 
-		public async IAsyncEnumerable<T> GetPagedItems(int head, int count, CancellationToken ct = default)
+		public async IAsyncEnumerable<T> GetPagedItems(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
 		{
             using (var releaser = await _PageLoadingLock.LockAsync())
             {
@@ -34,7 +34,7 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-		public async Task<int> ResetSource()
+		public async ValueTask<int> ResetSource()
 		{
             using (var releaser = await _PageLoadingLock.LockAsync())
             {
@@ -52,7 +52,7 @@ namespace Hohoema.Presentation.ViewModels
         }
 
 		protected abstract IAsyncEnumerable<T> GetPagedItemsImpl(int head, int count, CancellationToken ct);
-		protected abstract Task<int> ResetSourceImpl();
+		protected abstract ValueTask<int> ResetSourceImpl();
 
 		public bool HasError { get; private set; }
 		public event Action Error;
@@ -88,9 +88,9 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        protected override Task<int> ResetSourceImpl()
+        protected override ValueTask<int> ResetSourceImpl()
         {
-            return Task.FromResult((int)OneTimeLoadCount);
+            return new ValueTask<int>((int)OneTimeLoadCount);
         }
     }
 }

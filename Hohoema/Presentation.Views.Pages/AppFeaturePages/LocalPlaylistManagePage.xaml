@@ -1,19 +1,20 @@
 ﻿<Page
     x:Class="Hohoema.Presentation.Views.Pages.AppFeaturePages.LocalPlaylistManagePage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Hohoema.Presentation.Views.Pages.AppFeaturePages"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:i="using:Microsoft.Xaml.Interactivity" 
-  xmlns:core="using:Microsoft.Xaml.Interactions.Core" 
-  xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts" 
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:mycontrols="using:Hohoema.Presentation.Views.Controls"
   xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
   xmlns:local1="using:Hohoema.Presentation.Views.Pages.MylistPages"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
   mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+  >
 
   <Grid x:Name="ContentLayout">
     <GridView x:Name="ContentItemsView"
@@ -25,6 +26,8 @@
               myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding}"
               >
       <i:Interaction.Behaviors>
+        <behaviors:StickyHeaderBehavior />
+        
         <core:EventTriggerBehavior EventName="ItemClick">
           <core:InvokeCommandAction Command="{Binding OpenMylistCommand}"
                                       InputConverter="{StaticResource ItemClickEventArgsConverter}" />
@@ -33,28 +36,26 @@
       <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
         <DataTemplate>
           <MenuFlyout>
-            <MenuFlyoutItem Text="{Binding Source=LocalPlaylistOpenVideoList, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.OpenMylistCommand}" CommandParameter="{Binding}" />
-            <MenuFlyoutItem Text="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PlaylistPlayAllCommand}" CommandParameter="{Binding}" />
-            <MenuFlyoutItem Text="{Binding Source=Rename, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.RenameLocalPlaylistCommand}" CommandParameter="{Binding}" />
-            <MenuFlyoutItem Text="{Binding Source=LocalPlaylistChangeThumbnail, Converter={StaticResource LocalizeConverter}}" Visibility="Collapsed" />
-            <MenuFlyoutItem Text="{Binding Source=Delete, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.DeleteLocalPlaylistCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=LocalPlaylistOpenVideoList}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.OpenMylistCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayAll}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PlaylistPlayAllCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=Rename}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.RenameLocalPlaylistCommand}" CommandParameter="{Binding}" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=LocalPlaylistChangeThumbnail}" Visibility="Collapsed" />
+            <MenuFlyoutItem Text="{i18nExt:Localize Key=Delete}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.DeleteLocalPlaylistCommand}" CommandParameter="{Binding}" />
           </MenuFlyout>
         </DataTemplate>
       </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
       <GridView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-          <mycontrols:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
-            <CommandBar uwpControls:DockPanel.Dock="Right" Background="Transparent">
-              <CommandBar.Content>
-                <mycontrols:AppTitleBar Title="{Binding Title}" />
-              </CommandBar.Content>
+          <CommandBar uwpControls:DockPanel.Dock="Right" Background="Transparent">
+            <CommandBar.Content>
+              <mycontrols:AppTitleBar Title="{Binding Title}" />
+            </CommandBar.Content>
 
-              <AppBarButton Background="Transparent" Label="{Binding Source=LocalPlaylistCreate, Converter={StaticResource LocalizeConverter}}" Icon="Add" x:Name="LoginUserMylistActions"
+            <AppBarButton Background="Transparent" Label="{i18nExt:Localize Key=LocalPlaylistCreate}" Icon="Add" x:Name="LoginUserMylistActions"
                             Command="{Binding CreateLocalMylistCommand}"
                             />
 
-            </CommandBar>
-          </mycontrols:ScrollHeader>
+          </CommandBar>
         </Grid>
       </GridView.Header>
       <GridView.ItemTemplate>

@@ -1,19 +1,22 @@
-﻿<UserControl x:Class="Hohoema.Presentation.Views.PlaylistSidePaneContent"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:i="using:Microsoft.Xaml.Interactivity"
-             xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-             xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-             xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-             xmlns:iconPack="using:MahApps.Metro.IconPacks"
-             xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI.Extensions"
-             xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" 
-             xmlns:windowsTrigger="using:WindowsStateTriggers" 
-             xmlns:videoList="using:Hohoema.Presentation.Views.Pages.VideoListPage" mc:Ignorable="d"
-             d:DesignHeight="300"
-             d:DesignWidth="400">
+﻿<UserControl 
+  x:Class="Hohoema.Presentation.Views.PlaylistSidePaneContent"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
+  xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+  xmlns:iconPack="using:MahApps.Metro.IconPacks"
+  xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI"
+  xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" 
+  xmlns:videoList="using:Hohoema.Presentation.Views.Pages.VideoListPage" 
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  mc:Ignorable="d"
+  d:DesignHeight="300"
+  d:DesignWidth="400"
+  >
   <Grid>
     <toolkit:DockPanel x:Name="RootLayout">
       <i:Interaction.Behaviors>
@@ -50,13 +53,21 @@
 
         <Button HorizontalAlignment="Stretch" Command="{x:Bind _viewModel.PageManager.OpenPageCommand}" CommandParameter="{x:Bind _viewModel.HohoemaPlaylist.CurrentPlaylist, Mode=OneWay}" HorizontalContentAlignment="Left">
           <StackPanel>
-            <TextBlock toolkit:DockPanel.Dock="Top" Text="{Binding Source=CurrentPlaylist, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0" Opacity="0.7"></TextBlock>
+            <TextBlock toolkit:DockPanel.Dock="Top" Text="{i18nExt:Localize Key=CurrentPlaylist}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0" Opacity="0.7"></TextBlock>
             <TextBlock Text="{x:Bind _viewModel.HohoemaPlaylist.CurrentPlaylist.Label, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" Margin="0" VerticalAlignment="Top" />
           </StackPanel>
         </Button>
       </toolkit:DockPanel>
 
-      <ListView x:Name="ItemsListView" ItemsSource="{x:Bind _viewModel.CollectionViewSource.View}" SelectionMode="None" SingleSelectionFollowsFocus="False" IsItemClickEnabled="True" IsFocusEngagementEnabled="True" uwpext:ListViewExtensions.AlternateColor="{ThemeResource ToggleSwitchTrackDisabledBackgroundThemeBrush}" uwpext:ListViewExtensions.StretchItemContainerDirection="Horizontal">
+      <ListView x:Name="ItemsListView"
+                ItemsSource="{x:Bind _viewModel.CollectionViewSource.View}" 
+                SelectionMode="None" 
+                SingleSelectionFollowsFocus="False"
+                IsItemClickEnabled="True"
+                IsFocusEngagementEnabled="True" 
+                uwpext:ListViewExtensions.AlternateColor="{ThemeResource ToggleSwitchTrackDisabledBackgroundThemeBrush}"
+                uwpext:ListViewExtensions.ItemContainerStretchDirection="Horizontal"
+                >
         <i:Interaction.Behaviors>
           <core:EventTriggerBehavior EventName="ItemClick">
             <core:InvokeCommandAction Command="{x:Bind _viewModel.PlayWithCurrentPlaylistCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />

@@ -4,19 +4,14 @@
       xmlns:local="using:Hohoema.Presentation.Views.Pages.UserFeaturePages"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:mvvm="using:Prism.Mvvm"
-      xmlns:view="using:Hohoema.Presentation.Views"
-      xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
       xmlns:toolkit="using:WinRTXamlToolkit.Controls"
       xmlns:i="using:Microsoft.Xaml.Interactivity"
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
       xmlns:controls="using:Hohoema.Presentation.Views.Controls"
-      xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
-      xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-      xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
       xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
       xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
       xmlns:windowsStateTriggers="using:WindowsStateTriggers"
+      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       DataContext="{x:Null}"
       mc:Ignorable="d">
   <Page.Resources>
@@ -113,7 +108,7 @@
                        HorizontalAlignment="Stretch" />
 
     <Grid x:Name="NotLoggedInLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{Binding Source=FollowInfoIsRequireLogIn, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.7" />
+      <TextBlock Text="{i18nExt:Localize Key=FollowInfoIsRequireLogIn}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.7" />
     </Grid>
     
     <VisualStateManager.VisualStateGroups>

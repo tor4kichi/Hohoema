@@ -12,6 +12,7 @@
   xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions" 
   xmlns:wst="using:WindowsStateTriggers"
   xmlns:controls="using:Hohoema.Presentation.Views.Controls"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   NavigationCacheMode="Enabled"
@@ -19,7 +20,7 @@
   <Page.Resources>
     <DataTemplate x:Key="SeriesContextFlyoutTemplate" x:DataType="viewModels:UserSeriesItemViewModel">
       <MenuFlyout>
-        <MenuFlyoutItem Text="{Binding Source=SubscriptionAdd, Converter={StaticResource LocalizeConverter}}" 
+        <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAdd}" 
                         Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.AddSubscriptionCommand}"
                         CommandParameter="{Binding}"
                         />
@@ -65,7 +66,7 @@
     </GridView>
 
     <Grid x:Name="NoItemsDescriptionLayout" Opacity="0.0" IsHitTestVisible="False">
-      <TextBlock Text="{Binding Source=NoItems_UserSeries, Converter={StaticResource LocalizeConverter}}"
+      <TextBlock Text="{i18nExt:Localize Key=NoItems_UserSeries}"
                  HorizontalAlignment="Center"
                  VerticalAlignment="Center"
                  Style="{StaticResource SubtitleTextBlockStyle}"

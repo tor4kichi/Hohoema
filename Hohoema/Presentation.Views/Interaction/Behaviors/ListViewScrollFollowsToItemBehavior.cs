@@ -1,4 +1,4 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Animations.Behaviors;
+﻿using Microsoft.Toolkit.Uwp.UI.Behaviors;
 using System;
 using System.Collections.Generic;
 using System.Linq;

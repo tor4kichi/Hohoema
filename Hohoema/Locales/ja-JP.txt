@@ -111,7 +111,7 @@ LogInUserInfo = ログインユーザー情報
 LogOut = ログアウト
 LogIn = ログイン
 
-AccountAndSettings = アカウントと設定
+Account  = アカウント
 
 Pin = ピン留め
 PinCurrentPage = 現在のページをピン留めする
@@ -242,6 +242,15 @@ Purchased = 購入済み
 ShowErrorLogButtonTitle = エラーログ
 CopyAppVersionToClipboard = バージョン番号をコピー
 EnableDebugModeToggleSwitchTitle = デバッグモードを有効
+
+ErrorReportDialogTitle = エラー報告
+ErrorReportDialogComfirmButtonText = 送信
+ErrorReportDialog_ErrorMessageDesc = エラーメッセージ（読み取り専用）
+ErrorReportDialog_SendScreenshotToggleButtonDesc = スクリーンショットを送信する
+ErrorReportDialog_UserInputTextBoxDesc = エラーが発生した状況を説明する（上限1000文字）
+
+
+
 
 UserDataSettings = バックアップ
 BackupUserData = バックアップを書き出す

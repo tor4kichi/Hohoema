@@ -274,7 +274,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.ChannelPages
             }
         }
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override async ValueTask<int> ResetSourceImpl()
         {
             _FirstResponse = await ChannelProvider.GetChannelVideo(ChannelId, 0);
 

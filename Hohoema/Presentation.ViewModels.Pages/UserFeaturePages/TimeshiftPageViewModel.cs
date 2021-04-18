@@ -155,7 +155,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
         IReadOnlyList<Mntone.Nico2.Live.ReservationsInDetail.Program> _Reservations;
         Mntone.Nico2.Live.Reservation.MyTimeshiftListData _TimeshiftList;
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override async ValueTask<int> ResetSourceImpl()
         {
             var reservations = await LiveReservationProvider.GetReservtionsAsync();
 

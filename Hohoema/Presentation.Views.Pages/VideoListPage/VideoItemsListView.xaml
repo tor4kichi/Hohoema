@@ -2,18 +2,15 @@
     x:Class="Hohoema.Presentation.Views.Pages.VideoListPage.VideoItemsListView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Hohoema.Presentation.Views.Pages.VideoListPage"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
-  xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-  xmlns:actions="using:Hohoema.Presentation.Views.Actions"
-  xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
-  xmlns:trigger="using:Hohoema.Presentation.Views.StateTrigger"
+  xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:wst="using:WindowsStateTriggers" 
   xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
   mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"
@@ -29,11 +26,6 @@
     </i:Interaction.Behaviors>
 
     <uwpcontrol:DockPanel >
-      
-
-     
-
-
       <ListView x:Name="ItemsList"
               ItemsSource="{x:Bind ItemsSource, Mode=OneWay}"
               ItemTemplate="{x:Bind ItemTemplate, Mode=OneWay}"
@@ -58,7 +50,7 @@
                     IsDynamicOverflowEnabled="False"
                           
                     >
-                <AppBarButton x:Name="SelectActions_Exit" Label="{Binding Source=SelectEnd, Converter={StaticResource LocalizeConverter}}"
+                <AppBarButton x:Name="SelectActions_Exit" Label="{i18nExt:Localize Key=SelectEnd}"
                           Icon="Clear"
                           >
                   <i:Interaction.Behaviors>
@@ -67,7 +59,7 @@
                     </core:EventTriggerBehavior>
                   </i:Interaction.Behaviors>
                 </AppBarButton>
-                <AppBarButton x:Name="SelectActions_SwitchAll" Label="{Binding Source=SelectAll, Converter={StaticResource LocalizeConverter}}"
+                <AppBarButton x:Name="SelectActions_SwitchAll" Label="{i18nExt:Localize Key=SelectAll}"
                           Icon="List"
                           >
                   <i:Interaction.Behaviors>
@@ -88,20 +80,20 @@
                   >
 
 
-                <AppBarButton x:Name="SelectActions_CopyMylist" Label="{Binding Source=MylistCopyItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _copyMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarButton x:Name="SelectActions_MoveMylist" Label="{Binding Source=MylistMoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _moveMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_CopyMylist" Label="{i18nExt:Localize Key=MylistCopyItem}" Command="{x:Bind _copyMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_MoveMylist" Label="{i18nExt:Localize Key=MylistMoveItem}" Command="{x:Bind _moveMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
 
                 <AppBarSeparator x:Name="SelectActions_EditButtonSeparator" />
 
-                <AppBarButton x:Name="SelectActions_RemoveMylist" Label="{Binding Source=MylistRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarButton x:Name="SelectActions_RemoveWatchAfter" Label="{Binding Source=WatchAfterRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarButton x:Name="SelectActions_RemoveLocalMylist" Label="{Binding Source=LocalMylistRemoveItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _localMylistRemoveCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarButton x:Name="SelectActions_RemoveWatchHistory" Label="{Binding Source=RemoveWatchHisotryItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _removeWatchHistoryCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_RemoveMylist" Label="{i18nExt:Localize Key=MylistRemoveItem}" Command="{x:Bind _removeMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_RemoveWatchAfter" Label="{i18nExt:Localize Key=WatchAfterRemoveItem}" Command="{x:Bind _removeQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_RemoveLocalMylist" Label="{i18nExt:Localize Key=LocalMylistRemoveItem}" Command="{x:Bind _localMylistRemoveCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_RemoveWatchHistory" Label="{i18nExt:Localize Key=RemoveWatchHisotryItem}" Command="{x:Bind _removeWatchHistoryCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
                 <AppBarSeparator x:Name="SelectActions_RemoveButtonSeparator" />
 
-                <AppBarButton x:Name="SelectActions_AddWatchAfter" Label="{Binding Source=QueueAddItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _addQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarButton x:Name="SelectActions_AddMylist" Label="{Binding Source=MylistAddItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _addMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarButton x:Name="SelectActions_AddLocalMylist" Label="{Binding Source=LocalMylistAddItem, Converter={StaticResource LocalizeConverter}}" Command="{x:Bind _localMylistAddCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_AddWatchAfter" Label="{i18nExt:Localize Key=QueueAddItem}" Command="{x:Bind _addQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_AddMylist" Label="{i18nExt:Localize Key=MylistAddItem}" Command="{x:Bind _addMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+                <AppBarButton x:Name="SelectActions_AddLocalMylist" Label="{i18nExt:Localize Key=LocalMylistAddItem}" Command="{x:Bind _localMylistAddCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
               </CommandBar>
 
             </uwpcontrol:DockPanel>
@@ -110,6 +102,8 @@
         </ListView.Header>
 
         <i:Interaction.Behaviors>
+          <behaviors:StickyHeaderBehavior />
+          
           <core:EventTriggerBehavior EventName="ItemClick">
             <core:InvokeCommandAction Command="{x:Bind ItemCommand, Mode=OneWay}"
                                     InputConverter="{StaticResource ItemClickEventArgsConverter}" />

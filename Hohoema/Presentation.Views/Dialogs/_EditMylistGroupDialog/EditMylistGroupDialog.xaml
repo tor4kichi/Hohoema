@@ -14,9 +14,10 @@
                mc:Ignorable="d"
                d:DesignHeight="500"
                d:DesignWidth="400"
+               xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
                Title="{Binding DialogTitle}"
-               PrimaryButtonText="{Binding Source=Done, Converter={StaticResource LocalizeConverter}}"
-               SecondaryButtonText="{Binding Source=Cancel, Converter={StaticResource LocalizeConverter}}"
+               PrimaryButtonText="{i18nExt:Localize Key=Done}"
+               SecondaryButtonText="{i18nExt:Localize Key=Cancel}"
                IsPrimaryButtonEnabled="{Binding CanEditCompletion.Value}"
                Width="400">
 
@@ -25,7 +26,7 @@
   </ContentDialog.Resources>
   <StackPanel HorizontalAlignment="Stretch">
     <toolkit:DockPanel Margin="8 8 8 4">
-      <TextBlock Text="{Binding Source=MylistName, Converter={StaticResource LocalizeConverter}}"
+      <TextBlock Text="{i18nExt:Localize Key=MylistName}"
                  toolkit:DockPanel.Dock="Left"
                  VerticalAlignment="Top"
                  Width="100"
@@ -40,7 +41,7 @@
                toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" />
     </toolkit:DockPanel>
     <toolkit:DockPanel Margin="8">
-      <TextBlock Text="{Binding Source=MylistDescription, Converter={StaticResource LocalizeConverter}}"
+      <TextBlock Text="{i18nExt:Localize Key=MylistDescription}"
                  toolkit:DockPanel.Dock="Left"
                  VerticalAlignment="Center"
                  Width="100"
@@ -49,12 +50,12 @@
       <TextBox Text="{Binding MylistDescription.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                AcceptsReturn="True"
                Height="60"
-               PlaceholderText="{Binding Source=MylistMemo, Converter={StaticResource LocalizeConverter}}" />
+               PlaceholderText="{i18nExt:Localize Key=MylistMemo}" />
     </toolkit:DockPanel>
 
     <toolkit:DockPanel Margin="8">
 
-      <TextBlock Text="{Binding Source=MylistPrivateSettings, Converter={StaticResource LocalizeConverter}}"
+      <TextBlock Text="{i18nExt:Localize Key=MylistPrivateSettings}"
                  toolkit:DockPanel.Dock="Left"
                  VerticalAlignment="Center"
                  Width="100"
@@ -69,13 +70,13 @@
           </ItemsPanelTemplate>
         </ListView.ItemsPanel>
 
-        <TextBlock Text="{Binding Source=MylistPrivateSettings_Public, Converter={StaticResource LocalizeConverter}}" />
-        <TextBlock Text="{Binding Source=MylistPrivateSettings_Private, Converter={StaticResource LocalizeConverter}}" />
+        <TextBlock Text="{i18nExt:Localize Key=MylistPrivateSettings_Public}" />
+        <TextBlock Text="{i18nExt:Localize Key=MylistPrivateSettings_Private}" />
       </ListView>
     </toolkit:DockPanel>
 
     <toolkit:DockPanel Margin="8">
-      <TextBlock Text="{Binding Source=MylistSort, Converter={StaticResource LocalizeConverter}}"
+      <TextBlock Text="{i18nExt:Localize Key=MylistSort}"
                  toolkit:DockPanel.Dock="Left"
                  VerticalAlignment="Center"
                  Width="100"

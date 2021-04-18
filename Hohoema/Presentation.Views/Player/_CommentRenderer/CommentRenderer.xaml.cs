@@ -33,11 +33,29 @@ using System.Reactive.Subjects;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.Domain.Player;
-
+using System.Numerics;
+using Uno.Threading;
+using Microsoft.Extensions.ObjectPool;
+using System.Reactive;
+using System.Reactive.Concurrency;
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
 namespace Hohoema.Presentation.Views
 {
+    sealed class CommentUIObjectPoolPolicy : IPooledObjectPolicy<CommentUI>
+    {
+        public CommentUI Create()
+        {
+            return new CommentUI();
+        }
+
+        public bool Return(CommentUI commentUI)
+        {
+            commentUI.Comment = null;
+            return true;
+        }
+    }
+
     public sealed partial class CommentRenderer : UserControl
     {
         public CommentRenderer()
@@ -46,12 +64,13 @@ namespace Hohoema.Presentation.Views
 
             Loaded += CommentRenderer_Loaded;
             Unloaded += CommentRenderer_Unloaded;
-            this.ObserveDependencyProperty(VisibilityProperty)
-                .Subscribe(x => 
-                {
-                    _ = ResetCommentsAsyncSafe();
-                });
+            
+            _commentUIObjectPool = new DefaultObjectPool<CommentUI>(new CommentUIObjectPoolPolicy(), 500);
         }
+
+        CompositeDisposable _disposables;
+
+        DefaultObjectPool<CommentUI> _commentUIObjectPool;
 
         #region Dependency Properties
 
@@ -191,6 +210,8 @@ namespace Hohoema.Presentation.Views
         #endregion
 
 
+
+        CancellationTokenSource _unloadedCts;
         #region Event Handling
 
         private static void OnMediaPlayerChanged(object sender, DependencyPropertyChangedEventArgs e)
@@ -203,100 +224,90 @@ namespace Hohoema.Presentation.Views
                 if (oldMediaPlayer != null)
                 {
                     oldMediaPlayer.PlaybackSession.PlaybackStateChanged -= me.PlaybackSession_PlaybackStateChanged;
-                    oldMediaPlayer.SourceChanged -= me.MediaPlayer_SourceChanged;
                 }
             }
             else
             {
                 me.MediaPlayer.PlaybackSession.PlaybackStateChanged += me.PlaybackSession_PlaybackStateChanged;
-                me.MediaPlayer.SourceChanged += me.MediaPlayer_SourceChanged;
             }
         }
 
-        bool _PlayerCanSeek = false;
-        private async void MediaPlayer_SourceChanged(MediaPlayer sender, object args)
-        {
-            using (var releaser = await _UpdateLock.LockAsync())
-            {
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                {
-                    if (MediaPlayer == null || MediaPlayer.Source == null)
-                    {
-                        _PlayerCanSeek = false;
-                        return;
-                    }
 
-                    _PlayerCanSeek = sender.PlaybackSession.CanSeek;
-                });
-            }
-        }
+        private CancellationTokenSource _scrollCommentAnimationCts;
 
         private MediaPlaybackState? PlaybackState = null;
         private async void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
         {
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
-                using (var releaser = await _UpdateLock.LockAsync())
+                if (MediaPlayer == null || MediaPlayer.Source == null)
                 {
-                    if (MediaPlayer == null || MediaPlayer.Source == null)
-                    {
-                        PlaybackState = null;
-                        return;
-                    }
+                    PlaybackState = null;
+                    return;
+                }
 
-                    PlaybackState = sender?.PlaybackState ?? null;
+                PlaybackState = sender?.PlaybackState ?? null;
 
-                    if (PlaybackState == MediaPlaybackState.Playing)
+                Debug.WriteLine("state changed " + PlaybackState);
+                
+                ResetScrollCommentsAnimation(GetRenderFrameData());
+            });
+        }
+
+        void ResetScrollCommentsAnimation(in CommentRenderFrameData frame)
+        {
+            if (PlaybackState == MediaPlaybackState.Playing)
+            {
+                var ct = GetScrollCommentAnimationCancellationToken();
+                foreach (var renderComment in CommentCanvas.Children.Cast<CommentUI>())
+                {
+                    if (renderComment.DisplayMode == CommentDisplayMode.Scrolling)
                     {
-                        var frame = GetRenderFrameData();
-                        foreach (var renderComment in CommentCanvas.Children.Cast<CommentUI>())
+                        var comment = renderComment.Comment;
+                        if (renderComment.EndPosition > frame.CurrentVpos)
                         {
-                            if (renderComment.DisplayMode == CommentDisplayMode.Scrolling)
-                            {
-                                var comment = renderComment.DataContext as IComment;
-                                if (_animationSetMap.TryGetValue(renderComment.DataContext as IComment, out var anim))
-                                {
-                                    anim.SetDuration((renderComment.EndPosition - frame.CurrentVpos).TotalMilliseconds * frame.PlaybackRateInverse);
-                                    anim.Start();
-                                }
-                                else
-                                {
-                                    anim = renderComment.Offset(
-                                        -renderComment.TextWidth,
-                                        (float)renderComment.VerticalPosition,
-                                        duration: (renderComment.EndPosition - frame.CurrentVpos).TotalMilliseconds * frame.PlaybackRateInverse,
-                                        easingType: EasingType.Linear
-                                        );
-                                    anim.Start();
-                                    _animationSetMap.Add(comment, anim);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var frame = GetRenderFrameData();
-                        foreach (var renderComment in CommentCanvas.Children.Cast<CommentUI>())
-                        {
-                            if (renderComment.DisplayMode == CommentDisplayMode.Scrolling)
-                            {
-                                // 現在時間での横位置を求める
-                                // lerp 現在時間における位置の比率
-                                //var val = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
-                                //if (val.HasValue)
-                                //{
-                                //    renderComment.Offset((float)val.Value, duration: 0).Start();
-                                //}
+                            var ab = AnimationBuilder.Create()
+                                .Offset(Axis.Y)
+                                .NormalizedKeyFrames(b => b
+                                    .KeyFrame(0.0, renderComment.VerticalPosition))
+                                .Offset(Axis.X,
+                                    from: renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos),
+                                    to: -renderComment.TextWidth,
+                                    duration: (renderComment.EndPosition - frame.CurrentVpos) * frame.PlaybackRateInverse,
+                                    easingType: EasingType.Linear
+                                )
+                                ;
 
-                                if (_animationSetMap.TryGetValue(renderComment.DataContext as IComment, out var anim))
-                                {
-                                    anim.Stop();
-                                }
-                            }
+                            _ = ab.StartAsync(renderComment, ct);
                         }
                     }
                 }
-            });
+            }
+            else
+            {
+                StopScrollCommentAnimation();
+
+                foreach (var renderComment in CommentCanvas.Children.Cast<CommentUI>())
+                {
+                    if (renderComment.DisplayMode == CommentDisplayMode.Scrolling)
+                    {
+                        // 現在時間での横位置を求める
+                        // lerp 現在時間における位置の比率
+                        //var val = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
+                        //if (val.HasValue)
+                        //{
+                        //    renderComment.Offset((float)val.Value, duration: 0).Start();
+                        //}
+                        var ab = AnimationBuilder.Create()
+                                .Offset(Axis.Y)
+                                .NormalizedKeyFrames(b => b
+                                    .KeyFrame(0.0, renderComment.VerticalPosition))
+                                ;
+                        ab.Start(renderComment);
+
+                    }
+                }
+            }
         }
 
         IDisposable CommentItemsChangedSubscriber;
@@ -310,23 +321,34 @@ namespace Hohoema.Presentation.Views
             {
                 var dispatcher = me.Dispatcher;
                 me.CommentItemsChangedSubscriber = newNCC.CollectionChangedAsObservable()
-                    .Subscribe(async args =>
+                    .Subscribe(args =>
                     {
-                        await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () => 
+                        _ = me.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
                         {
-                            if (args.Action == NotifyCollectionChangedAction.Reset)
+                            try
                             {
-                                await me.ResetCommentsAsyncSafe();
+                                if (args.Action == NotifyCollectionChangedAction.Reset)
+                                {
+                                    Debug.WriteLine("Reset Comments");
+                                    me.ResetComments();
+                                }
+                                else if (args.Action == NotifyCollectionChangedAction.Add)
+                                {
+                                    Debug.WriteLine("Add Comments");
+                                    me.AddCommentToCanvas(args.NewItems.Cast<IComment>());
+                                }
+                                else if (args.Action == NotifyCollectionChangedAction.Remove)
+                                {
+                                    Debug.WriteLine("Remove Comments");
+                                    me.RemoveCommentFromCanvas(args.OldItems.Cast<IComment>());
+                                }
                             }
-                            else if (args.Action == NotifyCollectionChangedAction.Add)
+                            catch (Exception)
                             {
-                                await me.AddCommentToCanvasAsyncSafe(args.NewItems.Cast<IComment>());
                             }
-                            else if (args.Action == NotifyCollectionChangedAction.Remove)
-                            {
-                                await me.RemoveCommentFromCanvasAsyncSafe(args.OldItems.Cast<IComment>());
-                            }
+
                         });
+                        
                     });
             }
             else if (e.NewValue is IObservableVector<object> ov)
@@ -340,19 +362,19 @@ namespace Hohoema.Presentation.Views
             }
         }
 
-        private async void Ov_VectorChanged(IObservableVector<object> sender, IVectorChangedEventArgs args)
+        private void Ov_VectorChanged(IObservableVector<object> sender, IVectorChangedEventArgs args)
         {
             if (args.CollectionChange == CollectionChange.Reset)
             {
-                await ResetCommentsAsyncSafe();
+                ResetComments();
             }
             else if (args.CollectionChange == CollectionChange.ItemInserted)
             {
-                await AddCommentToCanvasAsyncSafe(sender[(int)args.Index] as IComment);
+                AddCommentToCanvas(sender[(int)args.Index] as IComment);
             }
             else if (args.CollectionChange == CollectionChange.ItemRemoved)
             {
-                await RemoveCommentFromCanvasAsyncSafe(sender[(int)args.Index] as IComment);
+                RemoveCommentFromCanvas(sender[(int)args.Index] as IComment);
             }
 
         }
@@ -366,10 +388,34 @@ namespace Hohoema.Presentation.Views
 
         #endregion
 
+        private CancellationToken GetScrollCommentAnimationCancellationToken()
+        {
+            _scrollCommentAnimationCts ??= new CancellationTokenSource();
+            return _scrollCommentAnimationCts.Token;
+        }
+        private void StopScrollCommentAnimation()
+        {
+            if (_scrollCommentAnimationCts != null)
+            {
+                try
+                {
+                    _scrollCommentAnimationCts.Cancel();
+                    _scrollCommentAnimationCts.Dispose();
+                }
+                catch (ObjectDisposedException)
+                {
+
+                }
+                finally
+                {
+                    _scrollCommentAnimationCts = null;
+                }
+            }
+        }
 
 
 
-        struct CommentRenderFrameData
+        class CommentRenderFrameData
         {
             public TimeSpan CurrentVpos { get; set; }// (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
             public int CanvasWidth { get; set; }// (int)CommentCanvas.ActualWidth;
@@ -382,6 +428,7 @@ namespace Hohoema.Presentation.Views
             public MediaPlaybackState PlaybackState { get; set; }
             public double PlaybackRate { get; set; }
             public double PlaybackRateInverse { get; set; }
+            public CancellationToken ScrollCommentAnimationCancelToken { get; set; }
         }
 
         const int OWNER_COMMENT_Z_INDEX = 1;
@@ -421,157 +468,174 @@ namespace Hohoema.Presentation.Views
         /// </summary>
         private List<CommentUI> PrevRenderCommentEachLine_Bottom = new List<CommentUI>();
 
-        CommentUI PrevRenderComment_Center;
-
-
-        Dictionary<IComment, AnimationSet> _animationSetMap = new Dictionary<IComment, AnimationSet>();
-
-        private async void CommentRenderer_Loaded(object sender, RoutedEventArgs e)
+        private void CommentRenderer_Loaded(object sender, RoutedEventArgs e)
         {
-            using (var releaser = await _UpdateLock.LockAsync())
-            {
-                if (MediaPlayer != null)
+            _disposables = new CompositeDisposable();
+            this.ObserveDependencyProperty(VisibilityProperty)
+                .Subscribe(x =>
                 {
-                    MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
-                    MediaPlayer.SourceChanged -= MediaPlayer_SourceChanged;
-                    MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
-                    MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
-                    MediaPlayer.SourceChanged += MediaPlayer_SourceChanged;
-                    MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
-                }
+                    ResetComments();
+                })
+                .AddTo(_disposables);
 
-                Clip = new RectangleGeometry() { Rect = new Rect() { Width = ActualWidth, Height = ActualHeight } };
-                this.SizeChanged += CommentRenderer_SizeChanged;                
+            _unloadedCts = new CancellationTokenSource();
+            if (MediaPlayer != null)
+            {
+                MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
+                MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+                MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
+                MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
             }
+
+
+            _windowResizeTimer = new DispatcherTimer();
+            _windowResizeTimer.Interval = TimeSpan.FromSeconds(0.25);
+            _windowResizeTimer.Tick += _windowResizeTimer_Tick;
+            _prevWindowSize = new Size(Window.Current.Bounds.Width, Window.Current.Bounds.Height);
+            Window.Current.SizeChanged += WindowSizeChanged;
+
+            Clip = new RectangleGeometry() { Rect = new Rect() { Width = ActualWidth, Height = ActualHeight } };
+            this.SizeChanged += CommentRenderer_SizeChanged;                
         }
 
-        private async void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
+        private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
         {
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-            { 
-                using (await _UpdateLock.LockAsync())
-                {
-                    var frame = GetRenderFrameData();
-                    for (int i = _pendingRenderComments.Count - 1; i >= 0; i--)
-                    {
-                        var comment = _pendingRenderComments[i];
-                        if (comment.VideoPosition > frame.CurrentVpos)
-                        {
-                            //                        _pendingRenderComments.Add(comment);
-                        }
-                        else
-                        {
-                            _pendingRenderComments.RemoveAt(i);
-                            AddCommentToCanvas(comment, in frame);
+            _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+            {
+                if (_nowWindowSizeChanging) { return; }
 
-                            Debug.WriteLine("Pendingから追加: " + comment.CommentText);
-                        }
+                var frame = GetRenderFrameData();
+                for (int i = _pendingRenderComments.Count - 1; i >= 0; i--)
+                {
+                    var comment = _pendingRenderComments[i];
+                    if (comment.VideoPosition <= frame.CurrentVpos)
+                    {
+                        _pendingRenderComments.RemoveAt(i);
+                        AddCommentToCanvas(comment, in frame);
                     }
                 }
             });
         }
 
-        private async void CommentRenderer_SizeChanged(object sender, SizeChangedEventArgs e)
+        bool _nowWindowSizeChanging;
+        DispatcherTimer _windowResizeTimer;
+        Size _prevWindowSize;
+        private void WindowSizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e)
         {
+            if (_prevWindowSize == e.Size) { return; }
 
-            using (var releaser = await _UpdateLock.LockAsync())
+            _prevWindowSize = e.Size;
+
+            Debug.WriteLine("Window SizeChanged");
+
+            if (_nowWindowSizeChanging == false)
             {
-                Clip = new RectangleGeometry() { Rect = new Rect() { Width = ActualWidth, Height = ActualHeight } };
+                ClearComments();
             }
 
-            await ResetCommentsAsyncSafe();
+            _nowWindowSizeChanging = true;
+            _windowResizeTimer.Stop();
+            _windowResizeTimer.Start();
+        }
+
+        private void _windowResizeTimer_Tick(object sender, object e)
+        {
+            Debug.WriteLine("_windowResizeTimer_Tick");
+            _windowResizeTimer.Stop();
+            _nowWindowSizeChanging = false;
+
+            ResetComments();
+        }
+
+        private void CommentRenderer_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Clip = new RectangleGeometry() { Rect = new Rect() { Width = ActualWidth, Height = ActualHeight } };
+
+            Debug.WriteLine("CommentCanvas SizeChanged"); 
+            
+            if (_nowWindowSizeChanging) { return; }
+
+            ResetComments();
         }
 
 
-        private async void CommentRenderer_Unloaded(object sender, RoutedEventArgs e)
+        private void CommentRenderer_Unloaded(object sender, RoutedEventArgs e)
         {
+            _disposables.Dispose();
+            _disposables = null;
+            Window.Current.SizeChanged -= WindowSizeChanged;
             this.SizeChanged -= CommentRenderer_SizeChanged;
+            
+            _windowResizeTimer.Stop();
+            _windowResizeTimer = null;
 
-            using (await _UpdateLock.LockAsync())
-            {
-                foreach (var renderComment in CommentCanvas.Children.Cast<CommentUI>())
-                {
-                    renderComment.Offset(0).Fade(0).SetDurationForAll(0).Start();
-                }
+            _unloadedCts.Cancel();
+            _unloadedCts.Dispose();
+            _unloadedCts = null;
 
-                CommentCanvas.Children.Clear();
-            }
+            StopScrollCommentAnimation();
+
+            CommentCanvas.Children.Clear();
 
             var mediaPlayer = MediaPlayer;
             if (mediaPlayer != null)
             {
                 mediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
-                mediaPlayer.SourceChanged -= MediaPlayer_SourceChanged;
             }
         }
 
 
-
-        TimeSpan _PreviousVideoPosition = TimeSpan.Zero;
-        AsyncLock _UpdateLock = new AsyncLock();
-        TimeSpan _PrevCommentRenderElapsedTime = TimeSpan.Zero;
-
-        DateTime _RealVideoPosition = DateTime.Now;
-
+        static CommentRenderFrameData _frameData = new CommentRenderFrameData();
         private CommentRenderFrameData GetRenderFrameData()
         {
-            return new CommentRenderFrameData()
-            {
-                CommentDisplayDuration = DefaultDisplayDuration
-                , PlaybackState = MediaPlayer.PlaybackSession.PlaybackState
-                , CommentDefaultColor = CommentDefaultColor
-                , CurrentVpos = VideoPosition + VideoPositionOffset
-                , CanvasWidth = (int)CommentCanvas.ActualWidth
-                , CanvasHeight = (uint)CommentCanvas.ActualHeight
-                , HalfCanvasWidth = CommentCanvas.ActualWidth * 0.5
-                , FontScale = (float)CommentSizeScale
-                , Visibility = Visibility
-                , PlaybackRate = MediaPlayer.PlaybackSession.PlaybackRate
-                , PlaybackRateInverse = 1d / MediaPlayer.PlaybackSession.PlaybackRate
-            };
+            _frameData.CommentDisplayDuration = DefaultDisplayDuration;
+            _frameData.PlaybackState = MediaPlayer.PlaybackSession.PlaybackState;
+            _frameData.CommentDefaultColor = CommentDefaultColor;
+            _frameData.CurrentVpos = VideoPosition + VideoPositionOffset;
+            _frameData.CanvasWidth = (int)CommentCanvas.ActualWidth;
+            _frameData.CanvasHeight = (uint)CommentCanvas.ActualHeight;
+            _frameData.HalfCanvasWidth = CommentCanvas.ActualWidth * 0.5;
+            _frameData.FontScale = (float)CommentSizeScale;
+            _frameData.Visibility = Visibility;
+            _frameData.PlaybackRate = MediaPlayer.PlaybackSession.PlaybackRate;
+            _frameData.PlaybackRateInverse = 1d / MediaPlayer.PlaybackSession.PlaybackRate;
+            _frameData.ScrollCommentAnimationCancelToken = GetScrollCommentAnimationCancellationToken();
+
+            return _frameData;
         }
 
 
+        void ClearComments()
+        {
+            StopScrollCommentAnimation();
 
+            foreach (var commentUI in CommentCanvas.Children.Cast<CommentUI>())
+            {
+                _commentUIObjectPool.Return(commentUI);
+            }
 
-        private async Task ResetCommentsAsyncSafe()
+            CommentCanvas.Children.Clear();
+            _commentToRenderCommentMap.Clear();
+
+            PrevRenderCommentEachLine_Stream.Clear();
+            PrevRenderCommentEachLine_Top.Clear();
+            PrevRenderCommentEachLine_Bottom.Clear();
+        }
+
+        private void ResetComments()
         {
             try
             {
                 CommentCanvas.Visibility = Visibility.Collapsed;
-
-                using (await _UpdateLock.LockAsync())
-                {
-                    Debug.WriteLine("Comment Reset");
-
-                    foreach (var anim in _animationSetMap.Values)
-                    {
-                        anim.Stop();
-                        anim.Dispose();
-                    }
-
-                    _animationSetMap.Clear();
-                    CommentCanvas.Children.Clear();
-                    _commentToRenderCommentMap.Clear();
-
-                    PrevRenderCommentEachLine_Stream.Clear();
-                    PrevRenderCommentEachLine_Top.Clear();
-                    PrevRenderCommentEachLine_Bottom.Clear();
-
-                    _RealVideoPosition = DateTime.Now;
-                }
-
+                ClearComments();
                 CommentCanvas.Visibility = Visibility.Visible;
                 if (Visibility == Visibility.Visible)
                 {
                     if (Comments != null)
                     {
-                        await Task.Delay(10);
-
-                        await AddCommentToCanvasAsyncSafe(Comments.Cast<IComment>().ToArray());
+                        AddCommentToCanvas(Comments.Cast<IComment>().ToArray());
                     }
                 }
-
             }
             finally
             {
@@ -579,35 +643,36 @@ namespace Hohoema.Presentation.Views
             }
         }
 
+        static double CulcCommentFontSize(IComment comment, in CommentRenderFrameData frame)
+        {
+            // フォントサイズの計算
+            // 画面サイズの10分の１＊ベーススケール＊フォントスケール
+            float commentFontScale = 1.0f;
+            switch (comment.SizeMode)
+            {
+                case CommentSizeMode.Normal:
+                    commentFontScale = 1.0f;
+                    break;
+                case CommentSizeMode.Big:
+                    commentFontScale = 1.25f;
+                    break;
+                case CommentSizeMode.Small:
+                    commentFontScale = 0.75f;
+                    break;
+                default:
+                    break;
+            }
 
+            var baseSize = Math.Max(frame.CanvasHeight * BaseCommentSizeRatioByCanvasHeight, 24);
+            const float PixelToPoint = 0.75f;
+            return baseSize * frame.FontScale * commentFontScale * PixelToPoint;
+        }
 
         private void AddCommentToCanvas(IComment comment, in CommentRenderFrameData frame)
         {
             CommentUI MakeCommentUI(IComment comment, in CommentRenderFrameData frame)
             {
-
-                // フォントサイズの計算
-                // 画面サイズの10分の１＊ベーススケール＊フォントスケール
-                float commentFontScale = 1.0f;
-                switch (comment.SizeMode)
-                {
-                    case CommentSizeMode.Normal:
-                        commentFontScale = 1.0f;
-                        break;
-                    case CommentSizeMode.Big:
-                        commentFontScale = 1.25f;
-                        break;
-                    case CommentSizeMode.Small:
-                        commentFontScale = 0.75f;
-                        break;
-                    default:
-                        break;
-                }
-
-                var baseSize = Math.Max(frame.CanvasHeight * BaseCommentSizeRatioByCanvasHeight, 24);
-                const float PixelToPoint = 0.75f;
-                var scaledFontSize = baseSize * frame.FontScale * commentFontScale * PixelToPoint;
-                var commentFontSize = (uint)Math.Ceiling(scaledFontSize);
+                var commentFontSize = CulcCommentFontSize(comment, in frame);
 
                 // コメントカラー
                 Color commentColor = default(Color);
@@ -622,20 +687,20 @@ namespace Hohoema.Presentation.Views
 
                 var textBGOffset = Math.Floor(FontSize * TextBGOffsetBias);
 
-                var commentUI = new CommentUI()
+                var commentUI = _commentUIObjectPool.Get();
                 {
-                    DataContext = comment,
-                    CommentText = comment.CommentText_Transformed,
-                    TextColor = commentColor,
-                    BackTextColor = GetShadowColor(commentColor),
-                    VideoPosition = comment.VideoPosition,
-                    EndPosition = comment.VideoPosition + frame.CommentDisplayDuration,
-                    TextBGOffsetX = textBGOffset,
-                    TextBGOffsetY = textBGOffset,
-                    CommentFontSize = commentFontSize,
-                    IsVisible = !comment.IsInvisible,
-                    DisplayMode = comment.DisplayMode
-                };
+                    commentUI.Comment = comment;
+                    commentUI.CommentText = comment.CommentText_Transformed;
+                    commentUI.TextColor = commentColor;
+                    commentUI.BackTextColor = GetShadowColor(commentColor);
+                    commentUI.VideoPosition = comment.VideoPosition;
+                    commentUI.EndPosition = comment.VideoPosition + frame.CommentDisplayDuration;
+                    commentUI.TextBGOffsetX = textBGOffset;
+                    commentUI.TextBGOffsetY = textBGOffset;
+                    commentUI.CommentFontSize = commentFontSize;
+                    commentUI.IsVisible = !comment.IsInvisible;
+                    commentUI.DisplayMode = comment.DisplayMode;
+                }
 
                 return commentUI;
             }
@@ -643,7 +708,7 @@ namespace Hohoema.Presentation.Views
             if (_commentToRenderCommentMap.ContainsKey(comment)) { return; }
 
             // 表示区間を過ぎたコメントは表示しない
-            if (comment.VideoPosition + frame.CommentDisplayDuration < frame.CurrentVpos)
+            if (comment.VideoPosition + frame.CommentDisplayDuration <= frame.CurrentVpos)
             {
                 return;
             }
@@ -680,9 +745,7 @@ namespace Hohoema.Presentation.Views
                     // 先行しているコメントの表示終了時間を超える場合
                     // コリジョンしない
 
-                    if (prevComment == null
-                        || prevComment.DataContext == null
-                        )
+                    if (prevComment?.Comment == null)
                     {
                         // コリジョンしない
                         // 追加可能
@@ -701,20 +764,16 @@ namespace Hohoema.Presentation.Views
                             insertPosition = i;
                             break;
                         }
-                    }
 
-                    // コリジョンする
-                    // 追加できない
-                    verticalPos += prevComment.TextHeight + prevComment.TextHeight * CommentVerticalMarginRatio;
+                        // コリジョンする
+                        // 追加できない
+                        verticalPos += prevComment.TextHeight + prevComment.TextHeight * CommentVerticalMarginRatio;
+                    }
                 }
 
                 // 画面下部に少しでも文字がはみ出るようなら範囲外
                 isOutBoundComment = (verticalPos + renderComment.TextHeight) > frame.CanvasHeight;
-                if (isOutBoundComment)
-                {
-//                    isCanAddRenderComment_Stream = false;
-                }
-                else
+                if (isOutBoundComment is false)
                 {
                     // 最初は右端に配置
                     double initialCanvasLeft = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos) ?? frame.CanvasWidth;
@@ -723,28 +782,34 @@ namespace Hohoema.Presentation.Views
                     renderComment.VerticalPosition = verticalPos;
 
                     if (frame.PlaybackState != MediaPlaybackState.Paused)
-                    {                        
+                    {
                         double displayDuration = Math.Min(renderComment.EndPosition.TotalMilliseconds - frame.CurrentVpos.TotalMilliseconds, frame.CommentDisplayDuration.TotalMilliseconds) * frame.PlaybackRateInverse;
-                        //double delay = Math.Max((renderComment.EndPosition - frame.CurrentVpos - frame.CommentDisplayDurationVPos) * 10u * frame.PlaybackRateInverse, 0);
-                        Debug.WriteLine($"{comment.CommentId}: left: {initialCanvasLeft}, width: {renderComment.ActualWidth}, top: {verticalPos}");
+                        var ab = AnimationBuilder.Create()
+                            .Offset(Axis.Y)
+                            .NormalizedKeyFrames(b => b
+                                .KeyFrame(0.0, renderComment.VerticalPosition))
+                            .Offset(Axis.X,
+                                from: (float)initialCanvasLeft,
+                                to: -renderComment.TextWidth,                            
+                                duration: TimeSpan.FromMilliseconds(displayDuration),
+                                easingType: EasingType.Linear
+                                );
 
-                        var anim = renderComment
-                            .Offset((float)initialCanvasLeft, (float)verticalPos, duration: 0)
-                            .Then()
-                            .Offset(-(float)renderComment.TextWidth, (float)verticalPos, duration: displayDuration, easingType: EasingType.Linear);
-
-                        anim.Start();
-
-                        _animationSetMap.Add(comment, anim);
+                        _ = ab.StartAsync(renderComment, frame.ScrollCommentAnimationCancelToken);
                     }
                     else
                     {
-                        renderComment
-                            .Offset((float)initialCanvasLeft, (float)verticalPos, duration: 0)
-                            .Start();
-                    }
+                        var ab = AnimationBuilder.Create()
+                           .Offset(Axis.Y)
+                           .NormalizedKeyFrames(b => b
+                               .KeyFrame(0.0, renderComment.VerticalPosition))
+                           .Offset(Axis.X)
+                           .NormalizedKeyFrames(b => b
+                               .KeyFrame(0.0, (float)initialCanvasLeft))
+                            ;
 
-                    //Canvas.SetTop(renderComment, verticalPos);
+                        ab.Start(renderComment);
+                    }
 
                     if (insertPosition == -1)
                     {
@@ -756,8 +821,6 @@ namespace Hohoema.Presentation.Views
                         // 指定の位置に追加
                         PrevRenderCommentEachLine_Stream[insertPosition] = renderComment;
                     }
-
-//                    isCanAddRenderComment_Stream = (verticalPos + (renderComment.TextHeight + renderComment.TextHeight * CommentVerticalMarginRatio)) < frame.CanvasHeight;
                 }
             }
             else
@@ -770,8 +833,7 @@ namespace Hohoema.Presentation.Views
                     for (var i = 0; i < PrevRenderCommentEachLine_Top.Count; i++)
                     {
                         var prevComment = PrevRenderCommentEachLine_Top[i];
-                        if (prevComment == null
-                            || prevComment.EndPosition < frame.CurrentVpos)
+                        if (prevComment?.Comment == null)
                         {
                             insertPosition = i;
                             break;
@@ -784,18 +846,19 @@ namespace Hohoema.Presentation.Views
 
                     // 上コメが画面下部からはみ出す場合には範囲外
                     isOutBoundComment = (verticalPos + renderComment.TextHeight) > frame.CanvasHeight;
-                    if (isOutBoundComment)
-                    {
-//                        isCanAddRenderComment_Top = false;
-                    }
-                    else
+                    if (isOutBoundComment is false)
                     {
                         renderComment.VerticalPosition = verticalPos;
+                        var left = (float)frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f;
+                        AnimationBuilder.Create()
+                           .Offset(Axis.Y)
+                           .NormalizedKeyFrames(b => b
+                               .KeyFrame(0.0, renderComment.VerticalPosition))
+                           .Offset(Axis.X)
+                           .NormalizedKeyFrames(b => b
+                               .KeyFrame(0.0, left))
+                           .Start(renderComment);
 
-                        //Canvas.SetTop(renderComment, verticalPos);
-                        renderComment
-                            .Offset((float)frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f, (float)verticalPos, duration: 0)
-                            .Start();
 
                         if (insertPosition == -1)
                         {
@@ -807,8 +870,6 @@ namespace Hohoema.Presentation.Views
                             // 指定の位置に追加
                             PrevRenderCommentEachLine_Top[insertPosition] = renderComment;
                         }
-
-//                        isCanAddRenderComment_Top = (verticalPos + (renderComment.TextHeight + renderComment.TextHeight * CommentVerticalMarginRatio)) < frame.CanvasHeight;
                     }
                 }
                 else if (comment.DisplayMode == CommentDisplayMode.Bottom)
@@ -819,32 +880,31 @@ namespace Hohoema.Presentation.Views
                     for (var i = 0; i < PrevRenderCommentEachLine_Bottom.Count; i++)
                     {
                         var prevComment = PrevRenderCommentEachLine_Bottom[i];
-                        if (prevComment == null
-                            || prevComment.EndPosition < frame.CurrentVpos)
+                        if (prevComment?.Comment == null)
                         {
                             insertPosition = i;
                             break;
                         }
                         else
                         {
-                            verticalPos -= (prevComment.TextHeight + prevComment.TextHeight * CommentVerticalMarginRatio);
+                            verticalPos -= prevComment.TextHeight + prevComment.TextHeight * CommentVerticalMarginRatio;
                         }
                     }
 
                     // 下コメが画面上部からはみ出す場合には範囲外
                     isOutBoundComment = verticalPos < 0;
-                    if (isOutBoundComment)
-                    {
-//                        isCanAddRenderComment_Bottom = false;
-                    }
-                    else
+                    if (isOutBoundComment is false)
                     {
                         renderComment.VerticalPosition = verticalPos;
-
-                        //Canvas.SetTop(renderComment, verticalPos);
-                        renderComment
-                            .Offset((float)frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f, (float)verticalPos, duration: 0)
-                            .Start();
+                        var left = frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f;
+                        AnimationBuilder.Create()
+                           .Offset(Axis.Y)
+                           .NormalizedKeyFrames(b => b
+                               .KeyFrame(0.0, renderComment.VerticalPosition))
+                           .Offset(Axis.X)
+                           .NormalizedKeyFrames(b => b
+                               .KeyFrame(0.0, left))
+                           .Start(renderComment);
 
                         if (insertPosition == -1)
                         {
@@ -856,30 +916,17 @@ namespace Hohoema.Presentation.Views
                             // 指定の位置に追加
                             PrevRenderCommentEachLine_Bottom[insertPosition] = renderComment;
                         }
-
-//                        isCanAddRenderComment_Bottom = (verticalPos - (renderComment.TextHeight + renderComment.TextHeight * CommentVerticalMarginRatio)) > 0;
                     }
                 }
                 else //if (comment.VAlign == VerticalAlignment.Center)
                 {
-                    renderComment
-                            .Offset((float)frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f, frame.CanvasHeight * 0.5f - renderComment.TextHeight * 0.5f, duration: 0)
-                            .Start();
-//                    Canvas.SetTop(renderComment, frame.CanvasHeight * 0.5f - renderComment.TextHeight * 0.5f);
-                    PrevRenderComment_Center = renderComment;
-//                    isCanAddRenderComment_Center = false;
+                    renderComment.Translation = new((float)frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f, frame.CanvasHeight * 0.5f - renderComment.TextHeight * 0.5f, 0);
                 }
 
                 // オーナーコメントの場合は優先して表示されるように
                 if (comment.IsOwnerComment)
                 {
                     Canvas.SetZIndex(renderComment, OWNER_COMMENT_Z_INDEX);
-                }
-
-                if (!isOutBoundComment)
-                {
-                    //var left = (float)frame.HalfCanvasWidth - (int)(renderComment.TextWidth * 0.5f);
-                    //renderComment.Offset(offsetX: left, duration: 0).Start();
                 }
             }
 
@@ -895,7 +942,7 @@ namespace Hohoema.Presentation.Views
 
         private void AddOrPushPending(IComment comment, in CommentRenderFrameData frame)
         {
-            if (comment.VideoPosition > frame.CurrentVpos)
+            if (_nowWindowSizeChanging || comment.VideoPosition > frame.CurrentVpos)
             {
                 _pendingRenderComments.Add(comment);
             }
@@ -905,50 +952,31 @@ namespace Hohoema.Presentation.Views
             }
         }
 
-        private async Task AddCommentToCanvasAsyncSafe(IComment comment)
+        private void AddCommentToCanvas(IComment comment)
         {
-            using (await _UpdateLock.LockAsync())
-            {
-                if (Visibility == Visibility.Collapsed) { return; }
+            if (Visibility == Visibility.Collapsed) { return; }
 
-                var frame = GetRenderFrameData();
+            var frame = GetRenderFrameData();
+            AddOrPushPending(comment, in frame);
+        }
+
+        private void AddCommentToCanvas(IEnumerable<IComment> comments)
+        {
+            if (Visibility ==Visibility.Collapsed) { return; }
+
+            var frame = GetRenderFrameData();
+            foreach (var comment in comments)
+            {
                 AddOrPushPending(comment, in frame);
+                frame.CurrentVpos = VideoPosition + VideoPositionOffset;
             }
         }
 
-        private async Task AddCommentToCanvasAsyncSafe(IEnumerable<IComment> comments)
+        private void RemoveCommentFromCanvas(IEnumerable<IComment> comments)
         {
-            using (await _UpdateLock.LockAsync())
-            {
-                if (Visibility ==Visibility.Collapsed) { return; }
-
-                var frame = GetRenderFrameData();
-                foreach (var comment in comments)
-                {
-                    AddOrPushPending(comment, in frame);
-                    frame.CurrentVpos = VideoPositionOffset;
-                }
-            }
-        }
-
-        private async Task RemoveCommentFromCanvasAsyncSafe(IComment comment)
-        {
-            using (await _UpdateLock.LockAsync())
+            foreach (var comment in comments)
             {
                 RemoveCommentFromCanvas(comment);
-                _pendingRenderComments.Remove(comment);
-            }
-        }
-
-        private async Task RemoveCommentFromCanvasAsyncSafe(IEnumerable<IComment> comments)
-        {
-            using (await _UpdateLock.LockAsync())
-            {
-                foreach (var comment in comments)
-                {
-                    RemoveCommentFromCanvas(comment);
-                    _pendingRenderComments.Remove(comment);
-                }
             }
         }
 
@@ -957,18 +985,18 @@ namespace Hohoema.Presentation.Views
         Dictionary<IComment, CommentUI> _commentToRenderCommentMap = new Dictionary<IComment, CommentUI>();
         private void RemoveCommentFromCanvas(IComment comment)
         {
-            if (_animationSetMap.Remove(comment, out var anim))
-            {
-                anim.Stop();
-                anim.Dispose();
-            }
-
             if (_commentToRenderCommentMap.Remove(comment, out var renderComment))
             {
                 CommentCanvas.Children.Remove(renderComment);
-                renderComment.DataContext = null;
-                PrevRenderCommentEachLine_Stream.Remove(renderComment);
+                if (renderComment.DisplayMode == CommentDisplayMode.Scrolling)
+                {
+                    PrevRenderCommentEachLine_Stream.Remove(renderComment);
+                }
+
+                _commentUIObjectPool.Return(renderComment);
             }
+
+            _pendingRenderComments.Remove(comment);
         }
 
 

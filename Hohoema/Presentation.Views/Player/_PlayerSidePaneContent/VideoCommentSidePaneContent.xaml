@@ -8,8 +8,9 @@
   xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:i="using:Microsoft.Xaml.Interactivity" 
   xmlns:myBehaviors="using:Hohoema.Presentation.Views.Interaction.Behaviors" 
-  mc:Ignorable="d"
   xmlns:myextensions="using:Hohoema.Presentation.Views.Extensions"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
@@ -26,7 +27,7 @@
 
     <DataTemplate x:Key="CommentItemFlyoutTemplate">
       <MenuFlyout>
-        <MenuFlyoutItem Text="{Binding Source=AddFilteringCommentUserId, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.AddFilteringCommentOwnerIdCommand}" CommandParameter="{Binding}" />
+        <MenuFlyoutItem Text="{i18nExt:Localize Key=AddFilteringCommentUserId}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.AddFilteringCommentOwnerIdCommand}" CommandParameter="{Binding}" />
       </MenuFlyout>
     </DataTemplate>
   </UserControl.Resources>
@@ -38,10 +39,10 @@
             BorderBrush="{ThemeResource ButtonDisabledBorderThemeBrush}"
             >
         <StackPanel Orientation="Horizontal" Spacing="16">
-          <TextBlock Text="{Binding Source=Comment, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" />
+          <TextBlock Text="{i18nExt:Localize Key=Comment}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" />
 
           <TextBlock VerticalAlignment="Center">
-                <Run Text="{Binding Source=CommentCount, Converter={StaticResource LocalizeConverter}}" />:<Run Text="{x:Bind _viewModel.CommentPlayer.Comments.Count, Mode=OneWay}" />
+                <Run Text="{i18nExt:Localize Key=CommentCount}" />:<Run Text="{x:Bind _viewModel.CommentPlayer.Comments.Count, Mode=OneWay}" />
           </TextBlock>
         </StackPanel>
 
@@ -53,8 +54,8 @@
             </Button.Content>
             <Button.Flyout>
               <MenuFlyout>
-                <MenuFlyoutItem Text="{Binding Source=ClearFilteredCommentUserIdInCurrentVideo, Converter={StaticResource LocalizeConverter}}" Command="{Binding ClearFilteringCommentUserIdOnCurrentVideoCommand}" />
-                <MenuFlyoutItem Text="{Binding Source=ClearFilteredCommentUserId, Converter={StaticResource LocalizeConverter}}" Command="{Binding CommentFiltering.ClearFilteringCommentUserIdCommand}" Visibility="Collapsed" />
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=ClearFilteredCommentUserIdInCurrentVideo}" Command="{Binding ClearFilteringCommentUserIdOnCurrentVideoCommand}" />
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=ClearFilteredCommentUserId}" Command="{Binding CommentFiltering.ClearFilteringCommentUserIdCommand}" Visibility="Collapsed" />
 
               </MenuFlyout>
             </Button.Flyout>

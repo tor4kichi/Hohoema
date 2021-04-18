@@ -7,12 +7,13 @@
             xmlns:i="using:Microsoft.Xaml.Interactivity"
             xmlns:core="using:Microsoft.Xaml.Interactions.Core"
             xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
+            xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
             mc:Ignorable="d">
   <MenuFlyoutItem Text="{Binding Name}"
                   IsEnabled="False" />
 
   <MenuFlyoutItem x:Name="AddSubscriptionButton"
-                     Text="{Binding Source=AddToSubscription, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                     Text="{i18nExt:Localize Key=AddToSubscription}"
                      Icon="Add"
                      Visibility="Collapsed">
 
@@ -20,7 +21,7 @@
 
   <MenuFlyoutSeparator />
 
-  <MenuFlyoutItem Text="{Binding Source=RemoveFollow, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+  <MenuFlyoutItem Text="{i18nExt:Localize Key=RemoveFollow}"
                   CommandParameter="{Binding}"
                   x:Name="RemoveFollowButton" />
 </MenuFlyout>

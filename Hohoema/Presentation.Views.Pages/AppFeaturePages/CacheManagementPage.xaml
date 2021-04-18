@@ -15,10 +15,13 @@
     xmlns:controls="using:Hohoema.Presentation.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:actions="using:Hohoema.Presentation.Views.Actions"
     xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
-  xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage" xmlns:windowsStateTrigger="using:WindowsStateTriggers" DataContext="{x:Null}"
+  xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage" 
+  xmlns:windowsStateTrigger="using:WindowsStateTriggers" 
+  DataContext="{x:Null}"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
@@ -33,37 +36,32 @@
                                       >
       <videolistPage:VideoItemsListView.Header>
 
-        <controls:ScrollHeader x:Name="ScrollHeader"
-                               Mode="Sticky"
-                               Background="{StaticResource MenuBackgroundBrush}"
-                               >
-          <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-            <CommandBar >
-              <CommandBar.Content>
-                <controls:AppTitleBar Title="{Binding Title}" />
-              </CommandBar.Content>
-              
-              <CommandBar.PrimaryCommands>
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
+        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+          <CommandBar >
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{Binding Title}" />
+            </CommandBar.Content>
 
-                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
-              </CommandBar.PrimaryCommands>
-              <CommandBar.SecondaryCommands>
-                <AppBarButton Label="{Binding CacheSaveFolderPath.Value}" IsEnabled="False" />
-                <AppBarButton Label="{Binding Source=OpenCacheFolder, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding OpenCurrentCacheFolderCommand}" />
-                <AppBarSeparator />
-                <AppBarButton Label="{Binding Source=ChangeCacheFolder, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding ChangeCacheFolderCommand}" />
-                <AppBarButton Label="{Binding Source=OpenHohoemaCacheVideoFairUsePolicyText, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding ReadCacheAcceptTextCommand}" />
-              </CommandBar.SecondaryCommands>
-            </CommandBar>
-          </Grid>
-        </controls:ScrollHeader>
+            <CommandBar.PrimaryCommands>
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Click">
+                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+              <AppBarButton Label="{Binding CacheSaveFolderPath.Value}" IsEnabled="False" />
+              <AppBarButton Label="{i18nExt:Localize Key=OpenCacheFolder}" Command="{Binding OpenCurrentCacheFolderCommand}" />
+              <AppBarSeparator />
+              <AppBarButton Label="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{Binding ChangeCacheFolderCommand}" />
+              <AppBarButton Label="{i18nExt:Localize Key=OpenHohoemaCacheVideoFairUsePolicyText}" Command="{Binding ReadCacheAcceptTextCommand}" />
+            </CommandBar.SecondaryCommands>
+          </CommandBar>
+        </Grid>
       </videolistPage:VideoItemsListView.Header>
 
       <videolistPage:VideoItemsListView.ItemTemplate>
@@ -89,7 +87,7 @@
     </videolistPage:VideoItemsListView>
 
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{Binding Source=CacheVideoNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+      <TextBlock Text="{i18nExt:Localize Key=CacheVideoNoItems}"
                      Style="{StaticResource SubtitleTextBlockStyle}"
                      Opacity="0.8"
                      />
@@ -98,19 +96,19 @@
     
     <Grid x:Name="RequireChangeCacheFolderLayout" Visibility="Collapsed">
       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-        <TextBlock Text="{Binding Source=RequirePickFolderToUsingVieoCacheInHohoema, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />
+        <TextBlock Text="{i18nExt:Localize Key=RequirePickFolderToUsingVieoCacheInHohoema}" />
         <Button x:Name="UpdateCacheSaveFolderButton" 
                 Command="{Binding ChangeCacheFolderCommand}"
-                Content="{Binding Source=PickCacheSaveFolder, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                Content="{i18nExt:Localize Key=PickCacheSaveFolder}"
                 />
       </StackPanel>
     </Grid>
 
     <Grid x:Name="NotCacheAcceptedLayout">
       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-        <TextBlock Text="{Binding Source=RequireAcceptToUsingVideoCacheInHohoema, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />
+        <TextBlock Text="{i18nExt:Localize Key=RequireAcceptToUsingVideoCacheInHohoema}" />
 
-        <Button Content="{Binding Source=OpenHohoemaCacheVideoFairUsePolicyText, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
+        <Button Content="{i18nExt:Localize Key=OpenHohoemaCacheVideoFairUsePolicyText}" 
                 Command="{Binding RequireEnablingCacheCommand}" 
                 Margin="8 16 8 8"
                 />

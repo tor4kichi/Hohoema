@@ -157,7 +157,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
                     _nicoVideoRepository.AddOrUpdate(video);
 
                     var vm = new RecommendVideoListItem(item);
-                    vm.SetupFromThumbnail(video);
+                    vm.Setup(video);
                     yield return vm;
 
                     ct.ThrowIfCancellationRequested();
@@ -165,7 +165,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
             }
         }
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override async ValueTask<int> ResetSourceImpl()
         {
             _RecommendResponse = await LoginUserRecommendProvider.GetRecommendFirstAsync();
             if (_RecommendResponse.FirstData.Status == "ok")

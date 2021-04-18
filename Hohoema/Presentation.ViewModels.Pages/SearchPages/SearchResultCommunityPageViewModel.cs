@@ -304,7 +304,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.SearchPages
 		public Order Order { get; private set; }
         public SearchProvider SearchProvider { get; }
 
-        public async Task<int> ResetSource()
+        public async ValueTask<int> ResetSource()
 		{
 			try
 			{

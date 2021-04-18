@@ -305,7 +305,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
 
         NicoRepoEntriesResponse _firstRes;
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override async ValueTask<int> ResetSourceImpl()
         {
             var nicoRepoResponse = await LoginUserNicoRepoProvider.GetLoginUserNicoRepoAsync(_nicoRepoType, _nicoRepoDisplayTarget);
 
@@ -366,10 +366,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserFeaturePages
                         topicType == NicoRepoItemTopic.NicoVideo_Channel_Video_Upload)
                 {
                     var vm = new NicoRepoVideoTimeline(item, topicType);
-                    
-                    yield return vm;
-
                     await vm.InitializeAsync(ct).ConfigureAwait(false);
+                    yield return vm;
                 }
                 else
                 {

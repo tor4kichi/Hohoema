@@ -18,7 +18,7 @@ namespace Hohoema.Models.Infrastructure
         FastAsyncLock _fileUpdateLock = new FastAsyncLock();
         public FlagsRepositoryBase()
         {
-            _LocalStorageHelper = new Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper();
+            _LocalStorageHelper = new Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper(new JsonObjectSerializer());
         }
 
         protected T Read<T>(T @default = default, [CallerMemberName] string propertyName = null)

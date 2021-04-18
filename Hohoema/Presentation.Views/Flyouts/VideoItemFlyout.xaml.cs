@@ -13,7 +13,6 @@ using Hohoema.Presentation.Views.Helpers;
 using I18NPortable;
 using System;
 using Prism.Commands;
-using Microsoft.Toolkit.Uwp.UI.Extensions;
 using Uno.Extensions.Specialized;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Subscriptions;

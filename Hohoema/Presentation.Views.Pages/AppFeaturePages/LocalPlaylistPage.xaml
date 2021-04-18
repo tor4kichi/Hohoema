@@ -14,6 +14,7 @@
   xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
   xmlns:controls="using:Hohoema.Presentation.Views.Controls"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   NavigationCacheMode="Enabled"
@@ -35,54 +36,51 @@
 
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-          <controls:ScrollHeader x:Name="ScrollHeader"
-                                 Mode="Sticky">
-            <StackPanel>
-              <CommandBar x:Name="VideoListCommandBar"
+          <StackPanel>
+            <CommandBar x:Name="VideoListCommandBar"
                           Background="Transparent"
                           OverflowButtonVisibility="Auto">
-                <CommandBar.Content>
-                  <controls:AppTitleBar Title="{Binding Title}" />
-                </CommandBar.Content>
-                <CommandBar.PrimaryCommands>
-                  <AppBarButton x:Name="RemoveWatchedItemsButton"
-                                Label="{Binding Source=RemoveWatchedItems, Converter={StaticResource LocalizeConverter}}"
+              <CommandBar.Content>
+                <controls:AppTitleBar Title="{Binding Title}" />
+              </CommandBar.Content>
+              <CommandBar.PrimaryCommands>
+                <AppBarButton x:Name="RemoveWatchedItemsButton"
+                                Label="{i18nExt:Localize Key=RemoveWatchedItems}"
                                 Command="{Binding RemoveWatchedItemsInAfterWatchPlaylistCommand}"
                                 Icon="Delete"
                                 Visibility="Collapsed"
                                 />
-                  
-                  <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{Binding Source=Select, Converter={StaticResource LocalizeConverter}}" Command="{Binding SelectionModeToggleCommand}" />
-                  
-                  <!-- 非選択中 -->
-                  <AppBarButton x:Name="PlayAllButton"
+
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+
+                <!-- 非選択中 -->
+                <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
-                                Label="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                                Label="{i18nExt:Localize Key=PlayAll}"
                                 Command="{Binding PlaylistPlayAllCommand}"
                                 CommandParameter="{Binding Playlist}"></AppBarButton>
 
-                  <AppBarButton x:Name="ScrollToTopButton"
+                <AppBarButton x:Name="ScrollToTopButton"
                                 Icon="Up"
-                                Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
-                    <i:Interaction.Behaviors>
-                      <core:EventTriggerBehavior EventName="Click">
-                        <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}"
+                                Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}"
                                                MethodName="ResetScrollPosition" />
-                      </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                  </AppBarButton>
-                </CommandBar.PrimaryCommands>
-                <CommandBar.SecondaryCommands>
-                  <AppBarButton x:Name="DeletePlaylistButton"
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+              </CommandBar.PrimaryCommands>
+              <CommandBar.SecondaryCommands>
+                <AppBarButton x:Name="DeletePlaylistButton"
                                 Command="{Binding LocalPlaylistDeleteCommand}"
                                 CommandParameter="{Binding Playlist}"
                                 Background="Transparent"
                                 Icon="Delete"
-                                Label="{Binding Source=LocalPlaylistDelete, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"></AppBarButton>
-                </CommandBar.SecondaryCommands>
-              </CommandBar>
-            </StackPanel>
-          </controls:ScrollHeader>
+                                Label="{i18nExt:Localize Key=LocalPlaylistDelete}"></AppBarButton>
+              </CommandBar.SecondaryCommands>
+            </CommandBar>
+          </StackPanel>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
 
@@ -97,7 +95,7 @@
     </videolistPage:VideoItemsListView>
 
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{Binding Source=LocalPlaylistNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+      <TextBlock Text="{i18nExt:Localize Key=LocalPlaylistNoItems}"
                      Style="{StaticResource SubtitleTextBlockStyle}"
                      Opacity="0.8"
                      />

@@ -15,11 +15,12 @@
       xmlns:uwptoolkitControl="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
       xmlns:myconverters="using:Hohoema.Presentation.Views.Converters"
-      xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+      xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
       xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector"
       xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
       xmlns:locales="using:Hohoema.Locales"
       xmlns:controls="using:Hohoema.Presentation.Views.Controls" 
+      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       DataContext="{x:Null}"
       mc:Ignorable="d"
       x:Name="PageRoot"
@@ -125,8 +126,8 @@
             <AppBarButton Background="Transparent">
               <AppBarButton.Flyout>
                 <MenuFlyout>
-                  <MenuFlyoutItem Text="{Binding Source=CopyAppVersionToClipboard, Converter={StaticResource LocalizeConverter}}" Command="{Binding CopyVersionTextToClipboardCommand}" />
-                  <ToggleMenuFlyoutItem Text="{Binding Source=EnableDebugModeToggleSwitchTitle, Converter={StaticResource LocalizeConverter}}" IsChecked="{Binding IsDebugModeEnabled.Value,Mode=TwoWay}" />
+                  <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyAppVersionToClipboard}" Command="{Binding CopyVersionTextToClipboardCommand}" />
+                  <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=EnableDebugModeToggleSwitchTitle}" IsChecked="{Binding IsDebugModeEnabled.Value,Mode=TwoWay}" />
                 </MenuFlyout>
               </AppBarButton.Flyout>
               <StackPanel Orientation="Horizontal">
@@ -142,12 +143,12 @@
           <!-- アプリの表示設定 -->
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{Binding Source=AppearanceSettings, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="{i18nExt:Localize Key=AppearanceSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               <Grid x:Name="MenuPaneDisplayModeLayout">
-                <TextBlock Text="{Binding Source=MenuPaneDisplayMode, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <TextBlock Text="{i18nExt:Localize Key=MenuPaneDisplayMode}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ComboBox ItemsSource="{Binding PaneDisplayModeItems}" 
                           SelectedItem="{Binding AppearanceSettings.MenuPaneDisplayMode, Mode=TwoWay}"  
                           HorizontalAlignment="Right" 
@@ -160,7 +161,7 @@
                 </ComboBox>
               </Grid>
               <Grid x:Name="DisplayLanguageLayout" Visibility="Collapsed">
-                <TextBlock Text="{Binding Source=DisplayLanguage, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <TextBlock Text="{i18nExt:Localize Key=DisplayLanguage}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=AvairableLocales}" HorizontalAlignment="Right" SelectedItem="{Binding AppearanceSettings.Locale, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
@@ -170,7 +171,7 @@
                 </ComboBox>
               </Grid>
               <Grid>
-                <TextBlock Text="{Binding Source=FirstOpenPageType, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <TextBlock Text="{i18nExt:Localize Key=FirstOpenPageType}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ComboBox ItemsSource="{Binding StartupPageTypeList}" SelectedItem="{Binding StartupPageType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
@@ -181,7 +182,7 @@
               </Grid>
               <Grid>
                 <StackPanel>
-                  <TextBlock Text="{Binding Source=Theme, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                  <TextBlock Text="{i18nExt:Localize Key=Theme}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 </StackPanel>
                 <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=_elementThemeList}" SelectedItem="{Binding SelectedTheme.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
                   <ComboBox.ItemTemplate>
@@ -198,11 +199,11 @@
                 <ToggleSwitch IsOn="{Binding IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" />
               </Grid>
               <Grid x:Name="AppDisplayModeSettingLayout">
-                <TextBlock Text="{Binding Source=ApplicationInteractionMode, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <TextBlock Text="{i18nExt:Localize Key=ApplicationInteractionMode}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=OverrideInteractionModeList}" SelectedValue="{Binding AppearanceSettings.OverrideInteractionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" IsSynchronizedWithCurrentItem="False">
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
-                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}, FallbackValue={Binding Source=NoSelected, Converter={StaticResource LocalizeConverter}}}" />
+                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}, FallbackValue={i18nExt:Localize Key=NoSelected}}" />
                     </DataTemplate>
                   </ComboBox.ItemTemplate>
                 </ComboBox>
@@ -212,16 +213,16 @@
           <!-- NG設定 -->
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{Binding Source=FilterSettings, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="{i18nExt:Localize Key=FilterSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               <Grid>
-                <TextBlock Text="{Binding Source=FilterEnableWithVideoOwnerID, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <TextBlock Text="{i18nExt:Localize Key=FilterEnableWithVideoOwnerID}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ToggleSwitch IsOn="{Binding NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
               <StackPanel Margin="0 8">
-                <uwpcontrols:Expander Header="{Binding Source=ShowFilteredVideoOwnerNames, Converter={StaticResource LocalizeConverter}}" HorizontalContentAlignment="Left" Foreground="DimGray">
+                <uwpcontrols:Expander Header="{i18nExt:Localize Key=ShowFilteredVideoOwnerNames}" HorizontalContentAlignment="Left" Foreground="DimGray">
                   <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
                             Margin="16 8"
                             IsTabStop="False"
@@ -250,12 +251,12 @@
                 </uwpcontrols:Expander>
               </StackPanel>
               <Grid>
-                <TextBlock Text="{Binding Source=FilterEnableWithVideoTitle, Converter={StaticResource LocalizeConverter}}" toolkit:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <TextBlock Text="{i18nExt:Localize Key=FilterEnableWithVideoTitle}" toolkit:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ToggleSwitch IsOn="{Binding NGVideoTitleKeywordEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
               <StackPanel Visibility="{Binding NGVideoTitleKeywordEnable.Value, Converter={StaticResource BooleanToVisibility}}" Spacing="8">
 
-                <Button Content="{Binding Source=AddVideoTitleFilterEntry, Converter={StaticResource LocalizeConverter}}" 
+                <Button Content="{i18nExt:Localize Key=AddVideoTitleFilterEntry}" 
                         Command="{Binding AddVideoTitleFilterEntryCommand}"
                         HorizontalAlignment="Right"
                         />
@@ -267,7 +268,7 @@
                         <Button uwpcontrols:DockPanel.Dock="Right" Background="Transparent" Height="32" Width="32">
                           <Button.Flyout>
                             <MenuFlyout>
-                              <MenuFlyoutItem Text="{Binding Source=Delete, Converter={StaticResource LocalizeConverter}}" Command="{Binding RemoveCommand}" />
+                              <MenuFlyoutItem Text="{i18nExt:Localize Key=Delete}" Command="{Binding RemoveCommand}" />
                             </MenuFlyout>
                           </Button.Flyout>
 
@@ -280,7 +281,7 @@
                 </ItemsControl>
                 
                 <TextBlock Text="{Binding NGVideoTitleKeywordError.Value}" Visibility="{Binding NGVideoTitleKeywordError.Value, Converter={StaticResource NotNullToVisibility}}" />
-                <TextBlock Margin="0 8" Foreground="Gray" Text="{Binding Source=AvairableRegureExpression, Converter={StaticResource LocalizeConverter}}" />
+                <TextBlock Margin="0 8" Foreground="Gray" Text="{i18nExt:Localize Key=AvairableRegureExpression}" />
 
               </StackPanel>
             </StackPanel>
@@ -288,12 +289,12 @@
           <!-- キャッシュ設定 -->
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{Binding Source=CacheSettings, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="{i18nExt:Localize Key=CacheSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               <Grid Margin="0 8">
-                <TextBlock Text="{Binding Source=DefaultCacheVideoQuality, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <TextBlock Text="{i18nExt:Localize Key=DefaultCacheVideoQuality}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ComboBox ItemsSource="{Binding AvairableCacheQualities}" SelectedItem="{Binding DefaultCacheQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
@@ -358,28 +359,28 @@
           <!-- バックアップ -->
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{Binding Source=UserDataSettings, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="{i18nExt:Localize Key=UserDataSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}" Orientation="Horizontal" HorizontalAlignment="Right">
-              <Button Content="{Binding Source=BackupUserData, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExportBackupCommand}" />
-              <Button Content="{Binding Source=RestoreUserData, Converter={StaticResource LocalizeConverter}}" Command="{Binding ImportBackupCommand}" />
+              <Button Content="{i18nExt:Localize Key=BackupUserData}" Command="{Binding ExportBackupCommand}" />
+              <Button Content="{i18nExt:Localize Key=RestoreUserData}" Command="{Binding ImportBackupCommand}" />
             </StackPanel>
           </StackPanel>
 
           <!-- アプリの使用状況 -->
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{Binding Source=ApplicationDiagnosticsReport, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="{i18nExt:Localize Key=ApplicationDiagnosticsReport}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               <Grid>
-                <TextBlock Text="{Binding Source=EnableCrashReport, Converter={StaticResource LocalizeConverter}}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <TextBlock Text="{i18nExt:Localize Key=EnableCrashReport}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ToggleSwitch x:Name="EnableCrashToggleSwitch" IsOn="{Binding IsEnableCrashReport, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
               <Grid>
-                <TextBlock Text="{Binding Source=EnableAnalyticsReport, Converter={StaticResource LocalizeConverter}}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <TextBlock Text="{i18nExt:Localize Key=EnableAnalyticsReport}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ToggleSwitch x:Name="EnableAnalyticsToggleSwitch" IsOn="{Binding IsEnableAnalyticsReport, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
             </StackPanel>
@@ -388,33 +389,33 @@
           <!-- このアプリについて -->
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{Binding Source=AboutThisApp, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="{i18nExt:Localize Key=AboutThisApp}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               <Grid>
-                <TextBlock Text="{Binding Source=ApplicationVersion, Converter={StaticResource LocalizeConverter}}" Opacity="0.7" VerticalAlignment="Center" />
+                <TextBlock Text="{i18nExt:Localize Key=ApplicationVersion}" Opacity="0.7" VerticalAlignment="Center" />
                 <TextBlock HorizontalAlignment="Right">
                                 v<Run Text="{Binding VersionText}" /></TextBlock>
               </Grid>
-              <HyperlinkButton Content="{Binding Source=ShowUpdateNote, Converter={StaticResource LocalizeConverter}}" Command="{Binding ShowUpdateNoticeCommand}" CommandParameter="{Binding CurrentVersion}" HorizontalAlignment="Right" />
-              <HyperlinkButton Content="{Binding Source=DevelopProjectPage_LinkTitle, Converter={StaticResource LocalizeConverter}}" Margin="0 0 0 8" NavigateUri="https://github.com/tor4kichi/Hohoema" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
-              <HyperlinkButton Content="{Binding Source=PrivacyPolicy, Converter={StaticResource LocalizeConverter}}" Margin="0 0 0 8" NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
+              <HyperlinkButton Content="{i18nExt:Localize Key=ShowUpdateNote}" Command="{Binding ShowUpdateNoticeCommand}" CommandParameter="{Binding CurrentVersion}" HorizontalAlignment="Right" />
+              <HyperlinkButton Content="{i18nExt:Localize Key=DevelopProjectPage_LinkTitle}" Margin="0 0 0 8" NavigateUri="https://github.com/tor4kichi/Hohoema" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
+              <HyperlinkButton Content="{i18nExt:Localize Key=PrivacyPolicy}" Margin="0 0 0 8" NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
             </StackPanel>
           </StackPanel>
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{Binding Source=Feedback, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="{i18nExt:Localize Key=Feedback}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
-            <HyperlinkButton Content="{Binding Source=SendMessageToDeveloperWith_Marshmallow-QA, Converter={StaticResource LocalizeConverter}}" Margin="0 0 0 8" NavigateUri="https://marshmallow-qa.com/tor4kichi" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
+            <HyperlinkButton Content="{i18nExt:Localize Key=SendMessageToDeveloperWith_Marshmallow-QA}" Margin="0 0 0 8" NavigateUri="https://marshmallow-qa.com/tor4kichi" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
 
-            <HyperlinkButton Content="{Binding Source=ReviewInMicrosoftStore, Converter={StaticResource LocalizeConverter}}" Margin="0 0 0 8" Command="{Binding LaunchAppReviewCommand}" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
+            <HyperlinkButton Content="{i18nExt:Localize Key=ReviewInMicrosoftStore}" Margin="0 0 0 8" Command="{Binding LaunchAppReviewCommand}" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
           </StackPanel>
           <!--  -->
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{Binding Source=ThirdPartyLibraryDependencies, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="{i18nExt:Localize Key=ThirdPartyLibraryDependencies}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <ItemsControl ItemsSource="{Binding LisenceItems}" Margin="0 8 8 8" IsTabStop="False">
@@ -516,7 +517,7 @@
           <!-- その他 -->
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{Binding Source=Others, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="{i18nExt:Localize Key=Others}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <ListView ItemsSource="{Binding PurchaseItems}"
@@ -537,7 +538,7 @@
                         <TextBlock Margin="8 0" VerticalAlignment="Center">
                                                 <Run Text="{Binding ProductListing.FormattedPrice}" /></TextBlock>
                         <Border Visibility="{Binding IsActive, Converter={StaticResource BooleanToVisibility}}" Margin="8 0">
-                          <TextBlock Text="{Binding Source=Purchased, Converter={StaticResource LocalizeConverter}}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                          <TextBlock Text="{i18nExt:Localize Key=Purchased}" FontWeight="SemiBold" VerticalAlignment="Center" />
                         </Border>
                       </StackPanel>
                       <TextBlock Text="{Binding ProductListing.Name}" Margin="8 0" VerticalAlignment="Center" />

@@ -143,10 +143,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.CommunityPages
 
 		public override uint OneTimeLoadCount => 9; // RSSの一回のページアイテム数が18個なので、表示スピード考えてその半分
 
-		protected override Task<int> ResetSourceImpl()
+		protected override ValueTask<int> ResetSourceImpl()
 		{
 			Items = new List<RssVideoData>();
-			return Task.FromResult(VideoCount);
+			return new ValueTask<int>(VideoCount);
 		}
 
 		protected override async IAsyncEnumerable<CommunityVideoInfoViewModel> GetPagedItemsImpl(int start, int count, [EnumeratorCancellation] CancellationToken ct = default)

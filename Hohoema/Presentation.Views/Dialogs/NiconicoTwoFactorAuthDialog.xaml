@@ -8,8 +8,9 @@
                xmlns:i="using:Microsoft.Xaml.Interactivity"
                xmlns:core="using:Microsoft.Xaml.Interactions.Core"
                mc:Ignorable="d"
-               Title="{Binding Source=TwoFactorAuth_InputCode, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-               SecondaryButtonText="{Binding Source=Cancel, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+               xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+               Title="{i18nExt:Localize Key=TwoFactorAuth_InputCode}"
+               SecondaryButtonText="{i18nExt:Localize Key=Cancel}">
 
   <Grid>
 

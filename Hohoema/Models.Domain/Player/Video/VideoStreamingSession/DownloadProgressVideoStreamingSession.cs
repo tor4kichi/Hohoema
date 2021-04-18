@@ -1,5 +1,4 @@
-﻿using FFmpegInterop;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -18,7 +17,6 @@ namespace Hohoema.Models.Domain.Player.Video
 
         public IRandomAccessStreamReference StreamRef { get; }
         public IRandomAccessStream _Stream;
-        FFmpegInteropMSS _VideoMSS;
         MediaSource _MediaSource;
 
         MediaPlayer _PlayingMediaPlayer;
@@ -35,8 +33,6 @@ namespace Hohoema.Models.Domain.Player.Video
         {
             _MediaSource.Dispose();
             _MediaSource = null;
-            _VideoMSS.Dispose();
-            _VideoMSS = null;
             _Stream.Dispose();
             _Stream = null;
 
@@ -55,10 +51,7 @@ namespace Hohoema.Models.Domain.Player.Video
             var stream = await StreamRef.OpenReadAsync();
             if (!stream.ContentType.EndsWith("mp4"))
             {
-                _VideoMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(stream, false, false);
-                var mss = _VideoMSS.GetMediaStreamSource();
-                mss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
-                _MediaSource = MediaSource.CreateFromMediaStreamSource(mss);
+                throw new NotSupportedException("not supported video type : " + stream.ContentType);
             }
             else
             {

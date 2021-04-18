@@ -10,7 +10,6 @@
              xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
              xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
              xmlns:uwpToolkitControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-             xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
              xmlns:iconPack="using:MahApps.Metro.IconPacks"
              xmlns:myextensions="using:Hohoema.Presentation.Views.Extensions"
              xmlns:listItemControls="using:Hohoema.Presentation.Views.Controls"
@@ -20,7 +19,9 @@
              xmlns:winui="using:Windows.UI.Xaml.Controls" 
              xmlns:models="using:Hohoema.Models.Domain.Application"  
              xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-             xmlns:viewModels="using:Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout" xmlns:pageNavigation="using:Hohoema.Models.Domain.PageNavigation" xmlns:converter="using:Hohoema.Presentation.Views.Converters"
+             xmlns:viewModels="using:Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout" 
+             xmlns:pageNavigation="using:Hohoema.Models.Domain.PageNavigation"
+             xmlns:converter="using:Hohoema.Presentation.Views.Converters"
              xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
              x:Name="UserControlRoot"
              mc:Ignorable="d"
@@ -46,13 +47,13 @@
 
 
     <MenuFlyout x:Key="PinsMenuSubItemFlyout">
-      <MenuFlyoutItem Text="{Binding Source=PinCurrentPage, Converter={StaticResource LocalizeConverter}}" 
+      <MenuFlyoutItem Text="{i18nExt:Localize Key=PinCurrentPage}" 
                       Command="{x:Bind AddPinCurrentPageCommand}"
                       />
     </MenuFlyout>
 
     <MenuFlyout x:Key="QueueMenuItemFlyout">
-      <MenuFlyoutItem Text="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}}" 
+      <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayAll}" 
                       Command="{Binding PlayQueuePlaylistCommand}"
                       >
         
@@ -231,15 +232,15 @@
         <muxc:NavigationViewItem>
           <muxc:NavigationViewItem.ContextFlyout>
             <MenuFlyout>
-              <MenuFlyoutItem Text="{Binding Source=PinChangeArias, Converter={StaticResource LocalizeConverter}}" Command="{Binding OverridePinCommand}" CommandParameter="{Binding}" />
-              <MenuFlyoutSubItem Text="{Binding Source=Pin_Move, Converter={StaticResource LocalizeConverter}}">
-                <MenuFlyoutItem Text="{Binding Source=Pin_MoveToHead, Converter={StaticResource LocalizeConverter}}" Command="{Binding MovePinToMostTopCommand}" CommandParameter="{Binding}" />
-                <MenuFlyoutItem Text="{Binding Source=Pin_MovePreview, Converter={StaticResource LocalizeConverter}}" Command="{Binding MovePinToTopCommand}" CommandParameter="{Binding}" />
-                <MenuFlyoutItem Text="{Binding Source=Pin_MoveNext, Converter={StaticResource LocalizeConverter}}" Command="{Binding MovePinToBottomCommand}" CommandParameter="{Binding}" />
-                <MenuFlyoutItem Text="{Binding Source=Pin_MoveToTail, Converter={StaticResource LocalizeConverter}}" Command="{Binding MovePinToMostBottomCommand}" CommandParameter="{Binding}" />
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=PinChangeArias}" Command="{Binding OverridePinCommand}" CommandParameter="{Binding}" />
+              <MenuFlyoutSubItem Text="{i18nExt:Localize Key=Pin_Move}">
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=Pin_MoveToHead}" Command="{Binding MovePinToMostTopCommand}" CommandParameter="{Binding}" />
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=Pin_MovePreview}" Command="{Binding MovePinToTopCommand}" CommandParameter="{Binding}" />
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=Pin_MoveNext}" Command="{Binding MovePinToBottomCommand}" CommandParameter="{Binding}" />
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=Pin_MoveToTail}" Command="{Binding MovePinToMostBottomCommand}" CommandParameter="{Binding}" />
               </MenuFlyoutSubItem>
               <MenuFlyoutSeparator />
-              <MenuFlyoutItem Text="{Binding Source=PinRemove, Converter={StaticResource LocalizeConverter}}" Command="{Binding DeletePinCommand}" CommandParameter="{Binding}" />
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=PinRemove}" Command="{Binding DeletePinCommand}" CommandParameter="{Binding}" />
             </MenuFlyout>
           </muxc:NavigationViewItem.ContextFlyout>
           <StackPanel>
@@ -266,7 +267,7 @@
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout.QueueMenuItemViewModel, Converter={StaticResource StringToType}}" >
         <muxc:NavigationViewItem ContextFlyout="{StaticResource QueueMenuItemFlyout}">
           <winui:ToolTipService.ToolTip>
-            <TextBlock Text="{Binding Source=HohoemaPageType.VideoQueue, Converter={StaticResource LocalizeConverter}}" />
+            <TextBlock Text="{i18nExt:Localize Key=HohoemaPageType.VideoQueue}" />
           </winui:ToolTipService.ToolTip>
 
           <muxc:NavigationViewItem.Icon>
@@ -280,7 +281,7 @@
             </Border>
               
             <TextBlock VerticalAlignment="Center">
-              <Run Text="{Binding Source=HohoemaPageType.VideoQueue, Converter={StaticResource LocalizeConverter}}" />
+              <Run Text="{i18nExt:Localize Key=HohoemaPageType.VideoQueue}" />
             </TextBlock>
             
 
@@ -302,9 +303,9 @@
 
           <muxc:NavigationViewItem.ContextFlyout>
             <MenuFlyout>
-              <MenuFlyoutItem Text="{Binding Source=HohoemaPageType.UserMylist, Converter={StaticResource LocalizeConverter}}"
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=HohoemaPageType.UserMylist}"
                               Command="{Binding MylistPageOpenCommand}"
-                              CommandParameter="{Binding Source=OwnerMylistManage}"
+                              CommandParameter="{i18nExt:Localize Key=OwnerMylistManage}"
                               />
             </MenuFlyout>
           </muxc:NavigationViewItem.ContextFlyout>
@@ -324,9 +325,9 @@
 
           <muxc:NavigationViewItem.ContextFlyout>
             <MenuFlyout>
-              <MenuFlyoutItem Text="{Binding Source=HohoemaPageType.LocalPlaylistManage, Converter={StaticResource LocalizeConverter}}"
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=HohoemaPageType.LocalPlaylistManage}"
                               Command="{Binding OpenLocalPlaylistManageCommand}"
-                              CommandParameter="{Binding Source=LocalPlaylistManage}"
+                              CommandParameter="{i18nExt:Localize Key=LocalPlaylistManage}"
                               />
             </MenuFlyout>
           </muxc:NavigationViewItem.ContextFlyout>
@@ -369,7 +370,7 @@
           <TextBlock Text="{Binding Label,Mode=OneTime}" VerticalAlignment="Center" FontSize="15" />
           <Border Height="4" Width="8" />
           <TextBlock Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center">
-                            (<Run Text="{Binding PageType, Converter={StaticResource LocalizeConverter},Mode=OneTime}" />)</TextBlock>
+                            (<Run Text="{Binding PageType,Mode=OneTime}" />)</TextBlock>
         </StackPanel>
         <!-- OverrideLabelが設定済みの場合 -->
         <StackPanel Orientation="Horizontal" Visibility="{Binding OverrideLabel, Converter={StaticResource NotNullToVisibility}}">
@@ -413,7 +414,7 @@
                            ItemInvoked="CoreNavigationView_ItemInvoked"
                           Background="{ThemeResource MenuBackgroundBrush}"
                            BackRequested="CoreNavigationView_BackRequested"
-                           IsSettingsVisible="False"
+                           IsSettingsVisible="True"
                            IsTitleBarAutoPaddingEnabled="True"
                            SelectionFollowsFocus="Disabled"
                            AlwaysShowHeader="False"
@@ -422,7 +423,7 @@
                       >
         <muxc:NavigationView.PaneHeader>
           <Grid >
-            <TextBlock Text="{Binding NiconicoSession.ServiceStatus, Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{Binding NiconicoSession.ServiceStatus}"
                        x:Name="ServiceStateText" 
                        Margin="8 0"
                        Visibility="Collapsed"
@@ -436,10 +437,10 @@
                             Height="24"
                             uwpToolkitControls:DockPanel.Dock="Right"
                             Margin="0 0 8 0">
-                <SymbolIcon Symbol="Add" ToolTipService.ToolTip="{Binding Source=PinCurrentPage, Converter={StaticResource LocalizeConverter}}"
+                <SymbolIcon Symbol="Add" ToolTipService.ToolTip="{i18nExt:Localize Key=PinCurrentPage}"
                                   Opacity="0.55" />
               </Button>
-              <TextBlock Text="{Binding Source=Pin, Converter={StaticResource LocalizeConverter}}"
+              <TextBlock Text="{i18nExt:Localize Key=Pin}"
                                VerticalAlignment="Center"
                                FontSize="14"
                                Margin="16 0 0 0"
@@ -463,11 +464,11 @@
               <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
                 <DataTemplate>
                   <MenuFlyout>
-                    <MenuFlyoutItem Text="{Binding Source=PinChangeArias, Converter={StaticResource LocalizeConverter}}"
+                    <MenuFlyoutItem Text="{i18nExt:Localize Key=PinChangeArias}"
                                           Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.ChangePinOverrideLabelCommand}"
                                           CommandParameter="{Binding}" />
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="{Binding Source=PinRemove, Converter={StaticResource LocalizeConverter}}"
+                    <MenuFlyoutItem Text="{i18nExt:Localize Key=PinRemove}"
                                           Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.RemovePinCommand}"
                                           CommandParameter="{Binding}" />
                   </MenuFlyout>
@@ -479,7 +480,7 @@
               <TextBlock Opacity="0.7"
                                FontSize="12"
                                Margin="24 0 0 0">
-                      <Run Text="{Binding Source=PinHowToAddition, Converter={StaticResource LocalizeConverter}}" />
+                      <Run Text="{i18nExt:Localize Key=PinHowToAddition}" />
               </TextBlock>
             </StackPanel>
           </StackPanel>
@@ -487,91 +488,87 @@
         </muxc:NavigationView.PaneHeader>
 
         <muxc:NavigationView.PaneFooter>
-          
-          <uwpToolkitControls:DockPanel uwpToolkitControls:DockPanel.Dock="Top"
-                                          HorizontalAlignment="Stretch">
-            <Grid>
-              <Button x:Name="OpenAccountButton"
+
+          <Button x:Name="OpenAccountButton"
                         Padding="8 0 0 0"
+                  MinHeight="40"
                         Background="Transparent"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Left"
                         VerticalContentAlignment="Center"
                         TabIndex="100"
-                      Height="48"
                       >
-                <Button.Flyout>
-                  <MenuFlyout>
+            <Button.Flyout>
+              <MenuFlyout x:Name="AccountMenuFlyout" Placement="RightEdgeAlignedTop">
 
-                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenSettings"
-                                      Text="{Binding Source=HohoemaPageType.Settings, Converter={StaticResource LocalizeConverter}}"
+                <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenSettings"
+                                      Text="{i18nExt:Localize Key=HohoemaPageType.Settings}"
                                       Command="{Binding PageManager.OpenPageCommand}"
                                     CommandParameter="{x:Bind pageNavigation:HohoemaPageType.Settings}"
+                                Visibility="Collapsed"
                                     />
 
-                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
+                <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
                                       Visibility="Collapsed" Text="Open Debug Page"
                                       Command="{Binding OpenDebugPageCommand}" />
 
 
-                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
-                                      Visibility="Collapsed" Text="{Binding Source=LogInUserInfo, Converter={StaticResource LocalizeConverter}}"
+                <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
+                                      Visibility="Collapsed" Text="{i18nExt:Localize Key=LogInUserInfo}"
                                       Command="{Binding OpenAccountInfoCommand}" />
 
-                    <MenuFlyoutSeparator />
-                    
-                    <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
-                                      Visibility="Collapsed" Text="{Binding Source=LogOut, Converter={StaticResource LocalizeConverter}}"
+                <MenuFlyoutSeparator />
+
+                <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
+                                      Visibility="Collapsed" Text="{i18nExt:Localize Key=LogOut}"
                                       Command="{Binding LogoutFromNiconicoCommand}" />
-                    
-                    <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
-                                      Visibility="Collapsed" Text="{Binding Source=LogIn, Converter={StaticResource LocalizeConverter}}"
+
+                <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
+                                      Visibility="Collapsed" Text="{i18nExt:Localize Key=LogIn}"
                                       Command="{Binding NiconicoLoginService.LoginCommand}" />
 
-                    
-                  </MenuFlyout>
-                </Button.Flyout>
-                <Grid>
 
-                  <listItemControls:BooleanViewSwitcher IsSwitchView="{Binding NiconicoSession.IsLoggedIn}" >
-                    <listItemControls:BooleanViewSwitcher.DefaultViewTemplate>
-                      <DataTemplate>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                          <SymbolIcon Symbol="Setting" Margin="3 0 0 0" Height="18" Width="24" />
-                          <TextBlock Text="{Binding Source=AccountAndSettings, Converter={StaticResource LocalizeConverter}}"
+              </MenuFlyout>
+            </Button.Flyout>
+            <uwpToolkitControls:SwitchPresenter Value="{Binding NiconicoSession.IsLoggedIn}">
+              <uwpToolkitControls:Case IsDefault="True">
+                <uwpToolkitControls:Case.Value>
+                  <x:Boolean>False</x:Boolean>
+                </uwpToolkitControls:Case.Value>
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <iconPack:PackIconMaterial Kind="Account" Margin="0 4 0 0" Height="16" Width="24" Foreground="Gray" />
+                  <TextBlock Text="{i18nExt:Localize Key=Account}"
                                      Margin="2 0 0 0"
                              />
-                        </StackPanel>
-                      </DataTemplate>
-                    </listItemControls:BooleanViewSwitcher.DefaultViewTemplate>
-                    <listItemControls:BooleanViewSwitcher.SwitchedViewTemplate>
-                      <DataTemplate>
-                        <uwpToolkitControls:DockPanel Margin="0 0"
+                </StackPanel>
+              </uwpToolkitControls:Case>
+
+              <uwpToolkitControls:Case>
+                <uwpToolkitControls:Case.Value>
+                  <x:Boolean>True</x:Boolean>
+                </uwpToolkitControls:Case.Value>
+                <uwpToolkitControls:DockPanel Margin="0 0"
                                                   x:Name="AccountInfoLayout"
                                                       >
-                          <uwpToolkitControls:ImageEx Source="{Binding NiconicoSession.UserIconUrl,Mode=OneWay}"
+                  <uwpToolkitControls:ImageEx Source="{Binding NiconicoSession.UserIconUrl,Mode=OneWay}"
                              uwpToolkitControls:DockPanel.Dock="Left"
                              Height="24"
                              Width="24"
                              Margin="0 0 0 0"
                                  CornerRadius="60"
                                  />
-                          <StackPanel Margin="11 0 0 0">
-                            <TextBlock Text="{Binding NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" />
-                          </StackPanel>
-                        </uwpToolkitControls:DockPanel>
-                      </DataTemplate>
-                    </listItemControls:BooleanViewSwitcher.SwitchedViewTemplate>
-                  </listItemControls:BooleanViewSwitcher>
-                </Grid>
-              </Button>
-            </Grid>
-          </uwpToolkitControls:DockPanel>
+                  <StackPanel Margin="11 0 0 0">
+                    <TextBlock Text="{Binding NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" TextLineBounds="TrimToBaseline" />
+                  </StackPanel>
+                </uwpToolkitControls:DockPanel>
+              </uwpToolkitControls:Case>
+            </uwpToolkitControls:SwitchPresenter>
+          </Button>
         </muxc:NavigationView.PaneFooter>
 
         <muxc:NavigationView.AutoSuggestBox>
           <AutoSuggestBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                          PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" 
+                          PlaceholderText="{i18nExt:Localize Key=Search}" 
                           TabIndex="103" Margin="0" 
                           UseSystemFocusVisuals="True"
                           IsFocusEngagementEnabled="True" 
@@ -676,12 +673,54 @@
         <TextBlock x:Name="TitleBarTextBlock" Text="Hohoema" Margin="12 0 0 0" VerticalAlignment="Center" Opacity="0.9" FontSize="13" HorizontalAlignment="Left" ></TextBlock>
       </Border>
 
-      <StackPanel x:Name="DebugUIPanel" Orientation="Horizontal" Visibility="Collapsed" HorizontalAlignment="Right" Margin="0 0 140 0" Spacing="8" Opacity="0.8">
-        
+      <StackPanel x:Name="ErrorTrackingUI" Orientation="Horizontal" Visibility="Collapsed" HorizontalAlignment="Right" Margin="0 0 200 0" Spacing="8">
+        <Button Height="32" ToolTipService.ToolTip="ErrorTrankingTool" Background="Transparent" Opacity="0.5">
+          <Button.Content>
+            <iconPack:PackIconMaterial Kind="Bug" />
+          </Button.Content>
+
+          <Button.Flyout>
+            <MenuFlyout Placement="Bottom">
+              <MenuFlyoutItem Text="アプリを再起動" Command="{Binding RequestApplicationRestartCommand}" />
+            </MenuFlyout>
+          </Button.Flyout>
+        </Button>
       </StackPanel>
-      
+
     </Grid>
+
+    <Grid>
+      <muxc:TeachingTip x:Name="AppErrorTeachingTip"
+                        Title="アプリにエラーが発生しました【デバッグモード】"
+                        ActionButtonContent="エラー報告"
+                        CloseButtonContent="アプリを再起動"
+                        CloseButtonCommand="{Binding RequestApplicationRestartCommand}"
+                        IsLightDismissEnabled="True"
+                        Closed="AppErrorTeachingTip_Closed"
+                        >
+        <muxc:TeachingTip.Content>
+          <StackPanel Spacing="4">
+            <winui:TextBlock Text="アプリは継続して利用できますが、もし異常動作に困ったらアプリを再起動してください。" TextWrapping="Wrap" />
+            <winui:TextBlock Text="「エラー報告」を選択しなかった場合でも簡易なクラッシュレポートが送信されます。"  TextWrapping="Wrap" />
+          </StackPanel>
+        </muxc:TeachingTip.Content>
+        
+      </muxc:TeachingTip>
+    </Grid>
+    
     <VisualStateManager.VisualStateGroups >
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind IsDebugModeEnabled, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ErrorTrackingUI.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
       <!-- デバッグ -->
       <VisualStateGroup>
         <VisualState>
@@ -689,7 +728,6 @@
             <StateTrigger IsActive="{x:Bind IsDebug}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="DebugUIPanel.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_OpenDebugPage.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
@@ -703,8 +741,9 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Top}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="AccountInfoLayout.Width" Value="32" />
-            <Setter Target="AccountInfoLayout.Padding" Value="4 0 0 0" />
+            <Setter Target="OpenAccountButton.Width" Value="32" />
+            <Setter Target="OpenAccountButton.Padding" Value="12 0 0 0" />
+            <Setter Target="AccountMenuFlyout.Placement" Value="BottomEdgeAlignedRight" />
           </VisualState.Setters>
         </VisualState>
 

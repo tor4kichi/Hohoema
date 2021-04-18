@@ -178,15 +178,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.UserPages
                 vm.SetSubmitDate(item.RegisteredAt.DateTime);
                 vm.SetVideoDuration(TimeSpan.FromSeconds(item.Duration));
                 vm.SetDescription((int)item.Count.View, (int)item.Count.Comment, (int)item.Count.Mylist);
-                yield return vm;
 
                 await vm.InitializeAsync(ct).ConfigureAwait(false);
+                yield return vm;
 
                 ct.ThrowIfCancellationRequested();
             }
         }
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override async ValueTask<int> ResetSourceImpl()
         {
             _firstRes = await UserProvider.GetUserVideos(UserId, (uint)0);
             return (int)_firstRes.Data.TotalCount;

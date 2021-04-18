@@ -59,43 +59,57 @@ namespace Hohoema.Models.Domain
             )
         {
             UpdateServiceStatus(NiconicoSignInStatus.Failed);
-            
-            NetworkInformation.NetworkStatusChanged += (args) =>
-            {
-                if (Helpers.InternetConnection.IsInternet())
-                {
-                    var lastStatus = this.ServiceStatus;
-                    Scheduler.Schedule(async () =>
-                    {
-                        if (lastStatus == HohoemaAppServiceLevel.LoggedIn)
-                        {
-                            var status = await CheckSignedInStatus();
 
-                            if (status == NiconicoSignInStatus.Failed)
-                            {
-                                status = await SignInWithPrimaryAccount();
-                            }
-                        }
-                        else
-                        {
-                            // ログインセッションが時間切れしていた場合、自動でログイン状態に復帰する
-                            await SignInWithPrimaryAccount();
-                        }
-                    });
-                }
-                else
-                {
-                    Scheduler.Schedule(async () =>
-                    {
-                        await SignOut();
-                    });
-                }
-            };
+            NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
+
+            App.Current.Suspending += Current_Suspending;
+            App.Current.Resuming += Current_Resuming;
+
             
             Scheduler = scheduler;
         }
 
+        private void OnNetworkStatusChanged(object sender)
+        {
+            if (Helpers.InternetConnection.IsInternet())
+            {
+                var lastStatus = this.ServiceStatus;
+                Scheduler.Schedule(async () =>
+                {
+                    if (lastStatus == HohoemaAppServiceLevel.LoggedIn)
+                    {
+                        var status = await CheckSignedInStatus();
 
+                        if (status == NiconicoSignInStatus.Failed)
+                        {
+                            status = await SignInWithPrimaryAccount();
+                        }
+                    }
+                    else
+                    {
+                        // ログインセッションが時間切れしていた場合、自動でログイン状態に復帰する
+//                        await SignInWithPrimaryAccount();
+                    }
+                });
+            }
+            else
+            {
+                Scheduler.Schedule(async () =>
+                {
+//                    await SignOut();
+                });
+            }
+        }
+
+        private void Current_Resuming(object sender, object e)
+        {
+            NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
+        }
+
+        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
+        }
 
         public const string HohoemaUserAgent = "Hohoema_UWP";
 

@@ -148,9 +148,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.SeriesPages
             _videos = videos;
         }
 
-        protected override Task<int> ResetSourceImpl()
+        protected override ValueTask<int> ResetSourceImpl()
         {
-            return Task.FromResult(_videos.Count);
+            return new ValueTask<int>(_videos.Count);
         }
 
         protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
@@ -165,9 +165,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.SeriesPages
                 itemVM.SetVideoDuration(item.Duration);
                 itemVM.SetDescription(item.WatchCount, item.CommentCount, item.MylistCount);
                 itemVM.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
-                yield return itemVM;
 
-                _ = itemVM.InitializeAsync(ct).ConfigureAwait(false);
+                await itemVM.InitializeAsync(ct).ConfigureAwait(false);
+
+                yield return itemVM;
 
                 ct.ThrowIfCancellationRequested();
             }

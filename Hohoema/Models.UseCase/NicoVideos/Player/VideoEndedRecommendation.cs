@@ -71,6 +71,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         {
             if (sender.PlaybackState == MediaPlaybackState.None) { return; }
             if (_playNext) { return; }
+            if (_videoPlayer.PlayingVideoId == null) { return; }
 
             bool isInsideEndedRange = sender.Position - sender.NaturalDuration > _endedTime;
             bool isStopped = sender.PlaybackState == MediaPlaybackState.Paused;

@@ -15,17 +15,16 @@
       xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers" 
       xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" 
       xmlns:myTrigger="using:Hohoema.Presentation.Views.StateTrigger" 
-      xmlns:media="using:Microsoft.Xaml.Interactions.Media" 
-      xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors" 
       xmlns:iconPack="using:MahApps.Metro.IconPacks" 
       xmlns:mvvm="using:Prism.Mvvm"
       xmlns:controls="using:Hohoema.Presentation.Views.Controls" 
       xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector" 
       xmlns:windowsTrigger="using:WindowsStateTriggers" 
-      xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions" 
+      xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI" 
       xmlns:playerService="using:Hohoema.Presentation.Services.Player" 
       xmlns:models="using:Hohoema.Models.Domain.Application" 
       xmlns:liveToolkitWatchSession="using:NiconicoLiveToolkit.Live.WatchSession" 
+      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       NavigationCacheMode="Required" 
       DataContext="{x:Null}" 
       mc:Ignorable="d"
@@ -34,9 +33,9 @@
       >
   <Page.Resources>
     <MenuFlyout x:Name="LivePlayerFlyout">
-      <MenuFlyoutItem Text="{Binding Source=PlayPauseToggleButtonTitle, Converter={StaticResource LocalizeConverter}}" Command="{Binding TogglePlayPauseCommand}" />
-      <ToggleMenuFlyoutItem IsChecked="{Binding ObservableMediaPlayer.IsMuted.Value, Mode=TwoWay}" Text="{Binding Source=Mute, Converter={StaticResource LocalizeConverter}}" />
-      <ToggleMenuFlyoutItem IsChecked="{Binding PlayerSettings.IsCommentDisplay_Live, Mode=TwoWay, Converter={StaticResource BoolNegation}}" Text="{Binding Source=ToggleHideComment, Converter={StaticResource LocalizeConverter}}" />
+      <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayPauseToggleButtonTitle}" Command="{Binding TogglePlayPauseCommand}" />
+      <ToggleMenuFlyoutItem IsChecked="{Binding ObservableMediaPlayer.IsMuted.Value, Mode=TwoWay}" Text="{i18nExt:Localize Key=Mute}" />
+      <ToggleMenuFlyoutItem IsChecked="{Binding PlayerSettings.IsCommentDisplay_Live, Mode=TwoWay, Converter={StaticResource BoolNegation}}" Text="{i18nExt:Localize Key=ToggleHideComment}" />
       <MenuFlyoutSeparator />
       <!--
             <MenuFlyoutSubItem Text="画質" 
@@ -65,11 +64,11 @@
                                  x:Name="LeoLiveQualityMenuFlyoutSeparator"
                                  />
             -->
-      <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{Binding Source=FullScreen, Converter={StaticResource LocalizeConverter}}" Icon="FullScreen"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{Binding Source=CompactOverlay, Converter={StaticResource LocalizeConverter}}"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="SmallWindowButton_Menu" Command="{Binding PrimaryViewPlayerManager.WindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{Binding Source=WindowInWindow, Converter={StaticResource LocalizeConverter}}"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{Binding Source=PlayWithSecondaryView, Converter={StaticResource LocalizeConverter}}"></MenuFlyoutItem>
-      <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{Binding Source=FixToLandscape, Converter={StaticResource LocalizeConverter}}" Icon="Orientation"></ToggleMenuFlyoutItem>
+      <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=CompactOverlay}"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="SmallWindowButton_Menu" Command="{Binding PrimaryViewPlayerManager.WindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=WindowInWindow}"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=PlayWithSecondaryView}"></MenuFlyoutItem>
+      <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></ToggleMenuFlyoutItem>
     </MenuFlyout>
     <templateselector:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
       <templateselector:PlayerSidePaneContentTemplateSelecter.Empty>
@@ -252,7 +251,7 @@
                 <Grid Margin="16 2 16 4">
                   <Border>
                     <TextBlock FontSize="20" VerticalAlignment="Center">
-                      <Run Text="{Binding Source=SoundVolume, Converter={StaticResource LocalizeConverter}}" />:
+                      <Run Text="{i18nExt:Localize Key=SoundVolume}" />:
                       <Run Text="{Binding Converter={StaticResource ToUserFriendlySoubleVolume}}" FontSize="22" />%
                     </TextBlock>
                   </Border>
@@ -270,7 +269,7 @@
                 <Grid Margin="16 2 16 4">
                   <Border>
                     <TextBlock FontSize="25" VerticalAlignment="Center" TextLineBounds="TrimToBaseline">
-                       <Run Text="{Binding Source=SeekPlaybackPosition, Converter={StaticResource LocalizeConverter}}" />: <Run Text="{Binding Converter={StaticResource TimeToMovieLengthConverter}}" /> <Run Text="{Binding Source=Seconds, Converter={StaticResource LocalizeConverter}}" />
+                       <Run Text="{i18nExt:Localize Key=SeekPlaybackPosition}" />: <Run Text="{Binding Converter={StaticResource TimeToMovieLengthConverter}}" /> <Run Text="{i18nExt:Localize Key=Seconds}" />
                     </TextBlock>
                   </Border>
                 </Grid>
@@ -303,7 +302,7 @@
                       </Button>
                       <Button x:Name="ShowPrimaryViewButton" Command="{Binding ShowPrimaryViewCommand}" Background="Transparent" Visibility="Collapsed">
                         <StackPanel Orientation="Vertical">
-                          <TextBlock Text="{Binding Source=SwitchToMainWindow, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
+                          <TextBlock Text="{i18nExt:Localize Key=SwitchToMainWindow}" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
                         </StackPanel>
                       </Button>
                     </StackPanel>
@@ -313,25 +312,25 @@
                                 XYFocusLeft="{x:Bind CloseButton}"
                                 >
 
-                      <AppBarButton Label="{Binding Source=LiveInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding LiveInfo}" />
-                      <AppBarButton Label="{Binding Source=LiveBroadcasterInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding LiveInfo}" />
-                      <AppBarButton Label="{Binding Source=Share, Converter={StaticResource LocalizeConverter}}" Icon="Link" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding LiveInfo}" />
-                      <AppBarButton x:Name="CopyActionsAppBarButton" Label="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}}" Icon="Copy">
+                      <AppBarButton Label="{i18nExt:Localize Key=LiveInfomation}" Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding LiveInfo}" />
+                      <AppBarButton Label="{i18nExt:Localize Key=LiveBroadcasterInfomation}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding LiveInfo}" />
+                      <AppBarButton Label="{i18nExt:Localize Key=Share}" Icon="Link" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding LiveInfo}" />
+                      <AppBarButton x:Name="CopyActionsAppBarButton" Label="{i18nExt:Localize Key=Copy}" Icon="Copy">
                         <AppBarButton.Flyout>
                           <MenuFlyout>
-                            <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingId, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding LiveId}" />
-                            <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingLink, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding LiveInfo}" />
-                            <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingShareText, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding LiveInfo}" />
+                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingId}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding LiveId}" />
+                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingLink}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding LiveInfo}" />
+                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingShareText}" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding LiveInfo}" />
                           </MenuFlyout>
                         </AppBarButton.Flyout>
                       </AppBarButton>
                       
                       <CommandBar.SecondaryCommands>
-                        <AppBarButton x:Name="FullscreenButton" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=FullScreen, Converter={StaticResource LocalizeConverter}}" Icon="FullScreen"></AppBarButton>
-                        <AppBarButton x:Name="CompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=CompactOverlay, Converter={StaticResource LocalizeConverter}}"></AppBarButton>
-                        <AppBarButton x:Name="SmallWindowButton" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=WindowInWindow, Converter={StaticResource LocalizeConverter}}"></AppBarButton>
-                        <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=PlayWithSecondaryView, Converter={StaticResource LocalizeConverter}}"></AppBarButton>
-                        <AppBarToggleButton x:Name="ForceRotateToggleButton" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=FixToLandscape, Converter={StaticResource LocalizeConverter}}" Icon="Orientation"></AppBarToggleButton>
+                        <AppBarButton x:Name="FullscreenButton" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></AppBarButton>
+                        <AppBarButton x:Name="CompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=CompactOverlay}"></AppBarButton>
+                        <AppBarButton x:Name="SmallWindowButton" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=WindowInWindow}"></AppBarButton>
+                        <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=PlayWithSecondaryView}"></AppBarButton>
+                        <AppBarToggleButton x:Name="ForceRotateToggleButton" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></AppBarToggleButton>
                       </CommandBar.SecondaryCommands>
                       
                     </CommandBar>
@@ -400,7 +399,7 @@
                             <TextBlock VerticalAlignment="Center" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" x:Name="LeoLiveQualityTextBlock">
                                                         <Run Text="{Binding CurrentQuality.Value, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                             <TextBlock Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibility}}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="8 0 0 0">
-                                                        <Run Text="{Binding Source=LowLatency, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
+                                                        <Run Text="{i18nExt:Localize Key=LowLatency}" /></TextBlock>
                             <TextBlock Text="TS" Margin="8 0" x:Name="WatchWithTimeshiftText" Visibility="Collapsed" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
                           </StackPanel>
                           <i:Interaction.Behaviors>
@@ -414,7 +413,7 @@
                               <StackPanel Spacing="16">
 
                                 <ComboBox x:Name="LiveQualityLimitComboBox" 
-                                          ItemsSource="{Binding LiveAvailableLimitQualities, Mode=OneWay}" SelectedItem="{Binding QualityLimit.Value, Mode=TwoWay}" SelectionChangedTrigger="Committed" Header="{Binding Source=LivePlayingQualityLimit, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                                          ItemsSource="{Binding LiveAvailableLimitQualities, Mode=OneWay}" SelectedItem="{Binding QualityLimit.Value, Mode=TwoWay}" SelectionChangedTrigger="Committed" Header="{i18nExt:Localize Key=LivePlayingQualityLimit}"
                                           IsEnabled="False"
                                           Visibility="Collapsed"
                                           >
@@ -425,7 +424,7 @@
                                   </ComboBox.ItemTemplate>
                                 </ComboBox>
                                 
-                                <ComboBox ItemsSource="{Binding LiveAvailableQualities, Mode=OneWay}" SelectedItem="{Binding RequestQuality.Value, Mode=TwoWay}" SelectionChangedTrigger="Committed" Header="{Binding Source=LivePlayingQuality, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                                <ComboBox ItemsSource="{Binding LiveAvailableQualities, Mode=OneWay}" SelectedItem="{Binding RequestQuality.Value, Mode=TwoWay}" SelectionChangedTrigger="Committed" Header="{i18nExt:Localize Key=LivePlayingQuality}">
                                   <ComboBox.ItemTemplate>
                                     <DataTemplate>
                                       <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" Padding="8 4" />
@@ -433,7 +432,7 @@
                                   </ComboBox.ItemTemplate>
                                 </ComboBox>
 
-                                <ToggleSwitch IsOn="{Binding IsLowLatency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="{Binding Source=LowLatency, Converter={StaticResource LocalizeConverter}}"></ToggleSwitch>
+                                <ToggleSwitch IsOn="{Binding IsLowLatency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="{i18nExt:Localize Key=LowLatency}"></ToggleSwitch>
 
                               </StackPanel>
 
@@ -462,11 +461,11 @@
                           <Flyout>
                             <toolkit:DockPanel toolkit:DockPanel.Dock="Right" Margin="0 0 16 0" Height="66">
                               <StackPanel Background="#AA777777" toolkit:DockPanel.Dock="Left">
-                                <AppBarButton Icon="Volume" Label="{Binding Source=Mute, Converter={StaticResource LocalizeConverter}}" VerticalAlignment="Stretch" x:Name="MuteToggleButton" Command="{Binding ToggleMuteCommand}"></AppBarButton>
+                                <AppBarButton Icon="Volume" Label="{i18nExt:Localize Key=Mute}" VerticalAlignment="Stretch" x:Name="MuteToggleButton" Command="{Binding ToggleMuteCommand}"></AppBarButton>
                               </StackPanel>
                               <StackPanel Margin="8 0" Orientation="Vertical">
                                 <Slider x:Name="VolumeSlider" Orientation="Horizontal" VerticalAlignment="Top" Margin="8 4" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}" Maximum="1.0" Minimum="0.0" StepFrequency="0.01" SmallChange="0.01" LargeChange="0.1" Height="32" Width="160" Background="Transparent"></Slider>
-                                <TextBlock Text="{Binding Source=SoundVolume, Converter={StaticResource LocalizeConverter}}" VerticalAlignment="Center" Margin="8 0 0 0" HorizontalAlignment="Center" FontSize="12" />
+                                <TextBlock Text="{i18nExt:Localize Key=SoundVolume}" VerticalAlignment="Center" Margin="8 0 0 0" HorizontalAlignment="Center" FontSize="12" />
                               </StackPanel>
                             </toolkit:DockPanel>
                           </Flyout>
@@ -552,12 +551,12 @@
                         </Flyout>
                       </Button.Flyout>
                     </Button>
-                    <Button x:Name="CommentSubmitButton" Content="{Binding Source=SubmitComment, Converter={StaticResource LocalizeConverter}}" Margin="8 0 0 8" Height="40" Command="{Binding CommentSubmitCommand}" CommandParameter="{x:Bind CommentTextBox.Text, Mode=OneWay}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="5" Grid.ColumnSpan="1" />
+                    <Button x:Name="CommentSubmitButton" Content="{i18nExt:Localize Key=SubmitComment}" Margin="8 0 0 8" Height="40" Command="{Binding CommentSubmitCommand}" CommandParameter="{x:Bind CommentTextBox.Text, Mode=OneWay}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="5" Grid.ColumnSpan="1" />
                     <Border Grid.ColumnSpan="6" Grid.RowSpan="2" x:Name="WhenTimeshiftIgnoreCommentLayout" Visibility="Collapsed">
                       <Border.Background>
                         <SolidColorBrush Color="{ThemeResource SystemAltLowColor}" />
                       </Border.Background>
-                      <TextBlock Text="{Binding Source=DisallowCommentInTimeshift, Converter={StaticResource LocalizeConverter}}" Margin="8" TextWrapping="Wrap" Opacity="0.9" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                      <TextBlock Text="{i18nExt:Localize Key=DisallowCommentInTimeshift}" Margin="8" TextWrapping="Wrap" Opacity="0.9" VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
                   </Grid>
                 </StackPanel>
@@ -1071,9 +1070,9 @@
             <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
 
             <Setter Target="DisplayWithSecondaryViewButton.Visibility" Value="Visible" />
-            <Setter Target="DisplayWithSecondaryViewButton.Label" Value="{Binding Source=PlayWithPrimaryView, Converter={StaticResource LocalizeConverter}}" />
+            <Setter Target="DisplayWithSecondaryViewButton.Label" Value="{i18nExt:Localize Key=PlayWithPrimaryView}" />
             <Setter Target="DisplayWithSecondaryViewButton_Menu.Visibility" Value="Visible" />
-            <Setter Target="DisplayWithSecondaryViewButton_Menu.Text" Value="{Binding Source=PlayWithPrimaryView, Converter={StaticResource LocalizeConverter}}" />
+            <Setter Target="DisplayWithSecondaryViewButton_Menu.Text" Value="{i18nExt:Localize Key=PlayWithPrimaryView}" />
 
           </VisualState.Setters>
         </VisualState>
