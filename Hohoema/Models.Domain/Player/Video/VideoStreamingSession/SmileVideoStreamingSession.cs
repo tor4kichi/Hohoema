@@ -1,5 +1,4 @@
-﻿using FFmpegInterop;
-using Mntone.Nico2;
+﻿using Mntone.Nico2;
 using Hohoema.Database;
 using Hohoema.Models.Domain.Helpers;
 using Hohoema.Models.Domain.Niconico.Video;
@@ -19,8 +18,6 @@ namespace Hohoema.Models.Domain.Player.Video
         public override NicoVideoQuality Quality { get; }
 
         public Uri VideoUrl { get; }
-
-        FFmpegInteropMSS _VideoMSS;
 
         public SmileVideoStreamingSession(Uri videoUrl, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager.VideoSessionOwnership videoSessionOwnership)
             : base(niconicoSession, videoSessionOwnership)
@@ -71,10 +68,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
             if (videoContentType != MovieType.Mp4)
             {
-                _VideoMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(tempStream, false, false);
-                var mss = _VideoMSS.GetMediaStreamSource();
-                mss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
-                return MediaSource.CreateFromMediaStreamSource(mss);
+                throw new NotSupportedException("not supproted video type : " + videoContentType);
             }
             else
             {

@@ -1,5 +1,4 @@
-﻿using FFmpegInterop;
-using Mntone.Nico2;
+﻿using Mntone.Nico2;
 using Hohoema.Models.Domain.Helpers;
 using System;
 using System.Threading.Tasks;
@@ -18,8 +17,6 @@ namespace Hohoema.Models.Domain.Player.Video
         public override NicoVideoQuality Quality { get; }
 
         public IStorageFile File { get; }
-
-        FFmpegInteropMSS _VideoMSS;
 
         public LocalVideoStreamingSession(IStorageFile file, NicoVideoQuality requestQuality, NiconicoSession niconicoSession)
             : base(niconicoSession, null)
@@ -43,18 +40,13 @@ namespace Hohoema.Models.Domain.Player.Video
             }
             else
             {
-                _VideoMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(stream, false, false);
-                var mss = _VideoMSS.GetMediaStreamSource();
-                mss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
-                return MediaSource.CreateFromMediaStreamSource(mss);
+                throw new NotSupportedException("not supported video type : " + contentType);
             }
         }
 
 
         protected override void OnStopStreaming()
         {
-            _VideoMSS?.Dispose();
-
             base.OnStopStreaming();
         }
 
