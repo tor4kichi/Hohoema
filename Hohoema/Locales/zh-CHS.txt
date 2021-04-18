@@ -243,6 +243,15 @@ ShowErrorLogButtonTitle = 错误记录
 CopyAppVersionToClipboard = 复制版本号
 EnableDebugModeToggleSwitchTitle = 启用调试模式
 
+ErrorReportDialogTitle = 错误报告
+ErrorReportDialogComfirmButtonText = 发送
+ErrorReportDialog_ErrorMessageDesc = 错误消息（只读）
+ErrorReportDialog_SendScreenshotToggleButtonDesc = 发送截图
+ErrorReportDialog_UserInputTextBoxDesc = 说明发生错误的情况（最多1000个字符）
+
+
+
+
 UserDataSettings = 后备
 BackupUserData = 导出备份
 RestoreUserData = 读取备份

@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:uwpExt="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:mtui="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     Title="{i18nExt:Localize Key=ErrorReportDialogTitle}"
@@ -16,12 +17,6 @@
   <Grid>
     <ScrollViewer>
       <StackPanel Spacing="16" Margin="0 0 8 0">
-
-        <TextBlock >
-          <Run>Hohoemaの開発者にエラーを送信します。</Run><LineBreak />
-          <Run>頂いた情報は問題の修正やアプリの改善に利用します。</Run><LineBreak />
-          <Run>一度送ったら削除できません。</Run><LineBreak />
-        </TextBlock>
 
         <TextBox x:Name="ExceptionMessageTextBlock"
                  TextWrapping="Wrap"                 
@@ -35,7 +30,15 @@
           <TextBlock Text="{i18nExt:Localize Key=ErrorReportDialog_SendScreenshotToggleButtonDesc}" />
         </ToggleSwitch>
 
-        <Image x:Name="ScreenshotImage" MaxHeight="250" />
+        <ScrollViewer HorizontalScrollMode="Auto"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollMode="Auto"
+                      Height="250"
+                      Margin="0 0 16 0"
+                      uwpExt:ScrollViewerExtensions.EnableMiddleClickScrolling="True"
+                      >
+          <Image x:Name="ScreenshotImage" Stretch="None" />
+        </ScrollViewer>
 
         <TextBox x:Name="UserInputTextBox" MaxLength="1000"
                Header="{i18nExt:Localize Key=ErrorReportDialog_UserInputTextBoxDesc}"
