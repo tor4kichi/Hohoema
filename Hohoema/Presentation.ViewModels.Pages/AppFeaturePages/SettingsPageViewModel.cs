@@ -896,7 +896,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
             Name = item.Name;
             Site = item.Site;
             Authors = item.Authors.ToList();
-            LisenceType = LisenceTypeToText(item.LisenceType.Value);
+            LisenceType = item.LisenceType;
             LisencePageUrl = item.LisencePageUrl;
         }
 

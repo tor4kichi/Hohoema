@@ -64,15 +64,7 @@ namespace Hohoema.Models.Domain
 		}
 
 
-		private LisenceType? _LisenceType;
-		public LisenceType? LisenceType
-		{
-			get
-			{
-				return _LisenceType
-					?? (_LisenceType = (LisenceType) Enum.Parse(typeof(LisenceType), __LisenceType));
-			}
-		}
+		public string LisenceType => __LisenceType;
 
 		private Uri _LisencePageUrl;
 		public Uri LisencePageUrl
