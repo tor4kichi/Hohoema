@@ -19,7 +19,6 @@
       xmlns:myTrigger="using:Hohoema.Presentation.Views.StateTrigger"
       xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
       xmlns:media="using:Microsoft.Xaml.Interactions.Media"
-      xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
       xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
       xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:iconPack="using:MahApps.Metro.IconPacks"
@@ -56,7 +55,7 @@
       <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayPauseToggleButtonTitle}" Command="{Binding VideoPlayer.TogglePlayPauseCommand}" />
       <ToggleMenuFlyoutItem IsChecked="{Binding ObservableMediaPlayer.IsMuted.Value, Mode=TwoWay}" Text="{i18nExt:Localize Key=Mute}" />
       <ToggleMenuFlyoutItem IsChecked="{Binding PlayerSettings.IsCommentDisplay_Video, Mode=TwoWay, Converter={StaticResource BoolNegation}}" Text="{i18nExt:Localize Key=ToggleHideComment}" />
-      <MenuFlyoutSubItem Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" Visibility="{Binding VideoPlayer.AvailableQualities, Converter={StaticResource CollectionVisibilityConverter}}" x:Name="VideoQualityMenuFlyoutSubImte">
+      <MenuFlyoutSubItem Text="{Binding Source=Quality, Converter={StaticResource LocalizeConverter}}" Visibility="{Binding VideoPlayer.AvailableQualities, Converter={StaticResource CollectionVisibilityConverter}}" x:Name="VideoQualityMenuFlyoutSubImte">
         <i:Interaction.Behaviors>
           <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding VideoPlayer.AvailableQualities}" CustomObjectToTag="{Binding}">
             <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
@@ -333,6 +332,7 @@
                   <!-- 右上 -->
                   <CommandBar x:Name="ActionsCommandBar" toolkit:DockPanel.Dock="Right" 
                               XYFocusLeft="{x:Bind CloseButton}"
+                              
                               >
                     <CommandBar.PrimaryCommands>
                       <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{Binding IsLikedVideo, Mode=TwoWay}" IsEnabled="{Binding NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
