@@ -137,7 +137,7 @@ namespace Hohoema.FixPrism
                     {
                         context.Post(_ =>
                         {
-                            lockSlim.EnterUpgradeableReadLock();
+                            lockSlim.EnterReadLock();
                             try
                             {
                                 var eventArgs = new PropertyChangedEventArgs(propertyName);
@@ -148,7 +148,7 @@ namespace Hohoema.FixPrism
                             }
                             finally
                             {
-                                lockSlim.ExitUpgradeableReadLock();
+                                lockSlim.ExitReadLock();
                             }
                         },
                         null );
