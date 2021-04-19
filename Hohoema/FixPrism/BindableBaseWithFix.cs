@@ -16,7 +16,7 @@ namespace Hohoema.FixPrism
         {
         }
 
-        ReaderWriterLockSlim lockSlim = new ReaderWriterLockSlim();
+        ReaderWriterLockSlim lockSlim = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         Dictionary<SynchronizationContext, IList<PropertyChangedEventHandler>> _handlersByThread = new Dictionary<SynchronizationContext, IList<PropertyChangedEventHandler>>();
 
         /// <summary>
