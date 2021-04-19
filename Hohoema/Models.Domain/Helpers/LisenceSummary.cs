@@ -6,6 +6,8 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using System.IO;
+using System.Text.Json.Serialization;
 
 namespace Hohoema.Models.Domain
 {
@@ -15,7 +17,7 @@ namespace Hohoema.Models.Domain
 	[DataContract]
 	public sealed class LisenceSummary
 	{
-		[DataMember(Name = "items")]
+		[JsonPropertyName("items")]
 		public List<LisenceItem> Items { get; set; }
 
 
@@ -25,56 +27,31 @@ namespace Hohoema.Models.Domain
 
 			var file = await StorageFile.GetFileFromPathAsync(LisenceSummaryFilePath);
 
-			var text = await FileIO.ReadTextAsync(file);
-
-			return JsonConvert.DeserializeObject<LisenceSummary>(text);
+			using (var stream = await file.OpenAsync(FileAccessMode.Read))
+			{
+				return await System.Text.Json.JsonSerializer.DeserializeAsync<LisenceSummary>(stream.AsStreamForRead());
+            }
 		}
-
 	}
 
 
-	[DataContract]
+	
 	public sealed class LisenceItem
 	{
-		[DataMember(Name = "name")]
+		[JsonPropertyName("name")]
 		public string Name { get; set; }
 
-		[DataMember(Name = "site")]
-		private string __Site { get; set; }
+		[JsonPropertyName("site")]
+		public Uri Site { get; set; }
 
-		[DataMember(Name = "author")]
+		[JsonPropertyName("author")]
 		public List<string> Authors { get; set; }
 
-		[DataMember(Name = "lisence_type")]
-		private string __LisenceType { get; set; }
+		[JsonPropertyName("lisence_type")]
+		public string LisenceType { get; set; }
 
-		[DataMember(Name = "lisence_page_url")]
-		private string __LisencePageUrl { get; set; }
-
-
-
-		private Uri _Site;
-		public Uri Site
-		{
-			get
-			{
-				return _Site
-					?? (_Site = new Uri(__Site));
-			}
-		}
-
-
-		public string LisenceType => __LisenceType;
-
-		private Uri _LisencePageUrl;
-		public Uri LisencePageUrl
-		{
-			get
-			{
-				return _LisencePageUrl
-					?? (_LisencePageUrl = new Uri(__LisencePageUrl));
-			}
-		}
+		[JsonPropertyName("lisence_page_url")]
+		public Uri LisencePageUrl { get; set; }
 	}
 
 
