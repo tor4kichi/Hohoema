@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Presentation.Services;
+using I18NPortable;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {
@@ -22,12 +24,15 @@ namespace Hohoema.Models.UseCase.NicoVideos
     public sealed class WatchHistoryManager
     {
         private readonly LoginUserHistoryProvider _loginUserHistoryProvider;
+        private readonly NotificationService _notificationService;
 
         public WatchHistoryManager(
-            LoginUserHistoryProvider loginUserHistoryProvider
+            LoginUserHistoryProvider loginUserHistoryProvider,
+            NotificationService notificationService
             )
         {
             _loginUserHistoryProvider = loginUserHistoryProvider;
+            _notificationService = notificationService;
         }
 
         public event EventHandler<ContentWatchedEventArgs> ContentWatched;
@@ -40,6 +45,12 @@ namespace Hohoema.Models.UseCase.NicoVideos
             if (result.IsOK)
             {
                 WatchHistoryRemoved?.Invoke(this, new WatchHistoryRemovedEventArgs() { ItemId = watchHistory.ItemId });
+
+                _notificationService.ShowLiteInAppNotification_Success("VideoHistory_DeleteOne_Success".Translate());
+            }
+            else
+            {
+                _notificationService.ShowLiteInAppNotification_Success("VideoHistory_DeleteOne_Fail".Translate());
             }
 
             return result.IsOK;
@@ -61,6 +72,12 @@ namespace Hohoema.Models.UseCase.NicoVideos
             if (res.IsOK)
             {
                 WatchHistoryAllRemoved?.Invoke(this, EventArgs.Empty);
+
+                _notificationService.ShowLiteInAppNotification_Success("VideoHistories_AllDelete_Success".Translate());
+            }
+            else
+            {
+                _notificationService.ShowLiteInAppNotification_Success("VideoHistories_AllDeleted_Fail".Translate());
             }
 
             return res.IsOK;

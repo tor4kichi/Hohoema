@@ -40,11 +40,7 @@ namespace Hohoema.Presentation.Services.Notification
                             var newItem = e.NewItems.Cast<FollowItemInfo>().FirstOrDefault();
                             if (newItem != null)
                             {
-                                NotificationService.ShowInAppNotification(new InAppNotificationPayload()
-                                {
-                                    Content = "FollowAddedNotification_WithItemName".Translate(newItem.Name)
-                                    , ShowDuration = TimeSpan.FromSeconds(4)
-                                });
+                                NotificationService.ShowLiteInAppNotification_Success("FollowAddedNotification_WithItemName".Translate(newItem.Name));
                             }
                         }
                         break;
@@ -55,11 +51,7 @@ namespace Hohoema.Presentation.Services.Notification
                             var item = e.OldItems.Cast<FollowItemInfo>().FirstOrDefault();
                             if (item != null)
                             {
-                                NotificationService.ShowInAppNotification(new InAppNotificationPayload()
-                                {
-                                    Content = "FollowRemovedNotification_WithItemName".Translate(item.Name)
-                                    , ShowDuration = TimeSpan.FromSeconds(4)
-                                });
+                                NotificationService.ShowLiteInAppNotification_Success("FollowRemovedNotification_WithItemName".Translate(item.Name));
                             }
                         }
                         break;

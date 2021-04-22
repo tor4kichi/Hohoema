@@ -367,6 +367,7 @@
     <Compile Include="Presentation.Services\Helpers\ShareHelper.cs" />
     <Compile Include="Presentation.Services\Helpers\SortMethodHelper.cs" />
     <Compile Include="Presentation.Services\InAppNotificationPayload.cs" />
+    <Compile Include="Presentation.Services\LiteNotification\LiteNotificationEvent.cs" />
     <Compile Include="Presentation.Services\NiconicoFollowToggleButtonService.cs" />
     <Compile Include="Presentation.Services\NiconicoLoginService.cs" />
     <Compile Include="Presentation.Services\NoProcessUIScreenContext.cs" />
@@ -671,6 +672,9 @@
     <Compile Include="Presentation.Views\Controls\IchibaItemCard.xaml.cs">
       <DependentUpon>IchibaItemCard.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Presentation.Views\Controls\LiteInAppNotification\LiteInAppNotification.Constants.cs" />
+    <Compile Include="Presentation.Views\Controls\LiteInAppNotification\LiteInAppNotification.Properties.cs" />
+    <Compile Include="Presentation.Views\Controls\LiteInAppNotification\LiteInAppNotification.cs" />
     <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.cs" />
     <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
     <Compile Include="Presentation.Views\Converters\CacheStateToColorBrushConverter.cs" />
@@ -1255,6 +1259,10 @@
     <Page Include="Presentation.Views\Controls\IchibaItemCard.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Presentation.Views\Controls\LiteInAppNotification\LiteInAppNotification.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Presentation.Views\Controls\TransientContainer\TransientContainer.xaml">
       <Generator>MSBuild:Compile</Generator>

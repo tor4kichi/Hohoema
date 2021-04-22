@@ -81,7 +81,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
             RankingProvider rankingProvider,
             VideoRankingSettings rankingSettings,
             IScheduler scheduler,
-            IEventAggregator eventAggregator,
+            NotificationService notificationService,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
@@ -92,7 +92,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
             RankingProvider = rankingProvider;
             RankingSettings = rankingSettings;
             _scheduler = scheduler;
-            _eventAggregator = eventAggregator;
+            _notificationService = notificationService;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             IsFailedRefreshRanking = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
@@ -187,7 +187,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
         
         private static RankingGenre? _previousRankingGenre;
         private readonly IScheduler _scheduler;
-        private readonly IEventAggregator _eventAggregator;
+        private readonly NotificationService _notificationService;
         bool _IsNavigateCompleted = false;
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
@@ -297,11 +297,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
                             {
                                 SelectedRankingTag.Value = PickedTags.ElementAtOrDefault(0);
 
-                                _eventAggregator.GetEvent<InAppNotificationEvent>().Publish(new InAppNotificationPayload()
-                                {
-                                    Content = $"「{selectedTag.Label}」は人気のタグの一覧から外れたようです",
-                                    ShowDuration = TimeSpan.FromSeconds(5),
-                                });
+
+                                // TODO: i18n：人気タグがオンライン側で外れた場合の通知
+                                _notificationService.ShowLiteInAppNotification($"「{selectedTag.Label}」は人気のタグの一覧から外れたようです", Services.LiteNotification.DisplayDuration.MoreAttention);
                             }
                         }
                     }

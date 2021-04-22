@@ -129,18 +129,11 @@ namespace Hohoema.Models.UseCase.NicoVideos
             var playlist = (LoginUserMylistPlaylist)sender;
             if (e.FailedItems?.Any() ?? false)
             {
-                _notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                {
-                    Content = "InAppNotification_MylistAddedItems_Fail".Translate(playlist.Label)
-                });
+                _notificationService.ShowLiteInAppNotification_Fail("InAppNotification_MylistAddedItems_Fail".Translate(playlist.Label));
             }
             else
             {
-                _notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                {
-                    Content = "InAppNotification_MylistAddedItems_Success".Translate(playlist.Label, e.SuccessedItems.Count),
-                    ShowDuration = TimeSpan.FromSeconds(5)
-                });
+                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistAddedItems_Success".Translate(playlist.Label, e.SuccessedItems.Count));
             }
         }
 
@@ -149,18 +142,11 @@ namespace Hohoema.Models.UseCase.NicoVideos
             var playlist = (LoginUserMylistPlaylist)sender;
             if (e.FailedItems?.Any() ?? false)
             {
-                _notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                {
-                    Content = "InAppNotification_MylistRemovedItems_Fail".Translate(playlist.Label),
-                });
+                _notificationService.ShowLiteInAppNotification_Fail("InAppNotification_MylistRemovedItems_Fail".Translate(playlist.Label));
             }
             else
             {
-                _notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                {
-                    Content = "InAppNotification_MylistRemovedItems_Success".Translate(playlist.Label, e.SuccessedItems.Count),
-                    ShowDuration = TimeSpan.FromSeconds(5)
-                });
+                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistRemovedItems_Success".Translate(playlist.Label, e.SuccessedItems.Count));
             }
         }
 

@@ -1,0 +1,87 @@
+﻿<ResourceDictionary
+    x:Class="Hohoema.Presentation.Views.LiteInAppNotification"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Hohoema.Presentation.Views.Controls.LiteInAppNotification"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations" xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+  <Style x:Key="BaseLiteInAppNotificationStyle" TargetType="local:LiteInAppNotification">
+    <Setter Property="Background" Value="{ThemeResource SystemControlBackgroundChromeMediumLowBrush}" />
+    <Setter Property="Foreground" Value="{ThemeResource SystemControlForegroundBaseHighBrush}" />
+    <Setter Property="BorderBrush" Value="{ThemeResource SystemControlTransparentBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="VerticalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="MinHeight" Value="55" />
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="Margin" Value="24,12" />
+    <Setter Property="Padding" Value="24,12" />
+    <Setter Property="MaxWidth" Value="960" />
+    <Setter Property="MinWidth" Value="132" />
+    <Setter Property="AnimationDuration" Value="0:0:0.075" />
+    <Setter Property="Interval" Value="0:0:0.4" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="local:LiteInAppNotification">
+          <Grid x:Name="RootGrid"
+                MaxWidth="{TemplateBinding MaxWidth}"
+                Padding="{TemplateBinding Padding}"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                RenderTransformOrigin="{TemplateBinding RenderTransformOrigin}"
+                HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                VerticalAlignment="{TemplateBinding VerticalAlignment}"
+                Visibility="{TemplateBinding Visibility}"
+                >
+            <animations:Explicit.Animations>
+              <animations:AnimationSet x:Name="PART_ShowAnimationSet"
+                                 IsSequential="True"
+                                 >
+                <animations:AnimationScope Duration="{TemplateBinding AnimationDuration}" >
+                  <animations:OpacityAnimation To="1.0" />
+                  <animations:ScalarAnimation Target="Translation.X" To="0" From="-10" />
+                </animations:AnimationScope>
+
+                <animations:AnimationScope x:Name="PART_ShowingAnimation">
+                  <animations:OpacityAnimation To="1.0"  />
+                </animations:AnimationScope>
+
+              </animations:AnimationSet>
+
+              <animations:AnimationSet x:Name="PART_HideAnimationSet">
+                <animations:AnimationScope Duration="{TemplateBinding AnimationDuration}" >
+                  <animations:OpacityAnimation To="0.0" />
+                  <animations:ScalarAnimation Target="Translation.X" To="10" From="0" />
+                </animations:AnimationScope>
+
+                <animations:AnimationScope Duration="{TemplateBinding Interval}" >
+                  <animations:OpacityAnimation To="0.0"  />
+                </animations:AnimationScope>
+              </animations:AnimationSet>
+            </animations:Explicit.Animations>
+
+
+            <ContentPresenter x:Name="PART_Presenter"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                              TextWrapping="NoWrap"
+                              >
+             
+            </ContentPresenter>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style BasedOn="{StaticResource BaseLiteInAppNotificationStyle}" TargetType="local:LiteInAppNotification"/>
+
+</ResourceDictionary>

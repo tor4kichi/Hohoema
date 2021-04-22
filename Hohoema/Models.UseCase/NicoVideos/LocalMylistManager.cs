@@ -41,6 +41,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 ThumbnailImage = x.ThumbnailImage,
             }).ToList();
 
+
             _playlists = new ObservableCollection<LocalPlaylist>(localPlaylists);
             LocalPlaylists = new ReadOnlyObservableCollection<LocalPlaylist>(_playlists);
 
@@ -111,10 +112,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 .Subscribe(args =>
                 {
                     var sender = args.Sender as LocalPlaylist;
-                    _notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                    {
-                        Content = "InAppNotification_LocalPlaylistAddedItems".Translate(sender.Label, args.EventArgs.AddedItems.Count)
-                    });
+                    _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistAddedItems".Translate(sender.Label, args.EventArgs.AddedItems.Count));
                 })
                 .AddTo(disposables);
 
@@ -125,10 +123,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 .Subscribe(args =>
                 {
                     var sender = args.Sender as LocalPlaylist;
-                    _notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                    {
-                        Content = "InAppNotification_LocalPlaylistRemovedItems".Translate(sender.Label, args.EventArgs.RemovedItems.Count)
-                    });
+                    _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistRemovedItems".Translate(sender.Label, args.EventArgs.RemovedItems.Count));
                 })
                 .AddTo(disposables);
         }

@@ -649,7 +649,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
             {
                 await _backupManager.BackupAsync(file, default);
 
-                _notificationService.ShowInAppNotification(new InAppNotificationPayload { Content = "バックアップを保存しました" });
+                _notificationService.ShowLiteInAppNotification_Success("バックアップを保存しました");
             }
         }
 
@@ -696,7 +696,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
                         }
                     }
  
-                    _notificationService.ShowInAppNotification(new InAppNotificationPayload { Content = "BackupRestoreComplete".Translate() });
+                    _notificationService.ShowLiteInAppNotification_Success("BackupRestoreComplete".Translate());
 
                     NGVideoOwnerUserIds = _videoFilteringRepository.GetVideoOwnerIdFilteringEntries();
                     RaisePropertyChanged(nameof(NGVideoOwnerUserIds));
@@ -713,7 +713,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
                 }
                 catch
                 {
-                    _notificationService.ShowInAppNotification(new InAppNotificationPayload { Content = "BackupRestoreFailed".Translate() });
+                    _notificationService.ShowLiteInAppNotification_Fail("BackupRestoreFailed".Translate());
                     throw;
                 }
             }

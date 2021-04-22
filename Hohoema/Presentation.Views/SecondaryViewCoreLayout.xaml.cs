@@ -19,6 +19,9 @@ using Reactive.Bindings.Extensions;
 using Windows.UI.ViewManagement;
 using Windows.UI;
 using Hohoema.Models.Domain.Application;
+using Prism.Events;
+using Hohoema.Presentation.Services.LiteNotification;
+using System.Threading;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -37,9 +40,42 @@ namespace Hohoema.Presentation.Views
                     ThemeChanged(theme);
                 });
 
+            _eventAggregator = App.Current.Container.Resolve<IEventAggregator>();
+            Loaded += SecondaryViewCoreLayout_Loaded;
+            Unloaded += SecondaryViewCoreLayout_Unloaded;
         }
 
-        string _uiTheme;
+        IEventAggregator _eventAggregator;
+
+        IDisposable _liteNotificationEventSubscriber;
+        private void SecondaryViewCoreLayout_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _liteNotificationEventSubscriber.Dispose();
+            _liteNotificationEventSubscriber = null;
+        }
+
+        private void SecondaryViewCoreLayout_Loaded(object sender, RoutedEventArgs e)
+        {
+            var currentContext = SynchronizationContext.Current;
+            _liteNotificationEventSubscriber = _eventAggregator.GetEvent<LiteNotificationEvent>()
+                .Subscribe(args => 
+                {
+                    if (currentContext != SynchronizationContext.Current)
+                    {
+                        return;
+                    }
+
+                    TimeSpan duration = args.Duration ?? args.DisplayDuration switch
+                    {
+                        DisplayDuration.Default => TimeSpan.FromSeconds(0.75),
+                        DisplayDuration.MoreAttention => TimeSpan.FromSeconds(3),
+                        _ => TimeSpan.FromSeconds(0.75),
+                    };
+
+                    LiteInAppNotification.Show(args, duration);
+                }, keepSubscriberReferenceAlive: true);
+        }
+
 
         void ThemeChanged(ElementTheme theme)
         {
