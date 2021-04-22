@@ -81,11 +81,7 @@ namespace Hohoema.Presentation.Services
             {
                 dialog.WarningText = "UnavailableNiconicoService".Translate();
 
-                NotificationService.ShowInAppNotification(new InAppNotificationPayload()
-                {
-                    Content = "UnavailableNiconicoService".Translate(),
-                    ShowDuration = TimeSpan.FromSeconds(10)
-                });
+                NotificationService.ShowLiteInAppNotification("UnavailableNiconicoService".Translate(), LiteNotification.DisplayDuration.MoreAttention, Windows.UI.Xaml.Controls.Symbol.Important);
             }
 
             var account = await AccountManager.GetPrimaryAccount();
@@ -115,11 +111,7 @@ namespace Hohoema.Presentation.Services
                 {
                     // サービス障害中
                     // 何か通知を出す？
-                    NotificationService.ShowInAppNotification(new InAppNotificationPayload()
-                    {
-                        Content = "UnavailableNiconicoService".Translate()
-                        , ShowDuration = TimeSpan.FromSeconds(10)
-                    });
+                    NotificationService.ShowLiteInAppNotification("UnavailableNiconicoService".Translate(), LiteNotification.DisplayDuration.MoreAttention, Windows.UI.Xaml.Controls.Symbol.Important);
                     break;
                 }
 

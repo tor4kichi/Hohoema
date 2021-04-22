@@ -64,10 +64,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 
                     await RefreshCacheSaveFolderStatus();
 
-                    NotificationService.ShowInAppNotification(
-                        InAppNotificationPayload.CreateReadOnlyNotification("ChoiceCacheSavingFolder".Translate(),
-                        showDuration: TimeSpan.FromSeconds(30)
-                        ));
+                    NotificationService.ShowLiteInAppNotification("ChoiceCacheSavingFolder".Translate());
 
                     if (await CacheSaveFolder.ChangeUserDataFolder())
                     {
@@ -77,9 +74,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 
                         await ResetList();
 
-                        NotificationService.ShowInAppNotification(
-                            InAppNotificationPayload.CreateReadOnlyNotification("ReadyForVideoCache".Translate())
-                            );
+                        NotificationService.ShowLiteInAppNotification_Success("ReadyForVideoCache".Translate());
                     }
                 }
             });
@@ -112,9 +107,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 
                 if (await CacheSaveFolder.ChangeUserDataFolder())
                 {
-                    NotificationService.ShowInAppNotification(
-                        InAppNotificationPayload.CreateReadOnlyNotification("CacheSaveFolderChangeToX".Translate(CacheSaveFolderPath.Value))
-                        );
+                    NotificationService.ShowLiteInAppNotification("CacheSaveFolderChangeToX".Translate(CacheSaveFolderPath.Value));
 
                     await RefreshCacheSaveFolderStatus();
 
@@ -175,10 +168,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
 
             if (IsRequireUpdateCacheSaveFolder.Value)
             {
-                NotificationService.ShowInAppNotification(
-                    InAppNotificationPayload.CreateReadOnlyNotification( "ChoiceCacheSavingFolder".Translate(),
-                    showDuration: TimeSpan.FromSeconds(30)
-                    ));
+
+                NotificationService.ShowLiteInAppNotification("ChoiceCacheSavingFolder".Translate(), Services.LiteNotification.DisplayDuration.MoreAttention);
 
                 if (await CacheSaveFolder.ChangeUserDataFolder())
                 {
@@ -187,9 +178,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.AppFeaturePages
                     await RefreshCacheSaveFolderStatus();
                     await ResetList();
 
-                    NotificationService.ShowInAppNotification(
-                        InAppNotificationPayload.CreateReadOnlyNotification("ReadyForVideoCache".Translate())
-                        );
+                    NotificationService.ShowLiteInAppNotification_Success("ReadyForVideoCache".Translate());
                 }
             }
 

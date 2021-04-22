@@ -32,6 +32,7 @@
         <ResourceDictionary Source="Styles/SettingsControlStyles.xaml"/>
         
         <ResourceDictionary Source="Presentation.Views/Controls/TransientContainer/TransientContainer.xaml"/>
+        <ResourceDictionary Source="Presentation.Views/Controls/LiteInAppNotification/LiteInAppNotification.xaml"/>
 
         <muxc:XamlControlsResources  />
 

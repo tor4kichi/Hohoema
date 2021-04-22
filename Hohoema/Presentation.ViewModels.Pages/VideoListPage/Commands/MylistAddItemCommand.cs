@@ -62,19 +62,11 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
                 var addedResult = await targetMylist.AddItem(items.Select(x => x.Id));
                 if (addedResult.SuccessedItems.Any() && addedResult.FailedItems.Empty())
                 {
-                    NotificationService.ShowInAppNotification(
-                        InAppNotificationPayload.CreateReadOnlyNotification(
-                            "InAppNotification_MylistAddedItems_Success".Translate(targetMylist.Label, addedResult.SuccessedItems.Count)
-                            )
-                        );
+//                    NotificationService.ShowLiteInAppNotification("InAppNotification_MylistAddedItems_Success".Translate(targetMylist.Label, addedResult.SuccessedItems.Count));
                 }
                 else
                 {
-                    NotificationService.ShowInAppNotification(
-                        InAppNotificationPayload.CreateReadOnlyNotification(
-                            "InAppNotification_MylistAddedItems_Fail".Translate(targetMylist.Label)
-                            )
-                        );
+//                    NotificationService.ShowLiteInAppNotification("InAppNotification_MylistAddedItems_Fail".Translate(targetMylist.Label));
                 }
             }
         }

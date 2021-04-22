@@ -38,6 +38,7 @@ using Uno.Threading;
 using Microsoft.Extensions.ObjectPool;
 using System.Reactive;
 using System.Reactive.Concurrency;
+
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
 namespace Hohoema.Presentation.Views
@@ -266,11 +267,12 @@ namespace Hohoema.Presentation.Views
                         var comment = renderComment.Comment;
                         if (renderComment.EndPosition > frame.CurrentVpos)
                         {
+                            
                             var ab = AnimationBuilder.Create()
-                                .Offset(Axis.Y)
+                                .Translation(Axis.Y)
                                 .NormalizedKeyFrames(b => b
                                     .KeyFrame(0.0, renderComment.VerticalPosition))
-                                .Offset(Axis.X,
+                                .Translation(Axis.X,
                                     from: renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos),
                                     to: -renderComment.TextWidth,
                                     duration: (renderComment.EndPosition - frame.CurrentVpos) * frame.PlaybackRateInverse,
@@ -296,10 +298,10 @@ namespace Hohoema.Presentation.Views
                         //var val = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
                         //if (val.HasValue)
                         //{
-                        //    renderComment.Offset((float)val.Value, duration: 0).Start();
+                        //    renderComment.Translation((float)val.Value, duration: 0).Start();
                         //}
                         var ab = AnimationBuilder.Create()
-                                .Offset(Axis.Y)
+                                .Translation(Axis.Y)
                                 .NormalizedKeyFrames(b => b
                                     .KeyFrame(0.0, renderComment.VerticalPosition))
                                 ;
@@ -785,10 +787,10 @@ namespace Hohoema.Presentation.Views
                     {
                         double displayDuration = Math.Min(renderComment.EndPosition.TotalMilliseconds - frame.CurrentVpos.TotalMilliseconds, frame.CommentDisplayDuration.TotalMilliseconds) * frame.PlaybackRateInverse;
                         var ab = AnimationBuilder.Create()
-                            .Offset(Axis.Y)
+                            .Translation(Axis.Y)
                             .NormalizedKeyFrames(b => b
                                 .KeyFrame(0.0, renderComment.VerticalPosition))
-                            .Offset(Axis.X,
+                            .Translation(Axis.X,
                                 from: (float)initialCanvasLeft,
                                 to: -renderComment.TextWidth,                            
                                 duration: TimeSpan.FromMilliseconds(displayDuration),
@@ -800,10 +802,10 @@ namespace Hohoema.Presentation.Views
                     else
                     {
                         var ab = AnimationBuilder.Create()
-                           .Offset(Axis.Y)
+                           .Translation(Axis.Y)
                            .NormalizedKeyFrames(b => b
                                .KeyFrame(0.0, renderComment.VerticalPosition))
-                           .Offset(Axis.X)
+                           .Translation(Axis.X)
                            .NormalizedKeyFrames(b => b
                                .KeyFrame(0.0, (float)initialCanvasLeft))
                             ;
@@ -851,10 +853,10 @@ namespace Hohoema.Presentation.Views
                         renderComment.VerticalPosition = verticalPos;
                         var left = (float)frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f;
                         AnimationBuilder.Create()
-                           .Offset(Axis.Y)
+                           .Translation(Axis.Y)
                            .NormalizedKeyFrames(b => b
                                .KeyFrame(0.0, renderComment.VerticalPosition))
-                           .Offset(Axis.X)
+                           .Translation(Axis.X)
                            .NormalizedKeyFrames(b => b
                                .KeyFrame(0.0, left))
                            .Start(renderComment);
@@ -898,10 +900,10 @@ namespace Hohoema.Presentation.Views
                         renderComment.VerticalPosition = verticalPos;
                         var left = frame.HalfCanvasWidth - renderComment.TextWidth * 0.5f;
                         AnimationBuilder.Create()
-                           .Offset(Axis.Y)
+                           .Translation(Axis.Y)
                            .NormalizedKeyFrames(b => b
                                .KeyFrame(0.0, renderComment.VerticalPosition))
-                           .Offset(Axis.X)
+                           .Translation(Axis.X)
                            .NormalizedKeyFrames(b => b
                                .KeyFrame(0.0, left))
                            .Start(renderComment);

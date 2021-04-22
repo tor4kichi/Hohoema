@@ -16,7 +16,7 @@ namespace Hohoema.FixPrism
         {
         }
 
-        ReaderWriterLockSlim lockSlim = new ReaderWriterLockSlim();
+        ReaderWriterLockSlim lockSlim = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         Dictionary<SynchronizationContext, IList<PropertyChangedEventHandler>> _handlersByThread = new Dictionary<SynchronizationContext, IList<PropertyChangedEventHandler>>();
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace Hohoema.FixPrism
                     {
                         context.Post(_ =>
                         {
-                            lockSlim.EnterUpgradeableReadLock();
+                            lockSlim.EnterReadLock();
                             try
                             {
                                 var eventArgs = new PropertyChangedEventArgs(propertyName);
@@ -148,7 +148,7 @@ namespace Hohoema.FixPrism
                             }
                             finally
                             {
-                                lockSlim.ExitUpgradeableReadLock();
+                                lockSlim.ExitReadLock();
                             }
                         },
                         null );

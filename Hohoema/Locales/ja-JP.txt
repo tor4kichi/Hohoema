@@ -964,7 +964,10 @@ WatchHistoryConfirmRemove = 本当に削除
 WatchHistoryConfirmRemoveDescription = 視聴履歴を全て削除します\n本当に削除してもいいですか？
 WatchCountWithUnit = {0}回
 WatchHistoryNoItems = 視聴履歴はありません
-
+VideoHistory_DeleteOne_Success = 視聴履歴を削除しました
+VideoHistory_DeleteOne_Fail = 視聴履歴の削除に失敗
+VideoHistories_AllDelete_Success = 視聴履歴を全件削除しました
+VideoHistories_AllDeleted_Fail = 視聴履歴の全件削除に失敗
 
 #### Community ####
 CommunityOpenAt = 開設日

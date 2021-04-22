@@ -85,12 +85,7 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions.Commands
             if (subscription != null)
             {
                 Debug.WriteLine($"subscription added: {subscription.Id} {subscription.Label} {subscription.Id}" );
-                _notificationService.ShowInAppNotification(new InAppNotificationPayload() 
-                {
-                    ShowDuration = TimeSpan.FromSeconds(7),
-                    Content = "Notification_SuccessAddSubscriptionSourceWithLabel".Translate(subscription.Label),
-                    IsShowDismissButton = false,
-                });
+                _notificationService.ShowLiteInAppNotification_Success("Notification_SuccessAddSubscriptionSourceWithLabel".Translate(subscription.Label));
 
                 Analytics.TrackEvent("Subscription_Added", new Dictionary<string, string>
                     {

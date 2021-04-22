@@ -23,10 +23,7 @@ namespace Hohoema.Presentation.Services.Notification
 
         private void VideoCacheManager_Rejected(object sender, CacheRequestRejectedEventArgs e)
         {
-            NotificationService.ShowInAppNotification(new InAppNotificationPayload()
-            {
-                Content = "InAppNotification_CanNotCacheChannelVideos_ForContentProtection".Translate(),
-            });
+            NotificationService.ShowLiteInAppNotification_Fail("InAppNotification_CanNotCacheChannelVideos_ForContentProtection".Translate());
         }
 
         public HohoemaNotificationService HohoemaNotificationService { get; }
