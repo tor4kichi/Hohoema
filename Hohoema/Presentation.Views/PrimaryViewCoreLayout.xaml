@@ -22,7 +22,7 @@
              xmlns:viewModels="using:Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout" 
              xmlns:pageNavigation="using:Hohoema.Models.Domain.PageNavigation"
              xmlns:converter="using:Hohoema.Presentation.Views.Converters"
-             xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+             xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:liteInAppNotification="using:Hohoema.Presentation.Views.Controls.LiteInAppNotification" xmlns:service1="using:Hohoema.Presentation.Services.LiteNotification"
              x:Name="UserControlRoot"
              mc:Ignorable="d"
              d:DesignHeight="300"
@@ -401,6 +401,7 @@
   </UserControl.Resources>
   <Grid x:Name="RootLayout" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
         >
+    
     <!-- Player -->
     <uwpToolkitControls:DockPanel>
       <Border uwpToolkitControls:DockPanel.Dock="Top"
@@ -674,6 +675,7 @@
       </Border>
 
       <StackPanel x:Name="ErrorTrackingUI" Orientation="Horizontal" Visibility="Collapsed" HorizontalAlignment="Right" Margin="0 0 200 0" Spacing="8">
+
         <Button Height="32" ToolTipService.ToolTip="ErrorTrankingTool" Background="Transparent" Opacity="0.5">
           <Button.Content>
             <iconPack:PackIconMaterial Kind="Bug" />
@@ -682,9 +684,14 @@
           <Button.Flyout>
             <MenuFlyout Placement="Bottom">
               <MenuFlyoutItem Text="アプリを再起動" Command="{Binding RequestApplicationRestartCommand}" />
+              <MenuFlyoutItem Visibility="Collapsed" Text="軽量通知をテスト（短）" Click="AddShortLiteInAppNotification_Click" />
+              <MenuFlyoutItem Visibility="Collapsed" Text="軽量通知をテスト（長）" Click="AddLongLiteInAppNotification_Click" />
             </MenuFlyout>
           </Button.Flyout>
+          
+
         </Button>
+        
       </StackPanel>
 
     </Grid>
@@ -704,10 +711,39 @@
             <winui:TextBlock Text="「エラー報告」を選択しなかった場合でも簡易なクラッシュレポートが送信されます。"  TextWrapping="Wrap" />
           </StackPanel>
         </muxc:TeachingTip.Content>
-        
+
       </muxc:TeachingTip>
     </Grid>
-    
+
+    <!-- Lite -->
+    <liteInAppNotification:LiteInAppNotification x:Name="LiteInAppNotification" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                                                 HorizontalContentAlignment="Center"
+                                                 Margin="16 16"
+                                                 Padding="24 12"
+                                                 AnimationDuration="0:0:0.5"
+                                                 Foreground="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                                 Background="{ThemeResource ApplicationForegroundThemeBrush}"
+                                                 Interval="0:0:5"
+                                                 IsTapEnabled="True"                                                 
+                                 >
+      <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Tapped">
+          <core:CallMethodAction MethodName="Dismiss" />
+        </core:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+      <liteInAppNotification:LiteInAppNotification.ContentTemplate>
+        <DataTemplate x:DataType="service1:LiteNotificationPayload">
+          <uwpToolkitControls:DockPanel>
+            <winui:SymbolIcon Symbol="{x:Bind Symbol}" uwpToolkitControls:DockPanel.Dock="Left" />
+            <TextBlock Text="{x:Bind Content}" Margin="8 0 0 0" />
+          </uwpToolkitControls:DockPanel>
+          
+        </DataTemplate>
+      </liteInAppNotification:LiteInAppNotification.ContentTemplate> 
+    </liteInAppNotification:LiteInAppNotification>
+
+
+
     <VisualStateManager.VisualStateGroups >
 
       <VisualStateGroup>

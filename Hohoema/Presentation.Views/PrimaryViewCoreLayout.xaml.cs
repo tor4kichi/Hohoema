@@ -27,6 +27,9 @@ using Hohoema.Models.Domain.Application;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using System.Windows.Input;
+using Hohoema.Presentation.Services.LiteNotification;
+using Windows.UI;
+using Windows.UI.Xaml.Media;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -164,6 +167,21 @@ namespace Hohoema.Presentation.Views
                     }
 
                 });
+
+
+            _viewModel.EventAggregator.GetEvent<LiteNotificationEvent>()
+                .Subscribe(args =>
+                {
+                    TimeSpan duration = args.Duration ?? args.DisplayDuration switch
+                    {
+                        DisplayDuration.Default => TimeSpan.FromSeconds(0.75),
+                        DisplayDuration.MoreAttention => TimeSpan.FromSeconds(3),
+                        _ => TimeSpan.FromSeconds(0.75),
+                    };
+
+                    LiteInAppNotification.Show(args, duration);
+                });
+
         }
 
 
@@ -897,6 +915,27 @@ namespace Hohoema.Presentation.Views
             _onErrorTeachingTipClosed?.Invoke();
             _onErrorTeachingTipClosed = null;
             AppErrorTeachingTip.ActionButtonCommand = null;
+        }
+
+        private void AddShortLiteInAppNotification_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.EventAggregator.GetEvent<LiteNotificationEvent>()
+                .Publish(new LiteNotificationPayload() 
+                {
+                    Content = "ちょっと表示",
+                    Symbol = Symbol.Accept,
+                    DisplayDuration = DisplayDuration.Default,
+                });
+        }
+
+        private void AddLongLiteInAppNotification_Click(object sender, RoutedEventArgs e)
+        {
+            _viewModel.EventAggregator.GetEvent<LiteNotificationEvent>()
+                .Publish(new LiteNotificationPayload()
+                {
+                    Content = "もっと表示",
+                    DisplayDuration = DisplayDuration.MoreAttention,
+                });
         }
     }
 
