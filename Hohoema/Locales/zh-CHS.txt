@@ -964,7 +964,10 @@ WatchHistoryConfirmRemove = 真的删除
 WatchHistoryConfirmRemoveDescription = 删除所有观看记录\n我真的可以删除它吗？
 WatchCountWithUnit = {0}次
 WatchHistoryNoItems = 没有观看记录
-
+VideoHistory_DeleteOne_Success = 删除观看记录
+VideoHistory_DeleteOne_Fail = 无法删除观看记录
+VideoHistories_AllDelete_Success = 删除所有观看记录
+VideoHistories_AllDeleted_Fail = 无法删除所有观看记录
 
 #### Community ####
 CommunityOpenAt = 成立日期

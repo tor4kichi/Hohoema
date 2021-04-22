@@ -716,7 +716,9 @@
     </Grid>
 
     <!-- Lite -->
-    <liteInAppNotification:LiteInAppNotification x:Name="LiteInAppNotification" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+    <liteInAppNotification:LiteInAppNotification x:Name="LiteInAppNotification" 
+                                                 HorizontalAlignment="Center" 
+                                                 VerticalAlignment="Bottom" 
                                                  HorizontalContentAlignment="Center"
                                                  Margin="16 16"
                                                  Padding="24 12"
@@ -832,6 +834,10 @@
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
             <Setter Target="CoreNavigationView.Visibility" Value="Collapsed" />
             <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
+
+            <Setter Target="LiteInAppNotification.HorizontalAlignment" Value="Right" />
+            <Setter Target="LiteInAppNotification.VerticalAlignment" Value="Top" />
+            <Setter Target="LiteInAppNotification.Margin" Value="16 80 16 0" />
           </VisualState.Setters>
         </VisualState>
         <!-- プレイヤーを小窓表示（TV） -->

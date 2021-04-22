@@ -30,6 +30,7 @@ using System.Windows.Input;
 using Hohoema.Presentation.Services.LiteNotification;
 using Windows.UI;
 using Windows.UI.Xaml.Media;
+using System.Threading;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -168,10 +169,15 @@ namespace Hohoema.Presentation.Views
 
                 });
 
-
+            var currentContext = SynchronizationContext.Current;
             _viewModel.EventAggregator.GetEvent<LiteNotificationEvent>()
                 .Subscribe(args =>
                 {
+                    if (currentContext != SynchronizationContext.Current)
+                    {
+                        return;
+                    }
+
                     TimeSpan duration = args.Duration ?? args.DisplayDuration switch
                     {
                         DisplayDuration.Default => TimeSpan.FromSeconds(0.75),
@@ -180,7 +186,7 @@ namespace Hohoema.Presentation.Views
                     };
 
                     LiteInAppNotification.Show(args, duration);
-                });
+                }, keepSubscriberReferenceAlive: true);
 
         }
 

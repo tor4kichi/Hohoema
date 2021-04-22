@@ -9,7 +9,10 @@
              xmlns:toolkit="using:WinRTXamlToolkit.Controls"
              xmlns:mvvm="using:Prism.Mvvm"
              xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-             xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+             xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" 
+             xmlns:liteInAppNotification="using:Hohoema.Presentation.Views.Controls.LiteInAppNotification" 
+             xmlns:service1="using:Hohoema.Presentation.Services.LiteNotification" 
+             xmlns:uwpToolkitControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="400">
@@ -29,6 +32,36 @@
     </Frame>
 
     <local:HohoemaInAppNotification />
+
+    <!-- Lite -->
+    <liteInAppNotification:LiteInAppNotification x:Name="LiteInAppNotification" 
+                                                 HorizontalAlignment="Right" 
+                                                 VerticalAlignment="Top" 
+                                                 HorizontalContentAlignment="Center"
+                                                 Margin="16 80 16 0"
+                                                 Padding="24 12"
+                                                 AnimationDuration="0:0:0.5"
+                                                 Foreground="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                                 Background="{ThemeResource ApplicationForegroundThemeBrush}"
+                                                 Interval="0:0:5"
+                                                 IsTapEnabled="True"                                                 
+                                 >
+      <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Tapped">
+          <core:CallMethodAction MethodName="Dismiss" />
+        </core:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+      <liteInAppNotification:LiteInAppNotification.ContentTemplate>
+        <DataTemplate x:DataType="service1:LiteNotificationPayload">
+          <uwpToolkitControls:DockPanel>
+            <SymbolIcon Symbol="{x:Bind Symbol}" Visibility="{x:Bind IsDisplaySymbol}" uwpToolkitControls:DockPanel.Dock="Left" />
+            <TextBlock Text="{x:Bind Content}" Margin="8 0 0 0" TextWrapping="Wrap" MaxLines="2" MaxWidth="350" />
+          </uwpToolkitControls:DockPanel>
+
+        </DataTemplate>
+      </liteInAppNotification:LiteInAppNotification.ContentTemplate>
+    </liteInAppNotification:LiteInAppNotification>
+
     <!--
         <ContentControl Content="{Binding Content}" 
                         ContentTemplateSelector="{StaticResource PlayerDataTemplateSelector}"
