@@ -421,21 +421,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.LivePages
                 {
                     // 削除成功
                     var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
-                    notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                    {
-                        Content = "InAppNotification_DeletedTimeshift".Translate(),
-                        IsShowDismissButton = true,
-                    });
+                    notificationService.ShowLiteInAppNotification_Success("InAppNotification_DeletedTimeshift".Translate());
                 }
                 else
                 {
                     // まだ存在するゾイ
                     var notificationService = App.Current.Container.Resolve<Services.NotificationService>();
-                    notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                    {
-                        Content = "InAppNotification_FailedDeleteTimeshift".Translate(),
-                        IsShowDismissButton = true,
-                    });
+                    notificationService.ShowLiteInAppNotification_Fail("InAppNotification_FailedDeleteTimeshift".Translate());
 
                     Debug.Fail("タイムシフト削除に失敗しました: " + liveId);
                 }
@@ -470,10 +462,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.LivePages
                 // 予約できてるはず
                 // LiveInfoのタイムシフト周りの情報と共に通知
                 var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
-                notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                {
-                    Content = "InAppNotification_AddedTimeshiftWithTitle".Translate(liveTitle),
-                });
+                notificationService.ShowLiteInAppNotification_Success("InAppNotification_AddedTimeshiftWithTitle".Translate(liveTitle));
 
                 isAdded = true;
             }
@@ -484,18 +473,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.LivePages
             else if (result.IsReservationDeuplicated)
             {
                 var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
-                notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                {
-                    Content = "InAppNotification_ExistTimeshift".Translate(),
-                });
+                notificationService.ShowLiteInAppNotification_Success("InAppNotification_ExistTimeshift".Translate());
             }
             else if (result.IsReservationExpired)
             {
                 var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
-                notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                {
-                    Content = "InAppNotification_TimeshiftExpired".Translate(),
-                });
+                notificationService.ShowLiteInAppNotification_Fail("InAppNotification_TimeshiftExpired".Translate());
             }
 
             return isAdded;

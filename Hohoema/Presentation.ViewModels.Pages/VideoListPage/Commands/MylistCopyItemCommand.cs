@@ -66,19 +66,11 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
                 var result = await SourceMylist.CopyItemAsync(targetMylist.Id, items.Select(x => x.Id).ToArray());
                 if (result != Mntone.Nico2.ContentManageResult.Failed)
                 {
-                    _notificationService.ShowInAppNotification(
-                        InAppNotificationPayload.CreateReadOnlyNotification(
-                            "InAppNotification_MylistCopiedItems_Success".Translate(targetMylist.Label, items.Count())
-                            )
-                        );
+                    _notificationService.ShowLiteInAppNotification("InAppNotification_MylistCopiedItems_Success".Translate(targetMylist.Label, items.Count()));                        
                 }
                 else
                 {
-                    _notificationService.ShowInAppNotification(
-                        InAppNotificationPayload.CreateReadOnlyNotification(
-                            "InAppNotification_MylistCopiedItems_Fail".Translate(targetMylist.Label)
-                            )
-                        );
+                    _notificationService.ShowLiteInAppNotification("InAppNotification_MylistCopiedItems_Fail".Translate(targetMylist.Label));
                 }
             }
         }

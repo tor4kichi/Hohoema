@@ -17,6 +17,8 @@ namespace Hohoema.Presentation.Services.LiteNotification
 
     public class LiteNotificationPayload
     {
+        public bool IsDisplaySymbol { get; set; }
+
         public Symbol Symbol { get; set; }
         public string Content { get; set; }
 

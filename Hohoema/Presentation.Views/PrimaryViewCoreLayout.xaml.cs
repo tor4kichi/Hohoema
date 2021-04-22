@@ -922,7 +922,7 @@ namespace Hohoema.Presentation.Views
             _viewModel.EventAggregator.GetEvent<LiteNotificationEvent>()
                 .Publish(new LiteNotificationPayload() 
                 {
-                    Content = "ちょっと表示",
+                    Content = "あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
                     Symbol = Symbol.Accept,
                     DisplayDuration = DisplayDuration.Default,
                 });

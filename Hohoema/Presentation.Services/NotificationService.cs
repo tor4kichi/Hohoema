@@ -432,5 +432,52 @@ namespace Hohoema.Presentation.Services
         {
             ToastNotificationManager.History.Clear();
         }
+
+
+        public void ShowLiteInAppNotification_Success(string content, LiteNotification.DisplayDuration? displayDuration = null)
+        {
+            ShowLiteInAppNotification(content, displayDuration, Symbol.Accept);
+        }
+
+        public void ShowLiteInAppNotification_Success(string content, TimeSpan duration)
+        {
+            ShowLiteInAppNotification(content, duration, Symbol.Accept);
+        }
+
+        public void ShowLiteInAppNotification_Fail(string content, LiteNotification.DisplayDuration? displayDuration = null)
+        {
+            ShowLiteInAppNotification(content, displayDuration ?? LiteNotification.DisplayDuration.MoreAttention, Symbol.Important);
+        }
+
+        public void ShowLiteInAppNotification_Fail(string content, TimeSpan duration)
+        {
+            ShowLiteInAppNotification(content, duration, Symbol.Important);
+        }
+
+
+        public void ShowLiteInAppNotification(string content, LiteNotification.DisplayDuration? displayDuration = null, Symbol? symbol = null)
+        {
+            var notificationEvent = EventAggregator.GetEvent<LiteNotification.LiteNotificationEvent>();
+            notificationEvent.Publish(new LiteNotification.LiteNotificationPayload() 
+            {
+                Content = content,
+                Symbol = symbol ?? default,
+                IsDisplaySymbol = symbol is not null,
+                DisplayDuration = displayDuration
+            });
+        }
+
+        public void ShowLiteInAppNotification(string content, TimeSpan duration, Symbol? symbol = null)
+        {
+            var notificationEvent = EventAggregator.GetEvent<LiteNotification.LiteNotificationEvent>();
+            notificationEvent.Publish(new LiteNotification.LiteNotificationPayload() 
+            {
+                Content = content,
+                Symbol = symbol ?? default,
+                IsDisplaySymbol = symbol is not null,
+                Duration = duration
+            });
+        }
+
     }
 }

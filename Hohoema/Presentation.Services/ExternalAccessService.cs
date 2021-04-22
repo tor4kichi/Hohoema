@@ -4,6 +4,7 @@ using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
+using I18NPortable;
 using Microsoft.AppCenter.Analytics;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -18,9 +19,13 @@ namespace Hohoema.Presentation.Services
 {
     public sealed class ExternalAccessService : BindableBase
     {
-        public ExternalAccessService(NicoVideoCacheRepository nicoVideoRepository)
+        public ExternalAccessService(
+            NicoVideoCacheRepository nicoVideoRepository,
+            NotificationService notificationService
+            )
         {
             _nicoVideoRepository = nicoVideoRepository;
+            _notificationService = notificationService;
         }
 
         static private Uri ConvertToUrl(INiconicoObject content)
@@ -73,6 +78,8 @@ namespace Hohoema.Presentation.Services
                     Helpers.ClipboardHelper.CopyToClipboard(content.ToString());
                 }
 
+                _notificationService.ShowLiteInAppNotification_Success("Copy".Translate());
+
                 Analytics.TrackEvent("CopyToClipboardCommand", new Dictionary<string, string>
                 {
 
@@ -103,6 +110,8 @@ namespace Hohoema.Presentation.Services
                 {
                     Helpers.ClipboardHelper.CopyToClipboard(content.ToString());
                 }
+
+                _notificationService.ShowLiteInAppNotification_Success("Copy".Translate());
 
                 Analytics.TrackEvent("CopyToClipboardWithShareTextCommand", new Dictionary<string, string>
                 {
@@ -154,6 +163,7 @@ namespace Hohoema.Presentation.Services
         
         private DelegateCommand<INiconicoContent> _OpenShareUICommand;
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
+        private readonly NotificationService _notificationService;
 
         public DelegateCommand<INiconicoContent> OpenShareUICommand => _OpenShareUICommand
             ?? (_OpenShareUICommand = new DelegateCommand<INiconicoContent>(content => 

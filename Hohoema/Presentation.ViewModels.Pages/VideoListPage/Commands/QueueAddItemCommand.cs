@@ -39,11 +39,8 @@ namespace Hohoema.Presentation.ViewModels.NicoVideos.Commands
             {
                 _hohoemaPlaylist.AddQueuePlaylist(content);
             }
-            _notificationService.ShowInAppNotification(
-                InAppNotificationPayload.CreateReadOnlyNotification(
-                    "InAppNotification_MylistAddedItems_Success".Translate("HohoemaPageType.VideoQueue".Translate(), items.Count())
-                    )
-                );
+
+            _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistAddedItems_Success".Translate("HohoemaPageType.VideoQueue".Translate(), items.Count()));
         }
     }
 }
