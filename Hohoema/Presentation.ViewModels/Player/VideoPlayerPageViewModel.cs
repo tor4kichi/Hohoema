@@ -347,18 +347,27 @@ namespace Hohoema.Presentation.ViewModels.Player
            
             // 削除状態をチェック（再生準備より先に行う）
             VideoInfo = _nicoVideoRepository.Get(VideoId);
-            await CheckDeleted(VideoInfo);
+            CheckDeleted(VideoInfo);
 
             MediaPlayer.AutoPlay = true;
 
             var result = await _videoStreamingOriginOrchestrator.CreatePlayingOrchestrateResultAsync(VideoId);
-
             if (!result.IsSuccess)
             {
-                // TODO: 再生できない理由を表示したい
+                Title = VideoInfo.Title;
+                IsNotSupportVideoType = true;
+                CannotPlayReason = result.Exception?.Message ?? result.PlayingOrchestrateFailedReason.Translate();
+
+                VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(VideoId)
+                    ?? _nicoVideoRepository.Get(VideoId);
+
+                // 改めて削除状態をチェック（動画リスト経由してない場合の削除チェック）
+                CheckDeleted(VideoInfo);
+
                 return;
             }
 
+            
             VideoDetails = result.VideoDetails;
 
             SoundVolumeManager.LoudnessCorrectionValue = VideoDetails.LoudnessCorrectionValue;
@@ -371,45 +380,29 @@ namespace Hohoema.Presentation.ViewModels.Player
             VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(VideoId)
                 ?? _nicoVideoRepository.Get(VideoId);
 
-            // 改めて削除状態をチェック（動画リスト経由してない場合の削除チェック）
+            
+            // デフォルト指定した画質で再生開始
+            await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition);
 
-            if (VideoInfo.IsDeleted)
-            {
-                _ = CheckDeleted(VideoInfo);
+            // コメントを更新
+            await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);
 
-                IsNotSupportVideoType = true;
-                CannotPlayReason = "CanNotPlayNotice_WithPrivateReason".Translate(VideoInfo.PrivateReasonType);
-            }
-            else if (VideoInfo.MovieType == MovieType.Swf)
-            {
-                IsNotSupportVideoType = true;
-                CannotPlayReason = "CanNotPlayNotice_NotSupportSWF".Translate();
-            }
-            else
-            {
-                // デフォルト指定した画質で再生開始
-                await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition );
+            VideoContent = VideoInfo;
+            RaisePropertyChanged(nameof(VideoContent));
 
-                // コメントを更新
-                await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);
+            var smtc = SystemMediaTransportControls.GetForCurrentView();
+            //            smtc.AutoRepeatModeChangeRequested += Smtc_AutoRepeatModeChangeRequested;
+            MediaPlayer.CommandManager.NextReceived += CommandManager_NextReceived;
+            MediaPlayer.CommandManager.PreviousReceived += CommandManager_PreviousReceived;
 
-                VideoContent = VideoInfo;
-                RaisePropertyChanged(nameof(VideoContent));
-
-                var smtc = SystemMediaTransportControls.GetForCurrentView();
-                //            smtc.AutoRepeatModeChangeRequested += Smtc_AutoRepeatModeChangeRequested;
-                MediaPlayer.CommandManager.NextReceived += CommandManager_NextReceived;
-                MediaPlayer.CommandManager.PreviousReceived += CommandManager_PreviousReceived;
-                
-                smtc.DisplayUpdater.ClearAll();
-                smtc.IsEnabled = true;
-                smtc.IsPlayEnabled = true;
-                smtc.IsPauseEnabled = true;
-                smtc.DisplayUpdater.Type = MediaPlaybackType.Video;
-                smtc.DisplayUpdater.VideoProperties.Title = VideoInfo.Title;
-                smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(VideoInfo.ThumbnailUrl));
-                smtc.DisplayUpdater.Update();
-            }
+            smtc.DisplayUpdater.ClearAll();
+            smtc.IsEnabled = true;
+            smtc.IsPlayEnabled = true;
+            smtc.IsPauseEnabled = true;
+            smtc.DisplayUpdater.Type = MediaPlaybackType.Video;
+            smtc.DisplayUpdater.VideoProperties.Title = VideoInfo.Title;
+            smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(VideoInfo.ThumbnailUrl));
+            smtc.DisplayUpdater.Update();
 
             // 実行順依存：VideoPlayerで再生開始後に次シリーズ動画を設定する
             VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails.Series);
@@ -487,7 +480,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             }
         }
 
-        private async Task CheckDeleted(NicoVideo videoInfo)
+        private void CheckDeleted(NicoVideo videoInfo)
         {
             try
             {

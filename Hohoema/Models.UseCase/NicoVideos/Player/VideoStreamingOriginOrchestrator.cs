@@ -20,14 +20,31 @@ using Windows.Media.Playback;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
-    
+
+    public enum PlayingOrchestrateFailedReason
+    {
+        Unknown,
+        Deleted,
+        VideoFormatNotSupported,
+        NotPlayPermit_RequirePay,
+        NotPlayPermit_RequireChannelMember,
+        NotPlayPermit_RequirePremiumMember,
+    }
+
     public sealed class VideoStreamingOriginOrchestrator : BindableBase
     {
         public class PlayingOrchestrateResult
         {
-            internal PlayingOrchestrateResult()
+            internal PlayingOrchestrateResult(PlayingOrchestrateFailedReason playingOrchestrateFailedReason)
             {
                 IsSuccess = false;
+                PlayingOrchestrateFailedReason = playingOrchestrateFailedReason;
+            }
+
+            internal PlayingOrchestrateResult(Exception exception)
+            {
+                IsSuccess = false;
+                Exception = exception;
             }
 
             internal PlayingOrchestrateResult(INiconicoVideoSessionProvider vss, INiconicoCommentSessionProvider cs, INicoVideoDetails videoDetails)
@@ -40,10 +57,15 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
             public bool IsSuccess { get; }
 
+            
+
             public INiconicoVideoSessionProvider VideoSessionProvider { get; }
             public INiconicoCommentSessionProvider CommentSessionProvider { get; }
 
             public INicoVideoDetails VideoDetails { get; }
+
+            public Exception Exception { get; }
+            public PlayingOrchestrateFailedReason PlayingOrchestrateFailedReason { get; }
         }
 
 
@@ -152,30 +174,42 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 */
 
                 var preparePlayVideo = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoId);
-
-                if (!preparePlayVideo.IsSuccess)
+                if (preparePlayVideo.IsSuccess)
                 {
-                    var progress = await _videoCacheManager.GetDownloadProgressVideosAsync();
-                    if (!_niconicoSession.IsPremiumAccount && progress.Any())
+                    return new PlayingOrchestrateResult(
+                        preparePlayVideo,
+                        preparePlayVideo,
+                        preparePlayVideo.GetVideoDetails()
+                        );
+                }
+
+                // キャッシュDLはプレミアム会員限定になる
+                //var progress = await _videoCacheManager.GetDownloadProgressVideosAsync();
+                //if (!_niconicoSession.IsPremiumAccount && progress.Any())
+                //{
+                //    var result = await ShowSuspendCacheDownloadingDialog();
+                //    if (result)
+                //    {
+                //        preparePlayVideo = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoId);
+                //    }
+                //}
+
+                if (preparePlayVideo.Exception is not null and var ex)
+                {
+                    return new PlayingOrchestrateResult(ex);
+                }
+                else 
+                {
+                    return new PlayingOrchestrateResult(preparePlayVideo.FailedReason switch
                     {
-                        var result = await ShowSuspendCacheDownloadingDialog();
-                        if (result)
-                        {
-                            preparePlayVideo = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoId);
-                        }
-                    }
+                        PreparePlayVideoFailedReason.Deleted => PlayingOrchestrateFailedReason.Deleted,
+                        PreparePlayVideoFailedReason.VideoFormatNotSupported => PlayingOrchestrateFailedReason.VideoFormatNotSupported,
+                        PreparePlayVideoFailedReason.NotPlayPermit_RequirePay => PlayingOrchestrateFailedReason.NotPlayPermit_RequirePay,
+                        PreparePlayVideoFailedReason.NotPlayPermit_RequireChannelMember => PlayingOrchestrateFailedReason.NotPlayPermit_RequireChannelMember,
+                        PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember => PlayingOrchestrateFailedReason.NotPlayPermit_RequirePremiumMember,
+                        _ => throw new NotSupportedException("不明な理由で再生不可"),
+                    }); ;
                 }
-
-                if (preparePlayVideo == null || !preparePlayVideo.IsSuccess)
-                {
-                    throw new NotSupportedException("不明なエラーにより再生できません");
-                }
-
-                return new PlayingOrchestrateResult(
-                    preparePlayVideo,
-                    preparePlayVideo,
-                    preparePlayVideo.GetVideoDetails()
-                    );
             }
         }
 

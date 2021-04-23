@@ -700,17 +700,24 @@
               </Border>
             </Grid>
             <Grid>
-              <!-- サポートされていないプロトコル・動画形式 -->
+              <!-- 有料動画・サポートされていないプロトコル・動画形式・チャンネル会員限定動画・プレミアム会員限定動画 -->
               <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="32 64" Visibility="{Binding IsNotSupportVideoType, Converter={StaticResource BooleanToVisibility}}" Background="{StaticResource AppBarItemPointerOverBackgroundThemeBrush}" Padding="16">
-                <StackPanel Orientation="Horizontal">
-                  <iconPack:PackIconMaterial Kind="Exclamation" Margin="8 8 16 8" Width="32" Height="32" />
-                  <StackPanel>
-                    <TextBlock Text="{i18nExt:Localize Key=CanNotPlay}" VerticalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 0 0 8" />
-                    <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Width="300">
-                                            <Run Text="{Binding CannotPlayReason}" /></TextBlock>
-                    <HyperlinkButton Content="{i18nExt:Localize Key=OpenWithBrowser}" Command="{Binding ExternalAccessService.OpenLinkCommand}" CommandParameter="{Binding VideoInfo}"></HyperlinkButton>
+                <Grid MinWidth="300">
+                  <iconPack:PackIconMaterial Kind="VideoOff" Margin="16 8 32 8" Width="32" Height="32" toolkit:DockPanel.Dock="Left" VerticalAlignment="Center" />
+                  <StackPanel Spacing="16" HorizontalAlignment="Right">
+                    <TextBlock Text="{i18nExt:Localize Key=CanNotPlay}" VerticalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 0 0 0" />
+                    <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" HorizontalAlignment="Right" >
+                        <Run Text="{Binding CannotPlayReason}" />
+                    </TextBlock>
+                    <Button Content="{i18nExt:Localize Key=OpenWithBrowser}"
+                            Command="{Binding ExternalAccessService.OpenLinkCommand}" 
+                            CommandParameter="{Binding VideoInfo}"
+                            Style="{ThemeResource AccentButtonStyle}" 
+                            Height="48"
+                            HorizontalAlignment="Right"
+                            />
                   </StackPanel>
-                </StackPanel>
+                </Grid>
               </Border>
             </Grid>
           </Grid>

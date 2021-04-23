@@ -368,8 +368,12 @@ SubmitComment = 发布
 
 RecommendedNextVideo = 下一个视频
 CanNotPlay = 该视频无法播放
-CanNotPlayWithPrivateReason = 该视频为{0}，因此无法播放
-CanNotPlayNotice_NotSupportSWF = 不支持SWF格式的视频，无法观看
+PlayingOrchestrateFailedReason.Deleted = 影片已删除
+PlayingOrchestrateFailedReason.VideoFormatNotSupported = 不支援的影片格式
+PlayingOrchestrateFailedReason.NotPlayPermit_RequirePay = 需要购买观看权
+PlayingOrchestrateFailedReason.NotPlayPermit_RequireChannelMember = 您需要加入频道会员
+PlayingOrchestrateFailedReason.NotPlayPermit_RequirePremiumMember = 成为高级会员所需的会员资格
+PlayingOrchestrateFailedReason.Unknown = 原因不明
 
 DeletedVideoNoticeWithTitle = {0}是已删除的视频
 DeletedVideoNotice = 删除的视频
