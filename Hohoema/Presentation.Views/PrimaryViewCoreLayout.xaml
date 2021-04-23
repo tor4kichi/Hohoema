@@ -700,15 +700,15 @@
       <muxc:TeachingTip x:Name="AppErrorTeachingTip"
                         Title="アプリにエラーが発生しました【デバッグモード】"
                         ActionButtonContent="エラー報告"
-                        CloseButtonContent="アプリを再起動"
-                        CloseButtonCommand="{Binding RequestApplicationRestartCommand}"
-                        IsLightDismissEnabled="True"
+                        CloseButtonContent="{i18nExt:Localize Key=Cancel}"
+                        IsLightDismissEnabled="False"
                         Closed="AppErrorTeachingTip_Closed"
+                        PreferredPlacement="Top"
                         >
         <muxc:TeachingTip.Content>
           <StackPanel Spacing="4">
-            <winui:TextBlock Text="アプリは継続して利用できますが、もし異常動作に困ったらアプリを再起動してください。" TextWrapping="Wrap" />
-            <winui:TextBlock Text="「エラー報告」を選択しなかった場合でも簡易なクラッシュレポートが送信されます。"  TextWrapping="Wrap" />
+            <winui:TextBlock Text="アプリは継続して利用できますが、異常があればアプリを再起動してください。" TextWrapping="Wrap" />
+            <winui:TextBlock Text="キャンセルを選んでも簡易クラッシュレポートは送信されます。"  TextWrapping="Wrap" />
           </StackPanel>
         </muxc:TeachingTip.Content>
 

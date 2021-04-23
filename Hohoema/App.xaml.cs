@@ -1133,7 +1133,7 @@ namespace Hohoema
                             var errorTrankingManager = Container.Resolve<ErrorTrackingManager>();
                             var dialogService = Container.Resolve<DialogService>();
                             var rtb = await GetApplicationContentImage();
-                            var result = await Presentation.Views.Dialogs.HohoemaErrorReportDialog.ShowAsync(e.Exception, sendScreenshot: true, rtb);
+                            var result = await Presentation.Views.Dialogs.HohoemaErrorReportDialog.ShowAsync(e.Exception, sendScreenshot: false, rtb);
 
                             if (result.IsSendRequested is false) { return; }
 
