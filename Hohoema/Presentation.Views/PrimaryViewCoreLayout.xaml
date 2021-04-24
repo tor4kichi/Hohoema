@@ -1,32 +1,37 @@
-﻿<UserControl x:Class="Hohoema.Presentation.Views.PrimaryWindowCoreLayout"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="using:Hohoema.Presentation.Views"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:i="using:Microsoft.Xaml.Interactivity"
-             xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-             xmlns:windowsTriggers="using:WindowsStateTriggers"
-             xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
-             xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-             xmlns:uwpToolkitControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-             xmlns:iconPack="using:MahApps.Metro.IconPacks"
-             xmlns:myextensions="using:Hohoema.Presentation.Views.Extensions"
-             xmlns:listItemControls="using:Hohoema.Presentation.Views.Controls"
-             xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
-             xmlns:mytrigger="using:Hohoema.Presentation.Views.StateTrigger"
-             xmlns:servicesPlayer="using:Hohoema.Presentation.Services.Player" 
-             xmlns:winui="using:Windows.UI.Xaml.Controls" 
-             xmlns:models="using:Hohoema.Models.Domain.Application"  
-             xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
-             xmlns:viewModels="using:Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout" 
-             xmlns:pageNavigation="using:Hohoema.Models.Domain.PageNavigation"
-             xmlns:converter="using:Hohoema.Presentation.Views.Converters"
-             xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:liteInAppNotification="using:Hohoema.Presentation.Views.Controls.LiteInAppNotification" xmlns:service1="using:Hohoema.Presentation.Services.LiteNotification"
-             x:Name="UserControlRoot"
-             mc:Ignorable="d"
-             d:DesignHeight="300"
-             d:DesignWidth="400"
+﻿<UserControl 
+  x:Class="Hohoema.Presentation.Views.PrimaryWindowCoreLayout"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Hohoema.Presentation.Views"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:windowsTriggers="using:WindowsStateTriggers"
+  xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
+  xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
+  xmlns:uwpToolkitControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:uwpUi="using:Microsoft.Toolkit.Uwp.UI"
+  xmlns:iconPack="using:MahApps.Metro.IconPacks"
+  xmlns:myextensions="using:Hohoema.Presentation.Views.Extensions"
+  xmlns:listItemControls="using:Hohoema.Presentation.Views.Controls"
+  xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
+  xmlns:mytrigger="using:Hohoema.Presentation.Views.StateTrigger"
+  xmlns:servicesPlayer="using:Hohoema.Presentation.Services.Player" 
+  xmlns:winui="using:Windows.UI.Xaml.Controls" 
+  xmlns:models="using:Hohoema.Models.Domain.Application"  
+  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+  xmlns:viewModels="using:Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout" 
+  xmlns:pageNavigation="using:Hohoema.Models.Domain.PageNavigation"
+  xmlns:converter="using:Hohoema.Presentation.Views.Converters"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:liteInAppNotification="using:Hohoema.Presentation.Views.Controls.LiteInAppNotification" 
+  xmlns:service1="using:Hohoema.Presentation.Services.LiteNotification" 
+  xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
+  x:Name="UserControlRoot"
+  mc:Ignorable="d"
+  d:DesignHeight="300"
+  d:DesignWidth="400"
             
              >
   <UserControl.Resources>
@@ -603,11 +608,13 @@
                        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                        >
             <Frame.ContentTransitions>
-              <NavigationThemeTransition>
-                <NavigationThemeTransition.DefaultNavigationTransitionInfo>
-                  <SlideNavigationTransitionInfo Effect="FromRight" />
-                </NavigationThemeTransition.DefaultNavigationTransitionInfo>
-              </NavigationThemeTransition>
+              <TransitionCollection>
+                <NavigationThemeTransition>
+                  <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                    <SlideNavigationTransitionInfo Effect="FromRight" />
+                  </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                </NavigationThemeTransition>
+              </TransitionCollection>
             </Frame.ContentTransitions>
             
             <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
@@ -629,53 +636,31 @@
       </muxc:NavigationView>
     </uwpToolkitControls:DockPanel>
     <Grid x:Name="PlayerLayout"
-          Visibility="Collapsed">
+          Visibility="Collapsed"
+          uwpUi:VisualExtensions.NormalizedCenterPoint="0.5"
+          >
+
+      <animations:Implicit.ShowAnimations>
+        <animations:ScaleAnimation To="1.0" Duration="0:0:0.15"  />
+        <animations:OpacityAnimation To="1.0" Duration="0:0:0.15" />
+      </animations:Implicit.ShowAnimations>
+
+      <animations:Implicit.HideAnimations>
+        <animations:ScaleAnimation To="0.9" Duration="0:0:0.15" />
+        <animations:OpacityAnimation To="0.0" Duration="0:0:0.15" />
+      </animations:Implicit.HideAnimations>
+
       <Frame x:Name="PlayerFrame"
              DataContext="{x:Null}"
              CacheSize="1"
              HorizontalContentAlignment="Stretch"
              VerticalContentAlignment="Stretch"
              XYFocusKeyboardNavigation="Disabled"
+             Transitions="{StaticResource SuppressNavigationTransitionCollection}"
+             ContentTransitions="{StaticResource SuppressNavigationTransitionCollection}"
              >
-        <Frame.ContentTransitions>
-          <TransitionCollection>
-            <NavigationThemeTransition>
-              <NavigationThemeTransition.DefaultNavigationTransitionInfo>
-                <DrillInNavigationTransitionInfo />
-              </NavigationThemeTransition.DefaultNavigationTransitionInfo>
-            </NavigationThemeTransition>
-          </TransitionCollection>
-        </Frame.ContentTransitions>
       </Frame>
-      <Grid x:Name="FillPlayerLayout"
-            Visibility="Collapsed"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"></Grid>
-      <Grid x:Name="FloatPlayerLayout"
-            Visibility="Collapsed">
-        <!--
-        <Button Background="Transparent"
-                HorizontalAlignment="Stretch"
-                VerticalAlignment="Stretch"
-                HorizontalContentAlignment="Stretch"
-                VerticalContentAlignment="Stretch">
-          
-          <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Click">
-              <core:CallMethodAction TargetObject="{Binding PrimaryViewPlayerManager}"
-                                     MethodName="ShowWithFill" />
-            </core:EventTriggerBehavior>
-          </i:Interaction.Behaviors>
-          <Button.ContextFlyout>
-            <MenuFlyout>
-              <MenuFlyoutItem Text="閉じる"
-                              Command="{Binding PrimaryViewPlayerManager.CloseCommand}" />
-            </MenuFlyout>
-          </Button.ContextFlyout>
-          <Border />
-        </Button>
-        -->
-      </Grid>
+     
     </Grid>
     <Grid Height="32" VerticalAlignment="Top">
       <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent">
@@ -858,7 +843,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
             <Setter Target="PlayerLayout.Width" Value="426" />
             <Setter Target="PlayerLayout.Height" Value="240" />
             <Setter Target="PlayerLayout.Margin" Value="0 0 8 0" />
@@ -877,7 +861,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
             <Setter Target="PlayerLayout.Width" Value="426" />
             <Setter Target="PlayerLayout.Height" Value="240" />
             <Setter Target="PlayerLayout.Margin" Value="0 0 8 0" />
@@ -897,7 +880,6 @@
             <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
             <Setter Target="PlayerLayout.Height" Value="280" />
-            <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
             <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
             <Setter Target="MobilePlayerTopMargin.Height" Value="280" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
@@ -915,7 +897,6 @@
             <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
             <Setter Target="PlayerLayout.Height" Value="180" />
-            <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
             <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
             <Setter Target="MobilePlayerTopMargin.Height" Value="180" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
