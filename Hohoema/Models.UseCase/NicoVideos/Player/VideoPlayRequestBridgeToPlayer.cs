@@ -1,16 +1,12 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
-using Hohoema.Presentation.Services;
+﻿using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Player;
-using Prism.Events;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Microsoft.Toolkit.Uwp.Helpers;
 using Prism.Navigation;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Windows.UI.Core;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
@@ -20,64 +16,31 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         SecondaryView,
     }
 
-    public sealed class VideoPlayRequestBridgeToPlayer : IDisposable
+    public sealed class VideoPlayRequestBridgeToPlayer 
+        : IDisposable,
+        IRecipient<PlayerPlayVideoRequestMessage>,
+        IRecipient<PlayerPlayLiveRequestMessage>,
+        IRecipient<ChangePlayerDisplayViewRequestMessage>
     {
         private readonly ScondaryViewPlayerManager _secondaryPlayerManager;
         private readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
-        private readonly IEventAggregator _eventAggregator;
-        private readonly IScheduler _scheduler;
-
+        
 
         Models.Domain.Helpers.AsyncLock _asyncLock = new Models.Domain.Helpers.AsyncLock();
 
         public VideoPlayRequestBridgeToPlayer(
             ScondaryViewPlayerManager playerViewManager,
-            PrimaryViewPlayerManager primaryViewPlayerManager,
-            IEventAggregator eventAggregator,
-            IScheduler scheduler
+            PrimaryViewPlayerManager primaryViewPlayerManager
             )
         {
             _secondaryPlayerManager = playerViewManager;
             _primaryViewPlayerManager = primaryViewPlayerManager;
-            _eventAggregator = eventAggregator;
-            _scheduler = scheduler;
 
             DisplayMode = ReadDisplayMode();
 
-            _eventAggregator.GetEvent<PlayerPlayVideoRequest>()
-                .Subscribe(async e => 
-                {
-                    var pageName = nameof(Presentation.Views.Player.VideoPlayerPage);
-                    var parameters = new NavigationParameters($"id={e.VideoId}&position={(int)e.Position.TotalSeconds}");
-                    
-                    await PlayWithCurrentView(DisplayMode, pageName, parameters);
-                });
-
-            _eventAggregator.GetEvent<PlayerPlayLiveRequest>()
-                .Subscribe(async e =>
-                {
-                    var pageName = nameof(Presentation.Views.Player.LivePlayerPage);
-                    var parameters = new NavigationParameters("id=" + e.LiveId);
-                    
-                    await PlayWithCurrentView(DisplayMode, pageName, parameters);
-                });
-
-
-            _eventAggregator.GetEvent<ChangePlayerDisplayViewRequestEvent>()
-                .Subscribe(async () =>
-                {                     
-                    var mode = DisplayMode == PlayerDisplayView.PrimaryView ? PlayerDisplayView.SecondaryView : PlayerDisplayView.PrimaryView;
-                    if (_lastNavigatedPageName != null && _lastNavigatedParameters != null)
-                    {
-                        await PlayWithCurrentView(mode, _lastNavigatedPageName, _lastNavigatedParameters);
-                    }
-
-                    DisplayMode = mode;
-                    SaveDisplayMode();
-                }
-                , ThreadOption.UIThread, true);
-
-            _dispatcher = Windows.UI.Core.CoreWindow.GetForCurrentThread().Dispatcher;
+            StrongReferenceMessenger.Default.Register<PlayerPlayVideoRequestMessage>(this);
+            StrongReferenceMessenger.Default.Register<PlayerPlayLiveRequestMessage>(this);
+            StrongReferenceMessenger.Default.Register<ChangePlayerDisplayViewRequestMessage>(this);
         }
 
 
@@ -132,7 +95,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         public PlayerDisplayView DisplayMode { get; private set; }
         string _lastNavigatedPageName;
         INavigationParameters _lastNavigatedParameters;
-        private CoreDispatcher _dispatcher;
 
         public void Dispose()
         {
@@ -149,6 +111,34 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         public static PlayerDisplayView ReadDisplayMode()
         {
             return _localObjectStorage.Read<PlayerDisplayView>(nameof(PlayerDisplayView));
+        }
+
+        public async void Receive(PlayerPlayVideoRequestMessage message)
+        {
+            var pageName = nameof(Presentation.Views.Player.VideoPlayerPage);
+            var parameters = new NavigationParameters($"id={message.Value.VideoId}&position={(int)message.Value.Position.TotalSeconds}");
+
+            await PlayWithCurrentView(DisplayMode, pageName, parameters);
+        }
+
+        public async void Receive(PlayerPlayLiveRequestMessage message)
+        {
+            var pageName = nameof(Presentation.Views.Player.LivePlayerPage);
+            var parameters = new NavigationParameters("id=" + message.Value.LiveId);
+
+            await PlayWithCurrentView(DisplayMode, pageName, parameters);
+        }
+
+        public async void Receive(ChangePlayerDisplayViewRequestMessage message)
+        {
+            var mode = DisplayMode == PlayerDisplayView.PrimaryView ? PlayerDisplayView.SecondaryView : PlayerDisplayView.PrimaryView;
+            if (_lastNavigatedPageName != null && _lastNavigatedParameters != null)
+            {
+                await PlayWithCurrentView(mode, _lastNavigatedPageName, _lastNavigatedParameters);
+            }
+
+            DisplayMode = mode;
+            SaveDisplayMode();
         }
     }
 }

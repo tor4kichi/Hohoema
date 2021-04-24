@@ -1,4 +1,4 @@
-﻿using Prism.Events;
+﻿using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +14,11 @@ namespace Hohoema.Presentation.Services.Player
         public TimeSpan Position { get; set; }
     }
 
-    public class PlayerPlayVideoRequest : PubSubEvent<PlayerPlayVideoRequestEventArgs>
+    public class PlayerPlayVideoRequestMessage : ValueChangedMessage<PlayerPlayVideoRequestEventArgs>
     {
-        
+        public PlayerPlayVideoRequestMessage(PlayerPlayVideoRequestEventArgs value) : base(value)
+        {
+        }
     }
 
     public struct PlayerPlayLiveRequestEventArgs
@@ -25,9 +27,11 @@ namespace Hohoema.Presentation.Services.Player
     }
 
 
-    public class PlayerPlayLiveRequest: PubSubEvent<PlayerPlayLiveRequestEventArgs>
+    public class PlayerPlayLiveRequestMessage : ValueChangedMessage<PlayerPlayLiveRequestEventArgs>
     {
-        
+        public PlayerPlayLiveRequestMessage(PlayerPlayLiveRequestEventArgs value) : base(value)
+        {
+        }
     }
 
 

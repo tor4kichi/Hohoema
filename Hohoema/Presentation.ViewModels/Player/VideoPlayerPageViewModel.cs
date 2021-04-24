@@ -18,7 +18,6 @@ using Hohoema.Presentation.ViewModels.Player.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using I18NPortable;
 using Prism.Commands;
-using Prism.Events;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
 using System;
@@ -45,7 +44,6 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         public VideoPlayerPageViewModel(
             IScheduler scheduler,
-            IEventAggregator eventAggregator,
             NiconicoSession niconicoSession,
             SubscriptionManager subscriptionManager,
             NicoVideoProvider nicoVideoProvider,

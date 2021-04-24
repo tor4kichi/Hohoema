@@ -1,49 +1,38 @@
-﻿using I18NPortable;
-using Hohoema.Models.Domain;
+﻿using Hohoema.Models.Domain;
+using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.UseCase;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.NicoVideos.Player;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.Services.Player;
-using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Presentation.ViewModels.LivePages.Commands;
+using Hohoema.Presentation.ViewModels.Navigation.Commands;
+using Hohoema.Presentation.ViewModels.Pages.UserFeaturePages;
 using Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout;
+using I18NPortable;
+using NiconicoLiveToolkit.Live;
+using NiconicoLiveToolkit.Live.Notify;
 using Prism.Commands;
-using Prism.Events;
 using Prism.Mvvm;
-using Reactive.Bindings;
+using Prism.Navigation;
 using Reactive.Bindings.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
-using Hohoema.Presentation.ViewModels.Pages.UserFeaturePages;
-using Hohoema.Models.Domain.Application;
-using System.Diagnostics;
 using System.Reactive.Linq;
-using Uno.Extensions;
-using Hohoema.Presentation.ViewModels.Navigation.Commands;
-using Hohoema.Models.UseCase.NicoVideos.Player;
-using Prism.Navigation;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using System.Threading.Tasks;
 using System.Windows.Input;
-using Hohoema.Models.Domain.Playlist;
-using Windows.UI.Xaml;
-using NiconicoLiveToolkit.Live.Notify;
-using Hohoema.Presentation.ViewModels.LivePages.Commands;
-using NiconicoLiveToolkit.Live;
-using Windows.UI.Popups;
-using Hohoema.Presentation.Views.Dialogs;
-using Windows.UI.Xaml.Media.Imaging;
-using Microsoft.AppCenter.Crashes;
+using Uno.Extensions;
 using Windows.System;
 
 namespace Hohoema.Presentation.ViewModels
-{  
+{
     public sealed class PrimaryWindowCoreLayoutViewModel : BindableBase
     {
-
-        public IEventAggregator EventAggregator { get; }
         public NiconicoSession NiconicoSession { get; }
         public PageManager PageManager { get; }
         public PinSettings PinSettings { get; }
@@ -77,7 +66,6 @@ namespace Hohoema.Presentation.ViewModels
 
         public PrimaryWindowCoreLayoutViewModel(
             ErrorTrackingManager errorTrackingManager,
-            IEventAggregator eventAggregator,
             NiconicoSession niconicoSession,
             PageManager pageManager,
             PinSettings pinSettings,
@@ -99,7 +87,6 @@ namespace Hohoema.Presentation.ViewModels
             )
         {
             _errorTrackingManager = errorTrackingManager;
-            EventAggregator = eventAggregator;
             NiconicoSession = niconicoSession;
             PageManager = pageManager;
             PinSettings = pinSettings;

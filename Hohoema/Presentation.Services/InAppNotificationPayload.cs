@@ -1,5 +1,4 @@
-﻿using Prism.Events;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,15 +7,22 @@ using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
 using Unity;
 using I18NPortable;
+using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 
 namespace Hohoema.Presentation.Services
 {
-    public class InAppNotificationEvent : PubSubEvent<InAppNotificationPayload>
+    public class InAppNotificationEvent : ValueChangedMessage<InAppNotificationPayload>
     {
+        public InAppNotificationEvent(InAppNotificationPayload value) : base(value)
+        {
+        }
     }
 
-    public class InAppNotificationDismissEvent : PubSubEvent<long>
+    public class InAppNotificationDismissEvent : ValueChangedMessage<long>
     {
+        public InAppNotificationDismissEvent() : base(0)
+        {
+        }
     }
 
 

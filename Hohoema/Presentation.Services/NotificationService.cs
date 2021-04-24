@@ -11,7 +11,6 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services.Helpers;
 using Prism.Commands;
-using Prism.Events;
 using Prism.Navigation;
 using System;
 using System.Collections.Generic;
@@ -23,13 +22,13 @@ using Windows.UI.Notifications;
 using Windows.UI.Xaml.Controls;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Models.Domain.PageNavigation;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.Services
 {
     public sealed class HohoemaNotificationService
     {
         private static readonly TimeSpan DefaultNotificationShowDuration = TimeSpan.FromSeconds(20);
-        private readonly IEventAggregator _eventAggregator;
 
         public PageManager PageManager { get; }
         public HohoemaPlaylist Playlist { get; }
@@ -40,8 +39,9 @@ namespace Hohoema.Presentation.Services
         public CommunityProvider CommunityProvider { get; }
         public UserProvider UserProvider { get; }
 
+        private readonly IMessenger _messenger;
+
         public HohoemaNotificationService(
-            IEventAggregator eventAggregator,
             PageManager pageManager,
             HohoemaPlaylist playlist,
             NotificationService notificationService,
@@ -52,7 +52,6 @@ namespace Hohoema.Presentation.Services
             UserProvider userProvider
             )
         {
-            _eventAggregator = eventAggregator;
             PageManager = pageManager;
             Playlist = playlist;
             NotificationService = notificationService;
@@ -61,6 +60,8 @@ namespace Hohoema.Presentation.Services
             NicoLiveProvider = nicoLiveProvider;
             CommunityProvider = communityProvider;
             UserProvider = userProvider;
+
+            _messenger = StrongReferenceMessenger.Default;
         }
 
 
@@ -165,8 +166,7 @@ namespace Hohoema.Presentation.Services
                             Label = "WatchLiveStreaming".Translate(),
                             Command = new DelegateCommand(() =>
                             {
-                                _eventAggregator.GetEvent<Services.Player.PlayerPlayLiveRequest>()
-                                    .Publish(new Services.Player.PlayerPlayLiveRequestEventArgs() { LiveId = liveId });
+                                _messenger.Send(new Player.PlayerPlayLiveRequestMessage(new() { LiveId = liveId }));
 
                                 NotificationService.DismissInAppNotification();
                             })
@@ -306,17 +306,13 @@ namespace Hohoema.Presentation.Services
 
     public sealed class NotificationService
 	{
-        public IEventAggregator EventAggregator { get; }
-
         private readonly ToastNotifier _notifier;
-
         private ToastNotification _prevToastNotification;
+        private readonly IMessenger _messenger;
 
-        public NotificationService(
-            IEventAggregator ea
-            )
+        public NotificationService()
 		{
-            EventAggregator = ea;
+            _messenger = StrongReferenceMessenger.Default;
             _notifier = ToastNotificationManager.CreateToastNotifier();
             ToastNotificationManager.History.Clear();
         }
@@ -416,16 +412,14 @@ namespace Hohoema.Presentation.Services
 
         public void ShowInAppNotification(InAppNotificationPayload payload)
         {
-            var notificationEvent = EventAggregator.GetEvent<InAppNotificationEvent>();
-            notificationEvent.Publish(payload);
+            _messenger.Send(new InAppNotificationEvent(payload));
         }
 
         
 
         public void DismissInAppNotification()
         {
-            var notificationDismissEvent = EventAggregator.GetEvent<InAppNotificationDismissEvent>();
-            notificationDismissEvent.Publish(0);
+            _messenger.Send(new InAppNotificationDismissEvent());
         }
 
         public void HideToast()
@@ -457,26 +451,24 @@ namespace Hohoema.Presentation.Services
 
         public void ShowLiteInAppNotification(string content, LiteNotification.DisplayDuration? displayDuration = null, Symbol? symbol = null)
         {
-            var notificationEvent = EventAggregator.GetEvent<LiteNotification.LiteNotificationEvent>();
-            notificationEvent.Publish(new LiteNotification.LiteNotificationPayload() 
+            _messenger.Send(new LiteNotification.LiteNotificationMessage(new ()
             {
                 Content = content,
                 Symbol = symbol ?? default,
                 IsDisplaySymbol = symbol is not null,
                 DisplayDuration = displayDuration
-            });
+            }));
         }
 
         public void ShowLiteInAppNotification(string content, TimeSpan duration, Symbol? symbol = null)
         {
-            var notificationEvent = EventAggregator.GetEvent<LiteNotification.LiteNotificationEvent>();
-            notificationEvent.Publish(new LiteNotification.LiteNotificationPayload() 
+            _messenger.Send(new LiteNotification.LiteNotificationMessage(new()
             {
                 Content = content,
                 Symbol = symbol ?? default,
                 IsDisplaySymbol = symbol is not null,
                 Duration = duration
-            });
+            }));
         }
 
     }

@@ -6,7 +6,6 @@ using Mntone.Nico2.Videos.WatchAPI;
 using Hohoema.Database;
 using Hohoema.Models.Domain.Helpers;
 using Hohoema.Models.Infrastructure;
-using Prism.Events;
 using System;
 using System.Linq;
 using System.Text;
@@ -15,11 +14,17 @@ using Hohoema.Models.Domain.Application;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {
-    public class VideoDeletedEvent : PubSubEvent<NicoVideo>
-    { }
+    public class VideoDeletedEvent : ValueChangedMessage<NicoVideo>
+    {
+        public VideoDeletedEvent(NicoVideo value) : base(value)
+        {
+        }
+    }
 
 
 
@@ -27,14 +32,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
     {
         
         public NicoVideoProvider(
-            IEventAggregator eventAggregator,
             NiconicoSession niconicoSession,
             NicoVideoCacheRepository nicoVideoRepository,
             NicoVideoOwnerCacheRepository nicoVideoOwnerRepository
             )
             : base(niconicoSession)
         {
-            EventAggregator = eventAggregator;
             _nicoVideoRepository = nicoVideoRepository;
             _nicoVideoOwnerRepository = nicoVideoOwnerRepository;
         }
@@ -44,8 +47,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
 
         static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(5);
-        private IEventAggregator EventAggregator { get;  }
-
+        
         AsyncLock _ThumbnailAccessLock = new AsyncLock();
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
@@ -54,7 +56,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         {
             if (deletedVideo.IsDeleted)
             {
-                EventAggregator.GetEvent<VideoDeletedEvent>().Publish(deletedVideo);
+                StrongReferenceMessenger.Default.Send(new VideoDeletedEvent(deletedVideo));
             }
         }
 

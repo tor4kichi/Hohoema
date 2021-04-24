@@ -330,7 +330,7 @@
     <Compile Include="Models.UseCase\Migration\SettingsMigration_V_0_23_0.cs" />
     <Compile Include="Models.UseCase\Migration\VideoCacheDatabaseMigration_V_0_29_0.cs" />
     <Compile Include="Models.UseCase\NicoVideos\CloseToastNotificationWhenPlayStarted.cs" />
-    <Compile Include="Models.UseCase\NicoVideos\Events\VideoPlayedEvent.cs" />
+    <Compile Include="Models.UseCase\NicoVideos\Events\VideoPlayedMessage.cs" />
     <Compile Include="Models.UseCase\NicoVideos\HohoemaPlaylist.cs" />
     <Compile Include="Models.UseCase\NicoVideos\LocalMylistManager.cs" />
     <Compile Include="Models.UseCase\NicoVideos\MylistRepository.cs" />
@@ -367,7 +367,7 @@
     <Compile Include="Presentation.Services\Helpers\ShareHelper.cs" />
     <Compile Include="Presentation.Services\Helpers\SortMethodHelper.cs" />
     <Compile Include="Presentation.Services\InAppNotificationPayload.cs" />
-    <Compile Include="Presentation.Services\LiteNotification\LiteNotificationEvent.cs" />
+    <Compile Include="Presentation.Services\LiteNotification\LiteNotificationMessage.cs" />
     <Compile Include="Presentation.Services\NiconicoFollowToggleButtonService.cs" />
     <Compile Include="Presentation.Services\NiconicoLoginService.cs" />
     <Compile Include="Presentation.Services\NoProcessUIScreenContext.cs" />
@@ -394,7 +394,7 @@
     <Compile Include="Presentation.Services\Page\PagePayload\Search\VideoSearchOption.cs" />
     <Compile Include="Presentation.Services\Page\PagePayload\SecondaryViewNavigatePayload.cs" />
     <Compile Include="Presentation.Services\Page\PagePayload\VideoPlayPayload.cs" />
-    <Compile Include="Presentation.Services\Player\ChangePlayerDisplayViewRequestEvent.cs" />
+    <Compile Include="Presentation.Services\Player\ChangePlayerDisplayViewRequestMessage.cs" />
     <Compile Include="Presentation.Services\Player\PlayerEvents.cs" />
     <Compile Include="Presentation.Services\Player\PrimaryViewPlayerManager.cs" />
     <Compile Include="Presentation.Services\Player\ScondaryViewPlayerManager.cs" />
@@ -992,6 +992,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Services.Store.Engagement">
       <Version>10.1901.28001</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Mvvm">
+      <Version>7.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">
       <Version>7.0.1</Version>

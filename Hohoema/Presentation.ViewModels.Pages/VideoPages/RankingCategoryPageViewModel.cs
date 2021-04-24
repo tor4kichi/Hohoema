@@ -1,37 +1,28 @@
-﻿using Mntone.Nico2.Videos.Ranking;
+﻿using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.UseCase;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Presentation.Services;
+using Hohoema.Presentation.Services.Page;
+using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
+using Hohoema.Presentation.ViewModels.VideoListPage;
+using I18NPortable;
+using Mntone.Nico2.Videos.Ranking;
+using Prism.Navigation;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Hohoema.Models.Domain;
-using System.Reactive.Linq;
-using Hohoema.Models.Domain.Helpers;
-using System.Text.RegularExpressions;
-using Prism.Mvvm;
-using Hohoema.Presentation.Services;
-using Reactive.Bindings.Extensions;
-
-using Unity;
-using Prism.Navigation;
-using Hohoema.Presentation.Services.Page;
-using Hohoema.Presentation.Services.Helpers;
-using Prism.Commands;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Concurrency;
-using Prism.Events;
-using Hohoema.Models.UseCase.NicoVideos;
-
-using I18NPortable;
-using Hohoema.Models.UseCase;
+using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Presentation.ViewModels.VideoListPage;
-using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
-using Hohoema.Models.Domain.Application;
+using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
 {

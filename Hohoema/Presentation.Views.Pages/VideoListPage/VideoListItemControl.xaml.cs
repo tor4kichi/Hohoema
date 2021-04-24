@@ -1,28 +1,6 @@
 ﻿using I18NPortable;
-using Hohoema.Models.UseCase.NicoVideos;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using Prism.Ioc;
-using Prism.Events;
-using System.Reactive.Disposables;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Player.Video.Cache;
-using Windows.UI.Core;
-using System.Threading.Tasks;
-using Hohoema.Models.Domain.Helpers;
-using Reactive.Bindings.Extensions;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
