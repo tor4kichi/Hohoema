@@ -39,6 +39,15 @@
               IsItemClickEnabled="True"
               Padding="{x:Bind ItemsPanelPadding, Mode=OneWay}"
               >
+        <ListView.Transitions>
+          <TransitionCollection>
+            <NavigationThemeTransition>
+              <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                <SuppressNavigationTransitionInfo />
+              </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+            </NavigationThemeTransition>
+          </TransitionCollection>
+        </ListView.Transitions>
         <ListView.Header>
           <Grid Background="{StaticResource MenuBackgroundBrush}">
             <ContentControl Content="{x:Bind Header}" x:Name="HeaderContent" HorizontalContentAlignment="Stretch" IsTabStop="False" />

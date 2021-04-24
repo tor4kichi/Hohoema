@@ -68,7 +68,23 @@
       <Thickness x:Key="ContentListViewHeaderMargin_Mobile">16 0 16 0</Thickness>
       <Thickness x:Key="ContentListViewBodyMargin_Mobile">16 0 16 0</Thickness>
       <Thickness x:Key="ContentPageMargin_Mobile">16 0 16 0</Thickness>
-      
+
+
+      <NavigationThemeTransition x:Key="SuppressNavigationTransition">
+        <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+          <SuppressNavigationTransitionInfo />
+        </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+      </NavigationThemeTransition>
+
+      <TransitionCollection x:Key="SuppressNavigationTransitionCollection">
+        <NavigationThemeTransition>
+          <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+            <SuppressNavigationTransitionInfo />
+          </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+        </NavigationThemeTransition>
+      </TransitionCollection>
+
+
       <uwpconv:BoolNegationConverter x:Key="BoolNegation" />
       <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
       <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted" IsInversed="True" />

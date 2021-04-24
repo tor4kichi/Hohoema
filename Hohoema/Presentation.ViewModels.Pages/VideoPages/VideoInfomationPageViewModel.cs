@@ -414,16 +414,29 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
             set { SetProperty(ref _VideoDetails, value); }
         }
 
+        public override void OnNavigatedTo(INavigationParameters parameters)
+        {
+            base.OnNavigatedTo(parameters);
+
+            if (parameters.TryGetValue("id", out string videoId))
+            {
+                VideoInfo = _nicoVideoRepository.Get(videoId);
+                RaisePropertyChanged(nameof(VideoInfo));
+            }
+        }
+
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             NowLoading.Value = true;
             IsLoadFailed.Value = false;
 
+            NowLikeProcessing = true;
+            IsLikedVideo = false;
+
             try
             {
                 if (parameters.TryGetValue("id", out string videoId))
-                {
-                    
+                {                    
                     if (videoId == null)
                     {
                         IsLoadFailed.Value = true;
@@ -441,7 +454,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
                     OpenOwnerUserVideoPageCommand.RaiseCanExecuteChanged();
 
                     // 好きの切り替え
-                    this.ObserveProperty(x => x.IsLikedVideo)
+                    this.ObserveProperty(x => x.IsLikedVideo, isPushCurrentValueAtFirst: false)
                         .Where(x => !NowLikeProcessing)
                         .Subscribe(async like =>
                         {
@@ -457,6 +470,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoPages
             finally
             {
                 NowLoading.Value = false;
+                NowLikeProcessing = false;
             }
 
         }

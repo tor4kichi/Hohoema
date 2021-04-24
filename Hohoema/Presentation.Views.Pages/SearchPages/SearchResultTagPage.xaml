@@ -15,14 +15,8 @@
   mc:Ignorable="d"
   d:DesignHeight="300"
   d:DesignWidth="400"
+  Transitions="{StaticResource SuppressNavigationTransitionCollection}"
   >
-  <Page.Transitions>
-    <TransitionCollection>
-      <NavigationThemeTransition>
-        <SuppressNavigationTransitionInfo />
-      </NavigationThemeTransition>
-    </TransitionCollection>
-  </Page.Transitions>
   <Grid>
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}" x:Name="VideoItemsListView">
       <videolistPage:VideoItemsListView.Header>

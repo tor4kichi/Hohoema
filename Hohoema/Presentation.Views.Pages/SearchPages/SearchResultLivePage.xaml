@@ -19,14 +19,8 @@
   mc:Ignorable="d"
   d:DesignHeight="300"
   d:DesignWidth="400"
+  Transitions="{StaticResource SuppressNavigationTransitionCollection}"
   >
-  <Page.Transitions>
-    <TransitionCollection>
-      <NavigationThemeTransition>
-        <SuppressNavigationTransitionInfo />
-      </NavigationThemeTransition>
-    </TransitionCollection>
-  </Page.Transitions>
   <Grid>
 
     <ListView x:Name="ItemsList"

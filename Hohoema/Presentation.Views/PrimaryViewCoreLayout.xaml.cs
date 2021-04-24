@@ -259,6 +259,8 @@ namespace Hohoema.Presentation.Views
 
         AsyncLock _navigationLock = new AsyncLock();
 
+        NavigationTransitionInfo _contentFrameDefaultTransitionInfo = new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight };
+        NavigationTransitionInfo _contentFrameTransitionInfo = new DrillInNavigationTransitionInfo() {};
         async Task ContentFrameNavigation(PageNavigationEventArgs args)
         {
             var pageType = args.PageName;
@@ -278,7 +280,11 @@ namespace Hohoema.Presentation.Views
                     //}
                     var prefix = behavior == NavigationStackBehavior.Root ? "/" : String.Empty;
                     var pageName = $"{prefix}{pageType}";
-                    var result = await _contentFrameNavigationService.NavigateAsync(pageName, parameter);
+
+                    var result = behavior is NavigationStackBehavior.Push 
+                        ? await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameDefaultTransitionInfo) 
+                        : await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameTransitionInfo)
+                        ;
                     if (result.Success)
                     {
                         if (behavior == NavigationStackBehavior.NotRemember /*|| IsIgnoreRecordPageType(oldPageType)*/)
