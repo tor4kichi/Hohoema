@@ -171,6 +171,7 @@
     <Compile Include="System.Text.Json.Serialization\VideoPositionToTimeSpanConverter.cs" />
     <Compile Include="User\UserClient.cs" />
     <Compile Include="Video\VideoClient.cs" />
+    <Compile Include="Video\VideoPermission.cs" />
     <EmbeddedResource Include="Properties\NiconicoLiveToolkit.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>

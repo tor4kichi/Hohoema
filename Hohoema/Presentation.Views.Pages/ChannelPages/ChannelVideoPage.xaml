@@ -92,15 +92,6 @@
       <videolistPage:VideoItemsListView.ItemTemplate>
         <DataTemplate>
           <Grid>
-
-            <iconPack:PackIconMaterial Kind="Shopping"
-                                      VerticalAlignment="Top"
-                                      HorizontalAlignment="Right"
-                                      Visibility="{Binding IsRequirePayment, Converter={StaticResource BooleanToVisibility}}"
-                                      Opacity="0.7"
-                                      Margin="8"
-                                      />
-
             <videolistPage:VideoListItemControl />
           </Grid>
         </DataTemplate>

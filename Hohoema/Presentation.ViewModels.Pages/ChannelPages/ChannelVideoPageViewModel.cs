@@ -184,8 +184,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.ChannelPages
 
     public sealed class ChannelVideoListItemViewModel : VideoInfoControlViewModel
     {
-        public bool IsRequirePayment { get; internal set; }
-
         public ChannelVideoListItemViewModel(
             string rawVideoId
             )
@@ -256,7 +254,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.ChannelPages
                     // var videoId = video.PurchasePreviewUrl.Split('/').Last();
 
                     var channelVideo = new ChannelVideoListItemViewModel(video.ItemId);
-                    channelVideo.IsRequirePayment = video.IsRequirePayment;
+                    if (video.IsRequirePayment)
+                    {
+                        channelVideo.Permission = NiconicoLiveToolkit.Video.VideoPermission.RequirePay;
+                    }
+                    else if (video.IsFreeForMember)
+                    {
+                        channelVideo.Permission = NiconicoLiveToolkit.Video.VideoPermission.FreeForChannelMember;
+                    }
+                    else if (video.IsMemberUnlimitedAccess)
+                    {
+                        channelVideo.Permission = NiconicoLiveToolkit.Video.VideoPermission.MemberUnlimitedAccess;
+                    }
                     channelVideo.SetTitle(video.Title);
                     channelVideo.SetThumbnailImage(video.ThumbnailUrl);
                     channelVideo.SetVideoDuration(video.Length);

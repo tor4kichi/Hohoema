@@ -420,10 +420,10 @@ SoundVolumeChangeValueWithMouseScroll = 鼠标滚动音量更改
 NicoLike = ❤喜欢
 LikeThanksMessageDescWithVideoOwnerName = 从{0}到“喜欢”的感谢消息
 
-
-
-
-
+Video_RequirePay = 有薪酬的
+Video_RequirePremiumMember = P
+Video_FreeForChannelMember = 会员免费
+Video_ChannelMemberUnlimitedAccess = 每月无限制观看
 
 #### Live ####
 LivePlayingQuality = 直播影像质量

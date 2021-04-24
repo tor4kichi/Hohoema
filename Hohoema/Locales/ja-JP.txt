@@ -420,10 +420,10 @@ SoundVolumeChangeValueWithMouseScroll = マウススクロール音量変化量
 NicoLike = ❤ いいね
 LikeThanksMessageDescWithVideoOwnerName = {0} さんから、「いいね」へのお礼のメッセージ
 
-
-
-
-
+Video_RequirePay = 有料
+Video_RequirePremiumMember = P
+Video_FreeForChannelMember = 会員無料
+Video_ChannelMemberUnlimitedAccess = 月額見放題
 
 #### Live ####
 LivePlayingQuality = 生放送画質

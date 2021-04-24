@@ -182,7 +182,8 @@
       <myconv:TimeSpanToSecondsConverter x:Key="TimeSpanToDoubleConverter" />
       <myconv:ItemClickEventArgsConverter x:Key="ItemClickEventArgsConverter" />
       <templateSelector:StringToTypeConverter x:Key="StringToType" />
-      
+
+      <myconv:EnumToNumberConverter x:Key="EnumToNumber" />
       <!-- Logical Modifier-->
       <logicalModifier:AndModifier x:Key="AndModifier" />
       <logicalModifier:OrModifier x:Key="OrModifier" />
