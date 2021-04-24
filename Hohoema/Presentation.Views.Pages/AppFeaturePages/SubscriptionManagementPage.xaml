@@ -67,7 +67,6 @@
           <CommandBar DefaultLabelPosition="Collapsed" Margin="0 0 16 0" 
                       XYFocusDownNavigationStrategy="NavigationDirectionDistance"
                       XYFocusLeftNavigationStrategy="RectilinearDistance"
-                      HorizontalAlignment="Right"
                       >
             <CommandBar.Content>
               <mycontrols:AppTitleBar Title="{Binding Title}" />

@@ -42,7 +42,7 @@
                                       >
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-          <CommandBar x:Name="VideoListCommandBar" HorizontalAlignment="Right">
+          <CommandBar x:Name="VideoListCommandBar">
             <CommandBar.Content>
               <controls:AppTitleBar Title="{Binding Title}" />
             </CommandBar.Content>
