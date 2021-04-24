@@ -36,6 +36,7 @@ using Windows.UI.Popups;
 using Hohoema.Presentation.Views.Dialogs;
 using Windows.UI.Xaml.Media.Imaging;
 using Microsoft.AppCenter.Crashes;
+using Windows.System;
 
 namespace Hohoema.Presentation.ViewModels
 {  
@@ -580,7 +581,7 @@ namespace Hohoema.Presentation.ViewModels
     public sealed class LogginUserLiveSummaryItemViewModel : HohoemaListingPageItemBase
     {
         private readonly NiconicoSession _niconicoSession;
-        private readonly DispatcherTimer _timer;
+        private readonly DispatcherQueueTimer _timer;
 
         private long _NotifyCount;
         public long NotifyCount
@@ -606,10 +607,9 @@ namespace Hohoema.Presentation.ViewModels
             OpenLiveContentCommand = openLiveContentCommand;
             Items = new ObservableCollection<LiveContentMenuItemViewModel>();
 
-            _timer = new Windows.UI.Xaml.DispatcherTimer()
-            {
-                Interval = TimeSpan.FromMinutes(1),
-            };
+            _timer = DispatcherQueue.GetForCurrentThread().CreateTimer();
+            _timer.Interval = TimeSpan.FromMinutes(1);
+            _timer.IsRepeating = true;
 
             _timer.Tick += Timer_Tick;
 

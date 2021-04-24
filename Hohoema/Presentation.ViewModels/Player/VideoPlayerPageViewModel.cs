@@ -536,8 +536,8 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             MediaPlayer.Source = null;
 
-            _ = VideoPlayer.ClearCurrentSessionAsync();
             CommentPlayer.ClearCurrentSession();
+            _ = VideoPlayer.ClearCurrentSessionAsync();
 
             MediaPlayer.CommandManager.NextReceived -= CommandManager_NextReceived;
             MediaPlayer.CommandManager.PreviousReceived -= CommandManager_PreviousReceived;

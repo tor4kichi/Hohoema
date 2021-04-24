@@ -27,6 +27,7 @@ using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Player.Video.Comment;
 using Hohoema.Models.Domain.Player.Video.Cache;
+using Windows.System;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
@@ -79,7 +80,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             CommentDisplayingRangeExtractor commentDisplayingRangeExtractor,
             CommentFilteringFacade commentFiltering,
             PlayerSettings playerSettings
-
             )
         {
             _mediaPlayer = mediaPlayer;
@@ -149,6 +149,12 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             .Merge()
             .Subscribe(_ => RefreshFiltering())
             .AddTo(_disposables);
+
+            var dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            _CommentUpdateTimer = dispatcherQueue.CreateTimer();
+            _CommentUpdateTimer.Tick += _CommentUpdateTimer_Tick;
+            _CommentUpdateTimer.Interval = TimeSpan.FromMilliseconds(50);
+            _CommentUpdateTimer.IsRepeating = true;
         }
 
         void RefreshFiltering()
@@ -178,8 +184,9 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
         public void Dispose()
         {
-            _mediaPlayer.PlaybackSession.SeekCompleted -= PlaybackSession_SeekCompleted;
-            _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+            _CommentUpdateTimer.Stop();
+            _CommentUpdateTimer = null;
+
             ClearCurrentSession();
 
             _disposables.Dispose();
@@ -188,8 +195,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
         public void ClearCurrentSession()
         {
-            _mediaPlayer.PlaybackSession.SeekCompleted -= PlaybackSession_SeekCompleted;
-            _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+            _CommentUpdateTimer.Stop();
 
             _commentSession?.Dispose();
             _commentSession = null;
@@ -228,11 +234,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
                     _commentSession = commentSession;
 
-                    _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
-                    _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
-                    _mediaPlayer.PlaybackSession.SeekCompleted -= PlaybackSession_SeekCompleted;
-                    _mediaPlayer.PlaybackSession.SeekCompleted += PlaybackSession_SeekCompleted;
-
+                    _CommentUpdateTimer.Start();
                 }
                 catch
                 {
@@ -241,16 +243,24 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             }
         }
 
-        private void PlaybackSession_SeekCompleted(MediaPlaybackSession sender, object args)
+        private void _CommentUpdateTimer_Tick(DispatcherQueueTimer sender, object args)
         {
-            CurrentCommentIndex = 0;
-            CurrentComment = null;
+            var session = _mediaPlayer.PlaybackSession;
 
-            TickNextDisplayingComments(sender.Position);
-            UpdateNicoScriptComment(sender.Position);
-            RefreshCurrentPlaybackPositionComment(sender.Position);
+            var currentPosition = session.Position;
+            if (_PrevPlaybackPosition == currentPosition) { return; }
 
-            _PrevPlaybackPosition = sender.Position;
+            if ((currentPosition - _PrevPlaybackPosition).Duration() > TimeSpan.FromSeconds(1))
+            {
+                CurrentCommentIndex = 0;
+                CurrentComment = null;
+            }
+
+            TickNextDisplayingComments(currentPosition);
+            UpdateNicoScriptComment(currentPosition);
+            RefreshCurrentPlaybackPositionComment(currentPosition);
+
+            _PrevPlaybackPosition = currentPosition;
         }
 
         public async Task RefreshComments()
@@ -461,14 +471,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         Dictionary<uint, bool> HiddenCommentIds = new Dictionary<uint, bool>();
 
         TimeSpan _PrevPlaybackPosition;
-        private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
-        {
-            TickNextDisplayingComments(sender.Position);
-            UpdateNicoScriptComment(sender.Position);
-            RefreshCurrentPlaybackPositionComment(sender.Position);
-
-            _PrevPlaybackPosition = sender.Position;
-        }
 
         void UpdateNicoScriptComment(TimeSpan position)
         {
@@ -543,7 +545,8 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         List<NicoScript> _NicoScriptList = new List<NicoScript>();
         List<ReplaceNicoScript> _ReplaceNicoScirptList = new List<ReplaceNicoScript>();
         List<DefaultCommandNicoScript> _DefaultCommandNicoScriptList = new List<DefaultCommandNicoScript>();
-        
+        private DispatcherQueueTimer _CommentUpdateTimer;
+
         private static bool IsNicoScriptComment(string userId, string content)
         {
             if (userId != null) { return false; }

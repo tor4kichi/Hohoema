@@ -24,6 +24,7 @@
       xmlns:iconPack="using:MahApps.Metro.IconPacks"
       xmlns:model="using:Hohoema.Models.Domain"
       xmlns:mvvm="using:Prism.Mvvm"
+      xmlns:winui="using:Microsoft.UI.Xaml.Controls"
       xmlns:controls="using:Hohoema.Presentation.Views.Controls"
       xmlns:system1="using:System"
       xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector"
@@ -332,8 +333,8 @@
                   <!-- 右上 -->
                   <CommandBar x:Name="ActionsCommandBar" toolkit:DockPanel.Dock="Right" 
                               XYFocusLeft="{x:Bind CloseButton}"
-                              
                               >
+
                     <CommandBar.PrimaryCommands>
                       <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{Binding IsLikedVideo, Mode=TwoWay}" IsEnabled="{Binding NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
                       <AppBarButton x:Name="ShowVideoInfoButon" Label="{i18nExt:Localize Key=VideoInfomation}" Command="{Binding OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
@@ -376,6 +377,7 @@
                         </AppBarButton.Flyout>
                       </AppBarButton>
                     </CommandBar.PrimaryCommands>
+                    
                     <CommandBar.SecondaryCommands>
                       <AppBarButton x:Name="FullscreenButton" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></AppBarButton>
                       <AppBarButton x:Name="CompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=CompactOverlay}"></AppBarButton>
