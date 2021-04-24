@@ -1,4 +1,4 @@
-﻿using Prism.Events;
+﻿using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,9 +21,29 @@ namespace Hohoema.Events
     }
 
 
-    public sealed class RankingGenreShowRequestedEvent : PubSubEvent<RankingGenreCustomizeEventArgs> { }
-    public sealed class RankingGenreHiddenRequestedEvent : PubSubEvent<RankingGenreCustomizeEventArgs> { }
+    public sealed class RankingGenreShowRequestedEvent : ValueChangedMessage<RankingGenreCustomizeEventArgs>
+    {
+        public RankingGenreShowRequestedEvent(RankingGenreCustomizeEventArgs value) : base(value)
+        {
+        }
+    }
+    public sealed class RankingGenreHiddenRequestedEvent : ValueChangedMessage<RankingGenreCustomizeEventArgs>
+    {
+        public RankingGenreHiddenRequestedEvent(RankingGenreCustomizeEventArgs value) : base(value)
+        {
+        }
+    }
 
-    public sealed class RankingGenreFavoriteRequestedEvent : PubSubEvent<RankingGenreFavoriteRequestEventArgs> { }
-    public sealed class RankingGenreUnFavoriteRequestedEvent : PubSubEvent<RankingGenreCustomizeEventArgs> { }
+    public sealed class RankingGenreFavoriteRequestedEvent : ValueChangedMessage<RankingGenreFavoriteRequestEventArgs>
+    {
+        public RankingGenreFavoriteRequestedEvent(RankingGenreFavoriteRequestEventArgs value) : base(value)
+        {
+        }
+    }
+    public sealed class RankingGenreUnFavoriteRequestedEvent : ValueChangedMessage<RankingGenreCustomizeEventArgs>
+    {
+        public RankingGenreUnFavoriteRequestedEvent(RankingGenreCustomizeEventArgs value) : base(value)
+        {
+        }
+    }
 }

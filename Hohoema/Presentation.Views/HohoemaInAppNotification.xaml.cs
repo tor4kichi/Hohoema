@@ -1,5 +1,4 @@
-﻿using Prism.Events;
-using System;
+﻿using System;
 using Windows.UI.Xaml.Controls;
 using Unity;
 using System.Collections.Concurrent;
@@ -7,6 +6,8 @@ using Prism.Unity;
 using Windows.UI.Xaml;
 using Windows.UI.ViewManagement;
 using Windows.UI.Core;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Windows.System;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -18,24 +19,31 @@ namespace Hohoema.Presentation.Views
         {
             this.InitializeComponent();
 
-            var ea = App.Current.Container.Resolve<IEventAggregator>();
-            var notificationEvent = ea.GetEvent<Services.InAppNotificationEvent>();
-            notificationEvent.Subscribe(PushNextNotication, ThreadOption.UIThread);
-
-            var notificationDismissEvent = ea.GetEvent<Services.InAppNotificationDismissEvent>();
-            notificationDismissEvent.Subscribe((_) =>
-            {
-                LiteNotification.Dismiss();
-            }, ThreadOption.UIThread);
-
-
+            Loaded += HohoemaInAppNotification_Loaded;
+            Unloaded += HohoemaInAppNotification_Unloaded;
             LiteNotification.Closed += LiteNotification_Dismissed;
 
             Window.Current.CoreWindow.Activated += CoreWindow_Activated;
-            _uiDispatcher = Dispatcher;
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
         }
 
-        CoreDispatcher _uiDispatcher;
+        private void HohoemaInAppNotification_Loaded(object sender, RoutedEventArgs e)
+        {
+            StrongReferenceMessenger.Default.Register<Services.InAppNotificationEvent>(this, (r, m) => PushNextNotication(m.Value));
+            StrongReferenceMessenger.Default.Register<Services.InAppNotificationDismissEvent>(this, (r, m) =>
+            {
+                LiteNotification.Dismiss();
+            });
+        }
+
+        private void HohoemaInAppNotification_Unloaded(object sender, RoutedEventArgs e)
+        {
+            StrongReferenceMessenger.Default.Unregister<Services.InAppNotificationEvent>(this);
+            StrongReferenceMessenger.Default.Unregister<Services.InAppNotificationDismissEvent>(this);
+        }
+
+
+        private readonly DispatcherQueue _dispatcherQueue;
 
         static readonly TimeSpan DefaultShowDuration = TimeSpan.FromSeconds(7);
 
@@ -47,7 +55,7 @@ namespace Hohoema.Presentation.Views
         {
             NoticationRequestQueue.Enqueue(payload);
 
-            _ = _uiDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+            _dispatcherQueue.TryEnqueue(() => 
             {
                 // 前に表示した通知が時間設定されていない場合には強制非表示
                 if (_CurrentNotication != null && _CurrentNotication.ShowDuration == null)

@@ -1,18 +1,13 @@
 ﻿using I18NPortable;
 using Mntone.Nico2;
-using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Helpers;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.UserFeature;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
-
 using Hohoema.Models.Domain.PageNavigation;
 using Prism.Commands;
-using Prism.Events;
-using Prism.Mvvm;
-using Prism.Unity;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -27,15 +22,11 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Unity;
-using Uno;
-using Windows.Media;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Data;
 using AsyncLock = Hohoema.Models.Domain.Helpers.AsyncLock;
 using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
 using Hohoema.Presentation.Services.Player;
 using Hohoema.Models.Domain.Player;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {
@@ -151,7 +142,6 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         public HohoemaPlaylist(
             IScheduler scheduler,
-            IEventAggregator eventAggregator,
             PlaylistRepository playlistRepository,
             NicoVideoProvider nicoVideoProvider,
             MylistRepository mylistRepository,
@@ -161,7 +151,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             )
         {
             _scheduler = scheduler;
-            _eventAggregator = eventAggregator;
+            
             _player = new PlaylistPlayer(this, playerSettings);
             _player.PlayRequested += OnPlayRequested;
 
@@ -267,7 +257,6 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
 
         private readonly IScheduler _scheduler;
-        private readonly IEventAggregator _eventAggregator;
         private readonly PlaylistPlayer _player;
         private readonly PlaylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
@@ -337,8 +326,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         void OnPlayRequested(object sender, PlaylistPlayerPlayRequestEventArgs args)
         {
-            _eventAggregator.GetEvent<PlayerPlayVideoRequest>()
-                .Publish(new PlayerPlayVideoRequestEventArgs() { VideoId = args.Content.Id, Position = args.Position });
+            StrongReferenceMessenger.Default.Send(new PlayerPlayVideoRequestMessage(new() { VideoId = args.Content.Id, Position = args.Position }));
 
             RaisePropertyChanged(nameof(CurrentItem));
         } 
@@ -564,7 +552,6 @@ namespace Hohoema.Models.UseCase.NicoVideos
             return await _nicoVideoProvider.GetNicoVideoInfo(videoId);
         }
 
-        Events.VideoPlayedEvent _videoPlayedEvent;
         public void PlayDone(IVideoContent playedItem, TimeSpan playedPosition)
         {
             // キュープレイリストから視聴済みを削除
@@ -581,12 +568,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             // 視聴完了のイベントをトリガー
             VideoPlayed?.Invoke(this, new VideoPlayedEventArgs(playedItem.Id, (int)history.PlayCount));
 
-            if (_videoPlayedEvent == null)
-            {
-                _videoPlayedEvent = _eventAggregator.GetEvent<Events.VideoPlayedEvent>();
-            }
-
-            _videoPlayedEvent.Publish(new Events.VideoPlayedEvent.VideoPlayedEventArgs() { ContentId = playedItem.Id, PlayedPosition = playedPosition });
+            StrongReferenceMessenger.Default.Send(new Events.VideoPlayedMessage(new () { ContentId = playedItem.Id, PlayedPosition = playedPosition }), playedItem.Id);
         }
 
 

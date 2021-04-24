@@ -34,7 +34,6 @@ using Prism.Navigation;
 using Prism.Services;
 using Windows.Media.Playback;
 using Windows.UI.Xaml.Data;
-using Prism.Events;
 using Hohoema.Models.UseCase;
 using I18NPortable;
 using Newtonsoft.Json;
@@ -72,6 +71,7 @@ using System.Text.RegularExpressions;
 using Hohoema.Models.UseCase.VideoCache;
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.Toolkit.Uwp.Helpers;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema
 {
@@ -875,11 +875,6 @@ namespace Hohoema
         {
             var hohoemaPlaylist = Container.Resolve<HohoemaPlaylist>();
 
-            // TODO: ログインが必要な動画かをチェックしてログインダイアログを出す
-
-            // EventAggregator経由で動画IDの再生リクエストを送って
-            // アプリケーションユースケースで動画情報を解決して再生開始するほうが良さそう
-
             var nicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
             var videoInfo = await nicoVideoProvider.GetNicoVideoInfo(videoId);
             
@@ -901,11 +896,7 @@ namespace Hohoema
         }
         private void PlayLiveVideoFromExternal(string videoId)
         {
-            // TODO: ログインが必要な生放送かをチェックしてログインダイアログを出す
-            
-            var ea = Container.Resolve<IEventAggregator>();
-            ea.GetEvent<PlayerPlayLiveRequest>()
-                .Publish(new PlayerPlayLiveRequestEventArgs() { LiveId = videoId });
+            StrongReferenceMessenger.Default.Send(new PlayerPlayLiveRequestMessage(new() { LiveId = videoId }));
         }
 
 

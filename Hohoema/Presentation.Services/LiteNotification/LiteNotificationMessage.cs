@@ -1,4 +1,4 @@
-﻿using Prism.Events;
+﻿using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,8 +33,10 @@ namespace Hohoema.Presentation.Services.LiteNotification
         public TimeSpan? Duration { get; set; }
     }
 
-    public sealed class LiteNotificationEvent : PubSubEvent<LiteNotificationPayload>
+    public sealed class LiteNotificationMessage : ValueChangedMessage<LiteNotificationPayload>
     {
-        
+        public LiteNotificationMessage(LiteNotificationPayload value) : base(value)
+        {
+        }
     }
 }

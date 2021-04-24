@@ -1,4 +1,4 @@
-﻿using Prism.Events;
+﻿using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +7,12 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Events
 {
-    public sealed class VideoPlayedEvent : PubSubEvent<Events.VideoPlayedEvent.VideoPlayedEventArgs>
+    public sealed class VideoPlayedMessage : ValueChangedMessage<Events.VideoPlayedMessage.VideoPlayedEventArgs>
     {
+        public VideoPlayedMessage(VideoPlayedEventArgs value) : base(value)
+        {
+        }
+
         public sealed class VideoPlayedEventArgs
         {
             public string ContentId { get; set; }

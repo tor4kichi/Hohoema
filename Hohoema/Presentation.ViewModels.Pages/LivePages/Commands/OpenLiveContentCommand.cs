@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Presentation.Services.Player;
+using Microsoft.Toolkit.Mvvm.Messaging;
 using Prism.Commands;
-using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +12,8 @@ namespace Hohoema.Presentation.ViewModels.LivePages.Commands
 {
     public sealed class OpenLiveContentCommand : DelegateCommandBase
     {
-        private readonly IEventAggregator _eventAggregator;
-
-        public OpenLiveContentCommand(IEventAggregator eventAggregator)
+        public OpenLiveContentCommand()
         {
-            _eventAggregator = eventAggregator;
         }
 
         protected override bool CanExecute(object parameter)
@@ -28,8 +25,7 @@ namespace Hohoema.Presentation.ViewModels.LivePages.Commands
         {
             if (parameter is ILiveContent liveContent)
             {
-                _eventAggregator.GetEvent<PlayerPlayLiveRequest>()
-                    .Publish(new PlayerPlayLiveRequestEventArgs() { LiveId = liveContent.Id });
+                StrongReferenceMessenger.Default.Send(new PlayerPlayLiveRequestMessage(new () { LiveId = liveContent.Id }));
             }
         }
     }

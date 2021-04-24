@@ -2,7 +2,6 @@
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
-using Prism.Events;
 using Prism.Navigation;
 using Prism.Unity;
 using System;
@@ -22,6 +21,8 @@ using Microsoft.AppCenter.Analytics;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using Windows.System;
+using Microsoft.Toolkit.Uwp;
 
 namespace Hohoema.Presentation.Services
 {
@@ -45,14 +46,12 @@ namespace Hohoema.Presentation.Services
 
         public ScondaryViewPlayerManager(
             IScheduler scheduler,
-            IEventAggregator eventAggregator,
             RestoreNavigationManager restoreNavigationManager,
             NicoVideoCacheRepository nicoVideoRepository,
             NicoLiveCacheRepository nicoLiveCacheRepository
             )
         {
             _scheduler = scheduler;
-            EventAggregator = eventAggregator;
             _restoreNavigationManager = restoreNavigationManager;
             _nicoVideoRepository = nicoVideoRepository;
             _nicoLiveCacheRepository = nicoLiveCacheRepository;
@@ -67,67 +66,6 @@ namespace Hohoema.Presentation.Services
         public ApplicationView SecondaryAppView { get; private set; }
         public INavigationService SecondaryViewPlayerNavigationService { get; private set; }
 
-        public IEventAggregator EventAggregator { get; }
-
-        //private PlayerViewMode? _PlayerViewMode;
-        //public PlayerViewMode PlayerViewMode
-        //{
-        //    get
-        //    {
-        //        if (_PlayerViewMode != null) { return _PlayerViewMode.Value; }
-
-        //        var localObjectStorageHelper = new LocalObjectStorageHelper();
-        //        _PlayerViewMode = localObjectStorageHelper.Read(nameof(PlayerViewMode), PlayerViewMode.PrimaryView);
-
-        //        return _PlayerViewMode.Value;
-        //    }
-        //    private set
-        //    {
-        //        CurrentViewScheduler.Schedule(() =>
-        //        {
-        //            if (SetProperty(ref _PlayerViewMode, value))
-        //            {
-        //                var localObjectStorageHelper = new LocalObjectStorageHelper();
-        //                localObjectStorageHelper.Save(nameof(PlayerViewMode), _PlayerViewMode.Value);
-
-        //                RaisePropertyChanged(nameof(IsPlayerShowWithPrimaryView));
-        //                RaisePropertyChanged(nameof(IsPlayerShowWithSecondaryView));
-        //                RaisePropertyChanged(nameof(IsPlayingWithPrimaryView));
-        //                RaisePropertyChanged(nameof(IsPlayingWithSecondaryView));
-
-        //                // PlayerViewMode変更後の動画再生を再開
-        //                EventAggregator.GetEvent<PlayerViewModeChangeEvent>()
-        //                    .Publish(new PlayerViewModeChangeEventArgs()
-        //                    {
-        //                        ViewMode = _PlayerViewMode.Value
-        //                    });
-        //            }
-        //        });
-        //    }
-        //}
-
-        //public bool IsPlayerShowWithPrimaryView => PlayerViewMode == PlayerViewMode.PrimaryView;
-        //public bool IsPlayerShowWithSecondaryView => PlayerViewMode == PlayerViewMode.SecondaryView;
-
-        //public bool IsPlayingWithPrimaryView => NowPlaying && PlayerViewMode == PlayerViewMode.PrimaryView;
-        //public bool IsPlayingWithSecondaryView => NowPlaying && PlayerViewMode == PlayerViewMode.SecondaryView;
-
-        //private bool _IsPlayerSmallWindowModeEnabled;
-        //public bool IsPlayerSmallWindowModeEnabled
-        //{
-        //    get { return _IsPlayerSmallWindowModeEnabled; }
-        //    set
-        //    {
-        //        CurrentViewScheduler.Schedule(() => 
-        //        {
-        //            if (SetProperty(ref _IsPlayerSmallWindowModeEnabled, value))
-        //            {
-        //                ToggleFullScreenWhenApplicationViewShowWithStandalone();
-        //            }
-        //        });
-        //    }
-        //}
-
         bool isMainViewClosed;
         // メインビューを閉じたらプレイヤービューも閉じる
         private async void MainView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
@@ -137,7 +75,7 @@ namespace Hohoema.Presentation.Services
                 isMainViewClosed = true;
                 if (SecondaryCoreAppView != null)
                 {
-                    await SecondaryCoreAppView.ExecuteOnUIThreadAsync(async () =>
+                    await SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(async () =>
                     {
                         if (SecondaryAppView != null)
                         {
@@ -167,8 +105,8 @@ namespace Hohoema.Presentation.Services
         private async Task CreateSecondaryView()
         {
             var secondaryView = CoreApplication.CreateNewView();
-                            
-            var result = await secondaryView.ExecuteOnUIThreadAsync(async () =>
+
+            var result = await secondaryView.DispatcherQueue.EnqueueAsync(async () =>
             {
                 secondaryView.TitleBar.ExtendViewIntoTitleBar = true;
 
@@ -285,7 +223,7 @@ namespace Hohoema.Presentation.Services
                     await CreateSecondaryView();
                 }
 
-                await SecondaryCoreAppView.ExecuteOnUIThreadAsync(async () =>
+                await SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(async () =>
                 {
                     var result = await SecondaryViewPlayerNavigationService.NavigateAsync(pageName, parameters, new DrillInNavigationTransitionInfo());
                     if (result.Success)
@@ -351,7 +289,7 @@ namespace Hohoema.Presentation.Services
         {
             if (!IsShowSecondaryView) { return; }
 
-            await SecondaryCoreAppView.ExecuteOnUIThreadAsync(async () =>
+            await SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(async () =>
             {
                 SecondaryAppView.Title = "Hohoema";
 
@@ -410,7 +348,7 @@ namespace Hohoema.Presentation.Services
 
             if (!SecondaryAppView.IsViewModeSupported(ApplicationViewMode.CompactOverlay)) { return; }
 
-            await SecondaryCoreAppView.ExecuteOnUIThreadAsync(async () =>
+            await SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(async () =>
             {
                 if (SecondaryAppView.ViewMode == ApplicationViewMode.Default)
                 {
@@ -427,7 +365,7 @@ namespace Hohoema.Presentation.Services
         {
             if (!IsShowSecondaryView) { return; }
 
-            await SecondaryCoreAppView.ExecuteOnUIThreadAsync(() =>
+            await SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(() =>
             {
                 if (SecondaryAppView.IsFullScreenMode)
                 {

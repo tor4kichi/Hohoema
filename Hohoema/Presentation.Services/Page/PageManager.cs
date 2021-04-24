@@ -13,7 +13,6 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Commands;
-using Prism.Events;
 using Prism.Mvvm;
 using Prism.Navigation;
 using Prism.Services;
@@ -25,6 +24,8 @@ using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Application;
+using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.Services.Page
 {
@@ -43,21 +44,24 @@ namespace Hohoema.Presentation.Services.Page
         NotRemember,
     }
 
-    public class PageNavigationEvent : PubSubEvent<PageNavigationEventArgs> { }
+    public class PageNavigationEvent : ValueChangedMessage<PageNavigationEventArgs>
+    {
+        public PageNavigationEvent(PageNavigationEventArgs value) : base(value)
+        {
+        }
+    }
 
 
     public class PageManager : BindableBase
     {
         public PageManager(
             IScheduler scheduler,
-            IEventAggregator eventAggregator,
             AppearanceSettings appearanceSettings,
             VideoCacheSettings cacheSettings,
             HohoemaPlaylist playlist
             )
         {
             Scheduler = scheduler;
-            EventAggregator = eventAggregator;
             AppearanceSettings = appearanceSettings;
             CacheSettings = cacheSettings;
             HohoemaPlaylist = playlist;
@@ -68,7 +72,6 @@ namespace Hohoema.Presentation.Services.Page
         public AppearanceSettings AppearanceSettings { get; }
         public VideoCacheSettings CacheSettings { get; }
         public IScheduler Scheduler { get; }
-        public IEventAggregator EventAggregator { get; }
 
         public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>
         {
@@ -346,27 +349,26 @@ namespace Hohoema.Presentation.Services.Page
 
         public void OpenDebugPage()
         {
-            EventAggregator.GetEvent<PageNavigationEvent>()
-                .Publish(new PageNavigationEventArgs()
-                {
-                    PageName = nameof(Views.DebugPage),
-                    IsMainViewTarget = true,
-                    Behavior = NavigationStackBehavior.NotRemember,
-                });
+            StrongReferenceMessenger.Default.Send(new PageNavigationEvent(new ()
+            {
+                PageName = nameof(Views.DebugPage),
+                IsMainViewTarget = true,
+                Behavior = NavigationStackBehavior.NotRemember,
+            }));
         }
 
 		public void OpenPage(HohoemaPageType pageType, INavigationParameters parameter = null, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
 		{
             CurrentPageType = pageType;
             CurrentPageNavigationParameters = parameter;
-            EventAggregator.GetEvent<PageNavigationEvent>()
-                .Publish(new PageNavigationEventArgs()
-                {
-                    PageName = _pageTypeToName[pageType],
-                    Paramter = parameter,
-                    IsMainViewTarget = true,
-                    Behavior = stackBehavior,
-                });
+            
+            StrongReferenceMessenger.Default.Send(new PageNavigationEvent(new()
+            {
+                PageName = _pageTypeToName[pageType],
+                Paramter = parameter,
+                IsMainViewTarget = true,
+                Behavior = stackBehavior,
+            }));
         }
 
         public void OpenPage(HohoemaPageType pageType, string parameterString, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)

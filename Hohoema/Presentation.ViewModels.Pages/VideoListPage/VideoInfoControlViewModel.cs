@@ -19,7 +19,6 @@ using System.Reactive.Concurrency;
 using Prism.Commands;
 using Prism.Unity;
 using I18NPortable;
-using Prism.Events;
 using System.Threading;
 using Uno.Threading;
 using Hohoema.Models.Domain.Niconico.Video;
@@ -32,10 +31,11 @@ using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 using Hohoema.Presentation.ViewModels.Navigation.Commands;
 using Hohoema.Presentation.ViewModels.Pages.VideoListPage.Commands;
 using NiconicoLiveToolkit.Video;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.ViewModels.VideoListPage
 {
-    public class VideoInfoControlViewModel : BindableBase, IVideoContent, IDisposable
+    public class VideoInfoControlViewModel : BindableBase, IVideoContent, IDisposable, IRecipient<VideoPlayedMessage>
     {
         static VideoInfoControlViewModel()
         {
@@ -262,9 +262,6 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             set { SetProperty(ref _isWatched, value); }
         }
 
-
-        SubscriptionToken _watchedDisposable;
-
         private bool _IsInitialized;
         public bool IsInitialized
         {
@@ -446,18 +443,19 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         #endregion
 
+        void IRecipient<VideoPlayedMessage>.Receive(VideoPlayedMessage message)
+        {
+            Watched(message.Value);
+        }
 
-        void Watched(VideoPlayedEvent.VideoPlayedEventArgs args)
+        void Watched(VideoPlayedMessage.VideoPlayedEventArgs args)
         {
             if (Data is IVideoContent video
                 && video.Id == args.ContentId
                 )
             {
                 IsWatched = true;
-                var eventAggregator = App.Current.Container.Resolve<IEventAggregator>();
-                var palyedEvent = eventAggregator.GetEvent<VideoPlayedEvent>();
-                palyedEvent.Unsubscribe(_watchedDisposable);
-                _watchedDisposable = null;
+                UnsubscriptionWatched();
                 LastWatchedPositionInterpolation = Math.Clamp(args.PlayedPosition.TotalSeconds / video.Length.TotalSeconds, 0.0, 1.0);
             }
         }
@@ -472,9 +470,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 IsWatched = watched;
                 if (!watched)
                 {
-                    var eventAggregator = App.Current.Container.Resolve<IEventAggregator>();
-                    var palyedEvent = eventAggregator.GetEvent<VideoPlayedEvent>();
-                    _watchedDisposable = palyedEvent.Subscribe(Watched, ThreadOption.UIThread);
+                    StrongReferenceMessenger.Default.Register(this, video.Id);
                 }
                 else
                 {
@@ -488,7 +484,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         void UnsubscriptionWatched()
         {
-            _watchedDisposable?.Dispose();
+            StrongReferenceMessenger.Default.Unregister<VideoPlayedMessage, string>(this, RawVideoId);
         }
 
 
@@ -660,6 +656,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             IsInitialized = true;
         }
+
+        
     }
 
 

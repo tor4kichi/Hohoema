@@ -31,6 +31,9 @@ using Hohoema.Presentation.Services.LiteNotification;
 using Windows.UI;
 using Windows.UI.Xaml.Media;
 using System.Threading;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Windows.System;
+using Microsoft.Toolkit.Uwp;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -40,13 +43,13 @@ namespace Hohoema.Presentation.Views
     {
         private readonly PrimaryWindowCoreLayoutViewModel _viewModel;
 
-        CoreDispatcher _dispatcher;
+        private readonly DispatcherQueue _dispatcherQueue;
         public PrimaryWindowCoreLayout(PrimaryWindowCoreLayoutViewModel viewModel)
         {
             DataContext = _viewModel = viewModel;
             this.InitializeComponent();
 
-            _dispatcher = Dispatcher;
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
             ContentFrame.NavigationFailed += (_, e) =>
             {
@@ -114,11 +117,10 @@ namespace Hohoema.Presentation.Views
 
             ContentFrame.Navigated += ContentFrame_Navigated;
 
-            _viewModel.EventAggregator.GetEvent<PageNavigationEvent>()
-                .Subscribe(args =>
-                {
-                    _ = ContentFrameNavigation(args);
-                });
+            StrongReferenceMessenger.Default.Register<PageNavigationEvent>(this, (r, m) => 
+            {
+                _ = ContentFrameNavigation(m.Value);
+            });
 
             // Back Navigation Handling            
             SystemNavigationManager.GetForCurrentView().BackRequested += App_BackRequested;
@@ -170,23 +172,23 @@ namespace Hohoema.Presentation.Views
                 });
 
             var currentContext = SynchronizationContext.Current;
-            _viewModel.EventAggregator.GetEvent<LiteNotificationEvent>()
-                .Subscribe(args =>
+            StrongReferenceMessenger.Default.Register<LiteNotificationMessage>(this, (r, m) => 
+            {
+                var payload = m.Value;
+                if (currentContext != SynchronizationContext.Current)
                 {
-                    if (currentContext != SynchronizationContext.Current)
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    TimeSpan duration = args.Duration ?? args.DisplayDuration switch
-                    {
-                        DisplayDuration.Default => TimeSpan.FromSeconds(0.75),
-                        DisplayDuration.MoreAttention => TimeSpan.FromSeconds(3),
-                        _ => TimeSpan.FromSeconds(0.75),
-                    };
+                TimeSpan duration = payload.Duration ?? payload.DisplayDuration switch
+                {
+                    DisplayDuration.Default => TimeSpan.FromSeconds(0.75),
+                    DisplayDuration.MoreAttention => TimeSpan.FromSeconds(3),
+                    _ => TimeSpan.FromSeconds(0.75),
+                };
 
-                    LiteInAppNotification.Show(args, duration);
-                }, keepSubscriberReferenceAlive: true);
+                LiteInAppNotification.Show(payload, duration);
+            });
 
         }
 
@@ -267,7 +269,7 @@ namespace Hohoema.Presentation.Views
             var parameter = args.Paramter;
             var behavior = args.Behavior;
 
-            await _dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            await _dispatcherQueue.EnqueueAsync(async () =>
             {
                 using (var releaser = await _navigationLock.LockAsync())
                 {
@@ -309,9 +311,9 @@ namespace Hohoema.Presentation.Views
                 {
                     _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
                 }
-            });
 
-            CoreNavigationView.IsBackEnabled = _contentFrameNavigationService.CanGoBack();
+                CoreNavigationView.IsBackEnabled = _contentFrameNavigationService.CanGoBack();
+            });
         }
 
         
@@ -931,23 +933,21 @@ namespace Hohoema.Presentation.Views
 
         private void AddShortLiteInAppNotification_Click(object sender, RoutedEventArgs e)
         {
-            _viewModel.EventAggregator.GetEvent<LiteNotificationEvent>()
-                .Publish(new LiteNotificationPayload() 
-                {
-                    Content = "あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
-                    Symbol = Symbol.Accept,
-                    DisplayDuration = DisplayDuration.Default,
-                });
+            StrongReferenceMessenger.Default.Send(new LiteNotificationMessage(new () 
+            {
+                Content = "あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
+                Symbol = Symbol.Accept,
+                DisplayDuration = DisplayDuration.Default,
+            }));
         }
 
         private void AddLongLiteInAppNotification_Click(object sender, RoutedEventArgs e)
         {
-            _viewModel.EventAggregator.GetEvent<LiteNotificationEvent>()
-                .Publish(new LiteNotificationPayload()
-                {
-                    Content = "もっと表示",
-                    DisplayDuration = DisplayDuration.MoreAttention,
-                });
+            StrongReferenceMessenger.Default.Send(new LiteNotificationMessage(new()
+            {
+                Content = "もっと表示",
+                DisplayDuration = DisplayDuration.MoreAttention,
+            }));
         }
     }
 
