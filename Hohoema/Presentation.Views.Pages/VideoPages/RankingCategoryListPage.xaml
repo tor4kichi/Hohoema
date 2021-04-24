@@ -16,14 +16,6 @@
   DataContext="{x:Null}"
   mc:Ignorable="d"
   >
-  <Page.Transitions>
-    <TransitionCollection>
-      <NavigationThemeTransition>
-        <DrillInNavigationTransitionInfo />
-      </NavigationThemeTransition>
-    </TransitionCollection>
-  </Page.Transitions>
-  
   <Page.Resources>
     <flyouts:RankingGenreItemGroupFlyout x:Key="RankingGenreItemGroupFlyout" />
 

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Media.Playback;
+using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -58,12 +59,14 @@ namespace Hohoema.Presentation.Views.Behaviors
 
 
         private bool IsSizeChanged;
-        private DispatcherTimer _Timer = new DispatcherTimer();
+		private readonly DispatcherQueueTimer _Timer;
 
 
         public MediaPlayerElementContentHeightGetter()
         {
-            _Timer.Interval = TimeSpan.FromMilliseconds(100);
+			_Timer = DispatcherQueue.GetForCurrentThread().CreateTimer();
+			_Timer.IsRepeating = true;
+			_Timer.Interval = TimeSpan.FromMilliseconds(100);
             _Timer.Tick += _Timer_Tick;
         }
 

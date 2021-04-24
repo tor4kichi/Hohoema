@@ -14,13 +14,14 @@
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
       xmlns:windowsStateTriggers="using:WindowsStateTriggers"
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+      xmlns:ui="using:Microsoft.Toolkit.Uwp.UI"
       DataContext="{x:Null}"
       NavigationCacheMode="Enabled"
       mc:Ignorable="d">
   <Grid>
     <ScrollViewer>
       <toolkit:DockPanel x:Name="ContentLayout" Margin="0 0 0 0">
-        <Border Height="32" toolkit:DockPanel.Dock="Top" />
+        <Border Height="{Binding ElementName=HeaderLayout, Path=(ui:FrameworkElementExtensions.ActualHeight)}" toolkit:DockPanel.Dock="Top" />
         <!-- NG投稿者指定された動画の情報 -->
         <Border toolkit:DockPanel.Dock="Top" Visibility="{Binding IsSelfZoningContent, Converter={StaticResource BooleanToVisibility}}" Margin="0 16" Padding="16" BorderBrush="DarkRed" BorderThickness="2">
           <toolkit:WrapPanel Orientation="Horizontal">
@@ -277,12 +278,13 @@
         </toolkit:DockPanel>
       </toolkit:DockPanel>
     </ScrollViewer>
-    <StackPanel x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+    <StackPanel x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}" VerticalAlignment="Top" HorizontalAlignment="Stretch" Spacing="8"
+                ui:FrameworkElementExtensions.EnableActualSizeBinding="True"
+                >
+      <controls:AppTitleBar Title="{Binding Title}" Height="32" />
+
       <CommandBar x:Name="HeaderCommandBar">
 
-        <CommandBar.Content>
-          <controls:AppTitleBar Title="{Binding Title}" />
-        </CommandBar.Content>
         <CommandBar.SecondaryCommands>
           <AppBarButton x:Name="AddSubscriptionButton" 
                         Label="{i18nExt:Localize Key=SubscriptionAddUser}" Icon="Add"

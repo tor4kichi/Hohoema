@@ -1,4 +1,5 @@
 ﻿using Hohoema.Presentation.Services;
+using NiconicoLiveToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,8 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         string Description { get; }
         bool IsDeleted { get; }
+
+        VideoPermission Permission { get; }
     }
 
     public interface IVideoContentWritable : IVideoContent
@@ -43,5 +46,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         new string Description { get; set; }
         new bool IsDeleted { get; set; }
+
+        new VideoPermission Permission { get; set; }
     }
 }

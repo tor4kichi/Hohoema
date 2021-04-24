@@ -242,7 +242,18 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                         if (nextVideo != null)
                         {
                             var videoVM = new VideoInfoControlViewModel(nextVideo.ItemId);
-                            videoVM.IsRequirePayment = nextVideo.IsRequirePayment;
+                            if (nextVideo.IsRequirePayment)
+                            {
+                                videoVM.Permission = NiconicoLiveToolkit.Video.VideoPermission.RequirePay;
+                            }
+                            else if (nextVideo.IsFreeForMember)
+                            {
+                                videoVM.Permission = NiconicoLiveToolkit.Video.VideoPermission.FreeForChannelMember;
+                            }
+                            else if (nextVideo.IsMemberUnlimitedAccess)
+                            {
+                                videoVM.Permission = NiconicoLiveToolkit.Video.VideoPermission.MemberUnlimitedAccess;
+                            }
                             videoVM.SetTitle(nextVideo.Title);
                             videoVM.SetSubmitDate(nextVideo.PostedAt);
                             videoVM.SetThumbnailImage(nextVideo.ThumbnailUrl);

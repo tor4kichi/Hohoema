@@ -15,14 +15,6 @@
   mc:Ignorable="d"
   >
 
-  <Page.Transitions>
-    <TransitionCollection>
-      <NavigationThemeTransition>
-        <DrillInNavigationTransitionInfo />
-      </NavigationThemeTransition>
-    </TransitionCollection>
-  </Page.Transitions>
-
   <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                         >
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"

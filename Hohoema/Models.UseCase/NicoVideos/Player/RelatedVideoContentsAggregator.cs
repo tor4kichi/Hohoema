@@ -197,7 +197,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     if (nextVideo != null)
                     {
                         var videoVM = new VideoInfoControlViewModel(nextVideo.ItemId);
-                        videoVM.IsRequirePayment = nextVideo.IsRequirePayment;
+                        videoVM.Permission = nextVideo.IsRequirePayment ? NiconicoLiveToolkit.Video.VideoPermission.RequirePay : NiconicoLiveToolkit.Video.VideoPermission.None;
                         videoVM.SetTitle(nextVideo.Title);
                         videoVM.SetSubmitDate(nextVideo.PostedAt);
                         videoVM.SetThumbnailImage(nextVideo.ThumbnailUrl);

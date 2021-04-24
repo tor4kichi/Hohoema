@@ -38,6 +38,7 @@ using Uno.Threading;
 using Microsoft.Extensions.ObjectPool;
 using System.Reactive;
 using System.Reactive.Concurrency;
+using Windows.System;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -67,6 +68,11 @@ namespace Hohoema.Presentation.Views
             Unloaded += CommentRenderer_Unloaded;
             
             _commentUIObjectPool = new DefaultObjectPool<CommentUI>(new CommentUIObjectPoolPolicy(), 500);
+
+            _windowResizeTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
+            _windowResizeTimer.Interval = TimeSpan.FromSeconds(0.25);
+            _windowResizeTimer.Tick += _windowResizeTimer_Tick;
+            _windowResizeTimer.IsRepeating = false;
         }
 
         CompositeDisposable _disposables;
@@ -489,10 +495,6 @@ namespace Hohoema.Presentation.Views
                 MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
             }
 
-
-            _windowResizeTimer = new DispatcherTimer();
-            _windowResizeTimer.Interval = TimeSpan.FromSeconds(0.25);
-            _windowResizeTimer.Tick += _windowResizeTimer_Tick;
             _prevWindowSize = new Size(Window.Current.Bounds.Width, Window.Current.Bounds.Height);
             Window.Current.SizeChanged += WindowSizeChanged;
 
@@ -520,7 +522,7 @@ namespace Hohoema.Presentation.Views
         }
 
         bool _nowWindowSizeChanging;
-        DispatcherTimer _windowResizeTimer;
+        DispatcherQueueTimer _windowResizeTimer;
         Size _prevWindowSize;
         private void WindowSizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e)
         {
@@ -536,14 +538,12 @@ namespace Hohoema.Presentation.Views
             }
 
             _nowWindowSizeChanging = true;
-            _windowResizeTimer.Stop();
             _windowResizeTimer.Start();
         }
 
         private void _windowResizeTimer_Tick(object sender, object e)
         {
             Debug.WriteLine("_windowResizeTimer_Tick");
-            _windowResizeTimer.Stop();
             _nowWindowSizeChanging = false;
 
             ResetComments();
@@ -569,7 +569,6 @@ namespace Hohoema.Presentation.Views
             this.SizeChanged -= CommentRenderer_SizeChanged;
             
             _windowResizeTimer.Stop();
-            _windowResizeTimer = null;
 
             _unloadedCts.Cancel();
             _unloadedCts.Dispose();

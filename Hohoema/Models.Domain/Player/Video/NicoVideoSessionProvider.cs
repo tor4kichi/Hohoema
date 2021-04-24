@@ -146,6 +146,16 @@ namespace Hohoema.Models.Domain.Player.Video
         public bool IsLikedVideo => false;
     }
 
+
+    public enum PreparePlayVideoFailedReason
+    {
+        Deleted,
+        VideoFormatNotSupported,
+        NotPlayPermit_RequirePay,
+        NotPlayPermit_RequireChannelMember,
+        NotPlayPermit_RequirePremiumMember,
+    }
+
     public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCommentSessionProvider
     {
         public Exception Exception { get; }
@@ -176,6 +186,14 @@ namespace Hohoema.Models.Domain.Player.Video
             Exception = e;
             AvailableQualities = ImmutableArray<NicoVideoQualityEntity>.Empty;
             IsSuccess = false;
+        }
+
+        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, NicoVideoCacheRepository nicoVideoRepository, PreparePlayVideoFailedReason failedReason)
+            : this(contentId, niconicoSession, nicoVideoRepository)
+        {
+            AvailableQualities = ImmutableArray<NicoVideoQualityEntity>.Empty;
+            IsSuccess = false;
+            FailedReason = failedReason;
         }
 
         public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, NicoVideoCacheRepository nicoVideoRepository, WatchApiResponse watchApiResponse)
@@ -238,7 +256,7 @@ namespace Hohoema.Models.Domain.Player.Video
         }
 
         public bool IsForCacheDownload { get; set; }
-
+        public PreparePlayVideoFailedReason? FailedReason { get; }
 
         public async Task<List<NicoVideo>> GetRelatedVideos()
         {
@@ -603,29 +621,51 @@ namespace Hohoema.Models.Domain.Player.Video
         {
             if (!Helpers.InternetConnection.IsInternet()) { return null; }
 
-            var dmcRes = await _nicoVideoProvider.GetDmcWatchResponse(rawVideoId);
-            if (dmcRes?.DmcWatchResponse.Video.IsDeleted ?? false)
+            try
             {
-                throw new NotSupportedException("動画は削除されています");
-            }
-            if (dmcRes?.DmcWatchResponse.Media.Delivery == null)
-            {
-                throw new NotSupportedException("動画の視聴権がありません");
-                /*if (dmcRes.DmcWatchResponse.Media.Delivery.Movie.Session.== null)
+                var dmcRes = await _nicoVideoProvider.GetDmcWatchResponse(rawVideoId);
+                if (dmcRes is null)
                 {
-                    
+                    throw new NotSupportedException("視聴不可：視聴ページの取得または解析に失敗");
                 }
-                */
-            }
-            
-            if (dmcRes != null)
-            {
+                else if (dmcRes.DmcWatchResponse.Video.IsDeleted)
+                {
+                    return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoRepository, PreparePlayVideoFailedReason.Deleted);
+                }
+                else if (dmcRes.DmcWatchResponse.Media.Delivery == null)
+                {
+                    var preview = dmcRes?.DmcWatchResponse.Payment.Preview;
+                    if (preview.Premium.IsEnabled)
+                    {
+                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoRepository, PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember);
+
+                    }
+                    else if (preview.Ppv.IsEnabled)
+                    {
+                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoRepository, PreparePlayVideoFailedReason.NotPlayPermit_RequirePay);
+                    }
+                    else if (preview.Admission.IsEnabled)
+                    {
+                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoRepository, PreparePlayVideoFailedReason.NotPlayPermit_RequireChannelMember);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException("視聴不可：不明な理由で視聴不可");
+                    }
+                }
+
+
                 return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoSessionOwnershipManager, _nicoVideoRepository, dmcRes)
                 {
                     IsForCacheDownload = isForCacheDownload
                 };
             }
+            catch (Exception e)
+            {
+                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoRepository, e);
+            }
 
+            /*
             try
             {
                 var watchApiRes = await _nicoVideoProvider.GetWatchApiResponse(rawVideoId);
@@ -656,6 +696,7 @@ namespace Hohoema.Models.Domain.Player.Video
             {
                 return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoRepository, e);
             }
+            */
         }
 
 

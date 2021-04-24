@@ -6,6 +6,7 @@ using Microsoft.Xaml.Interactivity;
 using Windows.Foundation;
 using Windows.ApplicationModel.Core;
 using System.Diagnostics;
+using Windows.System;
 
 namespace Hohoema.Presentation.Views.Behaviors
 {
@@ -41,7 +42,7 @@ namespace Hohoema.Presentation.Views.Behaviors
 
         // 自動非表示のためのタイマー
         // DispatcherTimerはUIスレッドフレンドリーなタイマー
-        DispatcherTimer _AutoHideTimer = new DispatcherTimer();
+        private readonly DispatcherQueueTimer _AutoHideTimer;
 
 
         // このビヘイビアを保持しているElement内にカーソルがあるかのフラグ
@@ -108,6 +109,13 @@ namespace Hohoema.Presentation.Views.Behaviors
 
 
 
+        public PointerCursolAutoHideBehavior()
+        {
+            _AutoHideTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
+            _AutoHideTimer.Tick += AutoHideTimer_Tick;
+            _AutoHideTimer.IsRepeating = false;
+        }
+
         protected override void OnAttached()
         {
             base.OnAttached();
@@ -126,7 +134,6 @@ namespace Hohoema.Presentation.Views.Behaviors
             AssociatedObject.PointerEntered += AssociatedObject_PointerEntered;
             AssociatedObject.PointerExited += AssociatedObject_PointerExited;
 
-            _AutoHideTimer.Tick += AutoHideTimer_Tick;
             _AutoHideTimer.Interval = AutoHideDelay;
 
             _IsCursorInsideAssociatedObject = IsCursorInWindow();
@@ -184,8 +191,6 @@ namespace Hohoema.Presentation.Views.Behaviors
             {
                 CursorVisibilityChanged(false);
             }
-
-            _AutoHideTimer.Stop();
         }
 
         private void CursorSetter_MouseMoved(MouseDevice sender, MouseEventArgs args)

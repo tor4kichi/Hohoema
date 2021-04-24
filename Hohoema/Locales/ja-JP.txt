@@ -368,8 +368,12 @@ SubmitComment = 投稿
 
 RecommendedNextVideo = 次の動画
 CanNotPlay = この動画は再生できません
-CanNotPlayWithPrivateReason = この動画は {0} のため視聴できません
-CanNotPlayNotice_NotSupportSWF = SWF形式の動画は対応していないため視聴できません
+PlayingOrchestrateFailedReason.Deleted = 動画削除済み
+PlayingOrchestrateFailedReason.VideoFormatNotSupported = サポートしていない動画形式
+PlayingOrchestrateFailedReason.NotPlayPermit_RequirePay = 視聴権の購入が必要
+PlayingOrchestrateFailedReason.NotPlayPermit_RequireChannelMember = チャンネル会員への入会が必要
+PlayingOrchestrateFailedReason.NotPlayPermit_RequirePremiumMember = プレミアム会員への入会が必要
+PlayingOrchestrateFailedReason.Unknown = 原因不明
 
 DeletedVideoNoticeWithTitle = {0} は削除された動画です
 DeletedVideoNotice = 削除された動画です
@@ -416,10 +420,10 @@ SoundVolumeChangeValueWithMouseScroll = マウススクロール音量変化量
 NicoLike = ❤ いいね
 LikeThanksMessageDescWithVideoOwnerName = {0} さんから、「いいね」へのお礼のメッセージ
 
-
-
-
-
+Video_RequirePay = 有料
+Video_RequirePremiumMember = P
+Video_FreeForChannelMember = 会員無料
+Video_ChannelMemberUnlimitedAccess = 月額見放題
 
 #### Live ####
 LivePlayingQuality = 生放送画質

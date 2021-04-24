@@ -116,6 +116,20 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         info.ViewCount = (int)video.ViewCounter;
                         info.MylistCount = (int)video.MylistCounter;
                         info.CommentCount = (int)res.Thread.NumRes;
+                        info.Permission = res.Video.VideoPermission;
+#if DEBUG
+                        if (info.Permission is 
+                            NiconicoLiveToolkit.Video.VideoPermission.Unknown or
+                            NiconicoLiveToolkit.Video.VideoPermission.FreeForChannelMember or
+                            NiconicoLiveToolkit.Video.VideoPermission.VideoPermission_3
+                            )
+                        {
+                            if (Debugger.IsAttached)
+                            {
+                                Debugger.Break();
+                            }
+                        }
+#endif
                         info.Tags = res.Tags.TagInfo.Select(x => new NicoVideoTag(x.Tag)).ToList();
 
                         if (res.Video.ProviderType == "channel")
@@ -212,6 +226,20 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     info.ViewCount = (int)video.ViewCounter;
                     info.MylistCount = (int)video.MylistCounter;
                     info.CommentCount = (int)item.Thread.NumRes;
+                    info.Permission = video.VideoPermission;
+#if DEBUG
+                    if (info.Permission is
+                        NiconicoLiveToolkit.Video.VideoPermission.Unknown or
+                        NiconicoLiveToolkit.Video.VideoPermission.FreeForChannelMember or
+                        NiconicoLiveToolkit.Video.VideoPermission.VideoPermission_3
+                        )
+                    {
+                        if (Debugger.IsAttached)
+                        {
+                            Debugger.Break();
+                        }
+                    }
+#endif
                     info.Tags = item.Tags?.TagInfo.Select(x => new NicoVideoTag(x.Tag)).ToList() ?? info.Tags;
 
                     if (item.Video.ProviderType == "channel")

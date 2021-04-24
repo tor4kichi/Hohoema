@@ -87,7 +87,7 @@
 
     
     <Border x:Name="HeaderLayout" Background="{ThemeResource MenuBackgroundBrush}" toolkit:DockPanel.Dock="Top" VerticalAlignment="Top">
-      <CommandBar x:Name="TopCommandBar" Background="Transparent" HorizontalAlignment="Right">
+      <CommandBar x:Name="TopCommandBar" Background="Transparent">
         <CommandBar.Content>
           <controls:AppTitleBar Title="{Binding Title}" />
         </CommandBar.Content>

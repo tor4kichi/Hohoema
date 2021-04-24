@@ -108,10 +108,23 @@ namespace Hohoema.Presentation.Views.TemplateSelector
 
     public class StringToTypeConverter : IValueConverter
     {
+        readonly static Dictionary<string, Type> _map = new();
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             var text = value as string;
-            return text != null ? Type.GetType(text) : null;
+            
+            if (text is null) { throw new ArgumentNullException(); }
+            
+            if (_map.TryGetValue(text, out var type)) 
+            {
+                return type; 
+            }
+            else
+            {
+                type = Type.GetType(text);
+                _map.Add(text, type);
+                return type;
+            }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)

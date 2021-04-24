@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Windows.Media.Core;
 using Windows.Media.Streaming.Adaptive;
 using Windows.UI.Xaml;
+using Windows.System;
 
 namespace Hohoema.Models.Domain.Player.Video
 {
@@ -19,7 +20,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
         public DmcWatchResponse DmcWatchResponse { get; private set; }
 
-        private Timer _DmcSessionHeartbeatTimer;
+        private DispatcherQueueTimer _DmcSessionHeartbeatTimer;
 
         private static AsyncLock DmcSessionHeartbeatLock = new AsyncLock();
 
@@ -238,11 +239,17 @@ namespace Hohoema.Models.Domain.Player.Video
             if (DmcWatchResponse != null && _DmcSessionResponse != null)
             {
                 Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビートを開始しました");
-                _DmcSessionHeartbeatTimer = new Timer(_DmcSessionHeartbeatTimer_Tick, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
+
+                var currentThreadDispatcherQueue = DispatcherQueue.GetForCurrentThread();
+                _DmcSessionHeartbeatTimer = currentThreadDispatcherQueue.CreateTimer();
+                _DmcSessionHeartbeatTimer.Tick += _DmcSessionHeartbeatTimer_Tick;
+                _DmcSessionHeartbeatTimer.IsRepeating = true;
+                _DmcSessionHeartbeatTimer.Interval = TimeSpan.FromSeconds(30);
+                _DmcSessionHeartbeatTimer.Start();
             }
         }
 
-        private async void _DmcSessionHeartbeatTimer_Tick(object sender)
+        private async void _DmcSessionHeartbeatTimer_Tick(DispatcherQueueTimer sender, object state)
         {
             using (var releaser = await DmcSessionHeartbeatLock.LockAsync())
             {
@@ -275,7 +282,7 @@ namespace Hohoema.Models.Domain.Player.Video
         {
             if (_DmcSessionHeartbeatTimer != null)
             {
-                _DmcSessionHeartbeatTimer.Dispose();
+                _DmcSessionHeartbeatTimer.Stop();
                 _DmcSessionHeartbeatTimer = null;
                 Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビートを終了しました");
             }

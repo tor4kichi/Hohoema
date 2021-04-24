@@ -24,14 +24,6 @@
     mc:Ignorable="d"
     >
 
-  <Page.Transitions>
-    <TransitionCollection>
-      <NavigationThemeTransition>
-        <SuppressNavigationTransitionInfo />
-      </NavigationThemeTransition>
-    </TransitionCollection>
-  </Page.Transitions>
-
   <Grid>
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
                                       ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
@@ -42,7 +34,7 @@
                                       >
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
-          <CommandBar x:Name="VideoListCommandBar" HorizontalAlignment="Right">
+          <CommandBar x:Name="VideoListCommandBar">
             <CommandBar.Content>
               <controls:AppTitleBar Title="{Binding Title}" />
             </CommandBar.Content>
@@ -92,15 +84,6 @@
       <videolistPage:VideoItemsListView.ItemTemplate>
         <DataTemplate>
           <Grid>
-
-            <iconPack:PackIconMaterial Kind="Shopping"
-                                      VerticalAlignment="Top"
-                                      HorizontalAlignment="Right"
-                                      Visibility="{Binding IsRequirePayment, Converter={StaticResource BooleanToVisibility}}"
-                                      Opacity="0.7"
-                                      Margin="8"
-                                      />
-
             <videolistPage:VideoListItemControl />
           </Grid>
         </DataTemplate>

@@ -25,6 +25,7 @@ using Windows.UI.Xaml;
 using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Presentation.ViewModels.Pages.UserPages;
+using NiconicoLiveToolkit.Video;
 
 namespace Hohoema.Presentation.ViewModels.Pages.CommunityPages
 {
@@ -560,6 +561,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.CommunityPages
         public string ThumbnailUrl { get; }
 
         public bool IsDeleted { get; set; }
+
+        public VideoPermission Permission => VideoPermission.Unknown;
 
         public CommunityVideoInfoViewModel(CommunityVideo info)
 		{

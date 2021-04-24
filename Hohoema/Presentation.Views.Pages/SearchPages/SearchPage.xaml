@@ -107,7 +107,11 @@
         </uwpControls:DockPanel>
       </uwpControls:DockPanel>
 
-      <Frame x:Name="SearchResultFrame" CacheSize="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" DataContext="{x:Null}" />
+      <Frame x:Name="SearchResultFrame" CacheSize="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" DataContext="{x:Null}"
+             Transitions="{StaticResource SuppressNavigationTransitionCollection}"
+             ContentTransitions="{StaticResource SuppressNavigationTransitionCollection}"
+             >
+      </Frame>
 
     </uwpControls:DockPanel>
     

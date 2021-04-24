@@ -1,6 +1,6 @@
 ﻿using LiteDB;
 using Mntone.Nico2;
-
+using NiconicoLiveToolkit.Video;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -118,12 +118,20 @@ namespace Hohoema.Models.Domain.Niconico.Video
             set { SetProperty(ref _isDeleted, value); }
         }
 
-        private PrivateReasonType _privateReasonType;
+        private PrivateReasonType _privateReasonType = PrivateReasonType.None;
         public PrivateReasonType PrivateReasonType
         {
             get { return _privateReasonType; }
             set { SetProperty(ref _privateReasonType, value); }
         }
+
+        private VideoPermission _permission = VideoPermission.Unknown;
+        public VideoPermission Permission
+        {
+            get { return _permission; }
+            set { SetProperty(ref _permission, value); }
+        }
+
 
         [BsonIgnore]
         public string Id => VideoId ?? RawVideoId;
@@ -169,6 +177,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         {
             get => Owner?.ScreenName;
         }
+
 
         public bool Equals(IVideoContent other)
         {

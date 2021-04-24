@@ -196,7 +196,26 @@ namespace NiconicoLiveToolkit.Video
 
         [JsonPropertyName("options")]
         public Options Options { get; set; }
+
+
+        [JsonIgnore]
+        private bool IsPayRequired => PpvVideo == 1;
+
+        [JsonIgnore]
+        public VideoPermission VideoPermission
+        {
+            get => Permission switch
+            {
+                "" or "0" => VideoPermission.None,
+                "1" => IsPayRequired ? VideoPermission.RequirePay : VideoPermission.RequirePremiumMember,
+                "2" => VideoPermission.FreeForChannelMember,
+                "3" => VideoPermission.VideoPermission_3,
+                "4" => VideoPermission.MemberUnlimitedAccess,
+                _ => VideoPermission.Unknown,
+            };
+        }
     }
+
 
     public partial class Genre
     {

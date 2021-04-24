@@ -31,6 +31,7 @@ using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
 using Hohoema.Presentation.ViewModels.Navigation.Commands;
 using Hohoema.Presentation.ViewModels.Pages.VideoListPage.Commands;
+using NiconicoLiveToolkit.Video;
 
 namespace Hohoema.Presentation.ViewModels.VideoListPage
 {
@@ -324,11 +325,11 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             set { SetProperty(ref _CacheProgressQuality, value); }
         }
 
-        private bool _IsRequirePayment;
-        public bool IsRequirePayment
+        private VideoPermission _permission;
+        public VideoPermission Permission
         {
-            get { return _IsRequirePayment; }
-            set { SetProperty(ref _IsRequirePayment, value); }
+            get { return _permission; }
+            set { SetProperty(ref _permission, value); }
         }
 
 
@@ -562,6 +563,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             IsDeleted = info.IsDeleted;
             PrivateReason = Data.PrivateReasonType;
             Description = Data.Description;
+            Permission = Data.Permission;
 
             if (info.Owner != null)
             {

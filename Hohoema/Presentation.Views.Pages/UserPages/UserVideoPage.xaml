@@ -14,20 +14,12 @@
   NavigationCacheMode="Enabled"
   mc:Ignorable="d"
   >
-
-  <Page.Transitions>
-    <TransitionCollection>
-      <NavigationThemeTransition>
-        <SuppressNavigationTransitionInfo />
-      </NavigationThemeTransition>
-    </TransitionCollection>
-  </Page.Transitions>
   <Grid>
     <videolistPage:VideoItemsListView x:Name="VideoItemsListView" ItemsSource="{Binding ItemsView}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}">
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <CommandBar x:Name="VideoListCommandBar" Background="{StaticResource MenuBackgroundBrush}" HorizontalAlignment="Right">
+            <CommandBar x:Name="VideoListCommandBar" Background="{StaticResource MenuBackgroundBrush}">
               <CommandBar.Content>
                 <controls:AppTitleBar Title="{Binding Title}" />
               </CommandBar.Content>

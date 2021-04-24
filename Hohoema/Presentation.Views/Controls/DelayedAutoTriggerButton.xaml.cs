@@ -7,6 +7,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Windows.Input;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -25,7 +26,11 @@ namespace Hohoema.Presentation.Views.Controls
         {
             this.InitializeComponent();
 
+            _ProgressTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
+            _ProgressTimer.Interval = TimeSpan.FromMilliseconds(32);
             _ProgressTimer.Tick += _ProgressTimer_Tick;
+            _ProgressTimer.IsRepeating = true;
+
             Unloaded += DelayedAutoTriggerButton_Unloaded;
 
             _ProgressTimer.Stop();
@@ -114,7 +119,7 @@ namespace Hohoema.Presentation.Views.Controls
 
 
 
-        DispatcherTimer _ProgressTimer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(32) };
+        private readonly DispatcherQueueTimer _ProgressTimer;
 
         DateTime _endTime;
 

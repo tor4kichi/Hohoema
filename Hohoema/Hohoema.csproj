@@ -679,6 +679,7 @@
     <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
     <Compile Include="Presentation.Views\Converters\CacheStateToColorBrushConverter.cs" />
     <Compile Include="Presentation.Views\Converters\DateTimetoStringConverter.cs" />
+    <Compile Include="Presentation.Views\Converters\EnumToNumberConverter.cs" />
     <Compile Include="Presentation.Views\Converters\ExpiredDateTimeToStringConverter.cs" />
     <Compile Include="Presentation.Views\Converters\InvertVisibilityConverter.cs" />
     <Compile Include="Presentation.Views\Converters\ItemClickEventArgsConverter.cs" />

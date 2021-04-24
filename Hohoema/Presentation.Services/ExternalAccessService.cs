@@ -46,7 +46,7 @@ namespace Hohoema.Presentation.Services
                     uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.LiveWatchPageUrl, live.Id));
                     break;
                 case IChannel channel:
-                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.ChannelUrlBase, channel.Id));
+                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.ChannelUrlBase, "channel",  "ch" + channel.Id));
                     break;
                 case ICommunity community:
                     uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.CommynitySammaryPageUrl, community.Id));
@@ -55,8 +55,6 @@ namespace Hohoema.Presentation.Services
                 default:
                     break;
             }
-
-            // TODO: ConvertToUrl、INiconicoContent派生のクラスに対応
 
             return uri;
         }
@@ -125,31 +123,7 @@ namespace Hohoema.Presentation.Services
         public DelegateCommand<object> OpenLinkCommand => _OpenLinkCommand
             ?? (_OpenLinkCommand = new DelegateCommand<object>(content =>
             {
-                Uri uri = null;
-                if (content is INiconicoObject niconicoContent)
-                {
-                    uri = ConvertToUrl(niconicoContent);
-
-                    // TODO: 
-                }
-                else if (content is Uri uriContent)
-                {
-                    uri = uriContent;
-                }
-                else if (content is string str)
-                {
-                    uri = new Uri(str);
-                }
-
-                if (uri != null)
-                {
-                    _ = Windows.System.Launcher.LaunchUriAsync(uri);
-
-                    Analytics.TrackEvent("OpenLinkCommand", new Dictionary<string, string>
-                    {
-                        
-                    });
-                }
+                OpenLink(content);
             }
             , content =>
             {
@@ -160,6 +134,34 @@ namespace Hohoema.Presentation.Services
             }
             ));
 
+        public void OpenLink(object content)
+        {
+            Uri uri = null;
+            if (content is INiconicoObject niconicoContent)
+            {
+                uri = ConvertToUrl(niconicoContent);
+
+                // TODO: 
+            }
+            else if (content is Uri uriContent)
+            {
+                uri = uriContent;
+            }
+            else if (content is string str)
+            {
+                uri = new Uri(str);
+            }
+
+            if (uri != null)
+            {
+                _ = Windows.System.Launcher.LaunchUriAsync(uri);
+
+                Analytics.TrackEvent("OpenLinkCommand", new Dictionary<string, string>
+                {
+
+                });
+            }
+        }
         
         private DelegateCommand<INiconicoContent> _OpenShareUICommand;
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
