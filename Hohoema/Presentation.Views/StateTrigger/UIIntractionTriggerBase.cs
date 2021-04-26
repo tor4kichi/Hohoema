@@ -7,7 +7,7 @@ using Windows.UI.Xaml;
 
 namespace Hohoema.Presentation.Views.StateTrigger
 {
-    abstract public class UIIntractionTriggerBase : InvertibleStateTrigger
+    abstract public class UIIntractionTriggerBase : InvertibleStateTrigger, IDisposable
     {
         #region Target Property
 
@@ -40,6 +40,14 @@ namespace Hohoema.Presentation.Views.StateTrigger
                 var ui = args.NewValue as UIElement;
                 source.OnAttachTargetHandler(ui);
                 source.SetActiveInvertible(false);
+            }
+        }
+
+        public void Dispose()
+        {
+            if (Target is not null and var target)
+            {
+                OnDetachTargetHandler(target);
             }
         }
 

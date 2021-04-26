@@ -21,6 +21,7 @@ using Hohoema.Models.Domain;
 using Reactive.Bindings.Extensions;
 using NiconicoLiveToolkit.Live.WatchSession;
 using Hohoema.Models.Domain.Application;
+using Uno.Disposables;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -30,6 +31,8 @@ namespace Hohoema.Presentation.Views.Player
     {
         public TimeSpan ForwardSeekTime => TimeSpan.FromSeconds(30);
         public TimeSpan PreviewSeekTime => TimeSpan.FromSeconds(-10);
+
+        CompositeDisposable _compositeDisposable;
 
         public LivePlayerPage()
         {
@@ -42,13 +45,30 @@ namespace Hohoema.Presentation.Views.Player
 
             _UIdispatcher = Dispatcher;
 
+            
+            Loaded += LivePlayerPage_Loaded;
+            Unloaded += LivePlayerPage_Unloaded;
+        }
+
+ 
+        private void LivePlayerPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            _compositeDisposable = new CompositeDisposable();
             var appearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();
             appearanceSettings.ObserveProperty(x => x.ApplicationTheme)
                 .Subscribe(theme =>
                 {
                     ThemeChanged(theme);
-                });
+                })
+                .AddTo(_compositeDisposable);
+
         }
+
+        private void LivePlayerPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _compositeDisposable.Dispose();
+        }
+
 
         void ThemeChanged(ElementTheme theme)
         {

@@ -25,6 +25,7 @@
       xmlns:models="using:Hohoema.Models.Domain.Application" 
       xmlns:liveToolkitWatchSession="using:NiconicoLiveToolkit.Live.WatchSession" 
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+      xmlns:myExt="using:Hohoema.Presentation.Views.Extensions"
       NavigationCacheMode="Required" 
       DataContext="{x:Null}" 
       mc:Ignorable="d"
@@ -727,7 +728,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger />
+            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             
@@ -748,7 +749,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:WindowInWindowViewModeTrigger />
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ActionsCommandBar.Visibility" Value="Collapsed" />
@@ -773,13 +774,13 @@
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{x:Bind ActionsCommandBar.IsOpen, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind NowVideoPositionChanging, Mode=OneWay}" />
-            <myTrigger:CompactOverlayViewModeTrigger />
+            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
             <StateTrigger IsActive="{Binding PlayerSettings.IsAutoHidePlayerControlUI, Converter={StaticResource BoolNegation}}" />
             <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
             <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
-            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" />
+            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
             <windowsTrigger:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="Controller" />
-            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind LiveQualityChangeFlyout}" />
+            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind LiveQualityChangeFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerControlAutoHide.IsAutoHideEnabled" Value="False" />
@@ -882,17 +883,17 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger />
+            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
+            <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
             <StateTrigger IsActive="{Binding ElementName=PlayerSplitView, Path=IsPaneOpen}" />
-            <myTrigger:WindowInWindowViewModeTrigger />
-            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" />
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}"/>
+            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentWriteBeginKeyboardTrigger.IsEnabled" Value="False" />
@@ -953,7 +954,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:WindowInWindowViewModeTrigger />
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="LayoutRotateTranform.Angle" Value="0" />
@@ -986,8 +987,8 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:WindowInWindowViewModeTrigger />
-            <myTrigger:CompactOverlayViewModeTrigger />
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}"/>
+            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerSplitView.OpenPaneLength" Value="80" />
@@ -1119,7 +1120,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger />
+            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="BroadcasterPermanentCommentLayout.Padding" Value="2" />

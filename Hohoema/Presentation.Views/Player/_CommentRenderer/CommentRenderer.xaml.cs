@@ -582,6 +582,7 @@ namespace Hohoema.Presentation.Views
             if (mediaPlayer != null)
             {
                 mediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
+                mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             }
         }
 

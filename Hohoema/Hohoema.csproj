@@ -736,6 +736,7 @@
     </Compile>
     <Compile Include="Presentation.Views\Dialogs\_TextInputDialog\TextInputDialogContext.cs" />
     <Compile Include="Presentation.Views\Extensions\ContextFlyoutExtension.cs" />
+    <Compile Include="Presentation.Views\Extensions\DependencyObjectExtensions.cs" />
     <Compile Include="Presentation.Views\Extensions\Flyout\FlyoutCustomContext.cs" />
     <Compile Include="Presentation.Views\Extensions\ListViewBase\GroupHeaderContextFlyoutTemplate.cs" />
     <Compile Include="Presentation.Views\Extensions\ListViewBase\ItemContextFlyoutTemplate.cs" />

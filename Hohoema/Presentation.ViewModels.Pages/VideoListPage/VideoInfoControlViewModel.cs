@@ -35,7 +35,7 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.ViewModels.VideoListPage
 {
-    public class VideoInfoControlViewModel : BindableBase, IVideoContent, IDisposable, IRecipient<VideoPlayedMessage>
+    public class VideoInfoControlViewModel : FixPrism.BindableBase, IVideoContent, IDisposable, IRecipient<VideoPlayedMessage>
     {
         static VideoInfoControlViewModel()
         {

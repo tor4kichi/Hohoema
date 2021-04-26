@@ -23,6 +23,8 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using Hohoema.Models.Domain;
 using Hohoema.Models.UseCase.NicoVideos.Player;
 using Hohoema.Models.Domain.Application;
+using System.Diagnostics;
+using Uno.Disposables;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -47,8 +49,6 @@ namespace Hohoema.Presentation.Views.Player
             _UIdispatcher = Dispatcher;
 
             _mediaPlayer = App.Current.Container.Resolve<MediaPlayer>();
-            _mediaPlayer.VolumeChanged += OnMediaPlayerVolumeChanged;
-            _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
             _soundVolumeManager = App.Current.Container.Resolve<MediaPlayerSoundVolumeManager>();
             VolumeSlider.Value = _soundVolumeManager.Volume;
 
@@ -62,16 +62,36 @@ namespace Hohoema.Presentation.Views.Player
 
             CommentTextBox.GotFocus += CommentTextBox_GotFocus;
             CommentTextBox.LostFocus += CommentTextBox_LostFocus;
+            
+            MediaControl.SizeChanged += MediaControl_SizeChanged;
 
+            Loaded += VideoPlayerPage_Loaded;
+            Unloaded += VideoPlayerPage_Unloaded;
+        }
+
+        CompositeDisposable _compositeDisposable;
+
+        private void VideoPlayerPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            _mediaPlayer.VolumeChanged += OnMediaPlayerVolumeChanged;
+            _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
+
+            _compositeDisposable = new CompositeDisposable();
             var appearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();
             appearanceSettings.ObserveProperty(x => x.ApplicationTheme)
-                .Subscribe(theme => 
+                .Subscribe(theme =>
                 {
                     ThemeChanged(theme);
-                });
-
-            MediaControl.SizeChanged += MediaControl_SizeChanged;
+                }).AddTo(_compositeDisposable);
         }
+
+        private void VideoPlayerPage_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _compositeDisposable.Dispose();
+            _mediaPlayer.VolumeChanged -= OnMediaPlayerVolumeChanged;
+            _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+        }
+
 
 
         /// <summary>

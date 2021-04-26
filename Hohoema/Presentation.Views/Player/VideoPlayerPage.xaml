@@ -31,6 +31,7 @@
       xmlns:windowsTriggers="using:WindowsStateTriggers" 
       xmlns:players="using:Hohoema.Presentation.Views.Player"
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+      xmlns:myExt="using:Hohoema.Presentation.Views.Extensions"
       DataContext="{x:Null}"
       x:Name="RootLayout"
       NavigationCacheMode="Required"
@@ -873,7 +874,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger />
+            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ExitCompactOverlayButton.Visibility" Value="Visible" />
@@ -1013,8 +1014,8 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger />
-            <myTrigger:WindowInWindowViewModeTrigger />
+            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerSplitView.OpenPaneLength" Value="0" />
@@ -1082,7 +1083,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:WindowActiveTrigger Inverted="True" />
+            <myTrigger:WindowActiveTrigger Inverted="True" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="WindowDeactiveMouseMoveDetectWall.Visibility" Value="Visible" />
@@ -1107,11 +1108,11 @@
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{x:Bind ActionsCommandBar.IsOpen, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind NowVideoPositionChanging, Mode=OneWay}" />
-            <myTrigger:CompactOverlayViewModeTrigger />
+            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
             <StateTrigger IsActive="{Binding PlayerSettings.IsAutoHidePlayerControlUI, Converter={StaticResource BoolNegation}}" />
             <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
-            <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
-            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" />
+            <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
             <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="Controller" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1125,8 +1126,8 @@
           <VisualState.StateTriggers>
             <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
             <StateTrigger IsActive="{Binding ElementName=PlayerSplitView, Path=IsPaneOpen}" />
-            <myTrigger:WindowInWindowViewModeTrigger />
-            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" />
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentWriteBeginKeyboardTrigger.IsEnabled" Value="False" />
@@ -1195,7 +1196,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:WindowInWindowViewModeTrigger />
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="LayoutRotateTranform.Angle" Value="0" />
@@ -1277,8 +1278,8 @@
             <windowsTriggers:CompositeStateTrigger Operator="And">
               <StateTrigger IsActive="{Binding VideoEndedRecommendation.HasRecomend.Value}" />
               <windowsTriggers:CompositeStateTrigger Operator="Or">
-                <myTrigger:CompactOverlayViewModeTrigger />
-                <myTrigger:WindowInWindowViewModeTrigger />
+                <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+                <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
               </windowsTriggers:CompositeStateTrigger>
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
@@ -1292,8 +1293,8 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger />
-            <myTrigger:WindowInWindowViewModeTrigger />
+            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="UIControlCenterLayout.Background" Value="{ThemeResource SystemAltMediumColor}" />
@@ -1307,7 +1308,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:WindowInWindowViewModeTrigger />
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ControllerToggleDisplayUITrigger.IsEnabled" Value="False" />
