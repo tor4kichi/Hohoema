@@ -119,7 +119,7 @@ namespace Hohoema.Presentation.Views
 
             StrongReferenceMessenger.Default.Register<PageNavigationEvent>(this, (r, m) => 
             {
-                _ = ContentFrameNavigation(m.Value);
+                ContentFrameNavigation(m.Value);
             });
 
             // Back Navigation Handling            
@@ -259,53 +259,50 @@ namespace Hohoema.Presentation.Views
             _viewModel.VideoItemsSelectionContext.EndSelectioin();
         }
 
-        AsyncLock _navigationLock = new AsyncLock();
-
         NavigationTransitionInfo _contentFrameDefaultTransitionInfo = new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight };
         NavigationTransitionInfo _contentFrameTransitionInfo = new DrillInNavigationTransitionInfo() {};
-        async Task ContentFrameNavigation(PageNavigationEventArgs args)
+        void ContentFrameNavigation(PageNavigationEventArgs args)
         {
             var pageType = args.PageName;
             var parameter = args.Paramter;
             var behavior = args.Behavior;
 
-            await _dispatcherQueue.EnqueueAsync(async () =>
+            _dispatcherQueue.TryEnqueue(async () =>
             {
-                using (var releaser = await _navigationLock.LockAsync())
+                // メインウィンドウでウィンドウ全体で再生している場合は
+                // 強制的に小窓モードに切り替えてページを表示する
+                //if (!PlayerViewManager.IsPlayerSmallWindowModeEnabled
+                //   && PlayerViewManager.IsPlayingWithPrimaryView)
+                //{
+                //    PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
+                //}
+
+                var prefix = behavior == NavigationStackBehavior.Root ? "/" : String.Empty;
+                var pageName = $"{prefix}{pageType}";
+
+                var result = behavior is NavigationStackBehavior.Push
+                    ? await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameDefaultTransitionInfo)
+                    : await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameTransitionInfo)
+                    ;
+                if (result.Success)
                 {
-                    // メインウィンドウでウィンドウ全体で再生している場合は
-                    // 強制的に小窓モードに切り替えてページを表示する
-                    //if (!PlayerViewManager.IsPlayerSmallWindowModeEnabled
-                    //   && PlayerViewManager.IsPlayingWithPrimaryView)
-                    //{
-                    //    PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
-                    //}
-                    var prefix = behavior == NavigationStackBehavior.Root ? "/" : String.Empty;
-                    var pageName = $"{prefix}{pageType}";
-
-                    var result = behavior is NavigationStackBehavior.Push 
-                        ? await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameDefaultTransitionInfo) 
-                        : await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameTransitionInfo)
-                        ;
-                    if (result.Success)
+                    if (behavior == NavigationStackBehavior.NotRemember /*|| IsIgnoreRecordPageType(oldPageType)*/)
                     {
-                        if (behavior == NavigationStackBehavior.NotRemember /*|| IsIgnoreRecordPageType(oldPageType)*/)
-                        {
-                            // TODO: NavigationStackBehavior.NotRemember
-                        }
-
-                        Window.Current.Activate();
-
-                        GoBackCommand.RaiseCanExecuteChanged();
+                        // TODO: NavigationStackBehavior.NotRemember
                     }
 
-                    Analytics.TrackEvent("PageNavigation", new Dictionary<string, string> 
+                    Window.Current.Activate();
+
+                    GoBackCommand.RaiseCanExecuteChanged();
+                }
+
+                Analytics.TrackEvent("PageNavigation", new Dictionary<string, string>
                     {
                         { "PageType",  pageName },
                     });
 
-                    Debug.WriteLineIf(!result.Success, result.Exception?.ToString());
-                }
+                Debug.WriteLineIf(!result.Success, result.Exception?.ToString());
+
 
                 if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Fill)
                 {
@@ -800,12 +797,9 @@ namespace Hohoema.Presentation.Views
             return true;
         }
 
-        async void ExecuteGoBackCommand()
+        void ExecuteGoBackCommand()
         {
-            using (await _navigationLock.LockAsync())
-            {
-                HandleBackRequest();
-            }
+            _dispatcherQueue.TryEnqueue(() => HandleBackRequest());
         }
 
 
