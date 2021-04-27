@@ -144,6 +144,9 @@ namespace Hohoema.Presentation.Services
 
                 view.Consolidated += SecondaryAppView_Consolidated;
 
+                _PlayerPageNavgationTransitionInfo = new DrillInNavigationTransitionInfo();
+                _BlankPageNavgationTransitionInfo = new SuppressNavigationTransitionInfo();
+
                 return (id, view, ns);
             });
 
@@ -154,6 +157,9 @@ namespace Hohoema.Presentation.Services
             var primaryView = ApplicationView.GetForCurrentView();
             primaryView.Consolidated += MainView_Consolidated;
         }
+
+        DrillInNavigationTransitionInfo _PlayerPageNavgationTransitionInfo;
+        SuppressNavigationTransitionInfo _BlankPageNavgationTransitionInfo;
 
         // アプリ終了時に正しいウィンドウサイズを保存するための一時的な箱
         private Size _PrevSecondaryViewSize;
@@ -181,7 +187,7 @@ namespace Hohoema.Presentation.Services
         {
             Debug.WriteLine($"SecondaryAppView_Consolidated: IsAppInitiated:{args.IsAppInitiated} IsUserInitiated:{args.IsUserInitiated}");
 
-            await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(Views.BlankPage), new SuppressNavigationTransitionInfo());
+            await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(Views.BlankPage), _BlankPageNavgationTransitionInfo);
 
             // Note: 1803時点での話
             // VisibleBoundsChanged がアプリ終了前に呼ばれるが
@@ -225,7 +231,7 @@ namespace Hohoema.Presentation.Services
 
                 await SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(async () =>
                 {
-                    var result = await SecondaryViewPlayerNavigationService.NavigateAsync(pageName, parameters, new DrillInNavigationTransitionInfo());
+                    var result = await SecondaryViewPlayerNavigationService.NavigateAsync(pageName, parameters, _PlayerPageNavgationTransitionInfo);
                     if (result.Success)
                     {
                         var name = ResolveContentName(pageName, parameters);
@@ -295,7 +301,7 @@ namespace Hohoema.Presentation.Services
 
                 await ShowMainViewAsync();
 
-                await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(Views.BlankPage), new SuppressNavigationTransitionInfo());
+                await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(Views.BlankPage), _BlankPageNavgationTransitionInfo);
 
                 await SecondaryAppView.TryConsolidateAsync();
             });
