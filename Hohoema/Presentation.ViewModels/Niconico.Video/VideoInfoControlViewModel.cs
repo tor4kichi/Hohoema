@@ -408,7 +408,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         NicoVideoCacheProgress _progress;
         
         IDisposable _progressObserver;
-        double _totalSizeInverted;
+        
         private void HandleProgress(NicoVideoCacheProgress progress)
         {
             HasCacheProgress = true;
@@ -434,7 +434,6 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             }
             _progressObserver?.Dispose();
 
-            _totalSizeInverted = 0.0;
             DownloadProgress = default;
             HasCacheProgress = false;
             CacheProgressQuality = default;
@@ -488,12 +487,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        static FastAsyncLock _initializeLock = new FastAsyncLock();
-
         public async ValueTask InitializeAsync(CancellationToken ct)
         {
-//            
-
             if (Data?.Title != null)
             {
                 SetTitle(Data.Title);
@@ -503,43 +498,15 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             {
                 var data = await _nicoVideoProvider.GetNicoVideoInfo(RawVideoId, Data?.ProviderId == null);
 
+                ct.ThrowIfCancellationRequested();
+
                 Data = data;
             }
 
-            /*
-            if (Data?.Owner != null && Data?.Owner.ScreenName == null)
-            {
-                try
-                {
-                    if (Data.Owner.UserType == NicoVideoUserType.User)
-                    {
-                        Data.Owner.ScreenName = await _userNameProvider.ResolveUserNameAsync(uint.Parse(Data.Owner.OwnerId));
-                        _nicoVideoRepository.UpdateItem(Data);
-                    }
-                    else if (Data.Owner.UserType == NicoVideoUserType.Channel)
-                    {
-                        Data.Owner.ScreenName = await _channelProvider.GetChannelNameWithCacheAsync(Data.Owner.OwnerId);
-                        _nicoVideoRepository.UpdateItem(Data);
-                    }
-                }
-                catch
-                {
-                    Debug.WriteLine($"Failed video owner ScreenName resolving. (Id is {Data.Owner.OwnerId})");
-                }
-            }
-            */
-
             if (Data != null)
             {
-                using (await _initializeLock.LockAsync(ct))
-                {
-                    Setup(Data);
-                }
+                 Setup(Data);
             }
-
-
-
-            ct.ThrowIfCancellationRequested();
 
             IsInitialized = true;
         }

@@ -16,6 +16,7 @@ using Uno.Extensions;
 using Windows.Foundation;
 using Windows.UI.Core;
 using Hohoema.Models.Domain;
+using Uno.Threading;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {
@@ -41,7 +42,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
             _niconicoSession.LogIn += async (_, e) =>
             {
-                using (await _mylistSyncLock.LockAsync())
+                using (await _mylistSyncLock.LockAsync(default))
                 {
                     IsLoginUserMylistReady = false;
 
@@ -53,7 +54,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
             _niconicoSession.LogOut += async (_, e) =>
             {
-                using (await _mylistSyncLock.LockAsync())
+                using (await _mylistSyncLock.LockAsync(default))
                 {
                     IsLoginUserMylistReady = false;
 
@@ -65,7 +66,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
 
 
-        AsyncLock _mylistSyncLock = new AsyncLock();
+        FastAsyncLock _mylistSyncLock = new FastAsyncLock();
 
         private bool _IsLoginUserMylistReady;
         public bool IsLoginUserMylistReady
@@ -84,7 +85,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 		private ObservableCollection<LoginUserMylistPlaylist> _mylists;
 		public ReadOnlyObservableCollection<LoginUserMylistPlaylist> Mylists { get; private set; }
 
-        private AsyncLock _updateLock = new AsyncLock();
+        private FastAsyncLock _updateLock = new FastAsyncLock();
 
         
 
@@ -156,9 +157,9 @@ namespace Hohoema.Models.UseCase.NicoVideos
 			return Mylists.Any(x => x.Id == groupId);
 		}
 
-        public async Task WaitUpdate()
+        public Task WaitUpdate(CancellationToken ct = default)
         {
-            using var _ = await _updateLock.LockAsync();
+            return _updateLock.LockAsync(ct);
         }
 
 		public LoginUserMylistPlaylist GetMylistGroup(string groupId)
@@ -166,31 +167,34 @@ namespace Hohoema.Models.UseCase.NicoVideos
 			return Mylists.SingleOrDefault(x => x.Id == groupId);
 		}
 
-        public async Task<LoginUserMylistPlaylist> GetMylistGroupAsync(string groupId)
+        public async Task<LoginUserMylistPlaylist> GetMylistGroupAsync(string groupId, CancellationToken ct = default)
         {
-            using (await _updateLock.LockAsync())
+            using (await _updateLock.LockAsync(ct))
             {
                 return Mylists.SingleOrDefault(x => x.Id == groupId);
             }
         }
 
 
-        public async Task SyncMylistGroups()
+        public async Task SyncMylistGroups(CancellationToken ct = default)
 		{
-            using (var releaser = await _updateLock.LockAsync())
+            using (var releaser = await _updateLock.LockAsync(ct))
             {
                 Deflist = null;
 
                 _mylists.ForEach(RemoveHandleMylistItemChanged);
                 _mylists.Clear();
 
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                await Task.Delay(TimeSpan.FromSeconds(2), ct);
 
                 if (_niconicoSession.IsLoggedIn)
                 {
                     try
                     {
                         var groups = await _loginUserMylistProvider.GetLoginUserMylistGroups();
+
+                        ct.ThrowIfCancellationRequested();
+
                         foreach (var mylistGroup in groups ?? Enumerable.Empty<LoginUserMylistPlaylist>())
                         {
                             if (mylistGroup.IsDefaultMylist())

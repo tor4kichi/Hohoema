@@ -304,7 +304,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 		public Order Order { get; private set; }
         public SearchProvider SearchProvider { get; }
 
-        public async ValueTask<int> ResetSource()
+        public async ValueTask<int> ResetSource(CancellationToken ct)
 		{
 			try
 			{

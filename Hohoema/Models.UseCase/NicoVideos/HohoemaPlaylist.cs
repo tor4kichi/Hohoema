@@ -22,11 +22,11 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using AsyncLock = Hohoema.Models.Domain.Helpers.AsyncLock;
 using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
 using Hohoema.Presentation.Services.Player;
 using Hohoema.Models.Domain.Player;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using Uno.Threading;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {
@@ -637,7 +637,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         Random _shuffleRandom = new Random();
 
-        private AsyncLock _PlaylistUpdateLock = new AsyncLock();
+        private FastAsyncLock _PlaylistUpdateLock = new FastAsyncLock();
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PlayerSettings PlayerSettings { get; private set; }
@@ -677,7 +677,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             PlayerSettings.ObserveProperty(x => x.IsReverseModeEnable)
                 .Subscribe(async x => 
                 {
-                    using (var releaser = await _PlaylistUpdateLock.LockAsync())
+                    using (var releaser = await _PlaylistUpdateLock.LockAsync(default))
                     {
                         ResetItems();
                     }
@@ -689,7 +689,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             PlayerSettings.ObserveProperty(x => x.IsShuffleEnable)
                 .Subscribe(async _ =>
                 {
-                    using (var releaser = await _PlaylistUpdateLock.LockAsync())
+                    using (var releaser = await _PlaylistUpdateLock.LockAsync(default))
                     {
                         _shuffleRandom = new Random();
                         ResetItems();
@@ -711,7 +711,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         internal async void SetSource(IEnumerable<IVideoContent> items)
         {
-            using (var releaser = await _PlaylistUpdateLock.LockAsync())
+            using (var releaser = await _PlaylistUpdateLock.LockAsync(default))
             {
                 _sourceItems.Clear();
                 _ItemsObservaeDisposer?.Dispose();
@@ -846,7 +846,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         private async void __GoNext()
         {
-            using (var releaser = await _PlaylistUpdateLock.LockAsync())
+            using (var releaser = await _PlaylistUpdateLock.LockAsync(default))
             {
                 if (!_items.Any()) { return; }
 
@@ -881,7 +881,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
         {
             if (item == null) { throw new Exception(); }
 
-            using (var releaser = await _PlaylistUpdateLock.LockAsync())
+            using (var releaser = await _PlaylistUpdateLock.LockAsync(default))
             {
                 // GoNext/GoBack内でCurrentが既に変更済みの場合はスキップ
                 // Playlist外から直接PlaylistItemが変更された場合にのみ

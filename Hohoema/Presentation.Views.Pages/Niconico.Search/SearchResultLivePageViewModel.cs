@@ -270,7 +270,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
        
 
         private LiveSearchPageScrapingResult _firstResult;
-		public async ValueTask<int> ResetSource()
+		public async ValueTask<int> ResetSource(CancellationToken ct)
 		{
 			int totalCount = 0;
 			try
@@ -282,6 +282,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 			}
 			catch { }
 
+            ct.ThrowIfCancellationRequested();
+
             try
             {
                 // ログインしてない場合はタイムシフト予約は取れない
@@ -291,6 +293,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                 }
             }
             catch { }
+            
+            ct.ThrowIfCancellationRequested();
 
             return totalCount;
 		}

@@ -23,6 +23,7 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Uno.Threading;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
@@ -61,7 +62,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 .Select(genre => "RankingTitleWithGenre".Translate(genre.Translate()));
         }
 
-        static Models.Domain.Helpers.AsyncLock _updateLock = new Models.Domain.Helpers.AsyncLock();
+        static FastAsyncLock _updateLock = new FastAsyncLock();
 
 
         public RankingCategoryPageViewModel(
@@ -183,7 +184,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            using (await _updateLock.LockAsync())
+            using (await _updateLock.LockAsync(NavigationCancellationToken))
             {
                 _IsNavigateCompleted = false;
 

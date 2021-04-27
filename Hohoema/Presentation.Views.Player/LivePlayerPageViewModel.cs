@@ -51,6 +51,7 @@ using Windows.UI.Xaml.Media;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Presentation.ViewModels.Player.Commands;
 using Hohoema.Presentation.Views.Player;
+using Microsoft.Toolkit.Uwp;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -207,7 +208,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             private set { SetProperty(ref _LiveElapsedTimeFromOpen, value); }
         }
 
-
         private int _CommentCount;
         public int CommentCount
         {
@@ -276,7 +276,8 @@ namespace Hohoema.Presentation.ViewModels.Player
         public IReadOnlyReactiveProperty<double> MaxSeekablePosition => _MaxSeekablePosition;
         private bool _NowSeekBarPositionChanging = false;
 
-        FastAsyncLock _seekBarUpdateLock = new FastAsyncLock();
+        private DispatcherQueue _dispatcherQueue;
+        private DispatcherQueueTimer _updateTimer;
 
         // comment
 
@@ -500,63 +501,61 @@ namespace Hohoema.Presentation.ViewModels.Player
             SeekBarTimeshiftPosition
                 .Where(_ => !_NowSeekBarPositionChanging)
                 .Throttle(TimeSpan.FromSeconds(0.25))
-                .Subscribe(async x =>
+                .Subscribe(x =>
                 {
-                    using (await _seekBarUpdateLock.LockAsync(default))
+                    _dispatcherQueue.TryEnqueue(async () =>
                     {
                         var time = TimeSpan.FromSeconds(x);
 
-                        _scheduler.Schedule(async () =>
-                        {
-                            var session = MediaPlayer.PlaybackSession;
+                        var session = MediaPlayer.PlaybackSession;
 
-                            MediaPlayer.Source = null;
-                            _MediaSource?.Dispose();
-                            _AdaptiveMediaSource?.Dispose();
+                        MediaPlayer.Source = null;
+                        _MediaSource?.Dispose();
+                        _AdaptiveMediaSource?.Dispose();
 
-                            _watchSessionTimer.PlaybackHeadPosition = time;
+                        _watchSessionTimer.PlaybackHeadPosition = time;
 
-                            // TODO: 生放送のシーク処理
-                            // タイムシフト視聴時はスタート時間に自動シーク
-                            string hlsUri = _hlsUri;
-                            hlsUri = LiveClient.MakeSeekedHLSUri(hlsUri, _watchSessionTimer.PlaybackHeadPosition);
+                        // TODO: 生放送のシーク処理
+                        // タイムシフト視聴時はスタート時間に自動シーク
+                        string hlsUri = _hlsUri;
+                        hlsUri = LiveClient.MakeSeekedHLSUri(hlsUri, _watchSessionTimer.PlaybackHeadPosition);
 #if DEBUG
-                            Debug.WriteLine(hlsUri);
+                        Debug.WriteLine(hlsUri);
 #endif
 
-                            // https://platform.uno/docs/articles/implemented/windows-ui-xaml-controls-mediaplayerelement.html
-                            // MediaPlayer is supported on UWP/Android/iOS.
-                            // not support to MacOS and WASM.
+                        // https://platform.uno/docs/articles/implemented/windows-ui-xaml-controls-mediaplayerelement.html
+                        // MediaPlayer is supported on UWP/Android/iOS.
+                        // not support to MacOS and WASM.
 #if WINDOWS_UWP
-                            var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(hlsUri), LiveContext.HttpClient);
-                            if (amsCreateResult.Status == AdaptiveMediaSourceCreationStatus.Success)
-                            {
-                                var ams = amsCreateResult.MediaSource;
-                                _MediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
-                                _AdaptiveMediaSource = ams;
-                                MediaPlayer.Source = _MediaSource;
+                        var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(hlsUri), LiveContext.HttpClient);
+                        if (amsCreateResult.Status == AdaptiveMediaSourceCreationStatus.Success)
+                        {
+                            var ams = amsCreateResult.MediaSource;
+                            _MediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
+                            _AdaptiveMediaSource = ams;
+                            MediaPlayer.Source = _MediaSource;
 
-                                _AdaptiveMediaSource.DesiredMaxBitrate = _AdaptiveMediaSource.AvailableBitrates.Max();
-                            }
+                            _AdaptiveMediaSource.DesiredMaxBitrate = _AdaptiveMediaSource.AvailableBitrates.Max();
+                        }
 
 #elif __IOS__ || __ANDROID__
-                    var mediaSource = MediaSource.CreateFromUri(new Uri(hlsUri));
-                    _MediaSource = mediaSource;
-                    MediaPlayer.Source = mediaSource;
+                var mediaSource = MediaSource.CreateFromUri(new Uri(hlsUri));
+                _MediaSource = mediaSource;
+                MediaPlayer.Source = mediaSource;
 #else
-                    throw new NotSupportedException();
+                throw new NotSupportedException();
 #endif
 
                         _CommentSession.Seek(time);
 
                         // Note: MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
                         var elapsedTimeResult = _watchSessionTimer.UpdatePlaybackTime(TimeSpan.Zero);
-                            LiveElapsedTime = elapsedTimeResult.LiveElapsedTime;
-                            LiveElapsedTimeFromOpen = elapsedTimeResult.LiveElapsedTimeFromOpen;
+                        LiveElapsedTime = elapsedTimeResult.LiveElapsedTime;
+                        LiveElapsedTimeFromOpen = elapsedTimeResult.LiveElapsedTimeFromOpen;
 
-                            WatchStartLiveElapsedTime = LiveElapsedTimeFromOpen;
-                        });
-                    }
+                        WatchStartLiveElapsedTime = LiveElapsedTimeFromOpen;
+
+                    });
                 })
                 .AddTo(_CompositeDisposable);
 
@@ -698,12 +697,55 @@ namespace Hohoema.Presentation.ViewModels.Player
                 .Select(x => x.All(y => y))
                 .ToReadOnlyReactiveProperty(eventScheduler: _scheduler)
                 .AddTo(_CompositeDisposable);
+
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            _updateTimer = _dispatcherQueue.CreateTimer();
+            _updateTimer.Interval = TimeSpan.FromSeconds(0.1);
+            _updateTimer.IsRepeating = true;
+            _updateTimer.Tick += (s, _) =>
+            {
+                var elaplsedUpdateResult = _watchSessionTimer.UpdatePlaybackTime(MediaPlayer.PlaybackSession.Position);
+                LiveElapsedTime = elaplsedUpdateResult.LiveElapsedTime;
+                LiveElapsedTimeFromOpen = elaplsedUpdateResult.LiveElapsedTimeFromOpen;
+
+                if (IsTimeshift)
+                {
+                    _NowSeekBarPositionChanging = true;
+                    SeekBarTimeshiftPosition.Value = LiveElapsedTimeFromOpen.TotalSeconds;
+                    _NowSeekBarPositionChanging = false;
+                }
+
+                // 表示完了したコメントの削除
+                for (int i = _DisplayingLiveComments.Count - 1; i >= 0; i--)
+                {
+                    var c = _DisplayingLiveComments[i];
+                    var cPos = c.VideoPosition;
+                    if (LiveElapsedTimeFromOpen > cPos + PlayerSettings.CommentDisplayDuration + TimeSpan.FromSeconds(10))
+                    {
+                        Debug.WriteLine("remove comment : " + _DisplayingLiveComments[i].CommentText);
+                        _DisplayingLiveComments.RemoveAt(i);
+                    }
+                }
+
+                _ = _dispatcherQueue.EnqueueAsync(async () =>
+                {
+                    if (UnresolvedUserId.TryPop(out var id))
+                    {
+                        var owner = await _userNameRepository.ResolveUserNameAsync(id);
+                        if (owner != null)
+                        {
+                            UpdateCommentUserName(id, owner);
+                        }
+                    }
+                });
+            };
         }
 
 
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
+            _updateTimer.Stop();
 
             MediaPlayer.Pause();
             MediaPlayer.Source = null;
@@ -883,52 +925,8 @@ namespace Hohoema.Presentation.ViewModels.Player
                 LiveElapsedTime = elapsedTimeResult.LiveElapsedTime;
                 LiveElapsedTimeFromOpen = elapsedTimeResult.LiveElapsedTimeFromOpen;
 
-                Observable.Timer(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(0.1), _scheduler)
-                    .Subscribe(async _ => 
-                    {
-                        using (await _seekBarUpdateLock.LockAsync(default))
-                        {
-                            var elaplsedUpdateResult = _watchSessionTimer.UpdatePlaybackTime(MediaPlayer.PlaybackSession.Position);
-                            LiveElapsedTime = elaplsedUpdateResult.LiveElapsedTime;
-                            LiveElapsedTimeFromOpen = elaplsedUpdateResult.LiveElapsedTimeFromOpen;
 
-                            if (IsTimeshift)
-                            {
-                                _NowSeekBarPositionChanging = true;
-                                SeekBarTimeshiftPosition.Value = LiveElapsedTimeFromOpen.TotalSeconds;
-                                _NowSeekBarPositionChanging = false;
-                            }
-                        }
-
-                        using (var releaser = await _CommentUpdateLock.LockAsync(default))
-                        {
-                            // 表示完了したコメントの削除
-                            for (int i = _DisplayingLiveComments.Count - 1; i >= 0; i--)
-                            {
-                                var c = _DisplayingLiveComments[i];
-                                var cPos = c.VideoPosition;
-                                if (LiveElapsedTimeFromOpen > cPos + PlayerSettings.CommentDisplayDuration + TimeSpan.FromSeconds(10))
-                                {
-                                    Debug.WriteLine("remove comment : " + _DisplayingLiveComments[i].CommentText);
-                                    _DisplayingLiveComments.RemoveAt(i);
-                                }
-                            }
-                        }
-
-                        using (var releaser = await _userNameUpdateLock.LockAsync(default))
-                        {
-                            if (UnresolvedUserId.TryPop(out var id))
-                            {
-                                var owner = await _userNameRepository.ResolveUserNameAsync(id);
-                                if (owner != null)
-                                {
-                                    await UpdateCommentUserName(id, owner);
-                                }
-                            }
-                        }
-                    })
-                    .AddTo(_NavigatingCompositeDisposable);
-
+                _updateTimer.Start();
 
                 var limit = GetQualityLimitType();
                 Debug.WriteLine($"Start Watch: Quality: {PlayerSettings.DefaultLiveQuality} - Low Latency: {PlayerSettings.LiveWatchWithLowLatency} - Limit: {limit}");
@@ -1023,7 +1021,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         private void _watchSession_RecieveStream(Live2CurrentStreamEventArgs e)
         {
-            _scheduler.Schedule(async () =>
+            _dispatcherQueue.TryEnqueue(async () =>
             {
                 CanChangeQuality.Value = false;
 
@@ -1112,7 +1110,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         LiveCommentSession _CommentSession;
         private void _watchSession_RecieveRoom(Live2CurrentRoomEventArgs e)
         {
-            _scheduler.Schedule(async () =>
+            _dispatcherQueue.TryEnqueue(async () =>
             {
                 CloseCommentSession();
 
@@ -1138,8 +1136,6 @@ namespace Hohoema.Presentation.ViewModels.Player
                 await _CommentSession.OpenAsync();
             });
         }
-
-        FastAsyncLock _CommentUpdateLock = new FastAsyncLock();
 
         private async void _CommentSession_CommentReceived(object sender, NiconicoLiveToolkit.Live.Events.CommentReceivedEventArgs e)
         {
@@ -1187,7 +1183,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                     }
                     else
                     {
-                        using (var releaser = await _userNameUpdateLock.LockAsync(default))
+                        _dispatcherQueue.TryEnqueue(() =>
                         {
                             UserIdToComments.AddOrUpdate(commentUserId
                                 , (key) => new List<LiveComment>() { commentVM }
@@ -1198,13 +1194,12 @@ namespace Hohoema.Presentation.ViewModels.Player
                                 }
                             );
                             UnresolvedUserId.Push(commentUserId);
-                        }
+                        });
                     }
                 }
 
-                _scheduler.Schedule(async () =>
+                _dispatcherQueue.TryEnqueue(() =>
                 {
-                    using var _ = await _CommentUpdateLock.LockAsync(default);
                     if (!_commentFiltering.IsHiddenCommentOwnerUserId(comment.UserId)
                     || (LiveElapsedTime - e.Chat.VideoPosition).Duration() < TimeSpan.FromSeconds(3)
                     )
@@ -1247,7 +1242,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         private void _watchSession_RecieveStatistics(Live2StatisticsEventArgs e)
         {
-            _scheduler.Schedule(() =>
+            _dispatcherQueue.TryEnqueue(() =>
             {
                 WatchCount = (int)e.ViewCount;
                 CommentCount = (int)e.CommentCount;
@@ -1259,7 +1254,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         private void _watchSession_ReceiveDisconnect(Live2DisconnectEventArgs e)
         {
-            _scheduler.Schedule(async () =>
+            _dispatcherQueue.TryEnqueue(() =>
             {
                 MediaPlayer.Pause();
                 MediaPlayer.Source = null;
@@ -1268,7 +1263,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         private void _watchSession_RecieveReconnect(Live2ReconnectEventArgs e)
         {
-            _scheduler.Schedule(async () =>
+            _dispatcherQueue.TryEnqueue(() =>
             {
             });
         }
@@ -1651,24 +1646,17 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         #region CommentUserId Resolve
 
-        private FastAsyncLock _userNameUpdateLock = new FastAsyncLock();
         private ConcurrentStack<uint> UnresolvedUserId = new ConcurrentStack<uint>();
         private ConcurrentDictionary<uint, List<LiveComment>> UserIdToComments = new ConcurrentDictionary<uint, List<LiveComment>>();
         private Mntone.Nico2.Live.ReservationsInDetail.Program _TimeshiftProgram;
 
-        private async Task UpdateCommentUserName(uint userId, string name)
+        private void UpdateCommentUserName(uint userId, string name)
         {
-            using (var releaser = await _userNameUpdateLock.LockAsync(default))
+            if (UserIdToComments.TryGetValue(userId, out var comments))
             {
-                if (UserIdToComments.TryGetValue(userId, out var comments))
+                foreach (var comment in comments)
                 {
-                    _scheduler.Schedule(() =>
-                    {
-                        foreach (var comment in comments)
-                        {
-                            comment.UserName = name;
-                        }
-                    });
+                    comment.UserName = name;
                 }
             }
         }

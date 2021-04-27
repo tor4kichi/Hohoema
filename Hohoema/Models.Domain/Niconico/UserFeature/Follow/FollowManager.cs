@@ -26,6 +26,7 @@ using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.PageNavigation;
+using Uno.Threading;
 
 namespace Hohoema.Models.Domain.Niconico.UserFeature.Follow
 {
@@ -88,7 +89,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Follow
 
         #region Fields
 
-        AsyncLock _SyncLock = new AsyncLock();
+        FastAsyncLock _SyncLock = new FastAsyncLock();
 
         #endregion
 
@@ -218,17 +219,17 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Follow
 
 	
 
-		public async Task SyncAll(CancellationToken token = default)
+		public async Task SyncAll(CancellationToken ct = default)
 		{
-            using (var releaser = await _SyncLock.LockAsync())
+            using (var releaser = await _SyncLock.LockAsync(ct))
             {
                 foreach (var followInfoGroup in GetAllFollowInfoGroups())
                 {
-                    token.ThrowIfCancellationRequested();
+                    ct.ThrowIfCancellationRequested();
 
                     await followInfoGroup.SyncFollowItems();
 
-                    token.ThrowIfCancellationRequested();
+                    ct.ThrowIfCancellationRequested();
 
                     await Task.Delay(250);
                 }

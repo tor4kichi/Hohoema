@@ -155,8 +155,6 @@ namespace Hohoema.Presentation.Views.Behaviors
 
         #endregion
 
-        AsyncLock _AnimationGenerateLock = new AsyncLock();
-
         bool _SkipChangeVisible = false;
 
         public void PreventAutoHide()
@@ -205,52 +203,47 @@ namespace Hohoema.Presentation.Views.Behaviors
             return _animCts.Token;
         }
 
-        private async void Show()
+        private void Show()
 		{
-            using (await _AnimationGenerateLock.LockAsync())
+            if (this.AssociatedObject == null) { return; }
+
+            StopAnimation();
+
+            if (IsAnimationEnabled)
             {
-                if (this.AssociatedObject == null) { return; }
+                var ct = CreateAnimationCancellationToken();
+                _ = AnimationBuilder.Create().Opacity(1.0).StartAsync(this.AssociatedObject, ct);
 
-                StopAnimation();
-
-                if (IsAnimationEnabled)
+                if (IsAutoHideEnabled)
                 {
-                    var ct = CreateAnimationCancellationToken();
-                    _ = AnimationBuilder.Create().Opacity(1.0).StartAsync(this.AssociatedObject, ct);
-
-                    if (IsAutoHideEnabled)
-                    {
-                        AutoHideSubject.OnNext(0);
-                    }
+                    AutoHideSubject.OnNext(0);
                 }
-                else
-                {
-                    AssociatedObject.Opacity = 1.0;
-                }
+            }
+            else
+            {
+                AssociatedObject.Opacity = 1.0;
             }
         }
 
         
 
-        private async void Hide()
+        private void Hide()
         {
-            using (var releaser = await _AnimationGenerateLock.LockAsync())
+            if (this.AssociatedObject == null) { return; }
+
+            StopAnimation();
+
+            if (IsAnimationEnabled)
             {
-                if (this.AssociatedObject == null) { return; }
-
-                StopAnimation();
-
-                if (IsAnimationEnabled)
-                {
-                    var ct = CreateAnimationCancellationToken();
-                    _ = AnimationBuilder.Create().Opacity(0.0).StartAsync(this.AssociatedObject, ct)
-                        .ContinueWith(prevTask => HideAnimation_Completed());
-                }
-                else
-                {
-                    AssociatedObject.Opacity = 0.0;
-                }
+                var ct = CreateAnimationCancellationToken();
+                _ = AnimationBuilder.Create().Opacity(0.0).StartAsync(this.AssociatedObject, ct)
+                    .ContinueWith(prevTask => HideAnimation_Completed());
             }
+            else
+            {
+                AssociatedObject.Opacity = 0.0;
+            }
+            
         }
 
         private void HideAnimation_Completed()

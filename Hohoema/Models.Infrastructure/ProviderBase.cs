@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Uno.Threading;
+using System.Threading;
 
 namespace Hohoema.Models.Infrastructure
 {
@@ -17,49 +19,49 @@ namespace Hohoema.Models.Infrastructure
 
         public Domain.NiconicoSession NiconicoSession { get; }
 
-        protected static AsyncLock ContextLock { get; } = new AsyncLock();
+        protected static FastAsyncLock ContextLock { get; } = new FastAsyncLock();
         private NiconicoContext Context => NiconicoSession.Context;
 
-        protected async Task<T> ContextActionAsync<T>(Func<NiconicoContext, Task<T>> taskFactory)
+        protected async Task<T> ContextActionAsync<T>(Func<NiconicoContext, Task<T>> taskFactory, CancellationToken ct = default)
         {
-            using (await ContextLock.LockAsync())
+            using (await ContextLock.LockAsync(ct))
             {
                 return await taskFactory.Invoke(Context);
             }
         }
 
-        protected async Task ContextActionAsync(Func<NiconicoContext, Task> taskFactory)
+        protected async Task ContextActionAsync(Func<NiconicoContext, Task> taskFactory, CancellationToken ct = default)
         {
-            using (await ContextLock.LockAsync())
+            using (await ContextLock.LockAsync(ct))
             {
                 await taskFactory.Invoke(Context);
             }
         }
 
-        protected async Task<T> ContextActionWithPageAccessWaitAsync<T>(Func<NiconicoContext, Task<T>> taskFactory)
+        protected async Task<T> ContextActionWithPageAccessWaitAsync<T>(Func<NiconicoContext, Task<T>> taskFactory, CancellationToken ct = default)
         {
-            await WaitNicoPageAccess();
+            await WaitNicoPageAccess(ct);
 
-            return await ContextActionAsync(taskFactory);
+            return await ContextActionAsync(taskFactory, ct);
         }
 
-        protected async Task ContextActionWithPageAccessWaitAsync(Func<NiconicoContext, Task> taskFactory)
+        protected async Task ContextActionWithPageAccessWaitAsync(Func<NiconicoContext, Task> taskFactory, CancellationToken ct = default)
         {
-            await WaitNicoPageAccess();
+            await WaitNicoPageAccess(ct);
 
-            await ContextActionAsync(taskFactory);
+            await ContextActionAsync(taskFactory, ct);
         }
 
 
 
-        static AsyncLock _NicoPageAccessLock { get; } = new AsyncLock();
+        static FastAsyncLock _NicoPageAccessLock { get; } = new FastAsyncLock();
         static DateTime LastPageApiAccessTime = DateTime.MinValue;
         static readonly TimeSpan PageAccessMinimumInterval = TimeSpan.FromSeconds(0.5);
 
 
-        static private async Task WaitNicoPageAccess()
+        static private async Task WaitNicoPageAccess(CancellationToken ct)
         {
-            using (await _NicoPageAccessLock.LockAsync())
+            using (await _NicoPageAccessLock.LockAsync(ct))
             {
                 var duration = DateTime.Now - LastPageApiAccessTime;
                 if (duration < PageAccessMinimumInterval)

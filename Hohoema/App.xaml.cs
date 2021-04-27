@@ -376,248 +376,246 @@ namespace Hohoema
         bool isInitialized = false;
         private async Task EnsureInitializeAsync()
         {
-            using (await InitializeLock.LockAsync())
+            if (isInitialized) { return; }
+            isInitialized = true;
+
+
+            async Task TryMigrationAsync(Type[] migrateTypes)
             {
-                if (isInitialized) { return; }
-                isInitialized = true;
-                
-
-                async Task TryMigrationAsync(Type[] migrateTypes)
+                foreach (var migrateType in migrateTypes)
                 {
-                    foreach (var migrateType in migrateTypes)
+                    try
                     {
-                        try
+                        Debug.WriteLine($"Try migrate: {migrateType.Name}");
+                        var migrater = Container.Resolve(migrateType);
+                        if (migrater is IMigrate migrateSycn)
                         {
-                            Debug.WriteLine($"Try migrate: {migrateType.Name}");
-                            var migrater = Container.Resolve(migrateType);
-                            if (migrater is IMigrate migrateSycn)
-                            {
-                                migrateSycn.Migrate();
-                            }
-                            else if (migrater is IMigrateAsync migrateAsync)
-                            {
-                                await migrateAsync.MigrateAsync();
-                            }
+                            migrateSycn.Migrate();
+                        }
+                        else if (migrater is IMigrateAsync migrateAsync)
+                        {
+                            await migrateAsync.MigrateAsync();
+                        }
 
-                            Debug.WriteLine("Migration complete : " + migrateType.Name);
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.WriteLine(e.ToString());
-                            Debug.WriteLine("Migration failed : " + migrateType.Name);
-                        }
+                        Debug.WriteLine("Migration complete : " + migrateType.Name);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e.ToString());
+                        Debug.WriteLine("Migration failed : " + migrateType.Name);
                     }
                 }
+            }
 
-                await TryMigrationAsync(new Type[]
-                {
-                    typeof(DatabaseMigrate_0_25_0),
-                });
+            await TryMigrationAsync(new Type[]
+            {
+                typeof(DatabaseMigrate_0_25_0),
+            });
 
-                {
-                    var unityContainer = Container.GetContainer();
-                    //var upgradeResult = LiteEngine.Upgrade(Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db"));
-                    //Debug.WriteLine("upgrade: " + upgradeResult);
+            {
+                var unityContainer = Container.GetContainer();
+                //var upgradeResult = LiteEngine.Upgrade(Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db"));
+                //Debug.WriteLine("upgrade: " + upgradeResult);
 
-                    LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
-                    unityContainer.RegisterInstance<LiteDatabase>(db);
-                }
+                LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
+                unityContainer.RegisterInstance<LiteDatabase>(db);
+            }
 
-                await TryMigrationAsync(new Type[]
-                {
-                    typeof(MigrationCommentFilteringSettings),
-                    typeof(CommentFilteringNGScoreZeroFixture),
-                    typeof(SettingsMigration_V_0_23_0),
-                    typeof(SearchPageQueryMigrate_0_26_0),
-                    typeof(LocalMylistThumbnailImageMigration_V_0_28_0),
-                });
+            await TryMigrationAsync(new Type[]
+            {
+                typeof(MigrationCommentFilteringSettings),
+                typeof(CommentFilteringNGScoreZeroFixture),
+                typeof(SettingsMigration_V_0_23_0),
+                typeof(SearchPageQueryMigrate_0_26_0),
+                typeof(LocalMylistThumbnailImageMigration_V_0_28_0),
+            });
 
-                // 機能切り替え管理クラスをDIコンテナに登録
-                // Xaml側で扱いやすくするためApp.xaml上でインスタンス生成させている
-                {
-                    var unityContainer = Container.GetContainer();
-                    unityContainer.RegisterInstance(Resources["FeatureFlags"] as FeatureFlags);
-                }
+            // 機能切り替え管理クラスをDIコンテナに登録
+            // Xaml側で扱いやすくするためApp.xaml上でインスタンス生成させている
+            {
+                var unityContainer = Container.GetContainer();
+                unityContainer.RegisterInstance(Resources["FeatureFlags"] as FeatureFlags);
+            }
 
-                // ローカリゼーション用のライブラリを初期化
-                try
-                {
-                    I18NPortable.I18N.Current
+            // ローカリゼーション用のライブラリを初期化
+            try
+            {
+                I18NPortable.I18N.Current
 #if DEBUG
-                    //.SetLogger(text => System.Diagnostics.Debug.WriteLine(text))
-                        .SetNotFoundSymbol("🍣")
+                //.SetLogger(text => System.Diagnostics.Debug.WriteLine(text))
+                .SetNotFoundSymbol("🍣")
 #endif
-                    .SetFallbackLocale("ja")
-                        .Init(GetType().Assembly);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.ToString());
-                }
+                .SetFallbackLocale("ja")
+                .Init(GetType().Assembly);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
 
-                Resources["Strings"] = I18NPortable.I18N.Current;
+            Resources["Strings"] = I18NPortable.I18N.Current;
 
-                var appearanceSettings = Container.Resolve<Models.Domain.Application.AppearanceSettings>();
-                I18NPortable.I18N.Current.Locale = appearanceSettings.Locale ?? I18NPortable.I18N.Current.Languages.FirstOrDefault(x => x.Locale.StartsWith(CultureInfo.CurrentCulture.TwoLetterISOLanguageName)).Locale ?? I18NPortable.I18N.Current.Locale;
+            var appearanceSettings = Container.Resolve<Models.Domain.Application.AppearanceSettings>();
+            I18NPortable.I18N.Current.Locale = appearanceSettings.Locale ?? I18NPortable.I18N.Current.Languages.FirstOrDefault(x => x.Locale.StartsWith(CultureInfo.CurrentCulture.TwoLetterISOLanguageName)).Locale ?? I18NPortable.I18N.Current.Locale;
 
-                CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(I18NPortable.I18N.Current.Locale);
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(I18NPortable.I18N.Current.Locale);
 
-                //Console.WriteLine(settings.AppearanceSettings.Locale);
-                //Console.WriteLine(I18N.Current.Locale);
-                //Console.WriteLine(CultureInfo.CurrentCulture.Name);
+            //Console.WriteLine(settings.AppearanceSettings.Locale);
+            //Console.WriteLine(I18N.Current.Locale);
+            //Console.WriteLine(CultureInfo.CurrentCulture.Name);
 
-                // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
-                var mylitManager = Container.Resolve<UserMylistManager>();
-                var followManager = Container.Resolve<FollowManager>();
-                
-                Resources["IsXbox"] = DeviceTypeHelper.IsXbox;
-                Resources["IsMobile"] = DeviceTypeHelper.IsMobile;
+            // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
+            var mylitManager = Container.Resolve<UserMylistManager>();
+            var followManager = Container.Resolve<FollowManager>();
+
+            Resources["IsXbox"] = DeviceTypeHelper.IsXbox;
+            Resources["IsMobile"] = DeviceTypeHelper.IsMobile;
 
 
-                try
-                {
+            try
+            {
 #if DEBUG
-                    if (_DEBUG_XBOX_RESOURCE)
+                if (_DEBUG_XBOX_RESOURCE)
 #else
                     if (DeviceTypeHelper.IsXbox)
 #endif
-                    {
-                        this.Resources.MergedDictionaries.Add(new ResourceDictionary()
-                        {
-                            Source = new Uri("ms-appx:///Styles/TVSafeColor.xaml")
-                        });
-                        this.Resources.MergedDictionaries.Add(new ResourceDictionary()
-                        {
-                            Source = new Uri("ms-appx:///Styles/TVStyle.xaml")
-                        });
-                    }
-                }
-                catch
                 {
-
+                    this.Resources.MergedDictionaries.Add(new ResourceDictionary()
+                    {
+                        Source = new Uri("ms-appx:///Styles/TVSafeColor.xaml")
+                    });
+                    this.Resources.MergedDictionaries.Add(new ResourceDictionary()
+                    {
+                        Source = new Uri("ms-appx:///Styles/TVStyle.xaml")
+                    });
                 }
+            }
+            catch
+            {
+
+            }
 
 #if DEBUG
-                Resources["IsDebug"] = true;
+            Resources["IsDebug"] = true;
 #else
             Resources["IsDebug"] = false;
 #endif
-                Resources["TitleBarCustomized"] = IsTitleBarCustomized;
-                Resources["TitleBarDummyHeight"] = IsTitleBarCustomized ? 32.0 : 0.0;
+            Resources["TitleBarCustomized"] = IsTitleBarCustomized;
+            Resources["TitleBarDummyHeight"] = IsTitleBarCustomized ? 32.0 : 0.0;
 
 
-                if (IsTitleBarCustomized)
+            if (IsTitleBarCustomized)
+            {
+                var coreApp = CoreApplication.GetCurrentView();
+                coreApp.TitleBar.ExtendViewIntoTitleBar = true;
+
+                var appView = ApplicationView.GetForCurrentView();
+                appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+                if (RequestedTheme == ApplicationTheme.Light)
                 {
-                    var coreApp = CoreApplication.GetCurrentView();
-                    coreApp.TitleBar.ExtendViewIntoTitleBar = true;
+                    appView.TitleBar.ButtonForegroundColor = Colors.Black;
+                    appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
+                    appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
+                    appView.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
+                }
+                else
+                {
+                    appView.TitleBar.ButtonForegroundColor = Colors.White;
+                    appView.TitleBar.ButtonHoverBackgroundColor = Colors.DimGray;
+                    appView.TitleBar.ButtonHoverForegroundColor = Colors.White;
+                    appView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
+                }
+            }
 
-                    var appView = ApplicationView.GetForCurrentView();
-                    appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                    appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            // 
+            var cacheSettings = Container.Resolve<VideoCacheSettings>();
+            Resources["IsCacheEnabled"] = cacheSettings.IsEnableCache;
 
-                    if (RequestedTheme == ApplicationTheme.Light)
+            // ウィンドウコンテンツを作成
+            Window.Current.Content = CreateShell();
+
+            // ウィンドウサイズの保存と復元
+            if (DeviceTypeHelper.IsDesktop)
+            {
+                var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                if (localObjectStorageHelper.KeyExists(ScondaryViewPlayerManager.primary_view_size))
+                {
+                    var view = ApplicationView.GetForCurrentView();
+                    MainViewId = view.Id;
+                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(ScondaryViewPlayerManager.primary_view_size);
+                    view.TryResizeView(_PrevWindowSize);
+                    ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
+                }
+            }
+
+            // XboxOneで外枠表示を行わないように設定
+            if (DeviceTypeHelper.IsXbox)
+            {
+                Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().SetDesiredBoundsMode
+                    (Windows.UI.ViewManagement.ApplicationViewBoundsMode.UseCoreWindow);
+            }
+
+            // モバイルでナビゲーションバーをアプリに被せないように設定
+            if (DeviceTypeHelper.IsMobile)
+            {
+                // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
+                ApplicationView.GetForCurrentView().SuppressSystemOverlays = true;
+                ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
+            }
+
+
+
+
+
+            // 2段階認証を処理するログインサービスをインスタンス化
+            var loginService = Container.Resolve<NiconicoLoginService>();
+
+
+            // バージョン間データ統合
+            {
+                var unityContainer = Container.GetContainer();
+
+                unityContainer.Resolve<Models.UseCase.Migration.CommentFilteringNGScoreZeroFixture>().Migration();
+
+
+                // アプリのユースケース系サービスを配置
+                unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheVideoDeletedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<NotificationMylistUpdatedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<CheckingClipboardAndNotificationService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<NotificationFollowUpdatedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheRequestRejectedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<SubscriptionUpdateManager>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<FeedResultAddToWatchLater>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<SyncWatchHistoryOnLoggedIn>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<LatestSubscriptionVideosNotifier>());
+
+                unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheResumingObserver>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<VideoPlayRequestBridgeToPlayer>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<CloseToastNotificationWhenPlayStarted>());
+
+                unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheDownloadOperationManager>());
+            }
+
+            // バックグラウンドでのトースト通知ハンドリングを初期化
+            await RegisterDebugToastNotificationBackgroundHandling();
+
+
+            // 更新通知を表示
+            try
+            {
+                var dialogService = Container.Resolve<DialogService>();
+                if (AppUpdateNotice.IsUpdated)
+                {
+                    var version = Windows.ApplicationModel.Package.Current.Id.Version;
+                    var notificationService = Container.Resolve<NotificationService>();
+                    notificationService.ShowInAppNotification(new InAppNotificationPayload()
                     {
-                        appView.TitleBar.ButtonForegroundColor = Colors.Black;
-                        appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
-                        appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
-                        appView.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
-                    }
-                    else
-                    {
-                        appView.TitleBar.ButtonForegroundColor = Colors.White;
-                        appView.TitleBar.ButtonHoverBackgroundColor = Colors.DimGray;
-                        appView.TitleBar.ButtonHoverForegroundColor = Colors.White;
-                        appView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
-                    }
-                }
-
-                // 
-                var cacheSettings = Container.Resolve<VideoCacheSettings>();
-                Resources["IsCacheEnabled"] = cacheSettings.IsEnableCache;
-
-                // ウィンドウコンテンツを作成
-                Window.Current.Content = CreateShell();
-
-                // ウィンドウサイズの保存と復元
-                if (DeviceTypeHelper.IsDesktop)
-                {
-                    var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
-                    if (localObjectStorageHelper.KeyExists(ScondaryViewPlayerManager.primary_view_size))
-                    {
-                        var view = ApplicationView.GetForCurrentView();
-                        MainViewId = view.Id;
-                        _PrevWindowSize = localObjectStorageHelper.Read<Size>(ScondaryViewPlayerManager.primary_view_size);
-                        view.TryResizeView(_PrevWindowSize);
-                        ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
-                    }
-                }
-
-                // XboxOneで外枠表示を行わないように設定
-                if (DeviceTypeHelper.IsXbox)
-                {
-                    Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().SetDesiredBoundsMode
-                        (Windows.UI.ViewManagement.ApplicationViewBoundsMode.UseCoreWindow);
-                }
-
-                // モバイルでナビゲーションバーをアプリに被せないように設定
-                if (DeviceTypeHelper.IsMobile)
-                {
-                    // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
-                    ApplicationView.GetForCurrentView().SuppressSystemOverlays = true;
-                    ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
-                }
-
-
-
-
-
-                // 2段階認証を処理するログインサービスをインスタンス化
-                var loginService = Container.Resolve<NiconicoLoginService>();
-
-
-                // バージョン間データ統合
-                {
-                    var unityContainer = Container.GetContainer();
-
-                    unityContainer.Resolve<Models.UseCase.Migration.CommentFilteringNGScoreZeroFixture>().Migration();
-
-
-                    // アプリのユースケース系サービスを配置
-                    unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheVideoDeletedService>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<NotificationMylistUpdatedService>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<CheckingClipboardAndNotificationService>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<NotificationFollowUpdatedService>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheRequestRejectedService>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<SubscriptionUpdateManager>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<FeedResultAddToWatchLater>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<SyncWatchHistoryOnLoggedIn>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<LatestSubscriptionVideosNotifier>());
-
-                    unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheResumingObserver>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<VideoPlayRequestBridgeToPlayer>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<CloseToastNotificationWhenPlayStarted>());
-
-                    unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheDownloadOperationManager>());
-                }
-
-                // バックグラウンドでのトースト通知ハンドリングを初期化
-                await RegisterDebugToastNotificationBackgroundHandling();
-
-
-                // 更新通知を表示
-                try
-                {
-                    var dialogService = Container.Resolve<DialogService>();
-                    if (AppUpdateNotice.IsUpdated)
-                    {
-                        var version = Windows.ApplicationModel.Package.Current.Id.Version;
-                        var notificationService = Container.Resolve<NotificationService>();
-                        notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                        {
-                            Content = $"Hohoema v{version.Major}.{version.Minor}.{version.Build} に更新しました",
-                            ShowDuration = TimeSpan.FromSeconds(7),
-                            IsShowDismissButton = true,
-                            Commands =
+                        Content = $"Hohoema v{version.Major}.{version.Minor}.{version.Build} に更新しました",
+                        ShowDuration = TimeSpan.FromSeconds(7),
+                        IsShowDismissButton = true,
+                        Commands =
                             {
                                 new InAppNotificationCommand()
                                 {
@@ -628,60 +626,60 @@ namespace Hohoema
                                     Label = "更新情報を確認（ブラウザで表示）"
                                 }
                             }
-                        });
-                        AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
-                    }
+                    });
+                    AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
                 }
-                catch { }
+            }
+            catch { }
 
 
-                /*
-                if (args.PreviousExecutionState == ApplicationExecutionState.Terminated
-                    || args.PreviousExecutionState == ApplicationExecutionState.ClosedByUser)
+            /*
+            if (args.PreviousExecutionState == ApplicationExecutionState.Terminated
+                || args.PreviousExecutionState == ApplicationExecutionState.ClosedByUser)
+            {
+                if (!Services.Helpers.ApiContractHelper.Is2018FallUpdateAvailable)
                 {
-                    if (!Services.Helpers.ApiContractHelper.Is2018FallUpdateAvailable)
-                    {
-                        
-                    }
+
                 }
-                else
-                {
-                    var pageManager = Container.Resolve<Services.PageManager>();
+            }
+            else
+            {
+                var pageManager = Container.Resolve<Services.PageManager>();
 
 
 #if false
+            try
+            {
+                if (localStorge.Read(IS_COMPLETE_INTRODUCTION, false) == false)
+                {
+                    // アプリのイントロダクションを開始
+                    pageManager.OpenIntroductionPage();
+                }
+                else
+                {
+                    pageManager.OpenStartupPage();
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("イントロダクションまたはスタートアップのページ表示に失敗");
+                pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
+            }
+#else
                 try
                 {
-                    if (localStorge.Read(IS_COMPLETE_INTRODUCTION, false) == false)
-                    {
-                        // アプリのイントロダクションを開始
-                        pageManager.OpenIntroductionPage();
-                    }
-                    else
-                    {
-                        pageManager.OpenStartupPage();
-                    }
+                    pageManager.OpenStartupPage();
                 }
                 catch
                 {
-                    Debug.WriteLine("イントロダクションまたはスタートアップのページ表示に失敗");
+                    Debug.WriteLine("スタートアップのページ表示に失敗");
                     pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
                 }
-#else
-                    try
-                    {
-                        pageManager.OpenStartupPage();
-                    }
-                    catch
-                    {
-                        Debug.WriteLine("スタートアップのページ表示に失敗");
-                        pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
-                    }
 #endif
-                }
-                */
-
             }
+            */
+
+
         }
 
         

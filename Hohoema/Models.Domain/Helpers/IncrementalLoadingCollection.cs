@@ -7,6 +7,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Uno.Threading;
 using Windows.Foundation;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
@@ -17,7 +18,7 @@ namespace Hohoema.Models.Domain.Helpers
 	public interface IIncrementalSource<T>
 	{
 		uint OneTimeLoadCount { get; }
-		ValueTask<int> ResetSource();
+		ValueTask<int> ResetSource(CancellationToken ct);
 		IAsyncEnumerable<T> GetPagedItems(int head, int count, CancellationToken ct = default);
 	}
 
@@ -40,7 +41,7 @@ namespace Hohoema.Models.Domain.Helpers
 		private uint _Position;
 
 
-        static AsyncLock LoadingLock { get; } = new AsyncLock();
+        static FastAsyncLock LoadingLock { get; } = new FastAsyncLock();
 
         CoreDispatcher _UIDispatcher;
 
@@ -67,7 +68,7 @@ namespace Hohoema.Models.Domain.Helpers
 
         public async Task<LoadMoreItemsResult> LoadDataAsync(uint count, CancellationToken ct)
         {
-			using (await LoadingLock.LockAsync())
+			using (await LoadingLock.LockAsync(ct))
 			{
 				uint resultCount = 0;
 

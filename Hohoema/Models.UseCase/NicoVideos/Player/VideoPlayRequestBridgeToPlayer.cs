@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Uno.Threading;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
@@ -26,7 +27,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         private readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
         
 
-        Models.Domain.Helpers.AsyncLock _asyncLock = new Models.Domain.Helpers.AsyncLock();
+        FastAsyncLock _asyncLock = new FastAsyncLock();
 
         public VideoPlayRequestBridgeToPlayer(
             ScondaryViewPlayerManager playerViewManager,
@@ -46,7 +47,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
         async Task PlayWithCurrentView(PlayerDisplayView displayMode, string pageName, INavigationParameters parameters)
         {
-            using (await _asyncLock.LockAsync())
+            using (await _asyncLock.LockAsync(default))
             {
                 if (string.IsNullOrEmpty(pageName)) { throw new ArgumentException(nameof(pageName)); }
 

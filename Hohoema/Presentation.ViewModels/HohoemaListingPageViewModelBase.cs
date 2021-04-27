@@ -16,6 +16,7 @@ using Prism.Navigation;
 using System.Reactive.Concurrency;
 using Prism.Ioc;
 using Windows.System;
+using Uno.Threading;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -72,7 +73,7 @@ namespace Hohoema.Presentation.ViewModels
 
         DispatcherQueue _dispatcherQueue;
 
-        private Models.Domain.Helpers.AsyncLock _ItemsUpdateLock = new Models.Domain.Helpers.AsyncLock();
+        private FastAsyncLock _ItemsUpdateLock = new FastAsyncLock();
 
         public DateTime LatestUpdateTime = DateTime.Now;
 
@@ -130,9 +131,9 @@ namespace Hohoema.Presentation.ViewModels
             base.OnNavigatedFrom(parameters);
         }
 
-        private async Task ResetList_Internal()
+        private async Task ResetList_Internal(CancellationToken ct)
         {
-            using (var releaser = await _ItemsUpdateLock.LockAsync())
+            using (var releaser = await _ItemsUpdateLock.LockAsync(ct))
             {
                 var prevItemsView = ItemsView;
                 ItemsView = null;
@@ -165,7 +166,7 @@ namespace Hohoema.Presentation.ViewModels
                         return;
                     }
 
-                    MaxItemsCount.Value = await source.ResetSource();
+                    MaxItemsCount.Value = await source.ResetSource(ct);
 
                     var items = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
 
@@ -193,11 +194,11 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        protected async Task ResetList()
+        protected async Task ResetList(CancellationToken ct = default)
         {
             await Microsoft.Toolkit.Uwp.DispatcherQueueExtensions.EnqueueAsync(_dispatcherQueue, async () => 
             {
-                await ResetList_Internal();
+                await ResetList_Internal(ct);
             });            
         }
 
