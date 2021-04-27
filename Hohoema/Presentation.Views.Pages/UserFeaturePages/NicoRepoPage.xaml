@@ -14,7 +14,7 @@
   xmlns:listitem="using:Hohoema.Presentation.Views.HohoemaListItem"
   xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
   xmlns:viewModels="using:Hohoema.Presentation.ViewModels"
-  xmlns:videoListPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
+  xmlns:videoListPage="using:Hohoema.Presentation.Views.Controls.VideoList"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
@@ -32,7 +32,6 @@
                        FontSize="12"
                        HorizontalAlignment="Right"
                        VerticalAlignment="Bottom" />
-            <listitem:HohoemaListItemVideo />
           </Grid>
         </DataTemplate>
       </templateSelector:TypeBasedTemplateSelector.DefaultTemplate>

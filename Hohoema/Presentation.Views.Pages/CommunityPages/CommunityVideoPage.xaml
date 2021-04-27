@@ -13,7 +13,7 @@
       xmlns:actions="using:Hohoema.Presentation.Views.Actions" 
       xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
-      xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
+      xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors" xmlns:local1="using:Hohoema.Presentation.Views.Controls.VideoList"
       DataContext="{x:Null}" 
       NavigationCacheMode="Enabled" 
       mc:Ignorable="d"
@@ -83,7 +83,7 @@
       <ListView.ItemTemplate>
         <DataTemplate>
           <Grid>
-            <local:VideoInfoControl />
+            <local1:VideoListItemControl />
           </Grid>
         </DataTemplate>
       </ListView.ItemTemplate>

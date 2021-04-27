@@ -62,42 +62,7 @@
                   <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{i18nExt:Localize Key=UserOwnedVideos}" />
                 </HyperlinkButton>
               </toolkit:DockPanel>
-              <!-- Ownered Videos -->
-              <ListView ItemsSource="{Binding VideoInfoItems}"
-                        x:Name="UserVideosLayout"
-                        IsTabStop="False"
-                        SelectionMode="None"
-                        IsItemClickEnabled="True"
-                        ScrollViewer.VerticalScrollMode="Disabled"
-                        ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                        ScrollViewer.HorizontalScrollMode="Auto"
-                        ScrollViewer.HorizontalScrollBarVisibility="Hidden">
-                <i:Interaction.Behaviors>
-                  <core:EventTriggerBehavior EventName="ItemClick">
-                    <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
-                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-                  </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-                <ListView.ItemContainerStyle>
-                  <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                    <Setter Property="VerticalAlignment" Value="Center" />
-                    <Setter Property="Padding" Value="0" />
-                    <Setter Property="Margin" Value="0" />
-                  </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.ItemsPanel>
-                  <ItemsPanelTemplate>
-                    <ItemsWrapGrid Orientation="Horizontal" Margin="0 0 0 0" />
-                  </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
-                <ListView.ItemTemplate>
-                  <DataTemplate>
-                    <mycontrols:VideoInfoControl_TV />
-                  </DataTemplate>
-                </ListView.ItemTemplate>
-              </ListView>
+              
               <Border Visibility="{Binding VideoInfoItems, Converter={StaticResource EmptyCollectionVisibilityConverter}}" Margin="8 16" x:Name="EmptyVideosDescLayout" Opacity="0.7">
                 <TextBlock>
                                         <Run Text="{i18nExt:Localize Key=NoItems_UserOwnedVideos}" /></TextBlock>

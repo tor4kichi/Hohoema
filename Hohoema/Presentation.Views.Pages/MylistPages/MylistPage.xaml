@@ -10,7 +10,7 @@
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:controls="using:Hohoema.Presentation.Views.Controls"
   xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
-  xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
+  xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:myConv="using:Hohoema.Presentation.Views.Converters"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"

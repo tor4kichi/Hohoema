@@ -6,7 +6,7 @@
     xmlns:local="using:Hohoema.Presentation.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
+  xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList"
   xmlns:mytrigger="using:Hohoema.Presentation.Views.StateTrigger"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"

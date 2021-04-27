@@ -11,7 +11,7 @@
     xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:Hohoema.Presentation.Views.Controls" 
-  xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage" 
+  xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList" 
   xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts" 
   xmlns:windowsTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"

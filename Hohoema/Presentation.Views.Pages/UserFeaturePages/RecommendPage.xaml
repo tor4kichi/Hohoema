@@ -12,7 +12,7 @@
   xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:actions="using:Hohoema.Presentation.Views.Actions"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
-  xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
+  xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
   DataContext="{x:Null}"

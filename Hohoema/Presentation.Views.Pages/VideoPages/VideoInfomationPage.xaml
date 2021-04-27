@@ -14,7 +14,7 @@
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
       xmlns:windowsStateTriggers="using:WindowsStateTriggers"
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
-      xmlns:ui="using:Microsoft.Toolkit.Uwp.UI"
+      xmlns:ui="using:Microsoft.Toolkit.Uwp.UI" xmlns:local1="using:Hohoema.Presentation.Views.Controls.VideoList"
       DataContext="{x:Null}"
       NavigationCacheMode="Enabled"
       mc:Ignorable="d">
@@ -256,7 +256,7 @@
                   </i:Interaction.Behaviors>
                   <ListView.ItemTemplate>
                     <DataTemplate>
-                      <local:VideoInfoControl />
+                      <local1:VideoListItemControl />
                     </DataTemplate>
                   </ListView.ItemTemplate>
                 </ListView>

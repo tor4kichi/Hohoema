@@ -211,7 +211,7 @@ namespace Hohoema
             //   |         |- rootFrame 
 
             _primaryWindowCoreLayout = Container.Resolve<Presentation.Views.PrimaryWindowCoreLayout>();
-            var hohoemaInAppNotification = new Presentation.Views.HohoemaInAppNotification()
+            var hohoemaInAppNotification = new Presentation.Views.Controls.HohoemaInAppNotification()
             {
                 VerticalAlignment = VerticalAlignment.Bottom
             };

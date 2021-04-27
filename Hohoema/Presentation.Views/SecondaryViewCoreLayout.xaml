@@ -12,7 +12,8 @@
              xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" 
              xmlns:liteInAppNotification="using:Hohoema.Presentation.Views.Controls.LiteInAppNotification" 
              xmlns:service1="using:Hohoema.Presentation.Services.LiteNotification" 
-             xmlns:uwpToolkitControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+             xmlns:uwpToolkitControls="using:Microsoft.Toolkit.Uwp.UI.Controls" 
+             xmlns:myControls="using:Hohoema.Presentation.Views.Controls"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="400">
@@ -31,7 +32,7 @@
       </Frame.ContentTransitions>
     </Frame>
 
-    <local:HohoemaInAppNotification />
+    <myControls:HohoemaInAppNotification />
 
     <!-- Lite -->
     <liteInAppNotification:LiteInAppNotification x:Name="LiteInAppNotification" 

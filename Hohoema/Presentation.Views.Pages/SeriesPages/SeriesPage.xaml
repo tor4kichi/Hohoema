@@ -5,7 +5,7 @@
   xmlns:local="using:Hohoema.Presentation.Views"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-  xmlns:videolistPage="using:Hohoema.Presentation.Views.Pages.VideoListPage"
+  xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList"
   xmlns:controls="using:Hohoema.Presentation.Views.Controls" 
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
