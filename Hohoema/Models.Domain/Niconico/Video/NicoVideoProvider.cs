@@ -122,7 +122,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
 #if DEBUG
                         if (info.Permission is 
                             NiconicoLiveToolkit.Video.VideoPermission.Unknown or
-                            NiconicoLiveToolkit.Video.VideoPermission.FreeForChannelMember or
                             NiconicoLiveToolkit.Video.VideoPermission.VideoPermission_3
                             )
                         {
@@ -232,7 +231,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
 #if DEBUG
                     if (info.Permission is
                         NiconicoLiveToolkit.Video.VideoPermission.Unknown or
-                        NiconicoLiveToolkit.Video.VideoPermission.FreeForChannelMember or
                         NiconicoLiveToolkit.Video.VideoPermission.VideoPermission_3
                         )
                     {
