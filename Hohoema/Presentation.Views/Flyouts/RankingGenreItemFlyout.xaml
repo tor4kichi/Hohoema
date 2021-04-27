@@ -5,8 +5,8 @@
     xmlns:local="using:Hohoema.Presentation.Views.Flyouts"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:myCommands="using:Hohoema.Presentation.ViewModels.Ranking"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  xmlns:ranking="using:Hohoema.Presentation.ViewModels.Niconico.Ranking"
   mc:Ignorable="d">
 
   <MenuFlyoutItem Text="{i18nExt:Localize Key=AddFavoriteRankingTag}"
@@ -14,7 +14,7 @@
                   Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}"
                   >
     <MenuFlyoutItem.Command>
-      <myCommands:FavoriteRankingGenreItemCommand />
+      <ranking:FavoriteRankingGenreItemCommand />
     </MenuFlyoutItem.Command>
   </MenuFlyoutItem>
 
@@ -23,7 +23,7 @@
                   Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
                   >
     <MenuFlyoutItem.Command>
-      <myCommands:UnFavoriteRankingGenreItemCommand />
+      <ranking:UnFavoriteRankingGenreItemCommand />
     </MenuFlyoutItem.Command>
   </MenuFlyoutItem>
 
@@ -34,7 +34,7 @@
                   Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}"
                   >
     <MenuFlyoutItem.Command>
-      <myCommands:HiddenRankingGenreItemCommand />
+      <ranking:HiddenRankingGenreItemCommand />
     </MenuFlyoutItem.Command>
   </MenuFlyoutItem>
 

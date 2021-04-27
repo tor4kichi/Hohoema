@@ -211,7 +211,7 @@ namespace Hohoema.Presentation.Services.Player
                 //_view.ExitFullScreenMode();
             }
 
-            _navigationService.NavigateAsync(nameof(Views.BlankPage));
+            _navigationService.NavigateAsync(nameof(Views.Pages.Hohoema.BlankPage));
         }
 
         void SetFill(PrimaryPlayerDisplayMode currentMode)

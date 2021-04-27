@@ -6,7 +6,7 @@ using Prism.Ioc;
 using Mntone.Nico2.Users.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 
 namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
 {

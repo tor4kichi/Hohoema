@@ -1,4 +1,4 @@
-﻿using Hohoema.Presentation.ViewModels.Pages.SearchPages;
+﻿using Hohoema.Presentation.ViewModels.Pages.Niconico.Search;
 using System;
 using System.Collections.Generic;
 using System.Linq;

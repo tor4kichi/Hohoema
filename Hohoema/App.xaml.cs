@@ -311,7 +311,7 @@ namespace Hohoema
 
 
             // ViewModels
-            unityContainer.RegisterSingleton<Presentation.ViewModels.Pages.VideoPages.RankingCategoryListPageViewModel>();
+            unityContainer.RegisterSingleton<Presentation.ViewModels.Pages.Niconico.RankingCategoryListPageViewModel>();
 
             unityContainer.RegisterType<Presentation.ViewModels.Player.VideoPlayerPageViewModel>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<Presentation.ViewModels.Player.LivePlayerPageViewModel>(new PerThreadLifetimeManager());
@@ -329,40 +329,40 @@ namespace Hohoema
 
         protected override void RegisterRequiredTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.RegisterForNavigation<Presentation.Views.BlankPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.DebugPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.AppFeaturePages.CacheManagementPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.AppFeaturePages.LocalPlaylistPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.AppFeaturePages.LocalPlaylistManagePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.AppFeaturePages.SettingsPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.AppFeaturePages.SubscriptionManagementPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.AppFeaturePages.VideoQueuePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.ChannelPages.ChannelVideoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.CommunityPages.CommunityPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.CommunityPages.CommunityVideoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.LivePages.LiveInfomationPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.MylistPages.UserMylistPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.MylistPages.MylistPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.MylistPages.OwnerMylistManagePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultTagPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultMylistPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultKeywordPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultCommunityPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultLivePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SeriesPages.SeriesPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SeriesPages.UserSeriesPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.LoginPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.FollowManagePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.NicoRepoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.RecommendPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.TimeshiftPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.WatchHistoryPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserPages.UserInfoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserPages.UserVideoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.VideoPages.RankingCategoryListPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.VideoPages.RankingCategoryPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.VideoPages.VideoInfomationPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.BlankPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.DebugPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.SettingsPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Video.CacheManagementPage >();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Video.LocalPlaylistPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Video.LocalPlaylistManagePage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Video.SubscriptionManagementPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Video.VideoQueuePage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.ChannelVideoPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.CommunityPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.CommunityVideoPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Live.LiveInfomationPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.UserMylistPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.MylistPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.OwnerMylistManagePage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultTagPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultMylistPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultKeywordPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultCommunityPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultLivePage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.SeriesPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.UserSeriesPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.LoginPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.FollowManagePage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.NicoRepoPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.RecommendPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.TimeshiftPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.WatchHistoryPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.UserInfoPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.UserVideoPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.RankingCategoryListPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.RankingCategoryPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoInfomationPage>();
 
             containerRegistry.RegisterForNavigation<Presentation.Views.Player.LivePlayerPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Player.VideoPlayerPage>();

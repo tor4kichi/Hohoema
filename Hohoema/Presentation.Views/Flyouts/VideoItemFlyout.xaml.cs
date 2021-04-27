@@ -23,8 +23,7 @@ using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Presentation.ViewModels.Navigation.Commands;
-using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
-using Hohoema.Presentation.ViewModels.Subscriptions.Commands;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 
 namespace Hohoema.Presentation.Views.Flyouts
 {

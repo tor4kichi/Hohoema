@@ -19,7 +19,7 @@ namespace Hohoema.Presentation.Views.TemplateSelector
 
         protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
-            if (item is ViewModels.Player.PlayerSidePaneContent.LiveCommentSidePaneContentViewModel)
+            if (item is ViewModels.Player.PlayerSidePaneContent.LiveCommentsSidePaneContentViewModel)
             {
                 return Comments;
             }

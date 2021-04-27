@@ -22,7 +22,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain;
 using I18NPortable;
-using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Application;
 

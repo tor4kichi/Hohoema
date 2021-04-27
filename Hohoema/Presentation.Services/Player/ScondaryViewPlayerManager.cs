@@ -23,6 +23,7 @@ using System.Text;
 using System.Linq;
 using Windows.System;
 using Microsoft.Toolkit.Uwp;
+using Hohoema.Presentation.Views.Pages.Hohoema;
 
 namespace Hohoema.Presentation.Services
 {
@@ -113,7 +114,7 @@ namespace Hohoema.Presentation.Services
                 var content = new Views.SecondaryViewCoreLayout();
 
                 var ns = content.CreateNavigationService();
-                await ns.NavigateAsync(nameof(Views.BlankPage));
+                await ns.NavigateAsync(nameof(BlankPage));
 
                 Window.Current.Content = content;
 
@@ -187,7 +188,7 @@ namespace Hohoema.Presentation.Services
         {
             Debug.WriteLine($"SecondaryAppView_Consolidated: IsAppInitiated:{args.IsAppInitiated} IsUserInitiated:{args.IsUserInitiated}");
 
-            await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(Views.BlankPage), _BlankPageNavgationTransitionInfo);
+            await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(BlankPage), _BlankPageNavgationTransitionInfo);
 
             // Note: 1803時点での話
             // VisibleBoundsChanged がアプリ終了前に呼ばれるが
@@ -301,7 +302,7 @@ namespace Hohoema.Presentation.Services
 
                 await ShowMainViewAsync();
 
-                await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(Views.BlankPage), _BlankPageNavgationTransitionInfo);
+                await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(BlankPage), _BlankPageNavgationTransitionInfo);
 
                 await SecondaryAppView.TryConsolidateAsync();
             });

@@ -1,12 +1,11 @@
-﻿using I18NPortable;
-using Hohoema.Presentation.ViewModels;
+﻿using Hohoema.Presentation.ViewModels.Niconico.Mylist;
+using I18NPortable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Data;
-using Hohoema.Presentation.ViewModels.Pages.MylistPages;
 
 namespace Hohoema.Presentation.Views.Converters
 {

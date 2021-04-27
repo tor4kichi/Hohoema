@@ -351,7 +351,7 @@ namespace Hohoema.Presentation.Services.Page
         {
             StrongReferenceMessenger.Default.Send(new PageNavigationEvent(new ()
             {
-                PageName = nameof(Views.DebugPage),
+                PageName = nameof(Views.Pages.Hohoema.DebugPage),
                 IsMainViewTarget = true,
                 Behavior = NavigationStackBehavior.NotRemember,
             }));
