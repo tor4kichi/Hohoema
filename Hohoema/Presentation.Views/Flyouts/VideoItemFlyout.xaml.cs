@@ -18,7 +18,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Models.Domain.PageNavigation;

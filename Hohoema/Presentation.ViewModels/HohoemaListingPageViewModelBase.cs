@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Helpers;
+﻿using Hohoema.Models.Helpers;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;

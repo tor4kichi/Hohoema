@@ -1,7 +1,7 @@
 ﻿using Mntone.Nico2;
 
 using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Page;
@@ -19,13 +19,14 @@ using System.Threading.Tasks;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.Subscriptions;
-using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
+using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Models.Domain.Niconico;
 using Microsoft.AppCenter.Analytics;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Niconico.Search;
+using Hohoema.Models.Domain.Pins;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
@@ -121,52 +122,52 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         {
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.FirstRetrieve,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.FirstRetrieve,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.NewComment, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.NewComment, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.NewComment,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.NewComment, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.NewComment, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.NewComment,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.ViewCount, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.ViewCount, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.ViewCount,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.ViewCount, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.ViewCount, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.ViewCount,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.CommentCount, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.CommentCount, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.CommentCount,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.CommentCount, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.CommentCount, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.CommentCount,
             },
@@ -174,26 +175,26 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.Length, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.Length, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.Length,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.Length, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.Length, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.Length,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.MylistCount, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.MylistCount, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.MylistCount,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.MylistCount, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.MylistCount, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.MylistCount,
             },
@@ -311,7 +312,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         protected override void PostResetList()
         {
-            SearchOptionText = Services.Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            SearchOptionText = SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 
             base.PostResetList();
         }

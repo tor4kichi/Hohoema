@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Dmc;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -11,6 +11,7 @@ using Windows.Media.Streaming.Adaptive;
 using Windows.UI.Xaml;
 using Windows.System;
 using Uno.Threading;
+using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 
 namespace Hohoema.Models.Domain.Player.Video
 {

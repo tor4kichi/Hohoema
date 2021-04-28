@@ -2,7 +2,7 @@
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Dmc;
 using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Player.Video;
@@ -17,6 +17,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Media.Playback;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {

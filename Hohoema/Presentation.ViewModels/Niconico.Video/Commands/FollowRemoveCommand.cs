@@ -1,5 +1,5 @@
 ﻿using I18NPortable;
-using Hohoema.Models.Domain.Niconico.UserFeature.Follow;
+using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
 using Hohoema.Presentation.Services;
 using Prism.Commands;
 using System;

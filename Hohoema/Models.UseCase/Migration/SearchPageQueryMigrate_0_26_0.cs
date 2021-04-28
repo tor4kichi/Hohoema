@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Pins;
 using System;
 using System.Collections.Generic;
 using System.Linq;

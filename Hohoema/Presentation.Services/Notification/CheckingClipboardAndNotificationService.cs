@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Models.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,7 +29,7 @@ namespace Hohoema.Presentation.Services.Notification
         {
             if (args.WindowActivationState == CoreWindowActivationState.PointerActivated)
             {
-                var clipboard = await Services.Helpers.ClipboardHelper.CheckClipboard();
+                var clipboard = await ClipboardHelper.CheckClipboard();
                 if (clipboard != null)
                 {
                     HohoemaNotificationService.ShowInAppNotification(clipboard.Type, clipboard.Id);

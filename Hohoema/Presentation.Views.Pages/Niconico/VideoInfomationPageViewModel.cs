@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Hohoema.Models.Domain;
 using Reactive.Bindings;
 using Prism.Commands;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Windows.ApplicationModel.DataTransfer;
 using System.Threading;
 using System.Diagnostics;
@@ -24,8 +24,8 @@ using System.Reactive.Linq;
 using Hohoema.Models.UseCase;
 using Windows.UI.Xaml;
 using Hohoema.Models.Domain.PageNavigation;
-using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Domain.Playlist;
@@ -35,6 +35,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.Services;
 using I18NPortable;
+using Hohoema.Models.Domain.Pins;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
@@ -257,7 +258,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 return _ShareCommand
                     ?? (_ShareCommand = new DelegateCommand(() =>
                     {
-                        Services.Helpers.ShareHelper.Share(VideoInfo);
+                        ShareHelper.Share(VideoInfo);
                     }
                     , () => DataTransferManager.IsSupported()
                     ));
@@ -272,7 +273,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 return _VideoInfoCopyToClipboardCommand
                     ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
                     {
-                        Services.Helpers.ClipboardHelper.CopyToClipboard(VideoInfo);
+                        ClipboardHelper.CopyToClipboard(VideoInfo);
                     }
                     ));
             }
@@ -378,7 +379,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             set { SetProperty(ref _VideoDescriptionHyperlinkItems, value); }
         }       
 
-        Models.Domain.Helpers.AsyncLock _UpdateLock = new AsyncLock();
+        Models.Helpers.AsyncLock _UpdateLock = new AsyncLock();
 
         private List<VideoInfoControlViewModel> _relatedVideos;
         public List<VideoInfoControlViewModel> RelatedVideos

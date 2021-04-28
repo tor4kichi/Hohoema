@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2.Videos.Histories;
 using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.UserFeature;
+using Hohoema.Models.Domain.Niconico.LoginUser;
 using System;
 using System.Collections.Generic;
 using System.Linq;

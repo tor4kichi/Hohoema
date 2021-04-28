@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.Services.Player;

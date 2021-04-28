@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Helpers;
+﻿using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Services.Page;
 using Prism.Commands;
 using System;

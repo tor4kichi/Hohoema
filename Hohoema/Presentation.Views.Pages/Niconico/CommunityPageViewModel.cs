@@ -1,9 +1,9 @@
 ﻿using Mntone.Nico2.Communities.Detail;
 using Mntone.Nico2.Communities.Info;
 using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico.Community;
-using Hohoema.Models.Domain.Niconico.UserFeature.Follow;
+using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase;
@@ -20,10 +20,11 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Xaml;
-using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
+using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Presentation.ViewModels.Community;
 using Hohoema.Presentation.ViewModels.Niconico.User;
+using Hohoema.Models.Domain.Pins;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {

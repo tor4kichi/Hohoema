@@ -1,6 +1,6 @@
 ﻿using I18NPortable;
 using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.Services;

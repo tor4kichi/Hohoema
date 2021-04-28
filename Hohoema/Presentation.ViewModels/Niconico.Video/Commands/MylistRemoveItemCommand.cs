@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+﻿using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using System;
 using System.Collections.Generic;

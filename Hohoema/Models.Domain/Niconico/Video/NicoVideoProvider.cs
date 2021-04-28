@@ -4,7 +4,7 @@ using Mntone.Nico2.Videos.Dmc;
 using Mntone.Nico2.Videos.Recommend;
 using Mntone.Nico2.Videos.WatchAPI;
 using Hohoema.Database;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Infrastructure;
 using System;
 using System.Linq;
@@ -296,16 +296,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
             {
                 try
                 {
-                    var data = await Helpers.ConnectionRetryUtil.TaskWithRetry(async () =>
+                    var data = await ContextActionWithPageAccessWaitAsync(context =>
                     {
-                        return await ContextActionWithPageAccessWaitAsync(async context =>
-                        {
-                            return await context.Video.GetDmcWatchResponseAsync(
+                        return context.Video.GetDmcWatchResponseAsync(
                             rawVideoId
                             , harmfulReactType: harmfulContentReactionType
                             );
-                        });
-                        
                     });
 
                     var res = data?.DmcWatchResponse;
@@ -420,16 +416,13 @@ namespace Hohoema.Models.Domain.Niconico.Video
             {
                 try
                 {
-                    var res = await Helpers.ConnectionRetryUtil.TaskWithRetry(async () =>
+                    var res = await ContextActionWithPageAccessWaitAsync(context =>
                     {
-                        return await ContextActionWithPageAccessWaitAsync(async context =>
-                        {
-                            return await context.Video.GetWatchApiAsync(
-                            rawVideoId
-                            , forceLowQuality: forceLowQuality
-                            , harmfulReactType: harmfulContentReactionType
-                            );
-                        });
+                        return context.Video.GetWatchApiAsync(
+                        rawVideoId
+                        , forceLowQuality: forceLowQuality
+                        , harmfulReactType: harmfulContentReactionType
+                        );
                     });
 
                     var info = _nicoVideoRepository.Get(rawVideoId);

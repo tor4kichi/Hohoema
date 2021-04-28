@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.Uwp.UI;
 using Mntone.Nico2.Channels.Video;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain;
 
 using Hohoema.Presentation.Services;
@@ -17,7 +17,7 @@ using System.Reactive.Concurrency;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Presentation.ViewModels.VideoListPage;
@@ -88,7 +88,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
         public ObservableCollection<MylistPlaylist> Mylists { get; } = new ObservableCollection<MylistPlaylist>();
 
-        public Models.Domain.Helpers.AsyncLock _InitializeLock = new Models.Domain.Helpers.AsyncLock();
+        public Models.Helpers.AsyncLock _InitializeLock = new Models.Helpers.AsyncLock();
 
         private bool _IsInitialized = false;
         const double _SeriesVideosTitleSimilarityValue = 0.7;

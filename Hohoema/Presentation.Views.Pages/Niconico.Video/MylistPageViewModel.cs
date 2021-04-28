@@ -7,7 +7,7 @@ using Prism.Commands;
 using Mntone.Nico2.Mylist;
 using Reactive.Bindings;
 using System.Reactive.Linq;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using System.Threading;
 using Unity;
 using Windows.UI;
@@ -26,9 +26,9 @@ using Hohoema.Models.UseCase;
 using Mntone.Nico2.Users.Mylist;
 using System.Runtime.CompilerServices;
 using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.Niconico.UserFeature.Follow;
+using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.ViewModels.Subscriptions;
@@ -36,6 +36,8 @@ using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Niconico.Mylist;
+using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
@@ -98,7 +100,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             SelectionModeToggleCommand = selectionModeToggleCommand;
             Mylist = new ReactiveProperty<MylistPlaylist>();
 
-            SelectedSortItem = new ReactiveProperty<MylistSortViewModel>();
+            SelectedSortItem = new ReactiveProperty<MylistSortViewModel>(mode: ReactivePropertyMode.DistinctUntilChanged);
 
             /*
             IsFavoriteMylist = new ReactiveProperty<bool>(mode: ReactivePropertyMode.DistinctUntilChanged)
@@ -632,14 +634,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 .AddTo(_NavigatingCompositeDisposable);
             }
 
-            MylistItems = await CreateItemsSourceAsync(mylist);
-            MaxItemsCount = Mylist.Value.Count;
-
-            if (Mylist.Value != null)
-            {
-                FollowToggleButtonService.SetFollowTarget(Mylist.Value as IFollowable);
-            }
-
             var lastSort = _mylistUserSelectedSortRepository.GetMylistSort(mylistId);
             if (!IsLoginUserDeflist)
             {
@@ -648,6 +642,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             else
             {
                 SelectedSortItem.Value = SortItems.First(x => x.Key == (lastSort.SortKey ?? MylistSortKey.AddedAt) && x.Order == (lastSort.SortOrder ?? MylistSortOrder.Desc));
+            }
+
+
+
+            MylistItems = await CreateItemsSourceAsync(mylist);
+            MaxItemsCount = Mylist.Value.Count;
+
+            if (Mylist.Value != null)
+            {
+                FollowToggleButtonService.SetFollowTarget(Mylist.Value as IFollowable);
             }
 
             SelectedSortItem.Subscribe(x =>

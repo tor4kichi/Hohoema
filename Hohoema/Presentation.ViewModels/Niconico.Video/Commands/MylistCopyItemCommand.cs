@@ -1,5 +1,5 @@
 ﻿using Hohoema.Dialogs;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services;

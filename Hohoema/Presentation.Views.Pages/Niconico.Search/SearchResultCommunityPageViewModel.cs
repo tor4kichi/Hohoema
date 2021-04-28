@@ -1,38 +1,33 @@
-﻿using Prism.Mvvm;
+﻿using Hohoema.Models.Domain.Niconico.Community;
+using Hohoema.Models.Domain.Niconico.Search;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Helpers;
+using Hohoema.Models.UseCase;
+using Hohoema.Presentation.Services;
+using Hohoema.Presentation.Services.Page;
+using I18NPortable;
+using Mntone.Nico2;
+using Mntone.Nico2.Searches.Community;
+using Prism.Commands;
+using Prism.Navigation;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Hohoema.Models.Domain;
-using Hohoema.Presentation.Services;
-using Hohoema.Models.Domain.Helpers;
-using System.Windows.Input;
-using Mntone.Nico2.Searches.Community;
-using Mntone.Nico2;
-using Prism.Commands;
-using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
-using Hohoema.Presentation.Services.Page;
-
-using Prism.Navigation;
-
-using Hohoema.Models.UseCase;
-using I18NPortable;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Niconico.Search;
-using Hohoema.Models.Domain.Niconico.Community;
+using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
 
-	// Note: Communityの検索はページベースで行います。
-	// また、ログインが必要です。
+    // Note: Communityの検索はページベースで行います。
+    // また、ログインが必要です。
 
-	public class SearchResultCommunityPageViewModel : HohoemaListingPageViewModelBase<CommunityInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class SearchResultCommunityPageViewModel : HohoemaListingPageViewModelBase<CommunityInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -160,7 +155,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
             foreach (var item in CommunitySearchSortOptionListItems)
             {
-                item.Label = Services.Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
+                item.Label = SortHelper.ToCulturizedText(item.Sort, item.Order);
             }
 
 
@@ -272,7 +267,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         private void RefreshSearchOptionText()
         {
-            var optionText = Services.Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            var optionText = SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
             var mode = (SearchOption.Mode == CommunitySearchMode.Keyword ? "Keyword" : "Tag").Translate();
 
             SearchOptionText = $"{optionText}({mode})";

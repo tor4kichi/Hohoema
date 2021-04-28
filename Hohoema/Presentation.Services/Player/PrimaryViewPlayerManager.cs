@@ -42,7 +42,7 @@ namespace Hohoema.Presentation.Services.Player
         private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
         PrimaryPlayerDisplayMode _prevDisplayMode;
 
-        Models.Domain.Helpers.AsyncLock _navigationLock = new Models.Domain.Helpers.AsyncLock();
+        Models.Helpers.AsyncLock _navigationLock = new Models.Helpers.AsyncLock();
 
         public PrimaryViewPlayerManager(IScheduler scheduler,
             [Unity.Attributes.Dependency("PrimaryPlayerNavigationService")] Lazy<INavigationService> navigationServiceLazy,

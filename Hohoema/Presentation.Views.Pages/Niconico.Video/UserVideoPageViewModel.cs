@@ -1,28 +1,27 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
-using System.Threading;
-using Prism.Commands;
-using Hohoema.Models.Domain.Player.Video.Cache;
-using Prism.Navigation;
-using Hohoema.Presentation.Services.Page;
-using Hohoema.Models.UseCase.NicoVideos;
-using System;
-using Reactive.Bindings.Extensions;
-using Hohoema.Models.UseCase;
-using Reactive.Bindings;
-using Mntone.Nico2.Videos.Users;
-using static Mntone.Nico2.Users.User.UserDetailResponse;
-using System.Runtime.CompilerServices;
+﻿using Hohoema.Models.Domain.Niconico.User;
 using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Niconico.User;
+using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Models.Domain.Subscriptions;
+using Hohoema.Models.Helpers;
+using Hohoema.Models.UseCase;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Presentation.Services.Page;
+using Hohoema.Presentation.ViewModels.Niconico.User;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
-using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
-using Hohoema.Presentation.ViewModels.Niconico.User;
+using Mntone.Nico2.Videos.Users;
+using Prism.Commands;
+using Prism.Navigation;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using static Mntone.Nico2.Users.User.UserDetailResponse;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {

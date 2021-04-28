@@ -14,7 +14,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Prism.Ioc;
-using Hohoema.Models.Domain.Niconico.UserFeature.Follow;
+using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
 using Hohoema.Presentation.ViewModels;
 using Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser;
 

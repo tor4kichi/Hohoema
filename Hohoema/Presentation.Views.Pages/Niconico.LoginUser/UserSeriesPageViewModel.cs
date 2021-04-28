@@ -1,6 +1,12 @@
-﻿using I18NPortable;
-using Hohoema.Presentation.Services.Page;
+﻿using Hohoema.Models.Domain.Niconico.User;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Presentation.Services.Page;
+using Hohoema.Presentation.ViewModels.Niconico.Series;
+using Hohoema.Presentation.ViewModels.Subscriptions;
+using I18NPortable;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -8,14 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Presentation.ViewModels.Subscriptions;
-using Hohoema.Presentation.ViewModels.Niconico.Series;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {

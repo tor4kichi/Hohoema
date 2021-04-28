@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Mntone.Nico2.Videos.Recommend;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain;
 using Prism.Commands;
 using Hohoema.Presentation.Services.Page;
@@ -17,7 +17,7 @@ using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Models.UseCase;
 using System.Threading;
 using System.Runtime.CompilerServices;
-using Hohoema.Models.Domain.Niconico.UserFeature;
+using Hohoema.Models.Domain.Niconico.LoginUser;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 

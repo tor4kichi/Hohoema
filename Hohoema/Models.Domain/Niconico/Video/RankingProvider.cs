@@ -1,5 +1,5 @@
 ﻿using Mntone.Nico2.Videos.Ranking;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Infrastructure;
 using System;
 using System.Collections.Generic;

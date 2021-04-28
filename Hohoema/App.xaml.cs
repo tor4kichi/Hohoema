@@ -42,10 +42,10 @@ using Microsoft.Toolkit.Uwp.UI;
 using Hohoema.Presentation.ViewModels;
 using LiteDB;
 using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.UserFeature.Follow;
+using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.UseCase.NicoVideos.Player;
 using Hohoema.Models.UseCase.Subscriptions;
@@ -53,13 +53,12 @@ using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.Services.Player;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.Player.Video.Cache;
-using Hohoema.Presentation.Services.Helpers;
 using Hohoema.Presentation.Services.Notification;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase.Migration;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Domain.Niconico.UserFeature;
+using Hohoema.Models.Domain.Niconico.LoginUser;
 using Prism.Commands;
 using Windows.System;
 using Microsoft.AppCenter;
@@ -72,6 +71,8 @@ using Hohoema.Models.UseCase.VideoCache;
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema
 {
@@ -372,7 +373,7 @@ namespace Hohoema
 
         public bool IsTitleBarCustomized { get; } = DeviceTypeHelper.IsDesktop && InputCapabilityHelper.IsMouseCapable;
 
-        Models.Domain.Helpers.AsyncLock InitializeLock = new Models.Domain.Helpers.AsyncLock();
+        Models.Helpers.AsyncLock InitializeLock = new Models.Helpers.AsyncLock();
         bool isInitialized = false;
         private async Task EnsureInitializeAsync()
         {
@@ -637,7 +638,7 @@ namespace Hohoema
             if (args.PreviousExecutionState == ApplicationExecutionState.Terminated
                 || args.PreviousExecutionState == ApplicationExecutionState.ClosedByUser)
             {
-                if (!Services.Helpers.ApiContractHelper.Is2018FallUpdateAvailable)
+                if (!ApiContractHelper.Is2018FallUpdateAvailable)
                 {
 
                 }

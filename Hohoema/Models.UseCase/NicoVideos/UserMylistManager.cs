@@ -1,27 +1,21 @@
-﻿using I18NPortable;
-using Mntone.Nico2.Users.Mylist;
-using Hohoema.Models.Domain.Helpers;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Presentation.Services;
+using I18NPortable;
+using Mntone.Nico2.Users.Mylist;
 using Prism.Mvvm;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Uno.Extensions;
-using Windows.Foundation;
-using Windows.UI.Core;
-using Hohoema.Models.Domain;
 using Uno.Threading;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {
 
-   
+
 
     // TODO: アイテム個数上限による失敗
 
@@ -157,9 +151,9 @@ namespace Hohoema.Models.UseCase.NicoVideos
 			return Mylists.Any(x => x.Id == groupId);
 		}
 
-        public Task WaitUpdate(CancellationToken ct = default)
+        public async Task WaitUpdate(CancellationToken ct = default)
         {
-            return _updateLock.LockAsync(ct);
+            using var _ = await _updateLock.LockAsync(ct);
         }
 
 		public LoginUserMylistPlaylist GetMylistGroup(string groupId)

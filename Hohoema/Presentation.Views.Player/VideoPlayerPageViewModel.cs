@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Player;
@@ -30,6 +30,7 @@ using Windows.Media;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
 using Windows.System;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {

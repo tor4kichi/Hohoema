@@ -22,12 +22,13 @@ using System.Threading.Tasks;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.User;
-using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
+using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Hohoema.Models.Domain.Pins;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {

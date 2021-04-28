@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain;
 using I18NPortable;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;

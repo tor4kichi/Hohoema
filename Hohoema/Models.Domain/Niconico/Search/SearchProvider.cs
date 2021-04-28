@@ -3,7 +3,7 @@ using Mntone.Nico2.Searches;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2.Searches.Mylist;
 using Mntone.Nico2.Searches.Video;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Infrastructure;
 using System;
 using System.Collections.Generic;

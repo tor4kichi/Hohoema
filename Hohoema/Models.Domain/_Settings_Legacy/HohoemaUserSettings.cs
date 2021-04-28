@@ -11,13 +11,13 @@ using System.Threading;
 using Windows.Storage;
 using Newtonsoft.Json;
 using System.IO;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Presentation.ViewModels;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
-using Hohoema.Models.Domain.Niconico.UserFeature;
+using Hohoema.Models.Domain.Niconico.LoginUser;
 
 namespace Hohoema.Models.Domain.Legacy
 {

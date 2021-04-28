@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Niconico.UserFeature;
+﻿using Hohoema.Models.Domain.Niconico.LoginUser;
 using Hohoema.Presentation.ViewModels;
 using System;
 using System.Collections.Generic;

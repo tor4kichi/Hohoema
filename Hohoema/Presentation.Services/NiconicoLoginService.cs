@@ -1,8 +1,6 @@
 ﻿using I18NPortable;
 using Mntone.Nico2;
-using Hohoema.Dialogs;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Views.Dialogs;
 using Prism.Commands;
 using System;
@@ -13,10 +11,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
-using Windows.Foundation;
-using Windows.UI.ViewManagement;
-using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
+using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.Services
 {

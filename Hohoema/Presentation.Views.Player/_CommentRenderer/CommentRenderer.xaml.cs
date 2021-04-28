@@ -1,5 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Animations;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico;
 using System;
 using System.Collections;

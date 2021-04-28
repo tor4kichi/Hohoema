@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Helpers;
+﻿using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.PageNavigation;
@@ -17,12 +17,13 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
+using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using NiconicoLiveToolkit.Live;
 using NiconicoLiveToolkit.Live.Search;
 using System.Collections.ObjectModel;
 using Uno.Extensions;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
+using Hohoema.Models.Domain.Pins;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {

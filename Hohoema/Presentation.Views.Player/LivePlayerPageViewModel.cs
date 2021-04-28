@@ -52,6 +52,8 @@ using Hohoema.Models.Domain.Application;
 using Hohoema.Presentation.ViewModels.Player.Commands;
 using Hohoema.Presentation.Views.Player;
 using Microsoft.Toolkit.Uwp;
+using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Helpers;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -332,7 +334,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 return _ShareCommand
                     ?? (_ShareCommand = new DelegateCommand(() =>
                     {
-                        Services.Helpers.ShareHelper.Share(Services.Helpers.ShareHelper.MakeLiveShareText(_PlayerProp.Program.Title, LiveId));
+                        ShareHelper.Share(ShareHelper.MakeLiveShareText(_PlayerProp.Program.Title, LiveId));
                     }
                     ));
             }
@@ -346,7 +348,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 return _ShereWithTwitterCommand
                     ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
                     {
-                        await Services.Helpers.ShareHelper.ShareToTwitter(Services.Helpers.ShareHelper.MakeLiveShareText(_PlayerProp.Program.Title, LiveId));
+                        await ShareHelper.ShareToTwitter(ShareHelper.MakeLiveShareText(_PlayerProp.Program.Title, LiveId));
                     }
                     ));
             }
@@ -360,7 +362,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 return _ShareWithClipboardCommand
                     ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
                     {
-                        Services.Helpers.ClipboardHelper.CopyToClipboard(Services.Helpers.ShareHelper.MakeLiveShareText(_PlayerProp.Program.Title, LiveId));
+                        ClipboardHelper.CopyToClipboard(ShareHelper.MakeLiveShareText(_PlayerProp.Program.Title, LiveId));
                     }
                     ));
             }

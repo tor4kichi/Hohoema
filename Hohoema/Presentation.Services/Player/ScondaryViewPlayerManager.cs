@@ -24,6 +24,7 @@ using System.Linq;
 using Windows.System;
 using Microsoft.Toolkit.Uwp;
 using Hohoema.Presentation.Views.Pages.Hohoema;
+using Hohoema.Models.Helpers;
 
 namespace Hohoema.Presentation.Services
 {
@@ -59,7 +60,7 @@ namespace Hohoema.Presentation.Services
             MainViewId = ApplicationView.GetApplicationViewIdForWindow(CoreApplication.MainView.CoreWindow);
         }
 
-        Models.Domain.Helpers.AsyncLock _playerNavigationLock = new Models.Domain.Helpers.AsyncLock();
+        Models.Helpers.AsyncLock _playerNavigationLock = new Models.Helpers.AsyncLock();
 
         public int MainViewId { get; }
 
@@ -132,7 +133,7 @@ namespace Hohoema.Presentation.Services
                 await ApplicationViewSwitcher.TryShowAsStandaloneAsync(id, ViewSizePreference.UseHalf, MainViewId, ViewSizePreference.UseHalf);
                 
                 // ウィンドウサイズの保存と復元
-                if (Services.Helpers.DeviceTypeHelper.IsDesktop)
+                if (DeviceTypeHelper.IsDesktop)
                 {
                     var localObjectStorageHelper = App.Current.Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                     if (localObjectStorageHelper.KeyExists(secondary_view_size))

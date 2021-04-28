@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Live;
+using Hohoema.Models.Helpers;
+using Hohoema.Presentation.Services;
+using Hohoema.Presentation.Services.Page;
+using I18NPortable;
+using Mntone.Nico2.Live;
+using NiconicoLiveToolkit.Live;
+using NiconicoLiveToolkit.Live.Search;
+using Prism.Commands;
+using Prism.Mvvm;
+using Prism.Unity;
+using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Mntone.Nico2.Live;
-using Mntone.Nico2.Searches.Live;
-using Hohoema.Database;
-using Prism.Commands;
 using Unity;
-using Prism.Unity;
-using I18NPortable;
-using System.Diagnostics;
-using System.Collections.ObjectModel;
-using System.Threading;
-using NiconicoLiveToolkit.Live;
-using Hohoema.Models.Domain.Niconico.Live;
-using Hohoema.Models.Domain;
-using Hohoema.Presentation.Services.Page;
-using Hohoema.Presentation.Services;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Presentation.ViewModels.Niconico.Live;
-using NiconicoLiveToolkit.Live.Search;
-using Prism.Mvvm;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {
@@ -74,7 +68,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
 
         public string ThumbnailUrl { get; protected set; }
 
-        public bool IsXbox => Services.Helpers.DeviceTypeHelper.IsXbox;
+        public bool IsXbox => DeviceTypeHelper.IsXbox;
 
         public DateTime ExpiredAt { get; internal set; }
         public Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus? ReservationStatus { get; internal set; }
@@ -136,7 +130,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
                     // 放送中のリコメンドであるためタイムシフトはオススメに表示ｓれない
                     LiveStatus = LiveStatus.Past;
                     throw new NotSupportedException();
-                    break;
+                    //break;
                 default:
                     break;
             }

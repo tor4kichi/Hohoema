@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.Domain.Helpers;
+﻿using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico.Live;
-using Hohoema.Models.Domain.Niconico.UserFeature;
+using Hohoema.Models.Domain.Niconico.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.UseCase;

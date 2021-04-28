@@ -1,5 +1,5 @@
 ﻿using Mntone.Nico2.Videos.WatchAPI;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -30,6 +30,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using System.Reactive.Subjects;
 using System.Reactive;
 using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Models.Domain.Player.Video.Cache
 {

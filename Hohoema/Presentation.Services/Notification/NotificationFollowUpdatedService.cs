@@ -1,5 +1,5 @@
 ﻿using I18NPortable;
-using Hohoema.Models.Domain.Niconico.UserFeature.Follow;
+using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;

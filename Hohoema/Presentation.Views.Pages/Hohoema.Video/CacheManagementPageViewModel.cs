@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Prism.Commands;
 using Windows.System;
 using Prism.Navigation;

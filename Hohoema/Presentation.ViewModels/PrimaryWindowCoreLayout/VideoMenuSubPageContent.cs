@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Prism.Ioc;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 {

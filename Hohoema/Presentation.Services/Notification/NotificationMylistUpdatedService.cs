@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Domain;
+using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.UseCase.NicoVideos;
 using Reactive.Bindings.Extensions;
 using System;

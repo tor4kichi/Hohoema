@@ -27,7 +27,7 @@ using Windows.UI.Xaml;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.UserFeature;
+using Hohoema.Models.Domain.Niconico.LoginUser;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Models.UseCase.NicoVideos.Player;
 using System.Reactive.Disposables;
@@ -35,7 +35,7 @@ using System.Collections.ObjectModel;
 using Uno.Extensions;
 using Windows.Storage.Pickers;
 using I18NPortable;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Microsoft.AppCenter.Crashes;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.UI.Xaml.Controls;
@@ -527,7 +527,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                 return _CopyVersionTextToClipboardCommand
                     ?? (_CopyVersionTextToClipboardCommand = new DelegateCommand(() =>
                     {
-                        Services.Helpers.ClipboardHelper.CopyToClipboard(CurrentVersion.ToString());
+                        ClipboardHelper.CopyToClipboard(CurrentVersion.ToString());
                     }));
             }
         }

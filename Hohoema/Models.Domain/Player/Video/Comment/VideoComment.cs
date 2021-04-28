@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2.Videos.Comment;
 using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Presentation.ViewModels;
 using Prism.Commands;
 using Prism.Mvvm;

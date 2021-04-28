@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Helpers;
+﻿using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Player.Video;
 using Reactive.Bindings.Extensions;
 using System;
@@ -15,6 +15,7 @@ using Windows.Media.Core;
 using Windows.Storage;
 using Windows.Storage.Search;
 using XTSSharp;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Models.Domain.VideoCache
 {

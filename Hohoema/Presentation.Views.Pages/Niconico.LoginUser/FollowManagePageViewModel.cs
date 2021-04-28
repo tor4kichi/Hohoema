@@ -11,8 +11,9 @@ using System.Threading;
 using Reactive.Bindings;
 using System.Diagnostics;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.Domain.Niconico.UserFeature.Follow;
+using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
 using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {

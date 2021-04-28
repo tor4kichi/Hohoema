@@ -9,7 +9,7 @@ using System.Threading;
 using System.Reactive.Linq;
 using Windows.UI.Popups;
 using Hohoema.Dialogs;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Page;
 using Prism.Navigation;
@@ -18,11 +18,13 @@ using Reactive.Bindings.Extensions;
 using Hohoema.Models.UseCase;
 using I18NPortable;
 using System.Runtime.CompilerServices;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.User;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {

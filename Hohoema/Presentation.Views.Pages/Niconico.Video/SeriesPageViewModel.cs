@@ -1,6 +1,13 @@
-﻿using Mntone.Nico2.Videos.Series;
-using Hohoema.Models.Domain.Helpers;
+﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Presentation.ViewModels.Subscriptions;
+using Hohoema.Presentation.ViewModels.VideoListPage;
+using Mntone.Nico2.Videos.Series;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
 using System;
@@ -8,16 +15,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Uno.Extensions;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Presentation.ViewModels.Subscriptions;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Presentation.ViewModels.VideoListPage;
-using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {

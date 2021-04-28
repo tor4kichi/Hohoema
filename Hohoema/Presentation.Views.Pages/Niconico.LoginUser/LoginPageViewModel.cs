@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Models.UseCase;
@@ -10,6 +10,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {

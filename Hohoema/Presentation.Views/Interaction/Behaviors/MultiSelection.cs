@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xaml.Interactivity;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using Reactive.Bindings.Interactivity;

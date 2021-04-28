@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Mntone.Nico2.Channels.Video;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain;
 using Prism.Commands;
 using Prism.Navigation;
@@ -20,6 +20,8 @@ using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {

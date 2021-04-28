@@ -4,7 +4,7 @@ using Mntone.Nico2.Embed.Ichiba;
 using Mntone.Nico2.Live.Recommend;
 using NiconicoLiveToolkit.Live;
 using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Models.Domain.Niconico.Live;
@@ -28,9 +28,10 @@ using System.Threading.Tasks;
 using Unity;
 using Windows.System;
 using Windows.UI.Xaml;
-using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
+using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
+using Hohoema.Models.Domain.Pins;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 {

@@ -1,6 +1,7 @@
 ﻿using Hohoema.Dialogs;
 using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase;

@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 
-namespace Hohoema.Presentation.Services.Helpers
+namespace Hohoema.Models.Helpers
 {
     public enum ContentType
     {

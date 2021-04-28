@@ -7,7 +7,7 @@ using Hohoema.Models.Domain;
 using Unity;
 using System.Diagnostics;
 using Hohoema.Models.Domain.Live;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Prism.Mvvm;
 
 namespace Hohoema.Presentation.ViewModels

@@ -16,6 +16,7 @@ using Hohoema.Presentation.Views;
 using System.Reactive.Concurrency;
 using System.Threading;
 using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels
 {

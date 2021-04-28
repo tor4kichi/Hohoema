@@ -1,5 +1,5 @@
 ﻿using Mntone.Nico2;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,17 +7,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Uno.Threading;
 using System.Threading;
-
+using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 namespace Hohoema.Models.Infrastructure
 {
     public abstract class ProviderBase
     {
-        public ProviderBase(Domain.NiconicoSession niconicoSession)
+        public ProviderBase(NiconicoSession niconicoSession)
         {
             NiconicoSession = niconicoSession;
         }
 
-        public Domain.NiconicoSession NiconicoSession { get; }
+        public NiconicoSession NiconicoSession { get; }
 
         protected static FastAsyncLock ContextLock { get; } = new FastAsyncLock();
         private NiconicoContext Context => NiconicoSession.Context;

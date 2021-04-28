@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Domain;
+using Hohoema.Models.Domain.Niconico;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;

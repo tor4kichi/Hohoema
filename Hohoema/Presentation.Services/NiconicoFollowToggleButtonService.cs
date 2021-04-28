@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using I18NPortable;
 
 using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.UserFeature.Follow;
+using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 

@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,6 @@ using System.Threading;
 using Mntone.Nico2;
 using Mntone.Nico2.Communities.Detail;
 using System.Diagnostics;
-using Mntone.Nico2.Videos.Ranking;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -20,6 +19,7 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Presentation.ViewModels.Community;
+using Hohoema.Models.Domain.Pins;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {

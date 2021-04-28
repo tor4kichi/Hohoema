@@ -6,8 +6,8 @@ using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.Niconico.Search;
-using Hohoema.Models.Domain.Niconico.UserFeature.Follow;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Playlist;
@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Hohoema.Models.Domain.Application;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using Hohoema.Models.Domain.Pins;
 
 namespace Hohoema.Presentation.Services.Page
 {

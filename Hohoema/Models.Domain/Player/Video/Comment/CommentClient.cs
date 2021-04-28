@@ -2,7 +2,7 @@
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Dmc;
 using NiconicoLiveToolkit.Live.WatchSession;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Infrastructure;
@@ -12,6 +12,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 
 namespace Hohoema.Models.Domain.Player.Video.Comment
 {
@@ -54,21 +55,16 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
             try
             {
                 
-                commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
+                commentRes = await ContextActionAsync(context =>
                 {
-                    return await ContextActionAsync(async context => 
-                    {
-                        return await context.Video
-                            .GetCommentAsync(
-                                (int)CommentServerInfo.ViewerUserId,
-                                CommentServerInfo.ServerUrl,
-                                CommentServerInfo.DefaultThreadId,
-                                CommentServerInfo.ThreadKeyRequired
-                            );
-                    });
-                    
+                    return context.Video
+                        .GetCommentAsync(
+                            (int)CommentServerInfo.ViewerUserId,
+                            CommentServerInfo.ServerUrl,
+                            CommentServerInfo.DefaultThreadId,
+                            CommentServerInfo.ThreadKeyRequired
+                        );
                 });
-
             }
             catch
             {
@@ -82,18 +78,15 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
                 {
                     if (CommentServerInfo.CommunityThreadId.HasValue)
                     {
-                        commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
+                        commentRes = await ContextActionAsync(context =>
                         {
-                            return await ContextActionAsync(async context =>
-                            {
-                                return await context.Video
-                                .GetCommentAsync(
-                                    (int)CommentServerInfo.ViewerUserId,
-                                    CommentServerInfo.ServerUrl,
-                                    CommentServerInfo.CommunityThreadId.Value,
-                                    CommentServerInfo.ThreadKeyRequired
-                                );
-                            });
+                            return context.Video
+                            .GetCommentAsync(
+                                (int)CommentServerInfo.ViewerUserId,
+                                CommentServerInfo.ServerUrl,
+                                CommentServerInfo.CommunityThreadId.Value,
+                                CommentServerInfo.ThreadKeyRequired
+                            );
                         });
                     }
                 }

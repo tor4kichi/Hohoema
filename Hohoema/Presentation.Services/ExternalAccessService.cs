@@ -2,8 +2,9 @@
 using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Models.Domain.Niconico.Live;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Helpers;
 using I18NPortable;
 using Microsoft.AppCenter.Analytics;
 using Prism.Commands;
@@ -69,11 +70,11 @@ namespace Hohoema.Presentation.Services
                 if (content is INiconicoObject niconicoContent)
                 {
                     var uri = ConvertToUrl(niconicoContent);
-                    Helpers.ClipboardHelper.CopyToClipboard(uri.OriginalString);
+                    ClipboardHelper.CopyToClipboard(uri.OriginalString);
                 }
                 else
                 {
-                    Helpers.ClipboardHelper.CopyToClipboard(content.ToString());
+                    ClipboardHelper.CopyToClipboard(content.ToString());
                 }
 
                 _notificationService.ShowLiteInAppNotification_Success("Copy".Translate());
@@ -92,21 +93,21 @@ namespace Hohoema.Presentation.Services
             {
                 if (content is INiconicoContent niconicoContent)
                 {
-                    var shareContent = Services.Helpers.ShareHelper.MakeShareText(niconicoContent);
-                    Helpers.ClipboardHelper.CopyToClipboard(shareContent);
+                    var shareContent = ShareHelper.MakeShareText(niconicoContent);
+                    ClipboardHelper.CopyToClipboard(shareContent);
                 }
                 else if (content is string contentId)
                 {
                     var video = _nicoVideoRepository.Get(contentId);
                     if (video != null)
                     {
-                        var shareContent = Services.Helpers.ShareHelper.MakeShareText(video);
-                        Helpers.ClipboardHelper.CopyToClipboard(shareContent);
+                        var shareContent = ShareHelper.MakeShareText(video);
+                        ClipboardHelper.CopyToClipboard(shareContent);
                     }
                 }
                 else
                 {
-                    Helpers.ClipboardHelper.CopyToClipboard(content.ToString());
+                    ClipboardHelper.CopyToClipboard(content.ToString());
                 }
 
                 _notificationService.ShowLiteInAppNotification_Success("Copy".Translate());
@@ -170,8 +171,8 @@ namespace Hohoema.Presentation.Services
         public DelegateCommand<INiconicoContent> OpenShareUICommand => _OpenShareUICommand
             ?? (_OpenShareUICommand = new DelegateCommand<INiconicoContent>(content => 
             {
-                var shareContent = Services.Helpers.ShareHelper.MakeShareText(content);
-                Services.Helpers.ShareHelper.Share(shareContent);
+                var shareContent = ShareHelper.MakeShareText(content);
+                ShareHelper.Share(shareContent);
 
                 Analytics.TrackEvent("OpenShareUICommand", new Dictionary<string, string> 
                 {

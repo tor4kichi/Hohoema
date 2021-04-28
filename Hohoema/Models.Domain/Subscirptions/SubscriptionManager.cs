@@ -3,7 +3,7 @@
 using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using System;
 using System.Collections.Generic;

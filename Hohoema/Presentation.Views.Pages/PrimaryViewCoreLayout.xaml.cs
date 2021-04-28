@@ -1,7 +1,7 @@
 ﻿using I18NPortable;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Presentation.Services.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Presentation.ViewModels;
 using Prism.Commands;

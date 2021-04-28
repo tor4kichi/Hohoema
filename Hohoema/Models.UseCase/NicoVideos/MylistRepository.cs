@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {

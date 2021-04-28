@@ -14,13 +14,14 @@ using System.Threading.Tasks;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Uno.Disposables;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using System.Threading;
 using System.Runtime.CompilerServices;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
+using Hohoema.Models.Domain.Pins;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {

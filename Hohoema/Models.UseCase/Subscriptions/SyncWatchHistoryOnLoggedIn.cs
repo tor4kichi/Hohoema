@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.UserFeature;
+using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.LoginUser;
 using Hohoema.Models.UseCase.NicoVideos;
 using System;
 using System.Collections.Generic;
