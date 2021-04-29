@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Windows.System;
 
 namespace Hohoema.FixPrism
 {
@@ -17,7 +18,7 @@ namespace Hohoema.FixPrism
         }
 
         ReaderWriterLockSlim lockSlim = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        Dictionary<SynchronizationContext, IList<PropertyChangedEventHandler>> _handlersByThread = new Dictionary<SynchronizationContext, IList<PropertyChangedEventHandler>>();
+        Dictionary<DispatcherQueue, IList<PropertyChangedEventHandler>> _handlersByThread = new Dictionary<DispatcherQueue, IList<PropertyChangedEventHandler>>();
 
         /// <summary>
         /// Occurs when a property value changes.
@@ -29,7 +30,7 @@ namespace Hohoema.FixPrism
                 lockSlim.EnterWriteLock();
                 try
                 {
-                    var currentContext = SynchronizationContext.Current;
+                    var currentContext = DispatcherQueue.GetForCurrentThread();
                     if (_handlersByThread.TryGetValue(currentContext, out var list))
                     {
                         list.Add(value);
@@ -49,7 +50,7 @@ namespace Hohoema.FixPrism
                 lockSlim.EnterWriteLock();
                 try
                 {
-                    var currentContext = SynchronizationContext.Current;
+                    var currentContext = DispatcherQueue.GetForCurrentThread();
                     if (_handlersByThread.TryGetValue(currentContext, out var list))
                     {
                         list.Remove(value);
@@ -133,34 +134,22 @@ namespace Hohoema.FixPrism
                 {
                     var context = pair.Key;
                     var handlers = pair.Value;
-                    if (SynchronizationContext.Current != context)
+                    context.TryEnqueue(() =>
                     {
-                        context.Post(_ =>
+                        lockSlim.EnterReadLock();
+                        try
                         {
-                            lockSlim.EnterReadLock();
-                            try
+                            var eventArgs = new PropertyChangedEventArgs(propertyName);
+                            foreach (var eventHandler in handlers.ToArray())
                             {
-                                var eventArgs = new PropertyChangedEventArgs(propertyName);
-                                foreach (var eventHandler in handlers.ToArray())
-                                {
-                                    OnPropertyChanged(eventHandler, eventArgs);
-                                }
+                                OnPropertyChanged(eventHandler, eventArgs);
                             }
-                            finally
-                            {
-                                lockSlim.ExitReadLock();
-                            }
-                        },
-                        null );
-                    }
-                    else
-                    {
-                        var eventArgs = new PropertyChangedEventArgs(propertyName);
-                        foreach (var eventHandler in handlers)
-                        {
-                            OnPropertyChanged(eventHandler, eventArgs);
                         }
-                    }
+                        finally
+                        {
+                            lockSlim.ExitReadLock();
+                        }
+                    });
                 }
             }
             finally
