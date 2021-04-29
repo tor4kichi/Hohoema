@@ -1,9 +1,9 @@
 ﻿using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Niconico.Video.Series;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.UseCase.NicoVideos;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Series;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using I18NPortable;

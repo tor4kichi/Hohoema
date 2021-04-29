@@ -8,6 +8,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Core;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Windows.System;
+using Hohoema.Models.Domain.Notification;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -29,8 +30,8 @@ namespace Hohoema.Presentation.Views.Controls
 
         private void HohoemaInAppNotification_Loaded(object sender, RoutedEventArgs e)
         {
-            StrongReferenceMessenger.Default.Register<Services.InAppNotificationEvent>(this, (r, m) => PushNextNotication(m.Value));
-            StrongReferenceMessenger.Default.Register<Services.InAppNotificationDismissEvent>(this, (r, m) =>
+            StrongReferenceMessenger.Default.Register<InAppNotificationMessage>(this, (r, m) => PushNextNotication(m.Value));
+            StrongReferenceMessenger.Default.Register<InAppNotificationDismissMessage>(this, (r, m) =>
             {
                 LiteNotification.Dismiss();
             });
@@ -38,8 +39,8 @@ namespace Hohoema.Presentation.Views.Controls
 
         private void HohoemaInAppNotification_Unloaded(object sender, RoutedEventArgs e)
         {
-            StrongReferenceMessenger.Default.Unregister<Services.InAppNotificationEvent>(this);
-            StrongReferenceMessenger.Default.Unregister<Services.InAppNotificationDismissEvent>(this);
+            StrongReferenceMessenger.Default.Unregister<InAppNotificationMessage>(this);
+            StrongReferenceMessenger.Default.Unregister<InAppNotificationDismissMessage>(this);
         }
 
 
@@ -47,11 +48,11 @@ namespace Hohoema.Presentation.Views.Controls
 
         static readonly TimeSpan DefaultShowDuration = TimeSpan.FromSeconds(7);
 
-        private Services.InAppNotificationPayload _CurrentNotication;
+        private InAppNotificationPayload _CurrentNotication;
 
-        private ConcurrentQueue<Services.InAppNotificationPayload> NoticationRequestQueue = new ConcurrentQueue<Services.InAppNotificationPayload>();
+        private ConcurrentQueue<InAppNotificationPayload> NoticationRequestQueue = new ConcurrentQueue<InAppNotificationPayload>();
 
-        private void PushNextNotication(Services.InAppNotificationPayload payload)
+        private void PushNextNotication(InAppNotificationPayload payload)
         {
             NoticationRequestQueue.Enqueue(payload);
 

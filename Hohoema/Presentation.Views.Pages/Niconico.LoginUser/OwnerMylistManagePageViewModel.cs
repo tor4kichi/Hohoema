@@ -1,13 +1,14 @@
 ﻿using Hohoema.Dialogs;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
+using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using I18NPortable;
 using Microsoft.Toolkit.Uwp.UI;
@@ -37,7 +38,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
         private readonly NiconicoSession _niconicoSession;
         private readonly PageManager _pageManager;
         private readonly DialogService _dialogService;
-        private readonly UserMylistManager _userMylistManager;
+        private readonly LoginUserOwnedMylistManager _userMylistManager;
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
 
@@ -52,7 +53,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             PageManager pageManager,
             Services.DialogService dialogService,
             ApplicationLayoutManager applicationLayoutManager,
-            UserMylistManager userMylistManager,
+            LoginUserOwnedMylistManager userMylistManager,
             PlaylistPlayAllCommand playlistPlayAllCommand
             )
         {

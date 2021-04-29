@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase;
 using Prism.Navigation;
 using Reactive.Bindings;

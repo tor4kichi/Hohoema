@@ -1,23 +1,50 @@
-﻿using Hohoema.Models.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Unity;
-using Windows.ApplicationModel.DataTransfer;
-using Hohoema.Models.Domain.Live;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Live;
+﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Models.Domain.Niconico.Community;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
+using Hohoema.Models.Domain.Niconico.Live;
+using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Domain.Niconico.Video;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 
 namespace Hohoema.Models.Helpers
 {
     public static class ShareHelper
     {
+        static public Uri ConvertToUrl(INiconicoObject content)
+        {
+            Uri uri = null;
+            switch (content)
+            {
+                case IUser user:
+                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.MakeUserPageUrl(user.Id)));
+                    break;
+                case IVideoContent videoContent:
+                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.VideoWatchPageUrl, videoContent.Id));
+                    break;
+                case IMylist mylist:
+                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.MakeMylistPageUrl(mylist.Id)));
+                    break;
+                case ILiveContent live:
+                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.LiveWatchPageUrl, live.Id));
+                    break;
+                case IChannel channel:
+                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.ChannelUrlBase, "channel", "ch" + channel.Id));
+                    break;
+                case ICommunity community:
+                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.CommynitySammaryPageUrl, community.Id));
+                    break;
+
+                default:
+                    break;
+            }
+
+            return uri;
+        }
+
         public static string MakeShareText(NicoVideo video)
         {
             if (!string.IsNullOrEmpty(video.VideoId))

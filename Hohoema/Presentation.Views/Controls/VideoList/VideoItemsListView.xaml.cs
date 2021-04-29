@@ -1,30 +1,21 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
+using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Presentation.Views.Flyouts;
+using Prism.Ioc;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using System.Threading.Tasks;
+using System.Windows.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Prism.Ioc;
-using System.Windows.Input;
-using Hohoema.Presentation.Views.Flyouts;
-using Hohoema.Models.UseCase.NicoVideos;
-using System.Threading.Tasks;
-using Reactive.Bindings.Extensions;
-using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
-using Hohoema.Models.Domain;
-using I18NPortable;
-using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Application;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -178,7 +169,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
         private readonly VideoItemsSelectionContext _selectionContext;
         private readonly NiconicoSession _niconicoSession;
         private readonly LocalMylistManager _localPlaylistManager;
-        private readonly UserMylistManager _mylistManager;
+        private readonly LoginUserOwnedMylistManager _mylistManager;
         private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly MylistAddItemCommand _addMylistCommand;
         private readonly MylistRemoveItemCommand _removeMylistCommand;
@@ -198,7 +189,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
             _selectionContext = App.Current.Container.Resolve<VideoItemsSelectionContext>();
             _niconicoSession = App.Current.Container.Resolve<NiconicoSession>();
             _localPlaylistManager = App.Current.Container.Resolve<LocalMylistManager>();
-            _mylistManager = App.Current.Container.Resolve<UserMylistManager>();
+            _mylistManager = App.Current.Container.Resolve<LoginUserOwnedMylistManager>();
             _hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
 
             _addQueueCommand = App.Current.Container.Resolve<QueueAddItemCommand>();

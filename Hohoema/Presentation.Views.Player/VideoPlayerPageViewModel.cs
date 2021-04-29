@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Player;
@@ -11,8 +11,8 @@ using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos.Player;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
-using Hohoema.Presentation.Services.Player;
+using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Models.UseCase.Player;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Player.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
@@ -31,6 +31,10 @@ using Windows.Media.Playback;
 using Windows.Storage.Streams;
 using Windows.System;
 using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Domain.Niconico.Video.Series;
+using Hohoema.Presentation.ViewModels.Niconico.Share;
+using Hohoema.Models.Domain.Notification;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -55,12 +59,11 @@ namespace Hohoema.Presentation.ViewModels.Player
             ApplicationLayoutManager applicationLayoutManager,
             HohoemaPlaylist hohoemaPlaylist,
             LocalMylistManager localMylistManager,
-            UserMylistManager userMylistManager,
+            LoginUserOwnedMylistManager userMylistManager,
             PageManager pageManager,
             MediaPlayer mediaPlayer,
             NotificationService notificationService,
             DialogService dialogService,
-            ExternalAccessService externalAccessService,
             AddSubscriptionCommand addSubscriptionCommand,
             LocalPlaylistCreateCommand createLocalMylistCommand,
             MylistAddItemCommand addMylistCommand,
@@ -79,7 +82,11 @@ namespace Hohoema.Presentation.ViewModels.Player
             ShowPrimaryViewCommand showPrimaryViewCommand,
             MediaPlayerSoundVolumeManager soundVolumeManager,
             RestoreNavigationManager restoreNavigationManager,
-            NicoVideoCacheRepository nicoVideoRepository
+            NicoVideoCacheRepository nicoVideoRepository,
+            OpenLinkCommand openLinkCommand,
+            CopyToClipboardCommand copyToClipboardCommand,
+            CopyToClipboardWithShareTextCommand copyToClipboardWithShareTextCommand,
+            OpenShareUICommand openShareUICommand
             )
         {
             _scheduler = scheduler;
@@ -97,7 +104,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             PageManager = pageManager;
             _NotificationService = notificationService;
             _HohoemaDialogService = dialogService;
-            ExternalAccessService = externalAccessService;
             AddSubscriptionCommand = addSubscriptionCommand;
             CreateLocalMylistCommand = createLocalMylistCommand;
             AddMylistCommand = addMylistCommand;
@@ -113,6 +119,10 @@ namespace Hohoema.Presentation.ViewModels.Player
             SoundVolumeManager = soundVolumeManager;
             _restoreNavigationManager = restoreNavigationManager;
             _nicoVideoRepository = nicoVideoRepository;
+            OpenLinkCommand = openLinkCommand;
+            CopyToClipboardCommand = copyToClipboardCommand;
+            CopyToClipboardWithShareTextCommand = copyToClipboardWithShareTextCommand;
+            OpenShareUICommand = openShareUICommand;
             ObservableMediaPlayer = observableMediaPlayer
                 .AddTo(_CompositeDisposable);
             WindowService = windowService
@@ -161,7 +171,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public LocalMylistManager LocalMylistManager { get; }
-        public UserMylistManager UserMylistManager { get; }
+        public LoginUserOwnedMylistManager UserMylistManager { get; }
         public PageManager PageManager { get; }
         public ScondaryViewPlayerManager PlayerViewManager { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
@@ -181,12 +191,15 @@ namespace Hohoema.Presentation.ViewModels.Player
         public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }
         public ShowPrimaryViewCommand ShowPrimaryViewCommand { get; }
         public MediaPlayerSoundVolumeManager SoundVolumeManager { get; }
+        public OpenLinkCommand OpenLinkCommand { get; }
+        public CopyToClipboardCommand CopyToClipboardCommand { get; }
+        public CopyToClipboardWithShareTextCommand CopyToClipboardWithShareTextCommand { get; }
+        public OpenShareUICommand OpenShareUICommand { get; }
         public ObservableMediaPlayer ObservableMediaPlayer { get; }
         public WindowService WindowService { get; }
         public VideoEndedRecommendation VideoEndedRecommendation { get; }
         public INicoVideoDetails VideoDetails { get; private set; }
         public PlayerSettings PlayerSettings { get; }
-        public ExternalAccessService ExternalAccessService { get; }
 
         public MediaPlayerSeekCommand SeekCommand { get; }
         public MediaPlayerSetPlaybackRateCommand SetPlaybackRateCommand { get; }

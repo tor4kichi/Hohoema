@@ -54,11 +54,11 @@
                   <MenuFlyout>
                     <!-- TODO: LiveComment.CommentTextからリンクを抽出するConverterが必要 -->
                     <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenAsLink}"
-                                    Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.ExternalAccessService.OpenLinkCommand}"
+                                    Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.OpenLinkCommand}"
                                     CommandParameter="{Binding Link}"
                                     Visibility="{Binding IsLink, Converter={StaticResource BooleanToVisibility}}" />
                     <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyAsLink}"
-                                    Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.ExternalAccessService.CopyToClipboardCommand}"
+                                    Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.CopyToClipboardCommand}"
                                     CommandParameter="{Binding Link}"
                                     Visibility="{Binding IsLink, Converter={StaticResource BooleanToVisibility}}" />
 

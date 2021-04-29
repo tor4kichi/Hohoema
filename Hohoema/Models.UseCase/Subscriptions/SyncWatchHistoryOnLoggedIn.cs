@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.LoginUser;
+using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.UseCase.NicoVideos;
 using System;
 using System.Collections.Generic;
@@ -13,17 +13,17 @@ namespace Hohoema.Models.UseCase.Subscriptions
     public sealed class SyncWatchHistoryOnLoggedIn : IDisposable
     {
         private readonly NiconicoSession _niconicoSession;
-        private readonly LoginUserHistoryProvider _loginUserHistoryProvider;
+        private readonly LoginUserVideoWatchHistoryProvider _LoginUserVideoWatchHistoryProvider;
         private readonly HohoemaPlaylist _hohoemaPlaylist;
 
         public SyncWatchHistoryOnLoggedIn(
             NiconicoSession niconicoSession,
-            LoginUserHistoryProvider loginUserHistoryProvider,
+            LoginUserVideoWatchHistoryProvider LoginUserVideoWatchHistoryProvider,
             HohoemaPlaylist hohoemaPlaylist
             )
         {
             _niconicoSession = niconicoSession;
-            _loginUserHistoryProvider = loginUserHistoryProvider;
+            _LoginUserVideoWatchHistoryProvider = LoginUserVideoWatchHistoryProvider;
             _hohoemaPlaylist = hohoemaPlaylist;
 
             _niconicoSession.LogIn += _niconicoSession_LogIn;
@@ -36,7 +36,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
         private async void _niconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
         {
-            await _loginUserHistoryProvider.GetHistory();
+            await _LoginUserVideoWatchHistoryProvider.GetHistory();
         }
     }
 }

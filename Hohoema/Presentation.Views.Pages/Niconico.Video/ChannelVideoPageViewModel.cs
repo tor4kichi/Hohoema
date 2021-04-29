@@ -15,13 +15,15 @@ using Hohoema.Models.UseCase;
 using System.Runtime.CompilerServices;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Niconico;
+using Hohoema.Presentation.ViewModels.Niconico.Follow;
+using Hohoema.Presentation.ViewModels.Niconico.Share;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
@@ -56,8 +58,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             ChannelProvider channelProvider,
             PageManager pageManager,
             HohoemaPlaylist hohoemaPlaylist,
-            ExternalAccessService externalAccessService,
-            NiconicoFollowToggleButtonService followToggleButtonService,
+            OpenLinkCommand openLinkCommand,
+            NiconicoFollowToggleButtonViewModel followToggleButtonService,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
@@ -66,7 +68,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             ChannelProvider = channelProvider;
             PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
-            ExternalAccessService = externalAccessService;
+            OpenLinkCommand = openLinkCommand;
             FollowToggleButtonService = followToggleButtonService;
             SelectionModeToggleCommand = selectionModeToggleCommand;
         }
@@ -179,8 +181,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         public ChannelProvider ChannelProvider { get; }
         public PageManager PageManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
-        public ExternalAccessService ExternalAccessService { get; }
-        public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
+        public OpenLinkCommand OpenLinkCommand { get; }
+        public NiconicoFollowToggleButtonViewModel FollowToggleButtonService { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
     }
 

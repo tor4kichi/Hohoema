@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
+﻿using Hohoema.Models.Domain.Niconico.Follow;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using System;
 using System.Collections.Generic;
 using System.Linq;

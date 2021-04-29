@@ -4,8 +4,7 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
-using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
 using Mntone.Nico2;
 using Mntone.Nico2.Searches.Community;
@@ -20,6 +19,7 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Hohoema.Models.UseCase.Niconico.Account;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
@@ -49,7 +49,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager, 
             SearchProvider searchProvider,
-            Services.NiconicoLoginService niconicoLoginService,
+            NiconicoLoginService niconicoLoginService,
             SearchHistoryRepository searchHistoryRepository
             )
         {

@@ -2,7 +2,7 @@
 using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;

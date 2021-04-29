@@ -1,12 +1,17 @@
-﻿using Mntone.Nico2;
-
-using Hohoema.Models.Domain;
+﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Search;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Helpers;
-
-using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Presentation.ViewModels.Niconico.Search;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Presentation.ViewModels.Subscriptions;
+using Hohoema.Presentation.ViewModels.VideoListPage;
+using Mntone.Nico2;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
@@ -16,22 +21,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Niconico.Search;
-using Hohoema.Models.Domain.Subscriptions;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
-using Hohoema.Presentation.ViewModels.Subscriptions;
-using Hohoema.Models.Domain.Niconico;
-using Microsoft.AppCenter.Analytics;
-using Hohoema.Presentation.ViewModels.VideoListPage;
-using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
-using Hohoema.Presentation.ViewModels.Niconico.Search;
-using Hohoema.Models.Domain.Pins;
+using Hohoema.Presentation.ViewModels.Niconico.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
-    
-	public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, ISearchWithtag, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+
+    public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, ISearchWithtag, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -58,7 +54,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             SearchHistoryRepository searchHistoryRepository,
             Services.DialogService dialogService,
             AddTagSearchSubscriptionCommand addTagSearchSubscriptionCommand,
-            NiconicoFollowToggleButtonService followButtonService,
+            NiconicoFollowToggleButtonViewModel followButtonService,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
@@ -115,7 +111,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         public PageManager PageManager { get; }
         public Services.DialogService HohoemaDialogService { get; }
         public AddTagSearchSubscriptionCommand AddTagSearchSubscriptionCommand { get; }
-        public NiconicoFollowToggleButtonService FollowButtonService { get; }
+        public NiconicoFollowToggleButtonViewModel FollowButtonService { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 
         static private List<SearchSortOptionListItem> _VideoSearchOptionListItems = new List<SearchSortOptionListItem>()

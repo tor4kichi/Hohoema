@@ -15,7 +15,7 @@ using Windows.UI.Xaml.Navigation;
 using Unity;
 using Hohoema.Models.Domain;
 using Prism.Ioc;
-using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 
 namespace Hohoema.Presentation.Views.Flyouts

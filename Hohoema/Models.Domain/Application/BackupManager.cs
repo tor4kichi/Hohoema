@@ -1,5 +1,5 @@
 ﻿using Hohoema.FixPrism;
-using Hohoema.Models.Domain.Niconico.LoginUser;
+using Hohoema.Models.Domain.Niconico.NicoRepo;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Pins;

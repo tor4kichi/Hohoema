@@ -34,7 +34,7 @@
           <AppBarButton Label="{i18nExt:Localize Key=HohoemaPageType.Series}" Command="{Binding OpenUserSeriesPageCommand}" />
 
           <CommandBar.SecondaryCommands>
-            <AppBarButton Label="{i18nExt:Localize Key=OpenWithBrowser}" Command="{Binding ExternalAccessService.OpenLinkCommand}" CommandParameter="{Binding}" VerticalAlignment="Center" UseSystemFocusVisuals="True" />
+            <AppBarButton Label="{i18nExt:Localize Key=OpenWithBrowser}" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding}" VerticalAlignment="Center" UseSystemFocusVisuals="True" />
           </CommandBar.SecondaryCommands>
         </CommandBar>
       </Border>

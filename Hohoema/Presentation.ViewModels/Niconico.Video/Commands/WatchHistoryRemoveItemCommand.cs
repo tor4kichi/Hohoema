@@ -1,5 +1,5 @@
-﻿
-using Hohoema.Models.Domain.Niconico;
+﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Commands;
 using System;

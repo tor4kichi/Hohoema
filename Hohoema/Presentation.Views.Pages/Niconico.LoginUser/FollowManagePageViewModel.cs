@@ -1,5 +1,4 @@
-﻿using Hohoema.Models.Domain;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,9 +10,10 @@ using System.Threading;
 using Reactive.Bindings;
 using System.Diagnostics;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {
@@ -182,7 +182,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
  //   {
  //       public TagFavItemVM(
  //           FollowItemInfo follow,
- //           Services.NiconicoFollowToggleButtonService followToggleButtonService,
+ //           Services.NiconicoFollowToggleButtonViewModel followToggleButtonService,
  //           Models.Subscription.SubscriptionManager subscriptionManager,
  //           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
  //           )
@@ -200,7 +200,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
  //   {
  //       public MylistFavItemVM(
  //           FollowItemInfo follow,
- //           Services.NiconicoFollowToggleButtonService followToggleButtonService,
+ //           Services.NiconicoFollowToggleButtonViewModel followToggleButtonService,
  //           Models.Subscription.SubscriptionManager subscriptionManager,
  //           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
  //           )
@@ -217,7 +217,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
  //   {
  //       public UserFavItemVM(
  //           FollowItemInfo follow,
- //           Services.NiconicoFollowToggleButtonService followToggleButtonService,
+ //           Services.NiconicoFollowToggleButtonViewModel followToggleButtonService,
  //           Models.Subscription.SubscriptionManager subscriptionManager,
  //           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
  //           )
@@ -233,7 +233,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
  //   {
  //       public CommunityFavItemVM(
  //           FollowItemInfo follow,
- //           Services.NiconicoFollowToggleButtonService followToggleButtonService,
+ //           Services.NiconicoFollowToggleButtonViewModel followToggleButtonService,
  //           Models.Subscription.SubscriptionManager subscriptionManager,
  //           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
  //           )
@@ -249,7 +249,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
  //   {
  //       public ChannelFavItemVM(
  //           FollowItemInfo follow,
- //           Services.NiconicoFollowToggleButtonService followToggleButtonService,
+ //           Services.NiconicoFollowToggleButtonViewModel followToggleButtonService,
  //           Models.Subscription.SubscriptionManager subscriptionManager,
  //           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
  //           ) 
@@ -266,7 +266,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 	//{
 	//	public FavoriteItemViewModel(
  //           FollowItemInfo follow,
- //           Services.NiconicoFollowToggleButtonService followToggleButtonService,
+ //           Services.NiconicoFollowToggleButtonViewModel followToggleButtonService,
  //           Models.Subscription.SubscriptionManager subscriptionManager,
  //           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
  //           )
@@ -316,7 +316,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 	//	public string SourceId { get; set; }
 
  //       public FollowItemInfo FollowItemInfo { get; }
- //       public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
+ //       public NiconicoFollowToggleButtonViewModel FollowToggleButtonService { get; }
  //       public FollowManager FollowManager { get; }
  //       public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
  //       public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }

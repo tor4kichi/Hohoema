@@ -1,13 +1,9 @@
-﻿using Mntone.Nico2.Videos.Histories;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.LoginUser;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Presentation.Services;
 using I18NPortable;
+using Mntone.Nico2.Videos.Histories;
+using System;
+using System.Threading.Tasks;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {
@@ -23,15 +19,15 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
     public sealed class WatchHistoryManager
     {
-        private readonly LoginUserHistoryProvider _loginUserHistoryProvider;
+        private readonly LoginUserVideoWatchHistoryProvider _LoginUserVideoWatchHistoryProvider;
         private readonly NotificationService _notificationService;
 
         public WatchHistoryManager(
-            LoginUserHistoryProvider loginUserHistoryProvider,
+            LoginUserVideoWatchHistoryProvider LoginUserVideoWatchHistoryProvider,
             NotificationService notificationService
             )
         {
-            _loginUserHistoryProvider = loginUserHistoryProvider;
+            _LoginUserVideoWatchHistoryProvider = LoginUserVideoWatchHistoryProvider;
             _notificationService = notificationService;
         }
 
@@ -41,7 +37,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         public async Task<bool> RemoveHistoryAsync(IWatchHistory watchHistory)
         {
-            var result = await _loginUserHistoryProvider.RemoveHistoryAsync(watchHistory.RemoveToken, watchHistory.ItemId);
+            var result = await _LoginUserVideoWatchHistoryProvider.RemoveHistoryAsync(watchHistory.RemoveToken, watchHistory.ItemId);
             if (result.IsOK)
             {
                 WatchHistoryRemoved?.Invoke(this, new WatchHistoryRemovedEventArgs() { ItemId = watchHistory.ItemId });
@@ -59,7 +55,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
         string _watchHitoryRemoveToken;
         public async Task<HistoriesResponse> GetWatchHistoriesAsync()
         {
-            var res = await _loginUserHistoryProvider.GetHistory();
+            var res = await _LoginUserVideoWatchHistoryProvider.GetHistory();
             _watchHitoryRemoveToken = res?.Token;
             return res;
         }
@@ -68,7 +64,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
         {
             if (_watchHitoryRemoveToken == null) { return false; }
 
-            var res = await _loginUserHistoryProvider.RemoveAllHistoriesAsync(_watchHitoryRemoveToken);
+            var res = await _LoginUserVideoWatchHistoryProvider.RemoveAllHistoriesAsync(_watchHitoryRemoveToken);
             if (res.IsOK)
             {
                 WatchHistoryAllRemoved?.Invoke(this, EventArgs.Empty);

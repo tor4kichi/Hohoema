@@ -1,25 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using Hohoema.Models.Domain.Niconico.Recommend.LoginUser;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Helpers;
+using Hohoema.Models.UseCase;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Presentation.ViewModels.VideoListPage;
+using Mntone.Nico2.Videos.Recommend;
+using Prism.Commands;
+using Prism.Navigation;
+using Reactive.Bindings;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
-using Mntone.Nico2.Videos.Recommend;
-using Hohoema.Models.Helpers;
-using Hohoema.Models.Domain;
-using Prism.Commands;
-using Hohoema.Presentation.Services.Page;
-
-using Unity;
-using Reactive.Bindings.Extensions;
-using Reactive.Bindings;
-using Prism.Navigation;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.UseCase.NicoVideos;
-using Hohoema.Models.UseCase;
-using System.Threading;
 using System.Runtime.CompilerServices;
-using Hohoema.Models.Domain.Niconico.LoginUser;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Presentation.ViewModels.VideoListPage;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {

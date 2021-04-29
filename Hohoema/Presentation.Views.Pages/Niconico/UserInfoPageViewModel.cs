@@ -4,7 +4,7 @@ using Mntone.Nico2;
 using Hohoema.Models.Domain;
 
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Commands;
@@ -24,11 +24,14 @@ using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.User;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Presentation.ViewModels.Niconico.Follow;
+using Hohoema.Presentation.ViewModels.Niconico.Share;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
@@ -55,13 +58,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             VideoFilteringSettings ngSettings,
             NiconicoSession niconicoSession,
             SubscriptionManager subscriptionManager,
-            UserMylistManager userMylistManager,
+            LoginUserOwnedMylistManager userMylistManager,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             MylistRepository mylistRepository,
-            ExternalAccessService externalAccessService,
-            NiconicoFollowToggleButtonService followToggleButtonService,
-            AddSubscriptionCommand addSubscriptionCommand
+            NiconicoFollowToggleButtonViewModel followToggleButtonService,
+            AddSubscriptionCommand addSubscriptionCommand,
+            OpenLinkCommand openLinkCommand
             )
         {
             NiconicoSession = niconicoSession;
@@ -70,9 +73,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             _mylistRepository = mylistRepository;
-            ExternalAccessService = externalAccessService;
             FollowToggleButtonService = followToggleButtonService;
             AddSubscriptionCommand = addSubscriptionCommand;
+            OpenLinkCommand = openLinkCommand;
             ApplicationLayoutManager = applicationLayoutManager;
             UserProvider = userProvider;
             NgSettings = ngSettings;
@@ -115,11 +118,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         public ReactiveCommand OpenUserVideoPageCommand { get; private set; }
         public NiconicoSession NiconicoSession { get; }
         public SubscriptionManager SubscriptionManager { get; }
-        public UserMylistManager UserMylistManager { get; }
+        public LoginUserOwnedMylistManager UserMylistManager { get; }
         public PageManager PageManager { get; }
-        public ExternalAccessService ExternalAccessService { get; }
-        public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
+        public NiconicoFollowToggleButtonViewModel FollowToggleButtonService { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
+        public OpenLinkCommand OpenLinkCommand { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public UserProvider UserProvider { get; }
         public VideoFilteringSettings NgSettings { get; }

@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Niconico.Video.Series;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Helpers;

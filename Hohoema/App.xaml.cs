@@ -1,78 +1,69 @@
-﻿using Prism.Mvvm;
+﻿using Hohoema.Models.Domain;
+using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+using Hohoema.Models.Domain.Niconico.NicoRepo;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Domain.Player.Video;
+using Hohoema.Models.Domain.Player.Video.Cache;
+using Hohoema.Models.Domain.Subscriptions;
+using Hohoema.Models.Helpers;
+using Hohoema.Models.UseCase;
+using Hohoema.Models.UseCase.Migration;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.NicoVideos.Player;
+using Hohoema.Models.UseCase.Subscriptions;
+using Hohoema.Models.UseCase.VideoCache;
+using Hohoema.Presentation.Services;
+using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Models.UseCase.Player;
+using Hohoema.Presentation.ViewModels;
+using LiteDB;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Microsoft.Toolkit.Uwp.Helpers;
+using Newtonsoft.Json;
+using Prism;
+using Prism.Commands;
+using Prism.Ioc;
+using Prism.Mvvm;
+using Prism.Navigation;
+using Prism.Unity;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
+using Unity;
+using Unity.Injection;
+using Unity.Lifetime;
 using Windows.ApplicationModel.Activation;
+using Windows.ApplicationModel.Background;
+using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
-using Unity;
-using Hohoema.Models.Domain;
-using Windows.UI.ViewManagement;
-using Windows.ApplicationModel.Core;
-using Windows.UI.Core;
+using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.UI;
-using Microsoft.Toolkit.Uwp.Notifications;
-using Windows.ApplicationModel.Background;
-using System.Reactive.Concurrency;
-using System.Threading;
-using System.Reactive.Linq;
-using Unity.Lifetime;
-using Unity.Injection;
-using Prism.Unity;
-using Prism.Ioc;
-using Prism;
-using Prism.Navigation;
-using Prism.Services;
-using Windows.Media.Playback;
-using Windows.UI.Xaml.Data;
-using Hohoema.Models.UseCase;
-using I18NPortable;
-using Newtonsoft.Json;
-using Hohoema.Models.UseCase.NicoVideos;
-using Microsoft.Toolkit.Uwp.UI;
-using Hohoema.Presentation.ViewModels;
-using LiteDB;
-using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.Helpers;
-
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
-using Hohoema.Models.Domain.Player.Video;
-using Hohoema.Models.UseCase.NicoVideos.Player;
-using Hohoema.Models.UseCase.Subscriptions;
-using Hohoema.Presentation.Services.Page;
-using Hohoema.Presentation.Services.Player;
-using Hohoema.Presentation.Services;
-using Hohoema.Models.Domain.Player.Video.Cache;
-using Hohoema.Presentation.Services.Notification;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.UseCase.Migration;
-using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Domain.Niconico.LoginUser;
-using Prism.Commands;
-using Windows.System;
-using Microsoft.AppCenter;
-using Microsoft.AppCenter.Analytics;
-using Microsoft.AppCenter.Crashes;
-using Windows.UI.Popups;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using Hohoema.Models.UseCase.VideoCache;
-using Microsoft.Toolkit.Uwp.UI.Animations;
-using Microsoft.Toolkit.Uwp.Helpers;
-using Microsoft.Toolkit.Mvvm.Messaging;
-using Hohoema.Models.Domain.Pins;
-using Hohoema.Models.Domain.Niconico;
+using Windows.UI.ViewManagement;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Hohoema.Presentation.Views.Pages;
+using Hohoema.Models.UseCase.Niconico.Account;
+using Hohoema.Models.UseCase.Niconico.Follow;
+using Hohoema.Models.Domain.Notification;
 
 namespace Hohoema
 {
@@ -172,17 +163,9 @@ namespace Hohoema
                     var lastPlaying = vm.RestoreNavigationManager.GetCurrentPlayerEntry();
                     if (lastPlaying != null)
                     {
-                        var playlistAggregateGetter = Container.Resolve<PlaylistAggregateGetter>();
+                        // TODO: 前回再生中コンテンツ復帰時に再生リストを取得できるようにする（ローカルマイリストやチャンネル動画一覧含む）
                         var hohoemaPlaylist = Container.Resolve<HohoemaPlaylist>();
-                        if (lastPlaying.PlaylistId != null)
-                        {
-                            var playlist = await playlistAggregateGetter.FindPlaylistAsync(lastPlaying.PlaylistId);
-                            hohoemaPlaylist.Play(lastPlaying.ContentId, playlist, position: lastPlaying.Position);
-                        }
-                        else
-                        {
-                            hohoemaPlaylist.Play(lastPlaying.ContentId, position: lastPlaying.Position);
-                        }
+                        hohoemaPlaylist.Play(lastPlaying.ContentId, position: lastPlaying.Position);
                     }
 #endif
                 }
@@ -211,7 +194,7 @@ namespace Hohoema
             //   |    |- MenuNavigatePageBaseViewModel
             //   |         |- rootFrame 
 
-            _primaryWindowCoreLayout = Container.Resolve<Presentation.Views.PrimaryWindowCoreLayout>();
+            _primaryWindowCoreLayout = Container.Resolve<PrimaryWindowCoreLayout>();
             var hohoemaInAppNotification = new Presentation.Views.Controls.HohoemaInAppNotification()
             {
                 VerticalAlignment = VerticalAlignment.Bottom
@@ -285,7 +268,7 @@ namespace Hohoema
             unityContainer.RegisterSingleton<NiconicoSession>();
             unityContainer.RegisterSingleton<NicoVideoSessionOwnershipManager>();
             
-            unityContainer.RegisterSingleton<UserMylistManager>();
+            unityContainer.RegisterSingleton<LoginUserOwnedMylistManager>();
             unityContainer.RegisterSingleton<FollowManager>();
 
             unityContainer.RegisterSingleton<VideoCacheManagerLegacy>();
@@ -330,7 +313,7 @@ namespace Hohoema
 
         protected override void RegisterRequiredTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.BlankPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.BlankPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.DebugPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.SettingsPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Video.CacheManagementPage >();
@@ -466,7 +449,7 @@ namespace Hohoema
             //Console.WriteLine(CultureInfo.CurrentCulture.Name);
 
             // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
-            var mylitManager = Container.Resolve<UserMylistManager>();
+            var mylitManager = Container.Resolve<LoginUserOwnedMylistManager>();
             var followManager = Container.Resolve<FollowManager>();
 
             Resources["IsXbox"] = DeviceTypeHelper.IsXbox;
@@ -583,7 +566,6 @@ namespace Hohoema
 
                 // アプリのユースケース系サービスを配置
                 unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheVideoDeletedService>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<NotificationMylistUpdatedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<CheckingClipboardAndNotificationService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<NotificationFollowUpdatedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheRequestRejectedService>());
@@ -622,7 +604,7 @@ namespace Hohoema
                                 {
                                     Command = new DelegateCommand(async () =>
                                     {
-                                        AppUpdateNotice.ShowReleaseNotePageOnBrowserAsync();
+                                        await AppUpdateNotice.ShowReleaseNotePageOnBrowserAsync();
                                     }),
                                     Label = "更新情報を確認（ブラウザで表示）"
                                 }
@@ -737,9 +719,9 @@ namespace Hohoema
                             }
                             else
                             {
-                                var playlistResolver = App.Current.Container.Resolve<PlaylistAggregateGetter>();
+                                var playlistResolver = App.Current.Container.Resolve<PlaylistResolver>();
                                 var hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
-                                var playlist = await playlistResolver.FindPlaylistAsync(playlistId);
+                                var playlist = await playlistResolver.ResolvePlaylistAsync(Models.Domain.Playlist.PlaylistOrigin.Mylist, playlistId);
                                 hohoemaPlaylist.Play(playlist);
                                 isHandled = true;
                             }
@@ -881,8 +863,8 @@ namespace Hohoema
 
             if (playlistId != null)
             {
-                var playlistAggregator = App.Current.Container.Resolve<PlaylistAggregateGetter>();
-                var playlist = await playlistAggregator.FindPlaylistAsync(playlistId);
+                var playlistResolver = App.Current.Container.Resolve<PlaylistResolver>();
+                var playlist = await playlistResolver.ResolvePlaylistAsync(Models.Domain.Playlist.PlaylistOrigin.Mylist, playlistId);
 
                 if (playlist != null)
                 {
@@ -989,7 +971,7 @@ namespace Hohoema
 
         private int MainViewId = -1;
         private Size _PrevWindowSize;
-        private Presentation.Views.PrimaryWindowCoreLayout _primaryWindowCoreLayout;
+        private PrimaryWindowCoreLayout _primaryWindowCoreLayout;
 
         protected override void OnWindowCreated(WindowCreatedEventArgs args)
 		{

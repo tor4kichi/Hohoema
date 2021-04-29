@@ -1,6 +1,6 @@
 ﻿using I18NPortable;
 using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.Services;
@@ -18,12 +18,12 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
     public sealed class MylistAddItemCommand : VideoContentSelectionCommandBase
     {
         private readonly DialogService _dialogService;
-        private readonly UserMylistManager _userMylistManager;
+        private readonly LoginUserOwnedMylistManager _userMylistManager;
 
         public MylistAddItemCommand(
             NotificationService notificationService,
             DialogService dialogService,
-            UserMylistManager userMylistManager
+            LoginUserOwnedMylistManager userMylistManager
             )
         {
             NotificationService = notificationService;

@@ -1,19 +1,18 @@
-﻿using I18NPortable;
+﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Channel;
+using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Domain.Niconico.User;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Niconico.Video.Series;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.Services;
+using I18NPortable;
+using Microsoft.AppCenter.Analytics;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
-using Hohoema.Models.Domain.Niconico;
-using Microsoft.AppCenter.Analytics;
 
 namespace Hohoema.Presentation.ViewModels.Subscriptions
 {

@@ -8,6 +8,7 @@ using System.Threading;
 using Reactive.Bindings.Extensions;
 using Prism.Mvvm;
 using Prism.Navigation;
+using Hohoema.Presentation.Views.Pages;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -47,7 +48,7 @@ namespace Hohoema.Presentation.ViewModels
 
         public virtual void OnNavigatingTo(INavigationParameters parameters) 
         {
-            Views.PrimaryWindowCoreLayout.SetCurrentNavigationParameters(parameters);
+            Views.Pages.PrimaryWindowCoreLayout.SetCurrentNavigationParameters(parameters);
             _navigationCancellationTokenSource = new CancellationTokenSource()
                 .AddTo(_NavigatingCompositeDisposable);
         }

@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 using Uno.Disposables;
 using Uno.Extensions;
 using Hohoema.Models.Domain.Playlist;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Application;

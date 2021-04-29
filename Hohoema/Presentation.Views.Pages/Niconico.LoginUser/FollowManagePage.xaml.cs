@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -14,9 +13,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Prism.Ioc;
-using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
-using Hohoema.Presentation.ViewModels;
 using Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser;
+using Hohoema.Models.Domain.Niconico.Follow;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 

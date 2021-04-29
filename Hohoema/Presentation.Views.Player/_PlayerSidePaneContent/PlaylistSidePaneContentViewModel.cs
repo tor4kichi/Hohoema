@@ -15,7 +15,7 @@ using System.Reactive.Linq;
 using Windows.Media;
 using Windows.Media.Playback;
 using Windows.UI.Xaml.Data;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player;
 

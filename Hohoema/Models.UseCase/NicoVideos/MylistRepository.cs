@@ -6,7 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
+using Hohoema.Models.Domain.Niconico.Mylist;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {
@@ -14,18 +15,18 @@ namespace Hohoema.Models.UseCase.NicoVideos
     public class MylistRepository
     {
         private readonly NiconicoSession _niconicoSession;
-        private readonly UserMylistManager _userMylistManager;
-        private readonly OtherOwneredMylistManager _otherOwneredMylistManager;
+        private readonly LoginUserOwnedMylistManager _userMylistManager;
+        private readonly MylistProvider _mylistProvider;
 
         public MylistRepository(
             NiconicoSession niconicoSession,
-            UserMylistManager userMylistManager,
-            OtherOwneredMylistManager otherOwneredMylistManager
+            LoginUserOwnedMylistManager userMylistManager,
+            MylistProvider mylistProvider
             )
         {
             _niconicoSession = niconicoSession;
             _userMylistManager = userMylistManager;
-            _otherOwneredMylistManager = otherOwneredMylistManager;
+            _mylistProvider = mylistProvider;
         }
 
         public const string DefailtMylistId = "0";
@@ -46,7 +47,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             }
             else
             {
-                return await _otherOwneredMylistManager.GetMylist(mylistId);
+                return await _mylistProvider.GetMylist(mylistId);
             }
         }
 
@@ -58,7 +59,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             }
             else
             {
-                return await _otherOwneredMylistManager.GetByUserId(userId);
+                return await _mylistProvider.GetMylistsByUser(userId);
             }
         }
     }

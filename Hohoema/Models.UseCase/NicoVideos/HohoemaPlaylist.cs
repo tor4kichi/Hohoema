@@ -1,12 +1,16 @@
-﻿using I18NPortable;
-using Mntone.Nico2;
-using Hohoema.Models.Helpers;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.LoginUser;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
+﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Helpers;
+using Hohoema.Models.UseCase.Player;
+using I18NPortable;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Mntone.Nico2;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -19,13 +23,8 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
-using Hohoema.Presentation.Services.Player;
-using Hohoema.Models.Domain.Player;
-using Microsoft.Toolkit.Mvvm.Messaging;
 using Uno.Threading;
 
 namespace Hohoema.Models.UseCase.NicoVideos

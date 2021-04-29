@@ -1,19 +1,17 @@
 ﻿using Microsoft.Toolkit.Uwp.UI;
 using Mntone.Nico2.Channels.Video;
 using Hohoema.Models.Helpers;
-using Hohoema.Models.UseCase.NicoVideos;
-using Hohoema.Presentation.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player.Video;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Hohoema.Models.Domain.Niconico.Mylist;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {

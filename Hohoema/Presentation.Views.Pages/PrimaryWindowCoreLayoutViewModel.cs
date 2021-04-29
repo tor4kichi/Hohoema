@@ -1,19 +1,19 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Application;
+﻿using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase;
+using Hohoema.Models.UseCase.Niconico.Account;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Models.UseCase.NicoVideos.Player;
+using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Models.UseCase.Player;
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
-using Hohoema.Presentation.Services.Player;
 using Hohoema.Presentation.ViewModels.Navigation.Commands;
+using Hohoema.Presentation.ViewModels.Niconico.Account;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
-using Hohoema.Presentation.ViewModels.Niconico.LoginUser;
 using Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout;
 using I18NPortable;
 using NiconicoLiveToolkit.Live;
@@ -48,7 +48,7 @@ namespace Hohoema.Presentation.ViewModels
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public RestoreNavigationManager RestoreNavigationManager { get; }
         public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
-        private readonly UserMylistManager _userMylistManager;
+        private readonly LoginUserOwnedMylistManager _userMylistManager;
         private readonly LocalMylistManager _localMylistManager;
         public OpenLiveContentCommand OpenLiveContentCommand { get; }
 
@@ -83,7 +83,7 @@ namespace Hohoema.Presentation.ViewModels
             RestoreNavigationManager restoreNavigationManager,
             VideoItemsSelectionContext videoItemsSelectionContext,
             QueueMenuItemViewModel queueMenuItemViewModel,
-            UserMylistManager userMylistManager,
+            LoginUserOwnedMylistManager userMylistManager,
             LocalMylistManager localMylistManager,
             OpenLiveContentCommand openLiveContentCommand
             )
@@ -457,9 +457,9 @@ namespace Hohoema.Presentation.ViewModels
 
     public class MylistSubMenuMenu : MenuSubItemViewModelBase
     {
-        private readonly UserMylistManager _userMylistManager;
+        private readonly LoginUserOwnedMylistManager _userMylistManager;
 
-        public MylistSubMenuMenu(UserMylistManager userMylistManager, ICommand mylistPageOpenCommand)
+        public MylistSubMenuMenu(LoginUserOwnedMylistManager userMylistManager, ICommand mylistPageOpenCommand)
         {
             Label = "Mylist".Translate();
 

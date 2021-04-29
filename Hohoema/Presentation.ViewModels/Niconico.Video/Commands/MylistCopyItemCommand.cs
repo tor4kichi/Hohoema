@@ -1,5 +1,5 @@
 ﻿using Hohoema.Dialogs;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services;
@@ -16,10 +16,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
     {
         private readonly DialogService _dialogService;
         private readonly NotificationService _notificationService;
-        private readonly UserMylistManager _userMylistManager;
+        private readonly LoginUserOwnedMylistManager _userMylistManager;
 
         public MylistCopyItemCommand(
-            UserMylistManager userMylistManager,
+            LoginUserOwnedMylistManager userMylistManager,
             DialogService dialogService,
             NotificationService notificationService
             )

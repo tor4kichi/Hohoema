@@ -26,7 +26,7 @@ namespace Hohoema.Presentation.Services
 
         static readonly string CacheUsageConfirmationFileUri = Windows.ApplicationModel.Package.Current.InstalledLocation.Path + "\\Assets\\CacheUsageConfirmation.md";
 
-        public UserMylistManager UserMylistManager { get; }
+        public LoginUserOwnedMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
 
         public async Task<bool> ShowAcceptCacheUsaseDialogAsync(bool showWithoutConfirmButton = false)

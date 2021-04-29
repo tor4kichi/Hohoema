@@ -16,7 +16,7 @@ using System.Reactive.Linq;
 using Hohoema.Models.UseCase;
 using System.Runtime.CompilerServices;
 using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Presentation.ViewModels.Community;
 using Hohoema.Models.Domain.Pins;

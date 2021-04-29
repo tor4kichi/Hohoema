@@ -9,17 +9,17 @@ using Prism.Commands;
 using Mntone.Nico2;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Prism.Navigation;
 using System.Reactive.Linq;
 using Hohoema.Models.UseCase;
 using System.Threading;
 using System.Runtime.CompilerServices;
 using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
 using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Presentation.ViewModels.Niconico.Search;
 using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Niconico.Mylist;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {

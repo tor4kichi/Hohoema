@@ -1,27 +1,19 @@
-﻿using Mntone.Nico2.Videos.Ranking;
-using Prism.Mvvm;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-using Windows.Storage;
+﻿using Hohoema.Models.Domain.Niconico.NicoRepo;
 using Newtonsoft.Json;
-using System.IO;
-using Hohoema.Models.Helpers;
-using Hohoema.Presentation.ViewModels;
-using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using System.Reactive.Linq;
+using System;
+using System.IO;
+using System.Linq;
 using System.Reactive.Disposables;
-using Hohoema.Models.Domain.Niconico.LoginUser;
+using System.Reactive.Linq;
+using System.Runtime.Serialization;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace Hohoema.Models.Domain.Legacy
 {
-	public class HohoemaUserSettings : IDisposable
+    public class HohoemaUserSettings : IDisposable
 	{
 		public const string RankingSettingsFileName = "ranking.json";
         public const string PlaylistSettingsFileName = "playlist.json";

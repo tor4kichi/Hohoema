@@ -1,41 +1,41 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Hohoema.Models.Domain;
-using Reactive.Bindings;
-using Prism.Commands;
+﻿using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Niconico.Video.Series;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Player.Video;
+using Hohoema.Models.Domain.Player.Video.Cache;
+using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Helpers;
-using Windows.ApplicationModel.DataTransfer;
-using System.Threading;
-using System.Diagnostics;
+using Hohoema.Models.UseCase;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Presentation.Services;
+using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Presentation.ViewModels.Subscriptions;
+using Hohoema.Presentation.ViewModels.VideoListPage;
+using I18NPortable;
 using Mntone.Nico2;
 using Mntone.Nico2.Embed.Ichiba;
-using System.Text.RegularExpressions;
-using Windows.System;
-using Hohoema.Models.Domain.Player.Video.Cache;
+using Prism.Commands;
 using Prism.Navigation;
-using Hohoema.Presentation.Services.Page;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.UseCase.NicoVideos;
+using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Linq;
-using Hohoema.Models.UseCase;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.System;
 using Windows.UI.Xaml;
-using Hohoema.Models.Domain.PageNavigation;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
-using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.Domain.Player.Video;
-using Hohoema.Models.Domain.Playlist;
-using Hohoema.Presentation.ViewModels.Subscriptions;
-using Hohoema.Models.Domain.Application;
-using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
-using Hohoema.Presentation.ViewModels.VideoListPage;
-using Hohoema.Presentation.Services;
-using I18NPortable;
-using Hohoema.Models.Domain.Pins;
+using Hohoema.Presentation.ViewModels.Niconico.Share;
+using Hohoema.Models.Domain.Notification;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
@@ -61,7 +61,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             AppearanceSettings appearanceSettings,
             VideoFilteringSettings ngSettings,
             NiconicoSession niconicoSession,
-            UserMylistManager userMylistManager,
+            LoginUserOwnedMylistManager userMylistManager,
             HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             LoginUserMylistProvider loginUserMylistProvider,
@@ -72,10 +72,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             PageManager pageManager,
             Services.NotificationService notificationService,
             Services.DialogService dialogService,
-            Services.ExternalAccessService externalAccessService,
             MylistAddItemCommand addMylistCommand,
             LocalPlaylistAddItemCommand localPlaylistAddItemCommand,
-            AddSubscriptionCommand addSubscriptionCommand
+            AddSubscriptionCommand addSubscriptionCommand,
+            OpenLinkCommand openLinkCommand,
+            CopyToClipboardCommand copyToClipboardCommand,
+            CopyToClipboardWithShareTextCommand copyToClipboardWithShareTextCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -93,10 +95,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             PageManager = pageManager;
             NotificationService = notificationService;
             DialogService = dialogService;
-            ExternalAccessService = externalAccessService;
             AddMylistCommand = addMylistCommand;
             LocalPlaylistAddItemCommand = localPlaylistAddItemCommand;
             AddSubscriptionCommand = addSubscriptionCommand;
+            OpenLinkCommand = openLinkCommand;
+            CopyToClipboardCommand = copyToClipboardCommand;
+            CopyToClipboardWithShareTextCommand = copyToClipboardWithShareTextCommand;
             NowLoading = new ReactiveProperty<bool>(false);
             IsLoadFailed = new ReactiveProperty<bool>(false);
         }
@@ -308,7 +312,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             get
             {
                 return _AddPlaylistCommand
-                    ?? (_AddPlaylistCommand = new DelegateCommand<IPlaylist>(async (playlist) =>
+                    ?? (_AddPlaylistCommand = new DelegateCommand<IPlaylist>((playlist) =>
                     {
                         if (playlist is LocalPlaylist localPlaylist)
                         {
@@ -393,7 +397,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public VideoFilteringSettings NgSettings { get; }
         public NiconicoSession NiconicoSession { get; }
-        public UserMylistManager UserMylistManager { get; }
+        public LoginUserOwnedMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
@@ -402,10 +406,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         public SubscriptionManager SubscriptionManager { get; }
         public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
-        public Services.ExternalAccessService ExternalAccessService { get; }
         public MylistAddItemCommand AddMylistCommand { get; }
         public LocalPlaylistAddItemCommand LocalPlaylistAddItemCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
+        public OpenLinkCommand OpenLinkCommand { get; }
+        public CopyToClipboardCommand CopyToClipboardCommand { get; }
+        public CopyToClipboardWithShareTextCommand CopyToClipboardWithShareTextCommand { get; }
 
         private INicoVideoDetails _VideoDetails;
         public INicoVideoDetails VideoDetails

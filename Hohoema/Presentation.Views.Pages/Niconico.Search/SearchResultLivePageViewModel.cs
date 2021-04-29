@@ -4,7 +4,7 @@ using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
 using Prism.Commands;
 using Prism.Navigation;

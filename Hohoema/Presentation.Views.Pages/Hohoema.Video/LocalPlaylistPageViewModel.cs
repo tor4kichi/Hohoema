@@ -1,4 +1,4 @@
-﻿using Hohoema.Presentation.Services.Page;
+﻿using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Commands;
@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Uno.Disposables;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
@@ -44,14 +44,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         private readonly PageManager _pageManager;
         private readonly LocalMylistManager _localMylistManager;
-        private readonly PlaylistAggregateGetter _playlistAggregate;
 
         public LocalPlaylistPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             LocalMylistManager localMylistManager,
             HohoemaPlaylist hohoemaPlaylist,
-            PlaylistAggregateGetter playlistAggregate,
             LocalPlaylistDeleteCommand localPlaylistDeleteCommand,
             PlaylistPlayAllCommand playlistPlayAllCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
@@ -61,7 +59,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             _pageManager = pageManager;
             _localMylistManager = localMylistManager;
             HohoemaPlaylist = hohoemaPlaylist;
-            _playlistAggregate = playlistAggregate;
             LocalPlaylistDeleteCommand = localPlaylistDeleteCommand;
             PlaylistPlayAllCommand = playlistPlayAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
@@ -94,12 +91,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
                 id = idInt.ToString();
             }
 
-            var playlist = await _playlistAggregate.FindPlaylistAsync(id);
+            var playlist = _localMylistManager.GetPlaylist(id);
 
-            if (playlist is MylistPlaylist) { return; }
             if (playlist == null) { return; }
 
-            Playlist = playlist as LocalPlaylist;
+            Playlist = playlist;
 
             RefreshItems();
 

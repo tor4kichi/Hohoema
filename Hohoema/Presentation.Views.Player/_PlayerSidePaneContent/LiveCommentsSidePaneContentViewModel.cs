@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.UseCase.NicoVideos.Player;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
+using Hohoema.Presentation.ViewModels.Niconico.Share;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {
@@ -21,17 +22,18 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 		public LiveCommentsSidePaneContentViewModel(
             CommentFilteringFacade commentFiltering, 
             Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView comments,
-            Services.ExternalAccessService externalAccessService,
             IScheduler scheduler,
-            NicoVideoOwnerCacheRepository nicoVideoOwnerRepository
+            NicoVideoOwnerCacheRepository nicoVideoOwnerRepository,
+            OpenLinkCommand openLinkCommand,
+            CopyToClipboardCommand copyToClipboardCommand
             )
 		{
             _playerSettings = commentFiltering;
             Comments = comments;
-            ExternalAccessService = externalAccessService;
             _scheduler = scheduler;
             _nicoVideoOwnerRepository = nicoVideoOwnerRepository;
-
+            OpenLinkCommand = openLinkCommand;
+            CopyToClipboardCommand = copyToClipboardCommand;
             NicoLiveUserIdAddToNGCommand = new NicoLiveUserIdAddToNGCommand(_playerSettings, _nicoVideoOwnerRepository);
             NicoLiveUserIdRemoveFromNGCommand = new NicoLiveUserIdRemoveFromNGCommand(_playerSettings);
             IsCommentListScrollWithVideo = new ReactiveProperty<bool>(_scheduler, false)
@@ -80,7 +82,8 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             set { SetProperty(ref _Comments, value); }
         }
 
-        public Services.ExternalAccessService ExternalAccessService { get; }
+        public OpenLinkCommand OpenLinkCommand { get; }
+        public CopyToClipboardCommand CopyToClipboardCommand { get; }
         public NicoLiveUserIdAddToNGCommand NicoLiveUserIdAddToNGCommand { get; }
         public NicoLiveUserIdRemoveFromNGCommand NicoLiveUserIdRemoveFromNGCommand { get; }
     }

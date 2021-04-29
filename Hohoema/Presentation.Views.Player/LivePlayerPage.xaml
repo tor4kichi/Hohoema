@@ -21,7 +21,7 @@
       xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector" 
       xmlns:windowsTrigger="using:WindowsStateTriggers" 
       xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI" 
-      xmlns:playerService="using:Hohoema.Presentation.Services.Player" 
+      xmlns:playerService="using:Hohoema.Models.UseCase.Player" 
       xmlns:models="using:Hohoema.Models.Domain.Application" 
       xmlns:liveToolkitWatchSession="using:NiconicoLiveToolkit.Live.WatchSession" 
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
@@ -315,13 +315,13 @@
 
                       <AppBarButton Label="{i18nExt:Localize Key=LiveInfomation}" Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding LiveInfo}" />
                       <AppBarButton Label="{i18nExt:Localize Key=LiveBroadcasterInfomation}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding LiveInfo}" />
-                      <AppBarButton Label="{i18nExt:Localize Key=Share}" Icon="Link" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding LiveInfo}" />
+                      <AppBarButton Label="{i18nExt:Localize Key=Share}" Icon="Link" Command="{Binding OpenShareUICommand}" CommandParameter="{Binding LiveInfo}" />
                       <AppBarButton x:Name="CopyActionsAppBarButton" Label="{i18nExt:Localize Key=Copy}" Icon="Copy">
                         <AppBarButton.Flyout>
                           <MenuFlyout>
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingId}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding LiveId}" />
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingLink}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding LiveInfo}" />
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingShareText}" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding LiveInfo}" />
+                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingId}" Command="{Binding CopyToClipboardCommand}" CommandParameter="{Binding LiveId}" />
+                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingLink}" Command="{Binding CopyToClipboardCommand}" CommandParameter="{Binding LiveInfo}" />
+                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingShareText}" Command="{Binding CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding LiveInfo}" />
                           </MenuFlyout>
                         </AppBarButton.Flyout>
                       </AppBarButton>

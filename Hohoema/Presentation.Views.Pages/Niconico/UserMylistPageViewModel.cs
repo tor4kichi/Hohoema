@@ -1,30 +1,23 @@
-﻿using Hohoema.Models.Domain;
+﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Domain.Niconico.User;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Helpers;
+using Hohoema.Models.UseCase;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.PageNavigation;
+using Prism.Navigation;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Prism.Commands;
-using Reactive.Bindings;
-using System.Threading;
 using System.Reactive.Linq;
-using Windows.UI.Popups;
-using Hohoema.Dialogs;
-using Hohoema.Models.Helpers;
-using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
-using Prism.Navigation;
-using Hohoema.Models.UseCase.NicoVideos;
-using Reactive.Bindings.Extensions;
-using Hohoema.Models.UseCase;
-using I18NPortable;
 using System.Runtime.CompilerServices;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.Playlist;
-using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
-using Hohoema.Models.Domain.Pins;
-using Hohoema.Models.Domain.Niconico;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
@@ -140,7 +133,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         List<MylistPlaylist> _userMylists { get; set; }
 
         public string UserId { get; }
-        public OtherOwneredMylistManager OtherOwneredMylistManager;
+
         private readonly MylistRepository _mylistRepository;
 
         public OtherUserMylistIncrementalLoadingSource(string userId, MylistRepository mylistRepository)

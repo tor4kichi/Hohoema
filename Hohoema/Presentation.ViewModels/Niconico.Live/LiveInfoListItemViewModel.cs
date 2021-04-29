@@ -1,8 +1,9 @@
 ﻿using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Live;
+using Hohoema.Models.Domain.Niconico.Live.LoginUser;
 using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
 using Mntone.Nico2.Live;
 using NiconicoLiveToolkit.Live;
@@ -15,27 +16,39 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Unity;
+using Hohoema.Presentation.ViewModels.Niconico.Share;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {
     public class LiveInfoListItemViewModel : BindableBase, ILiveContent
     {
+
+        public static PageManager PageManager { get; }
+        public static OpenLiveContentCommand OpenLiveContentCommand { get; }
+        public static OpenShareUICommand OpenShareUICommand { get; }
+        public static CopyToClipboardCommand CopyToClipboardCommand { get; }
+        public static CopyToClipboardWithShareTextCommand CopyToClipboardWithShareTextCommand { get; }
+
+
         static LiveInfoListItemViewModel()
         {
             PageManager = App.Current.Container.Resolve<PageManager>();
-            ExternalAccessService = App.Current.Container.Resolve<Services.ExternalAccessService>();
             OpenLiveContentCommand = App.Current.Container.Resolve<OpenLiveContentCommand>();
+            OpenShareUICommand = App.Current.Container.Resolve<OpenShareUICommand>();
+            CopyToClipboardCommand = App.Current.Container.Resolve<CopyToClipboardCommand>();
+            CopyToClipboardWithShareTextCommand = App.Current.Container.Resolve<CopyToClipboardWithShareTextCommand>();
         }
+
+
+
+
+
 
         public LiveInfoListItemViewModel(string liveId)
         {
             LiveId = liveId;
             _niconicoSession = App.Current.Container.Resolve<NiconicoSession>();
         }
-
-        public static PageManager PageManager { get; }
-        public static ExternalAccessService ExternalAccessService { get; }
-        public static OpenLiveContentCommand OpenLiveContentCommand { get; }
 
         private readonly NiconicoSession _niconicoSession;
 
@@ -83,6 +96,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
             CommunityType.Official => ProviderType.Official,
             CommunityType.Community => ProviderType.Community,
             CommunityType.Channel => ProviderType.Channel,
+            _ => throw new NotSupportedException(CommunityType.ToString()),
         };
 
         string INiconicoObject.Id => LiveId;
@@ -170,6 +184,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
                 LiveSearchItemStatus.OnAir => LiveStatus.Onair,
                 LiveSearchItemStatus.PastAndPresentTimeshift => LiveStatus.Past,
                 LiveSearchItemStatus.PastAndNotPresentTimeshift => LiveStatus.Past,
+                _ => throw new NotSupportedException(item.LiveStatus.ToString()),
             };
 
             if (item.LiveStatus is LiveSearchItemStatus.Reserved)

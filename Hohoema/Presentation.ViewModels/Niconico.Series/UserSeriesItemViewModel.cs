@@ -1,5 +1,6 @@
 ﻿using Mntone.Nico2.Users.Series;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Niconico.Video.Series;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Series
 {

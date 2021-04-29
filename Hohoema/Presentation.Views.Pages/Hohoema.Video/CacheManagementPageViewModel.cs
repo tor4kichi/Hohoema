@@ -17,10 +17,11 @@ using I18NPortable;
 using System.Runtime.CompilerServices;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player.Video.Cache;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Models.Domain.Notification;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
@@ -169,7 +170,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             if (IsRequireUpdateCacheSaveFolder.Value)
             {
 
-                NotificationService.ShowLiteInAppNotification("ChoiceCacheSavingFolder".Translate(), Services.LiteNotification.DisplayDuration.MoreAttention);
+                NotificationService.ShowLiteInAppNotification("ChoiceCacheSavingFolder".Translate(), DisplayDuration.MoreAttention);
 
                 if (await CacheSaveFolder.ChangeUserDataFolder())
                 {

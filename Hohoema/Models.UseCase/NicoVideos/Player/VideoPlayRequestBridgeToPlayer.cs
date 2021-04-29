@@ -1,5 +1,5 @@
 ﻿using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Player;
+using Hohoema.Models.UseCase.Player;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Prism.Navigation;

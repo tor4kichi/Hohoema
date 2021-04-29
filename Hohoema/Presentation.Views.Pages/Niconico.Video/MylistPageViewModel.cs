@@ -1,43 +1,39 @@
-﻿using Hohoema.Models.Domain;
+﻿using Hohoema.Dialogs;
+using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Follow;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
+using Hohoema.Models.Domain.Niconico.User;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Domain.Subscriptions;
+using Hohoema.Models.Helpers;
+using Hohoema.Models.UseCase;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Presentation.Services;
+using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Presentation.ViewModels.Niconico.Mylist;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Presentation.ViewModels.Subscriptions;
+using Hohoema.Presentation.ViewModels.VideoListPage;
+using I18NPortable;
+using Mntone.Nico2.Users.Mylist;
+using Prism.Commands;
+using Prism.Navigation;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
-using Prism.Commands;
-using Mntone.Nico2.Mylist;
-using Reactive.Bindings;
 using System.Reactive.Linq;
-using Hohoema.Models.Helpers;
-using System.Threading;
-using Unity;
-using Windows.UI;
-using Windows.UI.Popups;
-using Hohoema.Dialogs;
-using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
-using Hohoema.Database;
-
-using Reactive.Bindings.Extensions;
-using System.Collections.ObjectModel;
-using Prism.Navigation;
-using Hohoema.Models.UseCase.NicoVideos;
-using I18NPortable;
-using Hohoema.Models.UseCase;
-using Mntone.Nico2.Users.Mylist;
 using System.Runtime.CompilerServices;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
-using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
-using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Presentation.ViewModels.Subscriptions;
-using Hohoema.Models.Domain.Playlist;
-using Hohoema.Presentation.ViewModels.VideoListPage;
-using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
-using Hohoema.Presentation.ViewModels.Niconico.Mylist;
-using Hohoema.Models.Domain.Pins;
-using Hohoema.Models.Domain.Niconico;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.UI.Popups;
+using Hohoema.Presentation.ViewModels.Niconico.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
@@ -67,15 +63,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             UserProvider userProvider,
             FollowManager followManager,
             LoginUserMylistProvider loginUserMylistProvider,
-            UserMylistManager userMylistManager,
+            LoginUserOwnedMylistManager userMylistManager,
             LocalMylistManager localMylistManager,
             MylistRepository mylistRepository,
             HohoemaPlaylist hohoemaPlaylist,
             SubscriptionManager subscriptionManager,
             MylistUserSelectedSortRepository mylistUserSelectedSortRepository,
             Services.DialogService dialogService,
-            NiconicoFollowToggleButtonService followToggleButtonService,
-            PlaylistAggregateGetter playlistAggregate,
+            NiconicoFollowToggleButtonViewModel followToggleButtonService,
             AddSubscriptionCommand addSubscriptionCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
@@ -95,7 +90,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             _mylistUserSelectedSortRepository = mylistUserSelectedSortRepository;
             DialogService = dialogService;
             FollowToggleButtonService = followToggleButtonService;
-            _playlistAggregate = playlistAggregate;
             AddSubscriptionCommand = addSubscriptionCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             Mylist = new ReactiveProperty<MylistPlaylist>();
@@ -276,8 +270,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         private readonly MylistRepository _mylistRepository;
         private readonly MylistUserSelectedSortRepository _mylistUserSelectedSortRepository;
-        private readonly PlaylistAggregateGetter _playlistAggregate;
-
+        
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
 
@@ -287,12 +280,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         public UserProvider UserProvider { get; }
         public FollowManager FollowManager { get; }
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
-        public UserMylistManager UserMylistManager { get; }
+        public LoginUserOwnedMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public DialogService DialogService { get; }
-        public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
+        public NiconicoFollowToggleButtonViewModel FollowToggleButtonService { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 
@@ -516,8 +509,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 return _RefreshCommand
                     ?? (_RefreshCommand = new DelegateCommand(async () =>
                     {
-                        var mylist = await _playlistAggregate.FindPlaylistAsync(Mylist.Value.Id) as MylistPlaylist;
-                        MylistItems = await CreateItemsSourceAsync(Mylist.Value = mylist);
+                        if (Mylist.Value != null)
+                        {
+                            MylistItems = await CreateItemsSourceAsync(Mylist.Value);
+                        }
                     }));
             }
         }
@@ -567,7 +562,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 mylistId = idInt.ToString();
             }
 
-            var mylist = await _playlistAggregate.FindPlaylistAsync(mylistId) as MylistPlaylist;
+            var mylist = await _mylistRepository.GetMylist(mylistId);
 
             if (mylist == null) { return; }
 

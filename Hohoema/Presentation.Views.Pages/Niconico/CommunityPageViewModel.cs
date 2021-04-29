@@ -3,12 +3,12 @@ using Mntone.Nico2.Communities.Info;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico.Community;
-using Hohoema.Models.Domain.Niconico.LoginUser.Follow;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -25,6 +25,7 @@ using Hohoema.Models.Domain.Application;
 using Hohoema.Presentation.ViewModels.Community;
 using Hohoema.Presentation.ViewModels.Niconico.User;
 using Hohoema.Models.Domain.Pins;
+using Hohoema.Presentation.ViewModels.Niconico.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
@@ -60,8 +61,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             NiconicoSession niconicoSession,
             CommunityFollowProvider followProvider,
             CommunityProvider communityProvider,
-            FollowManager followManager,
-            NiconicoFollowToggleButtonService followToggleButtonService
+            NiconicoFollowToggleButtonViewModel followToggleButtonService
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -369,7 +369,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         public NiconicoSession NiconicoSession { get; }
         public CommunityFollowProvider FollowProvider { get; }
         public CommunityProvider CommunityProvider { get; }
-        public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
+        public NiconicoFollowToggleButtonViewModel FollowToggleButtonService { get; }
 
         private void UpdateCanNotFollowReason()
 		{

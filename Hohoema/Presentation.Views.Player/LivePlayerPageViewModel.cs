@@ -1,22 +1,27 @@
-﻿using I18NPortable;
-using NiconicoLiveToolkit.Live;
-using NiconicoLiveToolkit.Live.WatchPageProp;
-using NiconicoLiveToolkit.Live.WatchSession;
-using Hohoema.Models.Domain;
+﻿using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Live;
+using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Models.Domain.Niconico.Live;
+using Hohoema.Models.Domain.Niconico.Live.LoginUser;
 using Hohoema.Models.Domain.Niconico.User;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos.Player;
 using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.NicoVideos.Player;
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
-using Hohoema.Presentation.Services.Player;
+using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Models.UseCase.Player;
+using Hohoema.Presentation.ViewModels.Player.Commands;
 using Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent;
-using Hohoema.Presentation.Views;
+using Hohoema.Presentation.Views.Player;
+using I18NPortable;
+using Microsoft.Toolkit.Uwp;
+using NiconicoLiveToolkit.Live;
+using NiconicoLiveToolkit.Live.WatchPageProp;
+using NiconicoLiveToolkit.Live.WatchSession;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
@@ -33,27 +38,17 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Threading;
 using System.Threading.Tasks;
 using Unity;
 using Unity.Resolution;
 using Uno.Extensions;
-using Uno.Threading;
-using Windows.Foundation.Metadata;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Media.Streaming.Adaptive;
 using Windows.System;
 using Windows.UI;
-using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
-using Hohoema.Models.Domain.Application;
-using Hohoema.Presentation.ViewModels.Player.Commands;
-using Hohoema.Presentation.Views.Player;
-using Microsoft.Toolkit.Uwp;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Helpers;
+using Hohoema.Presentation.ViewModels.Niconico.Share;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -109,7 +104,6 @@ namespace Hohoema.Presentation.ViewModels.Player
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public DialogService _HohoemaDialogService { get; }
         public PageManager PageManager { get; }
-        public ExternalAccessService ExternalAccessService { get; }
 
         private readonly UserNameProvider _userNameRepository;
         private NotificationService _NotificationService;
@@ -124,6 +118,10 @@ namespace Hohoema.Presentation.ViewModels.Player
         public MediaPlayerSoundVolumeManager SoundVolumeManager { get; }
         public CommentCommandEditerViewModel CommentCommandEditerViewModel { get; }
 
+        public OpenLinkCommand OpenLinkCommand { get; }
+        public CopyToClipboardCommand CopyToClipboardCommand { get; }
+        public CopyToClipboardWithShareTextCommand CopyToClipboardWithShareTextCommand { get; }
+        public OpenShareUICommand OpenShareUICommand { get; }
 
         private LiveContent _liveInfo;
         public LiveContent LiveInfo
@@ -408,7 +406,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             Services.DialogService dialogService,
             PageManager pageManager,
             NotificationService notificationService,
-            ExternalAccessService externalAccessService,
             MediaPlayer mediaPlayer,
             ObservableMediaPlayer observableMediaPlayer,
             WindowService windowService,
@@ -417,7 +414,11 @@ namespace Hohoema.Presentation.ViewModels.Player
             ShowPrimaryViewCommand showPrimaryViewCommand,
             MediaPlayerSoundVolumeManager soundVolumeManager,
             CommentCommandEditerViewModel commentCommandEditerViewModel,
-            CommentFilteringFacade commentFiltering
+            CommentFilteringFacade commentFiltering,
+            OpenLinkCommand openLinkCommand,
+            CopyToClipboardCommand copyToClipboardCommand,
+            CopyToClipboardWithShareTextCommand copyToClipboardWithShareTextCommand,
+            OpenShareUICommand openShareUICommand
             )
         {
             _scheduler = scheduler;
@@ -435,7 +436,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             _HohoemaDialogService = dialogService;
             PageManager = pageManager;
             _NotificationService = notificationService;
-            ExternalAccessService = externalAccessService;
             MediaPlayer = mediaPlayer;
             ObservableMediaPlayer = observableMediaPlayer;
             WindowService = windowService;
@@ -445,6 +445,10 @@ namespace Hohoema.Presentation.ViewModels.Player
             SoundVolumeManager = soundVolumeManager;
             CommentCommandEditerViewModel = commentCommandEditerViewModel;
             _commentFiltering = commentFiltering;
+            OpenLinkCommand = openLinkCommand;
+            CopyToClipboardCommand = copyToClipboardCommand;
+            CopyToClipboardWithShareTextCommand = copyToClipboardWithShareTextCommand;
+            OpenShareUICommand = openShareUICommand;
             DisplayingLiveComments = new ReadOnlyObservableCollection<LiveComment>(_DisplayingLiveComments);
 
             SeekCommand = new MediaPlayerSeekCommand(MediaPlayer);
@@ -1112,6 +1116,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         LiveCommentSession _CommentSession;
         private void _watchSession_RecieveRoom(Live2CurrentRoomEventArgs e)
         {
+            var ct = NavigationCancellationToken;
             _dispatcherQueue.TryEnqueue(async () =>
             {
                 CloseCommentSession();
@@ -1133,15 +1138,17 @@ namespace Hohoema.Presentation.ViewModels.Player
                 _CommentSession.Connected += _CommentSession_Connected;
                 _CommentSession.Disconnected += _CommentSession_Disconnected;
 
-                await Task.Delay(3000);
+                await Task.Delay(3000, ct);
 
-                await _CommentSession.OpenAsync();
+                if (_CommentSession != null)
+                {
+                    await _CommentSession.OpenAsync();
+                }
             });
         }
 
-        private async void _CommentSession_CommentReceived(object sender, NiconicoLiveToolkit.Live.Events.CommentReceivedEventArgs e)
+        private void _CommentSession_CommentReceived(object sender, NiconicoLiveToolkit.Live.Events.CommentReceivedEventArgs e)
         {
-
             LiveComment ChatToComment(LiveChatData x)
             {
                 var comment = new LiveComment();

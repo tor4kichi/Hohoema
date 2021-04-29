@@ -11,7 +11,7 @@ using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Prism.Commands;
 using Prism.Navigation;
 using Prism.Unity;
@@ -32,6 +32,7 @@ using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Models.Domain.Pins;
+using Hohoema.Presentation.ViewModels.Niconico.Share;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 {
@@ -105,8 +106,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             NiconicoSession niconicoSession,
             NicoLiveProvider nicoLiveProvider,
             DialogService dialogService,
-            ExternalAccessService externalAccessService,
-            OpenLiveContentCommand openLiveContentCommand
+            OpenLiveContentCommand openLiveContentCommand,
+            OpenLinkCommand openLinkCommand,
+            CopyToClipboardCommand copyToClipboardCommand,
+            CopyToClipboardWithShareTextCommand copyToClipboardWithShareTextCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -115,8 +118,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             NiconicoSession = niconicoSession;
             NicoLiveProvider = nicoLiveProvider;
             HohoemaDialogService = dialogService;
-            ExternalAccessService = externalAccessService;
             OpenLiveContentCommand = openLiveContentCommand;
+            OpenLinkCommand = openLinkCommand;
+            CopyToClipboardCommand = copyToClipboardCommand;
+            CopyToClipboardWithShareTextCommand = copyToClipboardWithShareTextCommand;
             IsLoadFailed = new ReactiveProperty<bool>(false)
                .AddTo(_CompositeDisposable);
             LoadFailedMessage = new ReactiveProperty<string>()
@@ -235,8 +240,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
 
         public DialogService HohoemaDialogService { get; }
-        public ExternalAccessService ExternalAccessService { get; }
         public OpenLiveContentCommand OpenLiveContentCommand { get; }
+        public OpenLinkCommand OpenLinkCommand { get; }
+        public CopyToClipboardCommand CopyToClipboardCommand { get; }
+        public CopyToClipboardWithShareTextCommand CopyToClipboardWithShareTextCommand { get; }
 
 
 

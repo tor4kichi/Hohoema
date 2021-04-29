@@ -1,12 +1,13 @@
 ﻿using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Niconico.Video.Ranking;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using I18NPortable;
@@ -25,6 +26,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Uno.Threading;
+using Hohoema.Models.Domain.Notification;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
@@ -292,7 +294,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
 
                                 // TODO: i18n：人気タグがオンライン側で外れた場合の通知
-                                _notificationService.ShowLiteInAppNotification($"「{selectedTag.Label}」は人気のタグの一覧から外れたようです", Services.LiteNotification.DisplayDuration.MoreAttention);
+                                _notificationService.ShowLiteInAppNotification($"「{selectedTag.Label}」は人気のタグの一覧から外れたようです", DisplayDuration.MoreAttention);
                             }
                         }
                     }

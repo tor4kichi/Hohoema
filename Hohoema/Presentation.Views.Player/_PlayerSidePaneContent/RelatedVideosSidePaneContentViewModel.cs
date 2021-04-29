@@ -1,26 +1,20 @@
-﻿using System;
+﻿using Hohoema.Models.Domain.Niconico.Channel;
+using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Player.Video;
+using Hohoema.Models.Helpers;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Presentation.ViewModels.VideoListPage;
+using Microsoft.Toolkit.Uwp.UI;
+using Mntone.Nico2.Channels.Video;
+using Reactive.Bindings.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Toolkit.Uwp.UI;
-using Mntone.Nico2.Channels.Video;
-using Hohoema.Models.Helpers;
-using Hohoema.Models.Domain;
-
-using Hohoema.Presentation.Services;
-using Unity;
-using Hohoema.Database;
-using Hohoema.Models.UseCase.NicoVideos;
 using System.Reactive.Concurrency;
-using Reactive.Bindings.Extensions;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Niconico.LoginUser.Mylist;
-using Hohoema.Presentation.Services.Page;
-using Hohoema.Models.Domain.Player.Video;
-using Hohoema.Presentation.ViewModels.VideoListPage;
+using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {

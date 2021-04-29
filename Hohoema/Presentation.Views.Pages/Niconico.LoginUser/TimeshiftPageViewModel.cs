@@ -1,6 +1,7 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Live;
+using Hohoema.Models.Domain.Niconico.Live.LoginUser;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services;
@@ -18,7 +19,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {

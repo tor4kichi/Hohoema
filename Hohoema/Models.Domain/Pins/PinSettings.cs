@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Infrastructure;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Prism.Navigation;
 using System;
 using System.Collections.Generic;

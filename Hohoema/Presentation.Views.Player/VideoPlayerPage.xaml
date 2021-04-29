@@ -340,13 +340,13 @@
                       <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{Binding IsLikedVideo, Mode=TwoWay}" IsEnabled="{Binding NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
                       <AppBarButton x:Name="ShowVideoInfoButon" Label="{i18nExt:Localize Key=VideoInfomation}" Command="{Binding OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
                       <AppBarButton Command="{x:Bind SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="{i18nExt:Localize Key=RelatedInfomation}" />
-                      <AppBarButton x:Name="ShareButton" Label="{i18nExt:Localize Key=Share}" Icon="Link" Visibility="Collapsed" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding VideoInfo}"></AppBarButton>
+                      <AppBarButton x:Name="ShareButton" Label="{i18nExt:Localize Key=Share}" Icon="Link" Visibility="Collapsed" Command="{Binding OpenShareUICommand}" CommandParameter="{Binding VideoInfo}"></AppBarButton>
                       <AppBarButton x:Name="CopyActionsAppBarButton" Label="{i18nExt:Localize Key=Copy}" Visibility="Visible">
                         <AppBarButton.Flyout>
                           <MenuFlyout>
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoId}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoId}" />
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoLink}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoInfo}" />
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyShareText}" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding VideoInfo}" />
+                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoId}" Command="{Binding CopyToClipboardCommand}" CommandParameter="{Binding VideoId}" />
+                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoLink}" Command="{Binding CopyToClipboardCommand}" CommandParameter="{Binding VideoInfo}" />
+                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyShareText}" Command="{Binding CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding VideoInfo}" />
                           </MenuFlyout>
                         </AppBarButton.Flyout>
                       </AppBarButton>
@@ -713,7 +713,7 @@
                         <Run Text="{Binding CannotPlayReason}" />
                     </TextBlock>
                     <Button Content="{i18nExt:Localize Key=OpenWithBrowser}"
-                            Command="{Binding ExternalAccessService.OpenLinkCommand}" 
+                            Command="{Binding OpenLinkCommand}" 
                             CommandParameter="{Binding VideoInfo}"
                             Style="{ThemeResource AccentButtonStyle}" 
                             Height="48"

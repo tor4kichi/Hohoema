@@ -17,7 +17,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
     public sealed class MylistCreateCommand : DelegateCommandBase
     {
         public MylistCreateCommand(
-            UserMylistManager userMylistManager,
+            LoginUserOwnedMylistManager userMylistManager,
             DialogService dialogService
             )
         {
@@ -25,7 +25,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             DialogService = dialogService;
         }
 
-        public UserMylistManager UserMylistManager { get; }
+        public LoginUserOwnedMylistManager UserMylistManager { get; }
         public DialogService DialogService { get; }
 
         protected override bool CanExecute(object parameter)

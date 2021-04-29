@@ -1,28 +1,26 @@
-﻿using Hohoema.Models.Domain;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
-using Mntone.Nico2.Videos.Histories;
-using Prism.Commands;
-using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
-using System.Reactive.Linq;
-using System.Threading;
-using Prism.Navigation;
-using Hohoema.Presentation.Services.Page;
-using Hohoema.Models.UseCase.NicoVideos;
+﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.UseCase;
-using System.Runtime.CompilerServices;
-using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Mntone.Nico2.Videos.Histories;
+using Prism.Commands;
+using Prism.Navigation;
+using Reactive.Bindings.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {
-	public class WatchHistoryPageViewModel : HohoemaViewModelBase
+    public class WatchHistoryPageViewModel : HohoemaViewModelBase
 	{
 		public WatchHistoryPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
