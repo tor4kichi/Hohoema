@@ -18,13 +18,14 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Presentation.ViewModels.Navigation.Commands;
-using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
-using Hohoema.Presentation.ViewModels.Subscriptions.Commands;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
+using Hohoema.Presentation.ViewModels.Niconico.Share;
 
 namespace Hohoema.Presentation.Views.Flyouts
 {
@@ -72,9 +73,8 @@ namespace Hohoema.Presentation.Views.Flyouts
 
 
         public static HohoemaPlaylist HohoemaPlaylist { get; }
-        public static ExternalAccessService ExternalAccessService { get; }
         public static PageManager PageManager { get; }
-        public static UserMylistManager UserMylistManager { get; }
+        public static LoginUserOwnedMylistManager UserMylistManager { get; }
         public static LocalMylistManager LocalMylistManager { get; }
         public static SubscriptionManager SubscriptionManager { get; }
         public static VideoCacheManagerLegacy VideoCacheManager { get; }
@@ -83,7 +83,10 @@ namespace Hohoema.Presentation.Views.Flyouts
         public static LocalPlaylistCreateCommand CreateLocalMylistCommand { get; }
         public static AddSubscriptionCommand AddSubscriptionCommand { get; }
 
-
+        public static OpenLinkCommand OpenLinkCommand { get; }
+        public static CopyToClipboardCommand CopyToClipboardCommand { get; }
+        public static CopyToClipboardWithShareTextCommand CopyToClipboardWithShareTextCommand { get; }
+        public static OpenShareUICommand OpenShareUICommand { get; }
 
         private string _localizedText_CreateNew { get; } =  "CreateNew".Translate();
 
@@ -92,13 +95,17 @@ namespace Hohoema.Presentation.Views.Flyouts
             CreateMylistCommand = App.Current.Container.Resolve<MylistCreateCommand>();
             CreateLocalMylistCommand = App.Current.Container.Resolve<LocalPlaylistCreateCommand>();
             HohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
-            ExternalAccessService = App.Current.Container.Resolve<ExternalAccessService>();
             PageManager = App.Current.Container.Resolve<PageManager>();
-            UserMylistManager = App.Current.Container.Resolve<UserMylistManager>();
+            UserMylistManager = App.Current.Container.Resolve<LoginUserOwnedMylistManager>();
             LocalMylistManager = App.Current.Container.Resolve<LocalMylistManager>();
             SubscriptionManager = App.Current.Container.Resolve<SubscriptionManager>();
             VideoCacheManager = App.Current.Container.Resolve<VideoCacheManagerLegacy>();
             VideoItemsSelectionContext = App.Current.Container.Resolve<VideoItemsSelectionContext>();
+
+            OpenLinkCommand = App.Current.Container.Resolve<OpenLinkCommand>();
+            CopyToClipboardCommand = App.Current.Container.Resolve<CopyToClipboardCommand>();
+            CopyToClipboardWithShareTextCommand = App.Current.Container.Resolve<CopyToClipboardWithShareTextCommand>();
+            OpenShareUICommand = App.Current.Container.Resolve<OpenShareUICommand>();
         }
 
 
@@ -116,10 +123,10 @@ namespace Hohoema.Presentation.Views.Flyouts
             OpenOwnerMylistsPage.Command = new OpenPageWithIdCommand(HohoemaPageType.UserMylist, PageManager);
             OpenOwnerVideosPage.Command = PageManager.OpenVideoListPageCommand;
             OpenOwnerSeriesPage.Command = new OpenPageWithIdCommand(HohoemaPageType.UserSeries, PageManager);
-            Share.Command = ExternalAccessService.OpenShareUICommand;
-            CopyVideoId.Command = ExternalAccessService.CopyToClipboardCommand;
-            CopyVideoLink.Command = ExternalAccessService.CopyToClipboardCommand;
-            CopyShareText.Command = ExternalAccessService.CopyToClipboardWithShareTextCommand;
+            Share.Command = OpenShareUICommand;
+            CopyVideoId.Command = CopyToClipboardCommand;
+            CopyVideoLink.Command = CopyToClipboardCommand;
+            CopyShareText.Command = CopyToClipboardWithShareTextCommand;
 
             LocalMylistItem.Command = App.Current.Container.Resolve<LocalPlaylistAddItemCommand>();
             AddToMylistItem.Command = App.Current.Container.Resolve<MylistAddItemCommand>();

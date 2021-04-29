@@ -1,10 +1,11 @@
 ﻿using Mntone.Nico2;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using System;
 using System.Threading.Tasks;
 using Windows.Media.Core;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 
 namespace Hohoema.Models.Domain.Player.Video
 {

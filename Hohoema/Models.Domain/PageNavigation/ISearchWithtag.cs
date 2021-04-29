@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico.UserFeature.Follow;
+﻿using Hohoema.Models.Domain.Niconico.Follow;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 
 namespace Hohoema.Models.Domain.PageNavigation
 {

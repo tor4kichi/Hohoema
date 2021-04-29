@@ -12,6 +12,7 @@ using System.Collections.Immutable;
 using Windows.Foundation;
 using Hohoema.Models.Domain.Player.Video.Comment;
 using Uno.Extensions;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Models.Domain.Player.Video
 {

@@ -92,15 +92,5 @@ namespace Hohoema.Models.Domain.Niconico.User
                 return await context.Video.GetUserVideosAsync(userId, page/*, sort, order*/);
             });
         }
-
-
-
-        public async Task<MylistGroupsResponse> GetUserMylistGroups(string userId)
-        {
-            return await ContextActionWithPageAccessWaitAsync(async context =>
-            {
-                return await context.User.GetMylistGroupsAsync(int.Parse(userId));
-            });
-        }
     }
 }

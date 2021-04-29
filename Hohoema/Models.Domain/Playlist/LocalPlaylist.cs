@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Presentation.ViewModels.NicoVideos.Commands;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;

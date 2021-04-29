@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.Domain;
+﻿using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Player.Video.Cache;
-using Hohoema.Presentation.Services;
+using Hohoema.Models.UseCase.Player;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;

@@ -28,6 +28,8 @@ using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Player.Video.Comment;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using Windows.System;
+using Uno.Threading;
+using System.Threading;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
@@ -52,7 +54,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         public AsyncReactiveCommand CommentSubmitCommand { get; }
         ICommentSession _commentSession;
 
-        Models.Domain.Helpers.AsyncLock _commentUpdateLock = new Models.Domain.Helpers.AsyncLock();
+        FastAsyncLock _commentUpdateLock = new FastAsyncLock();
 
         private bool _nowSeekDisabledFromNicoScript;
         public bool NowSeekDisabledFromNicoScript
@@ -214,9 +216,9 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         }
 
 
-        public async Task UpdatePlayingCommentAsync(INiconicoCommentSessionProvider niconicoCommentSessionProvider)
+        public async Task UpdatePlayingCommentAsync(INiconicoCommentSessionProvider niconicoCommentSessionProvider, CancellationToken ct = default)
         {
-            using (await _commentUpdateLock.LockAsync())
+            using (await _commentUpdateLock.LockAsync(ct))
             {
                 _niconicoCommentSessionProvider = niconicoCommentSessionProvider;
 
@@ -267,7 +269,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         {
             if (_commentSession == null) { return; }
 
-            using (await _commentUpdateLock.LockAsync())
+            using (await _commentUpdateLock.LockAsync(default))
             {
                 await UpdateComments_Internal(_commentSession);
             }
@@ -277,7 +279,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
         private async Task SubmitComment()
         {
-            using (await _commentUpdateLock.LockAsync())
+            using (await _commentUpdateLock.LockAsync(default))
             {
                 if (_commentSession == null) { return; }
 

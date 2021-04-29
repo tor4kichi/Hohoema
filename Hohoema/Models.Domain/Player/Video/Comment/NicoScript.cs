@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Helpers;
+﻿using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Player.Video.Comment;
 using System;

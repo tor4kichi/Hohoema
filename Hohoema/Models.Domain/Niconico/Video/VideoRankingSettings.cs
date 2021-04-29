@@ -1,5 +1,5 @@
 ﻿using Mntone.Nico2.Videos.Ranking;
-using Hohoema.Presentation.Services.Helpers;
+using Hohoema.Models.Helpers;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;

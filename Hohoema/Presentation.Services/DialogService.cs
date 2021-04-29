@@ -1,7 +1,5 @@
 ﻿using I18NPortable;
 using Hohoema.Dialogs;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
 using Hohoema.Models.UseCase.NicoVideos;
 using System;
 using System.Collections.Generic;
@@ -13,6 +11,7 @@ using Windows.Storage;
 using Windows.UI.Popups;
 using Windows.Web.Http;
 using Hohoema.Presentation.Views.Dialogs;
+using Hohoema.Models.Domain.Application;
 
 namespace Hohoema.Presentation.Services
 {
@@ -27,7 +26,7 @@ namespace Hohoema.Presentation.Services
 
         static readonly string CacheUsageConfirmationFileUri = Windows.ApplicationModel.Package.Current.InstalledLocation.Path + "\\Assets\\CacheUsageConfirmation.md";
 
-        public UserMylistManager UserMylistManager { get; }
+        public LoginUserOwnedMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
 
         public async Task<bool> ShowAcceptCacheUsaseDialogAsync(bool showWithoutConfirmButton = false)

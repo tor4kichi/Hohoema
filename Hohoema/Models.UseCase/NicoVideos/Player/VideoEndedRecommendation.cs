@@ -1,7 +1,7 @@
 ﻿using Mntone.Nico2.Videos.Dmc;
 using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Player;
+using Hohoema.Models.UseCase.Player;
 using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Commands;
 using Prism.Mvvm;

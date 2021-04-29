@@ -60,8 +60,6 @@ namespace Hohoema.Presentation.Views.Controls
             Unloaded += TransientContainer_Unloaded;
         }
 
-        FastAsyncLock _AnimLock = new FastAsyncLock();
-
         CompositeDisposable _CompositeDisposable;
         CancellationTokenSource _AnimationCts;
         private void TransientContainer_Loaded(object sender, RoutedEventArgs e)

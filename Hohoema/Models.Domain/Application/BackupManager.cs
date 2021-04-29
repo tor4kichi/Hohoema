@@ -1,7 +1,8 @@
 ﻿using Hohoema.FixPrism;
-using Hohoema.Models.Domain.Niconico.UserFeature;
+using Hohoema.Models.Domain.Niconico.NicoRepo;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Subscriptions;
@@ -325,7 +326,7 @@ namespace Hohoema.Models.Domain.Application
 
                 if (pins.Any(x => x.PageType == pageType && x.Parameter == s.Parameter)) { continue; }
                 
-                _pinSettings.CreateItem(new PageNavigation.HohoemaPin
+                _pinSettings.CreateItem(new HohoemaPin
                 {
                     Id = s.Id,
                     Label = s.Label,

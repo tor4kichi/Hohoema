@@ -1,5 +1,5 @@
 ﻿using Hohoema.FixPrism;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Subscriptions;
 using System;
 using System.Collections.Generic;

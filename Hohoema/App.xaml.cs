@@ -1,77 +1,69 @@
-﻿using Prism.Mvvm;
+﻿using Hohoema.Models.Domain;
+using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+using Hohoema.Models.Domain.Niconico.NicoRepo;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Domain.Player.Video;
+using Hohoema.Models.Domain.Player.Video.Cache;
+using Hohoema.Models.Domain.Subscriptions;
+using Hohoema.Models.Helpers;
+using Hohoema.Models.UseCase;
+using Hohoema.Models.UseCase.Migration;
+using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.NicoVideos.Player;
+using Hohoema.Models.UseCase.Subscriptions;
+using Hohoema.Models.UseCase.VideoCache;
+using Hohoema.Presentation.Services;
+using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Models.UseCase.Player;
+using Hohoema.Presentation.ViewModels;
+using LiteDB;
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Microsoft.Toolkit.Uwp.Helpers;
+using Newtonsoft.Json;
+using Prism;
+using Prism.Commands;
+using Prism.Ioc;
+using Prism.Mvvm;
+using Prism.Navigation;
+using Prism.Unity;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel;
+using Unity;
+using Unity.Injection;
+using Unity.Lifetime;
 using Windows.ApplicationModel.Activation;
+using Windows.ApplicationModel.Background;
+using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
-using Unity;
-using Hohoema.Models.Domain;
-using Windows.UI.ViewManagement;
-using Windows.ApplicationModel.Core;
-using Windows.UI.Core;
+using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.UI;
-using Microsoft.Toolkit.Uwp.Notifications;
-using Windows.ApplicationModel.Background;
-using System.Reactive.Concurrency;
-using System.Threading;
-using System.Reactive.Linq;
-using Unity.Lifetime;
-using Unity.Injection;
-using Prism.Unity;
-using Prism.Ioc;
-using Prism;
-using Prism.Navigation;
-using Prism.Services;
-using Windows.Media.Playback;
-using Windows.UI.Xaml.Data;
-using Hohoema.Models.UseCase;
-using I18NPortable;
-using Newtonsoft.Json;
-using Hohoema.Models.UseCase.NicoVideos;
-using Microsoft.Toolkit.Uwp.UI;
-using Hohoema.Presentation.ViewModels;
-using LiteDB;
-using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.Domain.Helpers;
-
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.UserFeature.Follow;
-using Hohoema.Models.Domain.Player.Video;
-using Hohoema.Models.UseCase.NicoVideos.Player;
-using Hohoema.Models.UseCase.Subscriptions;
-using Hohoema.Presentation.Services.Page;
-using Hohoema.Presentation.Services.Player;
-using Hohoema.Presentation.Services;
-using Hohoema.Models.Domain.Player.Video.Cache;
-using Hohoema.Presentation.Services.Helpers;
-using Hohoema.Presentation.Services.Notification;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.UseCase.Migration;
-using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Domain.Niconico.UserFeature;
-using Prism.Commands;
-using Windows.System;
-using Microsoft.AppCenter;
-using Microsoft.AppCenter.Analytics;
-using Microsoft.AppCenter.Crashes;
-using Windows.UI.Popups;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using Hohoema.Models.UseCase.VideoCache;
-using Microsoft.Toolkit.Uwp.UI.Animations;
-using Microsoft.Toolkit.Uwp.Helpers;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using Windows.UI.ViewManagement;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Hohoema.Presentation.Views.Pages;
+using Hohoema.Models.UseCase.Niconico.Account;
+using Hohoema.Models.UseCase.Niconico.Follow;
+using Hohoema.Models.Domain.Notification;
 
 namespace Hohoema
 {
@@ -171,17 +163,9 @@ namespace Hohoema
                     var lastPlaying = vm.RestoreNavigationManager.GetCurrentPlayerEntry();
                     if (lastPlaying != null)
                     {
-                        var playlistAggregateGetter = Container.Resolve<PlaylistAggregateGetter>();
+                        // TODO: 前回再生中コンテンツ復帰時に再生リストを取得できるようにする（ローカルマイリストやチャンネル動画一覧含む）
                         var hohoemaPlaylist = Container.Resolve<HohoemaPlaylist>();
-                        if (lastPlaying.PlaylistId != null)
-                        {
-                            var playlist = await playlistAggregateGetter.FindPlaylistAsync(lastPlaying.PlaylistId);
-                            hohoemaPlaylist.Play(lastPlaying.ContentId, playlist, position: lastPlaying.Position);
-                        }
-                        else
-                        {
-                            hohoemaPlaylist.Play(lastPlaying.ContentId, position: lastPlaying.Position);
-                        }
+                        hohoemaPlaylist.Play(lastPlaying.ContentId, position: lastPlaying.Position);
                     }
 #endif
                 }
@@ -210,8 +194,8 @@ namespace Hohoema
             //   |    |- MenuNavigatePageBaseViewModel
             //   |         |- rootFrame 
 
-            _primaryWindowCoreLayout = Container.Resolve<Presentation.Views.PrimaryWindowCoreLayout>();
-            var hohoemaInAppNotification = new Presentation.Views.HohoemaInAppNotification()
+            _primaryWindowCoreLayout = Container.Resolve<PrimaryWindowCoreLayout>();
+            var hohoemaInAppNotification = new Presentation.Views.Controls.HohoemaInAppNotification()
             {
                 VerticalAlignment = VerticalAlignment.Bottom
             };
@@ -284,7 +268,7 @@ namespace Hohoema
             unityContainer.RegisterSingleton<NiconicoSession>();
             unityContainer.RegisterSingleton<NicoVideoSessionOwnershipManager>();
             
-            unityContainer.RegisterSingleton<UserMylistManager>();
+            unityContainer.RegisterSingleton<LoginUserOwnedMylistManager>();
             unityContainer.RegisterSingleton<FollowManager>();
 
             unityContainer.RegisterSingleton<VideoCacheManagerLegacy>();
@@ -311,7 +295,7 @@ namespace Hohoema
 
 
             // ViewModels
-            unityContainer.RegisterSingleton<Presentation.ViewModels.Pages.VideoPages.RankingCategoryListPageViewModel>();
+            unityContainer.RegisterSingleton<Presentation.ViewModels.Pages.Niconico.RankingCategoryListPageViewModel>();
 
             unityContainer.RegisterType<Presentation.ViewModels.Player.VideoPlayerPageViewModel>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<Presentation.ViewModels.Player.LivePlayerPageViewModel>(new PerThreadLifetimeManager());
@@ -329,40 +313,40 @@ namespace Hohoema
 
         protected override void RegisterRequiredTypes(IContainerRegistry containerRegistry)
         {
-            containerRegistry.RegisterForNavigation<Presentation.Views.BlankPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.DebugPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.AppFeaturePages.CacheManagementPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.AppFeaturePages.LocalPlaylistPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.AppFeaturePages.LocalPlaylistManagePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.AppFeaturePages.SettingsPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.AppFeaturePages.SubscriptionManagementPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.AppFeaturePages.VideoQueuePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.ChannelPages.ChannelVideoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.CommunityPages.CommunityPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.CommunityPages.CommunityVideoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.LivePages.LiveInfomationPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.MylistPages.UserMylistPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.MylistPages.MylistPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.MylistPages.OwnerMylistManagePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultTagPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultMylistPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultKeywordPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultCommunityPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SearchPages.SearchResultLivePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SeriesPages.SeriesPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.SeriesPages.UserSeriesPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.LoginPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.FollowManagePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.NicoRepoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.RecommendPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.TimeshiftPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserFeaturePages.WatchHistoryPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserPages.UserInfoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.UserPages.UserVideoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.VideoPages.RankingCategoryListPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.VideoPages.RankingCategoryPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.VideoPages.VideoInfomationPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.BlankPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.DebugPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.SettingsPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Video.CacheManagementPage >();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Video.LocalPlaylistPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Video.LocalPlaylistManagePage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Video.SubscriptionManagementPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Video.VideoQueuePage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.ChannelVideoPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.CommunityPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.CommunityVideoPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Live.LiveInfomationPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.UserMylistPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.MylistPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.OwnerMylistManagePage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultTagPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultMylistPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultKeywordPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultCommunityPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultLivePage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.SeriesPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.UserSeriesPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.LoginPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.FollowManagePage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.NicoRepoPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.RecommendPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.TimeshiftPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.LoginUser.WatchHistoryPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.UserInfoPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.UserVideoPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.RankingCategoryListPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.RankingCategoryPage>();
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoInfomationPage>();
 
             containerRegistry.RegisterForNavigation<Presentation.Views.Player.LivePlayerPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Player.VideoPlayerPage>();
@@ -372,316 +356,313 @@ namespace Hohoema
 
         public bool IsTitleBarCustomized { get; } = DeviceTypeHelper.IsDesktop && InputCapabilityHelper.IsMouseCapable;
 
-        Models.Domain.Helpers.AsyncLock InitializeLock = new Models.Domain.Helpers.AsyncLock();
+        Models.Helpers.AsyncLock InitializeLock = new Models.Helpers.AsyncLock();
         bool isInitialized = false;
         private async Task EnsureInitializeAsync()
         {
-            using (await InitializeLock.LockAsync())
+            if (isInitialized) { return; }
+            isInitialized = true;
+
+
+            async Task TryMigrationAsync(Type[] migrateTypes)
             {
-                if (isInitialized) { return; }
-                isInitialized = true;
-                
-
-                async Task TryMigrationAsync(Type[] migrateTypes)
+                foreach (var migrateType in migrateTypes)
                 {
-                    foreach (var migrateType in migrateTypes)
+                    try
                     {
-                        try
+                        Debug.WriteLine($"Try migrate: {migrateType.Name}");
+                        var migrater = Container.Resolve(migrateType);
+                        if (migrater is IMigrate migrateSycn)
                         {
-                            Debug.WriteLine($"Try migrate: {migrateType.Name}");
-                            var migrater = Container.Resolve(migrateType);
-                            if (migrater is IMigrate migrateSycn)
-                            {
-                                migrateSycn.Migrate();
-                            }
-                            else if (migrater is IMigrateAsync migrateAsync)
-                            {
-                                await migrateAsync.MigrateAsync();
-                            }
+                            migrateSycn.Migrate();
+                        }
+                        else if (migrater is IMigrateAsync migrateAsync)
+                        {
+                            await migrateAsync.MigrateAsync();
+                        }
 
-                            Debug.WriteLine("Migration complete : " + migrateType.Name);
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.WriteLine(e.ToString());
-                            Debug.WriteLine("Migration failed : " + migrateType.Name);
-                        }
+                        Debug.WriteLine("Migration complete : " + migrateType.Name);
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e.ToString());
+                        Debug.WriteLine("Migration failed : " + migrateType.Name);
                     }
                 }
+            }
 
-                await TryMigrationAsync(new Type[]
-                {
-                    typeof(DatabaseMigrate_0_25_0),
-                });
+            await TryMigrationAsync(new Type[]
+            {
+                typeof(DatabaseMigrate_0_25_0),
+            });
 
-                {
-                    var unityContainer = Container.GetContainer();
-                    //var upgradeResult = LiteEngine.Upgrade(Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db"));
-                    //Debug.WriteLine("upgrade: " + upgradeResult);
+            {
+                var unityContainer = Container.GetContainer();
+                //var upgradeResult = LiteEngine.Upgrade(Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db"));
+                //Debug.WriteLine("upgrade: " + upgradeResult);
 
-                    LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
-                    unityContainer.RegisterInstance<LiteDatabase>(db);
-                }
+                LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
+                unityContainer.RegisterInstance<LiteDatabase>(db);
+            }
 
-                await TryMigrationAsync(new Type[]
-                {
-                    typeof(MigrationCommentFilteringSettings),
-                    typeof(CommentFilteringNGScoreZeroFixture),
-                    typeof(SettingsMigration_V_0_23_0),
-                    typeof(SearchPageQueryMigrate_0_26_0),
-                    typeof(LocalMylistThumbnailImageMigration_V_0_28_0),
-                });
+            await TryMigrationAsync(new Type[]
+            {
+                typeof(MigrationCommentFilteringSettings),
+                typeof(CommentFilteringNGScoreZeroFixture),
+                typeof(SettingsMigration_V_0_23_0),
+                typeof(SearchPageQueryMigrate_0_26_0),
+                typeof(LocalMylistThumbnailImageMigration_V_0_28_0),
+            });
 
-                // 機能切り替え管理クラスをDIコンテナに登録
-                // Xaml側で扱いやすくするためApp.xaml上でインスタンス生成させている
-                {
-                    var unityContainer = Container.GetContainer();
-                    unityContainer.RegisterInstance(Resources["FeatureFlags"] as FeatureFlags);
-                }
+            // 機能切り替え管理クラスをDIコンテナに登録
+            // Xaml側で扱いやすくするためApp.xaml上でインスタンス生成させている
+            {
+                var unityContainer = Container.GetContainer();
+                unityContainer.RegisterInstance(Resources["FeatureFlags"] as FeatureFlags);
+            }
 
-                // ローカリゼーション用のライブラリを初期化
-                try
-                {
-                    I18NPortable.I18N.Current
+            // ローカリゼーション用のライブラリを初期化
+            try
+            {
+                I18NPortable.I18N.Current
 #if DEBUG
-                    //.SetLogger(text => System.Diagnostics.Debug.WriteLine(text))
-                        .SetNotFoundSymbol("🍣")
+                //.SetLogger(text => System.Diagnostics.Debug.WriteLine(text))
+                .SetNotFoundSymbol("🍣")
 #endif
-                    .SetFallbackLocale("ja")
-                        .Init(GetType().Assembly);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine(ex.ToString());
-                }
+                .SetFallbackLocale("ja")
+                .Init(GetType().Assembly);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
 
-                Resources["Strings"] = I18NPortable.I18N.Current;
+            Resources["Strings"] = I18NPortable.I18N.Current;
 
-                var appearanceSettings = Container.Resolve<Models.Domain.Application.AppearanceSettings>();
-                I18NPortable.I18N.Current.Locale = appearanceSettings.Locale ?? I18NPortable.I18N.Current.Languages.FirstOrDefault(x => x.Locale.StartsWith(CultureInfo.CurrentCulture.TwoLetterISOLanguageName)).Locale ?? I18NPortable.I18N.Current.Locale;
+            var appearanceSettings = Container.Resolve<Models.Domain.Application.AppearanceSettings>();
+            I18NPortable.I18N.Current.Locale = appearanceSettings.Locale ?? I18NPortable.I18N.Current.Languages.FirstOrDefault(x => x.Locale.StartsWith(CultureInfo.CurrentCulture.TwoLetterISOLanguageName)).Locale ?? I18NPortable.I18N.Current.Locale;
 
-                CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(I18NPortable.I18N.Current.Locale);
+            CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(I18NPortable.I18N.Current.Locale);
 
-                //Console.WriteLine(settings.AppearanceSettings.Locale);
-                //Console.WriteLine(I18N.Current.Locale);
-                //Console.WriteLine(CultureInfo.CurrentCulture.Name);
+            //Console.WriteLine(settings.AppearanceSettings.Locale);
+            //Console.WriteLine(I18N.Current.Locale);
+            //Console.WriteLine(CultureInfo.CurrentCulture.Name);
 
-                // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
-                var mylitManager = Container.Resolve<UserMylistManager>();
-                var followManager = Container.Resolve<FollowManager>();
-                
-                Resources["IsXbox"] = DeviceTypeHelper.IsXbox;
-                Resources["IsMobile"] = DeviceTypeHelper.IsMobile;
+            // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
+            var mylitManager = Container.Resolve<LoginUserOwnedMylistManager>();
+            var followManager = Container.Resolve<FollowManager>();
+
+            Resources["IsXbox"] = DeviceTypeHelper.IsXbox;
+            Resources["IsMobile"] = DeviceTypeHelper.IsMobile;
 
 
-                try
-                {
+            try
+            {
 #if DEBUG
-                    if (_DEBUG_XBOX_RESOURCE)
+                if (_DEBUG_XBOX_RESOURCE)
 #else
                     if (DeviceTypeHelper.IsXbox)
 #endif
-                    {
-                        this.Resources.MergedDictionaries.Add(new ResourceDictionary()
-                        {
-                            Source = new Uri("ms-appx:///Styles/TVSafeColor.xaml")
-                        });
-                        this.Resources.MergedDictionaries.Add(new ResourceDictionary()
-                        {
-                            Source = new Uri("ms-appx:///Styles/TVStyle.xaml")
-                        });
-                    }
-                }
-                catch
                 {
-
+                    this.Resources.MergedDictionaries.Add(new ResourceDictionary()
+                    {
+                        Source = new Uri("ms-appx:///Styles/TVSafeColor.xaml")
+                    });
+                    this.Resources.MergedDictionaries.Add(new ResourceDictionary()
+                    {
+                        Source = new Uri("ms-appx:///Styles/TVStyle.xaml")
+                    });
                 }
+            }
+            catch
+            {
+
+            }
 
 #if DEBUG
-                Resources["IsDebug"] = true;
+            Resources["IsDebug"] = true;
 #else
             Resources["IsDebug"] = false;
 #endif
-                Resources["TitleBarCustomized"] = IsTitleBarCustomized;
-                Resources["TitleBarDummyHeight"] = IsTitleBarCustomized ? 32.0 : 0.0;
+            Resources["TitleBarCustomized"] = IsTitleBarCustomized;
+            Resources["TitleBarDummyHeight"] = IsTitleBarCustomized ? 32.0 : 0.0;
 
 
-                if (IsTitleBarCustomized)
+            if (IsTitleBarCustomized)
+            {
+                var coreApp = CoreApplication.GetCurrentView();
+                coreApp.TitleBar.ExtendViewIntoTitleBar = true;
+
+                var appView = ApplicationView.GetForCurrentView();
+                appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+
+                if (RequestedTheme == ApplicationTheme.Light)
                 {
-                    var coreApp = CoreApplication.GetCurrentView();
-                    coreApp.TitleBar.ExtendViewIntoTitleBar = true;
+                    appView.TitleBar.ButtonForegroundColor = Colors.Black;
+                    appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
+                    appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
+                    appView.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
+                }
+                else
+                {
+                    appView.TitleBar.ButtonForegroundColor = Colors.White;
+                    appView.TitleBar.ButtonHoverBackgroundColor = Colors.DimGray;
+                    appView.TitleBar.ButtonHoverForegroundColor = Colors.White;
+                    appView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
+                }
+            }
 
-                    var appView = ApplicationView.GetForCurrentView();
-                    appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                    appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            // 
+            var cacheSettings = Container.Resolve<VideoCacheSettings>();
+            Resources["IsCacheEnabled"] = cacheSettings.IsEnableCache;
 
-                    if (RequestedTheme == ApplicationTheme.Light)
+            // ウィンドウコンテンツを作成
+            Window.Current.Content = CreateShell();
+
+            // ウィンドウサイズの保存と復元
+            if (DeviceTypeHelper.IsDesktop)
+            {
+                var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                if (localObjectStorageHelper.KeyExists(ScondaryViewPlayerManager.primary_view_size))
+                {
+                    var view = ApplicationView.GetForCurrentView();
+                    MainViewId = view.Id;
+                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(ScondaryViewPlayerManager.primary_view_size);
+                    view.TryResizeView(_PrevWindowSize);
+                    ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
+                }
+            }
+
+            // XboxOneで外枠表示を行わないように設定
+            if (DeviceTypeHelper.IsXbox)
+            {
+                Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().SetDesiredBoundsMode
+                    (Windows.UI.ViewManagement.ApplicationViewBoundsMode.UseCoreWindow);
+            }
+
+            // モバイルでナビゲーションバーをアプリに被せないように設定
+            if (DeviceTypeHelper.IsMobile)
+            {
+                // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
+                ApplicationView.GetForCurrentView().SuppressSystemOverlays = true;
+                ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
+            }
+
+
+
+
+
+            // 2段階認証を処理するログインサービスをインスタンス化
+            var loginService = Container.Resolve<NiconicoLoginService>();
+
+
+            // バージョン間データ統合
+            {
+                var unityContainer = Container.GetContainer();
+
+                unityContainer.Resolve<Models.UseCase.Migration.CommentFilteringNGScoreZeroFixture>().Migration();
+
+
+                // アプリのユースケース系サービスを配置
+                unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheVideoDeletedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<CheckingClipboardAndNotificationService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<NotificationFollowUpdatedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheRequestRejectedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<SubscriptionUpdateManager>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<FeedResultAddToWatchLater>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<SyncWatchHistoryOnLoggedIn>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<LatestSubscriptionVideosNotifier>());
+
+                unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheResumingObserver>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<VideoPlayRequestBridgeToPlayer>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<CloseToastNotificationWhenPlayStarted>());
+
+                unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheDownloadOperationManager>());
+            }
+
+            // バックグラウンドでのトースト通知ハンドリングを初期化
+            await RegisterDebugToastNotificationBackgroundHandling();
+
+
+            // 更新通知を表示
+            try
+            {
+                var dialogService = Container.Resolve<DialogService>();
+                if (AppUpdateNotice.IsUpdated)
+                {
+                    var version = Windows.ApplicationModel.Package.Current.Id.Version;
+                    var notificationService = Container.Resolve<NotificationService>();
+                    notificationService.ShowInAppNotification(new InAppNotificationPayload()
                     {
-                        appView.TitleBar.ButtonForegroundColor = Colors.Black;
-                        appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
-                        appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
-                        appView.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
-                    }
-                    else
-                    {
-                        appView.TitleBar.ButtonForegroundColor = Colors.White;
-                        appView.TitleBar.ButtonHoverBackgroundColor = Colors.DimGray;
-                        appView.TitleBar.ButtonHoverForegroundColor = Colors.White;
-                        appView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
-                    }
-                }
-
-                // 
-                var cacheSettings = Container.Resolve<VideoCacheSettings>();
-                Resources["IsCacheEnabled"] = cacheSettings.IsEnableCache;
-
-                // ウィンドウコンテンツを作成
-                Window.Current.Content = CreateShell();
-
-                // ウィンドウサイズの保存と復元
-                if (DeviceTypeHelper.IsDesktop)
-                {
-                    var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
-                    if (localObjectStorageHelper.KeyExists(ScondaryViewPlayerManager.primary_view_size))
-                    {
-                        var view = ApplicationView.GetForCurrentView();
-                        MainViewId = view.Id;
-                        _PrevWindowSize = localObjectStorageHelper.Read<Size>(ScondaryViewPlayerManager.primary_view_size);
-                        view.TryResizeView(_PrevWindowSize);
-                        ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
-                    }
-                }
-
-                // XboxOneで外枠表示を行わないように設定
-                if (DeviceTypeHelper.IsXbox)
-                {
-                    Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().SetDesiredBoundsMode
-                        (Windows.UI.ViewManagement.ApplicationViewBoundsMode.UseCoreWindow);
-                }
-
-                // モバイルでナビゲーションバーをアプリに被せないように設定
-                if (DeviceTypeHelper.IsMobile)
-                {
-                    // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
-                    ApplicationView.GetForCurrentView().SuppressSystemOverlays = true;
-                    ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
-                }
-
-
-
-
-
-                // 2段階認証を処理するログインサービスをインスタンス化
-                var loginService = Container.Resolve<NiconicoLoginService>();
-
-
-                // バージョン間データ統合
-                {
-                    var unityContainer = Container.GetContainer();
-
-                    unityContainer.Resolve<Models.UseCase.Migration.CommentFilteringNGScoreZeroFixture>().Migration();
-
-
-                    // アプリのユースケース系サービスを配置
-                    unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheVideoDeletedService>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<NotificationMylistUpdatedService>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<CheckingClipboardAndNotificationService>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<NotificationFollowUpdatedService>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheRequestRejectedService>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<SubscriptionUpdateManager>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<FeedResultAddToWatchLater>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<SyncWatchHistoryOnLoggedIn>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<LatestSubscriptionVideosNotifier>());
-
-                    unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheResumingObserver>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<VideoPlayRequestBridgeToPlayer>());
-                    unityContainer.RegisterInstance(unityContainer.Resolve<CloseToastNotificationWhenPlayStarted>());
-
-                    unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheDownloadOperationManager>());
-                }
-
-                // バックグラウンドでのトースト通知ハンドリングを初期化
-                await RegisterDebugToastNotificationBackgroundHandling();
-
-
-                // 更新通知を表示
-                try
-                {
-                    var dialogService = Container.Resolve<DialogService>();
-                    if (AppUpdateNotice.IsUpdated)
-                    {
-                        var version = Windows.ApplicationModel.Package.Current.Id.Version;
-                        var notificationService = Container.Resolve<NotificationService>();
-                        notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                        {
-                            Content = $"Hohoema v{version.Major}.{version.Minor}.{version.Build} に更新しました",
-                            ShowDuration = TimeSpan.FromSeconds(7),
-                            IsShowDismissButton = true,
-                            Commands =
+                        Content = $"Hohoema v{version.Major}.{version.Minor}.{version.Build} に更新しました",
+                        ShowDuration = TimeSpan.FromSeconds(7),
+                        IsShowDismissButton = true,
+                        Commands =
                             {
                                 new InAppNotificationCommand()
                                 {
                                     Command = new DelegateCommand(async () =>
                                     {
-                                        AppUpdateNotice.ShowReleaseNotePageOnBrowserAsync();
+                                        await AppUpdateNotice.ShowReleaseNotePageOnBrowserAsync();
                                     }),
                                     Label = "更新情報を確認（ブラウザで表示）"
                                 }
                             }
-                        });
-                        AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
-                    }
+                    });
+                    AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
                 }
-                catch { }
+            }
+            catch { }
 
 
-                /*
-                if (args.PreviousExecutionState == ApplicationExecutionState.Terminated
-                    || args.PreviousExecutionState == ApplicationExecutionState.ClosedByUser)
+            /*
+            if (args.PreviousExecutionState == ApplicationExecutionState.Terminated
+                || args.PreviousExecutionState == ApplicationExecutionState.ClosedByUser)
+            {
+                if (!ApiContractHelper.Is2018FallUpdateAvailable)
                 {
-                    if (!Services.Helpers.ApiContractHelper.Is2018FallUpdateAvailable)
-                    {
-                        
-                    }
+
                 }
-                else
-                {
-                    var pageManager = Container.Resolve<Services.PageManager>();
+            }
+            else
+            {
+                var pageManager = Container.Resolve<Services.PageManager>();
 
 
 #if false
+            try
+            {
+                if (localStorge.Read(IS_COMPLETE_INTRODUCTION, false) == false)
+                {
+                    // アプリのイントロダクションを開始
+                    pageManager.OpenIntroductionPage();
+                }
+                else
+                {
+                    pageManager.OpenStartupPage();
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("イントロダクションまたはスタートアップのページ表示に失敗");
+                pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
+            }
+#else
                 try
                 {
-                    if (localStorge.Read(IS_COMPLETE_INTRODUCTION, false) == false)
-                    {
-                        // アプリのイントロダクションを開始
-                        pageManager.OpenIntroductionPage();
-                    }
-                    else
-                    {
-                        pageManager.OpenStartupPage();
-                    }
+                    pageManager.OpenStartupPage();
                 }
                 catch
                 {
-                    Debug.WriteLine("イントロダクションまたはスタートアップのページ表示に失敗");
+                    Debug.WriteLine("スタートアップのページ表示に失敗");
                     pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
                 }
-#else
-                    try
-                    {
-                        pageManager.OpenStartupPage();
-                    }
-                    catch
-                    {
-                        Debug.WriteLine("スタートアップのページ表示に失敗");
-                        pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
-                    }
 #endif
-                }
-                */
-
             }
+            */
+
+
         }
 
         
@@ -738,9 +719,9 @@ namespace Hohoema
                             }
                             else
                             {
-                                var playlistResolver = App.Current.Container.Resolve<PlaylistAggregateGetter>();
+                                var playlistResolver = App.Current.Container.Resolve<PlaylistResolver>();
                                 var hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
-                                var playlist = await playlistResolver.FindPlaylistAsync(playlistId);
+                                var playlist = await playlistResolver.ResolvePlaylistAsync(Models.Domain.Playlist.PlaylistOrigin.Mylist, playlistId);
                                 hohoemaPlaylist.Play(playlist);
                                 isHandled = true;
                             }
@@ -882,8 +863,8 @@ namespace Hohoema
 
             if (playlistId != null)
             {
-                var playlistAggregator = App.Current.Container.Resolve<PlaylistAggregateGetter>();
-                var playlist = await playlistAggregator.FindPlaylistAsync(playlistId);
+                var playlistResolver = App.Current.Container.Resolve<PlaylistResolver>();
+                var playlist = await playlistResolver.ResolvePlaylistAsync(Models.Domain.Playlist.PlaylistOrigin.Mylist, playlistId);
 
                 if (playlist != null)
                 {
@@ -990,7 +971,7 @@ namespace Hohoema
 
         private int MainViewId = -1;
         private Size _PrevWindowSize;
-        private Presentation.Views.PrimaryWindowCoreLayout _primaryWindowCoreLayout;
+        private PrimaryWindowCoreLayout _primaryWindowCoreLayout;
 
         protected override void OnWindowCreated(WindowCreatedEventArgs args)
 		{

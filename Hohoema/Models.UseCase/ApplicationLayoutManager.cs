@@ -1,7 +1,7 @@
 ﻿using Hohoema.FixPrism;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Application;
-using Hohoema.Presentation.Services.Helpers;
+using Hohoema.Models.Helpers;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
