@@ -73,7 +73,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
                         await VideoCacheManager.CacheFolderChanged();
 
-                        await ResetList();
+                        ResetList();
 
                         NotificationService.ShowLiteInAppNotification_Success("ReadyForVideoCache".Translate());
                     }
@@ -114,7 +114,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
                     await VideoCacheManager.CacheFolderChanged();
 
-                    await ResetList();
+                    ResetList();
                 }
             });
         }
@@ -177,7 +177,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
                     await Task.Delay(1000);
 
                     await RefreshCacheSaveFolderStatus();
-                    await ResetList();
+                    ResetList();
 
                     NotificationService.ShowLiteInAppNotification_Success("ReadyForVideoCache".Translate());
                 }

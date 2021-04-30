@@ -235,7 +235,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                 SearchOption.Order = SelectedSearchSort.Value.Order;
                 SearchOption.Mode = SelectedSearchMode.Value.Mode;
 
-                await ResetList();
+                ResetList();
             })
             .AddTo(_NavigatingCompositeDisposable);
 

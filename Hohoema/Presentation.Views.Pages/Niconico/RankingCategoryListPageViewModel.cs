@@ -324,8 +324,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             {
                 _appFlagsRepository.IsRankingInitialUpdate = true;
 
-                bool isCanceled = false;
-                NavigationCancellationToken.Register(() => isCanceled = true);
+
+                var ct = NavigationCancellationToken;
 
                 try
                 {
@@ -335,7 +335,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                         if (genreItem.Items.Any()) { continue; }
 
                         var genre = genreItem.Genre.Value;
-                        var tags = await _rankingProvider.GetRankingGenreTagsAsync(genre, true);
+                        var tags = await _rankingProvider.GetRankingGenreTagsAsync(genre, true, ct);
 
                         using (var refresh = genreItem.Items.DeferRefresh())
                         {
@@ -355,13 +355,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                             }
                         }
 
-                        await Task.Delay(250);
-
-                        if (isCanceled) 
-                        {
-                            _appFlagsRepository.IsRankingInitialUpdate = false;
-                            break; 
-                        }
+                        ct.ThrowIfCancellationRequested();
                     }
                 }
                 catch (OperationCanceledException)

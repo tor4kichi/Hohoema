@@ -95,7 +95,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                                     progress.Report(cnt);
                                 }
 
-                                await ResetList();
+                                ResetList();
                             })
                             );
                     }));

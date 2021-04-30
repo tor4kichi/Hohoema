@@ -9,6 +9,7 @@ using Reactive.Bindings.Extensions;
 using Prism.Mvvm;
 using Prism.Navigation;
 using Hohoema.Presentation.Views.Pages;
+using Uno.Threading;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -25,7 +26,7 @@ namespace Hohoema.Presentation.ViewModels
 
         private CancellationTokenSource _navigationCancellationTokenSource;
 
-        protected CancellationToken NavigationCancellationToken => _navigationCancellationTokenSource?.Token ?? default;
+        protected CancellationToken NavigationCancellationToken { get; private set; }
 
         private string _title;
         public string Title
@@ -51,6 +52,7 @@ namespace Hohoema.Presentation.ViewModels
             Views.Pages.PrimaryWindowCoreLayout.SetCurrentNavigationParameters(parameters);
             _navigationCancellationTokenSource = new CancellationTokenSource()
                 .AddTo(_NavigatingCompositeDisposable);
+            NavigationCancellationToken = _navigationCancellationTokenSource.Token;
         }
 
         public virtual void OnNavigatedTo(INavigationParameters parameters)

@@ -203,7 +203,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                 SearchOption.Sort = opt.Sort;
                 SearchOptionText = SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 
-                await ResetList();
+                ResetList();
             })
             .AddTo(_NavigatingCompositeDisposable);
 

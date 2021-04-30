@@ -65,9 +65,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 .Select(genre => "RankingTitleWithGenre".Translate(genre.Translate()));
         }
 
-        static FastAsyncLock _updateLock = new FastAsyncLock();
-
-
+        FastAsyncLock _updateLock = new FastAsyncLock();
         public RankingCategoryPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
@@ -75,7 +73,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             NicoVideoProvider nicoVideoProvider,
             RankingProvider rankingProvider,
             VideoRankingSettings rankingSettings,
-            IScheduler scheduler,
             NotificationService notificationService,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
@@ -86,7 +83,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             NicoVideoProvider = nicoVideoProvider;
             RankingProvider = rankingProvider;
             RankingSettings = rankingSettings;
-            _scheduler = scheduler;
             _notificationService = notificationService;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             IsFailedRefreshRanking = new ReactiveProperty<bool>(false)
@@ -134,7 +130,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 .Throttle(TimeSpan.FromMilliseconds(250))
                 .Subscribe(__ =>
                 {
-                    _ = ResetList();
+                    ResetList();
                 })
                 .AddTo(_CompositeDisposable);
 
@@ -179,11 +175,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         public VideoRankingSettings RankingSettings { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public RankingProvider RankingProvider { get; }
-        
-        private static RankingGenre? _previousRankingGenre;
-        private readonly IScheduler _scheduler;
         private readonly NotificationService _notificationService;
+
+        private static RankingGenre? _previousRankingGenre;
         bool _IsNavigateCompleted = false;
+
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {

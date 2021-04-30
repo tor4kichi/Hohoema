@@ -110,23 +110,26 @@ namespace Hohoema.Presentation.ViewModels
             var navigationMode = parameters.GetNavigationMode();
             if (CheckNeedUpdateOnNavigateTo(navigationMode))
             {
-                await Task.Delay(100);
+                await Task.Delay(10, NavigationCancellationToken);
 
-                await ResetList();
+                ResetList();
             }
         }
 
         
 
-        public override void OnNavigatedFrom(INavigationParameters parameters)
+        public override async void OnNavigatedFrom(INavigationParameters parameters)
         {
-            if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
+            using (await _ItemsUpdateLock.LockAsync(default))
             {
-                oldItems.StopLoading();
-            }
+                if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
+                {
+                    oldItems.StopLoading();
+                }
 
-            _cachedItemsView = ItemsView;
-            ItemsView = null;
+                _cachedItemsView = ItemsView;
+                ItemsView = null;
+            }
 
             base.OnNavigatedFrom(parameters);
         }
@@ -194,12 +197,12 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        protected async Task ResetList(CancellationToken ct = default)
+        protected void ResetList()
         {
-            await Microsoft.Toolkit.Uwp.DispatcherQueueExtensions.EnqueueAsync(_dispatcherQueue, async () => 
+            _dispatcherQueue.TryEnqueue(async () => 
             {
-                await ResetList_Internal(ct);
-            });            
+                await ResetList_Internal(NavigationCancellationToken);
+            });
         }
 
 		private void HohoemaIncrementalSource_Error()
@@ -335,7 +338,7 @@ namespace Hohoema.Presentation.ViewModels
 				return _RefreshCommand
 					?? (_RefreshCommand = new DelegateCommand(async () => 
 					{
-						await ResetList();
+						ResetList();
 					}));
 			}
 		}

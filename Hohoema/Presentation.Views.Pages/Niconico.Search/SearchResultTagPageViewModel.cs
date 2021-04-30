@@ -96,7 +96,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                     SearchOption.Order = selected.Order;
                     SearchOption.Sort = selected.Sort;
 
-                    await ResetList();
+                    ResetList();
                 })
                 .AddTo(_CompositeDisposable);
 

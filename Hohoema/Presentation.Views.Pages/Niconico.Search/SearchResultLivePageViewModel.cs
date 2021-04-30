@@ -95,7 +95,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                         return;
                     }
 
-                    await ResetList();
+                    ResetList();
                 })
                 .AddTo(_CompositeDisposable);
         }
@@ -236,7 +236,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                 return;
             }
 
-            await ResetList();
+            ResetList();
         }
     }
 

@@ -63,7 +63,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             .Merge()
             .Subscribe(_ => 
             {
-                var __ = ResetList();
+                ResetList();
             })
             .AddTo(_CompositeDisposable);
         }
