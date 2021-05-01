@@ -218,7 +218,7 @@
 
           <uwpToolkitControls:DockPanel>
             <Grid uwpToolkitControls:DockPanel.Dock="Right">
-              <Border Visibility="{Binding IsUnread}" Background="Red" CornerRadius="60" Width="32" Height="32">
+              <Border Visibility="{Binding IsUnread}" Background="{ThemeResource SystemAccentColor}" CornerRadius="60" Width="32" Height="32">
                 <TextBlock Text="{Binding NotifyCount}" VerticalAlignment="Center" HorizontalAlignment="Center" />
               </Border>
               <Border Visibility="{Binding IsUnread, Converter={StaticResource BoolNegation}}" Background="Gray" CornerRadius="60" Width="32" Height="32">
