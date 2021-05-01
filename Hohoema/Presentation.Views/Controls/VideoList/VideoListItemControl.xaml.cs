@@ -21,25 +21,6 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
             this.InitializeComponent();   
         }
 
-        protected override void OnPointerPressed(PointerRoutedEventArgs e)
-        {
-            base.OnPointerPressed(e);
-
-            var point = e.GetCurrentPoint(this);
-            if (point.Properties.IsMiddleButtonPressed)
-            {
-                var vm = DataContext as ViewModels.VideoListPage.VideoInfoControlViewModel;
-                if (vm.IsQueueItem)
-                {
-                    (vm.RemoveWatchAfterCommand as ICommand).Execute(vm);
-                }
-                else
-                {
-                    (vm.AddWatchAfterCommand as ICommand).Execute(vm);
-                }
-            }
-        }
-
         public bool IsThumbnailUseCache
         {
             get { return (bool)GetValue(IsThumbnailUseCacheProperty); }
@@ -77,6 +58,29 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
         #endregion
 
+
+        #region Queue Action 
+
+        protected override void OnPointerPressed(PointerRoutedEventArgs e)
+        {
+            base.OnPointerPressed(e);
+
+            var point = e.GetCurrentPoint(this);
+            if (point.Properties.IsMiddleButtonPressed)
+            {
+                var vm = DataContext as ViewModels.VideoListPage.VideoInfoControlViewModel;
+                if (vm.IsQueueItem)
+                {
+                    (vm.RemoveWatchAfterCommand as ICommand).Execute(vm);
+                }
+                else
+                {
+                    (vm.AddWatchAfterCommand as ICommand).Execute(vm);
+                }
+            }
+        }
+
+
         private void SwipeItem_Invoked(Microsoft.UI.Xaml.Controls.SwipeItem sender, Microsoft.UI.Xaml.Controls.SwipeItemInvokedEventArgs args)
         {
             var vm = args.SwipeControl.DataContext as VideoInfoControlViewModel;
@@ -89,5 +93,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
                 (vm.AddWatchAfterCommand as ICommand).Execute(vm);
             }
         }
+
+        #endregion
     }
 }
