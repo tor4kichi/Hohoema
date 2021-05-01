@@ -27,10 +27,11 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Application;
 using Microsoft.AppCenter.Analytics;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
-    public sealed class SubscriptionManagementPageViewModel : HohoemaViewModelBase, INavigationAware, IDestructible
+    public sealed class SubscriptionManagementPageViewModel : HohoemaViewModelBase, INavigationAware, IDestructible, IRecipient<SettingsRestoredMessage>, IDisposable
     {
         public ObservableCollection<SubscriptionViewModel> Subscriptions { get; }
 
@@ -48,6 +49,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         public IReadOnlyReactiveProperty<DateTime> NextUpdateTime { get; }
         public IReactiveProperty<TimeSpan> AutoUpdateFrequency { get; }
 
+        void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
+        {
+            
+        }
+
         public SubscriptionManagementPageViewModel(
             IScheduler scheduler, 
             SubscriptionManager subscriptionManager,
@@ -58,6 +64,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             NicoVideoCacheRepository nicoVideoRepository
             )
         {
+            WeakReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
+
             Subscriptions = new ObservableCollection<SubscriptionViewModel>();
 
             Subscriptions.CollectionChangedAsObservable()
@@ -97,6 +105,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         }
 
+        
 
         public override void Destroy()
         {
@@ -105,24 +114,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             _subscriptionManager.Updated -= _subscriptionManager_Updated;
 
             Subscriptions.DisposeAllOrLog("subscription ViewModel dispose error.");
+
             base.Destroy();
         }
 
         public override void OnNavigatingTo(INavigationParameters parameters)
         {
-            if (SettingsRestoredTempraryFlags.Instance.IsSubscribeSettingsResotred)
-            {
-                Subscriptions.DisposeAll();
-                Subscriptions.Clear();
-                SettingsRestoredTempraryFlags.Instance.WhenSubscribeSettingsRestored();
-            }
-
             if (!Subscriptions.Any())
             {
                 foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo().OrderBy(x => x.entity.SortIndex))
                 {
                     var vm = new SubscriptionViewModel(subscInfo.entity, this, _subscriptionManager, _hohoemaPlaylist, _pageManager, _dialogService);
-                    vm.UpdateFeedResult(subscInfo.feedResult.Videos.Select(ToVideoContent).ToList(), subscInfo.feedResult.LastUpdatedAt);
+                    vm.UpdateFeedResult(subscInfo.feedResult.Videos.Take(10).Select(ToVideoContent).ToList(), subscInfo.feedResult.LastUpdatedAt);
                     Subscriptions.Add(vm);
                 }
             }

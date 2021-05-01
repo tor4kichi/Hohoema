@@ -24,7 +24,8 @@ using Windows.UI.Xaml.Data;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
-    public class RankingCategoryListPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, 
+    public class RankingCategoryListPageViewModel : HohoemaViewModelBase, 
+        IRecipient<SettingsRestoredMessage>,
         IRecipient<RankingGenreShowRequestedEvent>,
         IRecipient<RankingGenreHiddenRequestedEvent>,
         IRecipient<RankingGenreFavoriteRequestedEvent>,
@@ -46,6 +47,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             _appFlagsRepository = appFlagsRepository;
             _rankingProvider = rankingProvider;
 
+            WeakReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
 
             // TODO: ログインユーザーが成年であればR18ジャンルを表示するように
             _RankingGenreItemsSource = new List<RankingGenreItem>();
@@ -111,6 +113,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
         }
 
+        void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
+        {
+            FavoriteItems.Clear();
+            foreach (var fav in GetFavoriteRankingItems())
+            {
+                FavoriteItems.Add(fav);
+            }
+
+            RefreshFilter();
+        }
 
         void IRecipient<RankingGenreShowRequestedEvent>.Receive(RankingGenreShowRequestedEvent message)
         {
@@ -392,16 +404,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 }
             }
             base.OnNavigatedTo(parameters);
-        }
-
-        public async Task OnNavigatedToAsync(INavigationParameters parameters)
-        {
-            SettingsRestoredTempraryFlags.Instance.WhenRankingRestored(() =>
-            {
-                FavoriteItems.Clear();
-                FavoriteItems.AddRange(GetFavoriteRankingItems());
-                RefreshFilter();
-            });
         }
 
         void RefreshFilter()

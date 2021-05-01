@@ -46,7 +46,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             LocalPlaylists = new ReadOnlyObservableCollection<LocalPlaylist>(_playlists);
 
 
-            StrongReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
+            WeakReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
 
             Load();
         }

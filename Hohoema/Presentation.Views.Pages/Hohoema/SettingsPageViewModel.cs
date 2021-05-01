@@ -691,7 +691,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                         }
                     }
 
-                    StrongReferenceMessenger.Default.Send<SettingsRestoredMessage>();
+                    WeakReferenceMessenger.Default.Send<SettingsRestoredMessage>();
  
                     _notificationService.ShowLiteInAppNotification_Success("BackupRestoreComplete".Translate());
 

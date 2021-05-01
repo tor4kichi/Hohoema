@@ -114,7 +114,7 @@ namespace Hohoema.Presentation.ViewModels
             RestoreNavigationManager = restoreNavigationManager;
             VideoItemsSelectionContext = videoItemsSelectionContext;
 
-            StrongReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
+            WeakReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
 
             SearchAutoSuggestItems = new ObservableCollection<SearchAutoSuggestItemViewModel>
             {

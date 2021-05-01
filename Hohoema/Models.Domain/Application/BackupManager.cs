@@ -34,56 +34,6 @@ namespace Hohoema.Models.Domain.Application
         }
     }
 
-    internal sealed class SettingsRestoredTempraryFlags : BindableBase
-    {
-        internal static readonly SettingsRestoredTempraryFlags Instance = new SettingsRestoredTempraryFlags();
-
-        private SettingsRestoredTempraryFlags() { }
-
-
-        private bool _IsRankingSettingsRestored;
-        internal bool IsRankingSettingsRestored
-        {
-            get { return _IsRankingSettingsRestored; }
-            set { SetProperty(ref _IsRankingSettingsRestored, value); }
-        }
-
-        internal void WhenRankingRestored(Action restoredAction)
-        {
-            if (IsRankingSettingsRestored)
-            {
-                IsRankingSettingsRestored = false;
-                restoredAction?.Invoke();
-            }
-        }
-
-        private bool _IsPinSettingsRestored;
-        public bool IsPinSettingsRestored
-        {
-            get { return _IsPinSettingsRestored; }
-            set { SetProperty(ref _IsPinSettingsRestored, value); }
-        }
-
-        internal void WhenPinsRestored()
-        {
-            IsPinSettingsRestored = false;
-        }
-
-
-        private bool _IsSubscribeSettingsResotred;
-        internal bool IsSubscribeSettingsResotred
-        {
-            get { return _IsSubscribeSettingsResotred; }
-            set { SetProperty(ref _IsSubscribeSettingsResotred, value); }
-        }
-
-        internal void WhenSubscribeSettingsRestored()
-        {
-            IsSubscribeSettingsResotred = false;
-        }
-    }
-
-
     public sealed class BackupManager
     {
         private readonly PlaylistRepository _playlistRepository;
@@ -319,8 +269,6 @@ namespace Hohoema.Models.Domain.Application
 
                 _subscriptionRegistrationRepository.UpdateItem(entity);
             }
-
-            SettingsRestoredTempraryFlags.Instance.IsSubscribeSettingsResotred = true;
         }
 
         public void RestorePin(BackupContainer backup)
@@ -344,8 +292,6 @@ namespace Hohoema.Models.Domain.Application
                     Parameter = s.Parameter
                 });
             }
-
-            SettingsRestoredTempraryFlags.Instance.IsPinSettingsRestored = true;
         }
 
         public void RestoreRankingSettings(BackupContainer backup)
@@ -372,8 +318,6 @@ namespace Hohoema.Models.Domain.Application
 
                 _videoRankingSettings.AddFavoriteTag(genre, s.Tag, s.Label);
             }
-
-            SettingsRestoredTempraryFlags.Instance.IsRankingSettingsRestored = true;
         }
 
         public void RestoreVideoFilteringSettings(BackupContainer backup)
