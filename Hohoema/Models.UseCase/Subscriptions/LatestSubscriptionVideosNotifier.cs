@@ -2,7 +2,7 @@
 using Microsoft.Toolkit.Uwp.Notifications;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase.NicoVideos;
 using Reactive.Bindings.Extensions;
 using System;
@@ -12,7 +12,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.PageNavigation;
 
 namespace Hohoema.Models.UseCase.Subscriptions

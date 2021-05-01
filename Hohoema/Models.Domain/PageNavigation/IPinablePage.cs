@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Models.Domain.Pins;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

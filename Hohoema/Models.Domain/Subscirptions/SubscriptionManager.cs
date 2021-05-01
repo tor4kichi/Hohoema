@@ -1,10 +1,9 @@
-﻿using Hohoema.Database;
-
-using Hohoema.Models.Domain.Niconico.Channel;
+﻿using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Niconico.Video.Series;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +13,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Uno;
-using Windows.UI.ViewManagement;
 
 namespace Hohoema.Models.Domain.Subscriptions
 {
@@ -372,12 +370,12 @@ namespace Hohoema.Models.Domain.Subscriptions
             ;
         }
 
-        static private async Task<List<NicoVideo>> GetMylistFeedResult(string mylistId,MylistProvider mylistProvider)
+        static private async Task<List<NicoVideo>> GetMylistFeedResult(string mylistId, MylistProvider mylistProvider)
         {
             List<NicoVideo> items = new List<NicoVideo>();
             uint page = 0;
             const uint itemGetCountPerPage = 50;
-            var result = await mylistProvider.GetMylistGroupVideo(mylistId, Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Desc, itemGetCountPerPage, page);
+            var result = await mylistProvider.GetMylistVideoItems(mylistId, Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Desc, itemGetCountPerPage, page);
 
             var videoItems = result.Items;
             var currentItemsCount = videoItems?.Count ?? 0;

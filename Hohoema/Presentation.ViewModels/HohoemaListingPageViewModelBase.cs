@@ -1,5 +1,4 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
+﻿using Hohoema.Models.Helpers;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -16,21 +15,42 @@ using Windows.UI.Xaml.Data;
 using Prism.Navigation;
 using System.Reactive.Concurrency;
 using Prism.Ioc;
+using Windows.System;
+using Uno.Threading;
 
 namespace Hohoema.Presentation.ViewModels
 {
 
 
     public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
-	{
+    {
+
+        public ReactiveProperty<int> MaxItemsCount { get; private set; }
+        public ReactiveProperty<int> LoadedItemsCount { get; private set; }
+
+        public AdvancedCollectionView ItemsView { get; private set; }
+        private AdvancedCollectionView _cachedItemsView;
+
+        public ReactiveProperty<bool> NowLoading { get; private set; }
+        public ReactiveProperty<bool> CanChangeSort { get; private set; }
+
+        public ReactiveProperty<bool> NowRefreshable { get; private set; }
+
+        public ReactiveProperty<bool> HasItem { get; private set; }
+
+        public ReactiveProperty<bool> HasError { get; private set; }
+
+
         public HohoemaListingPageViewModelBase()
         {
             NowLoading = new ReactiveProperty<bool>(true)
                 .AddTo(_CompositeDisposable);
 
-            HasItem = new ReactiveProperty<bool>(true);
+            HasItem = new ReactiveProperty<bool>(true)
+                .AddTo(_CompositeDisposable);
 
-            HasError = new ReactiveProperty<bool>(false);
+            HasError = new ReactiveProperty<bool>(false)
+                .AddTo(_CompositeDisposable);
 
             MaxItemsCount = new ReactiveProperty<int>(0)
                 .AddTo(_CompositeDisposable);
@@ -48,13 +68,12 @@ namespace Hohoema.Presentation.ViewModels
                 .ToReactiveProperty()
                 .AddTo(_CompositeDisposable);
 
-            _scheduler = App.Current.Container.Resolve<IScheduler>();
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
         }
 
-        private Models.Domain.Helpers.AsyncLock _ItemsUpdateLock = new Models.Domain.Helpers.AsyncLock();
+        DispatcherQueue _dispatcherQueue;
 
-
-        IScheduler _scheduler;
+        private FastAsyncLock _ItemsUpdateLock = new FastAsyncLock();
 
         public DateTime LatestUpdateTime = DateTime.Now;
 
@@ -78,10 +97,9 @@ namespace Hohoema.Presentation.ViewModels
         public override void OnNavigatingTo(INavigationParameters parameters)
         {
             var navigationMode = parameters.GetNavigationMode();
-            if (CheckNeedUpdateOnNavigateTo(navigationMode))
+            if (!CheckNeedUpdateOnNavigateTo(navigationMode))
             {
-                ItemsView = null;
-                RaisePropertyChanged(nameof(ItemsView));
+                ItemsView = _cachedItemsView;
             }
 
             base.OnNavigatingTo(parameters);
@@ -92,25 +110,33 @@ namespace Hohoema.Presentation.ViewModels
             var navigationMode = parameters.GetNavigationMode();
             if (CheckNeedUpdateOnNavigateTo(navigationMode))
             {
-                await Task.Delay(100);
+                await Task.Delay(10, NavigationCancellationToken);
 
-                await ResetList();
+                ResetList();
             }
         }
 
-        public override void OnNavigatedFrom(INavigationParameters parameters)
+        
+
+        public override async void OnNavigatedFrom(INavigationParameters parameters)
         {
-            if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
+            using (await _ItemsUpdateLock.LockAsync(default))
             {
-                oldItems.StopLoading();
+                if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
+                {
+                    oldItems.StopLoading();
+                }
+
+                _cachedItemsView = ItemsView;
+                ItemsView = null;
             }
 
             base.OnNavigatedFrom(parameters);
         }
 
-        private async Task ResetList_Internal()
+        private async Task ResetList_Internal(CancellationToken ct)
         {
-            using (var releaser = await _ItemsUpdateLock.LockAsync())
+            using (var releaser = await _ItemsUpdateLock.LockAsync(ct))
             {
                 var prevItemsView = ItemsView;
                 ItemsView = null;
@@ -120,8 +146,10 @@ namespace Hohoema.Presentation.ViewModels
                 HasItem.Value = true;
                 LoadedItemsCount.Value = 0;
 
-                if (prevItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
+                if (_cachedItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
                 {
+                    _cachedItemsView = null;
+
                     if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
                     {
                         hohoemaIncrementalSource.Error -= HohoemaIncrementalSource_Error;
@@ -141,7 +169,7 @@ namespace Hohoema.Presentation.ViewModels
                         return;
                     }
 
-                    MaxItemsCount.Value = await source.ResetSource();
+                    MaxItemsCount.Value = await source.ResetSource(ct);
 
                     var items = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
 
@@ -169,16 +197,12 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        protected async Task ResetList()
+        protected void ResetList()
         {
-            TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
-            _scheduler.ScheduleAsync(async (_ , __) =>
+            _dispatcherQueue.TryEnqueue(async () => 
             {
-                await ResetList_Internal();
-                tcs.SetResult(0);
+                await ResetList_Internal(NavigationCancellationToken);
             });
-            
-            await tcs.Task;
         }
 
 		private void HohoemaIncrementalSource_Error()
@@ -314,25 +338,9 @@ namespace Hohoema.Presentation.ViewModels
 				return _RefreshCommand
 					?? (_RefreshCommand = new DelegateCommand(async () => 
 					{
-						await ResetList();
+						ResetList();
 					}));
 			}
 		}
-
-		public ReactiveProperty<int> MaxItemsCount { get; private set; }
-		public ReactiveProperty<int> LoadedItemsCount { get; private set; }
-
-        public AdvancedCollectionView ItemsView { get; private set; }
-
-        public ReactiveProperty<bool> NowLoading { get; private set; }
-        public ReactiveProperty<bool> CanChangeSort { get; private set; }
-
-        public ReactiveProperty<bool> NowRefreshable { get; private set; }
-
-		public ReactiveProperty<bool> HasItem { get; private set; }
-
-		public ReactiveProperty<bool> HasError { get; private set; }
-
-
 	}
 }

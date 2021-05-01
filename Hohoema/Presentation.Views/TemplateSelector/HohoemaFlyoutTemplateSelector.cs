@@ -1,7 +1,6 @@
 ﻿
 using Hohoema.Models.Domain.Niconico.Live;
-using Hohoema.Presentation.ViewModels;
-using Hohoema.Presentation.ViewModels.Pages.SearchPages;
+using Hohoema.Presentation.ViewModels.Pages.Niconico.Search;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using System;
 using System.Collections.Generic;

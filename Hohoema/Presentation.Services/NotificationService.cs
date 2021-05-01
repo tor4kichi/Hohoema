@@ -1,35 +1,30 @@
-﻿using I18NPortable;
-using Microsoft.Toolkit.Uwp;
-using Microsoft.Toolkit.Uwp.Notifications;
-using Mntone.Nico2.Users.Mylist;
-using NiconicoLiveToolkit.Live;
-using Hohoema.Models.Domain.Niconico.Community;
+﻿using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Models.Domain.Niconico.Live;
+using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase.NicoVideos;
-using Hohoema.Presentation.Services.Helpers;
+using Hohoema.Models.UseCase.Player;
+using Hohoema.Models.UseCase.PageNavigation;
+using I18NPortable;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Microsoft.Toolkit.Uwp.Notifications;
+using NiconicoLiveToolkit.Live;
 using Prism.Commands;
-using Prism.Events;
-using Prism.Navigation;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Windows.Data.Xml.Dom;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml.Controls;
-using Hohoema.Presentation.Services.Page;
-using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Notification;
 
 namespace Hohoema.Presentation.Services
 {
     public sealed class HohoemaNotificationService
     {
         private static readonly TimeSpan DefaultNotificationShowDuration = TimeSpan.FromSeconds(20);
-        private readonly IEventAggregator _eventAggregator;
 
         public PageManager PageManager { get; }
         public HohoemaPlaylist Playlist { get; }
@@ -40,8 +35,9 @@ namespace Hohoema.Presentation.Services
         public CommunityProvider CommunityProvider { get; }
         public UserProvider UserProvider { get; }
 
+        private readonly IMessenger _messenger;
+
         public HohoemaNotificationService(
-            IEventAggregator eventAggregator,
             PageManager pageManager,
             HohoemaPlaylist playlist,
             NotificationService notificationService,
@@ -52,7 +48,6 @@ namespace Hohoema.Presentation.Services
             UserProvider userProvider
             )
         {
-            _eventAggregator = eventAggregator;
             PageManager = pageManager;
             Playlist = playlist;
             NotificationService = notificationService;
@@ -61,6 +56,8 @@ namespace Hohoema.Presentation.Services
             NicoLiveProvider = nicoLiveProvider;
             CommunityProvider = communityProvider;
             UserProvider = userProvider;
+
+            _messenger = StrongReferenceMessenger.Default;
         }
 
 
@@ -165,8 +162,7 @@ namespace Hohoema.Presentation.Services
                             Label = "WatchLiveStreaming".Translate(),
                             Command = new DelegateCommand(() =>
                             {
-                                _eventAggregator.GetEvent<Services.Player.PlayerPlayLiveRequest>()
-                                    .Publish(new Services.Player.PlayerPlayLiveRequestEventArgs() { LiveId = liveId });
+                                _messenger.Send(new PlayerPlayLiveRequestMessage(new() { LiveId = liveId }));
 
                                 NotificationService.DismissInAppNotification();
                             })
@@ -204,10 +200,10 @@ namespace Hohoema.Presentation.Services
 
         private async Task<InAppNotificationPayload> SubmitMylistContentSuggestion(string mylistId)
         {
-            Mylist mylistDetail = null;
+            MylistPlaylist mylistDetail = null;
             try
             {
-                mylistDetail = await MylistProvider.GetMylistGroupDetail(mylistId);
+                mylistDetail = await MylistProvider.GetMylist(mylistId);
             }
             catch { }
 
@@ -215,7 +211,7 @@ namespace Hohoema.Presentation.Services
 
             return new InAppNotificationPayload()
             {
-                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(mylistDetail.Name),
+                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(mylistDetail.Label),
                 ShowDuration = DefaultNotificationShowDuration,
                 IsShowDismissButton = true,
                 Commands = {
@@ -306,17 +302,13 @@ namespace Hohoema.Presentation.Services
 
     public sealed class NotificationService
 	{
-        public IEventAggregator EventAggregator { get; }
-
         private readonly ToastNotifier _notifier;
-
         private ToastNotification _prevToastNotification;
+        private readonly IMessenger _messenger;
 
-        public NotificationService(
-            IEventAggregator ea
-            )
+        public NotificationService()
 		{
-            EventAggregator = ea;
+            _messenger = StrongReferenceMessenger.Default;
             _notifier = ToastNotificationManager.CreateToastNotifier();
             ToastNotificationManager.History.Clear();
         }
@@ -416,16 +408,14 @@ namespace Hohoema.Presentation.Services
 
         public void ShowInAppNotification(InAppNotificationPayload payload)
         {
-            var notificationEvent = EventAggregator.GetEvent<InAppNotificationEvent>();
-            notificationEvent.Publish(payload);
+            _messenger.Send(new InAppNotificationMessage(payload));
         }
 
         
 
         public void DismissInAppNotification()
         {
-            var notificationDismissEvent = EventAggregator.GetEvent<InAppNotificationDismissEvent>();
-            notificationDismissEvent.Publish(0);
+            _messenger.Send(new InAppNotificationDismissMessage());
         }
 
         public void HideToast()
@@ -434,7 +424,7 @@ namespace Hohoema.Presentation.Services
         }
 
 
-        public void ShowLiteInAppNotification_Success(string content, LiteNotification.DisplayDuration? displayDuration = null)
+        public void ShowLiteInAppNotification_Success(string content, DisplayDuration? displayDuration = null)
         {
             ShowLiteInAppNotification(content, displayDuration, Symbol.Accept);
         }
@@ -444,9 +434,9 @@ namespace Hohoema.Presentation.Services
             ShowLiteInAppNotification(content, duration, Symbol.Accept);
         }
 
-        public void ShowLiteInAppNotification_Fail(string content, LiteNotification.DisplayDuration? displayDuration = null)
+        public void ShowLiteInAppNotification_Fail(string content, DisplayDuration? displayDuration = null)
         {
-            ShowLiteInAppNotification(content, displayDuration ?? LiteNotification.DisplayDuration.MoreAttention, Symbol.Important);
+            ShowLiteInAppNotification(content, displayDuration ?? DisplayDuration.MoreAttention, Symbol.Important);
         }
 
         public void ShowLiteInAppNotification_Fail(string content, TimeSpan duration)
@@ -455,28 +445,26 @@ namespace Hohoema.Presentation.Services
         }
 
 
-        public void ShowLiteInAppNotification(string content, LiteNotification.DisplayDuration? displayDuration = null, Symbol? symbol = null)
+        public void ShowLiteInAppNotification(string content, DisplayDuration? displayDuration = null, Symbol? symbol = null)
         {
-            var notificationEvent = EventAggregator.GetEvent<LiteNotification.LiteNotificationEvent>();
-            notificationEvent.Publish(new LiteNotification.LiteNotificationPayload() 
+            _messenger.Send(new LiteNotificationMessage(new ()
             {
                 Content = content,
                 Symbol = symbol ?? default,
                 IsDisplaySymbol = symbol is not null,
                 DisplayDuration = displayDuration
-            });
+            }));
         }
 
         public void ShowLiteInAppNotification(string content, TimeSpan duration, Symbol? symbol = null)
         {
-            var notificationEvent = EventAggregator.GetEvent<LiteNotification.LiteNotificationEvent>();
-            notificationEvent.Publish(new LiteNotification.LiteNotificationPayload() 
+            _messenger.Send(new LiteNotificationMessage(new()
             {
                 Content = content,
                 Symbol = symbol ?? default,
                 IsDisplaySymbol = symbol is not null,
                 Duration = duration
-            });
+            }));
         }
 
     }

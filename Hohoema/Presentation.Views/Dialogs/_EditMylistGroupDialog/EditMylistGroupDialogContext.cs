@@ -14,8 +14,7 @@ using System.Threading.Tasks;
 using Windows.UI;
 using Prism.Ioc;
 using Mntone.Nico2.Users.Mylist;
-using Hohoema.Presentation.ViewModels;
-using Hohoema.Presentation.ViewModels.Pages.MylistPages;
+using Hohoema.Presentation.ViewModels.Niconico.Mylist;
 
 namespace Hohoema.Dialogs
 {

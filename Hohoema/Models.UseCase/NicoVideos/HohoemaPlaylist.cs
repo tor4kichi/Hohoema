@@ -1,18 +1,18 @@
-﻿using I18NPortable;
-using Mntone.Nico2;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.UserFeature;
-using Hohoema.Models.Domain.Niconico.UserFeature.Mylist;
+﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Playlist;
-
+using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Helpers;
+using Hohoema.Models.UseCase.Player;
+using I18NPortable;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using Mntone.Nico2;
 using Prism.Commands;
-using Prism.Events;
-using Prism.Mvvm;
-using Prism.Unity;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -24,18 +24,9 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Unity;
-using Uno;
-using Windows.Media;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Data;
-using AsyncLock = Hohoema.Models.Domain.Helpers.AsyncLock;
-using NiconicoSession = Hohoema.Models.Domain.NiconicoSession;
-using Hohoema.Presentation.Services.Player;
-using Hohoema.Models.Domain.Player;
+using Uno.Threading;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {
@@ -58,6 +49,48 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         public LiveVideoPlaylistItem RequestLiveItem { get; set; }
     }
+
+
+    public sealed class QueueItemAddedMessageData
+    {
+        public string AddedItem { get; internal set; }
+    }
+
+    public sealed class QueueItemAddedMessage : ValueChangedMessage<QueueItemAddedMessageData>
+    {
+        public QueueItemAddedMessage(QueueItemAddedMessageData value) : base(value)
+        {
+        }
+    }
+
+
+    public sealed class QueueItemRemovedMessageData
+    {
+        public string RemovedItem { get; internal set; }
+
+    }
+
+    public sealed class QueueItemRemovedMessage : ValueChangedMessage<QueueItemRemovedMessageData>
+    {
+        public QueueItemRemovedMessage(QueueItemRemovedMessageData value) : base(value)
+        {
+        }
+    }
+
+
+    public sealed class QueueItemIndexUpdateMessageData
+    {
+        public string ContentId { get; internal set; }
+        public int Index { get; internal set; }
+    }
+
+    public sealed class QueueItemIndexUpdateMessage : ValueChangedMessage<QueueItemIndexUpdateMessageData>
+    {
+        public QueueItemIndexUpdateMessage(QueueItemIndexUpdateMessageData value) : base(value)
+        {
+        }
+    }
+
 
     public enum ContentInsertPosition
     {
@@ -149,9 +182,10 @@ namespace Hohoema.Models.UseCase.NicoVideos
         public event EventHandler<VideoPlayedEventArgs> VideoPlayed;
 
 
+
+
         public HohoemaPlaylist(
             IScheduler scheduler,
-            IEventAggregator eventAggregator,
             PlaylistRepository playlistRepository,
             NicoVideoProvider nicoVideoProvider,
             MylistRepository mylistRepository,
@@ -161,7 +195,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             )
         {
             _scheduler = scheduler;
-            _eventAggregator = eventAggregator;
+            
             _player = new PlaylistPlayer(this, playerSettings);
             _player.PlayRequested += OnPlayRequested;
 
@@ -188,6 +222,10 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
                     QueuePlaylist.CollectionChangedAsObservable()
                         .Subscribe(args => PlaylistObservableCollectionChanged(QueuePlaylist, args))
+                        .AddTo(_disposable);
+
+                    QueuePlaylist.CollectionChangedAsObservable()                        
+                        .Subscribe(args => NotifyQueueItemIndex())
                         .AddTo(_disposable);
                 });
 
@@ -267,7 +305,6 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
 
         private readonly IScheduler _scheduler;
-        private readonly IEventAggregator _eventAggregator;
         private readonly PlaylistPlayer _player;
         private readonly PlaylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
@@ -337,8 +374,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         void OnPlayRequested(object sender, PlaylistPlayerPlayRequestEventArgs args)
         {
-            _eventAggregator.GetEvent<PlayerPlayVideoRequest>()
-                .Publish(new PlayerPlayVideoRequestEventArgs() { VideoId = args.Content.Id, Position = args.Position });
+            StrongReferenceMessenger.Default.Send(new PlayerPlayVideoRequestMessage(new() { VideoId = args.Content.Id, Position = args.Position }));
 
             RaisePropertyChanged(nameof(CurrentItem));
         } 
@@ -465,6 +501,19 @@ namespace Hohoema.Models.UseCase.NicoVideos
         }
 
 
+        void NotifyQueueItemIndex()
+        {
+            var message = new QueueItemIndexUpdateMessage(new());
+            int index = 0;
+            foreach (var item in QueuePlaylist)
+            {
+                message.Value.ContentId = item.Id;
+                message.Value.Index = index++;
+                WeakReferenceMessenger.Default.Send<QueueItemIndexUpdateMessage, string>(message, item.Id);
+            }
+        }
+
+
         public async void AddQueuePlaylist(string videoId, ContentInsertPosition position = ContentInsertPosition.Tail)
         {
             if (!IsVideoId(videoId))
@@ -490,11 +539,15 @@ namespace Hohoema.Models.UseCase.NicoVideos
             {
                 QueuePlaylist.InsertOnScheduler(0, item);
             }
+
+            WeakReferenceMessenger.Default.Send<QueueItemAddedMessage, string>(new QueueItemAddedMessage(new() { AddedItem = item.Id }), item.Id);
         }
 
         public void RemoveQueue(IVideoContent item)
         {
             QueuePlaylist.RemoveOnScheduler(item);
+            
+            WeakReferenceMessenger.Default.Send<QueueItemRemovedMessage, string>(new QueueItemRemovedMessage(new() { RemovedItem = item.Id }), item.Id);
         }
 
         public int RemoveQueueIfWatched()
@@ -510,6 +563,14 @@ namespace Hohoema.Models.UseCase.NicoVideos
             return removeCount;
         }
 
+
+        public (bool, int) IsQueuePlaylistItem(string id)
+        {
+            var item = QueuePlaylist.FirstOrDefault(x => x.Id == id);
+            if (item == null) { return (false, -1); }
+            var index = QueuePlaylist.IndexOf(item);
+            return (true, index);
+        }
 
         async Task<IEnumerable<IVideoContent>> ResolveItemsAsync(IPlaylist playlist)
         {
@@ -564,7 +625,6 @@ namespace Hohoema.Models.UseCase.NicoVideos
             return await _nicoVideoProvider.GetNicoVideoInfo(videoId);
         }
 
-        Events.VideoPlayedEvent _videoPlayedEvent;
         public void PlayDone(IVideoContent playedItem, TimeSpan playedPosition)
         {
             // キュープレイリストから視聴済みを削除
@@ -581,12 +641,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             // 視聴完了のイベントをトリガー
             VideoPlayed?.Invoke(this, new VideoPlayedEventArgs(playedItem.Id, (int)history.PlayCount));
 
-            if (_videoPlayedEvent == null)
-            {
-                _videoPlayedEvent = _eventAggregator.GetEvent<Events.VideoPlayedEvent>();
-            }
-
-            _videoPlayedEvent.Publish(new Events.VideoPlayedEvent.VideoPlayedEventArgs() { ContentId = playedItem.Id, PlayedPosition = playedPosition });
+            StrongReferenceMessenger.Default.Send(new Events.VideoPlayedMessage(new () { ContentId = playedItem.Id, PlayedPosition = playedPosition }), playedItem.Id);
         }
 
 
@@ -655,7 +710,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         Random _shuffleRandom = new Random();
 
-        private AsyncLock _PlaylistUpdateLock = new AsyncLock();
+        private FastAsyncLock _PlaylistUpdateLock = new FastAsyncLock();
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PlayerSettings PlayerSettings { get; private set; }
@@ -695,7 +750,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             PlayerSettings.ObserveProperty(x => x.IsReverseModeEnable)
                 .Subscribe(async x => 
                 {
-                    using (var releaser = await _PlaylistUpdateLock.LockAsync())
+                    using (var releaser = await _PlaylistUpdateLock.LockAsync(default))
                     {
                         ResetItems();
                     }
@@ -707,7 +762,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             PlayerSettings.ObserveProperty(x => x.IsShuffleEnable)
                 .Subscribe(async _ =>
                 {
-                    using (var releaser = await _PlaylistUpdateLock.LockAsync())
+                    using (var releaser = await _PlaylistUpdateLock.LockAsync(default))
                     {
                         _shuffleRandom = new Random();
                         ResetItems();
@@ -729,7 +784,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         internal async void SetSource(IEnumerable<IVideoContent> items)
         {
-            using (var releaser = await _PlaylistUpdateLock.LockAsync())
+            using (var releaser = await _PlaylistUpdateLock.LockAsync(default))
             {
                 _sourceItems.Clear();
                 _ItemsObservaeDisposer?.Dispose();
@@ -864,7 +919,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         private async void __GoNext()
         {
-            using (var releaser = await _PlaylistUpdateLock.LockAsync())
+            using (var releaser = await _PlaylistUpdateLock.LockAsync(default))
             {
                 if (!_items.Any()) { return; }
 
@@ -899,7 +954,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
         {
             if (item == null) { throw new Exception(); }
 
-            using (var releaser = await _PlaylistUpdateLock.LockAsync())
+            using (var releaser = await _PlaylistUpdateLock.LockAsync(default))
             {
                 // GoNext/GoBack内でCurrentが既に変更済みの場合はスキップ
                 // Playlist外から直接PlaylistItemが変更された場合にのみ

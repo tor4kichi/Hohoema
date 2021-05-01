@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,6 +9,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Uno.Threading;
 using Windows.Foundation;
 using Windows.UI.Core;
 
@@ -16,7 +17,7 @@ namespace Hohoema.Presentation.ViewModels
 {
 	public abstract class HohoemaIncrementalSourceBase<T> : IIncrementalSource<T>
 	{
-        AsyncLock _PageLoadingLock = new AsyncLock();
+        FastAsyncLock _PageLoadingLock = new FastAsyncLock();
 
 
 		public const uint DefaultOneTimeLoadCount = 10;
@@ -25,7 +26,7 @@ namespace Hohoema.Presentation.ViewModels
 
 		public async IAsyncEnumerable<T> GetPagedItems(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
 		{
-            using (var releaser = await _PageLoadingLock.LockAsync())
+            using (var releaser = await _PageLoadingLock.LockAsync(ct))
             {
                 await foreach (var item in GetPagedItemsImpl(head, count, ct))
                 {
@@ -34,9 +35,9 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-		public async ValueTask<int> ResetSource()
+		public async ValueTask<int> ResetSource(CancellationToken ct = default)
 		{
-            using (var releaser = await _PageLoadingLock.LockAsync())
+            using (var releaser = await _PageLoadingLock.LockAsync(ct))
             {
                 HasError = false;
                 try

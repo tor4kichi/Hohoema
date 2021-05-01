@@ -19,7 +19,7 @@ namespace Hohoema.Models.UseCase.Migration
     {
         private readonly AppFlagsRepository _appFlagsRepository;
         private readonly Domain.Application.AppearanceSettings _appearanceSettings;
-        private readonly Domain.Application.PinSettings _pinSettings;
+        private readonly Domain.Pins.PinSettings _pinSettings;
         private readonly VideoRankingSettings _videoRankingSettings;
         private readonly VideoFilteringSettings _videoFilteringRepository;
         private readonly PlayerSettings _playerSettings;
@@ -27,7 +27,7 @@ namespace Hohoema.Models.UseCase.Migration
         public SettingsMigration_V_0_23_0(
             AppFlagsRepository appFlagsRepository,
             Domain.Application.AppearanceSettings appearanceSettings,
-            Domain.Application.PinSettings pinSettings,
+            Domain.Pins.PinSettings pinSettings,
             VideoRankingSettings videoRankingSettings,
             VideoFilteringSettings videoFilteringRepository,
             PlayerSettings playerSettings
@@ -93,7 +93,7 @@ namespace Hohoema.Models.UseCase.Migration
                     int index = 0;
                     foreach (var pin in pinSettings.Pins)
                     {
-                        _pinSettings.CreateItem(new Domain.PageNavigation.HohoemaPin()
+                        _pinSettings.CreateItem(new Domain.Pins.HohoemaPin()
                         {
                             Label = pin.Label,
                             Parameter = pin.Parameter,

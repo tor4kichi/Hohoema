@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Niconico.UserFeature.Follow;
+﻿using Hohoema.Models.Domain.Niconico.Follow;
 
 namespace Hohoema.Models.Domain.Niconico
 {

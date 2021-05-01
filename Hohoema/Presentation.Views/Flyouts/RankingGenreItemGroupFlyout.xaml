@@ -5,14 +5,14 @@
     xmlns:local="using:Hohoema.Presentation.Views.Flyouts"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:myCommands="using:Hohoema.Presentation.ViewModels.Ranking"
+  xmlns:ranking="using:Hohoema.Presentation.ViewModels.Niconico.Ranking"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   mc:Ignorable="d">
   <MenuFlyoutItem Text="{i18nExt:Localize Key=HiddenThisRankingGenre}" 
                   CommandParameter="{Binding}"
                   >
     <MenuFlyoutItem.Command>
-      <myCommands:HiddenRankingGenreItemCommand />
+      <ranking:HiddenRankingGenreItemCommand />
     </MenuFlyoutItem.Command>
   </MenuFlyoutItem>
 

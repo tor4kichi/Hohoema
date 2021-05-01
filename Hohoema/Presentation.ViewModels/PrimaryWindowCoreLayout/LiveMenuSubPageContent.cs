@@ -1,17 +1,15 @@
 ﻿using I18NPortable;
-using Mntone.Nico2.Live;
 using NiconicoLiveToolkit.Live;
-using Hohoema.Models.Domain;
-using Hohoema.Presentation.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Live;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 {

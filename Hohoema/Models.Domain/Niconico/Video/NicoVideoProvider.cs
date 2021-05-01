@@ -4,9 +4,8 @@ using Mntone.Nico2.Videos.Dmc;
 using Mntone.Nico2.Videos.Recommend;
 using Mntone.Nico2.Videos.WatchAPI;
 using Hohoema.Database;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Infrastructure;
-using Prism.Events;
 using System;
 using System.Linq;
 using System.Text;
@@ -15,11 +14,20 @@ using Hohoema.Models.Domain.Application;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using Uno.Threading;
+using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {
-    public class VideoDeletedEvent : PubSubEvent<NicoVideo>
-    { }
+    public class VideoDeletedEvent : ValueChangedMessage<NicoVideo>
+    {
+        public VideoDeletedEvent(NicoVideo value) : base(value)
+        {
+        }
+    }
 
 
 
@@ -27,14 +35,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
     {
         
         public NicoVideoProvider(
-            IEventAggregator eventAggregator,
             NiconicoSession niconicoSession,
             NicoVideoCacheRepository nicoVideoRepository,
             NicoVideoOwnerCacheRepository nicoVideoOwnerRepository
             )
             : base(niconicoSession)
         {
-            EventAggregator = eventAggregator;
             _nicoVideoRepository = nicoVideoRepository;
             _nicoVideoOwnerRepository = nicoVideoOwnerRepository;
         }
@@ -44,9 +50,8 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
 
         static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(5);
-        private IEventAggregator EventAggregator { get;  }
-
-        AsyncLock _ThumbnailAccessLock = new AsyncLock();
+        
+        FastAsyncLock _ThumbnailAccessLock = new FastAsyncLock();
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
 
@@ -54,7 +59,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         {
             if (deletedVideo.IsDeleted)
             {
-                EventAggregator.GetEvent<VideoDeletedEvent>().Publish(deletedVideo);
+                StrongReferenceMessenger.Default.Send(new VideoDeletedEvent(deletedVideo));
             }
         }
 
@@ -67,14 +72,14 @@ namespace Hohoema.Models.Domain.Niconico.Video
         /// </summary>
         /// <param name="rawVideoId"></param>
         /// <returns></returns>
-        public async ValueTask<NicoVideo> GetNicoVideoInfo(string rawVideoId, bool requireLatest = false)
+        public async ValueTask<NicoVideo> GetNicoVideoInfo(string rawVideoId, bool requireLatest = false, CancellationToken ct = default)
         {
             if (NiconicoSession.ServiceStatus.IsOutOfService())
             {
                 return null;
             }
 
-            using (await _ThumbnailAccessLock.LockAsync())
+            using (await _ThumbnailAccessLock.LockAsync(ct))
             {
                 var info = _nicoVideoRepository.Get(rawVideoId);
 
@@ -120,7 +125,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
 #if DEBUG
                         if (info.Permission is 
                             NiconicoLiveToolkit.Video.VideoPermission.Unknown or
-                            NiconicoLiveToolkit.Video.VideoPermission.FreeForChannelMember or
                             NiconicoLiveToolkit.Video.VideoPermission.VideoPermission_3
                             )
                         {
@@ -186,9 +190,9 @@ namespace Hohoema.Models.Domain.Niconico.Video
         }
 
 
-        public async IAsyncEnumerable<NicoVideo> GetVideoInfoManyAsync(IEnumerable<string> idItems, bool isLatestRequired = true)
+        public async IAsyncEnumerable<NicoVideo> GetVideoInfoManyAsync(IEnumerable<string> idItems, bool isLatestRequired = true, [EnumeratorCancellation] CancellationToken ct = default)
         {
-            using (await _ThumbnailAccessLock.LockAsync())
+            using (await _ThumbnailAccessLock.LockAsync(ct))
             {
                 if (isLatestRequired is false)
                 {
@@ -230,7 +234,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
 #if DEBUG
                     if (info.Permission is
                         NiconicoLiveToolkit.Video.VideoPermission.Unknown or
-                        NiconicoLiveToolkit.Video.VideoPermission.FreeForChannelMember or
                         NiconicoLiveToolkit.Video.VideoPermission.VideoPermission_3
                         )
                     {
@@ -293,16 +296,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
             {
                 try
                 {
-                    var data = await Helpers.ConnectionRetryUtil.TaskWithRetry(async () =>
+                    var data = await ContextActionWithPageAccessWaitAsync(context =>
                     {
-                        return await ContextActionWithPageAccessWaitAsync(async context =>
-                        {
-                            return await context.Video.GetDmcWatchResponseAsync(
+                        return context.Video.GetDmcWatchResponseAsync(
                             rawVideoId
                             , harmfulReactType: harmfulContentReactionType
                             );
-                        });
-                        
                     });
 
                     var res = data?.DmcWatchResponse;
@@ -417,16 +416,13 @@ namespace Hohoema.Models.Domain.Niconico.Video
             {
                 try
                 {
-                    var res = await Helpers.ConnectionRetryUtil.TaskWithRetry(async () =>
+                    var res = await ContextActionWithPageAccessWaitAsync(context =>
                     {
-                        return await ContextActionWithPageAccessWaitAsync(async context =>
-                        {
-                            return await context.Video.GetWatchApiAsync(
-                            rawVideoId
-                            , forceLowQuality: forceLowQuality
-                            , harmfulReactType: harmfulContentReactionType
-                            );
-                        });
+                        return context.Video.GetWatchApiAsync(
+                        rawVideoId
+                        , forceLowQuality: forceLowQuality
+                        , harmfulReactType: harmfulContentReactionType
+                        );
                     });
 
                     var info = _nicoVideoRepository.Get(rawVideoId);

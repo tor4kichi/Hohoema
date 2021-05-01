@@ -24,20 +24,20 @@
   <MenuFlyoutSeparator />
 
   <MenuFlyoutItem Text="{i18nExt:Localize Key=Share}"
-                  Command="{Binding ExternalAccessService.OpenShareUICommand}"
+                  Command="{Binding OpenShareUICommand}"
                   CommandParameter="{Binding}"
                   Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}" />
 
   <MenuFlyoutSubItem Text="{i18nExt:Localize Key=Copy}"
                      Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}">
     <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingLink}"
-                    Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+                    Command="{Binding CopyToClipboardCommand}"
                     CommandParameter="{Binding}" />
     <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingId}"
-                    Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+                    Command="{Binding CopyToClipboardCommand}"
                     CommandParameter="{Binding LiveId}" />
     <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingShareText}"
-                    Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}"
+                    Command="{Binding CopyToClipboardWithShareTextCommand}"
                     CommandParameter="{Binding}" />
   </MenuFlyoutSubItem>
 

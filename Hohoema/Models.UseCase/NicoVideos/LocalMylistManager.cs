@@ -17,11 +17,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Storage;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Hohoema.Models.Domain.Application;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {
-    public sealed class LocalMylistManager : IDisposable
+    public sealed class LocalMylistManager : IDisposable, IRecipient<SettingsRestoredMessage>
     {
+        void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
+        {
+            Load();
+        }
+
+
         public LocalMylistManager(
             PlaylistRepository playlistRepository,
             NicoVideoProvider nicoVideoProvider,
@@ -34,16 +42,31 @@ namespace Hohoema.Models.UseCase.NicoVideos
             _nicoVideoRepository = nicoVideoRepository;
             _notificationService = notificationService;
 
+            _playlists = new ObservableCollection<LocalPlaylist>();
+            LocalPlaylists = new ReadOnlyObservableCollection<LocalPlaylist>(_playlists);
+
+
+            WeakReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
+
+            Load();
+        }
+
+        private void Load()
+        {
+            foreach (var localMylist in _playlists)
+            {
+                RemoveHandleItemsChanged(localMylist);
+            }
+
+            _playlists.Clear();
+            _playlistIdToEntity.Clear();
+
             var localPlaylistEntities = _playlistRepository.GetPlaylistsFromOrigin(PlaylistOrigin.Local);
-            var localPlaylists = localPlaylistEntities.Select(x => new LocalPlaylist(x.Id, x.Label,_playlistRepository, _nicoVideoRepository) 
+            var localPlaylists = localPlaylistEntities.Select(x => new LocalPlaylist(x.Id, x.Label, _playlistRepository, _nicoVideoRepository, WeakReferenceMessenger.Default)
             {
                 Count = _playlistRepository.GetCount(x.Id),
                 ThumbnailImage = x.ThumbnailImage,
             }).ToList();
-
-
-            _playlists = new ObservableCollection<LocalPlaylist>(localPlaylists);
-            LocalPlaylists = new ReadOnlyObservableCollection<LocalPlaylist>(_playlists);
 
             localPlaylists.ForEach(HandleItemsChanged);
 
@@ -51,7 +74,13 @@ namespace Hohoema.Models.UseCase.NicoVideos
             {
                 _playlistIdToEntity.Add(entity.Id, entity);
             }
+
+            foreach (var i in localPlaylists)
+            {
+                _playlists.Add(i);
+            }
         }
+
 
         private readonly PlaylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
@@ -91,7 +120,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             _playlistRepository.UpsertPlaylist(entity);
             _playlistIdToEntity.Add(entity.Id, entity);
 
-            var playlist = new LocalPlaylist(entity.Id, label, _playlistRepository, _nicoVideoRepository);
+            var playlist = new LocalPlaylist(entity.Id, label, _playlistRepository, _nicoVideoRepository, WeakReferenceMessenger.Default);
 
             HandleItemsChanged(playlist);
 
@@ -105,35 +134,23 @@ namespace Hohoema.Models.UseCase.NicoVideos
             CompositeDisposable disposables = new CompositeDisposable();
             LocalMylistPropertyChangedObserverMap.Add(playlist.Id, disposables);
 
-            Observable.FromEventPattern<LocalPlaylistItemAddedEventArgs>(
-                h => playlist.ItemAdded += h,
-                h => playlist.ItemAdded -= h
-                )
-                .Subscribe(args =>
-                {
-                    var sender = args.Sender as LocalPlaylist;
-                    _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistAddedItems".Translate(sender.Label, args.EventArgs.AddedItems.Count));
-                })
-                .AddTo(disposables);
+            WeakReferenceMessenger.Default.Register<LocalPlaylist, LocalPlaylistItemAddedMessage>(playlist, (r, m) => 
+            {
+                var sender = r;
+                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistAddedItems".Translate(sender.Label, m.Value.AddedItems.Count));
+            });
 
-            Observable.FromEventPattern<LocalPlaylistItemRemovedEventArgs>(
-                h => playlist.ItemRemoved += h,
-                h => playlist.ItemRemoved -= h
-                )
-                .Subscribe(args =>
-                {
-                    var sender = args.Sender as LocalPlaylist;
-                    _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistRemovedItems".Translate(sender.Label, args.EventArgs.RemovedItems.Count));
-                })
-                .AddTo(disposables);
+            WeakReferenceMessenger.Default.Register<LocalPlaylist, LocalPlaylistItemRemovedMessage>(playlist, (r, m) =>
+            {
+                var sender = r;
+                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistRemovedItems".Translate(sender.Label, m.Value.RemovedItems.Count));
+            });
         }
 
         void RemoveHandleItemsChanged(LocalPlaylist playlist)
         {
-            if (LocalMylistPropertyChangedObserverMap.Remove(playlist.Id, out var disposables))
-            {
-                disposables.Dispose();
-            }
+            WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemAddedMessage>(playlist);
+            WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemRemovedMessage>(playlist);
         }
 
 
@@ -162,7 +179,6 @@ namespace Hohoema.Models.UseCase.NicoVideos
             RemoveHandleItemsChanged(localPlaylist);
             return _playlists.Remove(localPlaylist);
         }
-
 
 
         private DelegateCommand<string> _AddCommand;

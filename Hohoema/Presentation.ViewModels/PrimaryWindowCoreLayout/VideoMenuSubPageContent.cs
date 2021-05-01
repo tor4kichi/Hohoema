@@ -13,8 +13,9 @@ using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
 using Prism.Ioc;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 {
@@ -23,7 +24,7 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
         public VideoMenuSubPageContent(
             NiconicoSession niconicoSession,
             LocalMylistManager localMylistManager,
-            UserMylistManager mylistManager,
+            LoginUserOwnedMylistManager mylistManager,
             PageManager pageManager
             )
         {
@@ -50,7 +51,7 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
             NiconicoSession.LogOut += OnLogOut;
         }
 
-        public UserMylistManager MylistManager { get; }
+        public LoginUserOwnedMylistManager MylistManager { get; }
         public NiconicoSession NiconicoSession { get; }
         public LocalMylistManager LocalMylistManager { get; }
         public PageManager PageManager { get; }

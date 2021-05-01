@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Helpers;
+﻿using Hohoema.Models.Helpers;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -26,7 +26,7 @@ namespace Hohoema.Dialogs
         }
 
         public Func<string, Task<List<SelectDialogPayload>>> GenerateCandidateList { get; private set; }
-        Models.Domain.Helpers.AsyncLock _UpdateCandidateListLock = new Models.Domain.Helpers.AsyncLock();
+        Models.Helpers.AsyncLock _UpdateCandidateListLock = new Models.Helpers.AsyncLock();
 
 		CompositeDisposable _CompositeDisposable;
 

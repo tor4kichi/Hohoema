@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Dmc;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -10,6 +10,8 @@ using Windows.Media.Core;
 using Windows.Media.Streaming.Adaptive;
 using Windows.UI.Xaml;
 using Windows.System;
+using Uno.Threading;
+using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 
 namespace Hohoema.Models.Domain.Player.Video
 {
@@ -22,81 +24,14 @@ namespace Hohoema.Models.Domain.Player.Video
 
         private DispatcherQueueTimer _DmcSessionHeartbeatTimer;
 
-        private static AsyncLock DmcSessionHeartbeatLock = new AsyncLock();
-
         private int _HeartbeatCount = 0;
         private bool IsFirstHeartbeat => _HeartbeatCount == 0;
 
         public VideoContent VideoContent { get; private set; }
 
-        private byte[] _EncryptionKey;
-
-
-        private Windows.Web.Http.HttpClient _HttpClient;
-
-
         public override string QualityId { get; }
         public override NicoVideoQuality Quality { get; }
 
-        /*
-        private VideoContent ResetActualQuality()
-        {
-            if (DmcWatchResponse?.Video.DmcInfo?.Quality?.Videos == null)
-            {
-                return null;
-            }
-
-            var videos = DmcWatchResponse.Video.DmcInfo.Quality.Videos;
-
-            int qulity_position = 0;
-            switch (RequestedQuality)
-            {
-                case NicoVideoQuality.Dmc_SuperHigh:
-                    qulity_position = 5;
-                    break;
-                case NicoVideoQuality.Dmc_High:
-                    // 4 -> 0
-                    // 3 -> x
-                    // 2 -> x
-                    // 1 -> x
-                    qulity_position = 4;
-                    break;
-                case NicoVideoQuality.Dmc_Midium:
-                    // 4 -> 1
-                    // 3 -> 0
-                    // 2 -> x
-                    // 1 -> x
-                    qulity_position = 3;
-                    break;
-                case NicoVideoQuality.Dmc_Low:
-                    // 4 -> 2
-                    // 3 -> 1
-                    // 2 -> 0
-                    // 1 -> x
-                    qulity_position = 2;
-                    break;
-                case NicoVideoQuality.Dmc_Mobile:
-                    // 4 -> 3
-                    // 3 -> 2
-                    // 2 -> 1
-                    // 1 -> 0
-                    qulity_position = 1;
-                    break;
-                default:
-                    throw new Exception();
-            }
-
-            VideoContent result = null;
-
-            var pos = videos.Count - qulity_position;
-            if (videos.Count >= qulity_position)
-            {
-                result = videos.ElementAtOrDefault(pos) ?? null;
-            }
-            
-            return result;
-        }
-        */
 
         DmcWatchData _DmcWatchData;
         static DmcSessionResponse _DmcSessionResponse;
@@ -251,31 +186,28 @@ namespace Hohoema.Models.Domain.Player.Video
 
         private async void _DmcSessionHeartbeatTimer_Tick(DispatcherQueueTimer sender, object state)
         {
-            using (var releaser = await DmcSessionHeartbeatLock.LockAsync())
+            Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビート {_HeartbeatCount + 1}回目");
+
+            if (IsFirstHeartbeat)
             {
-                Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビート {_HeartbeatCount + 1}回目");
-
-                if (IsFirstHeartbeat)
-                {
-                    await NiconicoSession.Context.Video.DmcSessionFirstHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
-                    Debug.WriteLine($"{DmcWatchResponse.Video.Title} の初回ハートビート実行");
-                    await Task.Delay(2);
-                }
-                else
-                {
-                    try
-                    {
-                        await NiconicoSession.Context.Video.DmcSessionHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
-                        Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビート実行");
-                    }
-                    catch
-                    {
-                        OnStopStreaming();
-                    }
-                }
-
-                _HeartbeatCount++;
+                await NiconicoSession.Context.Video.DmcSessionFirstHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
+                Debug.WriteLine($"{DmcWatchResponse.Video.Title} の初回ハートビート実行");
+                await Task.Delay(2);
             }
+            else
+            {
+                try
+                {
+                    await NiconicoSession.Context.Video.DmcSessionHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
+                    Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビート実行");
+                }
+                catch
+                {
+                    OnStopStreaming();
+                }
+            }
+
+            _HeartbeatCount++;
         }
 
         protected override async void OnStopStreaming()

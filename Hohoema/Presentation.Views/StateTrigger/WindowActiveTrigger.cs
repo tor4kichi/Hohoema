@@ -7,7 +7,7 @@ using Windows.UI.Xaml;
 
 namespace Hohoema.Presentation.Views.StateTrigger
 {
-	public class WindowActiveTrigger : InvertibleStateTrigger
+	public class WindowActiveTrigger : InvertibleStateTrigger, IDisposable
 	{
 		public WindowActiveTrigger()
 		{
@@ -15,7 +15,12 @@ namespace Hohoema.Presentation.Views.StateTrigger
 			SetWindowActive(Window.Current.CoreWindow.Visible);
 		}
 
-		private void Current_Activated(object sender, Windows.UI.Core.WindowActivatedEventArgs e)
+        public void Dispose()
+        {
+			Window.Current.Activated -= Current_Activated;
+		}
+
+        private void Current_Activated(object sender, Windows.UI.Core.WindowActivatedEventArgs e)
 		{
 			var isWindowActive = e.WindowActivationState != Windows.UI.Core.CoreWindowActivationState.Deactivated;
 			SetWindowActive(isWindowActive);

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Networking.BackgroundTransfer;
 using Windows.UI.Notifications;
-using Hohoema.Presentation.Services.Helpers;
+using Hohoema.Models.Helpers;
 
 namespace Hohoema.Models.Domain.Player.Video.Cache
 {

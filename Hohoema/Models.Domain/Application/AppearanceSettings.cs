@@ -7,7 +7,7 @@ using Windows.UI.Xaml;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Infrastructure;
 using Microsoft.UI.Xaml.Controls;
-using Hohoema.Presentation.Services.Helpers;
+using Hohoema.Models.Helpers;
 
 namespace Hohoema.Models.Domain.Application
 {

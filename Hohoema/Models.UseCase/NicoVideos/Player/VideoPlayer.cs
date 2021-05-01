@@ -15,7 +15,9 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Uno.Threading;
 using Windows.Media.Playback;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
@@ -88,11 +90,11 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         private readonly MediaPlayer _mediaPlayer;
         private readonly IScheduler _scheduler;
 
-        Models.Domain.Helpers.AsyncLock _playerLock = new Models.Domain.Helpers.AsyncLock();
+        FastAsyncLock _playerLock = new FastAsyncLock();
 
         public void Dispose()
         {
-            ClearCurrentSessionAsync();
+            _ = ClearCurrentSessionAsync();
 
             _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             _disposables.Dispose();
@@ -129,20 +131,20 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         }
 
 
-        public async Task UpdatePlayingVideoAsync(INiconicoVideoSessionProvider videoSessionProvider)
+        public async Task UpdatePlayingVideoAsync(INiconicoVideoSessionProvider videoSessionProvider, CancellationToken ct = default)
         {
             await ClearCurrentSessionAsync();
 
-            using var _ = await _playerLock.LockAsync();
+            using var _ = await _playerLock.LockAsync(ct);
 
             _niconicoVideoSessionProvider = videoSessionProvider;
             PlayingVideoId = videoSessionProvider.ContentId;
             RaisePropertyChanged(nameof(AvailableQualities));
         }
 
-        public async Task PlayAsync(NicoVideoQuality quality = NicoVideoQuality.Unknown, TimeSpan startPosition = default)
+        public async Task PlayAsync(NicoVideoQuality quality = NicoVideoQuality.Unknown, TimeSpan startPosition = default, CancellationToken ct = default)
         {
-            using var _ = await _playerLock.LockAsync();
+            using var _ = await _playerLock.LockAsync(ct);
 
             if (_niconicoVideoSessionProvider == null) { throw new ArgumentException("please call VideoPlayer.UpdatePlayingVideo() before VideoPlayer.PlayAsync()."); }
 
@@ -173,9 +175,9 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             await _currentSession.StartPlayback(_mediaPlayer, startPosition);
         }
 
-        public async Task ClearCurrentSessionAsync()
+        public async Task ClearCurrentSessionAsync(CancellationToken ct = default)
         {
-            using var _ = await _playerLock.LockAsync();
+            using var _ = await _playerLock.LockAsync(ct);
 
             _currentSession?.Dispose();
             _currentSession = null;

@@ -1,38 +1,19 @@
-﻿using Hohoema.Models.Domain;
-using Prism.Commands;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reactive.Disposables;
 using System.Threading;
-using Windows.UI.Xaml;
-using Windows.Foundation;
-using Hohoema.Models.Domain.Helpers;
-using System.Runtime.InteropServices.WindowsRuntime;
-using WinRTXamlToolkit.Async;
-using Windows.UI.Xaml.Navigation;
-using System.Diagnostics;
-using Unity;
-using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using System.Reactive.Linq;
-using Windows.UI.Core;
-using Hohoema.Presentation.Services;
-using Mntone.Nico2;
-using System.Reactive.Concurrency;
-using Windows.ApplicationModel.Core;
-using Windows.UI.ViewManagement;
 using Prism.Mvvm;
 using Prism.Navigation;
-using Prism.Events;
-using Prism.Unity;
-using Hohoema.Presentation.Services.Page;
+using Hohoema.Presentation.Views.Pages;
+using Uno.Threading;
 
 namespace Hohoema.Presentation.ViewModels
 {
-	public abstract class HohoemaViewModelBase : BindableBase, INavigationAware, IDestructible
+	public abstract class HohoemaViewModelBase : BindableBase, INavigationAware, IDestructible, IDisposable
 	{
         public HohoemaViewModelBase()
         {
@@ -45,7 +26,7 @@ namespace Hohoema.Presentation.ViewModels
 
         private CancellationTokenSource _navigationCancellationTokenSource;
 
-        protected CancellationToken NavigationCancellationToken => _navigationCancellationTokenSource?.Token ?? default;
+        protected CancellationToken NavigationCancellationToken { get; private set; }
 
         private string _title;
         public string Title
@@ -60,11 +41,18 @@ namespace Hohoema.Presentation.ViewModels
         }
 
 
+
+        void IDisposable.Dispose()
+        {
+            _CompositeDisposable?.Dispose();
+        }
+
         public virtual void OnNavigatingTo(INavigationParameters parameters) 
         {
-            Views.PrimaryWindowCoreLayout.SetCurrentNavigationParameters(parameters);
+            Views.Pages.PrimaryWindowCoreLayout.SetCurrentNavigationParameters(parameters);
             _navigationCancellationTokenSource = new CancellationTokenSource()
                 .AddTo(_NavigatingCompositeDisposable);
+            NavigationCancellationToken = _navigationCancellationTokenSource.Token;
         }
 
         public virtual void OnNavigatedTo(INavigationParameters parameters)
@@ -77,5 +65,6 @@ namespace Hohoema.Presentation.ViewModels
             _NavigatingCompositeDisposable.Dispose();
             _NavigatingCompositeDisposable = new CompositeDisposable();
         }
+
     }
 }

@@ -14,12 +14,12 @@ namespace Hohoema.Models.UseCase.NicoVideos
     public sealed class PlaylistSelectDialogService
     {
         private readonly DialogService _dialogService;
-        private readonly UserMylistManager _userMylistManager;
+        private readonly LoginUserOwnedMylistManager _userMylistManager;
         private readonly LocalMylistManager _localMylistManager;
 
         public PlaylistSelectDialogService(
             DialogService dialogService,
-            UserMylistManager userMylistManager,
+            LoginUserOwnedMylistManager userMylistManager,
             LocalMylistManager localMylistManager
             )
         {

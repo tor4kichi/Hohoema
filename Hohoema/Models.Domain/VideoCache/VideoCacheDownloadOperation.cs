@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Helpers;
+﻿using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Player.Video;
 using System;
 using System.IO;

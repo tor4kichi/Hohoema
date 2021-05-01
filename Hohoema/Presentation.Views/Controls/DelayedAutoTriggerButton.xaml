@@ -7,9 +7,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:myTrigger="using:Hohoema.Presentation.Views.StateTrigger"
+  xmlns:myExt="using:Hohoema.Presentation.Views.Extensions"
   mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignWidth="400"
+  x:Name="ControlRoot"
+  >
   <uwpControls:DockPanel HorizontalAlignment="Center" Background="{x:Bind Background}">
 
     <Button Width="240"
@@ -75,8 +78,8 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger />
-            <myTrigger:WindowInWindowViewModeTrigger />
+            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind ControlRoot}" />
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind ControlRoot}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CancelButton.Width" Value="80" />

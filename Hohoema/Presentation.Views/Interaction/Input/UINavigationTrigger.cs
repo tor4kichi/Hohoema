@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xaml.Interactivity;
-using Hohoema.Models.Domain.Helpers;
+using Hohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,6 +12,7 @@ using Windows.Gaming.Input;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Markup;
+using Hohoema.Presentation.Services.UINavigation;
 
 namespace Hohoema.Presentation.Views.Behaviors
 {

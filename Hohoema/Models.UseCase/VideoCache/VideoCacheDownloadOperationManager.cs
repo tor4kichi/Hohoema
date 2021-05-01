@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Helpers;
+﻿using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.VideoCache;
 using System;
 using System.Collections.Generic;
@@ -102,7 +102,7 @@ namespace Hohoema.Models.UseCase.VideoCache
 
             using (await _downloadTsakUpdateLock.LockAsync())
             {
-                if (_downloadTasks.Count > 0) { return; }
+                if (_downloadTasks.Count == 0) { return; }
 
                 foreach (var _ in Enumerable.Range(0, DownloadLine))
                 {

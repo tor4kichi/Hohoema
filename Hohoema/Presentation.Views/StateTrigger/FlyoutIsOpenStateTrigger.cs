@@ -8,7 +8,7 @@ using Windows.UI.Xaml.Controls.Primitives;
 
 namespace Hohoema.Presentation.Views.StateTrigger
 {
-    public sealed class FlyoutIsOpenStateTrigger : InvertibleStateTrigger
+    public sealed class FlyoutIsOpenStateTrigger : InvertibleStateTrigger, IDisposable
     {
         public FlyoutBase TargetFlyout
         {
@@ -40,5 +40,10 @@ namespace Hohoema.Presentation.Views.StateTrigger
             SetActiveInvertible(false);
         }
 
+        public void Dispose()
+        {
+            TargetFlyout.Opening -= Newflyout_Opening;
+            TargetFlyout.Closing -= Newflyout_Closing;
+        }
     }
 }
