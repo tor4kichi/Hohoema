@@ -11,7 +11,7 @@ namespace Hohoema.FixPrism
     /// <summary>
     /// Implementation of <see cref="INotifyPropertyChanged"/> to simplify models.
     /// </summary>
-    public abstract class BindableBase : INotifyPropertyChanged
+    public abstract class BindableBase : INotifyPropertyChanged, IDisposable
     {
         protected BindableBase()
         {
@@ -136,7 +136,7 @@ namespace Hohoema.FixPrism
                     var handlers = pair.Value;
                     context.TryEnqueue(() =>
                     {
-                        lockSlim.EnterReadLock();
+                        lockSlim.EnterUpgradeableReadLock();
                         try
                         {
                             var eventArgs = new PropertyChangedEventArgs(propertyName);
@@ -147,7 +147,7 @@ namespace Hohoema.FixPrism
                         }
                         finally
                         {
-                            lockSlim.ExitReadLock();
+                            lockSlim.ExitUpgradeableReadLock();
                         }
                     });
                 }
@@ -165,6 +165,11 @@ namespace Hohoema.FixPrism
         protected virtual void OnPropertyChanged(PropertyChangedEventHandler handler, PropertyChangedEventArgs args)
         {
             handler?.Invoke(this, args);
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)lockSlim).Dispose();
         }
     }
 }

@@ -5,6 +5,7 @@ using Hohoema.Models.Domain.Niconico.User;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.Domain.Player.Video.Cache;
+using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Models.UseCase.NicoVideos.Events;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
@@ -27,11 +28,16 @@ using Unity;
 
 namespace Hohoema.Presentation.ViewModels.VideoListPage
 {
-    public class VideoInfoControlViewModel : FixPrism.BindableBase, IVideoContent, IDisposable, IRecipient<VideoPlayedMessage>
+    public class VideoInfoControlViewModel : FixPrism.BindableBase, IVideoContent, IDisposable, 
+        IRecipient<VideoPlayedMessage>,
+        IRecipient<QueueItemAddedMessage>,
+        IRecipient<QueueItemRemovedMessage>,
+        IRecipient<QueueItemIndexUpdateMessage>
     {
         static VideoInfoControlViewModel()
         {
             _nicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
+            _hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
             _ngSettings = App.Current.Container.Resolve<VideoFilteringSettings>();
             _cacheManager = App.Current.Container.Resolve<VideoCacheManagerLegacy>();
             _scheduler = App.Current.Container.Resolve<IScheduler>();
@@ -41,21 +47,53 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             _channelProvider =  App.Current.Container.Resolve<ChannelProvider>();
             _addWatchAfterCommand = App.Current.Container.Resolve<QueueAddItemCommand>();
             _openVideoOwnerPageCommand = App.Current.Container.Resolve<OpenVideoOwnerPageCommand>();
+
+            _removeWatchAfterCommand = App.Current.Container.Resolve<QueueRemoveItemCommand>();
+        }
+
+
+        public VideoInfoControlViewModel(
+            string rawVideoId
+            )
+        {
+            RawVideoId = rawVideoId;
+
+            _ngSettings.VideoOwnerFilterAdded += _ngSettings_VideoOwnerFilterAdded;
+            _ngSettings.VideoOwnerFilterRemoved += _ngSettings_VideoOwnerFilterRemoved;
+
+            WeakReferenceMessenger.Default.RegisterAll(this, RawVideoId);
+
+            (IsQueueItem, QueueItemIndex) = _hohoemaPlaylist.IsQueuePlaylistItem(RawVideoId);
         }
 
         public VideoInfoControlViewModel(NicoVideo data)            
+            : this(data.RawVideoId)
         {
-            RawVideoId = data?.RawVideoId ?? RawVideoId;
             Data = data;
-
             if (Data != null)
             {
                 Setup(Data);
             }
-
-            _ngSettings.VideoOwnerFilterAdded += _ngSettings_VideoOwnerFilterAdded;
-            _ngSettings.VideoOwnerFilterRemoved += _ngSettings_VideoOwnerFilterRemoved;
         }
+
+
+        void IRecipient<QueueItemAddedMessage>.Receive(QueueItemAddedMessage message)
+        {
+            IsQueueItem = true;
+        }
+
+        void IRecipient<QueueItemRemovedMessage>.Receive(QueueItemRemovedMessage message)
+        {
+            IsQueueItem = false;
+            QueueItemIndex = -1;
+        }
+
+
+        void IRecipient<QueueItemIndexUpdateMessage>.Receive(QueueItemIndexUpdateMessage message)
+        {
+            QueueItemIndex = message.Value.Index;
+        }
+
 
         private void _ngSettings_VideoOwnerFilterRemoved(object sender, VideoOwnerFilteringRemovedEventArgs e)
         {
@@ -77,6 +115,9 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             _ngSettings.VideoOwnerFilterAdded -= _ngSettings_VideoOwnerFilterAdded;
             _ngSettings.VideoOwnerFilterRemoved -= _ngSettings_VideoOwnerFilterRemoved;
+
+            WeakReferenceMessenger.Default.UnregisterAll(this, RawVideoId);
+
             UnsubscriptionWatched();
         }
 
@@ -115,14 +156,6 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        public VideoInfoControlViewModel(
-            string rawVideoId
-            )
-            : this(data: null)
-        {
-            RawVideoId = rawVideoId;
-        }
-
         public bool Equals(IVideoContent other)
         {
             return Id == other.Id;
@@ -135,6 +168,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
 
         private static readonly NicoVideoProvider _nicoVideoProvider;
+        private static readonly HohoemaPlaylist _hohoemaPlaylist;
         private static readonly NicoVideoCacheRepository _nicoVideoRepository;
         private static readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
         private static readonly UserNameProvider _userNameProvider;
@@ -146,7 +180,11 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         private static readonly QueueAddItemCommand _addWatchAfterCommand;
         public QueueAddItemCommand AddWatchAfterCommand => _addWatchAfterCommand;
 
+        private static readonly QueueRemoveItemCommand _removeWatchAfterCommand;
+        public QueueRemoveItemCommand RemoveWatchAfterCommand => _removeWatchAfterCommand;
+
         private static readonly OpenVideoOwnerPageCommand _openVideoOwnerPageCommand;
+
         public OpenVideoOwnerPageCommand OpenVideoOwnerPageCommand => _openVideoOwnerPageCommand;
 
 
@@ -163,6 +201,20 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             get { return _ProviderName; }
             set { SetProperty(ref _ProviderName, value); }
+        }
+
+        private bool _IsQueueItem;
+        public bool IsQueueItem
+        {
+            get { return _IsQueueItem; }
+            set { SetProperty(ref _IsQueueItem, value); }
+        }
+
+        private int _QueueItemIndex;
+        public int QueueItemIndex
+        {
+            get { return _QueueItemIndex; }
+            set { SetProperty(ref _QueueItemIndex, value + 1); }
         }
 
         public NicoVideoUserType ProviderType { get; set; }
@@ -461,7 +513,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 IsWatched = watched;
                 if (!watched)
                 {
-                    StrongReferenceMessenger.Default.Register(this, video.Id);
+                    StrongReferenceMessenger.Default.Register<VideoPlayedMessage, string>(this, video.Id);
                 }
                 else
                 {
@@ -616,7 +668,6 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             IsInitialized = true;
         }
 
-        
     }
 
 

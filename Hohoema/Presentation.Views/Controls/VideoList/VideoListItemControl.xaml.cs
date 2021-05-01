@@ -1,6 +1,9 @@
-﻿using I18NPortable;
+﻿using Hohoema.Presentation.ViewModels.VideoListPage;
+using I18NPortable;
+using System.Windows.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -15,7 +18,26 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
         public VideoListItemControl()
         {
-            this.InitializeComponent();            
+            this.InitializeComponent();   
+        }
+
+        protected override void OnPointerPressed(PointerRoutedEventArgs e)
+        {
+            base.OnPointerPressed(e);
+
+            var point = e.GetCurrentPoint(this);
+            if (point.Properties.IsMiddleButtonPressed)
+            {
+                var vm = DataContext as ViewModels.VideoListPage.VideoInfoControlViewModel;
+                if (vm.IsQueueItem)
+                {
+                    (vm.RemoveWatchAfterCommand as ICommand).Execute(vm);
+                }
+                else
+                {
+                    (vm.AddWatchAfterCommand as ICommand).Execute(vm);
+                }
+            }
         }
 
         public bool IsThumbnailUseCache
@@ -55,5 +77,17 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
         #endregion
 
+        private void SwipeItem_Invoked(Microsoft.UI.Xaml.Controls.SwipeItem sender, Microsoft.UI.Xaml.Controls.SwipeItemInvokedEventArgs args)
+        {
+            var vm = args.SwipeControl.DataContext as VideoInfoControlViewModel;
+            if (vm.IsQueueItem)
+            {
+                (vm.RemoveWatchAfterCommand as ICommand).Execute(vm);
+            }
+            else
+            {
+                (vm.AddWatchAfterCommand as ICommand).Execute(vm);
+            }
+        }
     }
 }

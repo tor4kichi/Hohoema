@@ -7,46 +7,67 @@
   xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
   xmlns:windowsStateTrigger="using:WindowsStateTriggers" 
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:conv="using:WinRTXamlToolkit.Converters"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:nicoLToolkitVideo="using:NiconicoLiveToolkit.Video" 
-  xmlns:local="using:Hohoema.Presentation.Views.Controls.VideoList"
+  xmlns:local="using:Hohoema.Presentation.Views.Controls.VideoList" xmlns:winUI="using:Microsoft.UI.Xaml.Controls"
   mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
   <Grid x:Name="UserControlRoot">
 
-    <StackPanel x:Name="CacheStatusLayout" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+    <winUI:SwipeControl >
+      <winUI:SwipeControl.LeftItems>
+        <winUI:SwipeItems Mode="Execute">
+          <winUI:SwipeItem x:Name="QueueToggleSwipeItem" 
+                           BehaviorOnInvoked="Close" Text="{i18nExt:Localize Key=QueueAddItem}"
+                           Invoked="SwipeItem_Invoked"
+                         >
+            <winUI:SwipeItem.IconSource>
+              <winUI:SymbolIconSource x:Name="QueueToggleSwipeItemSymbolIconSource" Symbol="Add" />
+            </winUI:SwipeItem.IconSource>
+          </winUI:SwipeItem>
+        </winUI:SwipeItems>
+      </winUI:SwipeControl.LeftItems>
+      <Grid>
+        <Grid x:Name="QueueIndexLayout" Opacity="0.0" HorizontalAlignment="Right" VerticalAlignment="Top">
+          <TextBlock>
+            <Run Text="{i18nExt:Localize Key=@view}" />(<Run Text="{Binding QueueItemIndex}" />)
+          </TextBlock>
+        </Grid>
+        <StackPanel x:Name="CacheStatusLayout" HorizontalAlignment="Right" VerticalAlignment="Bottom">
 
-      
-      <TextBlock Opacity="0.6" FontSize="12">
+
+          <TextBlock Opacity="0.6" FontSize="12">
          <Run Text="{Binding CacheRequest.CacheState, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding CacheRequest.PriorityQuality, Converter={StaticResource LocalizeConverter}}" />
-      </TextBlock>
+          </TextBlock>
 
-      <StackPanel Orientation="Horizontal" Spacing="8" x:Name="CacheProgressLayout" Visibility="Collapsed">
-        <TextBlock x:Name="CacheProgressPercentage" Opacity="0.75" FontSize="12">
+          <StackPanel Orientation="Horizontal" Spacing="8" x:Name="CacheProgressLayout" Visibility="Collapsed">
+            <TextBlock x:Name="CacheProgressPercentage" Opacity="0.75" FontSize="12">
           <Run Text="{Binding DownloadProgress, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
-        </TextBlock>
-        <ProgressBar x:Name="CacheProgressBar" 
+            </TextBlock>
+            <ProgressBar x:Name="CacheProgressBar" 
                      Maximum="1.0"
                    Minimum="0.0"
                    Value="{Binding DownloadProgress}"
                    Width="120"
                      IsIndeterminate="False"
                    />
-      </StackPanel>
-    </StackPanel>
-    
-    <uwpControls:DockPanel Margin="4 0 0 0"
+          </StackPanel>
+        </StackPanel>
+
+        <uwpControls:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
                            >
-      <Grid Margin="0 0 12 0"
+          <Grid Margin="0 0 12 0"
                   uwpControls:DockPanel.Dock="Left"
             Width="132"
             Height="72"
                   >
-        <uwpControls:ImageEx Source="{Binding ThumbnailUrl, Mode=OneWay}" 
+            <uwpControls:ImageEx Source="{Binding ThumbnailUrl, Mode=OneWay}" 
             Visibility="{Binding ThumbnailUrl, Converter={StaticResource NotNullToVisibility}}"
             Stretch="Uniform"
             VerticalAlignment="Center"
@@ -55,67 +76,67 @@
             IsTabStop="False"
                          Height="100"
                    >
-        </uwpControls:ImageEx>
+            </uwpControls:ImageEx>
 
-       
-       
-        
-        <Border HorizontalAlignment="Right" 
+
+
+
+            <Border HorizontalAlignment="Right" 
                         VerticalAlignment="Bottom"
                         CornerRadius="4 0 0 0"
                         >
-          <Border.Background>
-            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-          </Border.Background>
+              <Border.Background>
+                <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+              </Border.Background>
 
-          <TextBlock Text="{Binding Length, Converter={StaticResource TimeToMovieLengthConverter}, Mode=OneWay}" 
+              <TextBlock Text="{Binding Length, Converter={StaticResource TimeToMovieLengthConverter}, Mode=OneWay}" 
                                Padding="4 0 3 3" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
                                FontSize="13"
                                
                                />
-        </Border>
-      </Grid>
+            </Border>
+          </Grid>
 
-      <StackPanel uwpControls:DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8">
-        <StackPanel.Resources>
-          <Style TargetType="TextBlock">
-            <Setter Property="FontSize" Value="13"  />
-            <Setter Property="TextLineBounds" Value="Tight" />
-            <Setter Property="Opacity" Value="0.7" />
-          </Style>
-        </StackPanel.Resources>
-        <TextBlock>
+          <StackPanel uwpControls:DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8">
+            <StackPanel.Resources>
+              <Style TargetType="TextBlock">
+                <Setter Property="FontSize" Value="13"  />
+                <Setter Property="TextLineBounds" Value="Tight" />
+                <Setter Property="Opacity" Value="0.7" />
+              </Style>
+            </StackPanel.Resources>
+            <TextBlock>
           <Run Text="{Binding PostedAt, Converter={StaticResource DateTimeToString}, Mode=OneWay}" />
           <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_PostAt_Short}" />
-        </TextBlock>
+            </TextBlock>
 
-        <uwpControls:SwitchPresenter Value="{Binding Permission, Converter={StaticResource EnumToNumber}}">
-          <uwpControls:Case IsDefault="True">
-            <Border />
-          </uwpControls:Case>
-          <uwpControls:Case>
-            <uwpControls:Case.Value>
-              <nicoLToolkitVideo:VideoPermission>RequirePay</nicoLToolkitVideo:VideoPermission>
-            </uwpControls:Case.Value>
+            <uwpControls:SwitchPresenter Value="{Binding Permission, Converter={StaticResource EnumToNumber}}">
+              <uwpControls:Case IsDefault="True">
+                <Border />
+              </uwpControls:Case>
+              <uwpControls:Case>
+                <uwpControls:Case.Value>
+                  <nicoLToolkitVideo:VideoPermission>RequirePay</nicoLToolkitVideo:VideoPermission>
+                </uwpControls:Case.Value>
 
-            <TextBlock Text="{i18nExt:Localize Key=Video_RequirePay}" />
-          </uwpControls:Case>
-          <uwpControls:Case>
-            <uwpControls:Case.Value>
-              <nicoLToolkitVideo:VideoPermission>RequirePremiumMember</nicoLToolkitVideo:VideoPermission>
-            </uwpControls:Case.Value>
+                <TextBlock Text="{i18nExt:Localize Key=Video_RequirePay}" />
+              </uwpControls:Case>
+              <uwpControls:Case>
+                <uwpControls:Case.Value>
+                  <nicoLToolkitVideo:VideoPermission>RequirePremiumMember</nicoLToolkitVideo:VideoPermission>
+                </uwpControls:Case.Value>
 
-            <TextBlock Text="{i18nExt:Localize Key=Video_RequirePremiumMember}" />
-          </uwpControls:Case>
-          <uwpControls:Case>
-            <uwpControls:Case.Value>
-              <nicoLToolkitVideo:VideoPermission>FreeForChannelMember</nicoLToolkitVideo:VideoPermission>
-            </uwpControls:Case.Value>
+                <TextBlock Text="{i18nExt:Localize Key=Video_RequirePremiumMember}" />
+              </uwpControls:Case>
+              <uwpControls:Case>
+                <uwpControls:Case.Value>
+                  <nicoLToolkitVideo:VideoPermission>FreeForChannelMember</nicoLToolkitVideo:VideoPermission>
+                </uwpControls:Case.Value>
 
-            <TextBlock Text="{i18nExt:Localize Key=Video_FreeForChannelMember}" />
-          </uwpControls:Case>
-          <!--
+                <TextBlock Text="{i18nExt:Localize Key=Video_FreeForChannelMember}" />
+              </uwpControls:Case>
+              <!--
             <uwpControls:Case>
               <uwpControls:Case.Value>
                 <nicoLToolkitVideo:VideoPermission>VideoPermission_3</nicoLToolkitVideo:VideoPermission>
@@ -126,36 +147,36 @@
               </Border>
             </uwpControls:Case>
             -->
-          <uwpControls:Case>
-            <uwpControls:Case.Value>
-              <nicoLToolkitVideo:VideoPermission>MemberUnlimitedAccess</nicoLToolkitVideo:VideoPermission>
-            </uwpControls:Case.Value>
+              <uwpControls:Case>
+                <uwpControls:Case.Value>
+                  <nicoLToolkitVideo:VideoPermission>MemberUnlimitedAccess</nicoLToolkitVideo:VideoPermission>
+                </uwpControls:Case.Value>
 
-            <TextBlock Text="{i18nExt:Localize Key=Video_ChannelMemberUnlimitedAccess}" />
-          </uwpControls:Case>
-        </uwpControls:SwitchPresenter>
-        <TextBlock x:Name="PrivteReasonTextBlock" Visibility="Collapsed" Opacity="0.7" FontSize="13" Foreground="{ThemeResource SystemAccentColor}" TextLineBounds="Tight">
+                <TextBlock Text="{i18nExt:Localize Key=Video_ChannelMemberUnlimitedAccess}" />
+              </uwpControls:Case>
+            </uwpControls:SwitchPresenter>
+            <TextBlock x:Name="PrivteReasonTextBlock" Visibility="Collapsed" Opacity="0.7" FontSize="13" Foreground="{ThemeResource SystemAccentColor}" TextLineBounds="Tight">
           <Run Text="{Binding PrivateReason, Converter={StaticResource LocalizeConverter}}" />
-        </TextBlock>
-      </StackPanel>
+            </TextBlock>
+          </StackPanel>
 
 
-      <StackPanel uwpControls:DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8">
-        <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
+          <StackPanel uwpControls:DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8">
+            <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
           <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_ViewCount_Short}" />
           <Run Text="{Binding ViewCount, Mode=OneWay, Converter={StaticResource ToUserFriendlyNumber}}" />
-        </TextBlock>
-        <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
+            </TextBlock>
+            <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
           <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_CommentCount_Short}" />
           <Run Text="{Binding CommentCount, Mode=OneWay, Converter={StaticResource ToUserFriendlyNumber}}" />
-        </TextBlock>
-        <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
+            </TextBlock>
+            <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
           <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_MylistCount_Short}" />
           <Run Text="{Binding MylistCount, Mode=OneWay, Converter={StaticResource ToUserFriendlyNumber}}" />
-        </TextBlock>
-      </StackPanel>
+            </TextBlock>
+          </StackPanel>
 
-      <TextBlock Text="{Binding Label, Mode=OneWay}" 
+          <TextBlock Text="{Binding Label, Mode=OneWay}" 
                        FontSize="16"
                        TextWrapping="Wrap"
                        VerticalAlignment="Center"
@@ -163,11 +184,11 @@
                        />
 
 
-    </uwpControls:DockPanel>
-    
-    <Grid x:Name="HiddenVideoOwnerLayout" Opacity="0.0" IsHitTestVisible="False">
-      <StackPanel x:Name="HiddenVideoOwnerRevealedLayout" Visibility="Collapsed" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
-        <!--
+        </uwpControls:DockPanel>
+
+        <Grid x:Name="HiddenVideoOwnerLayout" Opacity="0.0" IsHitTestVisible="False">
+          <StackPanel x:Name="HiddenVideoOwnerRevealedLayout" Visibility="Collapsed" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
+            <!--
         <Button Content="{i18nExt:Localize Key=RemoveHiddenVideoOwner}"
                 x:Name="UnregistrationHiddenVideoOwnerButton"
                 Click="UnregistrationHiddenVideoOwnerButton_Click"
@@ -177,31 +198,34 @@
                 />
         -->
 
-        <Button Content="{i18nExt:Localize Key=ExitOnceReveal}"
+            <Button Content="{i18nExt:Localize Key=ExitOnceReveal}"
                 x:Name="ExitRevealButton"
                 Click="ExitRevealButton_Click"
                 Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                 BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
                 BorderThickness="1"
                 />
-      </StackPanel>
-      <Grid x:Name="HiddenVideoOwnerUnrevealedLayout"
+          </StackPanel>
+          <Grid x:Name="HiddenVideoOwnerUnrevealedLayout"
             Opacity="0.7">
-        <TextBlock 
+            <TextBlock 
                    VerticalAlignment="Center"
                    HorizontalAlignment="Center"
                    Margin="0 0 128 0">
           <Run Text="{i18nExt:Localize Key=HiddenVideo}" />
-        </TextBlock>
-        <Button Content="{i18nExt:Localize Key=OnceReveal}" 
+            </TextBlock>
+            <Button Content="{i18nExt:Localize Key=OnceReveal}" 
                 x:Name="HiddenVideoOnceRevealButton" Click="HiddenVideoOnceRevealButton_Click"
                 HorizontalAlignment="Right"
                 Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                 BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
                 BorderThickness="1" 
                 />
+          </Grid>
+        </Grid>
+
       </Grid>
-    </Grid>
+    </winUI:SwipeControl>
     
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>
@@ -233,6 +257,19 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="LabelTextBlock.Opacity" Value="0.6" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsQueueItem}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="QueueIndexLayout.Opacity" Value="1.0" />
+            <Setter Target="QueueToggleSwipeItemSymbolIconSource.Symbol" Value="Remove" />
+            <Setter Target="QueueToggleSwipeItem.Text" Value="{i18nExt:Localize Key=QueueRemoveItem}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

@@ -3,7 +3,10 @@ using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Presentation.ViewModels.VideoListPage;
 using Prism.Navigation;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +21,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly PlaylistObservableCollection _watchAfterPlaylist;
 
-        public IReadOnlyCollection<IVideoContent> PlaylistItems { get; }
+        public IReadOnlyCollection<IVideoContent> PlaylistItems { get; private set; }
 
         public IPlaylist Playlist => _watchAfterPlaylist;
         public ICommand PlayCommand => _hohoemaPlaylist.PlayCommand;
@@ -27,7 +30,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         public RemoveWatchedItemsInAfterWatchPlaylistCommand RemoveWatchedItemsInAfterWatchPlaylistCommand { get; }
         public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
-
+        
         public VideoQueuePageViewModel(
             HohoemaPlaylist hohoemaPlaylist,
             ApplicationLayoutManager applicationLayoutManager,
@@ -42,18 +45,23 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             PlaylistPlayAllCommand = playlistPlayAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             _watchAfterPlaylist = _hohoemaPlaylist.QueuePlaylist;
-            PlaylistItems = _watchAfterPlaylist;
         }
 
-        public override void OnNavigatingTo(INavigationParameters parameters)
+        public override void OnNavigatedTo(INavigationParameters parameters)
         {
-            base.OnNavigatingTo(parameters);
+            base.OnNavigatedTo(parameters);
+
+            PlaylistItems = _watchAfterPlaylist.ToReadOnlyReactiveCollection(x => new VideoInfoControlViewModel(x as NicoVideo))
+                .AddTo(_NavigatingCompositeDisposable);
+            RaisePropertyChanged(nameof(PlaylistItems));
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
-
             base.OnNavigatedFrom(parameters);
+
+            PlaylistItems = null;
+            RaisePropertyChanged(nameof(PlaylistItems));
         }
     }
 }

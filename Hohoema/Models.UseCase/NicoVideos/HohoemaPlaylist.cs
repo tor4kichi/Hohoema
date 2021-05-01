@@ -10,6 +10,7 @@ using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase.Player;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using Mntone.Nico2;
 using Prism.Commands;
 using Reactive.Bindings;
@@ -48,6 +49,48 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         public LiveVideoPlaylistItem RequestLiveItem { get; set; }
     }
+
+
+    public sealed class QueueItemAddedMessageData
+    {
+        public string AddedItem { get; internal set; }
+    }
+
+    public sealed class QueueItemAddedMessage : ValueChangedMessage<QueueItemAddedMessageData>
+    {
+        public QueueItemAddedMessage(QueueItemAddedMessageData value) : base(value)
+        {
+        }
+    }
+
+
+    public sealed class QueueItemRemovedMessageData
+    {
+        public string RemovedItem { get; internal set; }
+
+    }
+
+    public sealed class QueueItemRemovedMessage : ValueChangedMessage<QueueItemRemovedMessageData>
+    {
+        public QueueItemRemovedMessage(QueueItemRemovedMessageData value) : base(value)
+        {
+        }
+    }
+
+
+    public sealed class QueueItemIndexUpdateMessageData
+    {
+        public string ContentId { get; internal set; }
+        public int Index { get; internal set; }
+    }
+
+    public sealed class QueueItemIndexUpdateMessage : ValueChangedMessage<QueueItemIndexUpdateMessageData>
+    {
+        public QueueItemIndexUpdateMessage(QueueItemIndexUpdateMessageData value) : base(value)
+        {
+        }
+    }
+
 
     public enum ContentInsertPosition
     {
@@ -139,6 +182,8 @@ namespace Hohoema.Models.UseCase.NicoVideos
         public event EventHandler<VideoPlayedEventArgs> VideoPlayed;
 
 
+
+
         public HohoemaPlaylist(
             IScheduler scheduler,
             PlaylistRepository playlistRepository,
@@ -177,6 +222,10 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
                     QueuePlaylist.CollectionChangedAsObservable()
                         .Subscribe(args => PlaylistObservableCollectionChanged(QueuePlaylist, args))
+                        .AddTo(_disposable);
+
+                    QueuePlaylist.CollectionChangedAsObservable()                        
+                        .Subscribe(args => NotifyQueueItemIndex())
                         .AddTo(_disposable);
                 });
 
@@ -452,6 +501,19 @@ namespace Hohoema.Models.UseCase.NicoVideos
         }
 
 
+        void NotifyQueueItemIndex()
+        {
+            var message = new QueueItemIndexUpdateMessage(new());
+            int index = 0;
+            foreach (var item in QueuePlaylist)
+            {
+                message.Value.ContentId = item.Id;
+                message.Value.Index = index++;
+                WeakReferenceMessenger.Default.Send<QueueItemIndexUpdateMessage, string>(message, item.Id);
+            }
+        }
+
+
         public async void AddQueuePlaylist(string videoId, ContentInsertPosition position = ContentInsertPosition.Tail)
         {
             if (!IsVideoId(videoId))
@@ -477,11 +539,15 @@ namespace Hohoema.Models.UseCase.NicoVideos
             {
                 QueuePlaylist.InsertOnScheduler(0, item);
             }
+
+            WeakReferenceMessenger.Default.Send<QueueItemAddedMessage, string>(new QueueItemAddedMessage(new() { AddedItem = item.Id }), item.Id);
         }
 
         public void RemoveQueue(IVideoContent item)
         {
             QueuePlaylist.RemoveOnScheduler(item);
+            
+            WeakReferenceMessenger.Default.Send<QueueItemRemovedMessage, string>(new QueueItemRemovedMessage(new() { RemovedItem = item.Id }), item.Id);
         }
 
         public int RemoveQueueIfWatched()
@@ -497,6 +563,14 @@ namespace Hohoema.Models.UseCase.NicoVideos
             return removeCount;
         }
 
+
+        public (bool, int) IsQueuePlaylistItem(string id)
+        {
+            var item = QueuePlaylist.FirstOrDefault(x => x.Id == id);
+            if (item == null) { return (false, -1); }
+            var index = QueuePlaylist.IndexOf(item);
+            return (true, index);
+        }
 
         async Task<IEnumerable<IVideoContent>> ResolveItemsAsync(IPlaylist playlist)
         {

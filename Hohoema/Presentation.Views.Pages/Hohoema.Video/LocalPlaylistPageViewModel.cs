@@ -22,6 +22,7 @@ using System.Threading;
 using System.Runtime.CompilerServices;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Pins;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
@@ -104,6 +105,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
+            if (Playlist != null)
+            {
+                WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemRemovedMessage>(Playlist);
+            }
             base.OnNavigatedFrom(parameters);
         }
 
@@ -116,25 +121,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         void RefreshItems()
         {
-            if (Playlist is LocalPlaylist localPlaylist)
+            if (Playlist != null)
             {
-                Observable.FromEventPattern<LocalPlaylistItemRemovedEventArgs>(
-                    h => localPlaylist.ItemRemoved += h,
-                    h => localPlaylist.ItemRemoved -= h
-                    )
-                    .Subscribe(e =>
+                WeakReferenceMessenger.Default.Register<LocalPlaylistItemRemovedMessage>(Playlist, (r, m) => 
+                {
+                    var args = m.Value;
+                    foreach (var itemId in args.RemovedItems)
                     {
-                        var args = e.EventArgs;
-                        foreach (var itemId in args.RemovedItems)
+                        var removedItem = ItemsView.Cast<VideoInfoControlViewModel>().FirstOrDefault(x => x.Id == itemId);
+                        if (removedItem != null)
                         {
-                            var removedItem = ItemsView.Cast<VideoInfoControlViewModel>().FirstOrDefault(x => x.Id == itemId);
-                            if (removedItem != null)
-                            {
-                                ItemsView.Remove(removedItem);
-                            }
+                            ItemsView.Remove(removedItem);
                         }
-                    })
-                    .AddTo(_NavigatingCompositeDisposable);
+                    }
+                });
 
                 _localMylistManager.LocalPlaylists.ObserveRemoveChanged()
                     .Subscribe(removed =>

@@ -1,5 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,17 +22,35 @@ namespace Hohoema.Models.Domain.Playlist
         public IReadOnlyCollection<string> AddedItems { get; internal set; }
     }
 
+    public sealed class LocalPlaylistItemAddedMessage : ValueChangedMessage<LocalPlaylistItemAddedEventArgs>
+    {
+        public LocalPlaylistItemAddedMessage(LocalPlaylistItemAddedEventArgs value) : base(value)
+        {
+        }
+    }
+
+    public sealed class LocalPlaylistItemRemovedMessage : ValueChangedMessage<LocalPlaylistItemRemovedEventArgs>
+    {
+        public LocalPlaylistItemRemovedMessage(LocalPlaylistItemRemovedEventArgs value) : base(value)
+        {
+        }
+    }
+
+
+
     public sealed class LocalPlaylist : IPlaylist
     {
         private readonly PlaylistRepository _playlistRepository;
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
+        private readonly IMessenger _messenger;
 
-        internal LocalPlaylist(string id, string label, PlaylistRepository playlistRepository, NicoVideoCacheRepository nicoVideoRepository)
+        internal LocalPlaylist(string id, string label, PlaylistRepository playlistRepository, NicoVideoCacheRepository nicoVideoRepository, IMessenger messenger)
         {
             Id = id;
             Label = label;
             _playlistRepository = playlistRepository;
             _nicoVideoRepository = nicoVideoRepository;
+            _messenger = messenger;
         }
 
         public string Id { get; }
@@ -60,14 +80,12 @@ namespace Hohoema.Models.Domain.Playlist
             set => _thumbnailImages[0] = value;
         }
 
-        public event EventHandler<LocalPlaylistItemRemovedEventArgs> ItemRemoved;
-        public event EventHandler<LocalPlaylistItemAddedEventArgs> ItemAdded;
-
 
         public void AddPlaylistItem(IVideoContent item)
         {
             _playlistRepository.AddItem(Id, item.Id);
-            ItemAdded?.Invoke(this, new LocalPlaylistItemAddedEventArgs()
+
+            _messenger.Send(new LocalPlaylistItemAddedEventArgs()
             {
                 PlaylistId = Id,
                 AddedItems = new[] { item.Id }
@@ -91,7 +109,8 @@ namespace Hohoema.Models.Domain.Playlist
         {
             var ids = items.Select(x => x.Id).ToList();
             _playlistRepository.AddItems(Id, ids);
-            ItemAdded?.Invoke(this, new LocalPlaylistItemAddedEventArgs()
+
+            _messenger.Send(new LocalPlaylistItemAddedEventArgs()
             {
                 PlaylistId = Id,
                 AddedItems = ids
@@ -112,7 +131,7 @@ namespace Hohoema.Models.Domain.Playlist
 
             if (result)
             {
-                ItemRemoved?.Invoke(this, new LocalPlaylistItemRemovedEventArgs()
+                _messenger.Send(new LocalPlaylistItemRemovedEventArgs()
                 {
                     PlaylistId = Id,
                     RemovedItems = new[] { item.Id }
@@ -131,7 +150,7 @@ namespace Hohoema.Models.Domain.Playlist
 
             if (result > 0)
             {
-                ItemRemoved?.Invoke(this, new LocalPlaylistItemRemovedEventArgs()
+                _messenger.Send(new LocalPlaylistItemRemovedEventArgs()
                 {
                     PlaylistId = Id,
                     RemovedItems = ids
