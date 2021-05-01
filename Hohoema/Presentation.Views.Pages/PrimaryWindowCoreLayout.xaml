@@ -309,7 +309,7 @@
             <MenuFlyout>
               <MenuFlyoutItem Text="{i18nExt:Localize Key=HohoemaPageType.UserMylist}"
                               Command="{Binding MylistPageOpenCommand}"
-                              CommandParameter="{i18nExt:Localize Key=OwnerMylistManage}"
+                              CommandParameter="OwnerMylistManage"
                               />
             </MenuFlyout>
           </muxc:NavigationViewItem.ContextFlyout>
@@ -331,7 +331,7 @@
             <MenuFlyout>
               <MenuFlyoutItem Text="{i18nExt:Localize Key=HohoemaPageType.LocalPlaylistManage}"
                               Command="{Binding OpenLocalPlaylistManageCommand}"
-                              CommandParameter="{i18nExt:Localize Key=LocalPlaylistManage}"
+                              CommandParameter="LocalPlaylistManage"
                               />
             </MenuFlyout>
           </muxc:NavigationViewItem.ContextFlyout>
