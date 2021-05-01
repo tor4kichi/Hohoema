@@ -124,7 +124,8 @@ Pin_MovePreview = 一つ上へ移動
 Pin_MoveNext = 一つ下へ移動
 Pin_MoveToHead = 先頭へ移動
 Pin_MoveToTail = 最後尾へ移動
-
+PinAddedWithTitle = {0} をピン留め
+PinRemovedWithTitle = {0} をピン留め解除
 
 
 #### Video Cache feature ####

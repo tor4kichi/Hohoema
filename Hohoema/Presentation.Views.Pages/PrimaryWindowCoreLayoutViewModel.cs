@@ -16,6 +16,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Account;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout;
 using I18NPortable;
+using Microsoft.Toolkit.Mvvm.Messaging;
 using NiconicoLiveToolkit.Live;
 using NiconicoLiveToolkit.Live.Notify;
 using Prism.Commands;
@@ -33,8 +34,15 @@ using Windows.System;
 
 namespace Hohoema.Presentation.ViewModels
 {
-    public sealed class PrimaryWindowCoreLayoutViewModel : BindableBase
+    public sealed class PrimaryWindowCoreLayoutViewModel : BindableBase, IRecipient<SettingsRestoredMessage>
     {
+        void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
+        {
+            _pinsMenuSubItemViewModel.Reset();
+        }
+
+
+
         public NiconicoSession NiconicoSession { get; }
         public PageManager PageManager { get; }
         public PinSettings PinSettings { get; }
@@ -54,7 +62,7 @@ namespace Hohoema.Presentation.ViewModels
 
         private readonly ErrorTrackingManager _errorTrackingManager;
         private readonly DialogService _dialogService;
-
+        private readonly NotificationService _notificationService;
 
         public ObservableCollection<SearchAutoSuggestItemViewModel> SearchAutoSuggestItems { get; set; }
 
@@ -74,6 +82,7 @@ namespace Hohoema.Presentation.ViewModels
             AppearanceSettings appearanceSettings,
             SearchCommand searchCommand,
             DialogService dialogService,
+            NotificationService notificationService,
             PrimaryViewPlayerManager primaryViewPlayerManager,
             ObservableMediaPlayer observableMediaPlayer,
             NiconicoLoginService niconicoLoginService,
@@ -95,6 +104,7 @@ namespace Hohoema.Presentation.ViewModels
             AppearanceSettings = appearanceSettings;
             SearchCommand = searchCommand;
             _dialogService = dialogService;
+            _notificationService = notificationService;
             PrimaryViewPlayerManager = primaryViewPlayerManager;
             ObservableMediaPlayer = observableMediaPlayer;
             NiconicoLoginService = niconicoLoginService;
@@ -103,15 +113,8 @@ namespace Hohoema.Presentation.ViewModels
             ApplicationLayoutManager = applicationLayoutManager;
             RestoreNavigationManager = restoreNavigationManager;
             VideoItemsSelectionContext = videoItemsSelectionContext;
-            
-            SettingsRestoredTempraryFlags.Instance.ObserveProperty(x => x.IsPinSettingsRestored)
-                .Where(x => x)
-                .Subscribe(_ => 
-                {
-                    _pinsMenuSubItemViewModel.Reset();
 
-                    Task.Run(() => { SettingsRestoredTempraryFlags.Instance.WhenPinsRestored(); });                    
-                });
+            StrongReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
 
             SearchAutoSuggestItems = new ObservableCollection<SearchAutoSuggestItemViewModel>
             {
@@ -136,7 +139,7 @@ namespace Hohoema.Presentation.ViewModels
             _userMylistManager = userMylistManager;
             _localMylistManager = localMylistManager;
             OpenLiveContentCommand = openLiveContentCommand;
-            _pinsMenuSubItemViewModel = new PinsMenuSubItemViewModel("Pin".Translate(), PinSettings, _dialogService);
+            _pinsMenuSubItemViewModel = new PinsMenuSubItemViewModel("Pin".Translate(), PinSettings, _dialogService, _notificationService);
             _localMylistMenuSubItemViewModel = new LocalMylistSubMenuItemViewModel(_localMylistManager, PageManager.OpenPageCommand);
 
             // メニュー項目の初期化
@@ -222,11 +225,12 @@ namespace Hohoema.Presentation.ViewModels
 
         }
 
+        
         #endregion
 
         #region
 
-        
+
 
         private DelegateCommand _RequestApplicationRestartCommand;
         public DelegateCommand RequestApplicationRestartCommand
@@ -271,20 +275,23 @@ namespace Hohoema.Presentation.ViewModels
     {
         private readonly PinSettings _pinSettings;
         private readonly DialogService _dialogService;
+        private readonly NotificationService _notificationService;
 
-        public PinsMenuSubItemViewModel(string label, PinSettings pinSettings, DialogService dialogService)
+        public PinsMenuSubItemViewModel(string label, PinSettings pinSettings, DialogService dialogService, NotificationService notificationService)
         {
             Label = label;
 
             IsSelected = false;
             _pinSettings = pinSettings;
             _dialogService = dialogService;
+            _notificationService = notificationService;
             Items = new ObservableCollection<MenuItemViewModel>();
             Reset();
         }
 
         public void Reset()
         {
+            Items.Clear();
             foreach (var item in _pinSettings.ReadAllItems().OrderBy(x => x.SortIndex).Select(x => new PinMenuItemViewModel(x, this)))
             {
                 Items.DisposableAdd(item);
@@ -296,6 +303,8 @@ namespace Hohoema.Presentation.ViewModels
         {
             Items.Add(new PinMenuItemViewModel(pin, this));
             SavePinsSortIndex();
+
+            _notificationService.ShowLiteInAppNotification_Success("PinAddedWithTitle".Translate(pin.Label));
         }
 
 
@@ -304,13 +313,15 @@ namespace Hohoema.Presentation.ViewModels
         public DelegateCommand<PinMenuItemViewModel> DeletePinCommand =>
             _DeletePinCommand ?? (_DeletePinCommand = new DelegateCommand<PinMenuItemViewModel>(ExecuteDeletePinCommand));
 
-        void ExecuteDeletePinCommand(PinMenuItemViewModel item)
+        void ExecuteDeletePinCommand(PinMenuItemViewModel pinVM)
         {
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            Items.Remove(item);
-            _pinSettings.DeleteItem(item.Pin.Id);
+            Items.Remove(pinVM);
+            _pinSettings.DeleteItem(pinVM.Pin.Id);
+
+            _notificationService.ShowLiteInAppNotification_Success("PinRemovedWithTitle".Translate(pinVM.Label));
         }
 
 
@@ -533,6 +544,10 @@ namespace Hohoema.Presentation.ViewModels
                         {
                             Items.Add(new LocalMylistItemViewModel(item));
                         }
+                    }
+                    else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+                    {
+                        Items.Clear();
                     }
                 });
 

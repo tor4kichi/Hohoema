@@ -38,6 +38,7 @@ using Windows.UI;
 using Windows.UI.StartScreen;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 {
@@ -224,20 +225,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 
 
             var dispatcher = Window.Current.CoreWindow.Dispatcher;
-            LisenceSummary.Load()
-                .ContinueWith(async prevResult =>
-                {
-                    await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                    {
-                        var lisenceSummary = prevResult.Result;
-
-                        LisenceItems = lisenceSummary.Items
-                            .OrderBy(x => x.Name)
-                            .Select(x => new LisenceItemViewModel(x))
-                            .ToList();
-                        RaisePropertyChanged(nameof(LisenceItems));
-                    });
-                });
+           
 
 
             IsDebugModeEnabled = new ReactiveProperty<bool>((App.Current as App).IsDebugModeEnabled, mode: ReactivePropertyMode.DistinctUntilChanged)
@@ -558,7 +546,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                         secondaryTile.VisualElements.Square310x310Logo = new Uri("ms-appx:///Assets/Square310x310Logo.scale-100.png");
                         secondaryTile.VisualElements.Wide310x150Logo = new Uri("ms-appx:///Assets/Wide310x150Logo.scale-100.png");
                         secondaryTile.VisualElements.Square44x44Logo = new Uri("ms-appx:///Assets/Square44x44Logo.targetsize-48.png");
-                        secondaryTile.VisualElements.Square30x30Logo = new Uri("ms-appx:///Assets/Square30x30Logo.scale-100.png");
+//                        secondaryTile.VisualElements.Square30x30Logo = new Uri("ms-appx:///Assets/Square30x30Logo.scale-100.png");
                         secondaryTile.VisualElements.ShowNameOnSquare150x150Logo = true;
                         secondaryTile.VisualElements.ShowNameOnSquare310x310Logo = true;
                         secondaryTile.VisualElements.ShowNameOnWide310x150Logo = true;
@@ -597,6 +585,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                 }
                 catch { }
 
+
+                
+                var lisenceSummary = await LisenceSummary.Load();
+                LisenceItems = lisenceSummary.Items
+                    .OrderBy(x => x.Name)
+                    .Select(x => new LisenceItemViewModel(x))
+                    .ToList();
+                RaisePropertyChanged(nameof(LisenceItems));
             }
             finally
             {
@@ -694,6 +690,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                             exceptions.Add(e);
                         }
                     }
+
+                    StrongReferenceMessenger.Default.Send<SettingsRestoredMessage>();
  
                     _notificationService.ShowLiteInAppNotification_Success("BackupRestoreComplete".Translate());
 

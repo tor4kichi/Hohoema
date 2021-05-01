@@ -8,10 +8,12 @@ using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.ViewModels;
 using LiteDB;
+using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using Mntone.Nico2.Videos.Ranking;
 using NiconicoLiveToolkit.Live.WatchSession;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -25,6 +27,13 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Hohoema.Models.Domain.Application
 {
+    public sealed class SettingsRestoredMessage : ValueChangedMessage<long>
+    {
+        public SettingsRestoredMessage() : base(0)
+        {
+        }
+    }
+
     internal sealed class SettingsRestoredTempraryFlags : BindableBase
     {
         internal static readonly SettingsRestoredTempraryFlags Instance = new SettingsRestoredTempraryFlags();
@@ -271,7 +280,7 @@ namespace Hohoema.Models.Domain.Application
                 
                 if (playlist == null)
                 {
-                    playlist = new PlaylistEntity { Id = Guid.NewGuid().ToString(), Label = p.Label, PlaylistOrigin = PlaylistOrigin.Local };
+                    playlist = new PlaylistEntity { Id = p.Id, Label = p.Label, PlaylistOrigin = PlaylistOrigin.Local };
                 }
                 
                 _playlistRepository.UpsertPlaylist(playlist);
