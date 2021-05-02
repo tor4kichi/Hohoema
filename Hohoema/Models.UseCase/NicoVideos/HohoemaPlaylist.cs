@@ -384,10 +384,8 @@ namespace Hohoema.Models.UseCase.NicoVideos
         
 
 
-        public override void Dispose()
+        public void Dispose()
         {
-            base.Dispose();
-
             _player.PlayRequested -= OnPlayRequested;
             _disposable.Dispose();
         }
@@ -535,13 +533,27 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
             if (position == ContentInsertPosition.Tail)
             {
-                ResolveVideoItemAsync(item.Id)
-                    .ContinueWith(prevTask => QueuePlaylist.AddOnScheduler(prevTask.Result));
+                if (item is NicoVideo)
+                {
+                    QueuePlaylist.AddOnScheduler(item);
+                }
+                else
+                {
+                    ResolveVideoItemAsync(item.Id)
+                        .ContinueWith(prevTask => QueuePlaylist.AddOnScheduler(prevTask.Result));
+                }
             }
             else if (position == ContentInsertPosition.Head)
             {
-                ResolveVideoItemAsync(item.Id)
-                    .ContinueWith(prevTask => QueuePlaylist.InsertOnScheduler(0, prevTask.Result));;
+                if (item is NicoVideo)
+                {
+                    QueuePlaylist.InsertOnScheduler(0, item);
+                }
+                else
+                {
+                    ResolveVideoItemAsync(item.Id)
+                        .ContinueWith(prevTask => QueuePlaylist.InsertOnScheduler(0, prevTask.Result)); ;
+                }
             }
 
             WeakReferenceMessenger.Default.Send<QueueItemAddedMessage, string>(new QueueItemAddedMessage(new() { AddedItem = item.Id }), item.Id);

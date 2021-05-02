@@ -31,11 +31,10 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
-    public sealed class SubscriptionManagementPageViewModel : HohoemaViewModelBase, INavigationAware, IDestructible, IRecipient<SettingsRestoredMessage>, IDisposable
+    public sealed class SubscriptionManagementPageViewModel : HohoemaViewModelBase, INavigationAware, IRecipient<SettingsRestoredMessage>, IDisposable
     {
         public ObservableCollection<SubscriptionViewModel> Subscriptions { get; }
 
-        private readonly CompositeDisposable _disposables = new CompositeDisposable();
         private readonly SubscriptionManager _subscriptionManager;
         private readonly SubscriptionUpdateManager _subscriptionUpdateManager;
         private readonly HohoemaPlaylist _hohoemaPlaylist;
@@ -79,7 +78,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
                         _subscriptionManager.UpdateSubscription(subscEntity);
                     });
                 })
-                .AddTo(_disposables);
+                .AddTo(_CompositeDisposable);
 
             _subscriptionManager = subscriptionManager;
             _subscriptionUpdateManager = subscriptionUpdateManager;
@@ -91,12 +90,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
             IsAutoUpdateRunning = _subscriptionUpdateManager.ObserveProperty(x => x.IsRunning)
                 .ToReadOnlyReactiveProperty(false)
-                .AddTo(_disposables);
+                .AddTo(_CompositeDisposable);
             NextUpdateTime = _subscriptionUpdateManager.ObserveProperty(x => x.NextUpdateTime)
                 .ToReadOnlyReactiveProperty()
-                .AddTo(_disposables);
+                .AddTo(_CompositeDisposable);
             AutoUpdateFrequency = _subscriptionUpdateManager.ToReactivePropertyAsSynchronized(x => x.UpdateFrequency)
-                .AddTo(_disposables);
+                .AddTo(_CompositeDisposable);
 
 
             _subscriptionManager.Added += _subscriptionManager_Added;
@@ -107,7 +106,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         
 
-        public override void Destroy()
+        public override void Dispose()
         {
             _subscriptionManager.Added -= _subscriptionManager_Added;
             _subscriptionManager.Removed -= _subscriptionManager_Removed;
@@ -115,7 +114,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
             Subscriptions.DisposeAllOrLog("subscription ViewModel dispose error.");
 
-            base.Destroy();
+            base.Dispose();
         }
 
         public override void OnNavigatingTo(INavigationParameters parameters)
@@ -316,10 +315,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             set { SetProperty(ref _nowUpdating, value); }
         }
 
-        public override void Dispose()
+        public void Dispose()
         {
-            base.Dispose();
-
             _disposables.Dispose();
             Videos.DisposeAll();
         }

@@ -17,42 +17,30 @@ namespace Hohoema.Presentation.ViewModels
 {
 	public abstract class HohoemaIncrementalSourceBase<T> : IIncrementalSource<T>
 	{
-        FastAsyncLock _PageLoadingLock = new FastAsyncLock();
-
-
 		public const uint DefaultOneTimeLoadCount = 10;
 
 		public virtual uint OneTimeLoadCount => DefaultOneTimeLoadCount;
 
-		public async IAsyncEnumerable<T> GetPagedItems(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
+		public IAsyncEnumerable<T> GetPagedItems(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
 		{
-            using (var releaser = await _PageLoadingLock.LockAsync(ct))
-            {
-                await foreach (var item in GetPagedItemsImpl(head, count, ct))
-                {
-                    yield return item;
-                }
-            }
+            return GetPagedItemsImpl(head, count, ct);
         }
 
 		public async ValueTask<int> ResetSource(CancellationToken ct = default)
 		{
-            using (var releaser = await _PageLoadingLock.LockAsync(ct))
+            HasError = false;
+            try
             {
-                HasError = false;
-                try
-                {
-                    return await ResetSourceImpl();
-                }
-                catch
-                {
-                    Error?.Invoke();
-                    return await Task.FromResult(0);
-                }
+                return await ResetSourceImpl();
+            }
+            catch
+            {
+                Error?.Invoke();
+                return await Task.FromResult(0);
             }
         }
 
-		protected abstract IAsyncEnumerable<T> GetPagedItemsImpl(int head, int count, CancellationToken ct);
+        protected abstract IAsyncEnumerable<T> GetPagedItemsImpl(int head, int count, CancellationToken ct);
 		protected abstract ValueTask<int> ResetSourceImpl();
 
 		public bool HasError { get; private set; }

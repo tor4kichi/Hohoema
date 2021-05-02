@@ -769,6 +769,7 @@
     <Compile Include="Presentation.Views\Controls\HohoemaInAppNotification.xaml.cs">
       <DependentUpon>HohoemaInAppNotification.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Presentation.Views\Interaction\Actions\CallDisposeAction.cs" />
     <Compile Include="Presentation.Views\Interaction\Actions\ScrollViewerVerticalPositionSettingsAction.cs" />
     <Compile Include="Presentation.Views\Interaction\Behaviors\FocusGetter.cs" />
     <Compile Include="Presentation.Views\Interaction\Behaviors\ListViewItemTappedCommand.cs" />

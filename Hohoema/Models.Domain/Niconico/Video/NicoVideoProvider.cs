@@ -79,147 +79,42 @@ namespace Hohoema.Models.Domain.Niconico.Video
                 return null;
             }
 
-            using (await _ThumbnailAccessLock.LockAsync(ct))
+            var info = _nicoVideoRepository.Get(rawVideoId);
+
+            // 最新情報が不要な場合は内部DBのキャッシュをそのまま返す
+            if (info != null && !requireLatest)
             {
-                var info = _nicoVideoRepository.Get(rawVideoId);
-
-                // 最新情報が不要な場合は内部DBのキャッシュをそのまま返す
-                if (info != null && !requireLatest)
+                if (info.ViewCount != 0
+                    && info.LastUpdated > DateTime.Now - ThumbnailExpirationSpan)
                 {
-                    if (info.ViewCount != 0 
-                        && info.LastUpdated > DateTime.Now - ThumbnailExpirationSpan)
-                    {
-                        return info;
-                    }
+                    return info;
                 }
+            }
 
-                if (info == null)
+            if (info == null)
+            {
+                info = new NicoVideo()
                 {
-                    info = new NicoVideo()
-                    {
-                        RawVideoId = rawVideoId
-                    };
-                }
+                    RawVideoId = rawVideoId
+                };
+            }
 
-                try
+            try
+            {
+                
+                
+                var res = await ContextActionAsync(async context =>
                 {
-                    var res = await ContextActionAsync(async context =>
+                    using (await _ThumbnailAccessLock.LockAsync(ct))
                     {
                         return await VideoClient.GetVideoInfoAsync(rawVideoId);
-                    });
-
-                    if (res.IsOK)
-                    {
-                        var video = res.Video;
-
-                        info.Title = video.Title;
-                        info.VideoId = video.Id;
-                        info.Length = TimeSpan.FromSeconds(video.LengthInSeconds);
-                        info.PostedAt = video.FirstRetrieve.DateTime;
-                        info.ThumbnailUrl = video.ThumbnailUrl.OriginalString;
-                        info.Description = video.Description;
-                        info.ViewCount = (int)video.ViewCounter;
-                        info.MylistCount = (int)video.MylistCounter;
-                        info.CommentCount = (int)res.Thread.NumRes;
-                        info.Permission = res.Video.VideoPermission;
-#if DEBUG
-                        if (info.Permission is 
-                            NiconicoLiveToolkit.Video.VideoPermission.Unknown or
-                            NiconicoLiveToolkit.Video.VideoPermission.VideoPermission_3
-                            )
-                        {
-                            if (Debugger.IsAttached)
-                            {
-                                Debugger.Break();
-                            }
-                        }
-#endif
-                        info.Tags = res.Tags.TagInfo.Select(x => new NicoVideoTag(x.Tag)).ToList();
-
-                        if (res.Video.ProviderType == "channel")
-                        {
-                            info.Owner = new NicoVideoOwner()
-                            {
-                                OwnerId = res.Video.CommunityId,
-                                UserType = NicoVideoUserType.Channel
-                            };
-                        }
-                        else
-                        {
-                            info.Owner = new NicoVideoOwner()
-                            {
-                                OwnerId = res.Video.UserId.ToString(),
-                                UserType = res.Video.ProviderType == "regular" ? NicoVideoUserType.User : NicoVideoUserType.Channel
-                            };
-                        }
-
-                        info.IsDeleted = res.Video.Deleted != 0;
-                        if (info.IsDeleted)
-                        {
-                            try
-                            {
-                                info.PrivateReasonType = (PrivateReasonType)res.Video.Deleted;
-                            }
-                            catch { }
-                        }
                     }
-                    else
-                    { 
-                        info.IsDeleted = true;
-                    }
+                });
+                
 
-                    _nicoVideoRepository.UpdateItem(info);
-                }
-                catch (Exception ex) when (ex.Message.Contains("DELETE") || ex.Message.Contains("NOT_FOUND"))
+                if (res.IsOK)
                 {
-                    info.IsDeleted = true;
-                    
-                }
-                finally
-                {
-                    _nicoVideoRepository.AddOrUpdate(info);
-                }
-
-                if (info.IsDeleted)
-                {
-                    PublishVideoDeletedEvent(info);
-                }
-
-                return info;
-            }
-        }
-
-
-        public async IAsyncEnumerable<NicoVideo> GetVideoInfoManyAsync(IEnumerable<string> idItems, bool isLatestRequired = true, [EnumeratorCancellation] CancellationToken ct = default)
-        {
-            using (await _ThumbnailAccessLock.LockAsync(ct))
-            {
-                if (isLatestRequired is false)
-                {
-                    if (idItems.All(x => _nicoVideoRepository.Exists(y => y.VideoId == x)))
-                    {
-                        foreach (var id in idItems)
-                        {
-                            yield return _nicoVideoRepository.Get(id);
-                        }
-
-                        yield break;
-                    }
-                }
-
-                var res = await Task.Run(async () => await VideoClient.GetVideoInfoManyAsync(idItems));
-
-                if (res.IsOK && res.Count == 0)
-                {
-                    yield break;
-                }
-
-                foreach (var data in idItems)
-                {
-                    var item = res.Videos.FirstOrDefault(x => x.Video.Id == data) ?? await VideoClient.GetVideoInfoAsync(data);
-
-                    var info = _nicoVideoRepository.Get(item.Video.Id);
-                    var video = item.Video;
+                    var video = res.Video;
 
                     info.Title = video.Title;
                     info.VideoId = video.Id;
@@ -229,10 +124,10 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     info.Description = video.Description;
                     info.ViewCount = (int)video.ViewCounter;
                     info.MylistCount = (int)video.MylistCounter;
-                    info.CommentCount = (int)item.Thread.NumRes;
-                    info.Permission = video.VideoPermission;
+                    info.CommentCount = (int)res.Thread.NumRes;
+                    info.Permission = res.Video.VideoPermission;
 #if DEBUG
-                    if (info.Permission is
+                    if (info.Permission is 
                         NiconicoLiveToolkit.Video.VideoPermission.Unknown or
                         NiconicoLiveToolkit.Video.VideoPermission.VideoPermission_3
                         )
@@ -243,13 +138,13 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         }
                     }
 #endif
-                    info.Tags = item.Tags?.TagInfo.Select(x => new NicoVideoTag(x.Tag)).ToList() ?? info.Tags;
+                    info.Tags = res.Tags.TagInfo.Select(x => new NicoVideoTag(x.Tag)).ToList();
 
-                    if (item.Video.ProviderType == "channel")
+                    if (res.Video.ProviderType == "channel")
                     {
                         info.Owner = new NicoVideoOwner()
                         {
-                            OwnerId = item.Video.CommunityId,
+                            OwnerId = res.Video.CommunityId,
                             UserType = NicoVideoUserType.Channel
                         };
                     }
@@ -257,26 +152,139 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     {
                         info.Owner = new NicoVideoOwner()
                         {
-                            OwnerId = item.Video.UserId.ToString(),
-                            UserType = item.Video.ProviderType == "regular" ? NicoVideoUserType.User : NicoVideoUserType.Channel
+                            OwnerId = res.Video.UserId.ToString(),
+                            UserType = res.Video.ProviderType == "regular" ? NicoVideoUserType.User : NicoVideoUserType.Channel
                         };
                     }
 
-                    info.IsDeleted = item.Video.Deleted != 0;
+                    info.IsDeleted = res.Video.Deleted != 0;
                     if (info.IsDeleted)
                     {
                         try
                         {
-                            info.PrivateReasonType = (PrivateReasonType)item.Video.Deleted;
+                            info.PrivateReasonType = (PrivateReasonType)res.Video.Deleted;
                         }
                         catch { }
                     }
+                }
+                else
+                { 
+                    info.IsDeleted = true;
+                }
 
-                    _nicoVideoRepository.UpdateItem(info);
+                _nicoVideoRepository.UpdateItem(info);
+            }
+            catch (Exception ex) when (ex.Message.Contains("DELETE") || ex.Message.Contains("NOT_FOUND"))
+            {
+                info.IsDeleted = true;
+                    
+            }
+            finally
+            {
+                _nicoVideoRepository.AddOrUpdate(info);
+            }
 
-                    yield return info;
+            if (info.IsDeleted)
+            {
+                PublishVideoDeletedEvent(info);
+            }
+
+            return info;
+            
+        }
+
+
+        public async IAsyncEnumerable<NicoVideo> GetVideoInfoManyAsync(IEnumerable<string> idItems, bool isLatestRequired = true, [EnumeratorCancellation] CancellationToken ct = default)
+        {
+            if (isLatestRequired is false)
+            {
+                if (idItems.All(x => _nicoVideoRepository.Exists(y => y.VideoId == x)))
+                {
+                    foreach (var id in idItems)
+                    {
+                        yield return _nicoVideoRepository.Get(id);
+                    }
+
+                    yield break;
                 }
             }
+
+            var res = await Task.Run(async () =>
+            {
+                using (await _ThumbnailAccessLock.LockAsync(ct))
+                {
+                    return await VideoClient.GetVideoInfoManyAsync(idItems);
+                }
+            });
+
+            if (res.IsOK && res.Count == 0)
+            {
+                yield break;
+            }
+
+            foreach (var data in idItems)
+            {
+                var item = res.Videos.FirstOrDefault(x => x.Video.Id == data) ?? await VideoClient.GetVideoInfoAsync(data);
+
+                var info = _nicoVideoRepository.Get(item.Video.Id);
+                var video = item.Video;
+
+                info.Title = video.Title;
+                info.VideoId = video.Id;
+                info.Length = TimeSpan.FromSeconds(video.LengthInSeconds);
+                info.PostedAt = video.FirstRetrieve.DateTime;
+                info.ThumbnailUrl = video.ThumbnailUrl.OriginalString;
+                info.Description = video.Description;
+                info.ViewCount = (int)video.ViewCounter;
+                info.MylistCount = (int)video.MylistCounter;
+                info.CommentCount = (int)item.Thread.NumRes;
+                info.Permission = video.VideoPermission;
+#if DEBUG
+                if (info.Permission is
+                    NiconicoLiveToolkit.Video.VideoPermission.Unknown or
+                    NiconicoLiveToolkit.Video.VideoPermission.VideoPermission_3
+                    )
+                {
+                    if (Debugger.IsAttached)
+                    {
+                        Debugger.Break();
+                    }
+                }
+#endif
+                info.Tags = item.Tags?.TagInfo.Select(x => new NicoVideoTag(x.Tag)).ToList() ?? info.Tags;
+
+                if (item.Video.ProviderType == "channel")
+                {
+                    info.Owner = new NicoVideoOwner()
+                    {
+                        OwnerId = item.Video.CommunityId,
+                        UserType = NicoVideoUserType.Channel
+                    };
+                }
+                else
+                {
+                    info.Owner = new NicoVideoOwner()
+                    {
+                        OwnerId = item.Video.UserId.ToString(),
+                        UserType = item.Video.ProviderType == "regular" ? NicoVideoUserType.User : NicoVideoUserType.Channel
+                    };
+                }
+
+                info.IsDeleted = item.Video.Deleted != 0;
+                if (info.IsDeleted)
+                {
+                    try
+                    {
+                        info.PrivateReasonType = (PrivateReasonType)item.Video.Deleted;
+                    }
+                    catch { }
+                }
+
+                _nicoVideoRepository.UpdateItem(info);
+
+                yield return info;
+            }
+
         }
 
 

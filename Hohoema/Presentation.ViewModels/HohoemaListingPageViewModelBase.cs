@@ -77,11 +77,9 @@ namespace Hohoema.Presentation.ViewModels
 
         public DateTime LatestUpdateTime = DateTime.Now;
 
-        public override void Destroy()
+        public override void Dispose()
         {
-            base.Destroy();
-
-            if (ItemsView.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
+            if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
             {
                 if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
                 {
@@ -91,6 +89,8 @@ namespace Hohoema.Presentation.ViewModels
                 oldItems.DoneLoading -= CompleteLoadingItems;
                 oldItems.Dispose();
             }
+
+            base.Dispose();
         }
 
 
@@ -99,7 +99,7 @@ namespace Hohoema.Presentation.ViewModels
             var navigationMode = parameters.GetNavigationMode();
             if (!CheckNeedUpdateOnNavigateTo(navigationMode))
             {
-                ItemsView = _cachedItemsView;
+//                ItemsView = _cachedItemsView;
             }
 
             base.OnNavigatingTo(parameters);
@@ -126,9 +126,6 @@ namespace Hohoema.Presentation.ViewModels
                 {
                     oldItems.StopLoading();
                 }
-
-                _cachedItemsView = ItemsView;
-                ItemsView = null;
             }
 
             base.OnNavigatedFrom(parameters);
@@ -146,9 +143,9 @@ namespace Hohoema.Presentation.ViewModels
                 HasItem.Value = true;
                 LoadedItemsCount.Value = 0;
 
-                if (_cachedItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
+                if (prevItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
                 {
-                    _cachedItemsView = null;
+                    prevItemsView = null;
 
                     if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
                     {
