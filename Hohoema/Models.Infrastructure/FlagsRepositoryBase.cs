@@ -62,11 +62,11 @@ namespace Hohoema.Models.Infrastructure
             }
             else
             {
-                return true;
+                return false;
             }
         }
 
-        protected bool SetProperty<T>(ref T? storage, T? value, [CallerMemberName] string propertyName = null)
+        protected override bool SetProperty<T>(ref T? storage, T? value, [CallerMemberName] string propertyName = null)
             where T : struct
         {
             if (base.SetProperty(ref storage, value, propertyName))

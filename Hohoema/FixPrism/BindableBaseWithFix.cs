@@ -167,7 +167,7 @@ namespace Hohoema.FixPrism
             handler?.Invoke(this, args);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             ((IDisposable)lockSlim).Dispose();
         }

@@ -28,8 +28,10 @@ namespace Hohoema.Presentation.ViewModels
 	public abstract class HohoemaListingPageItemBase : Selectable, IHohoemaListItem, IDisposable
 	{
         protected bool IsDisposed { get; private set; } = false;
-        public void Dispose()
+        public override void Dispose()
         {
+            base.Dispose();
+
             IsDisposed = true;
             
             OnDispose();

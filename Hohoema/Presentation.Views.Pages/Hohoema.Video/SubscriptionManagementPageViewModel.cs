@@ -316,8 +316,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             set { SetProperty(ref _nowUpdating, value); }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
+            base.Dispose();
+
             _disposables.Dispose();
             Videos.DisposeAll();
         }

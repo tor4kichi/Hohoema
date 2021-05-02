@@ -111,8 +111,10 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             }
         }
 
-        void IDisposable.Dispose()
+        public override void Dispose()
         {
+            base.Dispose();
+
             _ngSettings.VideoOwnerFilterAdded -= _ngSettings_VideoOwnerFilterAdded;
             _ngSettings.VideoOwnerFilterRemoved -= _ngSettings_VideoOwnerFilterRemoved;
 
