@@ -44,7 +44,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         {
             _videoCacheItem = videoCacheItem;
             _niconicoSession = niconicoSession;
-            AvailableQualities = new []{ new NicoVideoQualityEntity(true, _videoCacheItem.DownloadedVideoQuality.ToPlayVideoQuality(), _videoCacheItem.DownloadedVideoQuality.ToString()) }.ToImmutableArray();
+            AvailableQualities = new []{ new NicoVideoQualityEntity(true, _videoCacheItem.DownloadedVideoQuality, _videoCacheItem.DownloadedVideoQuality.ToString()) }.ToImmutableArray();
         }
 
         public string ContentId => _videoCacheItem.VideoId;

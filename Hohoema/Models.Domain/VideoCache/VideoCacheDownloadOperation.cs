@@ -19,7 +19,6 @@ namespace Hohoema.Models.Domain.VideoCache
         private readonly DmcVideoStreamingSession _dmcVideoStreamingSession;
         private IVideoCacheDownloadOperationOutput _videoCacheDownloadOperationOutput;
         private CancellationTokenSource _cancellationTokenSource;
-        private Task _downloadTask;
 
         public event EventHandler Started;
         public event EventHandler Paused;
@@ -72,14 +71,17 @@ namespace Hohoema.Models.Domain.VideoCache
             {
 
             }
-            catch (Exception e)
+            catch (FileLoadException)
+            {
+                throw;
+            }
+            catch (Exception)
             {
                 // ニコ動サーバー側からタイムアウトで切られた場合は一時停止扱い
                 Paused?.Invoke(this, EventArgs.Empty);
             }
             finally
             {
-
                 downloadStream.Dispose();
                 _cancellationTokenSource.Dispose();
                 _cancellationTokenSource = null;

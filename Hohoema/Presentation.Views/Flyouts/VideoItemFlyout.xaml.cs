@@ -293,7 +293,7 @@ namespace Hohoema.Presentation.Views.Flyouts
                 // 一つでもキャッシュ済みがあれば削除ボタンを表示
                 // 一つでも未キャッシュがあれば取得ボタンを表示
                 var anyItemsCached = SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.Id) is not null);
-                var anyItemsNotCached = SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.Id) is null);
+                var anyItemsNotCached = SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.Id) is VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading or VideoCacheStatus.Failed);
 
                 var notCachedToVisible = (canNewDownloadCache && anyItemsNotCached).ToVisibility();
                 CacheRequest.Visibility = notCachedToVisible;
@@ -311,7 +311,7 @@ namespace Hohoema.Presentation.Views.Flyouts
             else
             {
                 var itemCached = VideoCacheManager.GetVideoCacheStatus(content.Id) is not null;
-                var itemNotCached = VideoCacheManager.GetVideoCacheStatus(content.Id) is null;
+                var itemNotCached = VideoCacheManager.GetVideoCacheStatus(content.Id) is VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading or VideoCacheStatus.Failed;
 
                 var notCachedToVisible = (canNewDownloadCache && itemNotCached).ToVisibility();
                 CacheRequest.Visibility = notCachedToVisible;
@@ -328,7 +328,7 @@ namespace Hohoema.Presentation.Views.Flyouts
 
             if (CacheRequestWithQuality.Items.Count == 0)
             {
-                foreach (var quality in Enum.GetValues(typeof(NicoVideoCacheQuality)).Cast<NicoVideoCacheQuality>().Where(x => x != NicoVideoCacheQuality.Unknown))
+                foreach (var quality in Enum.GetValues(typeof(NicoVideoQuality)).Cast<NicoVideoQuality>().Where(x => x != NicoVideoQuality.Unknown))
                 {
                     var command = App.Current.Container.Resolve<CacheAddRequestCommand>();
                     command.VideoQuality = quality;

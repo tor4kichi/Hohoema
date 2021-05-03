@@ -8,11 +8,11 @@ namespace Hohoema.Models.Domain.VideoCache
     {
         public string VideoId { get; }
 
-        public string FileName { get; }
+        public string FileName { get; internal set; }
 
-        public NicoVideoCacheQuality RequestedVideoQuality { get; internal set; }
+        public NicoVideoQuality RequestedVideoQuality { get; internal set; }
 
-        public NicoVideoCacheQuality DownloadedVideoQuality { get; internal set; }
+        public NicoVideoQuality DownloadedVideoQuality { get; internal set; }
 
         public VideoCacheStatus Status { get; internal set; }
 
@@ -32,8 +32,8 @@ namespace Hohoema.Models.Domain.VideoCache
             VideoCacheManager videoCacheManager,
             string videoId, 
             string fileName,
-            NicoVideoCacheQuality requestedQuality, 
-            NicoVideoCacheQuality downloadedQuality, 
+            NicoVideoQuality requestedQuality, 
+            NicoVideoQuality downloadedQuality, 
             VideoCacheStatus status,
             VideoCacheDownloadOperationFailedReason failedReason,
             DateTime requestAt,  

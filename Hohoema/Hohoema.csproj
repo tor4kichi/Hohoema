@@ -284,7 +284,6 @@
     <Compile Include="Models.Domain\Subscirptions\SubscriptionSourceEntity.cs" />
     <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperation.cs" />
     <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperationOutput.cs" />
-    <Compile Include="Models.Domain\VideoCache\NicoVideoCacheQuality.cs" />
     <Compile Include="Models.Domain\VideoCache\NicoVideoCacheQualityHelper.cs" />
     <Compile Include="Models.Domain\VideoCache\PrepareNextVideoCacheDownloadingResult.cs" />
     <Compile Include="Models.Domain\VideoCache\VideoCacheDownloadOperation.cs" />
@@ -354,6 +353,7 @@
     <Compile Include="Models.UseCase\Subscriptions\SubscriptionUpdateManager.cs" />
     <Compile Include="Models.UseCase\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheDownloadOperationManager.cs" />
+    <Compile Include="Models.UseCase\VideoCache\VideoCacheFolderManager.cs" />
     <Compile Include="Models.UseCase\WindowService.cs" />
     <Compile Include="Models.Helpers\ClipboardHelper.cs" />
     <Compile Include="Presentation.Services\DialogService.cs" />

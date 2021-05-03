@@ -26,7 +26,7 @@ namespace Hohoema.Presentation.ViewModels.VideoCache.Commands
             _dialogService = dialogService;
         }
 
-        public NicoVideoCacheQuality VideoQuality { get; set; } = NicoVideoCacheQuality.Unknown;
+        public NicoVideoQuality VideoQuality { get; set; } = NicoVideoQuality.Unknown;
 
         protected override void Execute(IVideoContent content)
         {

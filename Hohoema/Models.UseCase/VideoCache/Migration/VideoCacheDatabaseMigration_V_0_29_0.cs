@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Domain.Application;
+﻿using Hohoema.Models.Domain;
+using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Models.Domain.VideoCache;
 using Hohoema.Presentation.Services;
@@ -8,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Storage.AccessCache;
 
 namespace Hohoema.Models.UseCase.Migration
 {
@@ -36,53 +38,46 @@ namespace Hohoema.Models.UseCase.Migration
 
         public async Task MigrateAsync()
         {
-            using var _ = _appFlagsRepository.GetCacheVideoMigration();
+            using var releaser = _appFlagsRepository.GetCacheVideoMigration();
 
             var saveFolder = await _videoCacheSaveFolderManager.GetVideoCacheFolder();
 
+            // 保存先フォルダを移行
+            if (StorageApplicationPermissions.FutureAccessList.ContainsItem(VideoCacheSaveFolderManager.FolderAccessToken))
+            {
+                var folder = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(VideoCacheSaveFolderManager.FolderAccessToken);
+                StorageApplicationPermissions.FutureAccessList.Remove(VideoCacheSaveFolderManager.FolderAccessToken);
+
+                StorageApplicationPermissions.FutureAccessList.AddOrReplace(VideoCache.VideoCacheFolderManager.CACHE_FOLDER_NAME, folder);
+            }
+
+
             // DB的な統合をやる
-            // ファイルの暗号化は別口でダイアログ表示と一緒に実行する
             foreach (var regacyItem in _cacheRequestRepositoryLegacy.GetRange(0, int.MaxValue))
             {
                 var query = saveFolder.CreateFileQuery();
                 query.ApplyNewQueryOptions(new Windows.Storage.Search.QueryOptions() { UserSearchFilter = regacyItem.VideoId });
                 var file = (await query.GetFilesAsync(0, 1)).FirstOrDefault();
 
-                NicoVideoCacheQuality newQuality;
+                NicoVideoQuality newQuality;
                 if (file != null)
                 {
                     try
                     {
-                        (var _, var regacyQuality) = VideoCacheManagerLegacy.CacheRequestInfoFromFileName(file);
-                        newQuality = ToNewQuality(regacyQuality);
+                        (_, newQuality) = VideoCacheManagerLegacy.CacheRequestInfoFromFileName(file);
                     }
                     catch
                     {
-                        newQuality = NicoVideoCacheQuality.Unknown;
+                        newQuality = NicoVideoQuality.Unknown;
                     }
                 }
                 else
                 {
-                    newQuality = ToNewQuality(regacyItem.PriorityQuality);
+                    newQuality = NicoVideoQuality.Unknown;
                 }
 
-                await _videoCacheManager.PushCacheRequestAsync(regacyItem.VideoId, newQuality);
+                _videoCacheManager.PushCacheRequest_Legacy(regacyItem.VideoId, newQuality);
             }
-        }
-
-
-        private static NicoVideoCacheQuality ToNewQuality(Domain.NicoVideoQuality regacyQuality)
-        {
-            return regacyQuality switch
-            {
-                Domain.NicoVideoQuality.SuperHigh => NicoVideoCacheQuality.SuperHigh,
-                Domain.NicoVideoQuality.High => NicoVideoCacheQuality.High,
-                Domain.NicoVideoQuality.Midium => NicoVideoCacheQuality.Midium,
-                Domain.NicoVideoQuality.Low => NicoVideoCacheQuality.Low,
-                Domain.NicoVideoQuality.Mobile => NicoVideoCacheQuality.SuperLow,
-                _ => NicoVideoCacheQuality.Unknown,
-
-            };
         }
     }
 }

@@ -276,7 +276,6 @@ namespace Hohoema
             unityContainer.RegisterSingleton<LoginUserOwnedMylistManager>();
             unityContainer.RegisterSingleton<FollowManager>();
 
-            unityContainer.RegisterSingleton<VideoCacheManagerLegacy>();
             unityContainer.RegisterSingleton<SubscriptionManager>();
 
             unityContainer.RegisterSingleton<Models.Domain.VideoCache.VideoCacheManager>();
@@ -294,7 +293,8 @@ namespace Hohoema
             unityContainer.RegisterSingleton<VideoItemsSelectionContext>();
             unityContainer.RegisterSingleton<WatchHistoryManager>();
             unityContainer.RegisterSingleton<ApplicationLayoutManager>();
-            
+
+            unityContainer.RegisterSingleton<VideoCacheFolderManager>();
 
 
 
@@ -545,31 +545,9 @@ namespace Hohoema
 
             // キャッシュ機能の初期化
             {
-                const string folderName = "Hohoema_Videos";
-                var cacheManager = Container.Resolve<VideoCacheManager>();
+                var cacheManager = Container.Resolve<VideoCacheFolderManager>();
 
-                // キャッシュフォルダの指定
-                if (StorageApplicationPermissions.FutureAccessList.ContainsItem(folderName))
-                {
-                    cacheManager.VideoCacheFolder = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folderName);
-                }
-                else
-                {
-                    var folder = await DownloadsFolder.CreateFolderAsync(folderName);
-                    StorageApplicationPermissions.FutureAccessList.AddOrReplace(folderName, folder);
-                    cacheManager.VideoCacheFolder = folder;
-                }
-
-                // キャッシュの暗号化を初期化
-                var file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/VideoCache_EncryptionKey_32byte.txt"));
-                var bytes = await file.ReadBytesAsync();
-                cacheManager.SetXts(XTSSharp.XtsAes128.Create(bytes.Take(32).ToArray()));
-                VideoCacheManager.ResolveVideoFileNameWithoutExtFromVideoId = async (id) => 
-                {
-                    var repo = Container.Resolve<NicoVideoProvider>();
-                    var item = await repo.GetNicoVideoInfo(id);
-                    return $"{item.Title.ToSafeFilePath()}[{id}]";
-                };
+                await cacheManager.InitializeAsync();
             }
 
 

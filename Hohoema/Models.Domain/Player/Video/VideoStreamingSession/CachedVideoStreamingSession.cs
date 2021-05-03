@@ -18,7 +18,7 @@ namespace Hohoema.Models.Domain.Player.Video
         public CachedVideoStreamingSession(VideoCacheItem videoCacheItem, NiconicoSession niconicoSession)
             : base(niconicoSession, null)
         {
-            Quality = videoCacheItem.DownloadedVideoQuality.ToPlayVideoQuality();
+            Quality = videoCacheItem.DownloadedVideoQuality;
             QualityId = Quality.ToString();
             _videoCacheItem = videoCacheItem;
         }

@@ -366,7 +366,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        #region 
+        #region VideoCache
 
         private bool _HasCacheProgress;
         public bool HasCacheProgress
@@ -396,11 +396,11 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             set { SetProperty(ref _CacheRequestedQuality, value); }
         }
 
-        private NicoVideoQuality? _CacheProgressQuality;
-        public NicoVideoQuality? CacheProgressQuality
+        private NicoVideoQuality? _CacheDownloadedQuality;
+        public NicoVideoQuality? CacheDownloadedQuality
         {
-            get { return _CacheProgressQuality; }
-            set { SetProperty(ref _CacheProgressQuality, value); }
+            get { return _CacheDownloadedQuality; }
+            set { SetProperty(ref _CacheDownloadedQuality, value); }
         }
 
         private VideoCacheStatus? _CacheStatus;
@@ -433,7 +433,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 if (cacheStatus == null)
                 {    
                     CacheRequestedQuality = null;
-                    CacheProgressQuality = null;
+                    CacheDownloadedQuality = null;
                     DownloadProgress = 0;
                     HasCacheProgress = false;
                     IsProgressUnknown = false;
@@ -453,8 +453,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
                 if (cacheItem != null)
                 {
-                    CacheRequestedQuality = cacheItem.RequestedVideoQuality.ToPlayVideoQuality();
-                    CacheProgressQuality = cacheItem.DownloadedVideoQuality.ToPlayVideoQuality();
+                    CacheRequestedQuality = cacheItem.RequestedVideoQuality;
+                    CacheDownloadedQuality = cacheItem.DownloadedVideoQuality;
                     DownloadProgress = cacheItem.GetProgressNormalized();
                     HasCacheProgress = cacheStatus is VideoCacheStatus.Downloading or VideoCacheStatus.DownloadPaused;
                     IsProgressUnknown = HasCacheProgress && cacheItem.ProgressBytes is null or 0;

@@ -57,8 +57,7 @@
               <AppBarButton Label="{Binding CacheSaveFolderPath.Value}" IsEnabled="False" />
               <AppBarButton Label="{i18nExt:Localize Key=OpenCacheFolder}" Command="{Binding OpenCurrentCacheFolderCommand}" />
               <AppBarSeparator />
-              <AppBarButton Label="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{Binding ChangeCacheFolderCommand}" />
-              <AppBarButton Label="{i18nExt:Localize Key=OpenHohoemaCacheVideoFairUsePolicyText}" Command="{Binding ReadCacheAcceptTextCommand}" />
+              <AppBarButton Label="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{Binding ChangeCacheVideoFolderCommand}" />
             </CommandBar.SecondaryCommands>
           </CommandBar>
         </Grid>

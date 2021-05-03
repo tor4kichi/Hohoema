@@ -45,11 +45,10 @@ namespace Hohoema.Models.Domain.VideoCache
                         encryptor.TransformBlock(inputBuffer, 0, inputBuffer.Length, outputBuffer, 0, currentSector);
                         currentSector++;
                         await outputFileStream.WriteAsync(outputBuffer, 0, outputBuffer.Length);
+                        await outputFileStream.FlushAsync();
 
                         progress?.Report(new VideoCacheDownloadOperationProgress() { ProgressBytes = sourceStream.Position, TotalBytes = sourceStream.Length });
                     }
-
-                    await outputFileStream.FlushAsync();
                 }
             }
         }

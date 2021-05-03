@@ -23,6 +23,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Models.Domain.Notification;
 using Hohoema.Models.Domain.VideoCache;
 using Microsoft.Extensions.ObjectPool;
+using Hohoema.Models.UseCase.VideoCache;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
@@ -32,6 +33,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             ApplicationLayoutManager applicationLayoutManager,
             VideoCacheSettings cacheSettings,
             VideoCacheManager videoCacheManager,
+            VideoCacheFolderManager videoCacheFolderManager,
             NicoVideoProvider nicoVideoProvider,
             PageManager pageManager,
             DialogService dialogService,
@@ -43,6 +45,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             ApplicationLayoutManager = applicationLayoutManager;
             CacheSettings = cacheSettings;
             VideoCacheManager = videoCacheManager;
+            _videoCacheFolderManager = videoCacheFolderManager;
             NicoVideoProvider = nicoVideoProvider;
             HohoemaDialogService = dialogService;
             NotificationService = notificationService;
@@ -60,6 +63,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
 
         }
+        private readonly VideoCacheFolderManager _videoCacheFolderManager;
+
 
         public VideoCacheManager VideoCacheManager { get; }
         public VideoCacheSettings CacheSettings { get; }
@@ -86,6 +91,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
                     }));
             }
         }
+
+        private DelegateCommand _ChangeCacheVideoFolderCommand;
+        public DelegateCommand ChangeCacheVideoFolderCommand => 
+            _ChangeCacheVideoFolderCommand ??= new DelegateCommand(async () =>
+            {
+                await _videoCacheFolderManager.ChangeVideoCacheFolder();
+            });
+
 
 
 

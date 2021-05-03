@@ -128,6 +128,7 @@ PinAddedWithTitle = {0} をピン留め
 PinRemovedWithTitle = {0} をピン留め解除
 
 
+
 #### Video Cache feature ####
 Cache = キャッシュ
 CacheProgress = DL中
@@ -135,34 +136,26 @@ CachePending = DL順番待ち
 SelectDeleteVideoQuality = 削除する画質を選択
 OpenCacheFolder = 保存フォルダを開く
 ChangeCacheFolder = 保存フォルダを変更
-OpenHohoemaCacheVideoFairUsePolicyText = 「キャッシュ機能の利用に関する確認」を表示
-RequireAcceptToUsingVideoCacheInHohoema = キャッシュ機能を有効にするには\n「キャッシュ機能の利用に関する確認」への同意が必要です
-RequirePickFolderToUsingVieoCacheInHohoema = キャッシュ機能を有効にするには\nキャッシュフォルダの指定が必要です
 PickCacheSaveFolder = キャッシュ保存フォルダを選択する
-HohoemaCacheVideoFairUsePolicy = キャッシュ機能の利用に関する確認
-Accept = 同意する
 ChoiceCacheSavingFolder = キャッシュの保存先フォルダを選択してください。\n保存先が選択されると利用準備が完了します。
-ReadyForVideoCache = キャッシュの利用準備が出来ました
 CacheSaveFolderChangeToX = キャッシュの保存先を {0} に変更しました
-CacheFolderAccessState.NotAccepted_Desc = キャッシュ利用の同意が必要です。 「キャッシュを有効にする」ボタンを押すと同意文書が表示されます
-CacheFolderAccessState.NotEnabled_Desc = キャッシュの有効化が必要です
-CacheFolderAccessState.NotSelected_Desc = フォルダを選択するとキャッシュ機能が使えるようになります
 CacheFolderAccessState.SelectedButNotExist_Desc = 選択されたフォルダが確認できません。外付けストレージを再接続するか、キャッシュ先フォルダを再選択してください
-CancelCacheAndPlayDesc = ニコニコのプレミアム会員以外は 視聴とダウンロードは同時に一つしか扱えません。\n視聴開始する場合にはキャッシュを中止する必要があります。\n（これまでのダウンロード内容は残らず、最初からやり直しになります）
-CancelCacheAndPlayTitle = キャッシュを中止して視聴を開始しますか？
-CancelCacheAndPlay = キャッシュを中止して視聴する
 
-NicoVideoCacheState.NotCacheRequested = キャンセル済み
-NicoVideoCacheState.Pending = DL待ち
-NicoVideoCacheState.Downloading = ダウンロード中
-NicoVideoCacheState.Cached = キャッシュ済み
-NicoVideoCacheState.Failed = DL失敗
-NicoVideoCacheState.FailedWithQualityNotAvairable = 指定画質DL不可（時間を変えて再試行）
-NicoVideoCacheState.DeletedFromUser = 削除済み
-NicoVideoCacheState.DeletedFromNiconicoServer = サーバーから削除済み
+VideoCacheStatus.Pending = 待機中
+VideoCacheStatus.Downloading = 更新中
+VideoCacheStatus.DownloadPaused = 一時停止
+VideoCacheStatus.Completed = 完了
+VideoCacheStatus.Failed = 失敗
 
+VideoCacheDownloadOperationFailedReason.Unknown = 原因不明
+VideoCacheDownloadOperationFailedReason.InternetUnavairable = インターネットがオフライン
+VideoCacheDownloadOperationFailedReason.NoUsageAuthority = プレミアム会員のみ利用可能
+VideoCacheDownloadOperationFailedReason.CanNotCacheEncryptedContent = 暗号化動画はキャッシュ不可
+VideoCacheDownloadOperationFailedReason.StorageCapacityLimitReached = ストレージ制限に到達
+VideoCacheDownloadOperationFailedReason.RistrictedDownloadLineCount = 並列ダウンロード数が上限に到達
+VideoCacheDownloadOperationFailedReason.NoMorePendingOrPausingItem = キャッシュリクエストを全て処理
+VideoCacheDownloadOperationFailedReason.VideoDeleteFromServer = 動画削除済みのため利用不可
 
-#### Subscribe feature ####
 SubscriptionAdd = 購読追加
 SubscriptionAddUser = 投稿者を購読に追加
 SubscriptionAddMylist = マイリストを購読に追加
@@ -318,13 +311,13 @@ PlacefolderCommentTransformConditionReplaced = 置換後の文字列
 
 #### Video ####
 NicoVideoQuality.Unknown = 画質指定なし
-NicoVideoQuality.Smile_Low = 旧 低画質
-NicoVideoQuality.Smile_Original = 旧 オリジナル画質
-NicoVideoQuality.Dmc_Mobile = モバイル画質
-NicoVideoQuality.Dmc_Low = 低画質
-NicoVideoQuality.Dmc_Midium = 中画質
-NicoVideoQuality.Dmc_High = 高画質
-NicoVideoQuality.Dmc_SuperHigh = すごく高画質
+NicoVideoQuality.Mobile = モバイル画質
+NicoVideoQuality.Low = 低画質
+NicoVideoQuality.Midium = 中画質
+NicoVideoQuality.High = 高画質
+NicoVideoQuality.SuperHigh = すごく高画質
+
+
 
 VideoPostAt = 投稿日
 VideoPostAt_Short = 投稿
