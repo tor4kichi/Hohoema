@@ -1,10 +1,12 @@
 ﻿using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Models.Domain.VideoCache;
+using Hohoema.Presentation.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Hohoema.Models.UseCase.Migration
@@ -15,23 +17,26 @@ namespace Hohoema.Models.UseCase.Migration
         private readonly CacheRequestRepository _cacheRequestRepositoryLegacy;
         private readonly VideoCacheSaveFolderManager _videoCacheSaveFolderManager;
         private readonly VideoCacheManager _videoCacheManager;
+        private readonly DialogService _dialogService;
 
         public VideoCacheDatabaseMigration_V_0_29_0(
             Domain.Application.AppFlagsRepository appFlagsRepository,
             Domain.Player.Video.Cache.CacheRequestRepository cacheRequestRepositoryLegacy,
             Domain.VideoCache.VideoCacheSaveFolderManager videoCacheSaveFolderManager,
-            Domain.VideoCache.VideoCacheManager videoCacheManager
+            Domain.VideoCache.VideoCacheManager videoCacheManager,
+            Presentation.Services.DialogService dialogService
             )
         {
             _appFlagsRepository = appFlagsRepository;
             _cacheRequestRepositoryLegacy = cacheRequestRepositoryLegacy;
             _videoCacheSaveFolderManager = videoCacheSaveFolderManager;
             _videoCacheManager = videoCacheManager;
+            _dialogService = dialogService;
         }
 
         public async Task MigrateAsync()
         {
-            // TODO: ダイアログで進捗表示と入力阻害
+            using var _ = _appFlagsRepository.GetCacheVideoMigration();
 
             var saveFolder = await _videoCacheSaveFolderManager.GetVideoCacheFolder();
 
@@ -61,26 +66,22 @@ namespace Hohoema.Models.UseCase.Migration
                     newQuality = ToNewQuality(regacyItem.PriorityQuality);
                 }
 
-                await _videoCacheManager.PushCacheRequestAsync_Legacy(regacyItem.VideoId, newQuality, file);
+                await _videoCacheManager.PushCacheRequestAsync(regacyItem.VideoId, newQuality);
             }
-
-            // TODO: ダイアログを表示してキャッシュ暗号化を処理する
-            // _videoCacheManager.PrepareNextEncryptLegacyVideoTaskAsync();
-
         }
+
 
         private static NicoVideoCacheQuality ToNewQuality(Domain.NicoVideoQuality regacyQuality)
         {
             return regacyQuality switch
             {
-                Domain.NicoVideoQuality.Unknown => NicoVideoCacheQuality.Unknown,
-                Domain.NicoVideoQuality.Smile_Original => NicoVideoCacheQuality.Unknown,
-                Domain.NicoVideoQuality.Smile_Low => NicoVideoCacheQuality.Unknown,
-                Domain.NicoVideoQuality.Dmc_SuperHigh => NicoVideoCacheQuality.SuperHigh,
-                Domain.NicoVideoQuality.Dmc_High => NicoVideoCacheQuality.Midium,
-                Domain.NicoVideoQuality.Dmc_Midium => NicoVideoCacheQuality.Midium,
-                Domain.NicoVideoQuality.Dmc_Low => NicoVideoCacheQuality.Low,
-                Domain.NicoVideoQuality.Dmc_Mobile => NicoVideoCacheQuality.SuperLow,
+                Domain.NicoVideoQuality.SuperHigh => NicoVideoCacheQuality.SuperHigh,
+                Domain.NicoVideoQuality.High => NicoVideoCacheQuality.High,
+                Domain.NicoVideoQuality.Midium => NicoVideoCacheQuality.Midium,
+                Domain.NicoVideoQuality.Low => NicoVideoCacheQuality.Low,
+                Domain.NicoVideoQuality.Mobile => NicoVideoCacheQuality.SuperLow,
+                _ => NicoVideoCacheQuality.Unknown,
+
             };
         }
     }

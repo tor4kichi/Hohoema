@@ -6,7 +6,6 @@ using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Player.Video;
-using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Models.Domain.Player.Video.Comment;
 using Hohoema.Presentation.Services;
 using Prism.Mvvm;
@@ -18,6 +17,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Media.Playback;
 using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.VideoCache;
+using Hohoema.Models.Domain.Player.Video.Cache;
+using System.Collections.Immutable;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
@@ -30,7 +32,32 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         NotPlayPermit_RequirePay,
         NotPlayPermit_RequireChannelMember,
         NotPlayPermit_RequirePremiumMember,
+        CacheVideo_RequirePremiumMember,
+    }    
+
+    public class CachedVideoSessionProvider : INiconicoVideoSessionProvider
+    {
+        private readonly VideoCacheItem _videoCacheItem;
+        private readonly NiconicoSession _niconicoSession;
+
+        public CachedVideoSessionProvider(VideoCacheItem videoCacheItem, NiconicoSession niconicoSession)
+        {
+            _videoCacheItem = videoCacheItem;
+            _niconicoSession = niconicoSession;
+            AvailableQualities = new []{ new NicoVideoQualityEntity(true, _videoCacheItem.DownloadedVideoQuality.ToPlayVideoQuality(), _videoCacheItem.DownloadedVideoQuality.ToString()) }.ToImmutableArray();
+        }
+
+        public string ContentId => _videoCacheItem.VideoId;
+
+        public ImmutableArray<NicoVideoQualityEntity> AvailableQualities { get; }
+
+        public Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQuality quality)
+        {
+            return Task.FromResult((IStreamingSession)new CachedVideoStreamingSession(_videoCacheItem, _niconicoSession));
+        }
     }
+
+
 
     public sealed class VideoStreamingOriginOrchestrator : BindableBase
     {
@@ -73,7 +100,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
         public VideoStreamingOriginOrchestrator(
             NiconicoSession niconicoSession,
-            VideoCacheManagerLegacy videoCacheManager,
+            VideoCacheManager videoCacheManager,
             NicoVideoSessionProvider nicoVideoSessionProvider,
             DialogService dialogService,
             VideoCacheCommentRepository commentRepository,
@@ -89,7 +116,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         }
 
         private readonly NiconicoSession _niconicoSession;
-        private readonly VideoCacheManagerLegacy _videoCacheManager;
+        private readonly VideoCacheManager _videoCacheManager;
         private readonly NicoVideoSessionProvider _nicoVideoSessionProvider;
         private readonly DialogService _dialogService;
         private readonly VideoCacheCommentRepository _commentRepository;
@@ -105,11 +132,13 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         /// <returns></returns>
         public async Task<PlayingOrchestrateResult> CreatePlayingOrchestrateResultAsync(string videoId)
         {
-            var cacheVideoResult = await _videoCacheManager.TryCreateCachedVideoSessionProvider(videoId);
-
-            if (cacheVideoResult.IsSuccess)
+#if !DEBUG
+            if (_videoCacheManager.IsCacheDownloadAuthorized() && _videoCacheManager.GetVideoCacheStatus(videoId) == VideoCacheStatus.Completed)
+#else
+            if (_videoCacheManager.GetVideoCacheStatus(videoId) == VideoCacheStatus.Completed)
+#endif
             {
-                INiconicoCommentSessionProvider commentSessionProvider = null;
+            INiconicoCommentSessionProvider commentSessionProvider = null;
                 INicoVideoDetails nicoVideoDetails = null;
                 if (!InternetConnection.IsInternet())
                 {
@@ -148,32 +177,13 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
                 // キャッシュからコメントを取得する方法が必要
                 return new PlayingOrchestrateResult(
-                    cacheVideoResult.VideoSessionProvider,
+                    new CachedVideoSessionProvider(_videoCacheManager.GetVideoCache(videoId), _niconicoSession),
                     commentSessionProvider,
                     nicoVideoDetails
                     );
             }
             else
             {
-                /*
-                bool canPlay = true;
-                var downloadLineOwnership = await _videoCacheManager.TryRentDownloadLineAsync();
-                if (downloadLineOwnership == null)
-                {
-                    canPlay = false;
-                    if (await ShowSuspendCacheDownloadingDialog())
-                    {
-                        await _videoCacheManager.SuspendCacheDownload();
-                        canPlay = true;
-                    }
-                }
-
-                if (!canPlay)
-                {
-                    return new PlayingOrchestrateResult();
-                }
-                */
-
                 var preparePlayVideo = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoId);
                 if (preparePlayVideo.IsSuccess)
                 {
@@ -183,17 +193,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                         preparePlayVideo.GetVideoDetails()
                         );
                 }
-
-                // キャッシュDLはプレミアム会員限定になる
-                //var progress = await _videoCacheManager.GetDownloadProgressVideosAsync();
-                //if (!_niconicoSession.IsPremiumAccount && progress.Any())
-                //{
-                //    var result = await ShowSuspendCacheDownloadingDialog();
-                //    if (result)
-                //    {
-                //        preparePlayVideo = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoId);
-                //    }
-                //}
 
                 if (preparePlayVideo.Exception is not null and var ex)
                 {
@@ -212,26 +211,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     }); ;
                 }
             }
-        }
-
-        async Task<bool> ShowSuspendCacheDownloadingDialog()
-        {
-            var currentDownloadingItems = await _videoCacheManager.GetDownloadProgressVideosAsync();
-            var downloadingItem = currentDownloadingItems.FirstOrDefault();
-            var downloadingItemVideoInfo = _nicoVideoRepository.Get(downloadingItem.VideoId);
-/*
-            var totalSize = downloadingItem.DownloadOperation.Progress.TotalBytesToReceive;
-            var receivedSize = downloadingItem.DownloadOperation.Progress.BytesReceived;
-            var megaBytes = (totalSize - receivedSize) / 1000_000.0;
-            var downloadProgressDescription = $"ダウンロード中\n{downloadingItemVideoInfo.Title}\n残り {megaBytes:0.0} MB ( {receivedSize / 1000_000.0:0.0} MB / {totalSize / 1000_000.0:0.0} MB)";
-            */
-            var isCancelCacheAndPlay = await _dialogService.ShowMessageDialog(
-                "CancelCacheAndPlayDesc".Translate(),
-                "CancelCacheAndPlayTitle".Translate(),
-                "CancelCacheAndPlay".Translate(),
-                "Cancel".Translate()
-                );
-            return isCancelCacheAndPlay;
         }
     }
 

@@ -224,9 +224,21 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
             foreach (var data in idItems)
             {
-                var item = res.Videos.FirstOrDefault(x => x.Video.Id == data) ?? await VideoClient.GetVideoInfoAsync(data);
+                var item = res.Videos.FirstOrDefault(x => x.Video.Id == data);
+
+                if (item is null && isLatestRequired)
+                {
+                    item = await VideoClient.GetVideoInfoAsync(data);
+                }
 
                 var info = _nicoVideoRepository.Get(item.Video.Id);
+
+                if (item is null)
+                {
+                    yield return info;
+                    continue;
+                }
+
                 var video = item.Video;
 
                 info.Title = video.Title;

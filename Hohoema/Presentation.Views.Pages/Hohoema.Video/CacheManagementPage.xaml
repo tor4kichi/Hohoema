@@ -23,7 +23,6 @@
   xmlns:windowsStateTrigger="using:WindowsStateTriggers" 
   DataContext="{x:Null}"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
-    NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
 
@@ -69,18 +68,6 @@
         <DataTemplate>
           <Grid>
             <videolistPage:VideoListItemControl />
-
-            <Grid toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right"
-                                    >
-              <StackPanel>
-                <TextBlock Text="{Binding CacheRequestTime}" 
-                                               Opacity="0.7"
-                                               Margin="0 0 0 4"
-                                               FontSize="12"
-                                               />
-              </StackPanel>
-
-            </Grid>
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>
@@ -94,27 +81,6 @@
                      />
     </Grid>
 
-    
-    <Grid x:Name="RequireChangeCacheFolderLayout" Visibility="Collapsed">
-      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-        <TextBlock Text="{i18nExt:Localize Key=RequirePickFolderToUsingVieoCacheInHohoema}" />
-        <Button x:Name="UpdateCacheSaveFolderButton" 
-                Command="{Binding ChangeCacheFolderCommand}"
-                Content="{i18nExt:Localize Key=PickCacheSaveFolder}"
-                />
-      </StackPanel>
-    </Grid>
-
-    <Grid x:Name="NotCacheAcceptedLayout">
-      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-        <TextBlock Text="{i18nExt:Localize Key=RequireAcceptToUsingVideoCacheInHohoema}" />
-
-        <Button Content="{i18nExt:Localize Key=OpenHohoemaCacheVideoFairUsePolicyText}" 
-                Command="{Binding RequireEnablingCacheCommand}" 
-                Margin="8 16 8 8"
-                />
-      </StackPanel>
-    </Grid>
 
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
@@ -157,27 +123,6 @@
         </VisualState>
       </VisualStateGroup>
 
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsRequireUpdateCacheSaveFolder.Value}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="RequireChangeCacheFolderLayout.Visibility" Value="Visible" />
-            <Setter Target="NotCacheAcceptedLayout.Visibility" Value="Collapsed" />
-          </VisualState.Setters>
-        </VisualState>
-
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsCacheUserAccepted.Value}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="VideoItemsListView.Visibility" Value="Visible" />
-            <Setter Target="NotCacheAcceptedLayout.Visibility" Value="Collapsed" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
 
     </VisualStateManager.VisualStateGroups>
 

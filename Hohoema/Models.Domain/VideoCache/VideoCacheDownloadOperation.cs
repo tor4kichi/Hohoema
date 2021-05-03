@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
+using Espresso3389.HttpStream;
 
 namespace Hohoema.Models.Domain.VideoCache
 {
@@ -47,11 +48,11 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public async Task DownloadAsync()
         {
-            IRandomAccessStream downloadStream = null;
+            Stream downloadStream = null;
             try
             {
                 var uri = await _dmcVideoStreamingSession.GetDownloadUrlAndSetupDownloadSession();
-                downloadStream = await HttpSequencialAccessStream.CreateAsync(_dmcVideoStreamingSession.NiconicoSession.Context.HttpClient, uri);
+                downloadStream = new HttpStreamForWindows(uri, _dmcVideoStreamingSession.NiconicoSession.Context.HttpClient);
             }
             catch
             {
@@ -64,7 +65,7 @@ namespace Hohoema.Models.Domain.VideoCache
             _cancellationTokenSource = new CancellationTokenSource();
             try
             {
-                await _videoCacheDownloadOperationOutput.CopyStreamAsync(downloadStream.AsStreamForRead(), new Progress<VideoCacheDownloadOperationProgress>(x => Progress?.Invoke(this, x)), _cancellationTokenSource.Token);
+                await _videoCacheDownloadOperationOutput.CopyStreamAsync(downloadStream, new Progress<VideoCacheDownloadOperationProgress>(x => Progress?.Invoke(this, x)), _cancellationTokenSource.Token);
                 Completed?.Invoke(this, EventArgs.Empty);
             }
             catch (OperationCanceledException)

@@ -55,7 +55,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             ChannelProvider channelProvider,
             MylistProvider mylistProvider,
             PlayerSettings playerSettings,
-            VideoCacheSettings cacheSettings,
+            VideoCacheSettings_Legacy cacheSettings,
             ApplicationLayoutManager applicationLayoutManager,
             HohoemaPlaylist hohoemaPlaylist,
             LocalMylistManager localMylistManager,
@@ -166,7 +166,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         public ChannelProvider ChannelProvider { get; }
         public MylistProvider MylistProvider { get; }
 
-        public VideoCacheSettings CacheSettings { get; }
+        public VideoCacheSettings_Legacy CacheSettings { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         
         public HohoemaPlaylist HohoemaPlaylist { get; }

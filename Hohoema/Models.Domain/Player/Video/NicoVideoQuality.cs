@@ -13,30 +13,12 @@ namespace Hohoema.Models.Domain
 	{
         Unknown,
 
-        Smile_Original,
-		Smile_Low,
-
-        Dmc_SuperHigh,
-        Dmc_High,
-        Dmc_Midium,
-        Dmc_Low,
-        Dmc_Mobile,
+        SuperHigh,
+        High,
+        Midium,
+        Low,
+        Mobile,
     }
-
-
-    public static class NicoVideoQualityFileNameHelper
-    {
-
-        public static bool IsLegacy(this NicoVideoQuality quality)
-        {
-            return quality == NicoVideoQuality.Smile_Low || quality == NicoVideoQuality.Smile_Original;
-        }
-        public static bool IsDmc(this NicoVideoQuality quality)
-        {
-            return !IsLegacy(quality);
-        }
-    }
-
 
     public static class NicoVideoVideoContentHelper
     {
@@ -44,23 +26,23 @@ namespace Hohoema.Models.Domain
         {
             if (content.Metadata.Bitrate >= 4000_000)
             {
-                return NicoVideoQuality.Dmc_SuperHigh;
+                return NicoVideoQuality.SuperHigh;
             }
             else if (content.Metadata.Bitrate >= 1400_000)
             {
-                return NicoVideoQuality.Dmc_High;
+                return NicoVideoQuality.High;
             }
             else if (content.Metadata.Bitrate >= 1000_000)
             {
-                return NicoVideoQuality.Dmc_Midium;
+                return NicoVideoQuality.Midium;
             }
             else if (content.Metadata.Bitrate >= 600_000)
             {
-                return NicoVideoQuality.Dmc_Low;
+                return NicoVideoQuality.Low;
             }
             else
             {
-                return NicoVideoQuality.Dmc_Mobile;
+                return NicoVideoQuality.Mobile;
             }
         }
     }

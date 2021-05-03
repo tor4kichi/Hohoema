@@ -45,7 +45,7 @@ namespace Hohoema.Models.Domain.Legacy
 
 		public PlayerSettings()
 		{
-			DefaultQuality = NicoVideoQuality.Dmc_Midium;
+			DefaultQuality = NicoVideoQuality.Midium;
 			IsMute = false;
 			SoundVolume = 1.0;
 			SoundVolumeChangeFrequency = 0.05;

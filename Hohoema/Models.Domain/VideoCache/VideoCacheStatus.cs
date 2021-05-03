@@ -8,8 +8,6 @@
         Downloading,
         DownloadPaused,
         Completed,
-        CompletedFromOldCache_NotEncypted,
-        CompletedFromOldCache_Encrypted,
         Failed,
     }
 }

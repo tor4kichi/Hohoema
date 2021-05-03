@@ -58,7 +58,7 @@ namespace Hohoema.Models.Domain.Legacy
 
 
 
-        private NicoVideoQuality _DefaultCacheQuality = NicoVideoQuality.Dmc_Midium;
+        private NicoVideoQuality _DefaultCacheQuality = NicoVideoQuality.Midium;
 
         [DataMember]
         public NicoVideoQuality DefaultCacheQuality
@@ -82,7 +82,7 @@ namespace Hohoema.Models.Domain.Legacy
 
 
 
-        private NicoVideoQuality _DefaultCacheQualityOnMeteredNetwork = NicoVideoQuality.Dmc_Mobile;
+        private NicoVideoQuality _DefaultCacheQualityOnMeteredNetwork = NicoVideoQuality.Mobile;
 
         [DataMember]
         public NicoVideoQuality DefaultCacheQualityOnMeteredNetwork

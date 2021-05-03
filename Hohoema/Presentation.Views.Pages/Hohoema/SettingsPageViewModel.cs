@@ -54,7 +54,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
             VideoRankingSettings rankingSettings,
             NicoRepoSettings nicoRepoSettings,
             AppearanceSettings appearanceSettings,
-            VideoCacheSettings cacheSettings,
+            VideoCacheSettings_Legacy cacheSettings,
             ApplicationLayoutManager applicationLayoutManager,
             VideoFilteringSettings videoFilteringRepository,
             BackupManager backupManager
@@ -247,7 +247,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         public VideoRankingSettings RankingSettings { get; }
         public NicoRepoSettings ActivityFeedSettings { get; }
         public AppearanceSettings AppearanceSettings { get; }
-        public VideoCacheSettings CacheSettings { get; }
+        public VideoCacheSettings_Legacy CacheSettings { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
 
 
@@ -324,11 +324,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 
         public List<NicoVideoQuality> AvairableCacheQualities { get; } = new List<NicoVideoQuality>()
         {
-            NicoVideoQuality.Dmc_SuperHigh,
-            NicoVideoQuality.Dmc_High,
-            NicoVideoQuality.Dmc_Midium,
-            NicoVideoQuality.Dmc_Low,
-            NicoVideoQuality.Dmc_Mobile,
+            NicoVideoQuality.SuperHigh,
+            NicoVideoQuality.High,
+            NicoVideoQuality.Midium,
+            NicoVideoQuality.Low,
+            NicoVideoQuality.Mobile,
         };
 
         public ReactiveProperty<bool> IsAllowDownloadOnMeteredNetwork { get; private set; }
@@ -342,11 +342,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         public List<NicoVideoQuality> AvairableDefaultCacheQualitiesOnMeteredNetwork { get; } = new List<NicoVideoQuality>()
         {
             NicoVideoQuality.Unknown,
-            NicoVideoQuality.Dmc_SuperHigh,
-            NicoVideoQuality.Dmc_High,
-            NicoVideoQuality.Dmc_Midium,
-            NicoVideoQuality.Dmc_Low,
-            NicoVideoQuality.Dmc_Mobile,
+            NicoVideoQuality.SuperHigh,
+            NicoVideoQuality.High,
+            NicoVideoQuality.Midium,
+            NicoVideoQuality.Low,
+            NicoVideoQuality.Mobile,
         };
 
 

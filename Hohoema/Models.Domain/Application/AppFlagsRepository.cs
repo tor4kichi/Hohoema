@@ -73,5 +73,58 @@ namespace Hohoema.Models.Domain.Application
             set => Save(value);
         }
 
+
+
+        public bool NowCacheVideosMigrating_V_0_29_0
+        {
+            get => Read<bool>();
+            internal set => Save(value);
+        }
+
+
+        public bool IsCacheVideosMigrated_V_0_29_0
+        {
+            get => Read<bool>();
+            internal set => Save(value);
+        }
+
+
+        internal CacheVideoMigrationScope GetCacheVideoMigration()
+        {
+            if (IsCacheVideosMigrated_V_0_29_0 == true)
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (NowCacheVideosMigrating_V_0_29_0 == true)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return new CacheVideoMigrationScope(this);
+        }
+
+        internal class CacheVideoMigrationScope : IDisposable
+        {
+            private readonly AppFlagsRepository _appFlagsRepository;
+
+            public CacheVideoMigrationScope(AppFlagsRepository appFlagsRepository)
+            {
+                _appFlagsRepository = appFlagsRepository;
+                _appFlagsRepository.NowCacheVideosMigrating_V_0_29_0 = true;
+            }
+
+            public void Complete()
+            {
+                _appFlagsRepository.IsCacheVideosMigrated_V_0_29_0 = true;
+            }
+
+            public void Dispose()
+            {
+                _appFlagsRepository.NowCacheVideosMigrating_V_0_29_0 = false;
+            }
+        }
+
+
     }
 }

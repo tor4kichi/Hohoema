@@ -1,5 +1,4 @@
 ﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Models.Domain.Niconico.Video;
 using Prism.Commands;
 using System;
@@ -8,31 +7,33 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Presentation.Services;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Models.Domain.VideoCache;
 
-namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
+namespace Hohoema.Presentation.ViewModels.VideoCache.Commands
 {
     public sealed class CacheAddRequestCommand : VideoContentSelectionCommandBase
     {
+        private readonly VideoCacheManager _videoCacheManager;
+        private readonly DialogService _dialogService;
+
         public CacheAddRequestCommand(
-            VideoCacheManagerLegacy videoCacheManager,
+            VideoCacheManager videoCacheManager,
             DialogService dialogService
             )
-        {            
-            VideoCacheManager = videoCacheManager;
-            DialogService = dialogService;
+        {
+            _videoCacheManager = videoCacheManager;
+            _dialogService = dialogService;
         }
 
-        public VideoCacheManagerLegacy VideoCacheManager { get; }
-        public DialogService DialogService { get; }
-
-        public NicoVideoQuality VideoQuality { get; set; } = NicoVideoQuality.Unknown;
+        public NicoVideoCacheQuality VideoQuality { get; set; } = NicoVideoCacheQuality.Unknown;
 
         protected override void Execute(IVideoContent content)
         {
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            VideoCacheManager.RequestCache(content.Id, VideoQuality);
+            _ = _videoCacheManager.PushCacheRequestAsync(content.Id, VideoQuality);
         }
     }
 }

@@ -60,7 +60,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
         public PageManager(
             IScheduler scheduler,
             AppearanceSettings appearanceSettings,
-            VideoCacheSettings cacheSettings,
+            VideoCacheSettings_Legacy cacheSettings,
             HohoemaPlaylist playlist
             )
         {
@@ -73,7 +73,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
         public AppearanceSettings AppearanceSettings { get; }
-        public VideoCacheSettings CacheSettings { get; }
+        public VideoCacheSettings_Legacy CacheSettings { get; }
         public IScheduler Scheduler { get; }
 
         public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>

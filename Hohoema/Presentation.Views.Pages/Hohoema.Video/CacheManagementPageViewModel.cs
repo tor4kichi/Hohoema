@@ -16,12 +16,13 @@ using Hohoema.Models.UseCase;
 using I18NPortable;
 using System.Runtime.CompilerServices;
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Models.Domain.Notification;
+using Hohoema.Models.Domain.VideoCache;
+using Microsoft.Extensions.ObjectPool;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
@@ -30,8 +31,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         public CacheManagementPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             VideoCacheSettings cacheSettings,
-            VideoCacheManagerLegacy videoCacheManager,
-            CacheSaveFolder cacheSaveFolder,
+            VideoCacheManager videoCacheManager,
             NicoVideoProvider nicoVideoProvider,
             PageManager pageManager,
             DialogService dialogService,
@@ -43,58 +43,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             ApplicationLayoutManager = applicationLayoutManager;
             CacheSettings = cacheSettings;
             VideoCacheManager = videoCacheManager;
-            CacheSaveFolder = cacheSaveFolder;
             NicoVideoProvider = nicoVideoProvider;
             HohoemaDialogService = dialogService;
             NotificationService = notificationService;
             HohoemaPlaylist = hohoemaPlaylist;
             SelectionModeToggleCommand = selectionModeToggleCommand;
-            IsRequireUpdateCacheSaveFolder = new ReactiveProperty<bool>(false);
-
-            IsCacheUserAccepted = CacheSettings.ObserveProperty(x => x.IsUserAcceptedCache)
-                .ToReadOnlyReactiveProperty();
-
-            RequireEnablingCacheCommand = new DelegateCommand(async () =>
-            {
-                var result = await HohoemaDialogService.ShowAcceptCacheUsaseDialogAsync();
-                if (result)
-                {
-                    CacheSettings.IsEnableCache = true;
-                    CacheSettings.IsUserAcceptedCache = true;
-                    (App.Current).Resources["IsCacheEnabled"] = true;
-
-                    await RefreshCacheSaveFolderStatus();
-
-                    NotificationService.ShowLiteInAppNotification("ChoiceCacheSavingFolder".Translate());
-
-                    if (await CacheSaveFolder.ChangeUserDataFolder())
-                    {
-                        await RefreshCacheSaveFolderStatus();
-
-                        await VideoCacheManager.CacheFolderChanged();
-
-                        ResetList();
-
-                        NotificationService.ShowLiteInAppNotification_Success("ReadyForVideoCache".Translate());
-                    }
-                }
-            });
-
-            ReadCacheAcceptTextCommand = new DelegateCommand(async () =>
-            {
-                var result = await HohoemaDialogService.ShowAcceptCacheUsaseDialogAsync(showWithoutConfirmButton: true);
-            });
-
-
-
-            CacheFolderStateDescription = new ReactiveProperty<string>("");
-            CacheSaveFolderPath = new ReactiveProperty<string>("");
 
             OpenCurrentCacheFolderCommand = new DelegateCommand(async () =>
             {
-                await RefreshCacheSaveFolderStatus();
-
-                var folder = await CacheSaveFolder.GetVideoCacheFolder();
+                var folder = VideoCacheManager.VideoCacheFolder;
                 if (folder != null)
                 {
                     await Launcher.LaunchFolderAsync(folder);
@@ -102,48 +59,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             });
 
 
-            ChangeCacheFolderCommand = new DelegateCommand(async () =>
-            {
-                var prevPath = CacheSaveFolderPath.Value;
-
-                if (await CacheSaveFolder.ChangeUserDataFolder())
-                {
-                    NotificationService.ShowLiteInAppNotification("CacheSaveFolderChangeToX".Translate(CacheSaveFolderPath.Value));
-
-                    await RefreshCacheSaveFolderStatus();
-
-                    await VideoCacheManager.CacheFolderChanged();
-
-                    ResetList();
-                }
-            });
         }
 
-        public ApplicationLayoutManager ApplicationLayoutManager { get; }
+        public VideoCacheManager VideoCacheManager { get; }
         public VideoCacheSettings CacheSettings { get; }
-        public VideoCacheManagerLegacy VideoCacheManager { get; }
-        public CacheSaveFolder CacheSaveFolder { get; }
+
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public NotificationService NotificationService { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
+        public DelegateCommand OpenCurrentCacheFolderCommand { get; }
         public DialogService HohoemaDialogService { get; }
 
-
-
-        public ReadOnlyReactiveProperty<bool> IsCacheUserAccepted { get; private set; }
-        public ReactiveProperty<bool> IsRequireUpdateCacheSaveFolder { get; private set; }
-
-        public ReactiveProperty<string> CacheSaveFolderPath { get; private set; }
-        public DelegateCommand OpenCurrentCacheFolderCommand { get; private set; }
-        public ReactiveProperty<string> CacheFolderStateDescription { get; private set; }
-
-
-        public DelegateCommand ChangeCacheFolderCommand { get; private set; }
-        public DelegateCommand CheckExistCacheFolderCommand { get; private set; }
-        public DelegateCommand RequireEnablingCacheCommand { get; private set; }
-        public DelegateCommand ReadCacheAcceptTextCommand { get; private set; }
-
+       
         private DelegateCommand _ResumeCacheCommand;
         public DelegateCommand ResumeCacheCommand
         {
@@ -165,24 +94,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            await RefreshCacheSaveFolderStatus();
-
-            if (IsRequireUpdateCacheSaveFolder.Value)
-            {
-
-                NotificationService.ShowLiteInAppNotification("ChoiceCacheSavingFolder".Translate(), DisplayDuration.MoreAttention);
-
-                if (await CacheSaveFolder.ChangeUserDataFolder())
-                {
-                    await Task.Delay(1000);
-
-                    await RefreshCacheSaveFolderStatus();
-                    ResetList();
-
-                    NotificationService.ShowLiteInAppNotification_Success("ReadyForVideoCache".Translate());
-                }
-            }
-
             await base.OnNavigatedToAsync(parameters);
         }
 
@@ -205,7 +116,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         {
             if (e.WindowActivationState == Windows.UI.Core.CoreWindowActivationState.CodeActivated)
             {
-                var folder = await CacheSaveFolder.GetVideoCacheFolder();
+                var folder = VideoCacheManager.VideoCacheFolder;
+                await folder.GetBasicPropertiesAsync();
             }
         }
 
@@ -232,51 +144,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         #endregion
 
-        private async Task RefreshCacheSaveFolderStatus()
-        {
-            var cacheFolderAccessState = await CacheSaveFolder.GetVideoCacheFolderState();
-
-            CacheSaveFolderPath.Value = "";
-            switch (cacheFolderAccessState)
-            {
-                case CacheFolderAccessState.NotAccepted:
-                    CacheFolderStateDescription.Value = "CacheFolderAccessState.NotAccepted_Desc".Translate();
-                    break;
-                case CacheFolderAccessState.NotEnabled:
-                    CacheFolderStateDescription.Value = "CacheFolderAccessState.NotEnabled_Desc".Translate();
-                    break;
-                case CacheFolderAccessState.NotSelected:
-                    CacheFolderStateDescription.Value = "CacheFolderAccessState.NotSelected_Desc".Translate();
-                    break;
-                case CacheFolderAccessState.SelectedButNotExist:
-                    CacheFolderStateDescription.Value = "CacheFolderAccessState.SelectedButNotExist_Desc".Translate();
-                    CacheSaveFolderPath.Value = "?????";
-                    break;
-                case CacheFolderAccessState.Exist:
-                    CacheFolderStateDescription.Value = "ReadyForVideoCache".Translate();
-                    break;
-                default:
-                    break;
-            }
-
-            var folder = await CacheSaveFolder.GetVideoCacheFolder();
-            if (folder != null)
-            {
-                CacheSaveFolderPath.Value = $"{folder.Path}";
-            }
-
-
-            IsRequireUpdateCacheSaveFolder.Value = 
-                cacheFolderAccessState == CacheFolderAccessState.SelectedButNotExist
-                || cacheFolderAccessState == CacheFolderAccessState.NotSelected
-                ;
-        }
     }
 
 
     public class CacheVideoViewModel : VideoInfoControlViewModel
 	{
-
         public CacheVideoViewModel(
             string rawVideoId
             )
@@ -300,14 +172,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 	public class CacheVideoInfoLoadingSource : HohoemaIncrementalSourceBase<CacheVideoViewModel>
 	{
 
-        public CacheVideoInfoLoadingSource(VideoCacheManagerLegacy cacheManager, NicoVideoProvider nicoVideoProvider)
+        public CacheVideoInfoLoadingSource(VideoCacheManager cacheManager, NicoVideoProvider nicoVideoProvider)
             : base()
         {
             VideoCacheManager = cacheManager;
             NicoVideoProvider = nicoVideoProvider;
         }
 
-        public VideoCacheManagerLegacy VideoCacheManager { get; }
+        public VideoCacheManager VideoCacheManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
 
         public override uint OneTimeLoadCount => (uint)10;
@@ -316,13 +188,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         {
             ct.ThrowIfCancellationRequested();
 
-            var reqItems = VideoCacheManager.GetCacheRequests(head, count);
-            var items = await NicoVideoProvider.GetVideoInfoManyAsync(reqItems.Select(x => x.VideoId)).ToListAsync(ct);
+            var reqItems = VideoCacheManager.GetCacheRequestItemsRange(head, count);
+            var items = await NicoVideoProvider.GetVideoInfoManyAsync(reqItems.Select(x => x.VideoId), isLatestRequired: false).ToListAsync(ct);
             foreach (var item in reqItems)
             {
                 var video = items.FirstOrDefault(x => x.VideoId == item.VideoId);
                 var vm = video is not null ? new CacheVideoViewModel(video) : new CacheVideoViewModel(item.VideoId);
-                vm.CacheRequestTime = item.RequestAt;
+                vm.CacheRequestTime = item.RequestedAt;
 
                 if (video is null)
                 {

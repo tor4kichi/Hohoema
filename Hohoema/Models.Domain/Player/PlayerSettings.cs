@@ -31,7 +31,7 @@ namespace Hohoema.Models.Domain.Player
 
 		public PlayerSettings()
 		{
-			_DefaultQuality = Read(NicoVideoQuality.Dmc_Midium, nameof(DefaultQuality));
+			_DefaultQuality = Read(NicoVideoQuality.Midium, nameof(DefaultQuality));
 			
 			_DefaultLiveQuality = Read(LiveQualityType.Normal, nameof(DefaultLiveQuality));
 			_LiveQualityLimit = Read(LiveQualityLimitType.SuperHigh, nameof(LiveQualityLimit));

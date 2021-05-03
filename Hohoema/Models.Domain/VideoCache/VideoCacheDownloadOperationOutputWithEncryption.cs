@@ -20,7 +20,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public async Task CopyStreamAsync(Stream sourceStream, IProgress<VideoCacheDownloadOperationProgress> progress, CancellationToken cancellationToken)
         {
-            using (var outputFileStream = await _destinationFile.OpenStreamForReadAsync())
+            using (var outputFileStream = await _destinationFile.OpenStreamForWriteAsync())
             {
                 // 途中までDLしていた場合はそこから再開
                 if (outputFileStream.Length != 0)
@@ -45,10 +45,11 @@ namespace Hohoema.Models.Domain.VideoCache
                         encryptor.TransformBlock(inputBuffer, 0, inputBuffer.Length, outputBuffer, 0, currentSector);
                         currentSector++;
                         await outputFileStream.WriteAsync(outputBuffer, 0, outputBuffer.Length);
-                        await outputFileStream.FlushAsync();
 
                         progress?.Report(new VideoCacheDownloadOperationProgress() { ProgressBytes = sourceStream.Position, TotalBytes = sourceStream.Length });
                     }
+
+                    await outputFileStream.FlushAsync();
                 }
             }
         }

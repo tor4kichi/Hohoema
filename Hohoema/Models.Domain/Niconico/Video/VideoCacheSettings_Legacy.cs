@@ -10,17 +10,17 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {
-	public class VideoCacheSettings : FlagsRepositoryBase
+	public class VideoCacheSettings_Legacy : FlagsRepositoryBase
 	{
-		public VideoCacheSettings()
+		public VideoCacheSettings_Legacy()
 		{
 			_IsEnableCache = Read(false, nameof(IsEnableCache));
 			_IsUserAcceptedCache = Read(false, nameof(IsUserAcceptedCache));
-			_DefaultCacheQuality = Read(NicoVideoQuality.Dmc_Midium, nameof(DefaultCacheQuality));
+			_DefaultCacheQuality = Read(NicoVideoQuality.Midium, nameof(DefaultCacheQuality));
 
 			_IsAutoCacheOnPlayEnable = Read(false, nameof(IsAutoCacheOnPlayEnable));
 			_IsAllowDownloadOnMeteredNetwork = Read(false, nameof(IsAllowDownloadOnMeteredNetwork));
-			_CacheQualityOnMeteredNetwork = Read(NicoVideoQuality.Dmc_Mobile, nameof(CacheQualityOnMeteredNetwork));
+			_CacheQualityOnMeteredNetwork = Read(NicoVideoQuality.Mobile, nameof(CacheQualityOnMeteredNetwork));
 		}
 
 		public bool CanDownload => IsUserAcceptedCache && IsEnableCache;
@@ -52,7 +52,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 		}
 
 
-        private NicoVideoQuality _DefaultCacheQuality = NicoVideoQuality.Dmc_Midium;
+        private NicoVideoQuality _DefaultCacheQuality = NicoVideoQuality.Midium;
 
         public NicoVideoQuality DefaultCacheQuality
         {
@@ -74,7 +74,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
 
 
-        private NicoVideoQuality _CacheQualityOnMeteredNetwork = NicoVideoQuality.Dmc_Mobile;
+        private NicoVideoQuality _CacheQualityOnMeteredNetwork = NicoVideoQuality.Mobile;
 
         public NicoVideoQuality CacheQualityOnMeteredNetwork
         {

@@ -165,7 +165,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             {
                 CurrentQuality = AvailableQualities.First(x => x.Quality == videoStreamingSession.Quality);
             }
-            if (_currentSession is LocalVideoStreamingSession)
+            if (_currentSession is CachedVideoStreamingSession)
             {
                 IsPlayWithCache.Value = true;
             }

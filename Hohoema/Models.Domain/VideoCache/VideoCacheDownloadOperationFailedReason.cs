@@ -10,5 +10,6 @@
         StorageCapacityLimitReached,
         RistrictedDownloadLineCount,
         NoMorePendingOrPausingItem,
+        VideoDeleteFromServer,
     }
 }

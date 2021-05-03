@@ -64,6 +64,8 @@ using Hohoema.Presentation.Views.Pages;
 using Hohoema.Models.UseCase.Niconico.Account;
 using Hohoema.Models.UseCase.Niconico.Follow;
 using Hohoema.Models.Domain.Notification;
+using Hohoema.Models.Domain.VideoCache;
+using Windows.Storage.AccessCache;
 
 namespace Hohoema
 {
@@ -232,6 +234,9 @@ namespace Hohoema
         {
             var unityContainer = container.GetContainer();
 
+            LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
+            unityContainer.RegisterInstance<LiteDatabase>(db);
+
             MonkeyCache.LiteDB.Barrel.ApplicationId = nameof(Hohoema);
             unityContainer.RegisterInstance<MonkeyCache.IBarrel>(MonkeyCache.LiteDB.Barrel.Current);
 
@@ -259,7 +264,7 @@ namespace Hohoema
             unityContainer.RegisterSingleton<PlayerSettings>();
             unityContainer.RegisterSingleton<VideoFilteringSettings>();
             unityContainer.RegisterSingleton<VideoRankingSettings>();
-            unityContainer.RegisterSingleton<VideoCacheSettings>();
+            unityContainer.RegisterSingleton<VideoCacheSettings_Legacy>();
             unityContainer.RegisterSingleton<NicoRepoSettings>();
             unityContainer.RegisterSingleton<CommentFliteringRepository>();
 
@@ -393,25 +398,12 @@ namespace Hohoema
 
             await TryMigrationAsync(new Type[]
             {
-                typeof(DatabaseMigrate_0_25_0),
-            });
-
-            {
-                var unityContainer = Container.GetContainer();
-                //var upgradeResult = LiteEngine.Upgrade(Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db"));
-                //Debug.WriteLine("upgrade: " + upgradeResult);
-
-                LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
-                unityContainer.RegisterInstance<LiteDatabase>(db);
-            }
-
-            await TryMigrationAsync(new Type[]
-            {
-                typeof(MigrationCommentFilteringSettings),
-                typeof(CommentFilteringNGScoreZeroFixture),
-                typeof(SettingsMigration_V_0_23_0),
-                typeof(SearchPageQueryMigrate_0_26_0),
+                //typeof(MigrationCommentFilteringSettings),
+                //typeof(CommentFilteringNGScoreZeroFixture),
+                //typeof(SettingsMigration_V_0_23_0),
+                //typeof(SearchPageQueryMigrate_0_26_0),
                 typeof(LocalMylistThumbnailImageMigration_V_0_28_0),
+                typeof(VideoCacheDatabaseMigration_V_0_29_0),
             });
 
             // 機能切り替え管理クラスをDIコンテナに登録
@@ -514,7 +506,7 @@ namespace Hohoema
             }
 
             // 
-            var cacheSettings = Container.Resolve<VideoCacheSettings>();
+            var cacheSettings = Container.Resolve<VideoCacheSettings_Legacy>();
             Resources["IsCacheEnabled"] = cacheSettings.IsEnableCache;
 
             // ウィンドウコンテンツを作成
@@ -549,6 +541,36 @@ namespace Hohoema
                 ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
             }
 
+
+
+            // キャッシュ機能の初期化
+            {
+                const string folderName = "Hohoema_Videos";
+                var cacheManager = Container.Resolve<VideoCacheManager>();
+
+                // キャッシュフォルダの指定
+                if (StorageApplicationPermissions.FutureAccessList.ContainsItem(folderName))
+                {
+                    cacheManager.VideoCacheFolder = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(folderName);
+                }
+                else
+                {
+                    var folder = await DownloadsFolder.CreateFolderAsync(folderName);
+                    StorageApplicationPermissions.FutureAccessList.AddOrReplace(folderName, folder);
+                    cacheManager.VideoCacheFolder = folder;
+                }
+
+                // キャッシュの暗号化を初期化
+                var file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/VideoCache_EncryptionKey_32byte.txt"));
+                var bytes = await file.ReadBytesAsync();
+                cacheManager.SetXts(XTSSharp.XtsAes128.Create(bytes.Take(32).ToArray()));
+                VideoCacheManager.ResolveVideoFileNameWithoutExtFromVideoId = async (id) => 
+                {
+                    var repo = Container.Resolve<NicoVideoProvider>();
+                    var item = await repo.GetNicoVideoInfo(id);
+                    return $"{item.Title.ToSafeFilePath()}[{id}]";
+                };
+            }
 
 
 

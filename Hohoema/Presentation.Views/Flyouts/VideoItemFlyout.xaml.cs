@@ -26,6 +26,8 @@ using Hohoema.Presentation.ViewModels.Navigation.Commands;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
+using Hohoema.Presentation.ViewModels.VideoCache.Commands;
+using Hohoema.Models.Domain.VideoCache;
 
 namespace Hohoema.Presentation.Views.Flyouts
 {
@@ -77,7 +79,7 @@ namespace Hohoema.Presentation.Views.Flyouts
         public static LoginUserOwnedMylistManager UserMylistManager { get; }
         public static LocalMylistManager LocalMylistManager { get; }
         public static SubscriptionManager SubscriptionManager { get; }
-        public static VideoCacheManagerLegacy VideoCacheManager { get; }
+        public static VideoCacheManager VideoCacheManager { get; }
         public static VideoItemsSelectionContext VideoItemsSelectionContext { get; }
         public static MylistCreateCommand CreateMylistCommand { get; }
         public static LocalPlaylistCreateCommand CreateLocalMylistCommand { get; }
@@ -99,7 +101,7 @@ namespace Hohoema.Presentation.Views.Flyouts
             UserMylistManager = App.Current.Container.Resolve<LoginUserOwnedMylistManager>();
             LocalMylistManager = App.Current.Container.Resolve<LocalMylistManager>();
             SubscriptionManager = App.Current.Container.Resolve<SubscriptionManager>();
-            VideoCacheManager = App.Current.Container.Resolve<VideoCacheManagerLegacy>();
+            VideoCacheManager = App.Current.Container.Resolve<VideoCacheManager>();
             VideoItemsSelectionContext = App.Current.Container.Resolve<VideoItemsSelectionContext>();
 
             OpenLinkCommand = App.Current.Container.Resolve<OpenLinkCommand>();
@@ -284,16 +286,16 @@ namespace Hohoema.Presentation.Views.Flyouts
 
 
             // キャッシュ
-            var isCacheEnabled = VideoCacheManager.CacheSettings.IsEnableCache && VideoCacheManager.CacheSettings.IsUserAcceptedCache;
-            var cacheEnableToVisibility = isCacheEnabled.ToVisibility();
-            if (isMultipleSelection && isCacheEnabled)
+            var canNewDownloadCache = VideoCacheManager.IsCacheDownloadAuthorized();
+            var canNewDownloadCacheToVisibility = canNewDownloadCache.ToVisibility();
+            if (isMultipleSelection)
             {
                 // 一つでもキャッシュ済みがあれば削除ボタンを表示
                 // 一つでも未キャッシュがあれば取得ボタンを表示
-                var anyItemsCached = SelectedVideoItems.Any(x => VideoCacheManager.IsCacheRequested(x.Id));
-                var anyItemsNotCached = SelectedVideoItems.Any(x => !VideoCacheManager.CheckCachedAsyncUnsafe(x.Id));
+                var anyItemsCached = SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.Id) is not null);
+                var anyItemsNotCached = SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.Id) is null);
 
-                var notCachedToVisible = (anyItemsNotCached).ToVisibility();
+                var notCachedToVisible = (canNewDownloadCache && anyItemsNotCached).ToVisibility();
                 CacheRequest.Visibility = notCachedToVisible;
                 CacheRequest.CommandParameter = dataContext;
                 (CacheRequest.Command as DelegateCommandBase).RaiseCanExecuteChanged();
@@ -306,12 +308,12 @@ namespace Hohoema.Presentation.Views.Flyouts
                 var cachedToVisible = (anyItemsCached).ToVisibility();
                 DeleteCacheRequest.Visibility = cachedToVisible;
             }
-            else if (isCacheEnabled)
+            else
             {
-                var itemCached = VideoCacheManager.IsCacheRequested(content.Id);
-                var itemNotCached = !VideoCacheManager.CheckCachedAsyncUnsafe(content.Id);
+                var itemCached = VideoCacheManager.GetVideoCacheStatus(content.Id) is not null;
+                var itemNotCached = VideoCacheManager.GetVideoCacheStatus(content.Id) is null;
 
-                var notCachedToVisible = (itemNotCached).ToVisibility();
+                var notCachedToVisible = (canNewDownloadCache && itemNotCached).ToVisibility();
                 CacheRequest.Visibility = notCachedToVisible;
                 CacheRequest.CommandParameter = dataContext;
                 CacheRequestWithQuality.Visibility = notCachedToVisible;
@@ -322,18 +324,11 @@ namespace Hohoema.Presentation.Views.Flyouts
                 var cachedToVisible = (itemCached).ToVisibility();
                 DeleteCacheRequest.Visibility = cachedToVisible;
             }
-            else
-            {
-                CacheRequest.Visibility = Visibility.Collapsed;
-                CacheRequestWithQuality.Visibility = Visibility.Collapsed;
-                CacheSeparator.Visibility = Visibility.Collapsed;
-                DeleteCacheRequest.Visibility = Visibility.Collapsed;
-            }
             
 
             if (CacheRequestWithQuality.Items.Count == 0)
             {
-                foreach (var quality in Enum.GetValues(typeof(NicoVideoQuality)).Cast<NicoVideoQuality>().Where(x => x.IsDmc() && x != NicoVideoQuality.Unknown))
+                foreach (var quality in Enum.GetValues(typeof(NicoVideoCacheQuality)).Cast<NicoVideoCacheQuality>().Where(x => x != NicoVideoCacheQuality.Unknown))
                 {
                     var command = App.Current.Container.Resolve<CacheAddRequestCommand>();
                     command.VideoQuality = quality;

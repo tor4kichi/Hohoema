@@ -21,11 +21,11 @@ namespace Hohoema.Models.Domain.VideoCache
         {
             return quality switch
             {
-                NicoVideoCacheQuality.SuperLow => "archive_h264_1080p",
-                NicoVideoCacheQuality.Low => "archive_h264_720p",
+                NicoVideoCacheQuality.SuperHigh => "archive_h264_1080p",
+                NicoVideoCacheQuality.High => "archive_h264_720p",
                 NicoVideoCacheQuality.Midium => "archive_h264_480p",
-                NicoVideoCacheQuality.High => "archive_h264_360p",
-                NicoVideoCacheQuality.SuperHigh => "archive_h264_360p_low",
+                NicoVideoCacheQuality.Low => "archive_h264_360p",
+                NicoVideoCacheQuality.SuperLow=> "archive_h264_360p_low",
                 _ => throw new NotSupportedException()
             };
         }

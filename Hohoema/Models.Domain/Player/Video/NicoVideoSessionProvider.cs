@@ -168,7 +168,6 @@ namespace Hohoema.Models.Domain.Player.Video
         public ImmutableArray<NicoVideoQualityEntity> AvailableQualities { get; }
 
         private readonly NicoVideoSessionOwnershipManager _ownershipManager;
-        private readonly WatchApiResponse _watchApiResponse;
         private readonly DmcWatchData _dmcWatchData;
 
         private readonly NiconicoSession _niconicoSession;
@@ -195,22 +194,6 @@ namespace Hohoema.Models.Domain.Player.Video
             AvailableQualities = ImmutableArray<NicoVideoQualityEntity>.Empty;
             IsSuccess = false;
             FailedReason = failedReason;
-        }
-
-        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, NicoVideoCacheRepository nicoVideoRepository, WatchApiResponse watchApiResponse)
-            : this(contentId, niconicoSession, nicoVideoRepository)
-        {
-            _ownershipManager = ownershipManager;
-            _watchApiResponse = watchApiResponse;
-            IsSuccess = _watchApiResponse != null;
-            var quality = _watchApiResponse.VideoUrl.OriginalString.EndsWith("low") ? NicoVideoQuality.Smile_Low : NicoVideoQuality.Smile_Original;
-            AvailableQualities = new[]
-            {
-                new NicoVideoQualityEntity(true, quality, quality.ToString())
-            }
-            .ToImmutableArray();
-
-            // Note: スマイル鯖はいずれ無くなると見て対応を限定的にしてしまう
         }
 
         public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, NicoVideoCacheRepository nicoVideoRepository, DmcWatchData dmcWatchData)
@@ -248,10 +231,6 @@ namespace Hohoema.Models.Domain.Player.Video
             if (_dmcWatchData != null)
             {
                 return new DmcVideoDetails(_dmcWatchData);
-            }
-            else if (_watchApiResponse != null)
-            {
-                return new WatchApiVideoDetails(_watchApiResponse);
             }
             else { throw new ArgumentNullException(); }
         }
@@ -307,19 +286,7 @@ namespace Hohoema.Models.Domain.Player.Video
         public async Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQuality quality = NicoVideoQuality.Unknown)
         {
             IStreamingSession streamingSession = null;
-            if (_watchApiResponse != null)
-            {
-                var ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_watchApiResponse.videoDetail.id, !IsForCacheDownload);
-                if (ownership != null)
-                {
-                    streamingSession = new SmileVideoStreamingSession(
-                        _watchApiResponse.VideoUrl,
-                        _niconicoSession,
-                        ownership
-                        );
-                }
-            }
-            else if (_dmcWatchData != null)
+            if (_dmcWatchData != null)
             {
                 if (_dmcWatchData.DmcWatchResponse.Media.Delivery is not null and var delivery)
                 {
@@ -371,10 +338,6 @@ namespace Hohoema.Models.Domain.Player.Video
             if (_dmcWatchData != null)
             {
                 return CreateCommentSession(ContentId, _dmcWatchData);
-            }
-            else if (_watchApiResponse != null)
-            {
-                return CreateCommentSession(ContentId, _watchApiResponse);
             }
             else
             {
@@ -803,27 +766,14 @@ namespace Hohoema.Models.Domain.Player.Video
                 // この差を吸収するため、
                 // indexを Dmc_Mobile(6)~Dmc_SuperHigh(2) の空間に変換する
                 // (qualities.Count - index - 1) によってDmc_Mobileの場合が 0 になる
-                var nicoVideoQualityIndex = (int)NicoVideoQuality.Dmc_Mobile - (qualities.Length - index - 1);
+                var nicoVideoQualityIndex = (int)NicoVideoQuality.Mobile - (qualities.Length - index - 1);
                 var quality = (NicoVideoQuality)nicoVideoQualityIndex;
-                if (!quality.IsDmc())
-                {
-                    throw new NotSupportedException(qualityId);
-                }
 
                 return quality;
             }
             else
             {
-                if (Enum.TryParse<NicoVideoQuality>(qualityId, out var smileQuality)
-                    && smileQuality.IsLegacy()
-                    )
-                {
-                    return smileQuality;
-                }
-                else
-                {
-                    throw new NotSupportedException(qualityId);
-                }
+                throw new NotSupportedException(qualityId);
             }
         }
     }

@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Threading.Tasks;
+using Windows.Media.Core;
 
 namespace Hohoema.Models.Domain.VideoCache
 {
     public class VideoCacheItem
     {
         public string VideoId { get; }
+
+        public string FileName { get; }
 
         public NicoVideoCacheQuality RequestedVideoQuality { get; internal set; }
 
@@ -25,7 +29,9 @@ namespace Hohoema.Models.Domain.VideoCache
         public bool IsCompleted => Status == VideoCacheStatus.Completed;
 
         internal VideoCacheItem(
+            VideoCacheManager videoCacheManager,
             string videoId, 
+            string fileName,
             NicoVideoCacheQuality requestedQuality, 
             NicoVideoCacheQuality downloadedQuality, 
             VideoCacheStatus status,
@@ -36,7 +42,9 @@ namespace Hohoema.Models.Domain.VideoCache
             int sortIndex
             )
         {
+            _videoCacheManager = videoCacheManager;
             VideoId = videoId;
+            FileName = fileName;
             RequestedVideoQuality = requestedQuality;
             DownloadedVideoQuality = downloadedQuality;
             Status = status;
@@ -54,9 +62,30 @@ namespace Hohoema.Models.Domain.VideoCache
         }
 
         private float? _progressNormalized;
+        private readonly VideoCacheManager _videoCacheManager;
+
         public float GetProgressNormalized()
         {
+            if (_progressNormalized is not null) { return _progressNormalized.Value; }
+
+            if (Status is VideoCacheStatus.Downloading or VideoCacheStatus.DownloadPaused)
+            {
+                if (TotalBytes is null or 0)
+                {
+                    _progressNormalized = 0.0f;
+                }
+                else
+                {
+                    _progressNormalized = ProgressBytes ?? 0 / (float)TotalBytes;
+                }
+            }
+
             return _progressNormalized ?? (IsCompleted ? 1.0f : 0.0f);
+        }
+
+        public Task<MediaSource> GetMediaSourceAsync()
+        {
+            return _videoCacheManager.GetCacheVideoMediaSource(this);
         }
     }
 }

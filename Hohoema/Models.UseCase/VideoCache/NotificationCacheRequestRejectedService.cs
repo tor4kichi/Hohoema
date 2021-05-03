@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Presentation.Services;
+using Hohoema.Models.Domain.VideoCache;
 
 namespace Hohoema.Models.UseCase.VideoCache
 {
@@ -13,21 +14,22 @@ namespace Hohoema.Models.UseCase.VideoCache
     {
         public NotificationCacheRequestRejectedService(
             NotificationService notificationService,
-            VideoCacheManagerLegacy videoCacheManager
+            VideoCacheManager videoCacheManager
             )
         {
             NotificationService = notificationService;
             VideoCacheManager = videoCacheManager;
 
-            VideoCacheManager.Rejected += VideoCacheManager_Rejected;
+            VideoCacheManager.Failed += VideoCacheManager_Failed;
         }
 
-        private void VideoCacheManager_Rejected(object sender, CacheRequestRejectedEventArgs e)
+        private void VideoCacheManager_Failed(object sender, VideoCacheFailedEventArgs e)
         {
-            NotificationService.ShowLiteInAppNotification_Fail("InAppNotification_CanNotCacheChannelVideos_ForContentProtection".Translate());
+            // TODO: キャッシュ失敗の通知はトースト通知にしたい
+            NotificationService.ShowLiteInAppNotification_Fail(e.VideoCacheDownloadOperationCreationFailedReason.Translate());
         }
 
         public NotificationService NotificationService { get; }
-        public VideoCacheManagerLegacy VideoCacheManager { get; }
+        public VideoCacheManager VideoCacheManager { get; }
     }
 }
