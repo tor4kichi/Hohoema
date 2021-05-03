@@ -43,8 +43,6 @@ namespace Hohoema.Models.Helpers
 
         static FastAsyncLock LoadingLock { get; } = new FastAsyncLock();
 
-        CoreDispatcher _UIDispatcher;
-
 		CancellationTokenSource _cts = new CancellationTokenSource();
 
 		public IncrementalLoadingCollection(T source)
@@ -53,7 +51,6 @@ namespace Hohoema.Models.Helpers
 			this._HasMoreItems = true;
 			_Position = 0;
 			IsPuaseLoading = false;
-            _UIDispatcher = Window.Current.Dispatcher;
         }
 
 		public IAsyncOperation<LoadMoreItemsResult> LoadMoreItemsAsync(uint count)

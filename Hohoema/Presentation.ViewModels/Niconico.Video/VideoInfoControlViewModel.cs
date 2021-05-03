@@ -61,7 +61,10 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             _ngSettings.VideoOwnerFilterAdded += _ngSettings_VideoOwnerFilterAdded;
             _ngSettings.VideoOwnerFilterRemoved += _ngSettings_VideoOwnerFilterRemoved;
 
-            WeakReferenceMessenger.Default.RegisterAll(this, RawVideoId);
+            WeakReferenceMessenger.Default.Register<VideoPlayedMessage, string>(this, RawVideoId);
+            WeakReferenceMessenger.Default.Register<QueueItemAddedMessage, string>(this, RawVideoId);
+            WeakReferenceMessenger.Default.Register<QueueItemRemovedMessage, string>(this, RawVideoId);
+            WeakReferenceMessenger.Default.Register<QueueItemIndexUpdateMessage, string>(this, RawVideoId);
 
             (IsQueueItem, QueueItemIndex) = _hohoemaPlaylist.IsQueuePlaylistItem(RawVideoId);
         }
@@ -70,10 +73,29 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             : this(data.RawVideoId)
         {
             Data = data;
-            if (Data != null)
+            
+            _Label = data.Title;
+            _PostedAt = data.PostedAt;
+            _Length = data.Length;
+            _ViewCount = data.ViewCount;
+            _MylistCount = data.MylistCount;
+            _CommentCount = data.CommentCount;
+            _ThumbnailUrl ??= data.ThumbnailUrl;
+            _IsDeleted = data.IsDeleted;
+            _PrivateReason = Data.PrivateReasonType;
+            _Description = Data.Description;
+            Permission = Data.Permission;
+
+            if (data.Owner != null)
             {
-                Setup(Data);
+                ProviderId = data.Owner.OwnerId;
+                _ProviderName = data.Owner.ScreenName;
+                ProviderType = data.Owner.UserType;
             }
+
+            SubscriptionWatchedIfNotWatch(data);
+            UpdateIsHidenVideoOwner(data);
+            SubscribeCacheState(data);
         }
 
 
@@ -111,7 +133,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             }
         }
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
             _ngSettings.VideoOwnerFilterAdded -= _ngSettings_VideoOwnerFilterAdded;
             _ngSettings.VideoOwnerFilterRemoved -= _ngSettings_VideoOwnerFilterRemoved;
@@ -188,6 +210,14 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         public OpenVideoOwnerPageCommand OpenVideoOwnerPageCommand => _openVideoOwnerPageCommand;
 
 
+        private bool _IsInitialized;
+        public bool IsInitialized
+        {
+            get { return _IsInitialized; }
+            set { SetProperty(ref _IsInitialized, value); }
+        }
+
+
         public string RawVideoId { get; }
         public NicoVideo Data { get; private set; }
 
@@ -224,18 +254,18 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         public VideoStatus VideoStatus { get; private set; }
 
 
-        private string _title;
+        private string _Label;
         public string Label
         {
-            get { return _title; }
-            set { SetProperty(ref _title, value); }
+            get { return _Label; }
+            set { SetProperty(ref _Label, value); }
         }
 
-        private TimeSpan _length;
+        private TimeSpan _Length;
         public TimeSpan Length
         {
-            get { return _length; }
-            set { SetProperty(ref _length, value); }
+            get { return _Length; }
+            set { SetProperty(ref _Length, value); }
         }
 
 
@@ -246,19 +276,19 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             set { SetProperty(ref _Description, value); }
         }
 
-        private DateTime _postedAt;
+        private DateTime _PostedAt;
         public DateTime PostedAt
         {
-            get { return _postedAt; }
-            set { SetProperty(ref _postedAt, value); }
+            get { return _PostedAt; }
+            set { SetProperty(ref _PostedAt, value); }
         }
 
 
-        private int _viewCount;
+        private int _ViewCount;
         public int ViewCount
         {
-            get { return _viewCount; }
-            set { SetProperty(ref _viewCount, value); }
+            get { return _ViewCount; }
+            set { SetProperty(ref _ViewCount, value); }
         }
 
 
@@ -284,11 +314,11 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        private bool _isDeleted;
+        private bool _IsDeleted;
         public bool IsDeleted
         {
-            get { return _isDeleted; }
-            set { SetProperty(ref _isDeleted, value); }
+            get { return _IsDeleted; }
+            set { SetProperty(ref _IsDeleted, value); }
         }
 
 
@@ -299,19 +329,22 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             set { SetProperty(ref _VideoHiddenInfo, value); }
         }
 
-        private bool _isWatched;
+        private bool _IsWatched;
         public bool IsWatched
         {
-            get { return _isWatched; }
-            set { SetProperty(ref _isWatched, value); }
+            get { return _IsWatched; }
+            set { SetProperty(ref _IsWatched, value); }
         }
 
-        private bool _IsInitialized;
-        public bool IsInitialized
+       
+
+        private VideoPermission _permission;
+        public VideoPermission Permission
         {
-            get { return _IsInitialized; }
-            set { SetProperty(ref _IsInitialized, value); }
+            get { return _permission; }
+            set { SetProperty(ref _permission, value); }
         }
+
 
         private PrivateReasonType? _PrivateReason;
         public PrivateReasonType? PrivateReason
@@ -364,13 +397,6 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             get { return _CacheProgressQuality; }
             set { SetProperty(ref _CacheProgressQuality, value); }
-        }
-
-        private VideoPermission _permission;
-        public VideoPermission Permission
-        {
-            get { return _permission; }
-            set { SetProperty(ref _permission, value); }
         }
 
 

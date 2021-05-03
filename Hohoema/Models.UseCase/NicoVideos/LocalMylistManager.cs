@@ -89,15 +89,13 @@ namespace Hohoema.Models.UseCase.NicoVideos
         ObservableCollection<LocalPlaylist> _playlists;
         public ReadOnlyObservableCollection<LocalPlaylist> LocalPlaylists { get; }
 
-        Dictionary<string, CompositeDisposable> LocalMylistPropertyChangedObserverMap = new Dictionary<string, CompositeDisposable>();
-
         Dictionary<string, PlaylistEntity> _playlistIdToEntity = new Dictionary<string, PlaylistEntity>();
 
         public void Dispose()
         {
-            foreach (var disposer in LocalMylistPropertyChangedObserverMap.Values)
+            foreach (var playlist in _playlists)
             {
-                disposer.Dispose();
+                RemoveHandleItemsChanged(playlist);
             }
         }
 
@@ -131,9 +129,6 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         void HandleItemsChanged(LocalPlaylist playlist)
         {
-            CompositeDisposable disposables = new CompositeDisposable();
-            LocalMylistPropertyChangedObserverMap.Add(playlist.Id, disposables);
-
             WeakReferenceMessenger.Default.Register<LocalPlaylist, LocalPlaylistItemAddedMessage>(playlist, (r, m) => 
             {
                 var sender = r;

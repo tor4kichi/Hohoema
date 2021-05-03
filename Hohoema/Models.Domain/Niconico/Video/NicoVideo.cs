@@ -18,7 +18,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         Swf,
     }
 
-    public class NicoVideo : FixPrism.BindableBase, IVideoContent, IVideoContentWritable
+    public class NicoVideo : IVideoContent, IVideoContentWritable
     {
         [BsonId]
         public string RawVideoId { get; set; }
@@ -26,63 +26,28 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         public string ThreadId { get; set; }
 
-        private string _title;
-        public string Title
-        {
-            get { return _title; }
-            set { SetProperty(ref _title, value); }
-        }
+        public string Title { get; set; }
 
 
-        private string _ThumbnailUrl;
-        public string ThumbnailUrl
-        {
-            get { return _ThumbnailUrl; }
-            set { SetProperty(ref _ThumbnailUrl, value); }
-        }
+        public string ThumbnailUrl { get; set; }
 
-        private TimeSpan _Length;
-        public TimeSpan Length
-        {
-            get { return _Length; }
-            set { SetProperty(ref _Length, value); }
-        }
+        
+        public TimeSpan Length { get; set; }
 
-        private DateTime _PostedAt;
-        public DateTime PostedAt
-        {
-            get { return _PostedAt; }
-            set { SetProperty(ref _PostedAt, value); }
-        }
+        
+        public DateTime PostedAt { get; set; }
 
 
-        private int _ViewCount;
-        public int ViewCount
-        {
-            get { return _ViewCount; }
-            set { SetProperty(ref _ViewCount, value); }
-        }
+        public int ViewCount { get; set; }
 
-        private int _CommentCount;
-        public int CommentCount
-        {
-            get { return _CommentCount; }
-            set { SetProperty(ref _CommentCount, value); }
-        }
+        
+        public int CommentCount { get; set; }
 
-        private int _MylistCount;
-        public int MylistCount
-        {
-            get { return _MylistCount; }
-            set { SetProperty(ref _MylistCount, value); }
-        }
+        
+        public int MylistCount { get; set; }
 
-        private string _Description;
-        public string Description
-        {
-            get { return _Description; }
-            set { SetProperty(ref _Description, value); }
-        }
+        
+        public string Description { get; set; }
 
         public double LoudnessCollectionValue { get; set; } = 1.0;
 
@@ -95,42 +60,21 @@ namespace Hohoema.Models.Domain.Niconico.Video
         public MovieType MovieType { get; set; } = MovieType.Mp4;
 
 
-        private List<NicoVideoTag> _tag;
-        public List<NicoVideoTag> Tags
-        {
-            get { return _tag; }
-            set { SetProperty(ref _tag, value); }
-        }
+        
+        public List<NicoVideoTag> Tags { get; set; }
 
-        private string _DescriptionWithHtml;
-        public string DescriptionWithHtml
-        {
-            get { return _DescriptionWithHtml; }
-            set { SetProperty(ref _DescriptionWithHtml, value); }
-        }
+        
+        public string DescriptionWithHtml { get; set; }
 
         public DateTime LastUpdated { get; set; }
 
-        private bool _isDeleted;
-        public bool IsDeleted
-        {
-            get { return _isDeleted; }
-            set { SetProperty(ref _isDeleted, value); }
-        }
+        public bool IsDeleted { get; set; }
 
-        private PrivateReasonType _privateReasonType = PrivateReasonType.None;
-        public PrivateReasonType PrivateReasonType
-        {
-            get { return _privateReasonType; }
-            set { SetProperty(ref _privateReasonType, value); }
-        }
 
-        private VideoPermission _permission = VideoPermission.Unknown;
-        public VideoPermission Permission
-        {
-            get { return _permission; }
-            set { SetProperty(ref _permission, value); }
-        }
+        public PrivateReasonType PrivateReasonType { get; set; } = PrivateReasonType.None;
+
+
+        public VideoPermission Permission { get; set; } = VideoPermission.Unknown;
 
 
         [BsonIgnore]

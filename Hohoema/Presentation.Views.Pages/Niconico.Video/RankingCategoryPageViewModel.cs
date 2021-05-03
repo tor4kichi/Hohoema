@@ -90,8 +90,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             CanChangeRankingParameter = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
 
-            SelectedRankingTag = new ReactiveProperty<RankingGenreTag>();
-            SelectedRankingTerm = new ReactiveProperty<RankingTerm?>(RankingTerm.Hour);
+            SelectedRankingTag = new ReactiveProperty<RankingGenreTag>()
+                .AddTo(_CompositeDisposable);
+            SelectedRankingTerm = new ReactiveProperty<RankingTerm?>(RankingTerm.Hour)
+                .AddTo(_CompositeDisposable);
 
             CurrentSelectableRankingTerms = new[]
             {
@@ -376,14 +378,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         protected override async IAsyncEnumerable<RankedVideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             int index = 0;
-            var videoInfoItems = _nicoVideoProvider.GetVideoInfoManyAsync(RankingRss.Items.Skip(head).Take(count).Select(x => x.GetVideoId()));
+            var videoInfoItems = _nicoVideoProvider.GetVideoInfoManyAsync(RankingRss.Items.Skip(head).Take(count).Select(x => x.GetVideoId()).ToArray());
             await foreach (var item in videoInfoItems)
             {
                 var vm = new RankedVideoInfoControlViewModel(item);
 
                 vm.Rank = (uint)(head + index + 1);
 
-                await vm.InitializeAsync(ct).ConfigureAwait(false);
+                await vm.InitializeAsync(ct);
 
                 yield return vm;
 

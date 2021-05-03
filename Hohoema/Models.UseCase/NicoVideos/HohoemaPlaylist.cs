@@ -533,11 +533,27 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
             if (position == ContentInsertPosition.Tail)
             {
-                QueuePlaylist.AddOnScheduler(item);
+                if (item is NicoVideo)
+                {
+                    QueuePlaylist.AddOnScheduler(item);
+                }
+                else
+                {
+                    ResolveVideoItemAsync(item.Id)
+                        .ContinueWith(prevTask => QueuePlaylist.AddOnScheduler(prevTask.Result));
+                }
             }
             else if (position == ContentInsertPosition.Head)
             {
-                QueuePlaylist.InsertOnScheduler(0, item);
+                if (item is NicoVideo)
+                {
+                    QueuePlaylist.InsertOnScheduler(0, item);
+                }
+                else
+                {
+                    ResolveVideoItemAsync(item.Id)
+                        .ContinueWith(prevTask => QueuePlaylist.InsertOnScheduler(0, prevTask.Result)); ;
+                }
             }
 
             WeakReferenceMessenger.Default.Send<QueueItemAddedMessage, string>(new QueueItemAddedMessage(new() { AddedItem = item.Id }), item.Id);
@@ -620,7 +636,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             return playlistItems;
         }
 
-        async Task<IVideoContent> ResolveVideoItemAsync(string videoId)
+        async Task<NicoVideo> ResolveVideoItemAsync(string videoId)
         {
             return await _nicoVideoProvider.GetNicoVideoInfo(videoId);
         }

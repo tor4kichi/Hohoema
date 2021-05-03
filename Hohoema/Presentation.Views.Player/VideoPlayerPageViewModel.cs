@@ -309,12 +309,12 @@ namespace Hohoema.Presentation.ViewModels.Player
 
 
 
-        public override void Destroy()
+        public override void Dispose()
         {
             VideoPlayer?.Dispose();
             CommentPlayer?.Dispose();
 
-            base.Destroy();
+            base.Dispose();
         }
 
         private void StartStateSavingTimer()

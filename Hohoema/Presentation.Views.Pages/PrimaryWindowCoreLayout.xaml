@@ -605,7 +605,7 @@
         <muxc:NavigationView.Content>
           <Frame x:Name="ContentFrame" VerticalContentAlignment="Stretch" DataContext="{x:Null}" Margin="0 0 0 0"
                  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                 CacheSize="2"
+                 CacheSize="0"
                        >
             <Frame.ContentTransitions>
               <TransitionCollection>

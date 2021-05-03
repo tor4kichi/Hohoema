@@ -13,12 +13,11 @@ using Uno.Threading;
 
 namespace Hohoema.Presentation.ViewModels
 {
-	public abstract class HohoemaViewModelBase : BindableBase, INavigationAware, IDestructible, IDisposable
+	public abstract class HohoemaViewModelBase : BindableBase, INavigationAware, IDisposable
 	{
         public HohoemaViewModelBase()
         {
             _CompositeDisposable = new CompositeDisposable();
-            _NavigatingCompositeDisposable = new CompositeDisposable();
         }
         
         protected CompositeDisposable _CompositeDisposable { get; private set; }
@@ -35,20 +34,15 @@ namespace Hohoema.Presentation.ViewModels
             set => SetProperty(ref _title, value);
         }
 
-        public virtual void Destroy()
-        {
-            _CompositeDisposable?.Dispose();
-        }
 
-
-
-        void IDisposable.Dispose()
+        public virtual void Dispose()
         {
             _CompositeDisposable?.Dispose();
         }
 
         public virtual void OnNavigatingTo(INavigationParameters parameters) 
         {
+            _NavigatingCompositeDisposable = new CompositeDisposable();
             Views.Pages.PrimaryWindowCoreLayout.SetCurrentNavigationParameters(parameters);
             _navigationCancellationTokenSource = new CancellationTokenSource()
                 .AddTo(_NavigatingCompositeDisposable);
@@ -62,8 +56,8 @@ namespace Hohoema.Presentation.ViewModels
         public virtual void OnNavigatedFrom(INavigationParameters parameters)
         {
             _navigationCancellationTokenSource?.Cancel();
+            _navigationCancellationTokenSource?.Dispose();
             _NavigatingCompositeDisposable.Dispose();
-            _NavigatingCompositeDisposable = new CompositeDisposable();
         }
 
     }

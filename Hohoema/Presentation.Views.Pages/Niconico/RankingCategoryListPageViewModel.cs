@@ -29,7 +29,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         IRecipient<RankingGenreShowRequestedEvent>,
         IRecipient<RankingGenreHiddenRequestedEvent>,
         IRecipient<RankingGenreFavoriteRequestedEvent>,
-        IRecipient<RankingGenreUnFavoriteRequestedEvent>
+        IRecipient<RankingGenreUnFavoriteRequestedEvent>,
+        IDisposable
     {
         public RankingCategoryListPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,

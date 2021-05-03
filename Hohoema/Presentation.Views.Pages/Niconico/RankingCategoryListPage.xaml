@@ -6,16 +6,21 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:toolkit="using:WinRTXamlToolkit.Controls"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
   xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
   xmlns:controls="using:Hohoema.Presentation.Views.Controls"
   xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
-  NavigationCacheMode="Enabled"
-  DataContext="{x:Null}"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   mc:Ignorable="d"
   >
+  <i:Interaction.Behaviors>
+    <core:EventTriggerBehavior EventName="Unloaded" >
+      <myActions:CallDisposeAction Target="{Binding}" xmlns:myActions="using:Hohoema.Presentation.Views.Interaction.Actions" />
+    </core:EventTriggerBehavior>
+  </i:Interaction.Behaviors>
+  
   <Page.Resources>
     <flyouts:RankingGenreItemGroupFlyout x:Key="RankingGenreItemGroupFlyout" />
 

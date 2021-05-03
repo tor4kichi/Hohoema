@@ -50,8 +50,7 @@ namespace Hohoema.FixPrism
                 lockSlim.EnterWriteLock();
                 try
                 {
-                    var currentContext = DispatcherQueue.GetForCurrentThread();
-                    if (_handlersByThread.TryGetValue(currentContext, out var list))
+                    foreach (var list in _handlersByThread.Values)
                     {
                         list.Remove(value);
                     }
@@ -167,7 +166,7 @@ namespace Hohoema.FixPrism
             handler?.Invoke(this, args);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             ((IDisposable)lockSlim).Dispose();
         }
