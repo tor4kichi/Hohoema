@@ -488,26 +488,26 @@ namespace Hohoema.Models.Domain.VideoCache
                                 _currentDownloadOperations.Remove(item.VideoId);
 
                                 (op as IDisposable).Dispose();
+                            }
 
-                                if (item.Status is VideoCacheStatus.DownloadPaused)
-                                {
-                                    // do nothing
-                                }
-                                else if (item.TotalBytes == item.ProgressBytes)
-                                {
-                                    item.Status = VideoCacheStatus.Completed;
-                                }
-                                else
-                                {
-                                    item.Status = VideoCacheStatus.Failed;
-                                }
+                            if (item.Status is VideoCacheStatus.DownloadPaused)
+                            {
+                                // do nothing
+                            }
+                            else if (item.TotalBytes == item.ProgressBytes)
+                            {
+                                item.Status = VideoCacheStatus.Completed;
+                            }
+                            else
+                            {
+                                item.Status = VideoCacheStatus.Failed;
+                            }
 
-                                UpdateVideoCacheEntity(item);
+                            UpdateVideoCacheEntity(item);
 
-                                if (item.Status is VideoCacheStatus.Completed)
-                                {
-                                    Debug.WriteLine("complete: " + item.FileName);
-                                }
+                            if (item.Status is VideoCacheStatus.Completed)
+                            {
+                                Debug.WriteLine("complete: " + item.FileName);
                             }
 
                             this.Completed?.Invoke(this, new VideoCacheCompletedEventArgs() { Item = item });
@@ -548,13 +548,6 @@ namespace Hohoema.Models.Domain.VideoCache
                     throw new VideoCacheException($"Failed video cache download starting. videoId: {item?.VideoId}", ex);
                 }
             }
-        }
-
-
-        internal void CleanupVideoCacheOperation(IVideoCacheDownloadOperation op)
-        {
-            var item = op.VideoCacheItem;
-            _currentDownloadOperations.Remove(item.VideoId);
         }
 
         private Task<StorageFile> GetCacheVideoFileAsync(string videoId)

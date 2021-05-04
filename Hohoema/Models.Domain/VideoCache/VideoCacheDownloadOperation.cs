@@ -102,8 +102,6 @@ namespace Hohoema.Models.Domain.VideoCache
         {
             _dmcVideoStreamingSession.StopStreamingFromOwnerShipReturned -= _dmcVideoStreamingSession_StopStreamingFromOwnerShipReturned;
             _dmcVideoStreamingSession.Dispose();
-
-            _videoCacheManager.CleanupVideoCacheOperation(this);
         }
 
         public Task PauseAsync()
