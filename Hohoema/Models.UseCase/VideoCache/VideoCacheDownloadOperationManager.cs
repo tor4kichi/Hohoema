@@ -101,12 +101,16 @@ namespace Hohoema.Models.UseCase.VideoCache
         void TriggerVideoCacheStatusChanged(string videoId)
         {
             var item = _videoCacheManager.GetVideoCache(videoId);
-            _messenger.Send<Events.VideoCacheStatusChangedMessage, string>(new((item?.Status, item)), videoId);
+            var message = new Events.VideoCacheStatusChangedMessage((videoId, item?.Status, item));
+            _messenger.Send<Events.VideoCacheStatusChangedMessage, string>(message, videoId);
+            _messenger.Send<Events.VideoCacheStatusChangedMessage>(message);
         }
 
         void TriggerVideoCacheProgressChanged(VideoCacheItem item)
         {
-            _messenger.Send<Events.VideoCacheProgressChangedMessage, string>(new(item), item.VideoId);
+            var message = new Events.VideoCacheProgressChangedMessage(item);
+            _messenger.Send<Events.VideoCacheProgressChangedMessage, string>(message, item.VideoId);
+            _messenger.Send<Events.VideoCacheProgressChangedMessage>(message);
         }
 
         private async void ApplicationSuspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
@@ -150,10 +154,10 @@ namespace Hohoema.Models.UseCase.VideoCache
 
             while (_downloadTasks.Count > 0)
             {
-                (int index, bool result) = await ValueTaskSupplement.ValueTaskEx.WhenAny(_downloadTasks);
-
                 using (await _downloadTsakUpdateLock.LockAsync())
                 {
+                    (int index, bool result) = await ValueTaskSupplement.ValueTaskEx.WhenAny(_downloadTasks);
+
                     var doneTask = _downloadTasks[index];
                     _downloadTasks.Remove(doneTask);
 

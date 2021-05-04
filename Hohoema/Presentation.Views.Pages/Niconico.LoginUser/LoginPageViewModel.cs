@@ -14,7 +14,7 @@ using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {
-    public class LoginPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
+    public class LoginPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync
     {
         // TODO: ログインエラー時のテキスト表示
 

@@ -88,7 +88,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
 
 
-    public class LivePlayerPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
+    public class LivePlayerPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync
 	{
 
         public IScheduler _scheduler { get; }

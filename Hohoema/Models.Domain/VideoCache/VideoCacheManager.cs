@@ -16,6 +16,8 @@ using Windows.Storage;
 using Windows.Storage.Search;
 using XTSSharp;
 using Hohoema.Models.Domain.Niconico;
+using Uno.Disposables;
+using CompositeDisposable = System.Reactive.Disposables.CompositeDisposable;
 
 namespace Hohoema.Models.Domain.VideoCache
 {
@@ -100,6 +102,7 @@ namespace Hohoema.Models.Domain.VideoCache
         CompositeDisposable _disposables = new CompositeDisposable();
         Dictionary<string, IVideoCacheDownloadOperation> _currentDownloadOperations = new Dictionary<string, IVideoCacheDownloadOperation>();
         AsyncLock _updateLock = new AsyncLock();
+        Dictionary<string, (VideoCacheEntity entity, VideoCacheItem item)> _cacheRequestCacheMap = new Dictionary<string, (VideoCacheEntity entity, VideoCacheItem item)>();
 
 
         public event EventHandler<VideoCacheRequestedEventArgs> Requested;
@@ -124,8 +127,6 @@ namespace Hohoema.Models.Domain.VideoCache
             _videoCacheSettings = videoCacheSettings;
             _videoCacheItemRepository = videoCacheItemRepository;
         }
-
-        Dictionary<string, (VideoCacheEntity entity, VideoCacheItem item)> _cacheRequestCacheMap = new Dictionary<string, (VideoCacheEntity entity, VideoCacheItem item)>();
 
 
         #region interface IDisposable
@@ -213,12 +214,12 @@ namespace Hohoema.Models.Domain.VideoCache
             return _videoCacheItemRepository.GetTotalCount();
         }
 
-        public List<VideoCacheItem> GetCacheRequestItemsRange(int head, int count)
+        public List<VideoCacheItem> GetCacheRequestItemsRange(int head, int count, VideoCacheStatus? status = null, bool decsending = false)
         {
-            return _videoCacheItemRepository.GetItemsOrderByRequestedAtDescending(head, count).Select(x => EntityToItem(this, x)).ToList();
+            return _videoCacheItemRepository.GetItemsOrderByRequestedAt(head, count, status, decsending).Select(x => EntityToItem(this, x)).ToList();
         }
 
-        
+
         public async Task<MediaSource> GetCacheVideoMediaSource(VideoCacheItem item)
         {
 #if !DEBUG
@@ -293,11 +294,14 @@ namespace Hohoema.Models.Domain.VideoCache
                     {
                         entity.RequestedAt = DateTime.Now;
                     }
-
-                    Requested?.Invoke(this, new VideoCacheRequestedEventArgs() { VideoId = videoId, RequestedQuality = requestCacheQuality });
                 }
 
                 _videoCacheItemRepository.UpdateVideoCache(entity);
+
+                if (entity.Status is VideoCacheStatus.Pending)
+                {
+                    Requested?.Invoke(this, new VideoCacheRequestedEventArgs() { VideoId = videoId, RequestedQuality = requestCacheQuality });
+                }
             }
         }
 
@@ -339,12 +343,6 @@ namespace Hohoema.Models.Domain.VideoCache
                 }
                 catch
                 {
-#if DEBUG
-                    if (Debugger.IsAttached)
-                    {
-                        Debugger.Break();
-                    }
-#endif
                 }
 
 
@@ -513,7 +511,15 @@ namespace Hohoema.Models.Domain.VideoCache
                             this.Completed?.Invoke(this, new VideoCacheCompletedEventArgs() { Item = item });
                         };
 
-                        _currentDownloadOperations.Add(item.VideoId, op);
+                        try
+                        {
+                            _currentDownloadOperations.Add(item.VideoId, op);
+                        }
+                        catch
+                        {
+                            opCreationResult.DownloadOperation.TryDispose();
+                            throw;
+                        }
 
                         item.Status = VideoCacheStatus.Downloading;
                         UpdateVideoCacheEntity(item);

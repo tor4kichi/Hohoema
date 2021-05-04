@@ -91,6 +91,11 @@ namespace Hohoema.Models.Domain.Niconico.Video
                 }
             }
 
+            if (!Helpers.InternetConnection.IsInternet())
+            {
+                return info;
+            }
+
             if (info == null)
             {
                 info = new NicoVideo()

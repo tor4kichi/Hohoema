@@ -31,7 +31,7 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
-    public sealed class SubscriptionManagementPageViewModel : HohoemaViewModelBase, INavigationAware, IRecipient<SettingsRestoredMessage>, IDisposable
+    public sealed class SubscriptionManagementPageViewModel : HohoemaPageViewModelBase, INavigationAware, IRecipient<SettingsRestoredMessage>, IDisposable
     {
         public ObservableCollection<SubscriptionViewModel> Subscriptions { get; }
 

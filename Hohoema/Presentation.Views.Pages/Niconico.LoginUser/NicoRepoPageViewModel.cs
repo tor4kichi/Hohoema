@@ -194,13 +194,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
         private readonly NicoRepoEntry _nicoRepoEntry;
 
         public NicoRepoVideoTimeline(NicoRepoEntry nicoRepoEntry, NicoRepoItemTopic itemType) 
-            : base(nicoRepoEntry.GetContentId())
+            : base(nicoRepoEntry.GetContentId(), nicoRepoEntry.Object.Name, nicoRepoEntry.Object.Image.OriginalString, TimeSpan.Zero)
         {
             _nicoRepoEntry = nicoRepoEntry;
             ItemTopic = itemType;
-
-            Label = _nicoRepoEntry.Object.Name;
-            ThumbnailUrl = _nicoRepoEntry.Object.Image.OriginalString;
 
             ItempTopicDescription = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, _nicoRepoEntry);
             /*
@@ -225,8 +222,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             }
             */
 
-        }
+        }        
 
+        public new TimeSpan Length { get; set; }
 
         public string ItempTopicDescription { get; }
 

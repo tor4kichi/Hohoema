@@ -139,20 +139,6 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
         }
 
 
-
-        public bool IsUpdateSourceVideoItem
-        {
-            get { return (bool)GetValue(IsUpdateSourceVideoItemProperty); }
-            set { SetValue(IsUpdateSourceVideoItemProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for IsUpdateSourceVideoItem.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty IsUpdateSourceVideoItemProperty =
-            DependencyProperty.Register("IsUpdateSourceVideoItem", typeof(bool), typeof(VideoItemsListView), new PropertyMetadata(true));
-
-
-
-
         public Thickness ItemsPanelPadding
         {
             get { return (Thickness)GetValue(ItemsPanelPaddingProperty); }
@@ -165,6 +151,28 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
 
 
+
+
+
+        public GroupStyle GroupStyle
+        {
+            get { return (GroupStyle)GetValue(GroupStyleProperty); }
+            set { SetValue(GroupStyleProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for GroupStyle.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty GroupStyleProperty =
+            DependencyProperty.Register("GroupStyle", typeof(GroupStyle), typeof(VideoItemsListView), new PropertyMetadata(null, OnGroupStylePropertyChanged));
+
+        private static void OnGroupStylePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var _this = (VideoItemsListView)d;
+            _this.ItemsList.GroupStyle.Clear();
+            if (e.NewValue is GroupStyle style)
+            {
+                _this.ItemsList.GroupStyle.Add(style);
+            }
+        }
 
         private readonly VideoItemsSelectionContext _selectionContext;
         private readonly NiconicoSession _niconicoSession;

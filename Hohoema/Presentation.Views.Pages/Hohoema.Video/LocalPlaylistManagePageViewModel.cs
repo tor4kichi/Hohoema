@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
-    public sealed class LocalPlaylistManagePageViewModel : HohoemaViewModelBase
+    public sealed class LocalPlaylistManagePageViewModel : HohoemaPageViewModelBase
     {
         private readonly PageManager _pageManager;
         private readonly LocalMylistManager _localMylistManager;

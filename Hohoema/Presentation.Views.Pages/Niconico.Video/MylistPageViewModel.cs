@@ -38,7 +38,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Follow;
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
 
-    public class MylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class MylistPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {

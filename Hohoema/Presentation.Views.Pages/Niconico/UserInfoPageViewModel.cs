@@ -35,7 +35,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Share;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
-    public class UserInfoPageViewModel : HohoemaViewModelBase, IUser, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class UserInfoPageViewModel : HohoemaPageViewModelBase, IUser, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {
@@ -334,9 +334,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 var userVideos = await UserProvider.GetUserVideos(uint.Parse(UserId), 1);
                 foreach (var item in userVideos.Data.Items.Take(5))
                 {
-                    var vm = new VideoInfoControlViewModel(item.Id);
-                    vm.SetTitle(item.Title);
-                    vm.SetThumbnailImage(item.Thumbnail.ListingUrl.OriginalString);
+                    var vm = new VideoInfoControlViewModel(item.Id, item.Title, item.Thumbnail.ListingUrl.OriginalString, TimeSpan.FromSeconds(item.Duration));
                     VideoInfoItems.Add(vm);
                 }
                 RaisePropertyChanged(nameof(VideoInfoItems));

@@ -39,6 +39,7 @@
               xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
               IsItemClickEnabled="True"
               Padding="{x:Bind ItemsPanelPadding, Mode=OneWay}"
+                Style="{StaticResource FixedHeaderListViewStyle}"
               >
         <ListView.Transitions>
           <TransitionCollection>
@@ -112,7 +113,9 @@
         </ListView.Header>
 
         <i:Interaction.Behaviors>
+          <!--
           <behaviors:StickyHeaderBehavior />
+          -->
           
           <core:EventTriggerBehavior EventName="ItemClick">
             <core:InvokeCommandAction Command="{x:Bind ItemCommand, Mode=OneWay}"

@@ -22,7 +22,7 @@ namespace Hohoema.Presentation.ViewModels
 {
 
 
-    public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
+    public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaPageViewModelBase
     {
 
         public ReactiveProperty<int> MaxItemsCount { get; private set; }
@@ -81,6 +81,11 @@ namespace Hohoema.Presentation.ViewModels
         {
             if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
             {
+                ItemsView.Source = new List<ITEM_VM>();
+                ItemsView.Clear();
+                ItemsView = null;
+                RaisePropertyChanged(nameof(ItemsView));
+
                 if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
                 {
                     hohoemaIncrementalSource.Error -= HohoemaIncrementalSource_Error;

@@ -235,7 +235,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                         var nextVideo = collectionView.ElementAtOrDefault(pos + 1) as ChannelVideoInfo;
                         if (nextVideo != null)
                         {
-                            var videoVM = new VideoInfoControlViewModel(nextVideo.ItemId);
+                            var videoVM = new VideoInfoControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length);
                             if (nextVideo.IsRequirePayment)
                             {
                                 videoVM.Permission = NiconicoLiveToolkit.Video.VideoPermission.RequirePay;
@@ -248,11 +248,11 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                             {
                                 videoVM.Permission = NiconicoLiveToolkit.Video.VideoPermission.MemberUnlimitedAccess;
                             }
-                            videoVM.SetTitle(nextVideo.Title);
-                            videoVM.SetSubmitDate(nextVideo.PostedAt);
-                            videoVM.SetThumbnailImage(nextVideo.ThumbnailUrl);
-                            videoVM.SetVideoDuration(nextVideo.Length);
-                            videoVM.SetDescription(nextVideo.ViewCount, nextVideo.CommentCount, nextVideo.MylistCount);
+
+                            videoVM.PostedAt = nextVideo.PostedAt;
+                            videoVM.ViewCount = nextVideo.ViewCount;
+                            videoVM.CommentCount = nextVideo.CommentCount;
+                            videoVM.MylistCount = nextVideo.MylistCount;
 
                             NextVideo = videoVM;
                             RaisePropertyChanged(nameof(NextVideo));

@@ -29,7 +29,7 @@ using Hohoema.Models.Helpers;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
-    public class SearchPageViewModel : HohoemaViewModelBase, ITitleUpdatablePage, IPinablePage
+    public class SearchPageViewModel : HohoemaPageViewModelBase, ITitleUpdatablePage, IPinablePage
     {
 		public HohoemaPin GetPin()
 		{

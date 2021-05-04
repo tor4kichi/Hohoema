@@ -255,14 +255,14 @@ namespace Hohoema.Presentation.Views.Flyouts
             VideoInfoItemSeparator.Visibility = visibleSingleSelectionItem;
             ExternalActionsSeparator.Visibility = visibleSingleSelectionItem;
 
-            if (!isMultipleSelection)
+            if (!isMultipleSelection && content is IVideoContentProvider provider)
             {
-                bool isUserProvidedVideo = (content?.ProviderType == NicoVideoUserType.User && content?.ProviderId != null);
+                bool isUserProvidedVideo = (provider?.ProviderType == NicoVideoUserType.User && provider?.ProviderId != null);
                 OpenOwnerMylistsPage.Visibility = 
                 OpenOwnerSeriesPage.Visibility = isUserProvidedVideo.ToVisibility();
 
                 OpenOwnerMylistsPage.CommandParameter =
-                OpenOwnerSeriesPage.CommandParameter = content?.ProviderId;
+                OpenOwnerSeriesPage.CommandParameter = provider?.ProviderId;
             }
             else
             {

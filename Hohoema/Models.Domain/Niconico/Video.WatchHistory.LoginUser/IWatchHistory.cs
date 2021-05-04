@@ -2,7 +2,7 @@
 {
     public interface IWatchHistory
     {
-        string RemoveToken { get; set; }
-        string ItemId { get; set; }
+        string RemoveToken { get;  }
+        string ItemId { get; }
     }
 }

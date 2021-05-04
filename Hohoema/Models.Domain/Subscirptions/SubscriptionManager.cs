@@ -68,7 +68,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             _nicoVideoRepository = nicoVideoRepository;
         }
 
-        public SubscriptionSourceEntity AddSubscription(IVideoContent video)
+        public SubscriptionSourceEntity AddSubscription(IVideoContentProvider video)
         {
             var owner = _nicoVideoOwnerRepository.Get(video.ProviderId);
             if (owner == null)

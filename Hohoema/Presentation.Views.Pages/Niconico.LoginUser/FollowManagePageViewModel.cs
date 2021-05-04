@@ -17,7 +17,7 @@ using Hohoema.Models.Domain.Niconico.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {
-	public class FollowManagePageViewModel : HohoemaViewModelBase
+	public class FollowManagePageViewModel : HohoemaPageViewModelBase
 	{
      	public FollowManagePageViewModel(
             ApplicationLayoutManager applicationLayoutManager,

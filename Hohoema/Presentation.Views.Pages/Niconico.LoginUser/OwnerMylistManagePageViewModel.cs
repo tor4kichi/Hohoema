@@ -29,7 +29,7 @@ using Windows.UI.Popups;
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {
 
-    public class OwnerMylistManagePageViewModel : HohoemaViewModelBase
+    public class OwnerMylistManagePageViewModel : HohoemaPageViewModelBase
     {
         ObservableCollection<IPlaylist> _sourcePlaylistItems = new ObservableCollection<IPlaylist>();
         public AdvancedCollectionView ItemsView { get; }

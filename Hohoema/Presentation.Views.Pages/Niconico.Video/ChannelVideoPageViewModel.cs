@@ -189,19 +189,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
     public sealed class ChannelVideoListItemViewModel : VideoInfoControlViewModel
     {
         public ChannelVideoListItemViewModel(
-            string rawVideoId
-            )
-            : base(rawVideoId)
-        {
-
-        }
-
-        public ChannelVideoListItemViewModel(
            NicoVideo data
            )
            : base(data)
         {
 
+        }
+
+        public ChannelVideoListItemViewModel(string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) 
+            : base(rawVideoId, title, thumbnailUrl, videoLength)
+        {
         }
     }
 
@@ -257,7 +254,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     // so0123456のフォーマットの動画ID
                     // var videoId = video.PurchasePreviewUrl.Split('/').Last();
 
-                    var channelVideo = new ChannelVideoListItemViewModel(video.ItemId);
+                    var channelVideo = new ChannelVideoListItemViewModel(video.ItemId, video.Title, video.ThumbnailUrl, video.Length);
                     if (video.IsRequirePayment)
                     {
                         channelVideo.Permission = NiconicoLiveToolkit.Video.VideoPermission.RequirePay;
@@ -270,11 +267,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     {
                         channelVideo.Permission = NiconicoLiveToolkit.Video.VideoPermission.MemberUnlimitedAccess;
                     }
-                    channelVideo.SetTitle(video.Title);
-                    channelVideo.SetThumbnailImage(video.ThumbnailUrl);
-                    channelVideo.SetVideoDuration(video.Length);
-                    channelVideo.SetSubmitDate(video.PostedAt);
-                    channelVideo.SetDescription(video.ViewCount, video.CommentCount, video.MylistCount);                    
+                    channelVideo.PostedAt = video.PostedAt;
+                    channelVideo.ViewCount = video.ViewCount;
+                    channelVideo.CommentCount = video.CommentCount;
+                    channelVideo.MylistCount = video.MylistCount; 
 
                     yield return channelVideo;
 

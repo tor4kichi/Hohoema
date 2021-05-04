@@ -209,7 +209,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                             break;
                         }
 
-                    case IVideoContent videoContent:
+                    case IVideoContentProvider videoContent:
                         if (videoContent.ProviderType == NicoVideoUserType.User)
                         {
                             OpenPageWithId(HohoemaPageType.UserVideo, videoContent.ProviderId);
@@ -251,7 +251,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
             {
             switch (parameter)
             {
-                case IVideoContent videoContent:
+                case IVideoContentProvider videoContent:
                     if (videoContent.ProviderType == NicoVideoUserType.User)
                     {
                         var p = new NavigationParameters();

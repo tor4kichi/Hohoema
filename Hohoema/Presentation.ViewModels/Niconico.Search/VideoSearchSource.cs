@@ -56,9 +56,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Search
             {
                 foreach (var item in res.VideoInfoItems.Where(x => x != null))
                 {
-                    var vm = new VideoInfoControlViewModel(item.Video.Id);
+                    var vm = new VideoInfoControlViewModel(item.Video.Id, item.Video.Title, item.Video.ThumbnailUrl.OriginalString, item.Video.Length);
 
-                    vm.SetupDisplay(item);
+                    vm.Setup(item);
 
 					await vm.InitializeAsync(ct).ConfigureAwait(false);
 

@@ -20,11 +20,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
         protected override bool CanExecute(object parameter)
         {
-            if (parameter is IVideoContent video)
+            if (parameter is IVideoContentProvider provider)
             {
-                if (video.ProviderId != null)
+                if (provider.ProviderId != null)
                 {
-                    return _ngSettings.IsHiddenVideoOwnerId(video.ProviderId);
+                    return _ngSettings.IsHiddenVideoOwnerId(provider.ProviderId);
                 }
             }
 
@@ -36,11 +36,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            if (parameter is IVideoContent video)
+            if (parameter is IVideoContentProvider provider)
             {
-                if (video.ProviderId != null)
+                if (provider.ProviderId != null)
                 {
-                    _ngSettings.RemoveHiddenVideoOwnerId(video.ProviderId);
+                    _ngSettings.RemoveHiddenVideoOwnerId(provider.ProviderId);
                 }
             }
         }

@@ -37,7 +37,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         public string Label { get; set; }
     }
 
-    public class CommunityPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class CommunityPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {

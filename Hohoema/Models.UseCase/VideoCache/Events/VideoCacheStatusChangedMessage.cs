@@ -4,9 +4,9 @@ using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 
 namespace Hohoema.Models.UseCase.VideoCache.Events
 {
-    public sealed class VideoCacheStatusChangedMessage : ValueChangedMessage<(VideoCacheStatus? CacheStatus, VideoCacheItem Item)>
+    public sealed class VideoCacheStatusChangedMessage : ValueChangedMessage<(string VideoId, VideoCacheStatus? CacheStatus, VideoCacheItem Item)>
     {
-        public VideoCacheStatusChangedMessage((VideoCacheStatus?, VideoCacheItem) value) : base(value)
+        public VideoCacheStatusChangedMessage((string VideoId, VideoCacheStatus?, VideoCacheItem) value) : base(value)
         {
         }
     }

@@ -18,35 +18,20 @@ namespace Hohoema.Models.Domain.Niconico.Video
         Swf,
     }
 
-    public class NicoVideo : IVideoContent, IVideoContentWritable
+    public class NicoVideo : IVideoContent, IVideoContentProvider, IVideoDetail, IVideoDetailWritable
     {
         [BsonId]
         public string RawVideoId { get; set; }
         public string VideoId { get; set; }
-
         public string ThreadId { get; set; }
 
         public string Title { get; set; }
-
-
         public string ThumbnailUrl { get; set; }
-
-        
         public TimeSpan Length { get; set; }
-
-        
         public DateTime PostedAt { get; set; }
-
-
         public int ViewCount { get; set; }
-
-        
         public int CommentCount { get; set; }
-
-        
         public int MylistCount { get; set; }
-
-        
         public string Description { get; set; }
 
         public double LoudnessCollectionValue { get; set; } = 1.0;

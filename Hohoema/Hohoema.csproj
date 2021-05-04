@@ -500,7 +500,7 @@
     <Compile Include="Presentation.ViewModels\HohoemaListingPageItemBase.cs" />
     <Compile Include="Presentation.ViewModels\HohoemaListingPageViewModelBase.cs" />
     <Compile Include="Presentation.ViewModels\HohoemaSecondaryViewFrameViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\HohoemaViewModelBase.cs" />
+    <Compile Include="Presentation.ViewModels\HohoemaPageViewModelBase.cs" />
     <Compile Include="Presentation.ViewModels\IHohoemaListItem.cs" />
     <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenPageWithIdCommand.cs" />
     <Compile Include="Presentation.ViewModels\Navigation.Commands\SearchCommand.cs" />
@@ -1379,6 +1379,10 @@
     <Page Include="Styles\DefaultStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\FixedHeaderListViewStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Styles\HohoemaListItemStyle.xaml">
       <Generator>MSBuild:Compile</Generator>

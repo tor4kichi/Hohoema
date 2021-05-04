@@ -194,13 +194,12 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     var nextVideo = collectionView.ElementAtOrDefault(pos + 1) as ChannelVideoInfo;
                     if (nextVideo != null)
                     {
-                        var videoVM = new VideoInfoControlViewModel(nextVideo.ItemId);
+                        var videoVM = new VideoInfoControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length);
                         videoVM.Permission = nextVideo.IsRequirePayment ? NiconicoLiveToolkit.Video.VideoPermission.RequirePay : NiconicoLiveToolkit.Video.VideoPermission.None;
-                        videoVM.SetTitle(nextVideo.Title);
-                        videoVM.SetSubmitDate(nextVideo.PostedAt);
-                        videoVM.SetThumbnailImage(nextVideo.ThumbnailUrl);
-                        videoVM.SetVideoDuration(nextVideo.Length);
-                        videoVM.SetDescription(nextVideo.ViewCount, nextVideo.CommentCount, nextVideo.MylistCount);
+                        videoVM.PostedAt = nextVideo.PostedAt;
+                        videoVM.ViewCount = nextVideo.ViewCount;
+                        videoVM.CommentCount = nextVideo.CommentCount;
+                        videoVM.MylistCount = nextVideo.MylistCount;
 
                         result.NextVideo = videoVM;
                     }

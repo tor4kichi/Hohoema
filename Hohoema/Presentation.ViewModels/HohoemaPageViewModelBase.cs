@@ -13,9 +13,9 @@ using Uno.Threading;
 
 namespace Hohoema.Presentation.ViewModels
 {
-	public abstract class HohoemaViewModelBase : BindableBase, INavigationAware, IDisposable
+	public abstract class HohoemaPageViewModelBase : BindableBase, INavigationAware, IDisposable
 	{
-        public HohoemaViewModelBase()
+        public HohoemaPageViewModelBase()
         {
             _CompositeDisposable = new CompositeDisposable();
         }

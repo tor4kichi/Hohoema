@@ -26,13 +26,24 @@
     mc:Ignorable="d"
     >
 
+  <Page.Resources>
+    <CollectionViewSource x:Key="CacheItemsViewSource"
+                          Source="{Binding Groups}"
+                          IsSourceGrouped="True"
+                          ItemsPath="Items"
+                          >
+
+    </CollectionViewSource>
+  </Page.Resources>
+  
   <Grid>
 
-    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
+    <videolistPage:VideoItemsListView ItemsSource="{Binding Source={StaticResource CacheItemsViewSource}}"
                                       ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
                                       x:Name="VideoItemsListView"
+                                      Padding="0 48 0 0"
                                       >
       <videolistPage:VideoItemsListView.Header>
 
@@ -71,6 +82,19 @@
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>
 
+
+      <videolistPage:VideoItemsListView.GroupStyle>
+        <GroupStyle HidesIfEmpty="True">
+          <GroupStyle.HeaderTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding CacheStatus, Converter={StaticResource LocalizeConverter}}" />
+            </DataTemplate>
+          </GroupStyle.HeaderTemplate>
+          
+        </GroupStyle>
+      </videolistPage:VideoItemsListView.GroupStyle>
+      
+      
     </videolistPage:VideoItemsListView>
 
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">

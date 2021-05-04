@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Models.Domain.Niconico.Video;
+using System;
 using System.Threading.Tasks;
 using Windows.Media.Core;
 

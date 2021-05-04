@@ -31,14 +31,29 @@ namespace Hohoema.Models.Domain.VideoCache
                 return _collection.FindAll().Sum(x => x.TotalBytes ?? 0);
             }
 
-            public IEnumerable<VideoCacheEntity> GetRange(int head, int count)
+            public IEnumerable<VideoCacheEntity> GetRange(int head, int count, VideoCacheStatus status)
             {
-                return _collection.FindAll().Skip(head).Take(count);
+                return _collection.FindAll().Where(x => x.Status == status).Skip(head).Take(count);
             }
 
-            public IEnumerable<VideoCacheEntity> GetRangeOrderByRequestedAtDescending( int head, int count)
+            public IEnumerable<VideoCacheEntity> GetRangeOrderByRequestedAt(int head, int count, VideoCacheStatus? status, bool decsending)
             {
-                return _collection.FindAll().OrderByDescending(x => x.RequestedAt).Skip(head).Take(count);
+                var enumerable = _collection.FindAll();
+                if (status is not null and VideoCacheStatus statusNotNull)
+                {
+                    enumerable = enumerable.Where(x => x.Status == statusNotNull);
+                }
+
+                if (decsending)
+                {
+                    enumerable = enumerable.OrderByDescending(x => x.RequestedAt);
+                }
+                else
+                {
+                    enumerable = enumerable.OrderBy(x => x.RequestedAt);
+                }
+
+                return enumerable.Skip(head).Take(count);
             }
         }
 
@@ -65,14 +80,14 @@ namespace Hohoema.Models.Domain.VideoCache
             return _videoCacheDbService.FindById(id);
         }
 
-        public IEnumerable<VideoCacheEntity> GetItems(int head, int count)
+        public IEnumerable<VideoCacheEntity> GetItems(int head, int count, VideoCacheStatus status)
         {
-            return _videoCacheDbService.GetRange(head, count);
+            return _videoCacheDbService.GetRange(head, count, status);
         }
 
-        public IEnumerable<VideoCacheEntity> GetItemsOrderByRequestedAtDescending(int head, int count)
+        public IEnumerable<VideoCacheEntity> GetItemsOrderByRequestedAt(int head, int count, VideoCacheStatus? status, bool decsending)
         {
-            return _videoCacheDbService.GetRangeOrderByRequestedAtDescending(head, count);
+            return _videoCacheDbService.GetRangeOrderByRequestedAt(head, count, status, decsending);
         }
 
         public void UpdateVideoCache(VideoCacheEntity entity)

@@ -381,9 +381,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             var videoInfoItems = _nicoVideoProvider.GetVideoInfoManyAsync(RankingRss.Items.Skip(head).Take(count).Select(x => x.GetVideoId()).ToArray());
             await foreach (var item in videoInfoItems)
             {
-                var vm = new RankedVideoInfoControlViewModel(item);
-
-                vm.Rank = (uint)(head + index + 1);
+                var vm = new RankedVideoInfoControlViewModel((uint)(head + index + 1), item);
 
                 await vm.InitializeAsync(ct);
 
@@ -415,21 +413,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
     public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
     {
         public RankedVideoInfoControlViewModel(
-            string rawVideoId
-            )
-            : base(rawVideoId)
-        {
-
-        }
-
-        public RankedVideoInfoControlViewModel(
-            NicoVideo data
+            uint rank, NicoVideo data
             )
             : base(data)
         {
-
+            Rank = rank;
         }
 
-        public uint Rank { get; internal set; }
+        public RankedVideoInfoControlViewModel(uint rank, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
+        {
+            Rank = rank;
+        }
+
+        public uint Rank { get; }
     }
 }

@@ -42,7 +42,7 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 {
-    public class SettingsPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
+    public class SettingsPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync
 	{
         private static Uri AppIssuePageUri = new Uri("https://github.com/tor4kichi/Hohoema/issues");
 

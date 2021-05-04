@@ -30,14 +30,24 @@ using Unity;
 
 namespace Hohoema.Presentation.ViewModels.VideoListPage
 {
-    public class VideoInfoControlViewModel : FixPrism.BindableBase, IVideoContent, IDisposable, 
+    public class VideoItemViewModel : FixPrism.BindableBase, IVideoContent, IDisposable,
         IRecipient<VideoPlayedMessage>,
         IRecipient<QueueItemAddedMessage>,
         IRecipient<QueueItemRemovedMessage>,
         IRecipient<QueueItemIndexUpdateMessage>,
         IRecipient<VideoCacheStatusChangedMessage>
     {
-        static VideoInfoControlViewModel()
+        private static readonly NicoVideoProvider _nicoVideoProvider;
+        private static readonly HohoemaPlaylist _hohoemaPlaylist;
+        private static readonly NicoVideoCacheRepository _nicoVideoRepository;
+        private static readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
+        private static readonly UserNameProvider _userNameProvider;
+        private static readonly ChannelProvider _channelProvider;
+        private static readonly VideoFilteringSettings _ngSettings;
+        private static readonly VideoCacheManager _cacheManager;
+        protected static readonly IScheduler _scheduler;
+
+        static VideoItemViewModel()
         {
             _nicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
             _hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
@@ -47,22 +57,37 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             _nicoVideoRepository = App.Current.Container.Resolve<NicoVideoCacheRepository>();
             _videoPlayedHistoryRepository = App.Current.Container.Resolve<VideoPlayedHistoryRepository>();
             _userNameProvider = App.Current.Container.Resolve<UserNameProvider>();
-            _channelProvider =  App.Current.Container.Resolve<ChannelProvider>();
+            _channelProvider = App.Current.Container.Resolve<ChannelProvider>();
             _addWatchAfterCommand = App.Current.Container.Resolve<QueueAddItemCommand>();
-            _openVideoOwnerPageCommand = App.Current.Container.Resolve<OpenVideoOwnerPageCommand>();
 
             _removeWatchAfterCommand = App.Current.Container.Resolve<QueueRemoveItemCommand>();
         }
 
+        public string RawVideoId { get; }
 
-        public VideoInfoControlViewModel(
-            string rawVideoId
+        public TimeSpan Length { get; }
+
+        public string ThumbnailUrl { get; }
+
+        public string Title { get; }
+
+        public string Id => RawVideoId;
+
+        public string Label => Title;
+
+        bool IEquatable<IVideoContent>.Equals(IVideoContent other)
+        {
+            return this.RawVideoId == other.Id;
+        }
+
+        public VideoItemViewModel(
+            string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength
             )
         {
             RawVideoId = rawVideoId;
-
-            _ngSettings.VideoOwnerFilterAdded += _ngSettings_VideoOwnerFilterAdded;
-            _ngSettings.VideoOwnerFilterRemoved += _ngSettings_VideoOwnerFilterRemoved;
+            Title = title;
+            ThumbnailUrl = thumbnailUrl;
+            Length = videoLength;
 
             WeakReferenceMessenger.Default.Register<VideoPlayedMessage, string>(this, RawVideoId);
             WeakReferenceMessenger.Default.Register<QueueItemAddedMessage, string>(this, RawVideoId);
@@ -70,37 +95,103 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             WeakReferenceMessenger.Default.Register<QueueItemIndexUpdateMessage, string>(this, RawVideoId);
 
             (IsQueueItem, QueueItemIndex) = _hohoemaPlaylist.IsQueuePlaylistItem(RawVideoId);
+
+            WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage, string>(this, RawVideoId);
+
+            var cacheRequest = _cacheManager.GetVideoCache(RawVideoId);
+            CacheStatus = cacheRequest?.Status;
+            CacheRequestedQuality = cacheRequest?.RequestedVideoQuality;
         }
 
-        public VideoInfoControlViewModel(NicoVideo data)            
-            : this(data.RawVideoId)
+
+        public override void Dispose()
         {
-            Data = data;
-            
-            _Label = data.Title;
-            _PostedAt = data.PostedAt;
-            _Length = data.Length;
-            _ViewCount = data.ViewCount;
-            _MylistCount = data.MylistCount;
-            _CommentCount = data.CommentCount;
-            _ThumbnailUrl ??= data.ThumbnailUrl;
-            _IsDeleted = data.IsDeleted;
-            _PrivateReason = Data.PrivateReasonType;
-            _Description = Data.Description;
-            Permission = Data.Permission;
+            base.Dispose();
 
-            if (data.Owner != null)
-            {
-                ProviderId = data.Owner.OwnerId;
-                _ProviderName = data.Owner.ScreenName;
-                ProviderType = data.Owner.UserType;
-            }
-
-            SubscriptionWatchedIfNotWatch(data);
-            UpdateIsHidenVideoOwner(data);
-            SubscribeCacheState(data);
+            WeakReferenceMessenger.Default.UnregisterAll(this, RawVideoId);
         }
 
+        #region Watched
+
+        private bool _IsWatched;
+        public bool IsWatched
+        {
+            get { return _IsWatched; }
+            set { SetProperty(ref _IsWatched, value); }
+        }
+
+        private double _LastWatchedPositionInterpolation;
+        public double LastWatchedPositionInterpolation
+        {
+            get { return _LastWatchedPositionInterpolation; }
+            set { SetProperty(ref _LastWatchedPositionInterpolation, value); }
+        }
+
+
+        void IRecipient<VideoPlayedMessage>.Receive(VideoPlayedMessage message)
+        {
+            Watched(message.Value);
+        }
+
+        void Watched(VideoPlayedMessage.VideoPlayedEventArgs args)
+        {
+            IsWatched = true;
+            UnsubscriptionWatched();
+            LastWatchedPositionInterpolation = Math.Clamp(args.PlayedPosition.TotalSeconds / Length.TotalSeconds, 0.0, 1.0);
+        }
+
+        void SubscriptionWatchedIfNotWatch()
+        {
+            UnsubscriptionWatched();
+
+            var watched = _videoPlayedHistoryRepository.IsVideoPlayed(RawVideoId, out var hisotory);
+            IsWatched = watched;
+            if (!watched)
+            {
+                StrongReferenceMessenger.Default.Register<VideoPlayedMessage, string>(this, RawVideoId);
+            }
+            else
+            {
+                LastWatchedPositionInterpolation = hisotory.LastPlayedPosition != TimeSpan.Zero
+                    ? Math.Clamp(hisotory.LastPlayedPosition.TotalSeconds / Length.TotalSeconds, 0.0, 1.0)
+                    : 1.0
+                    ;
+            }
+        }
+
+        void UnsubscriptionWatched()
+        {
+            StrongReferenceMessenger.Default.Unregister<VideoPlayedMessage, string>(this, RawVideoId);
+        }
+
+
+
+
+        #endregion
+
+        #region Queue Item
+
+
+        private static readonly QueueAddItemCommand _addWatchAfterCommand;
+        public QueueAddItemCommand AddWatchAfterCommand => _addWatchAfterCommand;
+
+        private static readonly QueueRemoveItemCommand _removeWatchAfterCommand;
+        public QueueRemoveItemCommand RemoveWatchAfterCommand => _removeWatchAfterCommand;
+
+
+        private bool _IsQueueItem;
+        public bool IsQueueItem
+        {
+            get { return _IsQueueItem; }
+            set { SetProperty(ref _IsQueueItem, value); }
+        }
+
+        private int _QueueItemIndex;
+        public int QueueItemIndex
+        {
+            get { return _QueueItemIndex; }
+            set { SetProperty(ref _QueueItemIndex, value + 1); }
+        }
 
         void IRecipient<QueueItemAddedMessage>.Receive(QueueItemAddedMessage message)
         {
@@ -120,64 +211,101 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        private void _ngSettings_VideoOwnerFilterRemoved(object sender, VideoOwnerFilteringRemovedEventArgs e)
+        #endregion
+
+
+
+        #region VideoCache
+
+        private NicoVideoQuality? _CacheRequestedQuality;
+        public NicoVideoQuality? CacheRequestedQuality
         {
-            if (e.OwnerId == this.ProviderId)
-            {
-                UpdateIsHidenVideoOwner(Data);
-            }
+            get { return _CacheRequestedQuality; }
+            set { SetProperty(ref _CacheRequestedQuality, value); }
         }
 
-        private void _ngSettings_VideoOwnerFilterAdded(object sender, VideoOwnerFilteringAddedEventArgs e)
+        private VideoCacheStatus? _CacheStatus;
+        public VideoCacheStatus? CacheStatus
         {
-            if (e.OwnerId == this.ProviderId)
-            {
-                UpdateIsHidenVideoOwner(Data);
-            }
+            get { return _CacheStatus; }
+            set { SetProperty(ref _CacheStatus, value); }
         }
 
-        public void Dispose()
+        void IRecipient<VideoCacheStatusChangedMessage>.Receive(VideoCacheStatusChangedMessage message)
         {
-            _ngSettings.VideoOwnerFilterAdded -= _ngSettings_VideoOwnerFilterAdded;
-            _ngSettings.VideoOwnerFilterRemoved -= _ngSettings_VideoOwnerFilterRemoved;
+            _scheduler.Schedule(() =>
+            {
+                CacheStatus = message.Value.CacheStatus;
+                CacheRequestedQuality = message.Value.Item?.RequestedVideoQuality;
+            });
+        }
 
-            WeakReferenceMessenger.Default.UnregisterAll(this, RawVideoId);
+        private void UnsubscribeCacheState()
+        {
+            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, string>(this, RawVideoId);
+        }
 
-            UnsubscriptionWatched();
+        #endregion
+
+
+        
+    }
+
+
+
+
+
+
+    public class VideoInfoControlViewModel : VideoItemViewModel, IVideoDetail, IDisposable 
+    {
+        static VideoInfoControlViewModel()
+        {
+            _nicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
+            _hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
+            _ngSettings = App.Current.Container.Resolve<VideoFilteringSettings>();
+            _cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
+            _scheduler = App.Current.Container.Resolve<IScheduler>();
+            _nicoVideoRepository = App.Current.Container.Resolve<NicoVideoCacheRepository>();
+            _videoPlayedHistoryRepository = App.Current.Container.Resolve<VideoPlayedHistoryRepository>();
+            _userNameProvider = App.Current.Container.Resolve<UserNameProvider>();
+            _channelProvider =  App.Current.Container.Resolve<ChannelProvider>();
+
+            _openVideoOwnerPageCommand = App.Current.Container.Resolve<OpenVideoOwnerPageCommand>();
         }
 
 
-
-        private void NGVideoOwnerUserIds_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        public VideoInfoControlViewModel(
+            string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength
+            )
+            : base(rawVideoId, title, thumbnailUrl, videoLength)
         {
-            UpdateIsHidenVideoOwner(Data);
+            _ngSettings.VideoOwnerFilterAdded += _ngSettings_VideoOwnerFilterAdded;
+            _ngSettings.VideoOwnerFilterRemoved += _ngSettings_VideoOwnerFilterRemoved;
+
         }
 
-
-        void UpdateIsHidenVideoOwner(IVideoContent video)
+        public VideoInfoControlViewModel(NicoVideo data)            
+            : this(data.RawVideoId, data.Title, data.ThumbnailUrl, data.Length)
         {
-            if (video != null)
-            {
-                _ngSettings.TryGetHiddenReason(video, out var result);
-                VideoHiddenInfo = result;
-            }
-            else
-            {
-                VideoHiddenInfo = null;
-            }
-        }
+            Data = data;
+            
+            _PostedAt = data.PostedAt;
+            _ViewCount = data.ViewCount;
+            _MylistCount = data.MylistCount;
+            _CommentCount = data.CommentCount;
+            _IsDeleted = data.IsDeleted;
+            _PrivateReason = Data.PrivateReasonType;
+            _Description = Data.Description;
+            Permission = Data.Permission;
 
-        private DelegateCommand _UnregistrationHiddenVideoOwnerCommand;
-        public DelegateCommand UnregistrationHiddenVideoOwnerCommand =>
-            _UnregistrationHiddenVideoOwnerCommand ?? (_UnregistrationHiddenVideoOwnerCommand = new DelegateCommand(ExecuteUnregistrationHiddenVideoOwnerCommand));
-
-        void ExecuteUnregistrationHiddenVideoOwnerCommand()
-        {
-            if (Data != null)
+            if (data.Owner != null)
             {
-                _ngSettings.RemoveHiddenVideoOwnerId(Data.ProviderId);
+                ProviderId = data.Owner.OwnerId;
+                _ProviderName = data.Owner.ScreenName;
+                ProviderType = data.Owner.UserType;
             }
 
+            UpdateIsHidenVideoOwner(data);
         }
 
 
@@ -202,30 +330,12 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         private static readonly VideoCacheManager _cacheManager;
         private static readonly IScheduler _scheduler;
 
-        private static readonly QueueAddItemCommand _addWatchAfterCommand;
-        public QueueAddItemCommand AddWatchAfterCommand => _addWatchAfterCommand;
-
-        private static readonly QueueRemoveItemCommand _removeWatchAfterCommand;
-        public QueueRemoveItemCommand RemoveWatchAfterCommand => _removeWatchAfterCommand;
-
         private static readonly OpenVideoOwnerPageCommand _openVideoOwnerPageCommand;
 
         public OpenVideoOwnerPageCommand OpenVideoOwnerPageCommand => _openVideoOwnerPageCommand;
 
 
-        private bool _IsInitialized;
-        public bool IsInitialized
-        {
-            get { return _IsInitialized; }
-            set { SetProperty(ref _IsInitialized, value); }
-        }
-
-
-        public string RawVideoId { get; }
         public NicoVideo Data { get; private set; }
-
-        public string Id => RawVideoId;
-
 
         public string ProviderId { get; set; }
         
@@ -236,41 +346,12 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             set { SetProperty(ref _ProviderName, value); }
         }
 
-        private bool _IsQueueItem;
-        public bool IsQueueItem
-        {
-            get { return _IsQueueItem; }
-            set { SetProperty(ref _IsQueueItem, value); }
-        }
-
-        private int _QueueItemIndex;
-        public int QueueItemIndex
-        {
-            get { return _QueueItemIndex; }
-            set { SetProperty(ref _QueueItemIndex, value + 1); }
-        }
 
         public NicoVideoUserType ProviderType { get; set; }
 
         public IMylist OnwerPlaylist { get; }
 
         public VideoStatus VideoStatus { get; private set; }
-
-
-        private string _Label;
-        public string Label
-        {
-            get { return _Label; }
-            set { SetProperty(ref _Label, value); }
-        }
-
-        private TimeSpan _Length;
-        public TimeSpan Length
-        {
-            get { return _Length; }
-            set { SetProperty(ref _Length, value); }
-        }
-
 
         private string _Description;
         public string Description
@@ -309,38 +390,13 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             set { SetProperty(ref _CommentCount, value); }
         }
 
-        private string _ThumbnailUrl;
-        public string ThumbnailUrl
-        {
-            get { return _ThumbnailUrl; }
-            set { SetProperty(ref _ThumbnailUrl, value); }
-        }
-
-
         private bool _IsDeleted;
         public bool IsDeleted
         {
             get { return _IsDeleted; }
             set { SetProperty(ref _IsDeleted, value); }
         }
-
-
-        private FilteredResult _VideoHiddenInfo;
-        public FilteredResult VideoHiddenInfo
-        {
-            get { return _VideoHiddenInfo; }
-            set { SetProperty(ref _VideoHiddenInfo, value); }
-        }
-
-        private bool _IsWatched;
-        public bool IsWatched
-        {
-            get { return _IsWatched; }
-            set { SetProperty(ref _IsWatched, value); }
-        }
-
-       
-
+      
         private VideoPermission _permission;
         public VideoPermission Permission
         {
@@ -356,114 +412,87 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             set { SetProperty(ref _PrivateReason, value); }
         }
 
+        #region NG 
 
-        private double _LastWatchedPositionInterpolation;
-        public double LastWatchedPositionInterpolation
+
+
+
+        private FilteredResult _VideoHiddenInfo;
+        public FilteredResult VideoHiddenInfo
         {
-            get { return _LastWatchedPositionInterpolation; }
-            set { SetProperty(ref _LastWatchedPositionInterpolation, value); }
+            get { return _VideoHiddenInfo; }
+            set { SetProperty(ref _VideoHiddenInfo, value); }
         }
 
 
-        #region VideoCache
-
-        private NicoVideoQuality? _CacheRequestedQuality;
-        public NicoVideoQuality? CacheRequestedQuality
+        private void _ngSettings_VideoOwnerFilterRemoved(object sender, VideoOwnerFilteringRemovedEventArgs e)
         {
-            get { return _CacheRequestedQuality; }
-            set { SetProperty(ref _CacheRequestedQuality, value); }
-        }
-
-        private VideoCacheStatus? _CacheStatus;
-        public VideoCacheStatus? CacheStatus
-        {
-            get { return _CacheStatus; }
-            set { SetProperty(ref _CacheStatus, value); }
-        }
-
-
-        private void SubscribeCacheState(IVideoContent video)
-        {
-            UnsubscribeCacheState();
-
-            if (video != null)
+            if (e.OwnerId == this.ProviderId)
             {
-                WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage, string>(this, RawVideoId);
-
-                var cacheRequest = _cacheManager.GetVideoCache(video.Id);
-                CacheStatus = cacheRequest?.Status;
-                CacheRequestedQuality = cacheRequest?.RequestedVideoQuality;
+                UpdateIsHidenVideoOwner(Data);
             }
         }
 
-        void IRecipient<VideoCacheStatusChangedMessage>.Receive(VideoCacheStatusChangedMessage message)
+        private void _ngSettings_VideoOwnerFilterAdded(object sender, VideoOwnerFilteringAddedEventArgs e)
         {
-            _scheduler.Schedule(() =>
+            if (e.OwnerId == this.ProviderId)
             {
-                CacheStatus = message.Value.CacheStatus;
-                CacheRequestedQuality = message.Value.Item?.RequestedVideoQuality;
-            });
+                UpdateIsHidenVideoOwner(Data);
+            }
         }
 
-        private void UnsubscribeCacheState()
+        private void NGVideoOwnerUserIds_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, string>(this, RawVideoId);
+            UpdateIsHidenVideoOwner(Data);
         }
+
+
+
+        void UpdateIsHidenVideoOwner(IVideoContent video)
+        {
+            if (video != null)
+            {
+                _ngSettings.TryGetHiddenReason(video, out var result);
+                VideoHiddenInfo = result;
+            }
+            else
+            {
+                VideoHiddenInfo = null;
+            }
+        }
+
+        private DelegateCommand _UnregistrationHiddenVideoOwnerCommand;
+        public DelegateCommand UnregistrationHiddenVideoOwnerCommand =>
+            _UnregistrationHiddenVideoOwnerCommand ?? (_UnregistrationHiddenVideoOwnerCommand = new DelegateCommand(ExecuteUnregistrationHiddenVideoOwnerCommand));
+
+        void ExecuteUnregistrationHiddenVideoOwnerCommand()
+        {
+            if (Data != null)
+            {
+                _ngSettings.RemoveHiddenVideoOwnerId(Data.ProviderId);
+            }
+
+        }
+
+
 
         #endregion
 
-        void IRecipient<VideoPlayedMessage>.Receive(VideoPlayedMessage message)
+
+
+        public override void Dispose()
         {
-            Watched(message.Value);
+            base.Dispose();
+
+            _ngSettings.VideoOwnerFilterAdded -= _ngSettings_VideoOwnerFilterAdded;
+            _ngSettings.VideoOwnerFilterRemoved -= _ngSettings_VideoOwnerFilterRemoved;
         }
 
-        void Watched(VideoPlayedMessage.VideoPlayedEventArgs args)
-        {
-            if (Data is IVideoContent video
-                && video.Id == args.ContentId
-                )
-            {
-                IsWatched = true;
-                UnsubscriptionWatched();
-                LastWatchedPositionInterpolation = Math.Clamp(args.PlayedPosition.TotalSeconds / video.Length.TotalSeconds, 0.0, 1.0);
-            }
-        }
 
-        void SubscriptionWatchedIfNotWatch(IVideoContent video)
-        {
-            UnsubscriptionWatched();
-
-            if (video != null)
-            {
-                var watched = _videoPlayedHistoryRepository.IsVideoPlayed(video.Id, out var hisotory);
-                IsWatched = watched;
-                if (!watched)
-                {
-                    StrongReferenceMessenger.Default.Register<VideoPlayedMessage, string>(this, video.Id);
-                }
-                else
-                {
-                    LastWatchedPositionInterpolation = hisotory.LastPlayedPosition != TimeSpan.Zero 
-                        ? Math.Clamp(hisotory.LastPlayedPosition.TotalSeconds / video.Length.TotalSeconds, 0.0, 1.0)
-                        : 1.0
-                        ;
-                }
-            }
-        }
-
-        void UnsubscriptionWatched()
-        {
-            StrongReferenceMessenger.Default.Unregister<VideoPlayedMessage, string>(this, RawVideoId);
-        }
 
 
         public async ValueTask InitializeAsync(CancellationToken ct)
         {
-            if (Data?.Title != null)
-            {
-                SetTitle(Data.Title);
-            }
-
             if (Data?.Title == null || Data?.ProviderId == null)
             {
                 var data = await _nicoVideoProvider.GetNicoVideoInfo(RawVideoId, Data?.ProviderId == null);
@@ -475,70 +504,14 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             if (Data != null)
             {
-                 Setup(Data);
+                this.Setup(Data);
             }
 
-            IsInitialized = true;
+            UpdateIsHidenVideoOwner(this);
         }
 
 
-        public void Setup(NicoVideo info)
-        {
-//            Debug.WriteLine("thumbnail reflect : " + info.RawVideoId);
-            
-            Label = info.Title;
-            PostedAt = info.PostedAt;
-            Length = info.Length;
-            ViewCount = info.ViewCount;
-            MylistCount = info.MylistCount;
-            CommentCount = info.CommentCount;
-            ThumbnailUrl ??= info.ThumbnailUrl;
-            IsDeleted = info.IsDeleted;
-            PrivateReason = Data.PrivateReasonType;
-            Description = Data.Description;
-            Permission = Data.Permission;
-
-            if (info.Owner != null)
-            {
-                ProviderId = info.Owner.OwnerId;
-                ProviderName = info.Owner.ScreenName;
-                ProviderType = info.Owner.UserType;
-            }
-
-            SubscriptionWatchedIfNotWatch(info);
-            UpdateIsHidenVideoOwner(info);
-            SubscribeCacheState(info);
-        }
-
-        internal void SetDescription(int viewcount, int commentCount, int mylistCount)
-        {
-            ViewCount = viewcount;
-            CommentCount = commentCount;
-            MylistCount = mylistCount;
-        }
-
-        internal void SetTitle(string title)
-        {
-            Label = title;
-        }
-        internal void SetSubmitDate(DateTime submitDate)
-        {
-            PostedAt = submitDate;
-        }
-
-        internal void SetVideoDuration(TimeSpan duration)
-        {
-            Length = duration;
-        }
-
-        internal void SetThumbnailImage(string thumbnailImage)
-        {
-            ThumbnailUrl = thumbnailImage;
-        }
-
-
-
-		protected virtual VideoPlayPayload MakeVideoPlayPayload()
+        protected virtual VideoPlayPayload MakeVideoPlayPayload()
 		{
 			return new VideoPlayPayload()
 			{
@@ -549,54 +522,65 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
 
 
-        
-        public void SetupDisplay(Mntone.Nico2.Users.Video.VideoData data)
+    }
+
+    public static class VideoInfoControlViewModelExtesnsion
+    {
+
+
+        public static void Setup(this VideoInfoControlViewModel vm, NicoVideo data)
         {
-            if (data.VideoId != RawVideoId) { throw new Exception(); }
+            vm.PostedAt = data.PostedAt;
+            vm.ViewCount = data.ViewCount;
+            vm.MylistCount = data.MylistCount;
+            vm.CommentCount = data.CommentCount;
+            vm.IsDeleted = data.IsDeleted;
+            vm.PrivateReason = data.PrivateReasonType;
+            vm.Description = data.Description;
+            vm.Permission = data.Permission;
 
-            SetTitle(data.Title);
-            SetThumbnailImage(data.ThumbnailUrl.OriginalString);
-            SetSubmitDate(data.SubmitTime);
-            SetVideoDuration(data.Length);
+            if (data.Owner != null)
+            {
+                vm.ProviderId = data.Owner.OwnerId;
+                vm.ProviderType = data.Owner.UserType;
+            }
+        }
 
-            IsInitialized = true;
+        public static void Setup(this VideoInfoControlViewModel vm, Mntone.Nico2.Users.Video.VideoData data)
+        {
+            if (vm.RawVideoId != data.VideoId) { throw new Exception(); }
+
+            vm.PostedAt = data.SubmitTime;
         }
 
 
         // とりあえずマイリストから取得したデータによる初期化
-        public void SetupDisplay(MylistData data)
+        public static void Setup(this VideoInfoControlViewModel vm, MylistData data)
         {
-            if (data.WatchId != RawVideoId) { throw new Exception(); }
+            if (data.WatchId != vm.RawVideoId) { throw new Exception(); }
 
-            SetTitle(data.Title);
-            SetThumbnailImage(data.ThumbnailUrl.OriginalString);
-            SetSubmitDate(data.CreateTime);
-            SetVideoDuration(data.Length);
-            SetDescription((int)data.ViewCount, (int)data.CommentCount, (int)data.MylistCount);
+            vm.PostedAt = data.CreateTime;
 
-            IsInitialized = true;
+            vm.ViewCount = (int)data.ViewCount;
+            vm.CommentCount = (int)data.CommentCount;
+            vm.MylistCount = (int)data.MylistCount;
         }
 
 
         // 個別マイリストから取得したデータによる初期化
-        public void SetupDisplay(VideoInfo data)
+        public static void Setup(this VideoInfoControlViewModel vm, VideoInfo data)
         {
-            if (data.Video.Id != RawVideoId) { throw new Exception(); }
+            if (vm.RawVideoId != data.Video.Id) { throw new Exception(); }
 
-            SetTitle(data.Video.Title);
-            SetThumbnailImage(data.Video.ThumbnailUrl.OriginalString);
-            SetSubmitDate(data.Video.UploadTime);
-            SetVideoDuration(data.Video.Length);
-            SetDescription((int)data.Video.ViewCount, (int)data.Thread.GetCommentCount(), (int)data.Video.MylistCount);
-            ProviderId = data.Video.UserId ?? data.Video.CommunityId;
-            ProviderType = data.Thread.GroupType == "channel" ? NicoVideoUserType.Channel : NicoVideoUserType.User;
+            vm.PostedAt = data.Video.UploadTime;
+            vm.ViewCount = (int)data.Video.ViewCount;
+            vm.CommentCount = (int)data.Thread.GetCommentCount();
+            vm.MylistCount = (int)data.Video.MylistCount;
 
-            IsInitialized = true;
+            vm.ProviderId = data.Video.UserId ?? data.Video.CommunityId;
+            vm.ProviderType = data.Thread.GroupType == "channel" ? NicoVideoUserType.Channel : NicoVideoUserType.User;
         }
-
     }
-
-
 
 
 

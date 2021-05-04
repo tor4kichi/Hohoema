@@ -24,7 +24,7 @@ using Windows.UI.Xaml.Data;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
-    public class RankingCategoryListPageViewModel : HohoemaViewModelBase, 
+    public class RankingCategoryListPageViewModel : HohoemaPageViewModelBase, 
         IRecipient<SettingsRestoredMessage>,
         IRecipient<RankingGenreShowRequestedEvent>,
         IRecipient<RankingGenreHiddenRequestedEvent>,

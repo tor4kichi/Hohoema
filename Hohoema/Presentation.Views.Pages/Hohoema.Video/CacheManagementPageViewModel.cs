@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-using Hohoema.Models.Helpers;
+//using Hohoema.Models.Helpers;
 using Prism.Commands;
 using Windows.System;
 using Prism.Navigation;
@@ -24,11 +24,19 @@ using Hohoema.Models.Domain.Notification;
 using Hohoema.Models.Domain.VideoCache;
 using Microsoft.Extensions.ObjectPool;
 using Hohoema.Models.UseCase.VideoCache;
+using Microsoft.Toolkit.Uwp;
+using Microsoft.Toolkit.Collections;
+using System.Collections.ObjectModel;
+using System.Reactive.Concurrency;
+using Hohoema.Models.UseCase.VideoCache.Events;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Uno.Extensions;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
-    public class CacheManagementPageViewModel : HohoemaListingPageViewModelBase<CacheVideoViewModel>, INavigatedAwareAsync
-	{
+    public class CacheManagementPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync,
+        IRecipient<VideoCacheStatusChangedMessage>
+    {
         public CacheManagementPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             VideoCacheSettings cacheSettings,
@@ -61,6 +69,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
                 }
             });
 
+            Groups = new (new[] 
+            {
+                VideoCacheStatus.Downloading,
+                VideoCacheStatus.Failed,
+                VideoCacheStatus.DownloadPaused,
+                VideoCacheStatus.Pending,
+                VideoCacheStatus.Completed,
+            }
+            .Select(x => new CacheItemsGroup(x, new ObservableCollection<CacheVideoViewModel>()))
+            );
 
         }
         private readonly VideoCacheFolderManager _videoCacheFolderManager;
@@ -102,128 +120,212 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
 
 
+        public ObservableCollection<CacheItemsGroup> Groups { get; }
 
-        #region Implement HohoemaVideListViewModelBase
-
-        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public class CacheItemsGroup
         {
-            await base.OnNavigatedToAsync(parameters);
+            public CacheItemsGroup(VideoCacheStatus cacheStatus, ObservableCollection<CacheVideoViewModel> items)
+            {
+                CacheStatus = cacheStatus;
+                Items = items;
+            }
+            public VideoCacheStatus CacheStatus { get;  }
+            public ObservableCollection<CacheVideoViewModel> Items { get; }
         }
+
+
+        private bool IsAssecsendingCacheStatus(VideoCacheStatus status)
+        {
+            return status is VideoCacheStatus.Pending;
+        }
+
+        private async ValueTask<CacheVideoViewModel> ItemVMFromVideoCacheItem(VideoCacheItem item)
+        {
+            var video = await NicoVideoProvider.GetNicoVideoInfo(item.VideoId);
+            return  new CacheVideoViewModel(video) { CacheRequestTime = item.RequestedAt };
+        }
+
+        async Task<IEnumerable<CacheVideoViewModel>> GetCachedItemByStatus(VideoCacheStatus status)
+        {
+            var isAssecsnding = status is VideoCacheStatus.Pending;
+            var reqItems = VideoCacheManager.GetCacheRequestItemsRange(0, int.MaxValue, status, !isAssecsnding);
+
+            CacheVideoViewModel[] list = new CacheVideoViewModel[reqItems.Count];
+            int index = 0;
+            foreach (var item in reqItems)
+            {
+                list[index] = await ItemVMFromVideoCacheItem(item);
+
+                index++;
+            }
+
+            return list;
+        }
+
+
 
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
-            Windows.UI.Xaml.Window.Current.Activated += Current_Activated;
+            // キャッシュ管理系のイベントに登録して詳細情報の掲示
+            
             base.OnNavigatedTo(parameters);
+        }
+
+
+        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        {
+            foreach (var group in Groups)
+            {
+                var items = await GetCachedItemByStatus(group.CacheStatus);
+                group.Items.Clear();
+                group.Items.AddRange(items);
+            }
+
+            WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage>(this);
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
-            Windows.UI.Xaml.Window.Current.Activated -= Current_Activated;
+            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage>(this);
+
             base.OnNavigatedFrom(parameters);
         }
 
-        // ウィンドウがアクティブになったタイミングで
-        // キャッシュフォルダ―が格納されたストレージをホットスタンバイ状態にしたい
-        // （コールドスタンバイ状態だと再生開始までのラグが大きい）
-        private async void Current_Activated(object sender, Windows.UI.Core.WindowActivatedEventArgs e)
+        async void IRecipient<VideoCacheStatusChangedMessage>.Receive(VideoCacheStatusChangedMessage message)
         {
-            if (e.WindowActivationState == Windows.UI.Core.CoreWindowActivationState.CodeActivated)
+            var status = message.Value.CacheStatus;
+            CacheVideoViewModel itemVM = null;
+            foreach (var group in Groups)
             {
-                var folder = VideoCacheManager.VideoCacheFolder;
-                await folder.GetBasicPropertiesAsync();
+                itemVM = group.Items.FirstOrDefault(x => x.Id == message.Value.VideoId);
+                
+                if (itemVM != null) 
+                {
+                    group.Items.Remove(itemVM);
+                    break; 
+                }
+            }
+
+            if (status == null) 
+            {
+                itemVM?.Dispose();
+                return; 
+            }
+
+            {
+                itemVM ??= await ItemVMFromVideoCacheItem(message.Value.Item);
+
+                var group = Groups.First(x => x.CacheStatus == status);
+                if (group == null) { throw new InvalidOperationException(); }
+
+                if (IsAssecsendingCacheStatus(status ?? throw new InvalidOperationException()))
+                {
+                    group.Items.Add(itemVM);
+                }
+                else
+                {
+                    group.Items.Insert(0, itemVM);
+                }
             }
         }
-
-
-
-
-        protected override IIncrementalSource<CacheVideoViewModel> GenerateIncrementalSource()
-		{
-			return new CacheVideoInfoLoadingSource(VideoCacheManager, NicoVideoProvider);
-		}
-
-		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
-		{
-			return mode == NavigationMode.New;
-		}
-
-		protected override void PostResetList()
-		{
-			
-		}
-
-
-
-
-        #endregion
-
     }
 
 
-    public class CacheVideoViewModel : VideoInfoControlViewModel
-	{
+    public class CacheVideoViewModel : VideoItemViewModel, IDisposable,
+        IRecipient<VideoCacheProgressChangedMessage>
+    {
         public CacheVideoViewModel(
-            string rawVideoId
+            IVideoContent data
             )
-            : base(rawVideoId)
+            : this(data.Id, data.Label, data.ThumbnailUrl, data.Length)
         {
-
+        
         }
 
-        public CacheVideoViewModel(
-            NicoVideo data
-            )
-            : base(data)
-        {
+        private object recipient = new object();
 
+        public CacheVideoViewModel(string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
+        {
+            WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage, string>(recipient, RawVideoId, (r, m) => RefreshCacheRequestInfomation(m.Value.CacheStatus, m.Value.Item));
+        }
+
+        
+
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, string>(recipient, RawVideoId);
+            WeakReferenceMessenger.Default.Unregister<VideoCacheProgressChangedMessage, string>(this, RawVideoId);
         }
 
         public DateTime CacheRequestTime { get; internal set; }
-    }
 
 
-	public class CacheVideoInfoLoadingSource : HohoemaIncrementalSourceBase<CacheVideoViewModel>
-	{
-
-        public CacheVideoInfoLoadingSource(VideoCacheManager cacheManager, NicoVideoProvider nicoVideoProvider)
-            : base()
+        private bool _HasCacheProgress;
+        public bool HasCacheProgress
         {
-            VideoCacheManager = cacheManager;
-            NicoVideoProvider = nicoVideoProvider;
+            get { return _HasCacheProgress; }
+            set { SetProperty(ref _HasCacheProgress, value); }
         }
 
-        public VideoCacheManager VideoCacheManager { get; }
-        public NicoVideoProvider NicoVideoProvider { get; }
-
-        public override uint OneTimeLoadCount => (uint)10;
-
-        protected override async IAsyncEnumerable<CacheVideoViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
+        private double _DownloadProgress;
+        public double DownloadProgress
         {
-            ct.ThrowIfCancellationRequested();
+            get { return _DownloadProgress; }
+            set { SetProperty(ref _DownloadProgress, value); }
+        }
 
-            var reqItems = VideoCacheManager.GetCacheRequestItemsRange(head, count);
-            var items = await NicoVideoProvider.GetVideoInfoManyAsync(reqItems.Select(x => x.VideoId), isLatestRequired: false).ToListAsync(ct);
-            foreach (var item in reqItems)
+        private bool _IsProgressUnknown;
+        public bool IsProgressUnknown
+        {
+            get { return _IsProgressUnknown; }
+            set { SetProperty(ref _IsProgressUnknown, value); }
+        }
+
+        void RefreshCacheRequestInfomation(VideoCacheStatus? cacheStatus, VideoCacheItem cacheItem = null)
+        {
+            _scheduler.Schedule(() =>
             {
-                var video = items.FirstOrDefault(x => x.VideoId == item.VideoId);
-                var vm = video is not null ? new CacheVideoViewModel(video) : new CacheVideoViewModel(item.VideoId);
-                vm.CacheRequestTime = item.RequestedAt;
-
-                if (video is null)
+                if (cacheStatus == null)
                 {
-                    await vm.InitializeAsync(ct).ConfigureAwait(false);
+                    DownloadProgress = 0;
+                    HasCacheProgress = false;
+                    IsProgressUnknown = false;
                 }
 
-                yield return vm;
+                if (cacheStatus is VideoCacheStatus.Downloading)
+                {
+                    if (!WeakReferenceMessenger.Default.IsRegistered<VideoCacheProgressChangedMessage, string>(this, RawVideoId))
+                    {
+                        WeakReferenceMessenger.Default.Register<VideoCacheProgressChangedMessage, string>(this, RawVideoId);
+                    }
+                }
+                else
+                {
+                    WeakReferenceMessenger.Default.Unregister<VideoCacheProgressChangedMessage, string>(this, RawVideoId);
+                }
 
-                ct.ThrowIfCancellationRequested();
-            }
+                if (cacheItem != null)
+                {
+                    DownloadProgress = cacheItem.GetProgressNormalized();
+                    HasCacheProgress = cacheStatus is VideoCacheStatus.Downloading or VideoCacheStatus.DownloadPaused;
+                    IsProgressUnknown = HasCacheProgress && cacheItem.ProgressBytes is null or 0;
+                }
+            });
         }
 
-        protected override ValueTask<int> ResetSourceImpl()
+        void IRecipient<VideoCacheProgressChangedMessage>.Receive(VideoCacheProgressChangedMessage message)
         {
-            return new ValueTask<int>(VideoCacheManager.GetCacheRequestCount());
+            _scheduler.Schedule(() =>
+            {
+                var cacheItem = message.Value;
+                DownloadProgress = cacheItem.GetProgressNormalized();
+                HasCacheProgress = true;
+                IsProgressUnknown = cacheItem.ProgressBytes is null or 0;
+            });
         }
+
     }
 
 }

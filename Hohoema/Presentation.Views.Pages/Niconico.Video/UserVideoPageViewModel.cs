@@ -171,12 +171,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             var items = res.Data.Items;
             foreach (var item in items)
             {
-                var vm = new VideoInfoControlViewModel(item.Id);
-                vm.SetTitle(item.Title);
-                vm.SetThumbnailImage(item.Thumbnail.ListingUrl.OriginalString);
-                vm.SetSubmitDate(item.RegisteredAt.DateTime);
-                vm.SetVideoDuration(TimeSpan.FromSeconds(item.Duration));
-                vm.SetDescription((int)item.Count.View, (int)item.Count.Comment, (int)item.Count.Mylist);
+                var vm = new VideoInfoControlViewModel(item.Id, item.Title, item.Thumbnail.ListingUrl.OriginalString, TimeSpan.FromSeconds(item.Duration));
+                vm.PostedAt = item.RegisteredAt.DateTime;
+                vm.ViewCount = (int)item.Count.View;
+                vm.CommentCount = (int)item.Count.Comment;
+                vm.MylistCount = (int)item.Count.Mylist;
 
                 await vm.InitializeAsync(ct).ConfigureAwait(false);
                 yield return vm;

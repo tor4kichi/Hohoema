@@ -39,7 +39,7 @@ using Hohoema.Models.Domain.Notification;
 namespace Hohoema.Presentation.ViewModels.Player
 {
 
-    public class VideoPlayerPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
+    public class VideoPlayerPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync
 	{
         // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
         private readonly IScheduler _scheduler;

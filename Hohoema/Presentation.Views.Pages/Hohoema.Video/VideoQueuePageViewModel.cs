@@ -16,7 +16,7 @@ using System.Windows.Input;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
-    public sealed class VideoQueuePageViewModel : HohoemaViewModelBase, INavigationAware
+    public sealed class VideoQueuePageViewModel : HohoemaPageViewModelBase, INavigationAware
     {
         private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly PlaylistObservableCollection _watchAfterPlaylist;

@@ -68,7 +68,7 @@ namespace Hohoema.Models.Domain.Subscriptions
         }
 
 
-        static FeedResultVideoItem ToFeedResultVideoItem(IVideoContent x) => new FeedResultVideoItem() { VideoId = x.Id, Title = x.Label, PostAt = x.PostedAt };
+        static FeedResultVideoItem ToFeedResultVideoItem(IVideoDetail x) => new FeedResultVideoItem() { VideoId = x.Id, Title = x.Label, PostAt = x.PostedAt };
 
 
 

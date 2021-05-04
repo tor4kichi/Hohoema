@@ -20,12 +20,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoListPage.Commands
 
         protected override bool CanExecute(object parameter)
         {
-            return parameter is IVideoContent;
+            return parameter is IVideoContentProvider;
         }
 
         protected override void Execute(object parameter)
         {
-            if (parameter is IVideoContent video)
+            if (parameter is IVideoContentProvider video)
             {
                 if (video.ProviderType == NicoVideoUserType.User)
                 {
