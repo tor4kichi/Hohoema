@@ -46,14 +46,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public Task DownloadAsync()
         {
-            try
-            {
-                return _downloadOperation.DownloadAsync();
-            }
-            finally
-            {
-                _downloadOperation.TryDispose();
-            }
+            return _downloadOperation.DownloadAsync();
         }
     }
 }
