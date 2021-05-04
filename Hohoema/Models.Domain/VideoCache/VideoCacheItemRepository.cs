@@ -35,6 +35,11 @@ namespace Hohoema.Models.Domain.VideoCache
             {
                 return _collection.FindAll().Skip(head).Take(count);
             }
+
+            public IEnumerable<VideoCacheEntity> GetRangeOrderByRequestedAtDescending( int head, int count)
+            {
+                return _collection.FindAll().OrderByDescending(x => x.RequestedAt).Skip(head).Take(count);
+            }
         }
 
         private readonly VideoCacheDbService _videoCacheDbService;
@@ -63,6 +68,11 @@ namespace Hohoema.Models.Domain.VideoCache
         public IEnumerable<VideoCacheEntity> GetItems(int head, int count)
         {
             return _videoCacheDbService.GetRange(head, count);
+        }
+
+        public IEnumerable<VideoCacheEntity> GetItemsOrderByRequestedAtDescending(int head, int count)
+        {
+            return _videoCacheDbService.GetRangeOrderByRequestedAtDescending(head, count);
         }
 
         public void UpdateVideoCache(VideoCacheEntity entity)

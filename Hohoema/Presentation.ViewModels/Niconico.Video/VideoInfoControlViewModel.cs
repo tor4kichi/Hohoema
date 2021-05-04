@@ -35,8 +35,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         IRecipient<QueueItemAddedMessage>,
         IRecipient<QueueItemRemovedMessage>,
         IRecipient<QueueItemIndexUpdateMessage>,
-        IRecipient<VideoCacheStatusChangedMessage>,
-        IRecipient<VideoCacheProgressChangedMessage>
+        IRecipient<VideoCacheStatusChangedMessage>
     {
         static VideoInfoControlViewModel()
         {
@@ -368,39 +367,11 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         #region VideoCache
 
-        private bool _HasCacheProgress;
-        public bool HasCacheProgress
-        {
-            get { return _HasCacheProgress; }
-            set { SetProperty(ref _HasCacheProgress, value); }
-        }
-
-        private double _DownloadProgress;
-        public double DownloadProgress
-        {
-            get { return _DownloadProgress; }
-            set { SetProperty(ref _DownloadProgress, value); }
-        }
-
-        private bool _IsProgressUnknown;
-        public bool IsProgressUnknown
-        {
-            get { return _IsProgressUnknown; }
-            set { SetProperty(ref _IsProgressUnknown, value); }
-        }
-
         private NicoVideoQuality? _CacheRequestedQuality;
         public NicoVideoQuality? CacheRequestedQuality
         {
             get { return _CacheRequestedQuality; }
             set { SetProperty(ref _CacheRequestedQuality, value); }
-        }
-
-        private NicoVideoQuality? _CacheDownloadedQuality;
-        public NicoVideoQuality? CacheDownloadedQuality
-        {
-            get { return _CacheDownloadedQuality; }
-            set { SetProperty(ref _CacheDownloadedQuality, value); }
         }
 
         private VideoCacheStatus? _CacheStatus;
@@ -420,70 +391,23 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage, string>(this, RawVideoId);
 
                 var cacheRequest = _cacheManager.GetVideoCache(video.Id);
-                RefreshCacheRequestInfomation(cacheRequest?.Status, cacheRequest);
+                CacheStatus = cacheRequest?.Status;
+                CacheRequestedQuality = cacheRequest?.RequestedVideoQuality;
             }
         }
 
-        void RefreshCacheRequestInfomation(VideoCacheStatus? cacheStatus, VideoCacheItem cacheItem = null)
-        {
-            _scheduler.Schedule(() =>
-            {
-                CacheStatus = cacheStatus;
-
-                if (cacheStatus == null)
-                {    
-                    CacheRequestedQuality = null;
-                    CacheDownloadedQuality = null;
-                    DownloadProgress = 0;
-                    HasCacheProgress = false;
-                    IsProgressUnknown = false;
-                }
-
-                if (cacheStatus is VideoCacheStatus.Downloading)
-                {
-                    if (!WeakReferenceMessenger.Default.IsRegistered<VideoCacheProgressChangedMessage, string>(this, RawVideoId))
-                    {
-                        WeakReferenceMessenger.Default.Register<VideoCacheProgressChangedMessage, string>(this, RawVideoId);
-                    }
-                }
-                else
-                {
-                    WeakReferenceMessenger.Default.Unregister<VideoCacheProgressChangedMessage>(this);
-                }
-
-                if (cacheItem != null)
-                {
-                    CacheRequestedQuality = cacheItem.RequestedVideoQuality;
-                    CacheDownloadedQuality = cacheItem.DownloadedVideoQuality;
-                    DownloadProgress = cacheItem.GetProgressNormalized();
-                    HasCacheProgress = cacheStatus is VideoCacheStatus.Downloading or VideoCacheStatus.DownloadPaused;
-                    IsProgressUnknown = HasCacheProgress && cacheItem.ProgressBytes is null or 0;
-                }
-            });
-        }
-
-
         void IRecipient<VideoCacheStatusChangedMessage>.Receive(VideoCacheStatusChangedMessage message)
         {
-            RefreshCacheRequestInfomation(message.Value.CacheStatus, message.Value.Item);
-        }
-
-        void IRecipient<VideoCacheProgressChangedMessage>.Receive(VideoCacheProgressChangedMessage message)
-        {
             _scheduler.Schedule(() =>
             {
-                var cacheItem = message.Value;
-                DownloadProgress = cacheItem.GetProgressNormalized();
-                HasCacheProgress = true;
-                IsProgressUnknown = cacheItem.ProgressBytes is null or 0;
+                CacheStatus = message.Value.CacheStatus;
+                CacheRequestedQuality = message.Value.Item?.RequestedVideoQuality;
             });
         }
-        
 
         private void UnsubscribeCacheState()
         {
             WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, string>(this, RawVideoId);
-            WeakReferenceMessenger.Default.Unregister<VideoCacheProgressChangedMessage, string>(this, RawVideoId);
         }
 
         #endregion

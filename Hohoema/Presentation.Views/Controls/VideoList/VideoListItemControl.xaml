@@ -12,7 +12,7 @@
   xmlns:conv="using:WinRTXamlToolkit.Converters"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:nicoLToolkitVideo="using:NiconicoLiveToolkit.Video" 
-  xmlns:local="using:Hohoema.Presentation.Views.Controls.VideoList" xmlns:winUI="using:Microsoft.UI.Xaml.Controls"
+  xmlns:local="using:Hohoema.Presentation.Views.Controls.VideoList" xmlns:winUI="using:Microsoft.UI.Xaml.Controls" xmlns:videoCache="using:Hohoema.Models.Domain.VideoCache"
   mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -36,29 +36,9 @@
         <Grid x:Name="QueueIndexLayout" Opacity="0.0" HorizontalAlignment="Right">
           <Border Width="4" Background="{ThemeResource SystemAccentColor}" Opacity="0.5" />
         </Grid>
+
         <StackPanel x:Name="CacheStatusLayout" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="Collapsed">
-
-
-          <TextBlock Opacity="0.6" FontSize="12">
-            <Run Text="{Binding CacheStatus, Converter={StaticResource LocalizeConverter}}" /> 
-          </TextBlock>
-
-          <TextBlock Opacity="0.6" FontSize="12">
-            <Run Text="{i18nExt:Localize Key=Quality}" />: <Run x:Name="CacheQualityText"  Text="{Binding CacheRequestedQuality, Converter={StaticResource LocalizeConverter}}" />
-          </TextBlock>
-
-          <StackPanel Orientation="Horizontal" Spacing="8" x:Name="CacheProgressLayout" Visibility="Collapsed">
-            <TextBlock x:Name="CacheProgressPercentage" Opacity="0.75" FontSize="12">
-          <Run Text="{Binding DownloadProgress, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
-            </TextBlock>
-            <ProgressBar x:Name="CacheProgressBar" 
-                     Maximum="1.0"
-                   Minimum="0.0"
-                   Value="{Binding DownloadProgress}"
-                   Width="120"
-                     IsIndeterminate="False"
-                   />
-          </StackPanel>
+          <SymbolIcon x:Name="CacheIcon" Symbol="Download" Height="32" Width="32" />
         </StackPanel>
 
         <uwpControls:DockPanel Margin="4 0 0 0"
@@ -244,17 +224,6 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTrigger:NotEqualStateTrigger Value="{Binding CacheStatus}" NotEqualTo="{x:Null}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
             <StateTrigger IsActive="{Binding IsWatched}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -276,37 +245,74 @@
         </VisualState>
       </VisualStateGroup>
 
+
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsProgressUnknown}" />
+            <windowsStateTrigger:EqualsStateTrigger Value="{Binding CacheStatus}">
+              <windowsStateTrigger:EqualsStateTrigger.EqualTo>
+                <videoCache:VideoCacheStatus>Pending</videoCache:VideoCacheStatus>
+              </windowsStateTrigger:EqualsStateTrigger.EqualTo>
+            </windowsStateTrigger:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="CacheProgressLayout.Visibility" Value="Visible" />
-            <Setter Target="CacheProgressBar.IsIndeterminate" Value="True" />
-            <Setter Target="CacheProgressPercentage.Visibility" Value="Collapsed" />
+            <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
+            <Setter Target="CacheIcon.Opacity" Value="0.5" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding HasCacheProgress}" />
+            <windowsStateTrigger:EqualsStateTrigger Value="{Binding CacheStatus}">
+              <windowsStateTrigger:EqualsStateTrigger.EqualTo>
+                <videoCache:VideoCacheStatus>Downloading</videoCache:VideoCacheStatus>
+              </windowsStateTrigger:EqualsStateTrigger.EqualTo>
+            </windowsStateTrigger:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="CacheProgressLayout.Visibility" Value="Visible" />
+            <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
+            <Setter Target="CacheIcon.Foreground" Value="{ThemeResource SystemAccentColor}" />
           </VisualState.Setters>
         </VisualState>
-      </VisualStateGroup>
-      <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTrigger:NotEqualStateTrigger Value="{Binding CacheRequestedQuality}" NotEqualTo="{Binding CacheDownloadedQuality}" />
+            <windowsStateTrigger:EqualsStateTrigger Value="{Binding CacheStatus}">
+              <windowsStateTrigger:EqualsStateTrigger.EqualTo>
+                <videoCache:VideoCacheStatus>DownloadPaused</videoCache:VideoCacheStatus>
+              </windowsStateTrigger:EqualsStateTrigger.EqualTo>
+            </windowsStateTrigger:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="CacheQualityText.Text" Value="{Binding CacheDownloadedQuality, Converter={StaticResource LocalizeConverter}}" />
+            <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
+            <Setter Target="CacheIcon.Foreground" Value="Yellow" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTrigger:EqualsStateTrigger Value="{Binding CacheStatus}">
+              <windowsStateTrigger:EqualsStateTrigger.EqualTo>
+                <videoCache:VideoCacheStatus>Completed</videoCache:VideoCacheStatus>
+              </windowsStateTrigger:EqualsStateTrigger.EqualTo>
+            </windowsStateTrigger:EqualsStateTrigger>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTrigger:EqualsStateTrigger Value="{Binding CacheStatus}">
+              <windowsStateTrigger:EqualsStateTrigger.EqualTo>
+                <videoCache:VideoCacheStatus>Failed</videoCache:VideoCacheStatus>
+              </windowsStateTrigger:EqualsStateTrigger.EqualTo>
+            </windowsStateTrigger:EqualsStateTrigger>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
+            <Setter Target="CacheIcon.Foreground" Value="Red" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
+
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>

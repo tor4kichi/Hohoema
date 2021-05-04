@@ -215,7 +215,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public List<VideoCacheItem> GetCacheRequestItemsRange(int head, int count)
         {
-            return _videoCacheItemRepository.GetItems(head, count).Select(x => EntityToItem(this, x)).ToList();
+            return _videoCacheItemRepository.GetItemsOrderByRequestedAtDescending(head, count).Select(x => EntityToItem(this, x)).ToList();
         }
 
         
