@@ -36,7 +36,7 @@
         <Grid x:Name="QueueIndexLayout" Opacity="0.0" HorizontalAlignment="Right">
           <Border Width="4" Background="{ThemeResource SystemAccentColor}" Opacity="0.5" />
         </Grid>
-        <StackPanel x:Name="CacheStatusLayout" HorizontalAlignment="Right" VerticalAlignment="Top">
+        <StackPanel x:Name="CacheStatusLayout" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="Collapsed">
 
 
           <TextBlock Opacity="0.6" FontSize="12">
@@ -244,10 +244,10 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTrigger:EqualsStateTrigger Value="{Binding CacheStatus}" EqualTo="{x:Null}" />
+            <windowsStateTrigger:NotEqualStateTrigger Value="{Binding CacheStatus}" NotEqualTo="{x:Null}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="CacheStatusLayout.Visibility" Value="Collapsed" />
+            <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

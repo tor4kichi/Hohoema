@@ -76,7 +76,7 @@ namespace Hohoema.Models.Domain.VideoCache
                 }
                 else
                 {
-                    _progressNormalized = ProgressBytes ?? 0 / (float)TotalBytes;
+                    _progressNormalized = (ProgressBytes ?? 0) / (float)TotalBytes;
                 }
             }
 
