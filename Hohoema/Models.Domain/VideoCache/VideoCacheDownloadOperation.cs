@@ -22,6 +22,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public event EventHandler Started;
         public event EventHandler Paused;
+        public event EventHandler Aborted;
         public event EventHandler<VideoCacheDownloadOperationProgress> Progress;
         public event EventHandler Completed;
 
@@ -69,11 +70,11 @@ namespace Hohoema.Models.Domain.VideoCache
             }
             catch (OperationCanceledException)
             {
-
+                Aborted?.Invoke(this, EventArgs.Empty);
             }
             catch (FileLoadException)
             {
-                throw;
+                Aborted?.Invoke(this, EventArgs.Empty);
             }
             catch (Exception)
             {

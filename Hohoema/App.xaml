@@ -34,6 +34,7 @@
 
         <ResourceDictionary Source="Presentation.Views/Controls/TransientContainer/TransientContainer.xaml"/>
         <ResourceDictionary Source="Presentation.Views/Controls/LiteInAppNotification/LiteInAppNotification.xaml"/>
+        <ResourceDictionary Source="Presentation.Views/Controls/VideoList/VideoListItem/VideoListItem.xaml"/>
 
         <muxc:XamlControlsResources  />
 

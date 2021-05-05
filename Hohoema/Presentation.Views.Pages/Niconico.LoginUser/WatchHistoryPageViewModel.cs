@@ -39,7 +39,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             PageManager = pageManager;
             WatchHistoryRemoveAllCommand = watchHistoryRemoveAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
-            Histories = new ObservableCollection<HistoryVideoInfoControlViewModel>();
+            Histories = new ObservableCollection<HistoryVideoListItemControlViewModel>();
         }
 
         private readonly NiconicoSession _niconicoSession;
@@ -50,7 +50,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
         public PageManager PageManager { get; }
         public WatchHistoryRemoveAllCommand WatchHistoryRemoveAllCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
-        public ObservableCollection<HistoryVideoInfoControlViewModel> Histories { get; }
+        public ObservableCollection<HistoryVideoListItemControlViewModel> Histories { get; }
 
         HistoriesResponse _HistoriesResponse;
 
@@ -105,7 +105,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
                         foreach (var x in _HistoriesResponse?.Histories ?? Enumerable.Empty<History>())
                         {
-                            var vm = new HistoryVideoInfoControlViewModel(
+                            var vm = new HistoryVideoListItemControlViewModel(
                                 _HistoriesResponse.Token,
                                 x.ItemId,
                                 x.WatchedAt.DateTime,
@@ -133,7 +133,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
     
 
 
-    public class HistoryVideoInfoControlViewModel : VideoInfoControlViewModel, IWatchHistory
+    public class HistoryVideoListItemControlViewModel : VideoListItemControlViewModel, IWatchHistory
     {
         public string RemoveToken { get; }
 
@@ -141,7 +141,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 		public DateTime LastWatchedAt { get; }
 		public uint UserViewCount { get;  }
 
-        public HistoryVideoInfoControlViewModel(string token, string itemId, DateTime lastWatchedAt, uint userVideCount, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
+        public HistoryVideoListItemControlViewModel(string token, string itemId, DateTime lastWatchedAt, uint userVideCount, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
         {
             RemoveToken = token;
             ItemId = itemId;

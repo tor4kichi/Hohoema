@@ -27,7 +27,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Follow;
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
 
-    public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, ISearchWithtag, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, ISearchWithtag, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -315,7 +315,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         #region Implement HohoemaVideListViewModelBase
 
-        protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
+        protected override IIncrementalSource<VideoListItemControlViewModel> GenerateIncrementalSource()
 		{
             return new VideoSearchSource(SearchOption.Keyword, SearchOption.SearchTarget == SearchTarget.Tag, SearchOption.Sort, SearchOption.Order, SearchProvider);
         }

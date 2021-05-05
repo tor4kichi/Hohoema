@@ -186,7 +186,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
     }
 
-    public sealed class ChannelVideoListItemViewModel : VideoInfoControlViewModel
+    public sealed class ChannelVideoListItemViewModel : VideoListItemControlViewModel
     {
         public ChannelVideoListItemViewModel(
            NicoVideo data

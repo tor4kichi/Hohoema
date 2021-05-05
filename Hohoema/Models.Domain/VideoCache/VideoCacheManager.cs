@@ -228,6 +228,10 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public async Task<MediaSource> GetCacheVideoMediaSource(VideoCacheItem item)
         {
+            if (!Helpers.InternetConnection.IsInternet())
+            {
+                throw new VideoCacheException("VideoCacheItem is can not play, required internet connection.");
+            }
 #if !DEBUG
             if (_niconicoSession.IsPremiumAccount is false) 
                 throw new VideoCacheException("VideoCacheItem is can not play. premium account required.");
@@ -470,6 +474,21 @@ namespace Hohoema.Models.Domain.VideoCache
                     {
                         var op = opCreationResult.DownloadOperation;
 
+                        op.Aborted += async (s, e) =>
+                        {
+                            var op = s as IVideoCacheDownloadOperation;
+
+                            using (await _updateLock.LockAsync())
+                            {
+                                var item = op.VideoCacheItem;
+                                _currentDownloadOperations.Remove(item.VideoId);
+
+                                (op as IDisposable).Dispose();
+                            }
+
+                            Progress?.Invoke(this, new VideoCacheProgressEventArgs() { Item = op.VideoCacheItem });
+                        };
+
                         op.Started += (s, e) => 
                         {
                             var op = (s as VideoCacheDownloadOperation);
@@ -674,7 +693,9 @@ namespace Hohoema.Models.Domain.VideoCache
 #endif
                 {
                     // Note: プレミアム会員のみ利用可能なので item.DownloadedVideoQuality が利用不可であることは想定しない
+#pragma warning disable CS0162 // 到達できないコードが検出されました
                     candidateDownloadingQuality = item.DownloadedVideoQuality;
+#pragma warning restore CS0162 // 到達できないコードが検出されました
                 }
                 else
                 {
@@ -790,6 +811,6 @@ namespace Hohoema.Models.Domain.VideoCache
             _videoCacheItemRepository.UpdateVideoCache(entity);
         }
 
-#endregion
+        #endregion
     }
 }

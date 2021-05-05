@@ -68,7 +68,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
     }
 
 
-    public sealed class RecommendVideoListItem : VideoInfoControlViewModel
+    public sealed class RecommendVideoListItem : VideoListItemControlViewModel
     {
         Mntone.Nico2.Videos.Recommend.Item _Item;
 

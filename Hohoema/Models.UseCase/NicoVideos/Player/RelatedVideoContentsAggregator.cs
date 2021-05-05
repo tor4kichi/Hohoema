@@ -21,12 +21,12 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         {
             ContentId = contentId;
         }
-        public VideoInfoControlViewModel CurrentVideo { get; internal set; }
+        public VideoListItemControlViewModel CurrentVideo { get; internal set; }
 
-        public VideoInfoControlViewModel NextVideo { get; internal set; }
+        public VideoListItemControlViewModel NextVideo { get; internal set; }
 
-        public List<VideoInfoControlViewModel> Videos { get; internal set; } = new List<VideoInfoControlViewModel>();
-        public List<VideoInfoControlViewModel> OtherVideos { get; internal set; } = new List<VideoInfoControlViewModel>();
+        public List<VideoListItemControlViewModel> Videos { get; internal set; } = new List<VideoListItemControlViewModel>();
+        public List<VideoListItemControlViewModel> OtherVideos { get; internal set; } = new List<VideoListItemControlViewModel>();
 
         public List<MylistPlaylist> Mylists { get; internal set; } = new List<MylistPlaylist>();
         public string ContentId { get; }
@@ -86,7 +86,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 var video = await NicoVideoProvider.GetNicoVideoInfo(JumpVideoId, requireLatest: true);
                 if (video != null)
                 {
-                    JumpVideo = new VideoInfoControlViewModel(video);
+                    JumpVideo = new VideoListItemControlViewModel(video);
                     RaisePropertyChanged(nameof(JumpVideo));
                 }
             }
@@ -109,7 +109,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 }
                 else
                 {
-                    var otherVideo = new VideoInfoControlViewModel(video);
+                    var otherVideo = new VideoListItemControlViewModel(video);
                     result.OtherVideos.Add(otherVideo);
                 }
             }
@@ -125,7 +125,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 var nextVideo = orderedSeriesVideos.Last();
                 if (nextVideo.RawVideoId != videoId)
                 {
-                    result.NextVideo = new VideoInfoControlViewModel(nextVideo);
+                    result.NextVideo = new VideoListItemControlViewModel(nextVideo);
 
                     orderedSeriesVideos.Remove(nextVideo);
                 }
@@ -136,7 +136,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             orderedSeriesVideos.Reverse();
             foreach (var video in orderedSeriesVideos)
             {
-                var videoVM = new VideoInfoControlViewModel(video);
+                var videoVM = new VideoListItemControlViewModel(video);
                 result.OtherVideos.Insert(0, videoVM);
             }
 
@@ -194,7 +194,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     var nextVideo = collectionView.ElementAtOrDefault(pos + 1) as ChannelVideoInfo;
                     if (nextVideo != null)
                     {
-                        var videoVM = new VideoInfoControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length);
+                        var videoVM = new VideoListItemControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length);
                         videoVM.Permission = nextVideo.IsRequirePayment ? NiconicoLiveToolkit.Video.VideoPermission.RequirePay : NiconicoLiveToolkit.Video.VideoPermission.None;
                         videoVM.PostedAt = nextVideo.PostedAt;
                         videoVM.ViewCount = nextVideo.ViewCount;
@@ -222,7 +222,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             var videos = await Video.GetRelatedVideos(videoId);
             Videos = videos.Select(x =>
             {
-                var vm = new VideoInfoControlViewModel(x);
+                var vm = new VideoListItemControlViewModel(x);
                 return vm;
             })
             .ToList();

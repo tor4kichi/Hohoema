@@ -22,8 +22,8 @@
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList" 
   xmlns:windowsStateTrigger="using:WindowsStateTriggers" 
   DataContext="{x:Null}"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
-    mc:Ignorable="d"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:videoList="using:Hohoema.Presentation.Views.Controls.VideoList.VideoListItem"
+  mc:Ignorable="d"
     >
 
   <Page.Resources>
@@ -77,7 +77,23 @@
       <videolistPage:VideoItemsListView.ItemTemplate>
         <DataTemplate>
           <Grid>
-            <videolistPage:VideoListItemControl />
+            <videoList:VideoListItem   
+              ImageUrl="{Binding ThumbnailUrl}"
+              ImageSubText="{Binding Length, Converter={StaticResource TimeToMovieLengthConverter}}"
+              IsQueueItem="{Binding IsQueueItem}"
+              CacheStatus="{Binding CacheStatus}"
+              MiddleClickOrSwipeRightCommand="{Binding ToggleWatchAfterCommand}">
+
+              <Grid>
+                <TextBlock Text="{Binding Label}" FontSize="16"
+                       TextWrapping="Wrap"
+                       VerticalAlignment="Center" />
+                <TextBlock Text="{Binding CacheRequestedQuality, Converter={StaticResource LocalizeConverter}}"
+                           VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                           Opacity="0.7"
+                           />
+              </Grid>
+            </videoList:VideoListItem>
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>

@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
-    public sealed class SeriesPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigationAware, INavigatedAwareAsync, ITitleUpdatablePage, IPinablePage
+    public sealed class SeriesPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigationAware, INavigatedAwareAsync, ITitleUpdatablePage, IPinablePage
     {
         public HohoemaPin GetPin()
         {
@@ -86,7 +86,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             await base.OnNavigatedToAsync(parameters);
         }
 
-        protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
+        protected override IIncrementalSource<VideoListItemControlViewModel> GenerateIncrementalSource()
         {
             return new SeriesVideosIncrementalSource(_seriesDetails.Videos);
         }
@@ -137,7 +137,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
     }
 
 
-    public class SeriesVideosIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
+    public class SeriesVideosIncrementalSource : HohoemaIncrementalSourceBase<VideoListItemControlViewModel>
     {
         private List<SeriresVideo> _videos;
 
@@ -151,13 +151,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             return new ValueTask<int>(_videos.Count);
         }
 
-        protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
+        protected override async IAsyncEnumerable<VideoListItemControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             ct.ThrowIfCancellationRequested();
 
             foreach (var item in _videos.Skip(head).Take(count))
             {
-                var itemVM = new VideoInfoControlViewModel(item.Id, item.Title, item.ThumbnailUrl.OriginalString, item.Duration);
+                var itemVM = new VideoListItemControlViewModel(item.Id, item.Title, item.ThumbnailUrl.OriginalString, item.Duration);
                 itemVM.PostedAt = item.PostAt;
                 itemVM.ViewCount = item.WatchCount;
                 itemVM.CommentCount = item.CommentCount;

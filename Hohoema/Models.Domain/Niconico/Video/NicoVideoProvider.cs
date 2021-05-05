@@ -76,7 +76,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         {
             if (NiconicoSession.ServiceStatus.IsOutOfService())
             {
-                return null;
+                return _nicoVideoRepository.Get(rawVideoId);
             }
 
             var info = _nicoVideoRepository.Get(rawVideoId);

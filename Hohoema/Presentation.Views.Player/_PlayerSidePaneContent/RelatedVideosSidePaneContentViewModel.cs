@@ -60,9 +60,9 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
 
         string CurrentVideoId;
-        public List<VideoInfoControlViewModel> Videos { get; private set; }
+        public List<VideoListItemControlViewModel> Videos { get; private set; }
 
-        public VideoInfoControlViewModel CurrentVideo { get; private set; }
+        public VideoListItemControlViewModel CurrentVideo { get; private set; }
 
         VideoRelatedInfomation _VideoViewerHelpInfo;
 
@@ -75,10 +75,10 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public bool HasVideoDescription { get; private set; }
-        public ObservableCollection<VideoInfoControlViewModel> OtherVideos { get; } = new ObservableCollection<VideoInfoControlViewModel>();
-        public VideoInfoControlViewModel NextVideo { get; private set; }
+        public ObservableCollection<VideoListItemControlViewModel> OtherVideos { get; } = new ObservableCollection<VideoListItemControlViewModel>();
+        public VideoListItemControlViewModel NextVideo { get; private set; }
 
-        public VideoInfoControlViewModel JumpVideo { get; private set; }
+        public VideoListItemControlViewModel JumpVideo { get; private set; }
 
         public ObservableCollection<MylistPlaylist> Mylists { get; } = new ObservableCollection<MylistPlaylist>();
 
@@ -121,7 +121,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                     var jumpVideo = await NicoVideoProvider.GetNicoVideoInfo(JumpVideoId, requireLatest: true);
                     if (jumpVideo != null)
                     {
-                        JumpVideo = new VideoInfoControlViewModel(jumpVideo);
+                        JumpVideo = new VideoListItemControlViewModel(jumpVideo);
                         RaisePropertyChanged(nameof(JumpVideo));
                     }
                 }
@@ -145,7 +145,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                         }
                         else
                         {
-                            var otherVideo = new VideoInfoControlViewModel(video);
+                            var otherVideo = new VideoListItemControlViewModel(video);
                             OtherVideos.Add(otherVideo);
                         }
                     }
@@ -162,7 +162,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                     var nextVideo = orderedSeriesVideos.Last();
                     if (nextVideo.RawVideoId != videoId)
                     {
-                        NextVideo = new VideoInfoControlViewModel(nextVideo);
+                        NextVideo = new VideoListItemControlViewModel(nextVideo);
 
                         orderedSeriesVideos.Remove(nextVideo);
 
@@ -175,7 +175,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 orderedSeriesVideos.Reverse();
                 foreach (var video in orderedSeriesVideos)
                 {
-                    var videoVM = new VideoInfoControlViewModel(video);
+                    var videoVM = new VideoListItemControlViewModel(video);
                     OtherVideos.Insert(0, videoVM);
                 }
 
@@ -235,7 +235,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                         var nextVideo = collectionView.ElementAtOrDefault(pos + 1) as ChannelVideoInfo;
                         if (nextVideo != null)
                         {
-                            var videoVM = new VideoInfoControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length);
+                            var videoVM = new VideoListItemControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length);
                             if (nextVideo.IsRequirePayment)
                             {
                                 videoVM.Permission = NiconicoLiveToolkit.Video.VideoPermission.RequirePay;
@@ -277,17 +277,17 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 }
 
 
-                Videos = new List<VideoInfoControlViewModel>();
+                Videos = new List<VideoListItemControlViewModel>();
                 var items = await NicoVideoProvider.GetRelatedVideos(videoId, 0, 10);
                 if (items.Video_info?.Any() ?? false)
                 {
-                    Videos.AddRange((IEnumerable<VideoInfoControlViewModel>)(items.Video_info?.Select((Func<Mntone.Nico2.Mylist.Video_info, VideoInfoControlViewModel>)(x =>
+                    Videos.AddRange((IEnumerable<VideoListItemControlViewModel>)(items.Video_info?.Select((Func<Mntone.Nico2.Mylist.Video_info, VideoListItemControlViewModel>)(x =>
                     {
                         var video = _nicoVideoRepository.Get(x.Video.Id);
                         video.Title = x.Video.Title;
                         video.ThumbnailUrl = x.Video.Thumbnail_url;
 
-                        var vm = new VideoInfoControlViewModel((NicoVideo)video);
+                        var vm = new VideoListItemControlViewModel((NicoVideo)video);
                         return vm;
                     }))));
                 }

@@ -51,7 +51,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         {
             base.OnNavigatedTo(parameters);
 
-            PlaylistItems = _watchAfterPlaylist.ToReadOnlyReactiveCollection(x => new VideoInfoControlViewModel(x as NicoVideo))
+            PlaylistItems = _watchAfterPlaylist.ToReadOnlyReactiveCollection(x => new VideoListItemControlViewModel(x as NicoVideo))
                 .AddTo(_NavigatingCompositeDisposable);
             RaisePropertyChanged(nameof(PlaylistItems));
         }

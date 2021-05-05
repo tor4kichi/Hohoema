@@ -26,6 +26,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Unity;
 
 namespace Hohoema.Presentation.ViewModels.VideoListPage
@@ -99,8 +100,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage, string>(this, RawVideoId);
 
             var cacheRequest = _cacheManager.GetVideoCache(RawVideoId);
-            CacheStatus = cacheRequest?.Status;
-            CacheRequestedQuality = cacheRequest?.RequestedVideoQuality;
+            RefreshCacheStatus(cacheRequest?.Status, cacheRequest);
         }
 
 
@@ -179,6 +179,21 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         public QueueRemoveItemCommand RemoveWatchAfterCommand => _removeWatchAfterCommand;
 
 
+        private DelegateCommand<object> _toggleWatchAfterCommand;
+        public DelegateCommand<object> ToggleWatchAfterCommand => _toggleWatchAfterCommand
+            ??= new DelegateCommand<object>(parameter => 
+            {
+                if (IsQueueItem)
+                {
+                    (_removeWatchAfterCommand as ICommand).Execute(parameter);
+                }
+                else
+                {
+                    (_addWatchAfterCommand as ICommand).Execute(parameter);
+                }
+            });
+
+
         private bool _IsQueueItem;
         public bool IsQueueItem
         {
@@ -235,9 +250,21 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             _scheduler.Schedule(() =>
             {
-                CacheStatus = message.Value.CacheStatus;
-                CacheRequestedQuality = message.Value.Item?.RequestedVideoQuality;
+                RefreshCacheStatus(message.Value.CacheStatus, message.Value.Item);
             });
+        }
+
+        void RefreshCacheStatus(VideoCacheStatus? status, VideoCacheItem item)
+        {
+            CacheStatus = status;
+            if (item?.DownloadedVideoQuality is not null and not NicoVideoQuality.Unknown and var quality)
+            {
+                CacheRequestedQuality = quality;
+            }
+            else
+            {
+                CacheRequestedQuality = item?.RequestedVideoQuality;
+            }
         }
 
         private void UnsubscribeCacheState()
@@ -256,9 +283,9 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
 
 
-    public class VideoInfoControlViewModel : VideoItemViewModel, IVideoDetail, IDisposable 
+    public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, IDisposable 
     {
-        static VideoInfoControlViewModel()
+        static VideoListItemControlViewModel()
         {
             _nicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
             _hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
@@ -274,17 +301,16 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        public VideoInfoControlViewModel(
+        public VideoListItemControlViewModel(
             string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength
             )
             : base(rawVideoId, title, thumbnailUrl, videoLength)
         {
             _ngSettings.VideoOwnerFilterAdded += _ngSettings_VideoOwnerFilterAdded;
             _ngSettings.VideoOwnerFilterRemoved += _ngSettings_VideoOwnerFilterRemoved;
-
         }
 
-        public VideoInfoControlViewModel(NicoVideo data)            
+        public VideoListItemControlViewModel(NicoVideo data)            
             : this(data.RawVideoId, data.Title, data.ThumbnailUrl, data.Length)
         {
             Data = data;
@@ -524,11 +550,11 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
     }
 
-    public static class VideoInfoControlViewModelExtesnsion
+    public static class VideoListItemControlViewModelExtesnsion
     {
 
 
-        public static void Setup(this VideoInfoControlViewModel vm, NicoVideo data)
+        public static void Setup(this VideoListItemControlViewModel vm, NicoVideo data)
         {
             vm.PostedAt = data.PostedAt;
             vm.ViewCount = data.ViewCount;
@@ -546,7 +572,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             }
         }
 
-        public static void Setup(this VideoInfoControlViewModel vm, Mntone.Nico2.Users.Video.VideoData data)
+        public static void Setup(this VideoListItemControlViewModel vm, Mntone.Nico2.Users.Video.VideoData data)
         {
             if (vm.RawVideoId != data.VideoId) { throw new Exception(); }
 
@@ -555,7 +581,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
 
         // とりあえずマイリストから取得したデータによる初期化
-        public static void Setup(this VideoInfoControlViewModel vm, MylistData data)
+        public static void Setup(this VideoListItemControlViewModel vm, MylistData data)
         {
             if (data.WatchId != vm.RawVideoId) { throw new Exception(); }
 
@@ -568,7 +594,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
 
         // 個別マイリストから取得したデータによる初期化
-        public static void Setup(this VideoInfoControlViewModel vm, VideoInfo data)
+        public static void Setup(this VideoListItemControlViewModel vm, VideoInfo data)
         {
             if (vm.RawVideoId != data.Video.Id) { throw new Exception(); }
 

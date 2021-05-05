@@ -485,7 +485,7 @@
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\QueueRemoveItemCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\WatchHistoryRemoveAllCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\WatchHistoryRemoveItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\VideoInfoControlViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Video\VideoListItemControlViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico\RankingCategoryListPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Video\RankingCategoryPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Ranking\Messages\RankingGenreCustomizeEvent.cs" />
@@ -666,6 +666,7 @@
     <Compile Include="Presentation.Views\Controls\LiteInAppNotification\LiteInAppNotification.cs" />
     <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.cs" />
     <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
+    <Compile Include="Presentation.Views\Controls\VideoList\VideoListItem\VideoListItem.cs" />
     <Compile Include="Presentation.Views\Converters\CacheStateToColorBrushConverter.cs" />
     <Compile Include="Presentation.Views\Converters\DateTimetoStringConverter.cs" />
     <Compile Include="Presentation.Views\Converters\EnumToNumberConverter.cs" />
@@ -1235,6 +1236,10 @@
     <Page Include="Presentation.Views\Controls\TransientContainer\TransientContainer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Presentation.Views\Controls\VideoList\VideoListItem\VideoListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Presentation.Views\Dialogs\AdvancedSelectDialog.xaml">
       <Generator>MSBuild:Compile</Generator>

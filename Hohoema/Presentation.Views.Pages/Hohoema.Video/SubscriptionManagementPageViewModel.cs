@@ -297,7 +297,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         public ReactiveProperty<bool> IsEnabled { get; }
 
-        public ObservableCollection<VideoInfoControlViewModel> Videos { get; } = new ObservableCollection<VideoInfoControlViewModel>();
+        public ObservableCollection<VideoListItemControlViewModel> Videos { get; } = new ObservableCollection<VideoListItemControlViewModel>();
 
         public IPlaylist WatchAfterPlaylist => _hohoemaPlaylist.QueuePlaylist;
 
@@ -325,7 +325,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         {
             Videos.Clear();
 
-            Videos.AddRange(result.Select(x => new VideoInfoControlViewModel(x)));
+            Videos.AddRange(result.Select(x => new VideoListItemControlViewModel(x)));
             LastUpdatedAt = updatedAt;
         }
 
@@ -408,11 +408,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
 
 
-        private DelegateCommand<VideoInfoControlViewModel> _PlayVideoItemCommand;
-        public DelegateCommand<VideoInfoControlViewModel> PlayVideoItemCommand =>
-            _PlayVideoItemCommand ?? (_PlayVideoItemCommand = new DelegateCommand<VideoInfoControlViewModel>(ExecutePlayVideoItemCommand));
+        private DelegateCommand<VideoListItemControlViewModel> _PlayVideoItemCommand;
+        public DelegateCommand<VideoListItemControlViewModel> PlayVideoItemCommand =>
+            _PlayVideoItemCommand ?? (_PlayVideoItemCommand = new DelegateCommand<VideoListItemControlViewModel>(ExecutePlayVideoItemCommand));
 
-        void ExecutePlayVideoItemCommand(VideoInfoControlViewModel videoVM)
+        void ExecutePlayVideoItemCommand(VideoListItemControlViewModel videoVM)
         {
             _hohoemaPlaylist.Play(videoVM, _hohoemaPlaylist.QueuePlaylist);
         }

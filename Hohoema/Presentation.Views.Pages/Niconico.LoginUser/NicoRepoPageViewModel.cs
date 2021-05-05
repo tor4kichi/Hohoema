@@ -189,7 +189,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
         NicoRepoItemTopic ItemTopic { get; }
     }
 
-    public class NicoRepoVideoTimeline : VideoInfoControlViewModel, IVideoContent, INicoRepoItem
+    public class NicoRepoVideoTimeline : VideoListItemControlViewModel, IVideoContent, INicoRepoItem
     {
         private readonly NicoRepoEntry _nicoRepoEntry;
 

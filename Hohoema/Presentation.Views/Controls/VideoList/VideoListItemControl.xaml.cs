@@ -68,7 +68,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
             var point = e.GetCurrentPoint(this);
             if (point.Properties.IsMiddleButtonPressed)
             {
-                var vm = DataContext as ViewModels.VideoListPage.VideoInfoControlViewModel;
+                var vm = DataContext as VideoItemViewModel;
                 if (vm.IsQueueItem)
                 {
                     (vm.RemoveWatchAfterCommand as ICommand).Execute(vm);
@@ -83,7 +83,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
         private void SwipeItem_Invoked(Microsoft.UI.Xaml.Controls.SwipeItem sender, Microsoft.UI.Xaml.Controls.SwipeItemInvokedEventArgs args)
         {
-            var vm = args.SwipeControl.DataContext as VideoInfoControlViewModel;
+            var vm = args.SwipeControl.DataContext as VideoItemViewModel;
             if (vm.IsQueueItem)
             {
                 (vm.RemoveWatchAfterCommand as ICommand).Execute(vm);

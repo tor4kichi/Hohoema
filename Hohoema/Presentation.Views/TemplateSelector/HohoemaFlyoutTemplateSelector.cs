@@ -23,7 +23,7 @@ namespace Hohoema.Presentation.Views.TemplateSelector
 
         protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
-            if (item is VideoInfoControlViewModel)
+            if (item is VideoListItemControlViewModel)
             {
                 return VideoFlyoutTemplate;
             }
@@ -41,7 +41,7 @@ namespace Hohoema.Presentation.Views.TemplateSelector
 
         protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item)
         {
-            if (item is VideoInfoControlViewModel)
+            if (item is VideoListItemControlViewModel)
             {
                 return VideoFlyoutTemplate;
             }
