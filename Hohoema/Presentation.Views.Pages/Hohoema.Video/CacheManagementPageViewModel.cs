@@ -142,7 +142,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         private async ValueTask<CacheVideoViewModel> ItemVMFromVideoCacheItem(VideoCacheItem item)
         {
             var video = await NicoVideoProvider.GetNicoVideoInfo(item.VideoId);
-            return  new CacheVideoViewModel(video) { CacheRequestTime = item.RequestedAt };
+            return  new CacheVideoViewModel(item, video) { CacheRequestTime = item.RequestedAt };
         }
 
         async Task<IEnumerable<CacheVideoViewModel>> GetCachedItemByStatus(VideoCacheStatus status)
@@ -235,18 +235,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         IRecipient<VideoCacheProgressChangedMessage>
     {
         public CacheVideoViewModel(
+            VideoCacheItem videoCacheItem,
             IVideoContent data
             )
-            : this(data.Id, data.Label, data.ThumbnailUrl, data.Length)
+            : this(videoCacheItem, data.Id, data.Label, data.ThumbnailUrl, data.Length)
         {
         
         }
 
         private object recipient = new object();
 
-        public CacheVideoViewModel(string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
+        public CacheVideoViewModel(VideoCacheItem videoCacheItem, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
         {
             WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage, string>(recipient, RawVideoId, (r, m) => RefreshCacheRequestInfomation(m.Value.CacheStatus, m.Value.Item));
+            RefreshCacheRequestInfomation(videoCacheItem.Status, videoCacheItem);
         }
 
         

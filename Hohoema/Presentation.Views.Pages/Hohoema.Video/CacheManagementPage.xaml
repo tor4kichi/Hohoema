@@ -85,7 +85,7 @@
               MiddleClickOrSwipeRightCommand="{Binding ToggleWatchAfterCommand}">
 
               <Grid>
-                <StackPanel VerticalAlignment="Center">
+                <StackPanel VerticalAlignment="Center" Spacing="4">
                   <TextBlock Text="{Binding Label}" FontSize="16"
                        TextWrapping="Wrap"
                        VerticalAlignment="Center" />

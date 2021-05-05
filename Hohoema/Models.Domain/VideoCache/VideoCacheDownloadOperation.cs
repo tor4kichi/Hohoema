@@ -46,11 +46,11 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public async Task DownloadAsync()
         {
-            Stream downloadStream = null;
+            IRandomAccessStream downloadStream = null;
             try
             {
                 var uri = await _dmcVideoStreamingSession.GetDownloadUrlAndSetupDownloadSession();
-                downloadStream = new HttpStreamForWindows(uri, _dmcVideoStreamingSession.NiconicoSession.Context.HttpClient);
+                downloadStream = await HttpRandomAccessStream.CreateAsync(_dmcVideoStreamingSession.NiconicoSession.Context.HttpClient, uri);
             }
             catch
             {
@@ -63,7 +63,11 @@ namespace Hohoema.Models.Domain.VideoCache
             _cancellationTokenSource = new CancellationTokenSource();
             try
             {
-                await _videoCacheDownloadOperationOutput.CopyStreamAsync(downloadStream, new Progress<VideoCacheDownloadOperationProgress>(x => Progress?.Invoke(this, x)), _cancellationTokenSource.Token);
+                var ct = _cancellationTokenSource.Token;
+                await Task.Run(async () => 
+                {
+                    await _videoCacheDownloadOperationOutput.CopyStreamAsync(downloadStream.AsStreamForRead(), new Progress<VideoCacheDownloadOperationProgress>(x => Progress?.Invoke(this, x)), ct);
+                }, ct);
                 Completed?.Invoke(this, EventArgs.Empty);
             }
             catch (OperationCanceledException)

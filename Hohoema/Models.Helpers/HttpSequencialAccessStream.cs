@@ -11,321 +11,275 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Windows.Web.Http;
 using Windows.System;
+using Windows.Storage.Streams;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Foundation;
 
 namespace Espresso3389.HttpStream
 {
-    /// <summary>
-    /// Implements randomly accessible <see cref="Stream"/> on HTTP 1.1 transport.
-    /// </summary>
-    public class HttpStreamForWindows : CacheStream
+    public sealed class HttpRandomAccessStream : IRandomAccessStreamWithContentType
+
     {
-        Uri _uri;
-        HttpClient _httpClient;
-        private readonly DispatcherQueue _dispatcherQueue;
-        bool _ownHttpClient;
-        int _bufferingSize;
 
-        /// <summary>
-        /// Size in bytes of the file data downloaded so far if available; otherwise it returns <see cref="long.MaxValue"/>.
-        /// <seealso cref="FileSizeAvailable"/>
-        /// <seealso cref="GetStreamLengthOrDefault"/>
-        /// </summary>
-        public long StreamLength { get; private set; }
+        private HttpClient client;
 
-        /// <summary>
-        /// Whether file properties, like file size and last modified time is correctly inspected.
-        /// </summary>
-        public bool InspectionFinished { get; private set; }
-        /// <summary>
-        /// When the file is last modified.
-        /// </summary>
-        public DateTime LastModified { get; private set; }
-        /// <summary>
-        /// Content type of the file.
-        /// </summary>
-        public string ContentType { get; private set; }
-        /// <summary>
-        /// Buffering size for downloading the file.
-        /// </summary>
-        public int BufferingSize
+        private IInputStream inputStream;
+
+        private ulong size;
+
+        private ulong requestedPosition;
+
+        private string etagHeader;
+
+        private string lastModifiedHeader;
+
+        private Uri requestedUri;
+
+
+
+        // No public constructor, factory methods instead to handle async tasks.
+
+        private HttpRandomAccessStream(HttpClient client, Uri uri)
         {
-            get => _bufferingSize;
-            set
+            this.client = client;
+            requestedUri = uri;
+            requestedPosition = 0;
+        }
+
+        static public IAsyncOperation<HttpRandomAccessStream> CreateAsync(HttpClient client, Uri uri)
+        {
+            HttpRandomAccessStream randomStream = new HttpRandomAccessStream(client, uri);
+            return AsyncInfo.Run<HttpRandomAccessStream>(async (cancellationToken) =>
             {
-                if (value == 0 || bitCount(value) != 1)
-                    throw new ArgumentOutOfRangeException("BufferingSize should be 2^n.");
-                _bufferingSize = value;
+                await randomStream.SendRequesAsync().ConfigureAwait(false);
+                return randomStream;
+            });
+        }
+
+
+
+        private async Task SendRequesAsync()
+        {
+            Debug.Assert(inputStream == null);
+
+            HttpRequestMessage request = null;
+            request = new HttpRequestMessage(HttpMethod.Get, requestedUri);
+            request.Headers.Add("Range", String.Format("bytes={0}-", requestedPosition));
+
+            if (!String.IsNullOrEmpty(etagHeader))
+            {
+                request.Headers.Add("If-Match", etagHeader);
             }
-        }
 
-        static int bitCount(int i)
-        {
-            i = i - ((i >> 1) & 0x55555555);
-            i = (i & 0x33333333) + ((i >> 2) & 0x33333333);
-            return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
-        }
-
-        /// <summary>
-        /// Creates a new HttpStream with the specified URI.
-        /// The file will be cached on memory.
-        /// </summary>
-        /// <param name="uri">URI of the file to download.</param>
-        public HttpStreamForWindows(Uri uri, HttpClient httpClient) : this(uri, new MemoryStream(), true, DefaultCachePageSize, null, httpClient)
-        {
-        }
-
-        /// <summary>
-        /// Default cache page size; 32KB.
-        /// </summary>
-        const int DefaultCachePageSize = 32 * 1024;
-
-        /// <summary>
-        /// Creates a new HttpStream with the specified URI.
-        /// </summary>
-        /// <param name="uri">URI of the file to download.</param>
-        /// <param name="cache">Stream, on which the file will be cached. It should be seekable, readable and writeable.</param>
-        /// <param name="ownStream"><c>true</c> to dispose <paramref name="cache"/> on HttpStream's cleanup.</param>
-        public HttpStreamForWindows(Uri uri, Stream cache, bool ownStream) : this(uri, cache, ownStream, DefaultCachePageSize, null)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new HttpStream with the specified URI.
-        /// </summary>
-        /// <param name="uri">URI of the file to download.</param>
-        /// <param name="cache">Stream, on which the file will be cached. It should be seekable, readable and writeable.</param>
-        /// <param name="ownStream"><c>true</c> to dispose <paramref name="cache"/> on HttpStream's cleanup.</param>
-        public HttpStreamForWindows(Uri uri, Stream cache, bool ownStream, int cachePageSize, byte[] cached)
-            : this(uri, cache, ownStream, cachePageSize, cached, null)
-        {
-        }
-
-        /// <summary>
-        /// Creates a new HttpStream with the specified URI.
-        /// </summary>
-        /// <param name="uri">URI of the file to download.</param>
-        /// <param name="cache">Stream, on which the file will be cached. It should be seekable, readable and writeable.</param>
-        /// <param name="ownStream"><c>true</c> to dispose <paramref name="cache"/> on HttpStream's cleanup.</param>
-        /// <param name="cachePageSize">Cache page size.</param>
-        /// <param name="cached">Cached flags for the pages in packed bits if any; otherwise it can be <c>null</c>.</param>
-        /// <param name="httpClient"><see cref="HttpClient"/> to use on creating HTTP requests.</param>
-        public HttpStreamForWindows(Uri uri, Stream cache, bool ownStream, int cachePageSize, byte[] cached, HttpClient httpClient)
-            : base(cache, ownStream, cachePageSize, cached)
-        {
-            StreamLength = long.MaxValue;
-            _uri = uri;
-            _httpClient = httpClient;
-            if (_httpClient == null)
+            if (!String.IsNullOrEmpty(lastModifiedHeader))
             {
-                _httpClient = new HttpClient();
-                _ownHttpClient = true;
+                request.Headers.Add("If-Unmodified-Since", lastModifiedHeader);
             }
-            BufferingSize = cachePageSize;
-        }
 
-        /// <summary>
-        /// Creates a new HttpStream with the specified URI.
-        /// </summary>
-        /// <param name="uri">URI of the file to download.</param>
-        /// <param name="cache">Stream, on which the file will be cached. It should be seekable, readable and writeable.</param>
-        /// <param name="ownStream"><c>true</c> to dispose <paramref name="cache"/> on HttpStream's cleanup.</param>
-        /// <param name="cachePageSize">Cache page size.</param>
-        /// <param name="cached">Cached flags for the pages in packed bits if any; otherwise it can be <c>null</c>.</param>
-        /// <param name="httpClient"><see cref="HttpClient"/> to use on creating HTTP requests.</param>
-        /// <param name="dispatcherInvoker">Function called on every call to synchronous <see cref="HttpStream.Read(byte[], int, int)"/> call to invoke <see cref="HttpStream.ReadAsync(byte[], int, int, CancellationToken)"/>.</param>
-        public HttpStreamForWindows(Uri uri, Stream cache, bool ownStream, int cachePageSize, byte[] cached, HttpClient httpClient, DispatcherQueue dispatcherQueue)
-            : base(cache, ownStream, cachePageSize, cached)
-        {
-            StreamLength = long.MaxValue;
-            _uri = uri;
-            _httpClient = httpClient;
-            _dispatcherQueue = dispatcherQueue;
-            if (_httpClient == null)
+            HttpResponseMessage response = await client.SendRequestAsync(
+                request,
+                HttpCompletionOption.ResponseHeadersRead).AsTask().ConfigureAwait(false);
+
+            if (response.Content.Headers.ContentType != null)
             {
-                _httpClient = new HttpClient();
-                _ownHttpClient = true;
+                this.ContentType = response.Content.Headers.ContentType.MediaType;
             }
-            BufferingSize = cachePageSize;
-        }
 
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            if (disposing && _ownHttpClient)
+            size = response.Content.Headers.ContentLength.Value + requestedPosition;
+
+            if (response.StatusCode != HttpStatusCode.PartialContent && requestedPosition != 0)
             {
-                _httpClient.Dispose();
+                throw new Exception("HTTP server did not reply with a '206 Partial Content' status.");
             }
+
+
+
+            if (!response.Headers.ContainsKey("Accept-Ranges"))
+            {
+                throw new Exception(String.Format(
+                    "HTTP server does not support range requests: {0}",
+                    "http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.5"));
+            }
+
+
+
+            if (String.IsNullOrEmpty(etagHeader) && response.Headers.ContainsKey("ETag"))
+            {
+                etagHeader = response.Headers["ETag"];
+            }
+
+
+
+            if (String.IsNullOrEmpty(lastModifiedHeader) && response.Content.Headers.ContainsKey("Last-Modified"))
+            {
+                lastModifiedHeader = response.Content.Headers["Last-Modified"];
+            }
+
+            if (response.Content.Headers.ContainsKey("Content-Type"))
+            {
+                contentType = response.Content.Headers["Content-Type"];
+            }
+
+            inputStream = await response.Content.ReadAsInputStreamAsync().AsTask().ConfigureAwait(false);
         }
 
-        /// <summary>
-        /// Size in bytes of the file downloaing if available.
-        /// </summary>
-        /// <param name="defValue">If the file is not available, the value is returned.</param>
-        /// <seealso cref="StreamLength"/>
-        /// <seealso cref="FileSizeAvailable"/>
-        /// <returns>The file size.</returns>
-        public override long GetStreamLengthOrDefault(long defValue) => IsStreamLengthAvailable ? StreamLength : defValue;
 
-        /// <summary>
-        /// Determine whether stream length is determined or not.
-        /// </summary>
-        public override bool IsStreamLengthAvailable { get; protected set; }
 
-        /// <summary>
-        /// Last HTTP status code.
-        /// </summary>
-        public HttpStatusCode LastHttpStatusCode { get; private set; }
+        private string contentType = string.Empty;
 
-        /// <summary>
-        /// Last reason phrase obtained with <see cref="LastHttpStatusCode"/>.
-        /// </summary>
-        public string LastReasonPhrase { get; private set; }
 
-        /// <summary>
-        /// Download a portion of file and write to a stream.
-        /// </summary>
-        /// <param name="stream">Stream to write on.</param>
-        /// <param name="offset">The offset of the data to download.</param>
-        /// <param name="length">The length of the data to download.</param>
-        /// <param name="cancellationToken">Cancellation token.</param>
-        /// <returns>The byte range actually downloaded. It may be larger than the requested range.</returns>
-        protected override async Task<int> LoadAsync(Stream stream, int offset, int length, CancellationToken cancellationToken)
+
+        public string ContentType
+
         {
-            if (length == 0)
-                return 0;
 
-            long endPos = offset + length;
-            if (IsStreamLengthAvailable && endPos > StreamLength)
-                endPos = StreamLength;
+            get { return contentType; }
 
-            var req = new HttpRequestMessage(HttpMethod.Get, _uri);
-            // Use "Range" header to sepcify the data offset and size
-            req.Headers.Add("Range", $"bytes={offset}-{endPos - 1}");
+            private set { contentType = value; }
 
-            // post the request
-            var res = await _httpClient.SendRequestAsync(req).AsTask(cancellationToken).ConfigureAwait(false);
-            LastHttpStatusCode = res.StatusCode;
-            LastReasonPhrase = res.ReasonPhrase;
-            if (!res.IsSuccessStatusCode)
-                throw new Exception($"HTTP Status: {res.StatusCode} for bytes={offset}-{endPos - 1}");
+        }
 
-            // retrieve the resulting Content-Range
-            bool getRanges = true;
-            long begin = 0, end = long.MaxValue;
-            long size = long.MaxValue;
-            if (!actionIfFound(res, "Content-Range", range =>
+
+
+        public bool CanRead
+
+        {
+
+            get
+
             {
-                // 206
-                var m = Regex.Match(range, @"bytes\s+([0-9]+)-([0-9]+)/(\w+)");
-                begin = long.Parse(m.Groups[1].Value);
-                end = long.Parse(m.Groups[2].Value);
-                size = end - begin + 1;
 
-                if (!IsStreamLengthAvailable)
+                return true;
+
+            }
+
+        }
+
+
+
+        public bool CanWrite
+
+        {
+
+            get
+
+            {
+
+                return false;
+
+            }
+
+        }
+
+
+
+        public IRandomAccessStream CloneStream()
+
+        {
+
+            // If there is only one MediaPlayerElement using the stream, it is safe to return itself.
+
+            return this;
+
+        }
+
+
+
+        public IInputStream GetInputStreamAt(ulong position)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+        public IOutputStream GetOutputStreamAt(ulong position)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+        public ulong Position
+        {
+            get => requestedPosition;
+        }
+
+
+
+        public void Seek(ulong position)
+        {
+            if (requestedPosition != position)
+            {
+                if (inputStream != null)
                 {
-                    var sz = m.Groups[3].Value;
-                    if (sz != "*")
+                    inputStream.Dispose();
+                    inputStream = null;
+                }
+
+                Debug.WriteLine("Seek: {0:N0} -> {1:N0}", requestedPosition, position);
+                requestedPosition = position;
+            }
+        }
+
+
+
+        public ulong Size 
+        {
+            get => size;
+            set => throw new NotImplementedException();
+        }
+
+
+
+        public void Dispose()
+        {
+            if (inputStream != null)
+            {
+                inputStream.Dispose();
+                inputStream = null;
+            }
+        }
+
+
+
+        public Windows.Foundation.IAsyncOperationWithProgress<IBuffer, uint> ReadAsync(IBuffer buffer, uint count, InputStreamOptions options)
+        {
+            return AsyncInfo.Run<IBuffer, uint>(async (cancellationToken, progress) =>
+            {
+                progress.Report(0);
+
+                try
+                {
+                    if (inputStream == null)
                     {
-                        StreamLength = long.Parse(sz);
-                        IsStreamLengthAvailable = true;
+                        await SendRequesAsync().ConfigureAwait(false);
                     }
                 }
-            }))
-            {
-                // In some case, there's no Content-Range but Content-Length
-                // instead.
-                getRanges = false;
-                begin = 0;
-                actionIfFound(res, "Content-Length", v =>
+                catch (Exception ex)
                 {
-                    StreamLength = end = size = long.Parse(v);
-                    IsStreamLengthAvailable = true;
-                });
-            }
+                    Debug.WriteLine(ex);
+                    throw;
+                }
 
-            actionIfFound(res, "Content-Type", v =>
-            {
-                ContentType = v;
+                IBuffer result = await inputStream.ReadAsync(buffer, count, options).AsTask(cancellationToken, progress).ConfigureAwait(false);
+
+                // Move position forward.
+                requestedPosition += result.Length;
+
+                return result;
             });
-
-            actionIfFound(res, "Last-Modified", v =>
-            {
-                LastModified = parseDateTime(v);
-            });
-
-            InspectionFinished = true;
-
-            var s = (await res.Content.ReadAsInputStreamAsync().AsTask().ConfigureAwait(false)).AsStreamForRead();
-            int size32 = (int)size;
-            stream.Position = begin;
-            var buf = new byte[BufferingSize];
-            var copied = 0;
-            while (size32 > 0)
-            {
-                var bytes2Read = Math.Min(size32, BufferingSize);
-                var bytesRead = await s.ReadAsync(buf, 0, bytes2Read, cancellationToken).ConfigureAwait(false);
-                if (bytesRead <= 0)
-                    break;
-
-                await stream.WriteAsync(buf, 0, bytesRead, cancellationToken).ConfigureAwait(false);
-                size32 -= bytesRead;
-                copied += bytesRead;
-            }
-
-            if (!IsStreamLengthAvailable && !getRanges)
-            {
-                StreamLength = copied;
-                IsStreamLengthAvailable = true;
-            }
-
-            if (RangeDownloaded != null)
-                RangeDownloaded(this, new RangeDownloadedEventArgs { Offset = begin, Length = copied });
-            return copied;
         }
 
-        bool actionIfFound(HttpResponseMessage res, string name, Action<string> action)
+
+
+        public Windows.Foundation.IAsyncOperation<bool> FlushAsync()
         {
-            if (res.Content.Headers.TryGetValue(name, out var str))
-            {
-                action(str);
-                return true;
-            }
-            return false;
+            throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// Invoked when a new range is downloaded.
-        /// </summary>
-        public event EventHandler<RangeDownloadedEventArgs> RangeDownloaded;
-
-        static DateTime parseDateTime(string dateTime)
+        public Windows.Foundation.IAsyncOperationWithProgress<uint, uint> WriteAsync(IBuffer buffer)
         {
-            if (dateTime.EndsWith(" UTC"))
-            {
-                return DateTime.ParseExact(dateTime,
-                    "ddd, dd MMM yyyy HH:mm:ss 'UTC'",
-                    CultureInfo.InvariantCulture.DateTimeFormat,
-                    DateTimeStyles.AssumeUniversal);
-            }
-            return DateTime.ParseExact(dateTime,
-                "ddd, dd MMM yyyy HH:mm:ss 'GMT'",
-                CultureInfo.InvariantCulture.DateTimeFormat,
-                DateTimeStyles.AssumeUniversal);
+            throw new NotImplementedException();
         }
     }
-
-    ///// <summary>
-    ///// Used by <see cref="HttpStream.RangeDownloaded"/> event.
-    ///// </summary>
-    //public class RangeDownloadedEventArgs : EventArgs
-    //{
-    //    /// <summary>
-    //    /// The offset of the data downloaded.
-    //    /// </summary>
-    //    public long Offset { get; set; }
-    //    /// <summary>
-    //    /// The length of the data downloaded.
-    //    /// </summary>
-    //    public long Length { get; set; }
-    //}
 }

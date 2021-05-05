@@ -8,109 +8,281 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Player.Video;
+using Microsoft.Toolkit.Uwp.Connectivity;
+using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
 
 namespace Hohoema.Models.UseCase.VideoCache
 {
     public sealed class VideoCacheDownloadOperationManager
     {
+        public const int MAX_DOWNLOAD_LINE_ = 1;
+
         private readonly VideoCacheManager _videoCacheManager;
         private readonly NicoVideoSessionOwnershipManager _nicoVideoSessionOwnershipManager;
+        private readonly VideoCacheSettings _videoCacheSettings;
+        private readonly IMessenger _messenger;
+
+        private AsyncLock _downloadTsakUpdateLock = new AsyncLock();
+        private List<ValueTask<bool>> _downloadTasks = new List<ValueTask<bool>>();
+        private bool _isRunning = false;
+
+        private DateTime _nextProgressShowTime = DateTime.Now;
+
+        private bool _notifyUsingMobileDataNetworkDownload = false;
+        private bool _stopDownloadTaskWithDisallowMeteredNetworkDownload = false;
 
         public VideoCacheDownloadOperationManager(
             VideoCacheManager videoCacheManager,
-            NicoVideoSessionOwnershipManager nicoVideoSessionOwnershipManager
+            NicoVideoSessionOwnershipManager nicoVideoSessionOwnershipManager,
+            VideoCacheSettings videoCacheSettings
             )
         {
             _videoCacheManager = videoCacheManager;
             _nicoVideoSessionOwnershipManager = nicoVideoSessionOwnershipManager;
-            _videoCacheManager.Requested += _videoCacheManager_Requested;
-            _videoCacheManager.Started += _videoCacheManager_Started;
-            _videoCacheManager.Progress += _videoCacheManager_Progress;
-            _videoCacheManager.Completed += _videoCacheManager_Completed;
-            _videoCacheManager.Canceled += _videoCacheManager_Canceled;
-            _videoCacheManager.Failed += _videoCacheManager_Failed;
-            _videoCacheManager.Paused += _videoCacheManager_Paused;
-
-            App.Current.Suspending += ApplicationSuspending;
-            App.Current.Resuming += ApplicationResuming;
-
-            if (_videoCacheManager.HasPendingOrPausingVideoCacheItem())
-            {
-                LaunchDownaloadTask();
-            }
-
-            // TODO: 通信状態が回復した時や従量課金通信が変更されたタイミングに合わせてDL処理の再試行を掛ける
+            _videoCacheSettings = videoCacheSettings;
             _messenger = WeakReferenceMessenger.Default;
 
-            _nicoVideoSessionOwnershipManager.AvairableOwnership += _nicoVideoSessionOwnershipManager_AvairableOwnership;
-        }
 
-        private void _nicoVideoSessionOwnershipManager_AvairableOwnership(NicoVideoSessionOwnershipManager sender, SessionOwnershipRemoveRequestedEventArgs args)
-        {
-            Debug.WriteLine($"[VideoCache] AvairableOwnership");
-
-            LaunchDownaloadTask();
-        }
-
-        IMessenger _messenger;
-
-        private void _videoCacheManager_Requested(object sender, VideoCacheRequestedEventArgs e)
-        {
-            Debug.WriteLine($"[VideoCache] Requested: Id= {e.VideoId}, RequestQuality= {e.RequestedQuality}");
-            LaunchDownaloadTask();
-
-            TriggerVideoCacheStatusChanged(e.VideoId);
-        }
-
-        private void _videoCacheManager_Started(object sender, VideoCacheStartedEventArgs e)
-        {
-            Debug.WriteLine($"[VideoCache] Started: Id= {e.Item.VideoId}, RequestQuality= {e.Item.RequestedVideoQuality}, DownloadQuality= {e.Item.DownloadedVideoQuality}");
-
-            TriggerVideoCacheStatusChanged(e.Item.VideoId);
-        }
-
-        DateTime _nextProgressShowTime = DateTime.Now;
-
-        private void _videoCacheManager_Progress(object sender, VideoCacheProgressEventArgs e)
-        {
-            var progress = e.Item.GetProgressNormalized();
-            
-            if (_nextProgressShowTime < DateTime.Now)
+            _videoCacheManager.Requested += (s, e) => 
             {
-                Debug.WriteLine($"[VideoCache] Progress: Id= {e.Item.VideoId}, Progress= {progress:P}");
-                _nextProgressShowTime = DateTime.Now + TimeSpan.FromSeconds(1);
+                Debug.WriteLine($"[VideoCache] Requested: Id= {e.VideoId}, RequestQuality= {e.RequestedQuality}");
+                LaunchDownaloadOperationLoop();
+                TriggerVideoCacheStatusChanged(e.VideoId);
+            };
 
-                TriggerVideoCacheProgressChanged(e.Item);
+            _videoCacheManager.Started += (s, e) => 
+            {
+                Debug.WriteLine($"[VideoCache] Started: Id= {e.Item.VideoId}, RequestQuality= {e.Item.RequestedVideoQuality}, DownloadQuality= {e.Item.DownloadedVideoQuality}");
+                TriggerVideoCacheStatusChanged(e.Item.VideoId);
+            };
+
+            _videoCacheManager.Progress += (s, e) => 
+            {
+                var progress = e.Item.GetProgressNormalized();
+
+                if (_nextProgressShowTime < DateTime.Now)
+                {
+                    Debug.WriteLine($"[VideoCache] Progress: Id= {e.Item.VideoId}, Progress= {progress:P}");
+                    _nextProgressShowTime = DateTime.Now + TimeSpan.FromSeconds(1);
+
+                    TriggerVideoCacheProgressChanged(e.Item);
+                }
+            };
+
+            _videoCacheManager.Completed += (s, e) => 
+            {
+                Debug.WriteLine($"[VideoCache] Completed: Id= {e.Item.VideoId}");
+                TriggerVideoCacheStatusChanged(e.Item.VideoId);
+            };
+
+            _videoCacheManager.Canceled += (s, e) => 
+            {
+                Debug.WriteLine($"[VideoCache] Canceled: Id= {e.VideoId}");
+                TriggerVideoCacheStatusChanged(e.VideoId);
+            };
+
+            _videoCacheManager.Failed += (s, e) => 
+            {
+                Debug.WriteLine($"[VideoCache] Failed: Id= {e.Item.VideoId}, FailedReason= {e.VideoCacheDownloadOperationCreationFailedReason}");
+                TriggerVideoCacheStatusChanged(e.Item.VideoId);
+            };
+
+            _videoCacheManager.Paused += (s, e) =>
+            {
+                Debug.WriteLine($"[VideoCache] Paused: Id= {e.Item.VideoId}");
+                TriggerVideoCacheStatusChanged(e.Item.VideoId);
+            };
+
+
+            App.Current.Suspending += async (s, e) => 
+            {
+                Debug.WriteLine($"[VideoCache] App Suspending.");
+                var defferl = e.SuspendingOperation.GetDeferral();
+                try
+                {
+                    await _videoCacheManager.PauseAllDownloadOperationAsync();
+                }
+                finally
+                {
+                    defferl.Complete();
+                }
+            };
+
+            App.Current.Resuming += (s, e) =>
+            {
+                Debug.WriteLine($"[VideoCache] App Resuming.");
+                LaunchDownaloadOperationLoop();
+            };
+
+            _nicoVideoSessionOwnershipManager.AvairableOwnership += (s, e) => 
+            {
+                Debug.WriteLine($"[VideoCache] AvairableOwnership");
+
+                LaunchDownaloadOperationLoop();
+            };
+
+            new[]
+            {
+                Observable.FromEventPattern(
+                    h => NetworkHelper.Instance.NetworkChanged += h,
+                    h => NetworkHelper.Instance.NetworkChanged -= h
+                    ).ToUnit(),
+                _videoCacheSettings.ObserveProperty(x => x.IsAllowDownloadOnRestrictedNetwork).ToUnit()
+            }
+            .Merge()
+            .Subscribe(_ => UpdateConnectionType());
+
+
+            // Initialize
+            UpdateConnectionType();
+            if (_videoCacheManager.HasPendingOrPausingVideoCacheItem())
+            {
+                LaunchDownaloadOperationLoop();
             }
         }
 
-        private void _videoCacheManager_Completed(object sender, VideoCacheCompletedEventArgs e)
-        {
-            Debug.WriteLine($"[VideoCache] Completed: Id= {e.Item.VideoId}");
 
-            TriggerVideoCacheStatusChanged(e.Item.VideoId);
+        private async void LaunchDownaloadOperationLoop()
+        {
+            Debug.WriteLine("CacheDL Looping: loop started.");
+
+            try
+            {
+                using (await _downloadTsakUpdateLock.LockAsync())
+                {
+                    if (_stopDownloadTaskWithDisallowMeteredNetworkDownload)
+                    {
+                        Debug.WriteLine("CacheDL Looping: disallow download with metered network, loop exit.");
+                        return;
+                    }
+
+                    if (_isRunning)
+                    {
+                        Debug.WriteLine("CacheDL Looping: already running, loop exit.");
+                        return;
+                    }
+
+                    _isRunning = true;
+
+                    foreach (var _ in Enumerable.Range(_downloadTasks.Count, Math.Max(0, MAX_DOWNLOAD_LINE_ - _downloadTasks.Count)))
+                    {
+                        _downloadTasks.Add(DownloadNextAsync());
+
+                        Debug.WriteLine("CacheDL Looping: add task");
+                    }
+                }
+
+                while (_downloadTasks.Count > 0)
+                {
+                    using (await _downloadTsakUpdateLock.LockAsync())
+                    {
+                        (int index, bool result) = await ValueTaskSupplement.ValueTaskEx.WhenAny(_downloadTasks);
+
+                        var doneTask = _downloadTasks[index];
+                        _downloadTasks.Remove(doneTask);
+
+                        Debug.WriteLine("CacheDL Looping: remove task");
+
+                        if (_stopDownloadTaskWithDisallowMeteredNetworkDownload)
+                        {
+                            Debug.WriteLine("CacheDL Looping: disallow download with metered network, loop exit.");
+                            return;
+                        }
+                        else if (result && _videoCacheManager.HasPendingOrPausingVideoCacheItem())
+                        {
+                            _downloadTasks.Add(DownloadNextAsync());
+
+                            Debug.WriteLine("CacheDL Looping: add task");
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                using (await _downloadTsakUpdateLock.LockAsync())
+                {
+                    _isRunning = false;
+                }
+
+                Debug.WriteLine("CacheDL Looping: loop completed.");
+            }
         }
 
-        private void _videoCacheManager_Canceled(object sender, VideoCacheCanceledEventArgs e)
+        private async ValueTask<bool> DownloadNextAsync()
         {
-            Debug.WriteLine($"[VideoCache] Canceled: Id= {e.VideoId}");
+            try
+            {
+                var result = await _videoCacheManager.PrepareNextCacheDownloadingTaskAsync();
+                if (result.IsSuccess is false)
+                {
+                    return false;
+                }
 
-            TriggerVideoCacheStatusChanged(e.VideoId);
+                if (_notifyUsingMobileDataNetworkDownload is true)
+                {
+                    _notifyUsingMobileDataNetworkDownload = false;
+                    // TODO: 課金データ通信状況でダウンロードを開始したことを通知
+                }
+
+                await result.DownloadAsync();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("CacheDL Looping: has exception.");
+                Debug.WriteLine(e.ToString());
+                return false;
+            }
+            finally
+            {
+
+            }
+
+            return true;
         }
 
-        private void _videoCacheManager_Failed(object sender, VideoCacheFailedEventArgs e)
-        {
-            Debug.WriteLine($"[VideoCache] Failed: Id= {e.Item.VideoId}, FailedReason= {e.VideoCacheDownloadOperationCreationFailedReason}");
 
-            TriggerVideoCacheStatusChanged(e.Item.VideoId);
+        void ShutdownDownloadOperationLoop()
+        {
+            _ = _videoCacheManager.PauseAllDownloadOperationAsync();
         }
 
-        private void _videoCacheManager_Paused(object sender, VideoCachePausedEventArgs e)
-        {
-            Debug.WriteLine($"[VideoCache] Paused: Id= {e.Item.VideoId}");
 
-            TriggerVideoCacheStatusChanged(e.Item.VideoId);
+        void UpdateConnectionType()
+        {
+            if (_videoCacheSettings.IsAllowDownloadOnRestrictedNetwork is false
+                && NetworkHelper.Instance.ConnectionInformation.ConnectionType == ConnectionType.Data
+                )
+            {
+                _stopDownloadTaskWithDisallowMeteredNetworkDownload = true;
+            }
+            else
+            {
+                _stopDownloadTaskWithDisallowMeteredNetworkDownload = false;
+            }
+
+            if (_stopDownloadTaskWithDisallowMeteredNetworkDownload is false
+                && NetworkHelper.Instance.ConnectionInformation.ConnectionCost.NetworkCostType != Windows.Networking.Connectivity.NetworkCostType.Fixed)
+            {
+                // データ料金が発生する状況でのDLを開始する場合に通知を飛ばす
+                _notifyUsingMobileDataNetworkDownload = true;
+            }
+            else
+            {
+                _notifyUsingMobileDataNetworkDownload = false;
+            }
+
+
+            if (_stopDownloadTaskWithDisallowMeteredNetworkDownload)
+            {
+                ShutdownDownloadOperationLoop();
+            }
+            else
+            {
+                LaunchDownaloadOperationLoop();
+            }
         }
+
 
         void TriggerVideoCacheStatusChanged(string videoId)
         {
@@ -127,106 +299,6 @@ namespace Hohoema.Models.UseCase.VideoCache
             _messenger.Send<Events.VideoCacheProgressChangedMessage>(message);
         }
 
-        private async void ApplicationSuspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
-        {
-            var defferl = e.SuspendingOperation.GetDeferral();
-            try
-            {
-                await _videoCacheManager.PauseAllDownloadOperationAsync();
-            }
-            finally
-            {
-                defferl.Complete();
-            }
-        }
-
-        private void ApplicationResuming(object sender, object e)
-        {
-            LaunchDownaloadTask();
-        }
-
         
-
-        public static int DownloadLine { get; set; } = 1;
-
-        private static List<ValueTask<bool>> _downloadTasks = new List<ValueTask<bool>>();
-        private static AsyncLock _downloadTsakUpdateLock = new AsyncLock();
-
-        static bool IsRunning = false;
-        private async void LaunchDownaloadTask()
-        {
-            Debug.WriteLine("CacheDL Looping: loop started.");
-
-            using (await _downloadTsakUpdateLock.LockAsync())
-            {
-                if (IsRunning) 
-                {
-                    Debug.WriteLine("CacheDL Looping: already running, loop exit.");
-                    return; 
-                }
-                
-                IsRunning = true;
-
-                foreach (var _ in Enumerable.Range(_downloadTasks.Count, Math.Max(0, DownloadLine - _downloadTasks.Count)))
-                {
-                    _downloadTasks.Add(DownloadNextAsync());
-
-                    Debug.WriteLine("CacheDL Looping: add task");
-                }
-            }
-
-            while (_downloadTasks.Count > 0)
-            {
-                using (await _downloadTsakUpdateLock.LockAsync())
-                {
-                    (int index, bool result) = await ValueTaskSupplement.ValueTaskEx.WhenAny(_downloadTasks);
-
-                    var doneTask = _downloadTasks[index];
-                    _downloadTasks.Remove(doneTask);
-
-                    Debug.WriteLine("CacheDL Looping: remove task");
-
-                    if (result)
-                    {
-                        _downloadTasks.Add(DownloadNextAsync());
-
-                        Debug.WriteLine("CacheDL Looping: add task");
-                    }
-                }
-            }
-
-            using (await _downloadTsakUpdateLock.LockAsync())
-            {
-                IsRunning = false;
-            }
-
-            Debug.WriteLine("CacheDL Looping: loop completed.");
-        }
-
-        private async ValueTask<bool> DownloadNextAsync()
-        {
-            try
-            {
-                var result = await _videoCacheManager.PrepareNextCacheDownloadingTaskAsync();
-                if (result.IsSuccess is false)
-                {
-                    return false;
-                }
-                 
-                await result.DownloadAsync();
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("CacheDL Looping: has exception.");
-                Debug.WriteLine(e.ToString());
-                return false;
-            }
-            finally
-            {
-                
-            }
-
-            return true;
-        }
     }
 }
