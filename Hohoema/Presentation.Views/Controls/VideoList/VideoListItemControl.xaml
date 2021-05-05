@@ -19,7 +19,7 @@
 
   <Grid x:Name="UserControlRoot">
 
-    <videoListItem:VideoListItem
+    <videoListItem:VideoListItem x:Name="ContentLayout"
       IsImageUseCache="{x:Bind IsThumbnailUseCache}"
       ImageUrl="{Binding ThumbnailUrl}"
       ImageSubText="{Binding Length, Converter={StaticResource TimeToMovieLengthConverter}}"
@@ -124,6 +124,7 @@
                 Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                 BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
                 BorderThickness="1"
+                Click="ExitRevealButton_Click"
                 />
       </StackPanel>
       <Grid x:Name="HiddenVideoOwnerUnrevealedLayout"
@@ -140,6 +141,7 @@
                 Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                 BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
                 BorderThickness="1" 
+                Click="HiddenVideoOnceRevealButton_Click"
                 />
       </Grid>
     </Grid>
@@ -274,8 +276,8 @@
             <Setter Target="HiddenVideoOwnerLayout.IsHitTestVisible"
                     Value="True" />
             
-            <Setter Target="ContentLayout.Opacity"
-                    Value="0.0" />
+            <Setter Target="ContentLayout.Opacity" Value="0.0" />
+            <Setter Target="ContentLayout.IsEnabled" Value="False" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

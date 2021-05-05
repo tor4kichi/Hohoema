@@ -19,34 +19,20 @@
       <Setter.Value>
         <ControlTemplate TargetType="local:VideoListItem">
           <Grid x:Name="UserControlRoot">
+            <Grid>
+              <StackPanel x:Name="CacheStatusLayout" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="Collapsed">
+                <SymbolIcon x:Name="CacheIcon" Symbol="Download" Height="32" Width="32" />
+              </StackPanel>
 
-            
-            <winUI:SwipeControl >
-              <winUI:SwipeControl.LeftItems>
-                <winUI:SwipeItems Mode="Execute">
-                  <winUI:SwipeItem x:Name="QueueToggleSwipeItem" 
-                           BehaviorOnInvoked="Close" Text="{i18nExt:Localize Key=QueueAddItem}"
-                         >
-                    <winUI:SwipeItem.IconSource>
-                      <winUI:SymbolIconSource x:Name="QueueToggleSwipeItemSymbolIconSource" Symbol="Add" />
-                    </winUI:SwipeItem.IconSource>
-                  </winUI:SwipeItem>
-                </winUI:SwipeItems>
-              </winUI:SwipeControl.LeftItems>
-              <Grid>
-                <StackPanel x:Name="CacheStatusLayout" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="Collapsed">
-                  <SymbolIcon x:Name="CacheIcon" Symbol="Download" Height="32" Width="32" />
-                </StackPanel>
+              <Grid x:Name="QueueIndexLayout" Opacity="0.0" HorizontalAlignment="Right">
+                <Border Width="4" Background="{ThemeResource SystemAccentColor}" Opacity="0.5" />
+              </Grid>
 
-                <Grid x:Name="QueueIndexLayout" Opacity="0.0" HorizontalAlignment="Right">
-                  <Border Width="4" Background="{ThemeResource SystemAccentColor}" Opacity="0.5" />
-                </Grid>
-                
-                <uwpControls:DockPanel Margin="4 0 0 0"
+              <uwpControls:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
                            >
-                  <Grid uwpControls:DockPanel.Dock="Left" Margin="0 0 12 0" Width="132" Height="72">
-                    <uwpControls:ImageEx Source="{TemplateBinding ImageUrl}" 
+                <Grid uwpControls:DockPanel.Dock="Left" Margin="0 0 12 0" Width="132" Height="72">
+                  <uwpControls:ImageEx Source="{TemplateBinding ImageUrl}" 
                         Stretch="Uniform"
                         VerticalAlignment="Center"
                         VerticalContentAlignment="Center" 
@@ -54,35 +40,46 @@
                         IsTabStop="False"
                         Height="100"
                     >
-                    </uwpControls:ImageEx>
+                  </uwpControls:ImageEx>
 
 
 
 
-                    <Border HorizontalAlignment="Right" 
+                  <Border HorizontalAlignment="Right" 
                         VerticalAlignment="Bottom"
                         CornerRadius="4 0 0 0"
                         >
-                      <Border.Background>
-                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                      </Border.Background>
+                    <Border.Background>
+                      <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                    </Border.Background>
 
-                      <TextBlock Text="{TemplateBinding ImageSubText}" 
+                    <TextBlock Text="{TemplateBinding ImageSubText}" 
                                Padding="4 0 3 3" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
                                FontSize="13"
                                
                                />
-                    </Border>
-                  </Grid>
+                  </Border>
+                </Grid>
 
+                <Grid>
                   <ContentPresenter x:Name="MyContentPresenter" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
 
-                </uwpControls:DockPanel>
-              </Grid>
-            </winUI:SwipeControl>
+
+                  <StackPanel x:Name="MobileSupportActionsLayout"  Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch" Visibility="Collapsed" 
+                            
+                            >
+                    <Button Flyout="{StaticResource VideoListItemFlyout}" VerticalAlignment="Stretch" Width="80" Background="Transparent" Opacity="0.6" BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" BorderThickness="0 0 0 0">
+                      <SymbolIcon Symbol="More" />
+                    </Button>
+                  </StackPanel>
+
+                </Grid>
+              </uwpControls:DockPanel>
+            </Grid>
 
             <VisualStateManager.VisualStateGroups>
+              
               <VisualStateGroup>
                 <VisualState x:Name="QueuedItemState">
                   <VisualState.Setters>
@@ -91,8 +88,6 @@
                 </VisualState>
                 <VisualState x:Name="NotQueuedItemState">
                   <VisualState.Setters>
-                    <Setter Target="QueueToggleSwipeItemSymbolIconSource.Symbol" Value="Remove" />
-                    <Setter Target="QueueToggleSwipeItem.Text" Value="{i18nExt:Localize Key=QueueRemoveItem}" />
                   </VisualState.Setters>
                 </VisualState>
               </VisualStateGroup>

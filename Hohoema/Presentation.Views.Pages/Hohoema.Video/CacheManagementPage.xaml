@@ -85,9 +85,18 @@
               MiddleClickOrSwipeRightCommand="{Binding ToggleWatchAfterCommand}">
 
               <Grid>
-                <TextBlock Text="{Binding Label}" FontSize="16"
+                <StackPanel VerticalAlignment="Center">
+                  <TextBlock Text="{Binding Label}" FontSize="16"
                        TextWrapping="Wrap"
                        VerticalAlignment="Center" />
+
+                  <StackPanel Orientation="Horizontal" Visibility="{Binding HasCacheProgress}" Spacing="8">
+                    <TextBlock Width="48" HorizontalTextAlignment="Right">
+                    <Run Text="{Binding DownloadProgress, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
+                    </TextBlock>
+                    <ProgressBar Width="180" Minimum="0.0" Maximum="1.0" Value="{Binding DownloadProgress}" IsIndeterminate="{Binding IsProgressUnknown}"  />
+                  </StackPanel>
+                </StackPanel>
                 <TextBlock Text="{Binding CacheRequestedQuality, Converter={StaticResource LocalizeConverter}}"
                            VerticalAlignment="Bottom" HorizontalAlignment="Right"
                            Opacity="0.7"

@@ -1,11 +1,13 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.VideoCache;
+using Hohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -25,7 +27,12 @@ namespace Hohoema.Presentation.Views.Controls.VideoList.VideoListItem
         {
             base.OnApplyTemplate();
 
-            (GetTemplateChild("QueueToggleSwipeItem") as Microsoft.UI.Xaml.Controls.SwipeItem).Invoked += SwipeItem_Invoked;
+#if !DEBUG
+            if (UIViewSettings.GetForCurrentView()?.UserInteractionMode == UserInteractionMode.Touch)
+#endif
+            {
+                (GetTemplateChild("MobileSupportActionsLayout") as UIElement).Visibility = Visibility.Visible;
+            }
         }
 
 
@@ -139,7 +146,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList.VideoListItem
 
 
 
-        #region Queue Action 
+#region Queue Action 
 
 
 
@@ -153,25 +160,22 @@ namespace Hohoema.Presentation.Views.Controls.VideoList.VideoListItem
         // Using a DependencyProperty as the backing store for MiddleClickOrSwipeRightCommand.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MiddleClickOrSwipeRightCommandProperty =
             DependencyProperty.Register("MiddleClickOrSwipeRightCommand", typeof(ICommand), typeof(VideoListItem), new PropertyMetadata(null));
-        private VisualStateGroup _cacheStatusVisualStates;
 
         protected override void OnPointerPressed(PointerRoutedEventArgs e)
         {
             base.OnPointerPressed(e);
 
+            if (e.Handled == true) { return; }
+
             var point = e.GetCurrentPoint(this);
             if (point.Properties.IsMiddleButtonPressed)
             {
                 MiddleClickOrSwipeRightCommand?.Execute(DataContext);
+
+                e.Handled = true;
             }
         }
 
-
-        private void SwipeItem_Invoked(Microsoft.UI.Xaml.Controls.SwipeItem sender, Microsoft.UI.Xaml.Controls.SwipeItemInvokedEventArgs args)
-        {
-            MiddleClickOrSwipeRightCommand?.Execute(DataContext);
-        }
-
-        #endregion
+#endregion
     }
 }
