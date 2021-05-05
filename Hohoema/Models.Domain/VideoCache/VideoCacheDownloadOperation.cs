@@ -41,8 +41,6 @@ namespace Hohoema.Models.Domain.VideoCache
             if (_cancellationTokenSource.IsCancellationRequested is false)
             {
                 _cancellationTokenSource.Cancel();
-
-                Paused?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -70,7 +68,8 @@ namespace Hohoema.Models.Domain.VideoCache
             }
             catch (OperationCanceledException)
             {
-                Aborted?.Invoke(this, EventArgs.Empty);
+                // 削除操作、または視聴権を喪失した場合
+                Paused?.Invoke(this, EventArgs.Empty);
             }
             catch (FileLoadException)
             {

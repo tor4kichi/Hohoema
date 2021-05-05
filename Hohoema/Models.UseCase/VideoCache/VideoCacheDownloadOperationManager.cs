@@ -7,16 +7,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using Hohoema.Models.Domain.Player.Video;
 
 namespace Hohoema.Models.UseCase.VideoCache
 {
     public sealed class VideoCacheDownloadOperationManager
     {
         private readonly VideoCacheManager _videoCacheManager;
+        private readonly NicoVideoSessionOwnershipManager _nicoVideoSessionOwnershipManager;
 
-        public VideoCacheDownloadOperationManager(VideoCacheManager videoCacheManager)
+        public VideoCacheDownloadOperationManager(
+            VideoCacheManager videoCacheManager,
+            NicoVideoSessionOwnershipManager nicoVideoSessionOwnershipManager
+            )
         {
             _videoCacheManager = videoCacheManager;
+            _nicoVideoSessionOwnershipManager = nicoVideoSessionOwnershipManager;
             _videoCacheManager.Requested += _videoCacheManager_Requested;
             _videoCacheManager.Started += _videoCacheManager_Started;
             _videoCacheManager.Progress += _videoCacheManager_Progress;
@@ -33,9 +39,17 @@ namespace Hohoema.Models.UseCase.VideoCache
                 LaunchDownaloadTask();
             }
 
-
             // TODO: 通信状態が回復した時や従量課金通信が変更されたタイミングに合わせてDL処理の再試行を掛ける
             _messenger = WeakReferenceMessenger.Default;
+
+            _nicoVideoSessionOwnershipManager.AvairableOwnership += _nicoVideoSessionOwnershipManager_AvairableOwnership;
+        }
+
+        private void _nicoVideoSessionOwnershipManager_AvairableOwnership(NicoVideoSessionOwnershipManager sender, SessionOwnershipRemoveRequestedEventArgs args)
+        {
+            Debug.WriteLine($"[VideoCache] AvairableOwnership");
+
+            LaunchDownaloadTask();
         }
 
         IMessenger _messenger;
@@ -138,12 +152,21 @@ namespace Hohoema.Models.UseCase.VideoCache
         private static List<ValueTask<bool>> _downloadTasks = new List<ValueTask<bool>>();
         private static AsyncLock _downloadTsakUpdateLock = new AsyncLock();
 
+        static bool IsRunning = false;
         private async void LaunchDownaloadTask()
         {
             Debug.WriteLine("CacheDL Looping: loop started.");
 
             using (await _downloadTsakUpdateLock.LockAsync())
             {
+                if (IsRunning) 
+                {
+                    Debug.WriteLine("CacheDL Looping: already running, loop exit.");
+                    return; 
+                }
+                
+                IsRunning = true;
+
                 foreach (var _ in Enumerable.Range(_downloadTasks.Count, Math.Max(0, DownloadLine - _downloadTasks.Count)))
                 {
                     _downloadTasks.Add(DownloadNextAsync());
@@ -170,6 +193,11 @@ namespace Hohoema.Models.UseCase.VideoCache
                         Debug.WriteLine("CacheDL Looping: add task");
                     }
                 }
+            }
+
+            using (await _downloadTsakUpdateLock.LockAsync())
+            {
+                IsRunning = false;
             }
 
             Debug.WriteLine("CacheDL Looping: loop completed.");

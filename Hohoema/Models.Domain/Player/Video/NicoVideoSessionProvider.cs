@@ -437,14 +437,14 @@ namespace Hohoema.Models.Domain.Player.Video
         List<VideoSessionOwnership> _VideoSessions = new List<VideoSessionOwnership>();
 
         public event TypedEventHandler<NicoVideoSessionOwnershipManager, SessionOwnershipRentFailedEventArgs> RentFailed;
-        public event TypedEventHandler<NicoVideoSessionOwnershipManager, SessionOwnershipRemoveRequestedEventArgs> OwnershipRemoveRequested;
+        public event TypedEventHandler<NicoVideoSessionOwnershipManager, SessionOwnershipRemoveRequestedEventArgs> AvairableOwnership;
 
         // ダウンロードライン数（再生中DLも含める）
         // 未登録ユーザー = 1
         // 通常会員       = 1
-        // プレミアム会員 = 3
+        // プレミアム会員 = 1
         public const int MaxDownloadLineCount = 1;
-        public const int MaxDownloadLineCount_Premium = 3;
+        public const int MaxDownloadLineCount_Premium = 1;
         private readonly NiconicoSession _niconicoSession;
 
         public int DownloadSessionCount => _VideoSessions.Count;
@@ -476,7 +476,7 @@ namespace Hohoema.Models.Domain.Player.Video
                 if (_isDisposed) { return; }
 
                 _isDisposed = true;
-                _ownershipManager.RemoveVideoSessionOwnership(this);
+                _ownershipManager.Return(this);
             }
 
             public event EventHandler ReturnOwnershipRequested;
@@ -552,11 +552,11 @@ namespace Hohoema.Models.Domain.Player.Video
             return null;
         }
 
-        private void RemoveVideoSessionOwnership(VideoSessionOwnership ownership)
+        private void Return(VideoSessionOwnership ownership)
         {
             _VideoSessions.Remove(ownership);
 
-            OwnershipRemoveRequested?.Invoke(this, new SessionOwnershipRemoveRequestedEventArgs(ownership.VideoId));
+            AvairableOwnership?.Invoke(this, new SessionOwnershipRemoveRequestedEventArgs(ownership.VideoId));
         }
     }
 

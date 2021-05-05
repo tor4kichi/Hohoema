@@ -499,11 +499,17 @@ namespace Hohoema.Models.Domain.VideoCache
                             this.Started?.Invoke(this, new VideoCacheStartedEventArgs() { Item = (s as IVideoCacheDownloadOperation).VideoCacheItem });
                         };
 
-                        op.Paused += (s, e) => 
+                        op.Paused += async (s, e) => 
                         {
                             var op = s as IVideoCacheDownloadOperation;
-                            var item = op.VideoCacheItem;
-                            (op as IDisposable).Dispose();
+
+                            using (await _updateLock.LockAsync())
+                            {
+                                var item = op.VideoCacheItem;
+                                _currentDownloadOperations.Remove(item.VideoId);
+
+                                (op as IDisposable).Dispose();
+                            }
 
                             item.Status = VideoCacheStatus.DownloadPaused;
                             UpdateVideoCacheEntity(item);
@@ -573,11 +579,15 @@ namespace Hohoema.Models.Domain.VideoCache
                     }
                     else
                     {
-                        item.FailedReason = opCreationResult.FailedReason;
-                        item.Status = VideoCacheStatus.Failed;
-                        UpdateVideoCacheEntity(item);
+                        if (opCreationResult.FailedReason != VideoCacheDownloadOperationFailedReason.RistrictedDownloadLineCount)
+                        {
+                            item.FailedReason = opCreationResult.FailedReason;
+                            item.Status = VideoCacheStatus.Failed;
 
-                        Failed?.Invoke(this, new VideoCacheFailedEventArgs() { Item = item, VideoCacheDownloadOperationCreationFailedReason = item.FailedReason });
+                            UpdateVideoCacheEntity(item);
+
+                            Failed?.Invoke(this, new VideoCacheFailedEventArgs() { Item = item, VideoCacheDownloadOperationCreationFailedReason = item.FailedReason });
+                        }
 
                         var result = PrepareNextVideoCacheDownloadingResult.Failed(item.VideoId, item, opCreationResult.FailedReason);
                         return result;
