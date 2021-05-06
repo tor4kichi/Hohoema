@@ -148,7 +148,7 @@
     <Compile Include="Models.Helpers\ConnectionRetryUtil.cs" />
     <Compile Include="Models.Helpers\FilePathHelper.cs" />
     <Compile Include="Models.Helpers\HtmlFileHelper.cs" />
-    <Compile Include="Models.Helpers\HttpSequencialAccessStream.cs" />
+    <Compile Include="Models.Helpers\HttpRandomAccessStream.cs" />
     <Compile Include="Models.Helpers\IAsyncInitialize.cs" />
     <Compile Include="Models.Helpers\IncrementalLoadingCollection.cs" />
     <Compile Include="Models.Helpers\InternetConnection.cs" />

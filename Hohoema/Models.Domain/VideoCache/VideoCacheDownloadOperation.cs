@@ -5,7 +5,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
-using Espresso3389.HttpStream;
 
 namespace Hohoema.Models.Domain.VideoCache
 {
@@ -64,10 +63,7 @@ namespace Hohoema.Models.Domain.VideoCache
             try
             {
                 var ct = _cancellationTokenSource.Token;
-                await Task.Run(async () => 
-                {
-                    await _videoCacheDownloadOperationOutput.CopyStreamAsync(downloadStream.AsStreamForRead(), new Progress<VideoCacheDownloadOperationProgress>(x => Progress?.Invoke(this, x)), ct);
-                }, ct);
+                await _videoCacheDownloadOperationOutput.CopyStreamAsync(downloadStream.AsStreamForRead(), new _Progress(x => Progress?.Invoke(this, x)), ct);
                 Completed?.Invoke(this, EventArgs.Empty);
             }
             catch (OperationCanceledException)
@@ -89,6 +85,22 @@ namespace Hohoema.Models.Domain.VideoCache
                 downloadStream.Dispose();
                 _cancellationTokenSource.Dispose();
                 _cancellationTokenSource = null;
+            }
+        }
+
+
+        struct _Progress : IProgress<VideoCacheDownloadOperationProgress>
+        {
+            private readonly Action<VideoCacheDownloadOperationProgress> _act;
+
+            public _Progress(Action<VideoCacheDownloadOperationProgress> act)
+            {
+                _act = act;
+            }
+
+            public void Report(VideoCacheDownloadOperationProgress value)
+            {
+                _act(value);
             }
         }
 

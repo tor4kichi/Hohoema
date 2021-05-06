@@ -15,10 +15,9 @@ using Windows.Storage.Streams;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 
-namespace Espresso3389.HttpStream
+namespace Hohoema.Models.Helpers
 {
     public sealed class HttpRandomAccessStream : IRandomAccessStreamWithContentType
-
     {
 
         private HttpClient client;

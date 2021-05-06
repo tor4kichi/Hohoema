@@ -16,6 +16,7 @@ namespace Hohoema.Models.UseCase.VideoCache
 {
     public sealed class VideoCacheDownloadOperationManager
     {
+        public static readonly TimeSpan PROGRESS_UPDATE_INTERVAL = TimeSpan.FromSeconds(5);
         public const int MAX_DOWNLOAD_LINE_ = 1;
 
         private readonly VideoCacheManager _videoCacheManager;
@@ -59,12 +60,10 @@ namespace Hohoema.Models.UseCase.VideoCache
 
             _videoCacheManager.Progress += (s, e) => 
             {
-                var progress = e.Item.GetProgressNormalized();
-
                 if (_nextProgressShowTime < DateTime.Now)
                 {
-                    Debug.WriteLine($"[VideoCache] Progress: Id= {e.Item.VideoId}, Progress= {progress:P}");
-                    _nextProgressShowTime = DateTime.Now + TimeSpan.FromSeconds(1);
+                    Debug.WriteLine($"[VideoCache] Progress: Id= {e.Item.VideoId}, Progress= {e.Item.GetProgressNormalized():P}");
+                    _nextProgressShowTime = DateTime.Now + PROGRESS_UPDATE_INTERVAL;
 
                     TriggerVideoCacheProgressChanged(e.Item);
                 }
