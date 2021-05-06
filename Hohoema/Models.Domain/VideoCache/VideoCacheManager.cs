@@ -352,10 +352,11 @@ namespace Hohoema.Models.Domain.VideoCache
 
                 // ファイルとして削除
                 try
-                { 
-                    if (await GetCacheVideoFileAsync(videoId) is not null and var completedFile)
+                {
+                    var file = await GetCacheVideoFileAsync(videoId);
+                    if (file is not null)
                     {
-                        await completedFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                        await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
                     }
                 }
                 catch
