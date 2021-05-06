@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Presentation.Services;
+using Hohoema.Models.Domain.VideoCache;
 
 namespace Hohoema.Models.UseCase.VideoCache
 {
@@ -20,7 +21,7 @@ namespace Hohoema.Models.UseCase.VideoCache
         /// <param name="videoCacheManager"></param>
         /// <param name="notificationService"></param>
         public NotificationCacheVideoDeletedService(
-            VideoCacheManagerLegacy videoCacheManager,
+            VideoCacheManager videoCacheManager,
             NotificationService notificationService
             )
         {
@@ -30,7 +31,7 @@ namespace Hohoema.Models.UseCase.VideoCache
             StrongReferenceMessenger.Default.Register<VideoDeletedEvent>(this);
         }
 
-        public VideoCacheManagerLegacy VideoCacheManager { get; }
+        public VideoCacheManager VideoCacheManager { get; }
         public NotificationService NotificationService { get; }
 
         public async void Receive(VideoDeletedEvent message)

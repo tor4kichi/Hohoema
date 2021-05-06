@@ -29,7 +29,6 @@
                                       ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
-                                      IsUpdateSourceVideoItem="False"
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>

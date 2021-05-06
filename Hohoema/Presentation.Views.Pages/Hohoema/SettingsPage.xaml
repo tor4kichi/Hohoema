@@ -3,7 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:local="using:Hohoema.Presentation.Views"
+      xmlns:local="using:Hohoema.Presentation.Views.Pages.Hohoema"
       xmlns:mvvm="using:Prism.Mvvm"
       xmlns:view="using:Hohoema.Presentation.Views"
       xmlns:i="using:Microsoft.Xaml.Interactivity"
@@ -20,7 +20,7 @@
       xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
       xmlns:locales="using:Hohoema.Locales"
       xmlns:controls="using:Hohoema.Presentation.Views.Controls" 
-      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       DataContext="{x:Null}"
       mc:Ignorable="d"
       x:Name="PageRoot"
@@ -85,7 +85,7 @@
     <Style x:Key="SettingsMiddleGroupStackPanelStyle"
            TargetType="StackPanel">
       <Setter Property="Spacing"
-              Value="16" />
+              Value="32" />
       <Setter Property="Margin"
               Value="16 0 0 0" />
     </Style>
@@ -138,6 +138,11 @@
           </CommandBar.PrimaryCommands>
         </CommandBar>
       </StackPanel>
+
+      <uwpcontrols:ListDetailsView>
+        
+      </uwpcontrols:ListDetailsView>
+      
       <ScrollViewer Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <StackPanel x:Name="ContentPanel" Spacing="16" Padding="0 0 0 32" MaxWidth="480" >
           <!-- アプリの表示設定 -->
@@ -293,68 +298,48 @@
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
-              <Grid Margin="0 8">
+              <Grid>
                 <TextBlock Text="{i18nExt:Localize Key=DefaultCacheVideoQuality}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ComboBox ItemsSource="{Binding AvairableCacheQualities}" SelectedItem="{Binding DefaultCacheQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
                       <TextBlock>
-                                                <Run Text="{Binding Converter={StaticResource LocalizeConverter}}" /></TextBlock>
+                         <Run Text="{Binding Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                     </DataTemplate>
                   </ComboBox.ItemTemplate>
                 </ComboBox>
               </Grid>
-              <!--
 
+              <Grid>
+                <TextBlock Text="{i18nExt:Localize Key=IsAllowDownloadOnMeteredNetwork}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch IsOn="{Binding IsAllowDownloadOnMeteredNetwork.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
 
-                            <StackPanel Margin="0 8">
-                                <TextBlock Text="従量課金ネットワーク利用時の動画キャッシュダウンロードを許可する"
-                                   toolkit:DockPanel.Dock="Left"
-                                   VerticalAlignment="Center"
-                                           TextWrapping="Wrap"
-                                           MaxWidth="240"
-                                           HorizontalAlignment="Left"
-                                   />
-                                <ToggleSwitch 
-                                  IsOn="{Binding IsAllowDownloadOnMeteredNetwork.Value, Mode=TwoWay}"
-                                  OnContent="許可"
-                                    OffContent="不許可"
-                                          />
-                            </StackPanel>
+              <Grid>
+                <TextBlock Text="{i18nExt:Localize Key=IsNotifyOnDownloadWithMeteredNetwork}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch IsOn="{Binding IsNotifyOnDownloadWithMeteredNetwork.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
 
-
-                            <StackPanel Margin="0 8">
-                                <TextBlock Text="従量課金ネットワーク利用時のキャッシュ画質"
-                           VerticalAlignment="Center"
-                           />
-                                <ComboBox ItemsSource="{Binding AvairableDefaultCacheQualitiesOnMeteredNetwork}" 
-                                          SelectedItem="{Binding DefaultCacheQualityOnMeteredNetwork.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                          >
-                                    <ComboBox.ItemTemplateSelector>
-                                        <templateselector:NicoVideoCacheQualityTemplateSelector>
-                                            <templateselector:NicoVideoCacheQualityTemplateSelector.UnknownTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="「デフォルトのキャッシュ画質」と同じ" />
-                                                </DataTemplate>
-                                            </templateselector:NicoVideoCacheQualityTemplateSelector.UnknownTemplate>
-                                            <templateselector:NicoVideoCacheQualityTemplateSelector.DefaultTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock>
-                                                        <Run Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                                                    </TextBlock>
-                                                </DataTemplate>
-                                            </templateselector:NicoVideoCacheQualityTemplateSelector.DefaultTemplate>
-                                            
-                                        </templateselector:NicoVideoCacheQualityTemplateSelector>
-                                        
-                                    </ComboBox.ItemTemplateSelector>
-                                </ComboBox>
-                            
-                            
-                            </StackPanel>
-                            
-                            -->
+              <Grid>
+                <Grid.Resources>
+                  <local:VideoCacheMaxSizeDoubleGigaByte2NullableLongByteConverter x:Key="MaxCacheSizeNumberConverter" />
+                </Grid.Resources>
+                <TextBlock Text="{i18nExt:Localize Key=MaxVideoCacheStorageSize}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
+                  <muxc:NumberBox x:Name="MaxCacheSizeNumberBox" Value="{Binding MaxVideoCacheStorageSize.Value, Converter={StaticResource MaxCacheSizeNumberConverter}, Mode=TwoWay}" SmallChange="0.1" LargeChange="1" SpinButtonPlacementMode="Hidden"
+                                  PlaceholderText="{i18nExt:Localize Key=MaxVideoCacheSize_Unlimited}"
+                                  >
+                    
+                  </muxc:NumberBox>
+                  <TextBlock Text="GB" VerticalAlignment="Center" FontSize="16" />
+                </StackPanel>
+              </Grid>
+              
+              <Grid>
+                <Button Content="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{Binding ChangeCacheVideoFolderCommand}" HorizontalAlignment="Right" />
+              </Grid>
             </StackPanel>
+            
           </StackPanel>
           <!-- バックアップ -->
           <StackPanel>

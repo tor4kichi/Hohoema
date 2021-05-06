@@ -76,7 +76,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         {
             if (NiconicoSession.ServiceStatus.IsOutOfService())
             {
-                return null;
+                return _nicoVideoRepository.Get(rawVideoId);
             }
 
             var info = _nicoVideoRepository.Get(rawVideoId);
@@ -89,6 +89,11 @@ namespace Hohoema.Models.Domain.Niconico.Video
                 {
                     return info;
                 }
+            }
+
+            if (!Helpers.InternetConnection.IsInternet())
+            {
+                return info;
             }
 
             if (info == null)
@@ -224,9 +229,21 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
             foreach (var data in idItems)
             {
-                var item = res.Videos.FirstOrDefault(x => x.Video.Id == data) ?? await VideoClient.GetVideoInfoAsync(data);
+                var item = res.Videos.FirstOrDefault(x => x.Video.Id == data);
+
+                if (item is null && isLatestRequired)
+                {
+                    item = await VideoClient.GetVideoInfoAsync(data);
+                }
 
                 var info = _nicoVideoRepository.Get(item.Video.Id);
+
+                if (item is null)
+                {
+                    yield return info;
+                    continue;
+                }
+
                 var video = item.Video;
 
                 info.Title = video.Title;

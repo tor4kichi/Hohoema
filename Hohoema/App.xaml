@@ -30,9 +30,11 @@
         <ResourceDictionary Source="Styles/UWPUIControlsDefaultStyles.xaml"/>
         <ResourceDictionary Source="Styles/ListViewItemStyles.xaml"/>
         <ResourceDictionary Source="Styles/SettingsControlStyles.xaml"/>
-        
+        <ResourceDictionary Source="Styles/FixedHeaderListViewStyle.xaml"/>
+
         <ResourceDictionary Source="Presentation.Views/Controls/TransientContainer/TransientContainer.xaml"/>
         <ResourceDictionary Source="Presentation.Views/Controls/LiteInAppNotification/LiteInAppNotification.xaml"/>
+        <ResourceDictionary Source="Presentation.Views/Controls/VideoList/VideoListItem/VideoListItem.xaml"/>
 
         <muxc:XamlControlsResources  />
 

@@ -17,9 +17,10 @@ namespace Hohoema.FixPrism
         {
         }
 
-        ReaderWriterLockSlim lockSlim = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        ReaderWriterLockSlim _lockSlim = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         Dictionary<DispatcherQueue, IList<PropertyChangedEventHandler>> _handlersByThread = new Dictionary<DispatcherQueue, IList<PropertyChangedEventHandler>>();
 
+        bool _IsDisposed;
         /// <summary>
         /// Occurs when a property value changes.
         /// </summary>
@@ -27,7 +28,9 @@ namespace Hohoema.FixPrism
         {
             add 
             {
-                lockSlim.EnterWriteLock();
+                if (_IsDisposed) { return; }
+
+                _lockSlim.EnterWriteLock();
                 try
                 {
                     var currentContext = DispatcherQueue.GetForCurrentThread();
@@ -42,12 +45,14 @@ namespace Hohoema.FixPrism
                 }
                 finally
                 {
-                    lockSlim.ExitWriteLock();
+                    _lockSlim.ExitWriteLock();
                 }
             }
             remove
             {
-                lockSlim.EnterWriteLock();
+                if (_IsDisposed) { return; }
+
+                _lockSlim.EnterWriteLock();
                 try
                 {
                     foreach (var list in _handlersByThread.Values)
@@ -57,7 +62,7 @@ namespace Hohoema.FixPrism
                 }
                 finally
                 {
-                    lockSlim.ExitWriteLock();
+                    _lockSlim.ExitWriteLock();
                 }
             }
         }
@@ -126,7 +131,9 @@ namespace Hohoema.FixPrism
         /// that support <see cref="CallerMemberNameAttribute"/>.</param>
         protected void RaisePropertyChanged([CallerMemberName]string propertyName = null)
         {
-            lockSlim.EnterReadLock();
+            if (_IsDisposed) { return; }
+
+            _lockSlim.EnterReadLock();
             try
             {
                 foreach (var pair in _handlersByThread)
@@ -135,7 +142,7 @@ namespace Hohoema.FixPrism
                     var handlers = pair.Value;
                     context.TryEnqueue(() =>
                     {
-                        lockSlim.EnterUpgradeableReadLock();
+                        _lockSlim.EnterUpgradeableReadLock();
                         try
                         {
                             var eventArgs = new PropertyChangedEventArgs(propertyName);
@@ -146,14 +153,14 @@ namespace Hohoema.FixPrism
                         }
                         finally
                         {
-                            lockSlim.ExitUpgradeableReadLock();
+                            _lockSlim.ExitUpgradeableReadLock();
                         }
                     });
                 }
             }
             finally
             {
-                lockSlim.ExitReadLock();
+                _lockSlim.ExitReadLock();
             }
         }
 
@@ -168,7 +175,8 @@ namespace Hohoema.FixPrism
 
         public virtual void Dispose()
         {
-            ((IDisposable)lockSlim).Dispose();
+            ((IDisposable)_lockSlim).Dispose();
+            _IsDisposed = true;
         }
     }
 }

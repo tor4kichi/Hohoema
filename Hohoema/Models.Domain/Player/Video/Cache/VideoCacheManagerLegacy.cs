@@ -47,9 +47,10 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
     }
 
 
+    [Obsolete]
     public class CacheSaveFolder
     {
-        public CacheSaveFolder(VideoCacheSettings cacheSettings)
+        public CacheSaveFolder(VideoCacheSettings_Legacy cacheSettings)
         {
             CacheSettings = cacheSettings;
         }
@@ -93,7 +94,7 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
         static string CurrentFolderAccessToken = null;
 
         public string PrevCacheFolderAccessToken { get; private set; }
-        public VideoCacheSettings CacheSettings { get; }
+        public VideoCacheSettings_Legacy CacheSettings { get; }
 
 
         public event EventHandler<CacheSaveFolderChangedEventArgs> SaveFolderChanged;
@@ -267,12 +268,13 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
     /// </summary>
     public class VideoCacheManagerLegacy : AsyncInitialize, IDisposable
     {
+        [Obsolete]
         public VideoCacheManagerLegacy(
             IScheduler scheduler,
             NiconicoSession niconicoSession,
             NicoVideoProvider nicoVideoProvider,
             CacheSaveFolder cacheSaveFolder,
-            VideoCacheSettings cacheSettings,
+            VideoCacheSettings_Legacy cacheSettings,
             NicoVideoSessionProvider nicoVideoSessionProvider,
             NicoVideoSessionOwnershipManager sessionOwnershipManager,
             CacheRequestRepository cacheRequestRepository,
@@ -288,13 +290,15 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
             _sessionOwnershipManager = sessionOwnershipManager;
             _cacheRequestRepository = cacheRequestRepository;
             _appFlagsRepository = appFlagsRepository;
+
+            /*
             NiconicoSession.LogIn += async (sender, e) =>
             {
                 await TryNextCacheRequestedVideoDownload();
             };
 
             _CachePendingItemsChangedSubject = new BehaviorSubject<Unit>(Unit.Default);
-
+            
             Observable.Merge(
                 _DownloadOperations.ObserveRemoveChanged().ToUnit(),
                 _CachePendingItemsChangedSubject.ToUnit(),
@@ -308,6 +312,7 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
             CacheSaveFolder.SaveFolderChanged += CacheSaveFolder_SaveFolderChanged;
 
             _sessionOwnershipManager.OwnershipRemoveRequested += _sessionOwnershipManager_OwnershipRemoveRequested;
+            */
         }
 
         private async void _sessionOwnershipManager_OwnershipRemoveRequested(NicoVideoSessionOwnershipManager sender, SessionOwnershipRemoveRequestedEventArgs args)
@@ -347,7 +352,7 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
         public NiconicoSession NiconicoSession { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public CacheSaveFolder CacheSaveFolder { get; }
-        public VideoCacheSettings CacheSettings { get; }
+        public VideoCacheSettings_Legacy CacheSettings { get; }
         private readonly NicoVideoSessionProvider _nicoVideoSessionProvider;
         private readonly NicoVideoSessionOwnershipManager _sessionOwnershipManager;
         private readonly CacheRequestRepository _cacheRequestRepository;
@@ -405,27 +410,25 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
 
             if (split.Count() == 1)
             {
-                return NicoVideoQuality.Smile_Original;
+                return NicoVideoQuality.Unknown;
             }
             else
             {
                 var qualityTypeName = split.ElementAt(1);
                 switch (qualityTypeName)
                 {
-                    case "low":
-                        return NicoVideoQuality.Smile_Low;
                     case "dmc_high":
-                        return NicoVideoQuality.Dmc_High;
+                        return NicoVideoQuality.High;
                     case "dmc_superhigh":
-                        return NicoVideoQuality.Dmc_SuperHigh;
+                        return NicoVideoQuality.SuperHigh;
                     case "dmc_midium":
-                        return NicoVideoQuality.Dmc_Midium;
+                        return NicoVideoQuality.Midium;
                     case "dmc_low":
-                        return NicoVideoQuality.Dmc_Low;
+                        return NicoVideoQuality.Low;
                     case "dmc_mobile":
-                        return NicoVideoQuality.Dmc_Mobile;
+                        return NicoVideoQuality.Mobile;
                     default:
-                        return NicoVideoQuality.Smile_Original;
+                        return NicoVideoQuality.Unknown;
                 }
             }
         }
@@ -438,25 +441,19 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
             var filename = $"{title.ToSafeFilePath()} - [{videoId}].mp4"; 
             switch (quality)
             {
-                case NicoVideoQuality.Smile_Original:
-                    toQualityNameExtention = Path.ChangeExtension(filename, $".{videoType.ToString().ToLower()}");
-                    break;
-                case NicoVideoQuality.Smile_Low:
-                    toQualityNameExtention = Path.ChangeExtension(filename, $".low.{videoType.ToString().ToLower()}");
-                    break;
-                case NicoVideoQuality.Dmc_High:
+                case NicoVideoQuality.High:
                     toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_high.{videoType.ToString().ToLower()}");
                     break;
-                case NicoVideoQuality.Dmc_SuperHigh:
+                case NicoVideoQuality.SuperHigh:
                     toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_superhigh.{videoType.ToString().ToLower()}");
                     break;
-                case NicoVideoQuality.Dmc_Midium:
+                case NicoVideoQuality.Midium:
                     toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_midium.{videoType.ToString().ToLower()}");
                     break;
-                case NicoVideoQuality.Dmc_Low:
+                case NicoVideoQuality.Low:
                     toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_low.{videoType.ToString().ToLower()}");
                     break;
-                case NicoVideoQuality.Dmc_Mobile:
+                case NicoVideoQuality.Mobile:
                     toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_mobile.{videoType.ToString().ToLower()}");
                     break;
                 default:
@@ -1384,23 +1381,25 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
                 new CachedVideoSessionProvider(rawVideoId, this, playableCacheQualities), playableCacheQualities);
         }
 
+        [Obsolete]
         internal async Task<IStreamingSession> CreateStreamingSessionAsync(NicoVideoCached request)
         {
-            if (request is NicoVideoCached cacheInfo)
-            {
-                try
-                {
-                    return new LocalVideoStreamingSession(cacheInfo.File, cacheInfo.Quality, NiconicoSession);
-                }
-                catch
-                {
-                    Debug.WriteLine("動画視聴時にキャッシュが見つかったが、キャッシュファイルを利用した再生セッションの作成に失敗。");
-                }
-            }
+            //if (request is NicoVideoCached cacheInfo)
+            //{
+            //    try
+            //    {
+            //        return new LocalVideoStreamingSession(cacheInfo.File, cacheInfo.Quality, NiconicoSession);
+            //    }
+            //    catch
+            //    {
+            //        Debug.WriteLine("動画視聴時にキャッシュが見つかったが、キャッシュファイルを利用した再生セッションの作成に失敗。");
+            //    }
+            //}
 
             return null;
         }
 
+        [Obsolete]
         internal async Task<IStreamingSession> CreateStreamingSessionAsync(NicoVideoCacheProgress request)
         {
             if (request is NicoVideoCacheProgress progress)

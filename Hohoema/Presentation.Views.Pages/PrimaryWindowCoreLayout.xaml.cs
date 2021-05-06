@@ -77,14 +77,14 @@ namespace Hohoema.Presentation.Views.Pages
                         .Subscribe(title =>
                         {
                             PageTitle = title;
-                            if (pageVM is HohoemaViewModelBase vm)
+                            if (pageVM is HohoemaPageViewModelBase vm)
                             {
                                 vm.Title = title;
                             }
                         })
                         .AddTo(_navigationDisposable);
                     }
-                    else if (page.DataContext is HohoemaViewModelBase vm)
+                    else if (page.DataContext is HohoemaPageViewModelBase vm)
                     {
                         var pageNameRaw = e.SourcePageType.FullName.Split('.').LastOrDefault();
                         var pageName = pageNameRaw.Split('_').FirstOrDefault();

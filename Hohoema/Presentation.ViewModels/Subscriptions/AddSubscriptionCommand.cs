@@ -41,7 +41,7 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions
 
         protected override bool CanExecute(object parameter)
         {
-            return parameter is IVideoContent
+            return parameter is IVideoContentProvider
                 || parameter is IMylist
                 || parameter is IChannel
                 || parameter is IUser
@@ -53,7 +53,7 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions
         {
             (string id, SubscriptionSourceType sourceType, string label) result = parameter switch
             {
-                IVideoContent videoContent => videoContent.ProviderType switch
+                IVideoContentProvider videoContent => videoContent.ProviderType switch
                 {
                     NicoVideoUserType.User => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.User, default(string)),
                     NicoVideoUserType.Channel => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.Channel, default(string)),

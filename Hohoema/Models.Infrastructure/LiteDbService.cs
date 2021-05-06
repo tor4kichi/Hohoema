@@ -21,6 +21,8 @@ namespace Hohoema.Models.Infrastructure
             _collection = liteDatabase.GetCollection<T>();
         }
 
+        
+
         public virtual T CreateItem(T item)
         {
             var val = _collection.Insert(item);

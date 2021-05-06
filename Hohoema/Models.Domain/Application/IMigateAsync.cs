@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.UseCase.Migration
+namespace Hohoema.Models.Domain.Application
 {
     internal interface IMigrateAsync
     {

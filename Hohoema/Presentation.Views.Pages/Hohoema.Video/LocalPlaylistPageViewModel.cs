@@ -26,7 +26,7 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
-    public sealed class LocalPlaylistPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public sealed class LocalPlaylistPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -113,7 +113,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         }
 
 
-        protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
+        protected override IIncrementalSource<VideoListItemControlViewModel> GenerateIncrementalSource()
         {
             return new LocalPlaylistIncrementalLoadingSource(Playlist);
         }
@@ -128,7 +128,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
                     var args = m.Value;
                     foreach (var itemId in args.RemovedItems)
                     {
-                        var removedItem = ItemsView.Cast<VideoInfoControlViewModel>().FirstOrDefault(x => x.Id == itemId);
+                        var removedItem = ItemsView.Cast<VideoListItemControlViewModel>().FirstOrDefault(x => x.Id == itemId);
                         if (removedItem != null)
                         {
                             ItemsView.Remove(removedItem);
@@ -164,7 +164,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         }
     }
 
-    public class LocalPlaylistIncrementalLoadingSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
+    public class LocalPlaylistIncrementalLoadingSource : HohoemaIncrementalSourceBase<VideoListItemControlViewModel>
     {
         private readonly LocalPlaylist _playlist;
 
@@ -181,11 +181,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             return new ValueTask<int>(_Items.Count);
         }
 
-        protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct)
+        protected override async IAsyncEnumerable<VideoListItemControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct)
         {
             foreach (var item in _Items.Skip(head).Take(count))
             {
-                var vm = new VideoInfoControlViewModel(item);
+                var vm = new VideoListItemControlViewModel(item);
                 await vm.InitializeAsync(ct).ConfigureAwait(false);
                 yield return vm;
             }

@@ -22,18 +22,28 @@
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList" 
   xmlns:windowsStateTrigger="using:WindowsStateTriggers" 
   DataContext="{x:Null}"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
-    NavigationCacheMode="Enabled"
-    mc:Ignorable="d"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:videoList="using:Hohoema.Presentation.Views.Controls.VideoList.VideoListItem" xmlns:cacheModel="using:Hohoema.Models.Domain.VideoCache"
+  mc:Ignorable="d"
     >
 
+  <Page.Resources>
+    <CollectionViewSource x:Key="CacheItemsViewSource"
+                          Source="{Binding Groups}"
+                          IsSourceGrouped="True"
+                          ItemsPath="Items"
+                          >
+
+    </CollectionViewSource>
+  </Page.Resources>
+  
   <Grid>
 
-    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
+    <videolistPage:VideoItemsListView ItemsSource="{Binding Source={StaticResource CacheItemsViewSource}}"
                                       ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
                                       x:Name="VideoItemsListView"
+                                      Padding="0 48 0 0"
                                       >
       <videolistPage:VideoItemsListView.Header>
 
@@ -44,6 +54,41 @@
             </CommandBar.Content>
 
             <CommandBar.PrimaryCommands>
+
+              <AppBarElementContainer VerticalContentAlignment="Center">
+                <StackPanel>
+                  <StackPanel Orientation="Horizontal" Spacing="16">
+                    <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}">
+                      <Run Text="{i18nExt:Localize Key=CachedStorageSize_Current}" />:<Run Text="{Binding CurrentlyCachedStorageSize.Value, Converter={StaticResource ToKMGTPEZY}}" />B
+                    </TextBlock>
+                    <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding MaxCacheStorageSize.Value, Converter={StaticResource NotNullToVisibility}}">
+                      <Run Text="{i18nExt:Localize Key=CachedStorageSize_Limit}" />:<Run Text="{Binding MaxCacheStorageSize.Value, Converter={StaticResource ToKMGTPEZY}}" />B
+                    </TextBlock>
+                    
+                  </StackPanel>
+
+                  <ProgressBar Minimum="0.0" Maximum="1.0" Value="{Binding AvairableStorageSizeNormalized.Value}" Visibility="{Binding MaxCacheStorageSize.Value, Converter={StaticResource NotNullToVisibility}}" 
+                               Width="200"
+                               />
+                </StackPanel>
+              </AppBarElementContainer>
+
+              <AppBarButton Icon="Help">
+                <AppBarButton.Flyout>
+                  <Flyout>
+                    <StackPanel Width="320">
+                      <TextBlock TextWrapping="Wrap" LineHeight="18">
+                        ・プレミアム会員でログイン中のみダウンロード及びキャッシュからの視聴が可能です <LineBreak />
+                        ・OSとアプリが起動中している間のみダウンロードを行います<LineBreak />
+                        ・ダウンロードはオンライン視聴していないタイミングで行います<LineBreak />
+                        ・キャッシュ済みでもネットワーク非接続状態の場合、キャッシュ動画の視聴は出来ません<LineBreak />
+                        ・暗号化動画はキャッシュ出来ません<LineBreak />
+                        ・期間限定無料なども現時点で視聴可能であればキャッシュ可能ですが、再生時点で視聴不可なら再生出来ません<LineBreak />
+                      </TextBlock>
+                    </StackPanel>
+                  </Flyout>
+                </AppBarButton.Flyout>
+              </AppBarButton>
               <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
@@ -58,8 +103,7 @@
               <AppBarButton Label="{Binding CacheSaveFolderPath.Value}" IsEnabled="False" />
               <AppBarButton Label="{i18nExt:Localize Key=OpenCacheFolder}" Command="{Binding OpenCurrentCacheFolderCommand}" />
               <AppBarSeparator />
-              <AppBarButton Label="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{Binding ChangeCacheFolderCommand}" />
-              <AppBarButton Label="{i18nExt:Localize Key=OpenHohoemaCacheVideoFairUsePolicyText}" Command="{Binding ReadCacheAcceptTextCommand}" />
+              <AppBarButton Label="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{Binding ChangeCacheVideoFolderCommand}" />
             </CommandBar.SecondaryCommands>
           </CommandBar>
         </Grid>
@@ -68,23 +112,79 @@
       <videolistPage:VideoItemsListView.ItemTemplate>
         <DataTemplate>
           <Grid>
-            <videolistPage:VideoListItemControl />
+            <videoList:VideoListItem   
+              ImageUrl="{Binding ThumbnailUrl}"
+              ImageSubText="{Binding Length, Converter={StaticResource TimeToMovieLengthConverter}}"
+              IsQueueItem="{Binding IsQueueItem}"
+              CacheStatus="{Binding CacheStatus}"
+              MiddleClickOrSwipeRightCommand="{Binding ToggleWatchAfterCommand}">
 
-            <Grid toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right"
-                                    >
-              <StackPanel>
-                <TextBlock Text="{Binding CacheRequestTime}" 
-                                               Opacity="0.7"
-                                               Margin="0 0 0 4"
-                                               FontSize="12"
-                                               />
-              </StackPanel>
+              <Grid>
+                <StackPanel VerticalAlignment="Center" Spacing="4">
+                  <TextBlock Text="{Binding Label}" FontSize="16"
+                       TextWrapping="Wrap"
+                       VerticalAlignment="Center" />
 
-            </Grid>
+                  <StackPanel Orientation="Horizontal" Visibility="{Binding HasCacheProgress}" Spacing="8">
+                    <TextBlock Width="48" HorizontalTextAlignment="Right">
+                      <Run Text="{Binding DownloadProgress, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
+                    </TextBlock>
+                    <ProgressBar Width="180" Minimum="0.0" Maximum="1.0" Value="{Binding DownloadProgress}" IsIndeterminate="{Binding IsProgressUnknown}"  />
+                  </StackPanel>
+
+                  <StackPanel Orientation="Horizontal" Spacing="8" Opacity="0.7" HorizontalAlignment="Right">
+
+                    <uwpcontrols:SwitchPresenter Value="{Binding FailedReason, Converter={StaticResource EnumToNumber}}">
+                      <uwpcontrols:CaseCollection >
+                        <uwpcontrols:Case >
+                          <uwpcontrols:Case.Value>
+                            <cacheModel:VideoCacheDownloadOperationFailedReason>None</cacheModel:VideoCacheDownloadOperationFailedReason>
+                          </uwpcontrols:Case.Value>
+                          <Border />
+                        </uwpcontrols:Case>
+                        <uwpcontrols:Case IsDefault="True">
+                          <TextBlock Text="{Binding FailedReason, Converter={StaticResource LocalizeConverter}}"
+                           />
+                        </uwpcontrols:Case>
+                      </uwpcontrols:CaseCollection>
+                    </uwpcontrols:SwitchPresenter>
+                    
+                    
+                    <TextBlock Visibility="{Binding FileSize, Converter={StaticResource NotNullToVisibility}}" MinWidth="48" HorizontalTextAlignment="Center">
+                      <Run Text="{Binding FileSize, Converter={StaticResource ToKMGTPEZY}}" />B
+                    </TextBlock>
+
+                    <TextBlock Text="{Binding CacheRequestedQuality, Converter={StaticResource LocalizeConverter}}"
+                           VerticalAlignment="Bottom" 
+                               HorizontalTextAlignment="End"
+                               MinWidth="80"
+                           />
+
+
+                  </StackPanel>
+                  
+                </StackPanel>
+                
+
+              </Grid>
+            </videoList:VideoListItem>
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>
 
+
+      <videolistPage:VideoItemsListView.GroupStyle>
+        <GroupStyle HidesIfEmpty="True">
+          <GroupStyle.HeaderTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding CacheStatus, Converter={StaticResource LocalizeConverter}}" />
+            </DataTemplate>
+          </GroupStyle.HeaderTemplate>
+          
+        </GroupStyle>
+      </videolistPage:VideoItemsListView.GroupStyle>
+      
+      
     </videolistPage:VideoItemsListView>
 
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -94,27 +194,6 @@
                      />
     </Grid>
 
-    
-    <Grid x:Name="RequireChangeCacheFolderLayout" Visibility="Collapsed">
-      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-        <TextBlock Text="{i18nExt:Localize Key=RequirePickFolderToUsingVieoCacheInHohoema}" />
-        <Button x:Name="UpdateCacheSaveFolderButton" 
-                Command="{Binding ChangeCacheFolderCommand}"
-                Content="{i18nExt:Localize Key=PickCacheSaveFolder}"
-                />
-      </StackPanel>
-    </Grid>
-
-    <Grid x:Name="NotCacheAcceptedLayout">
-      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
-        <TextBlock Text="{i18nExt:Localize Key=RequireAcceptToUsingVideoCacheInHohoema}" />
-
-        <Button Content="{i18nExt:Localize Key=OpenHohoemaCacheVideoFairUsePolicyText}" 
-                Command="{Binding RequireEnablingCacheCommand}" 
-                Margin="8 16 8 8"
-                />
-      </StackPanel>
-    </Grid>
 
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
@@ -157,27 +236,6 @@
         </VisualState>
       </VisualStateGroup>
 
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsRequireUpdateCacheSaveFolder.Value}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="RequireChangeCacheFolderLayout.Visibility" Value="Visible" />
-            <Setter Target="NotCacheAcceptedLayout.Visibility" Value="Collapsed" />
-          </VisualState.Setters>
-        </VisualState>
-
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsCacheUserAccepted.Value}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="VideoItemsListView.Visibility" Value="Visible" />
-            <Setter Target="NotCacheAcceptedLayout.Visibility" Value="Collapsed" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
 
     </VisualStateManager.VisualStateGroups>
 

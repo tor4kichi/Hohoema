@@ -31,7 +31,7 @@ using Hohoema.Models.Domain.Notification;
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
     public class RankingCategoryPageViewModel 
-        : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>,
+        : HohoemaListingPageViewModelBase<RankedVideoListItemControlViewModel>,
         INavigatedAwareAsync,
         IPinablePage,
         ITitleUpdatablePage
@@ -316,13 +316,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         }
 
 
-        protected override IIncrementalSource<RankedVideoInfoControlViewModel> GenerateIncrementalSource()
+        protected override IIncrementalSource<RankedVideoListItemControlViewModel> GenerateIncrementalSource()
         {
             IsFailedRefreshRanking.Value = false;
 
             var categoryInfo = RankingGenre;
 
-            IIncrementalSource<RankedVideoInfoControlViewModel> source = null;
+            IIncrementalSource<RankedVideoListItemControlViewModel> source = null;
             try
             {
                 source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, NicoVideoProvider);
@@ -346,7 +346,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
     }
 
 
-    public class CategoryRankingLoadingSource : HohoemaIncrementalSourceBase<RankedVideoInfoControlViewModel>
+    public class CategoryRankingLoadingSource : HohoemaIncrementalSourceBase<RankedVideoListItemControlViewModel>
     {
         public CategoryRankingLoadingSource(
             RankingGenre genre,
@@ -375,15 +375,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         public override uint OneTimeLoadCount => 20;
 
-        protected override async IAsyncEnumerable<RankedVideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
+        protected override async IAsyncEnumerable<RankedVideoListItemControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             int index = 0;
             var videoInfoItems = _nicoVideoProvider.GetVideoInfoManyAsync(RankingRss.Items.Skip(head).Take(count).Select(x => x.GetVideoId()).ToArray());
             await foreach (var item in videoInfoItems)
             {
-                var vm = new RankedVideoInfoControlViewModel(item);
-
-                vm.Rank = (uint)(head + index + 1);
+                var vm = new RankedVideoListItemControlViewModel((uint)(head + index + 1), item);
 
                 await vm.InitializeAsync(ct);
 
@@ -412,24 +410,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
     }
 
 
-    public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
+    public class RankedVideoListItemControlViewModel : VideoListItemControlViewModel
     {
-        public RankedVideoInfoControlViewModel(
-            string rawVideoId
-            )
-            : base(rawVideoId)
-        {
-
-        }
-
-        public RankedVideoInfoControlViewModel(
-            NicoVideo data
+        public RankedVideoListItemControlViewModel(
+            uint rank, NicoVideo data
             )
             : base(data)
         {
-
+            Rank = rank;
         }
 
-        public uint Rank { get; internal set; }
+        public RankedVideoListItemControlViewModel(uint rank, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
+        {
+            Rank = rank;
+        }
+
+        public uint Rank { get; }
     }
 }

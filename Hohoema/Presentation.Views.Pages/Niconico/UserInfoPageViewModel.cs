@@ -35,7 +35,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Share;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
-    public class UserInfoPageViewModel : HohoemaViewModelBase, IUser, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class UserInfoPageViewModel : HohoemaPageViewModelBase, IUser, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {
@@ -82,7 +82,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
             HasOwnerVideo = true;
 
-            VideoInfoItems = new ObservableCollection<VideoInfoControlViewModel>();
+            VideoInfoItems = new ObservableCollection<VideoListItemControlViewModel>();
 
             OpenUserVideoPageCommand = VideoInfoItems.ObserveProperty(x => x.Count)
                 .Select(x => x > 0)
@@ -266,7 +266,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             set { SetProperty(ref _mylists, value); }
         }
 
-        public ObservableCollection<VideoInfoControlViewModel> VideoInfoItems { get; private set; }
+        public ObservableCollection<VideoListItemControlViewModel> VideoInfoItems { get; private set; }
 
 
         string INiconicoObject.Id => UserId;
@@ -334,9 +334,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 var userVideos = await UserProvider.GetUserVideos(uint.Parse(UserId), 1);
                 foreach (var item in userVideos.Data.Items.Take(5))
                 {
-                    var vm = new VideoInfoControlViewModel(item.Id);
-                    vm.SetTitle(item.Title);
-                    vm.SetThumbnailImage(item.Thumbnail.ListingUrl.OriginalString);
+                    var vm = new VideoListItemControlViewModel(item.Id, item.Title, item.Thumbnail.ListingUrl.OriginalString, TimeSpan.FromSeconds(item.Duration));
                     VideoInfoItems.Add(vm);
                 }
                 RaisePropertyChanged(nameof(VideoInfoItems));

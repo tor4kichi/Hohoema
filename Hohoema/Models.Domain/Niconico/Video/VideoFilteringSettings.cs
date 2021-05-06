@@ -67,7 +67,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
                 return true;
             }
-            else if (video.ProviderId != null && TryGetFilteredResultVideoOwnerId(video.ProviderId, out var user))
+            else if (video is IVideoContentProvider provider &&  provider.ProviderId != null && TryGetFilteredResultVideoOwnerId(provider.ProviderId, out var user))
             {
                 result = new FilteredResult()
                 {

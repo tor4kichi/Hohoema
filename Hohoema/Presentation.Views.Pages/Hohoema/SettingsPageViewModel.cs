@@ -39,10 +39,12 @@ using Windows.UI.StartScreen;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using Hohoema.Models.Domain.VideoCache;
+using Hohoema.Models.UseCase.VideoCache;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 {
-    public class SettingsPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
+    public class SettingsPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync
 	{
         private static Uri AppIssuePageUri = new Uri("https://github.com/tor4kichi/Hohoema/issues");
 
@@ -55,6 +57,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
             NicoRepoSettings nicoRepoSettings,
             AppearanceSettings appearanceSettings,
             VideoCacheSettings cacheSettings,
+            VideoCacheFolderManager videoCacheFolderManager,
             ApplicationLayoutManager applicationLayoutManager,
             VideoFilteringSettings videoFilteringRepository,
             BackupManager backupManager
@@ -66,7 +69,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
             PlayerSettings = playerSettings;
             ActivityFeedSettings = nicoRepoSettings;
             AppearanceSettings = appearanceSettings;
-            CacheSettings = cacheSettings;
+            VideoCacheSettings = cacheSettings;
+            _videoCacheFolderManager = videoCacheFolderManager;
             ApplicationLayoutManager = applicationLayoutManager;
             _videoFilteringRepository = videoFilteringRepository;
             _backupManager = backupManager;
@@ -190,9 +194,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                 .AddTo(_CompositeDisposable);
 
             // キャッシュ
-            DefaultCacheQuality = CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQuality)
+            DefaultCacheQuality = VideoCacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQuality)
                 .AddTo(_CompositeDisposable);
-            IsAllowDownloadOnMeteredNetwork = CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsAllowDownloadOnMeteredNetwork)
+            IsAllowDownloadOnMeteredNetwork = VideoCacheSettings.ToReactivePropertyAsSynchronized(x => x.IsAllowDownloadOnMeteredNetwork)
+                .AddTo(_CompositeDisposable);
+            IsNotifyOnDownloadWithMeteredNetwork = VideoCacheSettings.ToReactivePropertyAsSynchronized(x => x.IsNotifyOnDownloadWithMeteredNetwork)
+                .AddTo(_CompositeDisposable);
+            MaxVideoCacheStorageSize = VideoCacheSettings.ToReactivePropertyAsSynchronized(x => x.MaxVideoCacheStorageSize)
                 .AddTo(_CompositeDisposable);
 
             // シェア
@@ -238,6 +246,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         }
 
         Services.DialogService _HohoemaDialogService;
+        private readonly VideoCacheFolderManager _videoCacheFolderManager;
         private readonly VideoFilteringSettings _videoFilteringRepository;
         private readonly BackupManager _backupManager;
         private readonly CommentFilteringFacade _commentFiltering;
@@ -247,7 +256,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         public VideoRankingSettings RankingSettings { get; }
         public NicoRepoSettings ActivityFeedSettings { get; }
         public AppearanceSettings AppearanceSettings { get; }
-        public VideoCacheSettings CacheSettings { get; }
+        public VideoCacheSettings VideoCacheSettings { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
 
 
@@ -324,30 +333,28 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 
         public List<NicoVideoQuality> AvairableCacheQualities { get; } = new List<NicoVideoQuality>()
         {
-            NicoVideoQuality.Dmc_SuperHigh,
-            NicoVideoQuality.Dmc_High,
-            NicoVideoQuality.Dmc_Midium,
-            NicoVideoQuality.Dmc_Low,
-            NicoVideoQuality.Dmc_Mobile,
+            NicoVideoQuality.SuperHigh,
+            NicoVideoQuality.High,
+            NicoVideoQuality.Midium,
+            NicoVideoQuality.Low,
+            NicoVideoQuality.Mobile,
         };
 
         public ReactiveProperty<bool> IsAllowDownloadOnMeteredNetwork { get; private set; }
 
-        public ReactiveProperty<NicoVideoQuality> DefaultCacheQualityOnMeteredNetwork { get; private set; }
+        public ReactiveProperty<bool> IsNotifyOnDownloadWithMeteredNetwork { get; private set; }
+
+        public ReactiveProperty<long?> MaxVideoCacheStorageSize { get; private set; }
+
+        private DelegateCommand _ChangeCacheVideoFolderCommand;
+        public DelegateCommand ChangeCacheVideoFolderCommand =>
+            _ChangeCacheVideoFolderCommand ??= new DelegateCommand(async () =>
+            {
+                await _videoCacheFolderManager.ChangeVideoCacheFolder();
+            });
 
 
-        // Note: 従量課金時のキャッシュ画質指定は「デフォルトのキャッシュ画質の設定を継承」できるようにしたい
-        // 本来的には「キャッシュ用のNicoVIdeoQuality」として別のEnumを用意して対応すべきだが
-        // 
-        public List<NicoVideoQuality> AvairableDefaultCacheQualitiesOnMeteredNetwork { get; } = new List<NicoVideoQuality>()
-        {
-            NicoVideoQuality.Unknown,
-            NicoVideoQuality.Dmc_SuperHigh,
-            NicoVideoQuality.Dmc_High,
-            NicoVideoQuality.Dmc_Midium,
-            NicoVideoQuality.Dmc_Low,
-            NicoVideoQuality.Dmc_Mobile,
-        };
+
 
 
         // シェア

@@ -16,7 +16,7 @@ using System.Windows.Input;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
-    public sealed class VideoQueuePageViewModel : HohoemaViewModelBase, INavigationAware
+    public sealed class VideoQueuePageViewModel : HohoemaPageViewModelBase, INavigationAware
     {
         private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly PlaylistObservableCollection _watchAfterPlaylist;
@@ -51,7 +51,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         {
             base.OnNavigatedTo(parameters);
 
-            PlaylistItems = _watchAfterPlaylist.ToReadOnlyReactiveCollection(x => new VideoInfoControlViewModel(x as NicoVideo))
+            PlaylistItems = _watchAfterPlaylist.ToReadOnlyReactiveCollection(x => new VideoListItemControlViewModel(x as NicoVideo))
                 .AddTo(_NavigatingCompositeDisposable);
             RaisePropertyChanged(nameof(PlaylistItems));
         }

@@ -52,7 +52,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
         StorageFolder _DownloadFolder;
 
-        const string FolderAccessToken = "HohoemaVideoCache";
+        public const string FolderAccessToken = "HohoemaVideoCache";
 
         public string PrevCacheFolderAccessToken { get; private set; }
 

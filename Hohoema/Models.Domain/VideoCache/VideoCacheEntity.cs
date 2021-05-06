@@ -8,9 +8,11 @@ namespace Hohoema.Models.Domain.VideoCache
         [BsonId]
         public string VideoId { get; set; }
 
-        public NicoVideoCacheQuality RequestedVideoQuality { get; set; }
+        public string FileName { get; set; }
 
-        public NicoVideoCacheQuality DownloadedVideoQuality { get; set; }
+        public NicoVideoQuality RequestedVideoQuality { get; set; }
+
+        public NicoVideoQuality DownloadedVideoQuality { get; set; }
 
         public VideoCacheStatus Status { get; set; }
         

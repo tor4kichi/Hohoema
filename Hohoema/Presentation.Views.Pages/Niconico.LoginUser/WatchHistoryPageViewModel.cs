@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {
-    public class WatchHistoryPageViewModel : HohoemaViewModelBase
+    public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
 	{
 		public WatchHistoryPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
@@ -39,7 +39,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             PageManager = pageManager;
             WatchHistoryRemoveAllCommand = watchHistoryRemoveAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
-            Histories = new ObservableCollection<HistoryVideoInfoControlViewModel>();
+            Histories = new ObservableCollection<HistoryVideoListItemControlViewModel>();
         }
 
         private readonly NiconicoSession _niconicoSession;
@@ -50,7 +50,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
         public PageManager PageManager { get; }
         public WatchHistoryRemoveAllCommand WatchHistoryRemoveAllCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
-        public ObservableCollection<HistoryVideoInfoControlViewModel> Histories { get; }
+        public ObservableCollection<HistoryVideoListItemControlViewModel> Histories { get; }
 
         HistoriesResponse _HistoriesResponse;
 
@@ -105,16 +105,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
                         foreach (var x in _HistoriesResponse?.Histories ?? Enumerable.Empty<History>())
                         {
-                            var vm = new HistoryVideoInfoControlViewModel(x.Id);
-                            vm.ItemId = x.ItemId;
-                            vm.LastWatchedAt = x.WatchedAt.DateTime;
-                            vm.UserViewCount = x.WatchCount;
-
-                            vm.SetTitle(x.Title);
-                            vm.SetThumbnailImage(x.ThumbnailUrl.OriginalString);
-                            vm.SetVideoDuration(x.Length);
-
-                            vm.RemoveToken = _HistoriesResponse.Token;
+                            var vm = new HistoryVideoListItemControlViewModel(
+                                _HistoriesResponse.Token,
+                                x.ItemId,
+                                x.WatchedAt.DateTime,
+                                x.WatchCount,
+                                x.Id,
+                                x.Title,
+                                x.ThumbnailUrl.OriginalString,
+                                x.Length
+                                );
 
                             await vm.InitializeAsync(default);
 
@@ -133,65 +133,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
     
 
 
-    public class HistoryVideoInfoControlViewModel : VideoInfoControlViewModel, IWatchHistory
+    public class HistoryVideoListItemControlViewModel : VideoListItemControlViewModel, IWatchHistory
     {
-        public string RemoveToken { get; set; }
+        public string RemoveToken { get; }
 
-        public string ItemId { get; set; }
-		public DateTime LastWatchedAt { get; set; }
-		public uint UserViewCount { get; set; }
+        public string ItemId { get; }
+		public DateTime LastWatchedAt { get; }
+		public uint UserViewCount { get;  }
 
-		public HistoryVideoInfoControlViewModel(
-            string rawVideoId
-            )
-            : base(rawVideoId)
+        public HistoryVideoListItemControlViewModel(string token, string itemId, DateTime lastWatchedAt, uint userVideCount, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
         {
-            
+            RemoveToken = token;
+            ItemId = itemId;
+            LastWatchedAt = lastWatchedAt;
+            UserViewCount = userVideCount;
         }
     }
 
-
-    public class HistoryIncrementalLoadingSource : HohoemaIncrementalSourceBase<HistoryVideoInfoControlViewModel>
-	{
-
-		HistoriesResponse _HistoriesResponse;
-
-		public HistoryIncrementalLoadingSource(HistoriesResponse historyRes)
-		{
-			_HistoriesResponse = historyRes;
-		}
-
-		public override uint OneTimeLoadCount
-		{
-			get
-			{
-				return 10;
-			}
-		}
-        
-        protected override async IAsyncEnumerable<HistoryVideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
-        {
-            ct.ThrowIfCancellationRequested();
-
-            foreach (var item in _HistoriesResponse.Histories.Skip(head).Take(count))
-            {
-                var vm = new HistoryVideoInfoControlViewModel(item.Id);
-                vm.ItemId = item.ItemId;
-                vm.LastWatchedAt = item.WatchedAt.DateTime;
-                vm.UserViewCount = item.WatchCount;
-
-                vm.SetTitle(item.Title);
-                vm.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
-                vm.SetVideoDuration(item.Length);
-                await vm.InitializeAsync(ct).ConfigureAwait(false);
-                yield return vm;
-                ct.ThrowIfCancellationRequested();
-            }
-        }
-
-        protected override ValueTask<int> ResetSourceImpl()
-        {
-            return new ValueTask<int>(_HistoriesResponse?.Histories.Count ?? 0);
-        }
-    }
 }

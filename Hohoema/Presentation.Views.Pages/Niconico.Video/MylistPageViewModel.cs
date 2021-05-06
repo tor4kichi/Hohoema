@@ -38,7 +38,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Follow;
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
 
-    public class MylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class MylistPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {
@@ -760,7 +760,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     isEndReached = result.Items.Count != OneTimeLoadCount;
                     foreach (var item in result.Items)
                     {
-                        var vm = new VideoInfoControlViewModel(item);
+                        var vm = new VideoListItemControlViewModel(item);
                         yield return vm;
                     }
                 }
@@ -820,7 +820,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
             foreach (var item in items)
             {
-                var vm = new VideoInfoControlViewModel(item);
+                var vm = new VideoListItemControlViewModel(item);
                 await vm.InitializeAsync(ct).ConfigureAwait(false);
                 yield return vm;
             }

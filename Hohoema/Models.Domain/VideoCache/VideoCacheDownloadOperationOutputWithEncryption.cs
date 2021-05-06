@@ -20,7 +20,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public async Task CopyStreamAsync(Stream sourceStream, IProgress<VideoCacheDownloadOperationProgress> progress, CancellationToken cancellationToken)
         {
-            using (var outputFileStream = await _destinationFile.OpenStreamForReadAsync())
+            using (var outputFileStream = await _destinationFile.OpenStreamForWriteAsync())
             {
                 // 途中までDLしていた場合はそこから再開
                 if (outputFileStream.Length != 0)

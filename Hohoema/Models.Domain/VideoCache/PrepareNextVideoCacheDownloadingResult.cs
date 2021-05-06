@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using Uno.Disposables;
 
 namespace Hohoema.Models.Domain.VideoCache
 {
@@ -32,6 +34,7 @@ namespace Hohoema.Models.Domain.VideoCache
             VideoId = videoId;
             VideoCacheItem = videoCacheItem;
             _downloadOperation = downloadOperation;
+            FailedReason = VideoCacheDownloadOperationFailedReason.None;
         }
 
         private PrepareNextVideoCacheDownloadingResult(string videoId, VideoCacheItem videoCacheItem, VideoCacheDownloadOperationFailedReason creationFailedReason)
@@ -43,7 +46,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public Task DownloadAsync()
         {
-            return _downloadOperation.DownloadAsync();            
+            return _downloadOperation.DownloadAsync();
         }
     }
 }

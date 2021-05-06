@@ -11,7 +11,7 @@ using Hohoema.Presentation.ViewModels.VideoListPage;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Search
 {
-    public class VideoSearchSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
+    public class VideoSearchSource : HohoemaIncrementalSourceBase<VideoListItemControlViewModel>
 	{
         public VideoSearchSource(string keyword, bool isTagSearch, Sort sort, Order order, SearchProvider searchProvider)
         {
@@ -34,7 +34,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Search
 
 		
 
-        protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
+        protected override async IAsyncEnumerable<VideoListItemControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             VideoListingResponse res = null;
             if (!IsTagSearch)
@@ -56,9 +56,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Search
             {
                 foreach (var item in res.VideoInfoItems.Where(x => x != null))
                 {
-                    var vm = new VideoInfoControlViewModel(item.Video.Id);
+                    var vm = new VideoListItemControlViewModel(item.Video.Id, item.Video.Title, item.Video.ThumbnailUrl.OriginalString, item.Video.Length);
 
-                    vm.SetupDisplay(item);
+                    vm.Setup(item);
 
 					await vm.InitializeAsync(ct).ConfigureAwait(false);
 

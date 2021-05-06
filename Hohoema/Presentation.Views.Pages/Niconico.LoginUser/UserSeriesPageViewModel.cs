@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {
-    public sealed class UserSeriesPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, ITitleUpdatablePage, IPinablePage
+    public sealed class UserSeriesPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, ITitleUpdatablePage, IPinablePage
     {
         public HohoemaPin GetPin()
         {

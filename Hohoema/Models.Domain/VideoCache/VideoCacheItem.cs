@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Hohoema.Models.Domain.Niconico.Video;
+using System;
+using System.Threading.Tasks;
+using Windows.Media.Core;
 
 namespace Hohoema.Models.Domain.VideoCache
 {
@@ -6,9 +9,11 @@ namespace Hohoema.Models.Domain.VideoCache
     {
         public string VideoId { get; }
 
-        public NicoVideoCacheQuality RequestedVideoQuality { get; internal set; }
+        public string FileName { get; internal set; }
 
-        public NicoVideoCacheQuality DownloadedVideoQuality { get; internal set; }
+        public NicoVideoQuality RequestedVideoQuality { get; internal set; }
+
+        public NicoVideoQuality DownloadedVideoQuality { get; internal set; }
 
         public VideoCacheStatus Status { get; internal set; }
 
@@ -25,9 +30,11 @@ namespace Hohoema.Models.Domain.VideoCache
         public bool IsCompleted => Status == VideoCacheStatus.Completed;
 
         internal VideoCacheItem(
+            VideoCacheManager videoCacheManager,
             string videoId, 
-            NicoVideoCacheQuality requestedQuality, 
-            NicoVideoCacheQuality downloadedQuality, 
+            string fileName,
+            NicoVideoQuality requestedQuality, 
+            NicoVideoQuality downloadedQuality, 
             VideoCacheStatus status,
             VideoCacheDownloadOperationFailedReason failedReason,
             DateTime requestAt,  
@@ -36,10 +43,13 @@ namespace Hohoema.Models.Domain.VideoCache
             int sortIndex
             )
         {
+            _videoCacheManager = videoCacheManager;
             VideoId = videoId;
+            FileName = fileName;
             RequestedVideoQuality = requestedQuality;
             DownloadedVideoQuality = downloadedQuality;
             Status = status;
+            FailedReason = failedReason;
             TotalBytes = totalBytes;
             ProgressBytes = progressBytes;
             RequestedAt = requestAt;
@@ -54,9 +64,30 @@ namespace Hohoema.Models.Domain.VideoCache
         }
 
         private float? _progressNormalized;
+        private readonly VideoCacheManager _videoCacheManager;
+
         public float GetProgressNormalized()
         {
+            if (_progressNormalized is not null) { return _progressNormalized.Value; }
+
+            if (Status is VideoCacheStatus.Downloading or VideoCacheStatus.DownloadPaused)
+            {
+                if (TotalBytes is null or 0)
+                {
+                    _progressNormalized = 0.0f;
+                }
+                else
+                {
+                    _progressNormalized = (ProgressBytes ?? 0) / (float)TotalBytes;
+                }
+            }
+
             return _progressNormalized ?? (IsCompleted ? 1.0f : 0.0f);
+        }
+
+        public Task<MediaSource> GetMediaSourceAsync()
+        {
+            return _videoCacheManager.GetCacheVideoMediaSource(this);
         }
     }
 }

@@ -148,7 +148,7 @@
     <Compile Include="Models.Helpers\ConnectionRetryUtil.cs" />
     <Compile Include="Models.Helpers\FilePathHelper.cs" />
     <Compile Include="Models.Helpers\HtmlFileHelper.cs" />
-    <Compile Include="Models.Helpers\HttpSequencialAccessStream.cs" />
+    <Compile Include="Models.Helpers\HttpRandomAccessStream.cs" />
     <Compile Include="Models.Helpers\IAsyncInitialize.cs" />
     <Compile Include="Models.Helpers\IncrementalLoadingCollection.cs" />
     <Compile Include="Models.Helpers\InternetConnection.cs" />
@@ -220,7 +220,7 @@
     <Compile Include="Models.Domain\Niconico\Video\Ranking\RankingGenreCache.cs" />
     <Compile Include="Models.Domain\Niconico\Video\Ranking\RankingProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Video\Series\SeriesRepository.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\VideoCacheSettings.cs" />
+    <Compile Include="Models.Domain\Niconico\Video\VideoCacheSettings_Legacy.cs" />
     <Compile Include="Models.Domain\Niconico\Video\VideoFilteringSettings.cs" />
     <Compile Include="Models.Domain\Niconico\Video\VideoRankingSettings.cs" />
     <Compile Include="Models.Domain\PageNavigation\HohoemaPageType.cs" />
@@ -268,8 +268,7 @@
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\DmcVideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\DownloadProgressVideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\IVideoStreamingSession.cs" />
-    <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\LocalVideoStreamingSession.cs" />
-    <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\SmileVideoStreamingSession.cs" />
+    <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\CachedVideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\VideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Playlist\IPlaylist.cs" />
     <Compile Include="Models.Domain\Playlist\IPlaylistItem.cs" />
@@ -285,7 +284,6 @@
     <Compile Include="Models.Domain\Subscirptions\SubscriptionSourceEntity.cs" />
     <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperation.cs" />
     <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperationOutput.cs" />
-    <Compile Include="Models.Domain\VideoCache\NicoVideoCacheQuality.cs" />
     <Compile Include="Models.Domain\VideoCache\NicoVideoCacheQualityHelper.cs" />
     <Compile Include="Models.Domain\VideoCache\PrepareNextVideoCacheDownloadingResult.cs" />
     <Compile Include="Models.Domain\VideoCache\VideoCacheDownloadOperation.cs" />
@@ -320,12 +318,14 @@
     <Compile Include="Models.UseCase\ErrorTrackingManager.cs" />
     <Compile Include="Models.UseCase\Migration\CommentFilteringNGScoreZeroFixture.cs" />
     <Compile Include="Models.UseCase\Migration\DatabaseMigrate_0_25_0.cs" />
-    <Compile Include="Models.UseCase\Migration\IMigateAsync.cs" />
+    <Compile Include="Models.Domain\Application\IMigateAsync.cs" />
     <Compile Include="Models.UseCase\Migration\LocalMylistThumbnailImageMigration_V_0_28_0.cs" />
     <Compile Include="Models.UseCase\Migration\MigrationCommentFilteringSettings.cs" />
     <Compile Include="Models.UseCase\Migration\SearchPageQueryMigrate_0_26_0.cs" />
     <Compile Include="Models.UseCase\Migration\SettingsMigration_V_0_23_0.cs" />
-    <Compile Include="Models.UseCase\Migration\VideoCacheDatabaseMigration_V_0_29_0.cs" />
+    <Compile Include="Models.UseCase\VideoCache\Events\VideoCacheProgressChangedMessage.cs" />
+    <Compile Include="Models.UseCase\VideoCache\Events\VideoCacheStatusChangedMessage.cs" />
+    <Compile Include="Models.UseCase\VideoCache\Migration\VideoCacheDatabaseMigration_V_0_29_0.cs" />
     <Compile Include="Models.UseCase\NicoVideos\CloseToastNotificationWhenPlayStarted.cs" />
     <Compile Include="Models.UseCase\NicoVideos\Events\VideoPlayedMessage.cs" />
     <Compile Include="Models.UseCase\NicoVideos\HohoemaPlaylist.cs" />
@@ -353,6 +353,7 @@
     <Compile Include="Models.UseCase\Subscriptions\SubscriptionUpdateManager.cs" />
     <Compile Include="Models.UseCase\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheDownloadOperationManager.cs" />
+    <Compile Include="Models.UseCase\VideoCache\VideoCacheFolderManager.cs" />
     <Compile Include="Models.UseCase\WindowService.cs" />
     <Compile Include="Models.Helpers\ClipboardHelper.cs" />
     <Compile Include="Presentation.Services\DialogService.cs" />
@@ -457,8 +458,8 @@
     <Compile Include="Presentation.Views.Pages\Niconico\UserInfoPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.User\UserInfoViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Video\UserVideoPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\CacheAddRequestCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\CacheDeleteRequestCommand.cs" />
+    <Compile Include="Presentation.ViewModels\VideoCache.Commands\CacheAddRequestCommand.cs" />
+    <Compile Include="Presentation.ViewModels\VideoCache.Commands\CacheDeleteRequestCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\FollowRemoveCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\HiddenVideoOwnerAddCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\HiddenVideoOwnerRemoveCommand.cs" />
@@ -484,7 +485,7 @@
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\QueueRemoveItemCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\WatchHistoryRemoveAllCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\WatchHistoryRemoveItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\VideoInfoControlViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Video\VideoListItemControlViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico\RankingCategoryListPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Video\RankingCategoryPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Ranking\Messages\RankingGenreCustomizeEvent.cs" />
@@ -499,7 +500,7 @@
     <Compile Include="Presentation.ViewModels\HohoemaListingPageItemBase.cs" />
     <Compile Include="Presentation.ViewModels\HohoemaListingPageViewModelBase.cs" />
     <Compile Include="Presentation.ViewModels\HohoemaSecondaryViewFrameViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\HohoemaViewModelBase.cs" />
+    <Compile Include="Presentation.ViewModels\HohoemaPageViewModelBase.cs" />
     <Compile Include="Presentation.ViewModels\IHohoemaListItem.cs" />
     <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenPageWithIdCommand.cs" />
     <Compile Include="Presentation.ViewModels\Navigation.Commands\SearchCommand.cs" />
@@ -665,6 +666,7 @@
     <Compile Include="Presentation.Views\Controls\LiteInAppNotification\LiteInAppNotification.cs" />
     <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.cs" />
     <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
+    <Compile Include="Presentation.Views\Controls\VideoList\VideoListItem\VideoListItem.cs" />
     <Compile Include="Presentation.Views\Converters\CacheStateToColorBrushConverter.cs" />
     <Compile Include="Presentation.Views\Converters\DateTimetoStringConverter.cs" />
     <Compile Include="Presentation.Views\Converters\EnumToNumberConverter.cs" />
@@ -934,6 +936,7 @@
     <Content Include="Assets\Square71x71Logo.scale-200.png" />
     <Content Include="Assets\Square71x71Logo.scale-400.png" />
     <Content Include="Assets\StoreTesting.xml" />
+    <Content Include="Assets\VideoCache_EncryptionKey_32byte.txt" />
     <Content Include="Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
@@ -948,6 +951,9 @@
   <ItemGroup>
     <PackageReference Include="AdaptiveTriggerLibrary">
       <Version>1.2.2</Version>
+    </PackageReference>
+    <PackageReference Include="Espresso3389.HttpStream">
+      <Version>2.0.52.3</Version>
     </PackageReference>
     <PackageReference Include="HtmlAgilityPack">
       <Version>1.11.12</Version>
@@ -983,6 +989,9 @@
       <Version>7.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">
+      <Version>7.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Connectivity">
       <Version>7.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications">
@@ -1231,6 +1240,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Presentation.Views\Controls\VideoList\VideoListItem\VideoListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Presentation.Views\Dialogs\AdvancedSelectDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1374,6 +1387,10 @@
     <Page Include="Styles\DefaultStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\FixedHeaderListViewStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Styles\HohoemaListItemStyle.xaml">
       <Generator>MSBuild:Compile</Generator>

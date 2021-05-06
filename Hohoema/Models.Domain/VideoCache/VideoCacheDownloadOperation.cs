@@ -18,10 +18,10 @@ namespace Hohoema.Models.Domain.VideoCache
         private readonly DmcVideoStreamingSession _dmcVideoStreamingSession;
         private IVideoCacheDownloadOperationOutput _videoCacheDownloadOperationOutput;
         private CancellationTokenSource _cancellationTokenSource;
-        private Task _downloadTask;
 
         public event EventHandler Started;
         public event EventHandler Paused;
+        public event EventHandler Aborted;
         public event EventHandler<VideoCacheDownloadOperationProgress> Progress;
         public event EventHandler Completed;
 
@@ -40,8 +40,6 @@ namespace Hohoema.Models.Domain.VideoCache
             if (_cancellationTokenSource.IsCancellationRequested is false)
             {
                 _cancellationTokenSource.Cancel();
-
-                Paused?.Invoke(this, EventArgs.Empty);
             }
         }
 
@@ -51,7 +49,7 @@ namespace Hohoema.Models.Domain.VideoCache
             try
             {
                 var uri = await _dmcVideoStreamingSession.GetDownloadUrlAndSetupDownloadSession();
-                downloadStream = await HttpSequencialAccessStream.CreateAsync(_dmcVideoStreamingSession.NiconicoSession.Context.HttpClient, uri);
+                downloadStream = await HttpRandomAccessStream.CreateAsync(_dmcVideoStreamingSession.NiconicoSession.Context.HttpClient, uri);
             }
             catch
             {
@@ -64,24 +62,45 @@ namespace Hohoema.Models.Domain.VideoCache
             _cancellationTokenSource = new CancellationTokenSource();
             try
             {
-                await _videoCacheDownloadOperationOutput.CopyStreamAsync(downloadStream.AsStreamForRead(), new Progress<VideoCacheDownloadOperationProgress>(x => Progress?.Invoke(this, x)), _cancellationTokenSource.Token);
+                var ct = _cancellationTokenSource.Token;
+                await _videoCacheDownloadOperationOutput.CopyStreamAsync(downloadStream.AsStreamForRead(), new _Progress(x => Progress?.Invoke(this, x)), ct);
                 Completed?.Invoke(this, EventArgs.Empty);
             }
             catch (OperationCanceledException)
             {
-
+                // 削除操作、または視聴権を喪失した場合
+                Paused?.Invoke(this, EventArgs.Empty);
             }
-            catch (Exception e)
+            catch (FileLoadException)
+            {
+                Aborted?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception)
             {
                 // ニコ動サーバー側からタイムアウトで切られた場合は一時停止扱い
                 Paused?.Invoke(this, EventArgs.Empty);
             }
             finally
             {
-
                 downloadStream.Dispose();
                 _cancellationTokenSource.Dispose();
                 _cancellationTokenSource = null;
+            }
+        }
+
+
+        struct _Progress : IProgress<VideoCacheDownloadOperationProgress>
+        {
+            private readonly Action<VideoCacheDownloadOperationProgress> _act;
+
+            public _Progress(Action<VideoCacheDownloadOperationProgress> act)
+            {
+                _act = act;
+            }
+
+            public void Report(VideoCacheDownloadOperationProgress value)
+            {
+                _act(value);
             }
         }
 
@@ -99,8 +118,6 @@ namespace Hohoema.Models.Domain.VideoCache
         {
             _dmcVideoStreamingSession.StopStreamingFromOwnerShipReturned -= _dmcVideoStreamingSession_StopStreamingFromOwnerShipReturned;
             _dmcVideoStreamingSession.Dispose();
-
-            _videoCacheManager.CleanupVideoCacheOperation(this);
         }
 
         public Task PauseAsync()

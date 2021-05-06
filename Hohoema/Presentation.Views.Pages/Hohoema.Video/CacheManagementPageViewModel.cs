@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-using Hohoema.Models.Helpers;
+//using Hohoema.Models.Helpers;
 using Prism.Commands;
 using Windows.System;
 using Prism.Navigation;
@@ -16,22 +16,32 @@ using Hohoema.Models.UseCase;
 using I18NPortable;
 using System.Runtime.CompilerServices;
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Models.Domain.Notification;
+using Hohoema.Models.Domain.VideoCache;
+using Microsoft.Extensions.ObjectPool;
+using Hohoema.Models.UseCase.VideoCache;
+using Microsoft.Toolkit.Uwp;
+using Microsoft.Toolkit.Collections;
+using System.Collections.ObjectModel;
+using System.Reactive.Concurrency;
+using Hohoema.Models.UseCase.VideoCache.Events;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Uno.Extensions;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
-    public class CacheManagementPageViewModel : HohoemaListingPageViewModelBase<CacheVideoViewModel>, INavigatedAwareAsync
-	{
+    public class CacheManagementPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync,
+        IRecipient<VideoCacheStatusChangedMessage>
+    {
         public CacheManagementPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             VideoCacheSettings cacheSettings,
-            VideoCacheManagerLegacy videoCacheManager,
-            CacheSaveFolder cacheSaveFolder,
+            VideoCacheManager videoCacheManager,
+            VideoCacheFolderManager videoCacheFolderManager,
             NicoVideoProvider nicoVideoProvider,
             PageManager pageManager,
             DialogService dialogService,
@@ -41,108 +51,69 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
-            CacheSettings = cacheSettings;
+            VideoCacheSettings = cacheSettings;
             VideoCacheManager = videoCacheManager;
-            CacheSaveFolder = cacheSaveFolder;
+            _videoCacheFolderManager = videoCacheFolderManager;
             NicoVideoProvider = nicoVideoProvider;
             HohoemaDialogService = dialogService;
             NotificationService = notificationService;
             HohoemaPlaylist = hohoemaPlaylist;
             SelectionModeToggleCommand = selectionModeToggleCommand;
-            IsRequireUpdateCacheSaveFolder = new ReactiveProperty<bool>(false);
-
-            IsCacheUserAccepted = CacheSettings.ObserveProperty(x => x.IsUserAcceptedCache)
-                .ToReadOnlyReactiveProperty();
-
-            RequireEnablingCacheCommand = new DelegateCommand(async () =>
-            {
-                var result = await HohoemaDialogService.ShowAcceptCacheUsaseDialogAsync();
-                if (result)
-                {
-                    CacheSettings.IsEnableCache = true;
-                    CacheSettings.IsUserAcceptedCache = true;
-                    (App.Current).Resources["IsCacheEnabled"] = true;
-
-                    await RefreshCacheSaveFolderStatus();
-
-                    NotificationService.ShowLiteInAppNotification("ChoiceCacheSavingFolder".Translate());
-
-                    if (await CacheSaveFolder.ChangeUserDataFolder())
-                    {
-                        await RefreshCacheSaveFolderStatus();
-
-                        await VideoCacheManager.CacheFolderChanged();
-
-                        ResetList();
-
-                        NotificationService.ShowLiteInAppNotification_Success("ReadyForVideoCache".Translate());
-                    }
-                }
-            });
-
-            ReadCacheAcceptTextCommand = new DelegateCommand(async () =>
-            {
-                var result = await HohoemaDialogService.ShowAcceptCacheUsaseDialogAsync(showWithoutConfirmButton: true);
-            });
-
-
-
-            CacheFolderStateDescription = new ReactiveProperty<string>("");
-            CacheSaveFolderPath = new ReactiveProperty<string>("");
 
             OpenCurrentCacheFolderCommand = new DelegateCommand(async () =>
             {
-                await RefreshCacheSaveFolderStatus();
-
-                var folder = await CacheSaveFolder.GetVideoCacheFolder();
+                var folder = VideoCacheManager.VideoCacheFolder;
                 if (folder != null)
                 {
                     await Launcher.LaunchFolderAsync(folder);
                 }
             });
 
-
-            ChangeCacheFolderCommand = new DelegateCommand(async () =>
+            Groups = new (new[] 
             {
-                var prevPath = CacheSaveFolderPath.Value;
+                VideoCacheStatus.Downloading,
+                VideoCacheStatus.Failed,
+                VideoCacheStatus.DownloadPaused,
+                VideoCacheStatus.Pending,
+                VideoCacheStatus.Completed,
+            }
+            .Select(x => new CacheItemsGroup(x, new ObservableCollection<CacheVideoViewModel>()))
+            );
 
-                if (await CacheSaveFolder.ChangeUserDataFolder())
-                {
-                    NotificationService.ShowLiteInAppNotification("CacheSaveFolderChangeToX".Translate(CacheSaveFolderPath.Value));
+            CurrentlyCachedStorageSize = VideoCacheSettings.ObserveProperty(x => x.CachedStorageSize).ToReadOnlyReactivePropertySlim(VideoCacheSettings.CachedStorageSize)
+                .AddTo(_CompositeDisposable);
 
-                    await RefreshCacheSaveFolderStatus();
+            MaxCacheStorageSize = VideoCacheSettings.ObserveProperty(x => x.MaxVideoCacheStorageSize).ToReadOnlyReactivePropertySlim(VideoCacheSettings.MaxVideoCacheStorageSize)
+                .AddTo(_CompositeDisposable);
 
-                    await VideoCacheManager.CacheFolderChanged();
-
-                    ResetList();
-                }
-            });
+            AvairableStorageSizeNormalized = new[]
+            {
+                CurrentlyCachedStorageSize,
+                MaxCacheStorageSize.Select(x => x ?? 0),
+            }
+            .CombineLatest()
+            .Select(xy => xy[1] == 0 ? 0.0 : ((double)xy[0] / xy[1]))
+            .ToReadOnlyReactivePropertySlim()
+            .AddTo(_CompositeDisposable);
         }
 
+        private readonly VideoCacheFolderManager _videoCacheFolderManager;
+
+
+        public VideoCacheManager VideoCacheManager { get; }
+        public VideoCacheSettings VideoCacheSettings { get; }
+
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
-        public VideoCacheSettings CacheSettings { get; }
-        public VideoCacheManagerLegacy VideoCacheManager { get; }
-        public CacheSaveFolder CacheSaveFolder { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public NotificationService NotificationService { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
+        public DelegateCommand OpenCurrentCacheFolderCommand { get; }
         public DialogService HohoemaDialogService { get; }
 
-
-
-        public ReadOnlyReactiveProperty<bool> IsCacheUserAccepted { get; private set; }
-        public ReactiveProperty<bool> IsRequireUpdateCacheSaveFolder { get; private set; }
-
-        public ReactiveProperty<string> CacheSaveFolderPath { get; private set; }
-        public DelegateCommand OpenCurrentCacheFolderCommand { get; private set; }
-        public ReactiveProperty<string> CacheFolderStateDescription { get; private set; }
-
-
-        public DelegateCommand ChangeCacheFolderCommand { get; private set; }
-        public DelegateCommand CheckExistCacheFolderCommand { get; private set; }
-        public DelegateCommand RequireEnablingCacheCommand { get; private set; }
-        public DelegateCommand ReadCacheAcceptTextCommand { get; private set; }
+        public IReadOnlyReactiveProperty<long> CurrentlyCachedStorageSize { get; }
+        public IReadOnlyReactiveProperty<long?> MaxCacheStorageSize { get; }
+        public IReadOnlyReactiveProperty<double> AvairableStorageSizeNormalized { get; }
 
         private DelegateCommand _ResumeCacheCommand;
         public DelegateCommand ResumeCacheCommand
@@ -158,187 +129,222 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             }
         }
 
+       
 
+        public ObservableCollection<CacheItemsGroup> Groups { get; }
 
-
-        #region Implement HohoemaVideListViewModelBase
-
-        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public class CacheItemsGroup
         {
-            await RefreshCacheSaveFolderStatus();
-
-            if (IsRequireUpdateCacheSaveFolder.Value)
+            public CacheItemsGroup(VideoCacheStatus cacheStatus, ObservableCollection<CacheVideoViewModel> items)
             {
+                CacheStatus = cacheStatus;
+                Items = items;
+            }
+            public VideoCacheStatus CacheStatus { get;  }
+            public ObservableCollection<CacheVideoViewModel> Items { get; }
+        }
 
-                NotificationService.ShowLiteInAppNotification("ChoiceCacheSavingFolder".Translate(), DisplayDuration.MoreAttention);
 
-                if (await CacheSaveFolder.ChangeUserDataFolder())
-                {
-                    await Task.Delay(1000);
+        private bool IsAssecsendingCacheStatus(VideoCacheStatus status)
+        {
+            return status is VideoCacheStatus.Pending;
+        }
 
-                    await RefreshCacheSaveFolderStatus();
-                    ResetList();
+        private async ValueTask<CacheVideoViewModel> ItemVMFromVideoCacheItem(VideoCacheItem item)
+        {
+            var video = await NicoVideoProvider.GetNicoVideoInfo(item.VideoId);
+            return  new CacheVideoViewModel(item, video) { CacheRequestTime = item.RequestedAt };
+        }
 
-                    NotificationService.ShowLiteInAppNotification_Success("ReadyForVideoCache".Translate());
-                }
+        async Task<IEnumerable<CacheVideoViewModel>> GetCachedItemByStatus(VideoCacheStatus status)
+        {
+            var isAssecsnding = status is VideoCacheStatus.Pending;
+            var reqItems = VideoCacheManager.GetCacheRequestItemsRange(0, int.MaxValue, status, !isAssecsnding);
+
+            CacheVideoViewModel[] list = new CacheVideoViewModel[reqItems.Count];
+            int index = 0;
+            foreach (var item in reqItems)
+            {
+                list[index] = await ItemVMFromVideoCacheItem(item);
+
+                index++;
             }
 
-            await base.OnNavigatedToAsync(parameters);
+            return list;
         }
+
+
 
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
-            Windows.UI.Xaml.Window.Current.Activated += Current_Activated;
+            // キャッシュ管理系のイベントに登録して詳細情報の掲示
+            
             base.OnNavigatedTo(parameters);
+        }
+
+
+        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        {
+            foreach (var group in Groups)
+            {
+                var items = await GetCachedItemByStatus(group.CacheStatus);
+                group.Items.Clear();
+                group.Items.AddRange(items);
+            }
+
+            WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage>(this);
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
-            Windows.UI.Xaml.Window.Current.Activated -= Current_Activated;
+            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage>(this);
+
             base.OnNavigatedFrom(parameters);
         }
 
-        // ウィンドウがアクティブになったタイミングで
-        // キャッシュフォルダ―が格納されたストレージをホットスタンバイ状態にしたい
-        // （コールドスタンバイ状態だと再生開始までのラグが大きい）
-        private async void Current_Activated(object sender, Windows.UI.Core.WindowActivatedEventArgs e)
+        async void IRecipient<VideoCacheStatusChangedMessage>.Receive(VideoCacheStatusChangedMessage message)
         {
-            if (e.WindowActivationState == Windows.UI.Core.CoreWindowActivationState.CodeActivated)
+            var status = message.Value.CacheStatus;
+            CacheVideoViewModel itemVM = null;
+            foreach (var group in Groups)
             {
-                var folder = await CacheSaveFolder.GetVideoCacheFolder();
-            }
-        }
-
-
-
-
-        protected override IIncrementalSource<CacheVideoViewModel> GenerateIncrementalSource()
-		{
-			return new CacheVideoInfoLoadingSource(VideoCacheManager, NicoVideoProvider);
-		}
-
-		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
-		{
-			return mode == NavigationMode.New;
-		}
-
-		protected override void PostResetList()
-		{
-			
-		}
-
-
-
-
-        #endregion
-
-        private async Task RefreshCacheSaveFolderStatus()
-        {
-            var cacheFolderAccessState = await CacheSaveFolder.GetVideoCacheFolderState();
-
-            CacheSaveFolderPath.Value = "";
-            switch (cacheFolderAccessState)
-            {
-                case CacheFolderAccessState.NotAccepted:
-                    CacheFolderStateDescription.Value = "CacheFolderAccessState.NotAccepted_Desc".Translate();
-                    break;
-                case CacheFolderAccessState.NotEnabled:
-                    CacheFolderStateDescription.Value = "CacheFolderAccessState.NotEnabled_Desc".Translate();
-                    break;
-                case CacheFolderAccessState.NotSelected:
-                    CacheFolderStateDescription.Value = "CacheFolderAccessState.NotSelected_Desc".Translate();
-                    break;
-                case CacheFolderAccessState.SelectedButNotExist:
-                    CacheFolderStateDescription.Value = "CacheFolderAccessState.SelectedButNotExist_Desc".Translate();
-                    CacheSaveFolderPath.Value = "?????";
-                    break;
-                case CacheFolderAccessState.Exist:
-                    CacheFolderStateDescription.Value = "ReadyForVideoCache".Translate();
-                    break;
-                default:
-                    break;
+                itemVM = group.Items.FirstOrDefault(x => x.Id == message.Value.VideoId);
+                
+                if (itemVM != null) 
+                {
+                    group.Items.Remove(itemVM);
+                    break; 
+                }
             }
 
-            var folder = await CacheSaveFolder.GetVideoCacheFolder();
-            if (folder != null)
+            if (status == null) 
             {
-                CacheSaveFolderPath.Value = $"{folder.Path}";
+                itemVM?.Dispose();
+                return; 
             }
 
+            {
+                itemVM ??= await ItemVMFromVideoCacheItem(message.Value.Item);
 
-            IsRequireUpdateCacheSaveFolder.Value = 
-                cacheFolderAccessState == CacheFolderAccessState.SelectedButNotExist
-                || cacheFolderAccessState == CacheFolderAccessState.NotSelected
-                ;
+                var group = Groups.First(x => x.CacheStatus == status);
+                if (group == null) { throw new InvalidOperationException(); }
+
+                if (IsAssecsendingCacheStatus(status ?? throw new InvalidOperationException()))
+                {
+                    group.Items.Add(itemVM);
+                }
+                else
+                {
+                    group.Items.Insert(0, itemVM);
+                }
+            }
         }
     }
 
 
-    public class CacheVideoViewModel : VideoInfoControlViewModel
-	{
-
+    public class CacheVideoViewModel : VideoItemViewModel, IDisposable,
+        IRecipient<VideoCacheProgressChangedMessage>
+    {
         public CacheVideoViewModel(
-            string rawVideoId
+            VideoCacheItem videoCacheItem,
+            IVideoContent data
             )
-            : base(rawVideoId)
+            : this(videoCacheItem, data.Id, data.Label, data.ThumbnailUrl, data.Length)
         {
-
+        
         }
 
-        public CacheVideoViewModel(
-            NicoVideo data
-            )
-            : base(data)
-        {
+        private object recipient = new object();
 
+        public CacheVideoViewModel(VideoCacheItem videoCacheItem, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
+        {
+            WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage, string>(recipient, RawVideoId, (r, m) => RefreshCacheRequestInfomation(m.Value.CacheStatus, m.Value.Item));
+            RefreshCacheRequestInfomation(videoCacheItem.Status, videoCacheItem);
+        }
+
+        
+
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, string>(recipient, RawVideoId);
+            WeakReferenceMessenger.Default.Unregister<VideoCacheProgressChangedMessage, string>(this, RawVideoId);
         }
 
         public DateTime CacheRequestTime { get; internal set; }
-    }
 
 
-	public class CacheVideoInfoLoadingSource : HohoemaIncrementalSourceBase<CacheVideoViewModel>
-	{
-
-        public CacheVideoInfoLoadingSource(VideoCacheManagerLegacy cacheManager, NicoVideoProvider nicoVideoProvider)
-            : base()
+        private bool _HasCacheProgress;
+        public bool HasCacheProgress
         {
-            VideoCacheManager = cacheManager;
-            NicoVideoProvider = nicoVideoProvider;
+            get { return _HasCacheProgress; }
+            set { SetProperty(ref _HasCacheProgress, value); }
         }
 
-        public VideoCacheManagerLegacy VideoCacheManager { get; }
-        public NicoVideoProvider NicoVideoProvider { get; }
-
-        public override uint OneTimeLoadCount => (uint)10;
-
-        protected override async IAsyncEnumerable<CacheVideoViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
+        private double _DownloadProgress;
+        public double DownloadProgress
         {
-            ct.ThrowIfCancellationRequested();
+            get { return _DownloadProgress; }
+            set { SetProperty(ref _DownloadProgress, value); }
+        }
 
-            var reqItems = VideoCacheManager.GetCacheRequests(head, count);
-            var items = await NicoVideoProvider.GetVideoInfoManyAsync(reqItems.Select(x => x.VideoId)).ToListAsync(ct);
-            foreach (var item in reqItems)
+        private bool _IsProgressUnknown;
+        public bool IsProgressUnknown
+        {
+            get { return _IsProgressUnknown; }
+            set { SetProperty(ref _IsProgressUnknown, value); }
+        }
+
+        private VideoCacheDownloadOperationFailedReason _FailedReason;
+        public VideoCacheDownloadOperationFailedReason FailedReason
+        {
+            get { return _FailedReason; }
+            set { SetProperty(ref _FailedReason, value); }
+        }
+
+        private long? _FileSize;
+        public long? FileSize
+        {
+            get { return _FileSize; }
+            set { SetProperty(ref _FileSize, value); }
+        }
+
+        void RefreshCacheRequestInfomation(VideoCacheStatus? cacheStatus, VideoCacheItem cacheItem = null)
+        {
+            _scheduler.Schedule(() =>
             {
-                var video = items.FirstOrDefault(x => x.VideoId == item.VideoId);
-                var vm = video is not null ? new CacheVideoViewModel(video) : new CacheVideoViewModel(item.VideoId);
-                vm.CacheRequestTime = item.RequestAt;
+                DownloadProgress = cacheItem?.GetProgressNormalized() ?? 0;
+                HasCacheProgress = cacheStatus is VideoCacheStatus.Downloading or VideoCacheStatus.DownloadPaused;
+                IsProgressUnknown = HasCacheProgress && cacheItem.ProgressBytes is null or 0;
+                FailedReason = cacheItem?.FailedReason ?? VideoCacheDownloadOperationFailedReason.None;
+                FileSize = cacheItem?.TotalBytes;
 
-                if (video is null)
+                if (cacheStatus is VideoCacheStatus.Downloading)
                 {
-                    await vm.InitializeAsync(ct).ConfigureAwait(false);
+                    if (!WeakReferenceMessenger.Default.IsRegistered<VideoCacheProgressChangedMessage, string>(this, RawVideoId))
+                    {
+                        WeakReferenceMessenger.Default.Register<VideoCacheProgressChangedMessage, string>(this, RawVideoId);
+                    }
                 }
-
-                yield return vm;
-
-                ct.ThrowIfCancellationRequested();
-            }
+                else
+                {
+                    WeakReferenceMessenger.Default.Unregister<VideoCacheProgressChangedMessage, string>(this, RawVideoId);
+                }
+            });
         }
 
-        protected override ValueTask<int> ResetSourceImpl()
+        void IRecipient<VideoCacheProgressChangedMessage>.Receive(VideoCacheProgressChangedMessage message)
         {
-            return new ValueTask<int>(VideoCacheManager.GetCacheRequestCount());
+            _scheduler.Schedule(() =>
+            {
+                var cacheItem = message.Value;
+                DownloadProgress = cacheItem.GetProgressNormalized();
+                HasCacheProgress = true;
+                IsProgressUnknown = cacheItem.ProgressBytes is null or 0;
+            });
         }
+
     }
 
 }

@@ -39,7 +39,7 @@ using Hohoema.Models.Domain.Notification;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
-    public class VideoInfomationPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -385,8 +385,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
         Models.Helpers.AsyncLock _UpdateLock = new AsyncLock();
 
-        private List<VideoInfoControlViewModel> _relatedVideos;
-        public List<VideoInfoControlViewModel> RelatedVideos
+        private List<VideoListItemControlViewModel> _relatedVideos;
+        public List<VideoListItemControlViewModel> RelatedVideos
         {
             get { return _relatedVideos; }
             set { SetProperty(ref _relatedVideos, value); }
@@ -582,7 +582,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                     video.Title = x.Video.Title;
                     video.ThumbnailUrl = x.Video.Thumbnail_url;
 
-                    var vm = new VideoInfoControlViewModel(video);
+                    var vm = new VideoListItemControlViewModel(video);
                     return vm;
                 })
                 .ToList();
