@@ -110,15 +110,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             }
         }
 
-        private DelegateCommand _ChangeCacheVideoFolderCommand;
-        public DelegateCommand ChangeCacheVideoFolderCommand => 
-            _ChangeCacheVideoFolderCommand ??= new DelegateCommand(async () =>
-            {
-                await _videoCacheFolderManager.ChangeVideoCacheFolder();
-            });
-
-
-
+       
 
         public ObservableCollection<CacheItemsGroup> Groups { get; }
 
@@ -285,16 +277,29 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             set { SetProperty(ref _IsProgressUnknown, value); }
         }
 
+        private VideoCacheDownloadOperationFailedReason _FailedReason;
+        public VideoCacheDownloadOperationFailedReason FailedReason
+        {
+            get { return _FailedReason; }
+            set { SetProperty(ref _FailedReason, value); }
+        }
+
+        private long? _FileSize;
+        public long? FileSize
+        {
+            get { return _FileSize; }
+            set { SetProperty(ref _FileSize, value); }
+        }
+
         void RefreshCacheRequestInfomation(VideoCacheStatus? cacheStatus, VideoCacheItem cacheItem = null)
         {
             _scheduler.Schedule(() =>
             {
-                if (cacheStatus == null)
-                {
-                    DownloadProgress = 0;
-                    HasCacheProgress = false;
-                    IsProgressUnknown = false;
-                }
+                DownloadProgress = cacheItem?.GetProgressNormalized() ?? 0;
+                HasCacheProgress = cacheStatus is VideoCacheStatus.Downloading or VideoCacheStatus.DownloadPaused;
+                IsProgressUnknown = HasCacheProgress && cacheItem.ProgressBytes is null or 0;
+                FailedReason = cacheItem?.FailedReason ?? VideoCacheDownloadOperationFailedReason.None;
+                FileSize = cacheItem?.TotalBytes;
 
                 if (cacheStatus is VideoCacheStatus.Downloading)
                 {
@@ -306,13 +311,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
                 else
                 {
                     WeakReferenceMessenger.Default.Unregister<VideoCacheProgressChangedMessage, string>(this, RawVideoId);
-                }
-
-                if (cacheItem != null)
-                {
-                    DownloadProgress = cacheItem.GetProgressNormalized();
-                    HasCacheProgress = cacheStatus is VideoCacheStatus.Downloading or VideoCacheStatus.DownloadPaused;
-                    IsProgressUnknown = HasCacheProgress && cacheItem.ProgressBytes is null or 0;
                 }
             });
         }

@@ -2,8 +2,8 @@
 {
     public enum VideoCacheDownloadOperationFailedReason
     {
-        Unknown,
         None,
+        Unknown,
         InternetUnavairable,
         NoUsageAuthority,
         CanNotCacheEncryptedContent,

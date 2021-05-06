@@ -49,6 +49,7 @@ namespace Hohoema.Models.Domain.VideoCache
             RequestedVideoQuality = requestedQuality;
             DownloadedVideoQuality = downloadedQuality;
             Status = status;
+            FailedReason = failedReason;
             TotalBytes = totalBytes;
             ProgressBytes = progressBytes;
             RequestedAt = requestAt;

@@ -145,15 +145,11 @@ namespace Hohoema.Models.Domain.VideoCache
         public long? MaxCacheStorageSize
         {
             get => _videoCacheSettings.MaxVideoCacheStorageSize;
-            set
-            {
-                var oldValue = _videoCacheSettings.MaxVideoCacheStorageSize;
-                if (_videoCacheSettings.MaxVideoCacheStorageSize != value)
-                {
-                    _videoCacheSettings.MaxVideoCacheStorageSize = value;
-                    MaxStorageSizeChanged?.Invoke(this, new VideoCacheMaxStorageSizeChangedEventArgs() { OldMaxSize = oldValue, NewMaxSize = value, IsCapacityLimitReached = CheckStorageCapacityLimitReached() });
-                }
-            }
+        }
+
+        public NicoVideoQuality DefaultCacheQuality
+        {
+            get => _videoCacheSettings.DefaultCacheQuality;
         }
 
         public long GetCurrentryTotalCachedSize()
@@ -696,7 +692,7 @@ namespace Hohoema.Models.Domain.VideoCache
                 }
 
 
-                NicoVideoQuality candidateDownloadingQuality = item.RequestedVideoQuality;
+                NicoVideoQuality candidateDownloadingQuality = item.RequestedVideoQuality is NicoVideoQuality.Unknown ? DefaultCacheQuality : item.RequestedVideoQuality;
 #if !DEBUG
                 if (item.Status is VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading)
 #else

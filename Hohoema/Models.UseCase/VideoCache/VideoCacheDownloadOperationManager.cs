@@ -11,6 +11,7 @@ using Hohoema.Models.Domain.Player.Video;
 using Microsoft.Toolkit.Uwp.Connectivity;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 namespace Hohoema.Models.UseCase.VideoCache
 {
@@ -32,6 +33,9 @@ namespace Hohoema.Models.UseCase.VideoCache
 
         private bool _notifyUsingMobileDataNetworkDownload = false;
         private bool _stopDownloadTaskWithDisallowMeteredNetworkDownload = false;
+
+
+        CompositeDisposable _disposables = new CompositeDisposable();
 
         public VideoCacheDownloadOperationManager(
             VideoCacheManager videoCacheManager,
@@ -127,10 +131,11 @@ namespace Hohoema.Models.UseCase.VideoCache
                     h => NetworkHelper.Instance.NetworkChanged += h,
                     h => NetworkHelper.Instance.NetworkChanged -= h
                     ).ToUnit(),
-                _videoCacheSettings.ObserveProperty(x => x.IsAllowDownloadOnRestrictedNetwork).ToUnit()
+                _videoCacheSettings.ObserveProperty(x => x.IsAllowDownloadOnMeteredNetwork).ToUnit()
             }
             .Merge()
-            .Subscribe(_ => UpdateConnectionType());
+            .Subscribe(_ => UpdateConnectionType())
+            .AddTo(_disposables);
 
 
             // Initialize
@@ -249,7 +254,7 @@ namespace Hohoema.Models.UseCase.VideoCache
 
         void UpdateConnectionType()
         {
-            if (_videoCacheSettings.IsAllowDownloadOnRestrictedNetwork is false
+            if (_videoCacheSettings.IsAllowDownloadOnMeteredNetwork is false
                 && NetworkHelper.Instance.ConnectionInformation.ConnectionType == ConnectionType.Data
                 )
             {

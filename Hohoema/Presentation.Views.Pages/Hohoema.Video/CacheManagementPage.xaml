@@ -22,7 +22,7 @@
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList" 
   xmlns:windowsStateTrigger="using:WindowsStateTriggers" 
   DataContext="{x:Null}"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:videoList="using:Hohoema.Presentation.Views.Controls.VideoList.VideoListItem"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:videoList="using:Hohoema.Presentation.Views.Controls.VideoList.VideoListItem" xmlns:cacheModel="using:Hohoema.Models.Domain.VideoCache"
   mc:Ignorable="d"
     >
 
@@ -96,6 +96,21 @@
                     </TextBlock>
                     <ProgressBar Width="180" Minimum="0.0" Maximum="1.0" Value="{Binding DownloadProgress}" IsIndeterminate="{Binding IsProgressUnknown}"  />
                   </StackPanel>
+
+                  <uwpcontrols:SwitchPresenter Value="{Binding FailedReason, Converter={StaticResource EnumToNumber}}" Opacity="0.7">
+                    <uwpcontrols:CaseCollection >
+                      <uwpcontrols:Case >
+                        <uwpcontrols:Case.Value>
+                          <cacheModel:VideoCacheDownloadOperationFailedReason>None</cacheModel:VideoCacheDownloadOperationFailedReason>
+                        </uwpcontrols:Case.Value>
+                        <Border />
+                      </uwpcontrols:Case>
+                      <uwpcontrols:Case IsDefault="True">
+                        <TextBlock Text="{Binding FailedReason, Converter={StaticResource LocalizeConverter}}"
+                           />
+                      </uwpcontrols:Case>
+                    </uwpcontrols:CaseCollection>
+                  </uwpcontrols:SwitchPresenter>
                 </StackPanel>
                 <TextBlock Text="{Binding CacheRequestedQuality, Converter={StaticResource LocalizeConverter}}"
                            VerticalAlignment="Bottom" HorizontalAlignment="Right"

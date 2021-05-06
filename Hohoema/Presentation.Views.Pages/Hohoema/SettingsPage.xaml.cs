@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Globalization.NumberFormatting;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -28,7 +29,24 @@ namespace Hohoema.Presentation.Views.Pages.Hohoema
 		public SettingsPage()
 		{
 			this.InitializeComponent();
+
+			SetNumberBoxNumberFormatter();
 		}
+
+
+		private void SetNumberBoxNumberFormatter()
+		{
+			IncrementNumberRounder rounder = new IncrementNumberRounder();
+			rounder.Increment = 0.01;
+			rounder.RoundingAlgorithm = RoundingAlgorithm.RoundHalfUp;
+
+			DecimalFormatter formatter = new DecimalFormatter();
+			formatter.IntegerDigits = 1;
+			formatter.FractionDigits = 2;
+			formatter.NumberRounder = rounder;
+			MaxCacheSizeNumberBox.NumberFormatter = formatter;
+		}
+
 
 		public ImmutableArray<ApplicationInteractionMode?> OverrideInteractionModeList { get; } = new List<ApplicationInteractionMode?>()
 		{
@@ -53,4 +71,38 @@ namespace Hohoema.Presentation.Views.Pages.Hohoema
 			.ToList();
 
 	}
+
+
+
+	public sealed class VideoCacheMaxSizeDoubleGigaByte2NullableLongByteConverter : IValueConverter
+    {
+		const double GigaByte = 1000_000_000.0;
+
+
+		public object Convert(object value, Type targetType, object parameter, string language)
+        {
+			long a = 0;
+            if (value is null or long)
+            {
+				var longValue = ((long?)value);
+				var val = longValue is not null ? ((double)longValue) / GigaByte : double.NaN;
+				return val;
+			}
+
+			throw new NotSupportedException();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            if (value is double)
+            {
+				var doubleValue = (double)value;
+
+				var val = !double.IsNaN(doubleValue) ? (long)Math.Max(doubleValue * GigaByte, 0) : 0;
+				return val != 0 ? new long?(val) : default(long?);
+			}
+
+			throw new NotSupportedException();
+        }
+    }
 }

@@ -134,8 +134,8 @@ Cache = キャッシュ
 CacheProgress = DL中
 CachePending = DL順番待ち
 SelectDeleteVideoQuality = 削除する画質を選択
-OpenCacheFolder = 保存フォルダを開く
-ChangeCacheFolder = 保存フォルダを変更
+OpenCacheFolder = キャッシュ保存先を開く
+ChangeCacheFolder = キャッシュ保存先を変更
 PickCacheSaveFolder = キャッシュ保存フォルダを選択する
 ChoiceCacheSavingFolder = キャッシュの保存先フォルダを選択してください。\n保存先が選択されると利用準備が完了します。
 CacheSaveFolderChangeToX = キャッシュの保存先を {0} に変更しました
@@ -147,15 +147,24 @@ VideoCacheStatus.DownloadPaused = 一時停止
 VideoCacheStatus.Completed = 完了
 VideoCacheStatus.Failed = 失敗
 
-VideoCacheDownloadOperationFailedReason.Unknown = 原因不明
-VideoCacheDownloadOperationFailedReason.InternetUnavairable = インターネットがオフライン
-VideoCacheDownloadOperationFailedReason.NoUsageAuthority = プレミアム会員のみ利用可能
-VideoCacheDownloadOperationFailedReason.CanNotCacheEncryptedContent = 暗号化動画はキャッシュ不可
-VideoCacheDownloadOperationFailedReason.StorageCapacityLimitReached = ストレージ制限に到達
-VideoCacheDownloadOperationFailedReason.RistrictedDownloadLineCount = 並列ダウンロード数が上限に到達
-VideoCacheDownloadOperationFailedReason.NoMorePendingOrPausingItem = キャッシュリクエストを全て処理
-VideoCacheDownloadOperationFailedReason.VideoDeleteFromServer = 動画削除済みのため利用不可
+VideoCacheDownloadOperationFailedReason.Unknown = 【キャッシュ失敗】原因不明
+VideoCacheDownloadOperationFailedReason.InternetUnavairable = 【キャッシュ失敗】インターネットがオフライン
+VideoCacheDownloadOperationFailedReason.NoUsageAuthority = 【キャッシュ失敗】プレミアム会員のみ利用可能
+VideoCacheDownloadOperationFailedReason.CanNotCacheEncryptedContent = 【キャッシュ失敗】暗号化動画はキャッシュ不可
+VideoCacheDownloadOperationFailedReason.StorageCapacityLimitReached = 【キャッシュ失敗】ストレージ制限に到達
+VideoCacheDownloadOperationFailedReason.RistrictedDownloadLineCount = 【キャッシュ失敗】並列ダウンロード数が上限に到達
+VideoCacheDownloadOperationFailedReason.NoMorePendingOrPausingItem = 【キャッシュ失敗】キャッシュリクエストを全て処理
+VideoCacheDownloadOperationFailedReason.VideoDeleteFromServer = 【キャッシュ失敗】動画削除済みのため利用不可
 
+IsAllowDownloadOnMeteredNetwork = モバイル通信でのダウンロードを許可
+IsNotifyOnDownloadWithMeteredNetwork = モバイル通信でダウンロード開始した時に通知
+MaxVideoCacheStorageSize = 動画キャッシュのストレージ制限(GB)
+
+
+
+
+
+#### Subscription ####
 SubscriptionAdd = 購読追加
 SubscriptionAddUser = 投稿者を購読に追加
 SubscriptionAddMylist = マイリストを購読に追加
