@@ -383,7 +383,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
             if (itemFlyout is VideoItemFlyout videoItemFlyout)
             {
-                if (list.SelectedItems.Count > 0)
+                if (list.SelectionMode is ListViewSelectionMode.Multiple or ListViewSelectionMode.Extended && list.SelectedItems.Count > 0)
                 {
                     videoItemFlyout.Playlist = PlaylistPassToFlyout;
                     videoItemFlyout.SelectedVideoItems = list.SelectedItems.Cast<IVideoContent>().ToList();
