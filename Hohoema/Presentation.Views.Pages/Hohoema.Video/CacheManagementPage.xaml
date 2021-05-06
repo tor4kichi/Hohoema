@@ -72,6 +72,23 @@
                                />
                 </StackPanel>
               </AppBarElementContainer>
+
+              <AppBarButton Icon="Help">
+                <AppBarButton.Flyout>
+                  <Flyout>
+                    <StackPanel Width="320">
+                      <TextBlock TextWrapping="Wrap" LineHeight="18">
+                        ・プレミアム会員でログイン中のみダウンロード及びキャッシュからの視聴が可能です <LineBreak />
+                        ・OSとアプリが起動中している間のみダウンロードを行います<LineBreak />
+                        ・ダウンロードはオンライン視聴していないタイミングで行います<LineBreak />
+                        ・キャッシュ済みでもネットワーク非接続状態の場合、キャッシュ動画の視聴は出来ません<LineBreak />
+                        ・暗号化動画はキャッシュ出来ません<LineBreak />
+                        ・期間限定無料なども現時点で視聴可能であればキャッシュ可能ですが、再生時点で視聴不可なら再生出来ません<LineBreak />
+                      </TextBlock>
+                    </StackPanel>
+                  </Flyout>
+                </AppBarButton.Flyout>
+              </AppBarButton>
               <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">

@@ -155,6 +155,8 @@ VideoCacheDownloadOperationFailedReason.StorageCapacityLimitReached = 【キャ�
 VideoCacheDownloadOperationFailedReason.RistrictedDownloadLineCount = 【キャッシュ失敗】並列ダウンロード数が上限に到達
 VideoCacheDownloadOperationFailedReason.NoMorePendingOrPausingItem = 【キャッシュ失敗】キャッシュリクエストを全て処理
 VideoCacheDownloadOperationFailedReason.VideoDeleteFromServer = 【キャッシュ失敗】動画削除済みのため利用不可
+VideoCacheDownloadOperationFailedReason.RequirePermission_Premium = 【キャッシュ失敗】プレミアム会員限定
+VideoCacheDownloadOperationFailedReason.RequirePermission_Admission = 【キャッシュ失敗】チャンネル会員限定
 
 IsAllowDownloadOnMeteredNetwork = モバイル通信でのダウンロードを許可
 IsNotifyOnDownloadWithMeteredNetwork = モバイル通信でダウンロード開始した時に通知

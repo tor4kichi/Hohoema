@@ -11,5 +11,8 @@
         RistrictedDownloadLineCount,
         NoMorePendingOrPausingItem,
         VideoDeleteFromServer,
+        RequirePermission_Admission,
+        RequirePermission_Premium,
+        RequirePermission_Ppv,
     }
 }

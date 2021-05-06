@@ -113,8 +113,6 @@ namespace Hohoema.Models.Domain.VideoCache
         public event EventHandler<VideoCacheFailedEventArgs> Failed;        
         public event EventHandler<VideoCachePausedEventArgs> Paused;
 
-        public event EventHandler<VideoCacheMaxStorageSizeChangedEventArgs> MaxStorageSizeChanged;
-
         public VideoCacheManager(
             NiconicoSession niconicoSession, 
             NicoVideoSessionOwnershipManager videoSessionOwnershipManager,
@@ -234,6 +232,13 @@ namespace Hohoema.Models.Domain.VideoCache
 #endif
             if (item.IsCompleted is false) 
                 throw new VideoCacheException("VideoCacheItem is can not play. not completed download the cache.");
+
+
+            var watchData = await _niconicoSession.Context.Video.GetDmcWatchResponseAsync(item.VideoId);
+            if (watchData?.DmcWatchResponse?.Media?.Delivery is null)
+            {
+                throw new VideoCacheException("VideoCacheItem is can not play, require content access permission. (pay or register channel etc.)");
+            }
 
             var file = await GetCacheVideoFileAsync(item);
             var stream = new XtsStream(await file.OpenStreamForReadAsync(), Xts);
@@ -687,13 +692,42 @@ namespace Hohoema.Models.Domain.VideoCache
                 {
                     if (deliverly.Encryption is not null)
                     {
+                        videoSessionOwnershipRentResult.Dispose();
                         return new VideoCacheDownloadOperationCreationResult(VideoCacheDownloadOperationFailedReason.CanNotCacheEncryptedContent);
                     }
                 }
-                else if (watchData?.DmcWatchResponse?.Media?.Delivery is null && watchData?.DmcWatchResponse?.Media?.DeliveryLegacy is not null)
+                else if (watchData?.DmcWatchResponse?.Media?.Delivery is null)
                 {
-                    return new VideoCacheDownloadOperationCreationResult(VideoCacheDownloadOperationFailedReason.Unknown);
+                    videoSessionOwnershipRentResult.Dispose();
+
+                    Debug.WriteLine(watchData.DmcWatchResponse.OkReason);
+                    var reason = watchData.DmcWatchResponse.OkReason switch
+                    {
+                        "PREMIUM_ONLY_VIDEO_PREVIEW_SUPPORTED" => VideoCacheDownloadOperationFailedReason.RequirePermission_Premium,
+                        "CHANNEL_ADMISSION_PREVIEW_SUPPORTED" => VideoCacheDownloadOperationFailedReason.RequirePermission_Admission,
+                        _ => VideoCacheDownloadOperationFailedReason.Unknown,
+                    };
+
+                    return new VideoCacheDownloadOperationCreationResult(reason);
                 }
+                /*
+                else if (watchData.DmcWatchResponse.Payment.Video.IsAdmission && !watchData.DmcWatchResponse.Payment.Preview.Admission.IsEnabled)
+                {
+                    videoSessionOwnershipRentResult.Dispose();
+                    return new VideoCacheDownloadOperationCreationResult(VideoCacheDownloadOperationFailedReason.RequirePermission_Admission);
+                }
+                else if (watchData.DmcWatchResponse.Payment.Video.IsPpv && !watchData.DmcWatchResponse.Payment.Preview.Ppv.IsEnabled)
+                {
+                    videoSessionOwnershipRentResult.Dispose();
+                    return new VideoCacheDownloadOperationCreationResult(VideoCacheDownloadOperationFailedReason.RequirePermission_Ppv);
+                }
+                else if (watchData.DmcWatchResponse.Payment.Video.IsPremium)
+                {
+                    videoSessionOwnershipRentResult.Dispose();
+                    return new VideoCacheDownloadOperationCreationResult(VideoCacheDownloadOperationFailedReason.RequirePermission_Ppv);
+                }
+                */
+
 
 
                 NicoVideoQuality candidateDownloadingQuality = item.RequestedVideoQuality is NicoVideoQuality.Unknown ? DefaultCacheQuality : item.RequestedVideoQuality;
