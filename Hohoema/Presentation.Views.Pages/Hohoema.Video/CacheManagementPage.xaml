@@ -54,6 +54,24 @@
             </CommandBar.Content>
 
             <CommandBar.PrimaryCommands>
+
+              <AppBarElementContainer VerticalContentAlignment="Center">
+                <StackPanel>
+                  <StackPanel Orientation="Horizontal" Spacing="16">
+                    <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}">
+                      <Run Text="{i18nExt:Localize Key=CachedStorageSize_Current}" />:<Run Text="{Binding CurrentlyCachedStorageSize.Value, Converter={StaticResource ToKMGTPEZY}}" />B
+                    </TextBlock>
+                    <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding MaxCacheStorageSize.Value, Converter={StaticResource NotNullToVisibility}}">
+                      <Run Text="{i18nExt:Localize Key=CachedStorageSize_Limit}" />:<Run Text="{Binding MaxCacheStorageSize.Value, Converter={StaticResource ToKMGTPEZY}}" />B
+                    </TextBlock>
+                    
+                  </StackPanel>
+
+                  <ProgressBar Minimum="0.0" Maximum="1.0" Value="{Binding AvairableStorageSizeNormalized.Value}" Visibility="{Binding MaxCacheStorageSize.Value, Converter={StaticResource NotNullToVisibility}}" 
+                               Width="200"
+                               />
+                </StackPanel>
+              </AppBarElementContainer>
               <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
@@ -92,30 +110,45 @@
 
                   <StackPanel Orientation="Horizontal" Visibility="{Binding HasCacheProgress}" Spacing="8">
                     <TextBlock Width="48" HorizontalTextAlignment="Right">
-                    <Run Text="{Binding DownloadProgress, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
+                      <Run Text="{Binding DownloadProgress, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
                     </TextBlock>
                     <ProgressBar Width="180" Minimum="0.0" Maximum="1.0" Value="{Binding DownloadProgress}" IsIndeterminate="{Binding IsProgressUnknown}"  />
                   </StackPanel>
 
-                  <uwpcontrols:SwitchPresenter Value="{Binding FailedReason, Converter={StaticResource EnumToNumber}}" Opacity="0.7">
-                    <uwpcontrols:CaseCollection >
-                      <uwpcontrols:Case >
-                        <uwpcontrols:Case.Value>
-                          <cacheModel:VideoCacheDownloadOperationFailedReason>None</cacheModel:VideoCacheDownloadOperationFailedReason>
-                        </uwpcontrols:Case.Value>
-                        <Border />
-                      </uwpcontrols:Case>
-                      <uwpcontrols:Case IsDefault="True">
-                        <TextBlock Text="{Binding FailedReason, Converter={StaticResource LocalizeConverter}}"
+                  <StackPanel Orientation="Horizontal" Spacing="8" Opacity="0.7" HorizontalAlignment="Right">
+
+                    <uwpcontrols:SwitchPresenter Value="{Binding FailedReason, Converter={StaticResource EnumToNumber}}">
+                      <uwpcontrols:CaseCollection >
+                        <uwpcontrols:Case >
+                          <uwpcontrols:Case.Value>
+                            <cacheModel:VideoCacheDownloadOperationFailedReason>None</cacheModel:VideoCacheDownloadOperationFailedReason>
+                          </uwpcontrols:Case.Value>
+                          <Border />
+                        </uwpcontrols:Case>
+                        <uwpcontrols:Case IsDefault="True">
+                          <TextBlock Text="{Binding FailedReason, Converter={StaticResource LocalizeConverter}}"
                            />
-                      </uwpcontrols:Case>
-                    </uwpcontrols:CaseCollection>
-                  </uwpcontrols:SwitchPresenter>
+                        </uwpcontrols:Case>
+                      </uwpcontrols:CaseCollection>
+                    </uwpcontrols:SwitchPresenter>
+                    
+                    
+                    <TextBlock Visibility="{Binding FileSize, Converter={StaticResource NotNullToVisibility}}" MinWidth="48" HorizontalTextAlignment="Center">
+                      <Run Text="{Binding FileSize, Converter={StaticResource ToKMGTPEZY}}" />B
+                    </TextBlock>
+
+                    <TextBlock Text="{Binding CacheRequestedQuality, Converter={StaticResource LocalizeConverter}}"
+                           VerticalAlignment="Bottom" 
+                               HorizontalTextAlignment="End"
+                               MinWidth="80"
+                           />
+
+
+                  </StackPanel>
+                  
                 </StackPanel>
-                <TextBlock Text="{Binding CacheRequestedQuality, Converter={StaticResource LocalizeConverter}}"
-                           VerticalAlignment="Bottom" HorizontalAlignment="Right"
-                           Opacity="0.7"
-                           />
+                
+
               </Grid>
             </videoList:VideoListItem>
           </Grid>

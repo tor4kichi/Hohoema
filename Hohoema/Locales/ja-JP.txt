@@ -159,9 +159,9 @@ VideoCacheDownloadOperationFailedReason.VideoDeleteFromServer = 【キャッシ�
 IsAllowDownloadOnMeteredNetwork = モバイル通信でのダウンロードを許可
 IsNotifyOnDownloadWithMeteredNetwork = モバイル通信でダウンロード開始した時に通知
 MaxVideoCacheStorageSize = 動画キャッシュのストレージ制限(GB)
-
-
-
+MaxVideoCacheSize_Unlimited = 無制限
+CachedStorageSize_Current = 使用中
+CachedStorageSize_Limit = 上限
 
 
 #### Subscription ####

@@ -15,7 +15,7 @@ namespace Hohoema.Presentation.Views.Converters
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             double number = 0.0;
-            if (Decimal.TryParse(value.ToString(), out var num))
+            if (value is not null && Decimal.TryParse(value.ToString(), out var num))
             {
                 number = Decimal.ToDouble(num);
             }

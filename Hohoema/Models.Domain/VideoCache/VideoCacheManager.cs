@@ -152,7 +152,7 @@ namespace Hohoema.Models.Domain.VideoCache
             get => _videoCacheSettings.DefaultCacheQuality;
         }
 
-        public long GetCurrentryTotalCachedSize()
+        public long UpdateCurrentryTotalCachedSize()
         {
             return _videoCacheSettings.CachedStorageSize = _videoCacheItemRepository.SumVideoCacheSize();
         }
@@ -364,8 +364,10 @@ namespace Hohoema.Models.Domain.VideoCache
                 // ローカルDBから削除
                 if (_videoCacheItemRepository.DeleteVideoCache(videoId) is true)
                 {
-                    Canceled?.Invoke(this, new VideoCacheCanceledEventArgs() { VideoId = videoId, Reason = reason });
+                    UpdateCurrentryTotalCachedSize();
 
+                    Canceled?.Invoke(this, new VideoCacheCanceledEventArgs() { VideoId = videoId, Reason = reason });
+                    
                     return true;
                 }
                 else
@@ -492,6 +494,8 @@ namespace Hohoema.Models.Domain.VideoCache
                             var item = op.VideoCacheItem;
                             item.Status = VideoCacheStatus.Downloading;
                             UpdateVideoCacheEntity(item);
+
+                            UpdateCurrentryTotalCachedSize();
 
                             this.Started?.Invoke(this, new VideoCacheStartedEventArgs() { Item = (s as IVideoCacheDownloadOperation).VideoCacheItem });
                         };

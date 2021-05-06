@@ -30,10 +30,12 @@ namespace Hohoema.Models.Domain.VideoCache
             set => Save(value);
         }
 
+
+        public long? _CachedStorageSize;
         public long CachedStorageSize
         {
-            get => Read(0);
-            set => Save(value);
+            get => _CachedStorageSize ??= Read(0L);
+            set => SetProperty(ref _CachedStorageSize, value);
         }
 
         public NicoVideoQuality DefaultCacheQuality

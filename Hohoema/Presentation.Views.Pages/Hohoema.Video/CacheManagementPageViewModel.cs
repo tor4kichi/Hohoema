@@ -51,7 +51,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
-            CacheSettings = cacheSettings;
+            VideoCacheSettings = cacheSettings;
             VideoCacheManager = videoCacheManager;
             _videoCacheFolderManager = videoCacheFolderManager;
             NicoVideoProvider = nicoVideoProvider;
@@ -80,12 +80,28 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             .Select(x => new CacheItemsGroup(x, new ObservableCollection<CacheVideoViewModel>()))
             );
 
+            CurrentlyCachedStorageSize = VideoCacheSettings.ObserveProperty(x => x.CachedStorageSize).ToReadOnlyReactivePropertySlim(VideoCacheSettings.CachedStorageSize)
+                .AddTo(_CompositeDisposable);
+
+            MaxCacheStorageSize = VideoCacheSettings.ObserveProperty(x => x.MaxVideoCacheStorageSize).ToReadOnlyReactivePropertySlim(VideoCacheSettings.MaxVideoCacheStorageSize)
+                .AddTo(_CompositeDisposable);
+
+            AvairableStorageSizeNormalized = new[]
+            {
+                CurrentlyCachedStorageSize,
+                MaxCacheStorageSize.Select(x => x ?? 0),
+            }
+            .CombineLatest()
+            .Select(xy => xy[1] == 0 ? 0.0 : ((double)xy[0] / xy[1]))
+            .ToReadOnlyReactivePropertySlim()
+            .AddTo(_CompositeDisposable);
         }
+
         private readonly VideoCacheFolderManager _videoCacheFolderManager;
 
 
         public VideoCacheManager VideoCacheManager { get; }
-        public VideoCacheSettings CacheSettings { get; }
+        public VideoCacheSettings VideoCacheSettings { get; }
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
@@ -95,7 +111,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         public DelegateCommand OpenCurrentCacheFolderCommand { get; }
         public DialogService HohoemaDialogService { get; }
 
-       
+        public IReadOnlyReactiveProperty<long> CurrentlyCachedStorageSize { get; }
+        public IReadOnlyReactiveProperty<long?> MaxCacheStorageSize { get; }
+        public IReadOnlyReactiveProperty<double> AvairableStorageSizeNormalized { get; }
+
         private DelegateCommand _ResumeCacheCommand;
         public DelegateCommand ResumeCacheCommand
         {

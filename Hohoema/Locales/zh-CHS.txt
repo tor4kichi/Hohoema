@@ -159,9 +159,9 @@ VideoCacheDownloadOperationFailedReason.VideoDeleteFromServer = 无法使用，�
 IsAllowDownloadOnMeteredNetwork = 允许通过移动通信下载
 IsNotifyOnDownloadWithMeteredNetwork = 通过移动通信开始下载时通知
 MaxVideoCacheStorageSize = 影片快取储存空间上限（GB）
-
-
-
+MaxVideoCacheSize_Unlimited = 无限
+CachedStorageSize_Current = 使用容量
+CachedStorageSize_Limit = 上限
 
 
 #### Subscription ####
