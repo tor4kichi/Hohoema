@@ -8,6 +8,15 @@ using Windows.Storage.Streams;
 
 namespace Hohoema.Models.Domain.VideoCache
 {
+    public enum VideoCacheDownloadOperationCompleteState
+    {
+        Completed,
+        DownloadPaused,
+        ReturnDownloadSessionOwnership,
+        DownloadCanceledWithUser,
+    }
+
+
     public class VideoCacheDownloadOperation : IDisposable, IVideoCacheDownloadOperation
     {
         public string VideoId => VideoCacheItem.VideoId;
@@ -18,10 +27,12 @@ namespace Hohoema.Models.Domain.VideoCache
         private readonly DmcVideoStreamingSession _dmcVideoStreamingSession;
         private IVideoCacheDownloadOperationOutput _videoCacheDownloadOperationOutput;
         private CancellationTokenSource _cancellationTokenSource;
+        private CancellationTokenSource _pauseCancellationTokenSource;
+        private CancellationTokenSource _onwerShipReturnedCancellationTokenSource;
+        private CancellationTokenSource _linkedCancellationTokenSource;
+
 
         public event EventHandler Started;
-        public event EventHandler Paused;
-        public event EventHandler Aborted;
         public event EventHandler<VideoCacheDownloadOperationProgress> Progress;
         public event EventHandler Completed;
 
@@ -31,19 +42,14 @@ namespace Hohoema.Models.Domain.VideoCache
             VideoCacheItem = videoCacheItem;
             _dmcVideoStreamingSession = dmcVideoStreamingSession;
             _videoCacheDownloadOperationOutput = videoCacheDownloadOperationOutput;
-
-            _dmcVideoStreamingSession.StopStreamingFromOwnerShipReturned += _dmcVideoStreamingSession_StopStreamingFromOwnerShipReturned;
         }
 
         private void _dmcVideoStreamingSession_StopStreamingFromOwnerShipReturned(object sender, EventArgs e)
         {
-            if (_cancellationTokenSource.IsCancellationRequested is false)
-            {
-                _cancellationTokenSource.Cancel();
-            }
+            _onwerShipReturnedCancellationTokenSource.Cancel();
         }
 
-        public async Task DownloadAsync()
+        public async Task<VideoCacheDownloadOperationCompleteState> DownloadAsync()
         {
             IRandomAccessStream downloadStream = null;
             try
@@ -60,32 +66,59 @@ namespace Hohoema.Models.Domain.VideoCache
             Started?.Invoke(this, EventArgs.Empty);
 
             _cancellationTokenSource = new CancellationTokenSource();
+            _onwerShipReturnedCancellationTokenSource = new CancellationTokenSource();
+            _pauseCancellationTokenSource = new CancellationTokenSource();
+            _linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cancellationTokenSource.Token, _onwerShipReturnedCancellationTokenSource.Token, _pauseCancellationTokenSource.Token);
+
+            _dmcVideoStreamingSession.StopStreamingFromOwnerShipReturned += _dmcVideoStreamingSession_StopStreamingFromOwnerShipReturned;
+
             try
             {
-                var ct = _cancellationTokenSource.Token;
+                var ct = _linkedCancellationTokenSource.Token;
                 await _videoCacheDownloadOperationOutput.CopyStreamAsync(downloadStream.AsStreamForRead(), new _Progress(x => Progress?.Invoke(this, x)), ct);
-                Completed?.Invoke(this, EventArgs.Empty);
             }
             catch (OperationCanceledException)
             {
                 // 削除操作、または視聴権を喪失した場合
-                Paused?.Invoke(this, EventArgs.Empty);
+                if (_cancellationTokenSource.IsCancellationRequested)
+                {
+                    return VideoCacheDownloadOperationCompleteState.DownloadCanceledWithUser;
+                }
+                else if (_pauseCancellationTokenSource.IsCancellationRequested)
+                {
+                    return VideoCacheDownloadOperationCompleteState.DownloadPaused;
+                }
+                else if (_onwerShipReturnedCancellationTokenSource.IsCancellationRequested)
+                {
+                    return VideoCacheDownloadOperationCompleteState.ReturnDownloadSessionOwnership;
+                }
+                else
+                {
+                    throw;
+                }
             }
             catch (FileLoadException)
             {
-                Aborted?.Invoke(this, EventArgs.Empty);
+                throw;
             }
             catch (Exception)
             {
                 // ニコ動サーバー側からタイムアウトで切られた場合は一時停止扱い
-                Paused?.Invoke(this, EventArgs.Empty);
+                return VideoCacheDownloadOperationCompleteState.DownloadPaused;
             }
             finally
             {
+                _dmcVideoStreamingSession.StopStreamingFromOwnerShipReturned -= _dmcVideoStreamingSession_StopStreamingFromOwnerShipReturned;
                 downloadStream.Dispose();
+                _onwerShipReturnedCancellationTokenSource.Dispose();
+                _pauseCancellationTokenSource.Dispose();
                 _cancellationTokenSource.Dispose();
+                _linkedCancellationTokenSource.Dispose();
                 _cancellationTokenSource = null;
+                Completed?.Invoke(this, EventArgs.Empty);
             }
+
+            return VideoCacheDownloadOperationCompleteState.Completed;
         }
 
 
@@ -104,7 +137,7 @@ namespace Hohoema.Models.Domain.VideoCache
             }
         }
 
-        public async Task StopAndDeleteDownloadedAsync()
+        public async Task CancelAsync()
         {
             if (_cancellationTokenSource is not null)
             {
@@ -116,17 +149,14 @@ namespace Hohoema.Models.Domain.VideoCache
 
         void IDisposable.Dispose()
         {
-            _dmcVideoStreamingSession.StopStreamingFromOwnerShipReturned -= _dmcVideoStreamingSession_StopStreamingFromOwnerShipReturned;
             _dmcVideoStreamingSession.Dispose();
         }
 
         public Task PauseAsync()
         {
-            if (_cancellationTokenSource is not null)
+            if (_pauseCancellationTokenSource is not null)
             {
-                _cancellationTokenSource.Cancel();
-
-                Paused?.Invoke(this, EventArgs.Empty);
+                _pauseCancellationTokenSource.Cancel();
             }
 
             return Task.CompletedTask;

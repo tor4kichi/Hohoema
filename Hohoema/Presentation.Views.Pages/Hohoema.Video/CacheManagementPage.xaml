@@ -80,6 +80,20 @@
                 </StackPanel>
               </AppBarElementContainer>
 
+              <AppBarElementContainer VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
+                <uwpcontrols:DockPanel Margin="8 0" MaxWidth="120">
+                  <TextBlock Text="{i18nExt:Localize Key=DownloadOperationRunning}" Visibility="{Binding IsAllowDownload.Value, Converter={StaticResource BooleanToVisibility}}" uwpcontrols:DockPanel.Dock="Left" Margin="0 0 8 0" />
+                  <TextBlock Text="{i18nExt:Localize Key=DownloadOperationStopping}" Visibility="{Binding IsAllowDownload.Value, Converter={StaticResource BooleanToVisibilityInverted}}" uwpcontrols:DockPanel.Dock="Left" Margin="0 0 8 0" />
+
+                  <ToggleSwitch IsOn="{Binding IsAllowDownload.Value, Mode=TwoWay}" 
+                              Style="{StaticResource ToggleSwitchNoHeader}"
+                                MaxWidth="48"
+                                Width="48"
+                              >
+                  </ToggleSwitch>
+                </uwpcontrols:DockPanel>
+              </AppBarElementContainer>
+
               <AppBarButton Icon="Help">
                 <AppBarButton.Flyout>
                   <Flyout>

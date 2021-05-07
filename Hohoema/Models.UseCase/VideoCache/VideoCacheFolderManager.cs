@@ -2,6 +2,7 @@
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.VideoCache;
 using Hohoema.Models.Helpers;
+using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,11 @@ namespace Hohoema.Models.UseCase.VideoCache
         {
             _videoCacheManager = vIdeoCacheManager;
             _nicoVideoProvider = nicoVideoProvider;
+
+            _messenger = WeakReferenceMessenger.Default;
         }
+
+        IMessenger _messenger;
 
         public StorageFolder VideoCacheFolder => _videoCacheManager.VideoCacheFolder;
 
@@ -70,36 +75,42 @@ namespace Hohoema.Models.UseCase.VideoCache
             var newFolder = await folderPicker.PickSingleFolderAsync();
             if (newFolder == null) { return; }
 
-            // 現在進行中のキャッシュ情報を取得
-            // 全てのキャッシュ更新を一時停止
-            var resumeInfo = await _videoCacheManager.PauseAllDownloadOperationAsync();
+            await _messenger.Send<Events.StartCacheSaveFolderChangingAsyncRequestMessage>();
 
-            // 新しいフォルダに存在するキャッシュ済みファイルを取り込む
-            await ImportCacheRequestFromNewFolderItems(newFolder);
-
-            // フォルダのアイテムの移動を開始
-            var oldFolder = _videoCacheManager.VideoCacheFolder;
-            await MoveFolderItemsToDestination(oldFolder, newFolder);
-
-            // VideoCacheManagerのフォルダ指定を変更
-            _videoCacheManager.VideoCacheFolder = newFolder;
-
-            // 停止したキャッシュを再開
-            foreach (var resume in resumeInfo.PausedVideoIdList)
+            try
             {
-                await _videoCacheManager.PushCacheRequestAsync(resume, Domain.NicoVideoQuality.Unknown);
+                // 現在進行中のキャッシュ情報を取得
+                // 全てのキャッシュ更新を一時停止
+                var resumeInfo = await _videoCacheManager.PauseAllDownloadOperationAsync();
+
+                // 新しいフォルダに存在するキャッシュ済みファイルを取り込む
+                await ImportCacheRequestFromNewFolderItems(newFolder);
+
+                // フォルダのアイテムの移動を開始
+                var oldFolder = _videoCacheManager.VideoCacheFolder;
+                await MoveFolderItemsToDestination(oldFolder, newFolder);
+
+                // VideoCacheManagerのフォルダ指定を変更
+                _videoCacheManager.VideoCacheFolder = newFolder;
+
+                // 停止したキャッシュを再開
+                foreach (var resume in resumeInfo.PausedVideoIdList)
+                {
+                    await _videoCacheManager.PushCacheRequestAsync(resume, Domain.NicoVideoQuality.Unknown);
+                }
+
+                // 新しい指定フォルダをFutureAccessListへ登録
+                StorageApplicationPermissions.FutureAccessList.AddOrReplace(CACHE_FOLDER_NAME, newFolder);
             }
-
-            // 古いフォルダを削除
-//            await oldFolder.DeleteAsync();
-
-            // 新しい指定フォルダをFutureAccessListへ登録
-            StorageApplicationPermissions.FutureAccessList.AddOrReplace(CACHE_FOLDER_NAME, newFolder);
+            finally
+            {
+                _messenger.Send<Events.EndCacheSaveFolderChangingMessage>();
+            }
         }
 
         private async Task ImportCacheRequestFromNewFolderItems(StorageFolder folder)
         {
-            var query = folder.CreateFileQueryWithOptions(new Windows.Storage.Search.QueryOptions() { ApplicationSearchFilter = $"System.FileExtension:=\"{VideoCacheManager.HohoemaVideoCacheExt}\"" });
+            var query = folder.CreateFileQueryWithOptions(new (Windows.Storage.Search.CommonFileQuery.DefaultQuery, new[] { VideoCacheManager.HohoemaVideoCacheExt }));
 
             List<Exception> exceptions = new List<Exception>();
             var count = await query.GetItemCountAsync();
@@ -129,11 +140,11 @@ namespace Hohoema.Models.UseCase.VideoCache
         private bool ExtractionVideoIdFromVideoFileName(StorageFile file, out string outVideoId, out NicoVideoQuality quality)
         {
             var woExtName = Path.ChangeExtension(file.Name, null);
-            var startCornerBlace = woExtName.LastIndexOf('[');
-            var endCornerBlace = woExtName.LastIndexOf(']');
-            if (startCornerBlace != -1 && endCornerBlace != -1)
+            var startBracket = woExtName.LastIndexOf('[');
+            var endBracket = woExtName.LastIndexOf(']');
+            if (startBracket != -1 && endBracket != -1)
             {
-                var idAndQuality = woExtName.Substring(startCornerBlace + 1, endCornerBlace - startCornerBlace - 1);
+                var idAndQuality = woExtName.Substring(startBracket + 1, endBracket - startBracket - 1);
                 var splited = idAndQuality.Split('-');
                 outVideoId = splited[0];
                 quality = splited[1].ToLower() switch
@@ -160,7 +171,10 @@ namespace Hohoema.Models.UseCase.VideoCache
 
         private async Task MoveFolderItemsToDestination(StorageFolder source, StorageFolder dest)
         {
-            var query = source.CreateFileQueryWithOptions(new Windows.Storage.Search.QueryOptions() { ApplicationSearchFilter = $"System.FileExtension:=\"{VideoCacheManager.HohoemaVideoCacheExt}\"" });
+            var query = source.CreateFileQueryWithOptions(new (
+                Windows.Storage.Search.CommonFileQuery.DefaultQuery, 
+                new[] { VideoCacheManager.HohoemaVideoCacheExt, VideoCacheManager.HohoemaVideoCacheHashExt })
+                );
 
             List<Exception> exceptions = new List<Exception>();
             var count = await query.GetItemCountAsync();

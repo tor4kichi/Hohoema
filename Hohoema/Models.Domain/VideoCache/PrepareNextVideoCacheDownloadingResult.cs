@@ -17,11 +17,11 @@ namespace Hohoema.Models.Domain.VideoCache
         /// ライフタイム管理をVideoCacheManagerに任せたいのでpublicにしない
         /// </summary>
         private readonly IVideoCacheDownloadOperation _downloadOperation;
+        private readonly Func<IVideoCacheDownloadOperation, Task> _downloadTaskFactory;
 
-
-        internal static PrepareNextVideoCacheDownloadingResult Success(string videoId, VideoCacheItem videoCacheItem, IVideoCacheDownloadOperation downloadOperation)
+        internal static PrepareNextVideoCacheDownloadingResult Success(string videoId, VideoCacheItem videoCacheItem, IVideoCacheDownloadOperation downloadOperation, Func<IVideoCacheDownloadOperation, Task> downloadTaskFactory)
         {
-            return new PrepareNextVideoCacheDownloadingResult(videoId, videoCacheItem, downloadOperation);
+            return new PrepareNextVideoCacheDownloadingResult(videoId, videoCacheItem, downloadOperation, downloadTaskFactory);
         }
 
         internal static PrepareNextVideoCacheDownloadingResult Failed(string videoId, VideoCacheItem videoCacheItem, VideoCacheDownloadOperationFailedReason creationFailedReason)
@@ -29,11 +29,12 @@ namespace Hohoema.Models.Domain.VideoCache
             return new PrepareNextVideoCacheDownloadingResult(videoId, videoCacheItem, creationFailedReason);
         }
 
-        private PrepareNextVideoCacheDownloadingResult(string videoId, VideoCacheItem videoCacheItem, IVideoCacheDownloadOperation downloadOperation)
+        private PrepareNextVideoCacheDownloadingResult(string videoId, VideoCacheItem videoCacheItem, IVideoCacheDownloadOperation downloadOperation, Func<IVideoCacheDownloadOperation, Task> downloadTaskFactory)
         {
             VideoId = videoId;
             VideoCacheItem = videoCacheItem;
             _downloadOperation = downloadOperation;
+            _downloadTaskFactory = downloadTaskFactory;
             FailedReason = VideoCacheDownloadOperationFailedReason.None;
         }
 
@@ -46,7 +47,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public Task DownloadAsync()
         {
-            return _downloadOperation.DownloadAsync();
+            return _downloadTaskFactory(_downloadOperation);
         }
     }
 }

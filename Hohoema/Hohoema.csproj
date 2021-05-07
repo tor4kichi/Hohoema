@@ -323,6 +323,8 @@
     <Compile Include="Models.UseCase\Migration\MigrationCommentFilteringSettings.cs" />
     <Compile Include="Models.UseCase\Migration\SearchPageQueryMigrate_0_26_0.cs" />
     <Compile Include="Models.UseCase\Migration\SettingsMigration_V_0_23_0.cs" />
+    <Compile Include="Models.UseCase\VideoCache\Events\EndCacheSaveFolderChangingMessage.cs" />
+    <Compile Include="Models.UseCase\VideoCache\Events\StartCacheSaveFolderChangingAsyncRequestMessage.cs" />
     <Compile Include="Models.UseCase\VideoCache\Events\VideoCacheProgressChangedMessage.cs" />
     <Compile Include="Models.UseCase\VideoCache\Events\VideoCacheStatusChangedMessage.cs" />
     <Compile Include="Models.UseCase\VideoCache\Migration\VideoCacheDatabaseMigration_V_0_29_0.cs" />

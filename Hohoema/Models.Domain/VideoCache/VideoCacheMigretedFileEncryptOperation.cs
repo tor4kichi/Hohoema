@@ -62,7 +62,7 @@ namespace Hohoema.Models.Domain.VideoCache
             }
         }
 
-        public async Task StopAndDeleteDownloadedAsync()
+        public async Task CancelAsync()
         {
             if (_cancellationTokenSource is not null)
             {

@@ -44,6 +44,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             VideoCacheSettings cacheSettings,
             VideoCacheManager videoCacheManager,
             VideoCacheFolderManager videoCacheFolderManager,
+            VideoCacheDownloadOperationManager videoCacheDownloadOperationManager,
             NicoVideoProvider nicoVideoProvider,
             PageManager pageManager,
             DialogService dialogService,
@@ -57,6 +58,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             VideoCacheSettings = cacheSettings;
             VideoCacheManager = videoCacheManager;
             _videoCacheFolderManager = videoCacheFolderManager;
+            _videoCacheDownloadOperationManager = videoCacheDownloadOperationManager;
             NicoVideoProvider = nicoVideoProvider;
             HohoemaDialogService = dialogService;
             NotificationService = notificationService;
@@ -68,8 +70,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             Groups = new (new[] 
             {
                 VideoCacheStatus.Downloading,
-                VideoCacheStatus.Failed,
                 VideoCacheStatus.DownloadPaused,
+                VideoCacheStatus.Failed,
                 VideoCacheStatus.Pending,
                 VideoCacheStatus.Completed,
             }
@@ -85,6 +87,19 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             MaxCacheStorageSize = VideoCacheSettings.ObserveProperty(x => x.MaxVideoCacheStorageSize).ToReadOnlyReactivePropertySlim(VideoCacheSettings.MaxVideoCacheStorageSize)
                 .AddTo(_CompositeDisposable);
 
+            IsAllowDownload = new ReactivePropertySlim<bool>(_videoCacheDownloadOperationManager.IsAllowDownload, mode: ReactivePropertyMode.DistinctUntilChanged);
+            IsAllowDownload.Subscribe(isAllowDownload => 
+            {
+                if (isAllowDownload)
+                {
+                    _videoCacheDownloadOperationManager.ResumeDownload();
+                }
+                else
+                {
+                    _videoCacheDownloadOperationManager.SuspendDownload();
+                }
+            });
+
             AvairableStorageSizeNormalized = new[]
             {
                 CurrentlyCachedStorageSize,
@@ -98,7 +113,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         private readonly NiconicoSession _niconicoSession;
         private readonly VideoCacheFolderManager _videoCacheFolderManager;
-
+        private readonly VideoCacheDownloadOperationManager _videoCacheDownloadOperationManager;
 
         public VideoCacheManager VideoCacheManager { get; }
         public VideoCacheSettings VideoCacheSettings { get; }
@@ -112,6 +127,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         public DialogService HohoemaDialogService { get; }
 
         public IReadOnlyReactiveProperty<bool> IsLoggedInWithPremiumMember { get; }
+
+        public IReactiveProperty<bool> IsAllowDownload { get; }
 
         public IReadOnlyReactiveProperty<long> CurrentlyCachedStorageSize { get; }
         public IReadOnlyReactiveProperty<long?> MaxCacheStorageSize { get; }

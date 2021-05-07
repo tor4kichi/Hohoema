@@ -32,8 +32,14 @@ namespace Hohoema.Models.UseCase.VideoCache
         private DateTime _nextProgressShowTime = DateTime.Now;
 
         private bool _notifyUsingMobileDataNetworkDownload = false;
-        private bool _stopDownloadTaskWithDisallowMeteredNetworkDownload = false;
 
+        private bool _stopDownloadTaskWithDisallowMeteredNetworkDownload = false;
+        private bool _stopDownloadTaskWithChangingSaveFolder = false;
+        public bool IsAllowDownload 
+        {
+            get => _videoCacheSettings.IsAllowDownload;
+            private set => _videoCacheSettings.IsAllowDownload = value;
+        }
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -104,6 +110,11 @@ namespace Hohoema.Models.UseCase.VideoCache
                 var defferl = e.SuspendingOperation.GetDeferral();
                 try
                 {
+                    while (_stopDownloadTaskWithChangingSaveFolder)
+                    {
+                        await Task.Delay(1);
+                    }
+
                     await _videoCacheManager.PauseAllDownloadOperationAsync();
                 }
                 finally
@@ -137,6 +148,23 @@ namespace Hohoema.Models.UseCase.VideoCache
             .Subscribe(_ => UpdateConnectionType())
             .AddTo(_disposables);
 
+            WeakReferenceMessenger.Default.Register<Events.StartCacheSaveFolderChangingAsyncRequestMessage>(this, (r, m) => 
+            {
+                async Task<long> Shutdown()
+                {
+                    await ShutdownDownloadOperationLoop();
+                    return 0;
+                }
+
+                _stopDownloadTaskWithChangingSaveFolder = true;
+                m.Reply(Shutdown());
+            });
+
+            WeakReferenceMessenger.Default.Register<Events.EndCacheSaveFolderChangingMessage>(this, (r, m) =>
+            {
+                _stopDownloadTaskWithChangingSaveFolder = false;
+                LaunchDownaloadOperationLoop();
+            });
 
             // Initialize
             UpdateConnectionType();
@@ -146,6 +174,26 @@ namespace Hohoema.Models.UseCase.VideoCache
             }
         }
 
+        private bool CanLaunchDownloadOperationLoop()
+        {
+            if (_stopDownloadTaskWithDisallowMeteredNetworkDownload)
+            {
+                Debug.WriteLine("CacheDL Looping: disallow download with metered network, loop exit.");
+                return false;
+            }
+            else if (_stopDownloadTaskWithChangingSaveFolder)
+            {
+                Debug.WriteLine("CacheDL Looping: stopping download from save folder changing, loop exit.");
+                return false;
+            }
+            else if (IsAllowDownload is false)
+            {
+                Debug.WriteLine("CacheDL Looping: stopping download from user action, loop exit.");
+                return false;
+            }
+
+            return true;
+        }
 
         private async void LaunchDownaloadOperationLoop()
         {
@@ -155,9 +203,8 @@ namespace Hohoema.Models.UseCase.VideoCache
             {
                 using (await _downloadTsakUpdateLock.LockAsync())
                 {
-                    if (_stopDownloadTaskWithDisallowMeteredNetworkDownload)
+                    if (!CanLaunchDownloadOperationLoop())
                     {
-                        Debug.WriteLine("CacheDL Looping: disallow download with metered network, loop exit.");
                         return;
                     }
 
@@ -188,9 +235,8 @@ namespace Hohoema.Models.UseCase.VideoCache
 
                         Debug.WriteLine("CacheDL Looping: remove task");
 
-                        if (_stopDownloadTaskWithDisallowMeteredNetworkDownload)
+                        if (!CanLaunchDownloadOperationLoop())
                         {
-                            Debug.WriteLine("CacheDL Looping: disallow download with metered network, loop exit.");
                             return;
                         }
                         else if (result && _videoCacheManager.HasPendingOrPausingVideoCacheItem())
@@ -237,18 +283,14 @@ namespace Hohoema.Models.UseCase.VideoCache
                 Debug.WriteLine(e.ToString());
                 return false;
             }
-            finally
-            {
-
-            }
 
             return true;
         }
 
 
-        void ShutdownDownloadOperationLoop()
+        Task ShutdownDownloadOperationLoop()
         {
-            _ = _videoCacheManager.PauseAllDownloadOperationAsync();
+            return _videoCacheManager.PauseAllDownloadOperationAsync();
         }
 
 
@@ -266,7 +308,7 @@ namespace Hohoema.Models.UseCase.VideoCache
             }
 
             if (_stopDownloadTaskWithDisallowMeteredNetworkDownload is false
-                && NetworkHelper.Instance.ConnectionInformation.ConnectionCost.NetworkCostType != Windows.Networking.Connectivity.NetworkCostType.Fixed)
+                && NetworkHelper.Instance.ConnectionInformation.ConnectionCost?.NetworkCostType != Windows.Networking.Connectivity.NetworkCostType.Fixed)
             {
                 // データ料金が発生する状況でのDLを開始する場合に通知を飛ばす
                 _notifyUsingMobileDataNetworkDownload = true;
@@ -277,7 +319,9 @@ namespace Hohoema.Models.UseCase.VideoCache
             }
 
 
-            if (_stopDownloadTaskWithDisallowMeteredNetworkDownload)
+            if (_stopDownloadTaskWithDisallowMeteredNetworkDownload
+                || !NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable
+                )
             {
                 ShutdownDownloadOperationLoop();
             }
@@ -304,5 +348,17 @@ namespace Hohoema.Models.UseCase.VideoCache
         }
 
         
+
+        public void SuspendDownload()
+        {
+            IsAllowDownload = false;
+            ShutdownDownloadOperationLoop();
+        }
+
+        public void ResumeDownload()
+        {
+            IsAllowDownload = true;
+            LaunchDownaloadOperationLoop();
+        }
     }
 }

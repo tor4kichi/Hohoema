@@ -9,12 +9,11 @@ namespace Hohoema.Models.Domain.VideoCache
         string VideoId { get; }
 
         event EventHandler Completed;
-        event EventHandler Paused;
         event EventHandler<VideoCacheDownloadOperationProgress> Progress;
         event EventHandler Started;
 
-        Task DownloadAsync();
-        Task StopAndDeleteDownloadedAsync();
+        Task<VideoCacheDownloadOperationCompleteState> DownloadAsync();
+        Task CancelAsync();
         Task PauseAsync();
     }
 }

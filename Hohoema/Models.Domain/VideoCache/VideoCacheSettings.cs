@@ -9,6 +9,13 @@ namespace Hohoema.Models.Domain.VideoCache
             _MaxVideoCacheStorageSize = Read(default(long?), nameof(MaxVideoCacheStorageSize));
         }
 
+        private bool? _IsAllowDownload;
+        public bool IsAllowDownload
+        {
+            get => _IsAllowDownload ??= Read(true);
+            set => SetProperty(ref _IsAllowDownload, value);
+        }
+
         private long? _MaxVideoCacheStorageSize;
         public long? MaxVideoCacheStorageSize
         {

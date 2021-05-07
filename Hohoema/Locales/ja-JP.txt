@@ -143,6 +143,9 @@ CacheFolderAccessState.SelectedButNotExist_Desc = 選択されたフォルダが
 CacheVideoNoItems = キャッシュされた動画はありません
 CacheFeatureIsAvairableForOnlyNiconicoPremiumMember = キャッシュ機能はプレミアム会員限定です
 
+DownloadOperationRunning = 稼働中
+DownloadOperationStopping = 停止中
+
 VideoCacheStatus.Pending = 待機中
 VideoCacheStatus.Downloading = 更新中
 VideoCacheStatus.DownloadPaused = 一時停止
