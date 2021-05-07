@@ -202,6 +202,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                 .AddTo(_CompositeDisposable);
             MaxVideoCacheStorageSize = VideoCacheSettings.ToReactivePropertyAsSynchronized(x => x.MaxVideoCacheStorageSize)
                 .AddTo(_CompositeDisposable);
+            OpenCurrentCacheFolderCommand = new DelegateCommand(async () =>
+            {
+                var folder = _videoCacheFolderManager.VideoCacheFolder;
+                if (folder != null)
+                {
+                    await Launcher.LaunchFolderAsync(folder);
+                }
+            });
 
             // シェア
             IsLoginTwitter = new ReactiveProperty<bool>(/*TwitterHelper.IsLoggedIn*/ false)
@@ -341,10 +349,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         };
 
         public ReactiveProperty<bool> IsAllowDownloadOnMeteredNetwork { get; private set; }
-
         public ReactiveProperty<bool> IsNotifyOnDownloadWithMeteredNetwork { get; private set; }
-
         public ReactiveProperty<long?> MaxVideoCacheStorageSize { get; private set; }
+        public DelegateCommand OpenCurrentCacheFolderCommand { get; }
 
         private DelegateCommand _ChangeCacheVideoFolderCommand;
         public DelegateCommand ChangeCacheVideoFolderCommand =>

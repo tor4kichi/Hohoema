@@ -30,6 +30,8 @@ namespace Hohoema.Models.UseCase.VideoCache
             _nicoVideoProvider = nicoVideoProvider;
         }
 
+        public StorageFolder VideoCacheFolder => _videoCacheManager.VideoCacheFolder;
+
         public async Task InitializeAsync()
         {
             // キャッシュフォルダの指定

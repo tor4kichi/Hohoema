@@ -50,7 +50,14 @@
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <CommandBar >
             <CommandBar.Content>
-              <controls:AppTitleBar Title="{Binding Title}" />
+              <StackPanel>
+                <controls:AppTitleBar Title="{Binding Title}" />
+                
+                <TextBlock Text="{i18nExt:Localize Key=CacheFeatureIsAvairableForOnlyNiconicoPremiumMember}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="Red"
+                           x:Name="CacheFunctionIsForPremiumMemberOnlyText" 
+                           Visibility="Collapsed"
+                           />
+              </StackPanel>
             </CommandBar.Content>
 
             <CommandBar.PrimaryCommands>
@@ -99,12 +106,6 @@
                 </i:Interaction.Behaviors>
               </AppBarButton>
             </CommandBar.PrimaryCommands>
-            <CommandBar.SecondaryCommands>
-              <AppBarButton Label="{Binding CacheSaveFolderPath.Value}" IsEnabled="False" />
-              <AppBarButton Label="{i18nExt:Localize Key=OpenCacheFolder}" Command="{Binding OpenCurrentCacheFolderCommand}" />
-              <AppBarSeparator />
-              <AppBarButton Label="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{Binding ChangeCacheVideoFolderCommand}" />
-            </CommandBar.SecondaryCommands>
           </CommandBar>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
@@ -236,6 +237,27 @@
         </VisualState>
       </VisualStateGroup>
 
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsLoggedInWithPremiumMember.Value, Converter={StaticResource BoolNegation}}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CacheFunctionIsForPremiumMemberOnlyText.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding HasNoItems}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
 
     </VisualStateManager.VisualStateGroups>
 

@@ -335,9 +335,11 @@
                 </StackPanel>
               </Grid>
               
-              <Grid>
+              <StackPanel Orientation="Horizontal" Spacing="32" HorizontalAlignment="Right">
+
+                <Button Content="{i18nExt:Localize Key=OpenCacheFolder}" Command="{Binding OpenCurrentCacheFolderCommand}" HorizontalAlignment="Right" />
                 <Button Content="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{Binding ChangeCacheVideoFolderCommand}" HorizontalAlignment="Right" />
-              </Grid>
+              </StackPanel>
             </StackPanel>
             
           </StackPanel>

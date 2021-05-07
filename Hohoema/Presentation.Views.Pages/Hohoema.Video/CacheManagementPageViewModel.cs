@@ -31,6 +31,7 @@ using System.Reactive.Concurrency;
 using Hohoema.Models.UseCase.VideoCache.Events;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Uno.Extensions;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
@@ -38,6 +39,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         IRecipient<VideoCacheStatusChangedMessage>
     {
         public CacheManagementPageViewModel(
+            NiconicoSession niconicoSession,
             ApplicationLayoutManager applicationLayoutManager,
             VideoCacheSettings cacheSettings,
             VideoCacheManager videoCacheManager,
@@ -50,6 +52,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
+            _niconicoSession = niconicoSession;
             ApplicationLayoutManager = applicationLayoutManager;
             VideoCacheSettings = cacheSettings;
             VideoCacheManager = videoCacheManager;
@@ -60,14 +63,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             HohoemaPlaylist = hohoemaPlaylist;
             SelectionModeToggleCommand = selectionModeToggleCommand;
 
-            OpenCurrentCacheFolderCommand = new DelegateCommand(async () =>
-            {
-                var folder = VideoCacheManager.VideoCacheFolder;
-                if (folder != null)
-                {
-                    await Launcher.LaunchFolderAsync(folder);
-                }
-            });
+            
 
             Groups = new (new[] 
             {
@@ -79,6 +75,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             }
             .Select(x => new CacheItemsGroup(x, new ObservableCollection<CacheVideoViewModel>()))
             );
+
+            IsLoggedInWithPremiumMember = _niconicoSession.ObserveProperty(x => x.IsPremiumAccount).ToReadOnlyReactivePropertySlim(_niconicoSession.IsPremiumAccount)
+                .AddTo(_CompositeDisposable);
 
             CurrentlyCachedStorageSize = VideoCacheSettings.ObserveProperty(x => x.CachedStorageSize).ToReadOnlyReactivePropertySlim(VideoCacheSettings.CachedStorageSize)
                 .AddTo(_CompositeDisposable);
@@ -97,6 +96,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             .AddTo(_CompositeDisposable);
         }
 
+        private readonly NiconicoSession _niconicoSession;
         private readonly VideoCacheFolderManager _videoCacheFolderManager;
 
 
@@ -110,6 +110,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public DelegateCommand OpenCurrentCacheFolderCommand { get; }
         public DialogService HohoemaDialogService { get; }
+
+        public IReadOnlyReactiveProperty<bool> IsLoggedInWithPremiumMember { get; }
 
         public IReadOnlyReactiveProperty<long> CurrentlyCachedStorageSize { get; }
         public IReadOnlyReactiveProperty<long?> MaxCacheStorageSize { get; }
@@ -129,7 +131,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             }
         }
 
-       
+        private bool _HasNoItems;
+        public bool HasNoItems
+        {
+            get => _HasNoItems;
+            set => SetProperty(ref _HasNoItems, value);
+        }
+
 
         public ObservableCollection<CacheItemsGroup> Groups { get; }
 
@@ -185,12 +193,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            HasNoItems = false;
+            bool anyItems = false;
             foreach (var group in Groups)
             {
                 var items = await GetCachedItemByStatus(group.CacheStatus);
                 group.Items.Clear();
                 group.Items.AddRange(items);
+
+                anyItems |= group.Items.Any();
             }
+
+            HasNoItems = !anyItems;
 
             WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage>(this);
         }

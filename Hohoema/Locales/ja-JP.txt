@@ -140,6 +140,8 @@ PickCacheSaveFolder = キャッシュ保存フォルダを選択する
 ChoiceCacheSavingFolder = キャッシュの保存先フォルダを選択してください。\n保存先が選択されると利用準備が完了します。
 CacheSaveFolderChangeToX = キャッシュの保存先を {0} に変更しました
 CacheFolderAccessState.SelectedButNotExist_Desc = 選択されたフォルダが確認できません。外付けストレージを再接続するか、キャッシュ先フォルダを再選択してください
+CacheVideoNoItems = キャッシュされた動画はありません
+CacheFeatureIsAvairableForOnlyNiconicoPremiumMember = キャッシュ機能はプレミアム会員限定です
 
 VideoCacheStatus.Pending = 待機中
 VideoCacheStatus.Downloading = 更新中
