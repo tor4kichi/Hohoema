@@ -17,7 +17,7 @@ namespace Hohoema.Models.UseCase.VideoCache
 {
     public sealed class VideoCacheDownloadOperationManager
     {
-        public static readonly TimeSpan PROGRESS_UPDATE_INTERVAL = TimeSpan.FromSeconds(5);
+        public static readonly TimeSpan PROGRESS_UPDATE_INTERVAL = TimeSpan.FromSeconds(0.5);
         public const int MAX_DOWNLOAD_LINE_ = 1;
 
         private readonly VideoCacheManager _videoCacheManager;
@@ -26,6 +26,7 @@ namespace Hohoema.Models.UseCase.VideoCache
         private readonly IMessenger _messenger;
 
         private AsyncLock _downloadTsakUpdateLock = new AsyncLock();
+        private AsyncLock _runningFlagUpdateLock = new AsyncLock();
         private List<ValueTask<bool>> _downloadTasks = new List<ValueTask<bool>>();
         private bool _isRunning = false;
 
@@ -95,6 +96,18 @@ namespace Hohoema.Models.UseCase.VideoCache
             {
                 Debug.WriteLine($"[VideoCache] Failed: Id= {e.Item.VideoId}, FailedReason= {e.VideoCacheDownloadOperationCreationFailedReason}");
                 TriggerVideoCacheStatusChanged(e.Item.VideoId);
+
+                // 失敗してても次のキャッシュDLが可能な失敗の場合はDLループを起動する
+                if (e.VideoCacheDownloadOperationCreationFailedReason 
+                    is VideoCacheDownloadOperationFailedReason.CanNotCacheEncryptedContent
+                    or VideoCacheDownloadOperationFailedReason.RequirePermission_Admission
+                    or VideoCacheDownloadOperationFailedReason.RequirePermission_Ppv
+                    or VideoCacheDownloadOperationFailedReason.RequirePermission_Premium
+                    or VideoCacheDownloadOperationFailedReason.VideoDeleteFromServer
+                )
+                {
+                    LaunchDownaloadOperationLoop();
+                }
             };
 
             _videoCacheManager.Paused += (s, e) =>
@@ -168,14 +181,14 @@ namespace Hohoema.Models.UseCase.VideoCache
 
             // Initialize
             UpdateConnectionType();
-            if (_videoCacheManager.HasPendingOrPausingVideoCacheItem())
-            {
-                LaunchDownaloadOperationLoop();
-            }
         }
 
         private bool CanLaunchDownloadOperationLoop()
         {
+            if (!InternetConnection.IsInternet())
+            {
+                return false;
+            }
             if (_stopDownloadTaskWithDisallowMeteredNetworkDownload)
             {
                 Debug.WriteLine("CacheDL Looping: disallow download with metered network, loop exit.");
@@ -197,67 +210,76 @@ namespace Hohoema.Models.UseCase.VideoCache
 
         private async void LaunchDownaloadOperationLoop()
         {
+            using (await _runningFlagUpdateLock.LockAsync())
+            {
+                if (_isRunning) 
+                {
+                    Debug.WriteLine("CacheDL Looping: already running, loop skiped.");
+                    return; 
+                }
+
+                _isRunning = true;
+            }
+
             Debug.WriteLine("CacheDL Looping: loop started.");
 
             try
             {
-                using (await _downloadTsakUpdateLock.LockAsync())
+                await DownloadLoopAsync();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("CacheDL Looping: exit with Exception.");
+                Debug.WriteLine(e.ToString());
+            }
+
+            using (await _runningFlagUpdateLock.LockAsync())
+            {
+                _isRunning = false;
+            }
+
+            Debug.WriteLine("CacheDL Looping: loop completed.");
+        }
+
+        async Task DownloadLoopAsync()
+        {
+            using (await _downloadTsakUpdateLock.LockAsync())
+            {
+                if (!CanLaunchDownloadOperationLoop())
                 {
-                    if (!CanLaunchDownloadOperationLoop())
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    if (_isRunning)
-                    {
-                        Debug.WriteLine("CacheDL Looping: already running, loop exit.");
-                        return;
-                    }
+                foreach (var _ in Enumerable.Range(_downloadTasks.Count, Math.Max(0, MAX_DOWNLOAD_LINE_ - _downloadTasks.Count)))
+                {
+                    _downloadTasks.Add(DownloadNextAsync());
 
-                    _isRunning = true;
+                    Debug.WriteLine("CacheDL Looping: add task");
+                }
 
-                    foreach (var _ in Enumerable.Range(_downloadTasks.Count, Math.Max(0, MAX_DOWNLOAD_LINE_ - _downloadTasks.Count)))
+                while (_downloadTasks.Count > 0)
+                {
+                    (var index, var result) = await ValueTaskSupplement.ValueTaskEx.WhenAny(_downloadTasks);
+
+                    var doneTask = _downloadTasks[index];
+                    _downloadTasks.Remove(doneTask);
+
+                    Debug.WriteLine("CacheDL Looping: remove task");
+
+                    if (result
+                        && CanLaunchDownloadOperationLoop()
+                        && _videoCacheManager.HasPendingOrPausingVideoCacheItem()
+                        )
                     {
                         _downloadTasks.Add(DownloadNextAsync());
 
                         Debug.WriteLine("CacheDL Looping: add task");
                     }
                 }
-
-                while (_downloadTasks.Count > 0)
-                {
-                    using (await _downloadTsakUpdateLock.LockAsync())
-                    {
-                        (int index, bool result) = await ValueTaskSupplement.ValueTaskEx.WhenAny(_downloadTasks);
-
-                        var doneTask = _downloadTasks[index];
-                        _downloadTasks.Remove(doneTask);
-
-                        Debug.WriteLine("CacheDL Looping: remove task");
-
-                        if (!CanLaunchDownloadOperationLoop())
-                        {
-                            return;
-                        }
-                        else if (result && _videoCacheManager.HasPendingOrPausingVideoCacheItem())
-                        {
-                            _downloadTasks.Add(DownloadNextAsync());
-
-                            Debug.WriteLine("CacheDL Looping: add task");
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                using (await _downloadTsakUpdateLock.LockAsync())
-                {
-                    _isRunning = false;
-                }
-
-                Debug.WriteLine("CacheDL Looping: loop completed.");
             }
         }
+
+
 
         private async ValueTask<bool> DownloadNextAsync()
         {

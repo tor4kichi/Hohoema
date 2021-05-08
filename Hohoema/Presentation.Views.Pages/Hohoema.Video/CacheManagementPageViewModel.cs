@@ -69,9 +69,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
             Groups = new (new[] 
             {
+                VideoCacheStatus.Failed,
                 VideoCacheStatus.Downloading,
                 VideoCacheStatus.DownloadPaused,
-                VideoCacheStatus.Failed,
                 VideoCacheStatus.Pending,
                 VideoCacheStatus.Completed,
             }
@@ -287,7 +287,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         private object recipient = new object();
 
-        public CacheVideoViewModel(VideoCacheItem videoCacheItem, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
+        public CacheVideoViewModel(VideoCacheItem videoCacheItem, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) 
+            : base(rawVideoId, title, thumbnailUrl, videoLength)
         {
             WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage, string>(recipient, RawVideoId, (r, m) => RefreshCacheRequestInfomation(m.Value.CacheStatus, m.Value.Item));
             RefreshCacheRequestInfomation(videoCacheItem.Status, videoCacheItem);

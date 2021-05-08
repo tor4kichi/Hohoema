@@ -75,7 +75,7 @@ namespace Hohoema.Models.Domain.VideoCache
             try
             {
                 var ct = _linkedCancellationTokenSource.Token;
-                await _videoCacheDownloadOperationOutput.CopyStreamAsync(downloadStream.AsStreamForRead(), new _Progress(x => Progress?.Invoke(this, x)), ct);
+                await Task.Run(async () => await _videoCacheDownloadOperationOutput.CopyStreamAsync(downloadStream.AsStreamForRead(), new _Progress(x => Progress?.Invoke(this, x)), ct), ct);
             }
             catch (OperationCanceledException)
             {

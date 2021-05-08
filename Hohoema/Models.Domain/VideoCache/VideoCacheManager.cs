@@ -21,6 +21,7 @@ using CompositeDisposable = System.Reactive.Disposables.CompositeDisposable;
 using System.Security.Cryptography;
 using System.Collections;
 using Microsoft.Toolkit.Uwp.Helpers;
+using Hohoema.Models.Domain.Niconico.Video;
 
 namespace Hohoema.Models.Domain.VideoCache
 {
@@ -68,6 +69,13 @@ namespace Hohoema.Models.Domain.VideoCache
         public VideoCacheItem Item { get; set; }
     }
 
+
+    public struct VideoCacheContentIdReplacedEventArgs
+    {
+        public string SourceVideoId { get; set; }
+        public string ReplacedVideoId { get; set; }
+    }
+
     public struct VideoCacheMaxStorageSizeChangedEventArgs
     {
         public long? OldMaxSize { get; set; }
@@ -89,10 +97,15 @@ namespace Hohoema.Models.Domain.VideoCache
         public const string HohoemaVideoCacheHashExt = ".hohoema_cv_hash";
 
         public static Func<string, NicoVideoQuality, Task<string>> ResolveVideoFileNameWithoutExtFromVideoId { get; set; } = (id, q) => Task.FromResult($"[{id}-{q.ToString().ToLower()}]");
-        
+
+        static HashAlgorithm MakeHashAlgrorithm() => SHA256.Create();
+
+
         private readonly NiconicoSession _niconicoSession;
         private readonly NicoVideoSessionOwnershipManager _videoSessionOwnershipManager;
         private readonly VideoCacheItemRepository _videoCacheItemRepository;
+        private readonly NicoVideoCacheRepository _nicoVideoCacheRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly VideoCacheSettings _videoCacheSettings;
 
         public Xts Xts { get; private set; }
@@ -117,17 +130,24 @@ namespace Hohoema.Models.Domain.VideoCache
         public event EventHandler<VideoCacheFailedEventArgs> Failed;        
         public event EventHandler<VideoCachePausedEventArgs> Paused;
 
+        public event EventHandler<VideoCacheContentIdReplacedEventArgs> VideoIdReplaced;
+
+
         public VideoCacheManager(
             NiconicoSession niconicoSession, 
             NicoVideoSessionOwnershipManager videoSessionOwnershipManager,
             VideoCacheSettings videoCacheSettings,
-            VideoCacheItemRepository videoCacheItemRepository
+            VideoCacheItemRepository videoCacheItemRepository,
+            NicoVideoProvider nicoVideoProvider,
+            NicoVideoCacheRepository nicoVideoCacheRepository
             )
         {
             _niconicoSession = niconicoSession;
             _videoSessionOwnershipManager = videoSessionOwnershipManager;
             _videoCacheSettings = videoCacheSettings;
             _videoCacheItemRepository = videoCacheItemRepository;
+            _nicoVideoProvider = nicoVideoProvider;
+            _nicoVideoCacheRepository = nicoVideoCacheRepository;
         }
 
 
@@ -179,11 +199,53 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public Task<bool> DeleteFromNiconicoServer(string videoId)
         {
+            EnsureNonNumberVideoId(ref videoId);
+
             return CancelCacheRequestAsync_Internal(videoId, VideoCacheCancelReason.DeleteFromServer);
         }
 
 
         #endregion
+
+        /// <summary>
+        /// videoIdが数字で始まるIDの場合にsm/so等で始まる動画IDに置き換える。
+        /// </summary>
+        /// <param name="videoId"></param>
+        private void EnsureNonNumberVideoId(ref string videoId)
+        {
+            if (videoId.All(x => char.IsDigit(x)))
+            {
+                var id = _nicoVideoCacheRepository.GetVideoId(videoId);
+                if (id != null)
+                {
+                    videoId = id;
+                }
+                else
+                {
+                    Debug.WriteLine("数字のみのIDを動画IDに変換できなかった: " + videoId);
+#if DEBUG
+                    if (Debugger.IsAttached)
+                    {
+                        Debugger.Break();
+                    }
+#endif
+                }
+            }
+        }
+
+        private async Task<(bool IsNumber, string RealVideoId)> GetVideoIdIfNumberVideoIdAsync(string videoId)
+        {
+            if (videoId.All(x => char.IsDigit(x)))
+            {
+                var info = await _nicoVideoProvider.GetNicoVideoInfo(videoId);
+                if (info != null)
+                {
+                    return (true, info.VideoId);
+                }
+            }
+
+            return (false, null);
+        }
 
 
         public bool IsCacheDownloadAuthorized()
@@ -197,6 +259,8 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public VideoCacheItem GetVideoCache(string videoId)
         {
+            EnsureNonNumberVideoId(ref videoId);
+
             if (_videoItemMap.TryGetValue(videoId, out var val))
             {
                 return val;
@@ -210,6 +274,8 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public VideoCacheStatus? GetVideoCacheStatus(string videoId)
         {
+            EnsureNonNumberVideoId(ref videoId);
+
             return _videoCacheItemRepository.GetVideoCache(videoId)?.Status;
         }
 
@@ -220,7 +286,10 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public List<VideoCacheItem> GetCacheRequestItemsRange(int head, int count, VideoCacheStatus? status = null, bool decsending = false)
         {
-            return _videoCacheItemRepository.GetItemsOrderByRequestedAt(head, count, status, decsending).Select(x => EntityToItem(this, x)).ToList();
+            return _videoCacheItemRepository
+                .GetItemsOrderByRequestedAt(head, count, status, decsending)
+                .Select(x => EntityToItem(this, x))
+                .ToList();
         }
 
 
@@ -250,7 +319,7 @@ namespace Hohoema.Models.Domain.VideoCache
             var watchData = await _niconicoSession.Context.Video.GetDmcWatchResponseAsync(item.VideoId);
             if (watchData?.DmcWatchResponse?.Media?.Delivery is null)
             {
-                throw new VideoCacheException("VideoCacheItem is can not play, require content access permission. (pay or register channel etc.)");
+                throw new VideoCacheException("VideoCacheItem is can not play, require content access permission. reason : " + watchData?.DmcWatchResponse?.OkReason);
             }
 
             // require same hash
@@ -260,17 +329,33 @@ namespace Hohoema.Models.Domain.VideoCache
                 throw new VideoCacheException("VideoCacheItem is can not play, invalid Hash.");
             }
 
-            // ok
             var stream = new XtsStream(await file.OpenStreamForReadAsync(), Xts);
+            if (stream.Length != item.TotalBytes)
+            {
+                stream.Dispose();
+                throw new VideoCacheException("VideoCacheItem is can not play, require same size");
+            }
+
             var ms = MediaSource.CreateFromStream(stream.AsRandomAccessStream(), "movie/mp4");
+            await ms.OpenAsync();
+            if (ms.Duration?.TotalSeconds - watchData.DmcWatchResponse.Video.Duration >= 2.0)
+            {
+                ms.Dispose();
+                throw new VideoCacheException("VideoCacheItem is can not play, require same duration");
+            }
+
+            // ok
             return ms;
         }
+
 
 
         public async Task PushCacheRequestAsync(string videoId, NicoVideoQuality requestCacheQuality)
         {
             using (await _updateLock.LockAsync())
             {
+                EnsureNonNumberVideoId(ref videoId);
+
                 var entity = _videoCacheItemRepository.GetVideoCache(videoId);
 
                 VideoCacheStatus? prevStatus = entity?.Status;
@@ -345,8 +430,12 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public Task<bool> CancelCacheRequestAsync(string videoId)
         {
+            EnsureNonNumberVideoId(ref videoId);
+
             return CancelCacheRequestAsync_Internal(videoId, VideoCacheCancelReason.User);
         }
+
+
 
         private async Task<bool> CancelCacheRequestAsync_Internal(string videoId, VideoCacheCancelReason reason)
         {
@@ -354,7 +443,7 @@ namespace Hohoema.Models.Domain.VideoCache
             {
                 // ダウンロードを中止
                 try
-                {
+                { 
                     if (_currentDownloadOperations.Remove(videoId, out var op))
                     {
                         await op.CancelAsync();
@@ -377,15 +466,15 @@ namespace Hohoema.Models.Domain.VideoCache
                     var file = await GetCacheVideoFileAsync(videoId);
                     if (file is not null)
                     {
-                        await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
                         await DeleteHashFile(file);
+                        await file.DeleteAsync(StorageDeleteOption.PermanentDelete);
                     }
                 }
                 catch { }
 
                 _videoItemMap.Remove(videoId);
 
-                // ローカルDBから削除
+                // ローカルDBから削除                
                 if (_videoCacheItemRepository.DeleteVideoCache(videoId) is true)
                 {
                     UpdateCurrentryTotalCachedSize();
@@ -401,39 +490,42 @@ namespace Hohoema.Models.Domain.VideoCache
             }
         }
 
-        private static VideoCacheItem EntityToItem(VideoCacheManager manager, VideoCacheEntity entity)
+
+        public class ResumeInfo
         {
-            return new VideoCacheItem(
-                manager,
-                entity.VideoId,
-                entity.FileName,
-                entity.RequestedVideoQuality,
-                entity.DownloadedVideoQuality,
-                entity.Status,
-                entity.FailedReason,
-                entity.RequestedAt,
-                entity.TotalBytes,
-                entity.ProgressBytes,
-                entity.SortIndex
-                );
+            public ResumeInfo(IEnumerable<string> pausedItems)
+            {
+                PausedVideoIdList = pausedItems.ToList();
+            }
+
+            public ResumeInfo()
+            {
+                PausedVideoIdList = new List<string>();
+            }
+
+            public IReadOnlyCollection<string> PausedVideoIdList { get; }
         }
 
-        private void UpdateVideoCacheEntity(VideoCacheItem item)
+
+        public async Task<ResumeInfo> PauseAllDownloadOperationAsync()
         {
-            var entity = _videoCacheItemRepository.GetVideoCache(item.VideoId)
-                ?? new VideoCacheEntity() { VideoId = item.VideoId };
+            using (await _updateLock.LockAsync())
+            {
+                if (_currentDownloadOperations.Count == 0)
+                {
+                    return new ResumeInfo();
+                }
 
-            entity.FileName = item.FileName;
-            entity.RequestedVideoQuality = item.RequestedVideoQuality;
-            entity.DownloadedVideoQuality = item.DownloadedVideoQuality;
-            entity.Status = item.Status;
-            entity.FailedReason = item.FailedReason;
-            entity.RequestedAt = item.RequestedAt;
-            entity.TotalBytes = item.TotalBytes;
-            entity.ProgressBytes = item.ProgressBytes;
-            entity.SortIndex = item.SortIndex;
+                ResumeInfo resumeInfo = new ResumeInfo(_currentDownloadOperations.Keys);
+                foreach (var op in _currentDownloadOperations.Values)
+                {
+                    await op.PauseAsync();
+                }
 
-            _videoCacheItemRepository.UpdateVideoCache(entity);
+                _currentDownloadOperations.Clear();
+
+                return resumeInfo;
+            }
         }
 
 
@@ -623,7 +715,15 @@ namespace Hohoema.Models.Domain.VideoCache
 
 
 
-                NicoVideoQuality candidateDownloadingQuality = item.RequestedVideoQuality is NicoVideoQuality.Unknown ? DefaultCacheQuality : item.RequestedVideoQuality;
+                NicoVideoQuality candidateDownloadingQuality = DefaultCacheQuality;
+                if (item.DownloadedVideoQuality is not NicoVideoQuality.Unknown) 
+                {
+                    candidateDownloadingQuality = item.DownloadedVideoQuality;
+                }
+                else if (item.RequestedVideoQuality is not NicoVideoQuality.Unknown)
+                {
+                    candidateDownloadingQuality = item.RequestedVideoQuality;
+                }
 #if !DEBUG
                 if (item.Status is VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading)
 #else
@@ -656,12 +756,14 @@ namespace Hohoema.Models.Domain.VideoCache
                 item.DownloadedVideoQuality = candidateDownloadingQuality;
                 if (item.RequestedVideoQuality == NicoVideoQuality.Unknown)
                 {
-                    item.FileName = await ResolveVideoFileNameWithoutExtFromVideoId(item.VideoId, item.DownloadedVideoQuality);
+                    item.FileName = Path.ChangeExtension(await ResolveVideoFileNameWithoutExtFromVideoId(item.VideoId, item.DownloadedVideoQuality), HohoemaVideoCacheExt);
                 }
 
 
                 StorageFile outputFile = null;
-                if (item.Status is VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading)
+                if (item.Status is VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading
+                    && item.DownloadedVideoQuality == candidateDownloadingQuality
+                    )
                 {
                     outputFile = await GetCacheVideoFileAsync(item);
                     if (outputFile == null)
@@ -728,12 +830,20 @@ namespace Hohoema.Models.Domain.VideoCache
                     (op as IDisposable).Dispose();
                 }
 
-                if (item.Status is VideoCacheStatus.DownloadPaused)
+                if (result == VideoCacheDownloadOperationCompleteState.DownloadPaused
+                    || result == VideoCacheDownloadOperationCompleteState.ReturnDownloadSessionOwnership
+                    )
                 {
                     // do nothing
+                    item.Status = VideoCacheStatus.DownloadPaused;
                 }
-                else if (item.TotalBytes == item.ProgressBytes)
+                else if (result == VideoCacheDownloadOperationCompleteState.Completed)
                 {
+                    if (item.TotalBytes != item.ProgressBytes)
+                    {
+                        throw new VideoCacheException("Incomplete download, different TotalBytes and ProgressBytes.");
+                    }
+
                     try
                     {
                         var file = await GetCacheVideoFileAsync(item.VideoId);
@@ -744,11 +854,16 @@ namespace Hohoema.Models.Domain.VideoCache
                     {
                         Debug.WriteLine("Failed Hash compute or writing,");
                         item.Status = VideoCacheStatus.Failed;
+                        throw;
                     }
+                }
+                else if (result == VideoCacheDownloadOperationCompleteState.DownloadCanceledWithUser)
+                {
+                    item.Status = VideoCacheStatus.Failed;
                 }
                 else
                 {
-                    item.Status = VideoCacheStatus.Failed;
+                    throw new VideoCacheException("op.DownloadAsync() returned unknown kind : " + result.ToString());
                 }
 
                 Debug.WriteLine("complete: " + item.FileName);
@@ -757,21 +872,18 @@ namespace Hohoema.Models.Domain.VideoCache
             {
                 // 不明なエラー
                 item.Status = VideoCacheStatus.Failed;
+                this.Failed?.Invoke(this, new VideoCacheFailedEventArgs()
+                {
+                    Item = item,
+                    VideoCacheDownloadOperationCreationFailedReason = VideoCacheDownloadOperationFailedReason.Unknown,
+                });
                 throw;
             }
             finally
             {
                 UpdateVideoCacheEntity(item);
 
-                if (item.Status == VideoCacheStatus.Failed)
-                {
-                    this.Failed?.Invoke(this, new VideoCacheFailedEventArgs() 
-                    {
-                        Item = item,
-                        VideoCacheDownloadOperationCreationFailedReason = VideoCacheDownloadOperationFailedReason.Unknown,
-                    });
-                }
-                else if (item.Status == VideoCacheStatus.DownloadPaused)
+                if (item.Status == VideoCacheStatus.DownloadPaused)
                 {
                     this.Paused?.Invoke(this, new VideoCachePausedEventArgs() { Item = item });
                 }
@@ -780,6 +892,63 @@ namespace Hohoema.Models.Domain.VideoCache
                     this.Completed?.Invoke(this, new VideoCacheCompletedEventArgs() { Item = item });
                 }
             }
+        }
+
+
+
+
+
+
+
+        private static VideoCacheItem EntityToItem(VideoCacheManager manager, VideoCacheEntity entity)
+        {
+            return new VideoCacheItem(
+                manager,
+                entity.VideoId,
+                entity.FileName,
+                entity.RequestedVideoQuality,
+                entity.DownloadedVideoQuality,
+                entity.Status,
+                entity.FailedReason,
+                entity.RequestedAt,
+                entity.TotalBytes,
+                entity.ProgressBytes,
+                entity.SortIndex
+                );
+        }
+
+        private void UpdateVideoCacheEntity(VideoCacheItem item)
+        {
+            var entity = _videoCacheItemRepository.GetVideoCache(item.VideoId);
+
+            if (entity == null) { return; }
+
+            entity.FileName = item.FileName;
+            entity.RequestedVideoQuality = item.RequestedVideoQuality;
+            entity.DownloadedVideoQuality = item.DownloadedVideoQuality;
+            entity.Status = item.Status;
+            entity.FailedReason = item.FailedReason;
+            entity.RequestedAt = item.RequestedAt;
+            entity.TotalBytes = item.TotalBytes;
+            entity.ProgressBytes = item.ProgressBytes;
+            entity.SortIndex = item.SortIndex;
+
+            _videoCacheItemRepository.UpdateVideoCache(entity);
+        }
+
+
+
+
+        private async Task<StorageFile> GetCacheVideoFileAsync(string videoId)
+        {
+            var entity = _videoCacheItemRepository.GetVideoCache(videoId);
+            if (entity is null) { return null; }
+            return await VideoCacheFolder.TryGetItemAsync(entity.FileName) as StorageFile;
+        }
+
+        private Task<StorageFile> GetCacheVideoFileAsync(VideoCacheItem item)
+        {
+            return VideoCacheFolder.GetFileAsync(item.FileName).AsTask();
         }
 
 
@@ -792,19 +961,19 @@ namespace Hohoema.Models.Domain.VideoCache
             await SaveHashValue(file, bytes);
         }
 
-        private async Task SaveHashValue(StorageFile file, byte[] computedHash)
+        private Task SaveHashValue(StorageFile file, byte[] computedHash)
         {
-            await VideoCacheFolder.WriteBytesToFileAsync(computedHash, file.Name + HohoemaVideoCacheHashExt, CreationCollisionOption.ReplaceExisting);
+            return VideoCacheFolder.WriteBytesToFileAsync(computedHash, GetHashFileName(file), CreationCollisionOption.ReplaceExisting);
         }
 
-        private async Task<byte[]> ComputeHash(StorageFile file)
+        private Task<byte[]> ComputeHash(StorageFile file)
         {
-            return await Task.Run(async () =>
+            return Task.Run(async () =>
             {
-                using (SHA256 mySHA256 = SHA256.Create())
+                using (var hashAlgorithm = MakeHashAlgrorithm())
                 using (var stream = new XtsStream(await file.OpenStreamForReadAsync(), Xts))
                 {
-                    return mySHA256.ComputeHash(stream);
+                    return hashAlgorithm.ComputeHash(stream);
                 }
             });
         }
@@ -830,7 +999,7 @@ namespace Hohoema.Models.Domain.VideoCache
         {
             try
             {
-                var bytes = await VideoCacheFolder.ReadBytesFromFileAsync(file.Name + HohoemaVideoCacheHashExt);
+                var bytes = await VideoCacheFolder.ReadBytesFromFileAsync(GetHashFileName(file));
                 return (bytes != null, bytes);
             }
             catch
@@ -841,80 +1010,39 @@ namespace Hohoema.Models.Domain.VideoCache
 
         private async Task DeleteHashFile(StorageFile file)
         {
-            var hashFile = await VideoCacheFolder.TryGetItemAsync(file.Name + HohoemaVideoCacheHashExt);
+            var hashFile = await VideoCacheFolder.TryGetItemAsync(GetHashFileName(file));
             if (hashFile is StorageFile removeFile)
             {
                 await removeFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
             }
         }
 
+        private string GetHashFileName(StorageFile file)
+        {
+            return Path.ChangeExtension(file.Name, HohoemaVideoCacheHashExt);
+        }
 
         #endregion Hash Computing
 
 
 
-        private async Task<StorageFile> GetCacheVideoFileAsync(string videoId)
-        {
-            var entity = _videoCacheItemRepository.GetVideoCache(videoId);
-            if (entity is null) { return null; }
-            return await VideoCacheFolder.TryGetItemAsync(entity.FileName) as StorageFile;
-        }
-
-        private Task<StorageFile> GetCacheVideoFileAsync(VideoCacheItem item)
-        {
-            return VideoCacheFolder.GetFileAsync(item.FileName).AsTask();
-        }
-
-        public class ResumeInfo
-        {
-            public ResumeInfo(IEnumerable<string> pausedItems)
-            {
-                PausedVideoIdList = pausedItems.ToList();
-            }
-
-            public ResumeInfo()
-            {
-                PausedVideoIdList = new List<string>();
-            }
-
-            public IReadOnlyCollection<string> PausedVideoIdList { get; }
-        }
-
-
-        public async Task<ResumeInfo> PauseAllDownloadOperationAsync()
-        {
-            using (await _updateLock.LockAsync())
-            {
-                if (_currentDownloadOperations.Count == 0)
-                {
-                    return new ResumeInfo();
-                }
-
-                ResumeInfo resumeInfo = new ResumeInfo(_currentDownloadOperations.Keys);
-                foreach (var op in _currentDownloadOperations.Values)
-                {
-                    await op.PauseAsync();
-                }
-
-                _currentDownloadOperations.Clear();
-
-                return resumeInfo;
-            }
-        }
-
-        
-        
-
         /// <summary>
         /// 指定ファイルをDBにインポートする<br/> 
         /// 同一IDが存在する場合は上書き保存される。
         /// </summary>
+        /// <remarks>videoIdに数字のみのIDが渡された場合sm/so等で始まるIDを取得して置き換える。このためオンラインでないと機能しない。</remarks>
         /// <param name="videoId"></param>
         /// <param name="quality"></param>
         /// <param name="file"></param>
         /// <returns></returns>
         internal async Task ImportCacheRequestAsync(string videoId, NicoVideoQuality quality, StorageFile file)
         {
+            var (isNumberId, realVideoId) = await GetVideoIdIfNumberVideoIdAsync(videoId);
+            if (isNumberId)
+            {
+                videoId = realVideoId;
+            }
+
             var prop = await file.GetBasicPropertiesAsync();
             if (_videoItemMap.TryGetValue(videoId, out var item))
             {
@@ -932,13 +1060,42 @@ namespace Hohoema.Models.Domain.VideoCache
                 _videoItemMap.Add(videoId, item);
             }
 
-            UpdateVideoCacheEntity(item);
+            var entity = _videoCacheItemRepository.GetVideoCache(item.VideoId);
+            if (entity == null) 
+            {
+                entity = new VideoCacheEntity() { VideoId = videoId };
+            }
+
+            entity.FileName = item.FileName;
+            entity.RequestedVideoQuality = item.RequestedVideoQuality;
+            entity.DownloadedVideoQuality = item.DownloadedVideoQuality;
+            entity.Status = item.Status;
+            entity.FailedReason = item.FailedReason;
+            entity.RequestedAt = item.RequestedAt;
+            entity.TotalBytes = item.TotalBytes;
+            entity.ProgressBytes = item.ProgressBytes;
+            entity.SortIndex = item.SortIndex;
+
+            _videoCacheItemRepository.UpdateVideoCache(entity);
         }
 
         #region Migarate Legacy
 
-        internal void PushCacheRequest_Legacy(string videoId, NicoVideoQuality quality)
+        /// <summary>
+        /// 旧キャッシュ機能からの統合用。キャッシュリクエストを追加するのみでファイルは取り込まない。
+        /// </summary>
+        /// <remarks>videoIdに数字のみのIDが渡された場合sm/so等で始まるIDを取得して置き換える。このためオンラインでないと機能しない。</remarks>
+        /// <param name="videoId"></param>
+        /// <param name="quality"></param>
+        /// <returns></returns>
+        internal async Task PushCacheRequest_Legacy(string videoId, NicoVideoQuality quality)
         {
+            var (isNumberId, realVideoId) = await GetVideoIdIfNumberVideoIdAsync(videoId);
+            if (isNumberId)
+            {
+                videoId = realVideoId;
+            }
+
             var entity = new VideoCacheEntity() { VideoId = videoId, RequestedVideoQuality = quality, Status = VideoCacheStatus.Pending };
             _videoCacheItemRepository.UpdateVideoCache(entity);
         }

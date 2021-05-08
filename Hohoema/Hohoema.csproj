@@ -297,7 +297,6 @@
     <Compile Include="Models.Domain\VideoCache\VideoCacheItem.cs" />
     <Compile Include="Models.Domain\VideoCache\VideoCacheItemRepository.cs" />
     <Compile Include="Models.Domain\VideoCache\VideoCacheManager.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheMigretedFileEncryptOperation.cs" />
     <Compile Include="Models.Domain\VideoCache\VideoCacheSaveFolderManager.cs" />
     <Compile Include="Models.Domain\VideoCache\VideoCacheSettings.cs" />
     <Compile Include="Models.Domain\VideoCache\VideoCacheStatus.cs" />

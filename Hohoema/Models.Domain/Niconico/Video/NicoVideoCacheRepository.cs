@@ -19,7 +19,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
                 .Find(x => x.RawVideoId == videoId)
                 .SingleOrDefault()
                 ?? new NicoVideo() { RawVideoId = videoId };
+        }
 
+        public string GetVideoId(string rawVideoId)
+        {
+            return _collection.FindById(rawVideoId)
+                ?.VideoId;
         }
 
         public List<NicoVideo> Get(IEnumerable<string> videoIds)

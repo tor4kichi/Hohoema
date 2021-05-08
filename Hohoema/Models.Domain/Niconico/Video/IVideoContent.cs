@@ -22,6 +22,8 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
     public interface IVideoDetail : IVideoContent, IVideoContentProvider
     {
+        string VideoId { get; }
+
         int ViewCount { get; }
         int MylistCount { get; }
         int CommentCount { get; }

@@ -37,18 +37,30 @@ namespace Hohoema.Models.Domain.VideoCache
 
                     ulong currentSector = (ulong)(outputFileStream.Length / XtsSectorStream.DEFAULT_SECTOR_SIZE);
                     int readLength = -1;
-                    while (readLength != 0)
+                    try
                     {
-                        cancellationToken.ThrowIfCancellationRequested();
+                        while (readLength != 0)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
 
-                        readLength = await sourceStream.ReadAsync(inputBuffer, 0, inputBuffer.Length);
-                        encryptor.TransformBlock(inputBuffer, 0, inputBuffer.Length, outputBuffer, 0, currentSector);
-                        currentSector++;
-                        await outputFileStream.WriteAsync(outputBuffer, 0, outputBuffer.Length);
-                        await outputFileStream.FlushAsync();
+                            // Note: 対称暗号のためセクター単位で書き込まないといけない
+                            // ReadAsyncで読み取った長さを無視してセクター全体が書き込まれるようにする
+                            readLength = await sourceStream.ReadAsync(inputBuffer, 0, inputBuffer.Length);
+                            encryptor.TransformBlock(inputBuffer, 0, inputBuffer.Length, outputBuffer, 0, currentSector);
+                            currentSector++;
+                            await outputFileStream.WriteAsync(outputBuffer, 0, outputBuffer.Length);
 
-                        progress?.Report(new VideoCacheDownloadOperationProgress() { ProgressBytes = sourceStream.Position, TotalBytes = sourceStream.Length });
+                            progress?.Report(new VideoCacheDownloadOperationProgress() { ProgressBytes = sourceStream.Position, TotalBytes = sourceStream.Length });
+                        }
                     }
+                    finally
+                    {
+                        await outputFileStream.FlushAsync();
+                    }
+
+                    // XTSによる暗号化によってセクター単位でサイズが決まるため
+                    // DLしたサイズではなく書き込まれたファイルのサイズを最終的なサイズとして扱う
+                    progress?.Report(new VideoCacheDownloadOperationProgress() { ProgressBytes = outputFileStream.Position, TotalBytes = outputFileStream.Length });
                 }
             }
         }

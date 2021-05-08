@@ -22,7 +22,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
         public DmcWatchResponse DmcWatchResponse { get; private set; }
 
-        private DispatcherQueueTimer _DmcSessionHeartbeatTimer;
+        private Timer _DmcSessionHeartbeatTimer;
 
         private int _HeartbeatCount = 0;
         private bool IsFirstHeartbeat => _HeartbeatCount == 0;
@@ -175,46 +175,43 @@ namespace Hohoema.Models.Domain.Player.Video
             {
                 Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビートを開始しました");
 
-                var currentThreadDispatcherQueue = DispatcherQueue.GetForCurrentThread();
-                _DmcSessionHeartbeatTimer = currentThreadDispatcherQueue.CreateTimer();
-                _DmcSessionHeartbeatTimer.Tick += _DmcSessionHeartbeatTimer_Tick;
-                _DmcSessionHeartbeatTimer.IsRepeating = true;
-                _DmcSessionHeartbeatTimer.Interval = TimeSpan.FromSeconds(30);
-                _DmcSessionHeartbeatTimer.Start();
+                _DmcSessionHeartbeatTimer = new Timer(_DmcSessionHeartbeatTimer_Tick, this, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
             }
         }
 
-        private async void _DmcSessionHeartbeatTimer_Tick(DispatcherQueueTimer sender, object state)
+        private async void _DmcSessionHeartbeatTimer_Tick(object state)
         {
             Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビート {_HeartbeatCount + 1}回目");
 
-            if (IsFirstHeartbeat)
+            var _this = (DmcVideoStreamingSession)state;
+
+            if (_this.IsFirstHeartbeat)
             {
-                await NiconicoSession.Context.Video.DmcSessionFirstHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
-                Debug.WriteLine($"{DmcWatchResponse.Video.Title} の初回ハートビート実行");
+                await _this.NiconicoSession.Context.Video.DmcSessionFirstHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
+                Debug.WriteLine($"{_this.DmcWatchResponse.Video.Title} の初回ハートビート実行");
                 await Task.Delay(2);
             }
             else
             {
                 try
                 {
-                    await NiconicoSession.Context.Video.DmcSessionHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
-                    Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビート実行");
+                    await _this.NiconicoSession.Context.Video.DmcSessionHeartbeatAsync(_this.DmcWatchResponse, _DmcSessionResponse);
+                    Debug.WriteLine($"{_this.DmcWatchResponse.Video.Title} のハートビート実行");
                 }
                 catch
                 {
-                    OnStopStreaming();
+                    _this.OnStopStreaming();
                 }
             }
 
-            _HeartbeatCount++;
+            _this._HeartbeatCount++;
         }
 
         protected override async void OnStopStreaming()
         {
             if (_DmcSessionHeartbeatTimer != null)
             {
-                _DmcSessionHeartbeatTimer.Stop();
+                _DmcSessionHeartbeatTimer.Dispose();
                 _DmcSessionHeartbeatTimer = null;
                 Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビートを終了しました");
             }

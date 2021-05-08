@@ -19,6 +19,8 @@ namespace Hohoema.Presentation.ViewModels.Community
 
         public string Id { get; }
 
+        public string VideoId => throw new NotImplementedException();
+
         public TimeSpan Length => TimeSpan.Zero;
 
         public DateTime PostedAt => DateTime.MinValue;
@@ -39,6 +41,7 @@ namespace Hohoema.Presentation.ViewModels.Community
 		{
 			Title = info.Title;
             Id = info.VideoId;
+            
 
             Label = info.Title;
             if (info.ThumbnailUrl != null)
