@@ -5,6 +5,7 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Models.Domain.VideoCache;
+using Hohoema.Models.Domain.Niconico.Video;
 
 namespace Hohoema.Models.Domain.Player.Video
 {

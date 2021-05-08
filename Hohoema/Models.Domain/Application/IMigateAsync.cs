@@ -11,7 +11,7 @@ namespace Hohoema.Models.Domain.Application
         Task MigrateAsync();
     }
 
-    internal interface IMigrate
+    internal interface IMigrateSync
     {
         void Migrate();
     }

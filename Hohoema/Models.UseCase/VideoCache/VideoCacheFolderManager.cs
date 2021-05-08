@@ -96,7 +96,7 @@ namespace Hohoema.Models.UseCase.VideoCache
                 // 停止したキャッシュを再開
                 foreach (var resume in resumeInfo.PausedVideoIdList)
                 {
-                    await _videoCacheManager.PushCacheRequestAsync(resume, Domain.NicoVideoQuality.Unknown);
+                    await _videoCacheManager.PushCacheRequestAsync(resume, NicoVideoQuality.Unknown);
                 }
 
                 // 新しい指定フォルダをFutureAccessListへ登録

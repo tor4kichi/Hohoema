@@ -12,32 +12,6 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
     {
         public CacheRequest() { }
 
-        public CacheRequest(string videoId, NicoVideoCacheState cacheState = NicoVideoCacheState.NotCacheRequested, NicoVideoQuality priorityQuality = NicoVideoQuality.Unknown)
-        {
-            VideoId = videoId;
-            CacheState = cacheState;
-            RequestAt = DateTime.Now;
-            PriorityQuality = priorityQuality;
-        }
-
-        public CacheRequest(string videoId, DateTime requestAt, NicoVideoCacheState cacheState = NicoVideoCacheState.NotCacheRequested, NicoVideoQuality priorityQuality = NicoVideoQuality.Unknown)
-        {
-            VideoId = videoId;
-            CacheState = cacheState;
-            RequestAt = requestAt;
-            PriorityQuality = priorityQuality;
-        }
-
-
-
-        public CacheRequest(in CacheRequest original, NicoVideoCacheState newState)
-        {
-            VideoId = original.VideoId;
-            RequestAt = original.RequestAt;
-            PriorityQuality = original.PriorityQuality;
-            CacheState = newState;
-        }
-
         [BsonId]
         public string VideoId { get; set; }
 
@@ -48,7 +22,7 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
         public DateTime RequestAt { get; set; }
 
         [BsonField]
-        public NicoVideoQuality PriorityQuality { get; set; }
+        public NicoVideoQuality_Legacy PriorityQuality { get; set; }
     }
 
     public sealed class CacheRequestRepository : LiteDBServiceBase<CacheRequest>

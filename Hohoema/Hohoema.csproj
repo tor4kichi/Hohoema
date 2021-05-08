@@ -143,6 +143,7 @@
     <Compile Include="Models.Domain\Pins\PinSettings.cs" />
     <Compile Include="Models.Domain\Niconico\AccountManager.cs" />
     <Compile Include="Models.Domain\Application\AppUpdateNotice.cs" />
+    <Compile Include="Models.Domain\Player\Video\NicoVideoQuality_Legacy.cs" />
     <Compile Include="Models.Helpers\AsyncLock.cs" />
     <Compile Include="Models.Helpers\ColorExtention.cs" />
     <Compile Include="Models.Helpers\ConnectionRetryUtil.cs" />
@@ -245,7 +246,6 @@
     <Compile Include="Models.Domain\Player\Live\LiveVidePagePayload.cs" />
     <Compile Include="Models.Domain\Player\Live\NicoLiveInfoType.cs" />
     <Compile Include="Models.Domain\Player\PlayerSettings.cs" />
-    <Compile Include="Models.Domain\Player\Video\Cache\CachedVideoSessionProvider.cs" />
     <Compile Include="Models.Domain\Player\Video\Cache\CachefolderAccessState.cs" />
     <Compile Include="Models.Domain\Player\Video\Cache\CacheRequestRepository.cs" />
     <Compile Include="Models.Domain\Player\Video\Cache\NicoVideoCached.cs" />
@@ -261,7 +261,7 @@
     <Compile Include="Models.Domain\Player\Video\Comment\VideoComment.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\VideoCommentService.cs" />
     <Compile Include="Models.Domain\Player\Video\NicoVideoCanNotDownloadReason.cs" />
-    <Compile Include="Models.Domain\Player\Video\NicoVideoQuality.cs" />
+    <Compile Include="Models.Domain\Niconico\Video\NicoVideoQuality.cs" />
     <Compile Include="Models.Domain\Player\Video\NicoVideoQualityEntity.cs" />
     <Compile Include="Models.Domain\Player\Video\NicoVideoSessionProvider.cs" />
     <Compile Include="Models.Domain\Player\Video\NicoVideoTag.cs" />
@@ -346,7 +346,6 @@
     <Compile Include="Models.UseCase\NicoVideos\PlaylistResolver.cs" />
     <Compile Include="Models.UseCase\NicoVideos\PlaylistSelectDialogService.cs" />
     <Compile Include="Models.UseCase\NicoVideos\LoginUserOwnedMylistManager.cs" />
-    <Compile Include="Models.UseCase\NicoVideos\VideoCacheResumingObserver.cs" />
     <Compile Include="Models.UseCase\NicoVideos\VideoItemsSelectionContext.cs" />
     <Compile Include="Models.UseCase\NicoVideos\WatchHistoryManager.cs" />
     <Compile Include="Models.UseCase\Subscriptions\FeedResultAddToWatchLater.cs" />

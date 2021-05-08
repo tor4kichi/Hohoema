@@ -1,5 +1,7 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Models.Domain.VideoCache;
 using Hohoema.Presentation.Services;
@@ -17,67 +19,65 @@ namespace Hohoema.Models.UseCase.Migration
     {
         private readonly AppFlagsRepository _appFlagsRepository;
         private readonly CacheRequestRepository _cacheRequestRepositoryLegacy;
-        private readonly VideoCacheSaveFolderManager _videoCacheSaveFolderManager;
         private readonly VideoCacheManager _videoCacheManager;
         private readonly DialogService _dialogService;
 
         public VideoCacheDatabaseMigration_V_0_29_0(
             Domain.Application.AppFlagsRepository appFlagsRepository,
             Domain.Player.Video.Cache.CacheRequestRepository cacheRequestRepositoryLegacy,
-            Domain.VideoCache.VideoCacheSaveFolderManager videoCacheSaveFolderManager,
             Domain.VideoCache.VideoCacheManager videoCacheManager,
             Presentation.Services.DialogService dialogService
             )
         {
             _appFlagsRepository = appFlagsRepository;
             _cacheRequestRepositoryLegacy = cacheRequestRepositoryLegacy;
-            _videoCacheSaveFolderManager = videoCacheSaveFolderManager;
             _videoCacheManager = videoCacheManager;
             _dialogService = dialogService;
         }
 
         public async Task MigrateAsync()
         {
-            using var releaser = _appFlagsRepository.GetCacheVideoMigration();
-
-            var saveFolder = await _videoCacheSaveFolderManager.GetVideoCacheFolder();
-
-            // 保存先フォルダを移行
-            if (StorageApplicationPermissions.FutureAccessList.ContainsItem(VideoCacheSaveFolderManager.FolderAccessToken))
+            if (_appFlagsRepository.IsCacheVideosMigrated_V_0_29_0 == true)
             {
-                var folder = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(VideoCacheSaveFolderManager.FolderAccessToken);
-                StorageApplicationPermissions.FutureAccessList.Remove(VideoCacheSaveFolderManager.FolderAccessToken);
-
-                StorageApplicationPermissions.FutureAccessList.AddOrReplace(VideoCache.VideoCacheFolderManager.CACHE_FOLDER_NAME, folder);
+                return;
             }
 
+            _appFlagsRepository.IsCacheVideosMigrated_V_0_29_0 = true;
+
+            // 保存先フォルダを移行
+            try
+            {
+                if (StorageApplicationPermissions.FutureAccessList.ContainsItem(VideoCacheSaveFolderManager.FolderAccessToken))
+                {
+                    var folder = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(VideoCacheSaveFolderManager.FolderAccessToken);
+                    StorageApplicationPermissions.FutureAccessList.Remove(VideoCacheSaveFolderManager.FolderAccessToken);
+
+                    StorageApplicationPermissions.FutureAccessList.AddOrReplace(VideoCache.VideoCacheFolderManager.CACHE_FOLDER_NAME, folder);
+                }
+            }
+            catch { }
 
             // DB的な統合をやる
             foreach (var regacyItem in _cacheRequestRepositoryLegacy.GetRange(0, int.MaxValue))
             {
-                var query = saveFolder.CreateFileQuery();
-                query.ApplyNewQueryOptions(new Windows.Storage.Search.QueryOptions() { UserSearchFilter = regacyItem.VideoId });
-                var file = (await query.GetFilesAsync(0, 1)).FirstOrDefault();
-
-                NicoVideoQuality newQuality;
-                if (file != null)
-                {
-                    try
-                    {
-                        (_, newQuality) = VideoCacheManagerLegacy.CacheRequestInfoFromFileName(file);
-                    }
-                    catch
-                    {
-                        newQuality = NicoVideoQuality.Unknown;
-                    }
-                }
-                else
-                {
-                    newQuality = NicoVideoQuality.Unknown;
-                }
-
-                _videoCacheManager.PushCacheRequest_Legacy(regacyItem.VideoId, newQuality);
+                await _videoCacheManager.PushCacheRequest_Legacy(regacyItem.VideoId, ToNewQuality(regacyItem.PriorityQuality));
             }
+        }
+
+
+        private static NicoVideoQuality ToNewQuality(NicoVideoQuality_Legacy legacy)
+        {
+            return legacy switch
+            {
+                NicoVideoQuality_Legacy.Dmc_SuperHigh => NicoVideoQuality.SuperHigh,
+                NicoVideoQuality_Legacy.Dmc_High => NicoVideoQuality.High,
+                NicoVideoQuality_Legacy.Dmc_Midium => NicoVideoQuality.Midium,
+                NicoVideoQuality_Legacy.Dmc_Low => NicoVideoQuality.Low,
+                NicoVideoQuality_Legacy.Dmc_Mobile => NicoVideoQuality.Mobile,
+                NicoVideoQuality_Legacy.Smile_Low => NicoVideoQuality.Low,
+                NicoVideoQuality_Legacy.Smile_Original => NicoVideoQuality.SuperHigh,
+                _ => NicoVideoQuality.Unknown,
+            };
         }
     }
 }

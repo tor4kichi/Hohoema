@@ -10,12 +10,12 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
     public class NicoVideoCached : IEquatable<NicoVideoCached>
     {
         public string VideoId { get; set; }
-        public NicoVideoQuality Quality { get; set; }
+        public NicoVideoQuality_Legacy Quality { get; set; }
         public DateTime RequestAt { get; set; } = DateTime.Now;
 
         public IStorageFile File { get; set; }
 
-        public NicoVideoCached(string videoId, NicoVideoQuality quality, DateTime requestAt, IStorageFile file)
+        public NicoVideoCached(string videoId, NicoVideoQuality_Legacy quality, DateTime requestAt, IStorageFile file)
         {
             VideoId = videoId;
             Quality = quality;

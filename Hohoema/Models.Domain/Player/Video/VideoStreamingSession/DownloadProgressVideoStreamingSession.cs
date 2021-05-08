@@ -13,7 +13,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
         public string QualityId { get; }
 
-        public NicoVideoQuality Quality { get; }
+        public NicoVideoQuality_Legacy Quality { get; }
 
         public IRandomAccessStreamReference StreamRef { get; }
         public IRandomAccessStream _Stream;
@@ -21,7 +21,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
         MediaPlayer _PlayingMediaPlayer;
 
-        public DownloadProgressVideoStreamingSession(IRandomAccessStreamReference streamRef, NicoVideoQuality requestQuality)
+        public DownloadProgressVideoStreamingSession(IRandomAccessStreamReference streamRef, NicoVideoQuality_Legacy requestQuality)
         {
             StreamRef = streamRef;
             Quality = requestQuality;

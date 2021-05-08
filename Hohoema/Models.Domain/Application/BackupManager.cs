@@ -140,7 +140,7 @@ namespace Hohoema.Models.Domain.Application
 
                 PlayerSetting = new PlayerSettingBackupEntry 
                 {
-                    DefaultQuality = _playerSettings.DefaultQuality.ToString(),
+                    DefaultQuality = _playerSettings.DefaultVideoQuality.ToString(),
                     DefaultLiveQuality = _playerSettings.DefaultLiveQuality.ToString(),
                     LiveQualityLimit = _playerSettings.LiveQualityLimit.ToString(),
                     LiveWatchWithLowLatency = _playerSettings.LiveWatchWithLowLatency,
@@ -394,7 +394,7 @@ namespace Hohoema.Models.Domain.Application
 
             if (Enum.TryParse<NicoVideoQuality>(p.DefaultQuality, out var videoQuality))
             {
-                _playerSettings.DefaultQuality = videoQuality;
+                _playerSettings.DefaultVideoQuality = videoQuality;
             }
 
             if (Enum.TryParse<LiveQualityType>(p.DefaultLiveQuality, out var liveQuality))

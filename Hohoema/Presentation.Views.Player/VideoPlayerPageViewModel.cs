@@ -334,7 +334,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             VideoId = parameters.GetValue<string>("id");
 
-            _requestVideoQuality = PlayerSettings.DefaultQuality;
+            _requestVideoQuality = PlayerSettings.DefaultVideoQuality;
             if (parameters.TryGetValue("quality", out NicoVideoQuality quality))
             {
                 _requestVideoQuality = quality;
@@ -374,7 +374,6 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                 return;
             }
-
             
             VideoDetails = result.VideoDetails;
 
@@ -388,9 +387,18 @@ namespace Hohoema.Presentation.ViewModels.Player
             VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(VideoId)
                 ?? _nicoVideoRepository.Get(VideoId);
 
-            
-            // デフォルト指定した画質で再生開始
-            await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition);
+            try
+            {
+                // デフォルト指定した画質で再生開始
+                await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition);
+            }
+            catch (Models.Domain.VideoCache.VideoCacheException cacheEx)
+            {
+                result = await _videoStreamingOriginOrchestrator.PreperePlayWithOnline(VideoId);
+                VideoDetails = result.VideoDetails;
+                await VideoPlayer.UpdatePlayingVideoAsync(result.VideoSessionProvider);
+                await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition);
+            }
 
             // コメントを更新
             await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);

@@ -144,7 +144,7 @@ namespace Hohoema.Models.UseCase.Migration
 
                 {
                     var ps= hohoemaUserSettings.PlayerSettings;
-                    _playerSettings.DefaultQuality = ps.DefaultQuality;
+                    _playerSettings.DefaultVideoQuality = ps.DefaultVideoQuality;
                     _playerSettings.DefaultLiveQuality = ps.DefaultLiveQuality;
                     _playerSettings.LiveWatchWithLowLatency = ps.LiveWatchWithLowLatency;
                     _playerSettings.IsMute = ps.IsMute;

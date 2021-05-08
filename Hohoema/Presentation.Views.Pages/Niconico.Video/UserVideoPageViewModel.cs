@@ -145,7 +145,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 	{
 		public uint UserId { get; }
 		public UserProvider UserProvider { get; }
-		public VideoCacheManagerLegacy MediaManager { get; }
 
         public override uint OneTimeLoadCount => 25;
 

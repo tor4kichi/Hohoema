@@ -138,78 +138,88 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             if (_videoCacheManager.GetVideoCacheStatus(videoId) == VideoCacheStatus.Completed)
 #endif
             {
+                return await PreperePlayWithCache(videoId);
+            }
+            else
+            {
+                return await PreperePlayWithOnline(videoId);
+            }
+        }
+
+        public async Task<PlayingOrchestrateResult> PreperePlayWithCache(string videoId)
+        {
             INiconicoCommentSessionProvider commentSessionProvider = null;
-                INicoVideoDetails nicoVideoDetails = null;
-                if (!InternetConnection.IsInternet())
+            INicoVideoDetails nicoVideoDetails = null;
+            if (!InternetConnection.IsInternet())
+            {
+                var cachedComment = _commentRepository.GetCached(videoId);
+                if (cachedComment != null)
                 {
-                    var cachedComment = _commentRepository.GetCached(videoId);
-                    if (cachedComment != null)
-                    {
-                        commentSessionProvider = new CachedCommentsProvider(videoId, cachedComment.Comments);
-                    }
-
-                    var videoInfo = _nicoVideoRepository.Get(videoId);
-                    if (videoInfo != null)
-                    {
-                        nicoVideoDetails = new CachedVideoDetails()
-                        {
-                            VideoTitle = videoInfo.Title,
-                            ViewCount = videoInfo.ViewCount,
-                            CommentCount = videoInfo.CommentCount,
-                            MylistCount = videoInfo.MylistCount,
-                            VideoLength = videoInfo.Length,
-                            SubmitDate = videoInfo.PostedAt,
-                            Tags = videoInfo.Tags.Select(x => new NicoVideoTag(x.Tag)).ToArray(),
-                            ProviderId = videoInfo.Owner?.OwnerId,
-                            ProviderName = videoInfo.Owner?.ScreenName,
-                            OwnerIconUrl = videoInfo.Owner.IconUrl,
-                            DescriptionHtml = videoInfo.DescriptionWithHtml,
-                            ThumbnailUrl = videoInfo.ThumbnailUrl
-                        };
-                    }
-                }
-                else
-                {
-                    var preparePlayVideo = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoId);
-                    commentSessionProvider = preparePlayVideo;
-                    nicoVideoDetails = preparePlayVideo?.GetVideoDetails();
+                    commentSessionProvider = new CachedCommentsProvider(videoId, cachedComment.Comments);
                 }
 
-                // キャッシュからコメントを取得する方法が必要
-                return new PlayingOrchestrateResult(
-                    new CachedVideoSessionProvider(_videoCacheManager.GetVideoCache(videoId), _niconicoSession),
-                    commentSessionProvider,
-                    nicoVideoDetails
-                    );
+                var videoInfo = _nicoVideoRepository.Get(videoId);
+                if (videoInfo != null)
+                {
+                    nicoVideoDetails = new CachedVideoDetails()
+                    {
+                        VideoTitle = videoInfo.Title,
+                        ViewCount = videoInfo.ViewCount,
+                        CommentCount = videoInfo.CommentCount,
+                        MylistCount = videoInfo.MylistCount,
+                        VideoLength = videoInfo.Length,
+                        SubmitDate = videoInfo.PostedAt,
+                        Tags = videoInfo.Tags.Select(x => new NicoVideoTag(x.Tag)).ToArray(),
+                        ProviderId = videoInfo.Owner?.OwnerId,
+                        ProviderName = videoInfo.Owner?.ScreenName,
+                        OwnerIconUrl = videoInfo.Owner.IconUrl,
+                        DescriptionHtml = videoInfo.DescriptionWithHtml,
+                        ThumbnailUrl = videoInfo.ThumbnailUrl
+                    };
+                }
             }
             else
             {
                 var preparePlayVideo = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoId);
-                if (preparePlayVideo.IsSuccess)
-                {
-                    return new PlayingOrchestrateResult(
-                        preparePlayVideo,
-                        preparePlayVideo,
-                        preparePlayVideo.GetVideoDetails()
-                        );
-                }
+                commentSessionProvider = preparePlayVideo;
+                nicoVideoDetails = preparePlayVideo?.GetVideoDetails();
+            }
 
-                if (preparePlayVideo.Exception is not null and var ex)
+            // キャッシュからコメントを取得する方法が必要
+            return new PlayingOrchestrateResult(
+                new CachedVideoSessionProvider(_videoCacheManager.GetVideoCache(videoId), _niconicoSession),
+                commentSessionProvider,
+                nicoVideoDetails
+                );
+        }
+
+        public async Task<PlayingOrchestrateResult> PreperePlayWithOnline(string videoId)
+        {
+            var preparePlayVideo = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoId);
+            if (preparePlayVideo.IsSuccess)
+            {
+                return new PlayingOrchestrateResult(
+                    preparePlayVideo,
+                    preparePlayVideo,
+                    preparePlayVideo.GetVideoDetails()
+                    );
+            }
+
+            if (preparePlayVideo.Exception is not null and var ex)
+            {
+                return new PlayingOrchestrateResult(ex);
+            }
+            else
+            {
+                return new PlayingOrchestrateResult(preparePlayVideo.FailedReason switch
                 {
-                    return new PlayingOrchestrateResult(ex);
-                }
-                else 
-                {
-                    return new PlayingOrchestrateResult(preparePlayVideo.FailedReason switch
-                    {
-                        PreparePlayVideoFailedReason.Deleted => PlayingOrchestrateFailedReason.Deleted,
-                        PreparePlayVideoFailedReason.VideoFormatNotSupported => PlayingOrchestrateFailedReason.VideoFormatNotSupported,
-                        PreparePlayVideoFailedReason.NotPlayPermit_RequirePay => PlayingOrchestrateFailedReason.NotPlayPermit_RequirePay,
-                        PreparePlayVideoFailedReason.NotPlayPermit_RequireChannelMember => PlayingOrchestrateFailedReason.NotPlayPermit_RequireChannelMember,
-                        PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember => PlayingOrchestrateFailedReason.NotPlayPermit_RequirePremiumMember,
-                        _ => throw new NotSupportedException("不明な理由で再生不可"),
-                    }); ;
-                }
+                    PreparePlayVideoFailedReason.Deleted => PlayingOrchestrateFailedReason.Deleted,
+                    PreparePlayVideoFailedReason.VideoFormatNotSupported => PlayingOrchestrateFailedReason.VideoFormatNotSupported,
+                    PreparePlayVideoFailedReason.NotPlayPermit_RequirePay => PlayingOrchestrateFailedReason.NotPlayPermit_RequirePay,
+                    PreparePlayVideoFailedReason.NotPlayPermit_RequireChannelMember => PlayingOrchestrateFailedReason.NotPlayPermit_RequireChannelMember,
+                    PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember => PlayingOrchestrateFailedReason.NotPlayPermit_RequirePremiumMember,
+                    _ => throw new NotSupportedException("不明な理由で再生不可"),
+                }); ;
             }
         }
     }

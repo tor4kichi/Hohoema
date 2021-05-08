@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.UseCase.Migration
 {
-    public class SearchPageQueryMigrate_0_26_0 : IMigrate
+    public class SearchPageQueryMigrate_0_26_0 : IMigrateSync
     {
         private readonly AppFlagsRepository _appFlagsRepository;
         private readonly PinSettings _pinSettings;

@@ -1,4 +1,5 @@
-﻿using LiteDB;
+﻿using Hohoema.Models.Domain.Niconico.Video;
+using LiteDB;
 using System;
 
 namespace Hohoema.Models.Domain.VideoCache

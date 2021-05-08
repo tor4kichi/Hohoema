@@ -6,9 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.Domain
+namespace Hohoema.Models.Domain.Niconico.Video
 {
-    
 	public enum NicoVideoQuality
 	{
         Unknown,

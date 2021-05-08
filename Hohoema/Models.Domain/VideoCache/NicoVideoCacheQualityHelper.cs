@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Models.Domain.Niconico.Video;
+using System;
 
 namespace Hohoema.Models.Domain.VideoCache
 {

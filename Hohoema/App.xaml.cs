@@ -376,7 +376,7 @@ namespace Hohoema
                     {
                         Debug.WriteLine($"Try migrate: {migrateType.Name}");
                         var migrater = Container.Resolve(migrateType);
-                        if (migrater is IMigrate migrateSycn)
+                        if (migrater is IMigrateSync migrateSycn)
                         {
                             migrateSycn.Migrate();
                         }
@@ -573,7 +573,6 @@ namespace Hohoema
                 unityContainer.RegisterInstance(unityContainer.Resolve<SyncWatchHistoryOnLoggedIn>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<LatestSubscriptionVideosNotifier>());
 
-                unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheResumingObserver>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<VideoPlayRequestBridgeToPlayer>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<CloseToastNotificationWhenPlayStarted>());
 
@@ -756,8 +755,11 @@ namespace Hohoema
                         var videoId = decode.GetFirstValueByName("id");
                         var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
 
+                        // TODO: 
+                        /*
                         var cacheManager = Container.Resolve<VideoCacheManagerLegacy>();
                         await cacheManager.CancelCacheRequest(videoId);
+                        */
                     }
                     else
                     {
@@ -1209,6 +1211,8 @@ namespace Hohoema
         {
             if (arguments.StartsWith("cache_cancel"))
             {
+                // TODO: 
+                /*
                 var cacheManager = Container.Resolve<VideoCacheManagerLegacy>();
 
                 var query = arguments.Split('?')[1];
@@ -1218,6 +1222,7 @@ namespace Hohoema
                 var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
 
                 await cacheManager.CancelCacheRequest(videoId);
+                */
             }
         }
 

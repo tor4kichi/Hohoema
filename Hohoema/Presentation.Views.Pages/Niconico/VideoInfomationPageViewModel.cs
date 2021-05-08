@@ -65,7 +65,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             LoginUserMylistProvider loginUserMylistProvider,
-            VideoCacheManagerLegacy videoCacheManager,
             SubscriptionManager subscriptionManager,
             NicoVideoSessionProvider nicoVideo,
             NicoVideoCacheRepository nicoVideoRepository,
@@ -88,7 +87,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             HohoemaPlaylist = hohoemaPlaylist;
             NicoVideoProvider = nicoVideoProvider;
             LoginUserMylistProvider = loginUserMylistProvider;
-            VideoCacheManager = videoCacheManager;
             SubscriptionManager = subscriptionManager;
             NicoVideo = nicoVideo;
             _nicoVideoRepository = nicoVideoRepository;
@@ -402,7 +400,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
-        public VideoCacheManagerLegacy VideoCacheManager { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
