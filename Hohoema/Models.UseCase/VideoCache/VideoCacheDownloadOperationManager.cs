@@ -12,22 +12,35 @@ using Microsoft.Toolkit.Uwp.Connectivity;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
+using Hohoema.Presentation.Services;
+using I18NPortable;
+using Microsoft.Toolkit.Uwp.Notifications;
+using Windows.UI.Notifications;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Application;
 
 namespace Hohoema.Models.UseCase.VideoCache
 {
+    using TNC = ToastNotificationConstants;
+
     public sealed class VideoCacheDownloadOperationManager
     {
-        public static readonly TimeSpan PROGRESS_UPDATE_INTERVAL = TimeSpan.FromSeconds(0.5);
+        public static readonly TimeSpan PROGRESS_UPDATE_INTERVAL = TimeSpan.FromSeconds(1);
         public const int MAX_DOWNLOAD_LINE_ = 1;
+
+        private static readonly ToastNotifierCompat _notifier = ToastNotificationManagerCompat.CreateToastNotifier();
+
 
         private readonly VideoCacheManager _videoCacheManager;
         private readonly NicoVideoSessionOwnershipManager _nicoVideoSessionOwnershipManager;
         private readonly VideoCacheSettings _videoCacheSettings;
+        private readonly NicoVideoCacheRepository _nicoVideoCacheRepository;
+        private readonly NotificationService _notificationService;
         private readonly IMessenger _messenger;
 
-        private AsyncLock _downloadTsakUpdateLock = new AsyncLock();
-        private AsyncLock _runningFlagUpdateLock = new AsyncLock();
-        private List<ValueTask<bool>> _downloadTasks = new List<ValueTask<bool>>();
+        private readonly AsyncLock _downloadTsakUpdateLock = new AsyncLock();
+        private readonly AsyncLock _runningFlagUpdateLock = new AsyncLock();
+        private readonly List<ValueTask<bool>> _downloadTasks = new List<ValueTask<bool>>();
         private bool _isRunning = false;
 
         private DateTime _nextProgressShowTime = DateTime.Now;
@@ -42,17 +55,21 @@ namespace Hohoema.Models.UseCase.VideoCache
             private set => _videoCacheSettings.IsAllowDownload = value;
         }
 
-        CompositeDisposable _disposables = new CompositeDisposable();
+        private readonly CompositeDisposable _disposables = new CompositeDisposable();
 
         public VideoCacheDownloadOperationManager(
             VideoCacheManager videoCacheManager,
             NicoVideoSessionOwnershipManager nicoVideoSessionOwnershipManager,
-            VideoCacheSettings videoCacheSettings
+            VideoCacheSettings videoCacheSettings,
+            NicoVideoCacheRepository nicoVideoCacheRepository,
+            NotificationService notificationService
             )
         {
             _videoCacheManager = videoCacheManager;
             _nicoVideoSessionOwnershipManager = nicoVideoSessionOwnershipManager;
             _videoCacheSettings = videoCacheSettings;
+            _nicoVideoCacheRepository = nicoVideoCacheRepository;
+            _notificationService = notificationService;
             _messenger = WeakReferenceMessenger.Default;
 
 
@@ -61,12 +78,18 @@ namespace Hohoema.Models.UseCase.VideoCache
                 Debug.WriteLine($"[VideoCache] Requested: Id= {e.VideoId}, RequestQuality= {e.RequestedQuality}");
                 LaunchDownaloadOperationLoop();
                 TriggerVideoCacheStatusChanged(e.VideoId);
+
+                _notificationService.ShowLiteInAppNotification_Success("キャッシュリクエスト追加");
             };
 
             _videoCacheManager.Started += (s, e) => 
             {
                 Debug.WriteLine($"[VideoCache] Started: Id= {e.Item.VideoId}, RequestQuality= {e.Item.RequestedVideoQuality}, DownloadQuality= {e.Item.DownloadedVideoQuality}");
                 TriggerVideoCacheStatusChanged(e.Item.VideoId);
+
+                _notificationService.ShowLiteInAppNotification($"キャッシュ開始\n{e.Item.Title} {e.Item.DownloadedVideoQuality.Translate()}", symbol: Windows.UI.Xaml.Controls.Symbol.Download);
+
+                StartBackgroundCacheProgressToast(e.Item);
             };
 
             _videoCacheManager.Progress += (s, e) => 
@@ -77,6 +100,8 @@ namespace Hohoema.Models.UseCase.VideoCache
                     _nextProgressShowTime = DateTime.Now + PROGRESS_UPDATE_INTERVAL;
 
                     TriggerVideoCacheProgressChanged(e.Item);
+
+                    UpdateBackgroundCacheProgressToast(e.Item);
                 }
             };
 
@@ -84,18 +109,34 @@ namespace Hohoema.Models.UseCase.VideoCache
             {
                 Debug.WriteLine($"[VideoCache] Completed: Id= {e.Item.VideoId}");
                 TriggerVideoCacheStatusChanged(e.Item.VideoId);
+
+                if (e.Item.Status == VideoCacheStatus.Completed)
+                { 
+                    _notificationService.ShowLiteInAppNotification_Success("キャッシュ完了: " + e.Item.Title);
+
+                    // 完了をトースト通知で知らせる
+                    PopCacheCompletedToast(e.Item);
+                    StopBackgroundCacheProgressToast();
+                }
             };
 
             _videoCacheManager.Canceled += (s, e) => 
             {
                 Debug.WriteLine($"[VideoCache] Canceled: Id= {e.VideoId}");
                 TriggerVideoCacheStatusChanged(e.VideoId);
+
+                _notificationService.ShowLiteInAppNotification_Success("キャッシュリクエスト削除: " + e.VideoId);
             };
 
             _videoCacheManager.Failed += (s, e) => 
             {
                 Debug.WriteLine($"[VideoCache] Failed: Id= {e.Item.VideoId}, FailedReason= {e.VideoCacheDownloadOperationCreationFailedReason}");
                 TriggerVideoCacheStatusChanged(e.Item.VideoId);
+
+                _notificationService.ShowLiteInAppNotification_Success("キャッシュダウンロード失敗: " + e.Item.Title);
+
+                PopCacheFailedToast(e.Item);
+                StopBackgroundCacheProgressToast();
 
                 // 失敗してても次のキャッシュDLが可能な失敗の場合はDLループを起動する
                 if (e.VideoCacheDownloadOperationCreationFailedReason 
@@ -114,6 +155,10 @@ namespace Hohoema.Models.UseCase.VideoCache
             {
                 Debug.WriteLine($"[VideoCache] Paused: Id= {e.Item.VideoId}");
                 TriggerVideoCacheStatusChanged(e.Item.VideoId);
+
+                _notificationService.ShowLiteInAppNotification($"キャッシュ一時停止\n{e.Item.Title} {e.Item.DownloadedVideoQuality.Translate()}", symbol: Windows.UI.Xaml.Controls.Symbol.Pause);
+
+                UpdateBackgroundCacheProgressToast(e.Item, isPause: true);
             };
 
 
@@ -123,6 +168,8 @@ namespace Hohoema.Models.UseCase.VideoCache
                 var defferl = e.SuspendingOperation.GetDeferral();
                 try
                 {
+                    StopBackgroundCacheProgressToast();
+
                     while (_stopDownloadTaskWithChangingSaveFolder)
                     {
                         await Task.Delay(1);
@@ -183,6 +230,25 @@ namespace Hohoema.Models.UseCase.VideoCache
             UpdateConnectionType();
         }
 
+
+
+
+
+        public void SuspendDownload()
+        {
+            IsAllowDownload = false;
+            ShutdownDownloadOperationLoop();
+        }
+
+        public void ResumeDownload()
+        {
+            IsAllowDownload = true;
+            LaunchDownaloadOperationLoop();
+        }
+
+
+
+
         private bool CanLaunchDownloadOperationLoop()
         {
             if (!InternetConnection.IsInternet())
@@ -241,7 +307,7 @@ namespace Hohoema.Models.UseCase.VideoCache
             Debug.WriteLine("CacheDL Looping: loop completed.");
         }
 
-        async Task DownloadLoopAsync()
+        private async Task DownloadLoopAsync()
         {
             using (await _downloadTsakUpdateLock.LockAsync())
             {
@@ -310,13 +376,13 @@ namespace Hohoema.Models.UseCase.VideoCache
         }
 
 
-        Task ShutdownDownloadOperationLoop()
+        private Task ShutdownDownloadOperationLoop()
         {
             return _videoCacheManager.PauseAllDownloadOperationAsync();
         }
 
 
-        void UpdateConnectionType()
+        private void UpdateConnectionType()
         {
             if (_videoCacheSettings.IsAllowDownloadOnMeteredNetwork is false
                 && NetworkHelper.Instance.ConnectionInformation.ConnectionType == ConnectionType.Data
@@ -354,7 +420,7 @@ namespace Hohoema.Models.UseCase.VideoCache
         }
 
 
-        void TriggerVideoCacheStatusChanged(string videoId)
+        private void TriggerVideoCacheStatusChanged(string videoId)
         {
             var item = _videoCacheManager.GetVideoCache(videoId);
             var message = new Events.VideoCacheStatusChangedMessage((videoId, item?.Status, item));
@@ -362,25 +428,144 @@ namespace Hohoema.Models.UseCase.VideoCache
             _messenger.Send<Events.VideoCacheStatusChangedMessage>(message);
         }
 
-        void TriggerVideoCacheProgressChanged(VideoCacheItem item)
+        private void TriggerVideoCacheProgressChanged(VideoCacheItem item)
         {
             var message = new Events.VideoCacheProgressChangedMessage(item);
             _messenger.Send<Events.VideoCacheProgressChangedMessage, string>(message, item.VideoId);
             _messenger.Send<Events.VideoCacheProgressChangedMessage>(message);
         }
 
-        
 
-        public void SuspendDownload()
+
+
+        #region Toast Notification
+
+        private const string HohoemaCacheToastGroupId = "HohoemaCache";
+        private const string CacheProgressToastTag = "HohoemaProgress";
+        private uint _progressSequenceNumber = 0;
+        private ToastContent _progressToastContent = null;
+        private Windows.UI.Notifications.ToastNotification _progressToastNotification;
+
+        private void PopCacheCompletedToast(VideoCacheItem item)
         {
-            IsAllowDownload = false;
-            ShutdownDownloadOperationLoop();
+            var video = _nicoVideoCacheRepository.Get(item.VideoId);
+            var toastContentBuilder = new ToastContentBuilder()
+                .SetToastScenario(ToastScenario.Default)
+                .AddText("キャッシュDL完了")
+                .AddText(item.Title)
+                .AddButton(new ToastButton()
+                    .SetContent("視聴する")
+                    .AddArgument(TNC.ToastArgumentKey_Action, TNC.ToastArgumentValue_Action_Play)
+                    .AddArgument(TNC.ToastArgumentKey_Id, item.VideoId)
+                    .SetHintActionId(TNC.ToastArgumentValue_Action_Play)
+                    .SetBackgroundActivation())
+                .AddButton(new ToastButton()
+                    .SetContent("閉じる")
+                    .SetDismissActivation());
+
+            if (video?.ThumbnailUrl != null)
+            {
+                toastContentBuilder.AddInlineImage(new Uri(video.ThumbnailUrl), hintRemoveMargin: true);                
+            }
+
+            toastContentBuilder.Show();
         }
 
-        public void ResumeDownload()
+
+        private void StartBackgroundCacheProgressToast(VideoCacheItem item)
         {
-            IsAllowDownload = true;
-            LaunchDownaloadOperationLoop();
+            StopBackgroundCacheProgressToast();
+
+            _progressSequenceNumber = 0;
+
+            var toastContentBuilder = new ToastContentBuilder()
+                .SetToastScenario(ToastScenario.Reminder)
+                .AddVisualChild(new AdaptiveProgressBar()
+                {
+                    Title = item.Title,
+                    Value = new BindableProgressBarValue(TNC.ProgressBarBindableValueKey_ProgressValue),
+                    ValueStringOverride = new BindableString(TNC.ProgressBarBindableValueKey_ProgressValueOverrideString),
+                    Status = new BindableString(TNC.ProgressBarBindableValueKey_ProgressStatus)
+                })
+                ;
+
+            _progressToastContent = toastContentBuilder.GetToastContent();
+
+            _progressToastNotification = new ToastNotification(toastContentBuilder.GetXml());
+            _progressToastNotification.Tag = CacheProgressToastTag;
+            _progressToastNotification.Group = HohoemaCacheToastGroupId;
+            _progressToastNotification.Failed += _progressToastNotification_Failed;
+            _progressToastNotification.SuppressPopup = true;
+            _progressToastNotification.Data = new NotificationData();
+            _progressToastNotification.Data.Values[TNC.ProgressBarBindableValueKey_ProgressValue] = ((double)item.GetProgressNormalized()).ToString();
+            _progressToastNotification.Data.Values[TNC.ProgressBarBindableValueKey_ProgressValueOverrideString] = Math.Floor(item.GetProgressNormalized() * 100).ToString("F0") + "%";
+            _progressToastNotification.Data.Values[TNC.ProgressBarBindableValueKey_ProgressStatus] = "ダウンロード中";
+            _progressToastNotification.Data.SequenceNumber = _progressSequenceNumber++;
+            _notifier.Show(_progressToastNotification);
         }
+
+        private void UpdateBackgroundCacheProgressToast(VideoCacheItem item, bool isPause = false)
+        {
+            if (_progressToastContent == null)
+            {
+                return;
+            }
+
+            var data = new Dictionary<string, string>
+            {
+                { TNC.ProgressBarBindableValueKey_ProgressValue, ((double)item.GetProgressNormalized()).ToString() },
+                { TNC.ProgressBarBindableValueKey_ProgressValueOverrideString, Math.Floor(item.GetProgressNormalized() * 100).ToString("F0") + "%" },
+                { TNC.ProgressBarBindableValueKey_ProgressStatus, !isPause ? "ダウンロード中" : "一時停止中" },
+            };
+
+            var result = _notifier.Update(new NotificationData(data, _progressSequenceNumber++), CacheProgressToastTag, HohoemaCacheToastGroupId);
+            if (result != Windows.UI.Notifications.NotificationUpdateResult.Succeeded)
+            {
+                _progressToastContent = null;
+                _progressToastNotification = null;
+            }
+        }
+
+        private void StopBackgroundCacheProgressToast()
+        {
+            if (_progressToastNotification == null) { return; }
+
+            _notifier.Hide(_progressToastNotification);
+            _progressToastNotification.Failed -= _progressToastNotification_Failed;
+            _progressToastContent = null;
+            _progressToastNotification = null;
+        }
+
+        private void _progressToastNotification_Failed(Windows.UI.Notifications.ToastNotification sender, Windows.UI.Notifications.ToastFailedEventArgs args)
+        {
+            _progressToastContent = null;
+            _progressToastNotification = null;
+            sender.Failed -= _progressToastNotification_Failed;
+        }
+
+
+        private void PopCacheFailedToast(VideoCacheItem item)
+        {
+            new ToastContentBuilder()
+                .SetToastScenario(ToastScenario.Reminder)
+                .AddText("キャッシュDL失敗")
+                .AddText(item.Title)
+                .AddText(item.FailedReason.Translate())
+                .AddButton(new ToastButton()
+                    .SetContent("削除")
+                    .AddArgument(TNC.ToastArgumentKey_Action, TNC.ToastArgumentValue_Action_Delete)
+                    .AddArgument(TNC.ToastArgumentKey_Id, item.VideoId)
+                    .SetBackgroundActivation()
+                    .SetHintActionId(TNC.ToastArgumentValue_Action_Delete))
+                .AddButton(new ToastButton()
+                    .SetContent("閉じる")
+                    .SetDismissActivation())
+                .Show();
+        }
+
+
+        #endregion Toast Notification
+
+
     }
 }

@@ -96,7 +96,13 @@ namespace Hohoema.Models.Domain.VideoCache
         public const string HohoemaVideoCacheExt = ".hohoema_cv";
         public const string HohoemaVideoCacheHashExt = ".hohoema_cv_hash";
 
-        public static Func<string, NicoVideoQuality, Task<string>> ResolveVideoFileNameWithoutExtFromVideoId { get; set; } = (id, q) => Task.FromResult($"[{id}-{q.ToString().ToLower()}]");
+        public static Func<string, ValueTask<string>> ResolveVideoTitle { get; set; } = (id) => throw new NotImplementedException();
+
+        public static async ValueTask<string> ResolveVideoFileName(string id, NicoVideoQuality quality)
+        {
+            var title = await ResolveVideoTitle(id);
+            return $"{title.ToSafeFilePath()} [{id}-{quality}]";
+        }
 
         static HashAlgorithm MakeHashAlgrorithm() => SHA256.Create();
 
@@ -364,7 +370,8 @@ namespace Hohoema.Models.Domain.VideoCache
                 {
                     try
                     {
-                        entity.FileName = Path.ChangeExtension(await ResolveVideoFileNameWithoutExtFromVideoId(videoId, requestCacheQuality), HohoemaVideoCacheExt);
+                        entity.FileName = Path.ChangeExtension(await ResolveVideoFileName(videoId, requestCacheQuality), HohoemaVideoCacheExt);
+                        entity.Title = await ResolveVideoTitle(videoId);
                     }
                     catch
                     {
@@ -415,6 +422,7 @@ namespace Hohoema.Models.Domain.VideoCache
                 _videoCacheItemRepository.UpdateVideoCache(entity);
                 if (GetVideoCache(videoId) is not null and var item)
                 {
+                    item.Title = entity.Title;
                     item.Status = entity.Status;
                     item.FailedReason = entity.FailedReason;
                     item.RequestedAt = entity.RequestedAt;
@@ -756,7 +764,7 @@ namespace Hohoema.Models.Domain.VideoCache
                 item.DownloadedVideoQuality = candidateDownloadingQuality;
                 if (item.RequestedVideoQuality == NicoVideoQuality.Unknown)
                 {
-                    item.FileName = Path.ChangeExtension(await ResolveVideoFileNameWithoutExtFromVideoId(item.VideoId, item.DownloadedVideoQuality), HohoemaVideoCacheExt);
+                    item.FileName = Path.ChangeExtension(await ResolveVideoFileName(item.VideoId, item.DownloadedVideoQuality), HohoemaVideoCacheExt);
                 }
 
 
@@ -906,6 +914,7 @@ namespace Hohoema.Models.Domain.VideoCache
                 manager,
                 entity.VideoId,
                 entity.FileName,
+                entity.Title,
                 entity.RequestedVideoQuality,
                 entity.DownloadedVideoQuality,
                 entity.Status,
@@ -924,6 +933,7 @@ namespace Hohoema.Models.Domain.VideoCache
             if (entity == null) { return; }
 
             entity.FileName = item.FileName;
+            entity.Title = item.Title;
             entity.RequestedVideoQuality = item.RequestedVideoQuality;
             entity.DownloadedVideoQuality = item.DownloadedVideoQuality;
             entity.Status = item.Status;
@@ -1043,6 +1053,8 @@ namespace Hohoema.Models.Domain.VideoCache
                 videoId = realVideoId;
             }
 
+            var title = await ResolveVideoTitle(videoId);
+
             var prop = await file.GetBasicPropertiesAsync();
             if (_videoItemMap.TryGetValue(videoId, out var item))
             {
@@ -1056,7 +1068,7 @@ namespace Hohoema.Models.Domain.VideoCache
             }
             else
             {
-                item = new VideoCacheItem(this, videoId, file.Name, NicoVideoQuality.Unknown, quality, VideoCacheStatus.Completed, VideoCacheDownloadOperationFailedReason.None, file.DateCreated.DateTime, (long)prop.Size, (long)prop.Size, 0);
+                item = new VideoCacheItem(this, videoId, file.Name, title, NicoVideoQuality.Unknown, quality, VideoCacheStatus.Completed, VideoCacheDownloadOperationFailedReason.None, file.DateCreated.DateTime, (long)prop.Size, (long)prop.Size, 0);
                 _videoItemMap.Add(videoId, item);
             }
 
@@ -1067,6 +1079,7 @@ namespace Hohoema.Models.Domain.VideoCache
             }
 
             entity.FileName = item.FileName;
+            entity.Title = item.Title;
             entity.RequestedVideoQuality = item.RequestedVideoQuality;
             entity.DownloadedVideoQuality = item.DownloadedVideoQuality;
             entity.Status = item.Status;

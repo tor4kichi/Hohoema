@@ -66,6 +66,7 @@ using Hohoema.Models.UseCase.Niconico.Follow;
 using Hohoema.Models.Domain.Notification;
 using Hohoema.Models.Domain.VideoCache;
 using Windows.Storage.AccessCache;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace Hohoema
 {
@@ -103,9 +104,9 @@ namespace Hohoema
             RequestedTheme = GetTheme();
             
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromDays(7);
-            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 1000;
+            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 0;
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.RetryCount = 3;
-            
+
             // see@ https://www.typea.info/blog/index.php/2017/08/06/uwp_1/
             try
             {
@@ -540,7 +541,7 @@ namespace Hohoema
                 ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
             }
 
-
+            await Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.InitializeAsync(ApplicationData.Current.TemporaryFolder, "ImageCaches");
 
             // キャッシュ機能の初期化
             {
@@ -567,7 +568,6 @@ namespace Hohoema
                 unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheVideoDeletedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<CheckingClipboardAndNotificationService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<NotificationFollowUpdatedService>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheRequestRejectedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<SubscriptionUpdateManager>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<FeedResultAddToWatchLater>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<SyncWatchHistoryOnLoggedIn>());
@@ -675,7 +675,6 @@ namespace Hohoema
             {
                 await Task.Delay(50);
             }
-
 
 
             if (args.Kind == ActivationKind.ToastNotification)
@@ -846,9 +845,6 @@ namespace Hohoema
             }
 
             deferral.Complete();
-
-
-            base.OnBackgroundActivated(args);
         }
 
 
@@ -1209,21 +1205,32 @@ namespace Hohoema
 
         private async Task ProcessToastNotificationActivation(string arguments, ValueSet userInput)
         {
-            if (arguments.StartsWith("cache_cancel"))
+            await Task.Run(async () => 
             {
-                // TODO: 
-                /*
-                var cacheManager = Container.Resolve<VideoCacheManagerLegacy>();
+                var toastArguments = ToastArguments.Parse(arguments);
+                if (toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Action, out string actionType))
+                {
+                    if (actionType == ToastNotificationConstants.ToastArgumentValue_Action_Delete)
+                    {
+                        if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
+                        {
+                            throw new Exception("no id");
+                        }
 
-                var query = arguments.Split('?')[1];
-                var decode = new WwwFormUrlDecoder(query);
+                        var cacheManager = Container.Resolve<VideoCacheManager>();
+                        await cacheManager.CancelCacheRequestAsync(id);
+                    }
+                    else if (actionType == ToastNotificationConstants.ToastArgumentValue_Action_Play)
+                    {
+                        if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
+                        {
+                            throw new Exception("no id");
+                        }
 
-                var videoId = decode.GetFirstValueByName("id");
-                var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
-
-                await cacheManager.CancelCacheRequest(videoId);
-                */
-            }
+                        PlayVideoFromExternal(id);
+                    }
+                }
+            });
         }
 
 

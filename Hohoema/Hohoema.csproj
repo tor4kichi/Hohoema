@@ -140,6 +140,7 @@
     <Compile Include="Models.Domain\Application\BackupManager.cs" />
     <Compile Include="Models.Domain\Application\FeatureFlags.cs" />
     <Compile Include="Models.Domain\Application\HohoemaAppServiceLevel.cs" />
+    <Compile Include="Models.Domain\Application\ToastNotificationConstants.cs" />
     <Compile Include="Models.Domain\Pins\PinSettings.cs" />
     <Compile Include="Models.Domain\Niconico\AccountManager.cs" />
     <Compile Include="Models.Domain\Application\AppUpdateNotice.cs" />
@@ -370,7 +371,6 @@
     <Compile Include="Presentation.Services\NoProcessUIScreenContext.cs" />
     <Compile Include="Presentation.Services\NotificationService.cs" />
     <Compile Include="Models.UseCase\CheckingClipboardAndNotificationService.cs" />
-    <Compile Include="Models.UseCase\VideoCache\NotificationCacheRequestRejectedService.cs" />
     <Compile Include="Models.UseCase\VideoCache\NotificationCacheVideoDeletedService.cs" />
     <Compile Include="Models.UseCase\Niconico.Follow\NotificationFollowUpdatedService.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PageManager.cs" />

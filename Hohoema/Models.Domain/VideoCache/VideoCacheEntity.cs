@@ -11,6 +11,8 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public string FileName { get; set; }
 
+        public string Title { get; internal set; }
+
         public NicoVideoQuality RequestedVideoQuality { get; set; }
 
         public NicoVideoQuality DownloadedVideoQuality { get; set; }
