@@ -23,6 +23,8 @@ namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
 
         public async Task<HistoriesResponse> GetHistory()
         {
+            using var _ = await NiconicoSession.SigninLock.LockAsync();
+            
             if (!NiconicoSession.IsLoggedIn)
             {
                 return null;

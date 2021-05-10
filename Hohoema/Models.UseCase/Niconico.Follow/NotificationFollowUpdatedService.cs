@@ -30,7 +30,7 @@ namespace Hohoema.Models.UseCase.Niconico.Follow
             .Merge()
             .Subscribe(e => 
             {
-                if (!FollowManager.IsLoginUserFollowsReady) { return; }
+                if (!FollowManager.NiconicoSession.IsLoggedIn) { return; }
 
                 switch (e.Action)
                 {
