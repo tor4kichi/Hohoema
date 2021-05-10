@@ -45,8 +45,6 @@ namespace Hohoema.Models.UseCase.VideoCache
 
         private DateTime _nextProgressShowTime = DateTime.Now;
 
-        private bool _notifyUsingMobileDataNetworkDownload = false;
-
         private bool _stopDownloadTaskWithDisallowMeteredNetworkDownload = false;
         private bool _stopDownloadTaskWithChangingSaveFolder = false;
         public bool IsAllowDownload 
@@ -79,7 +77,7 @@ namespace Hohoema.Models.UseCase.VideoCache
                 LaunchDownaloadOperationLoop();
                 TriggerVideoCacheStatusChanged(e.VideoId);
 
-                _notificationService.ShowLiteInAppNotification_Success("キャッシュリクエスト追加");
+                _notificationService.ShowLiteInAppNotification_Success("CacheVideo_Notification_RequestAdded".Translate());
             };
 
             _videoCacheManager.Started += (s, e) => 
@@ -87,7 +85,7 @@ namespace Hohoema.Models.UseCase.VideoCache
                 Debug.WriteLine($"[VideoCache] Started: Id= {e.Item.VideoId}, RequestQuality= {e.Item.RequestedVideoQuality}, DownloadQuality= {e.Item.DownloadedVideoQuality}");
                 TriggerVideoCacheStatusChanged(e.Item.VideoId);
 
-                _notificationService.ShowLiteInAppNotification($"キャッシュ開始\n{e.Item.Title} {e.Item.DownloadedVideoQuality.Translate()}", symbol: Windows.UI.Xaml.Controls.Symbol.Download);
+                _notificationService.ShowLiteInAppNotification($"{"CacheVideo_Notification_DownloadStarted".Translate()}\n{e.Item.Title}", symbol: Windows.UI.Xaml.Controls.Symbol.Download);
 
                 StartBackgroundCacheProgressToast(e.Item);
             };
@@ -112,7 +110,7 @@ namespace Hohoema.Models.UseCase.VideoCache
 
                 if (e.Item.Status == VideoCacheStatus.Completed)
                 { 
-                    _notificationService.ShowLiteInAppNotification_Success("キャッシュ完了: " + e.Item.Title);
+                    _notificationService.ShowLiteInAppNotification_Success($"{"CacheVideo_Notification_Completed".Translate()}\n{e.Item.Title}");
 
                     // 完了をトースト通知で知らせる
                     PopCacheCompletedToast(e.Item);
@@ -125,7 +123,7 @@ namespace Hohoema.Models.UseCase.VideoCache
                 Debug.WriteLine($"[VideoCache] Canceled: Id= {e.VideoId}");
                 TriggerVideoCacheStatusChanged(e.VideoId);
 
-                _notificationService.ShowLiteInAppNotification_Success("キャッシュリクエスト削除: " + e.VideoId);
+                _notificationService.ShowLiteInAppNotification_Success($"{"CacheVideo_Notification_RequestRemoved".Translate()}\n{e.VideoId}");
             };
 
             _videoCacheManager.Failed += (s, e) => 
@@ -133,7 +131,7 @@ namespace Hohoema.Models.UseCase.VideoCache
                 Debug.WriteLine($"[VideoCache] Failed: Id= {e.Item.VideoId}, FailedReason= {e.VideoCacheDownloadOperationCreationFailedReason}");
                 TriggerVideoCacheStatusChanged(e.Item.VideoId);
 
-                _notificationService.ShowLiteInAppNotification_Success("キャッシュダウンロード失敗: " + e.Item.Title);
+                _notificationService.ShowLiteInAppNotification_Success($"{"CacheVideo_Notification_Failed".Translate()}\n{e.Item.Title}");
 
                 PopCacheFailedToast(e.Item);
                 StopBackgroundCacheProgressToast();
@@ -156,7 +154,7 @@ namespace Hohoema.Models.UseCase.VideoCache
                 Debug.WriteLine($"[VideoCache] Paused: Id= {e.Item.VideoId}");
                 TriggerVideoCacheStatusChanged(e.Item.VideoId);
 
-                _notificationService.ShowLiteInAppNotification($"キャッシュ一時停止\n{e.Item.Title} {e.Item.DownloadedVideoQuality.Translate()}", symbol: Windows.UI.Xaml.Controls.Symbol.Pause);
+                _notificationService.ShowLiteInAppNotification($"{"CacheVideo_Notification_Paused".Translate()}\n{e.Item.Title}", symbol: Windows.UI.Xaml.Controls.Symbol.Pause);
 
                 UpdateBackgroundCacheProgressToast(e.Item, isPause: true);
             };
@@ -357,12 +355,6 @@ namespace Hohoema.Models.UseCase.VideoCache
                     return false;
                 }
 
-                if (_notifyUsingMobileDataNetworkDownload is true)
-                {
-                    _notifyUsingMobileDataNetworkDownload = false;
-                    // TODO: 課金データ通信状況でダウンロードを開始したことを通知
-                }
-
                 await result.DownloadAsync();
             }
             catch (Exception e)
@@ -394,18 +386,6 @@ namespace Hohoema.Models.UseCase.VideoCache
             {
                 _stopDownloadTaskWithDisallowMeteredNetworkDownload = false;
             }
-
-            if (_stopDownloadTaskWithDisallowMeteredNetworkDownload is false
-                && NetworkHelper.Instance.ConnectionInformation.ConnectionCost?.NetworkCostType != Windows.Networking.Connectivity.NetworkCostType.Fixed)
-            {
-                // データ料金が発生する状況でのDLを開始する場合に通知を飛ばす
-                _notifyUsingMobileDataNetworkDownload = true;
-            }
-            else
-            {
-                _notifyUsingMobileDataNetworkDownload = false;
-            }
-
 
             if (_stopDownloadTaskWithDisallowMeteredNetworkDownload
                 || !NetworkHelper.Instance.ConnectionInformation.IsInternetAvailable
@@ -451,16 +431,16 @@ namespace Hohoema.Models.UseCase.VideoCache
             var video = _nicoVideoCacheRepository.Get(item.VideoId);
             var toastContentBuilder = new ToastContentBuilder()
                 .SetToastScenario(ToastScenario.Default)
-                .AddText("キャッシュDL完了")
+                .AddText("CacheVideo_ToastNotification_Completed".Translate())
                 .AddText(item.Title)
                 .AddButton(new ToastButton()
-                    .SetContent("視聴する")
+                    .SetContent("CacheVideo_ToastNotification_PlayVideo".Translate())
                     .AddArgument(TNC.ToastArgumentKey_Action, TNC.ToastArgumentValue_Action_Play)
                     .AddArgument(TNC.ToastArgumentKey_Id, item.VideoId)
                     .SetHintActionId(TNC.ToastArgumentValue_Action_Play)
                     .SetBackgroundActivation())
                 .AddButton(new ToastButton()
-                    .SetContent("閉じる")
+                    .SetContent("CacheVideo_ToastNotification_CloseToast".Translate())
                     .SetDismissActivation());
 
             if (video?.ThumbnailUrl != null)
@@ -499,7 +479,7 @@ namespace Hohoema.Models.UseCase.VideoCache
             _progressToastNotification.Data = new NotificationData();
             _progressToastNotification.Data.Values[TNC.ProgressBarBindableValueKey_ProgressValue] = ((double)item.GetProgressNormalized()).ToString();
             _progressToastNotification.Data.Values[TNC.ProgressBarBindableValueKey_ProgressValueOverrideString] = Math.Floor(item.GetProgressNormalized() * 100).ToString("F0") + "%";
-            _progressToastNotification.Data.Values[TNC.ProgressBarBindableValueKey_ProgressStatus] = "ダウンロード中";
+            _progressToastNotification.Data.Values[TNC.ProgressBarBindableValueKey_ProgressStatus] = "CacheVideo_ToastNotification_Downloading".Translate();
             _progressToastNotification.Data.SequenceNumber = _progressSequenceNumber++;
             _notifier.Show(_progressToastNotification);
         }
@@ -515,7 +495,7 @@ namespace Hohoema.Models.UseCase.VideoCache
             {
                 { TNC.ProgressBarBindableValueKey_ProgressValue, ((double)item.GetProgressNormalized()).ToString() },
                 { TNC.ProgressBarBindableValueKey_ProgressValueOverrideString, Math.Floor(item.GetProgressNormalized() * 100).ToString("F0") + "%" },
-                { TNC.ProgressBarBindableValueKey_ProgressStatus, !isPause ? "ダウンロード中" : "一時停止中" },
+                { TNC.ProgressBarBindableValueKey_ProgressStatus, !isPause ? "CacheVideo_ToastNotification_Downloading".Translate() : "CacheVideo_ToastNotification_DownloadPausing".Translate() },
             };
 
             var result = _notifier.Update(new NotificationData(data, _progressSequenceNumber++), CacheProgressToastTag, HohoemaCacheToastGroupId);
@@ -548,17 +528,17 @@ namespace Hohoema.Models.UseCase.VideoCache
         {
             new ToastContentBuilder()
                 .SetToastScenario(ToastScenario.Reminder)
-                .AddText("キャッシュDL失敗")
+                .AddText("CacheVideo_ToastNotification_Failed".Translate())
                 .AddText(item.Title)
                 .AddText(item.FailedReason.Translate())
                 .AddButton(new ToastButton()
-                    .SetContent("削除")
+                    .SetContent("CacheVideo_ToastNotification_CacheDelete".Translate())
                     .AddArgument(TNC.ToastArgumentKey_Action, TNC.ToastArgumentValue_Action_Delete)
                     .AddArgument(TNC.ToastArgumentKey_Id, item.VideoId)
                     .SetBackgroundActivation()
                     .SetHintActionId(TNC.ToastArgumentValue_Action_Delete))
                 .AddButton(new ToastButton()
-                    .SetContent("閉じる")
+                    .SetContent("CacheVideo_ToastNotification_CloseToast".Translate())
                     .SetDismissActivation())
                 .Show();
         }

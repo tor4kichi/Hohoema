@@ -131,9 +131,6 @@ PinRemovedWithTitle = 取消固定{0}
 
 #### Video Cache feature ####
 Cache = 快取
-CacheProgress = DL
-CachePending = DL等待
-SelectDeleteVideoQuality = 选择要删除的图像质量
 OpenCacheFolder = 打开存储文件夹
 ChangeCacheFolder = 更改存储文件夹
 PickCacheSaveFolder = 选择缓存存储文件夹
@@ -142,6 +139,9 @@ CacheSaveFolderChangeToX = 缓存目标已更改为{0}
 CacheFolderAccessState.SelectedButNotExist_Desc = 无法确认选择的文件夹。重新连接外部存储或重新选择缓存目标文件夹
 CacheVideoNoItems = 没有缓存的视频
 CacheFeatureIsAvairableForOnlyNiconicoPremiumMember = 现金功能仅适用于高级会员
+
+DownloadOperationRunning = 运作中
+DownloadOperationStopping = 停止中
 
 VideoCacheStatus.Pending = 等待
 VideoCacheStatus.Downloading = 更新中
@@ -166,6 +166,22 @@ MaxVideoCacheStorageSize = 影片快取储存空间上限（GB）
 MaxVideoCacheSize_Unlimited = 无限
 CachedStorageSize_Current = 正在使用
 CachedStorageSize_Limit = 上限
+
+CacheVideo_Notification_RequestAdded = 添加缓存请求
+CacheVideo_Notification_DownloadStarted = 缓存开始
+CacheVideo_Notification_Completed = 缓存完成
+CacheVideo_Notification_RequestRemoved = 删除缓存请求
+CacheVideo_Notification_Failed = 缓存下载失败
+CacheVideo_Notification_Paused = 缓存暂停
+
+CacheVideo_ToastNotification_Completed = 下载完成
+CacheVideo_ToastNotification_PlayVideo = 看法
+CacheVideo_ToastNotification_CloseToast = 关闭
+CacheVideo_ToastNotification_Downloading = 正在下载
+CacheVideo_ToastNotification_DownloadPausing = 已暂停
+CacheVideo_ToastNotification_Failed = 下载失败
+CacheVideo_ToastNotification_CacheDelete = 删除
+
 
 
 #### Subscription ####

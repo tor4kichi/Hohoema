@@ -32,12 +32,6 @@ namespace Hohoema.Models.Domain.VideoCache
             set => SetProperty(ref _IsAllowDownloadOnMeteredNetwork, value);
         }
 
-        public bool IsNotifyOnDownloadWithMeteredNetwork
-        {
-            get => Read(true);
-            set => Save(value);
-        }
-
 
         public long? _CachedStorageSize;
         public long CachedStorageSize

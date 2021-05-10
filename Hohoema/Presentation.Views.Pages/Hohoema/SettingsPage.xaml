@@ -316,11 +316,6 @@
               </Grid>
 
               <Grid>
-                <TextBlock Text="{i18nExt:Localize Key=IsNotifyOnDownloadWithMeteredNetwork}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ToggleSwitch IsOn="{Binding IsNotifyOnDownloadWithMeteredNetwork.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
-              </Grid>
-
-              <Grid>
                 <Grid.Resources>
                   <local:VideoCacheMaxSizeDoubleGigaByte2NullableLongByteConverter x:Key="MaxCacheSizeNumberConverter" />
                 </Grid.Resources>

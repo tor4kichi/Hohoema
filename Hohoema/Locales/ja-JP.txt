@@ -131,9 +131,6 @@ PinRemovedWithTitle = {0} をピン留め解除
 
 #### Video Cache feature ####
 Cache = キャッシュ
-CacheProgress = DL中
-CachePending = DL順番待ち
-SelectDeleteVideoQuality = 削除する画質を選択
 OpenCacheFolder = キャッシュ保存先を開く
 ChangeCacheFolder = キャッシュ保存先を変更
 PickCacheSaveFolder = キャッシュ保存フォルダを選択する
@@ -169,6 +166,22 @@ MaxVideoCacheStorageSize = 動画キャッシュのストレージ制限(GB)
 MaxVideoCacheSize_Unlimited = 無制限
 CachedStorageSize_Current = 使用中
 CachedStorageSize_Limit = 上限
+
+CacheVideo_Notification_RequestAdded = キャッシュリクエスト追加
+CacheVideo_Notification_DownloadStarted = キャッシュ開始
+CacheVideo_Notification_Completed = キャッシュ完了
+CacheVideo_Notification_RequestRemoved = キャッシュリクエスト削除
+CacheVideo_Notification_Failed = キャッシュダウンロード失敗
+CacheVideo_Notification_Paused = キャッシュ一時停止
+
+CacheVideo_ToastNotification_Completed = ダウンロード完了
+CacheVideo_ToastNotification_PlayVideo = 視聴する
+CacheVideo_ToastNotification_CloseToast = 閉じる
+CacheVideo_ToastNotification_Downloading = ダウンロード中
+CacheVideo_ToastNotification_DownloadPausing = 一時停止中
+CacheVideo_ToastNotification_Failed = ダウンロード失敗
+CacheVideo_ToastNotification_CacheDelete = 削除
+
 
 
 #### Subscription ####

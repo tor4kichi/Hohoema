@@ -198,8 +198,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                 .AddTo(_CompositeDisposable);
             IsAllowDownloadOnMeteredNetwork = VideoCacheSettings.ToReactivePropertyAsSynchronized(x => x.IsAllowDownloadOnMeteredNetwork)
                 .AddTo(_CompositeDisposable);
-            IsNotifyOnDownloadWithMeteredNetwork = VideoCacheSettings.ToReactivePropertyAsSynchronized(x => x.IsNotifyOnDownloadWithMeteredNetwork)
-                .AddTo(_CompositeDisposable);
             MaxVideoCacheStorageSize = VideoCacheSettings.ToReactivePropertyAsSynchronized(x => x.MaxVideoCacheStorageSize)
                 .AddTo(_CompositeDisposable);
             OpenCurrentCacheFolderCommand = new DelegateCommand(async () =>
@@ -349,7 +347,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         };
 
         public ReactiveProperty<bool> IsAllowDownloadOnMeteredNetwork { get; private set; }
-        public ReactiveProperty<bool> IsNotifyOnDownloadWithMeteredNetwork { get; private set; }
         public ReactiveProperty<long?> MaxVideoCacheStorageSize { get; private set; }
         public DelegateCommand OpenCurrentCacheFolderCommand { get; }
 
