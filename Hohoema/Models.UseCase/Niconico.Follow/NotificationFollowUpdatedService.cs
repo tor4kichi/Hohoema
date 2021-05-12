@@ -12,13 +12,12 @@ namespace Hohoema.Models.UseCase.Niconico.Follow
     public sealed class NotificationFollowUpdatedService : IDisposable
     {
         public NotificationFollowUpdatedService(
-            FollowManager followManager,
             NotificationService notificationService
             )
         {
-            FollowManager = followManager;
             NotificationService = notificationService;
-
+            
+            /*
             disposer = new[]
             {
                 FollowManager.Mylist.FollowInfoItems.CollectionChangedAsObservable(),
@@ -62,11 +61,11 @@ namespace Hohoema.Models.UseCase.Niconico.Follow
                         break;
                 }
             });
+            */
         }
 
         IDisposable disposer;
 
-        public FollowManager FollowManager { get; }
         public NotificationService NotificationService { get; }
 
         public void Dispose()

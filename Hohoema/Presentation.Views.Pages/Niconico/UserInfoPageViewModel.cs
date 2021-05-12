@@ -32,9 +32,12 @@ using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
+    using UserFollowContext = FollowContext<UserFollowProvider>;
+
     public class UserInfoPageViewModel : HohoemaPageViewModelBase, IUser, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
@@ -55,6 +58,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         public UserInfoPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             UserProvider userProvider,
+            UserFollowProvider userFollowProvider,
             VideoFilteringSettings ngSettings,
             NiconicoSession niconicoSession,
             SubscriptionManager subscriptionManager,
@@ -62,7 +66,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             MylistRepository mylistRepository,
-            NiconicoFollowToggleButtonViewModel followToggleButtonService,
             AddSubscriptionCommand addSubscriptionCommand,
             OpenLinkCommand openLinkCommand
             )
@@ -73,11 +76,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             _mylistRepository = mylistRepository;
-            FollowToggleButtonService = followToggleButtonService;
             AddSubscriptionCommand = addSubscriptionCommand;
             OpenLinkCommand = openLinkCommand;
             ApplicationLayoutManager = applicationLayoutManager;
             UserProvider = userProvider;
+            _userFollowProvider = userFollowProvider;
             NgSettings = ngSettings;
 
             HasOwnerVideo = true;
@@ -120,7 +123,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         public SubscriptionManager SubscriptionManager { get; }
         public LoginUserOwnedMylistManager UserMylistManager { get; }
         public PageManager PageManager { get; }
-        public NiconicoFollowToggleButtonViewModel FollowToggleButtonService { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
         public OpenLinkCommand OpenLinkCommand { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -252,11 +254,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 			set { SetProperty(ref _HasOwnerVideo, value); }
 		}
 
-		public ReactiveProperty<bool> IsNGVideoOwner { get; private set; }
+
+        // Follow
+        private UserFollowContext _FollowContext = UserFollowContext.Default;
+        public UserFollowContext FollowContext
+        {
+            get => _FollowContext;
+            set => SetProperty(ref _FollowContext, value);
+        }
+
+
+        public ReactiveProperty<bool> IsNGVideoOwner { get; private set; }
 
 
         public  HohoemaPlaylist HohoemaPlaylist { get; }
 
+        private readonly UserFollowProvider _userFollowProvider;
         private readonly MylistRepository _mylistRepository;
 
         private IReadOnlyCollection<MylistPlaylist> _mylists;
@@ -316,6 +329,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             if (UserId == null) { return; }
 
 
+            try
+            {
+                if (NiconicoSession.IsLoggedIn)
+                {
+                    FollowContext = await UserFollowContext.CreateAsync(_userFollowProvider, UserId);
+                }
+                else
+                {
+                    FollowContext = UserFollowContext.Default;
+                }
+            }
+            catch
+            {
+                FollowContext = UserFollowContext.Default;
+            }
+
             // NGユーザーの設定
 
             if (!IsLoginUser)
@@ -366,8 +395,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 }
             }
             RaisePropertyChanged(nameof(MylistGroups));
-
-            FollowToggleButtonService.SetFollowTarget(this);
         }
         
     }

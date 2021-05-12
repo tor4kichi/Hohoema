@@ -274,7 +274,6 @@ namespace Hohoema
             unityContainer.RegisterSingleton<NicoVideoSessionOwnershipManager>();
             
             unityContainer.RegisterSingleton<LoginUserOwnedMylistManager>();
-            unityContainer.RegisterSingleton<FollowManager>();
 
             unityContainer.RegisterSingleton<SubscriptionManager>();
 
@@ -442,7 +441,6 @@ namespace Hohoema
 
             // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
             var mylitManager = Container.Resolve<LoginUserOwnedMylistManager>();
-            var followManager = Container.Resolve<FollowManager>();
 
             Resources["IsXbox"] = DeviceTypeHelper.IsXbox;
             Resources["IsMobile"] = DeviceTypeHelper.IsMobile;

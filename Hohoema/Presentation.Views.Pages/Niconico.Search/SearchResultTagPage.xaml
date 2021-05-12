@@ -35,7 +35,7 @@
                   </i:Interaction.Behaviors>
                 </AppBarButton>
                 <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
-                <AppBarToggleButton x:Name="TagFollowButton" Label="{i18nExt:Localize Key=Follow}" Icon="Favorite" IsChecked="{Binding FollowButtonService.IsFollowTarget.Value, Mode=TwoWay}" Command="{Binding FollowButtonService.ToggleFollowCommand}" Visibility="Collapsed" />
+                <AppBarToggleButton x:Name="TagFollowButton" Label="{i18nExt:Localize Key=Follow}" Icon="Favorite" IsChecked="{Binding FollowContext.IsFollowing, Mode=OneWay}" Command="{Binding FollowContext.ToggleFollowCommand}" IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
                 <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{i18nExt:Localize Key=SubscriptionAddTag}"

@@ -2,6 +2,8 @@
 using Hohoema.Models.Infrastructure;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Mntone.Nico2.Users.Follow;
+using System;
 
 namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 {
@@ -15,40 +17,17 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public static CommunituFollowAdditionalInfo CommunituFollowAdditionalInfo { get; set; }
 
-        public async Task<List<Mntone.Nico2.Users.Follow.FollowCommunityResponse.FollowCommunity>> GetAllAsync()
+        public async Task<FollowCommunityResponse> GetCommunityItemsAsync(uint pageSize, uint page )
         {
             if (!NiconicoSession.IsLoggedIn)
             {
-                return new List<Mntone.Nico2.Users.Follow.FollowCommunityResponse.FollowCommunity>();
+                throw new InvalidOperationException();
             }
 
-            var items = new List<Mntone.Nico2.Users.Follow.FollowCommunityResponse.FollowCommunity>();
-            bool needMore = true;
-            uint page = 0;
-
-            while (needMore)
+            return await ContextActionWithPageAccessWaitAsync(context =>
             {
-                try
-                {
-                    var res = await ContextActionWithPageAccessWaitAsync(async context =>
-                    {
-                        return await context.User.GetFollowCommunityAsync(25, page);
-                    });
-
-                    items.AddRange(res.Data);
-
-                    // フォローコミュニティページの一画面での最大表示数10個と同数の場合は追加で取得
-                    needMore = res.Meta.Count != res.Meta.Total;
-                }
-                catch
-                {
-                    needMore = false;
-                }
-
-                page++;
-            }
-
-            return items;
+                return  context.User.GetFollowCommunityAsync(pageSize, page);
+            });
         }
 
         public async Task<ContentManageResult> AddFollowAsync(string id)
@@ -74,6 +53,30 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             });
 
             return result;
+        }
+
+        public Task<bool> IsFollowingAsync(string id)
+        {
+            return ContextActionAsync(async context =>
+            {
+                try
+                {
+                    var res = await context.User.GetCommunityAuthorityAsync(id);
+                    return res.Data?.IsMember ?? false;
+                }
+                catch
+                {
+                    return false;
+                }
+            });
+        }
+
+        public Task<CommunityAuthorityResponse> GetCommunityAuthorityAsync(string id)
+        {
+            return ContextActionAsync(async context =>
+            {
+                return await context.User.GetCommunityAuthorityAsync(id);
+            });
         }
     }
 

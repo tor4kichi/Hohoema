@@ -37,6 +37,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
+    using MylistFollowContext = FollowContext<MylistFollowProvider>;
 
     public class MylistPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
@@ -60,8 +61,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             PageManager pageManager,
             NiconicoSession niconicoSession,
             MylistProvider mylistProvider,
+            MylistFollowProvider mylistFollowProvider,
             UserProvider userProvider,
-            FollowManager followManager,
             LoginUserMylistProvider loginUserMylistProvider,
             LoginUserOwnedMylistManager userMylistManager,
             LocalMylistManager localMylistManager,
@@ -70,7 +71,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             SubscriptionManager subscriptionManager,
             MylistUserSelectedSortRepository mylistUserSelectedSortRepository,
             Services.DialogService dialogService,
-            NiconicoFollowToggleButtonViewModel followToggleButtonService,
             AddSubscriptionCommand addSubscriptionCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
@@ -79,8 +79,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
             MylistProvider = mylistProvider;
+            _mylistFollowProvider = mylistFollowProvider;
             UserProvider = userProvider;
-            FollowManager = followManager;
             LoginUserMylistProvider = loginUserMylistProvider;
             UserMylistManager = userMylistManager;
             LocalMylistManager = localMylistManager;
@@ -89,7 +89,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             SubscriptionManager = subscriptionManager;
             _mylistUserSelectedSortRepository = mylistUserSelectedSortRepository;
             DialogService = dialogService;
-            FollowToggleButtonService = followToggleButtonService;
             AddSubscriptionCommand = addSubscriptionCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             Mylist = new ReactiveProperty<MylistPlaylist>();
@@ -267,7 +266,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         public ReactiveProperty<MylistSortViewModel> SelectedSortItem { get; }
 
-
+        private readonly MylistFollowProvider _mylistFollowProvider;
         private readonly MylistRepository _mylistRepository;
         private readonly MylistUserSelectedSortRepository _mylistUserSelectedSortRepository;
         
@@ -278,14 +277,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         public NiconicoSession NiconicoSession { get; }
         public MylistProvider MylistProvider { get; }
         public UserProvider UserProvider { get; }
-        public FollowManager FollowManager { get; }
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
         public LoginUserOwnedMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public DialogService DialogService { get; }
-        public NiconicoFollowToggleButtonViewModel FollowToggleButtonService { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 
@@ -337,13 +334,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             set { SetProperty(ref _UserName, value); }
         }
 
-        public ReactiveProperty<bool> IsFavoriteMylist { get; private set; }
-        public ReactiveProperty<bool> CanChangeFavoriteMylistState { get; private set; }
-
         public int DeflistRegistrationCapacity { get; private set; }
         public int DeflistRegistrationCount { get; private set; }
         public int MylistRegistrationCapacity { get; private set; }
         public int MylistRegistrationCount { get; private set; }
+
+
+        // Follow
+        private MylistFollowContext _FollowContext = MylistFollowContext.Default;
+        public MylistFollowContext FollowContext
+        {
+            get => _FollowContext;
+            set => SetProperty(ref _FollowContext, value);
+        }
+
+
 
         #region Commands
 
@@ -644,9 +649,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             MylistItems = await CreateItemsSourceAsync(mylist);
             MaxItemsCount = Mylist.Value.Count;
 
-            if (Mylist.Value != null)
+            try
             {
-                FollowToggleButtonService.SetFollowTarget(Mylist.Value as IFollowable);
+                if (NiconicoSession.IsLoggedIn && Mylist.Value != null)
+                {
+                    FollowContext = await MylistFollowContext.CreateAsync(_mylistFollowProvider, Mylist.Value.Id);
+                }
+                else
+                {
+                    FollowContext = MylistFollowContext.Default;
+                }
+            }
+            catch
+            {
+                FollowContext = MylistFollowContext.Default;
             }
 
             SelectedSortItem.Subscribe(x =>

@@ -23,9 +23,11 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
+    using TagFollowContext = FollowContext<TagFollowProvider>;
 
     public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, ISearchWithtag, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
@@ -48,17 +50,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
             SearchProvider searchProvider,
+            TagFollowProvider tagFollowProvider,
             SubscriptionManager subscriptionManager,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             SearchHistoryRepository searchHistoryRepository,
             Services.DialogService dialogService,
             AddTagSearchSubscriptionCommand addTagSearchSubscriptionCommand,
-            NiconicoFollowToggleButtonViewModel followButtonService,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             SearchProvider = searchProvider;
+            _tagFollowProvider = tagFollowProvider;
             SubscriptionManager = subscriptionManager;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
@@ -67,7 +70,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             NiconicoSession = niconicoSession;
             HohoemaDialogService = dialogService;
             AddTagSearchSubscriptionCommand = addTagSearchSubscriptionCommand;
-            FollowButtonService = followButtonService;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             FailLoading = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
@@ -111,7 +113,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         public PageManager PageManager { get; }
         public Services.DialogService HohoemaDialogService { get; }
         public AddTagSearchSubscriptionCommand AddTagSearchSubscriptionCommand { get; }
-        public NiconicoFollowToggleButtonViewModel FollowButtonService { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 
         static private List<SearchSortOptionListItem> _VideoSearchOptionListItems = new List<SearchSortOptionListItem>()
@@ -251,13 +252,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         }
 
 
+        // Follow
+        private TagFollowContext _FollowContext = TagFollowContext.Default;
+        public TagFollowContext FollowContext
+        {
+            get => _FollowContext;
+            set => SetProperty(ref _FollowContext, value);
+        }
 
-       
-
-		#region Commands
 
 
-		private DelegateCommand _ShowSearchHistoryCommand;
+        #region Commands
+
+
+        private DelegateCommand _ShowSearchHistoryCommand;
+        private readonly TagFollowProvider _tagFollowProvider;
         private readonly SearchHistoryRepository _searchHistoryRepository;
 
         public DelegateCommand ShowSearchHistoryCommand
@@ -280,7 +289,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         #endregion
 
-        public override Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
@@ -300,9 +309,23 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
             _searchHistoryRepository.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
-            FollowButtonService.SetFollowTarget(this);
+            try
+            {
+                if (NiconicoSession.IsLoggedIn && !string.IsNullOrWhiteSpace(Keyword))
+                {
+                    FollowContext = await TagFollowContext.CreateAsync(_tagFollowProvider, Keyword);
+                }
+                else
+                {
+                    FollowContext = TagFollowContext.Default;
+                }
+            }
+            catch
+            {
+                FollowContext = TagFollowContext.Default;
+            }
 
-            return base.OnNavigatedToAsync(parameters);
+            await base.OnNavigatedToAsync(parameters);
         }
 
 

@@ -3,6 +3,7 @@ using Mntone.Nico2.Users.Follow;
 using Hohoema.Models.Infrastructure;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
 
 namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 {
@@ -42,6 +43,19 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             return followers;
         }
 
+        public Task<FollowUsersResponse> GetItemsAsync(int pageSize, FollowUsersResponse lastRes = null)
+        {
+            if (!NiconicoSession.IsLoggedIn)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.User.GetFollowUsersAsync((uint)pageSize, lastRes);
+            });
+        }
+
         public async Task<ContentManageResult> AddFollowAsync(string id)
         {
             if (!NiconicoSession.IsLoggedIn)
@@ -66,7 +80,20 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             {
                 return await context.User.RemoveFollowUserAsync(id);
             });
-            
+        }
+
+        public Task<bool> IsFollowingAsync(string id)
+        {
+            return IsFollowingAsync(uint.Parse(id));
+        }
+
+
+        public async Task<bool> IsFollowingAsync(uint id)
+        {
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.IsFollowingUserAsync(id);
+            });
         }
     }
 

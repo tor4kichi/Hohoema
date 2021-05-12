@@ -3,6 +3,8 @@ using Mntone.Nico2.Users.Follow;
 using Hohoema.Models.Infrastructure;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
+using System;
 
 namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 {
@@ -13,20 +15,18 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
         {
         }
 
-        public async Task<List<FollowMylist>> GetAllAsync()
+        public async Task<FollowMylistResponse> GetFollowMylistsAsync(uint sampleItemsCount = 3)
         {
             if (!NiconicoSession.IsLoggedIn)
             {
-                return new List<FollowMylist>();
+                throw new InvalidOperationException();
             }
 
 
-            var res = await ContextActionWithPageAccessWaitAsync(async context =>
+            return await ContextActionWithPageAccessWaitAsync(context =>
             {
-                return await context.User.GetFollowMylistsAsync();
+                return context.User.GetFollowMylistsAsync(sampleItemsCount);
             });
-
-            return res.Data.Mylists;
         }
 
         public async Task<ContentManageResult> AddFollowAsync(string id)
@@ -52,6 +52,16 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             return await ContextActionAsync(async context =>
             {
                 return await context.User.RemoveFollowMylistAsync(id);
+            });
+        }
+
+        public Task<bool> IsFollowingAsync(string id)
+        {
+            return ContextActionAsync(async context =>
+            {
+                var numberId = long.Parse(id);
+                var res = await context.User.GetFollowMylistsAsync(0);
+                return res.Data.Mylists.Any(x => x.Id == numberId);
             });
         }
     }

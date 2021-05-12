@@ -3,6 +3,7 @@ using Mntone.Nico2.Users.Follow;
 using Hohoema.Models.Infrastructure;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 {
@@ -20,9 +21,9 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return new List<FollowTagsResponse.Tag>();
             }
 
-            var res = await ContextActionWithPageAccessWaitAsync(async context =>
+            var res = await ContextActionWithPageAccessWaitAsync(context =>
             {
-                return await context.User.GetFollowTagsAsync();
+                return context.User.GetFollowTagsAsync();
             });
 
             return res.Data.Tags;
@@ -35,9 +36,9 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Failed;
             }
 
-            return await ContextActionAsync(async context =>
+            return await ContextActionAsync(context =>
             {
-                return await context.User.AddFollowTagAsync(id);
+                return context.User.AddFollowTagAsync(id);
             });
             
         }
@@ -49,11 +50,21 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Failed;
             }
 
-            return await ContextActionAsync(async context =>
+            return await ContextActionAsync(context =>
             {
-                return await context.User.RemoveFollowTagAsync(id);
+                return context.User.RemoveFollowTagAsync(id);
             });
-            
+        }
+
+        public Task<bool> IsFollowingAsync(string tag)
+        {
+            return ContextActionAsync(async context =>
+            {
+//                return context.User.IsFollowingTagAsync(tag);
+
+                var res = await context.User.GetFollowTagsAsync();
+                return res.Data.Tags.Any(t => t.Name == tag);
+            });
         }
     }
 

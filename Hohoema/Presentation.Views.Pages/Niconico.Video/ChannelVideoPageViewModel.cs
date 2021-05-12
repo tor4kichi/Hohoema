@@ -24,9 +24,13 @@ using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
+    using ChannelFollowContext = FollowContext<ChannelFollowProvider>;
+
+
     public sealed class ChannelInfo : IChannel
     {
         public string Id { get; set; }
@@ -56,20 +60,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
             ChannelProvider channelProvider,
+            ChannelFollowProvider channelFollowProvider,
             PageManager pageManager,
             HohoemaPlaylist hohoemaPlaylist,
             OpenLinkCommand openLinkCommand,
-            NiconicoFollowToggleButtonViewModel followToggleButtonService,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
             NiconicoSession = niconicoSession;
             ChannelProvider = channelProvider;
+            _channelFollowProvider = channelFollowProvider;
             PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
             OpenLinkCommand = openLinkCommand;
-            FollowToggleButtonService = followToggleButtonService;
             SelectionModeToggleCommand = selectionModeToggleCommand;
         }
 
@@ -125,6 +129,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             set { SetProperty(ref _channelInfo, value); }
         }
 
+        // Follow
+        private ChannelFollowContext _FollowContext = ChannelFollowContext.Default;
+        public ChannelFollowContext FollowContext
+        {
+            get => _FollowContext;
+            set => SetProperty(ref _FollowContext, value);
+        }
+
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             if (parameters.TryGetValue("id", out string id))
@@ -149,8 +161,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     ChannelName = RawChannelId;
                 }
 
-
-                FollowToggleButtonService.SetFollowTarget(ChannelInfo);
+                try
+                {
+                    if (NiconicoSession.IsLoggedIn)
+                    {
+                        FollowContext = await ChannelFollowContext.CreateAsync(_channelFollowProvider, ChannelId.ToString());
+                    }
+                    else
+                    {
+                        FollowContext = ChannelFollowContext.Default;
+                    }
+                }
+                catch
+                {
+                    FollowContext = ChannelFollowContext.Default;
+                }
             }
 
             await base.OnNavigatedToAsync(parameters);
@@ -164,6 +189,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
 
         private DelegateCommand _ShowWithBrowserCommand;
+        private readonly ChannelFollowProvider _channelFollowProvider;
+
         public DelegateCommand ShowWithBrowserCommand
         {
             get
@@ -182,7 +209,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         public PageManager PageManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public OpenLinkCommand OpenLinkCommand { get; }
-        public NiconicoFollowToggleButtonViewModel FollowToggleButtonService { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
     }
 

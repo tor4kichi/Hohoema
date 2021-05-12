@@ -343,7 +343,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             UpdateIsHidenVideoOwner(data);
 
-            if (VideoId != RawVideoId)
+            if (VideoId != RawVideoId && VideoId != null)
             {
                 SubscribeAll(VideoId);
             }
