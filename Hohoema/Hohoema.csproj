@@ -955,9 +955,6 @@
     <PackageReference Include="AdaptiveTriggerLibrary">
       <Version>1.2.2</Version>
     </PackageReference>
-    <PackageReference Include="Espresso3389.HttpStream">
-      <Version>2.0.52.3</Version>
-    </PackageReference>
     <PackageReference Include="HtmlAgilityPack">
       <Version>1.11.12</Version>
     </PackageReference>
