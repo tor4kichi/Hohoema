@@ -1428,7 +1428,6 @@
     <PRIResource Include=".appcenter.resw" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\CacheUsageConfirmation.md" />
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
