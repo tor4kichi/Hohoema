@@ -5,10 +5,11 @@ using System.Threading;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.Domain.Niconico.Follow;
 using Mntone.Nico2.Users.Follow;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
-    public sealed class FollowUserIncrementalSource : FollowIncrementalSourceBase
+    public sealed class FollowUserIncrementalSource : FollowIncrementalSourceBase<IUser>
     {
         private readonly UserFollowProvider _userFollowProvider;
         private FollowUsersResponse _lastRes;
@@ -19,7 +20,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             MaxCount = 600;
         }
 
-        public override async Task<IEnumerable<IFollowable>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
+        public override async Task<IEnumerable<IUser>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -30,7 +31,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             catch
             {
                 _lastRes = null;
-                return Enumerable.Empty<IFollowable>();
+                return Enumerable.Empty<IUser>();
             }
 
             return _lastRes?.Data.Items.Select(x => new FollowUserViewModel(x));

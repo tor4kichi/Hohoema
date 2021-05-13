@@ -29,7 +29,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
-    using CommunityFollowContext = FollowContext<CommunityFollowProvider>;
+    using CommunityFollowContext = FollowContext<ICommunity>;
 
     public sealed class Community : ICommunity
     {
@@ -322,7 +322,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                         {
                             if (!string.IsNullOrWhiteSpace(CommunityId))
                             {
-                                FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, CommunityId);
+                                FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, Community);
                             }
                         }
                     }

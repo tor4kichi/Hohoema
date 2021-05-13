@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using Hohoema.Models.Domain.Niconico.Channel;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
-    public sealed class FollowChannelIncrementalSource : FollowIncrementalSourceBase
+    public sealed class FollowChannelIncrementalSource : FollowIncrementalSourceBase<IChannel>
     {
         private readonly ChannelFollowProvider _channelFollowProvider;
 
@@ -19,11 +20,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
         }
 
         bool isTailReached;
-        public override async Task<IEnumerable<IFollowable>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
+        public override async Task<IEnumerable<IChannel>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
         {
             if (isTailReached)
             {
-                return Enumerable.Empty<IFollowable>();
+                return Enumerable.Empty<IChannel>();
             }
 
             uint offset = (uint)(pageIndex * pageSize);

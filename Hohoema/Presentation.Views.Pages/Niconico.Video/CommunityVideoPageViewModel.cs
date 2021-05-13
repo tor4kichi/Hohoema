@@ -25,9 +25,16 @@ using Hohoema.Presentation.ViewModels.Niconico.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
-	using CommunityFollowContext = FollowContext<CommunityFollowProvider>;
+	using CommunityFollowContext = FollowContext<ICommunity>;
 
-	public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>, IPinablePage, ITitleUpdatablePage
+    public class CommunityInfo : ICommunity
+    {
+        public string Id { get; internal set; }
+
+        public string Label { get; internal set; }
+    }
+
+    public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>, IPinablePage, ITitleUpdatablePage
 	{
 		HohoemaPin IPinablePage.GetPin()
 		{
@@ -86,8 +93,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             get { return _CanDownload; }
             set { SetProperty(ref _CanDownload, value); }
         }
-
-
+		
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             if (parameters.TryGetValue("id", out string id))
@@ -100,6 +106,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     CommunityDetail = res.CommunitySammary.CommunityDetail;
 
                     CommunityName = CommunityDetail.Name;
+
 				}
 				catch
                 {
@@ -115,7 +122,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 					{
 						if (!string.IsNullOrWhiteSpace(CommunityId))
 						{
-							FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, CommunityId);
+							FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, new CommunityInfo() { Id = CommunityId, Label = CommunityName });
 						}
 					}
 				}

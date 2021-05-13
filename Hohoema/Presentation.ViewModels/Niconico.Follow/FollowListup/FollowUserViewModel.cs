@@ -21,6 +21,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         public Uri IconUrl_Small => _userFollowItem.Icons.Small;
         public Uri IconUrl_Large => _userFollowItem.Icons.Large;
+
+        public string IconUrl => _userFollowItem.Icons.Small.OriginalString;
+
+        public string Description => _userFollowItem.StrippedDescription;
     }
 
 

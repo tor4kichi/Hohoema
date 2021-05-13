@@ -28,7 +28,7 @@ using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
-    using ChannelFollowContext = FollowContext<ChannelFollowProvider>;
+    using ChannelFollowContext = FollowContext<IChannel>;
 
 
     public sealed class ChannelInfo : IChannel
@@ -165,7 +165,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 {
                     if (NiconicoSession.IsLoggedIn)
                     {
-                        FollowContext = await ChannelFollowContext.CreateAsync(_channelFollowProvider, ChannelId.ToString());
+                        FollowContext = await ChannelFollowContext.CreateAsync(_channelFollowProvider, ChannelInfo);
                     }
                     else
                     {

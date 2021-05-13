@@ -609,7 +609,8 @@ ConfirmRemoveFollow_DialogTitle = 确认取消关注
 RemoveFollow = 取消关注
 
 FollowInfoIsRequireLogIn = 您需要登录才能查看关注信息
-
+FollowerCount = 追随者
+MylistVideoCountDesc = {0}个视频
 
 #### Nicorepo ####
 NicoRepoDisplayOptions = 显示条件

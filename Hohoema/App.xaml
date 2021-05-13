@@ -188,6 +188,7 @@
       </uwpconv:BoolToObjectConverter>
 
       <locales:LocalizeConverter x:Key="LocalizeConverter" />
+      <locales:LocalizeWithParameterConverter x:Key="LocalizeWithParameterConverter" />
 
       <DataTemplate x:Key="LocalizedTextItemTemplate">
         <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}"/>

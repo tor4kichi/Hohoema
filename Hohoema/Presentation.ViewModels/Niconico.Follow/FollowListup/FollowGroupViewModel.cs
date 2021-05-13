@@ -5,10 +5,14 @@ using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Disposables;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+using Prism.Commands;
+using Hohoema.Models.UseCase.PageNavigation;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
-    public sealed class FollowGroupViewModel : BindableBase, IDisposable
+    public class FollowGroupViewModel<ItemType> : BindableBase, IDisposable 
+        where ItemType : IFollowable
     {
         public FollowItemType FollowItemType { get; }
 
@@ -27,21 +31,43 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
         }
 
         CompositeDisposable _disposables = new CompositeDisposable();
-        public IncrementalLoadingCollection<IIncrementalSource<IFollowable>, IFollowable> Items { get; }
+        private readonly IFollowProvider<ItemType> _followProvider;
+        private readonly PageManager _pageManager;
 
-        public FollowGroupViewModel(FollowItemType followItemType, FollowIncrementalSourceBase loadingSource)
+        public IncrementalLoadingCollection<IIncrementalSource<ItemType>, ItemType> Items { get; }
+
+        public FollowGroupViewModel(FollowItemType followItemType, IFollowProvider<ItemType> followProvider, FollowIncrementalSourceBase<ItemType> loadingSource, PageManager pageManager)
         {
             FollowItemType = followItemType;
-            Items = new IncrementalLoadingCollection<IIncrementalSource<IFollowable>, IFollowable>(source: loadingSource);
+            _followProvider = followProvider;
+            _pageManager = pageManager;
+            Items = new IncrementalLoadingCollection<IIncrementalSource<ItemType>, ItemType>(source: loadingSource);
 
             loadingSource.ObserveProperty(x => x.MaxCount).Subscribe(x => MaxCount = x).AddTo(_disposables);
             loadingSource.ObserveProperty(x => x.TotalCount).Subscribe(x => TotalCount = x).AddTo(_disposables);
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             ((IDisposable)_disposables).Dispose();
         }
+
+
+        private DelegateCommand<ItemType> _RemoveFollowCommand;
+        public DelegateCommand<ItemType> RemoveFollowCommand =>
+            _RemoveFollowCommand ??= new DelegateCommand<ItemType>(item => 
+            {
+                _followProvider.RemoveFollowAsync(item);
+            }
+            , (item) => FollowItemType is not FollowItemType.Community and not FollowItemType.Channel
+            );
+
+        private DelegateCommand<ItemType> _OpenPageCommand;
+        public DelegateCommand<ItemType> OpenPageCommand =>
+            _OpenPageCommand ??= new DelegateCommand<ItemType>(item =>
+            {
+                _pageManager.OpenVideoListPageCommand.Execute(item);
+            });
     }
 
 

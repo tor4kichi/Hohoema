@@ -7,7 +7,8 @@ using Hohoema.Models.Domain.Niconico.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
-    public abstract class FollowIncrementalSourceBase : BindableBase, IIncrementalSource<IFollowable>
+    public abstract class FollowIncrementalSourceBase<ItemType> : BindableBase, IIncrementalSource<ItemType>
+        where ItemType : IFollowable
     {
         private long _MaxCount;
         public long MaxCount
@@ -23,7 +24,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             protected set => SetProperty(ref _TotalCount, value);
         }
 
-        public abstract Task<IEnumerable<IFollowable>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default);
+        public abstract Task<IEnumerable<ItemType>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default);
     }
 
 

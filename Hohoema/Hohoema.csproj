@@ -133,6 +133,7 @@
     <Compile Include="FixPrism\BindableBaseWithFix.cs" />
     <Compile Include="Locales\LocaleToDisplayNameConverter.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
+    <Compile Include="Locales\LocalizeWithParameterConverter.cs" />
     <Compile Include="Models.Domain\Application\AppearanceSettings.cs" />
     <Compile Include="Models.Domain\Application\AppFlagsRepository.cs" />
     <Compile Include="Models.Domain\Application\ApplicationInteractionMode.cs" />
@@ -220,7 +221,6 @@
     <Compile Include="Models.Domain\PageNavigation\IPageNavigatable.cs" />
     <Compile Include="Models.Domain\PageNavigation\IPinablePage.cs" />
     <Compile Include="Models.Domain\PageNavigation\ISearchHistory.cs" />
-    <Compile Include="Models.Domain\PageNavigation\ISearchWithtag.cs" />
     <Compile Include="Models.Domain\PageNavigation\ITitleUpdatablePage.cs" />
     <Compile Include="Models.Domain\PageNavigation\MylistUserSelectedSortRepository.cs" />
     <Compile Include="Models.Domain\PageNavigation\RestoreNavigationManager.cs" />
@@ -362,7 +362,7 @@
     <Compile Include="Presentation.Services\NotificationService.cs" />
     <Compile Include="Models.UseCase\CheckingClipboardAndNotificationService.cs" />
     <Compile Include="Models.UseCase\VideoCache\NotificationCacheVideoDeletedService.cs" />
-    <Compile Include="Models.UseCase\Niconico.Follow\NotificationFollowUpdatedService.cs" />
+    <Compile Include="Models.UseCase\Niconico.Follow\FollowNotificationAndConfirmListener.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PageManager.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PageManagerSearchExtention.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\LoginRedirectPayload.cs" />
@@ -386,6 +386,11 @@
     <Compile Include="Models.UseCase\Player\ScondaryViewPlayerManager.cs" />
     <Compile Include="Models.UseCase\Player\ShowPrimaryViewCommand.cs" />
     <Compile Include="Models.UseCase\Player\TogglePlayerDisplayViewCommand.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowMylistGroupViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowChannelGroupViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowCommunityGroupViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowTagGroupViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowUserGroupViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Live\LiveInfoListItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Share\CopyToClipboardWithShareTextCommand.cs" />
     <Compile Include="Presentation.Services\UINavigation\UINavigationButtons.cs" />
@@ -462,7 +467,6 @@
     <Compile Include="Presentation.Views.Pages\Niconico.Video\UserVideoPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\VideoCache.Commands\CacheAddRequestCommand.cs" />
     <Compile Include="Presentation.ViewModels\VideoCache.Commands\CacheDeleteRequestCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\TagAddFollowCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\HiddenVideoOwnerAddCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\HiddenVideoOwnerRemoveCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\LocalPlaylistAddItemCommand.cs" />

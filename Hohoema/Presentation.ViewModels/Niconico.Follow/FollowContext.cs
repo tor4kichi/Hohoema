@@ -10,19 +10,20 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
-    public sealed class FollowContext<FollowProviderType> : BindableBase
-        where FollowProviderType : IFollowProvider 
+    
+    public sealed class FollowContext<ItemType> : BindableBase
+        where ItemType : IFollowable
     {
-        public static async Task<FollowContext<FollowProviderType>> CreateAsync(FollowProviderType provider, string id)
+        public static async Task<FollowContext<ItemType>> CreateAsync(IFollowProvider<ItemType> provider, ItemType followable)
         {
-            var isFollowing = await provider.IsFollowingAsync(id);
-            return new FollowContext<FollowProviderType>(provider, id, isFollowing);
+            var isFollowing = await provider.IsFollowingAsync(followable);
+            return new FollowContext<ItemType>(provider, followable, isFollowing);
         }
 
-        public static FollowContext<FollowProviderType> Default { get; } = new();
+        public static FollowContext<ItemType> Default { get; } = new();
 
-        private readonly FollowProviderType _provider;
-        private readonly string _id;
+        private readonly IFollowProvider<ItemType> _provider;
+        private readonly ItemType _followable;
         private bool _IsFollowing;
         public bool IsFollowing
         {
@@ -42,10 +43,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         }
 
-        private FollowContext(FollowProviderType provider, string id, bool isFollowing)
+        private FollowContext(IFollowProvider<ItemType> provider, ItemType followable, bool isFollowing)
         {
             _provider = provider;
-            _id = id;
+            _followable = followable;
             IsFollowing = isFollowing;
         }
 
@@ -62,7 +63,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             NowChanging = true;
             try
             {
-                var result = await _provider.AddFollowAsync(_id);
+                var result = await _provider.AddFollowAsync(_followable);
                 if (result != Mntone.Nico2.ContentManageResult.Failed)
                 {
                     IsFollowing = true;
@@ -86,7 +87,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             NowChanging = true;
             try
             {
-                var result = await _provider.RemoveFollowAsync(_id);
+                var result = await _provider.RemoveFollowAsync(_followable);
                 if (result == Mntone.Nico2.ContentManageResult.Success)
                 {
                     IsFollowing = false;

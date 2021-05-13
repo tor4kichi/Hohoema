@@ -35,8 +35,12 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         public int Count => (int)_followMylist.Detail.ItemsCount;
 
+        public int FollowerCount => (int)_followMylist.Detail.FollowerCount;
+
         public Uri[] ThumbnailImages => _followMylist.Detail.SampleItems.Select(x => x.Video.Thumbnail.MiddleUrl).ToArray();
 
         public Uri ThumbnailImage => ThumbnailImages.FirstOrDefault();
+
+        public string ThumbnailImageString => ThumbnailImages.FirstOrDefault()?.OriginalString;
     }
 }

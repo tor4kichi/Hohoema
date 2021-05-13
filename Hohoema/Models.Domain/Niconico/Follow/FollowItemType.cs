@@ -10,11 +10,11 @@ namespace Hohoema.Models.Domain.Niconico.Follow
 
 	public enum FollowItemType
 	{
+		User,
 		Tag,
 		Mylist,
-		User,
-		Community,
         Channel,
+		Community,
 	}
 
 
@@ -24,16 +24,16 @@ namespace Hohoema.Models.Domain.Niconico.Follow
 		{
 			switch (favorite)
 			{
+				case FollowItemType.User:
+					return NiconicoItemType.User;
 				case FollowItemType.Tag:
 					return null;
 				case FollowItemType.Mylist:
 					return NiconicoItemType.Mylist;					
-				case FollowItemType.User:
-					return NiconicoItemType.User;
-				case FollowItemType.Community:
-					return null;
                 case FollowItemType.Channel:
                     return null;
+				case FollowItemType.Community:
+					return null;
 				default:
 					throw new NotSupportedException();
 			}

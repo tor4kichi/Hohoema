@@ -36,7 +36,7 @@ using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
-    using UserFollowContext = FollowContext<UserFollowProvider>;
+    using UserFollowContext = FollowContext<IUser>;
 
     public class UserInfoPageViewModel : HohoemaPageViewModelBase, IUser, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
@@ -175,11 +175,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 		}
 
 
-		private string _UserIconUri;
-		public string UserIconUri
+		private string _IconUrl;
+		public string IconUrl
 		{
-			get { return _UserIconUri; }
-			set { SetProperty(ref _UserIconUri, value); }
+			get { return _IconUrl; }
+			set { SetProperty(ref _IconUrl, value); }
 		}
 
 		private bool _IsPremium;
@@ -316,7 +316,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
                 var user = userInfo;
                 UserName = user.User.Nickname;
-                UserIconUri = user.User.Icons.Small.OriginalString;
+                IconUrl = user.User.Icons.Small.OriginalString;
 
                 FollowerCount = (uint)user.User.FollowerCount;
             }
@@ -333,7 +333,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             {
                 if (NiconicoSession.IsLoggedIn)
                 {
-                    FollowContext = await UserFollowContext.CreateAsync(_userFollowProvider, UserId);
+                    FollowContext = await UserFollowContext.CreateAsync(_userFollowProvider, this);
                 }
                 else
                 {

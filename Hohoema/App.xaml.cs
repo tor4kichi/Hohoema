@@ -234,6 +234,8 @@ namespace Hohoema
         public override void RegisterTypes(IContainerRegistry container)
         {
             var unityContainer = container.GetContainer();
+            
+            unityContainer.RegisterInstance<IMessenger>(WeakReferenceMessenger.Default);
 
             LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
             unityContainer.RegisterInstance<LiteDatabase>(db);
@@ -565,7 +567,7 @@ namespace Hohoema
                 // アプリのユースケース系サービスを配置
                 unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheVideoDeletedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<CheckingClipboardAndNotificationService>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<NotificationFollowUpdatedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<FollowNotificationAndConfirmListener>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<SubscriptionUpdateManager>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<FeedResultAddToWatchLater>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<SyncWatchHistoryOnLoggedIn>());

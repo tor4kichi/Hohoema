@@ -41,7 +41,7 @@
       <ScrollViewer>
         <StackPanel x:Name="ContentLayout">
           <toolkit:DockPanel x:Name="AccountSummaryLayout">
-            <Image Width="80" Height="80" Source="{Binding UserIconUri, Mode=OneWay}" Margin="0 0 16 0" toolkit:DockPanel.Dock="Left" />
+            <Image Width="80" Height="80" Source="{Binding IconUrl, Mode=OneWay}" Margin="0 0 16 0" toolkit:DockPanel.Dock="Left" />
             <TextBlock Text="{Binding UserName}" VerticalAlignment="Center" Style="{StaticResource SubheaderTextBlockStyle}" toolkit:DockPanel.Dock="Top" TextWrapping="Wrap" />
             <Border Background="Transparent" IsHitTestVisible="True" VerticalAlignment="Bottom" Margin="0 0 0 0">
               <StackPanel Orientation="Horizontal" Margin="0 8">

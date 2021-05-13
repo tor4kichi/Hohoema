@@ -4,7 +4,6 @@
       xmlns:local="using:Hohoema.Presentation.Views.Pages.Niconico.LoginUser"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:toolkit="using:WinRTXamlToolkit.Controls"
       xmlns:i="using:Microsoft.Xaml.Interactivity"
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
       xmlns:controls="using:Hohoema.Presentation.Views.Controls"
@@ -13,6 +12,7 @@
       xmlns:windowsStateTriggers="using:WindowsStateTriggers"
       xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+      xmlns:myExtension="using:Hohoema.Presentation.Views.Extensions"
       DataContext="{x:Null}"
       mc:Ignorable="d">
   <Page.Resources>
@@ -25,7 +25,125 @@
     </DataTemplate>
     <local:FollowTypeToSymbolIconConverter x:Key="FavTypeToSymbol" />
 
+    <Style TargetType="TextBlock" x:Key="FollowItemSecondaryTextStyle">
+      <Setter Property="Foreground" Value="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="FollowItemDescriptionTextStyle" BasedOn="{StaticResource FollowItemSecondaryTextStyle}">
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="TextTrimming" Value="WordEllipsis" />
+      <Setter Property="MaxLines" Value="2" />
+    </Style>
+
+    <local:FollowTypeItemTemplateSelector x:Key="FollowTypeItemTemplateSelector" >
+      <local:FollowTypeItemTemplateSelector.UserItemTemplate>
+        <DataTemplate>
+          <uwpControls:DockPanel Height="80">
+            <uwpControls:ImageEx Source="{Binding IconUrl}" uwpControls:DockPanel.Dock="Left" Width="60" Height="60" CornerRadius="48" />
+
+            <StackPanel Margin="16 16 0 0">
+              <TextBlock Text="{Binding Label}" FontSize="16" />
+              <TextBlock Text="{Binding Description}" Style="{StaticResource FollowItemDescriptionTextStyle}">
+                <ToolTipService.ToolTip>
+                  <StackPanel>
+                    <TextBlock Text="{Binding Description}" Style="{StaticResource FollowItemDescriptionTextStyle}" MaxLines="20" />
+                  </StackPanel>
+                </ToolTipService.ToolTip>
+              </TextBlock>
+            </StackPanel>
+          </uwpControls:DockPanel>
+        </DataTemplate>
+      </local:FollowTypeItemTemplateSelector.UserItemTemplate>
+      <local:FollowTypeItemTemplateSelector.TagItemTemplate>
+        <DataTemplate>
+          <uwpControls:DockPanel Margin="4 8">
+            <SymbolIcon Symbol="Tag" uwpControls:DockPanel.Dock="Left" VerticalAlignment="Top" />
+            
+            <StackPanel VerticalAlignment="Center" Margin="16 0 0 0">
+              <TextBlock Text="{Binding Label}" />
+
+              <TextBlock Text="{Binding NicoDicSummary}" Style="{StaticResource FollowItemDescriptionTextStyle}">
+                <ToolTipService.ToolTip>
+                  <StackPanel>
+                    <TextBlock Text="{Binding NicoDicSummary}" Style="{StaticResource FollowItemDescriptionTextStyle}" MaxLines="20" />
+                  </StackPanel>
+                </ToolTipService.ToolTip>
+              </TextBlock>
+            </StackPanel>
+          </uwpControls:DockPanel>
+        </DataTemplate>
+      </local:FollowTypeItemTemplateSelector.TagItemTemplate>
+      <local:FollowTypeItemTemplateSelector.MylistItemTemplate>
+        <DataTemplate>
+          <uwpControls:DockPanel Margin="0 4">
+            <Grid uwpControls:DockPanel.Dock="Left">
+              <uwpControls:ImageEx Source="{Binding ThumbnailImageString}" Height="80" Width="140">
+
+              </uwpControls:ImageEx>
+
+              <Border Background="{ThemeResource SystemAltMediumHighColor}" Padding="8 4" VerticalAlignment="Bottom">
+                <TextBlock Text="{Binding Count, Converter={StaticResource LocalizeWithParameterConverter}, ConverterParameter=MylistVideoCountDesc}" HorizontalAlignment="Center" />
+              </Border>
+            </Grid>
+
+            <StackPanel Margin="12 8" VerticalAlignment="Center" Spacing="4">
+              <TextBlock Text="{Binding Label}" FontSize="16" />
+              <TextBlock Text="{Binding Description}" Style="{StaticResource FollowItemDescriptionTextStyle}">
+                <ToolTipService.ToolTip>
+                  <StackPanel>
+                    <TextBlock Text="{Binding Description}" Style="{StaticResource FollowItemDescriptionTextStyle}" MaxLines="20" />
+                  </StackPanel>
+                </ToolTipService.ToolTip>
+              </TextBlock>
+              <TextBlock Style="{StaticResource FollowItemSecondaryTextStyle}">
+                <Run Text="{i18nExt:Localize Key=FollowerCount}" /> <Run Text="{Binding FollowerCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+              </TextBlock>
+            </StackPanel>
+          </uwpControls:DockPanel>
+        </DataTemplate>
+      </local:FollowTypeItemTemplateSelector.MylistItemTemplate>
+      <local:FollowTypeItemTemplateSelector.ChannelItemTemplate>
+        <DataTemplate>
+          <uwpControls:DockPanel Height="80">
+            <uwpControls:ImageEx Source="{Binding ThumbnailUrl.OriginalString}" uwpControls:DockPanel.Dock="Left" Width="60" Height="60" CornerRadius="48" />
+
+            <StackPanel Margin="16 16 0 0">
+              <TextBlock Text="{Binding Label}" FontSize="16" />
+              <TextBlock Text="{Binding Description}" Style="{StaticResource FollowItemDescriptionTextStyle}">
+                <ToolTipService.ToolTip>
+                  <StackPanel>
+                    <TextBlock Text="{Binding Description}" Style="{StaticResource FollowItemDescriptionTextStyle}" MaxLines="20" />
+                  </StackPanel>
+                </ToolTipService.ToolTip>
+              </TextBlock>
+            </StackPanel>
+          </uwpControls:DockPanel>
+        </DataTemplate>
+      </local:FollowTypeItemTemplateSelector.ChannelItemTemplate>
+      <local:FollowTypeItemTemplateSelector.CommunityItemTemplate>
+        <DataTemplate>
+          <uwpControls:DockPanel Height="80">
+            <uwpControls:ImageEx Source="{Binding ThumbnailUrl}" uwpControls:DockPanel.Dock="Left" Width="60" Height="60" CornerRadius="48" />
+
+            <StackPanel Margin="16 16 0 0">
+              <TextBlock Text="{Binding Label}" FontSize="16" />
+              <TextBlock Text="{Binding Description}" Style="{StaticResource FollowItemDescriptionTextStyle}">
+                <ToolTipService.ToolTip>
+                  <StackPanel>
+                    <TextBlock Text="{Binding Description}" Style="{StaticResource FollowItemDescriptionTextStyle}" MaxLines="20" />
+                  </StackPanel>
+                </ToolTipService.ToolTip>
+              </TextBlock>
+            </StackPanel>
+          </uwpControls:DockPanel>
+        </DataTemplate>
+      </local:FollowTypeItemTemplateSelector.CommunityItemTemplate>
+    </local:FollowTypeItemTemplateSelector>
+
   </Page.Resources>
+  
+  
   <Grid x:Name="PageRoot">
 
     <uwpControls:DockPanel>
@@ -43,6 +161,7 @@
 
       
       <uwpControls:ListDetailsView x:Name="ListDetailsView" ItemsSource="{Binding FollowGroups}">
+        
         <uwpControls:ListDetailsView.ItemTemplate>
           <DataTemplate>
             <StackPanel Orientation="Horizontal">
@@ -53,12 +172,23 @@
         </uwpControls:ListDetailsView.ItemTemplate>
         <uwpControls:ListDetailsView.DetailsTemplate>
           <DataTemplate>
-            <ListView ItemsSource="{Binding Items}">
-              <ListView.ItemTemplate>
+            <ListView ItemsSource="{Binding Items}"
+                      ItemTemplateSelector="{StaticResource FollowTypeItemTemplateSelector}"
+                      IsItemClickEnabled="True"
+                      myExtension:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding}"
+                      >
+              <myExtension:ListViewBase.ItemContextFlyoutTemplate>
                 <DataTemplate>
-                  <TextBlock Text="{Binding Label}" />
+                  <MenuFlyout >
+                    <MenuFlyoutItem Text="フォロー解除" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.RemoveFollowCommand}" CommandParameter="{Binding}" />
+                  </MenuFlyout>
                 </DataTemplate>
-              </ListView.ItemTemplate>
+              </myExtension:ListViewBase.ItemContextFlyoutTemplate>
+              <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="ItemClick">
+                  <core:InvokeCommandAction Command="{Binding OpenPageCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                </core:EventTriggerBehavior>
+              </i:Interaction.Behaviors>
             </ListView>
           </DataTemplate>
         </uwpControls:ListDetailsView.DetailsTemplate>

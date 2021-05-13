@@ -5,24 +5,38 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using Hohoema.Models.Domain.Niconico.Community;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
-    public sealed class FollowCommunityIncrementalSource : FollowIncrementalSourceBase
+    public sealed class FollowCommunityIncrementalSource : FollowIncrementalSourceBase<ICommunity>
     {
         private readonly CommunityFollowProvider _communityFollowProvider;
+        private readonly uint _loginUserId;
 
-        public FollowCommunityIncrementalSource(CommunityFollowProvider communityFollowProvider)
+        public FollowCommunityIncrementalSource(CommunityFollowProvider communityFollowProvider, uint loginUserId)
         {
             _communityFollowProvider = communityFollowProvider;
+            _loginUserId = loginUserId;
         }
 
         bool isTailReached;
-        public override async Task<IEnumerable<IFollowable>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
+        private Mntone.Nico2.Users.Follow.UserOwnedCommunityResponse _ownedCommunities;
+        HashSet<string> _OwnedCommunitiesIdHashSet;
+        public override async Task<IEnumerable<ICommunity>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
         {
             if (isTailReached)
             {
-                return Enumerable.Empty<IFollowable>();
+                return Enumerable.Empty<ICommunity>();
+            }
+
+            if (pageIndex == 0)
+            {
+                if (_loginUserId != 0)
+                {
+                    _ownedCommunities = await _communityFollowProvider.GetUserOwnedCommunitiesAsync(_loginUserId);
+                    _OwnedCommunitiesIdHashSet = _ownedCommunities.Data.OwnedCommunities.Select(x => x.Id).ToHashSet();
+                }
             }
 
             var res = await _communityFollowProvider.GetCommunityItemsAsync((uint)pageSize, (uint)pageIndex);
@@ -33,7 +47,20 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
                 isTailReached = true;
             }
 
-            return res.Data.Select(x => new FollowCommunityViewModel(x));
+            if (pageIndex == 0)
+            {
+                return Enumerable.Concat(
+                    _ownedCommunities.Data.OwnedCommunities,
+                    res.Data.Where(x => !_OwnedCommunitiesIdHashSet.Contains(x.GlobalId))
+                    )
+                    .Select(x => new FollowCommunityViewModel(x, _OwnedCommunitiesIdHashSet.Contains(x.GlobalId)));
+            }
+            else
+            {
+                return res.Data
+                    .Where(x => !_OwnedCommunitiesIdHashSet.Contains(x.GlobalId))
+                    .Select(x => new FollowCommunityViewModel(x, _OwnedCommunitiesIdHashSet.Contains(x.GlobalId)));
+            }
         }
     }
 }

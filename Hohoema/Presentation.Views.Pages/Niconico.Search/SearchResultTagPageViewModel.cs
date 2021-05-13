@@ -24,12 +24,13 @@ using System.Threading.Tasks;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+using Hohoema.Models.Domain.Niconico.Video;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
-    using TagFollowContext = FollowContext<TagFollowProvider>;
+    using TagFollowContext = FollowContext<Models.Domain.Niconico.Video.ITag>;
 
-    public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, ISearchWithtag, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, ITag, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -281,7 +282,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 			}
 		}
 
-        string ISearchWithtag.Tag => SearchOption.Keyword;
+        string ITag.Tag => SearchOption.Keyword;
 
         string INiconicoObject.Id => SearchOption.Keyword;
 
@@ -313,7 +314,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             {
                 if (NiconicoSession.IsLoggedIn && !string.IsNullOrWhiteSpace(Keyword))
                 {
-                    FollowContext = await TagFollowContext.CreateAsync(_tagFollowProvider, Keyword);
+                    FollowContext = await TagFollowContext.CreateAsync(_tagFollowProvider, this);
                 }
                 else
                 {

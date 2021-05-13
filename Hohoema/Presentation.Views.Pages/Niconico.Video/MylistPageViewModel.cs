@@ -37,7 +37,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
-    using MylistFollowContext = FollowContext<MylistFollowProvider>;
+    using MylistFollowContext = FollowContext<IMylist>;
 
     public class MylistPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
@@ -653,7 +653,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             {
                 if (NiconicoSession.IsLoggedIn && Mylist.Value != null)
                 {
-                    FollowContext = await MylistFollowContext.CreateAsync(_mylistFollowProvider, Mylist.Value.Id);
+                    FollowContext = await MylistFollowContext.CreateAsync(_mylistFollowProvider, Mylist.Value);
                 }
                 else
                 {

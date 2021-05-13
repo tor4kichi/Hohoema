@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
+using Hohoema.Models.Domain.Niconico.Video;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
-    public sealed class FollowTagIncrementalSource : FollowIncrementalSourceBase
+    public sealed class FollowTagIncrementalSource : FollowIncrementalSourceBase<ITag>
     {
         private readonly TagFollowProvider _tagFollowProvider;
 
@@ -18,17 +19,17 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             MaxCount = 30;
         }
 
-        public override async Task<IEnumerable<IFollowable>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
+        public override async Task<IEnumerable<ITag>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
         {
             if (pageIndex != 0)
             {
-                return Enumerable.Empty<IFollowable>();
+                return Enumerable.Empty<ITag>();
             }
             
             var res = await _tagFollowProvider.GetAllAsync();
             if (res == null)
             {
-                return Enumerable.Empty<IFollowable>();
+                return Enumerable.Empty<ITag>();
             }
 
             TotalCount = res.Count;

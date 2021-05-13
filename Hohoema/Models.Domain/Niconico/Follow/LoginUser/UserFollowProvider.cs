@@ -4,15 +4,47 @@ using Hohoema.Models.Infrastructure;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
+using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 {
-    public sealed class UserFollowProvider : ProviderBase, IFollowProvider
+    public class UserFollowAddedMessage : ValueChangedMessage<IUser>
     {
-        public UserFollowProvider(NiconicoSession niconicoSession)
-            : base(niconicoSession)
+        public UserFollowAddedMessage(IUser value) : base(value)
         {
         }
+    }
+
+    public class UserFollowRemoveConfirmingAsyncRequestMessage : AsyncRequestMessage<bool>
+    {
+        public UserFollowRemoveConfirmingAsyncRequestMessage(IUser user)
+        {
+            Target = user;
+        }
+
+        public IUser Target { get; }
+    }
+
+
+    public class UserFollowRemovedMessage : ValueChangedMessage<IUser>
+    {
+        public UserFollowRemovedMessage(IUser value) : base(value)
+        {
+        }
+    }
+
+
+    public sealed class UserFollowProvider : ProviderBase, IFollowProvider<IUser>
+    {
+        private readonly IMessenger _messenger;
+
+        public UserFollowProvider(NiconicoSession niconicoSession, IMessenger messenger)
+            : base(niconicoSession)
+        {
+            _messenger = messenger;
+        }
+
 
         public async Task<List<UserFollowItem>> GetAllAsync()
         {
@@ -56,30 +88,51 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             });
         }
 
-        public async Task<ContentManageResult> AddFollowAsync(string id)
+        Task<bool> IFollowProvider<IUser>.IsFollowingAsync(IUser followable) => IsFollowingAsync(followable.Id);
+
+        public async Task<ContentManageResult> AddFollowAsync(IUser user)
         {
             if (!NiconicoSession.IsLoggedIn)
             {
                 return ContentManageResult.Failed;
             }
 
-            return await ContextActionAsync(async context => 
+            var result = await ContextActionAsync(async context => 
             {
-                return await context.User.AddFollowUserAsync(id);
+                return await context.User.AddFollowUserAsync(user.Id);
             });
+
+            if (result is ContentManageResult.Success or ContentManageResult.Exist)
+            {
+                _messenger.Send<UserFollowAddedMessage>(new(user));
+            }
+
+            return result;
         }
 
-        public async Task<ContentManageResult> RemoveFollowAsync(string id)
+        public async Task<ContentManageResult> RemoveFollowAsync(IUser user)
         {
             if (!NiconicoSession.IsLoggedIn)
             {
                 return ContentManageResult.Failed;
             }
-
-            return await ContextActionAsync(async context =>
+            
+            if (!await _messenger.Send<UserFollowRemoveConfirmingAsyncRequestMessage>(new(user)))
             {
-                return await context.User.RemoveFollowUserAsync(id);
+                return ContentManageResult.Exist;
+            }
+
+            var result =  await ContextActionAsync(async context =>
+            {
+                return await context.User.RemoveFollowUserAsync(user.Id);
             });
+
+            if (result is ContentManageResult.Success)
+            {
+                _messenger.Send<UserFollowRemovedMessage>(new(user));
+            }
+
+            return result;
         }
 
         public Task<bool> IsFollowingAsync(string id)
@@ -95,6 +148,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return await context.User.IsFollowingUserAsync(id);
             });
         }
+
     }
 
 }
