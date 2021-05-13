@@ -31,8 +31,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
         }
 
         CompositeDisposable _disposables = new CompositeDisposable();
-        private readonly IFollowProvider<ItemType> _followProvider;
-        private readonly PageManager _pageManager;
+        protected readonly IFollowProvider<ItemType> _followProvider;
+        protected readonly PageManager _pageManager;
 
         public IncrementalLoadingCollection<IIncrementalSource<ItemType>, ItemType> Items { get; }
 
@@ -63,7 +63,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             );
 
         private DelegateCommand<ItemType> _OpenPageCommand;
-        public DelegateCommand<ItemType> OpenPageCommand =>
+        public virtual DelegateCommand<ItemType> OpenPageCommand =>
             _OpenPageCommand ??= new DelegateCommand<ItemType>(item =>
             {
                 _pageManager.OpenVideoListPageCommand.Execute(item);
