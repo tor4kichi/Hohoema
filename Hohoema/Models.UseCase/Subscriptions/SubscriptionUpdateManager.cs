@@ -117,8 +117,11 @@ namespace Hohoema.Models.UseCase.Subscriptions
             }
         }
 
-        private void Current_Resuming(object sender, object e)
+        private async void Current_Resuming(object sender, object e)
         {
+            // リジューム復帰直後だと
+            await Task.Delay(TimeSpan.FromSeconds(3));
+
             StartOrResetTimer();
         }
 

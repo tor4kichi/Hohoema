@@ -628,7 +628,29 @@ namespace Hohoema.Presentation.ViewModels
 
             _niconicoSession.LogIn += _niconicoSession_LogIn;
             _niconicoSession.LogOut += _niconicoSession_LogOut;
+
+            App.Current.Suspending += Current_Suspending;
+            App.Current.Resuming += Current_Resuming;
         }
+
+        private void Current_Resuming(object sender, object e)
+        {
+            if (_niconicoSession.IsLoggedIn)
+            {
+                _timer.Start();
+            }
+            else
+            {
+                _timer.Stop();
+            }
+        }
+
+        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            _timer.Stop();
+        }
+
+        
 
         private void Timer_Tick(object sender, object e)
         {
@@ -637,9 +659,13 @@ namespace Hohoema.Presentation.ViewModels
 
         private async void UpdateNotify()
         {
-            var unread = await _niconicoSession.LiveContext.Live.LiveNotify.GetUnreadLiveNotifyAsync();
-            IsUnread = unread.Data.IsUnread;
-            NotifyCount = unread.Data.Count;
+            try
+            {
+                var unread = await _niconicoSession.LiveContext.Live.LiveNotify.GetUnreadLiveNotifyAsync();
+                IsUnread = unread.Data.IsUnread;
+                NotifyCount = unread.Data.Count;
+            }
+            catch { }
         }
 
         private void _niconicoSession_LogOut(object sender, EventArgs e)

@@ -185,6 +185,10 @@ namespace Hohoema.Models.Domain.Subscriptions
                 {
                     await RefreshFeedUpdateResultAsync(entity, cancellationToken);
                 }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
                 catch (Exception e)
                 {
                     exceptions.Add(e);
