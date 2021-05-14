@@ -124,7 +124,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         }
 	}
 
-    public class RankingGenreTag
+    public record RankingGenreTag
     {
         public string Label { get; set; }
         public RankingGenre Genre { get; set; }

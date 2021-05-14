@@ -182,7 +182,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         private static RankingGenre? _previousRankingGenre;
         bool _IsNavigateCompleted = false;
 
-
+        bool _isRequireUpdate;
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             using (await _updateLock.LockAsync(NavigationCancellationToken))
@@ -190,65 +190,63 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 _IsNavigateCompleted = false;
 
                 var mode = parameters.GetNavigationMode();
-                if (mode == NavigationMode.New)
+                
+                SelectedRankingTag.Value = null;
+                if (parameters.TryGetValue("genre", out RankingGenre genre))
                 {
-                    SelectedRankingTag.Value = null;
-                    if (parameters.TryGetValue("genre", out RankingGenre genre))
+                    RankingGenre = genre;
+                }
+                else if (parameters.TryGetValue("genre", out string genreString))
+                {
+                    if (Enum.TryParse(genreString, out genre))
                     {
                         RankingGenre = genre;
-                    }
-                    else if (parameters.TryGetValue("genre", out string genreString))
-                    {
-                        if (Enum.TryParse(genreString, out genre))
-                        {
-                            RankingGenre = genre;
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("ランキングページの表示に失敗");
-                    }
-
-                    // TODO: 人気のタグ、いつ再更新を掛ける
-                    try
-                    {
-                        PickedTags.Clear();
-                        var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre);
-                        foreach (var tag in tags)
-                        {
-                            PickedTags.Add(tag);
-                        }
-                    }
-                    catch { }
-
-                    if (parameters.TryGetValue("tag", out string queryTag))
-                    {
-                        if (!string.IsNullOrEmpty(queryTag))
-                        {
-                            var unescapedTagString = Uri.UnescapeDataString(queryTag);
-
-                            var tag = PickedTags.FirstOrDefault(x => x.Tag == unescapedTagString);
-                            if (tag != null)
-                            {
-                                SelectedRankingTag.Value = tag;
-                            }
-                            else
-                            {
-                                Debug.WriteLine("無効なタグです: " + unescapedTagString);
-                                SelectedRankingTag.Value = PickedTags.FirstOrDefault();
-                            }
-                        }
-                    }
-
-                    if (SelectedRankingTag.Value == null)
-                    {
-                        SelectedRankingTag.Value = PickedTags.FirstOrDefault();
                     }
                 }
                 else
                 {
-                    RankingGenre = _previousRankingGenre.Value;
+                    throw new Exception("ランキングページの表示に失敗");
                 }
+
+                _isRequireUpdate = RankingGenre != _previousRankingGenre;
+
+                // TODO: 人気のタグ、いつ再更新を掛ける
+                try
+                {
+                    PickedTags.Clear();
+                    var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre);
+                    foreach (var tag in tags)
+                    {
+                        PickedTags.Add(tag);
+                    }
+                }
+                catch { }
+
+                if (parameters.TryGetValue("tag", out string queryTag))
+                {
+                    if (!string.IsNullOrEmpty(queryTag))
+                    {
+                        var unescapedTagString = Uri.UnescapeDataString(queryTag);
+
+                        var tag = PickedTags.FirstOrDefault(x => x.Tag == unescapedTagString);
+                        if (tag != null)
+                        {
+                            SelectedRankingTag.Value = tag;
+                        }
+                        else
+                        {
+                            Debug.WriteLine("無効なタグです: " + unescapedTagString);
+                            SelectedRankingTag.Value = PickedTags.FirstOrDefault();
+                        }
+                    }
+                }
+
+
+                if (SelectedRankingTag.Value == null)
+                {
+                    SelectedRankingTag.Value = PickedTags.FirstOrDefault();
+                }
+
 
                 _IsNavigateCompleted = true;
 
@@ -305,6 +303,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
                 await base.OnNavigatedToAsync(parameters);
             }
+        }
+
+        protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
+        {
+            if (_isRequireUpdate) { return true; }
+            return base.CheckNeedUpdateOnNavigateTo(mode);
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
