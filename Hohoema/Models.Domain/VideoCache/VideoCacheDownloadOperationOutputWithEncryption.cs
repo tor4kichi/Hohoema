@@ -25,8 +25,20 @@ namespace Hohoema.Models.Domain.VideoCache
                 // 途中までDLしていた場合はそこから再開
                 if (outputFileStream.Length != 0)
                 {
-                    outputFileStream.Seek(0, SeekOrigin.End);
-                    sourceStream.Seek(outputFileStream.Length, SeekOrigin.Begin);
+                    var remainder = outputFileStream.Length % XtsSectorStream.DEFAULT_SECTOR_SIZE;
+                    if (remainder != 0)
+                    {
+                        outputFileStream.Seek(remainder, SeekOrigin.End);
+                        sourceStream.Seek(outputFileStream.Length - remainder, SeekOrigin.Begin);
+                    }
+                    else
+                    {
+                        if (outputFileStream.Length >= XtsSectorStream.DEFAULT_SECTOR_SIZE)
+                        {
+                            outputFileStream.Seek(-XtsSectorStream.DEFAULT_SECTOR_SIZE, SeekOrigin.End);
+                            sourceStream.Seek(outputFileStream.Position, SeekOrigin.Begin);
+                        }
+                    }
                 }
 
                 byte[] inputBuffer = new byte[XtsSectorStream.DEFAULT_SECTOR_SIZE];
@@ -35,7 +47,7 @@ namespace Hohoema.Models.Domain.VideoCache
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    ulong currentSector = (ulong)(outputFileStream.Length / XtsSectorStream.DEFAULT_SECTOR_SIZE);
+                    ulong currentSector = (ulong)(outputFileStream.Position / XtsSectorStream.DEFAULT_SECTOR_SIZE);
                     int readLength = -1;
                     try
                     {
