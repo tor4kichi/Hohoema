@@ -468,37 +468,46 @@ namespace Hohoema.Presentation.ViewModels
 
     public class MylistSubMenuMenu : MenuSubItemViewModelBase
     {
+        private readonly DispatcherQueue _dispatcherQueue;
         private readonly LoginUserOwnedMylistManager _userMylistManager;
 
         public MylistSubMenuMenu(LoginUserOwnedMylistManager userMylistManager, ICommand mylistPageOpenCommand)
         {
             Label = "Mylist".Translate();
 
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             _userMylistManager = userMylistManager;
             MylistPageOpenCommand = mylistPageOpenCommand;
             _userMylistManager.Mylists.CollectionChangedAsObservable()
                 .Subscribe(e => 
                 {
-                    if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+                    _dispatcherQueue.TryEnqueue(() => 
                     {
-                        var items = e.OldItems.Cast<LoginUserMylistPlaylist>();
-                        foreach (var removedItem in items)
+                        if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
                         {
-                            var removeMenuItem = Items.FirstOrDefault(x => (x as MylistMenuItemViewModel).Mylist.Id == removedItem.Id);
-                            if (removeMenuItem != null)
+                            var items = e.OldItems.Cast<LoginUserMylistPlaylist>();
+                            foreach (var removedItem in items)
                             {
-                                Items.Remove(removeMenuItem);
+                                var removeMenuItem = Items.FirstOrDefault(x => (x as MylistMenuItemViewModel).Mylist.Id == removedItem.Id);
+                                if (removeMenuItem != null)
+                                {
+                                    Items.Remove(removeMenuItem);
+                                }
                             }
                         }
-                    }
-                    else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-                    {
-                        var items = e.NewItems.Cast<LoginUserMylistPlaylist>();
-                        foreach (var item in items)
+                        else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
                         {
-                            Items.Add(ToMenuItem(item));
+                            var items = e.NewItems.Cast<LoginUserMylistPlaylist>();
+                            foreach (var item in items)
+                            {
+                                Items.Add(ToMenuItem(item));
+                            }
                         }
-                    }
+                        else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+                        {
+                            Items.Clear();
+                        }
+                    });
                 });
 
             Items = new ObservableCollection<MenuItemViewModel>(_userMylistManager.Mylists.Select(ToMenuItem));
@@ -514,41 +523,46 @@ namespace Hohoema.Presentation.ViewModels
 
     public class LocalMylistSubMenuItemViewModel : MenuSubItemViewModelBase
     {
+        private readonly DispatcherQueue _dispatcherQueue;
         private readonly LocalMylistManager _localMylistManager;
 
         public LocalMylistSubMenuItemViewModel(LocalMylistManager localMylistManager, ICommand openLocalPlaylistManageCommand)
         {
             Label = "LocalPlaylist".Translate();
 
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             _localMylistManager = localMylistManager;
             OpenLocalPlaylistManageCommand = openLocalPlaylistManageCommand;
             _localMylistManager.LocalPlaylists.CollectionChangedAsObservable()
                 .Subscribe(e => 
                 {
-                    if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+                    _dispatcherQueue.TryEnqueue(() => 
                     {
-                        var items = e.OldItems.Cast<LocalPlaylist>();
-                        foreach (var removedItem in items)
+                        if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
                         {
-                            var removeMenuItem = Items.FirstOrDefault(x => (x as LocalMylistItemViewModel).LocalPlaylist.Id == removedItem.Id);
-                            if (removeMenuItem != null)
+                            var items = e.OldItems.Cast<LocalPlaylist>();
+                            foreach (var removedItem in items)
                             {
-                                Items.Remove(removeMenuItem);
+                                var removeMenuItem = Items.FirstOrDefault(x => (x as LocalMylistItemViewModel).LocalPlaylist.Id == removedItem.Id);
+                                if (removeMenuItem != null)
+                                {
+                                    Items.Remove(removeMenuItem);
+                                }
                             }
                         }
-                    }
-                    else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-                    {
-                        var items = e.NewItems.Cast<LocalPlaylist>();
-                        foreach (var item in items)
+                        else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
                         {
-                            Items.Add(new LocalMylistItemViewModel(item));
+                            var items = e.NewItems.Cast<LocalPlaylist>();
+                            foreach (var item in items)
+                            {
+                                Items.Add(new LocalMylistItemViewModel(item));
+                            }
                         }
-                    }
-                    else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
-                    {
-                        Items.Clear();
-                    }
+                        else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+                        {
+                            Items.Clear();
+                        }
+                    });
                 });
 
             Items = new ObservableCollection<MenuItemViewModel>(_localMylistManager.LocalPlaylists.Select(x => new LocalMylistItemViewModel(x)));
