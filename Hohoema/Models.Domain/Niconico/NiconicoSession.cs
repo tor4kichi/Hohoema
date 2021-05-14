@@ -111,6 +111,7 @@ namespace Hohoema.Models.Domain.Niconico
         bool skipOnceNetworkStatusChange;
         private void Current_Resuming(object sender, object e)
         {
+            skipOnceNetworkStatusChange = true;
         }
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
