@@ -14,6 +14,7 @@
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       xmlns:myExtension="using:Hohoema.Presentation.Views.Extensions"
       DataContext="{x:Null}"
+      NavigationCacheMode="Enabled"
       mc:Ignorable="d">
   <Page.Resources>
     

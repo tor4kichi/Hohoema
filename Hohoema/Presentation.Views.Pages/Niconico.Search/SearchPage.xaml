@@ -22,7 +22,7 @@
   xmlns:appModels="using:Hohoema.Models.Domain.Application"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   DataContext="{x:Null}"
-  NavigationCacheMode="Required"
+  NavigationCacheMode="Enabled"
     mc:Ignorable="d">
   <Page.Resources>
     <DataTemplate x:Key="SearchHistoryItemTemplate">

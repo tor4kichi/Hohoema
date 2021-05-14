@@ -29,7 +29,7 @@ namespace Hohoema.Presentation.ViewModels
         public ReactiveProperty<int> LoadedItemsCount { get; private set; }
 
         public AdvancedCollectionView ItemsView { get; private set; }
-        private AdvancedCollectionView _cachedItemsView;
+        private static AdvancedCollectionView _cachedItemsView;
 
         public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> CanChangeSort { get; private set; }
@@ -40,6 +40,11 @@ namespace Hohoema.Presentation.ViewModels
 
         public ReactiveProperty<bool> HasError { get; private set; }
 
+        DispatcherQueue _dispatcherQueue;
+
+        private FastAsyncLock _ItemsUpdateLock = new FastAsyncLock();
+
+        public DateTime LatestUpdateTime = DateTime.Now;
 
         public HohoemaListingPageViewModelBase()
         {
@@ -71,11 +76,6 @@ namespace Hohoema.Presentation.ViewModels
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
         }
 
-        DispatcherQueue _dispatcherQueue;
-
-        private FastAsyncLock _ItemsUpdateLock = new FastAsyncLock();
-
-        public DateTime LatestUpdateTime = DateTime.Now;
 
         public override void Dispose()
         {
@@ -104,7 +104,13 @@ namespace Hohoema.Presentation.ViewModels
             var navigationMode = parameters.GetNavigationMode();
             if (!CheckNeedUpdateOnNavigateTo(navigationMode))
             {
-//                ItemsView = _cachedItemsView;
+                ItemsView = _cachedItemsView;
+                RaisePropertyChanged(nameof(ItemsView));
+            }
+            else
+            {
+                DisposeItemsView(_cachedItemsView);
+                _cachedItemsView = null;
             }
 
             base.OnNavigatingTo(parameters);
@@ -121,19 +127,36 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        
-
         public override async void OnNavigatedFrom(INavigationParameters parameters)
         {
-            using (await _ItemsUpdateLock.LockAsync(default))
+            using (var releaser = await _ItemsUpdateLock.LockAsync(NavigationCancellationToken))
             {
+                _cachedItemsView = ItemsView;
                 if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
                 {
                     oldItems.StopLoading();
                 }
+
+                // Note: ListViewのItemTemplae内でUserControlを利用した場合のメモリリークバグを回避するListView.ItemsSourceにnullを与える
+                ItemsView = null;
+                RaisePropertyChanged(nameof(ItemsView));
             }
 
             base.OnNavigatedFrom(parameters);
+        }
+
+        private void DisposeItemsView(AdvancedCollectionView acv)
+        {
+            if (acv?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
+            {
+                if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
+                {
+                    hohoemaIncrementalSource.Error -= HohoemaIncrementalSource_Error;
+                }
+                oldItems.BeginLoading -= BeginLoadingItems;
+                oldItems.DoneLoading -= CompleteLoadingItems;
+                oldItems.Dispose();
+            }
         }
 
         private async Task ResetList_Internal(CancellationToken ct)
@@ -148,18 +171,7 @@ namespace Hohoema.Presentation.ViewModels
                 HasItem.Value = true;
                 LoadedItemsCount.Value = 0;
 
-                if (prevItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
-                {
-                    prevItemsView = null;
-
-                    if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
-                    {
-                        hohoemaIncrementalSource.Error -= HohoemaIncrementalSource_Error;
-                    }
-                    oldItems.BeginLoading -= BeginLoadingItems;
-                    oldItems.DoneLoading -= CompleteLoadingItems;
-                    oldItems.Dispose();
-                }
+                DisposeItemsView(prevItemsView);
 
                 try
                 {

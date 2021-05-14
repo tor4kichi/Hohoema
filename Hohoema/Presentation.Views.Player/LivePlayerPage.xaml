@@ -26,7 +26,7 @@
       xmlns:liveToolkitWatchSession="using:NiconicoLiveToolkit.Live.WatchSession" 
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       xmlns:myExt="using:Hohoema.Presentation.Views.Extensions"
-      NavigationCacheMode="Required" 
+      NavigationCacheMode="Enabled" 
       DataContext="{x:Null}" 
       mc:Ignorable="d"
       d:DesignHeight="300"

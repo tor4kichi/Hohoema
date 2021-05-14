@@ -13,14 +13,10 @@
   xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  NavigationCacheMode="Required"
   mc:Ignorable="d"
   >
-  <i:Interaction.Behaviors>
-    <core:EventTriggerBehavior EventName="Unloaded" >
-      <myActions:CallDisposeAction Target="{Binding}" xmlns:myActions="using:Hohoema.Presentation.Views.Interaction.Actions" />
-    </core:EventTriggerBehavior>
-  </i:Interaction.Behaviors>
-  
+
   <Page.Resources>
     <flyouts:RankingGenreItemGroupFlyout x:Key="RankingGenreItemGroupFlyout" />
 
