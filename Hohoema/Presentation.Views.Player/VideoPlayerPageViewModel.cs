@@ -589,6 +589,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                     MediaPlayer.Source = null;
                 }
             }
+            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
             finally
             {
                 defferal.Complete();
@@ -597,7 +598,11 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         private void Current_Resuming(object sender, object e)
         {
-            StartStateSavingTimer();
+            try
+            {
+                StartStateSavingTimer();
+            }
+            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
         }
 
 

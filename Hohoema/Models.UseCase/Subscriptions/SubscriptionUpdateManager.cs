@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Uno;
+using Microsoft.AppCenter.Crashes;
 
 namespace Hohoema.Models.UseCase.Subscriptions
 {
@@ -104,13 +105,19 @@ namespace Hohoema.Models.UseCase.Subscriptions
         {
             var deferral = e.SuspendingOperation.GetDeferral();
 
-            _timerUpdateCancellationTokenSource?.Cancel();
-            _timerUpdateCancellationTokenSource = null;
+            try
+            {
+                _timerUpdateCancellationTokenSource?.Cancel();
+                _timerUpdateCancellationTokenSource = null;
+            }
+            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
+
 
             try
             {
                 await StopTimerAsync();
             }
+            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
             finally
             {
                 deferral.Complete();
@@ -119,10 +126,14 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
         private async void Current_Resuming(object sender, object e)
         {
-            // リジューム復帰直後だと
-            await Task.Delay(TimeSpan.FromSeconds(3));
+            try
+            {
+                // リジューム復帰直後だと
+                await Task.Delay(TimeSpan.FromSeconds(3));
 
-            StartOrResetTimer();
+                StartOrResetTimer();
+            }
+            catch (Exception ex) { Crashes.TrackError(ex); }
         }
 
 

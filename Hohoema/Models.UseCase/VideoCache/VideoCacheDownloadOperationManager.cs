@@ -18,6 +18,7 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using Windows.UI.Notifications;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Application;
+using Microsoft.AppCenter.Crashes;
 
 namespace Hohoema.Models.UseCase.VideoCache
 {
@@ -175,6 +176,7 @@ namespace Hohoema.Models.UseCase.VideoCache
 
                     await _videoCacheManager.PauseAllDownloadOperationAsync();
                 }
+                catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
                 finally
                 {
                     defferl.Complete();
@@ -184,7 +186,11 @@ namespace Hohoema.Models.UseCase.VideoCache
             App.Current.Resuming += (s, e) =>
             {
                 Debug.WriteLine($"[VideoCache] App Resuming.");
-                LaunchDownaloadOperationLoop();
+                try
+                {
+                    LaunchDownaloadOperationLoop();
+                }
+                catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
             };
 
             _nicoVideoSessionOwnershipManager.AvairableOwnership += (s, e) => 

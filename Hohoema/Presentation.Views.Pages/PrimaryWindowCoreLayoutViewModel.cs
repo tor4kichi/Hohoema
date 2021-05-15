@@ -649,19 +649,27 @@ namespace Hohoema.Presentation.ViewModels
 
         private void Current_Resuming(object sender, object e)
         {
-            if (_niconicoSession.IsLoggedIn)
+            try
             {
-                _timer.Start();
+                if (_niconicoSession.IsLoggedIn)
+                {
+                    _timer.Start();
+                }
+                else
+                {
+                    _timer.Stop();
+                }
             }
-            else
-            {
-                _timer.Stop();
-            }
+            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }            
         }
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
-            _timer.Stop();
+            try
+            {
+                _timer.Stop();
+            }
+            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
         }
 
         
