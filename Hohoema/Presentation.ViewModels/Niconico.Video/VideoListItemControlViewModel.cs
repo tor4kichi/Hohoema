@@ -64,9 +64,16 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             _removeWatchAfterCommand = App.Current.Container.Resolve<QueueRemoveItemCommand>();
         }
 
+        protected void SetLength(TimeSpan length)
+        {
+            Length = length;
+            RaisePropertyChanged(nameof(Length));
+        }
+
+
         public string RawVideoId { get; }
 
-        public TimeSpan Length { get; }
+        public TimeSpan Length { get; private set; }
 
         public string ThumbnailUrl { get; }
 
@@ -545,13 +552,32 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         public async ValueTask InitializeAsync(CancellationToken ct)
         {
-            if (Data?.Title == null || Data?.ProviderId == null)
+            if (string.IsNullOrEmpty(Label))
             {
-                var data = await _nicoVideoProvider.GetNicoVideoInfo(RawVideoId, Data?.ProviderId == null);
+                var data = await _nicoVideoProvider.GetNicoVideoInfo(RawVideoId, true);
 
                 ct.ThrowIfCancellationRequested();
 
                 Data = data;
+            }
+
+            if (ProviderId is null)
+            {
+                if (Data?.ProviderId is null)
+                {
+                    Data = _nicoVideoRepository.Get(RawVideoId);
+                }
+
+                if (Data?.ProviderId is null)
+                {
+                    Data = await _nicoVideoProvider.GetNicoVideoInfo(RawVideoId, requireLatest: true);
+                }
+
+                if (Data?.ProviderId is not null)
+                {
+                    ProviderId = Data.ProviderId;
+                    ProviderType = Data.ProviderType;
+                }
             }
 
             if (Data != null)
@@ -560,8 +586,12 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             }
 
             UpdateIsHidenVideoOwner(this);
+
+            OnInitialized();
         }
 
+
+        protected virtual void OnInitialized() { }
 
         protected virtual VideoPlayPayload MakeVideoPlayPayload()
 		{

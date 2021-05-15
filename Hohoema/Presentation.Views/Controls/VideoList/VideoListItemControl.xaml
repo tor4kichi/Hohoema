@@ -90,7 +90,7 @@
         </StackPanel>
 
 
-        <StackPanel uwpControls:DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8">
+        <StackPanel x:Name="CountInfoLayout" uwpControls:DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8">
           <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
             <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_ViewCount_Short}" />
             <Run Text="{Binding ViewCount, Mode=OneWay, Converter={StaticResource ToUserFriendlyNumber}}" />
@@ -146,6 +146,19 @@
     </Grid>
 
     <VisualStateManager.VisualStateGroups>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTrigger:EqualsStateTrigger Value="{Binding ViewCount}" EqualTo="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CountInfoLayout.Opacity" Value="0.0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -182,73 +195,7 @@
       </VisualStateGroup>
 
 
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <windowsStateTrigger:EqualsStateTrigger Value="{Binding CacheStatus}">
-              <windowsStateTrigger:EqualsStateTrigger.EqualTo>
-                <videoCache:VideoCacheStatus>Pending</videoCache:VideoCacheStatus>
-              </windowsStateTrigger:EqualsStateTrigger.EqualTo>
-            </windowsStateTrigger:EqualsStateTrigger>
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
-            <Setter Target="CacheIcon.Opacity" Value="0.5" />
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <windowsStateTrigger:EqualsStateTrigger Value="{Binding CacheStatus}">
-              <windowsStateTrigger:EqualsStateTrigger.EqualTo>
-                <videoCache:VideoCacheStatus>Downloading</videoCache:VideoCacheStatus>
-              </windowsStateTrigger:EqualsStateTrigger.EqualTo>
-            </windowsStateTrigger:EqualsStateTrigger>
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
-            <Setter Target="CacheIcon.Foreground" Value="{ThemeResource SystemAccentColor}" />
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <windowsStateTrigger:EqualsStateTrigger Value="{Binding CacheStatus}">
-              <windowsStateTrigger:EqualsStateTrigger.EqualTo>
-                <videoCache:VideoCacheStatus>DownloadPaused</videoCache:VideoCacheStatus>
-              </windowsStateTrigger:EqualsStateTrigger.EqualTo>
-            </windowsStateTrigger:EqualsStateTrigger>
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
-            <Setter Target="CacheIcon.Foreground" Value="Yellow" />
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <windowsStateTrigger:EqualsStateTrigger Value="{Binding CacheStatus}">
-              <windowsStateTrigger:EqualsStateTrigger.EqualTo>
-                <videoCache:VideoCacheStatus>Completed</videoCache:VideoCacheStatus>
-              </windowsStateTrigger:EqualsStateTrigger.EqualTo>
-            </windowsStateTrigger:EqualsStateTrigger>
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <windowsStateTrigger:EqualsStateTrigger Value="{Binding CacheStatus}">
-              <windowsStateTrigger:EqualsStateTrigger.EqualTo>
-                <videoCache:VideoCacheStatus>Failed</videoCache:VideoCacheStatus>
-              </windowsStateTrigger:EqualsStateTrigger.EqualTo>
-            </windowsStateTrigger:EqualsStateTrigger>
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
-            <Setter Target="CacheIcon.Foreground" Value="Red" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-
+      
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>

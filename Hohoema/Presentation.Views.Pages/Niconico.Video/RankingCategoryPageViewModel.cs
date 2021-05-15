@@ -58,7 +58,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         public static INavigationParameters SetRankingGenreTag(this INavigationParameters parameters, string tag)
         {
-            parameters.Add(RankingGenreTagQueryKey, Uri.EscapeDataString(tag));
+            if (tag is not null)
+            {
+                parameters.Add(RankingGenreTagQueryKey, Uri.EscapeDataString(tag));
+            }
+
             return parameters;
         }
 
@@ -417,10 +421,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         protected override async IAsyncEnumerable<RankedVideoListItemControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             int index = 0;
-            var videoInfoItems = _nicoVideoProvider.GetVideoInfoManyAsync(RankingRss.Items.Skip(head).Take(count).Select(x => x.GetVideoId()).ToArray());
-            await foreach (var item in videoInfoItems)
+            foreach (var item in RankingRss.Items.Skip(head).Take(count))
             {
-                var vm = new RankedVideoListItemControlViewModel((uint)(head + index + 1), item);
+                var itemData = item.GetMoreData();
+                var vm = new RankedVideoListItemControlViewModel((uint)(head + index + 1), item.GetVideoId(), item.GetRankTrimmingTitle(), itemData.ThumbnailUrl, itemData.Length);
+
+                vm.CommentCount = itemData.CommentCount;
+                vm.ViewCount = itemData.WatchCount;
+                vm.MylistCount = itemData.MylistCount;
 
                 await vm.InitializeAsync(ct);
 

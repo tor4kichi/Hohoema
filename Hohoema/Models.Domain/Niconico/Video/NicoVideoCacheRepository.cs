@@ -16,8 +16,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         {
             return _collection
                 .Include(x => x.Owner)
-                .Find(x => x.RawVideoId == videoId)
-                .SingleOrDefault()
+                .FindById(videoId)
                 ?? new NicoVideo() { RawVideoId = videoId };
         }
 

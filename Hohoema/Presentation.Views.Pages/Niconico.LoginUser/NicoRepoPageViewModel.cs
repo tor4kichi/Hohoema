@@ -199,6 +199,25 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             _nicoRepoEntry = nicoRepoEntry;
             ItemTopic = itemType;
 
+            PostedAt = _nicoRepoEntry.Updated.DateTime;
+
+            if (_nicoRepoEntry.Actor != null)
+            {
+                if (_nicoRepoEntry.Actor.Url.OriginalString.StartsWith("https://ch.nicovideo.jp/"))
+                {
+                    // チャンネル
+                    ProviderName = _nicoRepoEntry.Actor.Name;
+                    ProviderId = _nicoRepoEntry.Actor.Url.Segments.Last();
+                    ProviderType = NicoVideoUserType.Channel;
+                }
+                else
+                {
+                    ProviderName = _nicoRepoEntry.Actor.Name;
+                    ProviderId = _nicoRepoEntry.Actor.Url.Segments.Last();
+                    ProviderType = NicoVideoUserType.User;
+                }
+            }
+
             ItempTopicDescription = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, _nicoRepoEntry);
             /*
 
@@ -224,11 +243,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
         }        
 
-        public new TimeSpan Length { get; set; }
-
         public string ItempTopicDescription { get; }
 
         public NicoRepoItemTopic ItemTopic { get; private set; }
+
+        protected override void OnInitialized()
+        {
+            SetLength(Data?.Length ?? TimeSpan.Zero);
+        }
     }
 
 

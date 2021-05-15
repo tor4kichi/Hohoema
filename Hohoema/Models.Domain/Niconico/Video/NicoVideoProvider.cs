@@ -150,16 +150,24 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         info.Owner = new NicoVideoOwner()
                         {
                             OwnerId = res.Video.CommunityId,
-                            UserType = NicoVideoUserType.Channel
+                            UserType = NicoVideoUserType.Channel,
+                            IconUrl = info.Owner?.IconUrl,
+                            ScreenName = info.Owner?.ScreenName,
                         };
+
+                        _nicoVideoOwnerRepository.UpdateItem(info.Owner);
                     }
                     else
                     {
                         info.Owner = new NicoVideoOwner()
                         {
                             OwnerId = res.Video.UserId.ToString(),
-                            UserType = res.Video.ProviderType == "regular" ? NicoVideoUserType.User : NicoVideoUserType.Channel
+                            UserType = res.Video.ProviderType == "regular" ? NicoVideoUserType.User : NicoVideoUserType.Channel,
+                            IconUrl = info.Owner?.IconUrl,
+                            ScreenName = info.Owner?.ScreenName,
                         };
+
+                        _nicoVideoOwnerRepository.UpdateItem(info.Owner);
                     }
 
                     info.IsDeleted = res.Video.Deleted != 0;
@@ -176,8 +184,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
                 { 
                     info.IsDeleted = true;
                 }
-
-                _nicoVideoRepository.UpdateItem(info);
             }
             catch (Exception ex) when (ex.Message.Contains("DELETE") || ex.Message.Contains("NOT_FOUND"))
             {
@@ -186,6 +192,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             }
             finally
             {
+                info.LastUpdated = DateTime.Now;
                 _nicoVideoRepository.AddOrUpdate(info);
             }
 
@@ -197,7 +204,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
             return info;
             
         }
-
 
         public async IAsyncEnumerable<NicoVideo> GetVideoInfoManyAsync(IEnumerable<string> idItems, bool isLatestRequired = true, [EnumeratorCancellation] CancellationToken ct = default)
         {
@@ -275,16 +281,24 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     info.Owner = new NicoVideoOwner()
                     {
                         OwnerId = item.Video.CommunityId,
-                        UserType = NicoVideoUserType.Channel
+                        UserType = NicoVideoUserType.Channel,
+                        IconUrl = info.Owner?.IconUrl,
+                        ScreenName = info.Owner?.ScreenName,
                     };
+
+                    _nicoVideoOwnerRepository.UpdateItem(info.Owner);
                 }
                 else
                 {
                     info.Owner = new NicoVideoOwner()
                     {
                         OwnerId = item.Video.UserId.ToString(),
-                        UserType = item.Video.ProviderType == "regular" ? NicoVideoUserType.User : NicoVideoUserType.Channel
+                        UserType = item.Video.ProviderType == "regular" ? NicoVideoUserType.User : NicoVideoUserType.Channel,
+                        IconUrl = info.Owner?.IconUrl,
+                        ScreenName = info.Owner?.ScreenName,
                     };
+
+                    _nicoVideoOwnerRepository.UpdateItem(info.Owner);
                 }
 
                 info.IsDeleted = item.Video.Deleted != 0;
@@ -297,6 +311,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     catch { }
                 }
 
+                info.LastUpdated = DateTime.Now;
                 _nicoVideoRepository.UpdateItem(info);
 
                 yield return info;
@@ -388,6 +403,8 @@ namespace Hohoema.Models.Domain.Niconico.Video
                                 OwnerId = res.Channel.Id,
                                 UserType = NicoVideoUserType.Channel
                             };
+
+                            _nicoVideoOwnerRepository.UpdateItem(info.Owner);
                         }
 
                         if (data.DmcWatchResponse?.Video != null)
@@ -395,6 +412,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                             info.IsDeleted = data.DmcWatchResponse.Video.IsDeleted;
                         }
 
+                        info.LastUpdated = DateTime.Now;
                         _nicoVideoRepository.AddOrUpdate(info);
                     }
 
