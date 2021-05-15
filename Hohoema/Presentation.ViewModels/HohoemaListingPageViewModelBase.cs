@@ -102,7 +102,7 @@ namespace Hohoema.Presentation.ViewModels
         public override void OnNavigatingTo(INavigationParameters parameters)
         {
             var navigationMode = parameters.GetNavigationMode();
-            if (!CheckNeedUpdateOnNavigateTo(navigationMode))
+            if (_cachedItemsView != null && !CheckNeedUpdateOnNavigateTo(navigationMode))
             {
                 ItemsView = _cachedItemsView;
                 RaisePropertyChanged(nameof(ItemsView));
@@ -116,15 +116,19 @@ namespace Hohoema.Presentation.ViewModels
             base.OnNavigatingTo(parameters);
         }
 
-        public virtual async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override void OnNavigatedTo(INavigationParameters parameters)
         {
-            var navigationMode = parameters.GetNavigationMode();
-            if (CheckNeedUpdateOnNavigateTo(navigationMode))
+            if (ItemsView == null)
             {
-                await Task.Delay(10, NavigationCancellationToken);
-
                 ResetList();
             }
+
+            base.OnNavigatedTo(parameters);
+        }
+
+        public virtual Task OnNavigatedToAsync(INavigationParameters parameters)
+        {
+            return Task.CompletedTask;
         }
 
         public override async void OnNavigatedFrom(INavigationParameters parameters)

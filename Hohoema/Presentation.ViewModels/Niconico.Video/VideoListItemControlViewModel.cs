@@ -70,6 +70,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         public string ThumbnailUrl { get; }
 
+        public Uri ThumbnailUri => !string.IsNullOrWhiteSpace(ThumbnailUrl) ? new Uri(ThumbnailUrl) : null;
+
         public string Title { get; }
 
         public string Id => RawVideoId;

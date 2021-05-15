@@ -32,15 +32,12 @@
                            x:Name="ContentLayout"
                            >
                 <Grid uwpControls:DockPanel.Dock="Left" Margin="0 0 12 0" Width="132" Height="72">
-                  <uwpControls:ImageEx Source="{TemplateBinding ImageUrl}" 
+                  <Image x:Name="ImagePart"
                         Stretch="Uniform"
                         VerticalAlignment="Center"
-                        VerticalContentAlignment="Center" 
-                        IsCacheEnabled="{TemplateBinding IsImageUseCache}"
-                        IsTabStop="False"
-                        Height="100"
+                         Height="100"
                     >
-                  </uwpControls:ImageEx>
+                  </Image>
 
 
 

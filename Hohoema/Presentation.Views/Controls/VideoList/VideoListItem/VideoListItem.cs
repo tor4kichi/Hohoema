@@ -11,6 +11,8 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Imaging;
 
 namespace Hohoema.Presentation.Views.Controls.VideoList.VideoListItem
 {
@@ -33,24 +35,9 @@ namespace Hohoema.Presentation.Views.Controls.VideoList.VideoListItem
             {
                 (GetTemplateChild("MobileSupportActionsLayout") as UIElement).Visibility = Visibility.Visible;
             }
+
+            _templateChildImage = GetTemplateChild("ImagePart") as Image;
         }
-
-
-
-        public bool IsImageUseCache
-        {
-            get { return (bool)GetValue(IsImageUseCacheProperty); }
-            set { SetValue(IsImageUseCacheProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for IsThumbnailUseCache.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty IsImageUseCacheProperty =
-            DependencyProperty.Register("IsImageUseCache", typeof(bool), typeof(VideoListItem), new PropertyMetadata(true));
-
-
-
-
-
 
         public string ImageUrl
         {
@@ -60,10 +47,12 @@ namespace Hohoema.Presentation.Views.Controls.VideoList.VideoListItem
 
         // Using a DependencyProperty as the backing store for ThumbnailUrl.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ImageUrlProperty =
-            DependencyProperty.Register("ImageUrl", typeof(string), typeof(VideoListItem), new PropertyMetadata(null));
+            DependencyProperty.Register("ImageUrl", typeof(string), typeof(VideoListItem), new PropertyMetadata(null, OnImageUrlChanged));
 
-
-
+        private static void OnImageUrlChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            ((VideoListItem)d)._templateChildImage.Source = e.NewValue is string strUrl ? new BitmapImage(new Uri(strUrl)) : null;
+        }
 
         public string ImageSubText
         {
@@ -160,6 +149,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList.VideoListItem
         // Using a DependencyProperty as the backing store for MiddleClickOrSwipeRightCommand.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MiddleClickOrSwipeRightCommandProperty =
             DependencyProperty.Register("MiddleClickOrSwipeRightCommand", typeof(ICommand), typeof(VideoListItem), new PropertyMetadata(null));
+        private Image _templateChildImage;
 
         protected override void OnPointerPressed(PointerRoutedEventArgs e)
         {

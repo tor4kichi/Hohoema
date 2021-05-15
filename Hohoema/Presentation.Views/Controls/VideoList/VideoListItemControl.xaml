@@ -20,7 +20,6 @@
   <Grid x:Name="UserControlRoot">
 
     <videoListItem:VideoListItem x:Name="ContentLayout"
-      IsImageUseCache="{x:Bind IsThumbnailUseCache}"
       ImageUrl="{Binding ThumbnailUrl}"
       ImageSubText="{Binding Length, Converter={StaticResource TimeToMovieLengthConverter}}"
       IsQueueItem="{Binding IsQueueItem}"
