@@ -107,7 +107,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         {
             if (Playlist != null)
             {
-                WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemRemovedMessage>(this);
+                WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemRemovedMessage, string>(this, Playlist.Id);
             }
             base.OnNavigatedFrom(parameters);
         }
@@ -123,7 +123,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         {
             if (Playlist != null)
             {
-                WeakReferenceMessenger.Default.Register<LocalPlaylistItemRemovedMessage>(this, (r, m) => 
+                WeakReferenceMessenger.Default.Register<LocalPlaylistItemRemovedMessage, string>(this, Playlist.Id, (r, m) => 
                 {
                     var args = m.Value;
                     foreach (var itemId in args.RemovedItems)

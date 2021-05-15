@@ -109,7 +109,6 @@
       <i:Interaction.Behaviors>
         <behaviors:StickyHeaderBehavior />
         
-        <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
         <core:EventTriggerBehavior EventName="ItemClick">
           <core:InvokeCommandAction Command="{Binding OpenNicoRepoItemCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
         </core:EventTriggerBehavior>
