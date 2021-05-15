@@ -38,29 +38,18 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         IRecipient<QueueItemIndexUpdateMessage>,
         IRecipient<VideoCacheStatusChangedMessage>
     {
-        private static readonly NicoVideoProvider _nicoVideoProvider;
         private static readonly HohoemaPlaylist _hohoemaPlaylist;
-        private static readonly NicoVideoCacheRepository _nicoVideoRepository;
         private static readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
-        private static readonly UserNameProvider _userNameProvider;
-        private static readonly ChannelProvider _channelProvider;
-        private static readonly VideoFilteringSettings _ngSettings;
         private static readonly VideoCacheManager _cacheManager;
         protected static readonly IScheduler _scheduler;
 
         static VideoItemViewModel()
         {
-            _nicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
             _hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
-            _ngSettings = App.Current.Container.Resolve<VideoFilteringSettings>();
             _cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
             _scheduler = App.Current.Container.Resolve<IScheduler>();
-            _nicoVideoRepository = App.Current.Container.Resolve<NicoVideoCacheRepository>();
             _videoPlayedHistoryRepository = App.Current.Container.Resolve<VideoPlayedHistoryRepository>();
-            _userNameProvider = App.Current.Container.Resolve<UserNameProvider>();
-            _channelProvider = App.Current.Container.Resolve<ChannelProvider>();
             _addWatchAfterCommand = App.Current.Container.Resolve<QueueAddItemCommand>();
-
             _removeWatchAfterCommand = App.Current.Container.Resolve<QueueRemoveItemCommand>();
         }
 
@@ -107,10 +96,18 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             if (_subsribedVideoId != null)
             {
-                WeakReferenceMessenger.Default.UnregisterAll(this, _subsribedVideoId);
+                WeakReferenceMessenger.Default.Unregister<VideoPlayedMessage, string>(this, _subsribedVideoId);
+                WeakReferenceMessenger.Default.Unregister<QueueItemAddedMessage, string>(this, _subsribedVideoId);
+                WeakReferenceMessenger.Default.Unregister<QueueItemRemovedMessage, string>(this, _subsribedVideoId);
+                WeakReferenceMessenger.Default.Unregister<QueueItemIndexUpdateMessage, string>(this, _subsribedVideoId);
+                WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, string>(this, _subsribedVideoId);
             }
 
-            WeakReferenceMessenger.Default.RegisterAll<string>(this, videoId);
+            WeakReferenceMessenger.Default.Register<VideoPlayedMessage, string>(this, videoId);
+            WeakReferenceMessenger.Default.Register<QueueItemAddedMessage, string>(this, videoId);
+            WeakReferenceMessenger.Default.Register<QueueItemRemovedMessage, string>(this, videoId);
+            WeakReferenceMessenger.Default.Register<QueueItemIndexUpdateMessage, string>(this, videoId);
+            WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage, string>(this, videoId);
 
             (IsQueueItem, QueueItemIndex) = _hohoemaPlaylist.IsQueuePlaylistItem(videoId);
             var cacheRequest = _cacheManager.GetVideoCache(videoId);
@@ -124,7 +121,11 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             base.Dispose();
 
-            WeakReferenceMessenger.Default.UnregisterAll(this, _subsribedVideoId);
+            WeakReferenceMessenger.Default.Unregister<VideoPlayedMessage, string>(this, _subsribedVideoId);
+            WeakReferenceMessenger.Default.Unregister<QueueItemAddedMessage, string>(this, _subsribedVideoId);
+            WeakReferenceMessenger.Default.Unregister<QueueItemRemovedMessage, string>(this, _subsribedVideoId);
+            WeakReferenceMessenger.Default.Unregister<QueueItemIndexUpdateMessage, string>(this, _subsribedVideoId);
+            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, string>(this, _subsribedVideoId);
         }
 
         #region Watched
@@ -301,21 +302,17 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
 
 
-    public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, IDisposable 
+    public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, IDisposable,
+        IRecipient<VideoOwnerFilteringAddedMessage>,
+        IRecipient<VideoOwnerFilteringRemovedMessage>
     {
         static VideoListItemControlViewModel()
         {
             _nicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
-            _hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
             _ngSettings = App.Current.Container.Resolve<VideoFilteringSettings>();
-            _cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
-            _scheduler = App.Current.Container.Resolve<IScheduler>();
             _nicoVideoRepository = App.Current.Container.Resolve<NicoVideoCacheRepository>();
-            _videoPlayedHistoryRepository = App.Current.Container.Resolve<VideoPlayedHistoryRepository>();
-            _userNameProvider = App.Current.Container.Resolve<UserNameProvider>();
-            _channelProvider =  App.Current.Container.Resolve<ChannelProvider>();
-
             _openVideoOwnerPageCommand = App.Current.Container.Resolve<OpenVideoOwnerPageCommand>();
+            _messenger = App.Current.Container.Resolve<IMessenger>();
         }
 
 
@@ -324,8 +321,6 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             )
             : base(rawVideoId, title, thumbnailUrl, videoLength)
         {
-            _ngSettings.VideoOwnerFilterAdded += _ngSettings_VideoOwnerFilterAdded;
-            _ngSettings.VideoOwnerFilterRemoved += _ngSettings_VideoOwnerFilterRemoved;
         }
 
         public VideoListItemControlViewModel(NicoVideo data)            
@@ -345,9 +340,11 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             if (data.Owner != null)
             {
-                ProviderId = data.Owner.OwnerId;
+                _ProviderId = data.Owner.OwnerId;
                 _ProviderName = data.Owner.ScreenName;
                 ProviderType = data.Owner.UserType;
+
+                RegisterVideoOwnerFilteringMessageReceiver(_ProviderId, null);
             }
 
             UpdateIsHidenVideoOwner(data);
@@ -371,16 +368,11 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
 
         private static readonly NicoVideoProvider _nicoVideoProvider;
-        private static readonly HohoemaPlaylist _hohoemaPlaylist;
         private static readonly NicoVideoCacheRepository _nicoVideoRepository;
-        private static readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
-        private static readonly UserNameProvider _userNameProvider;
-        private static readonly ChannelProvider _channelProvider;
         private static readonly VideoFilteringSettings _ngSettings;
-        private static readonly VideoCacheManager _cacheManager;
-        private static readonly IScheduler _scheduler;
 
         private static readonly OpenVideoOwnerPageCommand _openVideoOwnerPageCommand;
+        private static readonly IMessenger _messenger;
 
         public OpenVideoOwnerPageCommand OpenVideoOwnerPageCommand => _openVideoOwnerPageCommand;
 
@@ -395,8 +387,19 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-
-        public string ProviderId { get; set; }
+        private string _ProviderId;
+        public string ProviderId
+        {
+            get => _ProviderId;
+            set
+            {
+                var oldProviderId = _ProviderId;
+                if (SetProperty(ref _ProviderId, value))
+                {
+                    RegisterVideoOwnerFilteringMessageReceiver(_ProviderId, oldProviderId);
+                }
+            }
+        }
         
         private string _ProviderName;
         public string ProviderName
@@ -473,7 +476,31 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         #region NG 
 
+        void RegisterVideoOwnerFilteringMessageReceiver(string currentProviderId, string oldProviderId)
+        {
+            if (oldProviderId is not null)
+            {
+                _messenger.Unregister<VideoOwnerFilteringAddedMessage, string>(this, oldProviderId);
+                _messenger.Unregister<VideoOwnerFilteringRemovedMessage, string>(this, oldProviderId);
+            }
 
+            if (currentProviderId is not null)
+            {
+                _messenger.Register<VideoOwnerFilteringAddedMessage, string>(this, currentProviderId);
+                _messenger.Register<VideoOwnerFilteringRemovedMessage, string>(this, currentProviderId);
+            }
+        }
+
+        void IRecipient<VideoOwnerFilteringAddedMessage>.Receive(VideoOwnerFilteringAddedMessage message)
+        {
+            UpdateIsHidenVideoOwner(Data);
+
+        }
+
+        void IRecipient<VideoOwnerFilteringRemovedMessage>.Receive(VideoOwnerFilteringRemovedMessage message)
+        {
+            UpdateIsHidenVideoOwner(Data);
+        }
 
 
         private FilteredResult _VideoHiddenInfo;
@@ -482,29 +509,6 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             get { return _VideoHiddenInfo; }
             set { SetProperty(ref _VideoHiddenInfo, value); }
         }
-
-
-        private void _ngSettings_VideoOwnerFilterRemoved(object sender, VideoOwnerFilteringRemovedEventArgs e)
-        {
-            if (e.OwnerId == this.ProviderId)
-            {
-                UpdateIsHidenVideoOwner(Data);
-            }
-        }
-
-        private void _ngSettings_VideoOwnerFilterAdded(object sender, VideoOwnerFilteringAddedEventArgs e)
-        {
-            if (e.OwnerId == this.ProviderId)
-            {
-                UpdateIsHidenVideoOwner(Data);
-            }
-        }
-
-        private void NGVideoOwnerUserIds_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            UpdateIsHidenVideoOwner(Data);
-        }
-
 
 
         void UpdateIsHidenVideoOwner(IVideoContent video)
@@ -543,8 +547,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             base.Dispose();
 
-            _ngSettings.VideoOwnerFilterAdded -= _ngSettings_VideoOwnerFilterAdded;
-            _ngSettings.VideoOwnerFilterRemoved -= _ngSettings_VideoOwnerFilterRemoved;
+            RegisterVideoOwnerFilteringMessageReceiver(null, _ProviderId);
         }
 
 
@@ -601,8 +604,6 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 				Quality = null,
 			};
 		}
-
-
 
     }
 
