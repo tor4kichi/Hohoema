@@ -356,6 +356,7 @@
     <Compile Include="Models.Helpers\SortMethodHelper.cs" />
     <Compile Include="Models.Domain\Notification\InAppNotificationMessage.cs" />
     <Compile Include="Models.Domain\Notification\LiteNotificationMessage.cs" />
+    <Compile Include="Presentation.ViewModels\NavigationQueryHelper.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowContext.cs" />
     <Compile Include="Models.UseCase\Niconico.Account\NiconicoLoginService.cs" />
     <Compile Include="Presentation.Services\NoProcessUIScreenContext.cs" />

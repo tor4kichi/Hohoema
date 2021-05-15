@@ -30,6 +30,55 @@ using Hohoema.Models.Domain.Notification;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
+    public static class RankingCategoryPageNavigationConstants
+    {
+        public const string RankingGenreQueryKey = "genre";
+        public const string RankingGenreTagQueryKey = "tag";
+
+        public static INavigationParameters SetRankingGenre(this INavigationParameters parameters, RankingGenre rankingGenre)
+        {
+            parameters.Add(RankingGenreQueryKey, Uri.EscapeDataString(rankingGenre.ToString()));
+            return parameters;
+        }
+
+        public static bool TryGetRankingGenre(this INavigationParameters parameters, out RankingGenre outGenre)
+        {
+            if (parameters.TryGetValue(RankingGenreQueryKey, out string strGenre))
+            {
+                if (Enum.TryParse(strGenre, out RankingGenre enumGenre))
+                {
+                    outGenre = enumGenre;
+                    return true;
+                }
+            }
+
+            outGenre = RankingGenre.All;
+            return false;
+        }
+
+        public static INavigationParameters SetRankingGenreTag(this INavigationParameters parameters, string tag)
+        {
+            parameters.Add(RankingGenreTagQueryKey, Uri.EscapeDataString(tag));
+            return parameters;
+        }
+
+        public static bool TryGetRankingGenreTag(this INavigationParameters parameters, out string outTag)
+        {
+            if (parameters.TryGetValue(RankingGenreTagQueryKey, out string queryTag)
+                && !string.IsNullOrEmpty(queryTag)
+                )
+            {
+                outTag = Uri.UnescapeDataString(queryTag);
+                return true;
+            }
+            else
+            {
+                outTag = null;
+                return false;
+            }
+        }
+    }
+
     public class RankingCategoryPageViewModel 
         : HohoemaListingPageViewModelBase<RankedVideoListItemControlViewModel>,
         INavigatedAwareAsync,
@@ -41,21 +90,19 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             var genreName = RankingGenre.Translate();
             var tag = SelectedRankingTag.Value?.Tag;
             var pickedTag = PickedTags.FirstOrDefault(x => x.Tag == tag);
-            string parameter = null;
-            if (string.IsNullOrEmpty(pickedTag?.Tag) || pickedTag.Tag == "all")
+
+            Dictionary<string, string> pairs = new Dictionary<string, string>();
+            pairs.Add(RankingCategoryPageNavigationConstants.RankingGenreQueryKey, RankingGenre.ToString());
+            if (!string.IsNullOrEmpty(pickedTag.Tag) && pickedTag.Tag != "all")
             {
-                pickedTag = null;
-                parameter = $"genre={RankingGenre}";
+                pairs.Add(RankingCategoryPageNavigationConstants.RankingGenreTagQueryKey, pickedTag.Tag);
             }
-            else
-            {
-                parameter = $"genre={RankingGenre}&tag={Uri.EscapeDataString(SelectedRankingTag.Value.Tag)}";
-            }
+            
             return new HohoemaPin()
             {
                 Label = pickedTag != null ? $"{pickedTag.Label} - {genreName}" : $"{genreName}",
                 PageType = HohoemaPageType.RankingCategory,
-                Parameter = parameter
+                Parameter = pairs.ToQueryString()
             };
         }
 
@@ -192,16 +239,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 var mode = parameters.GetNavigationMode();
                 
                 SelectedRankingTag.Value = null;
-                if (parameters.TryGetValue("genre", out RankingGenre genre))
+                
+                if (parameters.TryGetRankingGenre(out var rankingGenre))
                 {
-                    RankingGenre = genre;
-                }
-                else if (parameters.TryGetValue("genre", out string genreString))
-                {
-                    if (Enum.TryParse(genreString, out genre))
-                    {
-                        RankingGenre = genre;
-                    }
+                    RankingGenre = rankingGenre;
                 }
                 else
                 {
@@ -222,25 +263,19 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 }
                 catch { }
 
-                if (parameters.TryGetValue("tag", out string queryTag))
+                if (parameters.TryGetRankingGenreTag(out var queryTag))
                 {
-                    if (!string.IsNullOrEmpty(queryTag))
+                    var tag = PickedTags.FirstOrDefault(x => x.Tag == queryTag);
+                    if (tag != null)
                     {
-                        var unescapedTagString = Uri.UnescapeDataString(queryTag);
-
-                        var tag = PickedTags.FirstOrDefault(x => x.Tag == unescapedTagString);
-                        if (tag != null)
-                        {
-                            SelectedRankingTag.Value = tag;
-                        }
-                        else
-                        {
-                            Debug.WriteLine("無効なタグです: " + unescapedTagString);
-                            SelectedRankingTag.Value = PickedTags.FirstOrDefault();
-                        }
+                        SelectedRankingTag.Value = tag;
+                    }
+                    else
+                    {
+                        Debug.WriteLine("無効なタグです: " + queryTag);
+                        SelectedRankingTag.Value = PickedTags.FirstOrDefault();
                     }
                 }
-
 
                 if (SelectedRankingTag.Value == null)
                 {

@@ -6,6 +6,7 @@ using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Ranking;
 using Hohoema.Presentation.ViewModels.Niconico.Ranking.Messages;
+using Hohoema.Presentation.ViewModels.Pages.Niconico.Video;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.UI;
@@ -302,11 +303,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         {
             Debug.WriteLine("OnRankingCategorySelected" + info.Genre);
 
-            var p = new NavigationParameters
-            {
-                { "genre", info.Genre.ToString() },
-                { "tag", info.Tag }
-            };
+            var p = new NavigationParameters();
+            p.SetRankingGenre(info.Genre.Value);
+            p.SetRankingGenreTag(info.Tag);
+
             _prevSelectedGenre = info.Genre;
 
             PageManager.OpenPage(HohoemaPageType.RankingCategory, p);

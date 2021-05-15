@@ -46,7 +46,7 @@ namespace Hohoema.Models.Domain.Niconico.Video.Ranking
             else
             {
                 var cachedTags = _rankingGenreCache.Get(genre);
-                if (cachedTags != null && (DateTime.Now - cachedTags.UpdateAt) < TimeSpan.FromHours(6))
+                if (cachedTags != null && (DateTime.Now - cachedTags.UpdateAt) < TimeSpan.FromHours(12))
                 {
                     return cachedTags.Tags.Select(x => new RankingGenreTag() { Label = x.DisplayName, Genre = genre, Tag = x.Tag }).ToList();
                 }
