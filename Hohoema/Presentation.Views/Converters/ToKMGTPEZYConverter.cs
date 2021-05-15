@@ -19,8 +19,34 @@ namespace Hohoema.Presentation.Views.Converters
             {
                 number = Decimal.ToDouble(num);
             }
-                
 
+
+
+            int divCount = -1;
+            while (number >= 1000.0d)
+            {
+                number /= 1000.0d;
+                divCount++;
+            }
+
+            if (divCount >= KMGTPEZY.Length)
+            {
+                throw new NotSupportedException("ヨタより大きい桁数は対応してない");
+            }
+            else if (divCount >= 2 /* G 以上なら */)
+            {
+                return number.ToString("F2") + KMGTPEZY[divCount];
+            }
+            else if (divCount >= 0 /* K 以上なら */)
+            {
+                return number.ToString("F0") + KMGTPEZY[divCount];
+            }
+            else
+            {
+                return number.ToString("F0");
+            }
+
+            /*
             long longNumber = (long)number;
             if (number == 0) { return "0"; }
 
@@ -41,6 +67,7 @@ namespace Hohoema.Presentation.Views.Converters
             {
                 throw new NotSupportedException("over digit amount, can not convert, digit: " + digit);
             }
+            */
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, string language)
