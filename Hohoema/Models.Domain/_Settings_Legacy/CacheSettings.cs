@@ -1,4 +1,5 @@
-﻿using Prism.Mvvm;
+﻿using Hohoema.Models.Domain.Player.Video;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -58,10 +59,10 @@ namespace Hohoema.Models.Domain.Legacy
 
 
 
-        private NicoVideoQuality _DefaultCacheQuality = NicoVideoQuality.Dmc_Midium;
+        private NicoVideoQuality_Legacy _DefaultCacheQuality = NicoVideoQuality_Legacy.Dmc_Midium;
 
         [DataMember]
-        public NicoVideoQuality DefaultCacheQuality
+        public NicoVideoQuality_Legacy DefaultCacheQuality
         {
             get { return _DefaultCacheQuality; }
             set { SetProperty(ref _DefaultCacheQuality, value); }
@@ -82,10 +83,10 @@ namespace Hohoema.Models.Domain.Legacy
 
 
 
-        private NicoVideoQuality _DefaultCacheQualityOnMeteredNetwork = NicoVideoQuality.Dmc_Mobile;
+        private NicoVideoQuality_Legacy _DefaultCacheQualityOnMeteredNetwork = NicoVideoQuality_Legacy.Dmc_Mobile;
 
         [DataMember]
-        public NicoVideoQuality DefaultCacheQualityOnMeteredNetwork
+        public NicoVideoQuality_Legacy DefaultCacheQualityOnMeteredNetwork
         {
             get { return _DefaultCacheQualityOnMeteredNetwork; }
             set { SetProperty(ref _DefaultCacheQualityOnMeteredNetwork, value); }
@@ -112,10 +113,10 @@ namespace Hohoema.Models.Domain.Legacy
 			set { SetProperty(ref _Label, value); }
 		}
 
-		private NicoVideoQuality? _Quality;
+		private NicoVideoQuality_Legacy? _Quality;
 
 		[DataMember]
-		public NicoVideoQuality? Quality
+		public NicoVideoQuality_Legacy? Quality
 		{
 			get { return _Quality; }
 			set { SetProperty(ref _Quality, value); }

@@ -34,7 +34,7 @@
       xmlns:myExt="using:Hohoema.Presentation.Views.Extensions"
       DataContext="{x:Null}"
       x:Name="RootLayout"
-      NavigationCacheMode="Required"
+      NavigationCacheMode="Enabled"
       d:DesignHeight="300"
       d:DesignWidth="400">
   <UserControl.Resources>

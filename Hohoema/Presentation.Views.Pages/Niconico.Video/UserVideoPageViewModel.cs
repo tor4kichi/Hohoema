@@ -25,7 +25,7 @@ using static Mntone.Nico2.Users.User.UserDetailResponse;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
-    public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -96,7 +96,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
 
 
-		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
+		protected override IIncrementalSource<VideoListItemControlViewModel> GenerateIncrementalSource()
 		{
 			return new UserVideoIncrementalSource(
 				UserId,
@@ -141,11 +141,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 	}
 
 
-	public class UserVideoIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
+	public class UserVideoIncrementalSource : HohoemaIncrementalSourceBase<VideoListItemControlViewModel>
 	{
 		public uint UserId { get; }
 		public UserProvider UserProvider { get; }
-		public VideoCacheManagerLegacy MediaManager { get; }
 
         public override uint OneTimeLoadCount => 25;
 
@@ -162,7 +161,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 			_ResList = new List<UserVideosResponse>();
 		}
 
-        protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int start, int count, [EnumeratorCancellation] CancellationToken ct = default)
+        protected override async IAsyncEnumerable<VideoListItemControlViewModel> GetPagedItemsImpl(int start, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             var res = start == 0 ? _firstRes : await UserProvider.GetUserVideos(UserId, (uint)start / OneTimeLoadCount);
 
@@ -171,12 +170,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             var items = res.Data.Items;
             foreach (var item in items)
             {
-                var vm = new VideoInfoControlViewModel(item.Id);
-                vm.SetTitle(item.Title);
-                vm.SetThumbnailImage(item.Thumbnail.ListingUrl.OriginalString);
-                vm.SetSubmitDate(item.RegisteredAt.DateTime);
-                vm.SetVideoDuration(TimeSpan.FromSeconds(item.Duration));
-                vm.SetDescription((int)item.Count.View, (int)item.Count.Comment, (int)item.Count.Mylist);
+                var vm = new VideoListItemControlViewModel(item.Id, item.Title, item.Thumbnail.ListingUrl.OriginalString, TimeSpan.FromSeconds(item.Duration));
+                vm.PostedAt = item.RegisteredAt.DateTime;
+                vm.ViewCount = (int)item.Count.View;
+                vm.CommentCount = (int)item.Count.Comment;
+                vm.MylistCount = (int)item.Count.Mylist;
 
                 await vm.InitializeAsync(ct).ConfigureAwait(false);
                 yield return vm;

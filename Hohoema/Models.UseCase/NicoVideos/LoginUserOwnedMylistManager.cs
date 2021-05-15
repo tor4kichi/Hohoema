@@ -173,14 +173,12 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         public async Task SyncMylistGroups(CancellationToken ct = default)
 		{
-            using (var releaser = await _updateLock.LockAsync(ct))
+            using (var releaser = await _updateLock.LockAsync(ct))            
             {
                 Deflist = null;
 
                 _mylists.ForEach(RemoveHandleMylistItemChanged);
                 _mylists.Clear();
-
-                await Task.Delay(TimeSpan.FromSeconds(2), ct);
 
                 if (_niconicoSession.IsLoggedIn)
                 {

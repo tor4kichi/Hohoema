@@ -129,13 +129,13 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         void HandleItemsChanged(LocalPlaylist playlist)
         {
-            WeakReferenceMessenger.Default.Register<LocalPlaylist, LocalPlaylistItemAddedMessage>(playlist, (r, m) => 
+            WeakReferenceMessenger.Default.Register<LocalPlaylist, LocalPlaylistItemAddedMessage, string>(playlist, playlist.Id, (r, m) => 
             {
                 var sender = r;
                 _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistAddedItems".Translate(sender.Label, m.Value.AddedItems.Count));
             });
 
-            WeakReferenceMessenger.Default.Register<LocalPlaylist, LocalPlaylistItemRemovedMessage>(playlist, (r, m) =>
+            WeakReferenceMessenger.Default.Register<LocalPlaylist, LocalPlaylistItemRemovedMessage, string>(playlist, playlist.Id, (r, m) =>
             {
                 var sender = r;
                 _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistRemovedItems".Translate(sender.Label, m.Value.RemovedItems.Count));
@@ -144,8 +144,8 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         void RemoveHandleItemsChanged(LocalPlaylist playlist)
         {
-            WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemAddedMessage>(playlist);
-            WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemRemovedMessage>(playlist);
+            WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemAddedMessage, string>(playlist, playlist.Id);
+            WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemRemovedMessage, string>(playlist, playlist.Id);
         }
 
 

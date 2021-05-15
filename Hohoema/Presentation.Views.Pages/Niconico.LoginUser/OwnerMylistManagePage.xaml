@@ -13,6 +13,7 @@
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
   mc:Ignorable="d"
+  NavigationCacheMode="Enabled"
   Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   >
 

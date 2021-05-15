@@ -139,20 +139,6 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
         }
 
 
-
-        public bool IsUpdateSourceVideoItem
-        {
-            get { return (bool)GetValue(IsUpdateSourceVideoItemProperty); }
-            set { SetValue(IsUpdateSourceVideoItemProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for IsUpdateSourceVideoItem.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty IsUpdateSourceVideoItemProperty =
-            DependencyProperty.Register("IsUpdateSourceVideoItem", typeof(bool), typeof(VideoItemsListView), new PropertyMetadata(true));
-
-
-
-
         public Thickness ItemsPanelPadding
         {
             get { return (Thickness)GetValue(ItemsPanelPaddingProperty); }
@@ -165,6 +151,28 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
 
 
+
+
+
+        public GroupStyle GroupStyle
+        {
+            get { return (GroupStyle)GetValue(GroupStyleProperty); }
+            set { SetValue(GroupStyleProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for GroupStyle.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty GroupStyleProperty =
+            DependencyProperty.Register("GroupStyle", typeof(GroupStyle), typeof(VideoItemsListView), new PropertyMetadata(null, OnGroupStylePropertyChanged));
+
+        private static void OnGroupStylePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var _this = (VideoItemsListView)d;
+            _this.ItemsList.GroupStyle.Clear();
+            if (e.NewValue is GroupStyle style)
+            {
+                _this.ItemsList.GroupStyle.Add(style);
+            }
+        }
 
         private readonly VideoItemsSelectionContext _selectionContext;
         private readonly NiconicoSession _niconicoSession;
@@ -375,7 +383,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
             if (itemFlyout is VideoItemFlyout videoItemFlyout)
             {
-                if (list.SelectedItems.Count > 0)
+                if (list.SelectionMode is ListViewSelectionMode.Multiple or ListViewSelectionMode.Extended && list.SelectedItems.Count > 0)
                 {
                     videoItemFlyout.Playlist = PlaylistPassToFlyout;
                     videoItemFlyout.SelectedVideoItems = list.SelectedItems.Cast<IVideoContent>().ToList();
@@ -391,12 +399,24 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
             // コントローラ操作時にSelectorItem.DataContext == null になる
             // MenuFlyoutItemのCommand等が解決できるようにDataContextを予め埋める
-            if (args.OriginalSource is SelectorItem selectorItem)
+            /*if (args.OriginalSource is SelectorItem selectorItem)
             {
                 selectorItem.DataContext = selectorItem.Content;
             }
+            */
 
-            itemFlyout.ShowAt(args.OriginalSource as FrameworkElement);
+            var fe = args.OriginalSource as FrameworkElement;
+            var container = list.ContainerFromItem(fe.DataContext) as ListViewItem;
+            container.DataContext = fe.DataContext;
+
+            if (args.TryGetPosition(container, out var pt))
+            {
+                itemFlyout.ShowAt(container, new FlyoutShowOptions() { Position = pt});
+            }
+            else
+            {
+                itemFlyout.ShowAt(container);
+            }
             args.Handled = true;
         }
 

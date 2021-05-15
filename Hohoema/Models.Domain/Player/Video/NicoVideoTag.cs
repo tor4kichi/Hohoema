@@ -13,8 +13,13 @@ namespace Hohoema.Models.Domain.Niconico.Video
 		public bool IsLocked { get; internal set; }
 		public bool IsDictionaryExists { get; internal set; }
 
+		string ITag.Tag => Tag;
 
-		public NicoVideoTag() { }
+		string INiconicoObject.Id => Tag;
+
+        string INiconicoObject.Label => Tag;
+
+        public NicoVideoTag() { }
 
 		public NicoVideoTag(string tag)
 		{

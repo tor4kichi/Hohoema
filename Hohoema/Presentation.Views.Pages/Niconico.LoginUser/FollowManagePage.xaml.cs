@@ -15,6 +15,11 @@ using Windows.UI.Xaml.Navigation;
 using Prism.Ioc;
 using Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser;
 using Hohoema.Models.Domain.Niconico.Follow;
+using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Niconico.Community;
+using Hohoema.Models.Domain.Niconico.Channel;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -43,16 +48,16 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.LoginUser
 
 				switch (type)
 				{
+					case FollowItemType.User:
+						return Symbol.Contact;
 					case FollowItemType.Tag:
 						return Symbol.Tag;
 					case FollowItemType.Mylist:
 						return Symbol.List;
-					case FollowItemType.User:
-						return Symbol.Contact;
-					case FollowItemType.Community:
-						return Symbol.People;
                     case FollowItemType.Channel:
                         return Symbol.OtherUser;
+					case FollowItemType.Community:
+						return Symbol.People;
 					default:
 						throw new NotSupportedException();
 				}
@@ -68,4 +73,33 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.LoginUser
 			throw new NotImplementedException();
 		}
 	}
+
+
+	public sealed class FollowTypeItemTemplateSelector : DataTemplateSelector
+    {
+		public DataTemplate UserItemTemplate { get; set; }
+		public DataTemplate TagItemTemplate { get; set; }
+		public DataTemplate MylistItemTemplate { get; set; }
+		public DataTemplate ChannelItemTemplate { get; set; }
+		public DataTemplate CommunityItemTemplate { get; set; }
+
+
+		protected override DataTemplate SelectTemplateCore(object item)
+        {
+            return SelectTemplateCore(item, null);
+        }
+
+        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        {
+			return item switch
+			{
+				IUser => UserItemTemplate,
+				ITag => TagItemTemplate,
+				IMylist => MylistItemTemplate,
+				IChannel => ChannelItemTemplate,
+				ICommunity => CommunityItemTemplate,
+				_ => throw new NotSupportedException(),
+			};
+		}
+    }
 }

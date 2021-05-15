@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Infrastructure;
+﻿using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Infrastructure;
 
 namespace Hohoema.Models.Domain.VideoCache
 {
@@ -6,25 +7,44 @@ namespace Hohoema.Models.Domain.VideoCache
     {
         public VideoCacheSettings()
         {
+            _MaxVideoCacheStorageSize = Read(default(long?), nameof(MaxVideoCacheStorageSize));
         }
 
+        private bool? _IsAllowDownload;
+        public bool IsAllowDownload
+        {
+            get => _IsAllowDownload ??= Read(true);
+            set => SetProperty(ref _IsAllowDownload, value);
+        }
+
+        private long? _MaxVideoCacheStorageSize;
         public long? MaxVideoCacheStorageSize
         {
-            get => Read(default(long?));
-            set => Save(value);
+            get => _MaxVideoCacheStorageSize;
+            set => SetProperty(ref _MaxVideoCacheStorageSize, value);
         }
 
 
-        public bool IsAllowDownloadOnRestrictedNetwork
+        private bool? _IsAllowDownloadOnMeteredNetwork;
+        public bool IsAllowDownloadOnMeteredNetwork
         {
-            get => Read(true);
-            set => Save(value);
+            get => _IsAllowDownloadOnMeteredNetwork ??= Read(false);
+            set => SetProperty(ref _IsAllowDownloadOnMeteredNetwork, value);
         }
 
+
+        public long? _CachedStorageSize;
         public long CachedStorageSize
         {
-            get => Read(0);
+            get => _CachedStorageSize ??= Read(0L);
+            set => SetProperty(ref _CachedStorageSize, value);
+        }
+
+        public NicoVideoQuality DefaultCacheQuality
+        {
+            get => Read(NicoVideoQuality.High);
             set => Save(value);
         }
-    }
+
+}
 }

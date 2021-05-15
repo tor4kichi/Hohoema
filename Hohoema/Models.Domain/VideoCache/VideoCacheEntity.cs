@@ -1,4 +1,5 @@
-﻿using LiteDB;
+﻿using Hohoema.Models.Domain.Niconico.Video;
+using LiteDB;
 using System;
 
 namespace Hohoema.Models.Domain.VideoCache
@@ -8,9 +9,13 @@ namespace Hohoema.Models.Domain.VideoCache
         [BsonId]
         public string VideoId { get; set; }
 
-        public NicoVideoCacheQuality RequestedVideoQuality { get; set; }
+        public string FileName { get; set; }
 
-        public NicoVideoCacheQuality DownloadedVideoQuality { get; set; }
+        public string Title { get; internal set; }
+
+        public NicoVideoQuality RequestedVideoQuality { get; set; }
+
+        public NicoVideoQuality DownloadedVideoQuality { get; set; }
 
         public VideoCacheStatus Status { get; set; }
         

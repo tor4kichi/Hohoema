@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Windows.Media;
 using Windows.UI;
 using Hohoema.Models.Infrastructure;
+using Hohoema.Models.Domain.Niconico.Video;
 
 namespace Hohoema.Models.Domain.Player
 {
@@ -31,7 +32,7 @@ namespace Hohoema.Models.Domain.Player
 
 		public PlayerSettings()
 		{
-			_DefaultQuality = Read(NicoVideoQuality.Dmc_Midium, nameof(DefaultQuality));
+			_DefaultVideoQuality = Read(NicoVideoQuality.Midium, nameof(DefaultVideoQuality));
 			
 			_DefaultLiveQuality = Read(LiveQualityType.Normal, nameof(DefaultLiveQuality));
 			_LiveQualityLimit = Read(LiveQualityLimitType.SuperHigh, nameof(LiveQualityLimit));
@@ -75,11 +76,11 @@ namespace Hohoema.Models.Domain.Player
 
 
 
-		private NicoVideoQuality _DefaultQuality;
-		public NicoVideoQuality DefaultQuality
+		private NicoVideoQuality _DefaultVideoQuality;
+		public NicoVideoQuality DefaultVideoQuality
 		{
-			get { return _DefaultQuality; }
-			set { SetProperty(ref _DefaultQuality, value); }			
+			get { return _DefaultVideoQuality; }
+			set { SetProperty(ref _DefaultVideoQuality, value); }			
 		}
 
 

@@ -66,7 +66,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
     }
 
-    public sealed class LiveInfomationPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {

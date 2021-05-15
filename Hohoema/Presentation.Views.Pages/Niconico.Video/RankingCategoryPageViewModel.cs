@@ -30,8 +30,61 @@ using Hohoema.Models.Domain.Notification;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
+    public static class RankingCategoryPageNavigationConstants
+    {
+        public const string RankingGenreQueryKey = "genre";
+        public const string RankingGenreTagQueryKey = "tag";
+
+        public static INavigationParameters SetRankingGenre(this INavigationParameters parameters, RankingGenre rankingGenre)
+        {
+            parameters.Add(RankingGenreQueryKey, Uri.EscapeDataString(rankingGenre.ToString()));
+            return parameters;
+        }
+
+        public static bool TryGetRankingGenre(this INavigationParameters parameters, out RankingGenre outGenre)
+        {
+            if (parameters.TryGetValue(RankingGenreQueryKey, out string strGenre))
+            {
+                if (Enum.TryParse(strGenre, out RankingGenre enumGenre))
+                {
+                    outGenre = enumGenre;
+                    return true;
+                }
+            }
+
+            outGenre = RankingGenre.All;
+            return false;
+        }
+
+        public static INavigationParameters SetRankingGenreTag(this INavigationParameters parameters, string tag)
+        {
+            if (tag is not null)
+            {
+                parameters.Add(RankingGenreTagQueryKey, Uri.EscapeDataString(tag));
+            }
+
+            return parameters;
+        }
+
+        public static bool TryGetRankingGenreTag(this INavigationParameters parameters, out string outTag)
+        {
+            if (parameters.TryGetValue(RankingGenreTagQueryKey, out string queryTag)
+                && !string.IsNullOrEmpty(queryTag)
+                )
+            {
+                outTag = Uri.UnescapeDataString(queryTag);
+                return true;
+            }
+            else
+            {
+                outTag = null;
+                return false;
+            }
+        }
+    }
+
     public class RankingCategoryPageViewModel 
-        : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>,
+        : HohoemaListingPageViewModelBase<RankedVideoListItemControlViewModel>,
         INavigatedAwareAsync,
         IPinablePage,
         ITitleUpdatablePage
@@ -41,21 +94,19 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             var genreName = RankingGenre.Translate();
             var tag = SelectedRankingTag.Value?.Tag;
             var pickedTag = PickedTags.FirstOrDefault(x => x.Tag == tag);
-            string parameter = null;
-            if (string.IsNullOrEmpty(pickedTag?.Tag) || pickedTag.Tag == "all")
+
+            Dictionary<string, string> pairs = new Dictionary<string, string>();
+            pairs.Add(RankingCategoryPageNavigationConstants.RankingGenreQueryKey, RankingGenre.ToString());
+            if (!string.IsNullOrEmpty(pickedTag.Tag) && pickedTag.Tag != "all")
             {
-                pickedTag = null;
-                parameter = $"genre={RankingGenre}";
+                pairs.Add(RankingCategoryPageNavigationConstants.RankingGenreTagQueryKey, pickedTag.Tag);
             }
-            else
-            {
-                parameter = $"genre={RankingGenre}&tag={Uri.EscapeDataString(SelectedRankingTag.Value.Tag)}";
-            }
+            
             return new HohoemaPin()
             {
                 Label = pickedTag != null ? $"{pickedTag.Label} - {genreName}" : $"{genreName}",
                 PageType = HohoemaPageType.RankingCategory,
-                Parameter = parameter
+                Parameter = pairs.ToQueryString()
             };
         }
 
@@ -182,7 +233,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         private static RankingGenre? _previousRankingGenre;
         bool _IsNavigateCompleted = false;
 
-
+        bool _isRequireUpdate;
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             using (await _updateLock.LockAsync(NavigationCancellationToken))
@@ -190,65 +241,51 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 _IsNavigateCompleted = false;
 
                 var mode = parameters.GetNavigationMode();
-                if (mode == NavigationMode.New)
+                
+                SelectedRankingTag.Value = null;
+                
+                if (parameters.TryGetRankingGenre(out var rankingGenre))
                 {
-                    SelectedRankingTag.Value = null;
-                    if (parameters.TryGetValue("genre", out RankingGenre genre))
-                    {
-                        RankingGenre = genre;
-                    }
-                    else if (parameters.TryGetValue("genre", out string genreString))
-                    {
-                        if (Enum.TryParse(genreString, out genre))
-                        {
-                            RankingGenre = genre;
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("ランキングページの表示に失敗");
-                    }
-
-                    // TODO: 人気のタグ、いつ再更新を掛ける
-                    try
-                    {
-                        PickedTags.Clear();
-                        var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre);
-                        foreach (var tag in tags)
-                        {
-                            PickedTags.Add(tag);
-                        }
-                    }
-                    catch { }
-
-                    if (parameters.TryGetValue("tag", out string queryTag))
-                    {
-                        if (!string.IsNullOrEmpty(queryTag))
-                        {
-                            var unescapedTagString = Uri.UnescapeDataString(queryTag);
-
-                            var tag = PickedTags.FirstOrDefault(x => x.Tag == unescapedTagString);
-                            if (tag != null)
-                            {
-                                SelectedRankingTag.Value = tag;
-                            }
-                            else
-                            {
-                                Debug.WriteLine("無効なタグです: " + unescapedTagString);
-                                SelectedRankingTag.Value = PickedTags.FirstOrDefault();
-                            }
-                        }
-                    }
-
-                    if (SelectedRankingTag.Value == null)
-                    {
-                        SelectedRankingTag.Value = PickedTags.FirstOrDefault();
-                    }
+                    RankingGenre = rankingGenre;
                 }
                 else
                 {
-                    RankingGenre = _previousRankingGenre.Value;
+                    throw new Exception("ランキングページの表示に失敗");
                 }
+
+                _isRequireUpdate = RankingGenre != _previousRankingGenre;
+
+                // TODO: 人気のタグ、いつ再更新を掛ける
+                try
+                {
+                    PickedTags.Clear();
+                    var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre);
+                    foreach (var tag in tags)
+                    {
+                        PickedTags.Add(tag);
+                    }
+                }
+                catch { }
+
+                if (parameters.TryGetRankingGenreTag(out var queryTag))
+                {
+                    var tag = PickedTags.FirstOrDefault(x => x.Tag == queryTag);
+                    if (tag != null)
+                    {
+                        SelectedRankingTag.Value = tag;
+                    }
+                    else
+                    {
+                        Debug.WriteLine("無効なタグです: " + queryTag);
+                        SelectedRankingTag.Value = PickedTags.FirstOrDefault();
+                    }
+                }
+
+                if (SelectedRankingTag.Value == null)
+                {
+                    SelectedRankingTag.Value = PickedTags.FirstOrDefault();
+                }
+
 
                 _IsNavigateCompleted = true;
 
@@ -307,6 +344,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             }
         }
 
+        protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
+        {
+            if (_isRequireUpdate) { return true; }
+            return base.CheckNeedUpdateOnNavigateTo(mode);
+        }
+
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
             _IsNavigateCompleted = false;
@@ -316,13 +359,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         }
 
 
-        protected override IIncrementalSource<RankedVideoInfoControlViewModel> GenerateIncrementalSource()
+        protected override IIncrementalSource<RankedVideoListItemControlViewModel> GenerateIncrementalSource()
         {
             IsFailedRefreshRanking.Value = false;
 
             var categoryInfo = RankingGenre;
 
-            IIncrementalSource<RankedVideoInfoControlViewModel> source = null;
+            IIncrementalSource<RankedVideoListItemControlViewModel> source = null;
             try
             {
                 source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, NicoVideoProvider);
@@ -346,7 +389,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
     }
 
 
-    public class CategoryRankingLoadingSource : HohoemaIncrementalSourceBase<RankedVideoInfoControlViewModel>
+    public class CategoryRankingLoadingSource : HohoemaIncrementalSourceBase<RankedVideoListItemControlViewModel>
     {
         public CategoryRankingLoadingSource(
             RankingGenre genre,
@@ -375,15 +418,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         public override uint OneTimeLoadCount => 20;
 
-        protected override async IAsyncEnumerable<RankedVideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
+        protected override async IAsyncEnumerable<RankedVideoListItemControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             int index = 0;
-            var videoInfoItems = _nicoVideoProvider.GetVideoInfoManyAsync(RankingRss.Items.Skip(head).Take(count).Select(x => x.GetVideoId()).ToArray());
-            await foreach (var item in videoInfoItems)
+            foreach (var item in RankingRss.Items.Skip(head).Take(count))
             {
-                var vm = new RankedVideoInfoControlViewModel(item);
+                var itemData = item.GetMoreData();
+                var vm = new RankedVideoListItemControlViewModel((uint)(head + index + 1), item.GetVideoId(), item.GetRankTrimmingTitle(), itemData.ThumbnailUrl, itemData.Length);
 
-                vm.Rank = (uint)(head + index + 1);
+                vm.CommentCount = itemData.CommentCount;
+                vm.ViewCount = itemData.WatchCount;
+                vm.MylistCount = itemData.MylistCount;
 
                 await vm.InitializeAsync(ct);
 
@@ -412,24 +457,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
     }
 
 
-    public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
+    public class RankedVideoListItemControlViewModel : VideoListItemControlViewModel
     {
-        public RankedVideoInfoControlViewModel(
-            string rawVideoId
-            )
-            : base(rawVideoId)
-        {
-
-        }
-
-        public RankedVideoInfoControlViewModel(
-            NicoVideo data
+        public RankedVideoListItemControlViewModel(
+            uint rank, NicoVideo data
             )
             : base(data)
         {
-
+            Rank = rank;
         }
 
-        public uint Rank { get; internal set; }
+        public RankedVideoListItemControlViewModel(uint rank, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
+        {
+            Rank = rank;
+        }
+
+        public uint Rank { get; }
     }
 }

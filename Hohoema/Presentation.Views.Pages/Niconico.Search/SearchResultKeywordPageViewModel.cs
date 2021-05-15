@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
-    public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -284,7 +284,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         #region Implement HohoemaVideListViewModelBase
 
-        protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
+        protected override IIncrementalSource<VideoListItemControlViewModel> GenerateIncrementalSource()
 		{
             return new VideoSearchSource(SearchOption.Keyword, false, SearchOption.Sort, SearchOption.Order, SearchProvider);
 		}

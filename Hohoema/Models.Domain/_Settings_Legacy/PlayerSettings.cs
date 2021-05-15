@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Media;
 using Windows.UI;
+using Hohoema.Models.Domain.Niconico.Video;
 
 namespace Hohoema.Models.Domain.Legacy
 {
@@ -45,7 +46,7 @@ namespace Hohoema.Models.Domain.Legacy
 
 		public PlayerSettings()
 		{
-			DefaultQuality = NicoVideoQuality.Dmc_Midium;
+			DefaultVideoQuality = NicoVideoQuality.Midium;
 			IsMute = false;
 			SoundVolume = 1.0;
 			SoundVolumeChangeFrequency = 0.05;
@@ -72,13 +73,13 @@ namespace Hohoema.Models.Domain.Legacy
 
 
 
-		private NicoVideoQuality _DefaultQuality;
+		private NicoVideoQuality _DefaultVideoQuality;
 
 		[DataMember]
-		public NicoVideoQuality DefaultQuality
+		public NicoVideoQuality DefaultVideoQuality
 		{
-			get { return _DefaultQuality; }
-			set { SetProperty(ref _DefaultQuality, value); }			
+			get { return _DefaultVideoQuality; }
+			set { SetProperty(ref _DefaultVideoQuality, value); }			
 		}
 
 

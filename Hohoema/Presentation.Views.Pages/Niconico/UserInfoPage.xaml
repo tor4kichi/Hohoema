@@ -24,7 +24,7 @@
             <controls:AppTitleBar Title="{Binding Title}" />
           </CommandBar.Content>
 
-          <AppBarToggleButton x:Name="UserFollowButton" Background="Transparent" IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}" Command="{Binding FollowToggleButtonService.ToggleFollowCommand}" Visibility="Collapsed" Icon="Favorite" Label="フォロー" />
+          <AppBarToggleButton x:Name="UserFollowButton" Background="Transparent" IsChecked="{Binding FollowContext.IsFollowing}" Command="{Binding FollowContext.ToggleFollowCommand}" IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" Icon="Favorite" Label="フォロー" />
           <AppBarButton x:Name="FeedRegstrationButton" Label="購読に追加" Icon="Add" Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}"
                         Command="{Binding AddSubscriptionCommand}"
                         CommandParameter="{Binding}"
@@ -41,7 +41,7 @@
       <ScrollViewer>
         <StackPanel x:Name="ContentLayout">
           <toolkit:DockPanel x:Name="AccountSummaryLayout">
-            <Image Width="80" Height="80" Source="{Binding UserIconUri, Mode=OneWay}" Margin="0 0 16 0" toolkit:DockPanel.Dock="Left" />
+            <Image Width="80" Height="80" Source="{Binding IconUrl, Mode=OneWay}" Margin="0 0 16 0" toolkit:DockPanel.Dock="Left" />
             <TextBlock Text="{Binding UserName}" VerticalAlignment="Center" Style="{StaticResource SubheaderTextBlockStyle}" toolkit:DockPanel.Dock="Top" TextWrapping="Wrap" />
             <Border Background="Transparent" IsHitTestVisible="True" VerticalAlignment="Bottom" Margin="0 0 0 0">
               <StackPanel Orientation="Horizontal" Margin="0 8">

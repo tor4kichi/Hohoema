@@ -13,6 +13,8 @@ namespace Hohoema.Presentation.Views.Converters
 		{
 			var seconds = value is TimeSpan ? (TimeSpan)value : TimeSpan.FromSeconds(System.Convert.ToInt32(value));
 
+			if (seconds == TimeSpan.Zero) { return string.Empty; }
+
 			bool isNegative = seconds.TotalSeconds < 0;
 			string timeText;
 			if (seconds.Hours > 0)

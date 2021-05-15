@@ -37,23 +37,23 @@ namespace Hohoema.Models.Domain.Niconico.Video.Ranking
             }
         }
 
-        public Task<List<RankingGenreTag>> GetRankingGenreTagsAsync(RankingGenre genre, bool isForceUpdate = false, CancellationToken ct = default)
+        public async ValueTask<List<RankingGenreTag>> GetRankingGenreTagsAsync(RankingGenre genre, bool isForceUpdate = false, CancellationToken ct = default)
         {
-            return ContextActionWithPageAccessWaitAsync(async context => 
+            if (isForceUpdate)
             {
-                if (isForceUpdate)
+                _rankingGenreCache.Delete(genre);
+            }
+            else
+            {
+                var cachedTags = _rankingGenreCache.Get(genre);
+                if (cachedTags != null && (DateTime.Now - cachedTags.UpdateAt) < TimeSpan.FromHours(12))
                 {
-                    _rankingGenreCache.Delete(genre);
+                    return cachedTags.Tags.Select(x => new RankingGenreTag() { Label = x.DisplayName, Genre = genre, Tag = x.Tag }).ToList();
                 }
-                else
-                {
-                    var cachedTags = _rankingGenreCache.Get(genre);
-                    if (cachedTags != null && (DateTime.Now - cachedTags.UpdateAt) < TimeSpan.FromHours(6))
-                    {
-                        return cachedTags.Tags.Select(x => new RankingGenreTag() { Label = x.DisplayName, Genre = genre, Tag = x.Tag }).ToList();
-                    }
-                }
+            }
 
+            return await ContextActionWithPageAccessWaitAsync(async context => 
+            {
                 var tagsRaw = await NiconicoRanking.GetGenrePickedTagAsync(genre);
                 var tags = tagsRaw.Select(x => new RankingGenreTag() { Label = x.DisplayName, Tag = x.Tag, Genre = genre }).ToList();
                 _rankingGenreCache.Upsert(genre, tags.Select(x => new RankingGenreTagEntry() { DisplayName = x.Label, Tag = x.Tag }));

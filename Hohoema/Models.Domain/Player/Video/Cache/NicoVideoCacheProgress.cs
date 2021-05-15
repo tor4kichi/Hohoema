@@ -19,14 +19,14 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
     {
         public string VideoId { get; set; }
         public string VideoTitle { get; set; }
-        public NicoVideoQuality Quality { get; set; }
+        public NicoVideoQuality_Legacy Quality { get; set; }
         public DateTime RequestAt { get; set; } = DateTime.Now;
 
         public DownloadOperation DownloadOperation { get; set; }
         public IStreamingSession Session { get; }
 
 
-        public NicoVideoCacheProgress(DownloadOperation op, IVideoStreamingDownloadSession session, string videoId, string videoTitle, NicoVideoQuality quality, DateTime requestAt)
+        public NicoVideoCacheProgress(DownloadOperation op, IVideoStreamingDownloadSession session, string videoId, string videoTitle, NicoVideoQuality_Legacy quality, DateTime requestAt)
         {
             DownloadOperation = op;
             Session = session;

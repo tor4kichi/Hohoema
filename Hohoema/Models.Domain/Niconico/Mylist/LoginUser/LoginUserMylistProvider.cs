@@ -83,6 +83,8 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
         public async Task<List<LoginUserMylistPlaylist>> GetLoginUserMylistGroups()
         {
+            using var _ = await NiconicoSession.SigninLock.LockAsync();
+            
             if (!NiconicoSession.IsLoggedIn)
             {
                 return null;

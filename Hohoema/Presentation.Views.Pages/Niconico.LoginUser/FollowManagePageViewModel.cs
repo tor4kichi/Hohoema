@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Prism.Mvvm;
 using Prism.Commands;
 using System.Collections.ObjectModel;
-using System.Threading;
 using Reactive.Bindings;
 using System.Diagnostics;
 using Hohoema.Models.UseCase;
@@ -14,313 +10,103 @@ using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Follow;
+using System.ComponentModel;
+using Hohoema.Presentation.ViewModels.Niconico.Follow;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Domain.Niconico.Channel;
+using Hohoema.Models.Domain.Niconico.Community;
+using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {
-	public class FollowManagePageViewModel : HohoemaViewModelBase
+    public class FollowManagePageViewModel : HohoemaPageViewModelBase
 	{
      	public FollowManagePageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             NiconicoSession niconicoSession,
-            FollowManager followManager
+            IMessenger messenger,
+            UserFollowProvider userFollowProvider,
+            TagFollowProvider tagFollowProvider,
+            MylistFollowProvider mylistFollowProvider,
+            ChannelFollowProvider channelFollowProvider,
+            CommunityFollowProvider communityFollowProvider
             )
 		{
             ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
-            FollowManager = followManager;
 
-            NowUpdatingFavList = new ReactiveProperty<bool>();
-
-            UpdateFavListCommand = new DelegateCommand<IFollowInfoGroup>(async (group) =>
+            _FollowGroups_AvoidListViewMemoryLeak = new object[]
             {
-                NowUpdatingFavList.Value = true;
-                try
-                {
-                    await FollowManager.SyncAll();
-                }
-                catch
-                {
-                    Debug.WriteLine($"{group.FollowItemType} のFollow List更新に失敗");
-                }
-                finally
-                {
-                    NowUpdatingFavList.Value = false;
-                }
-            });
-
-
-            FollowGroups = new ObservableCollection<IFollowInfoGroup>()
-            {
-                FollowManager.User,
-                FollowManager.Mylist,
-                FollowManager.Tag,
-                FollowManager.Community,
-                FollowManager.Channel,
+                new FollowUserGroupViewModel(userFollowProvider, pageManager, messenger),
+                new FollowTagGroupViewModel(tagFollowProvider, pageManager, messenger),
+                new FolloMylistGroupViewModel(mylistFollowProvider, pageManager, messenger),
+                new FollowChannelGroupViewModel(channelFollowProvider, pageManager, messenger),
+                new FollowCommunityGroupViewModel(communityFollowProvider, NiconicoSession.UserId, pageManager, messenger),
             };
         }
 
+
+
         public ReactiveProperty<bool> NowUpdatingFavList { get; }
 
-        public ObservableCollection<IFollowInfoGroup> FollowGroups { get; private set; }
 
-        public DelegateCommand<IFollowInfoGroup> UpdateFavListCommand { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public NiconicoSession NiconicoSession { get; }
-        public FollowManager FollowManager { get; }
 
+        object[] _FollowGroups_AvoidListViewMemoryLeak;
+        public object[] FollowGroups { get; private set; }
 
-        private DelegateCommand<FollowItemInfo> _RemoveFavoriteCommand;
-        public DelegateCommand<FollowItemInfo> RemoveFavoriteCommand
+        public override void OnNavigatingTo(INavigationParameters parameters)
         {
-            get
-            {
-                return _RemoveFavoriteCommand
-                    ?? (_RemoveFavoriteCommand = new DelegateCommand<FollowItemInfo>(async (followItem) =>
-                    {
-                        switch (followItem.FollowItemType)
-                        {
-                            case FollowItemType.Tag:
-                                await FollowManager.Tag.RemoveFollow(followItem.Id);
-                                break;
-                            case FollowItemType.Mylist:
-                                await FollowManager.Mylist.RemoveFollow(followItem.Id);
-                                break;
-                            case FollowItemType.User:
-                                await FollowManager.User.RemoveFollow(followItem.Id);
-                                break;
-                            case FollowItemType.Community:
-                                await FollowManager.Community.RemoveFollow(followItem.Id);
-                                break;
-                            case FollowItemType.Channel:
-                                await FollowManager.Channel.RemoveFollow(followItem.Id);
-                                break;
-                            default:
-                                break;
-                        }
-                    }));
-            }
+            FollowGroups = _FollowGroups_AvoidListViewMemoryLeak;
+            RaisePropertyChanged(nameof(FollowGroups));
+
+            base.OnNavigatingTo(parameters);
         }
-    }
 
-    public class FavoriteListViewModel : BindableBase
-	{
-        public IFollowInfoGroup FollowGroup { get; }
-        public FollowItemType FavType => FollowGroup.FollowItemType;
-        public string Label { get;  }
-        public uint MaxItemCount => FollowGroup.MaxFollowItemCount;
-        public bool IsCountInfinity => MaxItemCount == uint.MaxValue;
+        public override void OnNavigatedFrom(INavigationParameters parameters)
+        {
+            FollowGroups = null;
+            RaisePropertyChanged(nameof(FollowGroups));
 
-        public IReadOnlyReactiveProperty<int> ItemCount { get; }
-        public FollowManager FollowManager { get; }
-        public PageManager PageManager { get; }
+            base.OnNavigatedFrom(parameters);
+        }
 
-        public bool IsSyncFailed { get; }
-
-        //public ReadOnlyObservableCollection<FavoriteItemViewModel> Items { get; set; }
-
-        //Func<FollowItemInfo, FavoriteItemViewModel> _ItemVMFactory;
-        //Func<FollowItemInfo, FavoriteItemViewModel> ItemVMFactory
+        //private DelegateCommand<FollowItemInfo> _RemoveFavoriteCommand;
+        //public DelegateCommand<FollowItemInfo> RemoveFavoriteCommand
         //{
         //    get
         //    {
-        //        return _ItemVMFactory ?? (_ItemVMFactory = MakeFavItemVMFactory(FavType));
-                    
-                
+        //        return _RemoveFavoriteCommand
+        //            ?? (_RemoveFavoriteCommand = new DelegateCommand<FollowItemInfo>(async (followItem) =>
+        //            {
+        //                switch (followItem.FollowItemType)
+        //                {
+        //                    case FollowItemType.Tag:
+        //                        await FollowManager.Tag.RemoveFollow(followItem.Id);
+        //                        break;
+        //                    case FollowItemType.Mylist:
+        //                        await FollowManager.Mylist.RemoveFollow(followItem.Id);
+        //                        break;
+        //                    case FollowItemType.User:
+        //                        await FollowManager.User.RemoveFollow(followItem.Id);
+        //                        break;
+        //                    case FollowItemType.Community:
+        //                        await FollowManager.Community.RemoveFollow(followItem.Id);
+        //                        break;
+        //                    case FollowItemType.Channel:
+        //                        await FollowManager.Channel.RemoveFollow(followItem.Id);
+        //                        break;
+        //                    default:
+        //                        break;
+        //                }
+        //            }));
         //    }
         //}
-
-        //static Func<FollowItemInfo, FavoriteItemViewModel> MakeFavItemVMFactory(FollowItemType type)
-        //{
-        //    Func<FollowItemInfo, FavoriteItemViewModel> fac = null;
-        //    var unityContainer = App.Current.Container.GetContainer();
-        //    switch (type)
-        //    {
-        //        case FollowItemType.Tag:
-        //            fac = item => unityContainer.Resolve<TagFavItemVM>(new ParameterOverride("follow", item));
-        //            break;
-        //        case FollowItemType.Mylist:
-        //            fac = item => unityContainer.Resolve<MylistFavItemVM>(new ParameterOverride("follow", item));
-        //            break;
-        //        case FollowItemType.User:
-        //            fac = item => unityContainer.Resolve<UserFavItemVM>(new ParameterOverride("follow", item));
-        //            break;
-        //        case FollowItemType.Community:
-        //            fac = item => unityContainer.Resolve<CommunityFavItemVM>(new ParameterOverride("follow", item));
-        //            break;
-        //        case FollowItemType.Channel:
-        //            fac = item => unityContainer.Resolve<ChannelFavItemVM>(new ParameterOverride("follow", item));
-        //            break;
-        //        default:
-        //            throw new NotSupportedException();
-        //    }
-
-        //    return fac;
-        //}
-
-
-        //public FavoriteListViewModel(string label, IFollowInfoGroup followGroup, FollowManager followMan, PageManager pageManager)
-        //{
-        //    Label = label;
-        //    FollowGroup = followGroup;
-        //    FollowManager = followMan;
-        //    PageManager = pageManager;
-        //    IsSyncFailed = FollowGroup.IsFailedUpdate;
-
-        //    Items = followGroup.FollowInfoItems?
-        //        .ToReadOnlyReactiveCollection(x => ItemVMFactory(x)) 
-        //        ?? new ReadOnlyObservableCollection<FavoriteItemViewModel>(new ObservableCollection<FavoriteItemViewModel>());
-        //    ItemCount = Items?.ObserveProperty(x => x.Count).ToReadOnlyReactiveProperty() 
-        //        ?? new ReactiveProperty<int>(0).ToReadOnlyReactiveProperty();
-        //}
-        
     }
-
- //   public class TagFavItemVM : FavoriteItemViewModel, ISearchWithtag
- //   {
- //       public TagFavItemVM(
- //           FollowItemInfo follow,
- //           Services.NiconicoFollowToggleButtonViewModel followToggleButtonService,
- //           Models.Subscription.SubscriptionManager subscriptionManager,
- //           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
- //           )
- //           : base(follow, followToggleButtonService, subscriptionManager, createSubscriptionGroupCommand)
- //       {
- //           FollowToggleButtonService.SetFollowTarget(this);
- //       }
-
- //       public string Tag => SourceId;
-
- //       public string Id => SourceId;
- //   }
-
- //   public class MylistFavItemVM : FavoriteItemViewModel, IMylistItem
- //   {
- //       public MylistFavItemVM(
- //           FollowItemInfo follow,
- //           Services.NiconicoFollowToggleButtonViewModel followToggleButtonService,
- //           Models.Subscription.SubscriptionManager subscriptionManager,
- //           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
- //           )
- //           : base(follow, followToggleButtonService, subscriptionManager, createSubscriptionGroupCommand)
- //       {
- //           FollowToggleButtonService.SetFollowTarget(this);
- //       }
-
- //       public string Id => SourceId;
- //   }
-
-
- //   public class UserFavItemVM : FavoriteItemViewModel, IUser
- //   {
- //       public UserFavItemVM(
- //           FollowItemInfo follow,
- //           Services.NiconicoFollowToggleButtonViewModel followToggleButtonService,
- //           Models.Subscription.SubscriptionManager subscriptionManager,
- //           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
- //           )
- //           : base(follow, followToggleButtonService, subscriptionManager, createSubscriptionGroupCommand)
- //       {
- //           FollowToggleButtonService.SetFollowTarget(this);
- //       }
-
- //       public string Id => SourceId;
- //   }
-
- //   public class CommunityFavItemVM : FavoriteItemViewModel, ICommunity
- //   {
- //       public CommunityFavItemVM(
- //           FollowItemInfo follow,
- //           Services.NiconicoFollowToggleButtonViewModel followToggleButtonService,
- //           Models.Subscription.SubscriptionManager subscriptionManager,
- //           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
- //           )
- //           : base(follow, followToggleButtonService, subscriptionManager, createSubscriptionGroupCommand)
- //       {
- //           FollowToggleButtonService.SetFollowTarget(this);
- //       }
-
- //       public string Id => SourceId;
- //   }
-
- //   public class ChannelFavItemVM : FavoriteItemViewModel, IChannel
- //   {
- //       public ChannelFavItemVM(
- //           FollowItemInfo follow,
- //           Services.NiconicoFollowToggleButtonViewModel followToggleButtonService,
- //           Models.Subscription.SubscriptionManager subscriptionManager,
- //           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
- //           ) 
- //           : base(follow, followToggleButtonService, subscriptionManager, createSubscriptionGroupCommand)
- //       {
- //           FollowToggleButtonService.SetFollowTarget(this);
- //       }
-
- //       public string Id => SourceId;
- //   }
-
-
- //   public class FavoriteItemViewModel : HohoemaListingPageItemBase
-	//{
-	//	public FavoriteItemViewModel(
- //           FollowItemInfo follow,
- //           Services.NiconicoFollowToggleButtonViewModel followToggleButtonService,
- //           Models.Subscription.SubscriptionManager subscriptionManager,
- //           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
- //           )
-	//	{
- //           FollowItemInfo = follow;
- //           FollowToggleButtonService = followToggleButtonService;
- //           SubscriptionManager = subscriptionManager;
- //           CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
- //           Label = follow.Name;
-	//		ItemType = follow.FollowItemType;
-	//		SourceId = follow.Id;
- //       }
-
-        
- //       /*
- //       private DelegateCommand _RemoveFavoriteCommand;
- //       public DelegateCommand RemoveFavoriteCommand
- //       {
- //           get
- //           {
- //               return _RemoveFavoriteCommand
- //                   ?? (_RemoveFavoriteCommand = new DelegateCommand(async () =>
- //                   {
- //                       switch (ItemType)
- //                       {
- //                           case FollowItemType.Tag:
- //                               await _FollowManager.Tag.RemoveFollow(SourceId);
- //                               break;
- //                           case FollowItemType.Mylist:
- //                               await _FollowManager.Mylist.RemoveFollow(SourceId);
- //                               break;
- //                           case FollowItemType.User:
- //                               await _FollowManager.User.RemoveFollow(SourceId);
- //                               break;
- //                           case FollowItemType.Community:
- //                               await _FollowManager.Community.RemoveFollow(SourceId);
- //                               break;
- //                           default:
- //                               break;
- //                       }
- //                   }));
- //           }
- //       }
- //       */
-
- //       public FollowItemType ItemType { get; set; }
-	//	public string SourceId { get; set; }
-
- //       public FollowItemInfo FollowItemInfo { get; }
- //       public NiconicoFollowToggleButtonViewModel FollowToggleButtonService { get; }
- //       public FollowManager FollowManager { get; }
- //       public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
- //       public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
- //   }
-
-	
 }

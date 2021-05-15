@@ -156,8 +156,11 @@ namespace Hohoema.Models.UseCase.Player
             SecondaryCoreAppView = secondaryView;
             SecondaryViewPlayerNavigationService = result.ns;
 
-            var primaryView = ApplicationView.GetForCurrentView();
-            primaryView.Consolidated += MainView_Consolidated;
+            _scheduler.Schedule(() => 
+            {
+                var primaryView = ApplicationView.GetForCurrentView();
+                primaryView.Consolidated += MainView_Consolidated;
+            });
         }
 
         DrillInNavigationTransitionInfo _PlayerPageNavgationTransitionInfo;

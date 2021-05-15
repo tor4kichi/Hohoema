@@ -17,44 +17,12 @@ namespace Hohoema.Presentation.Services
 {
     public class DialogService
     {
+        public LoginUserOwnedMylistManager UserMylistManager { get; }
+        public LocalMylistManager LocalMylistManager { get; }
         public DialogService(
             )
         {
         }
-
-        #region Cache Accept Usase Dialog
-
-        static readonly string CacheUsageConfirmationFileUri = Windows.ApplicationModel.Package.Current.InstalledLocation.Path + "\\Assets\\CacheUsageConfirmation.md";
-
-        public LoginUserOwnedMylistManager UserMylistManager { get; }
-        public LocalMylistManager LocalMylistManager { get; }
-
-        public async Task<bool> ShowAcceptCacheUsaseDialogAsync(bool showWithoutConfirmButton = false)
-        {
-            var dialog = new Dialogs.MarkdownTextDialog("HohoemaCacheVideoFairUsePolicy".Translate());
-
-            
-            var file = await StorageFile.GetFileFromPathAsync(CacheUsageConfirmationFileUri);
-            dialog.Text = await FileIO.ReadTextAsync(file);
-            
-            if (!showWithoutConfirmButton)
-            {
-                dialog.PrimaryButtonText = "Accept".Translate();
-                dialog.SecondaryButtonText = "Cancel".Translate();
-            }
-            else
-            {
-                dialog.PrimaryButtonText = "Close".Translate();
-            }
-
-            var result = await dialog.ShowAsync();
-
-            return result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary;
-        }
-
-        #endregion
-
-
 
         #region Update Notice Dialog
 

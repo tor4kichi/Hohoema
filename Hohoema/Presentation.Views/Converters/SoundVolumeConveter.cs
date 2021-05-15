@@ -13,7 +13,7 @@ namespace Hohoema.Presentation.Views.Converters
 		{
 			try
 			{
-				double casted = Math.Round(((double)value * 100));
+				double casted = Math.Floor((double)value * 100);
 				if (targetType == typeof(string))
 				{
 					return casted.ToString("F0");

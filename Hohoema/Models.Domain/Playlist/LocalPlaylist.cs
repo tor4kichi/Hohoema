@@ -85,11 +85,13 @@ namespace Hohoema.Models.Domain.Playlist
         {
             _playlistRepository.AddItem(Id, item.Id);
 
-            _messenger.Send(new LocalPlaylistItemAddedEventArgs()
+            var message = new LocalPlaylistItemAddedMessage(new()
             {
                 PlaylistId = Id,
                 AddedItems = new[] { item.Id }
             });
+            _messenger.Send(message);
+            _messenger.Send(message, Id);
 
             Count = _playlistRepository.GetCount(Id);
             if (Count == 1)
@@ -110,11 +112,13 @@ namespace Hohoema.Models.Domain.Playlist
             var ids = items.Select(x => x.Id).ToList();
             _playlistRepository.AddItems(Id, ids);
 
-            _messenger.Send(new LocalPlaylistItemAddedEventArgs()
+            var message = new LocalPlaylistItemAddedMessage(new()
             {
                 PlaylistId = Id,
                 AddedItems = ids
             });
+            _messenger.Send(message);
+            _messenger.Send(message, Id);
         }
 
 
@@ -131,11 +135,13 @@ namespace Hohoema.Models.Domain.Playlist
 
             if (result)
             {
-                _messenger.Send(new LocalPlaylistItemRemovedEventArgs()
+                var message = new LocalPlaylistItemRemovedMessage(new()
                 {
                     PlaylistId = Id,
                     RemovedItems = new[] { item.Id }
                 });
+                _messenger.Send(message);
+                _messenger.Send(message, Id);
             }
 
             Count = _playlistRepository.GetCount(Id);
@@ -150,11 +156,13 @@ namespace Hohoema.Models.Domain.Playlist
 
             if (result > 0)
             {
-                _messenger.Send(new LocalPlaylistItemRemovedEventArgs()
+                var message = new LocalPlaylistItemRemovedMessage(new()
                 {
                     PlaylistId = Id,
                     RemovedItems = ids
                 });
+                _messenger.Send(message);
+                _messenger.Send(message, Id);
             }
 
             Count = _playlistRepository.GetCount(Id);

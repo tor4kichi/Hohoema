@@ -14,8 +14,8 @@
       xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
       xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors" xmlns:local1="using:Hohoema.Presentation.Views.Controls.VideoList"
-      DataContext="{x:Null}" 
-      NavigationCacheMode="Enabled" 
+      DataContext="{x:Null}"
+      NavigationCacheMode="Enabled"
       mc:Ignorable="d"
       >
   <Grid>

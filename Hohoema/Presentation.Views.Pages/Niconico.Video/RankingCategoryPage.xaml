@@ -10,17 +10,10 @@
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"   
- 
+  NavigationCacheMode="Enabled"
   mc:Ignorable="d"
   >
 
-  <i:Interaction.Behaviors>
-    <core:EventTriggerBehavior EventName="Unloaded" >
-      <myActions:CallDisposeAction Target="{Binding}" xmlns:myActions="using:Hohoema.Presentation.Views.Interaction.Actions" />
-      <core:ChangePropertyAction PropertyName="DataContext" Value="{x:Null}" />
-    </core:EventTriggerBehavior>
-  </i:Interaction.Behaviors>
-  
   <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                         >
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"

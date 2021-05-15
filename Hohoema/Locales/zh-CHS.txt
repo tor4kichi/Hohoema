@@ -131,39 +131,60 @@ PinRemovedWithTitle = 取消固定{0}
 
 #### Video Cache feature ####
 Cache = 快取
-CacheProgress = DL
-CachePending = DL等待
-SelectDeleteVideoQuality = 选择要删除的图像质量
 OpenCacheFolder = 打开存储文件夹
 ChangeCacheFolder = 更改存储文件夹
-OpenHohoemaCacheVideoFairUsePolicyText = 显示“使用缓存功能的确认”
-RequireAcceptToUsingVideoCacheInHohoema = 要启用缓存功能，\n您需要同意“关于使用缓存功能的确认”
-RequirePickFolderToUsingVieoCacheInHohoema = 您需要指定一个缓存文件夹以启用缓存功能\n
 PickCacheSaveFolder = 选择缓存存储文件夹
-HohoemaCacheVideoFairUsePolicy = 确认使用缓存功能
-Accept = 同意
 ChoiceCacheSavingFolder = 请为缓存选择一个目标文件夹。 \n选择保存目的地后，使用准备完毕。
-ReadyForVideoCache = 缓存可以使用了
 CacheSaveFolderChangeToX = 缓存目标已更改为{0}
-CacheFolderAccessState.NotAccepted_Desc = 必须同意使用缓存。按下“启用缓存”按钮以显示同意文件
-CacheFolderAccessState.NotEnabled_Desc = 需要激活缓存
-CacheFolderAccessState.NotSelected_Desc = 选择一个文件夹以使用缓存功能
 CacheFolderAccessState.SelectedButNotExist_Desc = 无法确认选择的文件夹。重新连接外部存储或重新选择缓存目标文件夹
-CancelCacheAndPlayDesc = 非Nico Nico Premium会员一次只能查看和下载一个。 \n您必须停止缓存才能开始观看。 \n（以前的所有下载都不会丢失，并且将从头开始重新启动）
-CancelCacheAndPlayTitle = 停止缓存并开始观看？
-CancelCacheAndPlay = 停止缓存并观看
+CacheVideoNoItems = 没有缓存的视频
+CacheFeatureIsAvairableForOnlyNiconicoPremiumMember = 现金功能仅适用于高级会员
 
-NicoVideoCacheState.NotCacheRequested = 已取消
-NicoVideoCacheState.Pending = 等待DL
-NicoVideoCacheState.Downloading = 立即下载
-NicoVideoCacheState.Cached = 已缓存
-NicoVideoCacheState.Failed = DL故障
-NicoVideoCacheState.FailedWithQualityNotAvairable = 指定的图像质量DL不可用（更改时间并重试）
-NicoVideoCacheState.DeletedFromUser = 已删除
-NicoVideoCacheState.DeletedFromNiconicoServer = 已从服务器中删除
+DownloadOperationRunning = 运作中
+DownloadOperationStopping = 停止中
+
+VideoCacheStatus.Pending = 等待
+VideoCacheStatus.Downloading = 更新中
+VideoCacheStatus.DownloadPaused = 暂停
+VideoCacheStatus.Completed = 完毕
+VideoCacheStatus.Failed = 失败
+
+VideoCacheDownloadOperationFailedReason.Unknown = 原因不明
+VideoCacheDownloadOperationFailedReason.InternetUnavairable = 离线上网
+VideoCacheDownloadOperationFailedReason.NoUsageAuthority = 仅适用于高级会员
+VideoCacheDownloadOperationFailedReason.CanNotCacheEncryptedContent = 加密的视频无法缓存
+VideoCacheDownloadOperationFailedReason.StorageCapacityLimitReached = 达到存储限制
+VideoCacheDownloadOperationFailedReason.RistrictedDownloadLineCount = 并行下载数达到上限
+VideoCacheDownloadOperationFailedReason.NoMorePendingOrPausingItem = 处理所有缓存请求
+VideoCacheDownloadOperationFailedReason.VideoDeleteFromServer = 无法使用，因为视频已被删除
+VideoCacheDownloadOperationFailedReason.RequirePermission_Premium = [失败]无法缓存高级会员专用视频
+VideoCacheDownloadOperationFailedReason.RequirePermission_Admission = [失败]只有频道会员可以兑现
+
+IsAllowDownloadOnMeteredNetwork = 允许通过移动通信下载
+IsNotifyOnDownloadWithMeteredNetwork = 通过移动通信开始下载时通知
+MaxVideoCacheStorageSize = 影片快取储存空间上限（GB）
+MaxVideoCacheSize_Unlimited = 无限
+CachedStorageSize_Current = 正在使用
+CachedStorageSize_Limit = 上限
+
+CacheVideo_Notification_RequestAdded = 添加缓存请求
+CacheVideo_Notification_DownloadStarted = 缓存开始
+CacheVideo_Notification_Completed = 缓存完成
+CacheVideo_Notification_RequestRemoved = 删除缓存请求
+CacheVideo_Notification_Failed = 缓存下载失败
+CacheVideo_Notification_Paused = 缓存暂停
+
+CacheVideo_ToastNotification_Completed = 下载完成
+CacheVideo_ToastNotification_PlayVideo = 看法
+CacheVideo_ToastNotification_CloseToast = 关闭
+CacheVideo_ToastNotification_Downloading = 正在下载
+CacheVideo_ToastNotification_DownloadPausing = 已暂停
+CacheVideo_ToastNotification_Failed = 下载失败
+CacheVideo_ToastNotification_CacheDelete = 删除
 
 
-#### Subscribe feature ####
+
+#### Subscription ####
 SubscriptionAdd = 添加订阅
 SubscriptionAddUser = 将作者添加到订阅
 SubscriptionAddMylist = 将我的列表添加到订阅
@@ -319,13 +340,13 @@ PlacefolderCommentTransformConditionReplaced = 替换字符串
 
 #### Video ####
 NicoVideoQuality.Unknown = 未指定图像质量
-NicoVideoQuality.Smile_Low = 旧的低画质
-NicoVideoQuality.Smile_Original = 旧的原始图像质量
-NicoVideoQuality.Dmc_Mobile = 手机图像质量
-NicoVideoQuality.Dmc_Low = 低画质
-NicoVideoQuality.Dmc_Midium = 中等图像质量
-NicoVideoQuality.Dmc_High = 高画质
-NicoVideoQuality.Dmc_SuperHigh = 很高的图像质量
+NicoVideoQuality.Mobile = 手机图像质量
+NicoVideoQuality.Low = 低画质
+NicoVideoQuality.Midium = 中等图像质量
+NicoVideoQuality.High = 高画质
+NicoVideoQuality.SuperHigh = 很高的图像质量
+
+
 
 VideoPostAt = 发布日期
 VideoPostAt_Short = 发布
@@ -588,7 +609,8 @@ ConfirmRemoveFollow_DialogTitle = 确认取消关注
 RemoveFollow = 取消关注
 
 FollowInfoIsRequireLogIn = 您需要登录才能查看关注信息
-
+FollowerCount = 追随者
+MylistVideoCountDesc = {0}个视频
 
 #### Nicorepo ####
 NicoRepoDisplayOptions = 显示条件

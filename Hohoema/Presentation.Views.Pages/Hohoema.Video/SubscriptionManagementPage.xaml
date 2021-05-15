@@ -167,7 +167,7 @@
                 </Style>
               </ListView.ItemContainerStyle>
               <ListView.ItemTemplate>
-                <DataTemplate x:DataType="videoList1:VideoInfoControlViewModel">
+                <DataTemplate x:DataType="videoList1:VideoListItemControlViewModel">
                   <UserControl>
                     <Grid x:Name="VideoItemContainer" BorderThickness="1" BorderBrush="{ThemeResource SystemAccentColor}" Height="108">
                       <Border   >

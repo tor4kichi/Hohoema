@@ -133,6 +133,7 @@
     <Compile Include="FixPrism\BindableBaseWithFix.cs" />
     <Compile Include="Locales\LocaleToDisplayNameConverter.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
+    <Compile Include="Locales\LocalizeWithParameterConverter.cs" />
     <Compile Include="Models.Domain\Application\AppearanceSettings.cs" />
     <Compile Include="Models.Domain\Application\AppFlagsRepository.cs" />
     <Compile Include="Models.Domain\Application\ApplicationInteractionMode.cs" />
@@ -140,15 +141,18 @@
     <Compile Include="Models.Domain\Application\BackupManager.cs" />
     <Compile Include="Models.Domain\Application\FeatureFlags.cs" />
     <Compile Include="Models.Domain\Application\HohoemaAppServiceLevel.cs" />
+    <Compile Include="Models.Domain\Application\ToastNotificationConstants.cs" />
+    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\IFollowProvider.cs" />
     <Compile Include="Models.Domain\Pins\PinSettings.cs" />
     <Compile Include="Models.Domain\Niconico\AccountManager.cs" />
     <Compile Include="Models.Domain\Application\AppUpdateNotice.cs" />
+    <Compile Include="Models.Domain\Player\Video\NicoVideoQuality_Legacy.cs" />
     <Compile Include="Models.Helpers\AsyncLock.cs" />
     <Compile Include="Models.Helpers\ColorExtention.cs" />
     <Compile Include="Models.Helpers\ConnectionRetryUtil.cs" />
     <Compile Include="Models.Helpers\FilePathHelper.cs" />
     <Compile Include="Models.Helpers\HtmlFileHelper.cs" />
-    <Compile Include="Models.Helpers\HttpSequencialAccessStream.cs" />
+    <Compile Include="Models.Helpers\HttpRandomAccessStream.cs" />
     <Compile Include="Models.Helpers\IAsyncInitialize.cs" />
     <Compile Include="Models.Helpers\IncrementalLoadingCollection.cs" />
     <Compile Include="Models.Helpers\InternetConnection.cs" />
@@ -173,21 +177,10 @@
     <Compile Include="Models.Domain\Niconico\Search\SearchProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\LoginUser\ChannelFollowProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\LoginUser\CommunityFollowProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\ChannelFollowInfoGroup.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\LoginUser\CommunituFollowAdditionalInfo.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\CommunityFollowInfoGroup.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\FollowInfoGroupBase.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\FollowInfoGroupBaseTemplate.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\FollowInfoGroupWithFavData.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\MylistFollowInfoGroup.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\TagFollowInfoGroup.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\UserFollowInfoGroup.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\FollowItemInfo.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\FollowItemType.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\FollowManager.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\IFollowable.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\IFollowInfoGroup.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\IFollowProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\IWatchHistory.cs" />
     <Compile Include="Models.Domain\Niconico\Live\LoginUser\LoginUserLiveReservationProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\LoginUserHistoryProvider.cs" />
@@ -211,7 +204,7 @@
     <Compile Include="Models.Domain\Niconico\User\UserProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Video\Series\ISeries.cs" />
     <Compile Include="Models.Domain\Niconico\Video\IVideoContent.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\IVideoTag.cs" />
+    <Compile Include="Models.Domain\Niconico\Video\ITag.cs" />
     <Compile Include="Models.Domain\Niconico\Video\NicoVideo.cs" />
     <Compile Include="Models.Domain\Niconico\Video\NicoVideoCacheRepository.cs" />
     <Compile Include="Models.Domain\Niconico\Video\NicoVideoOwner.cs" />
@@ -220,7 +213,7 @@
     <Compile Include="Models.Domain\Niconico\Video\Ranking\RankingGenreCache.cs" />
     <Compile Include="Models.Domain\Niconico\Video\Ranking\RankingProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Video\Series\SeriesRepository.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\VideoCacheSettings.cs" />
+    <Compile Include="Models.Domain\Niconico\Video\VideoCacheSettings_Legacy.cs" />
     <Compile Include="Models.Domain\Niconico\Video\VideoFilteringSettings.cs" />
     <Compile Include="Models.Domain\Niconico\Video\VideoRankingSettings.cs" />
     <Compile Include="Models.Domain\PageNavigation\HohoemaPageType.cs" />
@@ -228,7 +221,6 @@
     <Compile Include="Models.Domain\PageNavigation\IPageNavigatable.cs" />
     <Compile Include="Models.Domain\PageNavigation\IPinablePage.cs" />
     <Compile Include="Models.Domain\PageNavigation\ISearchHistory.cs" />
-    <Compile Include="Models.Domain\PageNavigation\ISearchWithtag.cs" />
     <Compile Include="Models.Domain\PageNavigation\ITitleUpdatablePage.cs" />
     <Compile Include="Models.Domain\PageNavigation\MylistUserSelectedSortRepository.cs" />
     <Compile Include="Models.Domain\PageNavigation\RestoreNavigationManager.cs" />
@@ -245,7 +237,6 @@
     <Compile Include="Models.Domain\Player\Live\LiveVidePagePayload.cs" />
     <Compile Include="Models.Domain\Player\Live\NicoLiveInfoType.cs" />
     <Compile Include="Models.Domain\Player\PlayerSettings.cs" />
-    <Compile Include="Models.Domain\Player\Video\Cache\CachedVideoSessionProvider.cs" />
     <Compile Include="Models.Domain\Player\Video\Cache\CachefolderAccessState.cs" />
     <Compile Include="Models.Domain\Player\Video\Cache\CacheRequestRepository.cs" />
     <Compile Include="Models.Domain\Player\Video\Cache\NicoVideoCached.cs" />
@@ -261,15 +252,14 @@
     <Compile Include="Models.Domain\Player\Video\Comment\VideoComment.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\VideoCommentService.cs" />
     <Compile Include="Models.Domain\Player\Video\NicoVideoCanNotDownloadReason.cs" />
-    <Compile Include="Models.Domain\Player\Video\NicoVideoQuality.cs" />
+    <Compile Include="Models.Domain\Niconico\Video\NicoVideoQuality.cs" />
     <Compile Include="Models.Domain\Player\Video\NicoVideoQualityEntity.cs" />
     <Compile Include="Models.Domain\Player\Video\NicoVideoSessionProvider.cs" />
     <Compile Include="Models.Domain\Player\Video\NicoVideoTag.cs" />
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\DmcVideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\DownloadProgressVideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\IVideoStreamingSession.cs" />
-    <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\LocalVideoStreamingSession.cs" />
-    <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\SmileVideoStreamingSession.cs" />
+    <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\CachedVideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\VideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Playlist\IPlaylist.cs" />
     <Compile Include="Models.Domain\Playlist\IPlaylistItem.cs" />
@@ -285,7 +275,6 @@
     <Compile Include="Models.Domain\Subscirptions\SubscriptionSourceEntity.cs" />
     <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperation.cs" />
     <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperationOutput.cs" />
-    <Compile Include="Models.Domain\VideoCache\NicoVideoCacheQuality.cs" />
     <Compile Include="Models.Domain\VideoCache\NicoVideoCacheQualityHelper.cs" />
     <Compile Include="Models.Domain\VideoCache\PrepareNextVideoCacheDownloadingResult.cs" />
     <Compile Include="Models.Domain\VideoCache\VideoCacheDownloadOperation.cs" />
@@ -299,7 +288,6 @@
     <Compile Include="Models.Domain\VideoCache\VideoCacheItem.cs" />
     <Compile Include="Models.Domain\VideoCache\VideoCacheItemRepository.cs" />
     <Compile Include="Models.Domain\VideoCache\VideoCacheManager.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheMigretedFileEncryptOperation.cs" />
     <Compile Include="Models.Domain\VideoCache\VideoCacheSaveFolderManager.cs" />
     <Compile Include="Models.Domain\VideoCache\VideoCacheSettings.cs" />
     <Compile Include="Models.Domain\VideoCache\VideoCacheStatus.cs" />
@@ -320,12 +308,16 @@
     <Compile Include="Models.UseCase\ErrorTrackingManager.cs" />
     <Compile Include="Models.UseCase\Migration\CommentFilteringNGScoreZeroFixture.cs" />
     <Compile Include="Models.UseCase\Migration\DatabaseMigrate_0_25_0.cs" />
-    <Compile Include="Models.UseCase\Migration\IMigateAsync.cs" />
+    <Compile Include="Models.Domain\Application\IMigateAsync.cs" />
     <Compile Include="Models.UseCase\Migration\LocalMylistThumbnailImageMigration_V_0_28_0.cs" />
     <Compile Include="Models.UseCase\Migration\MigrationCommentFilteringSettings.cs" />
     <Compile Include="Models.UseCase\Migration\SearchPageQueryMigrate_0_26_0.cs" />
     <Compile Include="Models.UseCase\Migration\SettingsMigration_V_0_23_0.cs" />
-    <Compile Include="Models.UseCase\Migration\VideoCacheDatabaseMigration_V_0_29_0.cs" />
+    <Compile Include="Models.UseCase\VideoCache\Events\EndCacheSaveFolderChangingMessage.cs" />
+    <Compile Include="Models.UseCase\VideoCache\Events\StartCacheSaveFolderChangingAsyncRequestMessage.cs" />
+    <Compile Include="Models.UseCase\VideoCache\Events\VideoCacheProgressChangedMessage.cs" />
+    <Compile Include="Models.UseCase\VideoCache\Events\VideoCacheStatusChangedMessage.cs" />
+    <Compile Include="Models.UseCase\VideoCache\Migration\VideoCacheDatabaseMigration_V_0_29_0.cs" />
     <Compile Include="Models.UseCase\NicoVideos\CloseToastNotificationWhenPlayStarted.cs" />
     <Compile Include="Models.UseCase\NicoVideos\Events\VideoPlayedMessage.cs" />
     <Compile Include="Models.UseCase\NicoVideos\HohoemaPlaylist.cs" />
@@ -345,7 +337,6 @@
     <Compile Include="Models.UseCase\NicoVideos\PlaylistResolver.cs" />
     <Compile Include="Models.UseCase\NicoVideos\PlaylistSelectDialogService.cs" />
     <Compile Include="Models.UseCase\NicoVideos\LoginUserOwnedMylistManager.cs" />
-    <Compile Include="Models.UseCase\NicoVideos\VideoCacheResumingObserver.cs" />
     <Compile Include="Models.UseCase\NicoVideos\VideoItemsSelectionContext.cs" />
     <Compile Include="Models.UseCase\NicoVideos\WatchHistoryManager.cs" />
     <Compile Include="Models.UseCase\Subscriptions\FeedResultAddToWatchLater.cs" />
@@ -353,6 +344,7 @@
     <Compile Include="Models.UseCase\Subscriptions\SubscriptionUpdateManager.cs" />
     <Compile Include="Models.UseCase\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheDownloadOperationManager.cs" />
+    <Compile Include="Models.UseCase\VideoCache\VideoCacheFolderManager.cs" />
     <Compile Include="Models.UseCase\WindowService.cs" />
     <Compile Include="Models.Helpers\ClipboardHelper.cs" />
     <Compile Include="Presentation.Services\DialogService.cs" />
@@ -364,14 +356,14 @@
     <Compile Include="Models.Helpers\SortMethodHelper.cs" />
     <Compile Include="Models.Domain\Notification\InAppNotificationMessage.cs" />
     <Compile Include="Models.Domain\Notification\LiteNotificationMessage.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Follow\NiconicoFollowToggleButtonViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\NavigationQueryHelper.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowContext.cs" />
     <Compile Include="Models.UseCase\Niconico.Account\NiconicoLoginService.cs" />
     <Compile Include="Presentation.Services\NoProcessUIScreenContext.cs" />
     <Compile Include="Presentation.Services\NotificationService.cs" />
     <Compile Include="Models.UseCase\CheckingClipboardAndNotificationService.cs" />
-    <Compile Include="Models.UseCase\VideoCache\NotificationCacheRequestRejectedService.cs" />
     <Compile Include="Models.UseCase\VideoCache\NotificationCacheVideoDeletedService.cs" />
-    <Compile Include="Models.UseCase\Niconico.Follow\NotificationFollowUpdatedService.cs" />
+    <Compile Include="Models.UseCase\Niconico.Follow\FollowNotificationAndConfirmListener.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PageManager.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PageManagerSearchExtention.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\LoginRedirectPayload.cs" />
@@ -395,6 +387,11 @@
     <Compile Include="Models.UseCase\Player\ScondaryViewPlayerManager.cs" />
     <Compile Include="Models.UseCase\Player\ShowPrimaryViewCommand.cs" />
     <Compile Include="Models.UseCase\Player\TogglePlayerDisplayViewCommand.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowMylistGroupViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowChannelGroupViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowCommunityGroupViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowTagGroupViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowUserGroupViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Live\LiveInfoListItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Share\CopyToClipboardWithShareTextCommand.cs" />
     <Compile Include="Presentation.Services\UINavigation\UINavigationButtons.cs" />
@@ -423,6 +420,18 @@
     <Compile Include="Presentation.Views.Pages\BlankPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Series\UserSeriesItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Series\SeriesOwnerViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowGroupViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowIncrementalSourceBase.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowUserViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowUserIncrementalSource.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowTagIncrementalSource.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowTagViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowMylistIncrementalSource.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowMylistViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowChannelIncrementalSource.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowChannelViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowCommunityIncrementalSource.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowCommunityViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchHistoryListItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Search\VideoSearchSource.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Video\ChannelVideoPageViewModel.cs" />
@@ -457,9 +466,8 @@
     <Compile Include="Presentation.Views.Pages\Niconico\UserInfoPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.User\UserInfoViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Video\UserVideoPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\CacheAddRequestCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\CacheDeleteRequestCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\FollowRemoveCommand.cs" />
+    <Compile Include="Presentation.ViewModels\VideoCache.Commands\CacheAddRequestCommand.cs" />
+    <Compile Include="Presentation.ViewModels\VideoCache.Commands\CacheDeleteRequestCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\HiddenVideoOwnerAddCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\HiddenVideoOwnerRemoveCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\LocalPlaylistAddItemCommand.cs" />
@@ -484,7 +492,7 @@
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\QueueRemoveItemCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\WatchHistoryRemoveAllCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\WatchHistoryRemoveItemCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\VideoInfoControlViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Video\VideoListItemControlViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico\RankingCategoryListPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Video\RankingCategoryPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Ranking\Messages\RankingGenreCustomizeEvent.cs" />
@@ -499,7 +507,7 @@
     <Compile Include="Presentation.ViewModels\HohoemaListingPageItemBase.cs" />
     <Compile Include="Presentation.ViewModels\HohoemaListingPageViewModelBase.cs" />
     <Compile Include="Presentation.ViewModels\HohoemaSecondaryViewFrameViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\HohoemaViewModelBase.cs" />
+    <Compile Include="Presentation.ViewModels\HohoemaPageViewModelBase.cs" />
     <Compile Include="Presentation.ViewModels\IHohoemaListItem.cs" />
     <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenPageWithIdCommand.cs" />
     <Compile Include="Presentation.ViewModels\Navigation.Commands\SearchCommand.cs" />
@@ -665,6 +673,7 @@
     <Compile Include="Presentation.Views\Controls\LiteInAppNotification\LiteInAppNotification.cs" />
     <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.cs" />
     <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
+    <Compile Include="Presentation.Views\Controls\VideoList\VideoListItem\VideoListItem.cs" />
     <Compile Include="Presentation.Views\Converters\CacheStateToColorBrushConverter.cs" />
     <Compile Include="Presentation.Views\Converters\DateTimetoStringConverter.cs" />
     <Compile Include="Presentation.Views\Converters\EnumToNumberConverter.cs" />
@@ -739,9 +748,6 @@
     <Compile Include="Presentation.Views\Extensions\WebView\PreventSpoilerXYNavigationInWebView.cs" />
     <Compile Include="Presentation.Views\Extensions\WebView\WebViewAutoResizeToContent.cs" />
     <Compile Include="Presentation.Views\Extensions\WebView\WebViewNotifyUriClicked.cs" />
-    <Compile Include="Presentation.Views\Flyouts\FollowItemFlyout.xaml.cs">
-      <DependentUpon>FollowItemFlyout.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Presentation.Views\Flyouts\LiveListItemFlyout.xaml.cs">
       <DependentUpon>LiveListItemFlyout.xaml</DependentUpon>
     </Compile>
@@ -934,6 +940,7 @@
     <Content Include="Assets\Square71x71Logo.scale-200.png" />
     <Content Include="Assets\Square71x71Logo.scale-400.png" />
     <Content Include="Assets\StoreTesting.xml" />
+    <Content Include="Assets\VideoCache_EncryptionKey_32byte.txt" />
     <Content Include="Assets\Wide310x150Logo.scale-100.png" />
     <Content Include="Assets\Wide310x150Logo.scale-125.png" />
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
@@ -983,6 +990,9 @@
       <Version>7.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">
+      <Version>7.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Connectivity">
       <Version>7.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications">
@@ -1231,6 +1241,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Presentation.Views\Controls\VideoList\VideoListItem\VideoListItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Presentation.Views\Dialogs\AdvancedSelectDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1268,10 +1282,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Presentation.Views\Dialogs\_TextInputDialog\TextInputDialog.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Presentation.Views\Flyouts\FollowItemFlyout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1375,6 +1385,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Styles\FixedHeaderListViewStyle.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Styles\HohoemaListItemStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1412,7 +1426,6 @@
     <PRIResource Include=".appcenter.resw" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\CacheUsageConfirmation.md" />
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />

@@ -25,16 +25,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Uno.Extensions;
 using Windows.UI.Popups;
+using Windows.System;
+using Microsoft.Toolkit.Uwp;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {
 
-    public class OwnerMylistManagePageViewModel : HohoemaViewModelBase
+    public class OwnerMylistManagePageViewModel : HohoemaPageViewModelBase
     {
         ObservableCollection<IPlaylist> _sourcePlaylistItems = new ObservableCollection<IPlaylist>();
         public AdvancedCollectionView ItemsView { get; }
         public ReactivePropertySlim<bool> NowLoading { get; } = new ReactivePropertySlim<bool>();
 
+        private readonly DispatcherQueue _dispatcherQueue;
         private readonly NiconicoSession _niconicoSession;
         private readonly PageManager _pageManager;
         private readonly DialogService _dialogService;
@@ -57,6 +60,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             PlaylistPlayAllCommand playlistPlayAllCommand
             )
         {
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             _niconicoSession = niconicoSession;
             _pageManager = pageManager;
             _dialogService = dialogService;
@@ -176,6 +180,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             new[]
             {
                 _niconicoSession.ObserveProperty(x => x.IsLoggedIn).ToUnit(),
+                _userMylistManager.Mylists.CollectionChangedAsObservable().ToUnit(),
             }
             .Merge()
             .Subscribe(async _ =>
@@ -197,26 +202,29 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
         private async Task RefreshPlaylistItems()
         {
-            NowLoading.Value = true;
-            try
+            await _dispatcherQueue.EnqueueAsync(async () =>
             {
-                using (ItemsView.DeferRefresh())
+                NowLoading.Value = true;
+                try
                 {
-                    _sourcePlaylistItems.Clear();
+                    using (ItemsView.DeferRefresh())
+                    {
+                        _sourcePlaylistItems.Clear();
 
-                    // TODO: タイムアウト処理を追加する
-                    using var _ = await _niconicoSession.SigninLock.LockAsync();
-                    await _userMylistManager.WaitUpdate();
+                        // TODO: タイムアウト処理を追加する
+                        using var _ = await _niconicoSession.SigninLock.LockAsync();
+                        await _userMylistManager.WaitUpdate();
 
-                    _sourcePlaylistItems.AddRange(_userMylistManager.Mylists.Where(x => x.IsDefaultMylist() is false));
+                        _sourcePlaylistItems.AddRange(_userMylistManager.Mylists.Where(x => x.IsDefaultMylist() is false));
+                    }
                 }
-            }
-            finally
-            {
-                NowLoading.Value = false;
-            }
+                finally
+                {
+                    NowLoading.Value = false;
+                }
 
-            AddMylistGroupCommand.RaiseCanExecuteChanged();
+                AddMylistGroupCommand.RaiseCanExecuteChanged();
+            });
         }
     }
 }

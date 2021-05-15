@@ -60,7 +60,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
         public PageManager(
             IScheduler scheduler,
             AppearanceSettings appearanceSettings,
-            VideoCacheSettings cacheSettings,
+            VideoCacheSettings_Legacy cacheSettings,
             HohoemaPlaylist playlist
             )
         {
@@ -73,7 +73,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
         public AppearanceSettings AppearanceSettings { get; }
-        public VideoCacheSettings CacheSettings { get; }
+        public VideoCacheSettings_Legacy CacheSettings { get; }
         public IScheduler Scheduler { get; }
 
         public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>
@@ -127,20 +127,20 @@ namespace Hohoema.Models.UseCase.PageNavigation
                     case FollowItemInfo followItem:
                         switch (followItem.FollowItemType)
                         {
+                            case FollowItemType.User:
+                                OpenPageWithId(HohoemaPageType.UserInfo, followItem.Id);
+                                break;
                             case FollowItemType.Tag:
                                 this.Search(SearchTarget.Tag, followItem.Id);
                                 break;
                             case FollowItemType.Mylist:
                                 OpenPageWithId(HohoemaPageType.Mylist, followItem.Id);
                                 break;
-                            case FollowItemType.User:
-                                OpenPageWithId(HohoemaPageType.UserInfo, followItem.Id);
+                            case FollowItemType.Channel:
+                                OpenPageWithId(HohoemaPageType.ChannelVideo, followItem.Id);
                                 break;
                             case FollowItemType.Community:
                                 OpenPageWithId(HohoemaPageType.Community, followItem.Id);
-                                break;
-                            case FollowItemType.Channel:
-                                OpenPageWithId(HohoemaPageType.ChannelVideo, followItem.Id);
                                 break;
                             default:
                                 break;
@@ -174,11 +174,8 @@ namespace Hohoema.Models.UseCase.PageNavigation
                     case IUser user:
                         OpenPageWithId(HohoemaPageType.UserInfo, user.Id);
                         break;
-                    case ISearchWithtag tag:
+                    case ITag tag:
                         this.Search(SearchTarget.Tag, tag.Tag);
-                        break;
-                    case ITag videoTag:
-                        this.Search(SearchTarget.Tag, videoTag.Tag);
                         break;
                     case ISearchHistory history:
                         this.Search(history.Target, history.Keyword);
@@ -209,7 +206,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                             break;
                         }
 
-                    case IVideoContent videoContent:
+                    case IVideoContentProvider videoContent:
                         if (videoContent.ProviderType == NicoVideoUserType.User)
                         {
                             OpenPageWithId(HohoemaPageType.UserVideo, videoContent.ProviderId);
@@ -231,14 +228,14 @@ namespace Hohoema.Models.UseCase.PageNavigation
                     case IUser user:
                         OpenPageWithId(HohoemaPageType.UserVideo, user.Id);
                         break;
-                    case ISearchWithtag tag:
+                    case ITag tag:
                         this.Search(SearchTarget.Tag, tag.Tag);
                         break;
                     case ISearchHistory history:
                         this.Search(history.Target, history.Keyword);
                         break;
                     case IChannel channel:
-                        OpenPageWithId(HohoemaPageType.UserVideo, channel.Id);
+                        OpenPageWithId(HohoemaPageType.ChannelVideo, channel.Id);
                         break;
                 }
             }));
@@ -251,7 +248,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
             {
             switch (parameter)
             {
-                case IVideoContent videoContent:
+                case IVideoContentProvider videoContent:
                     if (videoContent.ProviderType == NicoVideoUserType.User)
                     {
                         var p = new NavigationParameters();

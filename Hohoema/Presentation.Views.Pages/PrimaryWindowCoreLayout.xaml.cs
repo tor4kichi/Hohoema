@@ -77,14 +77,14 @@ namespace Hohoema.Presentation.Views.Pages
                         .Subscribe(title =>
                         {
                             PageTitle = title;
-                            if (pageVM is HohoemaViewModelBase vm)
+                            if (pageVM is HohoemaPageViewModelBase vm)
                             {
                                 vm.Title = title;
                             }
                         })
                         .AddTo(_navigationDisposable);
                     }
-                    else if (page.DataContext is HohoemaViewModelBase vm)
+                    else if (page.DataContext is HohoemaPageViewModelBase vm)
                     {
                         var pageNameRaw = e.SourcePageType.FullName.Split('.').LastOrDefault();
                         var pageName = pageNameRaw.Split('_').FirstOrDefault();
@@ -387,7 +387,8 @@ namespace Hohoema.Presentation.Views.Pages
             if (e.NavigationMode == Windows.UI.Xaml.Navigation.NavigationMode.Refresh) { return; }
 
             var frame = (Frame)sender;
-            //BackCommand.RaiseCanExecuteChanged();
+
+            GoBackCommand.RaiseCanExecuteChanged();
 
             /*
             MyNavigtionView.IsPaneVisible = !MenuPaneHiddenPageTypes.Any(x => x == e.SourcePageType);
@@ -408,7 +409,7 @@ namespace Hohoema.Presentation.Views.Pages
 
 
             // 戻れない設定のページではバックナビゲーションボタンを非表示に切り替え
-            
+
             var isCanGoBackPage = !PreventGoBackPageTypes.Contains(e.SourcePageType);
             /*SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility =
                 isCanGoBackPage
@@ -796,7 +797,7 @@ namespace Hohoema.Presentation.Views.Pages
 
         private bool CanExecuteGoBackCommand()
         {
-            return true;
+            return ContentFrame.BackStack.Any();
         }
 
         void ExecuteGoBackCommand()

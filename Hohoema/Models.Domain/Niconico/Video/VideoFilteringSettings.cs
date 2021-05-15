@@ -1,5 +1,7 @@
 ﻿using Hohoema.Models.Infrastructure;
 using LiteDB;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,13 +26,26 @@ namespace Hohoema.Models.Domain.Niconico.Video
         Tag,
     }
 
+    public sealed class VideoOwnerFilteringAddedMessage : ValueChangedMessage<VideoOwnerFilteringAddedMessagePayload>
+    {
+        public VideoOwnerFilteringAddedMessage(VideoOwnerFilteringAddedMessagePayload value) : base(value)
+        {
+        }
+    }
 
-    public sealed class VideoOwnerFilteringAddedEventArgs
+    public sealed class VideoOwnerFilteringRemovedMessage : ValueChangedMessage<VideoOwnerFilteringRemovedMessagePayload>
+    {
+        public VideoOwnerFilteringRemovedMessage(VideoOwnerFilteringRemovedMessagePayload value) : base(value)
+        {
+        }
+    }
+
+    public sealed class VideoOwnerFilteringAddedMessagePayload 
     {
         public string OwnerId { get; set; }
     }
 
-    public sealed class VideoOwnerFilteringRemovedEventArgs
+    public sealed class VideoOwnerFilteringRemovedMessagePayload
     {
         public string OwnerId { get; set; }
     }
@@ -38,6 +53,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
     public sealed class VideoFilteringSettings : FlagsRepositoryBase
     {     
         public VideoFilteringSettings(
+            IMessenger messenger,
             VideoIdFilteringRepository videoIdFilteringRepository,
             VideoOwnerIdFilteringRepository videoOwnerIdFilteringRepository,
             VideoTitleFilteringRepository videoTitleFilteringRepository
@@ -47,13 +63,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
             _NGVideoOwnerUserIdEnable = Read(true, nameof(NGVideoOwnerUserIdEnable));
             _NGVideoTitleKeywordEnable = Read(true, nameof(NGVideoTitleKeywordEnable));
             _NGVideoTitleTestText = Read(string.Empty, nameof(NGVideoTitleTestText));
+            _messenger = messenger;
             _videoIdFilteringRepository = videoIdFilteringRepository;
             _videoOwnerIdFilteringRepository = videoOwnerIdFilteringRepository;
             _videoTitleFilteringRepository = videoTitleFilteringRepository;
         }
 
-        public event EventHandler<VideoOwnerFilteringAddedEventArgs> VideoOwnerFilterAdded;
-        public event EventHandler<VideoOwnerFilteringRemovedEventArgs> VideoOwnerFilterRemoved;
 
         public bool TryGetHiddenReason(IVideoContent video, out FilteredResult result)
         {
@@ -67,7 +82,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
                 return true;
             }
-            else if (video.ProviderId != null && TryGetFilteredResultVideoOwnerId(video.ProviderId, out var user))
+            else if (video is IVideoContentProvider provider &&  provider.ProviderId != null && TryGetFilteredResultVideoOwnerId(provider.ProviderId, out var user))
             {
                 result = new FilteredResult()
                 {
@@ -102,6 +117,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             set { SetProperty(ref _NGVideoIdEnable, value); }
         }
 
+        private readonly IMessenger _messenger;
         private readonly VideoIdFilteringRepository _videoIdFilteringRepository;
 
 
@@ -165,13 +181,19 @@ namespace Hohoema.Models.Domain.Niconico.Video
         public void AddHiddenVideoOwnerId(string id, string label)
         {
             _videoOwnerIdFilteringRepository.UpdateItem(new VideoOwnerIdFilteringEntry() { UserId = id, Description = label });
-            VideoOwnerFilterAdded?.Invoke(this, new VideoOwnerFilteringAddedEventArgs() { OwnerId = id });
+
+            var message = new VideoOwnerFilteringAddedMessage(new() { OwnerId = id });
+            _messenger.Send(message);
+            _messenger.Send(message, id);
         }
 
         public void RemoveHiddenVideoOwnerId(string id)
         {
             _videoOwnerIdFilteringRepository.DeleteItem(id);
-            VideoOwnerFilterRemoved?.Invoke(this, new VideoOwnerFilteringRemovedEventArgs() { OwnerId = id });
+
+            var message = new VideoOwnerFilteringRemovedMessage(new() { OwnerId = id });
+            _messenger.Send(message);
+            _messenger.Send(message, id);
         }
 
         public bool TryGetFilteredResultVideoOwnerId(string id, out VideoOwnerIdFilteringEntry outEntry)

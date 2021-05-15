@@ -29,9 +29,9 @@ namespace Hohoema.Models.Domain.Legacy
 		{
 			NGResult result = null;
 
-            if (info.ProviderId != null)
+            if (info is IVideoContentProvider provider && provider.ProviderId != null)
             {
-                result = IsNgVideoOwnerId(info.ProviderId);
+                result = IsNgVideoOwnerId(provider.ProviderId);
                 if (result != null) return result;
             }
 

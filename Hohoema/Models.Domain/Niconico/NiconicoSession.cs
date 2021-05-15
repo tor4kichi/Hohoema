@@ -65,12 +65,19 @@ namespace Hohoema.Models.Domain.Niconico
             App.Current.Suspending += Current_Suspending;
             App.Current.Resuming += Current_Resuming;
 
-            
             Scheduler = scheduler;
         }
 
         private void OnNetworkStatusChanged(object sender)
         {
+            // Note: Resumingのタイミングで NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged; をやるとExcpetion HRESULT: 
+
+            if (skipOnceNetworkStatusChange)
+            {
+                skipOnceNetworkStatusChange = false;
+                return;
+            }
+
             if (Helpers.InternetConnection.IsInternet())
             {
                 var lastStatus = this.ServiceStatus;
@@ -101,14 +108,15 @@ namespace Hohoema.Models.Domain.Niconico
             }
         }
 
+        bool skipOnceNetworkStatusChange;
         private void Current_Resuming(object sender, object e)
         {
-            NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
+            skipOnceNetworkStatusChange = true;
         }
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
-            NetworkInformation.NetworkStatusChanged -= OnNetworkStatusChanged;
+            skipOnceNetworkStatusChange = true;
         }
 
         public const string HohoemaUserAgent = "Hohoema_UWP";

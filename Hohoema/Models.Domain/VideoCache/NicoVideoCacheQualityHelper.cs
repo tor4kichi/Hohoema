@@ -1,52 +1,53 @@
-﻿using System;
+﻿using Hohoema.Models.Domain.Niconico.Video;
+using System;
 
 namespace Hohoema.Models.Domain.VideoCache
 {
     public static class NicoVideoCacheQualityHelper
     {
-        public static NicoVideoCacheQuality QualityIdToCacheQuality(string qualityId)
+        public static NicoVideoQuality QualityIdToCacheQuality(string qualityId)
         {
             return qualityId switch
             {
-                "archive_h264_1080p" => NicoVideoCacheQuality.SuperHigh,
-                "archive_h264_720p" => NicoVideoCacheQuality.High,
-                "archive_h264_480p" => NicoVideoCacheQuality.Midium,
-                "archive_h264_360p" => NicoVideoCacheQuality.Low,
-                "archive_h264_360p_low" => NicoVideoCacheQuality.SuperLow,
-                _ => NicoVideoCacheQuality.Unknown,
+                "archive_h264_1080p" => NicoVideoQuality.SuperHigh,
+                "archive_h264_720p" => NicoVideoQuality.High,
+                "archive_h264_480p" => NicoVideoQuality.Midium,
+                "archive_h264_360p" => NicoVideoQuality.Low,
+                "archive_h264_360p_low" => NicoVideoQuality.Mobile,
+                _ => NicoVideoQuality.Unknown,
             };
         }
 
-        public static string CacheQualityToQualityId(NicoVideoCacheQuality quality)
+        public static string CacheQualityToQualityId(NicoVideoQuality quality)
         {
             return quality switch
             {
-                NicoVideoCacheQuality.SuperLow => "archive_h264_1080p",
-                NicoVideoCacheQuality.Low => "archive_h264_720p",
-                NicoVideoCacheQuality.Midium => "archive_h264_480p",
-                NicoVideoCacheQuality.High => "archive_h264_360p",
-                NicoVideoCacheQuality.SuperHigh => "archive_h264_360p_low",
+                NicoVideoQuality.SuperHigh => "archive_h264_1080p",
+                NicoVideoQuality.High => "archive_h264_720p",
+                NicoVideoQuality.Midium => "archive_h264_480p",
+                NicoVideoQuality.Low => "archive_h264_360p",
+                NicoVideoQuality.Mobile => "archive_h264_360p_low",
                 _ => throw new NotSupportedException()
             };
         }
 
-        public static bool TryGetOneLowerQuality(NicoVideoCacheQuality quality, out NicoVideoCacheQuality outQuality)
+        public static bool TryGetOneLowerQuality(NicoVideoQuality quality, out NicoVideoQuality outQuality)
         {
             outQuality = GetOneLowerQuality(quality);
 
-            return outQuality != NicoVideoCacheQuality.Unknown;
+            return outQuality != NicoVideoQuality.Unknown;
         }
 
-        public static NicoVideoCacheQuality GetOneLowerQuality(NicoVideoCacheQuality quality)
+        public static NicoVideoQuality GetOneLowerQuality(NicoVideoQuality quality)
         {
             return quality switch
             {
-                NicoVideoCacheQuality.SuperHigh => NicoVideoCacheQuality.High,
-                NicoVideoCacheQuality.High => NicoVideoCacheQuality.Midium,
-                NicoVideoCacheQuality.Midium => NicoVideoCacheQuality.Low,
-                NicoVideoCacheQuality.Low => NicoVideoCacheQuality.SuperLow,
-                NicoVideoCacheQuality.SuperLow => NicoVideoCacheQuality.Unknown,
-                _ => NicoVideoCacheQuality.Unknown,
+                NicoVideoQuality.SuperHigh => NicoVideoQuality.High,
+                NicoVideoQuality.High => NicoVideoQuality.Midium,
+                NicoVideoQuality.Midium => NicoVideoQuality.Low,
+                NicoVideoQuality.Low => NicoVideoQuality.Mobile,
+                NicoVideoQuality.Mobile => NicoVideoQuality.Unknown,
+                _ => NicoVideoQuality.Unknown,
             };
         }
     }

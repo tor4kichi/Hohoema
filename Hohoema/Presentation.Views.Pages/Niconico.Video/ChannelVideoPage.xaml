@@ -16,10 +16,10 @@
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:actions="using:Hohoema.Presentation.Views.Actions"
-  xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList"
-  xmlns:windowsTriggers="using:WindowsStateTriggers"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
-  DataContext="{x:Null}"
+    xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList"
+    xmlns:windowsTriggers="using:WindowsStateTriggers"
+    xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+    DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
@@ -29,7 +29,6 @@
                                       ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
-                                      IsUpdateSourceVideoItem="False"
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
@@ -61,8 +60,9 @@
 
               <AppBarToggleButton x:Name="ChannelFollowButton"
                                     Background="Transparent"
-                                    IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}"
-                                    Command="{Binding FollowToggleButtonService.ToggleFollowCommand}"
+                                    IsChecked="{Binding FollowContext.IsFollowing}"
+                                    Command="{Binding FollowContext.ToggleFollowCommand}"
+                                    IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" 
                                     Icon="Favorite"
                                     Label="{i18nExt:Localize Key=Follow}"
                                     Visibility="Collapsed"

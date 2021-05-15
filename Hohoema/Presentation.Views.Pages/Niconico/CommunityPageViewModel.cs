@@ -29,6 +29,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
+    using CommunityFollowContext = FollowContext<ICommunity>;
 
     public sealed class Community : ICommunity
     {
@@ -37,7 +38,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         public string Label { get; set; }
     }
 
-    public class CommunityPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class CommunityPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {
@@ -54,23 +55,31 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             return this.ObserveProperty(x => x.CommunityName);
         }
 
+
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
+        public PageManager PageManager { get; }
+        public NiconicoSession NiconicoSession { get; }
+        public CommunityProvider CommunityProvider { get; }
+        private readonly AppearanceSettings _appearanceSettings;
+        private readonly CommunityFollowProvider _communityFollowProvider;
+
+
+
         public CommunityPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             AppearanceSettings appearanceSettings,
             PageManager pageManager,
             NiconicoSession niconicoSession,
-            CommunityFollowProvider followProvider,
-            CommunityProvider communityProvider,
-            NiconicoFollowToggleButtonViewModel followToggleButtonService
+            CommunityFollowProvider communityFollowProvider,
+            CommunityProvider communityProvider
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
             _appearanceSettings = appearanceSettings;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
-            FollowProvider = followProvider;
+            _communityFollowProvider = communityFollowProvider;
             CommunityProvider = communityProvider;
-            FollowToggleButtonService = followToggleButtonService;
         }
 
         private Community _community;
@@ -174,6 +183,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 			get { return _IsFailed; }
 			set { SetProperty(ref _IsFailed, value); }
 		}
+
+        // Follow
+        private CommunityFollowContext _followContext = CommunityFollowContext.Default;
+        public CommunityFollowContext FollowContext
+        {
+            get => _followContext;
+            set => SetProperty(ref _followContext, value);
+        }
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
@@ -297,13 +314,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
                     // Note: オーナーコミュニティのフォローを解除＝コミュニティの解散操作となるため注意が必要
                     // 安全管理上、アプリ上でコミュニティの解散は不可の方向に倒して対応したい
-                    if (!IsOwnedCommunity)
+                    try
                     {
-                        FollowToggleButtonService.SetFollowTarget(Community);
+                        FollowContext = CommunityFollowContext.Default;
+                        var authority = await _communityFollowProvider.GetCommunityAuthorityAsync(CommunityId);
+                        if (!authority.Data.IsOwner)
+                        {
+                            if (!string.IsNullOrWhiteSpace(CommunityId))
+                            {
+                                FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, Community);
+                            }
+                        }
                     }
-                    else
+                    catch
                     {
-                        FollowToggleButtonService.SetFollowTarget(null);
+                        FollowContext = CommunityFollowContext.Default;
                     }
 
                     UpdateCanNotFollowReason();
@@ -348,8 +373,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 		}
 
 		private DelegateCommand<Uri> _ScriptNotifyCommand;
-        private readonly AppearanceSettings _appearanceSettings;
-
         public DelegateCommand<Uri> ScriptNotifyCommand
 		{
 			get
@@ -364,16 +387,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 			}
 		}
 
-        public ApplicationLayoutManager ApplicationLayoutManager { get; }
-        public PageManager PageManager { get; }
-        public NiconicoSession NiconicoSession { get; }
-        public CommunityFollowProvider FollowProvider { get; }
-        public CommunityProvider CommunityProvider { get; }
-        public NiconicoFollowToggleButtonViewModel FollowToggleButtonService { get; }
-
         private void UpdateCanNotFollowReason()
 		{
-			if (FollowToggleButtonService.IsFollowTarget.Value)
+			if (FollowContext.IsFollowing)
 			{
 				CanNotFollowReason = null;
 			}

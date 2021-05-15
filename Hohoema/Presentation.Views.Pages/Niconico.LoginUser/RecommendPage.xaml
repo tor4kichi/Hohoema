@@ -40,7 +40,7 @@
             <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
           </mybehavior:KeyboardTrigger.Actions>
         </mybehavior:KeyboardTrigger>
-        <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
+
         <core:EventTriggerBehavior EventName="ItemClick">
           <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
                                     InputConverter="{StaticResource ItemClickEventArgsConverter}" />

@@ -15,9 +15,9 @@ namespace Hohoema.Models.Domain.VideoCache
         public StorageFolder NewFolder { get; set; }
     }
 
-    internal class VideoCacheSaveFolderManager
+    public class VideoCacheSaveFolderManager
     {
-        internal VideoCacheSaveFolderManager()
+        public VideoCacheSaveFolderManager()
         {
         }
 
@@ -52,13 +52,13 @@ namespace Hohoema.Models.Domain.VideoCache
 
         StorageFolder _DownloadFolder;
 
-        const string FolderAccessToken = "HohoemaVideoCache";
+        public const string FolderAccessToken = "HohoemaVideoCache";
 
         public string PrevCacheFolderAccessToken { get; private set; }
 
         public event EventHandler<CacheSaveFolderChangedEventArgs> SaveFolderChanged;
 
-        static private async ValueTask<StorageFolder> GetUserChoiceVideoFolder()
+        public static async ValueTask<StorageFolder> GetUserChoiceVideoFolder()
         {
             try
             {

@@ -68,7 +68,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
     }
 
 
-    public sealed class RecommendVideoListItem : VideoInfoControlViewModel
+    public sealed class RecommendVideoListItem : VideoListItemControlViewModel
     {
         Mntone.Nico2.Videos.Recommend.Item _Item;
 
@@ -78,12 +78,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
         public RecommendVideoListItem(
             Mntone.Nico2.Videos.Recommend.Item item
             )
-            : base(item.Id)
+            : base(item.Id, item.ParseTitle(), item.ThumbnailUrl, item.ParseLengthToTimeSpan())
         {
             _Item = item;
             RecommendSourceTag = _Item.AdditionalInfo?.Sherlock.Tag;
         }
-
     }
 
     public sealed class RecommendVideoIncrementalLoadingSource : HohoemaIncrementalSourceBase<RecommendVideoListItem>

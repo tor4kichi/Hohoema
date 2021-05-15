@@ -2,78 +2,146 @@
 using Hohoema.Models.Infrastructure;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Mntone.Nico2.Users.Follow;
+using System;
+using Hohoema.Models.Domain.Niconico.Community;
+using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 {
-    public sealed class CommunityFollowProvider : ProviderBase, IFollowProvider
+    public sealed class CommunityFollowAddedMessage : ValueChangedMessage<ICommunity>
     {
-        public CommunityFollowProvider(NiconicoSession niconicoSession)
-            : base(niconicoSession)
+        public CommunityFollowAddedMessage(ICommunity value) : base(value)
         {
         }
+    }
 
+
+    public sealed class CommunityFollowRemovedMessage : ValueChangedMessage<ICommunity>
+    {
+        public CommunityFollowRemovedMessage(ICommunity value) : base(value)
+        {
+        }
+    }
+
+
+    public sealed class CommunityFollowRemoveConfirmingAsyncRequestMessage : AsyncRequestMessage<bool>
+    {
+        public CommunityFollowRemoveConfirmingAsyncRequestMessage(ICommunity community)
+        {
+            Target = community;
+        }
+
+        public ICommunity Target { get; }
+    }
+
+
+    public sealed class CommunityFollowProvider : ProviderBase, IFollowProvider<ICommunity>
+    {
+        private readonly IMessenger _messenger;
+
+        public CommunityFollowProvider(NiconicoSession niconicoSession, IMessenger messenger)
+            : base(niconicoSession)
+        {
+            _messenger = messenger;
+        }
 
         public static CommunituFollowAdditionalInfo CommunituFollowAdditionalInfo { get; set; }
 
-        public async Task<List<Mntone.Nico2.Users.Follow.FollowCommunityResponse.FollowCommunity>> GetAllAsync()
+        public async Task<UserOwnedCommunityResponse> GetUserOwnedCommunitiesAsync(uint userId)
         {
             if (!NiconicoSession.IsLoggedIn)
             {
-                return new List<Mntone.Nico2.Users.Follow.FollowCommunityResponse.FollowCommunity>();
+                throw new InvalidOperationException();
             }
 
-            var items = new List<Mntone.Nico2.Users.Follow.FollowCommunityResponse.FollowCommunity>();
-            bool needMore = true;
-            uint page = 0;
-
-            while (needMore)
+            return await ContextActionWithPageAccessWaitAsync(context =>
             {
-                try
-                {
-                    var res = await ContextActionWithPageAccessWaitAsync(async context =>
-                    {
-                        return await context.User.GetFollowCommunityAsync(25, page);
-                    });
-
-                    items.AddRange(res.Data);
-
-                    // フォローコミュニティページの一画面での最大表示数10個と同数の場合は追加で取得
-                    needMore = res.Meta.Count != res.Meta.Total;
-                }
-                catch
-                {
-                    needMore = false;
-                }
-
-                page++;
-            }
-
-            return items;
+                return context.User.GetUserOwnedCommunitiesAsync(userId);
+            });
         }
 
-        public async Task<ContentManageResult> AddFollowAsync(string id)
+
+        public async Task<FollowCommunityResponse> GetCommunityItemsAsync(uint pageSize, uint page )
+        {
+            if (!NiconicoSession.IsLoggedIn)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return await ContextActionWithPageAccessWaitAsync(context =>
+            {
+                return  context.User.GetFollowCommunityAsync(pageSize, page);
+            });
+        }
+
+        public Task<bool> IsFollowingAsync(ICommunity community) => IsFollowingAsync(community.Id);
+
+        public async Task<ContentManageResult> AddFollowAsync(ICommunity community)
         {
             var result = await ContextActionAsync(async context =>
             {
-                return await context.User.AddFollowCommunityAsync(id);
+                return await context.User.AddFollowCommunityAsync(community.Id);
             });
+
+            if (result is ContentManageResult.Success or ContentManageResult.Exist)
+            {
+                _messenger.Send<CommunityFollowAddedMessage>(new(community));
+            }
 
             return result;
         }
 
-        public async Task<ContentManageResult> RemoveFollowAsync(string id)
+
+        public async Task<ContentManageResult> RemoveFollowAsync(ICommunity community)
         {
             if (!NiconicoSession.IsLoggedIn)
             {
                 return ContentManageResult.Failed;
             }
 
+            if (!await _messenger.Send<CommunityFollowRemoveConfirmingAsyncRequestMessage>(new (community)))
+            {
+                return ContentManageResult.Exist;
+            }
+
             var result = await ContextActionAsync(async context =>
             {
-                return await context.User.RemoveFollowCommunityAsync(id);
+                return await context.User.RemoveFollowCommunityAsync(community.Id);
             });
 
+            if (result is ContentManageResult.Success)
+            {
+                _messenger.Send<CommunityFollowRemovedMessage>(new(community));
+            }
+
             return result;
+        }
+
+
+        public Task<bool> IsFollowingAsync(string id)
+        {
+            return ContextActionAsync(async context =>
+            {
+                try
+                {
+                    var res = await context.User.GetCommunityAuthorityAsync(id);
+                    return res.Data?.IsMember ?? false;
+                }
+                catch
+                {
+                    return false;
+                }
+            });
+        }
+
+        public Task<CommunityAuthorityResponse> GetCommunityAuthorityAsync(string id)
+        {
+            return ContextActionAsync(async context =>
+            {
+                return await context.User.GetCommunityAuthorityAsync(id);
+            });
         }
     }
 

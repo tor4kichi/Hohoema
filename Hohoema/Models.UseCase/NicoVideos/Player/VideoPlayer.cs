@@ -155,7 +155,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
             if (quality == NicoVideoQuality.Unknown)
             {
-                quality = _playerSettings.DefaultQuality;
+                quality = _playerSettings.DefaultVideoQuality;
             }
 
             _currentSession?.Dispose();
@@ -165,7 +165,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             {
                 CurrentQuality = AvailableQualities.First(x => x.Quality == videoStreamingSession.Quality);
             }
-            if (_currentSession is LocalVideoStreamingSession)
+            if (_currentSession is CachedVideoStreamingSession)
             {
                 IsPlayWithCache.Value = true;
             }
@@ -234,7 +234,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                         if (parameter is NicoVideoQualityEntity content)
                         {
                             await PlayAsync(content.Quality, _mediaPlayer.PlaybackSession.Position);
-                            _playerSettings.DefaultQuality = content.Quality;
+                            _playerSettings.DefaultVideoQuality = content.Quality;
                         }
                     }
                     ));

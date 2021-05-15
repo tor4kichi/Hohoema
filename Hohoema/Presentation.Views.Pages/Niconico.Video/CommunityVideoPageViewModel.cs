@@ -20,10 +20,21 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Presentation.ViewModels.Community;
 using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+using Hohoema.Presentation.ViewModels.Niconico.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
-	public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>, IPinablePage, ITitleUpdatablePage
+	using CommunityFollowContext = FollowContext<ICommunity>;
+
+    public class CommunityInfo : ICommunity
+    {
+        public string Id { get; internal set; }
+
+        public string Label { get; internal set; }
+    }
+
+    public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>, IPinablePage, ITitleUpdatablePage
 	{
 		HohoemaPin IPinablePage.GetPin()
 		{
@@ -40,14 +51,26 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 			return this.ObserveProperty(x => x.CommunityName);
 		}
 
+
+		// Follow
+		private CommunityFollowContext _followContext = CommunityFollowContext.Default;
+		public CommunityFollowContext FollowContext
+		{
+			get => _followContext;
+			set => SetProperty(ref _followContext, value);
+		}
+
+
 		public CommunityVideoPageViewModel(
 			ApplicationLayoutManager applicationLayoutManager,
 			CommunityProvider communityProvider,
+			CommunityFollowProvider communityFollowProvider,
             PageManager pageManager
 			)
         {
 			ApplicationLayoutManager = applicationLayoutManager;
 			CommunityProvider = communityProvider;
+            _communityFollowProvider = communityFollowProvider;
             PageManager = pageManager;
 		}
 
@@ -70,8 +93,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             get { return _CanDownload; }
             set { SetProperty(ref _CanDownload, value); }
         }
-
-
+		
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             if (parameters.TryGetValue("id", out string id))
@@ -84,14 +106,33 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     CommunityDetail = res.CommunitySammary.CommunityDetail;
 
                     CommunityName = CommunityDetail.Name;
-                }
-                catch
+
+				}
+				catch
                 {
                     Debug.WriteLine("コミュ情報取得に失敗");
                 }
-            }
 
-            await base.OnNavigatedToAsync(parameters);
+
+				try
+                {
+					FollowContext = CommunityFollowContext.Default;
+					var authority = await _communityFollowProvider.GetCommunityAuthorityAsync(CommunityId);
+					if (!authority.Data.IsOwner)
+					{
+						if (!string.IsNullOrWhiteSpace(CommunityId))
+						{
+							FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, new CommunityInfo() { Id = CommunityId, Label = CommunityName });
+						}
+					}
+				}
+                catch
+                {
+					FollowContext = CommunityFollowContext.Default;
+				}
+			}
+
+			await base.OnNavigatedToAsync(parameters);
         }
 
 
@@ -102,7 +143,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 		}
 
         private DelegateCommand _OpenCommunityPageCommand;
-		public DelegateCommand OpenCommunityPageCommand
+        private readonly CommunityFollowProvider _communityFollowProvider;
+
+        public DelegateCommand OpenCommunityPageCommand
 		{
 			get
 			{

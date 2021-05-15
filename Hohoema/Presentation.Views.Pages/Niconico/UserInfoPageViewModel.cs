@@ -32,10 +32,13 @@ using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
-    public class UserInfoPageViewModel : HohoemaViewModelBase, IUser, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    using UserFollowContext = FollowContext<IUser>;
+
+    public class UserInfoPageViewModel : HohoemaPageViewModelBase, IUser, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {
@@ -55,6 +58,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         public UserInfoPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             UserProvider userProvider,
+            UserFollowProvider userFollowProvider,
             VideoFilteringSettings ngSettings,
             NiconicoSession niconicoSession,
             SubscriptionManager subscriptionManager,
@@ -62,7 +66,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             MylistRepository mylistRepository,
-            NiconicoFollowToggleButtonViewModel followToggleButtonService,
             AddSubscriptionCommand addSubscriptionCommand,
             OpenLinkCommand openLinkCommand
             )
@@ -73,16 +76,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             _mylistRepository = mylistRepository;
-            FollowToggleButtonService = followToggleButtonService;
             AddSubscriptionCommand = addSubscriptionCommand;
             OpenLinkCommand = openLinkCommand;
             ApplicationLayoutManager = applicationLayoutManager;
             UserProvider = userProvider;
+            _userFollowProvider = userFollowProvider;
             NgSettings = ngSettings;
 
             HasOwnerVideo = true;
 
-            VideoInfoItems = new ObservableCollection<VideoInfoControlViewModel>();
+            VideoInfoItems = new ObservableCollection<VideoListItemControlViewModel>();
 
             OpenUserVideoPageCommand = VideoInfoItems.ObserveProperty(x => x.Count)
                 .Select(x => x > 0)
@@ -120,7 +123,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         public SubscriptionManager SubscriptionManager { get; }
         public LoginUserOwnedMylistManager UserMylistManager { get; }
         public PageManager PageManager { get; }
-        public NiconicoFollowToggleButtonViewModel FollowToggleButtonService { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
         public OpenLinkCommand OpenLinkCommand { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -173,11 +175,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 		}
 
 
-		private string _UserIconUri;
-		public string UserIconUri
+		private string _IconUrl;
+		public string IconUrl
 		{
-			get { return _UserIconUri; }
-			set { SetProperty(ref _UserIconUri, value); }
+			get { return _IconUrl; }
+			set { SetProperty(ref _IconUrl, value); }
 		}
 
 		private bool _IsPremium;
@@ -252,11 +254,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 			set { SetProperty(ref _HasOwnerVideo, value); }
 		}
 
-		public ReactiveProperty<bool> IsNGVideoOwner { get; private set; }
+
+        // Follow
+        private UserFollowContext _FollowContext = UserFollowContext.Default;
+        public UserFollowContext FollowContext
+        {
+            get => _FollowContext;
+            set => SetProperty(ref _FollowContext, value);
+        }
+
+
+        public ReactiveProperty<bool> IsNGVideoOwner { get; private set; }
 
 
         public  HohoemaPlaylist HohoemaPlaylist { get; }
 
+        private readonly UserFollowProvider _userFollowProvider;
         private readonly MylistRepository _mylistRepository;
 
         private IReadOnlyCollection<MylistPlaylist> _mylists;
@@ -266,7 +279,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             set { SetProperty(ref _mylists, value); }
         }
 
-        public ObservableCollection<VideoInfoControlViewModel> VideoInfoItems { get; private set; }
+        public ObservableCollection<VideoListItemControlViewModel> VideoInfoItems { get; private set; }
 
 
         string INiconicoObject.Id => UserId;
@@ -303,7 +316,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
                 var user = userInfo;
                 UserName = user.User.Nickname;
-                UserIconUri = user.User.Icons.Small.OriginalString;
+                IconUrl = user.User.Icons.Small.OriginalString;
 
                 FollowerCount = (uint)user.User.FollowerCount;
             }
@@ -315,6 +328,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
             if (UserId == null) { return; }
 
+
+            try
+            {
+                if (NiconicoSession.IsLoggedIn)
+                {
+                    FollowContext = await UserFollowContext.CreateAsync(_userFollowProvider, this);
+                }
+                else
+                {
+                    FollowContext = UserFollowContext.Default;
+                }
+            }
+            catch
+            {
+                FollowContext = UserFollowContext.Default;
+            }
 
             // NGユーザーの設定
 
@@ -334,9 +363,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 var userVideos = await UserProvider.GetUserVideos(uint.Parse(UserId), 1);
                 foreach (var item in userVideos.Data.Items.Take(5))
                 {
-                    var vm = new VideoInfoControlViewModel(item.Id);
-                    vm.SetTitle(item.Title);
-                    vm.SetThumbnailImage(item.Thumbnail.ListingUrl.OriginalString);
+                    var vm = new VideoListItemControlViewModel(item.Id, item.Title, item.Thumbnail.ListingUrl.OriginalString, TimeSpan.FromSeconds(item.Duration));
                     VideoInfoItems.Add(vm);
                 }
                 RaisePropertyChanged(nameof(VideoInfoItems));
@@ -368,8 +395,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 }
             }
             RaisePropertyChanged(nameof(MylistGroups));
-
-            FollowToggleButtonService.SetFollowTarget(this);
         }
         
     }

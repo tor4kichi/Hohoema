@@ -32,11 +32,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
         protected override bool CanExecute(object parameter)
         {
-            if (parameter is IVideoContent video)
+            if (parameter is IVideoContentProvider provider)
             {
-                if (video.ProviderId != null)
+                if (provider.ProviderId != null)
                 {
-                    return !NgSettings.IsHiddenVideoOwnerId(video.ProviderId);
+                    return !NgSettings.IsHiddenVideoOwnerId(provider.ProviderId);
                 }
             }
 
@@ -48,18 +48,16 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            if (parameter is IVideoContent)
+            if (parameter is IVideoContentProvider provider)
             {
-                var content = parameter as IVideoContent;
-
                 string ownerName = null;
                 if (string.IsNullOrEmpty(ownerName))
                 {
-                    if (content.ProviderType == NicoVideoUserType.User)
+                    if (provider.ProviderType == NicoVideoUserType.User)
                     {
                         try
                         {
-                            var userInfo = await UserProvider.GetUser(content.ProviderId);
+                            var userInfo = await UserProvider.GetUser(provider.ProviderId);
 
                             ownerName = userInfo.ScreenName;
                         }
@@ -68,12 +66,12 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
                             return;
                         }
                     }
-                    else if (content.ProviderType == NicoVideoUserType.Channel)
+                    else if (provider.ProviderType == NicoVideoUserType.Channel)
                     {
-                        var channelInfo = await ChannelProvider.GetChannelInfo(content.ProviderId);
+                        var channelInfo = await ChannelProvider.GetChannelInfo(provider.ProviderId);
                         ownerName = channelInfo.Name;
 
-                        var channel = _nicoVideoOwnerRepository.Get(content.ProviderId) 
+                        var channel = _nicoVideoOwnerRepository.Get(provider.ProviderId) 
                             ?? new NicoVideoOwner()
                             {
                                 OwnerId = channelInfo.ChannelId.ToString(),
@@ -84,7 +82,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
                     }
                 }
 
-                NgSettings.AddHiddenVideoOwnerId(content.ProviderId.ToString(), ownerName);
+                NgSettings.AddHiddenVideoOwnerId(provider.ProviderId.ToString(), ownerName);
             }
         }
     }

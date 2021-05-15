@@ -39,7 +39,7 @@ using Hohoema.Models.Domain.Notification;
 namespace Hohoema.Presentation.ViewModels.Player
 {
 
-    public class VideoPlayerPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
+    public class VideoPlayerPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync
 	{
         // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
         private readonly IScheduler _scheduler;
@@ -55,7 +55,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             ChannelProvider channelProvider,
             MylistProvider mylistProvider,
             PlayerSettings playerSettings,
-            VideoCacheSettings cacheSettings,
+            VideoCacheSettings_Legacy cacheSettings,
             ApplicationLayoutManager applicationLayoutManager,
             HohoemaPlaylist hohoemaPlaylist,
             LocalMylistManager localMylistManager,
@@ -166,7 +166,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         public ChannelProvider ChannelProvider { get; }
         public MylistProvider MylistProvider { get; }
 
-        public VideoCacheSettings CacheSettings { get; }
+        public VideoCacheSettings_Legacy CacheSettings { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         
         public HohoemaPlaylist HohoemaPlaylist { get; }
@@ -334,7 +334,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             VideoId = parameters.GetValue<string>("id");
 
-            _requestVideoQuality = PlayerSettings.DefaultQuality;
+            _requestVideoQuality = PlayerSettings.DefaultVideoQuality;
             if (parameters.TryGetValue("quality", out NicoVideoQuality quality))
             {
                 _requestVideoQuality = quality;
@@ -374,7 +374,6 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                 return;
             }
-
             
             VideoDetails = result.VideoDetails;
 
@@ -388,9 +387,18 @@ namespace Hohoema.Presentation.ViewModels.Player
             VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(VideoId)
                 ?? _nicoVideoRepository.Get(VideoId);
 
-            
-            // デフォルト指定した画質で再生開始
-            await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition);
+            try
+            {
+                // デフォルト指定した画質で再生開始
+                await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition);
+            }
+            catch (Models.Domain.VideoCache.VideoCacheException cacheEx)
+            {
+                result = await _videoStreamingOriginOrchestrator.PreperePlayWithOnline(VideoId);
+                VideoDetails = result.VideoDetails;
+                await VideoPlayer.UpdatePlayingVideoAsync(result.VideoSessionProvider);
+                await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition);
+            }
 
             // コメントを更新
             await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);
@@ -581,6 +589,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                     MediaPlayer.Source = null;
                 }
             }
+            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
             finally
             {
                 defferal.Complete();
@@ -589,7 +598,11 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         private void Current_Resuming(object sender, object e)
         {
-            StartStateSavingTimer();
+            try
+            {
+                StartStateSavingTimer();
+            }
+            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
         }
 
 

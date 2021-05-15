@@ -73,5 +73,13 @@ namespace Hohoema.Models.Domain.Application
             set => Save(value);
         }
 
+
+
+        public bool IsCacheVideosMigrated_V_0_29_0
+        {
+            get => Read<bool>();
+            set => Save(value);
+        }
+
     }
 }

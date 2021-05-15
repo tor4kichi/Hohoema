@@ -4,6 +4,6 @@ namespace Hohoema.Models.Domain.Niconico
 {
     public interface IUser : INiconicoObject, IFollowable
     {
-
+        string IconUrl { get; }
     }
 }

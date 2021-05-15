@@ -64,6 +64,9 @@ using Hohoema.Presentation.Views.Pages;
 using Hohoema.Models.UseCase.Niconico.Account;
 using Hohoema.Models.UseCase.Niconico.Follow;
 using Hohoema.Models.Domain.Notification;
+using Hohoema.Models.Domain.VideoCache;
+using Windows.Storage.AccessCache;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace Hohoema
 {
@@ -101,9 +104,9 @@ namespace Hohoema
             RequestedTheme = GetTheme();
             
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromDays(7);
-            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 1000;
+            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 0;
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.RetryCount = 3;
-            
+
             // see@ https://www.typea.info/blog/index.php/2017/08/06/uwp_1/
             try
             {
@@ -231,6 +234,11 @@ namespace Hohoema
         public override void RegisterTypes(IContainerRegistry container)
         {
             var unityContainer = container.GetContainer();
+            
+            unityContainer.RegisterInstance<IMessenger>(WeakReferenceMessenger.Default);
+
+            LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
+            unityContainer.RegisterInstance<LiteDatabase>(db);
 
             MonkeyCache.LiteDB.Barrel.ApplicationId = nameof(Hohoema);
             unityContainer.RegisterInstance<MonkeyCache.IBarrel>(MonkeyCache.LiteDB.Barrel.Current);
@@ -259,7 +267,6 @@ namespace Hohoema
             unityContainer.RegisterSingleton<PlayerSettings>();
             unityContainer.RegisterSingleton<VideoFilteringSettings>();
             unityContainer.RegisterSingleton<VideoRankingSettings>();
-            unityContainer.RegisterSingleton<VideoCacheSettings>();
             unityContainer.RegisterSingleton<NicoRepoSettings>();
             unityContainer.RegisterSingleton<CommentFliteringRepository>();
 
@@ -269,9 +276,7 @@ namespace Hohoema
             unityContainer.RegisterSingleton<NicoVideoSessionOwnershipManager>();
             
             unityContainer.RegisterSingleton<LoginUserOwnedMylistManager>();
-            unityContainer.RegisterSingleton<FollowManager>();
 
-            unityContainer.RegisterSingleton<VideoCacheManagerLegacy>();
             unityContainer.RegisterSingleton<SubscriptionManager>();
 
             unityContainer.RegisterSingleton<Models.Domain.VideoCache.VideoCacheManager>();
@@ -289,7 +294,8 @@ namespace Hohoema
             unityContainer.RegisterSingleton<VideoItemsSelectionContext>();
             unityContainer.RegisterSingleton<WatchHistoryManager>();
             unityContainer.RegisterSingleton<ApplicationLayoutManager>();
-            
+
+            unityContainer.RegisterSingleton<VideoCacheFolderManager>();
 
 
 
@@ -372,7 +378,7 @@ namespace Hohoema
                     {
                         Debug.WriteLine($"Try migrate: {migrateType.Name}");
                         var migrater = Container.Resolve(migrateType);
-                        if (migrater is IMigrate migrateSycn)
+                        if (migrater is IMigrateSync migrateSycn)
                         {
                             migrateSycn.Migrate();
                         }
@@ -393,25 +399,12 @@ namespace Hohoema
 
             await TryMigrationAsync(new Type[]
             {
-                typeof(DatabaseMigrate_0_25_0),
-            });
-
-            {
-                var unityContainer = Container.GetContainer();
-                //var upgradeResult = LiteEngine.Upgrade(Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db"));
-                //Debug.WriteLine("upgrade: " + upgradeResult);
-
-                LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
-                unityContainer.RegisterInstance<LiteDatabase>(db);
-            }
-
-            await TryMigrationAsync(new Type[]
-            {
-                typeof(MigrationCommentFilteringSettings),
-                typeof(CommentFilteringNGScoreZeroFixture),
-                typeof(SettingsMigration_V_0_23_0),
-                typeof(SearchPageQueryMigrate_0_26_0),
+                //typeof(MigrationCommentFilteringSettings),
+                //typeof(CommentFilteringNGScoreZeroFixture),
+                //typeof(SettingsMigration_V_0_23_0),
+                //typeof(SearchPageQueryMigrate_0_26_0),
                 typeof(LocalMylistThumbnailImageMigration_V_0_28_0),
+                typeof(VideoCacheDatabaseMigration_V_0_29_0),
             });
 
             // 機能切り替え管理クラスをDIコンテナに登録
@@ -450,7 +443,6 @@ namespace Hohoema
 
             // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
             var mylitManager = Container.Resolve<LoginUserOwnedMylistManager>();
-            var followManager = Container.Resolve<FollowManager>();
 
             Resources["IsXbox"] = DeviceTypeHelper.IsXbox;
             Resources["IsMobile"] = DeviceTypeHelper.IsMobile;
@@ -514,7 +506,7 @@ namespace Hohoema
             }
 
             // 
-            var cacheSettings = Container.Resolve<VideoCacheSettings>();
+            var cacheSettings = Container.Resolve<VideoCacheSettings_Legacy>();
             Resources["IsCacheEnabled"] = cacheSettings.IsEnableCache;
 
             // ウィンドウコンテンツを作成
@@ -549,6 +541,14 @@ namespace Hohoema
                 ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
             }
 
+            await Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.InitializeAsync(ApplicationData.Current.TemporaryFolder, "ImageCaches");
+
+            // キャッシュ機能の初期化
+            {
+                var cacheManager = Container.Resolve<VideoCacheFolderManager>();
+
+                await cacheManager.InitializeAsync();
+            }
 
 
 
@@ -567,14 +567,12 @@ namespace Hohoema
                 // アプリのユースケース系サービスを配置
                 unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheVideoDeletedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<CheckingClipboardAndNotificationService>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<NotificationFollowUpdatedService>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheRequestRejectedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<FollowNotificationAndConfirmListener>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<SubscriptionUpdateManager>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<FeedResultAddToWatchLater>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<SyncWatchHistoryOnLoggedIn>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<LatestSubscriptionVideosNotifier>());
 
-                unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheResumingObserver>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<VideoPlayRequestBridgeToPlayer>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<CloseToastNotificationWhenPlayStarted>());
 
@@ -679,7 +677,6 @@ namespace Hohoema
             }
 
 
-
             if (args.Kind == ActivationKind.ToastNotification)
             {
                 bool isHandled = false;
@@ -757,8 +754,11 @@ namespace Hohoema
                         var videoId = decode.GetFirstValueByName("id");
                         var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
 
+                        // TODO: 
+                        /*
                         var cacheManager = Container.Resolve<VideoCacheManagerLegacy>();
                         await cacheManager.CancelCacheRequest(videoId);
+                        */
                     }
                     else
                     {
@@ -845,9 +845,6 @@ namespace Hohoema
             }
 
             deferral.Complete();
-
-
-            base.OnBackgroundActivated(args);
         }
 
 
@@ -1208,18 +1205,32 @@ namespace Hohoema
 
         private async Task ProcessToastNotificationActivation(string arguments, ValueSet userInput)
         {
-            if (arguments.StartsWith("cache_cancel"))
+            await Task.Run(async () => 
             {
-                var cacheManager = Container.Resolve<VideoCacheManagerLegacy>();
+                var toastArguments = ToastArguments.Parse(arguments);
+                if (toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Action, out string actionType))
+                {
+                    if (actionType == ToastNotificationConstants.ToastArgumentValue_Action_Delete)
+                    {
+                        if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
+                        {
+                            throw new Exception("no id");
+                        }
 
-                var query = arguments.Split('?')[1];
-                var decode = new WwwFormUrlDecoder(query);
+                        var cacheManager = Container.Resolve<VideoCacheManager>();
+                        await cacheManager.CancelCacheRequestAsync(id);
+                    }
+                    else if (actionType == ToastNotificationConstants.ToastArgumentValue_Action_Play)
+                    {
+                        if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
+                        {
+                            throw new Exception("no id");
+                        }
 
-                var videoId = decode.GetFirstValueByName("id");
-                var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
-
-                await cacheManager.CancelCacheRequest(videoId);
-            }
+                        PlayVideoFromExternal(id);
+                    }
+                }
+            });
         }
 
 

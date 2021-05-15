@@ -24,9 +24,13 @@ using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
+using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
+    using ChannelFollowContext = FollowContext<IChannel>;
+
+
     public sealed class ChannelInfo : IChannel
     {
         public string Id { get; set; }
@@ -56,20 +60,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
             ChannelProvider channelProvider,
+            ChannelFollowProvider channelFollowProvider,
             PageManager pageManager,
             HohoemaPlaylist hohoemaPlaylist,
             OpenLinkCommand openLinkCommand,
-            NiconicoFollowToggleButtonViewModel followToggleButtonService,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
             NiconicoSession = niconicoSession;
             ChannelProvider = channelProvider;
+            _channelFollowProvider = channelFollowProvider;
             PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
             OpenLinkCommand = openLinkCommand;
-            FollowToggleButtonService = followToggleButtonService;
             SelectionModeToggleCommand = selectionModeToggleCommand;
         }
 
@@ -125,6 +129,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             set { SetProperty(ref _channelInfo, value); }
         }
 
+        // Follow
+        private ChannelFollowContext _FollowContext = ChannelFollowContext.Default;
+        public ChannelFollowContext FollowContext
+        {
+            get => _FollowContext;
+            set => SetProperty(ref _FollowContext, value);
+        }
+
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             if (parameters.TryGetValue("id", out string id))
@@ -149,8 +161,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     ChannelName = RawChannelId;
                 }
 
-
-                FollowToggleButtonService.SetFollowTarget(ChannelInfo);
+                try
+                {
+                    if (NiconicoSession.IsLoggedIn)
+                    {
+                        FollowContext = await ChannelFollowContext.CreateAsync(_channelFollowProvider, ChannelInfo);
+                    }
+                    else
+                    {
+                        FollowContext = ChannelFollowContext.Default;
+                    }
+                }
+                catch
+                {
+                    FollowContext = ChannelFollowContext.Default;
+                }
             }
 
             await base.OnNavigatedToAsync(parameters);
@@ -164,6 +189,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
 
         private DelegateCommand _ShowWithBrowserCommand;
+        private readonly ChannelFollowProvider _channelFollowProvider;
+
         public DelegateCommand ShowWithBrowserCommand
         {
             get
@@ -182,26 +209,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         public PageManager PageManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public OpenLinkCommand OpenLinkCommand { get; }
-        public NiconicoFollowToggleButtonViewModel FollowToggleButtonService { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
     }
 
-    public sealed class ChannelVideoListItemViewModel : VideoInfoControlViewModel
+    public sealed class ChannelVideoListItemViewModel : VideoListItemControlViewModel
     {
-        public ChannelVideoListItemViewModel(
-            string rawVideoId
-            )
-            : base(rawVideoId)
-        {
-
-        }
-
         public ChannelVideoListItemViewModel(
            NicoVideo data
            )
            : base(data)
         {
 
+        }
+
+        public ChannelVideoListItemViewModel(string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) 
+            : base(rawVideoId, title, thumbnailUrl, videoLength)
+        {
         }
     }
 
@@ -257,7 +280,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     // so0123456のフォーマットの動画ID
                     // var videoId = video.PurchasePreviewUrl.Split('/').Last();
 
-                    var channelVideo = new ChannelVideoListItemViewModel(video.ItemId);
+                    var channelVideo = new ChannelVideoListItemViewModel(video.ItemId, video.Title, video.ThumbnailUrl, video.Length);
                     if (video.IsRequirePayment)
                     {
                         channelVideo.Permission = NiconicoLiveToolkit.Video.VideoPermission.RequirePay;
@@ -270,11 +293,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     {
                         channelVideo.Permission = NiconicoLiveToolkit.Video.VideoPermission.MemberUnlimitedAccess;
                     }
-                    channelVideo.SetTitle(video.Title);
-                    channelVideo.SetThumbnailImage(video.ThumbnailUrl);
-                    channelVideo.SetVideoDuration(video.Length);
-                    channelVideo.SetSubmitDate(video.PostedAt);
-                    channelVideo.SetDescription(video.ViewCount, video.CommentCount, video.MylistCount);                    
+                    channelVideo.PostedAt = video.PostedAt;
+                    channelVideo.ViewCount = video.ViewCount;
+                    channelVideo.CommentCount = video.CommentCount;
+                    channelVideo.MylistCount = video.MylistCount; 
 
                     yield return channelVideo;
 

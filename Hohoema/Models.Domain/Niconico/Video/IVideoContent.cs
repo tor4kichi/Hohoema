@@ -10,26 +10,31 @@ namespace Hohoema.Models.Domain.Niconico.Video
 {
     public interface IVideoContent : INiconicoContent, IEquatable<IVideoContent>
     {
+        TimeSpan Length { get; }
+        string ThumbnailUrl { get; }
+    }
+
+    public interface IVideoContentProvider
+    {
         string ProviderId { get; }
         NicoVideoUserType ProviderType { get; }
-        string ProviderName { get; }
+    }
 
-        TimeSpan Length { get; }
-        DateTime PostedAt { get; }
+    public interface IVideoDetail : IVideoContent, IVideoContentProvider
+    {
+        string VideoId { get; }
 
         int ViewCount { get; }
         int MylistCount { get; }
         int CommentCount { get; }
 
-        string ThumbnailUrl { get; }
-
         string Description { get; }
+        DateTime PostedAt { get; }
         bool IsDeleted { get; }
-
         VideoPermission Permission { get; }
     }
 
-    public interface IVideoContentWritable : IVideoContent
+    public interface IVideoDetailWritable : IVideoDetail
     {
         new string ProviderId { get; set; }
         new NicoVideoUserType ProviderType { get; set; }
