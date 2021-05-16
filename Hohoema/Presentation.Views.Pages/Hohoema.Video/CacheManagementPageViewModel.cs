@@ -39,6 +39,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         IRecipient<VideoCacheStatusChangedMessage>
     {
         public CacheManagementPageViewModel(
+            IScheduler scheduler,
             NiconicoSession niconicoSession,
             ApplicationLayoutManager applicationLayoutManager,
             VideoCacheSettings cacheSettings,
@@ -53,6 +54,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
+            _scheduler = scheduler;
             _niconicoSession = niconicoSession;
             ApplicationLayoutManager = applicationLayoutManager;
             VideoCacheSettings = cacheSettings;
@@ -111,6 +113,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             .AddTo(_CompositeDisposable);
         }
 
+        private readonly IScheduler _scheduler;
         private readonly NiconicoSession _niconicoSession;
         private readonly VideoCacheFolderManager _videoCacheFolderManager;
         private readonly VideoCacheDownloadOperationManager _videoCacheDownloadOperationManager;
@@ -233,42 +236,45 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             base.OnNavigatedFrom(parameters);
         }
 
-        async void IRecipient<VideoCacheStatusChangedMessage>.Receive(VideoCacheStatusChangedMessage message)
+        void IRecipient<VideoCacheStatusChangedMessage>.Receive(VideoCacheStatusChangedMessage message)
         {
-            var status = message.Value.CacheStatus;
-            CacheVideoViewModel itemVM = null;
-            foreach (var group in Groups)
+            _scheduler.Schedule(async () =>
             {
-                itemVM = group.Items.FirstOrDefault(x => x.Id == message.Value.VideoId);
-                
-                if (itemVM != null) 
+                var status = message.Value.CacheStatus;
+                CacheVideoViewModel itemVM = null;
+                foreach (var group in Groups)
                 {
-                    group.Items.Remove(itemVM);
-                    break; 
+                    itemVM = group.Items.FirstOrDefault(x => x.Id == message.Value.VideoId);
+
+                    if (itemVM != null)
+                    {
+                        group.Items.Remove(itemVM);
+                        break;
+                    }
                 }
-            }
 
-            if (status == null) 
-            {
-                itemVM?.Dispose();
-                return; 
-            }
-
-            {
-                itemVM ??= await ItemVMFromVideoCacheItem(message.Value.Item);
-
-                var group = Groups.First(x => x.CacheStatus == status);
-                if (group == null) { throw new InvalidOperationException(); }
-
-                if (IsAssecsendingCacheStatus(status ?? throw new InvalidOperationException()))
+                if (status == null)
                 {
-                    group.Items.Add(itemVM);
+                    itemVM?.Dispose();
+                    return;
                 }
-                else
+
                 {
-                    group.Items.Insert(0, itemVM);
+                    itemVM ??= await ItemVMFromVideoCacheItem(message.Value.Item);
+
+                    var group = Groups.First(x => x.CacheStatus == status);
+                    if (group == null) { throw new InvalidOperationException(); }
+
+                    if (IsAssecsendingCacheStatus(status ?? throw new InvalidOperationException()))
+                    {
+                        group.Items.Add(itemVM);
+                    }
+                    else
+                    {
+                        group.Items.Insert(0, itemVM);
+                    }
                 }
-            }
+            });
         }
     }
 
