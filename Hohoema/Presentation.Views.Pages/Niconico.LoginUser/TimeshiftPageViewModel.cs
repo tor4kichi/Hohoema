@@ -105,19 +105,19 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
         protected override void PostResetList()
         {
             AddSortDescription(
-                new Microsoft.Toolkit.Uwp.UI.SortDescription("NowLive", Microsoft.Toolkit.Uwp.UI.SortDirection.Descending)
+                new Microsoft.Toolkit.Uwp.UI.SortDescription(nameof(LiveInfoListItemViewModel.IsOnair), Microsoft.Toolkit.Uwp.UI.SortDirection.Descending)
                 );
 
             AddSortDescription(
-                new Microsoft.Toolkit.Uwp.UI.SortDescription("IsTimedOut", Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending)
+                new Microsoft.Toolkit.Uwp.UI.SortDescription(nameof(LiveInfoListItemViewModel.IsPast), Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending)
                 );
 
             AddSortDescription(
-                new Microsoft.Toolkit.Uwp.UI.SortDescription("IsReserved", Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending)
+                new Microsoft.Toolkit.Uwp.UI.SortDescription(nameof(LiveInfoListItemViewModel.IsReserved), Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending)
                 );
 
             AddSortDescription(
-                new Microsoft.Toolkit.Uwp.UI.SortDescription("ExpiredAt", Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending)
+                new Microsoft.Toolkit.Uwp.UI.SortDescription(nameof(LiveInfoListItemViewModel.ExpiredAt), Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending)
                 );
 
             (ItemsView.Source as ObservableCollection<LiveInfoListItemViewModel>).ObserveElementPropertyChanged()

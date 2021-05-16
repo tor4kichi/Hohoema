@@ -72,6 +72,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
 		public DateTime? EndTime { get; protected set; }
         public TimeSpan Duration { get; protected set; }
         public LiveStatus LiveStatus { get; protected set; }
+        public bool IsOnair => LiveStatus is LiveStatus.Onair;
+        public bool IsPast => LiveStatus is LiveStatus.Past;
+        public bool IsReserved => LiveStatus is LiveStatus.Reserved;
 
         public bool IsTimeshiftEnabled { get; protected set; }
 		public bool IsCommunityMemberOnly { get; protected set; }
