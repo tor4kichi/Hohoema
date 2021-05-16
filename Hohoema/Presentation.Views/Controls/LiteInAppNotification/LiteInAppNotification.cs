@@ -108,9 +108,9 @@ namespace Hohoema.Presentation.Views.Controls.LiteInAppNotification
                 _queue.Remove(next);
 
                 TimeSpan duration = next.Duration;
-                if (DateTime.Now - _prevGotAttentionAt > TimeSpan.FromSeconds(10))
+                if (DateTime.Now - _prevGotAttentionAt > TimeSpan.FromSeconds(5))
                 {
-                    duration += TimeSpan.FromSeconds(1);
+                    duration += TimeSpan.FromSeconds(0.5);
                 }
 
                 _nowShowAnimationRunning = true;

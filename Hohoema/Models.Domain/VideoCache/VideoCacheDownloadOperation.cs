@@ -31,6 +31,7 @@ namespace Hohoema.Models.Domain.VideoCache
         private CancellationTokenSource _onwerShipReturnedCancellationTokenSource;
         private CancellationTokenSource _linkedCancellationTokenSource;
 
+        TaskCompletionSource<bool> _cancelAwaitTcs;
 
         public event EventHandler Started;
         public event EventHandler<VideoCacheDownloadOperationProgress> Progress;
@@ -65,6 +66,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
             Started?.Invoke(this, EventArgs.Empty);
 
+            _cancelAwaitTcs = new TaskCompletionSource<bool>();
             _cancellationTokenSource = new CancellationTokenSource();
             _onwerShipReturnedCancellationTokenSource = new CancellationTokenSource();
             _pauseCancellationTokenSource = new CancellationTokenSource();
@@ -108,6 +110,7 @@ namespace Hohoema.Models.Domain.VideoCache
             }
             finally
             {
+                _cancelAwaitTcs.TrySetResult(true);
                 _dmcVideoStreamingSession.StopStreamingFromOwnerShipReturned -= _dmcVideoStreamingSession_StopStreamingFromOwnerShipReturned;
                 downloadStream.Dispose();
                 _onwerShipReturnedCancellationTokenSource.Dispose();
@@ -159,7 +162,7 @@ namespace Hohoema.Models.Domain.VideoCache
                 _pauseCancellationTokenSource.Cancel();
             }
 
-            return Task.CompletedTask;
+            return _cancelAwaitTcs?.Task ?? Task.CompletedTask;
         }
     }
 }

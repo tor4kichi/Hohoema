@@ -184,9 +184,9 @@ namespace Hohoema.Presentation.Views.Pages
 
                 TimeSpan duration = payload.Duration ?? payload.DisplayDuration switch
                 {
-                    DisplayDuration.Default => TimeSpan.FromSeconds(0.75),
-                    DisplayDuration.MoreAttention => TimeSpan.FromSeconds(3),
-                    _ => TimeSpan.FromSeconds(0.75),
+                    DisplayDuration.Default => TimeSpan.FromSeconds(1.25),
+                    DisplayDuration.MoreAttention => TimeSpan.FromSeconds(1.25 * 3),
+                    _ => TimeSpan.FromSeconds(1.25),
                 };
 
                 LiteInAppNotification.Show(payload, duration);

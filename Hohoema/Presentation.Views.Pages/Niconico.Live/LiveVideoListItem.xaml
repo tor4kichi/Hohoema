@@ -10,8 +10,8 @@
              xmlns:behavior="using:Hohoema.Presentation.Views.Behaviors"
              xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI.Controls"
              xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
-             xmlns:vm="using:Hohoema.Presentation.ViewModels.Pages.LivePages"
-             xmlns:icon="using:MahApps.Metro.IconPacks" xmlns:live="using:NiconicoLiveToolkit.Live"
+             xmlns:icon="using:MahApps.Metro.IconPacks" 
+             xmlns:live="using:NiconicoLiveToolkit.Live"
              mc:Ignorable="d"
              d:DesignHeight="60"
              d:DesignWidth="400"
@@ -135,15 +135,17 @@
   <Grid>
     <uwpUI:DockPanel x:Name="VideoInfo" IsHitTestVisible="True" Background="Transparent">
 
-      <Grid Height="117" Width="208" uwpUI:DockPanel.Dock="Left">
+      <Grid uwpUI:DockPanel.Dock="Left">
         
         <uwpUI:ImageEx  Source="{Binding ThumbnailUrl}"
                         IsCacheEnabled="False"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Stretch="UniformToFill"
+                        Stretch="Uniform"
                         VerticalContentAlignment="Center"
-                        HorizontalContentAlignment="Center" />
+                        HorizontalContentAlignment="Center"
+                        Height="100"
+                        />
 
         <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource ThumbnailBadgeLiveStatusTemplateSelector}" 
                         HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False"
@@ -155,6 +157,12 @@
 
       <StackPanel Margin="16 0 0 0" Spacing="4">
 
+        <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource DateTimeOrDurationLiveStatusTemplateSelector}" 
+                            HorizontalAlignment="Left"
+                          IsTabStop="False"      
+                        Opacity="0.7"
+                                    />
+        
         <uwpUI:DockPanel>
           <uwpUI:DockPanel.Resources>
             <Style TargetType="Border">
@@ -207,15 +215,14 @@
                      ToolTipService.ToolTip="{Binding LiveTitle}"
                      /> 
         </uwpUI:DockPanel>
-        
 
-        <TextBlock Text="{Binding ShortDescription}" MaxLines="1" TextTrimming="CharacterEllipsis" />
 
-        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0 8">
-          <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource DateTimeOrDurationLiveStatusTemplateSelector}" 
-                            HorizontalAlignment="Left"
-                          IsTabStop="False"        
-                                    />
+        <TextBlock Text="{Binding ShortDescription}" MaxLines="1" TextTrimming="CharacterEllipsis" Opacity="0.7"
+                   >
+        </TextBlock>
+
+        <StackPanel Orientation="Horizontal" Spacing="8" Opacity="0.7">
+          
           <TextBlock FontSize="12" VerticalAlignment="Center">
                   <Run Text="{localize:Localize Key=LiveViewCount}" />
                   <Run Text="{Binding ViewCounter, Converter={StaticResource ToUserFriendlyNumber}}" />
@@ -230,7 +237,7 @@
           </TextBlock>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Spacing="16">
+        <StackPanel Orientation="Horizontal" Spacing="16" Visibility="{Binding CommunityName, Converter={StaticResource NotNullToVisibility}}">
           <uwpUI:ImageEx Source="{Binding CommunityThumbnail}" CornerRadius="60" Width="28" Height="28" />
 
           <TextBlock Text="{Binding CommunityName}" VerticalAlignment="Center" />

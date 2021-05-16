@@ -122,64 +122,23 @@ namespace Hohoema.Models.Helpers
             inputStream = await response.Content.ReadAsInputStreamAsync().AsTask().ConfigureAwait(false);
         }
 
-
-
         private string contentType = string.Empty;
-
-
-
         public string ContentType
-
         {
-
             get { return contentType; }
-
             private set { contentType = value; }
-
         }
 
 
 
-        public bool CanRead
-
-        {
-
-            get
-
-            {
-
-                return true;
-
-            }
-
-        }
-
-
-
-        public bool CanWrite
-
-        {
-
-            get
-
-            {
-
-                return false;
-
-            }
-
-        }
-
+        public bool CanRead => true;
+        public bool CanWrite => false;
 
 
         public IRandomAccessStream CloneStream()
-
         {
-
             // If there is only one MediaPlayerElement using the stream, it is safe to return itself.
-
             return this;
-
         }
 
 
