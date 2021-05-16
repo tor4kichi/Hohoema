@@ -142,6 +142,8 @@ namespace Hohoema.FixPrism
                     var handlers = pair.Value;
                     context.TryEnqueue(() =>
                     {
+                        if (_IsDisposed) { return; }
+
                         _lockSlim.EnterUpgradeableReadLock();
                         try
                         {
