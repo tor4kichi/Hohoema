@@ -328,7 +328,9 @@ namespace Hohoema.Models.Domain.VideoCache
                 throw new VideoCacheException("VideoCacheItem is can not play, require content access permission. reason : " + watchData?.DmcWatchResponse?.OkReason);
             }
 
+#if DEBUG
             Stopwatch sw = Stopwatch.StartNew();
+#endif
 
             // require same hash
             var file = await GetCacheVideoFileAsync(item);
@@ -337,8 +339,10 @@ namespace Hohoema.Models.Domain.VideoCache
                 throw new VideoCacheException("VideoCacheItem is can not play, invalid Hash.");
             }
 
+#if DEBUG
             sw.Stop();
             Debug.WriteLine("compute hash elapsed time is " + sw.Elapsed);
+#endif
 
             var stream = new XtsStream(await file.OpenStreamForReadAsync(), Xts);
             if (stream.Length != item.TotalBytes)

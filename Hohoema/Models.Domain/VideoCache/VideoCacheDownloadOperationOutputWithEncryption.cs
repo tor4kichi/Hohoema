@@ -20,60 +20,40 @@ namespace Hohoema.Models.Domain.VideoCache
 
         public async Task CopyStreamAsync(Stream sourceStream, IProgress<VideoCacheDownloadOperationProgress> progress, CancellationToken cancellationToken)
         {
-            using (var outputFileStream = await _destinationFile.OpenStreamForWriteAsync())
+            using (var xtsSectorStream = new XtsSectorStream(await _destinationFile.OpenStreamForWriteAsync(), _xts))
             {
                 // 途中までDLしていた場合はそこから再開
-                if (outputFileStream.Length != 0)
-                {
-                    var remainder = outputFileStream.Length % XtsSectorStream.DEFAULT_SECTOR_SIZE;
-                    if (remainder != 0)
-                    {
-                        outputFileStream.Seek(remainder, SeekOrigin.End);
-                        sourceStream.Seek(outputFileStream.Length - remainder, SeekOrigin.Begin);
-                    }
-                    else
-                    {
-                        if (outputFileStream.Length >= XtsSectorStream.DEFAULT_SECTOR_SIZE)
-                        {
-                            outputFileStream.Seek(-XtsSectorStream.DEFAULT_SECTOR_SIZE, SeekOrigin.End);
-                            sourceStream.Seek(outputFileStream.Position, SeekOrigin.Begin);
-                        }
-                    }
-                }
+                sourceStream.Seek(xtsSectorStream.Length, SeekOrigin.Begin);
 
                 byte[] inputBuffer = new byte[XtsSectorStream.DEFAULT_SECTOR_SIZE];
-                byte[] outputBuffer = new byte[XtsSectorStream.DEFAULT_SECTOR_SIZE];
-                using (var encryptor = _xts.CreateEncryptor())
+                cancellationToken.ThrowIfCancellationRequested();
+
+                int readLength = -1;
+                while (readLength != 0)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    ulong currentSector = (ulong)(outputFileStream.Position / XtsSectorStream.DEFAULT_SECTOR_SIZE);
-                    int readLength = -1;
-                    try
-                    {
-                        while (readLength != 0)
-                        {
-                            cancellationToken.ThrowIfCancellationRequested();
+                    // Note: 対称暗号のためセクター単位で書き込まないといけない
+                    // ReadAsyncで読み取った長さを無視してセクター全体が書き込まれるようにする
 
-                            // Note: 対称暗号のためセクター単位で書き込まないといけない
-                            // ReadAsyncで読み取った長さを無視してセクター全体が書き込まれるようにする
-                            readLength = await sourceStream.ReadAsync(inputBuffer, 0, inputBuffer.Length);
-                            encryptor.TransformBlock(inputBuffer, 0, inputBuffer.Length, outputBuffer, 0, currentSector);
-                            currentSector++;
-                            await outputFileStream.WriteAsync(outputBuffer, 0, outputBuffer.Length);
-
-                            progress?.Report(new VideoCacheDownloadOperationProgress() { ProgressBytes = sourceStream.Position, TotalBytes = sourceStream.Length });
-                        }
-                    }
-                    finally
+                    // sourceStream側の都合上countに指定したbyte数(inputBuffer.Length)通りに読み込まれないケースがある
+                    // inputBuffer.Lengthに満たない場合は不足分を追加で読み込んで1セクター分を埋める
+                    readLength = sourceStream.Read(inputBuffer, 0, inputBuffer.Length);
+                    if (readLength != 0 && readLength != inputBuffer.Length)
                     {
-                        await outputFileStream.FlushAsync();
+                        readLength += sourceStream.Read(inputBuffer, readLength, inputBuffer.Length - readLength);
                     }
 
-                    // XTSによる暗号化によってセクター単位でサイズが決まるため
-                    // DLしたサイズではなく書き込まれたファイルのサイズを最終的なサイズとして扱う
-                    progress?.Report(new VideoCacheDownloadOperationProgress() { ProgressBytes = outputFileStream.Position, TotalBytes = outputFileStream.Length });
+                    // 書き込みしてない後部をゼロフィルした上で書き込み
+                    Array.Clear(inputBuffer, readLength, inputBuffer.Length - readLength);
+                    xtsSectorStream.Write(inputBuffer, 0, inputBuffer.Length);
+
+                    progress?.Report(new VideoCacheDownloadOperationProgress() { ProgressBytes = sourceStream.Position, TotalBytes = sourceStream.Length });
                 }
+
+                // XTSによる暗号化によってセクター単位でサイズが決まるため
+                // DLしたサイズではなく書き込まれたファイルのサイズを最終的なサイズとして扱う
+                progress?.Report(new VideoCacheDownloadOperationProgress() { ProgressBytes = xtsSectorStream.Position, TotalBytes = xtsSectorStream.Length });
             }
         }
 
