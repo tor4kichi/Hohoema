@@ -104,7 +104,7 @@ namespace Hohoema.Models.Domain.VideoCache
             return $"{title.ToSafeFilePath()} [{id}-{quality}]";
         }
 
-        static HashAlgorithm MakeHashAlgrorithm() => SHA256.Create();
+        static HashAlgorithm MakeHashAlgrorithm() => SHA512.Create();
 
 
         private readonly NiconicoSession _niconicoSession;
@@ -328,12 +328,17 @@ namespace Hohoema.Models.Domain.VideoCache
                 throw new VideoCacheException("VideoCacheItem is can not play, require content access permission. reason : " + watchData?.DmcWatchResponse?.OkReason);
             }
 
+            Stopwatch sw = Stopwatch.StartNew();
+
             // require same hash
             var file = await GetCacheVideoFileAsync(item);
             if (!await IsFileContainsValidHashAsync(file))
             {
                 throw new VideoCacheException("VideoCacheItem is can not play, invalid Hash.");
             }
+
+            sw.Stop();
+            Debug.WriteLine("compute hash elapsed time is " + sw.Elapsed);
 
             var stream = new XtsStream(await file.OpenStreamForReadAsync(), Xts);
             if (stream.Length != item.TotalBytes)
@@ -976,18 +981,35 @@ namespace Hohoema.Models.Domain.VideoCache
             return VideoCacheFolder.WriteBytesToFileAsync(computedHash, GetHashFileName(file), CreationCollisionOption.ReplaceExisting);
         }
 
+
+        const int HashComputeSize = 1024 ^ 3;
+
         private Task<byte[]> ComputeHash(StorageFile file)
-        {
+        {             
             return Task.Run(async () =>
             {
                 using (var hashAlgorithm = MakeHashAlgrorithm())
+                using (var stream = new XtsStream(await file.OpenStreamForReadAsync(), Xts))
+                {
+                    byte[] buf = new byte[HashComputeSize];
+                    var readLength = await stream.ReadAsync(buf, 0, buf.Length);
+                    return hashAlgorithm.ComputeHash(buf, 0, readLength);
+                }
+            });
+        }
+
+
+        private Task<byte[]> ComputeHashLegacy(StorageFile file)
+        {
+            return Task.Run(async () =>
+            {
+                using (var hashAlgorithm = SHA256.Create())
                 using (var stream = new XtsStream(await file.OpenStreamForReadAsync(), Xts))
                 {
                     return hashAlgorithm.ComputeHash(stream);
                 }
             });
         }
-
 
         private async Task<bool> IsFileContainsValidHashAsync(StorageFile file)
         {
@@ -997,7 +1019,31 @@ namespace Hohoema.Models.Domain.VideoCache
                 if (!result) { return false; }
 
                 var computedBytes = await ComputeHash(file);
+                
+#if false
+                // 正規のコード
                 return StructuralComparisons.StructuralEqualityComparer.Equals(readBytes, computedBytes);
+#else
+                // ハッシュ計算変更前との互換用コード
+                // 旧ハッシュ計算と同値であれば再生可能として、新しいハッシュ計算結果を書き込んで次回以降チェックをスキップ出来るようにする
+                if (StructuralComparisons.StructuralEqualityComparer.Equals(readBytes, computedBytes))
+                {
+                    return true;
+                }
+                else
+                {
+                    var computedBytesLegacy = await ComputeHashLegacy(file);
+                    if (StructuralComparisons.StructuralEqualityComparer.Equals(readBytes, computedBytesLegacy))
+                    {
+                        await SaveHashValue(file, computedBytes);
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+#endif
             }
             catch 
             {
@@ -1032,7 +1078,7 @@ namespace Hohoema.Models.Domain.VideoCache
             return Path.ChangeExtension(file.Name, HohoemaVideoCacheHashExt);
         }
 
-        #endregion Hash Computing
+#endregion Hash Computing
 
 
 
@@ -1092,7 +1138,7 @@ namespace Hohoema.Models.Domain.VideoCache
             _videoCacheItemRepository.UpdateVideoCache(entity);
         }
 
-        #region Migarate Legacy
+#region Migarate Legacy
 
         /// <summary>
         /// 旧キャッシュ機能からの統合用。キャッシュリクエストを追加するのみでファイルは取り込まない。
@@ -1113,6 +1159,6 @@ namespace Hohoema.Models.Domain.VideoCache
             _videoCacheItemRepository.UpdateVideoCache(entity);
         }
 
-        #endregion
+#endregion
     }
 }
