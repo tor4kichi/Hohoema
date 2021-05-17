@@ -114,7 +114,7 @@ namespace Hohoema.Models.Helpers
 
             if (String.IsNullOrWhiteSpace(mailAddress) || String.IsNullOrWhiteSpace(password))
             {
-                throw new Exception();
+                throw new Models.Infrastructure.HohoemaExpception();
             }
 
             var vault = new Windows.Security.Credentials.PasswordVault();
@@ -305,7 +305,7 @@ namespace Hohoema.Models.Helpers
             IBuffer hashBuffer = hashAlgorithmProvider.HashData(bufferUTF8Msg);
             if (hashBuffer.Length != hashAlgorithmProvider.HashLength)
             {
-                throw new Exception("There was an error creating the hash");
+                throw new Models.Infrastructure.HohoemaExpception("There was an error creating the hash");
             }
             return hashBuffer;
         }

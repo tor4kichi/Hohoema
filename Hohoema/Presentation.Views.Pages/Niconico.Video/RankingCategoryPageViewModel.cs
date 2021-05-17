@@ -250,7 +250,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 }
                 else
                 {
-                    throw new Exception("ランキングページの表示に失敗");
+                    throw new Models.Infrastructure.HohoemaExpception("ランキングページの表示に失敗");
                 }
 
                 _isRequireUpdate = RankingGenre != _previousRankingGenre;

@@ -901,7 +901,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             }
             else
             {
-                throw new Exception();
+                throw new Models.Infrastructure.HohoemaExpception();
             }
         }
 
@@ -960,7 +960,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 }
                 else
                 {
-                    throw new Exception();
+                    throw new Models.Infrastructure.HohoemaExpception();
                 }
                 
             }
@@ -968,7 +968,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         internal async void SetCurrent(IVideoContent item, TimeSpan position)
         {
-            if (item == null) { throw new Exception(); }
+            if (item == null) { throw new Models.Infrastructure.HohoemaExpception(); }
 
             using (var releaser = await _PlaylistUpdateLock.LockAsync(default))
             {

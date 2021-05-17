@@ -443,7 +443,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                     if (videoId == null)
                     {
                         IsLoadFailed.Value = true;
-                        throw new Exception();
+                        throw new Models.Infrastructure.HohoemaExpception();
                     }
 
                     VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(videoId);

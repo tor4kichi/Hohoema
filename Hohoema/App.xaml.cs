@@ -1214,7 +1214,7 @@ namespace Hohoema
                     {
                         if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
                         {
-                            throw new Exception("no id");
+                            throw new Models.Infrastructure.HohoemaExpception("no id");
                         }
 
                         var cacheManager = Container.Resolve<VideoCacheManager>();
@@ -1224,7 +1224,7 @@ namespace Hohoema
                     {
                         if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
                         {
-                            throw new Exception("no id");
+                            throw new Models.Infrastructure.HohoemaExpception("no id");
                         }
 
                         PlayVideoFromExternal(id);

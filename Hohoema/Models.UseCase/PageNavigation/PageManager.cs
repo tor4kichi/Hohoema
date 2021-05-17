@@ -454,7 +454,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                 }
                 else
 				{
-					throw new Exception();
+					throw new Models.Infrastructure.HohoemaExpception();
 				}
 			}
 		}

@@ -165,7 +165,7 @@ namespace Hohoema.Presentation.Views.Behaviors
 
         private void CursorVisibilityChanged(bool isVisible)
         {
-            if (_DefaultCursor == null) { throw new Exception($"Default cursor is can not be null."); }
+            if (_DefaultCursor == null) { throw new Models.Infrastructure.HohoemaExpception($"Default cursor is can not be null."); }
 
             if ((_prevIsVisible ^ isVisible) && isVisible)
             {

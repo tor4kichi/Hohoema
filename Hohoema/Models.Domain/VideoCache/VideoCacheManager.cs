@@ -755,7 +755,7 @@ namespace Hohoema.Models.Domain.VideoCache
                 else
                 {
                     var avairableQualities = watchData.DmcWatchResponse.Media.Delivery.Movie.Session.Videos.Select(x => NicoVideoCacheQualityHelper.QualityIdToCacheQuality(x)).ToArray();
-                    if (avairableQualities.Length == 0) { throw new Exception("キャッシュ用画質Enumの変換に失敗"); }
+                    if (avairableQualities.Length == 0) { throw new Models.Infrastructure.HohoemaExpception("キャッシュ用画質Enumの変換に失敗"); }
 
                     while (avairableQualities.Contains(candidateDownloadingQuality) is false && candidateDownloadingQuality is not NicoVideoQuality.Unknown)
                     {

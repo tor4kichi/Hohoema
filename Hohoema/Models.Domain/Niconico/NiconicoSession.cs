@@ -328,7 +328,7 @@ namespace Hohoema.Models.Domain.Niconico
                 if (userInfo == null)
                 {
                     IsLoggedIn = false;
-                    throw new Exception("ログインに失敗");
+                    throw new Models.Infrastructure.HohoemaExpception("ログインに失敗");
                 }
             }
             catch (Exception e)

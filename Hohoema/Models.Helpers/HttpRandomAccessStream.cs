@@ -88,14 +88,14 @@ namespace Hohoema.Models.Helpers
 
             if (response.StatusCode != HttpStatusCode.PartialContent && requestedPosition != 0)
             {
-                throw new Exception("HTTP server did not reply with a '206 Partial Content' status.");
+                throw new Models.Infrastructure.HohoemaExpception("HTTP server did not reply with a '206 Partial Content' status.");
             }
 
 
 
             if (!response.Headers.ContainsKey("Accept-Ranges"))
             {
-                throw new Exception(String.Format(
+                throw new Models.Infrastructure.HohoemaExpception(String.Format(
                     "HTTP server does not support range requests: {0}",
                     "http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.5"));
             }

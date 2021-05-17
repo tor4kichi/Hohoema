@@ -564,7 +564,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 
                         if (false == await secondaryTile.RequestCreateAsync())
                         {
-                            throw new Exception("Failed secondary tile creation.");
+                            throw new Models.Infrastructure.HohoemaExpception("Failed secondary tile creation.");
                         }
                     }
                     ));

@@ -520,7 +520,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
             IsLiveInfoLoaded.Value = false;
 
-            if (liveId == null) { throw new Exception("Require LiveId in LiveInfomationPage navigation with (e.Parameter as string)"); }
+            if (liveId == null) { throw new Models.Infrastructure.HohoemaExpception("Require LiveId in LiveInfomationPage navigation with (e.Parameter as string)"); }
 
             try
             {
@@ -557,7 +557,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                 }
                 else
                 {
-                    throw new Exception("Live not found. LiveId is " + LiveId);
+                    throw new Models.Infrastructure.HohoemaExpception("Live not found. LiveId is " + LiveId);
                 }
             }
             catch (Exception ex)

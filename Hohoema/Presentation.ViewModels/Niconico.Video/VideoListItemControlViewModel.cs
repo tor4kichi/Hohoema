@@ -632,7 +632,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         public static void Setup(this VideoListItemControlViewModel vm, Mntone.Nico2.Users.Video.VideoData data)
         {
-            if (vm.RawVideoId != data.VideoId) { throw new Exception(); }
+            if (vm.RawVideoId != data.VideoId) { throw new Models.Infrastructure.HohoemaExpception(); }
 
             vm.PostedAt = data.SubmitTime;
         }
@@ -641,7 +641,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         // とりあえずマイリストから取得したデータによる初期化
         public static void Setup(this VideoListItemControlViewModel vm, MylistData data)
         {
-            if (data.WatchId != vm.RawVideoId) { throw new Exception(); }
+            if (data.WatchId != vm.RawVideoId) { throw new Models.Infrastructure.HohoemaExpception(); }
 
             // vm.VideoId = data.id
             vm.PostedAt = data.CreateTime;
@@ -655,7 +655,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         // 個別マイリストから取得したデータによる初期化
         public static void Setup(this VideoListItemControlViewModel vm, VideoInfo data)
         {
-            if (vm.RawVideoId != data.Video.Id) { throw new Exception(); }
+            if (vm.RawVideoId != data.Video.Id) { throw new Models.Infrastructure.HohoemaExpception(); }
 
             //vm.VideoId = data.Video.Id;
             vm.PostedAt = data.Video.UploadTime;

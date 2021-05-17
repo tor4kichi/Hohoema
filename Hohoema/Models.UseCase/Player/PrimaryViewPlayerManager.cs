@@ -91,7 +91,7 @@ namespace Hohoema.Models.UseCase.Player
                         Debug.WriteLine(result.Exception?.ToString());
                         DisplayMode = PrimaryPlayerDisplayMode.Close;
                         _view.Title = string.Empty;
-                        throw result.Exception ?? new Exception("unknown navigation error.");
+                        throw result.Exception ?? new Models.Infrastructure.HohoemaExpception("unknown navigation error.");
                     }
                     else
                     {
