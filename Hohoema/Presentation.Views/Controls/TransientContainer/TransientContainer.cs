@@ -60,14 +60,26 @@ namespace Hohoema.Presentation.Views.Controls
             Unloaded += TransientContainer_Unloaded;
         }
 
+        protected override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+
+            _container = GetTemplateChild("ContentContainer") as FrameworkElement;
+            AnimationBuilder.Create()
+                       .Opacity()
+                       .NormalizedKeyFrames(b => b
+                           .KeyFrame(0, 0.0, easingType: EasingType.Linear)
+                           )
+                       .Start(_container);
+        }
+
         CompositeDisposable _CompositeDisposable;
         CancellationTokenSource _AnimationCts;
         private void TransientContainer_Loaded(object sender, RoutedEventArgs e)
         {
             _CompositeDisposable = new CompositeDisposable();
             
-            _container = GetTemplateChild("ContentContainer") as FrameworkElement;
-
+           
             this.ObserveDependencyProperty(IsAutoHideEnabledProperty)
                 .Subscribe(__ =>
                 {
@@ -88,12 +100,7 @@ namespace Hohoema.Presentation.Views.Controls
                 })
                 .AddTo(_CompositeDisposable);
 
-            AnimationBuilder.Create()
-                        .Opacity()
-                        .NormalizedKeyFrames(b => b
-                            .KeyFrame(0, 0.0, easingType: EasingType.Linear)
-                            )
-                        .Start(_container);
+           
         }
 
         object _AnimationCtsLock = new object();

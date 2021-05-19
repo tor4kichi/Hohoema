@@ -518,6 +518,15 @@
     <Compile Include="Presentation.ViewModels\Player\MediaPlayerSetPlaybackRateCommand.cs" />
     <Compile Include="Presentation.ViewModels\Player\MediaPlayerToggleMuteCommand.cs" />
     <Compile Include="Presentation.ViewModels\Player\MediaPlayerVolumeChangeCommand.cs" />
+    <Compile Include="Presentation.Views.Player\VideoPlayerUI\DesktopPlayerUI.xaml.cs">
+      <DependentUpon>DesktopPlayerUI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presentation.Views.Player\VideoPlayerUI\NallowPlayerUI.xaml.cs">
+      <DependentUpon>NallowPlayerUI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presentation.Views.Player\VideoPlayerUI\SeekbarSlider.xaml.cs">
+      <DependentUpon>SeekbarSlider.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\EmptySidePaneContentViewModel.cs" />
     <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\LiveCommentsSidePaneContentViewModel.cs" />
     <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\PlaylistSidePaneContentViewModel.cs" />
@@ -1101,6 +1110,18 @@
     <Page Include="Presentation.Views.Pages\Hohoema\DebugPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Presentation.Views.Player\VideoPlayerUI\DesktopPlayerUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation.Views.Player\VideoPlayerUI\NallowPlayerUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation.Views.Player\VideoPlayerUI\SeekbarSlider.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Presentation.Views\Controls\ListItem\HohoemaListItemMiniCard.xaml">
       <Generator>MSBuild:Compile</Generator>
