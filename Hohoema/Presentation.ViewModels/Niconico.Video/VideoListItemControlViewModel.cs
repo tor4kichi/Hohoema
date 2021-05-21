@@ -635,6 +635,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             if (vm.RawVideoId != data.VideoId) { throw new Models.Infrastructure.HohoemaExpception(); }
 
             vm.PostedAt = data.SubmitTime;
+            //vm.Length = data.Length;
         }
 
 
@@ -648,7 +649,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             vm.ViewCount = (int)data.ViewCount;
             vm.CommentCount = (int)data.CommentCount;
-            vm.MylistCount = (int)data.MylistCount;
+            vm.MylistCount = (int)data.MylistCount;            
         }
 
 
@@ -658,13 +659,13 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             if (vm.RawVideoId != data.Video.Id) { throw new Models.Infrastructure.HohoemaExpception(); }
 
             //vm.VideoId = data.Video.Id;
-            vm.PostedAt = data.Video.UploadTime;
+            vm.PostedAt = data.Video.FirstRetrieve;
             vm.ViewCount = (int)data.Video.ViewCount;
             vm.CommentCount = (int)data.Thread.GetCommentCount();
             vm.MylistCount = (int)data.Video.MylistCount;
 
-            vm.ProviderId = data.Video.UserId ?? data.Video.CommunityId;
-            vm.ProviderType = data.Thread.GroupType == "channel" ? NicoVideoUserType.Channel : NicoVideoUserType.User;
+            vm.ProviderType = data.Video.ProviderType == "channel" ? NicoVideoUserType.Channel : NicoVideoUserType.User;
+            vm.ProviderId = vm.ProviderType == NicoVideoUserType.Channel ? data.Video.CommunityId : data.Video.UserId;
         }
     }
 
