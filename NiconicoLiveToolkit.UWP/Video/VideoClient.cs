@@ -33,7 +33,7 @@ namespace NiconicoLiveToolkit.Video
 
     public partial class NicoVideoInfoManyResponseContainer
     {
-        [JsonPropertyName("nicovideo_video_response")]
+        [JsonPropertyName("niconico_response")]
         public NicovideoVideoManyResponse NicovideoVideoResponse { get; set; }
     }
 
@@ -57,7 +57,7 @@ namespace NiconicoLiveToolkit.Video
 
     public partial class NicoVideoInfoResponseContainer
     {
-        [JsonPropertyName("nicovideo_video_response")]
+        [JsonPropertyName("niconico_response")]
         public NicovideoVideoResponse NicovideoVideoResponse { get; set; }
     }
 
@@ -148,8 +148,8 @@ namespace NiconicoLiveToolkit.Video
         public DateTimeOffset FirstRetrieve { get; set; }
 
         [JsonPropertyName("default_thread")]
-        [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long DefaultThread { get; set; }
+        //[JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
+        public string DefaultThread { get; set; }
 
         [JsonPropertyName("view_counter")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
@@ -194,8 +194,8 @@ namespace NiconicoLiveToolkit.Video
         [JsonPropertyName("provider_type")]
         public string ProviderType { get; set; }
 
-        [JsonPropertyName("options")]
-        public Options Options { get; set; }
+        //[JsonPropertyName("options")]
+        //public Options Options { get; set; }
 
 
         [JsonIgnore]
@@ -230,19 +230,19 @@ namespace NiconicoLiveToolkit.Video
     {
         [JsonPropertyName("@mobile")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long Mobile { get; set; }
+        public long? Mobile { get; set; }
 
         [JsonPropertyName("@sun")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long Sun { get; set; }
+        public long? Sun { get; set; }
 
         [JsonPropertyName("@large_thumbnail")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long LargeThumbnail { get; set; }
+        public long? LargeThumbnail { get; set; }
 
         [JsonPropertyName("@adult")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long Adult { get; set; }
+        public long? Adult { get; set; }
     }
 }
 
