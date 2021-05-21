@@ -130,7 +130,8 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     info.ViewCount = (int)video.ViewCounter;
                     info.MylistCount = (int)video.MylistCounter;
                     info.CommentCount = (int)res.Thread.NumRes;
-                    info.Permission = res.Video.VideoPermission;
+//                    info.Permission = res.Video.VideoPermission;
+/*
 #if DEBUG
                     if (info.Permission is 
                         NiconicoLiveToolkit.Video.VideoPermission.Unknown or
@@ -143,6 +144,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         }
                     }
 #endif
+*/
                     info.Tags = res.Tags.TagInfo.Select(x => new NicoVideoTag(x.Tag)).ToList();
 
                     if (res.Video.ProviderType == "channel")
