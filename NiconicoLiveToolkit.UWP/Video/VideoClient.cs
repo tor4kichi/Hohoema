@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
@@ -11,22 +12,31 @@ namespace NiconicoToolkit.Video
     {
         private readonly NiconicoContext _context;
 
+        JsonSerializerOptions _videoInfoSerializerOption;
+
         internal VideoClient(NiconicoContext context)
         {
             _context = context;
+            _videoInfoSerializerOption = new JsonSerializerOptions()
+            {
+                Converters =
+                {
+                    new JsonStringEnumMemberConverter()
+                }
+            };
         }
 
         public async Task<NicovideoVideoResponse> GetVideoInfoAsync(string videoId)
         {
             string url = $"http://api.ce.nicovideo.jp/nicoapi/v1/video.info?v={videoId}&__format=json";
-            var res = await _context.GetJsonAsAsync<NicoVideoInfoResponseContainer>(url);
+            var res = await _context.GetJsonAsAsync<NicoVideoInfoResponseContainer>(url, _videoInfoSerializerOption);
             return res.NicovideoVideoResponse;
         }
 
         public async Task<NicovideoVideoManyResponse> GetVideoInfoManyAsync(IEnumerable<string> videoIdList)
         {
             string url = $"http://api.ce.nicovideo.jp/nicoapi/v1/video.array?v={string.Join(Uri.EscapeDataString(","), videoIdList)}&__format=json";
-            var res = await _context.GetJsonAsAsync<NicoVideoInfoManyResponseContainer>(url);
+            var res = await _context.GetJsonAsAsync<NicoVideoInfoManyResponseContainer>(url, _videoInfoSerializerOption);
             return res.NicovideoVideoResponse;
         }
     }
@@ -40,18 +50,23 @@ namespace NiconicoToolkit.Video
     public class NicovideoVideoManyResponse
     {
         [JsonPropertyName("video_info")]
-        [JsonConverter(typeof(SingleOrArrayConverter<List<NicovideoVideoResponse>, NicovideoVideoResponse>))]
-        public List<NicovideoVideoResponse> Videos { get; set; }
-
-        [JsonPropertyName("count")]
-        [JsonConverter(typeof(LongToStringConverter))]
-        public long Count { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<List<NicovideoVideoItem>, NicovideoVideoItem>))]
+        public List<NicovideoVideoItem> Videos { get; set; }
 
         [JsonPropertyName("@status")]
         public string Status { get; set; }
 
 
         public bool IsOK => Status == "ok";
+    }
+
+    public partial class NicovideoVideoItem
+    {
+        [JsonPropertyName("video")]
+        public Video Video { get; set; }
+
+        [JsonPropertyName("thread")]
+        public Thread Thread { get; set; }
     }
 
 
@@ -141,15 +156,8 @@ namespace NiconicoToolkit.Video
         [JsonPropertyName("thumbnail_url")]
         public Uri ThumbnailUrl { get; set; }
 
-        [JsonPropertyName("upload_time")]
-        public DateTimeOffset UploadTime { get; set; }
-
         [JsonPropertyName("first_retrieve")]
         public DateTimeOffset FirstRetrieve { get; set; }
-
-        [JsonPropertyName("default_thread")]
-        //[JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public string DefaultThread { get; set; }
 
         [JsonPropertyName("view_counter")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
@@ -162,45 +170,21 @@ namespace NiconicoToolkit.Video
         [JsonPropertyName("genre")]
         public Genre Genre { get; set; }
 
-        [JsonPropertyName("option_flag_community")]
-        [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long OptionFlagCommunity { get; set; }
-
-        [JsonPropertyName("option_flag_nicowari")]
-        [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long OptionFlagNicowari { get; set; }
-
-        [JsonPropertyName("option_flag_middle_thumbnail")]
-        [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long OptionFlagMiddleThumbnail { get; set; }
-
-        [JsonPropertyName("option_flag_dmc_play")]
-        [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long OptionFlagDmcPlay { get; set; }
-
         [JsonPropertyName("community_id")]
         public string CommunityId { get; set; }
-
-        [JsonPropertyName("vita_playable")]
-        public string VitaPlayable { get; set; }
 
         [JsonPropertyName("ppv_video")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
         public long PpvVideo { get; set; }
 
-        [JsonPropertyName("permission")]
-        public string Permission { get; set; }
 
         [JsonPropertyName("provider_type")]
-        public string ProviderType { get; set; }
-
-        //[JsonPropertyName("options")]
-        //public Options Options { get; set; }
-
+        public VideoProviderType ProviderType { get; set; }
 
         [JsonIgnore]
         private bool IsPayRequired => PpvVideo == 1;
 
+        /*
         [JsonIgnore]
         public VideoPermission VideoPermission
         {
@@ -214,6 +198,7 @@ namespace NiconicoToolkit.Video
                 _ => VideoPermission.Unknown,
             };
         }
+        */
     }
 
 

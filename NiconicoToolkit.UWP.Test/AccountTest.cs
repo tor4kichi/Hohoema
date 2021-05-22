@@ -13,18 +13,32 @@ namespace NiconicoToolkit.UWP.Test
 
     [TestClass]
     public class AccountTest
-    {        
-        [TestMethod]
-        public async Task LogInAndLogOutAsync()
+    {
+        NiconicoContext _context;
+        uint _loginUserId;
+
+        [TestInitialize]
+        public async Task LogInAsync()
         {
             var (context, status, authority, userId) = await AccountTestHelper.CreateNiconicoContextAndLogInWithTestAccountAsync();
 
-            Assert.AreEqual(status, Account.NiconicoSessionStatus.Success);
-            Assert.AreNotEqual(authority, Account.NiconicoAccountAuthority.NotSignedIn);
-            Assert.AreNotEqual(userId, 0);
+            _context = context;
+            _loginUserId = userId;
+        }
 
-            var signOutResult = await context.Account.SignOutAsync();
-            Assert.AreEqual(signOutResult, true);
+        [TestCleanup]
+        public async Task LogOutAsync()
+        {
+            var signOutResult = await _context.Account.SignOutAsync();
+        }
+
+        [TestMethod]
+        public async Task GetLoginUserNameAsync()
+        {
+            var info = await _context.User.GetUserNicknameAsync(_loginUserId);
+
+            Assert.IsNotNull(info.Nickname);
+            Assert.IsTrue(!string.IsNullOrWhiteSpace(info.Nickname));
         }
     }
 }

@@ -172,6 +172,7 @@
     <Compile Include="User\UserClient.cs" />
     <Compile Include="Video\VideoClient.cs" />
     <Compile Include="Video\VideoPermission.cs" />
+    <Compile Include="Video\VideoProviderType.cs" />
     <EmbeddedResource Include="Properties\NiconicoLiveToolkit.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
