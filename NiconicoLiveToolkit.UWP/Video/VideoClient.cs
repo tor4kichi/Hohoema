@@ -14,9 +14,13 @@ namespace NiconicoToolkit.Video
 
         JsonSerializerOptions _videoInfoSerializerOption;
 
+        public Ranking.VideoRankinguSubClient Ranking { get; }
+
         internal VideoClient(NiconicoContext context)
         {
             _context = context;
+            Ranking = new Ranking.VideoRankinguSubClient(context);
+
             _videoInfoSerializerOption = new JsonSerializerOptions()
             {
                 Converters =

@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Commands;
@@ -32,16 +33,13 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            if (parameter is IWatchHistory watchHistory)
+            if (parameter is IVideoContent watchHistory)
             {
                 _ = _watchHistoryManager.RemoveHistoryAsync(watchHistory);
             }
             else if (parameter is IList histories)
             {
-                foreach (var item in histories.Cast<IWatchHistory>().ToList())
-                {
-                    await _watchHistoryManager.RemoveHistoryAsync(item);
-                }
+                await _watchHistoryManager.RemoveHistoryAsync(histories.Cast<IVideoContent>().ToList());
             }
         }
     }

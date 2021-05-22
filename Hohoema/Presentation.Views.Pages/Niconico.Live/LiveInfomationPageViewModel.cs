@@ -524,7 +524,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
             try
             {
-                var programInfo = await NiconicoSession.LiveContext.Live.CasApi.GetLiveProgramAsync(liveId);
+                var programInfo = await NiconicoSession.ToolkitContext.Live.CasApi.GetLiveProgramAsync(liveId);
                 if (programInfo.Meta.Status == 200)
                 {
                     await RefreshLiveTagsAsync(programInfo.Data.Tags);

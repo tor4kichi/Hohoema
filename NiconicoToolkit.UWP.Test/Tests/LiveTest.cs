@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NiconicoToolkit.UWP.Test
+namespace NiconicoToolkit.UWP.Test.Tests
 {
     [TestClass]
     public sealed class LiveTest

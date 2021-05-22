@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Windows.Storage;
 
-namespace NiconicoToolkit.UWP.Test
+namespace NiconicoToolkit.UWP.Test.Tests
 {
     public class AccountInfo
     {
@@ -41,6 +41,7 @@ namespace NiconicoToolkit.UWP.Test
         public static async Task<(NiconicoContext niconicoContext, NiconicoSessionStatus status, NiconicoAccountAuthority authority, uint userId)> CreateNiconicoContextAndLogInWithTestAccountAsync()
         {
             NiconicoContext niconicoContext = new NiconicoContext("HohoemaTest");
+            niconicoContext.SetupDefaultRequestHeaders();
             var accountInfo = await AccountLoadingAsync();
             var res = await niconicoContext.Account.SignInAsync(new MailAndPasswordAuthToken(accountInfo.Mail, accountInfo.Password));
             return (niconicoContext:  niconicoContext, res.status, res.authority, res.userId);

@@ -1,8 +1,7 @@
-﻿using Mntone.Nico2.Videos.Histories;
-using Mntone.Nico2.Videos.Recommend;
-using Mntone.Nico2.Videos.RemoveHistory;
-using Hohoema.Models.Infrastructure;
+﻿using Hohoema.Models.Infrastructure;
+using NiconicoToolkit.Activity.VideoWatchHistory;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,44 +20,44 @@ namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
             _videoPlayedHistoryRepository = videoPlayedHistoryRepository;
         }
 
-        public async Task<HistoriesResponse> GetHistory()
+        public async Task<VideoWatchHistory.Item[]> GetHistoryAsync(int page = 0, int pageSize = 100)
         {
             using var _ = await NiconicoSession.SigninLock.LockAsync();
             
             if (!NiconicoSession.IsLoggedIn)
             {
-                return null;
+                throw new HohoemaExpception("Failed get login user video watch history. Require LogIn.");
             }
 
-            var res = await ContextActionWithPageAccessWaitAsync(async context =>
-            {
-                return await context.Video.GetHistoriesAsync();
-            });
+            var res = await NiconicoSession.ToolkitContext.Activity.VideoWachHistory.GetWatchHistoryAsync(0, 100);
 
-            foreach (var history in res?.Histories ?? Enumerable.Empty<History>())
+            if (res.Meta.IsOK is false) { throw new HohoemaExpception("Failed get login user video watch history"); }
+
+            foreach (var history in res.Data.Items)
             {
-                _videoPlayedHistoryRepository.VideoPlayed(history.Id, TimeSpan.MaxValue);
+                _videoPlayedHistoryRepository.VideoPlayedIfNotWatched(history.WatchId, TimeSpan.MaxValue);
             }
 
-            return res;
+            return res.Data.Items;
         }
 
 
-        public Task<RemoveHistoryResponse> RemoveAllHistoriesAsync(string token)
+        public async Task<bool> RemoveAllHistoriesAsync()
         {
-            return ContextActionAsync(async context =>
-            {
-                return await context.Video.RemoveAllHistoriesAsync(token);
-            });
-            
+            var res = await NiconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteAllWatchHistoriesAsync();
+            return res.IsOK;
         }
 
-        public Task<RemoveHistoryResponse> RemoveHistoryAsync(string token, string videoId)
+        public async Task<bool> RemoveHistoryAsync(string videoId)
         {
-            return ContextActionAsync(async context =>
-            {
-                return await context.Video.RemoveHistoryAsync(token, videoId);
-            });
+            var res = await NiconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteWatchHistoriesAsync(videoId);
+            return res.IsOK;
+        }
+
+        public async Task<bool> RemoveHistoryAsync(IEnumerable<string> videoIdList)
+        {
+            var res = await NiconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteWatchHistoriesAsync(videoIdList);
+            return res.IsOK;
         }
     }
 

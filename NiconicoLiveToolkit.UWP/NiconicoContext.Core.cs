@@ -15,6 +15,7 @@ using Windows.Storage.Streams;
 using System.IO;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
+using NiconicoToolkit.Activity;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -42,18 +43,32 @@ namespace NiconicoToolkit
             Account = new AccountClient(this);
             User = new UserClient(this);
             Video = new VideoClient(this);
+            Activity = new ActivityClient(this);
+        }
+
+
+        public void SetupDefaultRequestHeaders()
+        {
+            HttpClient.DefaultRequestHeaders.Add("Referer", "https://www.nicovideo.jp/");
+            HttpClient.DefaultRequestHeaders.Add("X-Frontend-Id", "6");
+            HttpClient.DefaultRequestHeaders.Add("X-Frontend-Version", "0");
+            HttpClient.DefaultRequestHeaders.Add("X-Niconico-Language", "ja-jp");
+
+            HttpClient.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
+            HttpClient.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
+            HttpClient.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-site");
+            HttpClient.DefaultRequestHeaders.Add("X-Request-With", "https://www.nicovideo.jp");
+
+            HttpClient.DefaultRequestHeaders.Add("Origin", "https://www.nicovideo.jp");
         }
 
         public HttpClient HttpClient { get; }
 
-
         public AccountClient Account { get; }
-
         public LiveClient Live { get; }
-
         public UserClient User { get; }
-
         public VideoClient Video { get; }
+        public ActivityClient Activity { get; }
 
         #region 
 
@@ -123,6 +138,7 @@ namespace NiconicoToolkit
             var content = new HttpFormUrlEncodedContent(form);
             return HttpClient.PostAsync(path, content).AsTask(ct);
         }
+
 #else
         internal Task<HttpResponseMessage> PostAsync(string path, HttpContent httpContent, CancellationToken ct = default)
         {
@@ -192,7 +208,19 @@ namespace NiconicoToolkit
         }
 #endif
 
-#endregion
+
+        internal Task<T> DeleteJsonAsAsync<T>(string path, JsonSerializerOptions options = null, CancellationToken ct = default)
+        {
+            return DeleteJsonAsAsync<T>(new Uri(path), options, ct);
+        }
+
+        internal async Task<T> DeleteJsonAsAsync<T>(Uri path, JsonSerializerOptions options = null, CancellationToken ct = default)
+        {
+            var res = await SendAsync(HttpMethod.Delete, path, ct: ct);
+            return await res.Content.ReadAsAsync<T>(options, ct);
+        }
+
+        #endregion
     }
 
     internal static class HttpContentExtensions

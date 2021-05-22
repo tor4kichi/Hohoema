@@ -9,7 +9,7 @@ using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.ViewModels;
 using LiteDB;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
-using Mntone.Nico2.Videos.Ranking;
+using NiconicoToolkit.Video.Ranking;
 using NiconicoToolkit.Live.WatchSession;
 using System;
 using System.Collections.Generic;

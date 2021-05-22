@@ -31,7 +31,7 @@
         public UserNameProvider(NiconicoSession session, UserNameRepository userNameRepository)
             : base(session)
         {
-            _context = session.LiveContext;
+            _context = session.ToolkitContext;
             _userNameRepository = userNameRepository;
         }
 

@@ -54,7 +54,7 @@ namespace Hohoema.Models.Domain.Niconico.Search
         {
             return await ContextActionWithPageAccessWaitAsync(async context =>
             {
-                return await NiconicoSession.LiveContext.Live.Search.GetLiveSearchPageScrapingResultAsync(query, CancellationToken.None);
+                return await NiconicoSession.ToolkitContext.Live.Search.GetLiveSearchPageScrapingResultAsync(query, CancellationToken.None);
             });
             
         }

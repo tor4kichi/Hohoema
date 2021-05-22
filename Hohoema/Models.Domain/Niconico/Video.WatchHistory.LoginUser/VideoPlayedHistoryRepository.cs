@@ -37,6 +37,29 @@ namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
             return history;
         }
 
+        public VideoPlayHistoryEntry VideoPlayedIfNotWatched(string videoId, TimeSpan playedPosition)
+        {
+            var history = _collection.FindById(videoId);
+            if (history != null)
+            {
+                return history;
+            }
+            else
+            {
+                history = new VideoPlayHistoryEntry
+                {
+                    VideoId = videoId,
+                    PlayCount = 1,
+                    LastPlayed = DateTime.Now,
+                    LastPlayedPosition = playedPosition
+                };
+            }
+
+            _collection.Upsert(history);
+
+            return history;
+        }
+
         public VideoPlayHistoryEntry Get(string videoId)
         {
             return _collection.FindById(videoId);

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NiconicoToolkit.UWP.Test
+namespace NiconicoToolkit.UWP.Test.Tests
 {
     [TestClass]
     public sealed class UserTest

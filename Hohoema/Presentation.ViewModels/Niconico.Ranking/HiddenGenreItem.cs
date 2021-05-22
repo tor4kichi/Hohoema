@@ -1,4 +1,4 @@
-﻿using Mntone.Nico2.Videos.Ranking;
+﻿using NiconicoToolkit.Video.Ranking;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Ranking
 {

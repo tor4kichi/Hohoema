@@ -1,4 +1,4 @@
-﻿using Mntone.Nico2.Videos.Ranking;
+﻿using NiconicoToolkit.Video.Ranking;
 using Hohoema.Models.Helpers;
 using Prism.Mvvm;
 using System;

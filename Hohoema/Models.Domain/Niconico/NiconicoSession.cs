@@ -203,7 +203,7 @@ namespace Hohoema.Models.Domain.Niconico
                 {
                     if (_Context == null)
                     {
-                        _LiveContext = null;
+                        _Toolkitontext = null;
                     }
                 }
             }
@@ -211,11 +211,11 @@ namespace Hohoema.Models.Domain.Niconico
 
 
 
-        private NiconicoToolkit.NiconicoContext _LiveContext;
-        public NiconicoToolkit.NiconicoContext LiveContext
+        private NiconicoToolkit.NiconicoContext _Toolkitontext;
+        public NiconicoToolkit.NiconicoContext ToolkitContext
         {
-            get => _LiveContext ??= new NiconicoToolkit.NiconicoContext(Context.HttpClient);
-            private set { SetProperty(ref _LiveContext, value); }
+            get => _Toolkitontext ??= new NiconicoToolkit.NiconicoContext(Context.HttpClient);
+            private set { SetProperty(ref _Toolkitontext, value); }
         }
 
         public IScheduler Scheduler { get; }
@@ -520,7 +520,7 @@ namespace Hohoema.Models.Domain.Niconico
                 finally
                 {
                     Context = null;
-                    _LiveContext = null;
+                    _Toolkitontext = null;
                 }
             }
 

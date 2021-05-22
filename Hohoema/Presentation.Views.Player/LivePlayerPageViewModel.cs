@@ -175,7 +175,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         }
 
 
-        private NiconicoToolkit.NiconicoContext LiveContext => NiconicoSession.LiveContext;
+        private NiconicoToolkit.NiconicoContext LiveContext => NiconicoSession.ToolkitContext;
 
         private LiveWatchPageDataProp _PlayerProp;
         private Live2WatchSession _watchSession;

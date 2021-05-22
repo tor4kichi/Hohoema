@@ -142,6 +142,7 @@
     <Compile Include="Models.Domain\Application\FeatureFlags.cs" />
     <Compile Include="Models.Domain\Application\HohoemaAppServiceLevel.cs" />
     <Compile Include="Models.Domain\Application\ToastNotificationConstants.cs" />
+    <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\IWatchHistory.cs" />
     <Compile Include="Models.Infrastructure\HohoemaExpception.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\LoginUser\IFollowProvider.cs" />
     <Compile Include="Models.Domain\Pins\PinSettings.cs" />
@@ -182,7 +183,6 @@
     <Compile Include="Models.Domain\Niconico\Follow\FollowItemInfo.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\FollowItemType.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\IFollowable.cs" />
-    <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\IWatchHistory.cs" />
     <Compile Include="Models.Domain\Niconico\Live\LoginUser\LoginUserLiveReservationProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\LoginUserHistoryProvider.cs" />
     <Compile Include="Models.Domain\Niconico\NicoRepo\LoginUser\LoginUserNicoRepoProvider.cs" />

@@ -126,6 +126,7 @@
     <Compile Include="Account\MailAndPasswordAuthToken.cs" />
     <Compile Include="Account\NiconicoAccountAuthority.cs" />
     <Compile Include="Account\NiconicoSessionStatus.cs" />
+    <Compile Include="Activity\ActivityClient.cs" />
     <Compile Include="DeserializationExtensions.cs" />
     <Compile Include="JsonConveterExtensions.cs" />
     <Compile Include="JsonDeserializeHelper.cs" />
@@ -162,6 +163,7 @@
     <Compile Include="Live\WatchSession\ToServerMessage\WatchSessionToServerMessageJsonConverter.cs" />
     <Compile Include="Live\WatchSession\VideoPositionExtensions.cs" />
     <Compile Include="Live\WatchSession\WatchSessionTimer.cs" />
+    <Compile Include="Activity\VideoWatchHistory\VideoWatchHisotrySubClient.cs" />
     <Compile Include="NameValueCollectionExtensions.cs" />
     <Compile Include="NiconicoContext.Core.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -170,9 +172,16 @@
     <Compile Include="System.Text.Json.Serialization\SingleOrArrayConverter.cs" />
     <Compile Include="System.Text.Json.Serialization\VideoPositionToTimeSpanConverter.cs" />
     <Compile Include="User\UserClient.cs" />
+    <Compile Include="EnumDescriptionExtensions.cs" />
+    <Compile Include="Video\Ranking\RankingGenre.cs" />
+    <Compile Include="Video\Ranking\RankingGenrePickedTag.cs" />
+    <Compile Include="Video\Ranking\RankingTerm.cs" />
+    <Compile Include="Video\RssVideoResponse.cs" />
+    <Compile Include="Video\Ranking\VideoRankingConstants.cs" />
     <Compile Include="Video\VideoClient.cs" />
     <Compile Include="Video\VideoPermission.cs" />
     <Compile Include="Video\VideoProviderType.cs" />
+    <Compile Include="Video\Ranking\VideoRankinguSubClient.cs" />
     <EmbeddedResource Include="Properties\NiconicoLiveToolkit.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +214,8 @@
     <Folder Include="Account\Follow\" />
     <Folder Include="Account\NicoRepo\" />
     <Folder Include="Account\User\" />
+    <Folder Include="Activity\LikesHistory\" />
+    <Folder Include="Activity\LiveWatchHistory\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

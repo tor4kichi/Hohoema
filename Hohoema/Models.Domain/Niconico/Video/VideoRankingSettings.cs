@@ -1,16 +1,13 @@
-﻿using Mntone.Nico2.Videos.Ranking;
-using Hohoema.Models.Helpers;
-using Prism.Mvvm;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.Collections;
 using Hohoema.Models.Infrastructure;
 using Uno.Extensions;
+using NiconicoToolkit.Video.Ranking;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {

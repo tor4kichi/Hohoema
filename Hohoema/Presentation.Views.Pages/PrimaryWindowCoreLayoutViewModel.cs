@@ -683,7 +683,7 @@ namespace Hohoema.Presentation.ViewModels
         {
             try
             {
-                var unread = await _niconicoSession.LiveContext.Live.LiveNotify.GetUnreadLiveNotifyAsync();
+                var unread = await _niconicoSession.ToolkitContext.Live.LiveNotify.GetUnreadLiveNotifyAsync();
                 IsUnread = unread.Data.IsUnread;
                 NotifyCount = unread.Data.Count;
             }
@@ -713,7 +713,7 @@ namespace Hohoema.Presentation.ViewModels
 
             _nextRefreshAvairableAt = DateTime.Now + TimeSpan.FromMinutes(1);
 
-            var res = await _niconicoSession.LiveContext.Live.LiveNotify.GetLiveNotifyAsync();
+            var res = await _niconicoSession.ToolkitContext.Live.LiveNotify.GetLiveNotifyAsync();
             Items.Clear();
             foreach (var data in res.Data.NotifyboxContent)
             {

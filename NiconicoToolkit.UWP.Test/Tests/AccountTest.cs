@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Windows.Storage;
 
-namespace NiconicoToolkit.UWP.Test
+namespace NiconicoToolkit.UWP.Test.Tests
 {
     
 
