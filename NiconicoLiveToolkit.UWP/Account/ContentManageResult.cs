@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NiconicoLiveToolkit.Account
+namespace NiconicoToolkit.Account
 {
     public enum ContentManageResult
     {

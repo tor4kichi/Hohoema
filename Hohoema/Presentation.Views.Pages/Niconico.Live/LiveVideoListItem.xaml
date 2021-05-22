@@ -11,7 +11,7 @@
              xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI.Controls"
              xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
              xmlns:icon="using:MahApps.Metro.IconPacks" 
-             xmlns:live="using:NiconicoLiveToolkit.Live"
+             xmlns:live="using:NiconicoToolkit.Live"
              mc:Ignorable="d"
              d:DesignHeight="60"
              d:DesignWidth="400"

@@ -1461,9 +1461,9 @@
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NiconicoLiveToolkit.UWP\NiconicoLiveToolkit.UWP.csproj">
+    <ProjectReference Include="..\NiconicoLiveToolkit.UWP\NiconicoToolkit.UWP.csproj">
       <Project>{311b8388-57d0-4724-ad17-be76a2abf0a9}</Project>
-      <Name>NiconicoLiveToolkit.UWP</Name>
+      <Name>NiconicoToolkit.UWP</Name>
     </ProjectReference>
     <ProjectReference Include="..\OpenNiconico2\Mntone.Nico2.UWP_Latest\Mntone.Nico2.UWP_Latest.csproj">
       <Project>{cc63ef1d-ecd6-478d-8852-5c45fbbf697a}</Project>

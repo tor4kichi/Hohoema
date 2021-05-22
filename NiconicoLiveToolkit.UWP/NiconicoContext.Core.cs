@@ -7,14 +7,14 @@ using System.Threading;
 using System.Text.Json;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Buffers;
-using NiconicoLiveToolkit.Live;
-using NiconicoLiveToolkit.Account;
+using NiconicoToolkit.Live;
+using NiconicoToolkit.Account;
 using System.Text.Json.Serialization;
-using NiconicoLiveToolkit.Live.Search;
+using NiconicoToolkit.Live.Search;
 using Windows.Storage.Streams;
 using System.IO;
-using NiconicoLiveToolkit.User;
-using NiconicoLiveToolkit.Video;
+using NiconicoToolkit.User;
+using NiconicoToolkit.Video;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -23,17 +23,21 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 #endif
 
-namespace NiconicoLiveToolkit
+namespace NiconicoToolkit
 {
     public sealed partial class NiconicoContext 
     {
+        public NiconicoContext(string yourSiteUrl)
+            : this(new HttpClient())
+        {
+            HttpClient.DefaultRequestHeaders.UserAgent.TryParseAdd($"{nameof(NiconicoToolkit)}/1.0 (+{yourSiteUrl})");
+        }
 
         public NiconicoContext(
             HttpClient httpClient
             )
         {
             HttpClient = httpClient;
-            HttpClient.DefaultRequestHeaders.UserAgent.TryParseAdd($"{nameof(NiconicoLiveToolkit)}/1.0 (+https://github.com/tor4kichi/NiconicoLiveToolkit)");
             Live = new LiveClient(this);
             Account = new AccountClient(this);
             User = new UserClient(this);

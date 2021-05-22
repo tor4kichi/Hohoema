@@ -7,7 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace NiconicoLiveToolkit.Live.Notify
+namespace NiconicoToolkit.Live.Notify
 {
     using J = JsonPropertyNameAttribute;
 

@@ -16,7 +16,7 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Searches.Video;
-using NiconicoLiveToolkit.Video;
+using NiconicoToolkit.Video;
 using Prism.Commands;
 using Prism.Unity;
 using Reactive.Bindings.Extensions;

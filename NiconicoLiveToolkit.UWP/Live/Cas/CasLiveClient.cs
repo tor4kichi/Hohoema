@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace NiconicoLiveToolkit.Live.Cas
+namespace NiconicoToolkit.Live.Cas
 {
     public sealed class CasLiveClient
     {

@@ -2,7 +2,7 @@
 using Mntone.Nico2;
 using Mntone.Nico2.Embed.Ichiba;
 using Mntone.Nico2.Live.Recommend;
-using NiconicoLiveToolkit.Live;
+using NiconicoToolkit.Live;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico;
@@ -48,9 +48,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
     public class LiveData : ILiveContent
     {
-        private readonly NiconicoLiveToolkit.Live.Cas.Data _liveProgram;
+        private readonly NiconicoToolkit.Live.Cas.Data _liveProgram;
 
-        public LiveData(NiconicoLiveToolkit.Live.Cas.Data liveProgram, string providerName)
+        public LiveData(NiconicoToolkit.Live.Cas.Data liveProgram, string providerName)
         {
             _liveProgram = liveProgram;
         }
@@ -264,8 +264,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
         public IReadOnlyReactiveProperty<bool> IsLiveIdAvairable { get; }
 
-        private NiconicoLiveToolkit.Live.Cas.Data _LiveProgram;
-        public NiconicoLiveToolkit.Live.Cas.Data LiveProgram
+        private NiconicoToolkit.Live.Cas.Data _LiveProgram;
+        public NiconicoToolkit.Live.Cas.Data LiveProgram
         {
             get { return _LiveProgram; }
             private set
@@ -651,17 +651,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
 
         public ReactiveProperty<bool> IsLiveInfoLoaded { get; } = new ReactiveProperty<bool>(false);
-        private async Task RefreshLiveTagsAsync(IList<NiconicoLiveToolkit.Live.Cas.Tag> liveTags)
+        private async Task RefreshLiveTagsAsync(IList<NiconicoToolkit.Live.Cas.Tag> liveTags)
         {
             _LiveTags.Clear();
 
-            Func<NiconicoLiveToolkit.Live.Cas.Tag, LiveTagType, LiveTagViewModel> ConvertToLiveTagVM =
+            Func<NiconicoToolkit.Live.Cas.Tag, LiveTagType, LiveTagViewModel> ConvertToLiveTagVM =
                 (x, type) => new LiveTagViewModel() { Tag = x.Text, Type = type };
 
             var tags = new[] {
-                    liveTags.Where(x => x.Type == NiconicoLiveToolkit.Live.Cas.TagType.Category).Select(x => ConvertToLiveTagVM(x, LiveTagType.Category)),
+                    liveTags.Where(x => x.Type == NiconicoToolkit.Live.Cas.TagType.Category).Select(x => ConvertToLiveTagVM(x, LiveTagType.Category)),
                     liveTags.Where(x => x.IsLocked).Select(x => ConvertToLiveTagVM(x, LiveTagType.Locked)),
-                    liveTags.Where(x => x.Type == NiconicoLiveToolkit.Live.Cas.TagType.Normal && !x.IsLocked).Select(x => ConvertToLiveTagVM(x, LiveTagType.Free)),
+                    liveTags.Where(x => x.Type == NiconicoToolkit.Live.Cas.TagType.Normal && !x.IsLocked).Select(x => ConvertToLiveTagVM(x, LiveTagType.Free)),
                 }
             .SelectMany(x => x ?? Enumerable.Empty<LiveTagViewModel>());
 

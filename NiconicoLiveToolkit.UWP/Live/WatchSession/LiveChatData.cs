@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NiconicoLiveToolkit.Live.WatchSession
+namespace NiconicoToolkit.Live.WatchSession
 {
     public sealed class LiveChatData
     {

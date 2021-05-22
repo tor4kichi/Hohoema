@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace NiconicoLiveToolkit.Video
+namespace NiconicoToolkit.Video
 {
     public sealed class VideoClient
     {

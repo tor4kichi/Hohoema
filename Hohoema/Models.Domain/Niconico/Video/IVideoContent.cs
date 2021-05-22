@@ -1,5 +1,5 @@
 ﻿using Hohoema.Presentation.Services;
-using NiconicoLiveToolkit.Video;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;

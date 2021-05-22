@@ -1,7 +1,7 @@
-﻿using NiconicoLiveToolkit.Live.Notify;
-using NiconicoLiveToolkit.Live.Search;
-using NiconicoLiveToolkit.Live.WatchPageProp;
-using NiconicoLiveToolkit.Live.WatchSession;
+﻿using NiconicoToolkit.Live.Notify;
+using NiconicoToolkit.Live.Search;
+using NiconicoToolkit.Live.WatchPageProp;
+using NiconicoToolkit.Live.WatchSession;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +13,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NiconicoLiveToolkit.Live
+namespace NiconicoToolkit.Live
 {
     public sealed class LiveClient
     {

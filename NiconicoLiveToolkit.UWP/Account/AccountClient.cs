@@ -15,7 +15,7 @@ using System.Net.Http;
 #endif
 
 
-namespace NiconicoLiveToolkit.Account
+namespace NiconicoToolkit.Account
 {
     public sealed class NiconicoTwoFactorAuthEventArgs
     {
@@ -107,10 +107,9 @@ namespace NiconicoLiveToolkit.Account
                 if (signInStatus == NiconicoSessionStatus.Success)
                 {
                     await SignOutAsync();
+                    await Task.Delay(100);
                 }
             }
-
-            await Task.Delay(1000);
 
             var loginResultResponse = await _context.PostAsync(LogInApiUrl, dict, ct);
 

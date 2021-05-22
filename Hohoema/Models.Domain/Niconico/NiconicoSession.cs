@@ -211,10 +211,10 @@ namespace Hohoema.Models.Domain.Niconico
 
 
 
-        private NiconicoLiveToolkit.NiconicoContext _LiveContext;
-        public NiconicoLiveToolkit.NiconicoContext LiveContext
+        private NiconicoToolkit.NiconicoContext _LiveContext;
+        public NiconicoToolkit.NiconicoContext LiveContext
         {
-            get => _LiveContext ??= new NiconicoLiveToolkit.NiconicoContext(Context.HttpClient);
+            get => _LiveContext ??= new NiconicoToolkit.NiconicoContext(Context.HttpClient);
             private set { SetProperty(ref _LiveContext, value); }
         }
 

@@ -48,8 +48,8 @@ namespace Hohoema.Models.Domain.Niconico.Search
             
         }
 
-        public async Task<NiconicoLiveToolkit.Live.Search.LiveSearchPageScrapingResult> LiveSearchAsync(
-            NiconicoLiveToolkit.Live.Search.LiveSearchOptionsQuery query
+        public async Task<NiconicoToolkit.Live.Search.LiveSearchPageScrapingResult> LiveSearchAsync(
+            NiconicoToolkit.Live.Search.LiveSearchOptionsQuery query
             )
         {
             return await ContextActionWithPageAccessWaitAsync(async context =>

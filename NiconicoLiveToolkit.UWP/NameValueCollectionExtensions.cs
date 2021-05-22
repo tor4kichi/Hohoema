@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.Text;
 using System.Web;
 
-namespace NiconicoLiveToolkit
+namespace NiconicoToolkit
 {
     internal static class NameValueCollectionExtensions
     {

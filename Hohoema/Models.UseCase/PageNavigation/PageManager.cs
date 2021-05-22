@@ -1,5 +1,5 @@
 ﻿using I18NPortable;
-using NiconicoLiveToolkit.Live;
+using NiconicoToolkit.Live;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Channel;

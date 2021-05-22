@@ -1,7 +1,7 @@
 ﻿
-using NiconicoLiveToolkit.Live.WatchSession;
+using NiconicoToolkit.Live.WatchSession;
 
-namespace NiconicoLiveToolkit.Live.Events
+namespace NiconicoToolkit.Live.Events
 {
     public struct CommentReceivedEventArgs
     {

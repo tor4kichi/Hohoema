@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace NiconicoLiveToolkit.User
+namespace NiconicoToolkit.User
 {
     public sealed class UserClient
     {

@@ -1,4 +1,4 @@
-﻿using NiconicoLiveToolkit.Live.WatchSession;
+﻿using NiconicoToolkit.Live.WatchSession;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Player.Video.Comment;

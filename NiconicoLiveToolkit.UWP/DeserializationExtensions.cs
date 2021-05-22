@@ -6,7 +6,7 @@ using System.Text;
 using Windows.Networking;
 #endif
 
-namespace NiconicoLiveToolkit
+namespace NiconicoToolkit
 {
     internal static class DeserializationExtensions
     {

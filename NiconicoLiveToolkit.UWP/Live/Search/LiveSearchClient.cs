@@ -16,7 +16,7 @@ using System.IO;
 using AngleSharp.Html.Dom;
 using AngleSharp.Dom;
 
-namespace NiconicoLiveToolkit.Live.Search
+namespace NiconicoToolkit.Live.Search
 {
 	/// <summary>
 	/// niconicoコンテンツ検索APIの生放送検索

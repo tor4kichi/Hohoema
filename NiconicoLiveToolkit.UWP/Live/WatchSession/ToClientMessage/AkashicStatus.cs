@@ -1,4 +1,4 @@
-﻿namespace NiconicoLiveToolkit.Live.WatchSession.ToClientMessage
+﻿namespace NiconicoToolkit.Live.WatchSession.ToClientMessage
 {
     public enum AkashicStatus
     {

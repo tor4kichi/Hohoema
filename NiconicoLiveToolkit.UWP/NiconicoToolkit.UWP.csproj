@@ -7,8 +7,8 @@
     <ProjectGuid>{311B8388-57D0-4724-AD17-BE76A2ABF0A9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NiconicoLiveToolkit</RootNamespace>
-    <AssemblyName>NiconicoLiveToolkit.UWP</AssemblyName>
+    <RootNamespace>NiconicoToolkit</RootNamespace>
+    <AssemblyName>NiconicoToolkit.UWP</AssemblyName>
     <DefaultLanguage>ja-JP</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>

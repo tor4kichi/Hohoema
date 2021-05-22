@@ -1,6 +1,6 @@
 ﻿using LiteDB;
 using Mntone.Nico2;
-using NiconicoLiveToolkit.Video;
+using NiconicoToolkit.Video;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;

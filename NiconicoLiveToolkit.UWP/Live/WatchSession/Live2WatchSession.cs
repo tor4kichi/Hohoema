@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 using NeoSmart.AsyncLock;
 using WebSocket4Net;
 using WebSocket = WebSocket4Net.WebSocket;
-using NiconicoLiveToolkit.Live.WatchSession;
+using NiconicoToolkit.Live.WatchSession;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
 using System.Text.Encodings.Web;
-using NiconicoLiveToolkit.Live.WatchSession.ToClientMessage;
+using NiconicoToolkit.Live.WatchSession.ToClientMessage;
 
-namespace NiconicoLiveToolkit.Live.WatchSession
+namespace NiconicoToolkit.Live.WatchSession
 {
     public delegate void LiveStreamRecieveErrorHandler(ErrorMessageType errorMessageType);
     public delegate void LiveStreamRecieveServerTimeHandler(DateTime serverTime);

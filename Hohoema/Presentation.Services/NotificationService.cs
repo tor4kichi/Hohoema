@@ -11,7 +11,7 @@ using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Notifications;
-using NiconicoLiveToolkit.Live;
+using NiconicoToolkit.Live;
 using Prism.Commands;
 using System;
 using System.Linq;

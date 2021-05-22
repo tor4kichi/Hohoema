@@ -1,4 +1,4 @@
-﻿namespace NiconicoLiveToolkit.Video
+﻿namespace NiconicoToolkit.Video
 {
     public enum VideoPermission
     { 

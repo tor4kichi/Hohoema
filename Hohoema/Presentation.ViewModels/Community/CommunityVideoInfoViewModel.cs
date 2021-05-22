@@ -3,7 +3,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using System;
 using System.Linq;
 using System.Reactive.Linq;
-using NiconicoLiveToolkit.Video;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Presentation.ViewModels.Community
 {

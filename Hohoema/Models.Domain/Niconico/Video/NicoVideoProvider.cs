@@ -46,7 +46,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         }
 
 
-        NiconicoLiveToolkit.Video.VideoClient VideoClient => NiconicoSession.LiveContext.Video;
+        NiconicoToolkit.Video.VideoClient VideoClient => NiconicoSession.LiveContext.Video;
 
 
         static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(5);
@@ -266,8 +266,8 @@ namespace Hohoema.Models.Domain.Niconico.Video
                 info.Permission = video.VideoPermission;
 #if DEBUG
                 if (info.Permission is
-                    NiconicoLiveToolkit.Video.VideoPermission.Unknown or
-                    NiconicoLiveToolkit.Video.VideoPermission.VideoPermission_3
+                    NiconicoToolkit.Video.VideoPermission.Unknown or
+                    NiconicoToolkit.Video.VideoPermission.VideoPermission_3
                     )
                 {
                     if (Debugger.IsAttached)

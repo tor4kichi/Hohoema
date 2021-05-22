@@ -23,7 +23,7 @@
       xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI" 
       xmlns:playerService="using:Hohoema.Models.UseCase.Player" 
       xmlns:models="using:Hohoema.Models.Domain.Application" 
-      xmlns:liveToolkitWatchSession="using:NiconicoLiveToolkit.Live.WatchSession" 
+      xmlns:liveToolkitWatchSession="using:NiconicoToolkit.Live.WatchSession" 
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       xmlns:myExt="using:Hohoema.Presentation.Views.Extensions"
       NavigationCacheMode="Enabled" 

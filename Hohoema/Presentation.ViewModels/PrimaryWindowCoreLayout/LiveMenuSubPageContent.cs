@@ -1,5 +1,5 @@
 ﻿using I18NPortable;
-using NiconicoLiveToolkit.Live;
+using NiconicoToolkit.Live;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

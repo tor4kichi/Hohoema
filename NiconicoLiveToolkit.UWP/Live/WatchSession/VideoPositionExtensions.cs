@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NiconicoLiveToolkit.Live.WatchSession
+namespace NiconicoToolkit.Live.WatchSession
 {
     // Note: 1 vpos = 10 milliseconds
 

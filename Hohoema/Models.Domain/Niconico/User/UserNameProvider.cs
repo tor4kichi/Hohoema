@@ -1,7 +1,7 @@
 ﻿namespace Hohoema.Models.Domain.Niconico.User
 {
     using LiteDB;
-    using NiconicoLiveToolkit;
+    using NiconicoToolkit;
     using Hohoema.Models.Infrastructure;
     using System;
     using System.Collections.Generic;

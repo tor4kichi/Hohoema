@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace NiconicoLiveToolkit.Live.Cas
+namespace NiconicoToolkit.Live.Cas
 {
 
     public partial class LiveProgramResponse

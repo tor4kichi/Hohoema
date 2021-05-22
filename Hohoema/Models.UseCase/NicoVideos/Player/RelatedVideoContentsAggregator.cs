@@ -195,7 +195,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     if (nextVideo != null)
                     {
                         var videoVM = new VideoListItemControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length);
-                        videoVM.Permission = nextVideo.IsRequirePayment ? NiconicoLiveToolkit.Video.VideoPermission.RequirePay : NiconicoLiveToolkit.Video.VideoPermission.None;
+                        videoVM.Permission = nextVideo.IsRequirePayment ? NiconicoToolkit.Video.VideoPermission.RequirePay : NiconicoToolkit.Video.VideoPermission.None;
                         videoVM.PostedAt = nextVideo.PostedAt;
                         videoVM.ViewCount = nextVideo.ViewCount;
                         videoVM.CommentCount = nextVideo.CommentCount;

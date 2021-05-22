@@ -10,7 +10,7 @@ using Hohoema.Presentation.ViewModels;
 using LiteDB;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using Mntone.Nico2.Videos.Ranking;
-using NiconicoLiveToolkit.Live.WatchSession;
+using NiconicoToolkit.Live.WatchSession;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
