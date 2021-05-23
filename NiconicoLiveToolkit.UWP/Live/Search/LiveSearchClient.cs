@@ -137,6 +137,8 @@ namespace NiconicoToolkit.Live.Search
             string urlWithQuery = sb.ToString();
 			try
 			{
+				await _context.WaitPageAccess();
+
 				var responseMessage = await _context.GetAsync(urlWithQuery, ct: cancellationToken);
 				using (var inputStream = await responseMessage.Content.ReadAsInputStreamAsync())
                 {

@@ -48,6 +48,18 @@ namespace NiconicoToolkit
             Search = new SearchClient(this);
         }
 
+        TimeSpan _minPageAccessInterval = TimeSpan.FromSeconds(1);
+        DateTime _prevPageAccessTime;
+        internal async Task WaitPageAccess()
+        {
+            var elapsedTime = DateTime.Now - _prevPageAccessTime;
+            if (elapsedTime < _minPageAccessInterval)
+            {
+                await Task.Delay(_minPageAccessInterval - elapsedTime);
+            }
+
+            _prevPageAccessTime = DateTime.Now + TimeSpan.FromSeconds(1);
+        }
 
         public void SetupDefaultRequestHeaders()
         {

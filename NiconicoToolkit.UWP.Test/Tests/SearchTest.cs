@@ -34,16 +34,28 @@ namespace NiconicoToolkit.UWP.Test.Tests
 
             if (res.Count > 0)
             {
-                var sampleItem = res.List[0];
+                foreach (var sampleItem in res.List.Take(5))
+                {
+                    Assert.IsNotNull(sampleItem.Title);
 
-                Assert.IsNotNull(sampleItem.Title);
-                Assert.AreNotEqual(sampleItem.Length, TimeSpan.Zero);
-                Assert.AreNotEqual(sampleItem.FirstRetrieve, default(DateTime));
+                    if (!sampleItem.IsAdItem)
+                    {
+                        Assert.AreNotEqual(sampleItem.Length, TimeSpan.Zero);
+                        Assert.AreNotEqual(sampleItem.FirstRetrieve, default(DateTime));
+                        Assert.IsNotNull(sampleItem.ThumbnailUrl);
+                        Assert.AreNotEqual(sampleItem.ViewCount, 0);
+                    }
+                }
+
+                foreach (var tag in res.RelatedTags.Take(3))
+                {
+                    Assert.IsTrue(!string.IsNullOrWhiteSpace(tag));
+                }
             }
         }
 
         [TestMethod]
-        [DataRow("モンハン")]
+        [DataRow("アニメ")]
         public async Task VideoTagSearchAsync(string keyword)
         {
             var res = await _searchClient.Video.CreateQueryBuilder()
@@ -53,11 +65,23 @@ namespace NiconicoToolkit.UWP.Test.Tests
 
             if (res.Count > 0)
             {
-                var sampleItem = res.List[0];
+                foreach (var sampleItem in res.List.Take(5))
+                {
+                    Assert.IsNotNull(sampleItem.Title);
 
-                Assert.IsNotNull(sampleItem.Title);
-                Assert.AreNotEqual(sampleItem.Length, TimeSpan.Zero);
-                Assert.AreNotEqual(sampleItem.FirstRetrieve, default(DateTime));
+                    if (!sampleItem.IsAdItem)
+                    {
+                        Assert.AreNotEqual(sampleItem.Length, TimeSpan.Zero);
+                        Assert.AreNotEqual(sampleItem.FirstRetrieve, default(DateTime));
+                        Assert.IsNotNull(sampleItem.ThumbnailUrl);
+                        Assert.AreNotEqual(sampleItem.ViewCount, 0);
+                    }
+                }
+
+                foreach (var tag in res.RelatedTags.Take(3))
+                {
+                    Assert.IsTrue(!string.IsNullOrWhiteSpace(tag));
+                }
             }
         }
     }

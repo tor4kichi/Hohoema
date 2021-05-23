@@ -1,7 +1,6 @@
 ﻿using AngleSharp.Html.Parser;
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
@@ -41,14 +40,16 @@ namespace NiconicoToolkit.Search.Video
 		public const int MaxPageCount = 50;
 		public const int OnePageItemsCount = 32;
 
-		public const string KeywordSearchApi = "http://ext.nicovideo.jp/api/search/search/";
-		public const string TagSearchApi = "http://ext.nicovideo.jp/api/search/tag/";
+		public const string VideoSearchPageUrl = "https://www.nicovideo.jp/search/";
+		public const string TagSearchPageUrl = "https://www.nicovideo.jp/tag/";
+
 
 
 		public VideoSearchQueryBuilder CreateQueryBuilder()
 		{
 			return new VideoSearchQueryBuilder(this);
 		}
+
 
 		internal Task<SearchResponse> VideoSearchAsync(
 			string keyword, 
@@ -85,12 +86,12 @@ namespace NiconicoToolkit.Search.Video
 			if (genre is not null)
 				query.Add("genre", genre.Value.GetDescription());
 
-			var url = new StringBuilder(!isTagSearch ? KeywordSearchApi : TagSearchApi)
+			var url = new StringBuilder(!isTagSearch ? VideoSearchPageUrl : TagSearchPageUrl)
 				.Append(System.Net.WebUtility.UrlEncode(keyword))
 				.AppendQueryString(query)
 				.ToString();
 
-			return _Search_Internal(url, ct);
+			return _Search_Internal(url, isTagSearch, ct);
 		}
 
 		internal Task<SearchResponse> VideoSearchAsync(
@@ -133,36 +134,30 @@ namespace NiconicoToolkit.Search.Video
 			if (genre is not null)
 				query.Add("genre", genre.Value.GetDescription());
 
-			var url = new StringBuilder(!isTagSearch ? KeywordSearchApi : TagSearchApi)
+			var url = new StringBuilder(!isTagSearch ? VideoSearchPageUrl : TagSearchPageUrl)
 				.Append(System.Net.WebUtility.UrlEncode(keyword))
 				.AppendQueryString(query)
 				.ToString();
 
-			return _Search_Internal(url, ct);
+			return _Search_Internal(url, isTagSearch, ct);
 		}
 
-		private async Task<SearchResponse> _Search_Internal(string urlWithQuery, CancellationToken ct)
+		private async Task<SearchResponse> _Search_Internal(string urlWithQuery, bool isTagSearch, CancellationToken ct)
 		{
+			await _context.WaitPageAccess();
+
 			var res = await _context.GetAsync(urlWithQuery);
-			if (!res.IsSuccessStatusCode) { return new SearchResponse() { Status = "failed" }; }
+			if (!res.IsSuccessStatusCode) { return new SearchResponse() { StatusCode = (uint)res.StatusCode }; }
 
 			using (var stream = await res.Content.ReadAsInputStreamAsync())
 			{
 				var context = AngleSharp.BrowsingContext.New();
 				var document = await context.GetService<IHtmlParser>().ParseDocumentAsync(stream.AsStreamForRead(), ct);
 
-				throw new NotImplementedException();
+				return new SearchResponse(document, isTagSearch) { StatusCode = (uint)res.StatusCode };
 			}
 		}
 	}
-
-	public enum Range
-    {
-		In1Hoour = 4,
-		In24Hour = 1,
-		In1Week = 2,
-		InMonth = 3,
-    }
 
 	public sealed class VideoSearchQueryBuilder
     {
@@ -193,6 +188,16 @@ namespace NiconicoToolkit.Search.Video
 				? _videoSearchSubClient.VideoSearchAsync(keyword, isTagSearch: true, _pageCount, _sort, _order, _rangeDatePair, _genre, ct)
 				: _videoSearchSubClient.VideoSearchAsync(keyword, isTagSearch: true, _pageCount, _sort, _order, _range, _genre, ct)
 				;
+		}
+
+		public void Clear()
+        {
+			_pageCount = null;
+			_sort = null;
+			_order = null;
+			_range = null;
+			_rangeDatePair = null;
+			_genre = null;
 		}
 
 		public VideoSearchQueryBuilder SetPageCount(uint pageCount)
@@ -234,99 +239,6 @@ namespace NiconicoToolkit.Search.Video
 		}
 	}
 
-    public struct RangeDatePair
-    {
-		public RangeDatePair(DateTime start, DateTime end)
-        {
-			VideoSearchSubClient.ThrowExceptionIfInvalidRangeDatePair(start, end);
-
-			Start = start;
-			End = end;
-        }
-		public DateTime Start { get; }
-		public DateTime End { get; }
-	}
-
-
-
-	public class SearchResponse
-	{
-		[JsonPropertyName("list")]
-		public IList<ListItem> List { get; set; }
-		[JsonPropertyName("count")]
-		public int Count { get; set; }
-		[JsonPropertyName("has_ng_video_for_adsense_on_listing")]
-		public bool HasNgVideoForAdsenseOnListing { get; set; }
-		[JsonPropertyName("related_tags")]
-		public IList<string> RelatedTags { get; set; }
-		[JsonPropertyName("page")]
-		public int Page { get; set; }
-		[JsonPropertyName("status")]
-		public string Status { get; set; }
-
-		public bool IsStatusOK
-		{
-			get { return Status == "ok"; }
-		}
-	}
-	public class ThumbnailStyle
-	{
-		[JsonPropertyName("offset_x")]
-		public int OffsetX { get; set; }
-		[JsonPropertyName("offset_y")]
-		public int OffsetY { get; set; }
-		[JsonPropertyName("width")]
-		public int Width { get; set; }
-	}
-
-	public class ListItem
-	{
-		[JsonPropertyName("id")]
-		public string Id { get; set; }
-		[JsonPropertyName("title")]
-		public string Title { get; set; }
-		[JsonPropertyName("first_retrieve")]
-		public string _firstRetrieve { get; set; }
-		[JsonPropertyName("view_counter")]
-		public int ViewCount { get; set; }
-		[JsonPropertyName("mylist_counter")]
-		public int MylistCount { get; set; }
-		[JsonPropertyName("thumbnail_url")]
-		public string ThumbnailUrl { get; set; }
-		[JsonPropertyName("num_res")]
-		public int CmmentCount { get; set; }
-		[JsonPropertyName("last_res_body")]
-		public string LastResBody { get; set; }
-		[JsonPropertyName("length")]
-		public string _length { get; set; }
-		[JsonPropertyName("title_short")]
-		public string TitleShort { get; set; }
-		[JsonPropertyName("description_short")]
-		public string DescriptionShort { get; set; }
-		[JsonPropertyName("is_middle_thumbnail")]
-		public bool IsMiddleThumbnail { get; set; }
-
-
-		private TimeSpan? __Length;
-		public TimeSpan Length => __Length ??= _length.ToTimeSpan();
-
-		private DateTime? __firstRetrieve;
-		public DateTime FirstRetrieve => __firstRetrieve ??= DateTime.Parse(_firstRetrieve);
-
-		//private void SetValuesOnDeserialized(StreamingContext context)
-		//{
-		//	var values = _length.Split(':').Reverse();
-		//	var totalTime_Sec = 0;
-		//	var q = 0;
-		//	foreach (var t in values)
-		//	{
-		//		totalTime_Sec += int.Parse(t) * (q == 0 ? 1 : (q * 60));
-		//		q++;
-		//	}
-
-		//	Length = TimeSpan.FromSeconds(totalTime_Sec);
-		//}
-
-	}
+	
 
 }
