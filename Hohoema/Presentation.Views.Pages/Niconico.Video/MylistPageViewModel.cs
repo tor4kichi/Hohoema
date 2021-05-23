@@ -34,6 +34,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Popups;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
+using Microsoft.AppCenter.Crashes;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
@@ -567,7 +568,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 mylistId = idInt.ToString();
             }
 
-            var mylist = await _mylistRepository.GetMylist(mylistId);
+            MylistPlaylist mylist = null;
+            try
+            {
+                mylist = await _mylistRepository.GetMylist(mylistId);
+            }
+            catch (Exception e)
+            {
+                Crashes.TrackError(e, new Dictionary<string, string>() 
+                {
+                    {  "mylistId" , mylistId }
+                });                
+            }
 
             if (mylist == null) { return; }
 
@@ -675,6 +687,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
             EditMylistGroupCommand.RaiseCanExecuteChanged();
             DeleteMylistCommand.RaiseCanExecuteChanged();
+
+            
         }
        
 

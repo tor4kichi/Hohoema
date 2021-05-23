@@ -43,11 +43,11 @@
                   <StackPanel Orientation="Horizontal" Margin="0 0 0 0" Visibility="{Binding UserName, Converter={StaticResource NotNullToVisibility}}">
                     <TextBlock FontSize="14">
                         <Run Text="{i18nExt:Localize Key=ContentOwner}" /> : <Run Text="{Binding UserName}" /></TextBlock>
-                    <Border x:Name="DefaultMylistRegistrationCount" Visibility="{Binding IsLoginUserDeflist, Converter={StaticResource BooleanToVisibility}}" Margin="8 0 0 0">
+                    <Border x:Name="DefaultMylistRegistrationCount" Visibility="Collapsed" Margin="8 0 0 0">
                       <TextBlock>
                         (<Run Text="{i18nExt:Localize Key=MylistRegisteredCount}" />:<Run Text="{Binding DeflistRegistrationCount}" /> <Run Text="{i18nExt:Localize Key=MylistRegisteredCountLimit}" />:<Run Text="{Binding DeflistRegistrationCapacity}" />)</TextBlock>
                     </Border>
-                    <Border x:Name="MylistRegistrationCount" Visibility="{Binding IsLoginUserMylistWithoutDeflist, Converter={StaticResource BooleanToVisibility}}" Margin="8 0 0 0">
+                    <Border x:Name="MylistRegistrationCount" Visibility="Collapsed" Margin="8 0 0 0">
                       <TextBlock>
                         (<Run Text="{i18nExt:Localize Key=MylistRegisteredCount}" />:<Run Text="{Binding MaxItemsCount}" /> <Run Text="{i18nExt:Localize Key=MylistRegisteredCountSum}" />:<Run Text="{Binding MylistRegistrationCount}" /> 上限:<Run Text="{Binding MylistRegistrationCapacity}" />)</TextBlock>
                     </Border>
@@ -80,14 +80,14 @@
               </AppBarButton>
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
-              <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
+              <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" VerticalAlignment="Center"></AppBarButton>
               <AppBarButton x:Name="FeedRegstrationButton" Icon="Add" Visibility="Visible" Label="{i18nExt:Localize Key=SubscriptionAddMylist}"
                                 Command="{Binding AddSubscriptionCommand}"
                                 CommandParameter="{Binding Mylist.Value}"
                                 >
               </AppBarButton>
               <AppBarButton x:Name="OpenUserPageButton" Command="{Binding OpenMylistOwnerCommand}" Background="Transparent" Visibility="Collapsed" Icon="People" Label="{i18nExt:Localize Key=MylistOwner}"></AppBarButton>
-              <AppBarButton x:Name="EditMylistButton" Command="{Binding EditMylistGroupCommand}" CommandParameter="{Binding PlaylistOrigin.Value}" Background="Transparent" Visibility="Collapsed" Icon="Edit" Label="{i18nExt:Localize Key=MylistEditInfo}"></AppBarButton>
+              <AppBarButton x:Name="EditMylistButton" Command="{Binding EditMylistGroupCommand}" CommandParameter="{Binding Mylist.Value}" Background="Transparent" Visibility="Collapsed" Icon="Edit" Label="{i18nExt:Localize Key=MylistEditInfo}"></AppBarButton>
               <AppBarSeparator x:Name="MylistDeleteButtonSeparator" Visibility="Collapsed" />
               <AppBarButton x:Name="DeleteMylistButton" Command="{Binding DeleteMylistCommand}" CommandParameter="{Binding Mylist.Value}" Background="Transparent" Visibility="Collapsed" Icon="Delete" Label="{i18nExt:Localize Key=MylistDelete}"></AppBarButton>
             </CommandBar.SecondaryCommands>
@@ -149,6 +149,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="FeedRegstrationButton.Visibility" Value="Collapsed" />
+            <Setter Target="DefaultMylistRegistrationCount.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -161,6 +162,7 @@
             <Setter Target="EditMylistButton.Visibility" Value="Visible" />
             <Setter Target="DeleteMylistButton.Visibility" Value="Visible" />
             <Setter Target="MylistDeleteButtonSeparator.Visibility" Value="Visible" />
+            <Setter Target="MylistRegistrationCount.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
