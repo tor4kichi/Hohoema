@@ -541,8 +541,6 @@ namespace Hohoema
                 ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
             }
 
-            await Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.InitializeAsync(ApplicationData.Current.TemporaryFolder, "ImageCaches");
-
             // キャッシュ機能の初期化
             {
                 var cacheManager = Container.Resolve<VideoCacheFolderManager>();
@@ -555,7 +553,6 @@ namespace Hohoema
 
             // 2段階認証を処理するログインサービスをインスタンス化
             var loginService = Container.Resolve<NiconicoLoginService>();
-
 
             // バージョン間データ統合
             {
@@ -586,7 +583,6 @@ namespace Hohoema
             // 更新通知を表示
             try
             {
-                var dialogService = Container.Resolve<DialogService>();
                 if (AppUpdateNotice.IsUpdated)
                 {
                     var version = Windows.ApplicationModel.Package.Current.Id.Version;

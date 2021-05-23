@@ -90,7 +90,7 @@ namespace Hohoema.Models.Helpers
             }
         }
 
-        public static Task AddOrUpdateAccount(string mailAddress, string password)
+        public static async ValueTask AddOrUpdateAccount(string mailAddress, string password)
         {
 #if !DEBUG
             if (!DeviceTypeHelper.IsXbox)
@@ -99,11 +99,10 @@ namespace Hohoema.Models.Helpers
 #endif
             {
                 _AddOrUpdateAccount(mailAddress, password);
-                return Task.CompletedTask;
             }
             else
             {
-                return _AddOrUpdateAccount_Xbox(mailAddress, password);
+                await _AddOrUpdateAccount_Xbox(mailAddress, password);
             }
         }
 
@@ -207,7 +206,7 @@ namespace Hohoema.Models.Helpers
         }
 
 
-        public static async Task<Tuple<string, string>> GetPrimaryAccount()
+        public static async ValueTask<Tuple<string, string>> GetPrimaryAccount()
         {
             if (HasPrimaryAccount())
             {

@@ -12,5 +12,6 @@ namespace NiconicoToolkit.Account
         ServiceUnavailable = -2,
         Failed = -1,
         Success = 1,
+        RequireTwoFactorAuth = 2,
     }
 }

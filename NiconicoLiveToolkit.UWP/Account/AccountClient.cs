@@ -71,6 +71,7 @@ namespace NiconicoToolkit.Account
         }
 
         public event EventHandler<NiconicoLoggedInEventArgs> LoggedIn;
+        public event EventHandler LogInFailed;
         public event EventHandler<NiconicoTwoFactorAuthEventArgs> RequireTwoFactorAuth;
         public event EventHandler LoggedOut;
 
@@ -81,11 +82,11 @@ namespace NiconicoToolkit.Account
             return __IsSignedInAsync_Internal(res);
         }
 
-        public async Task<bool> SignOutAsync()
+        public async Task<NiconicoSessionStatus> SignOutAsync()
         {
             var res = await _context.GetAsync(LogOffUrl);
             LoggedOut?.Invoke(this, EventArgs.Empty);
-            return __GetAccountAuthority_Internal(res).authority == NiconicoAccountAuthority.NotSignedIn;
+            return __IsSignedInAsync_Internal(res);
         }
 
         public async Task<(NiconicoSessionStatus status, NiconicoAccountAuthority authority, uint userId)> SignInAsync(MailAndPasswordAuthToken authToken, CancellationToken ct = default)
@@ -117,12 +118,21 @@ namespace NiconicoToolkit.Account
             {
                 RequireTwoFactorAuth?.Invoke(this, new NiconicoTwoFactorAuthEventArgs(this, loginResultResponse.RequestMessage.RequestUri));
 
-                return (NiconicoSessionStatus.Failed, NiconicoAccountAuthority.NotSignedIn, uint.MinValue);
+                return (NiconicoSessionStatus.RequireTwoFactorAuth, NiconicoAccountAuthority.NotSignedIn, uint.MinValue);
             }
             else
             {
                 var result = __GetAccountAuthority_Internal(loginResultResponse);
-                return (NiconicoSessionStatus.Success, result.authority, result.userId.Value);
+                if (result.authority == NiconicoAccountAuthority.NotSignedIn)
+                {
+                    LogInFailed?.Invoke(this, EventArgs.Empty);
+                    return (NiconicoSessionStatus.Failed, result.authority, uint.MinValue);
+                }
+                else
+                {
+                    LoggedIn?.Invoke(this, new NiconicoLoggedInEventArgs(result.userId.Value, result.authority == NiconicoAccountAuthority.Premium));
+                    return (NiconicoSessionStatus.Success, result.authority, result.userId.Value);
+                }
             }
         }
 
@@ -233,8 +243,15 @@ namespace NiconicoToolkit.Account
                 headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3");
             }
 
-            var result = await _context.SendAsync(HttpMethod.Post, location, content, HeaderFiller, HttpCompletionOption.ResponseHeadersRead);
-            return __IsSignedInAsync_Internal(result); 
+            var res = await _context.SendAsync(HttpMethod.Post, location, content, HeaderFiller, HttpCompletionOption.ResponseHeadersRead);
+            var status = __IsSignedInAsync_Internal(res); 
+            if (status == NiconicoSessionStatus.Success)
+            {
+                var info = __GetAccountAuthority_Internal(res);
+                LoggedIn?.Invoke(this, new NiconicoLoggedInEventArgs(info.userId.Value, info.authority == NiconicoAccountAuthority.Premium));
+            }
+
+            return status;
         }
     }
 }
