@@ -272,7 +272,7 @@
     <Compile Include="Models.Domain\Subscirptions\SubscriptionFeedResultRepository.cs" />
     <Compile Include="Models.Domain\Subscirptions\SubscriptionManager.cs" />
     <Compile Include="Models.Domain\Subscirptions\SubscriptionRegistrationRepository.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionSettingsRepository.cs" />
+    <Compile Include="Models.Domain\Subscirptions\SubscriptionSettings.cs" />
     <Compile Include="Models.Domain\Subscirptions\SubscriptionSourceEntity.cs" />
     <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperation.cs" />
     <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperationOutput.cs" />

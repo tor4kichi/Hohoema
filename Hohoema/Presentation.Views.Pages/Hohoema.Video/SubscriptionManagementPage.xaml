@@ -65,7 +65,7 @@
       <ListView.Header>
 
         <Grid Margin="0 0 0 0" Background="{ThemeResource MenuBackgroundBrush}">
-          <CommandBar DefaultLabelPosition="Collapsed" Margin="0 0 16 0" 
+          <CommandBar DefaultLabelPosition="Right" Margin="0 0 16 0" 
                       XYFocusDownNavigationStrategy="NavigationDirectionDistance"
                       XYFocusLeftNavigationStrategy="RectilinearDistance"
                       >
@@ -74,18 +74,20 @@
             </CommandBar.Content>
 
             <CommandBar.PrimaryCommands>
-              <AppBarElementContainer IsEnabled="False">
+              <AppBarElementContainer IsEnabled="False" Visibility="{Binding IsAutoUpdateEnabled.Value, Converter={StaticResource BooleanToVisibility}}" VerticalContentAlignment="Center">
                 <Grid Margin="8 0" HorizontalAlignment="Right">
                   <StackPanel Orientation="Horizontal" x:Name="AutoUpdateRunningStatusLayout" Spacing="8" Opacity="0.0">
-                    <TextBlock>
-                    <Run Text="{i18nExt:Localize Key=SubscriptionsAutoUpdateRunning}" />
+                    <TextBlock VerticalAlignment="Center">
                     <Run Text="{i18nExt:Localize Key=SubscriptionsNextUpdateTime}" />:<Run Text="{Binding NextUpdateTime.Value, Converter={StaticResource DateTimeToString}, ConverterParameter=t}" />
                     </TextBlock>
                   </StackPanel>
                   <StackPanel Orientation="Horizontal" x:Name="AutoUpdateNotRunningStatusLayout" Spacing="8" Opacity="0.0">
-                    <TextBlock Text="{i18nExt:Localize Key=SubscriptionsAutoNotUpdateRunning}" />
+                    <TextBlock Text="{i18nExt:Localize Key=SubscriptionsAutoNotUpdateRunning}" VerticalAlignment="Center" />
                   </StackPanel>
                 </Grid>
+              </AppBarElementContainer>
+              <AppBarElementContainer VerticalContentAlignment="Center">
+                <ToggleSwitch IsOn="{Binding IsAutoUpdateEnabled.Value, Mode=TwoWay}" Style="{StaticResource ToggleSwitchNoHeader}" Header="自動更新" VerticalAlignment="Center" />
               </AppBarElementContainer>
               <AppBarButton Visibility="Collapsed" Icon="Play" Command="{Binding PlayAllUnwatchedCommand}" />
               <AppBarButton Visibility="Collapsed" Icon="Add" Label="{i18nExt:Localize Key=Add}" Command="{Binding AddSubscriptionSourceCommand}" />

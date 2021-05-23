@@ -47,6 +47,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         public IReadOnlyReactiveProperty<bool> IsAutoUpdateRunning { get; }
         public IReadOnlyReactiveProperty<DateTime> NextUpdateTime { get; }
         public IReactiveProperty<TimeSpan> AutoUpdateFrequency { get; }
+        public IReactiveProperty<bool> IsAutoUpdateEnabled { get; }
 
         void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
         {
@@ -96,7 +97,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
                 .AddTo(_CompositeDisposable);
             AutoUpdateFrequency = _subscriptionUpdateManager.ToReactivePropertyAsSynchronized(x => x.UpdateFrequency)
                 .AddTo(_CompositeDisposable);
-
+            IsAutoUpdateEnabled = _subscriptionUpdateManager.ToReactivePropertyAsSynchronized(x => x.IsAutoUpdateEnabled)
+                .AddTo(_CompositeDisposable);
 
             _subscriptionManager.Added += _subscriptionManager_Added;
             _subscriptionManager.Removed += _subscriptionManager_Removed;
