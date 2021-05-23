@@ -16,6 +16,7 @@ using System.IO;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Activity;
+using NiconicoToolkit.Search;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -44,6 +45,7 @@ namespace NiconicoToolkit
             User = new UserClient(this);
             Video = new VideoClient(this);
             Activity = new ActivityClient(this);
+            Search = new SearchClient(this);
         }
 
 
@@ -69,6 +71,7 @@ namespace NiconicoToolkit
         public UserClient User { get; }
         public VideoClient Video { get; }
         public ActivityClient Activity { get; }
+        public SearchClient Search { get; }
 
         #region 
 

@@ -167,6 +167,10 @@
     <Compile Include="NameValueCollectionExtensions.cs" />
     <Compile Include="NiconicoContext.Core.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Search\SearchClient.cs" />
+    <Compile Include="Search\Video\Order.cs" />
+    <Compile Include="Search\Video\Sort.cs" />
+    <Compile Include="Search\Video\VideoSearchSubClient.cs" />
     <Compile Include="System.Text.Json.Serialization\JsonSnakeCaseNamingPolicy.cs" />
     <Compile Include="System.Text.Json.Serialization\LongToStringConverter.cs" />
     <Compile Include="System.Text.Json.Serialization\SingleOrArrayConverter.cs" />
