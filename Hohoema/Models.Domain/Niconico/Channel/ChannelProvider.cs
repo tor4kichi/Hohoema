@@ -49,8 +49,5 @@ namespace Hohoema.Models.Domain.Niconico.Channel
                 return await context.Channel.GetChannelInfo(channelId);
             });
         }
-
-
-
     }
 }

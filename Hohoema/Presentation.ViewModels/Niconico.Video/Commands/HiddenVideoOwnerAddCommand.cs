@@ -55,30 +55,19 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
                 {
                     if (provider.ProviderType == NicoVideoUserType.User)
                     {
-                        try
+                        var user = _nicoVideoOwnerRepository.Get(provider.ProviderId);
+                        if (user?.ScreenName is not null)
                         {
-                            var userInfo = await UserProvider.GetUser(provider.ProviderId);
-
-                            ownerName = userInfo.ScreenName;
+                            ownerName = user.ScreenName;
                         }
-                        catch
+                        else
                         {
-                            return;
+                            ownerName = await UserProvider.GetUserName(provider.ProviderId);
                         }
                     }
                     else if (provider.ProviderType == NicoVideoUserType.Channel)
                     {
-                        var channelInfo = await ChannelProvider.GetChannelInfo(provider.ProviderId);
-                        ownerName = channelInfo.Name;
-
-                        var channel = _nicoVideoOwnerRepository.Get(provider.ProviderId) 
-                            ?? new NicoVideoOwner()
-                            {
-                                OwnerId = channelInfo.ChannelId.ToString(),
-                                UserType = NicoVideoUserType.Channel,
-                            };                        
-                        channel.ScreenName = channelInfo.ScreenName ?? channel.ScreenName;
-                        _nicoVideoOwnerRepository.UpdateItem(channel);
+                        ownerName = await ChannelProvider.GetChannelNameWithCacheAsync(provider.ProviderId);
                     }
                 }
 

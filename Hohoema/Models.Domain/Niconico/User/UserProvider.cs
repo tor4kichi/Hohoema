@@ -27,6 +27,35 @@ namespace Hohoema.Models.Domain.Niconico.User
             _nicoVideoOwnerRepository = nicoVideoOwnerRepository;
         }
 
+        public async Task<string> GetUserName(string userId)
+        {
+            try
+            {
+                var userName = await NiconicoSession.ToolkitContext.User.GetUserNicknameAsync(userId);
+
+                if (userName != null)
+                {
+                    var owner = _nicoVideoOwnerRepository.Get(userId);
+                    if (owner == null)
+                    {
+                        owner = new NicoVideoOwner()
+                        {
+                            OwnerId = userId,
+                            UserType = NicoVideoUserType.User
+                        };
+                    }
+                    owner.ScreenName = userName.Nickname;
+                    _nicoVideoOwnerRepository.UpdateItem(owner);
+                }
+
+                return userName.Nickname;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
         public async Task<NicoVideoOwner> GetUser(string userId)
         {
             var userRes = await ContextActionWithPageAccessWaitAsync(async context =>
