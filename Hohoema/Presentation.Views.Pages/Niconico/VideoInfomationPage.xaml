@@ -13,8 +13,10 @@
       xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
       xmlns:windowsStateTriggers="using:WindowsStateTriggers"
+      xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
-      xmlns:ui="using:Microsoft.Toolkit.Uwp.UI" xmlns:local1="using:Hohoema.Presentation.Views.Controls.VideoList"
+      xmlns:ui="using:Microsoft.Toolkit.Uwp.UI" 
+      xmlns:local1="using:Hohoema.Presentation.Views.Controls.VideoList"
       DataContext="{x:Null}"
       NavigationCacheMode="Enabled"
       mc:Ignorable="d">
@@ -126,7 +128,9 @@
                   </Button>
                 </StackPanel>
                 <TextBlock Text="{i18nExt:Localize Key=VideoIntroduction}" Style="{StaticResource SubtitleTextBlockStyle}" />
-                <WebView Source="{Binding DescriptionHtmlFileUri}" MinWidth="320" Margin="0 8 16 8" DefaultBackgroundColor="Transparent" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollMode="Disabled" xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions" myExtensions:WebView.IgnoreScrolling="True" myExtensions:WebView.UriNotifyCommand="{Binding ScriptNotifyCommand}">
+                <WebView MinWidth="320" Margin="0 8 16 8" DefaultBackgroundColor="Transparent" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollMode="Disabled" xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions" myExtensions:WebView.IgnoreScrolling="True" myExtensions:WebView.UriNotifyCommand="{Binding ScriptNotifyCommand}"
+                         myExtensions:WebView.HtmlString="{Binding DescriptionHtml}"
+                         >
                   <i:Interaction.Behaviors>
                     <mybehavior:WebViewAutoResizeToContent />
                     <!-- WebViewでUINavigationControllerがハマるバグに対応する -->

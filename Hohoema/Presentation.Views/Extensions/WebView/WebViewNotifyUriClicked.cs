@@ -44,8 +44,7 @@ namespace Hohoema.Presentation.Views.Extensions
                     // 参考元の実装では同一ホスト判定を識別できなかったので
                     // 条件を書き換えています。
                     //			if (sender.Source.Host != args.Uri.Host)
-                    if (sender.Source.Segments[sender.Source.Segments.Length - 1] !=
-                        args.Uri.Segments[args.Uri.Segments.Length - 1])
+                    if (args.Uri != null)
                     {
                         args.Cancel = true;
 

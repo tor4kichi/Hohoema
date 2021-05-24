@@ -756,6 +756,7 @@
     <Compile Include="Presentation.Views\Extensions\MediaPlayer\MediaPlayerSetter.cs" />
     <Compile Include="Presentation.Views\Extensions\VIsualStateManager\DebugCurrentState.cs" />
     <Compile Include="Presentation.Views\Extensions\WebView\IgnoreScrolling.cs" />
+    <Compile Include="Presentation.Views\Extensions\WebView\LoadHtmlString.cs" />
     <Compile Include="Presentation.Views\Extensions\WebView\PreventSpoilerXYNavigationInWebView.cs" />
     <Compile Include="Presentation.Views\Extensions\WebView\WebViewAutoResizeToContent.cs" />
     <Compile Include="Presentation.Views\Extensions\WebView\WebViewNotifyUriClicked.cs" />

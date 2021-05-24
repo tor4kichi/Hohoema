@@ -147,11 +147,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         }
 
 
-        private Uri _descriptionHtmlFileUri;
-        public Uri DescriptionHtmlFileUri
+        private string _descriptionHtml;
+        public string DescriptionHtml
         {
-            get { return _descriptionHtmlFileUri; }
-            set { SetProperty(ref _descriptionHtmlFileUri, value); }
+            get { return _descriptionHtml; }
+            set { SetProperty(ref _descriptionHtml, value); }
         }
 
 
@@ -648,8 +648,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                     appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
                 }
 
-                DescriptionHtmlFileUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoInfo.VideoId, VideoDetails.DescriptionHtml, appTheme);
-                RaisePropertyChanged(nameof(DescriptionHtmlFileUri));
+                DescriptionHtml = await HtmlFileHelper.ToCompletlyHtmlAsync(VideoDetails.DescriptionHtml, appTheme);
             }
             catch
             {
