@@ -36,6 +36,7 @@ using Microsoft.Toolkit.Uwp;
 using Hohoema.Presentation.Views.Pages.Niconico;
 using Hohoema.Presentation.Views.Pages.Niconico.LoginUser;
 using Hohoema.Presentation.Services.UINavigation;
+using Hohoema.Models.Infrastructure;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -282,36 +283,50 @@ namespace Hohoema.Presentation.Views.Pages
                 var prefix = behavior == NavigationStackBehavior.Root ? "/" : String.Empty;
                 var pageName = $"{prefix}{pageType}";
 
-                var result = behavior is NavigationStackBehavior.Push
-                    ? await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameDefaultTransitionInfo)
-                    : await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameTransitionInfo)
-                    ;
-                if (result.Success)
+                try
                 {
-                    if (behavior == NavigationStackBehavior.NotRemember /*|| IsIgnoreRecordPageType(oldPageType)*/)
+                    var result = behavior is NavigationStackBehavior.Push
+                        ? await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameDefaultTransitionInfo)
+                        : await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameTransitionInfo)
+                        ;
+                    if (result.Success)
                     {
-                        // TODO: NavigationStackBehavior.NotRemember
+                        if (behavior == NavigationStackBehavior.NotRemember /*|| IsIgnoreRecordPageType(oldPageType)*/)
+                        {
+                            // TODO: NavigationStackBehavior.NotRemember
+                        }
+
+                        Window.Current.Activate();
+
+                        GoBackCommand.RaiseCanExecuteChanged();
+                    }
+                    else
+                    {
+                        throw result.Exception ?? new HohoemaExpception("navigation error");
                     }
 
-                    Window.Current.Activate();
 
-                    GoBackCommand.RaiseCanExecuteChanged();
-                }
-
-                Analytics.TrackEvent("PageNavigation", new Dictionary<string, string>
+                    Analytics.TrackEvent("PageNavigation", new Dictionary<string, string>
                     {
                         { "PageType",  pageName },
                     });
 
-                Debug.WriteLineIf(!result.Success, result.Exception?.ToString());
+                    Debug.WriteLineIf(!result.Success, result.Exception?.ToString());
 
 
-                if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Fill)
-                {
-                    _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
+                    if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Fill)
+                    {
+                        _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
+                    }
+
+                    CoreNavigationView.IsBackEnabled = _contentFrameNavigationService.CanGoBack();
                 }
-
-                CoreNavigationView.IsBackEnabled = _contentFrameNavigationService.CanGoBack();
+                catch (Exception e)
+                {
+                    var errorPageParam = parameter.Select(x => (x.Key, x.Value.ToString())).ToDictionary(x => x.Key, x => x.Item2);
+                    errorPageParam.Add("PageType", pageName);
+                    Crashes.TrackError(e, errorPageParam);
+                }
             });
         }
 

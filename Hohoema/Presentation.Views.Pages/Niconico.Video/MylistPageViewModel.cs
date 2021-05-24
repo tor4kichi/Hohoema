@@ -568,18 +568,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 mylistId = idInt.ToString();
             }
 
-            MylistPlaylist mylist = null;
-            try
-            {
-                mylist = await _mylistRepository.GetMylist(mylistId);
-            }
-            catch (Exception e)
-            {
-                Crashes.TrackError(e, new Dictionary<string, string>() 
-                {
-                    {  "mylistId" , mylistId }
-                });                
-            }
+            var mylist = await _mylistRepository.GetMylist(mylistId);
 
             if (mylist == null) { return; }
 
