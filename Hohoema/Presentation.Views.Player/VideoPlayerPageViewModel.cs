@@ -36,6 +36,7 @@ using Hohoema.Models.Domain.Niconico.Video.Series;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.Domain.Notification;
 using System.Collections.Generic;
+using Hohoema.Presentation.Views.Player;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -304,26 +305,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             get { return _CannotPlayReason; }
             set { SetProperty(ref _CannotPlayReason, value); }
         }
-
-
-        // 再生
-
-        public TimeSpan ForwardSeekTime => TimeSpan.FromSeconds(30);
-        public TimeSpan PreviewSeekTime => TimeSpan.FromSeconds(-10);
-
-        public List<double> PlaybackRateList { get; } = new List<double>
-        {
-            2.0,
-            1.75,
-            1.5,
-            1.25,
-            1.0,
-            0.75,
-            0.5,
-            0.25,
-            0.05
-        };
-
 
 
 
@@ -660,7 +641,6 @@ namespace Hohoema.Presentation.ViewModels.Player
                 */
             }
         }
-
 
     }
 

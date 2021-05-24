@@ -313,6 +313,7 @@
           <CommandBar.PrimaryCommands>
             <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{Binding IsLikedVideo, Mode=TwoWay}" IsEnabled="{Binding NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
             <AppBarButton x:Name="ShowVideoInfoButon" Label="{i18nExt:Localize Key=VideoInfomation}" Command="{Binding OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
+            <AppBarButton Command="{Binding SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="{i18nExt:Localize Key=RelatedInfomation}" />
             <AppBarButton x:Name="ShareButton" Label="{i18nExt:Localize Key=Share}" Icon="Link" Visibility="Collapsed" Command="{Binding OpenShareUICommand}" CommandParameter="{Binding VideoInfo}"></AppBarButton>
             <AppBarButton x:Name="CopyActionsAppBarButton" Label="{i18nExt:Localize Key=Copy}" Visibility="Visible">
               <AppBarButton.Flyout>
@@ -540,17 +541,15 @@
           </StackPanel>
           <!-- Settings etc -->
           <toolkit:WrapPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
-            <!--
-            <Button x:Name="OpenCommentListButton" Background="Transparent" Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Comment">
+            <Button x:Name="OpenCommentListButton" Background="Transparent" Command="{Binding SelectSidePaneCommand}" CommandParameter="Comment">
               <iconPack:PackIconMaterial Kind="Comment" Width="24" Height="24"></iconPack:PackIconMaterial>
             </Button>
-            <Button x:Name="OpenPlaylistButton" Background="Transparent" Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Playlist">
+            <Button x:Name="OpenPlaylistButton" Background="Transparent" Command="{Binding SelectSidePaneCommand}" CommandParameter="Playlist">
               <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="24" Height="24"></iconPack:PackIconMaterial>
             </Button>
-            <Button x:Name="OpenSettingsPaneButton" Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Setting" Background="Transparent">
+            <Button x:Name="OpenSettingsPaneButton" Command="{Binding SelectSidePaneCommand}" CommandParameter="Setting" Background="Transparent">
               <SymbolIcon Symbol="Setting" />
             </Button>
-            -->
           </toolkit:WrapPanel>
         </Grid>
         <!-- コメントを書く -->
@@ -939,6 +938,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
+            <StateTrigger IsActive="{Binding IsPlayerSidePaneOpen}" />
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
             <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
           </VisualState.StateTriggers>

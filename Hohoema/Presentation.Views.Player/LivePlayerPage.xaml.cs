@@ -27,14 +27,6 @@ using Uno.Disposables;
 
 namespace Hohoema.Presentation.Views.Player
 {
-    public enum PlayerSidePaneContentType
-    {
-        None,
-        Playlist,
-        Comment,
-        Setting,
-        RelatedVideos,
-    }
 
     public sealed partial class LivePlayerPage : Page
     {

@@ -518,6 +518,7 @@
     <Compile Include="Presentation.ViewModels\Player\MediaPlayerSetPlaybackRateCommand.cs" />
     <Compile Include="Presentation.ViewModels\Player\MediaPlayerToggleMuteCommand.cs" />
     <Compile Include="Presentation.ViewModels\Player\MediaPlayerVolumeChangeCommand.cs" />
+    <Compile Include="Presentation.Views.Player\PlayerSidePaneContentType.cs" />
     <Compile Include="Presentation.Views.Player\VideoPlayerUI\DesktopPlayerUI.xaml.cs">
       <DependentUpon>DesktopPlayerUI.xaml</DependentUpon>
     </Compile>
