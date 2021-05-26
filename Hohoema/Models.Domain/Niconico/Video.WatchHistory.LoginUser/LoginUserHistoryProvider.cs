@@ -20,7 +20,7 @@ namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
             _videoPlayedHistoryRepository = videoPlayedHistoryRepository;
         }
 
-        public async Task<VideoWatchHistory.Item[]> GetHistoryAsync(int page = 0, int pageSize = 100)
+        public async Task<VideoWatchHistory.VideoWatchHistoryItem[]> GetHistoryAsync(int page = 0, int pageSize = 100)
         {
             using var _ = await NiconicoSession.SigninLock.LockAsync();
             

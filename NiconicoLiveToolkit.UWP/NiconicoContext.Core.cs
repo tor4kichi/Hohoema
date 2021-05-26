@@ -17,6 +17,7 @@ using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Activity;
 using NiconicoToolkit.Search;
+using NiconicoToolkit.Recommend;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -46,6 +47,7 @@ namespace NiconicoToolkit
             Video = new VideoClient(this);
             Activity = new ActivityClient(this);
             Search = new SearchClient(this);
+            Recommend = new RecommendClient(this);
         }
 
         TimeSpan _minPageAccessInterval = TimeSpan.FromSeconds(1);
@@ -84,6 +86,7 @@ namespace NiconicoToolkit
         public VideoClient Video { get; }
         public ActivityClient Activity { get; }
         public SearchClient Search { get; }
+        public RecommendClient Recommend { get; }
 
         #region 
 

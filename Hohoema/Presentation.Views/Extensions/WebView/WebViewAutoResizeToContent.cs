@@ -28,15 +28,7 @@ namespace Hohoema.Presentation.Views.Behaviors
 
         private async void AssociatedObject_NavigationCompleted(WebView sender, WebViewNavigationCompletedEventArgs args)
         {
-            try
-            {
-                var heightString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollHeight.toString()" });
-                if (int.TryParse(heightString, out var height))
-                {
-                    this.AssociatedObject.Height = height;
-                }
-            }
-            catch { }
+            //await Task.Delay(1000);
 
             try
             {
@@ -47,19 +39,23 @@ namespace Hohoema.Presentation.Views.Behaviors
                 }
             }
             catch { }
+
+            try
+            {
+                var heightString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollHeight.toString()" });
+                if (int.TryParse(heightString, out var height))
+                {
+                    this.AssociatedObject.Height = height;
+                }
+                heightString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollHeight.toString()" });
+            }
+            catch { }
+
         }
 
         private async void AssociatedObject_LoadCompleted(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
 		{
-            try
-            {
-                var heightString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollHeight.toString()" });
-                if (int.TryParse(heightString, out var height))
-                {
-                    this.AssociatedObject.Height = height;
-                }
-            }
-            catch { }
+            //await Task.Delay(1000);
 
             try
             {
@@ -70,14 +66,27 @@ namespace Hohoema.Presentation.Views.Behaviors
                 }
             }
             catch { }
+
+            try
+            {
+                var heightString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollHeight.toString()" });
+                if (int.TryParse(heightString, out var height))
+                {
+                    this.AssociatedObject.Height = height;
+                }
+            }
+            catch { }
+
         }
 
-		protected override void OnDetaching()
+        protected override void OnDetaching()
 		{
 			base.OnDetaching();
 
 			this.AssociatedObject.LoadCompleted -= AssociatedObject_LoadCompleted;
-		}
+            //this.AssociatedObject.Height = double.NaN;
+            this.AssociatedObject.Width = double.NaN;
+        }
 
 		
 

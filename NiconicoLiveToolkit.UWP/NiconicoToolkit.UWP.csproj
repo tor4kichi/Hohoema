@@ -127,6 +127,8 @@
     <Compile Include="Account\NiconicoAccountAuthority.cs" />
     <Compile Include="Account\NiconicoSessionStatus.cs" />
     <Compile Include="Activity\ActivityClient.cs" />
+    <Compile Include="Nvapi\NvapiMylistItem.cs" />
+    <Compile Include="Nvapi\NvapiVideoItem.cs" />
     <Compile Include="DeserializationExtensions.cs" />
     <Compile Include="JsonConveterExtensions.cs" />
     <Compile Include="JsonDeserializeHelper.cs" />
@@ -183,6 +185,7 @@
     <Compile Include="Video\Ranking\RankingGenre.cs" />
     <Compile Include="Video\Ranking\RankingGenrePickedTag.cs" />
     <Compile Include="Video\Ranking\RankingTerm.cs" />
+    <Compile Include="Recommend\RecommendClient.cs" />
     <Compile Include="Video\RssVideoResponse.cs" />
     <Compile Include="Video\Ranking\VideoRankingConstants.cs" />
     <Compile Include="Video\VideoClient.cs" />

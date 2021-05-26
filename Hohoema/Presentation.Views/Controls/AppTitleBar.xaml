@@ -6,18 +6,20 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:muxc="using:Microsoft.UI.Xaml.Controls" xmlns:wst="using:WindowsStateTriggers"
+  VerticalContentAlignment="Stretch"
   mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
   <Grid>
-    <StackPanel>
-      <TextBlock x:Name="TitleText" Text="{x:Bind Title, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" MaxLines="1"
+    <TextBlock x:Name="TitleText" Text="{x:Bind Title, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" 
+               MaxLines="2"
                  Margin="0"
                  ToolTipService.ToolTip="{x:Bind Title, Mode=OneWay}"
                  TextTrimming="CharacterEllipsis"
+               VerticalAlignment="Center"
+               
                  />
-    </StackPanel>
 
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>
@@ -27,6 +29,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="TitleText.Margin" Value="80 0 0 0" />
+            <Setter Target="TitleText.FontSize" Value="16" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -46,6 +49,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="TitleText.Margin" Value="80 0 0 0" />
+            <Setter Target="TitleText.FontSize" Value="16" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

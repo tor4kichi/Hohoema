@@ -38,7 +38,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
         public event EventHandler<WatchHistoryRemovedEventArgs> WatchHistoryRemoved;
         public event EventHandler WatchHistoryAllRemoved;
 
-        public Task<VideoWatchHistory.Item[]> GetWatchHistoryItemsAsync(int page = 0, int pageSize = 100)
+        public Task<VideoWatchHistory.VideoWatchHistoryItem[]> GetWatchHistoryItemsAsync(int page = 0, int pageSize = 100)
         {
             return _LoginUserVideoWatchHistoryProvider.GetHistoryAsync(page, pageSize);
         }
