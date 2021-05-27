@@ -88,6 +88,18 @@ namespace Hohoema.Models.UseCase
             return ErrorAttachmentLog.AttachmentWithText(text, "userInput.txt");
         }
 
+        public static void TrackUnhandeledError(Windows.ApplicationModel.Core.UnhandledError unhandledError)
+        {
+            try
+            {
+                unhandledError.Propagate();
+            }
+            catch (Exception e)
+            {
+                TrackError(e);
+            }
+        }
+
         public static void TrackError(Exception exception, IDictionary<string, string> parameters = null, params ErrorAttachmentLog[] logs)
         {
             var dict = MakeReportParameters();

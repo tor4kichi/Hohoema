@@ -93,6 +93,8 @@ namespace Hohoema
 		/// </summary>
 		public App()
         {
+            CoreApplication.UnhandledErrorDetected += CoreApplication_UnhandledErrorDetected;
+
             // XboxOne向けの設定
             // 基本カーソル移動で必要なときだけポインターを出現させる
             this.RequiresPointerMode = Windows.UI.Xaml.ApplicationRequiresPointerMode.WhenRequested;
@@ -122,6 +124,10 @@ namespace Hohoema
             this.InitializeComponent();
         }
 
+        private void CoreApplication_UnhandledErrorDetected(object sender, UnhandledErrorDetectedEventArgs e)
+        {
+            ErrorTrackingManager.TrackUnhandeledError(e.UnhandledError);
+        }
 
         public override async Task OnStartAsync(StartArgs args)
         {
