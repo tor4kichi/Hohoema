@@ -1,12 +1,12 @@
 ﻿using NeoSmart.AsyncLock;
-using NiconicoLiveToolkit.Live.WatchPageProp;
+using NiconicoToolkit.Live.WatchPageProp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NiconicoLiveToolkit.Live.WatchSession
+namespace NiconicoToolkit.Live.WatchSession
 {
     public sealed class WatchSessionTimer 
     {

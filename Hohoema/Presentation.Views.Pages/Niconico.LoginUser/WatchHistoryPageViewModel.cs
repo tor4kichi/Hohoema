@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos;
@@ -6,6 +7,7 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Mntone.Nico2.Videos.Histories;
+using NiconicoToolkit.Video;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -70,7 +72,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                 .Subscribe(e =>
                 {
                     var args = e.EventArgs;
-                    var removedItem = Histories.FirstOrDefault(x => x.ItemId == args.ItemId);
+                    var removedItem = Histories.FirstOrDefault(x => x.Id == args.VideoId);
                     if (removedItem != null)
                     {
                         Histories.Remove(removedItem);
@@ -101,20 +103,33 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                     {
                         Histories.Clear();
 
-                        _HistoriesResponse = await _watchHistoryManager.GetWatchHistoriesAsync();
+                        var items = await _watchHistoryManager.GetWatchHistoryItemsAsync();
 
-                        foreach (var x in _HistoriesResponse?.Histories ?? Enumerable.Empty<History>())
+                        foreach (var x in items)
                         {
                             var vm = new HistoryVideoListItemControlViewModel(
-                                _HistoriesResponse.Token,
-                                x.ItemId,
-                                x.WatchedAt.DateTime,
-                                x.WatchCount,
-                                x.Id,
-                                x.Title,
-                                x.ThumbnailUrl.OriginalString,
-                                x.Length
+                                x.LastViewedAt.DateTime,
+                                (uint)x.Views,
+                                x.Video.Id,
+                                x.Video.Title,
+                                x.Video.Thumbnail.ListingUrl.OriginalString,
+                                TimeSpan.FromSeconds(x.Video.Duration)
                                 );
+                            
+                            vm.PostedAt = x.Video.RegisteredAt.DateTime;
+
+                            vm.ProviderId = x.Video.Owner.Id;
+                            vm.ProviderType = x.Video.Owner.OwnerType switch
+                            {
+                                NiconicoToolkit.Nvapi.OwnerType.User => NicoVideoUserType.User,
+                                NiconicoToolkit.Nvapi.OwnerType.Channel => NicoVideoUserType.Channel,
+                                _ => NicoVideoUserType.Hidden
+                            };
+                            vm.ProviderName = x.Video.Owner.Name;
+
+                            vm.CommentCount = x.Video.Count.Comment;
+                            vm.ViewCount = x.Video.Count.View;
+                            vm.MylistCount = x.Video.Count.Mylist;
 
                             await vm.InitializeAsync(default);
 
@@ -135,18 +150,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
     public class HistoryVideoListItemControlViewModel : VideoListItemControlViewModel, IWatchHistory
     {
-        public string RemoveToken { get; }
-
-        public string ItemId { get; }
 		public DateTime LastWatchedAt { get; }
 		public uint UserViewCount { get;  }
 
-        public HistoryVideoListItemControlViewModel(string token, string itemId, DateTime lastWatchedAt, uint userVideCount, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
+        public HistoryVideoListItemControlViewModel(DateTime lastWatchedAt, uint viewCount, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
         {
-            RemoveToken = token;
-            ItemId = itemId;
             LastWatchedAt = lastWatchedAt;
-            UserViewCount = userVideCount;
+            UserViewCount = viewCount;
         }
     }
 

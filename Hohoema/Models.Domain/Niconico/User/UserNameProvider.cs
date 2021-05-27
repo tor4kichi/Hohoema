@@ -1,7 +1,7 @@
 ﻿namespace Hohoema.Models.Domain.Niconico.User
 {
     using LiteDB;
-    using NiconicoLiveToolkit;
+    using NiconicoToolkit;
     using Hohoema.Models.Infrastructure;
     using System;
     using System.Collections.Generic;
@@ -31,7 +31,7 @@
         public UserNameProvider(NiconicoSession session, UserNameRepository userNameRepository)
             : base(session)
         {
-            _context = session.LiveContext;
+            _context = session.ToolkitContext;
             _userNameRepository = userNameRepository;
         }
 

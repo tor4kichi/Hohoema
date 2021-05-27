@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Text;
 
-namespace NiconicoLiveToolkit.Live.Search
+namespace NiconicoToolkit.Live.Search
 {
     public static class EnumHelper
     {

@@ -36,6 +36,8 @@ using Microsoft.Toolkit.Uwp;
 using Hohoema.Presentation.Views.Pages.Niconico;
 using Hohoema.Presentation.Views.Pages.Niconico.LoginUser;
 using Hohoema.Presentation.Services.UINavigation;
+using Hohoema.Models.Infrastructure;
+using Hohoema.Models.UseCase;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -44,13 +46,14 @@ namespace Hohoema.Presentation.Views.Pages
     public sealed partial class PrimaryWindowCoreLayout : UserControl
     {
         private readonly PrimaryWindowCoreLayoutViewModel _viewModel;
+        
 
         private readonly DispatcherQueue _dispatcherQueue;
         public PrimaryWindowCoreLayout(PrimaryWindowCoreLayoutViewModel viewModel)
         {
             DataContext = _viewModel = viewModel;
-            this.InitializeComponent();
 
+            this.InitializeComponent();
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
             ContentFrame.NavigationFailed += (_, e) =>
@@ -59,7 +62,7 @@ namespace Hohoema.Presentation.Views.Pages
                 Debug.WriteLine(e.SourcePageType.AssemblyQualifiedName);
                 Debug.WriteLine(e.Exception.ToString());
 
-                Crashes.TrackError(e.Exception);
+                ErrorTrackingManager.TrackError(e.Exception);
             };
             
             // Resolve Page Title 
@@ -191,7 +194,6 @@ namespace Hohoema.Presentation.Views.Pages
 
                 LiteInAppNotification.Show(payload, duration);
             });
-
         }
 
 
@@ -282,36 +284,50 @@ namespace Hohoema.Presentation.Views.Pages
                 var prefix = behavior == NavigationStackBehavior.Root ? "/" : String.Empty;
                 var pageName = $"{prefix}{pageType}";
 
-                var result = behavior is NavigationStackBehavior.Push
-                    ? await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameDefaultTransitionInfo)
-                    : await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameTransitionInfo)
-                    ;
-                if (result.Success)
+                try
                 {
-                    if (behavior == NavigationStackBehavior.NotRemember /*|| IsIgnoreRecordPageType(oldPageType)*/)
+                    var result = behavior is NavigationStackBehavior.Push
+                        ? await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameDefaultTransitionInfo)
+                        : await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameTransitionInfo)
+                        ;
+                    if (result.Success)
                     {
-                        // TODO: NavigationStackBehavior.NotRemember
+                        if (behavior == NavigationStackBehavior.NotRemember /*|| IsIgnoreRecordPageType(oldPageType)*/)
+                        {
+                            // TODO: NavigationStackBehavior.NotRemember
+                        }
+
+                        Window.Current.Activate();
+
+                        GoBackCommand.RaiseCanExecuteChanged();
+                    }
+                    else
+                    {
+                        throw result.Exception ?? new HohoemaExpception("navigation error");
                     }
 
-                    Window.Current.Activate();
 
-                    GoBackCommand.RaiseCanExecuteChanged();
-                }
-
-                Analytics.TrackEvent("PageNavigation", new Dictionary<string, string>
+                    Analytics.TrackEvent("PageNavigation", new Dictionary<string, string>
                     {
                         { "PageType",  pageName },
                     });
 
-                Debug.WriteLineIf(!result.Success, result.Exception?.ToString());
+                    Debug.WriteLineIf(!result.Success, result.Exception?.ToString());
 
 
-                if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Fill)
-                {
-                    _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
+                    if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Fill)
+                    {
+                        _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
+                    }
+
+                    CoreNavigationView.IsBackEnabled = _contentFrameNavigationService.CanGoBack();
                 }
-
-                CoreNavigationView.IsBackEnabled = _contentFrameNavigationService.CanGoBack();
+                catch (Exception e)
+                {
+                    var errorPageParam = parameter.Select(x => (x.Key, x.Value.ToString())).ToDictionary(x => x.Key, x => x.Item2);
+                    errorPageParam.Add("PageType", pageName);
+                    ErrorTrackingManager.TrackError(e, errorPageParam);
+                }
             });
         }
 
@@ -900,10 +916,6 @@ namespace Hohoema.Presentation.Views.Pages
         // Using a DependencyProperty as the backing store for IsDebugModeEnabled.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsDebugModeEnabledProperty =
             DependencyProperty.Register("IsDebugModeEnabled", typeof(bool), typeof(PrimaryWindowCoreLayout), new PropertyMetadata(false));
-
-
-
-
 
         public void OpenErrorTeachingTip(ICommand sentErrorCommand, Action onClosing)
         {

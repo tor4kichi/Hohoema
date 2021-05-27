@@ -16,7 +16,7 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Searches.Video;
-using NiconicoLiveToolkit.Video;
+using NiconicoToolkit.Video;
 using Prism.Commands;
 using Prism.Unity;
 using Reactive.Bindings.Extensions;
@@ -632,39 +632,40 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         public static void Setup(this VideoListItemControlViewModel vm, Mntone.Nico2.Users.Video.VideoData data)
         {
-            if (vm.RawVideoId != data.VideoId) { throw new Exception(); }
+            if (vm.RawVideoId != data.VideoId) { throw new Models.Infrastructure.HohoemaExpception(); }
 
             vm.PostedAt = data.SubmitTime;
+            //vm.Length = data.Length;
         }
 
 
         // とりあえずマイリストから取得したデータによる初期化
         public static void Setup(this VideoListItemControlViewModel vm, MylistData data)
         {
-            if (data.WatchId != vm.RawVideoId) { throw new Exception(); }
+            if (data.WatchId != vm.RawVideoId) { throw new Models.Infrastructure.HohoemaExpception(); }
 
             // vm.VideoId = data.id
             vm.PostedAt = data.CreateTime;
 
             vm.ViewCount = (int)data.ViewCount;
             vm.CommentCount = (int)data.CommentCount;
-            vm.MylistCount = (int)data.MylistCount;
+            vm.MylistCount = (int)data.MylistCount;            
         }
 
 
         // 個別マイリストから取得したデータによる初期化
         public static void Setup(this VideoListItemControlViewModel vm, VideoInfo data)
         {
-            if (vm.RawVideoId != data.Video.Id) { throw new Exception(); }
+            if (vm.RawVideoId != data.Video.Id) { throw new Models.Infrastructure.HohoemaExpception(); }
 
             //vm.VideoId = data.Video.Id;
-            vm.PostedAt = data.Video.UploadTime;
+            vm.PostedAt = data.Video.FirstRetrieve;
             vm.ViewCount = (int)data.Video.ViewCount;
             vm.CommentCount = (int)data.Thread.GetCommentCount();
             vm.MylistCount = (int)data.Video.MylistCount;
 
-            vm.ProviderId = data.Video.UserId ?? data.Video.CommunityId;
-            vm.ProviderType = data.Thread.GroupType == "channel" ? NicoVideoUserType.Channel : NicoVideoUserType.User;
+            vm.ProviderType = data.Video.ProviderType == "channel" ? NicoVideoUserType.Channel : NicoVideoUserType.User;
+            vm.ProviderId = vm.ProviderType == NicoVideoUserType.Channel ? data.Video.CommunityId : data.Video.UserId;
         }
     }
 

@@ -1,7 +1,7 @@
-﻿using NiconicoLiveToolkit.Live.Notify;
-using NiconicoLiveToolkit.Live.Search;
-using NiconicoLiveToolkit.Live.WatchPageProp;
-using NiconicoLiveToolkit.Live.WatchSession;
+﻿using NiconicoToolkit.Live.Notify;
+using NiconicoToolkit.Live.Search;
+using NiconicoToolkit.Live.WatchPageProp;
+using NiconicoToolkit.Live.WatchSession;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,7 +13,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NiconicoLiveToolkit.Live
+namespace NiconicoToolkit.Live
 {
     public sealed class LiveClient
     {
@@ -36,6 +36,8 @@ namespace NiconicoLiveToolkit.Live
         const string LiveWatchPageFormat = "https://live2.nicovideo.jp/watch/{0}";
         public async Task<LiveWatchPageDataProp> GetLiveWatchPageDataPropAsync(string liveId, CancellationToken ct = default)
         {
+            await _context.WaitPageAccess();
+
             var html = await _context.GetStringAsync(string.Format(LiveWatchPageFormat, liveId));
             var scriptIdPosition = html.IndexOf("id=\"embedded-data\"");
             if (scriptIdPosition < 0) { throw new Exception(); }

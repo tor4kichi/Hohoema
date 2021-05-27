@@ -10,7 +10,7 @@ using Hohoema.Presentation.ViewModels.Pages.Niconico.Video;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.UI;
-using Mntone.Nico2.Videos.Ranking;
+using NiconicoToolkit.Video.Ranking;
 using Prism.Commands;
 using Prism.Navigation;
 using System;

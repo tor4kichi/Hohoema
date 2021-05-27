@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Presentation.ViewModels.Pages.Niconico;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,8 +26,26 @@ namespace Hohoema.Presentation.Views.Pages.Niconico
         public VideoInfomationPage()
         {
             this.InitializeComponent();
+
+            Loaded += VideoInfomationPage_Loaded;
         }
 
-        
+        private void VideoInfomationPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            _LoadingCalled = false;
+        }
+
+        bool _LoadingCalled;
+        private void IchibaItems_EffectiveViewportChanged(FrameworkElement sender, EffectiveViewportChangedEventArgs args)
+        {
+            if (!_LoadingCalled && args.BringIntoViewDistanceY <= 0)
+            {
+                _LoadingCalled = true;
+
+                var vm = (DataContext as VideoInfomationPageViewModel);
+                vm.InitializeIchibaItems();
+                vm.InitializeRelatedVideos();
+            }
+        }
     }
 }

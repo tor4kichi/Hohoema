@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NiconicoLiveToolkit.Live.Cas
+namespace NiconicoToolkit.Live.Cas
 {
     public enum CasLiveProviderType
     {

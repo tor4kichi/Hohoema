@@ -30,16 +30,6 @@ using Uno.Disposables;
 
 namespace Hohoema.Presentation.Views.Player
 {
-
-    public enum PlayerSidePaneContentType
-    {
-        None,
-        Playlist,
-        Comment,
-        Setting,
-        RelatedVideos,
-    }
-
     public sealed partial class VideoPlayerPage : Page
     {
         public VideoPlayerPage()
@@ -62,7 +52,7 @@ namespace Hohoema.Presentation.Views.Player
 
             CommentTextBox.GotFocus += CommentTextBox_GotFocus;
             CommentTextBox.LostFocus += CommentTextBox_LostFocus;
-            
+
             MediaControl.SizeChanged += MediaControl_SizeChanged;
 
             Loaded += VideoPlayerPage_Loaded;
@@ -230,7 +220,7 @@ namespace Hohoema.Presentation.Views.Player
             _nowVolumeChanging = true;
             try
             {
-                _ = _UIdispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+                _ = _UIdispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                 {
                     VolumeSlider.Value = _soundVolumeManager.Volume;
                 });
@@ -302,7 +292,7 @@ namespace Hohoema.Presentation.Views.Player
 
         private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
         {
-            _ = _UIdispatcher.RunAsync(CoreDispatcherPriority.Normal, (DispatchedHandler)(() => 
+            _ = _UIdispatcher.RunAsync(CoreDispatcherPriority.Normal, (DispatchedHandler)(() =>
             {
                 VideoPosition = sender.Position;
                 if (!this.NowVideoPositionChanging)
@@ -346,7 +336,7 @@ namespace Hohoema.Presentation.Views.Player
 
         DelegateCommand<string> _selectSidePaneCommand;
         DelegateCommand<string> SelectSidePaneCommand => _selectSidePaneCommand
-            ?? (_selectSidePaneCommand = new DelegateCommand<string>(str => 
+            ?? (_selectSidePaneCommand = new DelegateCommand<string>(str =>
             {
                 if (Enum.TryParse<PlayerSidePaneContentType>(str, out var type))
                 {

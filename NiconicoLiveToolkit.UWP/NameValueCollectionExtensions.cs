@@ -4,16 +4,15 @@ using System.Collections.Specialized;
 using System.Text;
 using System.Web;
 
-namespace NiconicoLiveToolkit
+namespace NiconicoToolkit
 {
     internal static class NameValueCollectionExtensions
     {
-        public static string ToQueryString(this NameValueCollection nvc)
+        public static StringBuilder ToQueryString(this NameValueCollection nvc, StringBuilder sb = null)
         {
-            if (nvc == null) return string.Empty;
+            sb ??= new StringBuilder();
 
-            StringBuilder sb = new StringBuilder();
-
+            bool isFirst = true;
             foreach (string key in nvc.Keys)
             {
                 if (string.IsNullOrWhiteSpace(key)) continue;
@@ -23,14 +22,24 @@ namespace NiconicoLiveToolkit
 
                 foreach (string value in values)
                 {
-                    sb.Append(sb.Length == 0 ? "?" : "&");
+                    sb.Append(isFirst ? "?" : "&");
                     sb.Append(Uri.EscapeDataString(key));
                     sb.Append("=");
                     sb.Append(Uri.EscapeDataString(value));
                 }
+
+                isFirst = false;
             }
 
-            return sb.ToString();
+            return sb;
+        }
+    }
+
+    internal static class StringBuilderExtensions
+    {
+        public static StringBuilder AppendQueryString(this StringBuilder sb, NameValueCollection nvc)
+        {
+            return nvc.ToQueryString(sb);
         }
     }
 }

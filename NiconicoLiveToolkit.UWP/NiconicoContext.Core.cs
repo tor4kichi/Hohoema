@@ -7,14 +7,17 @@ using System.Threading;
 using System.Text.Json;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Buffers;
-using NiconicoLiveToolkit.Live;
-using NiconicoLiveToolkit.Account;
+using NiconicoToolkit.Live;
+using NiconicoToolkit.Account;
 using System.Text.Json.Serialization;
-using NiconicoLiveToolkit.Live.Search;
+using NiconicoToolkit.Live.Search;
 using Windows.Storage.Streams;
 using System.IO;
-using NiconicoLiveToolkit.User;
-using NiconicoLiveToolkit.Video;
+using NiconicoToolkit.User;
+using NiconicoToolkit.Video;
+using NiconicoToolkit.Activity;
+using NiconicoToolkit.Search;
+using NiconicoToolkit.Recommend;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -23,33 +26,67 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 #endif
 
-namespace NiconicoLiveToolkit
+namespace NiconicoToolkit
 {
     public sealed partial class NiconicoContext 
     {
+        public NiconicoContext(string yourSiteUrl)
+            : this(new HttpClient())
+        {
+            HttpClient.DefaultRequestHeaders.UserAgent.TryParseAdd($"{nameof(NiconicoToolkit)}/1.0 (+{yourSiteUrl})");
+        }
 
         public NiconicoContext(
             HttpClient httpClient
             )
         {
             HttpClient = httpClient;
-            HttpClient.DefaultRequestHeaders.UserAgent.TryParseAdd($"{nameof(NiconicoLiveToolkit)}/1.0 (+https://github.com/tor4kichi/NiconicoLiveToolkit)");
             Live = new LiveClient(this);
             Account = new AccountClient(this);
             User = new UserClient(this);
             Video = new VideoClient(this);
+            Activity = new ActivityClient(this);
+            Search = new SearchClient(this);
+            Recommend = new RecommendClient(this);
+        }
+
+        TimeSpan _minPageAccessInterval = TimeSpan.FromSeconds(1);
+        DateTime _prevPageAccessTime;
+        internal async Task WaitPageAccess()
+        {
+            var elapsedTime = DateTime.Now - _prevPageAccessTime;
+            if (elapsedTime < _minPageAccessInterval)
+            {
+                await Task.Delay(_minPageAccessInterval - elapsedTime);
+            }
+
+            _prevPageAccessTime = DateTime.Now + TimeSpan.FromSeconds(1);
+        }
+
+        public void SetupDefaultRequestHeaders()
+        {
+            HttpClient.DefaultRequestHeaders.Add("Referer", "https://www.nicovideo.jp/");
+            HttpClient.DefaultRequestHeaders.Add("X-Frontend-Id", "6");
+            HttpClient.DefaultRequestHeaders.Add("X-Frontend-Version", "0");
+            HttpClient.DefaultRequestHeaders.Add("X-Niconico-Language", "ja-jp");
+
+            HttpClient.DefaultRequestHeaders.Add("Sec-Fetch-Dest", "empty");
+            HttpClient.DefaultRequestHeaders.Add("Sec-Fetch-Mode", "cors");
+            HttpClient.DefaultRequestHeaders.Add("Sec-Fetch-Site", "same-site");
+            HttpClient.DefaultRequestHeaders.Add("X-Request-With", "https://www.nicovideo.jp");
+
+            HttpClient.DefaultRequestHeaders.Add("Origin", "https://www.nicovideo.jp");
         }
 
         public HttpClient HttpClient { get; }
 
-
         public AccountClient Account { get; }
-
         public LiveClient Live { get; }
-
         public UserClient User { get; }
-
         public VideoClient Video { get; }
+        public ActivityClient Activity { get; }
+        public SearchClient Search { get; }
+        public RecommendClient Recommend { get; }
 
         #region 
 
@@ -119,6 +156,7 @@ namespace NiconicoLiveToolkit
             var content = new HttpFormUrlEncodedContent(form);
             return HttpClient.PostAsync(path, content).AsTask(ct);
         }
+
 #else
         internal Task<HttpResponseMessage> PostAsync(string path, HttpContent httpContent, CancellationToken ct = default)
         {
@@ -188,7 +226,19 @@ namespace NiconicoLiveToolkit
         }
 #endif
 
-#endregion
+
+        internal Task<T> DeleteJsonAsAsync<T>(string path, JsonSerializerOptions options = null, CancellationToken ct = default)
+        {
+            return DeleteJsonAsAsync<T>(new Uri(path), options, ct);
+        }
+
+        internal async Task<T> DeleteJsonAsAsync<T>(Uri path, JsonSerializerOptions options = null, CancellationToken ct = default)
+        {
+            var res = await SendAsync(HttpMethod.Delete, path, ct: ct);
+            return await res.Content.ReadAsAsync<T>(options, ct);
+        }
+
+        #endregion
     }
 
     internal static class HttpContentExtensions

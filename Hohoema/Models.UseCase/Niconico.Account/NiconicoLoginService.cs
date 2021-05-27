@@ -16,27 +16,55 @@ using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.Notification;
+using NiconicoToolkit.Account;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Models.UseCase.Niconico.Account
 {
-    public sealed class NiconicoLoginService : IDisposable
+    public sealed class NiconicoLoginService : IDisposable,
+        IRecipient<NiconicoSessionLoginRequireTwoFactorAsyncRequestMessage>
     {
         public NiconicoLoginService(
             NiconicoSession niconicoSession,
             NoUIProcessScreenContext noProcessUIScreenContext,
             DialogService dialogService,
-            NotificationService notificationService
+            NotificationService notificationService,
+            IMessenger messenger
             )
         {
             NiconicoSession = niconicoSession;
             _noProcessUIScreenContext = noProcessUIScreenContext;
             DialogService = dialogService;
             NotificationService = notificationService;
+            _messenger = messenger;
 
             // 二要素認証を求められるケースに対応する
             // 起動後の自動ログイン時に二要素認証を要求されることもある
-            NiconicoSession.RequireTwoFactorAuth += NiconicoSession_RequireTwoFactorAuth;
+            _messenger.Register<NiconicoSessionLoginRequireTwoFactorAsyncRequestMessage>(this);
+
+            NiconicoSession.LogIn += NiconicoSession_LogIn;
+            NiconicoSession.LogInFailed += NiconicoSession_LogInFailed;
+            NiconicoSession.LogOut += NiconicoSession_LogOut;
         }
+
+        private void NiconicoSession_LogInFailed(object sender, NiconicoSessionLoginErrorEventArgs e)
+        {
+            _twoFactorAuthLoginCts?.SetResult(0);
+        }
+
+        private void NiconicoSession_LogOut(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void NiconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
+        {
+            _twoFactorAuthLoginCts?.SetResult(0);
+        }
+
+
+
+        TaskCompletionSource<long> _twoFactorAuthLoginCts;
 
         public NiconicoSession NiconicoSession { get; }
         public DialogService DialogService { get; }
@@ -44,6 +72,7 @@ namespace Hohoema.Models.UseCase.Niconico.Account
 
         private DelegateCommand _LoginCommand;
         private readonly NoUIProcessScreenContext _noProcessUIScreenContext;
+        private readonly IMessenger _messenger;
 
         public DelegateCommand LoginCommand => _LoginCommand
             ?? (_LoginCommand = new DelegateCommand(async () => 
@@ -63,6 +92,10 @@ namespace Hohoema.Models.UseCase.Niconico.Account
                         await StartLoginSequence();
                     }
                 }
+                catch (OperationCanceledException)
+                {
+
+                }
                 finally
                 {
                     
@@ -70,13 +103,12 @@ namespace Hohoema.Models.UseCase.Niconico.Account
 
             }));
 
-
         private async Task StartLoginSequence()
         {
             var dialog = new Dialogs.NiconicoLoginDialog();
 
             var currentStatus = await NiconicoSession.CheckSignedInStatus();
-            if (currentStatus == Mntone.Nico2.NiconicoSignInStatus.ServiceUnavailable)
+            if (currentStatus == NiconicoSessionStatus.ServiceUnavailable)
             {
                 dialog.WarningText = "UnavailableNiconicoService".Translate();
 
@@ -105,26 +137,31 @@ namespace Hohoema.Models.UseCase.Niconico.Account
 
                 dialog.WarningText = string.Empty;
 
+                _twoFactorAuthLoginCts = new TaskCompletionSource<long>();
                 var loginResult = await NiconicoSession.SignIn(dialog.Mail, dialog.Password, true);
-                if (loginResult == Mntone.Nico2.NiconicoSignInStatus.ServiceUnavailable)
+
+                if (loginResult == NiconicoSessionStatus.RequireTwoFactorAuth)
+                {
+                    await _twoFactorAuthLoginCts.Task;
+
+                    loginResult = await NiconicoSession.CheckSignedInStatus();
+                }
+
+                _twoFactorAuthLoginCts = null;
+                
+                if (loginResult == NiconicoSessionStatus.ServiceUnavailable)
                 {
                     // サービス障害中
                     // 何か通知を出す？
                     NotificationService.ShowLiteInAppNotification("UnavailableNiconicoService".Translate(), DisplayDuration.MoreAttention, Windows.UI.Xaml.Controls.Symbol.Important);
                     break;
                 }
-
-                if (loginResult == Mntone.Nico2.NiconicoSignInStatus.TwoFactorAuthRequired)
-                {
-                    break;
-                }
-
-                if (loginResult == Mntone.Nico2.NiconicoSignInStatus.Failed)
+                else if (loginResult == NiconicoSessionStatus.Failed)
                 {
                     dialog.WarningText = "LoginFailed_WrongMailOrPassword".Translate();
                 }
 
-                isLoginSuccess = loginResult == Mntone.Nico2.NiconicoSignInStatus.Success;
+                isLoginSuccess = loginResult == NiconicoSessionStatus.Success;
             }
 
             // ログインを選択していた場合にのみアカウント情報を更新する
@@ -136,47 +173,19 @@ namespace Hohoema.Models.UseCase.Niconico.Account
                     AccountManager.RemoveAccount(account.Item1);
                 }
 
+                AccountManager.SetPrimaryAccountId(dialog.Mail);
                 if (dialog.IsRememberPassword)
                 {
                     await AccountManager.AddOrUpdateAccount(dialog.Mail, dialog.Password);
-                    AccountManager.SetPrimaryAccountId(dialog.Mail);
-                }
-                else
-                {
-                    AccountManager.SetPrimaryAccountId("");
                 }
             }
         }
 
-        private async void NiconicoSession_RequireTwoFactorAuth(object sender, NiconicoSessionLoginRequireTwoFactorAuthEventArgs e)
+
+        async Task<NiconicoSessionLoginRequireTwoFactorAuthResponse> ShowTwoFactorNumberInputDialogAsync(Uri uri)
         {
-            var deferral = e.Deferral;
-            var currentView = CoreApplication.GetCurrentView();
-            if (currentView.IsMain)
-            {
-                await _noProcessUIScreenContext.StartNoUIWork("NowProcessTwoFactorAuth".Translate(),
-                        () => ShowTwoFactorNumberInputDialogAsync(e.HttpRequestMessage.RequestUri, e.Context).AsAsyncAction()
-                        );
-            }
-            else
-            {
-                await ShowTwoFactorNumberInputDialogAsync(e.HttpRequestMessage.RequestUri, e.Context);
-            }
+            await Task.Delay(250);
 
-            deferral.Complete();
-
-            // ログイン処理が終わるぐらいまで待機して
-            await Task.Delay(500);
-
-            // ログインに失敗していた場合はダイアログを再表示
-            if (!NiconicoSession.IsLoggedIn && !NiconicoSession.ServiceStatus.IsOutOfService())
-            {
-                LoginCommand.Execute();
-            }
-        }
-
-        async Task ShowTwoFactorNumberInputDialogAsync(Uri uri, NiconicoContext context)
-        {
             var dialog = new TwoFactorAuthDialog()
             {
                 IsTrustedDevice = true,
@@ -187,19 +196,29 @@ namespace Hohoema.Models.UseCase.Niconico.Account
 
             if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
             {
-                var codeText = dialog.CodeText;
-                var isTrustedDevice = dialog.IsTrustedDevice;
-                var deviceName = dialog.DeviceName;
-                var mfaResult = await NiconicoSession.TryTwoFactorAuthAsync(uri, context, codeText, isTrustedDevice, deviceName);
-
-                Debug.WriteLine(mfaResult);
+                return new NiconicoSessionLoginRequireTwoFactorAuthResponse(dialog.CodeText, dialog.IsTrustedDevice, dialog.DeviceName);
             }
-            
+            else
+            {
+                return null;
+            }
         }
 
         public void Dispose()
         {
-            NiconicoSession.RequireTwoFactorAuth -= NiconicoSession_RequireTwoFactorAuth;
+        }
+
+        void IRecipient<NiconicoSessionLoginRequireTwoFactorAsyncRequestMessage>.Receive(NiconicoSessionLoginRequireTwoFactorAsyncRequestMessage message)
+        {
+            message.Reply(ShowTwoFactorNumberInputDialogAsync(message.TwoFactorAuthLocation));
+
+            // ログインに失敗していた場合はダイアログを再表示
+            /*
+            if (!NiconicoSession.IsLoggedIn && !NiconicoSession.ServiceStatus.IsOutOfService())
+            {
+                LoginCommand.Execute();
+            }
+            */
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿
-namespace NiconicoLiveToolkit.Live.Events
+namespace NiconicoToolkit.Live.Events
 {
     public struct CommentPostedEventArgs
     {

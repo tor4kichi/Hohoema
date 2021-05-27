@@ -1,4 +1,4 @@
-﻿using NiconicoLiveToolkit.Live;
+﻿using NiconicoToolkit.Live;
 
 namespace Hohoema.Models.Domain.Niconico.Live
 {

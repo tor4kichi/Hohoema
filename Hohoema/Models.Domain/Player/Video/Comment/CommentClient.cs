@@ -1,7 +1,7 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Dmc;
-using NiconicoLiveToolkit.Live.WatchSession;
+using NiconicoToolkit.Live.WatchSession;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Video;

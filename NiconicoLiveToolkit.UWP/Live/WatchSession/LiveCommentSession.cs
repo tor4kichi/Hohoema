@@ -1,4 +1,4 @@
-﻿using NiconicoLiveToolkit.Live.Events;
+﻿using NiconicoToolkit.Live.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,10 +9,10 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using NiconicoLiveToolkit.Live.WatchSession;
-using NiconicoLiveToolkit.Live.WatchSession.ToClientMessage;
+using NiconicoToolkit.Live.WatchSession;
+using NiconicoToolkit.Live.WatchSession.ToClientMessage;
 
-namespace NiconicoLiveToolkit.Live.WatchSession
+namespace NiconicoToolkit.Live.WatchSession
 {
     using AsyncLock = NeoSmart.AsyncLock.AsyncLock;
     using WebSocket = WebSocket4Net.WebSocket;

@@ -1,5 +1,5 @@
 ﻿using Mntone.Nico2.Communities.Detail;
-using NiconicoLiveToolkit.Live;
+using NiconicoToolkit.Live;
 using Hohoema.Models.Domain.Niconico.Live;
 
 namespace Hohoema.Presentation.ViewModels.Community

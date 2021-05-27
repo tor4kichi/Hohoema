@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Models.Domain.Niconico.Channel;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {
@@ -16,7 +17,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         Hidden,
     }
 
-    public class NicoVideoOwner
+    public class NicoVideoOwner : IUser, IChannel
     {
         [BsonId]
         public string OwnerId { get; set; }
@@ -26,6 +27,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
         public NicoVideoUserType UserType { get; set; }
 
         public string ScreenName { get; set; }
+
+        string IUser.IconUrl => this.IconUrl;
+
+        string INiconicoObject.Id => this.OwnerId;
+
+        string INiconicoObject.Label => this.ScreenName;
     }
 
 

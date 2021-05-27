@@ -1,4 +1,4 @@
-﻿using NiconicoLiveToolkit.Live.WatchSession;
+﻿using NiconicoToolkit.Live.WatchSession;
 using System;
 using System.Buffers;
 using System.Buffers.Text;

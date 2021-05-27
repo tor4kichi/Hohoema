@@ -283,15 +283,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     var channelVideo = new ChannelVideoListItemViewModel(video.ItemId, video.Title, video.ThumbnailUrl, video.Length);
                     if (video.IsRequirePayment)
                     {
-                        channelVideo.Permission = NiconicoLiveToolkit.Video.VideoPermission.RequirePay;
+                        channelVideo.Permission = NiconicoToolkit.Video.VideoPermission.RequirePay;
                     }
                     else if (video.IsFreeForMember)
                     {
-                        channelVideo.Permission = NiconicoLiveToolkit.Video.VideoPermission.FreeForChannelMember;
+                        channelVideo.Permission = NiconicoToolkit.Video.VideoPermission.FreeForChannelMember;
                     }
                     else if (video.IsMemberUnlimitedAccess)
                     {
-                        channelVideo.Permission = NiconicoLiveToolkit.Video.VideoPermission.MemberUnlimitedAccess;
+                        channelVideo.Permission = NiconicoToolkit.Video.VideoPermission.MemberUnlimitedAccess;
                     }
                     channelVideo.PostedAt = video.PostedAt;
                     channelVideo.ViewCount = video.ViewCount;

@@ -11,7 +11,7 @@ using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Notifications;
-using NiconicoLiveToolkit.Live;
+using NiconicoToolkit.Live;
 using Prism.Commands;
 using System;
 using System.Linq;
@@ -145,7 +145,7 @@ namespace Hohoema.Presentation.Services
 
         private async Task<InAppNotificationPayload> SubmitLiveContentSuggestion(string liveId)
         {
-            var liveDesc = await NicoLiveProvider.NiconicoSession.LiveContext.Live.CasApi.GetLiveProgramAsync(liveId);
+            var liveDesc = await NicoLiveProvider.NiconicoSession.ToolkitContext.Live.CasApi.GetLiveProgramAsync(liveId);
 
             if (liveDesc == null) { return null; }
 

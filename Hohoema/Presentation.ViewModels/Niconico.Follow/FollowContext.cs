@@ -10,9 +10,8 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
-    
-    public sealed class FollowContext<ItemType> : BindableBase
-        where ItemType : IFollowable
+
+    public sealed class FollowContext<ItemType> : BindableBase, IFollowContext where ItemType : IFollowable
     {
         public static async Task<FollowContext<ItemType>> CreateAsync(IFollowProvider<ItemType> provider, ItemType followable)
         {
@@ -53,7 +52,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         private DelegateCommand _AddFollowCommand;
         public DelegateCommand AddFollowCommand => _AddFollowCommand
-            ??= new DelegateCommand(async () => 
+            ??= new DelegateCommand(async () =>
             {
                 await AddFollowAsync();
             });

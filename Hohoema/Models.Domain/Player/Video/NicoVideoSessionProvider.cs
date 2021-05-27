@@ -60,7 +60,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
         public NicoVideoTag[] Tags { get; }
 
-        public string ThumbnailUrl => _dmcWatchRes.Video.Thumbnail.Url.OriginalString;
+        public string ThumbnailUrl => _dmcWatchRes.Video.Thumbnail.LargeUrl.OriginalString;
 
         public TimeSpan VideoLength => TimeSpan.FromSeconds(_dmcWatchRes.Video.Duration);
 
@@ -95,6 +95,7 @@ namespace Hohoema.Models.Domain.Player.Video
             }
         }
 
+       
         public bool IsSeriesVideo => _dmcWatchRes?.Series != null;
         public Series Series => _dmcWatchRes?.Series;
 

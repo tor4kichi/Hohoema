@@ -1,7 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Communities.Detail;
 using Mntone.Nico2.Communities.Info;
-using Mntone.Nico2.Videos.Ranking;
 using Hohoema.Models.Infrastructure;
 using System;
 using System.Collections.Generic;

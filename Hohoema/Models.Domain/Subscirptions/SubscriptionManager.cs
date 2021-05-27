@@ -73,7 +73,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             var owner = _nicoVideoOwnerRepository.Get(video.ProviderId);
             if (owner == null)
             {
-                throw new Exception("cannot resolve name for video provider from local DB.");
+                throw new Models.Infrastructure.HohoemaExpception("cannot resolve name for video provider from local DB.");
             }
 
             if (video.ProviderType == NicoVideoUserType.Channel)

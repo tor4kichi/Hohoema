@@ -16,7 +16,7 @@ using System.IO;
 using AngleSharp.Html.Dom;
 using AngleSharp.Dom;
 
-namespace NiconicoLiveToolkit.Live.Search
+namespace NiconicoToolkit.Live.Search
 {
 	/// <summary>
 	/// niconicoコンテンツ検索APIの生放送検索
@@ -137,6 +137,8 @@ namespace NiconicoLiveToolkit.Live.Search
             string urlWithQuery = sb.ToString();
 			try
 			{
+				await _context.WaitPageAccess();
+
 				var responseMessage = await _context.GetAsync(urlWithQuery, ct: cancellationToken);
 				using (var inputStream = await responseMessage.Content.ReadAsInputStreamAsync())
                 {

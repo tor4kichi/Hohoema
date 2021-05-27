@@ -11,6 +11,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico;
+using NiconicoToolkit.Account;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {
@@ -125,9 +126,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             IsServiceUnavailable.Value = false;
 
             var result = await NiconicoSession.SignIn(Mail.Value, Password.Value, withClearAuthenticationCache:true);
-            IsValidAccount.Value = result == Mntone.Nico2.NiconicoSignInStatus.Success;
-            IsAuthoricationFailed.Value = result == Mntone.Nico2.NiconicoSignInStatus.Failed;
-            IsServiceUnavailable.Value = result == Mntone.Nico2.NiconicoSignInStatus.ServiceUnavailable;
+            IsValidAccount.Value = result == NiconicoSessionStatus.Success;
+            IsAuthoricationFailed.Value = result == NiconicoSessionStatus.Failed;
+            IsServiceUnavailable.Value = result == NiconicoSessionStatus.ServiceUnavailable;
 
 
             if (IsValidAccount.Value)

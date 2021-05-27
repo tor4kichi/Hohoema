@@ -217,7 +217,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
             if (SearchOption == null)
             {
-                throw new Exception("コミュニティ検索");
+                throw new Models.Infrastructure.HohoemaExpception("コミュニティ検索");
             }
 
             SelectedSearchSort.Value = CommunitySearchSortOptionListItems.FirstOrDefault(x => x.Order == SearchOption.Order && x.Sort == SearchOption.Sort);

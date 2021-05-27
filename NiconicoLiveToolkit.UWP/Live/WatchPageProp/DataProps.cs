@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace NiconicoLiveToolkit.Live.WatchPageProp
+namespace NiconicoToolkit.Live.WatchPageProp
 {
     // Generated with https://app.quicktype.io/
 

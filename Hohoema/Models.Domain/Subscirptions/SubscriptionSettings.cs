@@ -7,8 +7,14 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.Domain.Subscriptions
 {
-    public sealed class SubscriptionSettingsRepository : FlagsRepositoryBase
-    {
+    public sealed class SubscriptionSettings : FlagsRepositoryBase
+    { 
+        public bool IsSubscriptionAutoUpdateEnabled
+        {
+            get => Read(true);
+            set => Save(value);
+        }
+
         public DateTime SubscriptionsLastUpdatedAt
         {
             get => Read(DateTime.Now);

@@ -19,9 +19,9 @@ using Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent;
 using Hohoema.Presentation.Views.Player;
 using I18NPortable;
 using Microsoft.Toolkit.Uwp;
-using NiconicoLiveToolkit.Live;
-using NiconicoLiveToolkit.Live.WatchPageProp;
-using NiconicoLiveToolkit.Live.WatchSession;
+using NiconicoToolkit.Live;
+using NiconicoToolkit.Live.WatchPageProp;
+using NiconicoToolkit.Live.WatchSession;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
@@ -175,7 +175,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         }
 
 
-        private NiconicoLiveToolkit.NiconicoContext LiveContext => NiconicoSession.LiveContext;
+        private NiconicoToolkit.NiconicoContext LiveContext => NiconicoSession.ToolkitContext;
 
         private LiveWatchPageDataProp _PlayerProp;
         private Live2WatchSession _watchSession;
@@ -908,7 +908,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                     return;
                 }
 
-                _watchSession = NiconicoLiveToolkit.Live.LiveClient.CreateWatchSession(_PlayerProp);
+                _watchSession = NiconicoToolkit.Live.LiveClient.CreateWatchSession(_PlayerProp);
 
                 _watchSession.RecieveStream += _watchSession_RecieveStream;
                 _watchSession.RecieveRoom += _watchSession_RecieveRoom;
@@ -1147,7 +1147,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             });
         }
 
-        private void _CommentSession_CommentReceived(object sender, NiconicoLiveToolkit.Live.Events.CommentReceivedEventArgs e)
+        private void _CommentSession_CommentReceived(object sender, NiconicoToolkit.Live.Events.CommentReceivedEventArgs e)
         {
             LiveComment ChatToComment(LiveChatData x)
             {
@@ -1229,17 +1229,17 @@ namespace Hohoema.Presentation.ViewModels.Player
             }
         }
 
-        private void _CommentSession_CommentPosted(object sender, NiconicoLiveToolkit.Live.Events.CommentPostedEventArgs e)
+        private void _CommentSession_CommentPosted(object sender, NiconicoToolkit.Live.Events.CommentPostedEventArgs e)
         {
             
         }
 
-        private void _CommentSession_Connected(object sender, NiconicoLiveToolkit.Live.Events.CommentServerConnectedEventArgs e)
+        private void _CommentSession_Connected(object sender, NiconicoToolkit.Live.Events.CommentServerConnectedEventArgs e)
         {
             
         }
 
-        private void _CommentSession_Disconnected(object sender, NiconicoLiveToolkit.Live.Events.CommentServerDisconnectedEventArgs e)
+        private void _CommentSession_Disconnected(object sender, NiconicoToolkit.Live.Events.CommentServerDisconnectedEventArgs e)
         {
         }
 

@@ -2,50 +2,60 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace NiconicoLiveToolkit.Video
+namespace NiconicoToolkit.Video
 {
     public sealed class VideoClient
     {
         private readonly NiconicoContext _context;
 
+        JsonSerializerOptions _videoInfoSerializerOption;
+
+        public Ranking.VideoRankinguSubClient Ranking { get; }
+
         internal VideoClient(NiconicoContext context)
         {
             _context = context;
+            Ranking = new Ranking.VideoRankinguSubClient(context);
+
+            _videoInfoSerializerOption = new JsonSerializerOptions()
+            {
+                Converters =
+                {
+                    new JsonStringEnumMemberConverter()
+                }
+            };
         }
 
         public async Task<NicovideoVideoResponse> GetVideoInfoAsync(string videoId)
         {
             string url = $"http://api.ce.nicovideo.jp/nicoapi/v1/video.info?v={videoId}&__format=json";
-            var res = await _context.GetJsonAsAsync<NicoVideoInfoResponseContainer>(url);
+            var res = await _context.GetJsonAsAsync<NicoVideoInfoResponseContainer>(url, _videoInfoSerializerOption);
             return res.NicovideoVideoResponse;
         }
 
         public async Task<NicovideoVideoManyResponse> GetVideoInfoManyAsync(IEnumerable<string> videoIdList)
         {
             string url = $"http://api.ce.nicovideo.jp/nicoapi/v1/video.array?v={string.Join(Uri.EscapeDataString(","), videoIdList)}&__format=json";
-            var res = await _context.GetJsonAsAsync<NicoVideoInfoManyResponseContainer>(url);
+            var res = await _context.GetJsonAsAsync<NicoVideoInfoManyResponseContainer>(url, _videoInfoSerializerOption);
             return res.NicovideoVideoResponse;
         }
     }
 
     public partial class NicoVideoInfoManyResponseContainer
     {
-        [JsonPropertyName("nicovideo_video_response")]
+        [JsonPropertyName("niconico_response")]
         public NicovideoVideoManyResponse NicovideoVideoResponse { get; set; }
     }
 
     public class NicovideoVideoManyResponse
     {
         [JsonPropertyName("video_info")]
-        [JsonConverter(typeof(SingleOrArrayConverter<List<NicovideoVideoResponse>, NicovideoVideoResponse>))]
-        public List<NicovideoVideoResponse> Videos { get; set; }
-
-        [JsonPropertyName("count")]
-        [JsonConverter(typeof(LongToStringConverter))]
-        public long Count { get; set; }
+        [JsonConverter(typeof(SingleOrArrayConverter<List<NicovideoVideoItem>, NicovideoVideoItem>))]
+        public List<NicovideoVideoItem> Videos { get; set; }
 
         [JsonPropertyName("@status")]
         public string Status { get; set; }
@@ -54,10 +64,19 @@ namespace NiconicoLiveToolkit.Video
         public bool IsOK => Status == "ok";
     }
 
+    public partial class NicovideoVideoItem
+    {
+        [JsonPropertyName("video")]
+        public Video Video { get; set; }
+
+        [JsonPropertyName("thread")]
+        public Thread Thread { get; set; }
+    }
+
 
     public partial class NicoVideoInfoResponseContainer
     {
-        [JsonPropertyName("nicovideo_video_response")]
+        [JsonPropertyName("niconico_response")]
         public NicovideoVideoResponse NicovideoVideoResponse { get; set; }
     }
 
@@ -141,15 +160,8 @@ namespace NiconicoLiveToolkit.Video
         [JsonPropertyName("thumbnail_url")]
         public Uri ThumbnailUrl { get; set; }
 
-        [JsonPropertyName("upload_time")]
-        public DateTimeOffset UploadTime { get; set; }
-
         [JsonPropertyName("first_retrieve")]
         public DateTimeOffset FirstRetrieve { get; set; }
-
-        [JsonPropertyName("default_thread")]
-        [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long DefaultThread { get; set; }
 
         [JsonPropertyName("view_counter")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
@@ -162,45 +174,21 @@ namespace NiconicoLiveToolkit.Video
         [JsonPropertyName("genre")]
         public Genre Genre { get; set; }
 
-        [JsonPropertyName("option_flag_community")]
-        [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long OptionFlagCommunity { get; set; }
-
-        [JsonPropertyName("option_flag_nicowari")]
-        [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long OptionFlagNicowari { get; set; }
-
-        [JsonPropertyName("option_flag_middle_thumbnail")]
-        [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long OptionFlagMiddleThumbnail { get; set; }
-
-        [JsonPropertyName("option_flag_dmc_play")]
-        [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long OptionFlagDmcPlay { get; set; }
-
         [JsonPropertyName("community_id")]
         public string CommunityId { get; set; }
-
-        [JsonPropertyName("vita_playable")]
-        public string VitaPlayable { get; set; }
 
         [JsonPropertyName("ppv_video")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
         public long PpvVideo { get; set; }
 
-        [JsonPropertyName("permission")]
-        public string Permission { get; set; }
 
         [JsonPropertyName("provider_type")]
-        public string ProviderType { get; set; }
-
-        [JsonPropertyName("options")]
-        public Options Options { get; set; }
-
+        public VideoProviderType ProviderType { get; set; }
 
         [JsonIgnore]
         private bool IsPayRequired => PpvVideo == 1;
 
+        /*
         [JsonIgnore]
         public VideoPermission VideoPermission
         {
@@ -214,6 +202,7 @@ namespace NiconicoLiveToolkit.Video
                 _ => VideoPermission.Unknown,
             };
         }
+        */
     }
 
 
@@ -230,19 +219,19 @@ namespace NiconicoLiveToolkit.Video
     {
         [JsonPropertyName("@mobile")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long Mobile { get; set; }
+        public long? Mobile { get; set; }
 
         [JsonPropertyName("@sun")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long Sun { get; set; }
+        public long? Sun { get; set; }
 
         [JsonPropertyName("@large_thumbnail")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long LargeThumbnail { get; set; }
+        public long? LargeThumbnail { get; set; }
 
         [JsonPropertyName("@adult")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
-        public long Adult { get; set; }
+        public long? Adult { get; set; }
     }
 }
 

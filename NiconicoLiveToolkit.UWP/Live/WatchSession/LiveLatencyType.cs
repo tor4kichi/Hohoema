@@ -1,4 +1,4 @@
-﻿namespace NiconicoLiveToolkit.Live.WatchSession
+﻿namespace NiconicoToolkit.Live.WatchSession
 {
     public enum LiveLatencyType
     { 

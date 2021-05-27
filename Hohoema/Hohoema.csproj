@@ -142,6 +142,9 @@
     <Compile Include="Models.Domain\Application\FeatureFlags.cs" />
     <Compile Include="Models.Domain\Application\HohoemaAppServiceLevel.cs" />
     <Compile Include="Models.Domain\Application\ToastNotificationConstants.cs" />
+    <Compile Include="Models.Domain\Niconico\Recommend\RecommendProvider.cs" />
+    <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\IWatchHistory.cs" />
+    <Compile Include="Models.Infrastructure\HohoemaExpception.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\LoginUser\IFollowProvider.cs" />
     <Compile Include="Models.Domain\Pins\PinSettings.cs" />
     <Compile Include="Models.Domain\Niconico\AccountManager.cs" />
@@ -181,7 +184,6 @@
     <Compile Include="Models.Domain\Niconico\Follow\FollowItemInfo.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\FollowItemType.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\IFollowable.cs" />
-    <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\IWatchHistory.cs" />
     <Compile Include="Models.Domain\Niconico\Live\LoginUser\LoginUserLiveReservationProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\LoginUserHistoryProvider.cs" />
     <Compile Include="Models.Domain\Niconico\NicoRepo\LoginUser\LoginUserNicoRepoProvider.cs" />
@@ -271,7 +273,7 @@
     <Compile Include="Models.Domain\Subscirptions\SubscriptionFeedResultRepository.cs" />
     <Compile Include="Models.Domain\Subscirptions\SubscriptionManager.cs" />
     <Compile Include="Models.Domain\Subscirptions\SubscriptionRegistrationRepository.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionSettingsRepository.cs" />
+    <Compile Include="Models.Domain\Subscirptions\SubscriptionSettings.cs" />
     <Compile Include="Models.Domain\Subscirptions\SubscriptionSourceEntity.cs" />
     <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperation.cs" />
     <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperationOutput.cs" />
@@ -392,6 +394,7 @@
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowCommunityGroupViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowTagGroupViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowUserGroupViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Follow\IFollowContext.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Live\LiveInfoListItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Share\CopyToClipboardWithShareTextCommand.cs" />
     <Compile Include="Presentation.Services\UINavigation\UINavigationButtons.cs" />
@@ -517,6 +520,16 @@
     <Compile Include="Presentation.ViewModels\Player\MediaPlayerSetPlaybackRateCommand.cs" />
     <Compile Include="Presentation.ViewModels\Player\MediaPlayerToggleMuteCommand.cs" />
     <Compile Include="Presentation.ViewModels\Player\MediaPlayerVolumeChangeCommand.cs" />
+    <Compile Include="Presentation.Views.Player\PlayerSidePaneContentType.cs" />
+    <Compile Include="Presentation.Views.Player\VideoPlayerUI\DesktopPlayerUI.xaml.cs">
+      <DependentUpon>DesktopPlayerUI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presentation.Views.Player\VideoPlayerUI\NallowPlayerUI.xaml.cs">
+      <DependentUpon>NallowPlayerUI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presentation.Views.Player\VideoPlayerUI\SeekbarSlider.xaml.cs">
+      <DependentUpon>SeekbarSlider.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\EmptySidePaneContentViewModel.cs" />
     <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\LiveCommentsSidePaneContentViewModel.cs" />
     <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\PlaylistSidePaneContentViewModel.cs" />
@@ -745,6 +758,7 @@
     <Compile Include="Presentation.Views\Extensions\MediaPlayer\MediaPlayerSetter.cs" />
     <Compile Include="Presentation.Views\Extensions\VIsualStateManager\DebugCurrentState.cs" />
     <Compile Include="Presentation.Views\Extensions\WebView\IgnoreScrolling.cs" />
+    <Compile Include="Presentation.Views\Extensions\WebView\LoadHtmlString.cs" />
     <Compile Include="Presentation.Views\Extensions\WebView\PreventSpoilerXYNavigationInWebView.cs" />
     <Compile Include="Presentation.Views\Extensions\WebView\WebViewAutoResizeToContent.cs" />
     <Compile Include="Presentation.Views\Extensions\WebView\WebViewNotifyUriClicked.cs" />
@@ -1101,6 +1115,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Presentation.Views.Player\VideoPlayerUI\DesktopPlayerUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation.Views.Player\VideoPlayerUI\NallowPlayerUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation.Views.Player\VideoPlayerUI\SeekbarSlider.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Presentation.Views\Controls\ListItem\HohoemaListItemMiniCard.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1439,9 +1465,9 @@
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NiconicoLiveToolkit.UWP\NiconicoLiveToolkit.UWP.csproj">
+    <ProjectReference Include="..\NiconicoLiveToolkit.UWP\NiconicoToolkit.UWP.csproj">
       <Project>{311b8388-57d0-4724-ad17-be76a2abf0a9}</Project>
-      <Name>NiconicoLiveToolkit.UWP</Name>
+      <Name>NiconicoToolkit.UWP</Name>
     </ProjectReference>
     <ProjectReference Include="..\OpenNiconico2\Mntone.Nico2.UWP_Latest\Mntone.Nico2.UWP_Latest.csproj">
       <Project>{cc63ef1d-ecd6-478d-8852-5c45fbbf697a}</Project>

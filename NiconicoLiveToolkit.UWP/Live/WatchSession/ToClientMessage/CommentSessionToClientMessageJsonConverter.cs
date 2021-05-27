@@ -5,7 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace NiconicoLiveToolkit.Live.WatchSession.ToClientMessage
+namespace NiconicoToolkit.Live.WatchSession.ToClientMessage
 {
     internal sealed class CommentSessionToClientMessageJsonConverter : JsonConverter<CommentSessionToClientMessage>
     {

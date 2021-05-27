@@ -35,6 +35,8 @@ using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.Video.Series;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.Domain.Notification;
+using System.Collections.Generic;
+using Hohoema.Presentation.Views.Player;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -43,10 +45,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 	{
         // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
         private readonly IScheduler _scheduler;
-
-
-
-
+        
         public VideoPlayerPageViewModel(
             IScheduler scheduler,
             NiconicoSession niconicoSession,
@@ -303,7 +302,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             get { return _CannotPlayReason; }
             set { SetProperty(ref _CannotPlayReason, value); }
         }
-
 
 
 
@@ -589,7 +587,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                     MediaPlayer.Source = null;
                 }
             }
-            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
+            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
             finally
             {
                 defferal.Complete();
@@ -602,7 +600,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             {
                 StartStateSavingTimer();
             }
-            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
+            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
         }
 
 
@@ -640,7 +638,6 @@ namespace Hohoema.Presentation.ViewModels.Player
                 */
             }
         }
-
 
     }
 

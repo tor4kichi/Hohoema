@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NiconicoLiveToolkit.Live
+namespace NiconicoToolkit.Live
 {
     // Generated with https://app.quicktype.io/
 

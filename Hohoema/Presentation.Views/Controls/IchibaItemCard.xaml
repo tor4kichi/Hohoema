@@ -13,35 +13,28 @@
     d:DataContext="{d:DesignData Type=ichiba:IchibaItem}"
     >
 
-    <Grid >
+  <Grid BorderBrush="{ThemeResource SystemAccentColorDark2}" BorderThickness="1" Padding="8" MaxWidth="320"
+        Background="{ThemeResource SystemAltLowColor}"
+        >
+    <toolkit:DockPanel>
+      <HyperlinkButton NavigateUri="{Binding AmazonItemLink}" toolkit:DockPanel.Dock="Left"  >
+        <Image Source="{Binding ThumbnailUrl}" Height="100" toolkit:DockPanel.Dock="Top" />
+      </HyperlinkButton>
+
+      <StackPanel Margin="8 0" >
         <HyperlinkButton NavigateUri="{Binding AmazonItemLink}"  >
-            <toolkit:DockPanel 
-                                                      Width="100"
-                                                      >
-
-                <Image Source="{Binding ThumbnailUrl}"
-                                                       Height="100"
-                                                       toolkit:DockPanel.Dock="Top"
-                                                       />
-
-                <Border VerticalAlignment="Bottom"
-                                                        Margin="0 8"
-                                                        >
-                    <Border.Background>
-                        <SolidColorBrush Color="{StaticResource SystemAltMediumColor}" />
-                    </Border.Background>
-                    <TextBlock Text="{Binding Title}" 
-                                                               TextWrapping="Wrap"
-                                                               FontSize="12"
-                                                               >
-                        <TextBlock.Foreground>
-                            <SolidColorBrush Color="{StaticResource SystemBaseMediumHighColor}" />
-                        </TextBlock.Foreground>
-                    </TextBlock>
-                </Border>
-
-            </toolkit:DockPanel>
-
+          <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="12">
+            <TextBlock.Foreground>
+              <SolidColorBrush Color="{StaticResource SystemBaseMediumHighColor}" />
+            </TextBlock.Foreground>
+          </TextBlock>
         </HyperlinkButton>
-    </Grid>
+        <TextBlock Text="{Binding Maker}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
+        <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" >
+          <Run Text="{Binding Price, Converter={StaticResource ToUserFriendlyNumber}}" />
+        </TextBlock>
+      </StackPanel>
+
+    </toolkit:DockPanel>
+  </Grid>
 </UserControl>

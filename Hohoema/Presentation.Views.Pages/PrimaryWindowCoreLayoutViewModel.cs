@@ -17,8 +17,8 @@ using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
-using NiconicoLiveToolkit.Live;
-using NiconicoLiveToolkit.Live.Notify;
+using NiconicoToolkit.Live;
+using NiconicoToolkit.Live.Notify;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
@@ -60,7 +60,6 @@ namespace Hohoema.Presentation.ViewModels
         private readonly LocalMylistManager _localMylistManager;
         public OpenLiveContentCommand OpenLiveContentCommand { get; }
 
-        private readonly ErrorTrackingManager _errorTrackingManager;
         private readonly DialogService _dialogService;
         private readonly NotificationService _notificationService;
 
@@ -75,7 +74,6 @@ namespace Hohoema.Presentation.ViewModels
         public LocalMylistSubMenuItemViewModel _localMylistMenuSubItemViewModel { get; }
 
         public PrimaryWindowCoreLayoutViewModel(
-            ErrorTrackingManager errorTrackingManager,
             NiconicoSession niconicoSession,
             PageManager pageManager,
             PinSettings pinSettings,
@@ -97,7 +95,6 @@ namespace Hohoema.Presentation.ViewModels
             OpenLiveContentCommand openLiveContentCommand
             )
         {
-            _errorTrackingManager = errorTrackingManager;
             NiconicoSession = niconicoSession;
             PageManager = pageManager;
             PinSettings = pinSettings;
@@ -683,7 +680,7 @@ namespace Hohoema.Presentation.ViewModels
         {
             try
             {
-                var unread = await _niconicoSession.LiveContext.Live.LiveNotify.GetUnreadLiveNotifyAsync();
+                var unread = await _niconicoSession.ToolkitContext.Live.LiveNotify.GetUnreadLiveNotifyAsync();
                 IsUnread = unread.Data.IsUnread;
                 NotifyCount = unread.Data.Count;
             }
@@ -713,7 +710,7 @@ namespace Hohoema.Presentation.ViewModels
 
             _nextRefreshAvairableAt = DateTime.Now + TimeSpan.FromMinutes(1);
 
-            var res = await _niconicoSession.LiveContext.Live.LiveNotify.GetLiveNotifyAsync();
+            var res = await _niconicoSession.ToolkitContext.Live.LiveNotify.GetLiveNotifyAsync();
             Items.Clear();
             foreach (var data in res.Data.NotifyboxContent)
             {

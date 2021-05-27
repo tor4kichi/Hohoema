@@ -46,7 +46,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         }
 
 
-        NiconicoLiveToolkit.Video.VideoClient VideoClient => NiconicoSession.LiveContext.Video;
+        NiconicoToolkit.Video.VideoClient VideoClient => NiconicoSession.ToolkitContext.Video;
 
 
         static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(5);
@@ -130,7 +130,8 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     info.ViewCount = (int)video.ViewCounter;
                     info.MylistCount = (int)video.MylistCounter;
                     info.CommentCount = (int)res.Thread.NumRes;
-                    info.Permission = res.Video.VideoPermission;
+//                    info.Permission = res.Video.VideoPermission;
+/*
 #if DEBUG
                     if (info.Permission is 
                         NiconicoLiveToolkit.Video.VideoPermission.Unknown or
@@ -143,9 +144,10 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         }
                     }
 #endif
+*/
                     info.Tags = res.Tags.TagInfo.Select(x => new NicoVideoTag(x.Tag)).ToList();
 
-                    if (res.Video.ProviderType == "channel")
+                    if (res.Video.ProviderType == NiconicoToolkit.Video.VideoProviderType.Channel)
                     {
                         info.Owner = new NicoVideoOwner()
                         {
@@ -162,7 +164,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         info.Owner = new NicoVideoOwner()
                         {
                             OwnerId = res.Video.UserId.ToString(),
-                            UserType = res.Video.ProviderType == "regular" ? NicoVideoUserType.User : NicoVideoUserType.Channel,
+                            UserType = res.Video.ProviderType == NiconicoToolkit.Video.VideoProviderType.Regular ? NicoVideoUserType.User : NicoVideoUserType.Channel,
                             IconUrl = info.Owner?.IconUrl,
                             ScreenName = info.Owner?.ScreenName,
                         };
@@ -228,7 +230,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                 }
             });
 
-            if (res.IsOK && res.Count == 0)
+            if (res.IsOK && !res.Videos.Any())
             {
                 yield break;
             }
@@ -236,21 +238,22 @@ namespace Hohoema.Models.Domain.Niconico.Video
             foreach (var data in idItems)
             {
                 var item = res.Videos.FirstOrDefault(x => x.Video.Id == data);
+                var video = item?.Video;
 
-                if (item is null && isLatestRequired)
+                if (video is null && isLatestRequired)
                 {
-                    item = await VideoClient.GetVideoInfoAsync(data);
+                    var singleRes = await VideoClient.GetVideoInfoAsync(data);
+                    video = singleRes?.Video;
                 }
 
                 var info = _nicoVideoRepository.Get(item.Video.Id);
 
-                if (item is null)
+                if (video is null)
                 {
                     yield return info;
                     continue;
                 }
 
-                var video = item.Video;
 
                 info.Title = video.Title;
                 info.VideoId = video.Id;
@@ -261,11 +264,10 @@ namespace Hohoema.Models.Domain.Niconico.Video
                 info.ViewCount = (int)video.ViewCounter;
                 info.MylistCount = (int)video.MylistCounter;
                 info.CommentCount = (int)item.Thread.NumRes;
-                info.Permission = video.VideoPermission;
 #if DEBUG
                 if (info.Permission is
-                    NiconicoLiveToolkit.Video.VideoPermission.Unknown or
-                    NiconicoLiveToolkit.Video.VideoPermission.VideoPermission_3
+                    NiconicoToolkit.Video.VideoPermission.Unknown or
+                    NiconicoToolkit.Video.VideoPermission.VideoPermission_3
                     )
                 {
                     if (Debugger.IsAttached)
@@ -274,9 +276,8 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     }
                 }
 #endif
-                info.Tags = item.Tags?.TagInfo.Select(x => new NicoVideoTag(x.Tag)).ToList() ?? info.Tags;
 
-                if (item.Video.ProviderType == "channel")
+                if (item.Video.ProviderType == NiconicoToolkit.Video.VideoProviderType.Channel)
                 {
                     info.Owner = new NicoVideoOwner()
                     {
@@ -293,7 +294,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     info.Owner = new NicoVideoOwner()
                     {
                         OwnerId = item.Video.UserId.ToString(),
-                        UserType = item.Video.ProviderType == "regular" ? NicoVideoUserType.User : NicoVideoUserType.Channel,
+                        UserType = item.Video.ProviderType ==  NiconicoToolkit.Video.VideoProviderType.Regular ? NicoVideoUserType.User : NicoVideoUserType.Channel,
                         IconUrl = info.Owner?.IconUrl,
                         ScreenName = info.Owner?.ScreenName,
                     };

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
-using NiconicoLiveToolkit.Live.WatchSession;
+using NiconicoToolkit.Live.WatchSession;
 using Hohoema.FixPrism;
 using Prism.Commands;
 using System;

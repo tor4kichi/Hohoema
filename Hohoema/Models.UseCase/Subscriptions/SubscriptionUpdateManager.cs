@@ -26,14 +26,34 @@ namespace Hohoema.Models.UseCase.Subscriptions
     public sealed class SubscriptionUpdateManager : BindableBase, IDisposable
     {
         private readonly SubscriptionManager _subscriptionManager;
-        private readonly SubscriptionSettingsRepository _subscriptionSettingsRepository;
-
-        
+        private readonly SubscriptionSettings _subscriptionSettings;
         AsyncLock _timerLock = new AsyncLock();
 
         IDisposable _timerDisposer;
         bool _isDisposed;
 
+
+        private bool _IsAutoUpdateEnabled;
+        public bool IsAutoUpdateEnabled
+        {
+            get { return _IsAutoUpdateEnabled; }
+            private set 
+            {
+                if (SetProperty(ref _IsAutoUpdateEnabled, value))
+                {
+                    _subscriptionSettings.IsSubscriptionAutoUpdateEnabled = value;
+
+                    if (_IsAutoUpdateEnabled)
+                    {
+                        StartOrResetTimer();
+                    }
+                    else
+                    {
+                        _ = StopTimerAsync();
+                    }
+                }
+            }
+        }
 
         private bool _isRunning;
         public bool IsRunning
@@ -62,8 +82,8 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
                 if (SetProperty(ref _updateFrequency, value))
                 {
-                    _subscriptionSettingsRepository.SubscriptionsUpdateFrequency = value;
-                    NextUpdateTime = _subscriptionSettingsRepository.SubscriptionsLastUpdatedAt += _subscriptionSettingsRepository.SubscriptionsUpdateFrequency;
+                    _subscriptionSettings.SubscriptionsUpdateFrequency = value;
+                    NextUpdateTime = _subscriptionSettings.SubscriptionsLastUpdatedAt += _subscriptionSettings.SubscriptionsUpdateFrequency;
                     StartOrResetTimer();
                 }
             }
@@ -72,15 +92,16 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
         public SubscriptionUpdateManager(
             SubscriptionManager subscriptionManager,
-            SubscriptionSettingsRepository subscriptionSettingsRepository
+            SubscriptionSettings subscriptionSettingsRepository
             )
         {
             _subscriptionManager = subscriptionManager;
-            _subscriptionSettingsRepository = subscriptionSettingsRepository;
+            _subscriptionSettings = subscriptionSettingsRepository;
             _subscriptionManager.Added += _subscriptionManager_Added;
 
-            _nextUpdateTime = _subscriptionSettingsRepository.SubscriptionsLastUpdatedAt + _subscriptionSettingsRepository.SubscriptionsUpdateFrequency;
-            _updateFrequency = _subscriptionSettingsRepository.SubscriptionsUpdateFrequency;
+            _nextUpdateTime = _subscriptionSettings.SubscriptionsLastUpdatedAt + _subscriptionSettings.SubscriptionsUpdateFrequency;
+            _updateFrequency = _subscriptionSettings.SubscriptionsUpdateFrequency;
+            _IsAutoUpdateEnabled = _subscriptionSettings.IsSubscriptionAutoUpdateEnabled;
 
             StartOrResetTimer();
 
@@ -110,14 +131,14 @@ namespace Hohoema.Models.UseCase.Subscriptions
                 _timerUpdateCancellationTokenSource?.Cancel();
                 _timerUpdateCancellationTokenSource = null;
             }
-            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
+            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
 
 
             try
             {
                 await StopTimerAsync();
             }
-            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
+            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
             finally
             {
                 deferral.Complete();
@@ -133,7 +154,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
                 StartOrResetTimer();
             }
-            catch (Exception ex) { Crashes.TrackError(ex); }
+            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
         }
 
 
@@ -146,9 +167,9 @@ namespace Hohoema.Models.UseCase.Subscriptions
                 if (_timerDisposer == null) { return; }
 
                 // 次の自動更新周期を延長して設定
-                _subscriptionSettingsRepository.SubscriptionsLastUpdatedAt = DateTime.Now;
+                _subscriptionSettings.SubscriptionsLastUpdatedAt = DateTime.Now;
                 
-                NextUpdateTime = _subscriptionSettingsRepository.SubscriptionsLastUpdatedAt + _subscriptionSettingsRepository.SubscriptionsUpdateFrequency;
+                NextUpdateTime = _subscriptionSettings.SubscriptionsLastUpdatedAt + _subscriptionSettings.SubscriptionsUpdateFrequency;
 
                 Debug.WriteLine($"[{nameof(SubscriptionUpdateManager)}] start update ------------------- ");
                 await _subscriptionManager.RefreshAllFeedUpdateResultAsync(cancellationToken);
@@ -173,13 +194,15 @@ namespace Hohoema.Models.UseCase.Subscriptions
             {
                 if (_isDisposed) { return; }
 
-                IsRunning = true;
                 _timerDisposer?.Dispose();
                 _timerUpdateCancellationTokenSource?.Cancel();
                 _timerUpdateCancellationTokenSource = null;
 
-                var updateFrequency = _subscriptionSettingsRepository.SubscriptionsUpdateFrequency;
-                _timerDisposer = Observable.Timer(_subscriptionSettingsRepository.SubscriptionsLastUpdatedAt + updateFrequency, updateFrequency)
+                if (!_IsAutoUpdateEnabled) { return; }
+
+                IsRunning = true;
+                var updateFrequency = _subscriptionSettings.SubscriptionsUpdateFrequency;
+                _timerDisposer = Observable.Timer(_subscriptionSettings.SubscriptionsLastUpdatedAt + updateFrequency, updateFrequency)
                     .Subscribe(async _ =>
                     {
                         try

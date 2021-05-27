@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Unicode;
 
-namespace NiconicoLiveToolkit.Live.WatchSession
+namespace NiconicoToolkit.Live.WatchSession
 {
     internal sealed class WatchSessionToServerMessageJsonConverter : JsonConverter<WatchClientToServerMessageDataBase>
     { 

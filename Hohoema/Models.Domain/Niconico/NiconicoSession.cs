@@ -15,6 +15,9 @@ using Windows.UI.Core;
 using Windows.Web.Http;
 using AsyncLock = Hohoema.Models.Helpers.AsyncLock;
 using Hohoema.Models.Domain.Application;
+using NiconicoToolkit.Account;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 
 namespace Hohoema.Models.Domain.Niconico
 {
@@ -35,15 +38,31 @@ namespace Hohoema.Models.Domain.Niconico
         public string UserIconUrl { get; set; }
     }
 
-    public struct NiconicoSessionLoginRequireTwoFactorAuthEventArgs
+    public class NiconicoSessionLoginRequireTwoFactorAuthResponse
     {
-        public Deferral Deferral { get; set; }
+        public NiconicoSessionLoginRequireTwoFactorAuthResponse(string code, bool isTrustDevice, string deviceName)
+        {
+            Code = code;
+            IsTrustDevice = isTrustDevice;
+            DeviceName = deviceName;
+        }
 
-        public Uri TwoFactorAuthPageUri { get; set; }
+        public string Code { get; }
+        public bool IsTrustDevice { get; }
+        public string DeviceName { get; }
+    }
 
-        public HttpRequestMessage HttpRequestMessage { get; set; }
 
-        public NiconicoContext Context { get; set; }
+    public class NiconicoSessionLoginRequireTwoFactorAsyncRequestMessage : AsyncRequestMessage<NiconicoSessionLoginRequireTwoFactorAuthResponse>
+    {
+        public NiconicoSessionLoginRequireTwoFactorAsyncRequestMessage(Uri location, NiconicoToolkit.NiconicoContext context)
+        {
+            TwoFactorAuthLocation = location;
+            Context = context;
+        }
+
+        public Uri TwoFactorAuthLocation { get; }
+        public NiconicoToolkit.NiconicoContext Context { get; }
     }
 
     public struct NiconicoSessionLoginErrorEventArgs
@@ -55,17 +74,22 @@ namespace Hohoema.Models.Domain.Niconico
     public sealed class NiconicoSession : FixPrism.BindableBase
     {
         public NiconicoSession( 
-            IScheduler scheduler
+            IScheduler scheduler,
+            IMessenger messenger
             )
         {
-            UpdateServiceStatus(NiconicoSignInStatus.Failed);
+            UpdateServiceStatus(NiconicoSessionStatus.Failed);
 
             NetworkInformation.NetworkStatusChanged += OnNetworkStatusChanged;
 
             App.Current.Suspending += Current_Suspending;
             App.Current.Resuming += Current_Resuming;
 
+            ToolkitContext = new NiconicoToolkit.NiconicoContext(new HttpClient());
+            ToolkitContext.SetupDefaultRequestHeaders();
+
             Scheduler = scheduler;
+            _messenger = messenger;
         }
 
         private void OnNetworkStatusChanged(object sender)
@@ -87,7 +111,7 @@ namespace Hohoema.Models.Domain.Niconico
                     {
                         var status = await CheckSignedInStatus();
 
-                        if (status == NiconicoSignInStatus.Failed)
+                        if (status == NiconicoSessionStatus.Failed)
                         {
                             status = await SignInWithPrimaryAccount();
                         }
@@ -120,6 +144,7 @@ namespace Hohoema.Models.Domain.Niconico
         }
 
         public const string HohoemaUserAgent = "Hohoema_UWP";
+        private readonly IMessenger _messenger;
 
 
         // Events 
@@ -128,7 +153,6 @@ namespace Hohoema.Models.Domain.Niconico
         // LoginError exception, またはエラー理由のテキスト
 
         public event EventHandler<NiconicoSessionLoginEventArgs> LogIn;
-        public event EventHandler<NiconicoSessionLoginRequireTwoFactorAuthEventArgs> RequireTwoFactorAuth;
         public event EventHandler LogOut;
         public event EventHandler<NiconicoSessionLoginErrorEventArgs> LogInFailed;
         
@@ -199,24 +223,13 @@ namespace Hohoema.Models.Domain.Niconico
             get { return _Context ??= new NiconicoContext() { AdditionalUserAgent = HohoemaUserAgent }; }
             private set 
             {
-                if (SetProperty(ref _Context, value))
-                {
-                    if (_Context == null)
-                    {
-                        _LiveContext = null;
-                    }
-                }
+                SetProperty(ref _Context, value);
             }
         }
 
 
 
-        private NiconicoLiveToolkit.NiconicoContext _LiveContext;
-        public NiconicoLiveToolkit.NiconicoContext LiveContext
-        {
-            get => _LiveContext ??= new NiconicoLiveToolkit.NiconicoContext(Context.HttpClient);
-            private set { SetProperty(ref _LiveContext, value); }
-        }
+        public NiconicoToolkit.NiconicoContext ToolkitContext { get; }
 
         public IScheduler Scheduler { get; }
 
@@ -237,7 +250,7 @@ namespace Hohoema.Models.Domain.Niconico
 
         #region Login Manager
 
-        public async Task<NiconicoSignInStatus> SignInWithPrimaryAccount()
+        public async Task<NiconicoSessionStatus> SignInWithPrimaryAccount()
         {
             // 資格情報からログインパラメータを取得
             string primaryAccount_id = null;
@@ -252,7 +265,7 @@ namespace Hohoema.Models.Domain.Niconico
 
             if (String.IsNullOrWhiteSpace(primaryAccount_id) || String.IsNullOrWhiteSpace(primaryAccount_Password))
             {
-                return NiconicoSignInStatus.Failed;
+                return NiconicoSessionStatus.Failed;
             }
 
 
@@ -260,7 +273,7 @@ namespace Hohoema.Models.Domain.Niconico
         }
 
 
-        public async Task<bool> CanSignInWithPrimaryAccount()
+        public async ValueTask<bool> CanSignInWithPrimaryAccount()
         {
             string primaryAccount_id = null;
             string primaryAccount_Password = null;
@@ -282,21 +295,6 @@ namespace Hohoema.Models.Domain.Niconico
             }
         }
 
-
-        public async Task Relogin()
-        {
-            if (Context != null)
-            {
-                var context = new NiconicoContext(Context.AuthenticationToken) { AdditionalUserAgent = HohoemaUserAgent };
-
-                if (await context.SignInAsync() == NiconicoSignInStatus.Success)
-                {
-                    Context = context;
-                }
-            }
-        }
-
-
         void HandleLoginError(Exception e = null)
         {
             UpdateServiceStatus();
@@ -314,44 +312,17 @@ namespace Hohoema.Models.Domain.Niconico
             });
         }
 
-        async Task LoginAfterResolveUserDetailAction(NiconicoContext context)
+        async Task<(string UserName, Uri IconUrl)> LoginAfterResolveUserDetailAction(NiconicoToolkit.NiconicoContext context)
         {
-            Context = context;
-
-            Mntone.Nico2.Users.Info.InfoResponse userInfo = null;
-
             try
             {
-                await Task.Delay(50);
-
-                userInfo = await Context.User.GetInfoAsync();
-                if (userInfo == null)
-                {
-                    IsLoggedIn = false;
-                    throw new Exception("ログインに失敗");
-                }
-            }
-            catch (Exception e)
-            {
-                IsLoggedIn = false;
-                HandleLoginError(e);
-                return;
-            }
-
-            IsLoggedIn = true;
-            UserId = userInfo.Id;
-            IsPremiumAccount = userInfo.IsPremium;
-
-            try
-            {
-                var user = await Context.User.GetUserAsync(_UserId.ToString());
-                UserName = user?.User.Nickname ?? _UserId.ToString();
-                UserIconUrl = user?.User.ThumbnailUrl;
+                var user = await context.User.GetUserInfoAsync(_UserId.ToString());
+                return (user.Nickname, user.ThumbnailUrl);
             }
             catch (Exception ex)
             {
                 IsLoggedIn = false;
-                Debug.WriteLine("ユーザー名取得処理に失敗 + " + _UserId);
+                Debug.WriteLine("ユーザーのアイコン取得処理に失敗 + " + _UserId);
                 Debug.WriteLine(ex.ToString());
 #if DEBUG
                 if (Debugger.IsAttached)
@@ -359,24 +330,11 @@ namespace Hohoema.Models.Domain.Niconico
                     Debugger.Break();
                 }
 #endif
-                return;
+                return (string.Empty, default);
             }
-
-            LogIn?.Invoke(this, new NiconicoSessionLoginEventArgs()
-            {
-                UserId = UserId,
-                IsPremium = userInfo.IsPremium,
-                UserName = UserName,
-                UserIconUrl = UserIconUrl,
-            });
-            
-
-            
-
-            Debug.WriteLine("Login Done! " + ServiceStatus);
         }
 
-        public async Task<NiconicoSignInStatus> SignIn(string mailOrTelephone, string password, bool withClearAuthenticationCache = false)
+        public async Task<NiconicoSessionStatus> SignIn(string mailOrTelephone, string password, bool withClearAuthenticationCache = false)
         {
             using (var releaser = await SigninLock.LockAsync())
             {
@@ -384,7 +342,7 @@ namespace Hohoema.Models.Domain.Niconico
                 {
                     Context?.Dispose();
                     Context = null;
-                    return NiconicoSignInStatus.Failed;
+                    return NiconicoSessionStatus.Failed;
                 }
             }
 
@@ -398,7 +356,6 @@ namespace Hohoema.Models.Domain.Niconico
                 Debug.WriteLine("try login");
 
                 var context = new NiconicoContext(new NiconicoAuthenticationToken(mailOrTelephone, password));
-
                 context.AdditionalUserAgent = HohoemaUserAgent;
 
                 /*
@@ -408,86 +365,77 @@ namespace Hohoema.Models.Domain.Niconico
                 }
                 */
 
-
-                NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
-                //if ((result = await context.GetIsSignedInAsync()) == NiconicoSignInStatus.ServiceUnavailable)
-                //{
-                //    return result;
-                //}
                 try
                 {
-                    result = await context.SignInAsync();
+                    ToolkitContext.Account.RequireTwoFactorAuth += Account_RequireTwoFactorAuth;
+                    ToolkitContext.Account.LoggedIn += Account_LoggedIn;
 
-                    UpdateServiceStatus(result);
+                    var result = await ToolkitContext.Account.SignInAsync(new NiconicoToolkit.Account.MailAndPasswordAuthToken(mailOrTelephone, password));                    
 
-                    if (result == NiconicoSignInStatus.TwoFactorAuthRequired)
+                    UpdateServiceStatus(result.status);
+
+                    if (result.status is NiconicoSessionStatus.Success or NiconicoSessionStatus.RequireTwoFactorAuth)
                     {
-                        var deferral = new Deferral(async () =>
-                        {
-                            
-                        });
-
-                        RequireTwoFactorAuth.Invoke(this, new NiconicoSessionLoginRequireTwoFactorAuthEventArgs()
-                        {
-                            Deferral = deferral,
-                            TwoFactorAuthPageUri = context.LastRedirectHttpRequestMessage.RequestUri,
-                            HttpRequestMessage = context.LastRedirectHttpRequestMessage,
-                            Context = context
-                        });
-
-                            
-                    }
-                    else if (result == NiconicoSignInStatus.Success)
-                    {
-                        IsLoggedIn = true;
-
-                        await LoginAfterResolveUserDetailAction(context);
+                        
                     }
                     else 
                     {
                         LogInFailed?.Invoke(this, new NiconicoSessionLoginErrorEventArgs()
                         {
-                            LoginFailedReason = LoginFailedReason.InvalidMailOrPassword
+                            LoginFailedReason = result.status == NiconicoSessionStatus.Failed ? LoginFailedReason.InvalidMailOrPassword : LoginFailedReason.ServiceNotAvailable
                         });
                     }
 
-                        
+                    Context = context;
+
+                    return result.status;
                 }
                 catch (Exception e)
                 {
+                    context.Dispose();
+                    ToolkitContext.Account.RequireTwoFactorAuth -= Account_RequireTwoFactorAuth;
+                    ToolkitContext.Account.LoggedIn -= Account_LoggedIn;
                     HandleLoginError(e);
-                }
 
-                return result;
+                    return NiconicoSessionStatus.Failed;
+                }
             }
         }
 
-        public async Task<NiconicoSignInStatus> TryTwoFactorAuthAsync(Uri uri, NiconicoContext context, string code, bool isTrustedDevice, string deviceName)
+        private async void Account_LoggedIn(object sender, NiconicoLoggedInEventArgs e)
         {
-            using (_ = await SigninLock.LockAsync())
+            IsLoggedIn = true;
+            IsPremiumAccount = e.IsPremiumAccount;
+            UserId = e.UserId;
+
+            var userInfo = await LoginAfterResolveUserDetailAction(ToolkitContext);
+            UserName = userInfo.UserName;
+            UserIconUrl = userInfo.IconUrl.OriginalString;
+
+            LogIn?.Invoke(this, new NiconicoSessionLoginEventArgs()
             {
-                var result = await context.MfaAsync(uri, code, isTrustedDevice, deviceName);
-                if (result == NiconicoSignInStatus.Success)
-                {
-                    Context = context;
+                UserId = UserId,
+                IsPremium = IsPremiumAccount,
+                UserName = UserName,
+                UserIconUrl = UserIconUrl,
+            });
+        }
 
-                    IsLoggedIn = true;
 
-                    await Task.Delay(1000);
-
-                    await LoginAfterResolveUserDetailAction(context);
-                }
-
+        private async void Account_RequireTwoFactorAuth(object sender, NiconicoTwoFactorAuthEventArgs e)
+        {
+            var res = await _messenger.Send(new NiconicoSessionLoginRequireTwoFactorAsyncRequestMessage(e.Location, ToolkitContext));
+            if (res != null)
+            {
+                var result = await e.MfaAsync(res.Code, res.IsTrustDevice, res.DeviceName);
                 UpdateServiceStatus(result);
-
-                return result;
             }
         }
 
 
-        public async Task<NiconicoSignInStatus> SignOut()
+        public async Task<NiconicoSessionStatus> SignOut()
         {
-            NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
+            var result = NiconicoSessionStatus.Failed;
 
             using (var releaser = await SigninLock.LockAsync())
             {
@@ -508,36 +456,31 @@ namespace Hohoema.Models.Domain.Niconico
                 {
                     if (Helpers.InternetConnection.IsInternet())
                     {
-                        result = await Context.SignOutOffAsync();
+                        result = await ToolkitContext.Account.SignOutAsync();
                     }
-                    else
-                    {
-                        result = NiconicoSignInStatus.Success;
-                    }
-
+ 
                     Context.Dispose();
                 }
                 finally
                 {
                     Context = null;
-                    _LiveContext = null;
+
+                    LogOut?.Invoke(this, EventArgs.Empty);
                 }
             }
-
-            LogOut?.Invoke(this, EventArgs.Empty);
 
             return result;
         }
 
-        private void UpdateServiceStatus(NiconicoSignInStatus status = NiconicoSignInStatus.Failed)
+        private void UpdateServiceStatus(NiconicoSessionStatus status = NiconicoSessionStatus.Failed)
         {
             if (Helpers.InternetConnection.IsInternet())
             {
-                if (status == NiconicoSignInStatus.Success)
+                if (status == NiconicoSessionStatus.Success)
                 {
                     ServiceStatus = HohoemaAppServiceLevel.LoggedIn;
                 }
-                else if (status == NiconicoSignInStatus.ServiceUnavailable)
+                else if (status == NiconicoSessionStatus.ServiceUnavailable)
                 {
                     ServiceStatus = HohoemaAppServiceLevel.ServiceUnavailable;
                 }
@@ -552,20 +495,20 @@ namespace Hohoema.Models.Domain.Niconico
             }
         }
 
-        public async Task<NiconicoSignInStatus> CheckSignedInStatus()
+        public async Task<NiconicoSessionStatus> CheckSignedInStatus()
         {
-            NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
+            NiconicoSessionStatus result = NiconicoSessionStatus.Failed;
 
             using (var releaser = await SigninLock.LockAsync())
             {
                 try
                 {
-                    result = await Context.GetIsSignedInAsync();
+                    result = await ToolkitContext.Account.CheckSessionStatusAsync();
                 }
                 catch
                 {
                     // ログイン処理時には例外を捕捉するが、ログイン状態チェックでは例外は無視する
-                    result = NiconicoSignInStatus.Failed;
+                    result = NiconicoSessionStatus.Failed;
                 }
 
                 UpdateServiceStatus(result);

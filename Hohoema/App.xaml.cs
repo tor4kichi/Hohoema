@@ -93,7 +93,7 @@ namespace Hohoema
 		/// </summary>
 		public App()
         {
-			UnhandledException += PrismUnityApplication_UnhandledException;
+            CoreApplication.UnhandledErrorDetected += CoreApplication_UnhandledErrorDetected;
 
             // XboxOne向けの設定
             // 基本カーソル移動で必要なときだけポインターを出現させる
@@ -124,6 +124,10 @@ namespace Hohoema
             this.InitializeComponent();
         }
 
+        private void CoreApplication_UnhandledErrorDetected(object sender, UnhandledErrorDetectedEventArgs e)
+        {
+            ErrorTrackingManager.TrackUnhandeledError(e.UnhandledError);
+        }
 
         public override async Task OnStartAsync(StartArgs args)
         {
@@ -281,8 +285,6 @@ namespace Hohoema
 
             unityContainer.RegisterSingleton<Models.Domain.VideoCache.VideoCacheManager>();
             unityContainer.RegisterSingleton<Models.Domain.VideoCache.VideoCacheSettings>();
-
-            unityContainer.RegisterSingleton<ErrorTrackingManager>();
 
             // UseCase
             unityContainer.RegisterType<VideoPlayer>(new PerThreadLifetimeManager());
@@ -541,8 +543,6 @@ namespace Hohoema
                 ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
             }
 
-            await Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.InitializeAsync(ApplicationData.Current.TemporaryFolder, "ImageCaches");
-
             // キャッシュ機能の初期化
             {
                 var cacheManager = Container.Resolve<VideoCacheFolderManager>();
@@ -555,7 +555,6 @@ namespace Hohoema
 
             // 2段階認証を処理するログインサービスをインスタンス化
             var loginService = Container.Resolve<NiconicoLoginService>();
-
 
             // バージョン間データ統合
             {
@@ -586,7 +585,6 @@ namespace Hohoema
             // 更新通知を表示
             try
             {
-                var dialogService = Container.Resolve<DialogService>();
                 if (AppUpdateNotice.IsUpdated)
                 {
                     var version = Windows.ApplicationModel.Package.Current.Id.Version;
@@ -1099,7 +1097,6 @@ namespace Hohoema
                     {
                         try
                         {
-                            var errorTrankingManager = Container.Resolve<ErrorTrackingManager>();
                             var dialogService = Container.Resolve<DialogService>();
                             var rtb = await GetApplicationContentImage();
                             var result = await Presentation.Views.Dialogs.HohoemaErrorReportDialog.ShowAsync(e.Exception, sendScreenshot: false, rtb);
@@ -1127,7 +1124,7 @@ namespace Hohoema
                                 }
                             }
 
-                            errorTrankingManager.SendReportWithAttatchments(e.Exception, attachmentLogs.ToArray());
+                            ErrorTrackingManager.TrackError(e.Exception, null, attachmentLogs.ToArray());
 
                             // isSentError を変更した後にErrorTeachingTipを閉じることでClose時の判定が走る
                             isSentError = true;
@@ -1143,16 +1140,14 @@ namespace Hohoema
                     {
                         if (isSentError is false)
                         {
-                            var errorTrankingManager = Container.Resolve<ErrorTrackingManager>();
-                            errorTrankingManager.SendReportWithAttatchments(e.Exception);
+                            ErrorTrackingManager.TrackError(e.Exception);
                         }
                     });                    
                 });
             }
             else
             {
-                var errorTrankingManager = Container.Resolve<ErrorTrackingManager>();
-                errorTrankingManager.SendReportWithAttatchments(e.Exception);
+                ErrorTrackingManager.TrackError(e.Exception);
             }
 
             e.Handled = true;
@@ -1214,7 +1209,7 @@ namespace Hohoema
                     {
                         if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
                         {
-                            throw new Exception("no id");
+                            throw new Models.Infrastructure.HohoemaExpception("no id");
                         }
 
                         var cacheManager = Container.Resolve<VideoCacheManager>();
@@ -1224,7 +1219,7 @@ namespace Hohoema
                     {
                         if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
                         {
-                            throw new Exception("no id");
+                            throw new Models.Infrastructure.HohoemaExpception("no id");
                         }
 
                         PlayVideoFromExternal(id);

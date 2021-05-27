@@ -11,7 +11,7 @@
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:conv="using:WinRTXamlToolkit.Converters"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
-  xmlns:nicoLToolkitVideo="using:NiconicoLiveToolkit.Video" 
+  xmlns:nicoLToolkitVideo="using:NiconicoToolkit.Video" 
   xmlns:local="using:Hohoema.Presentation.Views.Controls.VideoList" xmlns:winUI="using:Microsoft.UI.Xaml.Controls" xmlns:videoCache="using:Hohoema.Models.Domain.VideoCache" xmlns:videoListItem="using:Hohoema.Presentation.Views.Controls.VideoList.VideoListItem"
   mc:Ignorable="d"
     d:DesignHeight="300"

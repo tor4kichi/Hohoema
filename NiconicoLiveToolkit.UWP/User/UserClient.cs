@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace NiconicoLiveToolkit.User
+namespace NiconicoToolkit.User
 {
     public sealed class UserClient
     {
@@ -51,7 +51,7 @@ namespace NiconicoLiveToolkit.User
 
     public partial class NicovideoUserResponseContainer
     {
-        [JsonPropertyName("nicovideo_user_response")]
+        [JsonPropertyName("niconico_response")]
         public NicovideoUserResponse NicovideoUserResponse { get; set; }
     }
 

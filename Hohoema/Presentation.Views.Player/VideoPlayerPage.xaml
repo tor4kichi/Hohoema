@@ -34,7 +34,7 @@
       xmlns:myExt="using:Hohoema.Presentation.Views.Extensions"
       DataContext="{x:Null}"
       x:Name="RootLayout"
-      NavigationCacheMode="Enabled"
+      NavigationCacheMode="Required"
       d:DesignHeight="300"
       d:DesignWidth="400">
   <UserControl.Resources>
@@ -52,7 +52,7 @@
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="DefaultLabelPosition" Value="Right" />
     </Style>
-    
+
     <MenuFlyout x:Key="VideoOptionsFlyout">
       <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayPauseToggleButtonTitle}" Command="{Binding VideoPlayer.TogglePlayPauseCommand}" />
       <ToggleMenuFlyoutItem IsChecked="{Binding ObservableMediaPlayer.IsMuted.Value, Mode=TwoWay}" Text="{i18nExt:Localize Key=Mute}" />
@@ -250,7 +250,7 @@
                 <TranslateTransform Y="8" />
               </Slider.RenderTransform>
             </Slider>
-            
+
             <!-- コントロールUIを表示切替する -->
             <Border IsHitTestVisible="True" Background="Transparent">
               <i:Interaction.Behaviors>
@@ -259,7 +259,7 @@
                 </core:EventTriggerBehavior>
               </i:Interaction.Behaviors>
             </Border>
-            
+
             <!-- プレイヤー内の通知表示 -->
             <StackPanel>
               <!-- 音量表示 -->
@@ -298,7 +298,7 @@
                 </controls:TransientContainer.ContentTemplate>
               </controls:TransientContainer>
             </StackPanel>
-            
+
             <!-- コントロールUIの本体 -->
             <Grid x:Name="UIControlLayout">
               <i:Interaction.Behaviors>
@@ -378,7 +378,7 @@
                         </AppBarButton.Flyout>
                       </AppBarButton>
                     </CommandBar.PrimaryCommands>
-                    
+
                     <CommandBar.SecondaryCommands>
                       <AppBarButton x:Name="FullscreenButton" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></AppBarButton>
                       <AppBarButton x:Name="CompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=CompactOverlay}"></AppBarButton>
@@ -547,7 +547,7 @@
                           </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
                       </Button>
-                      
+
                       <!-- 単品リピート -->
                       <ToggleButton IsChecked="{Binding VideoPlayer.IsCurrentVideoLoopingEnabled.Value, Mode=TwoWay}" Background="Transparent" UseSystemFocusVisuals="True"
                                     
@@ -557,7 +557,7 @@
                             <CompositeTransform ScaleX="1.4" ScaleY="1.4" />
                           </iconPack:PackIconMaterial.RenderTransform>
                         </iconPack:PackIconMaterial>
-                        
+
                       </ToggleButton>
                     </StackPanel>
                     <!-- 再生切り替え・シーク -->
@@ -691,7 +691,7 @@
                   </Border>
                 </Grid>
               </toolkit:DockPanel>
-              
+
             </Grid>
             <Grid Visibility="{x:Bind IsDisplayControlUI, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}">
               <Border IsHitTestVisible="True" Background="Transparent">
@@ -741,7 +741,7 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
+
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -758,7 +758,7 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
+
       <!-- 画面サイズごとの表示・非表示に切り替え -->
       <VisualStateGroup>
 
@@ -816,7 +816,7 @@
 
             <Setter Target="TitleTextBlock.Visibility" Value="Collapsed" />
             <Setter Target="TitleTextBlock_Nallow.Visibility" Value="Visible" />
-            
+
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -878,7 +878,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ExitCompactOverlayButton.Visibility" Value="Visible" />
-            
+
             <Setter Target="ActionsCommandBar.Visibility" Value="Collapsed" />
             <Setter Target="OpenPlaylistButton.Visibility" Value="Collapsed" />
             <Setter Target="OpenSettingsPaneButton.Visibility" Value="Collapsed" />
@@ -897,7 +897,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ExitWindonwInWindowViewButton.Visibility" Value="Visible" />
-            
+
             <Setter Target="ActionsCommandBar.Visibility" Value="Collapsed" />
             <Setter Target="OpenPlaylistButton.Visibility" Value="Collapsed" />
             <Setter Target="OpenSettingsPaneButton.Visibility" Value="Collapsed" />
@@ -1303,7 +1303,7 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
+
       <!-- 小窓状態の時、コントローラーのショートカット操作を無効に -->
       <VisualStateGroup>
         <VisualState>
@@ -1320,8 +1320,8 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
-      
+
+
       <!-- サイドペインの内容毎の表示切替 -->
       <VisualStateGroup>
         <VisualState>
@@ -1335,7 +1335,7 @@
         </VisualState>
       </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
-    
-    
+
+
   </Grid>
 </Page>

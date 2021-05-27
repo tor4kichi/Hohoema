@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Videos.Ranking;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Helpers;
 using Hohoema.Models.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
+using NiconicoToolkit.Video.Ranking;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.Domain.Niconico.Video.Ranking
 {
@@ -54,16 +55,16 @@ namespace Hohoema.Models.Domain.Niconico.Video.Ranking
 
             return await ContextActionWithPageAccessWaitAsync(async context => 
             {
-                var tagsRaw = await NiconicoRanking.GetGenrePickedTagAsync(genre);
+                var tagsRaw = await NiconicoSession.ToolkitContext.Video.Ranking.GetGenrePickedTagAsync(genre);
                 var tags = tagsRaw.Select(x => new RankingGenreTag() { Label = x.DisplayName, Tag = x.Tag, Genre = genre }).ToList();
                 _rankingGenreCache.Upsert(genre, tags.Select(x => new RankingGenreTagEntry() { DisplayName = x.Label, Tag = x.Tag }));
                 return tags;
             }, ct);
         }
 
-        public async Task<Mntone.Nico2.RssVideoResponse> GetRankingGenreWithTagAsync(RankingGenre genre, string tag, RankingTerm term, int page = 1)
+        public async Task<RssVideoResponse> GetRankingGenreWithTagAsync(RankingGenre genre, string tag, RankingTerm term, int page = 1)
         {
-            return await NiconicoRanking.GetRankingRssAsync(genre, tag, term, page);
+            return await NiconicoSession.ToolkitContext.Video.Ranking.GetRankingRssAsync(genre, tag, term, page);
         }
     }
 }

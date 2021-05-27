@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace NiconicoLiveToolkit
+namespace NiconicoToolkit
 {
     internal static class JsonConveterExtensions
     {

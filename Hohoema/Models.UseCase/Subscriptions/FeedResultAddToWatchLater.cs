@@ -19,14 +19,14 @@ namespace Hohoema.Models.UseCase.Subscriptions
     {
         private readonly SubscriptionManager _subscriptionManager;
         private readonly HohoemaPlaylist _hohoemaPlaylist;
-        private readonly SubscriptionSettingsRepository _subscriptionSettingsRepository;
+        private readonly SubscriptionSettings _subscriptionSettingsRepository;
 
         List<SubscriptionFeedUpdateResult> Results = new List<SubscriptionFeedUpdateResult>();
 
         public FeedResultAddToWatchLater(
             SubscriptionManager subscriptionManager,
             HohoemaPlaylist hohoemaPlaylist,
-            SubscriptionSettingsRepository subscriptionSettingsRepository
+            SubscriptionSettings subscriptionSettingsRepository
             )
         {
             _subscriptionManager = subscriptionManager;

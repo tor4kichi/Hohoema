@@ -19,7 +19,7 @@ using Hohoema.Presentation.ViewModels;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Hohoema.Models.Domain;
 using Reactive.Bindings.Extensions;
-using NiconicoLiveToolkit.Live.WatchSession;
+using NiconicoToolkit.Live.WatchSession;
 using Hohoema.Models.Domain.Application;
 using Uno.Disposables;
 
@@ -27,6 +27,7 @@ using Uno.Disposables;
 
 namespace Hohoema.Presentation.Views.Player
 {
+
     public sealed partial class LivePlayerPage : Page
     {
         public TimeSpan ForwardSeekTime => TimeSpan.FromSeconds(30);

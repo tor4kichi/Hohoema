@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace NiconicoLiveToolkit.Live
+namespace NiconicoToolkit.Live
 {
     public enum LiveStatus 
     {
