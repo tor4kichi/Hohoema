@@ -45,10 +45,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 	{
         // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
         private readonly IScheduler _scheduler;
-
-
-
-
+        
         public VideoPlayerPageViewModel(
             IScheduler scheduler,
             NiconicoSession niconicoSession,
@@ -590,7 +587,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                     MediaPlayer.Source = null;
                 }
             }
-            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
+            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
             finally
             {
                 defferal.Complete();
@@ -603,7 +600,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             {
                 StartStateSavingTimer();
             }
-            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
+            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
         }
 
 

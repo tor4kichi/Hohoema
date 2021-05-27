@@ -113,7 +113,7 @@
                       >
             <CommandBar.PrimaryCommands>
               <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{Binding IsLikedVideo, Mode=TwoWay}" IsEnabled="{Binding NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
-              <AppBarButton Icon="Download" Label="{i18nExt:Localize Key=CacheRequest}" Command="{Binding VideoCacheManager.AddCacheRequestCommand}" CommandParameter="{Binding VideoInfo}" Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}" />
+              <AppBarButton Icon="Download" Label="{i18nExt:Localize Key=CacheRequest}" Command="{Binding CacheAddRequestCommand}" CommandParameter="{Binding VideoInfo}" Visibility="{Binding NiconicoSession.IsPremiumAccount, Converter={StaticResource BooleanToVisibility}}" />
 
               <AppBarButton x:Name="ShareSubButton" Label="{i18nExt:Localize Key=Share}" Command="{Binding OpenShareUICommand}" CommandParameter="{Binding VideoInfo}" />
               <AppBarButton x:Name="ShareSubButton_TV" Visibility="Collapsed" Label="{i18nExt:Localize Key=Share}" Command="{Binding OpenShareUICommand}" CommandParameter="{Binding VideoInfo}" />
@@ -336,8 +336,9 @@
 
 
         <!-- ニコニコ市場 -->
-        <StackPanel Spacing="8">
+        <StackPanel Spacing="8" EffectiveViewportChanged="IchibaItems_EffectiveViewportChanged">
           <TextBlock Text="{i18nExt:Localize Key=NiconicoIchiba}"  Style="{StaticResource SubtitleTextBlockStyle}"  />
+          
           <TextBlock Text="No items" Opacity="0.6" Margin="16" Visibility="{Binding IchibaItems, Mode=OneWay, Converter={StaticResource EmptyCollectionVisibilityConverter}}" />
           <ItemsControl ItemsSource="{Binding IchibaItems}" IsTabStop="False">
             <ItemsControl.ItemTemplate>

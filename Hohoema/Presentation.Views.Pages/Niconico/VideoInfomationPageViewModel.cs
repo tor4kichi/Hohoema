@@ -42,6 +42,9 @@ using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.Domain.Niconico.Channel;
+using Hohoema.Presentation.ViewModels.VideoCache.Commands;
+using System.Threading;
+using Uno.Disposables;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
@@ -83,6 +86,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             OpenLinkCommand openLinkCommand,
             CopyToClipboardCommand copyToClipboardCommand,
             CopyToClipboardWithShareTextCommand copyToClipboardWithShareTextCommand,
+            OpenShareUICommand openShareUICommand,
+            CacheAddRequestCommand cacheAddRequestCommand,
             RecommendProvider recommendProvider,
             UserFollowProvider userFollowProvider,
             ChannelFollowProvider channelFollowProvider
@@ -108,6 +113,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             OpenLinkCommand = openLinkCommand;
             CopyToClipboardCommand = copyToClipboardCommand;
             CopyToClipboardWithShareTextCommand = copyToClipboardWithShareTextCommand;
+            OpenShareUICommand = openShareUICommand;
+            CacheAddRequestCommand = cacheAddRequestCommand;
             _recommendProvider = recommendProvider;
             _userFollowProvider = userFollowProvider;
             _channelFollowProvider = channelFollowProvider;
@@ -430,8 +437,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         public OpenLinkCommand OpenLinkCommand { get; }
         public CopyToClipboardCommand CopyToClipboardCommand { get; }
         public CopyToClipboardWithShareTextCommand CopyToClipboardWithShareTextCommand { get; }
-
-
+        public OpenShareUICommand OpenShareUICommand { get; }
+        public CacheAddRequestCommand CacheAddRequestCommand { get; }
 
         private INicoVideoDetails _VideoDetails;
         public INicoVideoDetails VideoDetails
@@ -440,8 +447,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             set { SetProperty(ref _VideoDetails, value); }
         }
 
+        CancellationTokenSource _navigationCts;
+        CancellationToken _navigationCancellationToken;
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            _navigationCts = new CancellationTokenSource();
+            _navigationCancellationToken = _navigationCts.Token;
+
             NowLoading.Value = true;
             IsLoadFailed.Value = false;
 
@@ -467,10 +479,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                         _ => null
                     };
 
-                    await UpdateVideoDescription();
-                    _ = InitializeRelatedVideos();
-                    _ = InitializeIchibaItems();
 
+                    await UpdateVideoDescription();
+
+                    /*
+                    await Task.WhenAll(
+                        InitializeRelatedVideos(),
+                        InitializeIchibaItems()
+                        );
+                    */
                     UpdateSelfZoning();
 
                     OpenOwnerUserPageCommand.RaiseCanExecuteChanged();
@@ -502,6 +519,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
+            _navigationCts.Cancel();
+            _navigationCts.Dispose();
+            _navigationCts = null;
+
             VideoDescriptionHyperlinkItems?.Clear();
             IchibaItems?.Clear();
 
@@ -510,14 +531,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             
             FollowContext = FollowContext<IUser>.Default;
 
+            RelatedVideos?.DisposeAll();
+
             // ListViewのメモリリークを抑えるため関連するバインディングをnull埋め
             VideoInfo = null;
             RelatedVideos = null;
             IchibaItems = null;
+            VideoDescriptionHyperlinkItems = null;
 
             base.OnNavigatedFrom(parameters);
         }
 
+        
 
 
         private async Task ProcessLikeAsync(bool like)
@@ -571,17 +596,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
 
         bool _IsInitializedIchibaItems = false;
-        public async Task InitializeIchibaItems()
+        public async void InitializeIchibaItems()
         {
-            using (var releaser = await _UpdateLock.LockAsync())
-            {
-                if (_IsInitializedIchibaItems) { return; }
+            if (_IsInitializedIchibaItems) { return; }
 
-                var ichiba = await NiconicoSession.Context.Embed.GetIchiba(VideoInfo.RawVideoId);
-                IchibaItems = ichiba.GetMainIchibaItems();                
+            var ichiba = await NiconicoSession.Context.Embed.GetIchiba(VideoInfo.RawVideoId);
+            IchibaItems = ichiba.GetMainIchibaItems();                
 
-                _IsInitializedIchibaItems = true;
-            }
+            _IsInitializedIchibaItems = true;
         }
 
 
@@ -593,81 +615,98 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         private readonly UserFollowProvider _userFollowProvider;
         private readonly ChannelFollowProvider _channelFollowProvider;
 
-        public async Task InitializeRelatedVideos()
+        public async void  InitializeRelatedVideos()
         {
             if (_IsInitializedRelatedVideos) { return; }
 
+
             var res = await _recommendProvider.GetVideoRecommendAsync(VideoInfo);
+
+            if (_navigationCancellationToken.IsCancellationRequested) { return; }
+
             if (res?.Meta.IsOK ?? false)
             {
-                RelatedVideos = res.Data.Items
-                    .Where(x => x.ContentType == NiconicoToolkit.Recommend.RecommendContentType.Video)
-                    .Select(x =>
+                List<VideoListItemControlViewModel> items = new List<VideoListItemControlViewModel>();
+
+                foreach (var x in res.Data.Items)
+                {
+                    if (x.ContentType != NiconicoToolkit.Recommend.RecommendContentType.Video)
                     {
-                        var video = x.ContentAsVideo;
-                        var vm = new VideoListItemControlViewModel(video.Id, video.Title, video.Thumbnail.Url.OriginalString, TimeSpan.FromSeconds(video.Duration));
-                        vm.PostedAt = video.RegisteredAt.DateTime;
-                        vm.CommentCount = video.Count.Comment;
-                        vm.ViewCount = video.Count.View;
-                        vm.MylistCount = video.Count.Mylist;
-                        vm.ProviderId = video.Owner.Id;
-                        vm.ProviderName = video.Owner.Name;
-                        vm.ProviderType = video.Owner.OwnerType switch
-                        {
-                            OwnerType.User => NicoVideoUserType.User,
-                            OwnerType.Channel => NicoVideoUserType.Channel,
-                            _ => throw new NotSupportedException(),
-                        };
-                        return vm;
-                    })
-                    .ToList();
+                        continue;
+                    }
+
+                    var video = x.ContentAsVideo;
+                    var vm = new VideoListItemControlViewModel(video.Id, video.Title, video.Thumbnail.Url.OriginalString, TimeSpan.FromSeconds(video.Duration));
+                    vm.PostedAt = video.RegisteredAt.DateTime;
+                    vm.CommentCount = video.Count.Comment;
+                    vm.ViewCount = video.Count.View;
+                    vm.MylistCount = video.Count.Mylist;
+                    vm.ProviderId = video.Owner.Id;
+                    vm.ProviderName = video.Owner.Name;
+                    vm.ProviderType = video.Owner.OwnerType switch
+                    {
+                        OwnerType.User => NicoVideoUserType.User,
+                        OwnerType.Channel => NicoVideoUserType.Channel,
+                        OwnerType.Hidden => NicoVideoUserType.Hidden,
+                        _ => throw new NotSupportedException(),
+                    };
+                    items.Add(vm);
+                }
+
+                if (_navigationCancellationToken.IsCancellationRequested)
+                {
+                    items.DisposeAll();
+                    return;
+                }
+
+                RelatedVideos = items;
             }
+
+            
 
             _IsInitializedRelatedVideos = true;
             
         }
         private async Task UpdateVideoDescription()
         {
-            using (var releaser = await _UpdateLock.LockAsync())
+            if (VideoInfo.RawVideoId == null)
             {
-                if (VideoInfo.RawVideoId == null)
-                {
-                    return;
-                }
-
-                IsLoadFailed.Value = false;
-
-                try
-                {
-                    var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.RawVideoId);
-                    VideoDetails = res.GetVideoDetails();
-
-
-                    //VideoTitle = details.VideoTitle;
-                    //Tags = details.Tags.ToList();
-                    //ThumbnailUrl = details.ThumbnailUrl;
-                    //VideoLength = details.VideoLength;
-                    //SubmitDate = details.SubmitDate;
-                    //ViewCount = details.ViewCount;
-                    //CommentCount = details.CommentCount;
-                    //MylistCount = details.MylistCount;
-                    //ProviderId = details.ProviderId;
-                    //ProviderName = details.ProviderName;
-                    //OwnerIconUrl = details.OwnerIconUrl;
-                    //IsChannelOwnedVideo = details.IsChannelOwnedVideo;
-
-                    VideoSeries = VideoDetails.Series is not null and var series ? new VideoSeriesViewModel(series) : null;
-
-                    NowLikeProcessing = true;
-                    IsLikedVideo = VideoDetails.IsLikedVideo;
-                    NowLikeProcessing = false;
-                }
-                catch
-                {
-                    IsLoadFailed.Value = true;
-                    return;
-                }
+                return;
             }
+
+            IsLoadFailed.Value = false;
+
+            try
+            {
+                var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.RawVideoId);
+                VideoDetails = res.GetVideoDetails();
+
+
+                //VideoTitle = details.VideoTitle;
+                //Tags = details.Tags.ToList();
+                //ThumbnailUrl = details.ThumbnailUrl;
+                //VideoLength = details.VideoLength;
+                //SubmitDate = details.SubmitDate;
+                //ViewCount = details.ViewCount;
+                //CommentCount = details.CommentCount;
+                //MylistCount = details.MylistCount;
+                //ProviderId = details.ProviderId;
+                //ProviderName = details.ProviderName;
+                //OwnerIconUrl = details.OwnerIconUrl;
+                //IsChannelOwnedVideo = details.IsChannelOwnedVideo;
+
+                VideoSeries = VideoDetails.Series is not null and var series ? new VideoSeriesViewModel(series) : null;
+
+                NowLikeProcessing = true;
+                IsLikedVideo = VideoDetails.IsLikedVideo;
+                NowLikeProcessing = false;
+            }
+            catch
+            {
+                IsLoadFailed.Value = true;
+                return;
+            }
+            
 
             try
             {
@@ -741,8 +780,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 Debug.WriteLine("動画説明からリンクを抜き出す処理に失敗");
                 throw;
             }
-
-            
         }
 
         private void UpdateSelfZoning()

@@ -176,7 +176,7 @@ namespace Hohoema.Models.UseCase.VideoCache
 
                     await _videoCacheManager.PauseAllDownloadOperationAsync();
                 }
-                catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
+                catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
                 finally
                 {
                     defferl.Complete();
@@ -190,7 +190,7 @@ namespace Hohoema.Models.UseCase.VideoCache
                 {
                     LaunchDownaloadOperationLoop();
                 }
-                catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
+                catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
             };
 
             _nicoVideoSessionOwnershipManager.AvairableOwnership += (s, e) => 

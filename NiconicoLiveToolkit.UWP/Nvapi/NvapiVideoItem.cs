@@ -57,7 +57,7 @@ namespace NiconicoToolkit.Nvapi
 
     public enum TypeEnum { Essential };
 
-    public enum OwnerType { User, Channel };
+    public enum OwnerType { User, Channel, Hidden };
 
     public class Count
     {
