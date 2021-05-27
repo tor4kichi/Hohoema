@@ -60,7 +60,6 @@ namespace Hohoema.Presentation.ViewModels
         private readonly LocalMylistManager _localMylistManager;
         public OpenLiveContentCommand OpenLiveContentCommand { get; }
 
-        private readonly ErrorTrackingManager _errorTrackingManager;
         private readonly DialogService _dialogService;
         private readonly NotificationService _notificationService;
 
@@ -75,7 +74,6 @@ namespace Hohoema.Presentation.ViewModels
         public LocalMylistSubMenuItemViewModel _localMylistMenuSubItemViewModel { get; }
 
         public PrimaryWindowCoreLayoutViewModel(
-            ErrorTrackingManager errorTrackingManager,
             NiconicoSession niconicoSession,
             PageManager pageManager,
             PinSettings pinSettings,
@@ -97,7 +95,6 @@ namespace Hohoema.Presentation.ViewModels
             OpenLiveContentCommand openLiveContentCommand
             )
         {
-            _errorTrackingManager = errorTrackingManager;
             NiconicoSession = niconicoSession;
             PageManager = pageManager;
             PinSettings = pinSettings;

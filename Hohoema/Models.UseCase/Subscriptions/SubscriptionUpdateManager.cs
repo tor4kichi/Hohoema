@@ -27,8 +27,6 @@ namespace Hohoema.Models.UseCase.Subscriptions
     {
         private readonly SubscriptionManager _subscriptionManager;
         private readonly SubscriptionSettings _subscriptionSettings;
-
-        
         AsyncLock _timerLock = new AsyncLock();
 
         IDisposable _timerDisposer;
@@ -133,14 +131,14 @@ namespace Hohoema.Models.UseCase.Subscriptions
                 _timerUpdateCancellationTokenSource?.Cancel();
                 _timerUpdateCancellationTokenSource = null;
             }
-            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
+            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
 
 
             try
             {
                 await StopTimerAsync();
             }
-            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
+            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
             finally
             {
                 deferral.Complete();
@@ -156,7 +154,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
                 StartOrResetTimer();
             }
-            catch (Exception ex) { Crashes.TrackError(ex); }
+            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
         }
 
 

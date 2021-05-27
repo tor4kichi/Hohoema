@@ -85,28 +85,35 @@ namespace Hohoema.Models.UseCase.Player
                         DisplayMode = _lastPlayedDisplayMode;
                     }
 
-                    var result = await _navigationService.NavigateAsync(pageName, parameters, new DrillInNavigationTransitionInfo());
-                    if (!result.Success)
+                    try
                     {
-                        Debug.WriteLine(result.Exception?.ToString());
-                        DisplayMode = PrimaryPlayerDisplayMode.Close;
-                        _view.Title = string.Empty;
-                        throw result.Exception ?? new Models.Infrastructure.HohoemaExpception("unknown navigation error.");
-                    }
-                    else
-                    {
-                        var name = ResolveContentName(pageName, parameters);
-                        _view.Title = name != null ? $"{name}" : string.Empty;
-                    }
+                        var result = await _navigationService.NavigateAsync(pageName, parameters, new DrillInNavigationTransitionInfo());
+                        if (!result.Success)
+                        {
+                            Debug.WriteLine(result.Exception?.ToString());
+                            DisplayMode = PrimaryPlayerDisplayMode.Close;
+                            _view.Title = string.Empty;
+                            throw result.Exception ?? new Models.Infrastructure.HohoemaExpception("unknown navigation error.");
+                        }
+                        else
+                        {
+                            var name = ResolveContentName(pageName, parameters);
+                            _view.Title = name != null ? $"{name}" : string.Empty;
+                        }
 
-                    Analytics.TrackEvent("PlayerNavigation", new Dictionary<string, string> 
+                        Analytics.TrackEvent("PlayerNavigation", new Dictionary<string, string>
+                        {
+                            { "PageType",  pageName },
+                            { "DisplayMode", DisplayMode.ToString() },
+                            { "ViewType", "Primary" },
+                            { "CompactOverlay", (_view.ViewMode == ApplicationViewMode.CompactOverlay).ToString() },
+                            { "FullScreen", _view.IsFullScreenMode.ToString() }
+                        });
+                    }
+                    catch (Exception e)
                     {
-                        { "PageType",  pageName },
-                        { "DisplayMode", DisplayMode.ToString() },
-                        { "ViewType", "Primary" },
-                        { "CompactOverlay", (_view.ViewMode == ApplicationViewMode.CompactOverlay).ToString() },
-                        { "FullScreen", _view.IsFullScreenMode.ToString() }
-                    });
+                        ErrorTrackingManager.TrackError(e);
+                    }
                 }
             });
 

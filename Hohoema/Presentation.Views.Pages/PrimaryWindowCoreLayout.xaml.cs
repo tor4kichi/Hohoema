@@ -37,6 +37,7 @@ using Hohoema.Presentation.Views.Pages.Niconico;
 using Hohoema.Presentation.Views.Pages.Niconico.LoginUser;
 using Hohoema.Presentation.Services.UINavigation;
 using Hohoema.Models.Infrastructure;
+using Hohoema.Models.UseCase;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -45,13 +46,14 @@ namespace Hohoema.Presentation.Views.Pages
     public sealed partial class PrimaryWindowCoreLayout : UserControl
     {
         private readonly PrimaryWindowCoreLayoutViewModel _viewModel;
+        
 
         private readonly DispatcherQueue _dispatcherQueue;
         public PrimaryWindowCoreLayout(PrimaryWindowCoreLayoutViewModel viewModel)
         {
             DataContext = _viewModel = viewModel;
-            this.InitializeComponent();
 
+            this.InitializeComponent();
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
             ContentFrame.NavigationFailed += (_, e) =>
@@ -60,7 +62,7 @@ namespace Hohoema.Presentation.Views.Pages
                 Debug.WriteLine(e.SourcePageType.AssemblyQualifiedName);
                 Debug.WriteLine(e.Exception.ToString());
 
-                Crashes.TrackError(e.Exception);
+                ErrorTrackingManager.TrackError(e.Exception);
             };
             
             // Resolve Page Title 
@@ -192,7 +194,6 @@ namespace Hohoema.Presentation.Views.Pages
 
                 LiteInAppNotification.Show(payload, duration);
             });
-
         }
 
 
@@ -325,7 +326,7 @@ namespace Hohoema.Presentation.Views.Pages
                 {
                     var errorPageParam = parameter.Select(x => (x.Key, x.Value.ToString())).ToDictionary(x => x.Key, x => x.Item2);
                     errorPageParam.Add("PageType", pageName);
-                    Crashes.TrackError(e, errorPageParam);
+                    ErrorTrackingManager.TrackError(e, errorPageParam);
                 }
             });
         }
@@ -915,10 +916,6 @@ namespace Hohoema.Presentation.Views.Pages
         // Using a DependencyProperty as the backing store for IsDebugModeEnabled.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsDebugModeEnabledProperty =
             DependencyProperty.Register("IsDebugModeEnabled", typeof(bool), typeof(PrimaryWindowCoreLayout), new PropertyMetadata(false));
-
-
-
-
 
         public void OpenErrorTeachingTip(ICommand sentErrorCommand, Action onClosing)
         {

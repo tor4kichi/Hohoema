@@ -20,47 +20,43 @@ using Windows.Graphics.Display;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
+using Prism.Ioc;
 
 namespace Hohoema.Models.UseCase
 {    
-    public sealed class ErrorTrackingManager
+    public static class ErrorTrackingManager
     {
-        private readonly PageManager _pageManager;
-        private readonly NiconicoSession _niconicoSession;
-        private readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
-        private readonly ScondaryViewPlayerManager _scondaryViewPlayerManager;
+        private static readonly PageManager _pageManager;
+        private static readonly NiconicoSession _niconicoSession;
+        private static readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
+        private static readonly ScondaryViewPlayerManager _scondaryViewPlayerManager;
 
         public const int MAX_REPORT_COUNT = 10;
 
-        public ErrorTrackingManager(
-            PageManager pageManager,
-            NiconicoSession niconicoSession,
-            PrimaryViewPlayerManager primaryViewPlayerManager,
-            ScondaryViewPlayerManager scondaryViewPlayerManager
-            )
+        static ErrorTrackingManager()
         {
-            _pageManager = pageManager;
-            _niconicoSession = niconicoSession;
-            _primaryViewPlayerManager = primaryViewPlayerManager;
-            _scondaryViewPlayerManager = scondaryViewPlayerManager;
+            _pageManager = App.Current.Container.Resolve<PageManager>();
+            _niconicoSession = App.Current.Container.Resolve<NiconicoSession>(); 
+            _primaryViewPlayerManager = App.Current.Container.Resolve<PrimaryViewPlayerManager>();
+            _scondaryViewPlayerManager = App.Current.Container.Resolve<ScondaryViewPlayerManager>();
         }
 
-        public Dictionary<string, string> MakeReportParameters()
+        public static Dictionary<string, string> MakeReportParameters()
         {
             var pageName = _pageManager.CurrentPageType.ToString();
             var pageParameter = _pageManager.CurrentPageNavigationParameters is not null ? JsonConvert.SerializeObject(_pageManager.CurrentPageNavigationParameters) : "null";
 
             return new Dictionary<string, string>
-                {
-                    { "IsInternetAvailable", InternetConnection.IsInternet().ToString() },
-                    { "IsLoggedIn", _niconicoSession.IsLoggedIn.ToString() },
-                    { "IsPremiumAccount", _niconicoSession.IsPremiumAccount.ToString() },
-                    { "RecentOpenPageName", pageName },
-                    { "RecentOpenPageParameters", pageParameter },
-                    { "OperatingSystemArchitecture", Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.OperatingSystemArchitecture.ToString() },
-                    { "PrimaryWindowPlayerDisplayMode", _primaryViewPlayerManager.DisplayMode.ToString() },
-                    { "IsShowSecondaryView", _scondaryViewPlayerManager.IsShowSecondaryView.ToString() },
-                };
+            {
+                { "IsInternetAvailable", InternetConnection.IsInternet().ToString() },
+                { "IsLoggedIn", _niconicoSession.IsLoggedIn.ToString() },
+                { "IsPremiumAccount", _niconicoSession.IsPremiumAccount.ToString() },
+                { "RecentOpenPageName", pageName },
+                { "RecentOpenPageParameters", pageParameter },
+                { "OperatingSystemArchitecture", Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.OperatingSystemArchitecture.ToString() },
+                { "PrimaryWindowPlayerDisplayMode", _primaryViewPlayerManager.DisplayMode.ToString() },
+                { "IsShowSecondaryView", _scondaryViewPlayerManager.IsShowSecondaryView.ToString() },
+            };
         }
 
 
@@ -92,10 +88,23 @@ namespace Hohoema.Models.UseCase
             return ErrorAttachmentLog.AttachmentWithText(text, "userInput.txt");
         }
 
-        FastAsyncLock _fastAsyncLock = new FastAsyncLock();
-        public void SendReportWithAttatchments(Exception exception, params ErrorAttachmentLog[] logs)
+        public static void TrackError(Exception exception, IDictionary<string, string> parameters = null, params ErrorAttachmentLog[] logs)
         {
-            Crashes.TrackError(exception, MakeReportParameters(), logs);
+            var dict = MakeReportParameters();
+            if (parameters != null)
+            {
+                foreach (var pair in parameters)
+                {
+                    if (dict.ContainsKey(pair.Key))
+                    {
+                        dict.Remove(pair.Key);
+                    }
+
+                    dict.Add(pair.Key, pair.Value);
+                }
+            }
+
+            Crashes.TrackError(exception, dict, logs.Concat(new[] { ErrorAttachmentLog.AttachmentWithText(exception.Message, "Exception.Message")}).ToArray());
         }
     }
 

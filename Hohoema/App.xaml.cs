@@ -93,8 +93,6 @@ namespace Hohoema
 		/// </summary>
 		public App()
         {
-			UnhandledException += PrismUnityApplication_UnhandledException;
-
             // XboxOne向けの設定
             // 基本カーソル移動で必要なときだけポインターを出現させる
             this.RequiresPointerMode = Windows.UI.Xaml.ApplicationRequiresPointerMode.WhenRequested;
@@ -281,8 +279,6 @@ namespace Hohoema
 
             unityContainer.RegisterSingleton<Models.Domain.VideoCache.VideoCacheManager>();
             unityContainer.RegisterSingleton<Models.Domain.VideoCache.VideoCacheSettings>();
-
-            unityContainer.RegisterSingleton<ErrorTrackingManager>();
 
             // UseCase
             unityContainer.RegisterType<VideoPlayer>(new PerThreadLifetimeManager());
@@ -1095,7 +1091,6 @@ namespace Hohoema
                     {
                         try
                         {
-                            var errorTrankingManager = Container.Resolve<ErrorTrackingManager>();
                             var dialogService = Container.Resolve<DialogService>();
                             var rtb = await GetApplicationContentImage();
                             var result = await Presentation.Views.Dialogs.HohoemaErrorReportDialog.ShowAsync(e.Exception, sendScreenshot: false, rtb);
@@ -1123,7 +1118,7 @@ namespace Hohoema
                                 }
                             }
 
-                            errorTrankingManager.SendReportWithAttatchments(e.Exception, attachmentLogs.ToArray());
+                            ErrorTrackingManager.TrackError(e.Exception, null, attachmentLogs.ToArray());
 
                             // isSentError を変更した後にErrorTeachingTipを閉じることでClose時の判定が走る
                             isSentError = true;
@@ -1139,16 +1134,14 @@ namespace Hohoema
                     {
                         if (isSentError is false)
                         {
-                            var errorTrankingManager = Container.Resolve<ErrorTrackingManager>();
-                            errorTrankingManager.SendReportWithAttatchments(e.Exception);
+                            ErrorTrackingManager.TrackError(e.Exception);
                         }
                     });                    
                 });
             }
             else
             {
-                var errorTrankingManager = Container.Resolve<ErrorTrackingManager>();
-                errorTrankingManager.SendReportWithAttatchments(e.Exception);
+                ErrorTrackingManager.TrackError(e.Exception);
             }
 
             e.Handled = true;
