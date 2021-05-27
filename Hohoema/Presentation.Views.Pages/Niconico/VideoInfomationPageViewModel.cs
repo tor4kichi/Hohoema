@@ -43,6 +43,8 @@ using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Presentation.ViewModels.VideoCache.Commands;
+using System.Threading;
+using Uno.Disposables;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
@@ -445,8 +447,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             set { SetProperty(ref _VideoDetails, value); }
         }
 
+        CancellationTokenSource _navigationCts;
+        CancellationToken _navigationCancellationToken;
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            _navigationCts = new CancellationTokenSource();
+            _navigationCancellationToken = _navigationCts.Token;
+
             NowLoading.Value = true;
             IsLoadFailed.Value = false;
 
@@ -512,6 +519,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
+            _navigationCts.Cancel();
+            _navigationCts.Dispose();
+            _navigationCts = null;
+
             VideoDescriptionHyperlinkItems?.Clear();
             IchibaItems?.Clear();
 
@@ -520,7 +531,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             
             FollowContext = FollowContext<IUser>.Default;
 
-            RelatedVideos.ForEach(x => x.Dispose());
+            RelatedVideos?.DisposeAll();
 
             // ListViewのメモリリークを抑えるため関連するバインディングをnull埋め
             VideoInfo = null;
@@ -531,6 +542,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             base.OnNavigatedFrom(parameters);
         }
 
+        
 
 
         private async Task ProcessLikeAsync(bool like)
@@ -607,31 +619,50 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         {
             if (_IsInitializedRelatedVideos) { return; }
 
+
             var res = await _recommendProvider.GetVideoRecommendAsync(VideoInfo);
+
+            if (_navigationCancellationToken.IsCancellationRequested) { return; }
+
             if (res?.Meta.IsOK ?? false)
             {
-                RelatedVideos = res.Data.Items
-                    .Where(x => x.ContentType == NiconicoToolkit.Recommend.RecommendContentType.Video)
-                    .Select(x =>
+                List<VideoListItemControlViewModel> items = new List<VideoListItemControlViewModel>();
+
+                foreach (var x in res.Data.Items)
+                {
+                    if (x.ContentType != NiconicoToolkit.Recommend.RecommendContentType.Video)
                     {
-                        var video = x.ContentAsVideo;
-                        var vm = new VideoListItemControlViewModel(video.Id, video.Title, video.Thumbnail.Url.OriginalString, TimeSpan.FromSeconds(video.Duration));
-                        vm.PostedAt = video.RegisteredAt.DateTime;
-                        vm.CommentCount = video.Count.Comment;
-                        vm.ViewCount = video.Count.View;
-                        vm.MylistCount = video.Count.Mylist;
-                        vm.ProviderId = video.Owner.Id;
-                        vm.ProviderName = video.Owner.Name;
-                        vm.ProviderType = video.Owner.OwnerType switch
-                        {
-                            OwnerType.User => NicoVideoUserType.User,
-                            OwnerType.Channel => NicoVideoUserType.Channel,
-                            _ => throw new NotSupportedException(),
-                        };
-                        return vm;
-                    })
-                    .ToList();
+                        continue;
+                    }
+
+                    var video = x.ContentAsVideo;
+                    var vm = new VideoListItemControlViewModel(video.Id, video.Title, video.Thumbnail.Url.OriginalString, TimeSpan.FromSeconds(video.Duration));
+                    vm.PostedAt = video.RegisteredAt.DateTime;
+                    vm.CommentCount = video.Count.Comment;
+                    vm.ViewCount = video.Count.View;
+                    vm.MylistCount = video.Count.Mylist;
+                    vm.ProviderId = video.Owner.Id;
+                    vm.ProviderName = video.Owner.Name;
+                    vm.ProviderType = video.Owner.OwnerType switch
+                    {
+                        OwnerType.User => NicoVideoUserType.User,
+                        OwnerType.Channel => NicoVideoUserType.Channel,
+                        OwnerType.Hidden => NicoVideoUserType.Hidden,
+                        _ => throw new NotSupportedException(),
+                    };
+                    items.Add(vm);
+                }
+
+                if (_navigationCancellationToken.IsCancellationRequested)
+                {
+                    items.DisposeAll();
+                    return;
+                }
+
+                RelatedVideos = items;
             }
+
+            
 
             _IsInitializedRelatedVideos = true;
             
