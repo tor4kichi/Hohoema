@@ -284,7 +284,6 @@ namespace Hohoema.Presentation.Views.Flyouts
             AddNgUser.Visibility = AddNgUser.Command.CanExecute(content).ToVisibility();
             RemoveNgUser.Visibility = RemoveNgUser.Command.CanExecute(content).ToVisibility();
 
-
             // キャッシュ
             var canNewDownloadCache = VideoCacheManager.IsCacheDownloadAuthorized();
             var canNewDownloadCacheToVisibility = canNewDownloadCache.ToVisibility();
@@ -303,10 +302,11 @@ namespace Hohoema.Presentation.Views.Flyouts
                 CacheRequestWithQuality.Visibility = notCachedToVisible;
                 DeleteCacheRequest.CommandParameter = dataContext;
                 (DeleteCacheRequest.Command as DelegateCommandBase).RaiseCanExecuteChanged();
-                CacheSeparator.Visibility = Visibility.Visible;
 
                 var cachedToVisible = (anyItemsCached).ToVisibility();
                 DeleteCacheRequest.Visibility = cachedToVisible;
+
+                CacheSeparator.Visibility = (notCachedToVisible is Visibility.Visible || cachedToVisible is Visibility.Visible).ToVisibility();
             }
             else
             {
@@ -319,12 +319,12 @@ namespace Hohoema.Presentation.Views.Flyouts
                 CacheRequestWithQuality.Visibility = notCachedToVisible;
                 DeleteCacheRequest.CommandParameter = dataContext;
 
-                CacheSeparator.Visibility = Visibility.Visible;
-
                 var cachedToVisible = (itemCached).ToVisibility();
                 DeleteCacheRequest.Visibility = cachedToVisible;
+
+                CacheSeparator.Visibility = (notCachedToVisible is Visibility.Visible || cachedToVisible is Visibility.Visible).ToVisibility();
             }
-            
+
 
             if (CacheRequestWithQuality.Items.Count == 0)
             {
