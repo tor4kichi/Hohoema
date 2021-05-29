@@ -2,7 +2,6 @@
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Videos.Dmc;
 using Mntone.Nico2.Videos.Recommend;
-using Mntone.Nico2.Videos.WatchAPI;
 using Hohoema.Database;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Infrastructure;
@@ -327,217 +326,95 @@ namespace Hohoema.Models.Domain.Niconico.Video
             {
                 return null;
             }
-
-            // TODO: 有害動画に指定されたページにアクセスした場合の対応
-            // 有害動画ページにアクセスしたら一度だけ確認ページをダイアログ表示する
-            // （ユーザーのアクションによらず）再度ページを読み込んで、もう一度HurmfulContentが返ってきた場合はnullを返す
-
-            HarmfulContentReactionType harmfulContentReactionType = HarmfulContentReactionType.None;
-
+            var data = await ContextActionWithPageAccessWaitAsync(context =>
             {
-                try
+                return context.Video.GetDmcWatchResponseAsync(
+                    rawVideoId
+                    );
+            });
+
+            var res = data?.DmcWatchResponse;
+
+            var info = _nicoVideoRepository.Get(rawVideoId);
+            if (res != null)
+            {
+                if (info == null)
                 {
-                    var data = await ContextActionWithPageAccessWaitAsync(context =>
+                    info = new NicoVideo()
                     {
-                        return context.Video.GetDmcWatchResponseAsync(
-                            rawVideoId
-                            , harmfulReactType: harmfulContentReactionType
-                            );
-                    });
-
-                    var res = data?.DmcWatchResponse;
-
-                    var info = _nicoVideoRepository.Get(rawVideoId);
-                    if (res != null)
-                    {
-                        if (info == null)
-                        {
-                            info = new NicoVideo()
-                            {
-                                RawVideoId = rawVideoId
-                            };
-                        }
-
-                        info.VideoId = res.Video.Id;
-                        info.Title = res.Video.Title;
-                        info.Length = TimeSpan.FromSeconds(res.Video.Duration);
-                        info.PostedAt = res.Video.RegisteredAt.DateTime;
-                        info.ThumbnailUrl = res.Video.Thumbnail.Url.OriginalString;
-                        info.DescriptionWithHtml = res.Video.Description;
-                        info.ViewCount = res.Video.Count.View;
-                        info.MylistCount = res.Video.Count.Mylist;
-                        info.CommentCount = res.Video.Count.Comment;
-
-                        if (res.Media?.Delivery?.Movie.Audios is not null and var audios)
-                        {
-                            info.LoudnessCollectionValue = audios[0].Metadata.VideoLoudnessCollection;
-                        }
-
-                        info.MovieType = MovieType.Mp4;
-
-                        info.Tags = res.Tag.Items.Select(x => new NicoVideoTag(x.Name)
-                        {
-                            Tag = x.Name,
-                            IsCategoryTag = x.IsCategory,
-                            IsLocked = x.IsLocked,
-                            IsDictionaryExists = x.IsNicodicArticleExists
-                        }).ToList();
-
-                        if (res.Owner != null)
-                        {
-                            info.Owner = new NicoVideoOwner()
-                            {
-                                ScreenName = res.Owner.Nickname,
-                                IconUrl = res.Owner.IconUrl.OriginalString,
-                                OwnerId = res.Owner.Id.ToString(),
-                                UserType = NicoVideoUserType.User
-                            };
-
-                            _nicoVideoOwnerRepository.UpdateItem(info.Owner);
-                        }
-                        else if (res.Channel != null)
-                        {
-                            info.Owner = new NicoVideoOwner()
-                            {
-                                ScreenName = res.Channel.Name,
-                                IconUrl = res.Channel.Thumbnail.Url.OriginalString,
-                                OwnerId = res.Channel.Id,
-                                UserType = NicoVideoUserType.Channel
-                            };
-
-                            _nicoVideoOwnerRepository.UpdateItem(info.Owner);
-                        }
-
-                        if (data.DmcWatchResponse?.Video != null)
-                        {
-                            info.IsDeleted = data.DmcWatchResponse.Video.IsDeleted;
-                        }
-
-                        info.LastUpdated = DateTime.Now;
-                        _nicoVideoRepository.AddOrUpdate(info);
-                    }
-
-                    
-                    if (info.IsDeleted)
-                    {
-                        PublishVideoDeletedEvent(info);
-                    }
-                    
-
-                    return data;
-                }
-                catch (AggregateException ea) when (ea.Flatten().InnerExceptions.Any(e => e is ContentZoningException))
-                {
-                    throw new NotImplementedException("not implement hurmful video content.");
-                }
-                catch (Mntone.Nico2.ContentZoningException)
-                {
-                    throw new NotImplementedException("not implement hurmful video content.");
+                        RawVideoId = rawVideoId
+                    };
                 }
 
+                info.VideoId = res.Video.Id;
+                info.Title = res.Video.Title;
+                info.Length = TimeSpan.FromSeconds(res.Video.Duration);
+                info.PostedAt = res.Video.RegisteredAt.DateTime;
+                info.ThumbnailUrl = res.Video.Thumbnail.Url.OriginalString;
+                info.DescriptionWithHtml = res.Video.Description;
+                info.ViewCount = res.Video.Count.View;
+                info.MylistCount = res.Video.Count.Mylist;
+                info.CommentCount = res.Video.Count.Comment;
 
-
-            }
-
-        }
-
-        public async Task<WatchApiResponse> GetWatchApiResponse(string rawVideoId, bool forceLowQuality = false)
-        {
-            if (NiconicoSession.ServiceStatus.IsOutOfService())
-            {
-                return null;
-            }
-
-            if (!NiconicoSession.IsLoggedIn)
-            {
-                return null;
-            }
-
-            // TODO: 有害動画に指定されたページにアクセスした場合の対応
-            HarmfulContentReactionType harmfulContentReactionType = HarmfulContentReactionType.None;
-
-            
-            {
-                try
+                if (res.Media?.Delivery?.Movie.Audios is not null and var audios)
                 {
-                    var res = await ContextActionWithPageAccessWaitAsync(context =>
-                    {
-                        return context.Video.GetWatchApiAsync(
-                        rawVideoId
-                        , forceLowQuality: forceLowQuality
-                        , harmfulReactType: harmfulContentReactionType
-                        );
-                    });
+                    info.LoudnessCollectionValue = audios[0].Metadata.VideoLoudnessCollection;
+                }
 
-                    var info = _nicoVideoRepository.Get(rawVideoId);
-                    if (info == null)
-                    {
-                        info = new NicoVideo()
-                        {
-                            RawVideoId = rawVideoId
-                        };
-                    }
+                info.MovieType = MovieType.Mp4;
 
-                    info.VideoId = res.videoDetail.id;
-                    info.Title = res.videoDetail.title;
-                    info.Length = res.videoDetail.length.HasValue ? TimeSpan.FromSeconds(res.videoDetail.length.Value) : TimeSpan.Zero;
-                    info.PostedAt = DateTime.Parse(res.videoDetail.postedAt);
-                    info.ThumbnailUrl = res.videoDetail.thumbnail;
-                    info.DescriptionWithHtml = res.videoDetail.description;
-                    info.ViewCount = res.videoDetail.viewCount ?? 0;
-                    info.MylistCount = res.videoDetail.mylistCount ?? 0;
-                    info.CommentCount = res.videoDetail.commentCount ?? 0;
-                    switch (res.flashvars.movie_type)
-                    {
-                        case @"mp4":
-                            info.MovieType = MovieType.Mp4;
-                            break;
-                        case @"flv":
-                            info.MovieType = MovieType.Flv;
-                            break;
-                        case @"swf":
-                            info.MovieType = MovieType.Swf;
-                            break;
-                    }
-                    info.Tags = res.videoDetail.tagList.Select(x => new NicoVideoTag(x.tag)
-                    {
-                        IsCategoryTag = x.cat ?? false,
-                        IsLocked = x.lck == "1",  /* TODO: lck 値が不明です */
-                        IsDictionaryExists = x.dic ?? false
-                    }).ToList();
+                info.Tags = res.Tag.Items.Select(x => new NicoVideoTag(x.Name)
+                {
+                    Tag = x.Name,
+                    IsCategoryTag = x.IsCategory,
+                    IsLocked = x.IsLocked,
+                    IsDictionaryExists = x.IsNicodicArticleExists
+                }).ToList();
 
+                if (res.Owner != null)
+                {
                     info.Owner = new NicoVideoOwner()
                     {
-                        ScreenName = res.UploaderInfo?.nickname ?? res.channelInfo?.name,
-                        IconUrl = res.UploaderInfo?.icon_url ?? res.channelInfo?.icon_url,
-                        OwnerId = res.UploaderInfo?.id ?? res.channelInfo?.id,
-                        UserType = res.channelInfo != null ? NicoVideoUserType.Channel : NicoVideoUserType.User
+                        ScreenName = res.Owner.Nickname,
+                        IconUrl = res.Owner.IconUrl.OriginalString,
+                        OwnerId = res.Owner.Id.ToString(),
+                        UserType = NicoVideoUserType.User
                     };
 
-                    info.IsDeleted = res.IsDeleted;
-                    info.PrivateReasonType = res.PrivateReason;
-
-                    _nicoVideoRepository.AddOrUpdate(info);
-                    //                    NicoVideoOwnerDb.AddOrUpdate(info.Owner);
-
-                    if (info.IsDeleted)
+                    _nicoVideoOwnerRepository.UpdateItem(info.Owner);
+                }
+                else if (res.Channel != null)
+                {
+                    info.Owner = new NicoVideoOwner()
                     {
-                        PublishVideoDeletedEvent(info);
-                    }
+                        ScreenName = res.Channel.Name,
+                        IconUrl = res.Channel.Thumbnail.Url.OriginalString,
+                        OwnerId = res.Channel.Id,
+                        UserType = NicoVideoUserType.Channel
+                    };
 
+                    _nicoVideoOwnerRepository.UpdateItem(info.Owner);
+                }
 
-                    return res;
-                }
-                catch (AggregateException ea) when (ea.Flatten().InnerExceptions.Any(e => e is ContentZoningException))
+                if (data.DmcWatchResponse?.Video != null)
                 {
-                    throw new NotImplementedException("not implement hurmful video content.");
+                    info.IsDeleted = data.DmcWatchResponse.Video.IsDeleted;
                 }
-                catch (ContentZoningException)
-                {
-                    throw new NotImplementedException("not implement hurmful video content.");
-                }
+
+                info.LastUpdated = DateTime.Now;
+                _nicoVideoRepository.AddOrUpdate(info);
             }
+
+
+            if (info.IsDeleted)
+            {
+                PublishVideoDeletedEvent(info);
+            }
+
+
+            return data;
         }
+
 
         public async Task<NicoVideoResponse> GetRelatedVideos(string videoId, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
         {

@@ -8,8 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NiconicoToolkit.Rss.Video;
 
-namespace NiconicoToolkit.Video.Ranking
+namespace NiconicoToolkit.Ranking.Video
 {
 
 

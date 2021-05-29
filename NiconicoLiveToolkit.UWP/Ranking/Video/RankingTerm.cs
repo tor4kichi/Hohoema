@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace NiconicoToolkit.Video.Ranking
+namespace NiconicoToolkit.Ranking.Video
 {
     public enum RankingTerm
     {

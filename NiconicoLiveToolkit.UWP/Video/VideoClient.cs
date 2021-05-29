@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.Ranking.Video;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,12 +15,12 @@ namespace NiconicoToolkit.Video
 
         JsonSerializerOptions _videoInfoSerializerOption;
 
-        public Ranking.VideoRankinguSubClient Ranking { get; }
+        public VideoRankinguSubClient Ranking { get; }
 
         internal VideoClient(NiconicoContext context)
         {
             _context = context;
-            Ranking = new Ranking.VideoRankinguSubClient(context);
+            Ranking = new VideoRankinguSubClient(context);
 
             _videoInfoSerializerOption = new JsonSerializerOptions()
             {

@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using NiconicoToolkit.Video.Ranking;
+using NiconicoToolkit.Ranking.Video;
 
 namespace NiconicoToolkit.Search.Video
 {

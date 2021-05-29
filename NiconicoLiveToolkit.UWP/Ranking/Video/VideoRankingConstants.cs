@@ -1,4 +1,4 @@
-﻿namespace NiconicoToolkit.Video.Ranking
+﻿namespace NiconicoToolkit.Ranking.Video
 {
     public static class VideoRankingConstants
     {

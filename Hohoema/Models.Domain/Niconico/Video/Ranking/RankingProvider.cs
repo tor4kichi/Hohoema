@@ -6,8 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-using NiconicoToolkit.Video.Ranking;
+using NiconicoToolkit.Ranking.Video;
 using NiconicoToolkit.Video;
+using NiconicoToolkit.Rss.Video;
 
 namespace Hohoema.Models.Domain.Niconico.Video.Ranking
 {

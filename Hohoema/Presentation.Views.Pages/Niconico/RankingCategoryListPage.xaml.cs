@@ -1,4 +1,4 @@
-﻿using NiconicoToolkit.Video.Ranking;
+﻿using NiconicoToolkit.Ranking.Video;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;

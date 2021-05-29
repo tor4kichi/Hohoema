@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Toolkit.Collections;
 using Hohoema.Models.Infrastructure;
 using Uno.Extensions;
-using NiconicoToolkit.Video.Ranking;
+using NiconicoToolkit.Ranking.Video;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {

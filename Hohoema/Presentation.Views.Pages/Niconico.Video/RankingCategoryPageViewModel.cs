@@ -11,7 +11,7 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using I18NPortable;
-using NiconicoToolkit.Video.Ranking;
+using NiconicoToolkit.Ranking.Video;
 using Prism.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -29,6 +29,7 @@ using Uno.Threading;
 using Hohoema.Models.Domain.Notification;
 using Hohoema.Models.Domain.Niconico;
 using NiconicoToolkit.Video;
+using NiconicoToolkit.Rss.Video;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {

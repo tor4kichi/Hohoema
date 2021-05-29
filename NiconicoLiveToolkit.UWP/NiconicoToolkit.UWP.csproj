@@ -182,16 +182,16 @@
     <Compile Include="System.Text.Json.Serialization\VideoPositionToTimeSpanConverter.cs" />
     <Compile Include="User\UserClient.cs" />
     <Compile Include="EnumDescriptionExtensions.cs" />
-    <Compile Include="Video\Ranking\RankingGenre.cs" />
-    <Compile Include="Video\Ranking\RankingGenrePickedTag.cs" />
-    <Compile Include="Video\Ranking\RankingTerm.cs" />
+    <Compile Include="Ranking\Video\RankingGenre.cs" />
+    <Compile Include="Ranking\Video\RankingGenrePickedTag.cs" />
+    <Compile Include="Ranking\Video\RankingTerm.cs" />
     <Compile Include="Recommend\RecommendClient.cs" />
-    <Compile Include="Video\RssVideoResponse.cs" />
-    <Compile Include="Video\Ranking\VideoRankingConstants.cs" />
+    <Compile Include="Rss\Video\RssVideoResponse.cs" />
+    <Compile Include="Ranking\Video\VideoRankingConstants.cs" />
     <Compile Include="Video\VideoClient.cs" />
     <Compile Include="Video\VideoPermission.cs" />
     <Compile Include="Video\VideoProviderType.cs" />
-    <Compile Include="Video\Ranking\VideoRankinguSubClient.cs" />
+    <Compile Include="Ranking\Video\VideoRankinguSubClient.cs" />
     <EmbeddedResource Include="Properties\NiconicoLiveToolkit.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
