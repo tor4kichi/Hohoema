@@ -826,7 +826,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
                 UpdateVideoCacheEntity(item);
 
-                var dmcVideoStreamingSession = new DmcVideoStreamingSession(NicoVideoCacheQualityHelper.CacheQualityToQualityId(candidateDownloadingQuality), watchApiData, _niconicoSession, videoSessionOwnershipRentResult);
+                var dmcVideoStreamingSession = new DmcVideoStreamingSession(NicoVideoCacheQualityHelper.CacheQualityToQualityId(candidateDownloadingQuality), watchApiData, _niconicoSession, videoSessionOwnershipRentResult, forCacheDownload: true);
                 var op = new VideoCacheDownloadOperation(this, item, dmcVideoStreamingSession, new VideoCacheDownloadOperationOutputWithEncryption(outputFile, Xts));
 
                 return new VideoCacheDownloadOperationCreationResult(op);

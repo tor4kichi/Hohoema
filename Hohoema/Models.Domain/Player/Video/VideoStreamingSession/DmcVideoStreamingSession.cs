@@ -22,6 +22,7 @@ namespace Hohoema.Models.Domain.Player.Video
         // MediaSourceをMediaPlayerに設定する役割
 
         private DmcWatchApiData _dmcWatchData;
+        private readonly bool _forCacheDownload;
         private DmcSessionResponse _dmcSessionResponse;
 
         private Timer _DmcSessionHeartbeatTimer;
@@ -36,11 +37,11 @@ namespace Hohoema.Models.Domain.Player.Video
 
 
 
-        public DmcVideoStreamingSession(string qualityId, DmcWatchApiData res, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager.VideoSessionOwnership videoSessionOwnership)
+        public DmcVideoStreamingSession(string qualityId, DmcWatchApiData res, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager.VideoSessionOwnership videoSessionOwnership, bool forCacheDownload = false)
             : base(niconicoSession, videoSessionOwnership)
         {
             _dmcWatchData = res;
-
+            _forCacheDownload = forCacheDownload;
             QualityId = qualityId;
             Quality = res.ToNicoVideoQuality(qualityId);
 
@@ -85,7 +86,7 @@ namespace Hohoema.Models.Domain.Player.Video
                     }
                 }
 
-                _dmcSessionResponse = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetDmcSessionResponseAsync(_dmcWatchData, VideoContent, null, hlsMode: true);
+                _dmcSessionResponse = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetDmcSessionResponseAsync(_dmcWatchData, VideoContent, null, hlsMode: !_forCacheDownload);
 
                 if (_dmcSessionResponse == null) { return null; }
 
