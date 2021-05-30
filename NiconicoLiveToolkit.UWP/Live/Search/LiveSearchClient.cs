@@ -140,11 +140,10 @@ namespace NiconicoToolkit.Live.Search
 				await _context.WaitPageAccess();
 
 				var responseMessage = await _context.GetAsync(urlWithQuery, ct: cancellationToken);
+				var parser = new HtmlParser();
 				using (var inputStream = await responseMessage.Content.ReadAsInputStreamAsync())
-                {
-					var parser = new HtmlParser();
-					var document = await parser.ParseDocumentAsync(inputStream.AsStreamForRead(), cancellationToken);
-
+				using (var document = await parser.ParseDocumentAsync(inputStream.AsStreamForRead(), cancellationToken))
+				{
 					return LiveSearchPageScrapingResult.Success(new LiveSearchPageData(document, keyword, pageStartWith0 ?? 0, liveStatus));
 				}
 			}

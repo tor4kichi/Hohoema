@@ -1,6 +1,4 @@
 ﻿using I18NPortable;
-using Mntone.Nico2.Videos.Comment;
-using Mntone.Nico2.Videos.Dmc;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico.Video;
@@ -20,6 +18,7 @@ using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.VideoCache;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using System.Collections.Immutable;
+using NiconicoToolkit.Video.Watch;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {

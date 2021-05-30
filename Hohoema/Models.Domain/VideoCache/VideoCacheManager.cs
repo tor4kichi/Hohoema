@@ -689,8 +689,14 @@ namespace Hohoema.Models.Domain.VideoCache
 
             try
             {
-                var watchData = await _niconicoSession.Context.Video.GetDmcWatchResponseAsync(item.VideoId);
-                if (watchData?.DmcWatchResponse?.Media?.Delivery is not null and var deliverly)
+                var res = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetInitialWatchDataAsync(item.VideoId, false, false);
+                var watchApiData = res.WatchApiResponse?.WatchApiData;
+
+                if (watchApiData is null)
+                {
+
+                }
+                else if (watchApiData.Media.Delivery is not null and var deliverly)
                 {
                     if (deliverly.Encryption is not null)
                     {
@@ -698,12 +704,12 @@ namespace Hohoema.Models.Domain.VideoCache
                         return new VideoCacheDownloadOperationCreationResult(VideoCacheDownloadOperationFailedReason.CanNotCacheEncryptedContent);
                     }
                 }
-                else if (watchData?.DmcWatchResponse?.Media?.Delivery is null)
+                else if (watchApiData.Media.Delivery is null)
                 {
                     videoSessionOwnershipRentResult.Dispose();
 
-                    Debug.WriteLine(watchData.DmcWatchResponse.OkReason);
-                    var reason = watchData.DmcWatchResponse.OkReason switch
+                    Debug.WriteLine(watchApiData.OkReason);
+                    var reason = watchApiData.OkReason switch
                     {
                         "PREMIUM_ONLY_VIDEO_PREVIEW_SUPPORTED" => VideoCacheDownloadOperationFailedReason.RequirePermission_Premium,
                         "CHANNEL_ADMISSION_PREVIEW_SUPPORTED" => VideoCacheDownloadOperationFailedReason.RequirePermission_Admission,
@@ -754,7 +760,7 @@ namespace Hohoema.Models.Domain.VideoCache
                 }
                 else
                 {
-                    var avairableQualities = watchData.DmcWatchResponse.Media.Delivery.Movie.Session.Videos.Select(x => NicoVideoCacheQualityHelper.QualityIdToCacheQuality(x)).ToArray();
+                    var avairableQualities = watchApiData.Media.Delivery.Movie.Session.Videos.Select(x => NicoVideoCacheQualityHelper.QualityIdToCacheQuality(x)).ToArray();
                     if (avairableQualities.Length == 0) { throw new Models.Infrastructure.HohoemaExpception("キャッシュ用画質Enumの変換に失敗"); }
 
                     while (avairableQualities.Contains(candidateDownloadingQuality) is false && candidateDownloadingQuality is not NicoVideoQuality.Unknown)
@@ -820,7 +826,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
                 UpdateVideoCacheEntity(item);
 
-                var dmcVideoStreamingSession = new DmcVideoStreamingSession(NicoVideoCacheQualityHelper.CacheQualityToQualityId(candidateDownloadingQuality), watchData, _niconicoSession, videoSessionOwnershipRentResult);
+                var dmcVideoStreamingSession = new DmcVideoStreamingSession(NicoVideoCacheQualityHelper.CacheQualityToQualityId(candidateDownloadingQuality), watchApiData, _niconicoSession, videoSessionOwnershipRentResult);
                 var op = new VideoCacheDownloadOperation(this, item, dmcVideoStreamingSession, new VideoCacheDownloadOperationOutputWithEncryption(outputFile, Xts));
 
                 return new VideoCacheDownloadOperationCreationResult(op);

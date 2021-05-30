@@ -85,7 +85,7 @@ namespace Hohoema.Models.Domain.Niconico
             App.Current.Suspending += Current_Suspending;
             App.Current.Resuming += Current_Resuming;
 
-            ToolkitContext = new NiconicoToolkit.NiconicoContext(new HttpClient());
+            ToolkitContext = new NiconicoToolkit.NiconicoContext(HohoemaUserAgent);
             ToolkitContext.SetupDefaultRequestHeaders();
 
             Scheduler = scheduler;
@@ -143,7 +143,7 @@ namespace Hohoema.Models.Domain.Niconico
             skipOnceNetworkStatusChange = true;
         }
 
-        public const string HohoemaUserAgent = "Hohoema_UWP";
+        public const string HohoemaUserAgent = "https://github.com/tor4kichi/Hohoema";
         private readonly IMessenger _messenger;
 
 
@@ -220,7 +220,7 @@ namespace Hohoema.Models.Domain.Niconico
         private NiconicoContext _Context;
         public NiconicoContext Context
         {
-            get { return _Context ??= new NiconicoContext() { AdditionalUserAgent = HohoemaUserAgent }; }
+            get { return _Context ??= new NiconicoContext(HohoemaUserAgent); }
             private set 
             {
                 SetProperty(ref _Context, value);
@@ -355,8 +355,7 @@ namespace Hohoema.Models.Domain.Niconico
             {
                 Debug.WriteLine("try login");
 
-                var context = new NiconicoContext(new NiconicoAuthenticationToken(mailOrTelephone, password));
-                context.AdditionalUserAgent = HohoemaUserAgent;
+                var context = new NiconicoContext(HohoemaUserAgent, new NiconicoAuthenticationToken(mailOrTelephone, password));
 
                 /*
                 if (withClearAuthenticationCache)

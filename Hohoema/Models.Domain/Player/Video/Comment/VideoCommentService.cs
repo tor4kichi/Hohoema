@@ -9,11 +9,12 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
         CommentClient CommentClient;
 
         public string ContentId => CommentClient.RawVideoId;
-        public string UserId => CommentClient.NiconicoSession.UserIdString;
+        public string UserId { get; }
 
-        public VideoCommentService(CommentClient commentClient)
+        public VideoCommentService(CommentClient commentClient, string userId)
         {
             CommentClient = commentClient;
+            UserId = userId;
         }
 
 
@@ -34,11 +35,11 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
         {
             var res = await CommentClient.SubmitComment(message, position, commands);
 
-            var chatResult = res.Chat_result;
+            var chatResult = res.ChatResult;
             return new CommentPostResult()
             {
-                CommentNo = chatResult.No,
-                StatusCode = chatResult.__Status,
+                CommentNo = (int)chatResult.No,
+                StatusCode = chatResult.Status,
                 ThreadId = chatResult.Thread,
                 VideoPosition = position,
             };

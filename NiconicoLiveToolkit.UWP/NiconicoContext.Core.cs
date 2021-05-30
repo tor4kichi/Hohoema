@@ -18,6 +18,7 @@ using NiconicoToolkit.Video;
 using NiconicoToolkit.Activity;
 using NiconicoToolkit.Search;
 using NiconicoToolkit.Recommend;
+using NiconicoToolkit.Channels;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -48,6 +49,7 @@ namespace NiconicoToolkit
             Activity = new ActivityClient(this);
             Search = new SearchClient(this);
             Recommend = new RecommendClient(this);
+            Channel = new ChannelClient(this);
         }
 
         TimeSpan _minPageAccessInterval = TimeSpan.FromSeconds(1);
@@ -87,6 +89,7 @@ namespace NiconicoToolkit
         public ActivityClient Activity { get; }
         public SearchClient Search { get; }
         public RecommendClient Recommend { get; }
+        public ChannelClient Channel { get; }
 
         #region 
 
@@ -193,9 +196,22 @@ namespace NiconicoToolkit
 #else
             var content = new FormUrlEncodedContent(pairsContent);
 #endif
-            var res = await HttpClient.PostAsync(path, content);
+            return await PostJsonAsAsync<T>(path, content);
+        }
+
+#if WINDOWS_UWP
+
+        internal Task<T> PostJsonAsAsync<T>(string path, IHttpContent content, JsonSerializerOptions options = null)
+        {
+            return PostJsonAsAsync<T>(new Uri(path), content, options);
+        }
+
+        internal async Task<T> PostJsonAsAsync<T>(Uri path, IHttpContent content, JsonSerializerOptions options = null)
+        {
+            var res = await PostAsync(path, content);
             return await res.Content.ReadAsAsync<T>(options);
         }
+#endif
 
 #if WINDOWS_UWP
 

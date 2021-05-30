@@ -1,7 +1,4 @@
-﻿using Mntone.Nico2;
-using Mntone.Nico2.Videos.Comment;
-using Mntone.Nico2.Videos.Dmc;
-using NiconicoToolkit.Live.WatchSession;
+﻿using NiconicoToolkit.Live.WatchSession;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Video;
@@ -13,102 +10,41 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
+using NiconicoToolkit.Video.Watch;
+using NiconicoToolkit.Video.Watch.NMSG_Comment;
 
 namespace Hohoema.Models.Domain.Player.Video.Comment
 {
-    public class CommentClient : ProviderBase
+    public class CommentClient
     {
         // コメントの取得、とアプリケーションドメインなコメントモデルへの変換
         // コメントの投稿可否判断と投稿処理
 
         public CommentClient(NiconicoSession niconicoSession, string rawVideoid)
-            : base(niconicoSession)
         {
+            _niconicoSession = niconicoSession;
             RawVideoId = rawVideoid;
         }
 
         public string RawVideoId { get; }
         public CommentServerInfo CommentServerInfo { get; set; }
 
-        private CommentResponse CachedCommentResponse { get; set; }
-
-        internal DmcWatchResponse DmcWatch { get; set; }
+        internal DmcWatchApiData DmcWatch { get; set; }
 
         private CommentSubmitInfo DefaultThreadSubmitInfo { get; set; }
         private CommentSubmitInfo CommunityThreadSubmitInfo { get; set; }
 
 
-        private CommentSessionContext _CommentSessionContext;
-        public CommentSessionContext CommentSessionContext
+        private CommentSession _CommentSession;
+        private readonly NiconicoSession _niconicoSession;
+        private NiconicoToolkit.NiconicoContext _toolkitContext => _niconicoSession.ToolkitContext;
+
+        private CommentSession CommentSession
         {
             get
             {
-                return _CommentSessionContext ?? (_CommentSessionContext = DmcWatch != null ? NiconicoSession.Context.Video.GetCommentSessionContext(DmcWatch) : null);
+                return _CommentSession ?? (_CommentSession = DmcWatch != null ? new CommentSession(_toolkitContext, DmcWatch) : null);
             }
-        }
-
-        private async Task<List<Chat>> GetComments()
-        {
-            if (CommentServerInfo == null) { return new List<Chat>(); }
-
-            CommentResponse commentRes = null;
-            try
-            {
-                
-                commentRes = await ContextActionAsync(context =>
-                {
-                    return context.Video
-                        .GetCommentAsync(
-                            (int)CommentServerInfo.ViewerUserId,
-                            CommentServerInfo.ServerUrl,
-                            CommentServerInfo.DefaultThreadId,
-                            CommentServerInfo.ThreadKeyRequired
-                        );
-                });
-            }
-            catch
-            {
-                
-            }
-
-
-            if (commentRes?.Chat.Count == 0)
-            {
-                try
-                {
-                    if (CommentServerInfo.CommunityThreadId.HasValue)
-                    {
-                        commentRes = await ContextActionAsync(context =>
-                        {
-                            return context.Video
-                            .GetCommentAsync(
-                                (int)CommentServerInfo.ViewerUserId,
-                                CommentServerInfo.ServerUrl,
-                                CommentServerInfo.CommunityThreadId.Value,
-                                CommentServerInfo.ThreadKeyRequired
-                            );
-                        });
-                    }
-                }
-                catch { }
-            }
-
-            if (commentRes != null)
-            {
-                CachedCommentResponse = commentRes;
-            }
-
-            if (commentRes != null && DefaultThreadSubmitInfo == null)
-            {
-                DefaultThreadSubmitInfo = new CommentSubmitInfo();
-                DefaultThreadSubmitInfo.Ticket = commentRes.Thread.Ticket;
-                if (int.TryParse(commentRes.Thread.CommentCount, out int count))
-                {
-                    DefaultThreadSubmitInfo.CommentCount = count + 1;
-                }
-            }
-
-            return commentRes?.Chat;
         }
 
 
@@ -116,20 +52,20 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
         {
             get
             {
-                return CommentSessionContext != null;
+                return CommentSession != null;
             }
         }
 
         private async Task<NMSG_Response> GetCommentsFromNMSG()
         {
-            if (CommentSessionContext == null) { return null; }
+            if (CommentSession == null) { return null; }
 
-            return await CommentSessionContext.GetCommentFirstAsync();
+            return await CommentSession.GetCommentFirstAsync();
         }
 
         public async Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
         {
-            return await CommentSessionContext.PostCommentAsync(position, comment, commands);
+            return await CommentSession.PostCommentAsync(position, comment, commands);
         }
 
         public bool IsAllowAnnonimityComment
@@ -170,7 +106,7 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
                 {
                     var res = await GetCommentsFromNMSG();
 
-                    var rawComments = res.ParseComments();
+                    var rawComments = res.Comments;
 
                     comments = rawComments.Select(x => ChatToComment(x)).ToList();
                 }
@@ -179,42 +115,15 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
                 }
             }
 
-            // 新コメサーバーがダメだったら旧サーバーから取得
             if (comments == null)
             {
-                List<Chat> oldFormatComments = null;
-                try
-                {
-                    oldFormatComments = await GetComments();
-                }
-                catch
-                {
-                    return new List<IComment>();
-                }
-
-                comments = oldFormatComments?.Select(x => ChatToComment(x)).ToList();
+                throw new HohoemaExpception("コメント取得に失敗");
             }
 
-            return comments ?? new List<IComment>();
+            return comments;
         }
 
         public string VideoOwnerId { get; set; }
-
-        private IComment ChatToComment(Chat rawComment)
-        {
-            return new VideoComment()
-            {
-                CommentText = rawComment.Text,
-                CommentId = rawComment.GetCommentNo(),
-                VideoPosition = rawComment.GetVpos().ToTimeSpan(),
-                UserId = rawComment.UserId,
-                Mail = rawComment.Mail,
-                NGScore = 0,
-                IsAnonymity = rawComment.GetAnonymity(),
-                IsLoginUserComment = NiconicoSession.IsLoggedIn && rawComment.UserId == NiconicoSession.UserIdString,
-                IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
-            };
-        }
 
         private IComment ChatToComment(NMSG_Chat rawComment)
         {
@@ -227,7 +136,7 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
                 Mail = rawComment.Mail,
                 NGScore = rawComment.Score ?? 0,
                 IsAnonymity = rawComment.Anonymity != 0,
-                IsLoginUserComment = NiconicoSession.IsLoggedIn && rawComment.UserId == NiconicoSession.UserIdString,
+                IsLoginUserComment = _niconicoSession.IsLoggedIn && rawComment.UserId == _niconicoSession.UserIdString,
                 IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
                 DeletedFlag = rawComment.Deleted ?? 0
             };

@@ -150,10 +150,9 @@ namespace NiconicoToolkit.Search.Video
 			if (!res.IsSuccessStatusCode) { return new SearchResponse() { StatusCode = (uint)res.StatusCode }; }
 
 			using (var stream = await res.Content.ReadAsInputStreamAsync())
+			using (var context = AngleSharp.BrowsingContext.New())
+			using (var document = await context.GetService<IHtmlParser>().ParseDocumentAsync(stream.AsStreamForRead(), ct))
 			{
-				var context = AngleSharp.BrowsingContext.New();
-				var document = await context.GetService<IHtmlParser>().ParseDocumentAsync(stream.AsStreamForRead(), ct);
-
 				return new SearchResponse(document, isTagSearch) { StatusCode = (uint)res.StatusCode };
 			}
 		}

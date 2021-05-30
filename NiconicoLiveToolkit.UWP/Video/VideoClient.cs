@@ -1,4 +1,5 @@
 ﻿using NiconicoToolkit.Ranking.Video;
+using NiconicoToolkit.Video.Watch;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +17,11 @@ namespace NiconicoToolkit.Video
         JsonSerializerOptions _videoInfoSerializerOption;
 
         public VideoRankinguSubClient Ranking { get; }
+        public VideoWatchSubClient VideoWatch { get; }
+
 
         internal VideoClient(NiconicoContext context)
         {
-            _context = context;
-            Ranking = new VideoRankinguSubClient(context);
-
             _videoInfoSerializerOption = new JsonSerializerOptions()
             {
                 Converters =
@@ -29,6 +29,9 @@ namespace NiconicoToolkit.Video
                     new JsonStringEnumMemberConverter()
                 }
             };
+            _context = context;
+            Ranking = new VideoRankinguSubClient(context);
+            VideoWatch = new VideoWatchSubClient(context, _videoInfoSerializerOption);
         }
 
         public async Task<NicovideoVideoResponse> GetVideoInfoAsync(string videoId)

@@ -1,6 +1,5 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
-using Mntone.Nico2.Videos.Dmc;
 using Mntone.Nico2.Videos.Recommend;
 using Hohoema.Database;
 using Hohoema.Models.Helpers;
@@ -18,6 +17,7 @@ using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using Uno.Threading;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using NiconicoToolkit.Video.Watch;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {
@@ -320,20 +320,16 @@ namespace Hohoema.Models.Domain.Niconico.Video
         }
 
 
-        public async Task<DmcWatchData> GetDmcWatchResponse(string rawVideoId)
+        public async Task<WatchPageResponse> GetDmcWatchResponse(string rawVideoId, bool noHisotry = false)
         {
             if (NiconicoSession.ServiceStatus.IsOutOfService())
             {
                 return null;
             }
-            var data = await ContextActionWithPageAccessWaitAsync(context =>
-            {
-                return context.Video.GetDmcWatchResponseAsync(
-                    rawVideoId
-                    );
-            });
 
-            var res = data?.DmcWatchResponse;
+            var data = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetInitialWatchDataAsync(rawVideoId, !noHisotry, !noHisotry);
+
+            var res = data?.WatchApiResponse.WatchApiData;
 
             var info = _nicoVideoRepository.Get(rawVideoId);
             if (res != null)
@@ -358,7 +354,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
                 if (res.Media?.Delivery?.Movie.Audios is not null and var audios)
                 {
-                    info.LoudnessCollectionValue = audios[0].Metadata.VideoLoudnessCollection;
+                    info.LoudnessCollectionValue = audios[0].Metadata.LoudnessCollection[0].Value;
                 }
 
                 info.MovieType = MovieType.Mp4;
@@ -396,9 +392,9 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     _nicoVideoOwnerRepository.UpdateItem(info.Owner);
                 }
 
-                if (data.DmcWatchResponse?.Video != null)
+                if (res?.Video != null)
                 {
-                    info.IsDeleted = data.DmcWatchResponse.Video.IsDeleted;
+                    info.IsDeleted = res.Video.IsDeleted;
                 }
 
                 info.LastUpdated = DateTime.Now;

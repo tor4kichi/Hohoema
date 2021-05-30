@@ -127,6 +127,10 @@
     <Compile Include="Account\NiconicoAccountAuthority.cs" />
     <Compile Include="Account\NiconicoSessionStatus.cs" />
     <Compile Include="Activity\ActivityClient.cs" />
+    <Compile Include="Channels\ChannelAdmissionResponse.cs" />
+    <Compile Include="Channels\ChannelClient.cs" />
+    <Compile Include="HttpStatusCodeHelper.cs" />
+    <Compile Include="NiconicoToolkitException.cs" />
     <Compile Include="Nvapi\NvapiMylistItem.cs" />
     <Compile Include="Nvapi\NvapiVideoItem.cs" />
     <Compile Include="DeserializationExtensions.cs" />
@@ -192,6 +196,26 @@
     <Compile Include="Video\VideoPermission.cs" />
     <Compile Include="Video\VideoProviderType.cs" />
     <Compile Include="Ranking\Video\VideoRankinguSubClient.cs" />
+    <Compile Include="Video\Watch\NMSG_Comment\ChatResultCode.cs" />
+    <Compile Include="Video\Watch\NMSG_Comment\CommentSession.cs" />
+    <Compile Include="Video\Watch\Dmc\ClientInfo.cs" />
+    <Compile Include="Video\Watch\Dmc\ContentAuth.cs" />
+    <Compile Include="Video\Watch\Dmc\ContentSource.cs" />
+    <Compile Include="Video\Watch\Dmc\DmcSessionRequest.cs" />
+    <Compile Include="Video\Watch\Dmc\DmcSessionResponse.cs" />
+    <Compile Include="Video\Watch\Dmc\KeepMethod.cs" />
+    <Compile Include="Video\Watch\Dmc\Protocol.cs" />
+    <Compile Include="Video\Watch\Dmc\SessionOperationAuth.cs" />
+    <Compile Include="Video\Watch\NMSG_Comment\NMSG_Request.cs" />
+    <Compile Include="Video\Watch\NMSG_Comment\NMSG_Response.cs" />
+    <Compile Include="Video\Watch\NMSG_Comment\PostCommentResponse.cs" />
+    <Compile Include="Video\Watch\NMSG_Comment\ThreadKeyResponse.cs" />
+    <Compile Include="Video\Watch\NMSG_Comment\ThreadType.cs" />
+    <Compile Include="Video\Watch\VideoWatchSubClient.cs" />
+    <Compile Include="Video\Watch\DmcWatchApiData.cs" />
+    <Compile Include="Video\Watch\DmcWatchApiEnvironment.cs" />
+    <Compile Include="Video\Watch\WatchDataForGuest.cs" />
+    <Compile Include="Video\Watch\WatchPageResponse.cs" />
     <EmbeddedResource Include="Properties\NiconicoLiveToolkit.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
