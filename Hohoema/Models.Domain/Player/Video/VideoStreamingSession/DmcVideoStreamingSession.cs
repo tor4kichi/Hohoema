@@ -86,7 +86,7 @@ namespace Hohoema.Models.Domain.Player.Video
                     }
                 }
 
-                _dmcSessionResponse = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetDmcSessionResponseAsync(_dmcWatchData, VideoContent, null, hlsMode: !_forCacheDownload);
+                _dmcSessionResponse = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetDmcSessionResponseAsync(_dmcWatchData, VideoContent, null, hlsMode: false);
 
                 if (_dmcSessionResponse == null) { return null; }
 

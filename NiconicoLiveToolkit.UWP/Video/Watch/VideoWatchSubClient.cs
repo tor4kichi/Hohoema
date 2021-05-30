@@ -166,6 +166,7 @@ namespace NiconicoToolkit.Video.Watch
             var videoQualities = watchData.Media.Delivery.Movie.Videos;
             var audioQualities = watchData.Media.Delivery.Movie.Audios;
             var encryption = watchData.Media.Delivery.Encryption;
+            var useHls = encryption != null || hlsMode;
 
             // リクエストする動画品質を決定します
             // モバイルの時は最後の動画品質をモバイル画質として断定して指定
@@ -231,7 +232,7 @@ namespace NiconicoToolkit.Video.Watch
                         {
                             Parameters = new Protocol.ParametersInfo()
                             {
-                                HlsParameters = hlsMode 
+                                HlsParameters = useHls
                                     ? new Protocol.HlsParameters()
                                     {
                                         UseSsl = useSsl ? "yes" : "no",
@@ -252,7 +253,7 @@ namespace NiconicoToolkit.Video.Watch
                                             
                                     } 
                                     : null,
-                                HttpOutputDownloadParameters = !hlsMode ? new Protocol.HttpOutputDownloadParameters() : null
+                                HttpOutputDownloadParameters = !useHls ? new Protocol.HttpOutputDownloadParameters() : null
                             }
                         }
                     }
