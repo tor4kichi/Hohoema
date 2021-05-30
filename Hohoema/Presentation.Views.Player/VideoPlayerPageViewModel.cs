@@ -154,8 +154,6 @@ namespace Hohoema.Presentation.ViewModels.Player
                             PlaylistId = HohoemaPlaylist.CurrentPlaylist?.Id,
                             PlaylistOrigin = HohoemaPlaylist.CurrentPlaylist?.GetOrigin()
                         });
-
-                Debug.WriteLine("SetCurrentPlayerEntry");
             };
         }
 

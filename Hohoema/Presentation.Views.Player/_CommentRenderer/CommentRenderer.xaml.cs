@@ -337,17 +337,14 @@ namespace Hohoema.Presentation.Views.Player
                             {
                                 if (args.Action == NotifyCollectionChangedAction.Reset)
                                 {
-                                    Debug.WriteLine("Reset Comments");
                                     me.ResetComments();
                                 }
                                 else if (args.Action == NotifyCollectionChangedAction.Add)
                                 {
-                                    Debug.WriteLine("Add Comments");
                                     me.AddCommentToCanvas(args.NewItems.Cast<IComment>());
                                 }
                                 else if (args.Action == NotifyCollectionChangedAction.Remove)
                                 {
-                                    Debug.WriteLine("Remove Comments");
                                     me.RemoveCommentFromCanvas(args.OldItems.Cast<IComment>());
                                 }
                             }
