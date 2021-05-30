@@ -42,10 +42,10 @@ namespace Hohoema.Presentation.Views.Extensions
                 if (!_disposersMap.TryGetValue(newTarget, out var cd))
                 {
                     _disposersMap.Add(newTarget, cd = new CompositeDisposable());
+                    newTarget.Unloaded += NewTarget_Unloaded;
                 }
 
-                cd.Add(disposer);
-                newTarget.Unloaded += NewTarget_Unloaded;
+                cd.Add(disposer);                
             }
             
             if (e.OldValue is FrameworkElement oldTarget)
