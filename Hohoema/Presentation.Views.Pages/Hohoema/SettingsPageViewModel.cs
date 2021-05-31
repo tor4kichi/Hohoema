@@ -646,16 +646,23 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 
         async void ExecuteExportBackupCommand()
         {
-            var picker = new FileSavePicker();
-            picker.DefaultFileExtension = ".json";
-            picker.SuggestedFileName = $"hohoema-backup-{DateTime.Today:yyyy-MM-dd}";
-            picker.FileTypeChoices.Add("Hohoema backup File", new List<string>() { ".json" });
-            var file = await picker.PickSaveFileAsync();
-            if (file != null)
+            try
             {
-                await _backupManager.BackupAsync(file, default);
+                var picker = new FileSavePicker();
+                picker.DefaultFileExtension = ".json";
+                picker.SuggestedFileName = $"hohoema-backup-{DateTime.Today:yyyy-MM-dd}";
+                picker.FileTypeChoices.Add("Hohoema backup File", new List<string>() { ".json" });
+                var file = await picker.PickSaveFileAsync();
+                if (file != null)
+                {
+                    await _backupManager.BackupAsync(file, default);
 
-                _notificationService.ShowLiteInAppNotification_Success("バックアップを保存しました");
+                    _notificationService.ShowLiteInAppNotification_Success("バックアップを保存しました");
+                }
+            }
+            catch (Exception e)
+            {
+                ErrorTrackingManager.TrackError(e);
             }
         }
 
@@ -666,18 +673,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 
         async void ExecuteImportBackupCommand()
         {
-            var picker = new FileOpenPicker();
-            picker.ViewMode = PickerViewMode.List;
-            picker.FileTypeFilter.Add(".json");
-            var file = await picker.PickSingleFileAsync();
-            if (file != null)
+            try
             {
-                try
+                var picker = new FileOpenPicker();
+                picker.ViewMode = PickerViewMode.List;
+                picker.FileTypeFilter.Add(".json");
+                var file = await picker.PickSingleFileAsync();
+                if (file != null)
                 {
-                    var backup = await _backupManager.ReadBackupContainerAsync(file, default);
-
-                    Action<BackupContainer>[] BackupActions = new Action<BackupContainer>[]
+                    try
                     {
+                        var backup = await _backupManager.ReadBackupContainerAsync(file, default);
+
+                        Action<BackupContainer>[] BackupActions = new Action<BackupContainer>[]
+                        {
                         _backupManager.RestoreLocalMylist,
                         _backupManager.RestoreSubscription,
                         _backupManager.RestorePin,
@@ -687,43 +696,48 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                         _backupManager.RestoreAppearanceSettings,
                         _backupManager.RestoreNicoRepoSettings,
                         _backupManager.RestoreCommentSettings,
-                    };
+                        };
 
-                    List<Exception> exceptions = new List<Exception>();
-                    foreach (var backupAction in BackupActions)
-                    {
-                        try
+                        List<Exception> exceptions = new List<Exception>();
+                        foreach (var backupAction in BackupActions)
                         {
-                            backupAction(backup);
+                            try
+                            {
+                                backupAction(backup);
+                            }
+                            catch (Exception e)
+                            {
+                                exceptions.Add(e);
+                            }
                         }
-                        catch (Exception e)
+
+                        WeakReferenceMessenger.Default.Send<SettingsRestoredMessage>();
+
+                        _notificationService.ShowLiteInAppNotification_Success("BackupRestoreComplete".Translate());
+
+                        NGVideoOwnerUserIds = _videoFilteringRepository.GetVideoOwnerIdFilteringEntries();
+                        RaisePropertyChanged(nameof(NGVideoOwnerUserIds));
+
+                        VideoTitleFilteringItems.Clear();
+                        VideoTitleFilteringItems.AddRange(_videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
+                            new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText))
+                            );
+
+                        if (exceptions.Any())
                         {
-                            exceptions.Add(e);
+                            throw new AggregateException(exceptions);
                         }
                     }
-
-                    WeakReferenceMessenger.Default.Send<SettingsRestoredMessage>();
- 
-                    _notificationService.ShowLiteInAppNotification_Success("BackupRestoreComplete".Translate());
-
-                    NGVideoOwnerUserIds = _videoFilteringRepository.GetVideoOwnerIdFilteringEntries();
-                    RaisePropertyChanged(nameof(NGVideoOwnerUserIds));
-
-                    VideoTitleFilteringItems.Clear();
-                    VideoTitleFilteringItems.AddRange(_videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
-                        new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText))
-                        );
-
-                    if (exceptions.Any())
+                    catch
                     {
-                        throw new AggregateException(exceptions);
+                        _notificationService.ShowLiteInAppNotification_Fail("BackupRestoreFailed".Translate());
+                        throw;
                     }
                 }
-                catch
-                {
-                    _notificationService.ShowLiteInAppNotification_Fail("BackupRestoreFailed".Translate());
-                    throw;
-                }
+            }
+            catch (Exception e)
+            {
+                ErrorTrackingManager.TrackError(e);
             }
         }
 

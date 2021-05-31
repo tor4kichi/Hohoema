@@ -17,6 +17,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Unity;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
+using Hohoema.Models.UseCase;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {
@@ -353,17 +354,24 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
                 return _DeleteReservationCommand
                     ?? (_DeleteReservationCommand = new DelegateCommand(async () =>
                     {
-                        var isDeleted = await DeleteReservation(LiveId, LiveTitle);
-
-                        if (isDeleted)
+                        try
                         {
-                            // 予約状態が削除になったことを通知
-                            Reservation = null;
-                            RaisePropertyChanged(nameof(Reservation));
-                            ReservationStatus = null;
-                            RaisePropertyChanged(nameof(ReservationStatus));
+                            var isDeleted = await DeleteReservation(LiveId, LiveTitle);
 
-                            AddReservationCommand.RaiseCanExecuteChanged();
+                            if (isDeleted)
+                            {
+                                // 予約状態が削除になったことを通知
+                                Reservation = null;
+                                RaisePropertyChanged(nameof(Reservation));
+                                ReservationStatus = null;
+                                RaisePropertyChanged(nameof(ReservationStatus));
+
+                                AddReservationCommand.RaiseCanExecuteChanged();
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            ErrorTrackingManager.TrackError(e);
                         }
                     }
                     , () => Reservation != null
@@ -427,19 +435,26 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
                 return _AddReservationCommand
                     ?? (_AddReservationCommand = new DelegateCommand(async () =>
                     {
-                        var result = await AddReservationAsync(LiveId, LiveTitle);
-                        if (result)
+                        try
                         {
-                            var reservationProvider = App.Current.Container.Resolve<LoginUserLiveReservationProvider>();
-                            var reservations = await reservationProvider.GetReservtionsAsync();
-                            var reservation = reservations.ReservedProgram.FirstOrDefault(x => x.Id == LiveId);
-                            if (reservation != null)
+                            var result = await AddReservationAsync(LiveId, LiveTitle);
+                            if (result)
                             {
-                                SetReservation(reservation);
-                            }
+                                var reservationProvider = App.Current.Container.Resolve<LoginUserLiveReservationProvider>();
+                                var reservations = await reservationProvider.GetReservtionsAsync();
+                                var reservation = reservations.ReservedProgram.FirstOrDefault(x => x.Id == LiveId);
+                                if (reservation != null)
+                                {
+                                    SetReservation(reservation);
+                                }
 
-                            RaisePropertyChanged(nameof(Reservation));
-                            RaisePropertyChanged(nameof(ReservationStatus));
+                                RaisePropertyChanged(nameof(Reservation));
+                                RaisePropertyChanged(nameof(ReservationStatus));
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            ErrorTrackingManager.TrackError(e);
                         }
                     }
                     , () => IsTimeshiftEnabled && (StartTime - TimeSpan.FromMinutes(30) > DateTime.Now || _niconicoSession.IsPremiumAccount) &&  Reservation == null

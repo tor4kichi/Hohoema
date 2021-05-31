@@ -67,6 +67,7 @@ using Hohoema.Models.Domain.Notification;
 using Hohoema.Models.Domain.VideoCache;
 using Windows.Storage.AccessCache;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.AppCenter.Utils;
 
 namespace Hohoema
 {
@@ -87,13 +88,14 @@ namespace Hohoema
 
         internal const string IS_COMPLETE_INTRODUCTION = "is_first_launch";
 
-		/// <summary>
-		/// 単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの
-		///最初の行であるため、main() または WinMain() と論理的に等価です。
-		/// </summary>
-		public App()
+        
+        /// <summary>
+        /// 単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの
+        ///最初の行であるため、main() または WinMain() と論理的に等価です。
+        /// </summary>
+        public App()
         {
-            CoreApplication.UnhandledErrorDetected += CoreApplication_UnhandledErrorDetected;
+            UnhandledException += App_UnhandledException;
 
             // XboxOne向けの設定
             // 基本カーソル移動で必要なときだけポインターを出現させる
@@ -115,7 +117,7 @@ namespace Hohoema
 
                 Crashes.SendingErrorReport += (sender, args) => { Debug.WriteLine(args.Report.ToString()); };
                 Crashes.SentErrorReport += (sender, args) => { Debug.WriteLine(args.Report.ToString()); };
-                AppCenter.SetUserId(Guid.NewGuid().ToString());
+                AppCenter.SetUserId(Guid.NewGuid().ToString());                
                 AppCenter.Start(appcenterSecrets, typeof(Analytics), typeof(Crashes));
                 Crashes.NotifyUserConfirmation(UserConfirmation.AlwaysSend);
             }
@@ -124,10 +126,17 @@ namespace Hohoema
             this.InitializeComponent();
         }
 
-        private void CoreApplication_UnhandledErrorDetected(object sender, UnhandledErrorDetectedEventArgs e)
+        private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
-            ErrorTrackingManager.TrackUnhandeledError(e.UnhandledError);
+            ErrorTrackingManager.TrackError(e.Exception);
         }
+
+        /*
+        private void Instance_UnhandledExceptionOccurred(object sender, UnhandledExceptionOccurredEventArgs e)
+        {
+            ErrorTrackingManager.TrackError(e.Exception);            
+        }
+        */
 
         public override async Task OnStartAsync(StartArgs args)
         {

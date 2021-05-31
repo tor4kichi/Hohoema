@@ -103,37 +103,44 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                     {
                         Histories.Clear();
 
-                        var items = await _watchHistoryManager.GetWatchHistoryItemsAsync();
-
-                        foreach (var x in items)
+                        try
                         {
-                            var vm = new HistoryVideoListItemControlViewModel(
-                                x.LastViewedAt.DateTime,
-                                (uint)x.Views,
-                                x.Video.Id,
-                                x.Video.Title,
-                                x.Video.Thumbnail.ListingUrl.OriginalString,
-                                TimeSpan.FromSeconds(x.Video.Duration)
-                                );
-                            
-                            vm.PostedAt = x.Video.RegisteredAt.DateTime;
+                            var items = await _watchHistoryManager.GetWatchHistoryItemsAsync();
 
-                            vm.ProviderId = x.Video.Owner.Id;
-                            vm.ProviderType = x.Video.Owner.OwnerType switch
+                            foreach (var x in items)
                             {
-                                NiconicoToolkit.Nvapi.OwnerType.User => NicoVideoUserType.User,
-                                NiconicoToolkit.Nvapi.OwnerType.Channel => NicoVideoUserType.Channel,
-                                _ => NicoVideoUserType.Hidden
-                            };
-                            vm.ProviderName = x.Video.Owner.Name;
+                                var vm = new HistoryVideoListItemControlViewModel(
+                                    x.LastViewedAt.DateTime,
+                                    (uint)x.Views,
+                                    x.Video.Id,
+                                    x.Video.Title,
+                                    x.Video.Thumbnail.ListingUrl.OriginalString,
+                                    TimeSpan.FromSeconds(x.Video.Duration)
+                                    );
 
-                            vm.CommentCount = x.Video.Count.Comment;
-                            vm.ViewCount = x.Video.Count.View;
-                            vm.MylistCount = x.Video.Count.Mylist;
+                                vm.PostedAt = x.Video.RegisteredAt.DateTime;
 
-                            await vm.InitializeAsync(default);
+                                vm.ProviderId = x.Video.Owner.Id;
+                                vm.ProviderType = x.Video.Owner.OwnerType switch
+                                {
+                                    NiconicoToolkit.Nvapi.OwnerType.User => NicoVideoUserType.User,
+                                    NiconicoToolkit.Nvapi.OwnerType.Channel => NicoVideoUserType.Channel,
+                                    _ => NicoVideoUserType.Hidden
+                                };
+                                vm.ProviderName = x.Video.Owner.Name;
 
-                            Histories.Add(vm);
+                                vm.CommentCount = x.Video.Count.Comment;
+                                vm.ViewCount = x.Video.Count.View;
+                                vm.MylistCount = x.Video.Count.Mylist;
+
+                                await vm.InitializeAsync(default);
+
+                                Histories.Add(vm);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            ErrorTrackingManager.TrackError(e);
                         }
                     }
                     , () => _niconicoSession.IsLoggedIn

@@ -99,7 +99,6 @@ namespace Hohoema.Models.UseCase
                 TrackError(e);
             }
         }
-
         public static void TrackError(Exception exception, IDictionary<string, string> parameters = null, params ErrorAttachmentLog[] logs)
         {
             var dict = MakeReportParameters();
@@ -116,7 +115,7 @@ namespace Hohoema.Models.UseCase
                 }
             }
 
-            Crashes.TrackError(exception, dict, logs.Concat(new[] { ErrorAttachmentLog.AttachmentWithText(exception.Message, "Exception.Message")}).ToArray());
+            Crashes.TrackError(exception, dict, logs.ToArray());
         }
     }
 

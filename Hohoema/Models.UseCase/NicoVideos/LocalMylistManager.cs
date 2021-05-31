@@ -180,7 +180,14 @@ namespace Hohoema.Models.UseCase.NicoVideos
         public DelegateCommand<string> AddCommand => _AddCommand
             ?? (_AddCommand = new DelegateCommand<string>((label) =>
             {
-                CreatePlaylist(label);
+                try
+                {
+                    CreatePlaylist(label);
+                }
+                catch (Exception e)
+                {
+                    ErrorTrackingManager.TrackError(e);
+                }
             }
             , (p) => !string.IsNullOrWhiteSpace(p)
             ));
@@ -190,7 +197,14 @@ namespace Hohoema.Models.UseCase.NicoVideos
         public DelegateCommand<LocalPlaylist> RemoveCommand => _RemoveCommand
             ?? (_RemoveCommand = new DelegateCommand<LocalPlaylist>((group) =>
             {
-                RemovePlaylist(group);
+                try
+                {
+                    RemovePlaylist(group);
+                }
+                catch (Exception e)
+                {
+                    ErrorTrackingManager.TrackError(e);
+                }
             }
             , (p) => p != null && LocalPlaylists.Contains(p)
             ));
