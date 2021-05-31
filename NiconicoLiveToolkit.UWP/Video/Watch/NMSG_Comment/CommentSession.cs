@@ -359,9 +359,13 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
         #endregion Post Comment
     }
 
-
     internal sealed class NMSG_ResponseConverter : JsonConverter<NMSG_Response>
     {
+        private static readonly byte[] s_chatUtf8 = Encoding.UTF8.GetBytes("chat");
+        private static readonly byte[] s_leafUtf8 = Encoding.UTF8.GetBytes("leaf");
+        private static readonly byte[] s_threadUtf8 = Encoding.UTF8.GetBytes("thread");
+        private static readonly byte[] s_globalNumResUtf8 = Encoding.UTF8.GetBytes("global_num_res");
+
         public override NMSG_Response Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var threads = new List<NGMS_Thread_Response>();
@@ -372,19 +376,19 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
             {
                 foreach (var elem in document.RootElement.EnumerateArray())
                 {
-                    if (elem.TryGetProperty("chat", out var chatJe))
+                    if (elem.TryGetProperty(s_chatUtf8, out var chatJe))
                     {
                         comments.Add(chatJe.ToObject<NMSG_Chat>());
                     }
-                    else if (elem.TryGetProperty("leaf", out var leafJe))
+                    else if (elem.TryGetProperty(s_leafUtf8, out var leafJe))
                     {
                         leaves.Add(leafJe.ToObject<ThreadLeaf>());
                     }
-                    else if (elem.TryGetProperty("thread", out var threadJe))
+                    else if (elem.TryGetProperty(s_threadUtf8, out var threadJe))
                     {
                         threads.Add(threadJe.ToObject<NGMS_Thread_Response>());
                     }
-                    else if (elem.TryGetProperty("global_num_res", out var globalNumResJe))
+                    else if (elem.TryGetProperty(s_globalNumResUtf8, out var globalNumResJe))
                     {
                         globalNumRes = globalNumResJe.ToObject<NGMS_GlobalNumRes>();
                     }
@@ -410,6 +414,7 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
 
     internal sealed class NMSG_ChatResultConverter : JsonConverter<PostCommentResponse>
     {
+        private static readonly byte[] s_chatResultUtf8 = Encoding.UTF8.GetBytes("chat_result");
         public override PostCommentResponse Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             using (JsonDocument document = JsonDocument.ParseValue(ref reader))
@@ -418,7 +423,7 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
                 for (int i = 0; i < length; i++)
                 {
                     var elem = document.RootElement[i];
-                    if (elem.TryGetProperty("chat_result", out var chatResultJe))
+                    if (elem.TryGetProperty(s_chatResultUtf8, out var chatResultJe))
                     {
                         return new PostCommentResponse() { ChatResult = chatResultJe.ToObject<ChatResult>(options) };
                     }
