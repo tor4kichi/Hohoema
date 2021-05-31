@@ -242,7 +242,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
 
 
-	public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>
+	public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>, IDisposable
 	{
         public LiveSearchSource(
             LiveSearchOptionsQuery query,
@@ -309,38 +309,44 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
             ct.ThrowIfCancellationRequested();
 
-            foreach (var item in res.Data.SearchResultItems)
-			{
-                if (!SearchedVideoIdsHash.Contains(item.LiveId))
+            using (res.Data)
+            {
+                foreach (var item in res.Data.SearchResultItems)
                 {
-                    SearchedVideoIdsHash.Add(item.LiveId);
-                    _nicoLiveCacheRepository.AddOrUpdate(new NicoLive()
+                    if (!SearchedVideoIdsHash.Contains(item.LiveId))
                     {
-                        LiveId = item.LiveId,
-                        BroadcasterId = item.ProviderName,
-                        Title = item.Title,
-                    });
+                        SearchedVideoIdsHash.Add(item.LiveId);
+                        _nicoLiveCacheRepository.AddOrUpdate(new NicoLive()
+                        {
+                            LiveId = item.LiveId,
+                            BroadcasterId = item.ProviderName,
+                            Title = item.Title,
+                        });
 
-                    var liveInfoVM = new LiveInfoListItemViewModel(item.LiveId);
-                    liveInfoVM.Setup(item);
+                        var liveInfoVM = new LiveInfoListItemViewModel(item.LiveId);
+                        liveInfoVM.Setup(item);
 
-                    var reserve = _Reservations?.ReservedProgram.FirstOrDefault(reservation => item.LiveId == reservation.Id);
-                    if (reserve != null)
+                        var reserve = _Reservations?.ReservedProgram.FirstOrDefault(reservation => item.LiveId == reservation.Id);
+                        if (reserve != null)
+                        {
+                            liveInfoVM.SetReservation(reserve);
+                        }
+
+                        yield return liveInfoVM;
+                    }
+                    else
                     {
-                        liveInfoVM.SetReservation(reserve);
+                        continue;
                     }
 
-                    yield return liveInfoVM;
-
-
+                    ct.ThrowIfCancellationRequested();
                 }
-                else
-                {
-                    continue;
-                }
-                
-                ct.ThrowIfCancellationRequested();
-			}
-		}
-	}
+            }
+        }
+
+        public void Dispose()
+        {
+            _firstResult?.Data.Dispose();
+        }
+    }
 }
