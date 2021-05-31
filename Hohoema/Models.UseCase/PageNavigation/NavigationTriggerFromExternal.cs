@@ -99,7 +99,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                             throw new Models.Infrastructure.HohoemaExpception("no id");
                         }
 
-                        await PlayPlaylistFromExternal(playlistId);
+                        await PlayPlaylistFromExternal(origin, playlistId);
                     }
                     break;
                 case ToastNotificationConstants.ToastArgumentValue_Action_OpenPage:
@@ -155,9 +155,9 @@ namespace Hohoema.Models.UseCase.PageNavigation
             }
         }
 
-        public async Task PlayPlaylistFromExternal(string playlistId)
+        public async Task PlayPlaylistFromExternal(PlaylistOrigin origin, string playlistId)
         {
-            var playlist = await _playlistResolver.ResolvePlaylistAsync(Models.Domain.Playlist.PlaylistOrigin.Mylist, playlistId);
+            var playlist = await _playlistResolver.ResolvePlaylistAsync(origin, playlistId);
             _hohoemaPlaylist.Play(playlist);
         }
 
