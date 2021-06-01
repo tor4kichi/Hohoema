@@ -1,5 +1,5 @@
 ﻿using LiteDB;
-using Mntone.Nico2.Users.Mylist;
+using NiconicoToolkit.Mylist;
 using Hohoema.Models.Infrastructure;
 using System;
 using System.Collections.Generic;

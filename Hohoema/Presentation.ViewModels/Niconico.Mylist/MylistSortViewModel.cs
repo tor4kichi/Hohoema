@@ -1,4 +1,4 @@
-﻿using Mntone.Nico2.Users.Mylist;
+﻿using NiconicoToolkit.Mylist;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Mylist
 {

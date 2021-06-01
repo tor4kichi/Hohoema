@@ -4,6 +4,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services;
 using I18NPortable;
+using NiconicoToolkit.Account;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,7 +66,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             {
                 var itemsCount = items.Count();
                 var result = await SourceMylist.MoveItemAsync(targetMylist.Id, items.Select(x => x.Id).ToArray());
-                if (result != Mntone.Nico2.ContentManageResult.Failed)
+                if (result != ContentManageResult.Failed)
                 {
                     _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistMovedItems_Success".Translate(targetMylist.Label, itemsCount));
                 }

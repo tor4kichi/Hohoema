@@ -1,5 +1,4 @@
-﻿using NiconicoToolkit.Nvapi;
-using NiconicoToolkit.Video;
+﻿using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;

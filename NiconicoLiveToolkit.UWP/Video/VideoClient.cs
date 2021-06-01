@@ -1,4 +1,5 @@
 ﻿using NiconicoToolkit.Ranking.Video;
+using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Video.Watch;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,6 @@ namespace NiconicoToolkit.Video
 
         public VideoRankinguSubClient Ranking { get; }
         public VideoWatchSubClient VideoWatch { get; }
-
 
         internal VideoClient(NiconicoContext context)
         {
@@ -71,7 +71,7 @@ namespace NiconicoToolkit.Video
     public partial class NicovideoVideoItem
     {
         [JsonPropertyName("video")]
-        public Video Video { get; set; }
+        public VideoItem Video { get; set; }
 
         [JsonPropertyName("thread")]
         public Thread Thread { get; set; }
@@ -87,7 +87,7 @@ namespace NiconicoToolkit.Video
     public partial class NicovideoVideoResponse
     {
         [JsonPropertyName("video")]
-        public Video Video { get; set; }
+        public VideoItem Video { get; set; }
 
         [JsonPropertyName("thread")]
         public Thread Thread { get; set; }
@@ -138,7 +138,7 @@ namespace NiconicoToolkit.Video
         public string GroupType { get; set; }
     }
 
-    public partial class Video
+    public partial class VideoItem
     {
         [JsonPropertyName("id")]
         public string Id { get; set; }

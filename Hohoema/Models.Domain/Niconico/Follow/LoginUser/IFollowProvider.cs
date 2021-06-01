@@ -1,4 +1,4 @@
-﻿using Mntone.Nico2;
+﻿using NiconicoToolkit.Account;
 using System;
 using System.Collections.Generic;
 using System.Linq;

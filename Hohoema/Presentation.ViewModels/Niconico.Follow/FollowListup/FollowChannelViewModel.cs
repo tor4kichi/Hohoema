@@ -1,13 +1,14 @@
 ﻿using Hohoema.Models.Domain.Niconico.Channel;
+using NiconicoToolkit.Follow;
 using System;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
     public sealed class FollowChannelViewModel : IChannel
     {
-        private readonly Mntone.Nico2.Users.Follow.FollowChannelResponse.FollowChannel _followChannel;
+        private readonly IChannelItem _followChannel;
 
-        public FollowChannelViewModel(Mntone.Nico2.Users.Follow.FollowChannelResponse.FollowChannel followChannel)
+        public FollowChannelViewModel(IChannelItem followChannel)
         {
             _followChannel = followChannel;
         }

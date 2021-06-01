@@ -1,8 +1,8 @@
-﻿using Mntone.Nico2.Users.Mylist;
-using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+﻿using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.Domain.Playlist;
 using System;
 using Hohoema.Models.Domain.Niconico.Follow;
+using NiconicoToolkit.Mylist;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist
 {

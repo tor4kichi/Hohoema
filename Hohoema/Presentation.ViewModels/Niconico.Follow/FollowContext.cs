@@ -1,6 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.UseCase;
+using NiconicoToolkit.Account;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
@@ -64,7 +65,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             try
             {
                 var result = await _provider.AddFollowAsync(_followable);
-                if (result != Mntone.Nico2.ContentManageResult.Failed)
+                if (result != ContentManageResult.Failed)
                 {
                     IsFollowing = true;
                 }
@@ -92,7 +93,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             try
             {
                 var result = await _provider.RemoveFollowAsync(_followable);
-                if (result == Mntone.Nico2.ContentManageResult.Success)
+                if (result == ContentManageResult.Success)
                 {
                     IsFollowing = false;
                 }

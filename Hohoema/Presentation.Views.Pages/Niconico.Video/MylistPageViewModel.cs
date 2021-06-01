@@ -20,7 +20,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using I18NPortable;
-using Mntone.Nico2.Users.Mylist;
+using NiconicoToolkit.Mylist;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;

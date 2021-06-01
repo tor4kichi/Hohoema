@@ -12,13 +12,14 @@ using NiconicoToolkit.Account;
 using System.Text.Json.Serialization;
 using NiconicoToolkit.Live.Search;
 using Windows.Storage.Streams;
-using System.IO;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Activity;
 using NiconicoToolkit.Search;
 using NiconicoToolkit.Recommend;
 using NiconicoToolkit.Channels;
+using NiconicoToolkit.Mylist;
+using NiconicoToolkit.Follow;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -50,6 +51,8 @@ namespace NiconicoToolkit
             Search = new SearchClient(this);
             Recommend = new RecommendClient(this);
             Channel = new ChannelClient(this);
+            Mylist = new MylistClient(this);
+            Follow = new FollowClient(this);
         }
 
         TimeSpan _minPageAccessInterval = TimeSpan.FromSeconds(1);
@@ -90,8 +93,22 @@ namespace NiconicoToolkit
         public SearchClient Search { get; }
         public RecommendClient Recommend { get; }
         public ChannelClient Channel { get; }
+        public MylistClient Mylist { get; }
+        public FollowClient Follow { get; }
 
         #region 
+
+#if WINDOWS_UWP
+        internal Task PrepareCorsAsscessAsync(HttpMethod httpMethod, string uri)
+        {
+            return SendAsync(httpMethod, uri, content: null, headers => 
+            {
+                headers.Add("Access-Control-Request-Headers", "x-frontend-id,x-frontend-version,x-niconico-language,x-request-with");
+                headers.Add("Access-Control-Request-Method", httpMethod.Method);
+            }, HttpCompletionOption.ResponseHeadersRead);
+        }
+#endif
+
 
 #if WINDOWS_UWP
         internal Task<HttpResponseMessage> GetAsync(string path, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken ct = default)
@@ -137,6 +154,11 @@ namespace NiconicoToolkit
         }
 
 #if WINDOWS_UWP
+        internal Task<HttpResponseMessage> PostAsync(string path, CancellationToken ct = default)
+        {
+            return HttpClient.PostAsync(new Uri(path), null).AsTask(ct);
+        }
+
         internal Task<HttpResponseMessage> PostAsync(string path, IHttpContent httpContent, CancellationToken ct = default)
         {
             return HttpClient.PostAsync(new Uri(path), httpContent).AsTask(ct);
@@ -254,29 +276,7 @@ namespace NiconicoToolkit
             return await res.Content.ReadAsAsync<T>(options, ct);
         }
 
-        #endregion
-    }
-
-    internal static class HttpContentExtensions
-    {
-#if WINDOWS_UWP
-        public static async Task<T> ReadAsAsync<T>(this IHttpContent httpContent, JsonSerializerOptions options = null, CancellationToken ct = default)
-        {
-            var inputStream = await httpContent.ReadAsInputStreamAsync();
-            using (var stream = inputStream.AsStreamForRead())
-            {
-                return await JsonSerializer.DeserializeAsync<T>(stream, options, ct);
-            }
-        }
-#else
-        public static async Task<T> ReadAsAsync<T>(this HttpContent httpContent, JsonSerializerOptions options = null, CancellationToken ct = default)
-        {
-            using (var stream = await httpContent.ReadAsStreamAsync())
-            {
-                return await JsonSerializer.DeserializeAsync<T>(stream, options, ct);
-            }
-        }
-#endif
+#endregion
     }
 
 }

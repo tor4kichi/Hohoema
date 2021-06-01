@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Mntone.Nico2.Users.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
+using NiconicoToolkit.Mylist;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist
 {

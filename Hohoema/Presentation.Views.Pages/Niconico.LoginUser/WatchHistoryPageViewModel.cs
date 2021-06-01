@@ -123,8 +123,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                                 vm.ProviderId = x.Video.Owner.Id;
                                 vm.ProviderType = x.Video.Owner.OwnerType switch
                                 {
-                                    NiconicoToolkit.Nvapi.OwnerType.User => NicoVideoUserType.User,
-                                    NiconicoToolkit.Nvapi.OwnerType.Channel => NicoVideoUserType.Channel,
+                                    OwnerType.User => NicoVideoUserType.User,
+                                    OwnerType.Channel => NicoVideoUserType.Channel,
                                     _ => NicoVideoUserType.Hidden
                                 };
                                 vm.ProviderName = x.Video.Owner.Name;

@@ -1,12 +1,12 @@
-﻿using Mntone.Nico2;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Prism.Ioc;
-using Mntone.Nico2.Users.Mylist;
+using NiconicoToolkit.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using NiconicoToolkit.Account;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 {
@@ -164,7 +164,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
         public async Task<ContentManageResult> CopyItemAsync(string targetMylistId, params string[] itemIds)
         {
             var result = await _loginUserMylistProvider.CopyMylistTo(this.Id, targetMylistId, itemIds);
-            if (result == ContentManageResult.Success)
+            if (result.Meta.IsSuccess)
             {
                 MylistCopied?.Invoke(this, new MylistItemCopyEventArgs()
                 {
@@ -174,13 +174,13 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                 });
             }
 
-            return result;
+            return result.Meta.IsSuccess ? ContentManageResult.Success : ContentManageResult.Failed;
         }
 
         public async Task<ContentManageResult> MoveItemAsync(string targetMylistId, params string[] itemIds)
         {
             var result = await _loginUserMylistProvider.MoveMylistTo(this.Id, targetMylistId, itemIds);
-            if (result == ContentManageResult.Success)
+            if (result.Meta.IsSuccess)
             {
                 MylistMoved?.Invoke(this, new MylistItemMovedEventArgs()
                 {
@@ -190,7 +190,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                 });
             }
 
-            return result;
+            return result.Meta.IsSuccess ? ContentManageResult.Success : ContentManageResult.Failed;
         }
 
         public event EventHandler<MylistItemAddedEventArgs> MylistItemAdded;

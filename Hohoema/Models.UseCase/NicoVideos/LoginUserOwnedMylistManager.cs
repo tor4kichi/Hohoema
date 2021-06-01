@@ -3,7 +3,7 @@ using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Presentation.Services;
 using I18NPortable;
-using Mntone.Nico2.Users.Mylist;
+using NiconicoToolkit.Mylist;
 using Prism.Mvvm;
 using System;
 using System.Collections.ObjectModel;

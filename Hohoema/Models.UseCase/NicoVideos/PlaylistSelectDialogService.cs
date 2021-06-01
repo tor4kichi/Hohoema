@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NiconicoToolkit.Mylist;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {
@@ -93,7 +94,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
                         $"MylistNameTextBoxPlacefolder".Translate(),
                         validater: (str) => !string.IsNullOrWhiteSpace(str)
                         );
-                        await _userMylistManager.AddMylist(title, "", false, Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Desc);
+                        await _userMylistManager.AddMylist(title, "", false, MylistSortKey.AddedAt, MylistSortOrder.Desc);
                         resultList = _userMylistManager.Mylists.LastOrDefault(x => x.Label == title);
                     }
                     else //if (result.Id == "local")

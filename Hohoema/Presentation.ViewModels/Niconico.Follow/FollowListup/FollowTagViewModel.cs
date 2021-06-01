@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
-using Mntone.Nico2.Users.Follow;
+using NiconicoToolkit.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {

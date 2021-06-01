@@ -36,7 +36,6 @@ using Windows.UI.Xaml;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.Domain.Notification;
-using NiconicoToolkit.Nvapi;
 using Hohoema.Models.Domain.Niconico.Recommend;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico;
@@ -46,6 +45,7 @@ using Hohoema.Presentation.ViewModels.VideoCache.Commands;
 using System.Threading;
 using Uno.Disposables;
 using NiconicoToolkit.Video.Watch;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {

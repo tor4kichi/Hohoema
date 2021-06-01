@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico.Community;
+using NiconicoToolkit.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
@@ -6,7 +7,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
     {
         public bool IsOwnedCommunity { get; }
 
-        private readonly Mntone.Nico2.Users.Follow.FollowCommunityResponse.FollowCommunity _followCommunity;
+        private readonly IFollowCommunity _followCommunity;
 
         public string Id => _followCommunity.GlobalId;
 
@@ -16,7 +17,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         public string ThumbnailUrl => _followCommunity.ThumbnailUrl.Small.OriginalString;
 
-        public FollowCommunityViewModel(Mntone.Nico2.Users.Follow.FollowCommunityResponse.FollowCommunity followCommunity, bool isOwnedCommnity)
+        public FollowCommunityViewModel(IFollowCommunity followCommunity, bool isOwnedCommnity)
         {
             _followCommunity = followCommunity;
             IsOwnedCommunity = isOwnedCommnity;

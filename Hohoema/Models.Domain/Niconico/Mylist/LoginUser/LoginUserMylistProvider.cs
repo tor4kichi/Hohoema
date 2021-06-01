@@ -1,13 +1,16 @@
 ﻿using I18NPortable;
 using LiteDB;
-using Mntone.Nico2;
-using Mntone.Nico2.Users.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NiconicoToolkit.Mylist;
+using Uno.Extensions;
+using NiconicoToolkit.Account;
+using NiconicoToolkit.Mylist.LoginUser;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 {
@@ -65,10 +68,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
         {
             if (!NiconicoSession.IsLoggedIn) { throw new System.Exception("");  }
             
-            var defMylist = await ContextActionAsync(async context =>
-            {
-                return await context.User.GetWatchAfterMylistGroupItemsAsync(MylistSortKey.AddedAt, MylistSortOrder.Asc, 3, 0);
-            });
+            var defMylist = await NiconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync(0, 3, MylistSortKey.AddedAt, MylistSortOrder.Asc);
 
             // TODO: とりあえずマイリストのSortやOrderの取得
 
@@ -96,10 +96,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
             mylistGroups.Add(defaultMylist);
 
-            var res = await ContextActionAsync(async context =>
-            {
-                return await context.User.GetLoginUserMylistGroupsAsync();
-            });
+            var res = await NiconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistGroupsAsync();
 
             if (res.Meta.Status != 200)
             {
@@ -137,11 +134,9 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
             if (mylist.IsDefaultMylist())
             {
-                var res = await ContextActionAsync(async context =>
-                {
-                    var mylistItemsRes = await context.User.GetWatchAfterMylistGroupItemsAsync(sortKey, sortOrder, pageSize, page);
-                    return mylistItemsRes.Data.Mylist;
-                });
+                var mylistItemsRes = await NiconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync((int)page, (int)pageSize, sortKey, sortOrder);
+                var res = mylistItemsRes.Data.Mylist;
+
 
                 var items = res.Items;
 
@@ -155,11 +150,8 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             }
             else
             {
-                var res = await ContextActionAsync(async context =>
-                {
-                    var mylistItemsRes = await context.User.GetLoginUserMylistGroupItemsAsync(int.Parse(mylist.Id), sortKey, sortOrder, pageSize, page);
-                    return mylistItemsRes.Data.Mylist;
-                });
+                var mylistItemsRes = await NiconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylist.Id, (int)page, (int)pageSize, sortKey, sortOrder);
+                var res = mylistItemsRes.Data.Mylist;
 
                 var items = res.Items;
                 foreach (var item in items)
@@ -178,7 +170,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
         }
 
 
-        private NicoVideo MylistDataToNicoVideoData(Item item)
+        private NicoVideo MylistDataToNicoVideoData(MylistItem item)
         {
             var video = _nicoVideoRepository.Get(item.WatchId)
                         ?? new NicoVideo() { RawVideoId = item.WatchId };
@@ -218,27 +210,19 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
         public async Task<string> AddMylist(string name, string description, bool isPublic, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.User.CreateMylistGroupAsync(name, description, isPublic, sortKey, sortOrder);
-            });
+            var result = await NiconicoSession.ToolkitContext.Mylist.LoginUser.CreateMylistAsync(name, description, isPublic, sortKey, sortOrder);
+            return result.Data.MylistId.ToString();
         }
 
         public async Task<bool> UpdateMylist(string mylistId, string name, string description, bool isPublic, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.User.UpdateMylistGroupAsync(mylistId, name, description, isPublic, sortKey, sortOrder);
-            });
+            return await NiconicoSession.ToolkitContext.Mylist.LoginUser.UpdateMylistAsync(mylistId, name, description, isPublic, sortKey, sortOrder);
         }
 
 
         public async Task<bool> RemoveMylist(string group_id)
         {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.User.RemoveMylistGroupAsync(group_id);
-            });
+            return await NiconicoSession.ToolkitContext.Mylist.LoginUser.RemoveMylistAsync(group_id);
         }
 
 
@@ -246,15 +230,11 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
         public async Task<ContentManageResult> AddMylistItem(string mylistGroupId, string videoId, string mylistComment = "")
         {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.User.AddMylistItemAsync(
-                    mylistGroupId
-                    , Mntone.Nico2.NiconicoItemType.Video
-                    , videoId
-                    , mylistComment
-                    );
-            });
+            return await NiconicoSession.ToolkitContext.Mylist.LoginUser.AddMylistItemAsync(
+                mylistGroupId
+                , videoId
+                , mylistComment
+                );
         }
 
 
@@ -262,29 +242,20 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
         {
             var itemId = _loginUserMylistItemIdRepository.GetItemId(mylistGroupid, videoId);
             if (itemId == null) { return ContentManageResult.Failed; }
-            return await ContextActionAsync(async context =>
-            {
-                return await context.User.RemoveMylistItemAsync(mylistGroupid, itemId);
-            });
+            return await NiconicoSession.ToolkitContext.Mylist.LoginUser.RemoveMylistItemsAsync(mylistGroupid, new[] { itemId });
         }
 
-        public async Task<ContentManageResult> CopyMylistTo(string sourceMylistGroupId, string targetGroupId, params string[] videoIdList)
+        public async Task<MoveOrCopyMylistItemsResponse> CopyMylistTo(string sourceMylistGroupId, string targetGroupId, params string[] videoIdList)
         {
             var items = videoIdList.Select(x => _loginUserMylistItemIdRepository.GetItemId(sourceMylistGroupId, x));
-            return await ContextActionAsync(async context =>
-            {
-                return await context.User.CopyMylistItemAsync(sourceMylistGroupId, targetGroupId, items.ToArray());
-            });
+            return await NiconicoSession.ToolkitContext.Mylist.LoginUser.CopyMylistItemsAsync(sourceMylistGroupId, targetGroupId, items.ToArray());
         }
 
 
-        public async Task<ContentManageResult> MoveMylistTo(string sourceMylistGroupId, string targetGroupId, params string[] videoIdList)
+        public async Task<MoveOrCopyMylistItemsResponse> MoveMylistTo(string sourceMylistGroupId, string targetGroupId, params string[] videoIdList)
         {
             var items = videoIdList.Select(x => _loginUserMylistItemIdRepository.GetItemId(sourceMylistGroupId, x));
-            return await ContextActionAsync(async context =>
-            {
-                return await context.User.MoveMylistItemAsync(sourceMylistGroupId, targetGroupId, items.ToArray());
-            });
+            return await NiconicoSession.ToolkitContext.Mylist.LoginUser.MoveMylistItemsAsync(sourceMylistGroupId, targetGroupId, items.ToArray());
         }
     }
 
