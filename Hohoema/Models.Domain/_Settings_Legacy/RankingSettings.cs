@@ -1,4 +1,4 @@
-﻿using NiconicoToolkit.Video.Ranking;
+﻿using NiconicoToolkit.Ranking.Video;
 using Hohoema.Models.Helpers;
 using Prism.Mvvm;
 using System;

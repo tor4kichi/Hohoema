@@ -37,6 +37,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.Domain.Notification;
 using System.Collections.Generic;
 using Hohoema.Presentation.Views.Player;
+using NiconicoToolkit.Video.Watch;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -153,8 +154,6 @@ namespace Hohoema.Presentation.ViewModels.Player
                             PlaylistId = HohoemaPlaylist.CurrentPlaylist?.Id,
                             PlaylistOrigin = HohoemaPlaylist.CurrentPlaylist?.GetOrigin()
                         });
-
-                Debug.WriteLine("SetCurrentPlayerEntry");
             };
         }
 
@@ -643,9 +642,9 @@ namespace Hohoema.Presentation.ViewModels.Player
 
     public class VideoSeriesViewModel : ISeries
     {
-        private readonly Mntone.Nico2.Videos.Dmc.Series _userSeries;
+        private readonly Series _userSeries;
 
-        public VideoSeriesViewModel(Mntone.Nico2.Videos.Dmc.Series userSeries)
+        public VideoSeriesViewModel(Series userSeries)
         {
             _userSeries = userSeries;
         }

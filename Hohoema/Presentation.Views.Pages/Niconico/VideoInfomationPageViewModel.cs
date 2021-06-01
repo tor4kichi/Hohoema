@@ -45,6 +45,7 @@ using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Presentation.ViewModels.VideoCache.Commands;
 using System.Threading;
 using Uno.Disposables;
+using NiconicoToolkit.Video.Watch;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
@@ -678,7 +679,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
             try
             {
-                var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.RawVideoId);
+                var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.RawVideoId, noHistory: true);
                 VideoDetails = res.GetVideoDetails();
 
 
@@ -810,9 +811,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
     public class VideoSeriesViewModel : ISeries
     {
-        private readonly Mntone.Nico2.Videos.Dmc.Series _userSeries;
+        private readonly Series _userSeries;
 
-        public VideoSeriesViewModel(Mntone.Nico2.Videos.Dmc.Series userSeries)
+        public VideoSeriesViewModel(Series userSeries)
         {
             _userSeries = userSeries;
         }

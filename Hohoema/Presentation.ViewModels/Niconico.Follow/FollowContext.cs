@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+using Hohoema.Models.UseCase;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;
@@ -68,6 +69,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
                     IsFollowing = true;
                 }
             }
+            catch (Exception e)
+            {
+                ErrorTrackingManager.TrackError(e);
+            }
             finally
             {
                 NowChanging = false;
@@ -91,6 +96,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
                 {
                     IsFollowing = false;
                 }
+            }
+            catch (Exception e)
+            {
+                ErrorTrackingManager.TrackError(e);
             }
             finally
             {

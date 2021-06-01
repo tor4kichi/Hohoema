@@ -67,6 +67,7 @@ using Hohoema.Models.Domain.Notification;
 using Hohoema.Models.Domain.VideoCache;
 using Windows.Storage.AccessCache;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Microsoft.AppCenter.Utils;
 
 namespace Hohoema
 {
@@ -87,13 +88,14 @@ namespace Hohoema
 
         internal const string IS_COMPLETE_INTRODUCTION = "is_first_launch";
 
-		/// <summary>
-		/// 単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの
-		///最初の行であるため、main() または WinMain() と論理的に等価です。
-		/// </summary>
-		public App()
+        
+        /// <summary>
+        /// 単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの
+        ///最初の行であるため、main() または WinMain() と論理的に等価です。
+        /// </summary>
+        public App()
         {
-            CoreApplication.UnhandledErrorDetected += CoreApplication_UnhandledErrorDetected;
+            UnhandledException += App_UnhandledException;
 
             // XboxOne向けの設定
             // 基本カーソル移動で必要なときだけポインターを出現させる
@@ -115,7 +117,7 @@ namespace Hohoema
 
                 Crashes.SendingErrorReport += (sender, args) => { Debug.WriteLine(args.Report.ToString()); };
                 Crashes.SentErrorReport += (sender, args) => { Debug.WriteLine(args.Report.ToString()); };
-                AppCenter.SetUserId(Guid.NewGuid().ToString());
+                AppCenter.SetUserId(Guid.NewGuid().ToString());                
                 AppCenter.Start(appcenterSecrets, typeof(Analytics), typeof(Crashes));
                 Crashes.NotifyUserConfirmation(UserConfirmation.AlwaysSend);
             }
@@ -124,10 +126,17 @@ namespace Hohoema
             this.InitializeComponent();
         }
 
-        private void CoreApplication_UnhandledErrorDetected(object sender, UnhandledErrorDetectedEventArgs e)
+        private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
-            ErrorTrackingManager.TrackUnhandeledError(e.UnhandledError);
+            ErrorTrackingManager.TrackError(e.Exception);
         }
+
+        /*
+        private void Instance_UnhandledExceptionOccurred(object sender, UnhandledExceptionOccurredEventArgs e)
+        {
+            ErrorTrackingManager.TrackError(e.Exception);            
+        }
+        */
 
         public override async Task OnStartAsync(StartArgs args)
         {
@@ -674,122 +683,19 @@ namespace Hohoema
                 await Task.Delay(50);
             }
 
-
             if (args.Kind == ActivationKind.ToastNotification)
             {
-                bool isHandled = false;
-
-                //Get the pre-defined arguments and user inputs from the eventargs;
                 var toastArgs = args as IActivatedEventArgs as ToastNotificationActivatedEventArgs;
                 var arguments = toastArgs.Argument;
-                try
-                {
-                    var nicoContentId = NicoVideoIdHelper.UrlToVideoId(arguments);
 
-                    if (nicoContentId != null)
-                    {
-                        if (Mntone.Nico2.NiconicoRegex.IsVideoId(nicoContentId))
-                        {
-                            PlayVideoFromExternal(nicoContentId);
-                            isHandled = true;
-                        }
-                        else if (Mntone.Nico2.NiconicoRegex.IsLiveId(nicoContentId))
-                        {
-                            PlayLiveVideoFromExternal(nicoContentId);
-                            isHandled = true;
-                        }
-                    }
-
-                    var payload = JsonConvert.DeserializeObject<LoginRedirectPayload>(arguments);
-                    if (payload != null)
-                    {
-                        if (payload.RedirectPageType == HohoemaPageType.VideoPlayer)
-                        {
-                            var parameter = new NavigationParameters(payload.RedirectParamter);
-                            var playlistId = parameter.GetValue<string>("playlist_id");
-                            if (parameter.TryGetValue("id", out string id))
-                            {
-                                PlayVideoFromExternal(id, playlistId);
-                                isHandled = true;
-                            }
-                            else
-                            {
-                                var playlistResolver = App.Current.Container.Resolve<PlaylistResolver>();
-                                var hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
-                                var playlist = await playlistResolver.ResolvePlaylistAsync(Models.Domain.Playlist.PlaylistOrigin.Mylist, playlistId);
-                                hohoemaPlaylist.Play(playlist);
-                                isHandled = true;
-                            }
-                        }
-                        else
-                        {
-                            var pageManager = Container.Resolve<PageManager>();
-                            pageManager.OpenPage(payload.RedirectPageType, payload.RedirectParamter);
-                            isHandled = true;
-                            _isNavigationStackRestored = true;
-                        }
-                    }
-                    
-                    if (Uri.TryCreate(arguments, UriKind.Absolute, out var uri))
-                    {
-                        var pageManager = Container.Resolve<PageManager>();
-                        if (pageManager.OpenPage(uri))
-                        {
-                            isHandled = true;
-                            _isNavigationStackRestored = true;
-                        }
-                    }
-                }
-                catch { }
-                
-                if (!isHandled)
-                {
-                    if (arguments.StartsWith("cache_cancel"))
-                    {
-                        var query = arguments.Split('?')[1];
-                        var decode = new WwwFormUrlDecoder(query);
-
-                        var videoId = decode.GetFirstValueByName("id");
-                        var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
-
-                        // TODO: 
-                        /*
-                        var cacheManager = Container.Resolve<VideoCacheManagerLegacy>();
-                        await cacheManager.CancelCacheRequest(videoId);
-                        */
-                    }
-                    else
-                    {
-                        var nicoContentId = NicoVideoIdHelper.UrlToVideoId(arguments);
-
-                        if (Mntone.Nico2.NiconicoRegex.IsVideoId(nicoContentId))
-                        {
-                            PlayVideoFromExternal(nicoContentId);
-                        }
-                        else if (Mntone.Nico2.NiconicoRegex.IsLiveId(nicoContentId))
-                        {
-                            PlayLiveVideoFromExternal(nicoContentId);
-                        }
-                    }
-                }
-
-                
+                await Container.Resolve<NavigationTriggerFromExternal>().Process(arguments);
             }
             else if (args.Kind == ActivationKind.Protocol)
             {
                 var param = (args as IActivatedEventArgs) as ProtocolActivatedEventArgs;
                 var uri = param.Uri;
-                var maybeNicoContentId = new string(uri.OriginalString.Skip("niconico://".Length).TakeWhile(x => x != '?' && x != '/').ToArray());
 
-                if (Mntone.Nico2.NiconicoRegex.IsVideoId(maybeNicoContentId)
-                    || maybeNicoContentId.All(x => x >= '0' && x <= '9'))
-                {
-                    PlayVideoFromExternal(maybeNicoContentId);
-                }
-                else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
-                {
-                    PlayLiveVideoFromExternal(maybeNicoContentId);
-                }
+                await Container.Resolve<NavigationTriggerFromExternal>().Process(param.Uri);
             }
 
             
@@ -828,52 +734,28 @@ namespace Hohoema
         {
             var deferral = args.TaskInstance.GetDeferral();
 
-            switch (args.TaskInstance.Task.Name)
+            try
             {
-                case "ToastBackgroundTask":
-                    var details = args.TaskInstance.TriggerDetails as Windows.UI.Notifications.ToastNotificationActionTriggerDetail;
-                    if (details != null)
-                    {
-                        string arguments = details.Argument;
-                        var userInput = details.UserInput;
-
-                        await ProcessToastNotificationActivation(arguments, userInput);
-                    }
-                    break;
-            }
-
-            deferral.Complete();
-        }
-
-
-
-        private async void PlayVideoFromExternal(string videoId, string playlistId = null)
-        {
-            var hohoemaPlaylist = Container.Resolve<HohoemaPlaylist>();
-
-            var nicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
-            var videoInfo = await nicoVideoProvider.GetNicoVideoInfo(videoId);
-            
-            if (videoInfo == null || videoInfo.IsDeleted) { return; }
-
-            if (playlistId != null)
-            {
-                var playlistResolver = App.Current.Container.Resolve<PlaylistResolver>();
-                var playlist = await playlistResolver.ResolvePlaylistAsync(Models.Domain.Playlist.PlaylistOrigin.Mylist, playlistId);
-
-                if (playlist != null)
+                switch (args.TaskInstance.Task.Name)
                 {
-                    hohoemaPlaylist.Play(videoInfo, playlist);
-                    return;
+                    case "ToastBackgroundTask":
+                        var details = args.TaskInstance.TriggerDetails as Windows.UI.Notifications.ToastNotificationActionTriggerDetail;
+                        if (details != null)
+                        {
+                            string arguments = details.Argument;
+                            var userInput = details.UserInput;
+
+                            await Task.Run(() => Container.Resolve<NavigationTriggerFromExternal>().Process(arguments));
+                        }
+                        break;
                 }
             }
+            finally
+            {
+                deferral.Complete();
+            }
+        }
 
-            hohoemaPlaylist.Play(videoInfo);
-        }
-        private void PlayLiveVideoFromExternal(string videoId)
-        {
-            StrongReferenceMessenger.Default.Send(new PlayerPlayLiveRequestMessage(new() { LiveId = videoId }));
-        }
 
 
 		
@@ -1196,36 +1078,6 @@ namespace Hohoema
                 BackgroundTaskRegistration registration = builder.Register();
             }
             catch { }
-        }
-
-        private async Task ProcessToastNotificationActivation(string arguments, ValueSet userInput)
-        {
-            await Task.Run(async () => 
-            {
-                var toastArguments = ToastArguments.Parse(arguments);
-                if (toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Action, out string actionType))
-                {
-                    if (actionType == ToastNotificationConstants.ToastArgumentValue_Action_Delete)
-                    {
-                        if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
-                        {
-                            throw new Models.Infrastructure.HohoemaExpception("no id");
-                        }
-
-                        var cacheManager = Container.Resolve<VideoCacheManager>();
-                        await cacheManager.CancelCacheRequestAsync(id);
-                    }
-                    else if (actionType == ToastNotificationConstants.ToastArgumentValue_Action_Play)
-                    {
-                        if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
-                        {
-                            throw new Models.Infrastructure.HohoemaExpception("no id");
-                        }
-
-                        PlayVideoFromExternal(id);
-                    }
-                }
-            });
         }
 
 

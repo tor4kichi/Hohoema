@@ -1,35 +1,25 @@
-﻿using Hohoema.Models.Domain.Niconico;
-using Hohoema.Presentation.ViewModels;
-using Prism.Mvvm;
+﻿using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Domain.Player.Video.Cache;
+using Hohoema.Models.Domain.Player.Video.Comment;
+using Mntone.Nico2;
+using MvvmHelpers;
+using NiconicoToolkit.Video.Watch.NMSG_Comment;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Concurrency;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.UI;
-using Prism.Ioc;
-using Hohoema.Models.Domain.Niconico.Video;
-using System.Diagnostics;
-using Windows.Media.Playback;
 using System.Reactive.Disposables;
-using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
-using Mntone.Nico2.Videos.Comment;
-using Mntone.Nico2;
-using Hohoema.Models.UseCase.NicoVideos.Player;
-using Microsoft.Toolkit.Uwp.UI;
-using Uno.Extensions;
-using MvvmHelpers;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Domain.Player.Video.Comment;
-using Hohoema.Models.Domain.Player.Video.Cache;
-using Windows.System;
-using Uno.Threading;
 using System.Threading;
+using System.Threading.Tasks;
+using Uno.Extensions;
+using Uno.Threading;
+using Windows.Media.Playback;
+using Windows.System;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
@@ -294,7 +284,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     var command = CommandText.Value;
                     var res = await _commentSession.PostComment(WritingComment.Value, posision, command);
 
-                    if (res.Status == ChatResult.Success)
+                    if (res.Status == ChatResultCode.Success)
                     {
                         Debug.WriteLine("コメントの投稿に成功: " + res.CommentNo);
 

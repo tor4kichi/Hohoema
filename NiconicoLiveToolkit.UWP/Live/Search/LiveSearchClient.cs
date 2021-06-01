@@ -140,11 +140,11 @@ namespace NiconicoToolkit.Live.Search
 				await _context.WaitPageAccess();
 
 				var responseMessage = await _context.GetAsync(urlWithQuery, ct: cancellationToken);
+				var parser = new HtmlParser();
 				using (var inputStream = await responseMessage.Content.ReadAsInputStreamAsync())
-                {
-					var parser = new HtmlParser();
+				{
+					// LiveSearchPageDataにIDocumentをもたせるのでDisposeを呼ばないようにしてる
 					var document = await parser.ParseDocumentAsync(inputStream.AsStreamForRead(), cancellationToken);
-
 					return LiveSearchPageScrapingResult.Success(new LiveSearchPageData(document, keyword, pageStartWith0 ?? 0, liveStatus));
 				}
 			}
@@ -331,7 +331,7 @@ namespace NiconicoToolkit.Live.Search
 		}
 	}
 
-	public sealed class LiveSearchPageData
+	public sealed class LiveSearchPageData : IDisposable
     {
         private readonly IHtmlDocument _document;
         private readonly LiveStatus _targetLiveStatus;
@@ -397,7 +397,10 @@ namespace NiconicoToolkit.Live.Search
 			return itemList.Select(elem => new LiveSearchPageLiveContentItem(elem)).ToArray();
 		}
 
-
+        public void Dispose()
+        {
+            _document.Dispose();
+        }
     }
 
 

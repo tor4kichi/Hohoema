@@ -63,7 +63,9 @@ namespace Hohoema.Presentation.Views.Player
 
         private void VideoPlayerPage_Loaded(object sender, RoutedEventArgs e)
         {
+            _mediaPlayer.VolumeChanged -= OnMediaPlayerVolumeChanged;
             _mediaPlayer.VolumeChanged += OnMediaPlayerVolumeChanged;
+            _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
 
             _compositeDisposable = new CompositeDisposable();

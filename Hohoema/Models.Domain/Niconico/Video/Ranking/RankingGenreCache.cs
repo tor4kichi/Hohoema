@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Infrastructure;
 using LiteDB;
-using NiconicoToolkit.Video.Ranking;
+using NiconicoToolkit.Ranking.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;

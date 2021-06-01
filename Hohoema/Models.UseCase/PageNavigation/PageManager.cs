@@ -246,37 +246,37 @@ namespace Hohoema.Models.UseCase.PageNavigation
         public DelegateCommand<object> OpenContentOwnerPageCommand => _OpenContentOwnerPageCommand
             ?? (_OpenContentOwnerPageCommand = new DelegateCommand<object>(parameter =>
             {
-            switch (parameter)
-            {
-                case IVideoContentProvider videoContent:
-                    if (videoContent.ProviderType == NicoVideoUserType.User)
-                    {
-                        var p = new NavigationParameters();
-                        p.Add("id", videoContent.ProviderId);
-                        OpenPage(HohoemaPageType.UserInfo, p);
-                    }
-                    else if (videoContent.ProviderType == NicoVideoUserType.Channel)
-                    {
-                        var p = new NavigationParameters();
-                        p.Add("id", videoContent.ProviderId);
-                        OpenPage(HohoemaPageType.ChannelVideo, p);
-                    }
+                switch (parameter)
+                {
+                    case IVideoContentProvider videoContent:
+                        if (videoContent.ProviderType == NicoVideoUserType.User)
+                        {
+                            var p = new NavigationParameters();
+                            p.Add("id", videoContent.ProviderId);
+                            OpenPage(HohoemaPageType.UserInfo, p);
+                        }
+                        else if (videoContent.ProviderType == NicoVideoUserType.Channel)
+                        {
+                            var p = new NavigationParameters();
+                            p.Add("id", videoContent.ProviderId);
+                            OpenPage(HohoemaPageType.ChannelVideo, p);
+                        }
 
-                    break;
-                case ILiveContent liveContent:
-                    if (liveContent.ProviderType == ProviderType.Community)
-                    {
-                        var p = new NavigationParameters();
-                        p.Add("id", liveContent.ProviderId);
-                        OpenPage(HohoemaPageType.Community, p);
-                    }
-                    break;
-                case IMylist mylist:
-                    {
-                        OpenPageWithId(HohoemaPageType.Mylist, mylist.Id);
                         break;
+                    case ILiveContent liveContent:
+                        if (liveContent.ProviderType == ProviderType.Community)
+                        {
+                            var p = new NavigationParameters();
+                            p.Add("id", liveContent.ProviderId);
+                            OpenPage(HohoemaPageType.Community, p);
+                        }
+                        break;
+                    case IMylist mylist:
+                        {
+                            OpenPageWithId(HohoemaPageType.Mylist, mylist.Id);
+                            break;
 
-                    }
+                        }
                 }
             }
             , parameter => parameter is INiconicoContent
@@ -359,16 +359,23 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
 		public void OpenPage(HohoemaPageType pageType, INavigationParameters parameter = null, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
 		{
-            CurrentPageType = pageType;
-            CurrentPageNavigationParameters = parameter;
-            
-            StrongReferenceMessenger.Default.Send(new PageNavigationEvent(new()
+            try
             {
-                PageName = _pageTypeToName[pageType],
-                Paramter = parameter,
-                IsMainViewTarget = true,
-                Behavior = stackBehavior,
-            }));
+                CurrentPageType = pageType;
+                CurrentPageNavigationParameters = parameter;
+
+                StrongReferenceMessenger.Default.Send(new PageNavigationEvent(new()
+                {
+                    PageName = _pageTypeToName[pageType],
+                    Paramter = parameter,
+                    IsMainViewTarget = true,
+                    Behavior = stackBehavior,
+                }));
+            }
+            catch (Exception e)
+            {
+                ErrorTrackingManager.TrackError(e);
+            }
         }
 
         public void OpenPage(HohoemaPageType pageType, string parameterString, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)

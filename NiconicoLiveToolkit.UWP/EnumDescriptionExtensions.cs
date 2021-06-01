@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 
-namespace NiconicoToolkit.Video.Ranking
+namespace NiconicoToolkit
 {
     public static class EnumDescriptionExtensions
     {

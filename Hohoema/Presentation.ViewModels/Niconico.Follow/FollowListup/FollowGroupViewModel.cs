@@ -8,6 +8,7 @@ using System.Reactive.Disposables;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Prism.Commands;
 using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Models.UseCase;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
@@ -55,9 +56,16 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         private DelegateCommand<ItemType> _RemoveFollowCommand;
         public DelegateCommand<ItemType> RemoveFollowCommand =>
-            _RemoveFollowCommand ??= new DelegateCommand<ItemType>(item => 
+            _RemoveFollowCommand ??= new DelegateCommand<ItemType>(async item => 
             {
-                _followProvider.RemoveFollowAsync(item);
+                try
+                {
+                    await _followProvider.RemoveFollowAsync(item);
+                }
+                catch (Exception e)
+                {
+                    ErrorTrackingManager.TrackError(e);
+                }
             }
             , (item) => FollowItemType is not FollowItemType.Community and not FollowItemType.Channel
             );

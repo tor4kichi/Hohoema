@@ -28,6 +28,7 @@ using Hohoema.Models.Domain.Application;
 using Microsoft.AppCenter.Analytics;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using Hohoema.Models.UseCase;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 {
@@ -344,6 +345,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
                 {
                     await _subscriptionManager.RefreshFeedUpdateResultAsync(_source, cts.Token);
                 }
+            }
+            catch (Exception e)
+            {
+                ErrorTrackingManager.TrackError(e);
             }
             finally
             {

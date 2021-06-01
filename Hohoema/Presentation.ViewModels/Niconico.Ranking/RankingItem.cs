@@ -1,5 +1,5 @@
 ﻿
-using NiconicoToolkit.Video.Ranking;
+using NiconicoToolkit.Ranking.Video;
 using Prism.Mvvm;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Ranking

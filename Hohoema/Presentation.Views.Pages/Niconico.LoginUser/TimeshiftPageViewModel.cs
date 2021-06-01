@@ -60,44 +60,51 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                 return _DeleteOutdatedReservations
                     ?? (_DeleteOutdatedReservations = new DelegateCommand(async () => 
                     {
-                        var reservations = await LoginUserLiveReservationProvider.GetReservtionsAsync();
+                        try
+                        {
+                            var reservations = await LoginUserLiveReservationProvider.GetReservtionsAsync();
 
-                        var dateOutReservations = reservations.ReservedProgram.Where(x => x.IsOutDated).ToList();
+                            var dateOutReservations = reservations.ReservedProgram.Where(x => x.IsOutDated).ToList();
 
-                        if (dateOutReservations.Count == 0) { return; }
+                            if (dateOutReservations.Count == 0) { return; }
 
-                        var reservationTitlesText = string.Join("\r", dateOutReservations.Select(x => x.Title));
-                        var acceptDeletion = await DialogService.ShowMessageDialog(
-                            "DeleteReservationConfirmText".Translate() + "\r\r" + reservationTitlesText,
-                            "DeleteOutdatedReservationConfirm_Title".Translate(),
-                            "DeleteReservationConfirm_Agree".Translate(),
-                            "Cancel".Translate()
-                            );
+                            var reservationTitlesText = string.Join("\r", dateOutReservations.Select(x => x.Title));
+                            var acceptDeletion = await DialogService.ShowMessageDialog(
+                                "DeleteReservationConfirmText".Translate() + "\r\r" + reservationTitlesText,
+                                "DeleteOutdatedReservationConfirm_Title".Translate(),
+                                "DeleteReservationConfirm_Agree".Translate(),
+                                "Cancel".Translate()
+                                );
 
-                        if (!acceptDeletion) { return; }
+                            if (!acceptDeletion) { return; }
 
-                        await _noUIProcessScreenContext.StartNoUIWork(
-                            "DeletingReservations".Translate()
-                            , dateOutReservations.Count,
-                            () => AsyncInfo.Run<int>(async (cancelToken, progress) =>
-                            {
-                                int cnt = 0;
-                                var token = await LoginUserLiveReservationProvider.GetReservationTokenAsync();
-
-                                foreach (var reservation in dateOutReservations)
+                            await _noUIProcessScreenContext.StartNoUIWork(
+                                "DeletingReservations".Translate()
+                                , dateOutReservations.Count,
+                                () => AsyncInfo.Run<int>(async (cancelToken, progress) =>
                                 {
-                                    await LoginUserLiveReservationProvider.DeleteReservationAsync(reservation.Id, token);
+                                    int cnt = 0;
+                                    var token = await LoginUserLiveReservationProvider.GetReservationTokenAsync();
 
-                                    await Task.Delay(TimeSpan.FromSeconds(1));
+                                    foreach (var reservation in dateOutReservations)
+                                    {
+                                        await LoginUserLiveReservationProvider.DeleteReservationAsync(reservation.Id, token);
 
-                                    cnt++;
+                                        await Task.Delay(TimeSpan.FromSeconds(1));
 
-                                    progress.Report(cnt);
-                                }
+                                        cnt++;
 
-                                ResetList();
-                            })
-                            );
+                                        progress.Report(cnt);
+                                    }
+
+                                    ResetList();
+                                })
+                                );
+                        }
+                        catch (Exception e)
+                        {
+                            ErrorTrackingManager.TrackError(e);
+                        }
                     }));
             }
         }

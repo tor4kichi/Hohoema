@@ -17,6 +17,7 @@ using System.Reactive.Concurrency;
 using Prism.Ioc;
 using Windows.System;
 using Uno.Threading;
+using Hohoema.Models.UseCase;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -211,6 +212,7 @@ namespace Hohoema.Presentation.ViewModels
                     NowLoading.Value = false;
                     HasError.Value = true;
                     Debug.WriteLine("failed GenerateIncrementalSource.");
+                    throw;
                 }
             }
         }
@@ -219,7 +221,14 @@ namespace Hohoema.Presentation.ViewModels
         {
             _dispatcherQueue.TryEnqueue(async () => 
             {
-                await ResetList_Internal(NavigationCancellationToken);
+                try
+                {
+                    await ResetList_Internal(NavigationCancellationToken);
+                }
+                catch (Exception e)
+                {
+                    ErrorTrackingManager.TrackError(e);
+                }
             });
         }
 
@@ -354,10 +363,10 @@ namespace Hohoema.Presentation.ViewModels
 			get
 			{
 				return _RefreshCommand
-					?? (_RefreshCommand = new DelegateCommand(async () => 
+					?? (_RefreshCommand = new DelegateCommand(() => 
 					{
-						ResetList();
-					}));
+                        ResetList();
+                    }));
 			}
 		}
 	}

@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NiconicoToolkit.Video
+namespace NiconicoToolkit.Rss.Video
 {
     public class RssVideoResponse
     {

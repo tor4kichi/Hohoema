@@ -1,6 +1,4 @@
-﻿using Mntone.Nico2;
-using Mntone.Nico2.Videos.Dmc;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Helpers;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -13,6 +11,8 @@ using Windows.System;
 using Uno.Threading;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Models.Domain.Niconico.Video;
+using NiconicoToolkit.Video.Watch;
+using NiconicoToolkit.Video.Watch.Dmc;
 
 namespace Hohoema.Models.Domain.Player.Video
 {
@@ -21,7 +21,9 @@ namespace Hohoema.Models.Domain.Player.Video
         // Note: 再生中のハートビート管理を含めた管理
         // MediaSourceをMediaPlayerに設定する役割
 
-        public DmcWatchResponse DmcWatchResponse { get; private set; }
+        private DmcWatchApiData _dmcWatchData;
+        private readonly bool _forCacheDownload;
+        private DmcSessionResponse _dmcSessionResponse;
 
         private Timer _DmcSessionHeartbeatTimer;
 
@@ -34,27 +36,24 @@ namespace Hohoema.Models.Domain.Player.Video
         public override NicoVideoQuality Quality { get; }
 
 
-        DmcWatchData _DmcWatchData;
-        static DmcSessionResponse _DmcSessionResponse;
 
-        public DmcVideoStreamingSession(string qualityId, DmcWatchData res, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager.VideoSessionOwnership videoSessionOwnership)
+        public DmcVideoStreamingSession(string qualityId, DmcWatchApiData res, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager.VideoSessionOwnership videoSessionOwnership, bool forCacheDownload = false)
             : base(niconicoSession, videoSessionOwnership)
         {
-            _DmcWatchData = res;
-            DmcWatchResponse = res.DmcWatchResponse;
-
+            _dmcWatchData = res;
+            _forCacheDownload = forCacheDownload;
             QualityId = qualityId;
             Quality = res.ToNicoVideoQuality(qualityId);
 
 #if DEBUG
             Debug.WriteLine($"Id/Bitrate/Resolution/Available");
-            foreach (var q in _DmcWatchData.DmcWatchResponse.Media.Delivery.Movie.Videos)
+            foreach (var q in _dmcWatchData.Media.Delivery.Movie.Videos)
             {
                 Debug.WriteLine($"{q.Id}/{q.Metadata.Bitrate}/{q.IsAvailable}/{q.Metadata.Resolution}");
             }
 #endif
 
-            VideoContent = DmcWatchResponse.Media.Delivery.Movie.Videos.FirstOrDefault(x => x.Id == qualityId);
+            VideoContent = _dmcWatchData.Media.Delivery.Movie.Videos.FirstOrDefault(x => x.Id == qualityId);
 
             if (VideoContent != null)
             {
@@ -64,9 +63,9 @@ namespace Hohoema.Models.Domain.Player.Video
 
         private async Task<DmcSessionResponse> GetDmcSessionAsync()
         {
-            if (DmcWatchResponse == null) { return null; }
+            if (_dmcWatchData == null) { return null; }
 
-            if (DmcWatchResponse.Media == null) { return null; }
+            if (_dmcWatchData.Media == null) { return null; }
 
             if (VideoContent == null)
             {
@@ -77,23 +76,23 @@ namespace Hohoema.Models.Domain.Player.Video
             {
                 // 直前に同一動画を見ていた場合には、動画ページに再アクセスする
                 DmcSessionResponse clearPreviousSession = null;
-                if (_DmcSessionResponse != null)
+                if (_dmcSessionResponse != null)
                 {
-                    if (_DmcSessionResponse.Data.Session.RecipeId.EndsWith(DmcWatchResponse.Video.Id))
+                    if (_dmcSessionResponse.Data.Session.RecipeId.EndsWith(_dmcWatchData.Video.Id))
                     {
-                        clearPreviousSession = _DmcSessionResponse;
-                        _DmcSessionResponse = null;
-                        DmcWatchResponse = await NiconicoSession.Context.Video.GetDmcWatchJsonAsync(DmcWatchResponse.Client.WatchId, NiconicoSession.IsLoggedIn, DmcWatchResponse.Client.WatchTrackId);
+                        clearPreviousSession = _dmcSessionResponse;
+                        _dmcSessionResponse = null;
+                        _dmcWatchData = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetDmcWatchJsonAsync(_dmcWatchData.Client.WatchId, NiconicoSession.IsLoggedIn, _dmcWatchData.Client.WatchTrackId);
                     }
                 }
 
-                _DmcSessionResponse = await NiconicoSession.Context.Video.GetDmcSessionResponse(DmcWatchResponse, VideoContent);
+                _dmcSessionResponse = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetDmcSessionResponseAsync(_dmcWatchData, VideoContent, null, hlsMode: false);
 
-                if (_DmcSessionResponse == null) { return null; }
+                if (_dmcSessionResponse == null) { return null; }
 
                 if (clearPreviousSession != null)
                 {
-                    await NiconicoSession.Context.Video.DmcSessionExitHeartbeatAsync(DmcWatchResponse, clearPreviousSession);
+                    await NiconicoSession.ToolkitContext.Video.VideoWatch.DmcSessionExitHeartbeatAsync(_dmcWatchData, clearPreviousSession);
                 }
             }
             catch
@@ -101,7 +100,7 @@ namespace Hohoema.Models.Domain.Player.Video
                 return null;
             }
 
-            return _DmcSessionResponse;
+            return _dmcSessionResponse;
         }
 
         protected override async Task<MediaSource> GetPlyaingVideoMediaSource()
@@ -111,14 +110,14 @@ namespace Hohoema.Models.Domain.Player.Video
                 NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Add("Origin", "https://www.nicovideo.jp");
             }
 
-            NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Referer = new Uri($"https://www.nicovideo.jp/watch/{DmcWatchResponse.Video.Id}");
+            NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Referer = new Uri($"https://www.nicovideo.jp/watch/{_dmcWatchData.Video.Id}");
 
 
             var session = await GetDmcSessionAsync();
 
             if (session == null)
             {
-                if (DmcWatchResponse.Media.DeliveryLegacy != null)
+                if (_dmcWatchData.Media.DeliveryLegacy != null)
                 {
                     throw new NotSupportedException("DmcWatchResponse.Media.DeliveryLegacy not supported");
                     //return MediaSource.CreateFromUri(new Uri(DmcWatchResponse.Video.SmileInfo.Url));
@@ -129,7 +128,7 @@ namespace Hohoema.Models.Domain.Player.Video
                 }
             }
 
-            var uri = session != null ? new Uri(session.Data.Session.ContentUri) : null;
+            var uri = session != null ? session.Data.Session.ContentUri : null;
 
             if (session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HttpOutputDownloadParameters != null)
             {
@@ -139,12 +138,15 @@ namespace Hohoema.Models.Domain.Player.Video
             {
                 var hlsParameters = session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HlsParameters;
                  
-                var key = await this.NiconicoSession.Context.HttpClient.GetStringAsync(new Uri(hlsParameters.Encryption.HlsEncryptionV1.KeyUri));
+                if (hlsParameters.Encryption?.HlsEncryptionV1?.KeyUri != null)
+                {
+                    var key = await this.NiconicoSession.Context.HttpClient.GetStringAsync(new Uri(hlsParameters.Encryption.HlsEncryptionV1.KeyUri));
+                }
 
                 var amsResult = await AdaptiveMediaSource.CreateFromUriAsync(uri, this.NiconicoSession.Context.HttpClient);
                 if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
                 {
-                    await NiconicoSession.Context.Video.SendOfficialHlsWatchAsync(DmcWatchResponse.Video.Id, DmcWatchResponse.Media.Delivery.TrackingId);
+                    await NiconicoSession.Context.Video.SendOfficialHlsWatchAsync(_dmcWatchData.Video.Id, _dmcWatchData.Media.Delivery.TrackingId);
 
                     return MediaSource.CreateFromAdaptiveMediaSource(amsResult.MediaSource);
                 }
@@ -156,7 +158,7 @@ namespace Hohoema.Models.Domain.Player.Video
         public async Task<Uri> GetDownloadUrlAndSetupDownloadSession()
         {
             var session = await GetDmcSessionAsync();
-            var videoUri = session != null ? new Uri(session.Data.Session.ContentUri) : null;
+            var videoUri = session != null ? session.Data.Session.ContentUri : null;
 
             if (videoUri != null)
             {
@@ -172,9 +174,9 @@ namespace Hohoema.Models.Domain.Player.Video
 
         protected override void OnStartStreaming()
         {
-            if (DmcWatchResponse != null && _DmcSessionResponse != null)
+            if (_dmcWatchData != null && _dmcSessionResponse != null)
             {
-                Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビートを開始しました");
+                Debug.WriteLine($"{_dmcWatchData.Video.Title} のハートビートを開始しました");
 
                 _DmcSessionHeartbeatTimer = new Timer(_DmcSessionHeartbeatTimer_Tick, this, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
             }
@@ -182,22 +184,22 @@ namespace Hohoema.Models.Domain.Player.Video
 
         private async void _DmcSessionHeartbeatTimer_Tick(object state)
         {
-            Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビート {_HeartbeatCount + 1}回目");
+            Debug.WriteLine($"{_dmcWatchData.Video.Title} のハートビート {_HeartbeatCount + 1}回目");
 
             var _this = (DmcVideoStreamingSession)state;
 
             if (_this.IsFirstHeartbeat)
             {
-                await _this.NiconicoSession.Context.Video.DmcSessionFirstHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
-                Debug.WriteLine($"{_this.DmcWatchResponse.Video.Title} の初回ハートビート実行");
+                await _this.NiconicoSession.ToolkitContext.Video.VideoWatch.DmcSessionFirstHeartbeatAsync(_dmcWatchData, _dmcSessionResponse);
+                Debug.WriteLine($"{_this._dmcWatchData.Video.Title} の初回ハートビート実行");
                 await Task.Delay(2);
             }
             else
             {
                 try
                 {
-                    await _this.NiconicoSession.Context.Video.DmcSessionHeartbeatAsync(_this.DmcWatchResponse, _DmcSessionResponse);
-                    Debug.WriteLine($"{_this.DmcWatchResponse.Video.Title} のハートビート実行");
+                    await _this.NiconicoSession.ToolkitContext.Video.VideoWatch.DmcSessionHeartbeatAsync(_this._dmcWatchData, _dmcSessionResponse);
+                    Debug.WriteLine($"{_this._dmcWatchData.Video.Title} のハートビート実行");
                 }
                 catch
                 {
@@ -214,14 +216,14 @@ namespace Hohoema.Models.Domain.Player.Video
             {
                 _DmcSessionHeartbeatTimer.Dispose();
                 _DmcSessionHeartbeatTimer = null;
-                Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビートを終了しました");
+                Debug.WriteLine($"{_dmcWatchData.Video.Title} のハートビートを終了しました");
             }
 
             try
             {
-                if (_DmcSessionResponse != null)
+                if (_dmcSessionResponse != null)
                 {
-                    await NiconicoSession.Context.Video.DmcSessionLeaveAsync(DmcWatchResponse, _DmcSessionResponse);
+                    await NiconicoSession.ToolkitContext.Video.VideoWatch.DmcSessionLeaveAsync(_dmcWatchData, _dmcSessionResponse);
                 }
             }
             catch { }

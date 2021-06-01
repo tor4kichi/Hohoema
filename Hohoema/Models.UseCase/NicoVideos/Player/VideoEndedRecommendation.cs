@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Videos.Dmc;
-using Hohoema.Models.Domain;
+﻿using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.Player;
 using Hohoema.Models.UseCase.NicoVideos;
@@ -19,6 +18,7 @@ using System.Threading.Tasks;
 using Windows.Media.Playback;
 using Windows.UI.Xaml;
 using Hohoema.Models.Domain.Player;
+using NiconicoToolkit.Video.Watch;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {

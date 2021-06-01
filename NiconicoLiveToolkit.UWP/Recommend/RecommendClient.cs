@@ -115,6 +115,11 @@ namespace NiconicoToolkit.Recommend
 
     public class RecommendItemContentConverter : JsonConverter<VideoReccomendItem[]>
     {
+        private static readonly byte[] s_idUtf8 = Encoding.UTF8.GetBytes("id");
+        private static readonly byte[] s_contentTypeUtf8 = Encoding.UTF8.GetBytes("contentType");
+        private static readonly byte[] s_recommendTypeUtf8 = Encoding.UTF8.GetBytes("recommendType");
+        private static readonly byte[] s_contentUtf8 = Encoding.UTF8.GetBytes("content");
+
         public override VideoReccomendItem[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.StartArray) { throw new JsonException(); }
@@ -129,34 +134,32 @@ namespace NiconicoToolkit.Recommend
                 for (int i = 0; i < 4; i++)
                 {
                     if (!reader.Read() || reader.TokenType != JsonTokenType.PropertyName) { throw new JsonException(); }
-
-                    var propName = reader.GetString();
                     
-                    if (!reader.Read()) { throw new JsonException(); }
-
-                    switch (propName)
+                    if (reader.ValueTextEquals(s_idUtf8))
                     {
-                        case "id":
-                            if (reader.TokenType != JsonTokenType.String) { throw new JsonException(); }
-                            item.Id = reader.GetString();
-                            break;
-                        case "contentType":
-                            if (reader.TokenType != JsonTokenType.String) { throw new JsonException(); }
-                            item.ContentType = JsonSerializer.Deserialize<RecommendContentType>(ref reader, options);
-                            break;
-                        case "recommendType":
-                            if (reader.TokenType != JsonTokenType.String) { throw new JsonException(); }
-                            item.RecommendType = JsonSerializer.Deserialize<RecommendType>(ref reader, options);
-                            break;
-                        case "content":
-                            if (reader.TokenType != JsonTokenType.StartObject) { throw new JsonException(); }
-                            switch (item.ContentType)
-                            {
-                                case RecommendContentType.Mylist: item.ContentAsMylist = JsonSerializer.Deserialize<NvapiMylistItem>(ref reader, options); break;
-                                case RecommendContentType.Video: item.ContentAsVideo = JsonSerializer.Deserialize<NvapiVideoItem>(ref reader, options); break;
-                                default: throw new JsonException();
-                            };
-                            break;
+                        if (!reader.Read() || reader.TokenType != JsonTokenType.String) { throw new JsonException(); }
+                        item.Id = reader.GetString();
+                    }
+                    else if (reader.ValueTextEquals(s_contentTypeUtf8))
+                    {
+                        if (!reader.Read() || reader.TokenType != JsonTokenType.String) { throw new JsonException(); }
+                        item.ContentType = JsonSerializer.Deserialize<RecommendContentType>(ref reader, options);
+                    }
+                    else if (reader.ValueTextEquals(s_recommendTypeUtf8))
+                    {
+                        if (!reader.Read() || reader.TokenType != JsonTokenType.String) { throw new JsonException(); }
+                        item.RecommendType = JsonSerializer.Deserialize<RecommendType>(ref reader, options);
+
+                    }
+                    else if (reader.ValueTextEquals(s_contentUtf8))
+                    {
+                        if (!reader.Read() || reader.TokenType != JsonTokenType.StartObject) { throw new JsonException(); }
+                        switch (item.ContentType)
+                        {
+                            case RecommendContentType.Mylist: item.ContentAsMylist = JsonSerializer.Deserialize<NvapiMylistItem>(ref reader, options); break;
+                            case RecommendContentType.Video: item.ContentAsVideo = JsonSerializer.Deserialize<NvapiVideoItem>(ref reader, options); break;
+                            default: throw new JsonException();
+                        };
                     }
                 }
 

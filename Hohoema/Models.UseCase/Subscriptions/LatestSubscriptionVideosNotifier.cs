@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Application;
 
 namespace Hohoema.Models.UseCase.Subscriptions
 {
@@ -23,8 +24,8 @@ namespace Hohoema.Models.UseCase.Subscriptions
         private readonly SubscriptionManager _subscriptionManager;
         private readonly NotificationService _notificationService;
 
-        static readonly string OpenSubscriptionManagementPageParam = new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.SubscriptionManagement }.ToParameterString();
-        static readonly string PlayWithWatchAfterPlaylistParam = new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = $"playlist_id={HohoemaPlaylist.QueuePlaylistId}" }.ToParameterString();
+        static readonly string OpenSubscriptionManagementPageParam = ToastNotificationConstants.MakeOpenPageToastArguments(HohoemaPageType.SubscriptionManagement).ToString();
+        static readonly string PlayWithWatchAfterPlaylistParam = ToastNotificationConstants.MakePlayPlaylistToastArguments(Domain.Playlist.PlaylistOrigin.Local, HohoemaPlaylist.QueuePlaylistId).ToString();
 
         List<SubscriptionFeedUpdateResult> Results = new List<SubscriptionFeedUpdateResult>();
 

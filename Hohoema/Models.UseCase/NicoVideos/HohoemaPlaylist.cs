@@ -688,13 +688,20 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 return _PlayCommand
                     ?? (_PlayCommand = new DelegateCommand<object>(item =>
                     {
-                        if (item is string contentId)
+                        try
                         {
-                            Play(contentId);
+                            if (item is string contentId)
+                            {
+                                Play(contentId);
+                            }
+                            else if (item is IVideoContent playlistItem)
+                            {
+                                Play(playlistItem);
+                            }
                         }
-                        else if (item is IVideoContent playlistItem)
+                        catch (Exception e)
                         {
-                            Play(playlistItem);
+                            ErrorTrackingManager.TrackError(e);
                         }
                     },
                     item => item is string || item is IVideoContent

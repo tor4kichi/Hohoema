@@ -200,24 +200,33 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 return _TogglePlayPauseCommand
                     ?? (_TogglePlayPauseCommand = new DelegateCommand(async () =>
                     {
-                        var session = _mediaPlayer.PlaybackSession;
-                        if (_mediaPlayer.Source == null 
-                        || session.PlaybackState == MediaPlaybackState.None)
+                        try
                         {
-                            if (session.NaturalDuration - _prevPosition < TimeSpan.FromSeconds(1))
-                            {
-                                _prevPosition = TimeSpan.Zero;
-                            }
 
-                            await PlayAsync(startPosition: _prevPosition ?? TimeSpan.Zero);
+
+                            var session = _mediaPlayer.PlaybackSession;
+                            if (_mediaPlayer.Source == null
+                            || session.PlaybackState == MediaPlaybackState.None)
+                            {
+                                if (session.NaturalDuration - _prevPosition < TimeSpan.FromSeconds(1))
+                                {
+                                    _prevPosition = TimeSpan.Zero;
+                                }
+
+                                await PlayAsync(startPosition: _prevPosition ?? TimeSpan.Zero);
+                            }
+                            else if (session.PlaybackState == MediaPlaybackState.Playing)
+                            {
+                                _mediaPlayer.Pause();
+                            }
+                            else if (session.PlaybackState == MediaPlaybackState.Paused)
+                            {
+                                _mediaPlayer.Play();
+                            }
                         }
-                        else if (session.PlaybackState == MediaPlaybackState.Playing)
+                        catch (Exception e)
                         {
-                            _mediaPlayer.Pause();
-                        }
-                        else if (session.PlaybackState == MediaPlaybackState.Paused)
-                        {
-                            _mediaPlayer.Play();
+                            ErrorTrackingManager.TrackError(e);
                         }
                     }));
             }
@@ -231,10 +240,17 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 return _ChangePlayQualityCommand
                     ?? (_ChangePlayQualityCommand = new DelegateCommand<object>(async (parameter) =>
                     {
-                        if (parameter is NicoVideoQualityEntity content)
+                        try
                         {
-                            await PlayAsync(content.Quality, _mediaPlayer.PlaybackSession.Position);
-                            _playerSettings.DefaultVideoQuality = content.Quality;
+                            if (parameter is NicoVideoQualityEntity content)
+                            {
+                                await PlayAsync(content.Quality, _mediaPlayer.PlaybackSession.Position);
+                                _playerSettings.DefaultVideoQuality = content.Quality;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            ErrorTrackingManager.TrackError(e);
                         }
                     }
                     ));
