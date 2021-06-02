@@ -9,20 +9,15 @@ namespace NiconicoToolkit.Video.Watch.Dmc
 {
     public class DmcSessionResponse
     {
-
         [JsonPropertyName("meta")]
-        public Meta Meta { get; set; }
+        public DmcSessionResponseMeta Meta { get; set; }
 
         [JsonPropertyName("data")]
         public Data Data { get; set; }
     }
 
-    public class Meta
+    public class DmcSessionResponseMeta : Meta
     {
-
-        [JsonPropertyName("status")]
-        public int Status { get; set; }
-
         [JsonPropertyName("message")]
         public string Message { get; set; }
     }

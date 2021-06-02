@@ -625,7 +625,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
             if (_navigationCancellationToken.IsCancellationRequested) { return; }
 
-            if (res?.Meta.IsOK ?? false)
+            if (res?.IsSuccess ?? false)
             {
                 List<VideoListItemControlViewModel> items = new List<VideoListItemControlViewModel>();
 
