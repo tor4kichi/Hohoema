@@ -96,7 +96,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
             mylistGroups.Add(defaultMylist);
 
-            var res = await NiconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistGroupsAsync();
+            var res = await NiconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistGroupsAsync(sampleItemCount: 1);
 
             if (res.Meta.Status != 200)
             {

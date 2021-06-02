@@ -99,7 +99,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
         public async Task<List<MylistPlaylist>> GetMylistsByUser(string userId)
         {
-            var groups = await NiconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId);
+            var groups = await NiconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId, 1);
 
             if (groups == null) { return null; }
 

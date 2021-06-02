@@ -43,9 +43,9 @@ namespace NiconicoToolkit.Mylist.LoginUser
 
         }
 
-        public Task<LoginUserMylistsResponse> GetMylistGroupsAsync()
+        public Task<LoginUserMylistsResponse> GetMylistGroupsAsync(int sampleItemCount = 0)
         {
-            return _context.GetJsonAsAsync<LoginUserMylistsResponse>("https://nvapi.nicovideo.jp/v1/users/me/mylists", _defaultOptions);
+            return _context.GetJsonAsAsync<LoginUserMylistsResponse>($"https://nvapi.nicovideo.jp/v1/users/me/mylists?sampleItemCount={sampleItemCount}", _defaultOptions);
         }
 
 
