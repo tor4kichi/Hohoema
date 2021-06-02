@@ -24,7 +24,7 @@ namespace NiconicoToolkit.UWP.Test.Tests
         {
             var res = await _context.Activity.VideoWachHistory.GetWatchHistoryAsync(0, 100);
 
-            Assert.IsTrue(res.Meta.IsOK);
+            Assert.IsTrue(res.Meta.IsSuccess);
 
             if (res.Data.Items.Length > 0)
             {

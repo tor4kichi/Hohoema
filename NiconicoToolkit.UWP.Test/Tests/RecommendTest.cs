@@ -22,7 +22,7 @@ namespace NiconicoToolkit.UWP.Test.Tests
 
         void TestRecommendResponse(VideoRecommendResponse res)
         {
-            Assert.IsTrue(res.Meta.IsOK);
+            Assert.IsTrue(res.Meta.IsSuccess);
 
             Assert.IsNotNull(res.Data.Recipe);
             Assert.IsNotNull(res.Data.RecommendId);
