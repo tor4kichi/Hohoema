@@ -1,5 +1,5 @@
 ﻿using Mntone.Nico2.Mylist.MylistGroup;
-using Mntone.Nico2.Users.Mylist;
+using NiconicoToolkit.Mylist;
 using Hohoema.Database;
 
 using Hohoema.Models.Domain.Niconico.Video;
@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using I18NPortable;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist
 {
@@ -41,61 +42,47 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
 
 
-        private async Task<Mntone.Nico2.Users.Mylist.Mylist> GetMylistGroupDetail(string mylistGroupid)
+        private async Task<IMylistItem> GetMylistGroupDetail(string mylistGroupid)
         {
             if (mylistGroupid == "0")
             {
-                var res = await ContextActionAsync(context =>
-                {
-                    return context.User.GetWatchAfterMylistGroupItemsAsync(Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Asc, 1, 0);
-                });
-
-                return new Mntone.Nico2.Users.Mylist.Mylist()
-                {
-                    Id = int.Parse(mylistGroupid),
-                    ItemsCount = res.Data.Mylist.TotalItemCount,
-                };
+                throw new NotSupportedException();
             }
             else
             {
-                var res = await ContextActionAsync(context =>
-                {
-                    return context.User.GetMylistGroupItemsAsync(int.Parse(mylistGroupid), Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Asc, 2, 0);
-                });
+                var res = await NiconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistGroupid, 0, 1);
+                
+                if (res.Data?.Mylist != null) { return res.Data.Mylist; }
 
-                if (res.Meta.Status != 200)
-                {
-                    res = await ContextActionAsync(context =>
-                    {
-                        return context.User.GetLoginUserMylistGroupItemsAsync(int.Parse(mylistGroupid), Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Asc, 1, 0);
-                    });
-                }
+                res = await NiconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylistGroupid, 0, 1);
 
-                return res.Data.Mylist;
+                return res.Data?.Mylist;
             }
         }
 
         public async Task<MylistPlaylist> GetMylist(string mylistGroupId)
         {
-            var detail = await GetMylistGroupDetail(mylistGroupId);
-
             if (mylistGroupId == "0")
             {
-                var mylist = new MylistPlaylist(detail.Id.ToString(), this)
+                var res = await NiconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync(0, 1);
+                var detail = res.Data.Mylist;
+                var mylist = new MylistPlaylist(mylistGroupId, this)
                 {
-                    Label = detail.Name ?? "WatchAfterMylist".Translate(),
+                    Label = "WatchAfterMylist".Translate(),
                     Count = (int)detail.TotalItemCount,
                     IsPublic = true,
-                    ThumbnailImages = detail.SampleItems?.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
+                    ThumbnailImages = detail.Items?.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
                 };
                 return mylist;
             }
             else
             {
+                var detail = await GetMylistGroupDetail(mylistGroupId);
+
                 var mylist = new MylistPlaylist(detail.Id.ToString(), this)
                 {
                     Label = detail.Name,
-                    Count = (int)detail.TotalItemCount,
+                    Count = (int)detail.ItemsCount,
                     CreateTime = detail.CreatedAt.DateTime,
                     //DefaultSortOrder = ,
                     IsPublic = detail.IsPublic,
@@ -112,19 +99,16 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
         public async Task<List<MylistPlaylist>> GetMylistsByUser(string userId)
         {
-            var groups = await ContextActionWithPageAccessWaitAsync(context =>
-            {
-                return context.User.GetMylistGroupsAsync(int.Parse(userId));
-            });
+            var groups = await NiconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId);
 
             if (groups == null) { return null; }
 
-            var list = groups.Data.Mylists.Select((x, i) =>
+            var list = groups.Data.MylistGroups.Select((x, i) =>
             {
                 return new MylistPlaylist(x.Id.ToString(), this)
                 {
                     Label = x.Name,
-                    Count = (int)(x.ItemsCount == 0 ? x.TotalItemCount : x.ItemsCount),
+                    Count = (int)x.ItemsCount,
                     SortIndex = i,
                     UserId = x.Owner.Id,
                     Description = x.Description,
@@ -146,7 +130,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
         {
             var res = await ContextActionAsync(async context =>
             {
-                return await context.User.GetMylistGroupItemsAsync(int.Parse(mylistId), sortKey, sortOrder, pageSize, page);
+                return await NiconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, (int)page, (int)pageSize, sortKey, sortOrder);
             });
             
             if (res.Meta.Status != 200) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }

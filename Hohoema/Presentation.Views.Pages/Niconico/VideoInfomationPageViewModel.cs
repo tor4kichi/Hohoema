@@ -36,7 +36,6 @@ using Windows.UI.Xaml;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.Domain.Notification;
-using NiconicoToolkit.Nvapi;
 using Hohoema.Models.Domain.Niconico.Recommend;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico;
@@ -46,6 +45,7 @@ using Hohoema.Presentation.ViewModels.VideoCache.Commands;
 using System.Threading;
 using Uno.Disposables;
 using NiconicoToolkit.Video.Watch;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
@@ -471,17 +471,23 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                         throw new Models.Infrastructure.HohoemaExpception();
                     }
 
-                    VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(videoId);
+                    VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(videoId, true);
                     
-                    FollowContext = VideoInfo.ProviderType switch
-                    {
-                        NicoVideoUserType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, VideoInfo.Owner),
-                        NicoVideoUserType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, VideoInfo.Owner),
-                        _ => null
-                    };
-
+                    
 
                     await UpdateVideoDescription();
+
+                    if (NiconicoSession.IsLoggedIn)
+                    {
+                        VideoInfo.Owner.ScreenName = VideoDetails.ProviderName;
+                        FollowContext = VideoInfo.ProviderType switch
+                        {
+                            NicoVideoUserType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, VideoInfo.Owner),
+                            NicoVideoUserType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, VideoInfo.Owner),
+                            _ => null
+                        };
+                    }
+
 
                     /*
                     await Task.WhenAll(
@@ -625,7 +631,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
             if (_navigationCancellationToken.IsCancellationRequested) { return; }
 
-            if (res?.Meta.IsOK ?? false)
+            if (res?.IsSuccess ?? false)
             {
                 List<VideoListItemControlViewModel> items = new List<VideoListItemControlViewModel>();
 

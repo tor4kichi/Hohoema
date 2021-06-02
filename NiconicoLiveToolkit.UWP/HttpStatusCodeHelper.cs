@@ -12,5 +12,10 @@ namespace NiconicoToolkit
         {
             return ((int)statusCode >= 200) && ((int)statusCode <= 299);
         }
+
+        public static bool IsSuccessStatusCode(long statusCode)
+        {
+            return ((int)statusCode >= 200) && ((int)statusCode <= 299);
+        }
     }
 }

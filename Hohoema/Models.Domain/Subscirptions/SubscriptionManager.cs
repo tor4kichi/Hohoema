@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Uno;
+using NiconicoToolkit.Mylist;
 
 namespace Hohoema.Models.Domain.Subscriptions
 {
@@ -379,7 +380,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             List<NicoVideo> items = new List<NicoVideo>();
             uint page = 0;
             const uint itemGetCountPerPage = 50;
-            var result = await mylistProvider.GetMylistVideoItems(mylistId, Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Desc, itemGetCountPerPage, page);
+            var result = await mylistProvider.GetMylistVideoItems(mylistId, MylistSortKey.AddedAt, MylistSortOrder.Desc, itemGetCountPerPage, page);
 
             var videoItems = result.Items;
             var currentItemsCount = videoItems?.Count ?? 0;

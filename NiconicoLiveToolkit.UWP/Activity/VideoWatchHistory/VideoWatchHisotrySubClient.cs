@@ -1,5 +1,4 @@
-﻿using NiconicoToolkit.Nvapi;
-using NiconicoToolkit.Video;
+﻿using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -85,19 +84,12 @@ namespace NiconicoToolkit.Activity.VideoWatchHistory
         }
     }
 
-    public class VideoWatchHistoryDeleteResult
+    public class VideoWatchHistoryDeleteResult : ResponseWithMeta
     {
-        [JsonPropertyName("meta")]
-        public VideoWatchHistory.VideoWatchHistoryMeta Meta { get; set; }
-
-        public bool IsOK => Meta.IsOK;
     }
 
-    public class VideoWatchHistory
+    public class VideoWatchHistory : ResponseWithMeta
     {
-        [JsonPropertyName("meta")]
-        public VideoWatchHistoryMeta Meta { get; set; }
-
         [JsonPropertyName("data")]
         public VideoWatchHistoryData Data { get; set; }
 
@@ -131,18 +123,5 @@ namespace NiconicoToolkit.Activity.VideoWatchHistory
             [JsonPropertyName("video")]
             public NvapiVideoItem Video { get; set; }
         }
-
-        
-        public class VideoWatchHistoryMeta
-        {
-            [JsonPropertyName("status")]
-            public long Status { get; set; }
-
-
-            public bool IsOK => Status == 200;
-        }
-
     }
-
-    
 }

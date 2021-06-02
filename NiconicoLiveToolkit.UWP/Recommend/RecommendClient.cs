@@ -1,4 +1,4 @@
-﻿using NiconicoToolkit.Nvapi;
+﻿using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
@@ -59,19 +59,8 @@ namespace NiconicoToolkit.Recommend
         public object Meta { get; set; }
     }
 
-    public partial class VideoRecommendMeta
+    public class VideoRecommendResponse : ResponseWithMeta
     {
-        [JsonPropertyName("status")]
-        public long Status { get; set; }
-
-
-        public bool IsOK => Status == 200;
-    }
-    public class VideoRecommendResponse
-    {
-        [JsonPropertyName("meta")]
-        public VideoRecommendMeta Meta { get; set; }
-
         [JsonPropertyName("data")]
         public VideoRecommendData Data { get; set; }
     }

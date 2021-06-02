@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.Domain.Niconico.Follow;
-using Mntone.Nico2.Users.Follow;
 using Hohoema.Models.Domain.Niconico;
+using NiconicoToolkit.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {

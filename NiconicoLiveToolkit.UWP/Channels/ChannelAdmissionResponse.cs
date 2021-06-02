@@ -7,11 +7,8 @@ using System.Threading.Tasks;
 
 namespace NiconicoToolkit.Channels
 {
-    public partial class ChannelAdmissionResponse
+    public partial class ChannelAdmissionResponse : ResponseWithMeta
     {
-        [JsonPropertyName("meta")]
-        public ChannelAdmissionMeta Meta { get; set; }
-
         [JsonPropertyName("data")]
         public ChannelAdmissionData Data { get; set; }
     }
@@ -143,11 +140,5 @@ namespace NiconicoToolkit.Channels
 
         [JsonPropertyName("isGravureChannel")]
         public bool IsGravureChannel { get; set; }
-    }
-
-    public partial class ChannelAdmissionMeta
-    {
-        [JsonPropertyName("status")]
-        public long Status { get; set; }
     }
 }

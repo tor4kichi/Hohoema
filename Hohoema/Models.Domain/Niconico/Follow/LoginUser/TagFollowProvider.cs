@@ -1,12 +1,12 @@
-﻿using Mntone.Nico2;
-using Mntone.Nico2.Users.Follow;
-using Hohoema.Models.Infrastructure;
+﻿using Hohoema.Models.Infrastructure;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using Hohoema.Models.Domain.Niconico.Video;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using NiconicoToolkit.Follow;
+using NiconicoToolkit.Account;
 
 namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 {
@@ -54,10 +54,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return new List<FollowTagsResponse.Tag>();
             }
 
-            var res = await ContextActionWithPageAccessWaitAsync(context =>
-            {
-                return context.User.GetFollowTagsAsync();
-            });
+            var res = await NiconicoSession.ToolkitContext.Follow.Tag.GetFollowTagsAsync();
 
             return res.Data.Tags;
         }
@@ -73,7 +70,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
             var result = await ContextActionAsync(context =>
             {
-                return context.User.AddFollowTagAsync(tag.Tag);
+                return NiconicoSession.ToolkitContext.Follow.Tag.AddFollowTagAsync(tag.Tag);
             });
 
             if (result is ContentManageResult.Success or ContentManageResult.Exist)
@@ -98,7 +95,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
             var result = await ContextActionAsync(context =>
             {
-                return context.User.RemoveFollowTagAsync(tag.Tag);
+                return NiconicoSession.ToolkitContext.Follow.Tag.RemoveFollowTagAsync(tag.Tag);
             });
 
             if (result is ContentManageResult.Success)

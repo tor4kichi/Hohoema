@@ -27,6 +27,7 @@ using Uno.Extensions;
 using Windows.UI.Popups;
 using Windows.System;
 using Microsoft.Toolkit.Uwp;
+using NiconicoToolkit.Mylist;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 {
@@ -85,8 +86,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                     Name = "",
                     Description = "",
                     IsPublic = false,
-                    DefaultSortKey = Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt,
-                    DefaultSortOrder = Mntone.Nico2.Users.Mylist.MylistSortOrder.Desc
+                    DefaultSortKey = MylistSortKey.AddedAt,
+                    DefaultSortOrder = MylistSortOrder.Desc
                 };
 
                 // 成功するかキャンセルが押されるまで繰り返す

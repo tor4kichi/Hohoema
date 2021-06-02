@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
 using Hohoema.Models.Domain.Niconico.Community;
+using NiconicoToolkit.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
@@ -21,7 +22,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
         }
 
         bool isTailReached;
-        private Mntone.Nico2.Users.Follow.UserOwnedCommunityResponse _ownedCommunities;
+        private UserOwnedCommunityResponse _ownedCommunities;
         HashSet<string> _OwnedCommunitiesIdHashSet;
         public override async Task<IEnumerable<ICommunity>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
         {
@@ -35,7 +36,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
                 if (_loginUserId != 0)
                 {
                     _ownedCommunities = await _communityFollowProvider.GetUserOwnedCommunitiesAsync(_loginUserId);
-                    _OwnedCommunitiesIdHashSet = _ownedCommunities.Data.OwnedCommunities.Select(x => x.Id).ToHashSet();
+                    _OwnedCommunitiesIdHashSet = _ownedCommunities.Data.OwnedCommunities.Select(x => x.Id.ToString()).ToHashSet();
                 }
             }
 
@@ -49,7 +50,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
             if (pageIndex == 0)
             {
-                return Enumerable.Concat(
+                return Enumerable.Concat<IFollowCommunity>(
                     _ownedCommunities.Data.OwnedCommunities,
                     res.Data.Where(x => !_OwnedCommunitiesIdHashSet.Contains(x.GlobalId))
                     )

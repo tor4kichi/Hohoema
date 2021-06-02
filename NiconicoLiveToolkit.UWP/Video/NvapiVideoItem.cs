@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 
 
-namespace NiconicoToolkit.Nvapi
+namespace NiconicoToolkit.Video
 {
     public class NvapiVideoItem
     {

@@ -7,16 +7,13 @@ using System.Text.Json.Serialization;
 namespace NiconicoToolkit.Live.Cas
 {
 
-    public partial class LiveProgramResponse
+    public sealed class LiveProgramResponse : ResponseWithMeta
     {
-        [JsonPropertyName("meta")]
-        public Meta Meta { get; set; }
-
         [JsonPropertyName("data")]
         public Data Data { get; set; }
     }
 
-    public partial class Data
+    public sealed class Data
     {
         [JsonPropertyName("id")]
         public string Id { get; set; }
@@ -150,7 +147,7 @@ namespace NiconicoToolkit.Live.Cas
         public Uri PurchaseUrl { get; set; }
     }
 
-    public partial class BroadcastStreamSettings
+    public sealed class BroadcastStreamSettings
     {
         [JsonPropertyName("maxQuality")]
         public string MaxQuality { get; set; }
@@ -159,7 +156,7 @@ namespace NiconicoToolkit.Live.Cas
         public bool IsPortrait { get; set; }
     }
 
-    public partial class DeviceFilter
+    public sealed class DeviceFilter
     {
         [JsonPropertyName("isPlayable")]
         public bool IsPlayable { get; set; }
@@ -174,7 +171,7 @@ namespace NiconicoToolkit.Live.Cas
         public bool IsChasePlayable { get; set; }
     }
 
-    public partial class Function
+    public sealed class Function
     {
         [JsonPropertyName("type")]
         public string Type { get; set; }
@@ -186,7 +183,7 @@ namespace NiconicoToolkit.Live.Cas
         public string Permission { get; set; }
     }
 
-    public partial class Time
+    public sealed class Time
     {
         [JsonPropertyName("beginAt")]
         public DateTimeOffset BeginAt { get; set; }
@@ -195,7 +192,7 @@ namespace NiconicoToolkit.Live.Cas
         public DateTimeOffset EndAt { get; set; }
     }
 
-    public partial class Tag
+    public sealed class Tag
     {
         [JsonPropertyName("text")]
         public string Text { get; set; }
@@ -215,7 +212,7 @@ namespace NiconicoToolkit.Live.Cas
         public bool IsExistNicopedia { get; set; }
     }
 
-    public partial class Timeshift
+    public sealed class Timeshift
     {
         [JsonPropertyName("enabled")]
         public bool Enabled { get; set; }
@@ -223,12 +220,6 @@ namespace NiconicoToolkit.Live.Cas
         // Note: SnakeCase 
         [JsonPropertyName("status")]
         public TimeshiftStatus Status { get; set; }
-    }
-
-    public partial class Meta
-    {
-        [JsonPropertyName("status")]
-        public long Status { get; set; }
     }
 
     /// <summary>

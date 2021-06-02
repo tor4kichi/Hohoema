@@ -60,8 +60,7 @@
 
               <AppBarToggleButton x:Name="ChannelFollowButton"
                                     Background="Transparent"
-                                    IsChecked="{Binding FollowContext.IsFollowing}"
-                                    Command="{Binding FollowContext.ToggleFollowCommand}"
+                                    IsChecked="{Binding FollowContext.IsFollowing, Mode=TwoWay}"
                                     IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" 
                                     Icon="Favorite"
                                     Label="{i18nExt:Localize Key=Follow}"

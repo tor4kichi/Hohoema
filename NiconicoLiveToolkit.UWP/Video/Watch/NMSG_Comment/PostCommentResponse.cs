@@ -17,7 +17,7 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
 
         [JsonPropertyName("no")]
         [JsonConverter(typeof(LongToStringConverter))]
-        public long No { get; set; }
+        public long? No { get; set; }
     }
 
     public class PostCommentResponse

@@ -24,7 +24,7 @@
             <controls:AppTitleBar Title="{Binding Title}" />
           </CommandBar.Content>
 
-          <AppBarToggleButton x:Name="UserFollowButton" Background="Transparent" IsChecked="{Binding FollowContext.IsFollowing}" Command="{Binding FollowContext.ToggleFollowCommand}" IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" Icon="Favorite" Label="フォロー" />
+          <AppBarToggleButton x:Name="UserFollowButton" Background="Transparent" IsChecked="{Binding FollowContext.IsFollowing, Mode=TwoWay}" IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" Icon="Favorite" Label="フォロー" />
           <AppBarButton x:Name="FeedRegstrationButton" Label="購読に追加" Icon="Add" Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}"
                         Command="{Binding AddSubscriptionCommand}"
                         CommandParameter="{Binding}"

@@ -1,6 +1,4 @@
-﻿using Mntone.Nico2;
-using Mntone.Nico2.Users.Follow;
-using Hohoema.Models.Infrastructure;
+﻿using Hohoema.Models.Infrastructure;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
@@ -8,6 +6,8 @@ using System;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using NiconicoToolkit.Follow;
+using NiconicoToolkit.Account;
 
 namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 {
@@ -55,10 +55,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             }
 
 
-            return await ContextActionWithPageAccessWaitAsync(context =>
-            {
-                return context.User.GetFollowMylistsAsync(sampleItemsCount);
-            });
+            return await NiconicoSession.ToolkitContext.Follow.Mylist.GetFollowMylistsAsync(sampleItemsCount);
         }
 
         public async Task<ContentManageResult> AddFollowAsync(IMylist mylist)
@@ -68,10 +65,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Failed;
             }
 
-            var result = await ContextActionAsync(async context =>
-            {
-                return await context.User.AddFollowMylistAsync(mylist.Id);
-            });
+            var result = await NiconicoSession.ToolkitContext.Follow.Mylist.AddFollowMylistAsync(mylist.Id);
 
             if (result is ContentManageResult.Success or ContentManageResult.Exist)
             {
@@ -93,10 +87,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Exist; 
             }
 
-            var result = await ContextActionAsync(async context =>
-            {
-                return await context.User.RemoveFollowMylistAsync(mylist.Id);
-            });
+            var result = await NiconicoSession.ToolkitContext.Follow.Mylist.RemoveFollowMylistAsync(mylist.Id);
 
             if (result is ContentManageResult.Success)
             {

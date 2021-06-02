@@ -1,10 +1,11 @@
-﻿using NiconicoToolkit.Video;
+﻿using NiconicoToolkit.Mylist;
+using NiconicoToolkit.Video;
 using System;
 using System.Text.Json.Serialization;
 
-namespace NiconicoToolkit.Nvapi
+namespace NiconicoToolkit.Mylist
 {
-    public class NvapiMylistItem
+    public sealed class NvapiMylistItem : IMylistItem
     {
         [JsonPropertyName("id")]
         public long Id { get; set; }
@@ -19,10 +20,10 @@ namespace NiconicoToolkit.Nvapi
         public string Description { get; set; }
 
         [JsonPropertyName("defaultSortKey")]
-        public string DefaultSortKey { get; set; }
+        public MylistSortKey DefaultSortKey { get; set; }
 
         [JsonPropertyName("defaultSortOrder")]
-        public string DefaultSortOrder { get; set; }
+        public MylistSortOrder DefaultSortOrder { get; set; }
 
         [JsonPropertyName("itemsCount")]
         public long ItemsCount { get; set; }
@@ -31,7 +32,7 @@ namespace NiconicoToolkit.Nvapi
         public Owner Owner { get; set; }
 
         [JsonPropertyName("sampleItems")]
-        public SampleItem[] SampleItems { get; set; }
+        public MylistItem[] SampleItems { get; set; }
 
         [JsonPropertyName("followerCount")]
         public long FollowerCount { get; set; }
@@ -44,7 +45,7 @@ namespace NiconicoToolkit.Nvapi
     }
 
 
-    public partial class SampleItem
+    public sealed class MylistItem
     {
         [JsonPropertyName("itemId")]
         public long ItemId { get; set; }
@@ -63,6 +64,8 @@ namespace NiconicoToolkit.Nvapi
 
         [JsonPropertyName("video")]
         public NvapiVideoItem Video { get; set; }
+
+        public bool IsDeleted => Status == "deleted";
     }
 
 }

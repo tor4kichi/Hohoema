@@ -30,7 +30,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
             TotalCount = res.Data.Mylists.Count;
             MaxCount = res.Data.FollowLimit;
-            return res.Data.Mylists.Select(x => new FollowMylistViewModel(x));
+            return res.Data.Mylists.Select(x => new FollowMylistViewModel(x.Detail));
         }
     }
 }

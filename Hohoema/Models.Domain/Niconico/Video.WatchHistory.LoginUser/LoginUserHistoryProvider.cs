@@ -31,7 +31,7 @@ namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
 
             var res = await NiconicoSession.ToolkitContext.Activity.VideoWachHistory.GetWatchHistoryAsync(0, 100);
 
-            if (res.Meta.IsOK is false) { throw new HohoemaExpception("Failed get login user video watch history"); }
+            if (res.Meta.IsSuccess is false) { throw new HohoemaExpception("Failed get login user video watch history"); }
 
             foreach (var history in res.Data.Items)
             {
@@ -45,19 +45,19 @@ namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
         public async Task<bool> RemoveAllHistoriesAsync()
         {
             var res = await NiconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteAllWatchHistoriesAsync();
-            return res.IsOK;
+            return res.IsSuccess;
         }
 
         public async Task<bool> RemoveHistoryAsync(string videoId)
         {
             var res = await NiconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteWatchHistoriesAsync(videoId);
-            return res.IsOK;
+            return res.IsSuccess;
         }
 
         public async Task<bool> RemoveHistoryAsync(IEnumerable<string> videoIdList)
         {
             var res = await NiconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteWatchHistoriesAsync(videoIdList);
-            return res.IsOK;
+            return res.IsSuccess;
         }
     }
 

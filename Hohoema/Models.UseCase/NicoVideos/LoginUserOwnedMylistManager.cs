@@ -3,7 +3,7 @@ using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Presentation.Services;
 using I18NPortable;
-using Mntone.Nico2.Users.Mylist;
+using NiconicoToolkit.Mylist;
 using Prism.Mvvm;
 using System;
 using System.Collections.ObjectModel;
@@ -37,23 +37,37 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
             _niconicoSession.LogIn += async (_, e) =>
             {
-                using (await _mylistSyncLock.LockAsync(default))
+                try
                 {
-                    IsLoginUserMylistReady = false;
+                    using (await _mylistSyncLock.LockAsync(default))
+                    {
+                        IsLoginUserMylistReady = false;
 
-                    await SyncMylistGroups();
+                        await SyncMylistGroups();
 
-                    IsLoginUserMylistReady = true;
+                        IsLoginUserMylistReady = true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ErrorTrackingManager.TrackError(ex);
                 }
             };
 
             _niconicoSession.LogOut += async (_, e) =>
             {
-                using (await _mylistSyncLock.LockAsync(default))
+                try
                 {
-                    IsLoginUserMylistReady = false;
+                    using (await _mylistSyncLock.LockAsync(default))
+                    {
+                        IsLoginUserMylistReady = false;
 
-                    _mylists.Clear();
+                        _mylists.Clear();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ErrorTrackingManager.TrackError(ex);
                 }
             };
         }

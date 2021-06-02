@@ -41,16 +41,13 @@ namespace NiconicoToolkit.Live.Notify
     }
     
 
-    public partial class LiveNotifyUnreadResponse
+    public sealed class LiveNotifyUnreadResponse : ResponseWithMeta
     {
-        [J("meta")]
-        public LiveNotifyUnreadMeta Meta { get; set; }
-
         [J("data")]
         public LiveNotifyUnreadData Data { get; set; }
     }
 
-    public partial class LiveNotifyUnreadData
+    public sealed class LiveNotifyUnreadData
     {
         [J("count")]
         public long Count { get; set; }
@@ -59,24 +56,14 @@ namespace NiconicoToolkit.Live.Notify
         public bool IsUnread { get; set; }
     }
 
-    public partial class LiveNotifyUnreadMeta
+
+    public sealed class LiveNotifyContentResponse : ResponseWithMeta
     {
-        [J("status")]
-        public long Status { get; set; }
-    }
-
-
-
-    public partial class LiveNotifyContentResponse
-    {
-        [J("meta")]
-        public LiveNotifyMeta Meta { get; set; }
-
         [J("data")]
         public LiveNotifyData Data { get; set; }
     }
 
-    public partial class LiveNotifyData
+    public sealed class LiveNotifyData
     {
         [J("notifybox_content")]
         public NotifyboxContent[] NotifyboxContent { get; set; }
@@ -85,7 +72,7 @@ namespace NiconicoToolkit.Live.Notify
         public long TotalPage { get; set; }
     }
 
-    public partial class NotifyboxContent
+    public sealed class NotifyboxContent
     {
         [J("id")]
         public string Id { get; set; }
@@ -107,11 +94,5 @@ namespace NiconicoToolkit.Live.Notify
 
         [J("provider_type")]
         public ProviderType ProviderType { get; set; }
-    }
-
-    public partial class LiveNotifyMeta
-    {
-        [J("status")]
-        public long Status { get; set; }
     }
 }

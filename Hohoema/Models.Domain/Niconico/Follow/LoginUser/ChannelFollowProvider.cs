@@ -1,12 +1,12 @@
-﻿using Mntone.Nico2;
-using Mntone.Nico2.Users.Follow;
-using Hohoema.Models.Infrastructure;
+﻿using Hohoema.Models.Infrastructure;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using Hohoema.Models.Domain.Niconico.Channel;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using NiconicoToolkit.Account;
+using NiconicoToolkit.Follow;
 
 namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 {
@@ -48,17 +48,14 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             _messenger = messenger;
         }
 
-        public async Task<FollowChannelResponse> GetChannelsAsync(uint pageSize, uint offset)
+        public async Task<FollowChannelResponse> GetChannelsAsync(uint offset, uint pageSize)
         {
             if (!NiconicoSession.IsLoggedIn)
             {
                 throw new InvalidOperationException();
             }
 
-            return await ContextActionWithPageAccessWaitAsync(context =>
-            {
-                return context.User.GetFollowChannelAsync(pageSize, offset);
-            });
+            return await NiconicoSession.ToolkitContext.Follow.Channel.GetFollowChannelAsync(offset, pageSize);
         }
 
         public Task<bool> IsFollowingAsync(IChannel channel) => IsFollowingAsync(channel.Id);
@@ -70,10 +67,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Failed;
             }
 
-            var result = await ContextActionAsync(async context =>
-            {
-                return await context.User.AddFollowChannelAsync(channel.Id);
-            });
+            var result = await NiconicoSession.ToolkitContext.Follow.Channel.AddFollowChannelAsync(channel.Id);
 
             if (result.IsSucceed)
             {
@@ -96,10 +90,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Exist; 
             }
 
-            var result = await ContextActionAsync(async context =>
-            {
-                return await context.User.DeleteFollowChannelAsync(channel.Id);
-            });
+            var result = await NiconicoSession.ToolkitContext.Follow.Channel.DeleteFollowChannelAsync(channel.Id);
 
             if (result.IsSucceed)
             {
@@ -112,44 +103,29 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public async Task<bool> IsFollowingAsync(string channelId)
         {
-            var res = await ContextActionAsync(async context =>
-            {
-                var channelInfo = await context.Channel.GetChannelInfo(channelId);
-                return await context.User.GetChannelAuthorityAsync((uint)channelInfo.ChannelId);
-            });
+            var channelInfo = await NiconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
+            var res = await NiconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync((uint)channelInfo.ChannelId);
 
             return res.Data?.Session?.IsFollowing ?? false;
         }
 
         public async Task<bool> IsFollowingAsync(uint numberId)
         {
-            var res = await ContextActionAsync(async context =>
-            {
-                return await context.User.GetChannelAuthorityAsync(numberId);
-            });
+            var res = await NiconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync(numberId);
 
             return res.Data?.Session?.IsFollowing ?? false;
         }
 
         public async Task<ChannelAuthorityResponse> GetChannelAuthorityAsync(uint numberId)
         {
-            var res = await ContextActionAsync(async context =>
-            {
-                return await context.User.GetChannelAuthorityAsync(numberId);
-            });
-
-            return res;
+            return await NiconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync(numberId);
         }
 
         public async Task<ChannelAuthorityResponse> GetChannelAuthorityAsync(string channelScreenName)
         {
-            var res = await ContextActionAsync(async context =>
-            {
-                var channelInfo = await context.Channel.GetChannelInfo(channelScreenName);                
-                return await context.User.GetChannelAuthorityAsync((uint)channelInfo.ChannelId);
-            });
+            var channelInfo = await NiconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelScreenName);
+            return await NiconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync((uint)channelInfo.ChannelId);
 
-            return res;
         }
     }
 
