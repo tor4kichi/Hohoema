@@ -238,14 +238,14 @@ namespace NiconicoToolkit.Follow
 
                 var res = await _context.GetAsync(isScreenName
                     ? $"http://ch.nicovideo.jp/{channelId}"
-                    : $"http://ch.nicovideo.jp/channels/{channelId}"
+                    : $"http://ch.nicovideo.jp/channel/{channelId}"
                     );
 
                 var htmlParser = new HtmlParser();
 
                 using var stream = await res.Content.ReadAsInputStreamAsync();
                 using var document = await htmlParser.ParseDocumentAsync(stream.AsStreamForRead());
-                var bookmarkAnchorNode = document.QuerySelector(".bookmark");
+                var bookmarkAnchorNode = document.QuerySelector("#head_cp_menu > div > div > div:nth-child(1) > a");
                 return new ChannelFollowApiInfo()
                 {
                     AddApi = bookmarkAnchorNode.Attributes["api_add"].Value,
@@ -456,7 +456,7 @@ namespace NiconicoToolkit.Follow
             await _context.PrepareCorsAsscessAsync(HttpMethod.Post, uri);
             var res = await _context.SendAsync(HttpMethod.Post, uri, content: null, headers =>
             {
-                headers.Add("X-Request-With", "https://www.nicovideo.jp/my/follow");
+                headers.Add("X-Request-With", "https://www.nicovideo.jp");
             }
             , HttpCompletionOption.ResponseHeadersRead
             );
@@ -465,10 +465,10 @@ namespace NiconicoToolkit.Follow
 
         private async Task<ContentManageResult> RemoveFollowInternalAsync(string uri)
         {
-            await _context.PrepareCorsAsscessAsync(HttpMethod.Delete, uri);
+//            await _context.PrepareCorsAsscessAsync(HttpMethod.Delete, uri);
             var res = await _context.SendAsync(HttpMethod.Delete, uri, content: null, headers =>
             {
-                headers.Add("X-Request-With", "https://www.nicovideo.jp/my/follow");
+                headers.Add("X-Request-With", "https://www.nicovideo.jp");
             }
             , HttpCompletionOption.ResponseHeadersRead
             );

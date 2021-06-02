@@ -18,6 +18,7 @@ using Uno.Threading;
 using System.Threading;
 using System.Runtime.CompilerServices;
 using NiconicoToolkit.Video.Watch;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {
@@ -105,16 +106,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
             try
             {
-                
-                
-                var res = await ContextActionAsync(async context =>
-                {
-                    using (await _ThumbnailAccessLock.LockAsync(ct))
-                    {
-                        return await VideoClient.GetVideoInfoAsync(rawVideoId);
-                    }
-                });
-                
+                var res = await VideoClient.GetVideoInfoAsync(rawVideoId);
 
                 if (res.IsOK)
                 {

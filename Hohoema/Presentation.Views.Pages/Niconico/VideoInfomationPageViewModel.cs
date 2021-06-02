@@ -471,10 +471,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                         throw new Models.Infrastructure.HohoemaExpception();
                     }
 
-                    VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(videoId);
+                    VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(videoId, true);
                     
+                    
+
+                    await UpdateVideoDescription();
+
                     if (NiconicoSession.IsLoggedIn)
                     {
+                        VideoInfo.Owner.ScreenName = VideoDetails.ProviderName;
                         FollowContext = VideoInfo.ProviderType switch
                         {
                             NicoVideoUserType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, VideoInfo.Owner),
@@ -483,8 +488,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                         };
                     }
 
-
-                    await UpdateVideoDescription();
 
                     /*
                     await Task.WhenAll(

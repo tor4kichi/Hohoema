@@ -25,11 +25,25 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         private readonly IFollowProvider<ItemType> _provider;
         private readonly ItemType _followable;
+
         private bool _IsFollowing;
         public bool IsFollowing
         {
             get => _IsFollowing;
-            private set => SetProperty(ref _IsFollowing, value);
+            set
+            {
+                if (SetProperty(ref _IsFollowing, value) && !NowChanging)
+                {
+                    if (!value)
+                    {
+                        _ = RemoveFollowAsync();
+                    }
+                    else
+                    {
+                        _ = AddFollowAsync();
+                    }
+                }
+            }
         }
 
         private bool _NowChanging;
@@ -48,7 +62,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
         {
             _provider = provider;
             _followable = followable;
-            IsFollowing = isFollowing;
+            _IsFollowing = isFollowing;
         }
 
 
@@ -65,9 +79,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             try
             {
                 var result = await _provider.AddFollowAsync(_followable);
-                if (result != ContentManageResult.Failed)
+                if (result == ContentManageResult.Failed)
                 {
-                    IsFollowing = true;
+                    IsFollowing = false;
                 }
             }
             catch (Exception e)
@@ -93,9 +107,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             try
             {
                 var result = await _provider.RemoveFollowAsync(_followable);
-                if (result == ContentManageResult.Success)
+                if (result != ContentManageResult.Success)
                 {
-                    IsFollowing = false;
+                    IsFollowing = true;
                 }
             }
             catch (Exception e)
@@ -107,19 +121,5 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
                 NowChanging = false;
             }
         }
-
-        private DelegateCommand _ToggleFollowCommand;
-        public DelegateCommand ToggleFollowCommand => _ToggleFollowCommand
-            ??= new DelegateCommand(async () =>
-            {
-                if (IsFollowing)
-                {
-                    await RemoveFollowAsync();
-                }
-                else
-                {
-                    await AddFollowAsync();
-                }
-            });
     }
 }
