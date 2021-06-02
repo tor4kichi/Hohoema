@@ -473,12 +473,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
                     VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(videoId);
                     
-                    FollowContext = VideoInfo.ProviderType switch
+                    if (NiconicoSession.IsLoggedIn)
                     {
-                        NicoVideoUserType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, VideoInfo.Owner),
-                        NicoVideoUserType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, VideoInfo.Owner),
-                        _ => null
-                    };
+                        FollowContext = VideoInfo.ProviderType switch
+                        {
+                            NicoVideoUserType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, VideoInfo.Owner),
+                            NicoVideoUserType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, VideoInfo.Owner),
+                            _ => null
+                        };
+                    }
 
 
                     await UpdateVideoDescription();
