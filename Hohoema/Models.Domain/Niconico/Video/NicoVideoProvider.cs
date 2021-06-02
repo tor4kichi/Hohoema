@@ -143,7 +143,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         info.Owner = new NicoVideoOwner()
                         {
                             OwnerId = res.Video.CommunityId,
-                            UserType = NicoVideoUserType.Channel,
+                            UserType = OwnerType.Channel,
                             IconUrl = info.Owner?.IconUrl,
                             ScreenName = info.Owner?.ScreenName,
                         };
@@ -155,7 +155,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         info.Owner = new NicoVideoOwner()
                         {
                             OwnerId = res.Video.UserId.ToString(),
-                            UserType = res.Video.ProviderType == NiconicoToolkit.Video.VideoProviderType.Regular ? NicoVideoUserType.User : NicoVideoUserType.Channel,
+                            UserType = res.Video.ProviderType == NiconicoToolkit.Video.VideoProviderType.Regular ? OwnerType.User : OwnerType.Channel,
                             IconUrl = info.Owner?.IconUrl,
                             ScreenName = info.Owner?.ScreenName,
                         };
@@ -273,7 +273,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     info.Owner = new NicoVideoOwner()
                     {
                         OwnerId = item.Video.CommunityId,
-                        UserType = NicoVideoUserType.Channel,
+                        UserType = OwnerType.Channel,
                         IconUrl = info.Owner?.IconUrl,
                         ScreenName = info.Owner?.ScreenName,
                     };
@@ -285,7 +285,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     info.Owner = new NicoVideoOwner()
                     {
                         OwnerId = item.Video.UserId.ToString(),
-                        UserType = item.Video.ProviderType ==  NiconicoToolkit.Video.VideoProviderType.Regular ? NicoVideoUserType.User : NicoVideoUserType.Channel,
+                        UserType = item.Video.ProviderType ==  NiconicoToolkit.Video.VideoProviderType.Regular ? OwnerType.User : OwnerType.Channel,
                         IconUrl = info.Owner?.IconUrl,
                         ScreenName = info.Owner?.ScreenName,
                     };
@@ -366,7 +366,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         ScreenName = res.Owner.Nickname,
                         IconUrl = res.Owner.IconUrl.OriginalString,
                         OwnerId = res.Owner.Id.ToString(),
-                        UserType = NicoVideoUserType.User
+                        UserType = OwnerType.User
                     };
 
                     _nicoVideoOwnerRepository.UpdateItem(info.Owner);
@@ -378,7 +378,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         ScreenName = res.Channel.Name,
                         IconUrl = res.Channel.Thumbnail.Url.OriginalString,
                         OwnerId = res.Channel.Id,
-                        UserType = NicoVideoUserType.Channel
+                        UserType = OwnerType.Channel
                     };
 
                     _nicoVideoOwnerRepository.UpdateItem(info.Owner);

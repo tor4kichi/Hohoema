@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Uno;
 using NiconicoToolkit.Mylist;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.Domain.Subscriptions
 {
@@ -77,11 +78,11 @@ namespace Hohoema.Models.Domain.Subscriptions
                 throw new Models.Infrastructure.HohoemaExpception("cannot resolve name for video provider from local DB.");
             }
 
-            if (video.ProviderType == NicoVideoUserType.Channel)
+            if (video.ProviderType == OwnerType.Channel)
             {                
                 return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = owner.ScreenName, SourceParameter = video.ProviderId, SourceType = SubscriptionSourceType.Channel });
             }
-            else if (video.ProviderType == NicoVideoUserType.User)
+            else if (video.ProviderType == OwnerType.User)
             {
                 return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = owner.ScreenName, SourceParameter = video.ProviderId, SourceType = SubscriptionSourceType.User });
             }
@@ -311,7 +312,7 @@ namespace Hohoema.Models.Domain.Subscriptions
                     video.Owner = video.Owner ?? new NicoVideoOwner() 
                     {
                         OwnerId = userId,
-                        UserType = NicoVideoUserType.User
+                        UserType = OwnerType.User
                     };
 
                     _nicoVideoRepository.AddOrUpdate(video);
@@ -420,8 +421,8 @@ namespace Hohoema.Models.Domain.Subscriptions
 
                     video.Owner = video.Owner ?? item.Video.ProviderType switch
                     {
-                        "channel" => new NicoVideoOwner() { OwnerId = item.Video.CommunityId, UserType = NicoVideoUserType.Channel },
-                        _ => new NicoVideoOwner() { OwnerId = item.Video.UserId, UserType = NicoVideoUserType.User }
+                        "channel" => new NicoVideoOwner() { OwnerId = item.Video.CommunityId, UserType = OwnerType.Channel },
+                        _ => new NicoVideoOwner() { OwnerId = item.Video.UserId, UserType = OwnerType.User }
                     };
                     _nicoVideoRepository.AddOrUpdate(video);
                     items.Add(video);
@@ -461,8 +462,8 @@ namespace Hohoema.Models.Domain.Subscriptions
                     video.IsDeleted = item.Video.IsDeleted;
                     video.Owner = video.Owner ?? item.Video.ProviderType switch
                     {
-                        "channel" => new NicoVideoOwner() { OwnerId = item.Video.CommunityId, UserType = NicoVideoUserType.Channel },
-                        _ => new NicoVideoOwner() { OwnerId = item.Video.UserId, UserType = NicoVideoUserType.User }
+                        "channel" => new NicoVideoOwner() { OwnerId = item.Video.CommunityId, UserType = OwnerType.Channel },
+                        _ => new NicoVideoOwner() { OwnerId = item.Video.UserId, UserType = OwnerType.User }
                     };
                     _nicoVideoRepository.AddOrUpdate(video);
                     items.Add(video);

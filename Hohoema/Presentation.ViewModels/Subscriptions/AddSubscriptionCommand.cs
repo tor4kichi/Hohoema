@@ -8,6 +8,7 @@ using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.Services;
 using I18NPortable;
 using Microsoft.AppCenter.Analytics;
+using NiconicoToolkit.Video;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -55,8 +56,8 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions
             {
                 IVideoContentProvider videoContent => videoContent.ProviderType switch
                 {
-                    NicoVideoUserType.User => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.User, default(string)),
-                    NicoVideoUserType.Channel => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.Channel, default(string)),
+                    OwnerType.User => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.User, default(string)),
+                    OwnerType.Channel => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.Channel, default(string)),
                     _ => throw new NotSupportedException()
                 },
                 IMylist mylist => (id: mylist.Id, sourceType: SubscriptionSourceType.Mylist, mylist.Label),

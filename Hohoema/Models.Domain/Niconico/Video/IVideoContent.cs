@@ -17,7 +17,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
     public interface IVideoContentProvider
     {
         string ProviderId { get; }
-        NicoVideoUserType ProviderType { get; }
+        OwnerType ProviderType { get; }
     }
 
     public interface IVideoDetail : IVideoContent, IVideoContentProvider
@@ -37,7 +37,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
     public interface IVideoDetailWritable : IVideoDetail
     {
         new string ProviderId { get; set; }
-        new NicoVideoUserType ProviderType { get; set; }
+        new OwnerType ProviderType { get; set; }
 
         new string Label { get; set; }
         new TimeSpan Length { get; set; }

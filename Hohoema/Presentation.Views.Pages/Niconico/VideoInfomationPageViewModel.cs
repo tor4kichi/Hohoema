@@ -146,7 +146,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             get { return _VideoSeries; }
             set { SetProperty(ref _VideoSeries, value); }
         }
-        
+
+        private VideoListItemControlViewModel[] _prevSeriesVideo;
+        public VideoListItemControlViewModel[] PrevSeriesVideo
+        {
+            get => _prevSeriesVideo;
+            set => SetProperty(ref _prevSeriesVideo, value);
+        }
+
+
+        private VideoListItemControlViewModel[] _nextSeriesVideo;
+        public VideoListItemControlViewModel[] NextSeriesVideo
+        {
+            get => _nextSeriesVideo;
+            set => SetProperty(ref _nextSeriesVideo, value);
+        }
+
 
         public NicoVideoSessionProvider NicoVideo { get; private set; }
 
@@ -234,12 +249,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 return _OpenOwnerUserPageCommand
                     ?? (_OpenOwnerUserPageCommand = new DelegateCommand(() =>
                     {
-                        if (VideoInfo.Owner.UserType == NicoVideoUserType.User)
+                        if (VideoInfo.Owner.UserType == OwnerType.User)
                         {
                             PageManager.OpenPageWithId(HohoemaPageType.UserInfo, VideoInfo.Owner.OwnerId);
                         }
                     }
-                    , () => VideoInfo?.Owner.UserType == NicoVideoUserType.User
+                    , () => VideoInfo?.Owner.UserType == OwnerType.User
                     ));
             }
         }
@@ -253,7 +268,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 return _OpenOwnerUserVideoPageCommand
                     ?? (_OpenOwnerUserVideoPageCommand = new DelegateCommand(() =>
                     {
-                        if (VideoInfo.Owner.UserType == NicoVideoUserType.User)
+                        if (VideoInfo.Owner.UserType == OwnerType.User)
                         {
                             PageManager.OpenPageWithId(HohoemaPageType.UserVideo, VideoInfo.Owner.OwnerId);
                         }
@@ -266,20 +281,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             }
         }
 
-
-        private DelegateCommand _PlayVideoCommand;
-        public DelegateCommand PlayVideoCommand
-        {
-            get
-            {
-                return _PlayVideoCommand
-                    ?? (_PlayVideoCommand = new DelegateCommand(() =>
-                    {
-                        HohoemaPlaylist.Play(VideoInfo);
-                    }
-                    ));
-            }
-        }
 
         private DelegateCommand _ShareCommand;
         public DelegateCommand ShareCommand
@@ -376,7 +377,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 return _OpenUserSeriesPageCommand
                     ?? (_OpenUserSeriesPageCommand = new DelegateCommand(() =>
                     {
-                        if (this.VideoInfo?.Owner?.UserType == NicoVideoUserType.User)
+                        if (this.VideoInfo?.Owner?.UserType == OwnerType.User)
                         {
                             PageManager.OpenPageWithId(HohoemaPageType.UserSeries, this.VideoInfo.Owner.OwnerId);
                         }
@@ -482,8 +483,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                         VideoInfo.Owner.ScreenName = VideoDetails.ProviderName;
                         FollowContext = VideoInfo.ProviderType switch
                         {
-                            NicoVideoUserType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, VideoInfo.Owner),
-                            NicoVideoUserType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, VideoInfo.Owner),
+                            OwnerType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, VideoInfo.Owner),
+                            OwnerType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, VideoInfo.Owner),
                             _ => null
                         };
                     }
@@ -539,6 +540,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             FollowContext = FollowContext<IUser>.Default;
 
             RelatedVideos?.DisposeAll();
+
+            NextSeriesVideo?.DisposeAll();
+            NextSeriesVideo = null;
+            PrevSeriesVideo?.DisposeAll();
+            PrevSeriesVideo = null;
 
             // ListViewのメモリリークを抑えるため関連するバインディングをnull埋め
             VideoInfo = null;
@@ -650,13 +656,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                     vm.MylistCount = video.Count.Mylist;
                     vm.ProviderId = video.Owner.Id;
                     vm.ProviderName = video.Owner.Name;
-                    vm.ProviderType = video.Owner.OwnerType switch
-                    {
-                        OwnerType.User => NicoVideoUserType.User,
-                        OwnerType.Channel => NicoVideoUserType.Channel,
-                        OwnerType.Hidden => NicoVideoUserType.Hidden,
-                        _ => throw new NotSupportedException(),
-                    };
+                    vm.ProviderType = video.Owner.OwnerType;
                     items.Add(vm);
                 }
 
@@ -702,7 +702,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 //OwnerIconUrl = details.OwnerIconUrl;
                 //IsChannelOwnedVideo = details.IsChannelOwnedVideo;
 
-                VideoSeries = VideoDetails.Series is not null and var series ? new VideoSeriesViewModel(series) : null;
+                if (VideoDetails.Series is not null and var series)
+                {
+                    VideoSeries = new VideoSeriesViewModel(series);
+
+                    if (series.Video.Next is not null and var nextSeriesVideo)
+                    {
+                        NextSeriesVideo = new[] { new VideoListItemControlViewModel(nextSeriesVideo) };
+                    }
+
+                    if (series.Video.Prev is not null and var prevSeriesVideo)
+                    {
+                        PrevSeriesVideo = new[] { new VideoListItemControlViewModel(prevSeriesVideo) };
+                    }
+                }
 
                 NowLikeProcessing = true;
                 IsLikedVideo = VideoDetails.IsLikedVideo;

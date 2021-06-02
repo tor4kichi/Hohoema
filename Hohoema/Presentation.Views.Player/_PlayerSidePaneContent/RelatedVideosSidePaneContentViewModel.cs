@@ -8,6 +8,7 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Uwp.UI;
 using Mntone.Nico2.Channels.Video;
+using NiconicoToolkit.Video;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -184,7 +185,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
                 // チャンネル動画で次動画が見つからなかった場合は
                 // チャンネル動画一覧から次動画をサジェストする
-                if (sourceVideo.Owner?.UserType == NicoVideoUserType.Channel
+                if (sourceVideo.Owner?.UserType == OwnerType.Channel
                     && NextVideo == null
                     )
                 {

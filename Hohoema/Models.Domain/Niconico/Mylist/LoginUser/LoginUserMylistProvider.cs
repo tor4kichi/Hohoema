@@ -194,9 +194,9 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                 ScreenName = item.Video.Owner.Name,
                 UserType = item.Video.Owner.OwnerType switch
                 {
-                    OwnerType.Channel => NicoVideoUserType.Channel,
-                    OwnerType.Hidden => NicoVideoUserType.Hidden,
-                    OwnerType.User => NicoVideoUserType.User,
+                    NiconicoToolkit.Video.OwnerType.Channel => OwnerType.Channel,
+                    NiconicoToolkit.Video.OwnerType.Hidden => OwnerType.Hidden,
+                    NiconicoToolkit.Video.OwnerType.User => OwnerType.User,
                     _ => throw new NotSupportedException(),
                 },
                 IconUrl = item.Video.Owner.IconUrl?.OriginalString,

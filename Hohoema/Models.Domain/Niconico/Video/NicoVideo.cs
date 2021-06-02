@@ -95,9 +95,9 @@ namespace Hohoema.Models.Domain.Niconico.Video
         }
 
         [BsonIgnore]
-        public NicoVideoUserType ProviderType
+        public OwnerType ProviderType
         {
-            get => Owner?.UserType ?? NicoVideoUserType.User;
+            get => Owner?.UserType ?? OwnerType.User;
             set => Owner.UserType = value;
         }
 

@@ -323,6 +323,24 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
         }
 
+        public VideoListItemControlViewModel(
+            NvapiVideoItem videoItem
+            )
+            : this(videoItem.Id, videoItem.Title, videoItem.Thumbnail.Url.OriginalString, TimeSpan.FromSeconds(videoItem.Duration))
+        {
+            _PostedAt = videoItem.RegisteredAt.DateTime;
+            _ViewCount = videoItem.Count.View;
+            _CommentCount = videoItem.Count.Comment;
+            _MylistCount = videoItem.Count.Mylist;
+
+            if (videoItem.Owner is not null)
+            {
+                _ProviderId = videoItem.Owner.Id;
+                ProviderType = videoItem.Owner.OwnerType;
+                _ProviderName = videoItem.Owner.Name;
+            }
+        }
+
         public VideoListItemControlViewModel(NicoVideo data)            
             : this(data.RawVideoId, data.Title, data.ThumbnailUrl, data.Length)
         {
@@ -409,7 +427,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        public NicoVideoUserType ProviderType { get; set; }
+        public OwnerType ProviderType { get; set; }
 
         public IMylist OnwerPlaylist { get; }
 
@@ -664,8 +682,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             vm.CommentCount = (int)data.Thread.GetCommentCount();
             vm.MylistCount = (int)data.Video.MylistCount;
 
-            vm.ProviderType = data.Video.ProviderType == "channel" ? NicoVideoUserType.Channel : NicoVideoUserType.User;
-            vm.ProviderId = vm.ProviderType == NicoVideoUserType.Channel ? data.Video.CommunityId : data.Video.UserId;
+            vm.ProviderType = data.Video.ProviderType == "channel" ? OwnerType.Channel : OwnerType.User;
+            vm.ProviderId = vm.ProviderType == OwnerType.Channel ? data.Video.CommunityId : data.Video.UserId;
         }
     }
 

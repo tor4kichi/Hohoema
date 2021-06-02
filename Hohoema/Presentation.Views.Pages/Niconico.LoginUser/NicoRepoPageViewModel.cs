@@ -12,6 +12,7 @@ using Hohoema.Presentation.ViewModels.VideoListPage;
 using I18NPortable;
 using Mntone.Nico2.Live;
 using Mntone.Nico2.NicoRepo;
+using NiconicoToolkit.Video;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
@@ -208,13 +209,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                     // チャンネル
                     ProviderName = _nicoRepoEntry.Actor.Name;
                     ProviderId = _nicoRepoEntry.Actor.Url.Segments.Last();
-                    ProviderType = NicoVideoUserType.Channel;
+                    ProviderType = OwnerType.Channel;
                 }
                 else
                 {
                     ProviderName = _nicoRepoEntry.Actor.Name;
                     ProviderId = _nicoRepoEntry.Actor.Url.Segments.Last();
-                    ProviderType = NicoVideoUserType.User;
+                    ProviderType = OwnerType.User;
                 }
             }
 

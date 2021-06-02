@@ -1,6 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Infrastructure;
 using NiconicoToolkit.Recommend;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,8 +38,8 @@ namespace Hohoema.Models.Domain.Niconico.Recommend
 
             return nicoVideo.ProviderType switch
             {
-                NicoVideoUserType.User => await NiconicoSession.ToolkitContext.Recommend.GetVideoReccommendAsync(nicoVideo.VideoId),
-                NicoVideoUserType.Channel => await NiconicoSession.ToolkitContext.Recommend.GetChannelVideoReccommendAsync(nicoVideo.VideoId, nicoVideo.ProviderId, nicoVideo.Tags.Select(x => x.Tag)),
+                OwnerType.User => await NiconicoSession.ToolkitContext.Recommend.GetVideoReccommendAsync(nicoVideo.VideoId),
+                OwnerType.Channel => await NiconicoSession.ToolkitContext.Recommend.GetChannelVideoReccommendAsync(nicoVideo.VideoId, nicoVideo.ProviderId, nicoVideo.Tags.Select(x => x.Tag)),
                 _ => null
             };
         }

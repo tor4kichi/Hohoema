@@ -28,6 +28,7 @@ using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Presentation.ViewModels.VideoCache.Commands;
 using Hohoema.Models.Domain.VideoCache;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Presentation.Views.Flyouts
 {
@@ -257,7 +258,7 @@ namespace Hohoema.Presentation.Views.Flyouts
 
             if (!isMultipleSelection && content is IVideoContentProvider provider)
             {
-                bool isUserProvidedVideo = (provider?.ProviderType == NicoVideoUserType.User && provider?.ProviderId != null);
+                bool isUserProvidedVideo = (provider?.ProviderType == OwnerType.User && provider?.ProviderId != null);
                 OpenOwnerMylistsPage.Visibility = 
                 OpenOwnerSeriesPage.Visibility = isUserProvidedVideo.ToVisibility();
 

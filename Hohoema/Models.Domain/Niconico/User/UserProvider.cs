@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Mntone.Nico2.Users.User.UserDetailResponse;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.Domain.Niconico.User
 {
@@ -41,7 +42,7 @@ namespace Hohoema.Models.Domain.Niconico.User
                         owner = new NicoVideoOwner()
                         {
                             OwnerId = userId,
-                            UserType = NicoVideoUserType.User
+                            UserType = OwnerType.User
                         };
                     }
                     owner.ScreenName = userName.Nickname;
@@ -72,7 +73,7 @@ namespace Hohoema.Models.Domain.Niconico.User
                     owner = new NicoVideoOwner()
                     {
                         OwnerId = userId,
-                        UserType = NicoVideoUserType.User
+                        UserType = OwnerType.User
                     };
                 }
                 owner.ScreenName = user.Nickname;
@@ -100,7 +101,7 @@ namespace Hohoema.Models.Domain.Niconico.User
                     owner = new NicoVideoOwner()
                     {
                         OwnerId = userId,
-                        UserType = NicoVideoUserType.User
+                        UserType = OwnerType.User
                     };
                 }
                 owner.ScreenName = detail.User.Nickname;

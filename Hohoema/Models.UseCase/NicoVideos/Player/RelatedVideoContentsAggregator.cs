@@ -12,6 +12,7 @@ using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Models.Domain.Niconico.Mylist;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
@@ -143,7 +144,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
             // チャンネル動画で次動画が見つからなかった場合は
             // チャンネル動画一覧から次動画をサジェストする
-            if (videoInfo.Owner.UserType == NicoVideoUserType.Channel
+            if (videoInfo.Owner.UserType == OwnerType.Channel
                 && result.NextVideo == null
                 )
             {

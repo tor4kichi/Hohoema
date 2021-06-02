@@ -15,7 +15,7 @@ namespace Hohoema.Presentation.ViewModels.Community
 
         public string ProviderName => null;
 
-        public NicoVideoUserType ProviderType => NicoVideoUserType.User;
+        public OwnerType ProviderType => OwnerType.User;
 
         public string Id { get; }
 

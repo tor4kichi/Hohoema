@@ -155,15 +155,15 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
                     OwnerId = item.Video.Owner.Id ,
                     UserType = item.Video.Owner.OwnerType switch
                     {
-                        OwnerType.Channel => NicoVideoUserType.Channel,
-                        OwnerType.Hidden => NicoVideoUserType.Hidden,
-                        OwnerType.User => NicoVideoUserType.User,
+                        NiconicoToolkit.Video.OwnerType.Channel => OwnerType.Channel,
+                        NiconicoToolkit.Video.OwnerType.Hidden => OwnerType.Hidden,
+                        NiconicoToolkit.Video.OwnerType.User => OwnerType.User,
                         _ => throw new NotSupportedException(),
                     }
                 };
 
                 // OwnerType.Hiddenだった場合にOwnerIdのNull例外が発生するのでオーナー情報を削除しておく
-                if (nicoVideo.Owner.UserType is NicoVideoUserType.Hidden)
+                if (nicoVideo.Owner.UserType is OwnerType.Hidden)
                 {
                     nicoVideo.Owner = null;
                 }
