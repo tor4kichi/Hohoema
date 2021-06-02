@@ -684,7 +684,10 @@ namespace Hohoema.Presentation.ViewModels
                 IsUnread = unread.Data.IsUnread;
                 NotifyCount = unread.Data.Count;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                ErrorTrackingManager.TrackError(ex);
+            }
         }
 
         private void _niconicoSession_LogOut(object sender, EventArgs e)
@@ -703,21 +706,28 @@ namespace Hohoema.Presentation.ViewModels
 
         public async void RefreshItems()
         {
-            if (_nextRefreshAvairableAt > DateTime.Now)
+            try
             {
-                return;
+                if (_nextRefreshAvairableAt > DateTime.Now)
+                {
+                    return;
+                }
+
+                _nextRefreshAvairableAt = DateTime.Now + TimeSpan.FromMinutes(1);
+
+                var res = await _niconicoSession.ToolkitContext.Live.LiveNotify.GetLiveNotifyAsync();
+                Items.Clear();
+                foreach (var data in res.Data.NotifyboxContent)
+                {
+                    Items.Add(new LiveContentMenuItemViewModel(data));
+                }
+
+                IsUnread = false;
             }
-
-            _nextRefreshAvairableAt = DateTime.Now + TimeSpan.FromMinutes(1);
-
-            var res = await _niconicoSession.ToolkitContext.Live.LiveNotify.GetLiveNotifyAsync();
-            Items.Clear();
-            foreach (var data in res.Data.NotifyboxContent)
+            catch (Exception ex)
             {
-                Items.Add(new LiveContentMenuItemViewModel(data));
+                ErrorTrackingManager.TrackError(ex);
             }
-
-            IsUnread = false;
         }
     }
 

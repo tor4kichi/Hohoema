@@ -10,6 +10,7 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.UseCase;
 
 namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 {
@@ -33,18 +34,25 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 
         private async void ResetItems()
         {
-            using (await NiconicoSession.SigninLock.LockAsync())
+            try
             {
-                MenuItems.Clear();
-
-                if (NiconicoSession.IsLoggedIn)
+                using (await NiconicoSession.SigninLock.LockAsync())
                 {
-                    MenuItems.Add(new MenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift));
-                    MenuItems.Add(new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo));
-                    MenuItems.Add(new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage));
-                }
+                    MenuItems.Clear();
 
-                RaisePropertyChanged(nameof(MenuItems));
+                    if (NiconicoSession.IsLoggedIn)
+                    {
+                        MenuItems.Add(new MenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift));
+                        MenuItems.Add(new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo));
+                        MenuItems.Add(new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage));
+                    }
+
+                    RaisePropertyChanged(nameof(MenuItems));
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorTrackingManager.TrackError(ex);
             }
         }
 

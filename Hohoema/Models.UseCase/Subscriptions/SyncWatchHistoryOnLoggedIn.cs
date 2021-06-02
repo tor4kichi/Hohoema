@@ -36,7 +36,14 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
         private async void _niconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
         {
-            await _LoginUserVideoWatchHistoryProvider.GetHistoryAsync();
+            try
+            {
+                await _LoginUserVideoWatchHistoryProvider.GetHistoryAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorTrackingManager.TrackError(ex);
+            }
         }
     }
 }
