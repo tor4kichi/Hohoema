@@ -99,9 +99,9 @@ namespace Hohoema.Presentation.Services
 
         private async Task<InAppNotificationPayload> SubmitVideoContentSuggestion(string videoId)
         {
-            var nicoVideo = await NicoVideoProvider.GetNicoVideoInfo(videoId);
+            var (res, nicoVideo) = await NicoVideoProvider.GetVideoInfoAsync(videoId);
 
-            if (nicoVideo.IsDeleted || string.IsNullOrEmpty(nicoVideo.Title)) { return null; }
+            if (res.Video.IsDeleted || string.IsNullOrEmpty(nicoVideo.Title)) { return null; }
 
             return new InAppNotificationPayload()
             {

@@ -45,64 +45,74 @@ namespace Hohoema.Models.Helpers
             return uri;
         }
 
+        public static string MakeShareTextWithTitle(NicoVideo video)
+        {
+            return $"{video.Title} {MakeShareText(video)}";
+        }
+
         public static string MakeShareText(NicoVideo video)
         {
             if (!string.IsNullOrEmpty(video.VideoId))
             {
-                return MakeShareText(video.VideoId, video.Title);
+                return MakeShareText(video.VideoId);
             }
             else
             {
-                return MakeShareText(video.RawVideoId, video.Title);
+                return MakeShareText(video.RawVideoId);
             }
         }
 
         public static string MakeShareText(INiconicoContent parameter)
         {
-            if (parameter is IVideoContent)
+            if (parameter is IVideoContent videoContent)
             {
-                var content = parameter as IVideoContent;
-                return MakeShareText(content.Id, content.Label);
+                return MakeShareText(videoContent.Id);
             }
-            else if (parameter is ILiveContent)
+            else if (parameter is ILiveContent liveContent)
             {
-                var content = parameter as ILiveContent;
-                return MakeShareText(content.Id, content.Label, "ニコニコ生放送");
+                return MakeShareText(liveContent.Id, "ニコニコ生放送");
             }
-            else if (parameter is ICommunity)
+            else if (parameter is ICommunity communityContent)
             {
-                var content = parameter as ICommunity;
-                return MakeShareText(content.Id, content.Label, "ニコニミュニティ");
+                return MakeShareText(communityContent.Id, "ニコニミュニティ");
             }
-            else if (parameter is IMylist)
+            else if (parameter is IMylist mylistContent)
             {
-                var content = parameter as IMylist;
-                return MakeShareText($"mylist/{content.Id}", content.Label);
+                return MakeShareText($"mylist/{mylistContent.Id}");
             }
-            else if (parameter is IUser)
+            else if (parameter is IUser userContent)
             {
-                var content = parameter as IUser;
-                return MakeShareText($"user/{content.Id}", content.Label);
+                return MakeShareText($"user/{userContent.Id}");
             }
             else
             {
-                return MakeShareText(parameter.Id, parameter.Label);
+                return MakeShareText(parameter.Id);
             }
         }
 
-        public static string MakeShareText(string id, string title, params string[] hashTags)
+        public static string MakeShareTextWithTitle(INiconicoContent parameter)
+        {
+            return $"{parameter.Label} {MakeShareText(parameter)}";
+        }
+
+        public static string MakeShareText(string id, params string[] hashTags)
         {
             var hashTagsString = string.Join(" ", hashTags.Select(x => "#" + x));
             if (hashTagsString.Any())
             {
                 hashTagsString += " ";
             }
-            return $"{title} http://nico.ms/{id} #{id} {hashTagsString}#Hohoema";
+            return $"http://nico.ms/{id} #{id} {hashTagsString}#Hohoema";
         }
 
-        public static string MakeLiveShareText(string liveTitle, string liveId)
+        public static string MakeLiveShareText(string liveId)
         {
-            return $"{liveTitle} http://nico.ms/{liveId} #{liveId} #ニコニコ生放送 #Hohoema";
+            return MakeShareText(liveId, "ニコニコ生放送");
+        }
+
+        public static string MakeLiveShareTextWithTitle(string title, string liveId)
+        {
+            return $"{title} {MakeShareText(liveId, "ニコニコ生放送")}";
         }
 
 
@@ -142,21 +152,21 @@ namespace Hohoema.Models.Helpers
 
         public static async Task ShareToTwitter(NicoVideo video)
         {
-            await ShareToTwitter(MakeShareText(video));
+            await ShareToTwitter(MakeShareTextWithTitle(video));
         }
 
 
 
 
         static string _ShareText;
+        static string _ShareTitleText;
 
-
-        public static void Share(string content)
+        public static void Share(string title, string content)
         {
             if (DataTransferManager.IsSupported())
             {
                 _ShareText = content;
-
+                _ShareTitleText = title;
                 var dataTransferManager = DataTransferManager.GetForCurrentView();
                 dataTransferManager.DataRequested += DataTransferManager_DataRequested;
 
@@ -164,9 +174,9 @@ namespace Hohoema.Models.Helpers
             }
         }
 
-        public static void Share(NicoVideo video)
+        public static void Share(INiconicoContent content)
         {
-            Share(MakeShareText(video));
+            Share(content.Label, MakeShareText(content));
         }
 
 
@@ -177,7 +187,7 @@ namespace Hohoema.Models.Helpers
 
             request.Data.SetText(_ShareText);
 
-            request.Data.Properties.Title = "　";
+            request.Data.Properties.Title = " ";
             request.Data.Properties.ApplicationName = "Hohoema";
 
             sender.DataRequested -= DataTransferManager_DataRequested;

@@ -434,7 +434,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             foreach (var item in RankingRss.Items.Skip(head).Take(count))
             {
                 var itemData = item.GetMoreData();
-                var vm = new RankedVideoListItemControlViewModel((uint)(head + index + 1), item.GetVideoId(), item.GetRankTrimmingTitle(), itemData.ThumbnailUrl, itemData.Length);
+                var vm = new RankedVideoListItemControlViewModel((uint)(head + index + 1), item.GetVideoId(), item.GetRankTrimmingTitle(), itemData.ThumbnailUrl, itemData.Length, item.PubDate.DateTime);
 
                 vm.CommentCount = itemData.CommentCount;
                 vm.ViewCount = itemData.WatchCount;
@@ -477,7 +477,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             Rank = rank;
         }
 
-        public RankedVideoListItemControlViewModel(uint rank, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
+        public RankedVideoListItemControlViewModel(uint rank, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt) 
+            : base(rawVideoId, title, thumbnailUrl, videoLength, postedAt)
         {
             Rank = rank;
         }

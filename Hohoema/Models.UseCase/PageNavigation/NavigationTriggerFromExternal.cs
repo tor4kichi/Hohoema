@@ -131,9 +131,9 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
         public async Task PlayVideoFromExternal(string videoId, string playlistId = null)
         {
-            var videoInfo = await _nicoVideoProvider.GetNicoVideoInfo(videoId);
+            var (res, videoInfo) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
 
-            if (videoInfo == null || videoInfo.IsDeleted) { return; }
+            if (videoInfo == null || res.Video.IsDeleted) { return; }
 
             if (playlistId == null)
             {

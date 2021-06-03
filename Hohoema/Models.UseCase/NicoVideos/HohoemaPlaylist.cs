@@ -603,7 +603,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
                     {
                         var sort = _mylistUserSelectedSortRepository.GetMylistSort(playlist.Id);
                         var mylistResult = await mylist.GetMylistAllItems(sort.SortKey ?? mylist.DefaultSortKey, sort.SortOrder ?? mylist.DefaultSortOrder);
-                        return mylistResult.Items;
+                        return mylistResult.NicoVideoItems;
                     }
                 case LocalPlaylist localPlaylist:
                     {
@@ -638,7 +638,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         async Task<NicoVideo> ResolveVideoItemAsync(string videoId)
         {
-            return await _nicoVideoProvider.GetNicoVideoInfo(videoId);
+            return await _nicoVideoProvider.GetCachedVideoInfoAsync(videoId);
         }
 
         public void PlayDone(IVideoContent playedItem, TimeSpan playedPosition)

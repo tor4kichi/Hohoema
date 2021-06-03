@@ -38,6 +38,7 @@ using Hohoema.Models.Domain.Notification;
 using System.Collections.Generic;
 using Hohoema.Presentation.Views.Player;
 using NiconicoToolkit.Video.Watch;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -82,7 +83,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             ShowPrimaryViewCommand showPrimaryViewCommand,
             MediaPlayerSoundVolumeManager soundVolumeManager,
             RestoreNavigationManager restoreNavigationManager,
-            NicoVideoCacheRepository nicoVideoRepository,
             OpenLinkCommand openLinkCommand,
             CopyToClipboardCommand copyToClipboardCommand,
             CopyToClipboardWithShareTextCommand copyToClipboardWithShareTextCommand,
@@ -118,7 +118,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             ShowPrimaryViewCommand = showPrimaryViewCommand;
             SoundVolumeManager = soundVolumeManager;
             _restoreNavigationManager = restoreNavigationManager;
-            _nicoVideoRepository = nicoVideoRepository;
             OpenLinkCommand = openLinkCommand;
             CopyToClipboardCommand = copyToClipboardCommand;
             CopyToClipboardWithShareTextCommand = copyToClipboardWithShareTextCommand;
@@ -234,7 +233,6 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         private readonly VideoStreamingOriginOrchestrator _videoStreamingOriginOrchestrator;
         private readonly RestoreNavigationManager _restoreNavigationManager;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly KeepActiveDisplayWhenPlaying _keepActiveDisplayWhenPlaying;
 
 
@@ -351,8 +349,9 @@ namespace Hohoema.Presentation.ViewModels.Player
             }
            
             // 削除状態をチェック（再生準備より先に行う）
-            VideoInfo = _nicoVideoRepository.Get(VideoId);
-            CheckDeleted(VideoInfo);
+            var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(VideoId);
+            VideoInfo = video;
+            CheckDeleted(res);
 
             MediaPlayer.AutoPlay = true;
 
@@ -362,12 +361,6 @@ namespace Hohoema.Presentation.ViewModels.Player
                 Title = VideoInfo.Title;
                 IsNotSupportVideoType = true;
                 CannotPlayReason = result.Exception?.Message ?? result.PlayingOrchestrateFailedReason.Translate();
-
-                VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(VideoId)
-                    ?? _nicoVideoRepository.Get(VideoId);
-
-                // 改めて削除状態をチェック（動画リスト経由してない場合の削除チェック）
-                CheckDeleted(VideoInfo);
 
                 return;
             }
@@ -381,8 +374,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             await VideoPlayer.UpdatePlayingVideoAsync(result.VideoSessionProvider);
 
             // そのあとで表示情報を取得
-            VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(VideoId)
-                ?? _nicoVideoRepository.Get(VideoId);
+            //VideoInfo ??= await NicoVideoProvider.GetVideoInfoAsync(VideoId);
 
             try
             {
@@ -493,12 +485,12 @@ namespace Hohoema.Presentation.ViewModels.Player
             }
         }
 
-        private void CheckDeleted(NicoVideo videoInfo)
+        private void CheckDeleted(NicovideoVideoResponse res)
         {
             try
             {
                 // 動画が削除されていた場合
-                if (videoInfo.IsDeleted)
+                if (res.Video.IsDeleted)
                 {
                     Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
 
@@ -507,24 +499,24 @@ namespace Hohoema.Presentation.ViewModels.Player
                         await Task.Delay(100);
 
                         string toastContent = "";
-                        if (!String.IsNullOrEmpty(videoInfo.Title))
+                        if (!String.IsNullOrEmpty(res.Video.Title))
                         {
-                            toastContent = "DeletedVideoNoticeWithTitle".Translate(videoInfo.Title);
+                            toastContent = "DeletedVideoNoticeWithTitle".Translate(res.Video.Title);
                         }
                         else
                         {
                             toastContent = "DeletedVideoNotice".Translate();
                         }
 
-                        _NotificationService.ShowToast("DeletedVideoToastNotificationTitleWithVideoId".Translate(videoInfo.RawVideoId), toastContent);
+                        _NotificationService.ShowToast("DeletedVideoToastNotificationTitleWithVideoId".Translate(res.Video.Id), toastContent);
                     });
 
                     // ローカルプレイリストの場合は勝手に消しておく
                     if (HohoemaPlaylist.CurrentPlaylist is LocalPlaylist localPlaylist)
                     {
-                        if (localPlaylist.IsQueuePlaylist())
+                        if (localPlaylist.IsQueuePlaylist() && VideoInfo != null)
                         {
-                            HohoemaPlaylist.RemoveQueue(videoInfo);
+                            HohoemaPlaylist.RemoveQueue(VideoInfo);
                         }
                     }
                 }

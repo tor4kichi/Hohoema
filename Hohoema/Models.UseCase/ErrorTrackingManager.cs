@@ -53,7 +53,6 @@ namespace Hohoema.Models.UseCase
                 { "IsPremiumAccount", _niconicoSession.IsPremiumAccount.ToString() },
                 { "RecentOpenPageName", pageName },
                 { "RecentOpenPageParameters", pageParameter },
-                { "OperatingSystemArchitecture", Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.OperatingSystemArchitecture.ToString() },
                 { "PrimaryWindowPlayerDisplayMode", _primaryViewPlayerManager.DisplayMode.ToString() },
                 { "IsShowSecondaryView", _scondaryViewPlayerManager.IsShowSecondaryView.ToString() },
             };

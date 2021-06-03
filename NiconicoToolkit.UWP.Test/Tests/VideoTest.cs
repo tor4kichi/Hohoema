@@ -67,7 +67,7 @@ namespace NiconicoToolkit.UWP.Test.Tests
 
 
 
-        private void CheckVideo(NiconicoToolkit.Video.VideoItem video)
+        private void CheckVideo(NiconicoToolkit.Video.VideoInfo video)
         {
             Assert.IsNotNull(video);
             Assert.IsTrue(!string.IsNullOrWhiteSpace(video.Title));

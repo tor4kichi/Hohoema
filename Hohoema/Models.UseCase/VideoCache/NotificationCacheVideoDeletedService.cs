@@ -12,7 +12,7 @@ using Hohoema.Models.Domain.VideoCache;
 
 namespace Hohoema.Models.UseCase.VideoCache
 {
-    public sealed class NotificationCacheVideoDeletedService : IRecipient<VideoDeletedEvent>
+    public sealed class NotificationCacheVideoDeletedService : IRecipient<VideoDeletedMessage>
     {
         /// <summary>
         /// Models.Provider.NicoVideoProvider内で検出した動画削除のイベントを受けて
@@ -28,19 +28,19 @@ namespace Hohoema.Models.UseCase.VideoCache
             VideoCacheManager = videoCacheManager;
             NotificationService = notificationService;
 
-            StrongReferenceMessenger.Default.Register<VideoDeletedEvent>(this);
+            StrongReferenceMessenger.Default.Register<VideoDeletedMessage>(this);
         }
 
         public VideoCacheManager VideoCacheManager { get; }
         public NotificationService NotificationService { get; }
 
-        public async void Receive(VideoDeletedEvent message)
+        public async void Receive(VideoDeletedMessage message)
         {
             var videoInfo = message.Value;
-            if (await VideoCacheManager.DeleteFromNiconicoServer(videoInfo.RawVideoId))
+            if (await VideoCacheManager.DeleteFromNiconicoServer(videoInfo.VideoId))
             {
-                NotificationService.ShowToast("ToastNotification_VideoDeletedWithId".Translate(videoInfo.RawVideoId)
-                    , "ToastNotification_ExplainVideoForceDeletion".Translate(videoInfo?.Title ?? videoInfo.RawVideoId)
+                NotificationService.ShowToast("ToastNotification_VideoDeletedWithId".Translate(videoInfo.VideoId)
+                    , "ToastNotification_ExplainVideoForceDeletion".Translate(videoInfo?.Title ?? videoInfo.VideoId)
                     , Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
                     );
             }

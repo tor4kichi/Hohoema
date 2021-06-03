@@ -170,8 +170,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             var items = res.Data.Items;
             foreach (var item in items)
             {
-                var vm = new VideoListItemControlViewModel(item.Id, item.Title, item.Thumbnail.ListingUrl.OriginalString, TimeSpan.FromSeconds(item.Duration));
-                vm.PostedAt = item.RegisteredAt.DateTime;
+                var vm = new VideoListItemControlViewModel(item.Id, item.Title, item.Thumbnail.ListingUrl.OriginalString, TimeSpan.FromSeconds(item.Duration), item.RegisteredAt.DateTime);
                 vm.ViewCount = (int)item.Count.View;
                 vm.CommentCount = (int)item.Count.Comment;
                 vm.MylistCount = (int)item.Count.Mylist;

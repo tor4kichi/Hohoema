@@ -77,7 +77,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             LoginUserMylistProvider loginUserMylistProvider,
             SubscriptionManager subscriptionManager,
             NicoVideoSessionProvider nicoVideo,
-            NicoVideoCacheRepository nicoVideoRepository,
             PageManager pageManager,
             Services.NotificationService notificationService,
             Services.DialogService dialogService,
@@ -104,7 +103,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             LoginUserMylistProvider = loginUserMylistProvider;
             SubscriptionManager = subscriptionManager;
             NicoVideo = nicoVideo;
-            _nicoVideoRepository = nicoVideoRepository;
             PageManager = pageManager;
             NotificationService = notificationService;
             DialogService = dialogService;
@@ -472,7 +470,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                         throw new Models.Infrastructure.HohoemaExpception();
                     }
 
-                    VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(videoId, true);
+                    VideoInfo = await NicoVideoProvider.GetCachedVideoInfoAsync(videoId);
                     
                     
 
@@ -623,7 +621,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
         bool _IsInitializedRelatedVideos = false;
         private readonly AppearanceSettings _appearanceSettings;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly RecommendProvider _recommendProvider;
         private readonly UserFollowProvider _userFollowProvider;
         private readonly ChannelFollowProvider _channelFollowProvider;
@@ -633,7 +630,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             if (_IsInitializedRelatedVideos) { return; }
 
 
-            var res = await _recommendProvider.GetVideoRecommendAsync(VideoInfo);
+            var res = await _recommendProvider.GetVideoRecommendAsync(VideoInfo.RawVideoId);
 
             if (_navigationCancellationToken.IsCancellationRequested) { return; }
 
@@ -649,14 +646,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                     }
 
                     var video = x.ContentAsVideo;
-                    var vm = new VideoListItemControlViewModel(video.Id, video.Title, video.Thumbnail.Url.OriginalString, TimeSpan.FromSeconds(video.Duration));
-                    vm.PostedAt = video.RegisteredAt.DateTime;
-                    vm.CommentCount = video.Count.Comment;
-                    vm.ViewCount = video.Count.View;
-                    vm.MylistCount = video.Count.Mylist;
-                    vm.ProviderId = video.Owner.Id;
-                    vm.ProviderName = video.Owner.Name;
-                    vm.ProviderType = video.Owner.OwnerType;
+                    var vm = new VideoListItemControlViewModel(video);
                     items.Add(vm);
                 }
 

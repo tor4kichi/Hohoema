@@ -15,16 +15,16 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Share
 {
     public sealed class CopyToClipboardWithShareTextCommand : DelegateCommandBase
     {
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly NotificationService _notificationService;
+        private readonly NicoVideoProvider _nicoVideoProvider;
 
         public CopyToClipboardWithShareTextCommand(
-            NicoVideoCacheRepository nicoVideoRepository,
-            NotificationService notificationService
+            NotificationService notificationService,
+            NicoVideoProvider nicoVideoProvider
             )
         {
-            _nicoVideoRepository = nicoVideoRepository;
             _notificationService = notificationService;
+            _nicoVideoProvider = nicoVideoProvider;
         }
         protected override bool CanExecute(object parameter)
         {
@@ -36,15 +36,15 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Share
         {
             if (content is INiconicoContent niconicoContent)
             {
-                var shareContent = ShareHelper.MakeShareText(niconicoContent);
+                var shareContent = ShareHelper.MakeShareTextWithTitle(niconicoContent);
                 ClipboardHelper.CopyToClipboard(shareContent);
             }
             else if (content is string contentId)
             {
-                var video = _nicoVideoRepository.Get(contentId);
+                var video = _nicoVideoProvider.GetCachedVideoInfo(contentId);
                 if (video != null)
                 {
-                    var shareContent = ShareHelper.MakeShareText(video);
+                    var shareContent = ShareHelper.MakeShareTextWithTitle(video);
                     ClipboardHelper.CopyToClipboard(shareContent);
                 }
             }

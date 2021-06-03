@@ -13,14 +13,12 @@ using Hohoema.Models.UseCase.VideoCache.Events;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Pages.VideoListPage.Commands;
 using Microsoft.Toolkit.Mvvm.Messaging;
-using Mntone.Nico2;
-using Mntone.Nico2.Mylist;
-using Mntone.Nico2.Searches.Video;
 using NiconicoToolkit.Video;
 using Prism.Commands;
 using Prism.Unity;
 using Reactive.Bindings.Extensions;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -74,19 +72,22 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         
         public string Label => Title;
 
+        public DateTime PostedAt { get; }
+
         bool IEquatable<IVideoContent>.Equals(IVideoContent other)
         {
             return this.RawVideoId == other.Id;
         }
 
         public VideoItemViewModel(
-            string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength
+            string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt
             )
         {
             RawVideoId = rawVideoId;
             Title = title;
             ThumbnailUrl = thumbnailUrl;
             Length = videoLength;
+            PostedAt = postedAt;
 
             SubscribeAll(rawVideoId);
         }
@@ -310,25 +311,22 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             _nicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
             _ngSettings = App.Current.Container.Resolve<VideoFilteringSettings>();
-            _nicoVideoRepository = App.Current.Container.Resolve<NicoVideoCacheRepository>();
             _openVideoOwnerPageCommand = App.Current.Container.Resolve<OpenVideoOwnerPageCommand>();
             _messenger = App.Current.Container.Resolve<IMessenger>();
         }
 
-
         public VideoListItemControlViewModel(
-            string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength
+            string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt
             )
-            : base(rawVideoId, title, thumbnailUrl, videoLength)
+            : base(rawVideoId, title, thumbnailUrl, videoLength, postedAt)
         {
         }
 
         public VideoListItemControlViewModel(
             NvapiVideoItem videoItem
             )
-            : this(videoItem.Id, videoItem.Title, videoItem.Thumbnail.Url.OriginalString, TimeSpan.FromSeconds(videoItem.Duration))
+            : this(videoItem.Id, videoItem.Title, videoItem.Thumbnail.Url.OriginalString, TimeSpan.FromSeconds(videoItem.Duration), videoItem.RegisteredAt.DateTime)
         {
-            _PostedAt = videoItem.RegisteredAt.DateTime;
             _ViewCount = videoItem.Count.View;
             _CommentCount = videoItem.Count.Comment;
             _MylistCount = videoItem.Count.Mylist;
@@ -341,31 +339,35 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             }
         }
 
-        public VideoListItemControlViewModel(NicoVideo data)            
-            : this(data.RawVideoId, data.Title, data.ThumbnailUrl, data.Length)
+        public VideoListItemControlViewModel(VideoInfo video, VideoThread thread)            
+            : this(video.Id, video.Title, video.ThumbnailUrl.OriginalString, TimeSpan.FromSeconds(video.LengthInSeconds), video.FirstRetrieve.DateTime)
         {
-            Data = data;
-
-            _VideoId = data.VideoId;
-            _PostedAt = data.PostedAt;
-            _ViewCount = data.ViewCount;
-            _MylistCount = data.MylistCount;
-            _CommentCount = data.CommentCount;
-            _IsDeleted = data.IsDeleted;
-            _PrivateReason = Data.PrivateReasonType;
-            _Description = Data.Description;
-            Permission = Data.Permission;
-
-            if (data.Owner != null)
+            _ViewCount = (int)video.ViewCounter;
+            _MylistCount = (int)video.MylistCounter;
+            _CommentCount = (int)thread.NumRes;
+            _IsDeleted = video.Deleted != 0;
+            if (Enum.IsDefined(typeof(PrivateReasonType), video.Deleted))
             {
-                _ProviderId = data.Owner.OwnerId;
-                _ProviderName = data.Owner.ScreenName;
-                ProviderType = data.Owner.UserType;
-
+                _PrivateReason = (PrivateReasonType)video.Deleted;
+            }
+            
+            _Description = video.Description;
+            
+            if (video.ProviderType == NiconicoToolkit.Video.VideoProviderType.Channel)
+            {
+                _ProviderId = video.CommunityId;
+                //_ProviderName = video.name;
+                ProviderType = OwnerType.Channel;
+                RegisterVideoOwnerFilteringMessageReceiver(_ProviderId, null);
+            }
+            else if (video.ProviderType == VideoProviderType.Regular)
+            {
+                _ProviderId = video.UserId.ToString();
+                ProviderType = OwnerType.User;
                 RegisterVideoOwnerFilteringMessageReceiver(_ProviderId, null);
             }
 
-            UpdateIsHidenVideoOwner(data);
+            UpdateIsHidenVideoOwner(this);
 
             if (VideoId != RawVideoId && VideoId != null)
             {
@@ -373,6 +375,18 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             }
         }
 
+        public VideoListItemControlViewModel(
+           NicoVideo videoItem
+           )
+           : this(videoItem.Id, videoItem.Title, videoItem.ThumbnailUrl, videoItem.Length, videoItem.PostedAt)
+        {
+            if (videoItem.Owner is not null)
+            {
+                _ProviderId = videoItem.Owner.OwnerId;
+                ProviderType = videoItem.Owner.UserType;
+                _ProviderName = videoItem.Owner.ScreenName;
+            }
+        }
 
         public bool Equals(IVideoContent other)
         {
@@ -386,16 +400,12 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
 
         private static readonly NicoVideoProvider _nicoVideoProvider;
-        private static readonly NicoVideoCacheRepository _nicoVideoRepository;
         private static readonly VideoFilteringSettings _ngSettings;
 
         private static readonly OpenVideoOwnerPageCommand _openVideoOwnerPageCommand;
         private static readonly IMessenger _messenger;
 
         public OpenVideoOwnerPageCommand OpenVideoOwnerPageCommand => _openVideoOwnerPageCommand;
-
-
-        public NicoVideo Data { get; private set; }
 
         private string _VideoId;
         public string VideoId
@@ -440,13 +450,6 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             set { SetProperty(ref _Description, value); }
         }
 
-        private DateTime _PostedAt;
-        public DateTime PostedAt
-        {
-            get { return _PostedAt; }
-            set { SetProperty(ref _PostedAt, value); }
-        }
-
 
         private int _ViewCount;
         public int ViewCount
@@ -485,8 +488,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        private PrivateReasonType? _PrivateReason;
-        public PrivateReasonType? PrivateReason
+        private PrivateReasonType _PrivateReason;
+        public PrivateReasonType PrivateReason
         {
             get { return _PrivateReason; }
             set { SetProperty(ref _PrivateReason, value); }
@@ -511,13 +514,13 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         void IRecipient<VideoOwnerFilteringAddedMessage>.Receive(VideoOwnerFilteringAddedMessage message)
         {
-            UpdateIsHidenVideoOwner(Data);
+            UpdateIsHidenVideoOwner(this);
 
         }
 
         void IRecipient<VideoOwnerFilteringRemovedMessage>.Receive(VideoOwnerFilteringRemovedMessage message)
         {
-            UpdateIsHidenVideoOwner(Data);
+            UpdateIsHidenVideoOwner(this);
         }
 
 
@@ -548,9 +551,9 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         void ExecuteUnregistrationHiddenVideoOwnerCommand()
         {
-            if (Data != null)
+            if (ProviderId != null)
             {
-                _ngSettings.RemoveHiddenVideoOwnerId(Data.ProviderId);
+                _ngSettings.RemoveHiddenVideoOwnerId(ProviderId);
             }
 
         }
@@ -575,35 +578,18 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             if (string.IsNullOrEmpty(Label))
             {
-                var data = await _nicoVideoProvider.GetNicoVideoInfo(RawVideoId, true);
-
-                ct.ThrowIfCancellationRequested();
-
-                Data = data;
+                Debug.WriteLine("");
+                return;
             }
 
             if (ProviderId is null)
             {
-                if (Data?.ProviderId is null)
+                var owner = await _nicoVideoProvider.ResolveVideoOwnerAsync(RawVideoId);
+                if (owner is not null)
                 {
-                    Data = _nicoVideoRepository.Get(RawVideoId);
+                    ProviderId = owner.OwnerId;
+                    ProviderType = owner.UserType;
                 }
-
-                if (Data?.ProviderId is null)
-                {
-                    Data = await _nicoVideoProvider.GetNicoVideoInfo(RawVideoId, requireLatest: true);
-                }
-
-                if (Data?.ProviderId is not null)
-                {
-                    ProviderId = Data.ProviderId;
-                    ProviderType = Data.ProviderType;
-                }
-            }
-
-            if (Data != null)
-            {
-                this.Setup(Data);
             }
 
             UpdateIsHidenVideoOwner(this);
@@ -622,48 +608,29 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 				Quality = null,
 			};
 		}
-
     }
 
     public static class VideoListItemControlViewModelExtesnsion
     {
 
 
-        public static void Setup(this VideoListItemControlViewModel vm, NicoVideo data)
-        {
-            vm.VideoId = data.VideoId;
-            vm.PostedAt = data.PostedAt;
-            vm.ViewCount = data.ViewCount;
-            vm.MylistCount = data.MylistCount;
-            vm.CommentCount = data.CommentCount;
-            vm.IsDeleted = data.IsDeleted;
-            vm.PrivateReason = data.PrivateReasonType;
-            vm.Description = data.Description;
-            vm.Permission = data.Permission;
-
-            if (data.Owner != null)
-            {
-                vm.ProviderId = data.Owner.OwnerId;
-                vm.ProviderType = data.Owner.UserType;
-            }
-        }
-
+       
         public static void Setup(this VideoListItemControlViewModel vm, Mntone.Nico2.Users.Video.VideoData data)
         {
             if (vm.RawVideoId != data.VideoId) { throw new Models.Infrastructure.HohoemaExpception(); }
 
-            vm.PostedAt = data.SubmitTime;
+            //vm.PostedAt = data.SubmitTime;
             //vm.Length = data.Length;
         }
 
 
         // とりあえずマイリストから取得したデータによる初期化
-        public static void Setup(this VideoListItemControlViewModel vm, MylistData data)
+        public static void Setup(this VideoListItemControlViewModel vm, Mntone.Nico2.Mylist.MylistData data)
         {
             if (data.WatchId != vm.RawVideoId) { throw new Models.Infrastructure.HohoemaExpception(); }
 
             // vm.VideoId = data.id
-            vm.PostedAt = data.CreateTime;
+            //vm.PostedAt = data.CreateTime;
 
             vm.ViewCount = (int)data.ViewCount;
             vm.CommentCount = (int)data.CommentCount;
@@ -672,12 +639,12 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
 
         // 個別マイリストから取得したデータによる初期化
-        public static void Setup(this VideoListItemControlViewModel vm, VideoInfo data)
+        public static void Setup(this VideoListItemControlViewModel vm, Mntone.Nico2.Searches.Video.VideoInfo data)
         {
             if (vm.RawVideoId != data.Video.Id) { throw new Models.Infrastructure.HohoemaExpception(); }
 
             //vm.VideoId = data.Video.Id;
-            vm.PostedAt = data.Video.FirstRetrieve;
+            //vm.PostedAt = data.Video.FirstRetrieve;
             vm.ViewCount = (int)data.Video.ViewCount;
             vm.CommentCount = (int)data.Thread.GetCommentCount();
             vm.MylistCount = (int)data.Video.MylistCount;

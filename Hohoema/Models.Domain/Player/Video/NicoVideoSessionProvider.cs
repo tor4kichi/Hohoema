@@ -124,31 +124,30 @@ namespace Hohoema.Models.Domain.Player.Video
         private readonly NiconicoSession _niconicoSession;
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
 
-        PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, NicoVideoCacheRepository nicoVideoRepository)
+        PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession)
         {
             ContentId = contentId;
             _niconicoSession = niconicoSession;
-            _nicoVideoRepository = nicoVideoRepository;
         }
 
-        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, NicoVideoCacheRepository nicoVideoRepository, Exception e)
-            : this(contentId, niconicoSession, nicoVideoRepository)
+        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, Exception e)
+            : this(contentId, niconicoSession)
         {
             Exception = e;
             AvailableQualities = ImmutableArray<NicoVideoQualityEntity>.Empty;
             IsSuccess = false;
         }
 
-        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, NicoVideoCacheRepository nicoVideoRepository, PreparePlayVideoFailedReason failedReason)
-            : this(contentId, niconicoSession, nicoVideoRepository)
+        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, PreparePlayVideoFailedReason failedReason)
+            : this(contentId, niconicoSession)
         {
             AvailableQualities = ImmutableArray<NicoVideoQualityEntity>.Empty;
             IsSuccess = false;
             FailedReason = failedReason;
         }
 
-        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, NicoVideoCacheRepository nicoVideoRepository, DmcWatchApiData dmcWatchData)
-            : this(contentId, niconicoSession, nicoVideoRepository)
+        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, DmcWatchApiData dmcWatchData)
+            : this(contentId, niconicoSession)
         {
             _ownershipManager = ownershipManager;
             _dmcWatchData = dmcWatchData;
@@ -188,35 +187,6 @@ namespace Hohoema.Models.Domain.Player.Video
 
         public bool IsForCacheDownload { get; set; }
         public PreparePlayVideoFailedReason? FailedReason { get; }
-
-        public async Task<List<NicoVideo>> GetRelatedVideos()
-        {
-            // TODO: 動画プレイリスト情報の取得をProvider.NicoVideoProviderへ移す
-            var res = await _niconicoSession.Context.Video.GetVideoPlaylistAsync(_dmcWatchData.Video.Id, "");
-
-            if (res.Status == "ok")
-            {
-                return res.Data.Items
-                    .Select(x =>
-                    {
-                        var videoData = _nicoVideoRepository.Get(x.Id);
-                        videoData.Title = x.Title;
-                        videoData.Length = TimeSpan.FromSeconds(x.LengthSeconds);
-                        videoData.PostedAt = DateTime.Parse(x.FirstRetrieve);
-                        videoData.ThumbnailUrl = x.ThumbnailURL;
-                        videoData.ViewCount = x.ViewCounter;
-                        videoData.MylistCount = x.MylistCounter;
-                        videoData.CommentCount = x.NumRes ?? 0;
-
-                        _nicoVideoRepository.AddOrUpdate(videoData);
-
-                        return videoData;
-                    })
-                    .ToList();
-            }
-
-            return new List<NicoVideo>();
-        }
 
 
         public bool CanPlayQuality(string qualityId)
@@ -496,19 +466,16 @@ namespace Hohoema.Models.Domain.Player.Video
 	{
         public NicoVideoSessionProvider(
             NicoVideoProvider nicoVideoProvider, 
-            NicoVideoCacheRepository nicoVideoRepository,
             NiconicoSession niconicoSession,
             NicoVideoSessionOwnershipManager nicoVideoSessionOwnershipManager
             )
 		{
             _nicoVideoProvider = nicoVideoProvider;
-            _nicoVideoRepository = nicoVideoRepository;
             _niconicoSession = niconicoSession;
             _nicoVideoSessionOwnershipManager = nicoVideoSessionOwnershipManager;
         }
 
         readonly private NicoVideoProvider _nicoVideoProvider;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
         readonly private NiconicoSession _niconicoSession;
         private readonly NicoVideoSessionOwnershipManager _nicoVideoSessionOwnershipManager;
 
@@ -518,30 +485,30 @@ namespace Hohoema.Models.Domain.Player.Video
 
             try
             {
-                var dmcRes = await _nicoVideoProvider.GetDmcWatchResponse(rawVideoId, noHistory);
+                var dmcRes = await _nicoVideoProvider.GetWatchPageResponseAsync(rawVideoId, noHistory);
                 if (dmcRes.WatchApiResponse is null)
                 {
                     throw new NotSupportedException("視聴不可：視聴ページの取得または解析に失敗");
                 }
                 else if (dmcRes.WatchApiResponse.WatchApiData.Video.IsDeleted)
                 {
-                    return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoRepository, PreparePlayVideoFailedReason.Deleted);
+                    return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.Deleted);
                 }
                 else if (dmcRes.WatchApiResponse.WatchApiData.Media.Delivery == null)
                 {
                     var preview = dmcRes.WatchApiResponse.WatchApiData.Payment.Preview;
                     if (preview.Premium.IsEnabled)
                     {
-                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoRepository, PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember);
+                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember);
 
                     }
                     else if (preview.Ppv.IsEnabled)
                     {
-                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoRepository, PreparePlayVideoFailedReason.NotPlayPermit_RequirePay);
+                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePay);
                     }
                     else if (preview.Admission.IsEnabled)
                     {
-                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoRepository, PreparePlayVideoFailedReason.NotPlayPermit_RequireChannelMember);
+                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequireChannelMember);
                     }
                     else
                     {
@@ -550,14 +517,14 @@ namespace Hohoema.Models.Domain.Player.Video
                 }
 
 
-                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoSessionOwnershipManager, _nicoVideoRepository, dmcRes.WatchApiResponse.WatchApiData)
+                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoSessionOwnershipManager, dmcRes.WatchApiResponse.WatchApiData)
                 {
                     IsForCacheDownload = noHistory
                 };
             }
             catch (Exception e)
             {
-                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoRepository, e);
+                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, e);
             }
 
             /*
@@ -582,14 +549,14 @@ namespace Hohoema.Models.Domain.Player.Video
                     throw new NotSupportedException("RTMP形式の動画はサポートしていません");
                 }
 
-                return new PreparePlayVideoResult(rawVideoId, _niconicoSession,  _nicoVideoSessionOwnershipManager, _nicoVideoRepository, watchApiRes)
+                return new PreparePlayVideoResult(rawVideoId, _niconicoSession,  _nicoVideoSessionOwnershipManager, watchApiRes)
                 {
                     IsForCacheDownload = isForCacheDownload
                 };
             }
             catch (Exception e)
             {
-                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoRepository, e);
+                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, e);
             }
             */
         }

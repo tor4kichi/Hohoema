@@ -49,7 +49,7 @@ namespace NiconicoToolkit.Video
         }
     }
 
-    public partial class NicoVideoInfoManyResponseContainer
+    public sealed class NicoVideoInfoManyResponseContainer
     {
         [JsonPropertyName("niconico_response")]
         public NicovideoVideoManyResponse NicovideoVideoResponse { get; set; }
@@ -68,32 +68,32 @@ namespace NiconicoToolkit.Video
         public bool IsOK => Status == "ok";
     }
 
-    public partial class NicovideoVideoItem
+    public sealed class NicovideoVideoItem
     {
         [JsonPropertyName("video")]
-        public VideoItem Video { get; set; }
+        public VideoInfo Video { get; set; }
 
         [JsonPropertyName("thread")]
-        public Thread Thread { get; set; }
+        public VideoThread Thread { get; set; }
     }
 
 
-    public partial class NicoVideoInfoResponseContainer
+    public sealed class NicoVideoInfoResponseContainer
     {
         [JsonPropertyName("niconico_response")]
         public NicovideoVideoResponse NicovideoVideoResponse { get; set; }
     }
 
-    public partial class NicovideoVideoResponse
+    public sealed class NicovideoVideoResponse
     {
         [JsonPropertyName("video")]
-        public VideoItem Video { get; set; }
+        public VideoInfo Video { get; set; }
 
         [JsonPropertyName("thread")]
-        public Thread Thread { get; set; }
+        public VideoThread Thread { get; set; }
 
         [JsonPropertyName("tags")]
-        public Tags Tags { get; set; }
+        public VideoTags Tags { get; set; }
 
         [JsonPropertyName("@status")]
         public string Status { get; set; }
@@ -102,14 +102,14 @@ namespace NiconicoToolkit.Video
         public bool IsOK => Status == "ok";
     }
 
-    public partial class Tags
+    public sealed class VideoTags
     {
         [JsonPropertyName("tag_info")]
         [JsonConverter(typeof(System.Text.Json.Serialization.SingleOrArrayConverter<List<TagInfo>, TagInfo>))]
         public List<TagInfo> TagInfo { get; set; }
     }
 
-    public partial class TagInfo
+    public sealed class TagInfo
     {
         [JsonPropertyName("tag")]
         public string Tag { get; set; }
@@ -118,7 +118,7 @@ namespace NiconicoToolkit.Video
         public string Area { get; set; }
     }
 
-    public partial class Thread
+    public sealed class VideoThread
     {
         [JsonPropertyName("id")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]
@@ -138,7 +138,7 @@ namespace NiconicoToolkit.Video
         public string GroupType { get; set; }
     }
 
-    public partial class VideoItem
+    public class VideoInfo
     {
         [JsonPropertyName("id")]
         public string Id { get; set; }
@@ -192,6 +192,9 @@ namespace NiconicoToolkit.Video
         [JsonIgnore]
         private bool IsPayRequired => PpvVideo == 1;
 
+        [JsonIgnore]
+        public bool IsDeleted => Deleted != 0;
+
         /*
         [JsonIgnore]
         public VideoPermission VideoPermission
@@ -210,7 +213,7 @@ namespace NiconicoToolkit.Video
     }
 
 
-    public partial class Genre
+    public sealed class Genre
     {
         [JsonPropertyName("key")]
         public string Key { get; set; }
@@ -219,7 +222,7 @@ namespace NiconicoToolkit.Video
         public string Label { get; set; }
     }
 
-    public partial class Options
+    public sealed class Options
     {
         [JsonPropertyName("@mobile")]
         [JsonConverter(typeof(System.Text.Json.Serialization.LongToStringConverter))]

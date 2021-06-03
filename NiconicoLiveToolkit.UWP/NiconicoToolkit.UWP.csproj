@@ -219,6 +219,7 @@
     <Compile Include="Mylist\MylistClient.cs" />
     <Compile Include="Mylist\MylistSortKey.cs" />
     <Compile Include="Mylist\MylistSortOrder.cs" />
+    <Compile Include="Video\PrivateReasonType.cs" />
     <Compile Include="Video\VideoClient.cs" />
     <Compile Include="Video\VideoPermission.cs" />
     <Compile Include="Video\VideoProviderType.cs" />

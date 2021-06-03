@@ -115,10 +115,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                                     x.Video.Id,
                                     x.Video.Title,
                                     x.Video.Thumbnail.ListingUrl.OriginalString,
-                                    TimeSpan.FromSeconds(x.Video.Duration)
+                                    TimeSpan.FromSeconds(x.Video.Duration),
+                                    x.Video.RegisteredAt.DateTime
                                     );
-
-                                vm.PostedAt = x.Video.RegisteredAt.DateTime;
 
                                 vm.ProviderId = x.Video.Owner.Id;
                                 vm.ProviderType = x.Video.Owner.OwnerType switch
@@ -160,7 +159,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 		public DateTime LastWatchedAt { get; }
 		public uint UserViewCount { get;  }
 
-        public HistoryVideoListItemControlViewModel(DateTime lastWatchedAt, uint viewCount, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
+        public HistoryVideoListItemControlViewModel(DateTime lastWatchedAt, uint viewCount, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt)
+            : base(rawVideoId, title, thumbnailUrl, videoLength, postedAt)
         {
             LastWatchedAt = lastWatchedAt;
             UserViewCount = viewCount;

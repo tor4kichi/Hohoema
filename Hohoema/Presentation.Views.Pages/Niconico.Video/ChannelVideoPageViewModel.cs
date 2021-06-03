@@ -222,8 +222,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         }
 
-        public ChannelVideoListItemViewModel(string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) 
-            : base(rawVideoId, title, thumbnailUrl, videoLength)
+        public ChannelVideoListItemViewModel(string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt) 
+            : base(rawVideoId, title, thumbnailUrl, videoLength, postedAt)
         {
         }
     }
@@ -280,7 +280,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     // so0123456のフォーマットの動画ID
                     // var videoId = video.PurchasePreviewUrl.Split('/').Last();
 
-                    var channelVideo = new ChannelVideoListItemViewModel(video.ItemId, video.Title, video.ThumbnailUrl, video.Length);
+                    var channelVideo = new ChannelVideoListItemViewModel(video.ItemId, video.Title, video.ThumbnailUrl, video.Length, video.PostedAt);
                     if (video.IsRequirePayment)
                     {
                         channelVideo.Permission = NiconicoToolkit.Video.VideoPermission.RequirePay;
@@ -293,7 +293,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     {
                         channelVideo.Permission = NiconicoToolkit.Video.VideoPermission.MemberUnlimitedAccess;
                     }
-                    channelVideo.PostedAt = video.PostedAt;
                     channelVideo.ViewCount = video.ViewCount;
                     channelVideo.CommentCount = video.CommentCount;
                     channelVideo.MylistCount = video.MylistCount; 
