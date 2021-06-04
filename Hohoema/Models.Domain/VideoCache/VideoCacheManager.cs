@@ -110,7 +110,6 @@ namespace Hohoema.Models.Domain.VideoCache
         private readonly NiconicoSession _niconicoSession;
         private readonly NicoVideoSessionOwnershipManager _videoSessionOwnershipManager;
         private readonly VideoCacheItemRepository _videoCacheItemRepository;
-        private readonly NicoVideoCacheRepository _nicoVideoCacheRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly VideoCacheSettings _videoCacheSettings;
 
@@ -219,10 +218,10 @@ namespace Hohoema.Models.Domain.VideoCache
         {
             if (videoId.All(x => char.IsDigit(x)))
             {
-                var id = _nicoVideoCacheRepository.GetVideoId(videoId);
+                var id = _nicoVideoProvider.GetCachedVideoInfo(videoId);
                 if (id != null)
                 {
-                    videoId = id;
+                    videoId = id.VideoId;
                 }
                 else
                 {

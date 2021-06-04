@@ -23,7 +23,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Search
             SearchProvider = searchProvider;
         }
 
-		public string Keyword { get; }
+        public override uint OneTimeLoadCount => 30;
+
+        public string Keyword { get; }
 
 		public bool IsTagSearch { get;  }
 

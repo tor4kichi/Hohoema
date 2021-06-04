@@ -94,6 +94,8 @@ namespace Hohoema.Models.Helpers
 					_HasMoreItems = false;
 				}
 
+				await Task.Delay(250);
+
 				_Position += resultCount;
 
 				if (resultCount == 0)
