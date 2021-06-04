@@ -384,7 +384,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                         topicType == NicoRepoItemTopic.NicoVideo_Channel_Video_Upload)
                 {
                     var vm = new NicoRepoVideoTimeline(item, topicType);
-                    await vm.InitializeAsync(ct).ConfigureAwait(false);
+                    await vm.EnsureProviderIdAsync(ct).ConfigureAwait(false);
                     yield return vm;
                 }
                 else

@@ -435,13 +435,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             foreach (var item in _rankingRssResponse.Items.Skip(head).Take(count))
             {
                 var itemData = item.GetMoreData();
-                var vm = new RankedVideoListItemControlViewModel((uint)(head + index + 1), item.GetVideoId(), item.GetRankTrimmingTitle(), itemData.ThumbnailUrl, itemData.Length, item.PubDate.DateTime);
+                var vm = new RankedVideoListItemControlViewModel((uint)(head + index + 1), item.GetVideoId(), item.GetRankTrimmingTitle(), itemData.ThumbnailUrl, itemData.Length, itemData.PostedAt);
 
                 vm.CommentCount = itemData.CommentCount;
                 vm.ViewCount = itemData.WatchCount;
                 vm.MylistCount = itemData.MylistCount;
 
-                await vm.InitializeAsync(ct);
+                await vm.EnsureProviderIdAsync(ct);
 
                 yield return vm;
 

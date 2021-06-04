@@ -232,7 +232,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         public async ValueTask<NicoVideoOwner> ResolveVideoOwnerAsync(string videoId, CancellationToken ct = default)
         {
-            var video = await GetCachedVideoInfoAsync(videoId, ct);
+            var video = GetCachedVideoInfo(videoId);
+            if (video?.Owner == null)
+            {
+                (_, video) = await GetVideoInfoAsync(videoId, ct);
+            }
+
             return video?.Owner;
         }
 

@@ -574,7 +574,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
 
 
-        public async ValueTask InitializeAsync(CancellationToken ct)
+        public async ValueTask EnsureProviderIdAsync(CancellationToken ct)
         {
             if (string.IsNullOrEmpty(Label))
             {
@@ -589,6 +589,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 {
                     ProviderId = owner.OwnerId;
                     ProviderType = owner.UserType;
+                    ProviderName = owner.ScreenName;
                 }
             }
 

@@ -175,7 +175,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 vm.CommentCount = (int)item.Count.Comment;
                 vm.MylistCount = (int)item.Count.Mylist;
 
-                await vm.InitializeAsync(ct).ConfigureAwait(false);
+                await vm.EnsureProviderIdAsync(ct).ConfigureAwait(false);
                 yield return vm;
 
                 ct.ThrowIfCancellationRequested();

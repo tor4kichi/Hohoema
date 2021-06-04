@@ -840,7 +840,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             foreach (var item in items)
             {
                 var vm = new VideoListItemControlViewModel(item);
-                await vm.InitializeAsync(ct).ConfigureAwait(false);
+                await vm.EnsureProviderIdAsync(ct).ConfigureAwait(false);
                 yield return vm;
             }
         }

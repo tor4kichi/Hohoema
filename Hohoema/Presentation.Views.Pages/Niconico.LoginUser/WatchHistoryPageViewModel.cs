@@ -132,8 +132,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                                 vm.ViewCount = x.Video.Count.View;
                                 vm.MylistCount = x.Video.Count.Mylist;
 
-                                await vm.InitializeAsync(default);
-
                                 Histories.Add(vm);
                             }
                         }

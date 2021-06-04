@@ -276,8 +276,7 @@ namespace NiconicoToolkit.Ranking.Video
                 {
                     RawTitle = item.Title.Text,
                     WatchPageUrl = item.Links[0].Uri,
-                    Description = item.Summary.Text,
-                    PubDate = item.PublishedDate
+                    Description = item.Summary.Text
                 });
             }
 
