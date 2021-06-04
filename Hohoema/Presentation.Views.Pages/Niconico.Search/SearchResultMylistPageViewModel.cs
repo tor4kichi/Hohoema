@@ -47,7 +47,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             SearchHistoryRepository searchHistoryRepository
             )
         {
-            SelectedSearchSort = new ReactivePropertySlim<SearchSortOptionListItem>();
+            SelectedSearchSort = new ReactivePropertySlim<MylistSearchSortOptionListItem>();
             SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
             ApplicationLayoutManager = applicationLayoutManager;
             SearchProvider = searchProvider;
@@ -58,55 +58,55 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         static public MylistSearchPagePayloadContent SearchOption { get; private set; }
 
-        public static IReadOnlyList<SearchSortOptionListItem> MylistSearchOptionListItems { get; private set; }
+        public static IReadOnlyList<MylistSearchSortOptionListItem> MylistSearchOptionListItems { get; private set; }
 
         static SearchResultMylistPageViewModel()
         {
-            MylistSearchOptionListItems = new List<SearchSortOptionListItem>()
+            MylistSearchOptionListItems = new List<MylistSearchSortOptionListItem>()
             {
-                new SearchSortOptionListItem()
+                new MylistSearchSortOptionListItem()
                 {
                     Label = SortHelper.ToCulturizedText(Sort.MylistPopurarity, Order.Descending),
                     Sort = Sort.MylistPopurarity,
                     Order = Order.Descending,
                 }
-				//, new SearchSortOptionListItem()
+				//, new MylistSearchSortOptionListItem()
 				//{
 				//	Label = "人気が低い順",
 				//	Sort = Sort.MylistPopurarity,
 				//	Order = Order.Ascending,
 				//}
-				, new SearchSortOptionListItem()
+				, new MylistSearchSortOptionListItem()
                 {
                     Label = SortHelper.ToCulturizedText(Sort.UpdateTime, Order.Descending),
                     Sort = Sort.UpdateTime,
                     Order = Order.Descending,
                 }
-				//, new SearchSortOptionListItem()
+				//, new MylistSearchSortOptionListItem()
 				//{
 				//	Label = "更新が古い順",
 				//	Sort = Sort.UpdateTime,
 				//	Order = Order.Ascending,
 				//}
-				, new SearchSortOptionListItem()
+				, new MylistSearchSortOptionListItem()
                 {
                     Label = SortHelper.ToCulturizedText(Sort.VideoCount, Order.Descending),
                     Sort = Sort.VideoCount,
                     Order = Order.Descending,
                 }
-                //, new SearchSortOptionListItem()
+                //, new MylistSearchSortOptionListItem()
                 //{
                 //	Label = "動画数が少ない順",
                 //	Sort = Sort.VideoCount,
                 //	Order = Order.Ascending,
                 //}
-                , new SearchSortOptionListItem()
+                , new MylistSearchSortOptionListItem()
                 {
                     Label = SortHelper.ToCulturizedText(Sort.Relation, Order.Descending),
                     Sort = Sort.Relation,
                     Order = Order.Descending,
                 }
-				//, new SearchSortOptionListItem()
+				//, new MylistSearchSortOptionListItem()
 				//{
 				//	Label = "適合率が低い順",
 				//	Sort = Sort.Relation,
@@ -116,7 +116,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 			};
         }
 
-        public ReactivePropertySlim<SearchSortOptionListItem> SelectedSearchSort { get; private set; }
+        public ReactivePropertySlim<MylistSearchSortOptionListItem> SelectedSearchSort { get; private set; }
 
         private string _keyword;
         public string Keyword

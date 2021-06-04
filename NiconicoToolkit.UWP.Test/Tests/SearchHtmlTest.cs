@@ -1,5 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NiconicoToolkit.Search.Video;
+﻿
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NiconicoToolkit.SearchWithPage.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,18 +10,18 @@ using System.Threading.Tasks;
 namespace NiconicoToolkit.UWP.Test.Tests
 {
     [TestClass]
-    public sealed class SearchTest
+    public sealed class SearchHtmlTest
     {
         [TestInitialize]
         public async Task Initialize()
         {
             var creationResult = await AccountTestHelper.CreateNiconicoContextAndLogInWithTestAccountAsync();
             _context = creationResult.niconicoContext;
-            _searchClient = _context.Search;
+            _searchClient = _context.SearchWithPage;
         }
 
         NiconicoContext _context;
-        Search.SearchClient _searchClient;
+        SearchWithPage.SearchWithPageClient _searchClient;
 
 
         [TestMethod]

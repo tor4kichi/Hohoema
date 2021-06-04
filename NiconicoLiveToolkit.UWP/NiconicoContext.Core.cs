@@ -15,11 +15,12 @@ using Windows.Storage.Streams;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Activity;
-using NiconicoToolkit.Search;
+using NiconicoToolkit.SearchWithPage;
 using NiconicoToolkit.Recommend;
 using NiconicoToolkit.Channels;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Follow;
+using NiconicoToolkit.SearchWithCeApi;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -48,7 +49,8 @@ namespace NiconicoToolkit
             User = new UserClient(this);
             Video = new VideoClient(this);
             Activity = new ActivityClient(this);
-            Search = new SearchClient(this);
+            SearchWithPage = new SearchWithPageClient(this);
+            SearchWithCeApi = new SearchWithCeApiClient(this);
             Recommend = new RecommendClient(this);
             Channel = new ChannelClient(this);
             Mylist = new MylistClient(this);
@@ -90,7 +92,8 @@ namespace NiconicoToolkit
         public UserClient User { get; }
         public VideoClient Video { get; }
         public ActivityClient Activity { get; }
-        public SearchClient Search { get; }
+        public SearchWithPageClient SearchWithPage { get; }
+        public SearchWithCeApiClient SearchWithCeApi { get; }
         public RecommendClient Recommend { get; }
         public ChannelClient Channel { get; }
         public MylistClient Mylist { get; }

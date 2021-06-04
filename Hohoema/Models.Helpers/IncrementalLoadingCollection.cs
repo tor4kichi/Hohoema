@@ -65,6 +65,7 @@ namespace Hohoema.Models.Helpers
 
         public async Task<LoadMoreItemsResult> LoadDataAsync(uint count, CancellationToken ct)
         {
+			var position = _Position;
 			using (await LoadingLock.LockAsync(ct))
 			{
 				uint resultCount = 0;

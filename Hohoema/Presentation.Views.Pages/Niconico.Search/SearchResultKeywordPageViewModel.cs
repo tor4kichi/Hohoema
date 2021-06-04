@@ -11,6 +11,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Mntone.Nico2;
+using NiconicoToolkit.SearchWithCeApi.Video;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
@@ -106,89 +107,89 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         {
             new SearchSortOptionListItem()
             {
-                Label = SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Descending),
-                Order = Order.Descending,
-                Sort = Sort.FirstRetrieve,
+                Label = SortHelper.ToCulturizedText(VideoSortKey.FirstRetrieve, VideoSortOrder.Desc),
+                Order = VideoSortOrder.Desc,
+                Sort = VideoSortKey.FirstRetrieve,
             },
             new SearchSortOptionListItem()
             {
-                Label = SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Ascending),
-                Order = Order.Ascending,
-                Sort = Sort.FirstRetrieve,
-            },
-
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(Sort.NewComment, Order.Descending),
-                Order = Order.Descending,
-                Sort = Sort.NewComment,
-            },
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(Sort.NewComment, Order.Ascending),
-                Order = Order.Ascending,
-                Sort = Sort.NewComment,
+                Label = SortHelper.ToCulturizedText(VideoSortKey.FirstRetrieve, VideoSortOrder.Asc),
+                Order = VideoSortOrder.Asc,
+                Sort = VideoSortKey.FirstRetrieve,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = SortHelper.ToCulturizedText(Sort.ViewCount, Order.Descending),
-                Order = Order.Descending,
-                Sort = Sort.ViewCount,
+                Label = SortHelper.ToCulturizedText(VideoSortKey.NewComment, VideoSortOrder.Desc),
+                Order = VideoSortOrder.Desc,
+                Sort = VideoSortKey.NewComment,
             },
             new SearchSortOptionListItem()
             {
-                Label = SortHelper.ToCulturizedText(Sort.ViewCount, Order.Ascending),
-                Order = Order.Ascending,
-                Sort = Sort.ViewCount,
-            },
-
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(Sort.CommentCount, Order.Descending),
-                Order = Order.Descending,
-                Sort = Sort.CommentCount,
-            },
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(Sort.CommentCount, Order.Ascending),
-                Order = Order.Ascending,
-                Sort = Sort.CommentCount,
-            },
-
-
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(Sort.Length, Order.Descending),
-                Order = Order.Descending,
-                Sort = Sort.Length,
-            },
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(Sort.Length, Order.Ascending),
-                Order = Order.Ascending,
-                Sort = Sort.Length,
+                Label = SortHelper.ToCulturizedText(VideoSortKey.NewComment, VideoSortOrder.Asc),
+                Order = VideoSortOrder.Asc,
+                Sort = VideoSortKey.NewComment,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = SortHelper.ToCulturizedText(Sort.MylistCount, Order.Descending),
-                Order = Order.Descending,
-                Sort = Sort.MylistCount,
+                Label = SortHelper.ToCulturizedText(VideoSortKey.ViewCount, VideoSortOrder.Desc),
+                Order = VideoSortOrder.Desc,
+                Sort = VideoSortKey.ViewCount,
             },
             new SearchSortOptionListItem()
             {
-                Label = SortHelper.ToCulturizedText(Sort.MylistCount, Order.Ascending),
-                Order = Order.Ascending,
-                Sort = Sort.MylistCount,
+                Label = SortHelper.ToCulturizedText(VideoSortKey.ViewCount, VideoSortOrder.Asc),
+                Order = VideoSortOrder.Asc,
+                Sort = VideoSortKey.ViewCount,
+            },
+
+            new SearchSortOptionListItem()
+            {
+                Label = SortHelper.ToCulturizedText(VideoSortKey.CommentCount, VideoSortOrder.Desc),
+                Order = VideoSortOrder.Desc,
+                Sort = VideoSortKey.CommentCount,
+            },
+            new SearchSortOptionListItem()
+            {
+                Label = SortHelper.ToCulturizedText(VideoSortKey.CommentCount, VideoSortOrder.Asc),
+                Order = VideoSortOrder.Asc,
+                Sort = VideoSortKey.CommentCount,
+            },
+
+
+            new SearchSortOptionListItem()
+            {
+                Label = SortHelper.ToCulturizedText(VideoSortKey.Length, VideoSortOrder.Desc),
+                Order = VideoSortOrder.Desc,
+                Sort = VideoSortKey.Length,
+            },
+            new SearchSortOptionListItem()
+            {
+                Label = SortHelper.ToCulturizedText(VideoSortKey.Length, VideoSortOrder.Asc),
+                Order = VideoSortOrder.Asc,
+                Sort = VideoSortKey.Length,
+            },
+
+            new SearchSortOptionListItem()
+            {
+                Label = SortHelper.ToCulturizedText(VideoSortKey.MylistCount, VideoSortOrder.Desc),
+                Order = VideoSortOrder.Desc,
+                Sort = VideoSortKey.MylistCount,
+            },
+            new SearchSortOptionListItem()
+            {
+                Label = SortHelper.ToCulturizedText(VideoSortKey.MylistCount, VideoSortOrder.Asc),
+                Order = VideoSortOrder.Asc,
+                Sort = VideoSortKey.MylistCount,
             },
 			// V1APIだとサポートしてない
 			/* 
 			new SearchSortOptionListItem()
 			{
 				Label = "人気の高い順",
-				Sort = Sort.Popurarity,
-				Order = Mntone.Nico2.Order.Descending,
+				Sort = VideoSortKey.Popurarity,
+				Order = Mntone.Nico2.Order.Desc,
 			},
 			*/
 		};

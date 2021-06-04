@@ -166,9 +166,9 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     var details= new CachedVideoDetails()
                     {
                         VideoTitle = video.Title,
-                        ViewCount = (int)video.ViewCounter,
+                        ViewCount = (int)video.ViewCount,
                         CommentCount = (int)videoRes.Thread.NumRes,
-                        MylistCount = (int)video.MylistCounter,
+                        MylistCount = (int)video.MylistCount,
                         VideoLength = TimeSpan.FromSeconds(video.LengthInSeconds),
                         SubmitDate = video.FirstRetrieve.DateTime,
                         OwnerType = nicoVideo.Owner.UserType,

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Mntone.Nico2;
+using NiconicoToolkit.SearchWithCeApi.Video;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,10 +10,16 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Search
 {
 	public class SearchSortOptionListItem
 	{
-		public Mntone.Nico2.Order Order { get; set; }
-		public Mntone.Nico2.Sort Sort { get; set; }
+		public VideoSortOrder Order { get; set; }
+		public VideoSortKey Sort { get; set; }
+		public string Label { get; set; }
+	}
+
+	public class MylistSearchSortOptionListItem
+	{
+		public Order Order { get; set; }
+		public Sort Sort { get; set; }
 		public string Label { get; set; }
 
 	}
-
 }

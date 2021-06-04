@@ -339,12 +339,12 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             }
         }
 
-        public VideoListItemControlViewModel(VideoInfo video, VideoThread thread)            
+        public VideoListItemControlViewModel(NiconicoToolkit.SearchWithCeApi.Video.VideoItem video, NiconicoToolkit.SearchWithCeApi.Video.ThreadItem thread)            
             : this(video.Id, video.Title, video.ThumbnailUrl.OriginalString, TimeSpan.FromSeconds(video.LengthInSeconds), video.FirstRetrieve.DateTime)
         {
-            _ViewCount = (int)video.ViewCounter;
-            _MylistCount = (int)video.MylistCounter;
-            _CommentCount = (int)thread.NumRes;
+            _ViewCount = video.ViewCount;
+            _MylistCount = video.MylistCount;
+            _CommentCount =thread.NumRes;
             _IsDeleted = video.Deleted != 0;
             if (Enum.IsDefined(typeof(PrivateReasonType), video.Deleted))
             {
@@ -353,14 +353,14 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             
             _Description = video.Description;
             
-            if (video.ProviderType == NiconicoToolkit.Video.VideoProviderType.Channel)
+            if (video.ProviderType == NiconicoToolkit.SearchWithCeApi.Video.VideoProviderType.Channel)
             {
                 _ProviderId = video.CommunityId;
                 //_ProviderName = video.name;
                 ProviderType = OwnerType.Channel;
                 RegisterVideoOwnerFilteringMessageReceiver(_ProviderId, null);
             }
-            else if (video.ProviderType == VideoProviderType.Regular)
+            else if (video.ProviderType == NiconicoToolkit.SearchWithCeApi.Video.VideoProviderType.Regular)
             {
                 _ProviderId = video.UserId.ToString();
                 ProviderType = OwnerType.User;
@@ -652,6 +652,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             vm.ProviderType = data.Video.ProviderType == "channel" ? OwnerType.Channel : OwnerType.User;
             vm.ProviderId = vm.ProviderType == OwnerType.Channel ? data.Video.CommunityId : data.Video.UserId;
         }
+
     }
 
 

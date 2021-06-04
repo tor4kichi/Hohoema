@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Uno;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Video;
+using NiconicoToolkit.SearchWithCeApi.Video;
 
 namespace Hohoema.Models.Domain.Subscriptions
 {
@@ -403,8 +404,8 @@ namespace Hohoema.Models.Domain.Subscriptions
             var head = page * itemGetCountPerPage;
             var res = await searchProvider.GetKeywordSearch(keyword, (uint)head, itemGetCountPerPage);
 
-            var videoItems = res.VideoInfoItems;
-            var currentItemsCount = videoItems?.Count ?? 0;
+            var videoItems = res.Videos;
+            var currentItemsCount = videoItems?.Length ?? 0;
             if (videoItems == null || currentItemsCount == 0)
             {
 
@@ -416,15 +417,15 @@ namespace Hohoema.Models.Domain.Subscriptions
                     var video = _nicoVideoProvider.UpdateCache(item.Video.Id, video => 
                     {
                         video.Title = item.Video.Title;
-                        video.PostedAt = item.Video.FirstRetrieve;
-                        video.Length = item.Video.Length;
+                        video.PostedAt = item.Video.FirstRetrieve.DateTime;
+                        video.Length = item.Video.Duration;
                         video.Description = item.Video.Description;
                         video.ThumbnailUrl = item.Video.ThumbnailUrl.OriginalString;
 
                         video.Owner ??= item.Video.ProviderType switch
                         {
-                            "channel" => new NicoVideoOwner() { OwnerId = item.Video.CommunityId, UserType = OwnerType.Channel },
-                            _ => new NicoVideoOwner() { OwnerId = item.Video.UserId, UserType = OwnerType.User }
+                            VideoProviderType.Channel => new NicoVideoOwner() { OwnerId = item.Video.CommunityId, UserType = OwnerType.Channel },
+                            _ => new NicoVideoOwner() { OwnerId = item.Video.UserId.ToString(), UserType = OwnerType.User }
                         };
 
                         return (item.Video.IsDeleted, default);
@@ -448,8 +449,8 @@ namespace Hohoema.Models.Domain.Subscriptions
             var head = page * itemGetCountPerPage;
             var res = await searchProvider.GetTagSearch(tag, (uint)head, itemGetCountPerPage);
 
-            var videoItems = res.VideoInfoItems;
-            var currentItemsCount = videoItems?.Count ?? 0;
+            var videoItems = res.Videos;
+            var currentItemsCount = videoItems?.Length ?? 0;
             if (videoItems == null || currentItemsCount == 0)
             {
 
@@ -461,15 +462,14 @@ namespace Hohoema.Models.Domain.Subscriptions
                     var video = _nicoVideoProvider.UpdateCache(item.Video.Id, video => 
                     {
                         video.Title = item.Video.Title;
-                        video.PostedAt = item.Video.FirstRetrieve;
-                        video.Length = item.Video.Length;
-                        video.PostedAt = item.Video.FirstRetrieve;
+                        video.PostedAt = item.Video.FirstRetrieve.DateTime;
+                        video.Length = item.Video.Duration;
                         video.Description = item.Video.Description;
                         video.ThumbnailUrl = item.Video.ThumbnailUrl.OriginalString;
                         video.Owner = video.Owner ?? item.Video.ProviderType switch
                         {
-                            "channel" => new NicoVideoOwner() { OwnerId = item.Video.CommunityId, UserType = OwnerType.Channel },
-                            _ => new NicoVideoOwner() { OwnerId = item.Video.UserId, UserType = OwnerType.User }
+                            VideoProviderType.Channel => new NicoVideoOwner() { OwnerId = item.Video.CommunityId, UserType = OwnerType.Channel },
+                            _ => new NicoVideoOwner() { OwnerId = item.Video.UserId.ToString(), UserType = OwnerType.User }
                         };
 
                         return (item.Video.IsDeleted, default);

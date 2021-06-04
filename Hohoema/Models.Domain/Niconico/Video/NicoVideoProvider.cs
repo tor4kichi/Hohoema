@@ -22,6 +22,7 @@ using NiconicoToolkit.Video;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using NiconicoToolkit.SearchWithCeApi.Video;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {
@@ -132,7 +133,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         MemoryCache _cache;
         MemoryCacheEntryOptions _entryOptions;
-        NiconicoToolkit.Video.VideoClient VideoClient => NiconicoSession.ToolkitContext.Video;
+        NiconicoToolkit.SearchWithCeApi.Video.VideoSearchSubClient SearchClient => NiconicoSession.ToolkitContext.SearchWithCeApi.Video;
 
 
         static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(5);
@@ -244,7 +245,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         /// </summary>
         /// <param name="rawVideoId"></param>
         /// <returns></returns>
-        public async Task<(NicovideoVideoResponse Response, NicoVideo NicoVideo)> GetVideoInfoAsync(string rawVideoId, CancellationToken ct = default)
+        public async Task<(VideoIdSearchSingleResponse Response, NicoVideo NicoVideo)> GetVideoInfoAsync(string rawVideoId, CancellationToken ct = default)
         {
             if (NiconicoSession.ServiceStatus.IsOutOfService())
             {
@@ -260,7 +261,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
             try
             {
-                var res = await VideoClient.GetVideoInfoAsync(rawVideoId);
+                var res = await SearchClient.IdSearchAsync(rawVideoId);
 
                 if (!res.IsOK)
                 {
@@ -284,7 +285,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             }            
         }
 
-        private NicoVideo UpdateVideo(string videoId, VideoInfo video)
+        private NicoVideo UpdateVideo(string videoId, VideoItem video)
         {
             return UpdateCache(videoId, info =>
             {
@@ -295,7 +296,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                 info.ThumbnailUrl = video.ThumbnailUrl.OriginalString;
                 info.Description = video.Description;
 
-                if (video.ProviderType == NiconicoToolkit.Video.VideoProviderType.Channel)
+                if (video.ProviderType == VideoProviderType.Channel)
                 {
                     info.Owner = new NicoVideoOwner()
                     {
@@ -312,7 +313,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     info.Owner = new NicoVideoOwner()
                     {
                         OwnerId = video.UserId.ToString(),
-                        UserType = video.ProviderType == NiconicoToolkit.Video.VideoProviderType.Regular ? OwnerType.User : OwnerType.Channel,
+                        UserType = video.ProviderType == VideoProviderType.Regular ? OwnerType.User : OwnerType.Channel,
                         IconUrl = info.Owner?.IconUrl,
                         ScreenName = info.Owner?.ScreenName,
                     };
@@ -324,13 +325,13 @@ namespace Hohoema.Models.Domain.Niconico.Video
             });
         }
 
-        public async IAsyncEnumerable<VideoInfo> GetVideoInfoManyAsync(IEnumerable<string> idItems, bool isLatestRequired = true, [EnumeratorCancellation] CancellationToken ct = default)
+        public async IAsyncEnumerable<VideoItem> GetVideoInfoManyAsync(IEnumerable<string> idItems, bool isLatestRequired = true, [EnumeratorCancellation] CancellationToken ct = default)
         {
             var res = await Task.Run(async () =>
             {
                 using (await _ThumbnailAccessLock.LockAsync(ct))
                 {
-                    return await VideoClient.GetVideoInfoManyAsync(idItems);
+                    return await SearchClient.IdSearchAsync(idItems);
                 }
             });
 
@@ -346,7 +347,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
                 if (video is null && isLatestRequired)
                 {
-                    var singleRes = await VideoClient.GetVideoInfoAsync(videoId);
+                    var singleRes = await SearchClient.IdSearchAsync(videoId);
                     video = singleRes?.Video;
                 }
 

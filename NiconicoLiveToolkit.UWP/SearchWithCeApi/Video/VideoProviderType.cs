@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NiconicoToolkit.Video
+namespace NiconicoToolkit.SearchWithCeApi.Video
 {
     public enum VideoProviderType
     {

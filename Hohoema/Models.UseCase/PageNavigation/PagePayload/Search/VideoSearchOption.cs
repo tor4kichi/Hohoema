@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2;
+using NiconicoToolkit.SearchWithCeApi.Video;
 using System;
 using System.Runtime.Serialization;
 
@@ -8,10 +9,10 @@ namespace Hohoema.Models.UseCase.PageNavigation
 	public abstract class VideoSearchOption : SearchPagePayloadContentBase, IEquatable<VideoSearchOption>
 	{
         [DataMember]
-        public Mntone.Nico2.Order Order { get; set; } = Order.Descending;
+        public VideoSortOrder Order { get; set; } = VideoSortOrder.Desc;
 
         [DataMember]
-        public Sort Sort { get; set; } = Sort.FirstRetrieve;
+        public VideoSortKey Sort { get; set; } = VideoSortKey.FirstRetrieve;
 
 
 

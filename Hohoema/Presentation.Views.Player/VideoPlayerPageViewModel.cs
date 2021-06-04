@@ -39,6 +39,7 @@ using System.Collections.Generic;
 using Hohoema.Presentation.Views.Player;
 using NiconicoToolkit.Video.Watch;
 using NiconicoToolkit.Video;
+using NiconicoToolkit.SearchWithCeApi.Video;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -485,7 +486,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             }
         }
 
-        private void CheckDeleted(NicovideoVideoResponse res)
+        private void CheckDeleted(VideoIdSearchSingleResponse res)
         {
             try
             {
