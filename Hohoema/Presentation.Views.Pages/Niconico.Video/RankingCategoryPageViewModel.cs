@@ -30,6 +30,7 @@ using Hohoema.Models.Domain.Notification;
 using Hohoema.Models.Domain.Niconico;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Rss.Video;
+using MonkeyCache;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
@@ -119,8 +120,45 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 .Select(genre => "RankingTitleWithGenre".Translate(genre.Translate()));
         }
 
-        FastAsyncLock _updateLock = new FastAsyncLock();
+
+        private static RankingGenre? _previousRankingGenre;
+        bool _IsNavigateCompleted = false;
+        bool _isRequireUpdate;
+        bool _nowInitializeRankingTerm = false;
+
+        private RankingGenre _RankingGenre;
+        public RankingGenre RankingGenre
+        {
+            get => _RankingGenre;
+            set => SetProperty(ref _RankingGenre, value);
+        }
+
+        public ReactiveProperty<RankingGenreTag> SelectedRankingTag { get; private set; }
+        public ReactiveProperty<RankingTerm?> SelectedRankingTerm { get; private set; }
+
+        public IReadOnlyReactiveProperty<RankingTerm[]> CurrentSelectableRankingTerms { get; }
+
+        public ObservableCollection<RankingGenreTag> PickedTags { get; } = new ObservableCollection<RankingGenreTag>();
+
+
+        public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
+        public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
+        public PageManager PageManager { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public NicoVideoProvider NicoVideoProvider { get; }
+        public VideoRankingSettings RankingSettings { get; }
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
+        public RankingProvider RankingProvider { get; }
+
+        private readonly IBarrel _barrel;
+        private readonly NiconicoSession _niconicoSession;
+        private readonly NotificationService _notificationService;
+        private readonly FastAsyncLock _updateLock = new FastAsyncLock();
+
+
         public RankingCategoryPageViewModel(
+            IBarrel barrel,
             ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
             PageManager pageManager,
@@ -132,6 +170,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
+            _barrel = barrel;
             ApplicationLayoutManager = applicationLayoutManager;
             _niconicoSession = niconicoSession;
             PageManager = pageManager;
@@ -203,44 +242,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 .AddTo(_CompositeDisposable);
         }
 
-            
-
-        
-
-        bool _nowInitializeRankingTerm = false;
-
-        private RankingGenre _RankingGenre;
-        public RankingGenre RankingGenre
-        {
-            get => _RankingGenre;
-            set => SetProperty(ref _RankingGenre, value);
-        }
-
-        public ReactiveProperty<RankingGenreTag> SelectedRankingTag { get; private set; }
-        public ReactiveProperty<RankingTerm?> SelectedRankingTerm { get; private set; }
-
-        public IReadOnlyReactiveProperty<RankingTerm[]> CurrentSelectableRankingTerms { get; }
-
-        public ObservableCollection<RankingGenreTag> PickedTags { get; } = new ObservableCollection<RankingGenreTag>();
 
 
-        public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
-        public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
-        public ApplicationLayoutManager ApplicationLayoutManager { get; }
-        public PageManager PageManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
-        public NicoVideoProvider NicoVideoProvider { get; }
-        public VideoRankingSettings RankingSettings { get; }
-        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
-        public RankingProvider RankingProvider { get; }
-
-        private readonly NiconicoSession _niconicoSession;
-        private readonly NotificationService _notificationService;
-
-        private static RankingGenre? _previousRankingGenre;
-        bool _IsNavigateCompleted = false;
-
-        bool _isRequireUpdate;
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             using (await _updateLock.LockAsync(NavigationCancellationToken))
@@ -375,7 +378,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             IIncrementalSource<RankedVideoListItemControlViewModel> source = null;
             try
             {
-                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider);
+                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, _barrel);
 
                 CanChangeRankingParameter.Value = true;
             }
@@ -398,31 +401,29 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
     public class CategoryRankingLoadingSource : HohoemaIncrementalSourceBase<RankedVideoListItemControlViewModel>
     {
+        private readonly TimeSpan RankingResponseExpireDuration = TimeSpan.FromMinutes(10);
+
+        private readonly NiconicoSession _niconicoSession;
+        private readonly IBarrel _barrel;
+
+
+        RankingOptions _options;
+        RssVideoResponse _rankingRssResponse;
+
         public CategoryRankingLoadingSource(
             RankingGenre genre,
             string tag,
             RankingTerm term,
             NiconicoSession niconicoSession,
-            NicoVideoProvider nicoVideoProvider
+            IBarrel barrel
             )
             : base()
         {
-            Genre = genre;
-            Term = term;
             _niconicoSession = niconicoSession;
-            _nicoVideoProvider = nicoVideoProvider;
-            Tag = tag;
-
+            _barrel = barrel;
+            _options = new RankingOptions(genre, term, tag);
         }
 
-        public RankingGenre Genre { get; }
-        public RankingTerm Term { get; }
-        public string Tag { get; }
-
-        RssVideoResponse RankingRss;
-        private readonly NiconicoSession _niconicoSession;
-        private readonly NicoVideoProvider _nicoVideoProvider;
-        private readonly FeatureFlags _featureFlags = new FeatureFlags();
 
         #region Implements HohoemaPreloadingIncrementalSourceBase		
 
@@ -431,7 +432,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         protected override async IAsyncEnumerable<RankedVideoListItemControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             int index = 0;
-            foreach (var item in RankingRss.Items.Skip(head).Take(count))
+            foreach (var item in _rankingRssResponse.Items.Skip(head).Take(count))
             {
                 var itemData = item.GetMoreData();
                 var vm = new RankedVideoListItemControlViewModel((uint)(head + index + 1), item.GetVideoId(), item.GetRankTrimmingTitle(), itemData.ThumbnailUrl, itemData.Length, item.PubDate.DateTime);
@@ -452,19 +453,31 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         protected override async ValueTask<int> ResetSourceImpl()
         {
-            RankingRss = await _niconicoSession.ToolkitContext.Video.Ranking.GetRankingRssAsync(Genre, Tag, Term);
+            var key = _options.ToString();
+            if (!_barrel.IsExpired(key))
+            {
+                _rankingRssResponse = _barrel.Get<RssVideoResponse>(key);
+            }
+            else
+            {
+                _rankingRssResponse = await _niconicoSession.ToolkitContext.Video.Ranking.GetRankingRssAsync(_options.Genre, _options.Tag, _options.Term);
+                if (_rankingRssResponse.IsOK)
+                {
+                    _barrel.Add(key, _rankingRssResponse, RankingResponseExpireDuration);
+                }
+            }
 
-            return RankingRss.Items.Count;
+            return _rankingRssResponse.Items.Count;
 
         }
 
 
         #endregion
-
-
-
-
     }
+
+
+    public record RankingOptions(RankingGenre Genre, RankingTerm Term, string Tag);
+
 
 
     public class RankedVideoListItemControlViewModel : VideoListItemControlViewModel

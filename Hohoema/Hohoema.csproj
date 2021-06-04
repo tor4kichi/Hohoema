@@ -131,6 +131,7 @@
     </Compile>
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
     <Compile Include="FixPrism\BindableBaseWithFix.cs" />
+    <Compile Include="IsExternalInit.cs" />
     <Compile Include="Locales\LocaleToDisplayNameConverter.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
     <Compile Include="Locales\LocalizeWithParameterConverter.cs" />
