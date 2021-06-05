@@ -44,27 +44,27 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
            NicoChannelCacheRepository nicoChannelCacheRepository
            )
         {
-            NicoVideoProvider = nicoVideoProvider;
-            ChannelProvider = channelProvider;
+            _nicoVideoProvider = nicoVideoProvider;
+            _channelProvider = channelProvider;
             _mylistRepository = mylistRepository;
-            HohoemaPlaylist = hohoemaPlaylist;
-            PageManager = pageManager;
+            _hohoemaPlaylist = hohoemaPlaylist;
+            _pageManager = pageManager;
             _nicoChannelCacheRepository = nicoChannelCacheRepository;
         }
+
+        private readonly NicoVideoProvider _nicoVideoProvider;
+        private readonly ChannelProvider _channelProvider;
+        private readonly HohoemaPlaylist _hohoemaPlaylist;
+        private readonly PageManager _pageManager;
+        private readonly MylistRepository _mylistRepository;
+        private readonly NicoChannelCacheRepository _nicoChannelCacheRepository;
 
         public NicoVideoSessionProvider Video { get; }
 
         public string JumpVideoId { get; set; }
-        public NicoVideoProvider NicoVideoProvider { get; }
-        public ChannelProvider ChannelProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
-        public PageManager PageManager { get; }
         public bool HasVideoDescription { get; private set; }
 
         const double _SeriesVideosTitleSimilarityValue = 0.7;
-        private readonly MylistRepository _mylistRepository;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
-        private readonly NicoChannelCacheRepository _nicoChannelCacheRepository;
         private static VideoRelatedContents _cachedVideoRelatedContents;
 
         public async Task<VideoRelatedContents> GetRelatedContentsAsync(string videoId)
@@ -74,7 +74,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 return _cachedVideoRelatedContents;
             }
 
-            var videoInfo = _nicoVideoRepository.Get(videoId);
+            var videoInfo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
             var videoViewerHelpInfo = NicoVideoSessionProvider.GetVideoRelatedInfomationWithVideoDescription(videoId, videoInfo.Description);
 
             VideoRelatedContents result = new VideoRelatedContents(videoId);
@@ -99,7 +99,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             seriesVideos.Add(videoInfo);
             foreach (var id in videoIds)
             {
-                var video = await NicoVideoProvider.GetCachedVideoInfoAsync(id);
+                var video = await _nicoVideoProvider.GetCachedVideoInfoAsync(id);
 
                 var titleSimilarity = videoInfo.Title.CalculateSimilarity(video.Title);
                 if (titleSimilarity > _SeriesVideosTitleSimilarityValue)
@@ -162,7 +162,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 // ページアクセスが必要なので先頭ページを取って
                 // 全体の分量を把握してから全ページ取得を行う
                 List<ChannelVideoInfo> channelVideos = new List<ChannelVideoInfo>();
-                var channelVideosFirstPage = await ChannelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, 0);
+                var channelVideosFirstPage = await _channelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, 0);
                 var uncheckedCount = channelVideosFirstPage.TotalCount - channelVideosFirstPage.Videos.Count;
                 if (channelVideosFirstPage.TotalCount != 0)
                 {
@@ -171,7 +171,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     var uncheckedPageCount = (int)Math.Ceiling((double)uncheckedCount / 20); /* チャンネル動画１ページ = 20 動画 */
                     foreach (var page in Enumerable.Range(1, uncheckedPageCount))
                     {
-                        var channelVideoInfo = await ChannelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, page);
+                        var channelVideoInfo = await _channelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, page);
                         channelVideos.AddRange(channelVideoInfo.Videos);
                     }
 

@@ -18,7 +18,6 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
     
     public sealed class MylistProvider : ProviderBase
     {
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
 
         public MylistProvider(

@@ -86,7 +86,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         private bool _IsInitialized = false;
         const double _SeriesVideosTitleSimilarityValue = 0.7;
         private readonly MylistRepository _mylistRepository;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly NicoChannelCacheRepository _nicoChannelCacheRepository;
         private readonly IScheduler _scheduler;
 
@@ -111,7 +110,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             {
                 if (_IsInitialized) { return; }
 
-                var sourceVideo = _nicoVideoRepository.Get(videoId);
+                var sourceVideo = NicoVideoProvider.GetCachedVideoInfo(videoId);
                 _VideoViewerHelpInfo = NicoVideoSessionProvider.GetVideoRelatedInfomationWithVideoDescription(videoId, sourceVideo.Title);
 
                 // ニコスクリプトで指定されたジャンプ先動画
@@ -281,7 +280,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 {
                     Videos.AddRange((IEnumerable<VideoListItemControlViewModel>)(items.Video_info?.Select((Func<Mntone.Nico2.Mylist.Video_info, VideoListItemControlViewModel>)(x =>
                     {
-                        var video = _nicoVideoRepository.Get(x.Video.Id);
+                        var video = NicoVideoProvider.GetCachedVideoInfo(x.Video.Id);
                         video.Title = x.Video.Title;
                         video.ThumbnailUrl = x.Video.Thumbnail_url;
 

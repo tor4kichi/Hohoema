@@ -122,7 +122,6 @@ namespace Hohoema.Models.Domain.Player.Video
         private readonly DmcWatchApiData _dmcWatchData;
 
         private readonly NiconicoSession _niconicoSession;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
 
         PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession)
         {

@@ -121,7 +121,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         private readonly DialogService _dialogService;
         private readonly VideoCacheCommentRepository _commentRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
 
 
 

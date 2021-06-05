@@ -105,7 +105,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
         public ObservableCollection<string> RecommendSourceTags { get; } = new ObservableCollection<string>();
 
         private bool _EndOfRecommend = false;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
 
         public override uint OneTimeLoadCount => 18;
