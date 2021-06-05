@@ -15,6 +15,7 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
 		InvalidPostkey = 4,
 		Locked = 5,
 		Readonly = 6,
+		Unknown_7 = 7,
 		TooLong = 8
 	}
 }
