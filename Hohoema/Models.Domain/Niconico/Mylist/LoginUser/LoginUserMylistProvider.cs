@@ -126,7 +126,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             return mylistGroups;
         }
 
-        public async Task<List<NicoVideo>> GetLoginUserMylistItemsAsync(IMylist mylist, MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
+        public async Task<List<(MylistItem MylistItem, NicoVideo NicoVideo)>> GetLoginUserMylistItemsAsync(IMylist mylist, MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
         {
             if (mylist.UserId != _niconicoSession.UserIdString)
             {
@@ -137,30 +137,26 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             {
                 var mylistItemsRes = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync((int)page, (int)pageSize, sortKey, sortOrder);
                 var res = mylistItemsRes.Data.Mylist;
-
-
                 var items = res.Items;
-
                 foreach (var item in items)
                 {
                     _loginUserMylistItemIdRepository.AddItem(item.ItemId.ToString(), mylist.Id, item.WatchId);
                 }
 
-                return items.Select(x => MylistDataToNicoVideoData(x)).Cast<NicoVideo>().ToList();
+                return items.Select(x => (x, MylistDataToNicoVideoData(x))).ToList();
 
             }
             else
             {
                 var mylistItemsRes = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylist.Id, (int)page, (int)pageSize, sortKey, sortOrder);
                 var res = mylistItemsRes.Data.Mylist;
-
                 var items = res.Items;
                 foreach (var item in items)
                 {
                     _loginUserMylistItemIdRepository.AddItem(item.ItemId.ToString(), mylist.Id, item.WatchId);
                 }
 
-                return items.Select(x => MylistDataToNicoVideoData(x)).ToList();
+                return items.Select(x => (x, MylistDataToNicoVideoData(x))).ToList();
             }
         }
 
@@ -182,16 +178,15 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                 video.Length = TimeSpan.FromSeconds(item.Video.Duration);
                 video.PostedAt = item.Video.RegisteredAt.DateTime;
                 video.ThumbnailUrl = item.Video.Thumbnail.ListingUrl.OriginalString;
-                if (item.Video.Owner.Id is not null)
+                
+                var owner = item.Video.Owner;
+                video.Owner = new NicoVideoOwner()
                 {
-                    video.Owner = new NicoVideoOwner()
-                    {
-                        OwnerId = item.Video.Owner.Id,
-                        ScreenName = item.Video.Owner.Name,
-                        UserType = item.Video.Owner.OwnerType,
-                        IconUrl = item.Video.Owner.IconUrl?.OriginalString,
-                    };
-                }
+                    OwnerId = owner.Id ?? "hidden",
+                    ScreenName = owner.Name ?? "hidden",
+                    UserType = owner.OwnerType,
+                    IconUrl = owner.IconUrl?.OriginalString,
+                };
 
                 return (item.IsDeleted, default);
             });

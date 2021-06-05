@@ -378,7 +378,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             IIncrementalSource<RankedVideoListItemControlViewModel> source = null;
             try
             {
-                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, _barrel);
+                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _barrel);
 
                 CanChangeRankingParameter.Value = true;
             }
@@ -404,6 +404,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         private readonly TimeSpan RankingResponseExpireDuration = TimeSpan.FromMinutes(10);
 
         private readonly NiconicoSession _niconicoSession;
+        private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly IBarrel _barrel;
 
 
@@ -415,11 +416,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             string tag,
             RankingTerm term,
             NiconicoSession niconicoSession,
+            NicoVideoProvider nicoVideoProvider,
             IBarrel barrel
             )
             : base()
         {
             _niconicoSession = niconicoSession;
+            _nicoVideoProvider = nicoVideoProvider;
             _barrel = barrel;
             _options = new RankingOptions(genre, term, tag);
         }
@@ -432,16 +435,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         protected override async IAsyncEnumerable<RankedVideoListItemControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             int index = 0;
+            var targetItems = _rankingRssResponse.Items.Skip(head).Take(count);
+            var owners = await _nicoVideoProvider.ResolveVideoOwnersAsync(targetItems.Select(x => x.GetVideoId()));
             foreach (var item in _rankingRssResponse.Items.Skip(head).Take(count))
             {
+                var videoId = item.GetVideoId();
                 var itemData = item.GetMoreData();
-                var vm = new RankedVideoListItemControlViewModel((uint)(head + index + 1), item.GetVideoId(), item.GetRankTrimmingTitle(), itemData.ThumbnailUrl, itemData.Length, itemData.PostedAt);
+                var vm = new RankedVideoListItemControlViewModel((uint)(head + index + 1), videoId, item.GetRankTrimmingTitle(), itemData.ThumbnailUrl, itemData.Length, itemData.PostedAt);
 
                 vm.CommentCount = itemData.CommentCount;
                 vm.ViewCount = itemData.WatchCount;
                 vm.MylistCount = itemData.MylistCount;
 
-                await vm.EnsureProviderIdAsync(ct);
+                var owner = owners[videoId];
+                vm.ProviderId = owner.OwnerId;
+                vm.ProviderName = owner.ScreenName;
+                vm.ProviderType = owner.UserType;
 
                 yield return vm;
 

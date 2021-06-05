@@ -582,7 +582,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 return;
             }
 
-            if (ProviderId is null)
+            if (ProviderId is null && ProviderType != OwnerType.Hidden)
             {
                 var owner = await _nicoVideoProvider.ResolveVideoOwnerAsync(RawVideoId);
                 if (owner is not null)

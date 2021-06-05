@@ -51,6 +51,8 @@ namespace Hohoema.Models.Domain.Playlist
             _playlistRepository = playlistRepository;
             _nicoVideoProvider = nicoVideoProvider;
             _messenger = messenger;
+
+            Count = _playlistRepository.GetCount(Id);
         }
 
         public string Id { get; }
@@ -123,10 +125,9 @@ namespace Hohoema.Models.Domain.Playlist
 
 
 
-        public List<NicoVideo> GetPlaylistItems()
+        public List<PlaylistItemEntity> GetPlaylistItems(int start, int count)
         {
-            var items = _playlistRepository.GetItems(Id);
-            return _nicoVideoProvider.GetCachedVideoInfoItems(items.Select(x => x.ContentId));
+            return _playlistRepository.GetItems(Id, start, count);
         }
 
         public bool RemovePlaylistItem(IVideoContent item)

@@ -597,7 +597,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
                     {
                         var sort = _mylistUserSelectedSortRepository.GetMylistSort(playlist.Id);
                         var loginUserMylistResult = await loginUserMylist.GetAll(sort.SortKey ?? loginUserMylist.DefaultSortKey, sort.SortOrder ?? loginUserMylist.DefaultSortOrder);
-                        return loginUserMylistResult;
+                        return loginUserMylistResult.Select(x => x.NicoVideo);
                     }
                 case MylistPlaylist mylist:
                     {

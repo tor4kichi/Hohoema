@@ -143,11 +143,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
 	public class UserVideoIncrementalSource : HohoemaIncrementalSourceBase<VideoListItemControlViewModel>
 	{
-		public uint UserId { get; }
-		public UserProvider UserProvider { get; }
 
         public override uint OneTimeLoadCount => 25;
 
+        public uint UserId { get; }
+		public UserProvider UserProvider { get; }
         public UserDetails User { get; private set;}
 
         UserVideosResponse _firstRes;

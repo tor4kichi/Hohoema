@@ -69,9 +69,9 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             }
         }
 
-        public async Task<List<IVideoContent>> GetAll(MylistSortKey sortKey, MylistSortOrder sortOrder)
+        public async Task<List<(MylistItem MylistItem, NicoVideo NicoVideo)>> GetAll(MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
-            List<IVideoContent> items = new List<IVideoContent>();
+            List<(MylistItem, NicoVideo)> items = new();
             uint page = 0;
 
             while (items.Count != Count)
@@ -84,7 +84,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             return items;
         }
 
-        public Task<List<NicoVideo>> GetLoginUserMylistItemsAsync(MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
+        public Task<List<(MylistItem MylistItem, NicoVideo NicoVideo)>> GetLoginUserMylistItemsAsync(MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
         {
             return _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this, sortKey, sortOrder, pageSize, page);
         }
