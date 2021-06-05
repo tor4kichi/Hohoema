@@ -41,7 +41,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
         private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly DialogService _dialogService;
         private readonly PageManager _pageManager;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly IScheduler _scheduler;
 
 
@@ -62,7 +62,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             HohoemaPlaylist hohoemaPlaylist,
             DialogService dialogService,
             PageManager pageManager,
-            NicoVideoCacheRepository nicoVideoRepository
+            NicoVideoProvider nicoVideoProvider
             )
         {
             WeakReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
@@ -87,7 +87,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             _hohoemaPlaylist = hohoemaPlaylist;
             _dialogService = dialogService;
             _pageManager = pageManager;
-            _nicoVideoRepository = nicoVideoRepository;
+            _nicoVideoProvider = nicoVideoProvider;
             _scheduler = scheduler;
 
             IsAutoUpdateRunning = _subscriptionUpdateManager.ObserveProperty(x => x.IsRunning)
@@ -127,7 +127,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
                 foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo().OrderBy(x => x.entity.SortIndex))
                 {
                     var vm = new SubscriptionViewModel(subscInfo.entity, this, _subscriptionManager, _hohoemaPlaylist, _pageManager, _dialogService);
-                    vm.UpdateFeedResult(subscInfo.feedResult.Videos.Take(10).Select(ToVideoContent).ToList(), subscInfo.feedResult.LastUpdatedAt);
+                    var items = _nicoVideoProvider.GetCachedVideoInfoItems(subscInfo.feedResult.Videos.Select(x => x.VideoId));
+                    vm.UpdateFeedResult(items, subscInfo.feedResult.LastUpdatedAt);
                     Subscriptions.Add(vm);
                 }
             }
@@ -143,7 +144,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         NicoVideo ToVideoContent(FeedResultVideoItem item)
         {
-            return _nicoVideoRepository.Get(item.VideoId);
+            return _nicoVideoProvider.GetCachedVideoInfo(item.VideoId);
         }
 
         private void _subscriptionManager_Updated(object sender, SubscriptionFeedUpdateResult e)

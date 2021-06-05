@@ -19,13 +19,15 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
     public sealed class MylistProvider : ProviderBase
     {
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
 
-        public MylistProvider(NiconicoSession niconicoSession,
-            NicoVideoCacheRepository nicoVideoRepository
+        public MylistProvider(
+            NiconicoSession niconicoSession,
+            NicoVideoProvider nicoVideoProvider
             )
             : base(niconicoSession)
         {
-            _nicoVideoRepository = nicoVideoRepository;
+            _nicoVideoProvider = nicoVideoProvider;
         }
 
         public class MylistItemsGetResult
@@ -37,7 +39,8 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             public int HeadPosition { get; set; }
             public int TotalCount { get; set; }
 
-            public IReadOnlyCollection<NicoVideo> Items { get; set; }
+            public IReadOnlyCollection<MylistItem> Items { get; set; }
+            public IReadOnlyCollection<NicoVideo> NicoVideoItems { get; set; }
         }
 
 
@@ -133,44 +136,44 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
                 return await NiconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, (int)page, (int)pageSize, sortKey, sortOrder);
             });
             
-            if (res.Meta.Status != 200) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }
+            if (res.Meta.IsSuccess is false) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }
 
             var videos = res.Data.Mylist.Items;
-            var resultItems = new List<NicoVideo>();
+            var resultItems = new List<MylistItem>();
+            var nicoVideoList = new List<NicoVideo>();
+
             foreach (var item in videos)
             {
-                var nicoVideo = _nicoVideoRepository.Get(item.Video.Id);
-                nicoVideo.Title = item.Video.Title;
-                nicoVideo.ThumbnailUrl = item.Video.Thumbnail.ListingUrl.OriginalString;
-                nicoVideo.PostedAt = item.Video.RegisteredAt.DateTime;
-                nicoVideo.Length = TimeSpan.FromSeconds(item.Video.Duration);
-                nicoVideo.IsDeleted = item.IsDeleted;
-                nicoVideo.DescriptionWithHtml = item.Description;
-                nicoVideo.MylistCount = (int)item.Video.Count.Mylist;
-                nicoVideo.CommentCount = (int)item.Video.Count.Comment;
-                nicoVideo.ViewCount = (int)item.Video.Count.View;
-
-                nicoVideo.Owner = new NicoVideoOwner()
+                var nicoVideo = _nicoVideoProvider.UpdateCache(item.Video.Id, video => 
                 {
-                    OwnerId = item.Video.Owner.Id ,
-                    UserType = item.Video.Owner.OwnerType switch
+                    video.Title = item.Video.Title;
+                    video.ThumbnailUrl = item.Video.Thumbnail.ListingUrl.OriginalString;
+                    video.PostedAt = item.Video.RegisteredAt.DateTime;
+                    video.Length = TimeSpan.FromSeconds(item.Video.Duration);
+                    video.Description = item.Description;
+                    video.Owner = new NicoVideoOwner()
                     {
-                        NiconicoToolkit.Video.OwnerType.Channel => OwnerType.Channel,
-                        NiconicoToolkit.Video.OwnerType.Hidden => OwnerType.Hidden,
-                        NiconicoToolkit.Video.OwnerType.User => OwnerType.User,
-                        _ => throw new NotSupportedException(),
+                        OwnerId = item.Video.Owner.Id,
+                        UserType = item.Video.Owner.OwnerType switch
+                        {
+                            NiconicoToolkit.Video.OwnerType.Channel => OwnerType.Channel,
+                            NiconicoToolkit.Video.OwnerType.Hidden => OwnerType.Hidden,
+                            NiconicoToolkit.Video.OwnerType.User => OwnerType.User,
+                            _ => throw new NotSupportedException(),
+                        }
+                    };
+
+                    // OwnerType.Hiddenだった場合にOwnerIdのNull例外が発生するのでオーナー情報を削除しておく
+                    if (video.Owner.UserType is OwnerType.Hidden)
+                    {
+                        video.Owner = null;
                     }
-                };
 
-                // OwnerType.Hiddenだった場合にOwnerIdのNull例外が発生するのでオーナー情報を削除しておく
-                if (nicoVideo.Owner.UserType is OwnerType.Hidden)
-                {
-                    nicoVideo.Owner = null;
-                }
+                    return (item.IsDeleted, default);
+                });
 
-                _nicoVideoRepository.AddOrUpdate(nicoVideo);
-
-                resultItems.Add(nicoVideo);
+                nicoVideoList.Add(nicoVideo);
+                resultItems.Add(item);
             }
 
             return new MylistItemsGetResult()
@@ -178,7 +181,8 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
                 IsSuccess = true,
                 MylistId = mylistId,
                 HeadPosition = (int)(pageSize * page),
-                Items = new ReadOnlyCollection<NicoVideo>(resultItems),
+                Items = new ReadOnlyCollection<MylistItem>(resultItems),
+                NicoVideoItems = new ReadOnlyCollection<NicoVideo>(nicoVideoList),
                 TotalCount = (int)res.Data.Mylist.TotalItemCount,
             };
         }

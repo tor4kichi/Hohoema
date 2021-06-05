@@ -363,7 +363,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                 var userVideos = await UserProvider.GetUserVideos(uint.Parse(UserId), 1);
                 foreach (var item in userVideos.Data.Items.Take(5))
                 {
-                    var vm = new VideoListItemControlViewModel(item.Id, item.Title, item.Thumbnail.ListingUrl.OriginalString, TimeSpan.FromSeconds(item.Duration));
+                    var vm = new VideoListItemControlViewModel(item.Id, item.Title, item.Thumbnail.ListingUrl.OriginalString, TimeSpan.FromSeconds(item.Duration), item.RegisteredAt.DateTime);
                     VideoInfoItems.Add(vm);
                 }
                 RaisePropertyChanged(nameof(VideoInfoItems));

@@ -25,21 +25,11 @@ namespace Hohoema.Models.Domain.Niconico.Recommend
 
         public async Task<VideoRecommendResponse> GetVideoRecommendAsync(string videoId)
         {
-            var nicoVideo = await _nicoVideoProvider.GetNicoVideoInfo(videoId);
-            return await GetVideoRecommendAsync(nicoVideo);
-        }
-
-        public async Task<VideoRecommendResponse> GetVideoRecommendAsync(NicoVideo nicoVideo)
-        {
-            if (nicoVideo.Owner.OwnerId is null)
-            {
-                nicoVideo = await _nicoVideoProvider.GetNicoVideoInfo(nicoVideo.RawVideoId, true);
-            }
-
+            var (res, nicoVideo) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
             return nicoVideo.ProviderType switch
             {
                 OwnerType.User => await NiconicoSession.ToolkitContext.Recommend.GetVideoReccommendAsync(nicoVideo.VideoId),
-                OwnerType.Channel => await NiconicoSession.ToolkitContext.Recommend.GetChannelVideoReccommendAsync(nicoVideo.VideoId, nicoVideo.ProviderId, nicoVideo.Tags.Select(x => x.Tag)),
+                OwnerType.Channel => await NiconicoSession.ToolkitContext.Recommend.GetChannelVideoReccommendAsync(nicoVideo.VideoId, nicoVideo.ProviderId, res.Tags.TagInfo.Select(x => x.Tag)),
                 _ => null
             };
         }

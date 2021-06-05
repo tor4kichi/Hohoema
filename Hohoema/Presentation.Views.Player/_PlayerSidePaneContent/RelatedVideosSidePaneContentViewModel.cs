@@ -27,7 +27,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
            MylistRepository mylistRepository,
            HohoemaPlaylist hohoemaPlaylist,
            PageManager pageManager,
-           NicoVideoCacheRepository nicoVideoRepository,
            NicoChannelCacheRepository nicoChannelCacheRepository,
            IScheduler scheduler
            )
@@ -37,7 +36,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             _mylistRepository = mylistRepository;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
-            _nicoVideoRepository = nicoVideoRepository;
             _nicoChannelCacheRepository = nicoChannelCacheRepository;
             _scheduler = scheduler;
 
@@ -119,10 +117,10 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 // ニコスクリプトで指定されたジャンプ先動画
                 if (JumpVideoId != null)
                 {
-                    var jumpVideo = await NicoVideoProvider.GetNicoVideoInfo(JumpVideoId, requireLatest: true);
+                    var (res, jumpVideo) = await NicoVideoProvider.GetVideoInfoAsync(JumpVideoId);
                     if (jumpVideo != null)
                     {
-                        JumpVideo = new VideoListItemControlViewModel(jumpVideo);
+                        JumpVideo = new VideoListItemControlViewModel(res.Video, res.Thread);
                         RaisePropertyChanged(nameof(JumpVideo));
                     }
                 }
@@ -137,7 +135,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                     var videoIds = _VideoViewerHelpInfo.GetVideoIds();
                     foreach (var id in videoIds)
                     {
-                        var video = await NicoVideoProvider.GetNicoVideoInfo(id, requireLatest: true);
+                        var video = await NicoVideoProvider.GetCachedVideoInfoAsync(id);
 
                         var titleSimilarity = sourceVideo.Title.CalculateSimilarity(video.Title);
                         if (titleSimilarity > _SeriesVideosTitleSimilarityValue)
@@ -236,7 +234,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                         var nextVideo = collectionView.ElementAtOrDefault(pos + 1) as ChannelVideoInfo;
                         if (nextVideo != null)
                         {
-                            var videoVM = new VideoListItemControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length);
+                            var videoVM = new VideoListItemControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length, nextVideo.PostedAt);
                             if (nextVideo.IsRequirePayment)
                             {
                                 videoVM.Permission = NiconicoToolkit.Video.VideoPermission.RequirePay;
@@ -250,7 +248,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                                 videoVM.Permission = NiconicoToolkit.Video.VideoPermission.MemberUnlimitedAccess;
                             }
 
-                            videoVM.PostedAt = nextVideo.PostedAt;
                             videoVM.ViewCount = nextVideo.ViewCount;
                             videoVM.CommentCount = nextVideo.CommentCount;
                             videoVM.MylistCount = nextVideo.MylistCount;

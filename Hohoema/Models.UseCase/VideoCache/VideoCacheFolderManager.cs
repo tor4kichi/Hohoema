@@ -58,10 +58,9 @@ namespace Hohoema.Models.UseCase.VideoCache
 
 
             // キャッシュファイル名の解決方法を設定
-            VideoCacheManager.ResolveVideoTitle = async (id) =>
+            VideoCacheManager.ResolveVideoTitle = (id) =>
             {
-                var item = await _nicoVideoProvider.GetNicoVideoInfo(id);
-                return item.Title;
+                return _nicoVideoProvider.ResolveVideoTitleAsync(id);
             };
         }
 

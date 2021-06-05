@@ -195,12 +195,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
         private readonly NicoRepoEntry _nicoRepoEntry;
 
         public NicoRepoVideoTimeline(NicoRepoEntry nicoRepoEntry, NicoRepoItemTopic itemType) 
-            : base(nicoRepoEntry.GetContentId(), nicoRepoEntry.Object.Name, nicoRepoEntry.Object.Image.OriginalString, TimeSpan.Zero)
+            : base(nicoRepoEntry.GetContentId(), nicoRepoEntry.Object.Name, nicoRepoEntry.Object.Image.OriginalString, TimeSpan.Zero, nicoRepoEntry.Updated.DateTime)
         {
             _nicoRepoEntry = nicoRepoEntry;
             ItemTopic = itemType;
-
-            PostedAt = _nicoRepoEntry.Updated.DateTime;
 
             if (_nicoRepoEntry.Actor != null)
             {
@@ -250,7 +248,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
         protected override void OnInitialized()
         {
-            SetLength(Data?.Length ?? TimeSpan.Zero);
+            SetLength(Length);
         }
     }
 
@@ -386,7 +384,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                         topicType == NicoRepoItemTopic.NicoVideo_Channel_Video_Upload)
                 {
                     var vm = new NicoRepoVideoTimeline(item, topicType);
-                    await vm.InitializeAsync(ct).ConfigureAwait(false);
+                    await vm.EnsureProviderIdAsync(ct).ConfigureAwait(false);
                     yield return vm;
                 }
                 else

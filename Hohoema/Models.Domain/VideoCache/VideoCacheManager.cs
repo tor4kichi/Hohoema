@@ -110,7 +110,6 @@ namespace Hohoema.Models.Domain.VideoCache
         private readonly NiconicoSession _niconicoSession;
         private readonly NicoVideoSessionOwnershipManager _videoSessionOwnershipManager;
         private readonly VideoCacheItemRepository _videoCacheItemRepository;
-        private readonly NicoVideoCacheRepository _nicoVideoCacheRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly VideoCacheSettings _videoCacheSettings;
 
@@ -144,8 +143,7 @@ namespace Hohoema.Models.Domain.VideoCache
             NicoVideoSessionOwnershipManager videoSessionOwnershipManager,
             VideoCacheSettings videoCacheSettings,
             VideoCacheItemRepository videoCacheItemRepository,
-            NicoVideoProvider nicoVideoProvider,
-            NicoVideoCacheRepository nicoVideoCacheRepository
+            NicoVideoProvider nicoVideoProvider
             )
         {
             _niconicoSession = niconicoSession;
@@ -153,7 +151,6 @@ namespace Hohoema.Models.Domain.VideoCache
             _videoCacheSettings = videoCacheSettings;
             _videoCacheItemRepository = videoCacheItemRepository;
             _nicoVideoProvider = nicoVideoProvider;
-            _nicoVideoCacheRepository = nicoVideoCacheRepository;
         }
 
 
@@ -221,10 +218,10 @@ namespace Hohoema.Models.Domain.VideoCache
         {
             if (videoId.All(x => char.IsDigit(x)))
             {
-                var id = _nicoVideoCacheRepository.GetVideoId(videoId);
+                var id = _nicoVideoProvider.GetCachedVideoInfo(videoId);
                 if (id != null)
                 {
-                    videoId = id;
+                    videoId = id.VideoId;
                 }
                 else
                 {
@@ -243,10 +240,10 @@ namespace Hohoema.Models.Domain.VideoCache
         {
             if (videoId.All(x => char.IsDigit(x)))
             {
-                var info = await _nicoVideoProvider.GetNicoVideoInfo(videoId);
-                if (info != null)
+                var (res, _) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
+                if (res != null)
                 {
-                    return (true, info.VideoId);
+                    return (true, res.Video.Id);
                 }
             }
 

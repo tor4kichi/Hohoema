@@ -73,7 +73,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
                     IsDefaultMylist = this.IsDefaultMylist(),
                     Mylist = this,
                     IsLoginUserMylist = false,
-                    Items = result.Items,
+                    Items = result.NicoVideoItems,
                     ItemsHeadPosition = result.HeadPosition,
                     TotalCount = result.TotalCount,
                 };
@@ -104,7 +104,8 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
             page++;
 
-            var itemsList = new List<NicoVideo>(firstResult.Items);
+            var nicovideoItemsList = new List<NicoVideo>(firstResult.NicoVideoItems);
+            var itemsList = new List<MylistItem>(firstResult.Items);
             var totalCount = firstResult.TotalCount;
             var currentCount = firstResult.Items.Count;
             do
@@ -114,6 +115,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
                 if (result.IsSuccess)
                 {
                     itemsList.AddRange(result.Items);
+                    nicovideoItemsList.AddRange(result.NicoVideoItems);
                 }
 
                 page++;
@@ -127,7 +129,8 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
                 HeadPosition = 0,
                 TotalCount = totalCount,
                 IsSuccess = true,
-                Items = new ReadOnlyCollection<NicoVideo>(itemsList)
+                Items = new ReadOnlyCollection<MylistItem>(itemsList),
+                NicoVideoItems = new ReadOnlyCollection<NicoVideo>(nicovideoItemsList)
             };
         }
     }

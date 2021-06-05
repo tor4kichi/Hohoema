@@ -50,16 +50,17 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
 
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly LoginUserMylistItemIdRepository _loginUserMylistItemIdRepository;
 
         public LoginUserMylistProvider(
             NiconicoSession niconicoSession,
-            NicoVideoCacheRepository nicoVideoRepository,
+            NicoVideoProvider nicoVideoProvider,
             LoginUserMylistItemIdRepository loginUserMylistItemIdRepository
             )
             : base(niconicoSession)
         {
-            _nicoVideoRepository = nicoVideoRepository;
+            _nicoVideoProvider = nicoVideoProvider;
             _loginUserMylistItemIdRepository = loginUserMylistItemIdRepository;            
         }
 
@@ -172,39 +173,28 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
         private NicoVideo MylistDataToNicoVideoData(MylistItem item)
         {
-            var video = _nicoVideoRepository.Get(item.WatchId)
-                        ?? new NicoVideo() { RawVideoId = item.WatchId };
-
-            video.RawVideoId = item.WatchId;
-            video.VideoId = item.WatchId;
-            video.Title = item.Video.Title;
-            video.Description = item.Description;
-            video.IsDeleted = item.IsDeleted;
-            video.Length = TimeSpan.FromSeconds(item.Video.Duration);
-            video.PostedAt = item.Video.RegisteredAt.DateTime;
-
-            video.ThumbnailUrl = item.Video.Thumbnail.ListingUrl.OriginalString;
-            video.ViewCount = (int)item.Video.Count.View;
-            video.MylistCount = (int)item.Video.Count.Mylist;
-            video.CommentCount = (int)item.Video.Count.Comment;
-
-            video.Owner = item.Video.Owner.Id == null ? null : new NicoVideoOwner()
+            return _nicoVideoProvider.UpdateCache(item.WatchId, video => 
             {
-                OwnerId = item.Video.Owner.Id,
-                ScreenName = item.Video.Owner.Name,
-                UserType = item.Video.Owner.OwnerType switch
+                video.RawVideoId = item.WatchId;
+                video.VideoId = item.WatchId;
+                video.Title = item.Video.Title;
+                video.Description = item.Description;
+                video.Length = TimeSpan.FromSeconds(item.Video.Duration);
+                video.PostedAt = item.Video.RegisteredAt.DateTime;
+                video.ThumbnailUrl = item.Video.Thumbnail.ListingUrl.OriginalString;
+                if (item.Video.Owner.Id is not null)
                 {
-                    NiconicoToolkit.Video.OwnerType.Channel => OwnerType.Channel,
-                    NiconicoToolkit.Video.OwnerType.Hidden => OwnerType.Hidden,
-                    NiconicoToolkit.Video.OwnerType.User => OwnerType.User,
-                    _ => throw new NotSupportedException(),
-                },
-                IconUrl = item.Video.Owner.IconUrl?.OriginalString,
-            };
+                    video.Owner = new NicoVideoOwner()
+                    {
+                        OwnerId = item.Video.Owner.Id,
+                        ScreenName = item.Video.Owner.Name,
+                        UserType = item.Video.Owner.OwnerType,
+                        IconUrl = item.Video.Owner.IconUrl?.OriginalString,
+                    };
+                }
 
-            _nicoVideoRepository.AddOrUpdate(video);
-
-            return video;
+                return (item.IsDeleted, default);
+            });
         }
 
 

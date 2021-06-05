@@ -35,8 +35,8 @@ namespace Hohoema.Models.UseCase.VideoCache
         private readonly VideoCacheManager _videoCacheManager;
         private readonly NicoVideoSessionOwnershipManager _nicoVideoSessionOwnershipManager;
         private readonly VideoCacheSettings _videoCacheSettings;
-        private readonly NicoVideoCacheRepository _nicoVideoCacheRepository;
         private readonly NotificationService _notificationService;
+        private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly IMessenger _messenger;
 
         private readonly AsyncLock _downloadTsakUpdateLock = new AsyncLock();
@@ -60,15 +60,15 @@ namespace Hohoema.Models.UseCase.VideoCache
             VideoCacheManager videoCacheManager,
             NicoVideoSessionOwnershipManager nicoVideoSessionOwnershipManager,
             VideoCacheSettings videoCacheSettings,
-            NicoVideoCacheRepository nicoVideoCacheRepository,
-            NotificationService notificationService
+            NotificationService notificationService,
+            NicoVideoProvider nicoVideoProvider
             )
         {
             _videoCacheManager = videoCacheManager;
             _nicoVideoSessionOwnershipManager = nicoVideoSessionOwnershipManager;
             _videoCacheSettings = videoCacheSettings;
-            _nicoVideoCacheRepository = nicoVideoCacheRepository;
             _notificationService = notificationService;
+            _nicoVideoProvider = nicoVideoProvider;
             _messenger = WeakReferenceMessenger.Default;
 
 
@@ -432,9 +432,9 @@ namespace Hohoema.Models.UseCase.VideoCache
         private ToastContent _progressToastContent = null;
         private Windows.UI.Notifications.ToastNotification _progressToastNotification;
 
-        private void PopCacheCompletedToast(VideoCacheItem item)
+        private async void PopCacheCompletedToast(VideoCacheItem item)
         {
-            var video = _nicoVideoCacheRepository.Get(item.VideoId);
+            var thumbnail = await _nicoVideoProvider.ResolveThumbnailUrlAsync(item.VideoId);
             var toastContentBuilder = new ToastContentBuilder()
                 .SetToastScenario(ToastScenario.Default)
                 .AddText("CacheVideo_ToastNotification_Completed".Translate())
@@ -446,9 +446,9 @@ namespace Hohoema.Models.UseCase.VideoCache
                     .SetContent("CacheVideo_ToastNotification_CloseToast".Translate())
                     .SetDismissActivation());
 
-            if (video?.ThumbnailUrl != null)
+            if (thumbnail != null)
             {
-                toastContentBuilder.AddInlineImage(new Uri(video.ThumbnailUrl), hintRemoveMargin: true);                
+                toastContentBuilder.AddInlineImage(new Uri(thumbnail), hintRemoveMargin: true);                
             }
 
             toastContentBuilder.Show();

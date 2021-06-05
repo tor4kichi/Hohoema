@@ -49,13 +49,13 @@ namespace Hohoema.Models.UseCase.Player
         public ScondaryViewPlayerManager(
             IScheduler scheduler,
             RestoreNavigationManager restoreNavigationManager,
-            NicoVideoCacheRepository nicoVideoRepository,
+            NicoVideoProvider nicoVideoProvider,
             NicoLiveCacheRepository nicoLiveCacheRepository
             )
         {
             _scheduler = scheduler;
             _restoreNavigationManager = restoreNavigationManager;
-            _nicoVideoRepository = nicoVideoRepository;
+            _nicoVideoProvider = nicoVideoProvider;
             _nicoLiveCacheRepository = nicoLiveCacheRepository;
             MainViewId = ApplicationView.GetApplicationViewIdForWindow(CoreApplication.MainView.CoreWindow);
         }
@@ -101,7 +101,7 @@ namespace Hohoema.Models.UseCase.Player
         public const string secondary_view_size = "secondary_view_size";
         private readonly IScheduler _scheduler;
         private readonly RestoreNavigationManager _restoreNavigationManager;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
 
         private async Task CreateSecondaryView()
@@ -239,7 +239,7 @@ namespace Hohoema.Models.UseCase.Player
                     var result = await SecondaryViewPlayerNavigationService.NavigateAsync(pageName, parameters, _PlayerPageNavgationTransitionInfo);
                     if (result.Success)
                     {
-                        var name = ResolveContentName(pageName, parameters);
+                        var name = await ResolveContentNameAsync(pageName, parameters);
                         SecondaryAppView.Title = name != null ? $"{name}" : "Hohoema";
                     }
                     else
@@ -270,14 +270,13 @@ namespace Hohoema.Models.UseCase.Player
         }
 
 
-        string ResolveContentName(string pageName, INavigationParameters parameters)
+        async ValueTask<string> ResolveContentNameAsync(string pageName, INavigationParameters parameters)
         {
             if (pageName == nameof(VideoPlayerPage))
             {
                 if (parameters.TryGetValue("id", out string videoId))
                 {
-                    var videoData = _nicoVideoRepository.Get(videoId);
-                    return videoData.Title;
+                    return await _nicoVideoProvider.ResolveVideoTitleAsync(videoId);
                 }
             }
             else if (pageName == nameof(LivePlayerPage))

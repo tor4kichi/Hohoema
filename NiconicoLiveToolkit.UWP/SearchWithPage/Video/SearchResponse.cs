@@ -4,7 +4,7 @@ using System.Linq;
 using AngleSharp.Html.Dom;
 using AngleSharp.Dom;
 
-namespace NiconicoToolkit.Search.Video
+namespace NiconicoToolkit.SearchWithPage.Video
 {
     public class SearchResponse
 	{

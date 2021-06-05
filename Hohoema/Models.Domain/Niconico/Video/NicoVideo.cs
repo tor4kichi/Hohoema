@@ -11,55 +11,22 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {
-    public enum MovieType
-    {
-        Flv,
-        Mp4,
-        Swf,
-    }
-
-    public class NicoVideo : IVideoContent, IVideoContentProvider, IVideoDetail, IVideoDetailWritable
+    public class NicoVideo : IVideoContent, IVideoContentProvider
     {
         [BsonId]
         public string RawVideoId { get; set; }
         public string VideoId { get; set; }
-        public string ThreadId { get; set; }
 
         public string Title { get; set; }
         public string ThumbnailUrl { get; set; }
         public TimeSpan Length { get; set; }
         public DateTime PostedAt { get; set; }
-        public int ViewCount { get; set; }
-        public int CommentCount { get; set; }
-        public int MylistCount { get; set; }
         public string Description { get; set; }
-
-        public double LoudnessCollectionValue { get; set; } = 1.0;
 
         [BsonRef]
         public NicoVideoOwner Owner { get; set; }
 
-        /// <summary>
-        /// [[deprecated]] ce.api経由では動画フォーマットが取得できない
-        /// </summary>
-        public MovieType MovieType { get; set; } = MovieType.Mp4;
-
-
-        
-        public List<NicoVideoTag> Tags { get; set; }
-
-        
-        public string DescriptionWithHtml { get; set; }
-
         public DateTime LastUpdated { get; set; }
-
-        public bool IsDeleted { get; set; }
-
-
-        public PrivateReasonType PrivateReasonType { get; set; } = PrivateReasonType.None;
-
-
-        public VideoPermission Permission { get; set; } = VideoPermission.Unknown;
 
 
         [BsonIgnore]

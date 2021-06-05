@@ -19,6 +19,7 @@ using Hohoema.Models.Domain.VideoCache;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using System.Collections.Immutable;
 using NiconicoToolkit.Video.Watch;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
@@ -103,7 +104,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             NicoVideoSessionProvider nicoVideoSessionProvider,
             DialogService dialogService,
             VideoCacheCommentRepository commentRepository,
-            NicoVideoCacheRepository nicoVideoRepository
+            NicoVideoProvider nicoVideoProvider
             )
         {
             _niconicoSession = niconicoSession;
@@ -111,7 +112,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             _nicoVideoSessionProvider = nicoVideoSessionProvider;
             _dialogService = dialogService;
             _commentRepository = commentRepository;
-            _nicoVideoRepository = nicoVideoRepository;
+            _nicoVideoProvider = nicoVideoProvider;
         }
 
         private readonly NiconicoSession _niconicoSession;
@@ -119,6 +120,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         private readonly NicoVideoSessionProvider _nicoVideoSessionProvider;
         private readonly DialogService _dialogService;
         private readonly VideoCacheCommentRepository _commentRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
 
 
@@ -157,24 +159,30 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     commentSessionProvider = new CachedCommentsProvider(videoId, cachedComment.Comments);
                 }
 
-                var videoInfo = _nicoVideoRepository.Get(videoId);
-                if (videoInfo != null)
+                var (videoRes, nicoVideo) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
+                if (videoRes != null)
                 {
-                    nicoVideoDetails = new CachedVideoDetails()
+                    var video = videoRes.Video;
+                    var details= new CachedVideoDetails()
                     {
-                        VideoTitle = videoInfo.Title,
-                        ViewCount = videoInfo.ViewCount,
-                        CommentCount = videoInfo.CommentCount,
-                        MylistCount = videoInfo.MylistCount,
-                        VideoLength = videoInfo.Length,
-                        SubmitDate = videoInfo.PostedAt,
-                        Tags = videoInfo.Tags.Select(x => new NicoVideoTag(x.Tag)).ToArray(),
-                        ProviderId = videoInfo.Owner?.OwnerId,
-                        ProviderName = videoInfo.Owner?.ScreenName,
-                        OwnerIconUrl = videoInfo.Owner.IconUrl,
-                        DescriptionHtml = videoInfo.DescriptionWithHtml,
-                        ThumbnailUrl = videoInfo.ThumbnailUrl
+                        VideoTitle = video.Title,
+                        ViewCount = (int)video.ViewCount,
+                        CommentCount = (int)videoRes.Thread.NumRes,
+                        MylistCount = (int)video.MylistCount,
+                        VideoLength = TimeSpan.FromSeconds(video.LengthInSeconds),
+                        SubmitDate = video.FirstRetrieve.DateTime,
+                        OwnerType = nicoVideo.Owner.UserType,
+                        OwnerIconUrl = nicoVideo.Owner.IconUrl,
+                        ProviderId = nicoVideo.Owner.OwnerId,
+                        ProviderName = nicoVideo.Owner.ScreenName,
+                        Tags = videoRes.Tags.TagInfo.Select(x => new NicoVideoTag(x.Tag)).ToArray(),
+                        DescriptionHtml = video.Description,
+                        ThumbnailUrl = video.ThumbnailUrl.OriginalString
                     };
+
+                    
+
+                    nicoVideoDetails = details;
                 }
             }
             else
@@ -242,9 +250,8 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         public int MylistCount { get; set; }
 
         public string ProviderId { get; set; }
-
         public string ProviderName { get; set; }
-
+        public OwnerType OwnerType { get; set; }
         public string OwnerIconUrl { get; set; }
 
         public bool IsChannelOwnedVideo { get; set; }

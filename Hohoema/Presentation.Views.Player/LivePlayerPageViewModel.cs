@@ -332,21 +332,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 return _ShareCommand
                     ?? (_ShareCommand = new DelegateCommand(() =>
                     {
-                        ShareHelper.Share(ShareHelper.MakeLiveShareText(_PlayerProp.Program.Title, LiveId));
-                    }
-                    ));
-            }
-        }
-
-        private DelegateCommand _ShereWithTwitterCommand;
-        public DelegateCommand ShereWithTwitterCommand
-        {
-            get
-            {
-                return _ShereWithTwitterCommand
-                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
-                    {
-                        await ShareHelper.ShareToTwitter(ShareHelper.MakeLiveShareText(_PlayerProp.Program.Title, LiveId));
+                        ShareHelper.Share(_PlayerProp.Program.Title, ShareHelper.MakeLiveShareText(LiveId));
                     }
                     ));
             }
@@ -360,7 +346,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 return _ShareWithClipboardCommand
                     ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
                     {
-                        ClipboardHelper.CopyToClipboard(ShareHelper.MakeLiveShareText(_PlayerProp.Program.Title, LiveId));
+                        ClipboardHelper.CopyToClipboard(ShareHelper.MakeLiveShareTextWithTitle(_PlayerProp.Program.Title, LiveId));
                     }
                     ));
             }

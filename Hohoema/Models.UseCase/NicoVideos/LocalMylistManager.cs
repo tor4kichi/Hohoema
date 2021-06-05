@@ -33,13 +33,11 @@ namespace Hohoema.Models.UseCase.NicoVideos
         public LocalMylistManager(
             PlaylistRepository playlistRepository,
             NicoVideoProvider nicoVideoProvider,
-            NicoVideoCacheRepository nicoVideoRepository,
             NotificationService notificationService
             )
         {
             _playlistRepository = playlistRepository;
             _nicoVideoProvider = nicoVideoProvider;
-            _nicoVideoRepository = nicoVideoRepository;
             _notificationService = notificationService;
 
             _playlists = new ObservableCollection<LocalPlaylist>();
@@ -62,7 +60,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             _playlistIdToEntity.Clear();
 
             var localPlaylistEntities = _playlistRepository.GetPlaylistsFromOrigin(PlaylistOrigin.Local);
-            var localPlaylists = localPlaylistEntities.Select(x => new LocalPlaylist(x.Id, x.Label, _playlistRepository, _nicoVideoRepository, WeakReferenceMessenger.Default)
+            var localPlaylists = localPlaylistEntities.Select(x => new LocalPlaylist(x.Id, x.Label, _playlistRepository, _nicoVideoProvider, WeakReferenceMessenger.Default)
             {
                 Count = _playlistRepository.GetCount(x.Id),
                 ThumbnailImage = x.ThumbnailImage,
@@ -84,7 +82,6 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         private readonly PlaylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly NotificationService _notificationService;
         ObservableCollection<LocalPlaylist> _playlists;
         public ReadOnlyObservableCollection<LocalPlaylist> LocalPlaylists { get; }
@@ -118,7 +115,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             _playlistRepository.UpsertPlaylist(entity);
             _playlistIdToEntity.Add(entity.Id, entity);
 
-            var playlist = new LocalPlaylist(entity.Id, label, _playlistRepository, _nicoVideoRepository, WeakReferenceMessenger.Default);
+            var playlist = new LocalPlaylist(entity.Id, label, _playlistRepository, _nicoVideoProvider, WeakReferenceMessenger.Default);
 
             HandleItemsChanged(playlist);
 

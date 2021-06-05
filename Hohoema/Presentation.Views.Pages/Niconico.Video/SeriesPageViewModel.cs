@@ -157,13 +157,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
             foreach (var item in _videos.Skip(head).Take(count))
             {
-                var itemVM = new VideoListItemControlViewModel(item.Id, item.Title, item.ThumbnailUrl.OriginalString, item.Duration);
-                itemVM.PostedAt = item.PostAt;
+                var itemVM = new VideoListItemControlViewModel(item.Id, item.Title, item.ThumbnailUrl.OriginalString, item.Duration, item.PostAt);
                 itemVM.ViewCount = item.WatchCount;
                 itemVM.CommentCount = item.CommentCount;
                 itemVM.MylistCount = item.MylistCount;
 
-                await itemVM.InitializeAsync(ct).ConfigureAwait(false);
+                await itemVM.EnsureProviderIdAsync(ct).ConfigureAwait(false);
 
                 yield return itemVM;
 

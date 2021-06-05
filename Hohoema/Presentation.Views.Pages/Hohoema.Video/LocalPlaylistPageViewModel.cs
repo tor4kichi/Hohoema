@@ -186,7 +186,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             foreach (var item in _Items.Skip(head).Take(count))
             {
                 var vm = new VideoListItemControlViewModel(item);
-                await vm.InitializeAsync(ct).ConfigureAwait(false);
+                await vm.EnsureProviderIdAsync(ct).ConfigureAwait(false);
                 yield return vm;
             }
         }

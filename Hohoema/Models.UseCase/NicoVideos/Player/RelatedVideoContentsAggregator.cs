@@ -41,7 +41,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
            MylistRepository mylistRepository,
            HohoemaPlaylist hohoemaPlaylist,
            PageManager pageManager,
-           NicoVideoCacheRepository nicoVideoRepository,
            NicoChannelCacheRepository nicoChannelCacheRepository
            )
         {
@@ -50,7 +49,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             _mylistRepository = mylistRepository;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
-            _nicoVideoRepository = nicoVideoRepository;
             _nicoChannelCacheRepository = nicoChannelCacheRepository;
         }
 
@@ -77,7 +75,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             }
 
             var videoInfo = _nicoVideoRepository.Get(videoId);
-            var videoViewerHelpInfo = NicoVideoSessionProvider.GetVideoRelatedInfomationWithVideoDescription(videoId, videoInfo.DescriptionWithHtml);
+            var videoViewerHelpInfo = NicoVideoSessionProvider.GetVideoRelatedInfomationWithVideoDescription(videoId, videoInfo.Description);
 
             VideoRelatedContents result = new VideoRelatedContents(videoId);
             // ニコスクリプトで指定されたジャンプ先動画
@@ -101,7 +99,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             seriesVideos.Add(videoInfo);
             foreach (var id in videoIds)
             {
-                var video = await NicoVideoProvider.GetNicoVideoInfo(id, requireLatest: true);
+                var video = await NicoVideoProvider.GetCachedVideoInfoAsync(id);
 
                 var titleSimilarity = videoInfo.Title.CalculateSimilarity(video.Title);
                 if (titleSimilarity > _SeriesVideosTitleSimilarityValue)
@@ -195,9 +193,8 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     var nextVideo = collectionView.ElementAtOrDefault(pos + 1) as ChannelVideoInfo;
                     if (nextVideo != null)
                     {
-                        var videoVM = new VideoListItemControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length);
+                        var videoVM = new VideoListItemControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length, nextVideo.PostedAt);
                         videoVM.Permission = nextVideo.IsRequirePayment ? NiconicoToolkit.Video.VideoPermission.RequirePay : NiconicoToolkit.Video.VideoPermission.None;
-                        videoVM.PostedAt = nextVideo.PostedAt;
                         videoVM.ViewCount = nextVideo.ViewCount;
                         videoVM.CommentCount = nextVideo.CommentCount;
                         videoVM.MylistCount = nextVideo.MylistCount;

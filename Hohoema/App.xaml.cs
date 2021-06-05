@@ -68,6 +68,7 @@ using Hohoema.Models.Domain.VideoCache;
 using Windows.Storage.AccessCache;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.AppCenter.Utils;
+using Microsoft.Extensions.Logging;
 
 namespace Hohoema
 {
@@ -414,7 +415,6 @@ namespace Hohoema
                 //typeof(CommentFilteringNGScoreZeroFixture),
                 //typeof(SettingsMigration_V_0_23_0),
                 //typeof(SearchPageQueryMigrate_0_26_0),
-                typeof(LocalMylistThumbnailImageMigration_V_0_28_0),
                 typeof(VideoCacheDatabaseMigration_V_0_29_0),
             });
 

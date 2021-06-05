@@ -40,8 +40,8 @@ namespace Hohoema.Models.UseCase.Player
         IScheduler _scheduler;
         private readonly Lazy<INavigationService> _navigationServiceLazy;
         private readonly RestoreNavigationManager _restoreNavigationManager;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
         PrimaryPlayerDisplayMode _prevDisplayMode;
 
         Models.Helpers.AsyncLock _navigationLock = new Models.Helpers.AsyncLock();
@@ -49,16 +49,16 @@ namespace Hohoema.Models.UseCase.Player
         public PrimaryViewPlayerManager(IScheduler scheduler,
             [Unity.Attributes.Dependency("PrimaryPlayerNavigationService")] Lazy<INavigationService> navigationServiceLazy,
             RestoreNavigationManager restoreNavigationManager,
-            NicoVideoCacheRepository nicoVideoRepository,
-            NicoLiveCacheRepository nicoLiveCacheRepository
+            NicoLiveCacheRepository nicoLiveCacheRepository,
+            NicoVideoProvider nicoVideoProvider
             )
         {
             _view = ApplicationView.GetForCurrentView();
             _scheduler = scheduler;
             _navigationServiceLazy = navigationServiceLazy;
             _restoreNavigationManager = restoreNavigationManager;
-            _nicoVideoRepository = nicoVideoRepository;
             _nicoLiveCacheRepository = nicoLiveCacheRepository;
+            _nicoVideoProvider = nicoVideoProvider;
             _navigationService = null;
 
             this.ObserveProperty(x => x.DisplayMode, isPushCurrentValueAtFirst: false)
@@ -97,7 +97,7 @@ namespace Hohoema.Models.UseCase.Player
                         }
                         else
                         {
-                            var name = ResolveContentName(pageName, parameters);
+                            var name = await ResolveContentNameAsync(pageName, parameters);
                             _view.Title = name != null ? $"{name}" : string.Empty;
                         }
 
@@ -122,14 +122,13 @@ namespace Hohoema.Models.UseCase.Player
             using (await _navigationLock.LockAsync()) { }
         }
 
-        string ResolveContentName(string pageName, INavigationParameters parameters)
+        async ValueTask<string> ResolveContentNameAsync(string pageName, INavigationParameters parameters)
         {
             if (pageName == nameof(VideoPlayerPage))
             {
                 if (parameters.TryGetValue("id", out string videoId))
                 {
-                    var videoData = _nicoVideoRepository.Get(videoId);
-                    return videoData.Title;
+                    return await _nicoVideoProvider.ResolveVideoTitleAsync(videoId);
                 }
             }
             else if (pageName == nameof(LivePlayerPage))
