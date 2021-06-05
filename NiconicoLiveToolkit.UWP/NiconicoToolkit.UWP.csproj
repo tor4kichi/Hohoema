@@ -159,6 +159,7 @@
     <Compile Include="SearchWithCeApi\Video\VideoSortKey.cs" />
     <Compile Include="SearchWithCeApi\Video\VideoSortOrder.cs" />
     <Compile Include="SearchWithCeApi\Video\VideoIdSearchSingleResponse.cs" />
+    <Compile Include="Series\SeriesClient.cs" />
     <Compile Include="Video\NvapiVideoItem.cs" />
     <Compile Include="DeserializationExtensions.cs" />
     <Compile Include="JsonConveterExtensions.cs" />

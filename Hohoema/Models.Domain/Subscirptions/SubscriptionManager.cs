@@ -36,7 +36,7 @@ namespace Hohoema.Models.Domain.Subscriptions
         private readonly UserProvider _userProvider;
         private readonly MylistProvider _mylistProvider;
         private readonly NicoVideoProvider _nicoVideoProvider;
-        private readonly SeriesRepository _seriesRepository;
+        private readonly SeriesProvider _seriesRepository;
         private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
         
         public event EventHandler<SubscriptionFeedUpdateResult> Updated;
@@ -53,7 +53,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             UserProvider userProvider,
             MylistProvider mylistProvider,
             NicoVideoProvider nicoVideoProvider,
-            SeriesRepository seriesRepository,
+            SeriesProvider seriesRepository,
             NicoVideoOwnerCacheRepository nicoVideoOwnerRepository
             )
         {
@@ -358,7 +358,7 @@ namespace Hohoema.Models.Domain.Subscriptions
         }
 
 
-        private async Task<List<NicoVideo>> GetSeriesVideosFeedResult(string seriesId, SeriesRepository seriesRepository)
+        private async Task<List<NicoVideo>> GetSeriesVideosFeedResult(string seriesId, SeriesProvider seriesRepository)
         {
             var result = await seriesRepository.GetSeriesVideosAsync(seriesId);
 

@@ -128,6 +128,7 @@
     <Compile Include="Tests\RecommendTest.cs" />
     <Compile Include="Tests\SearchCeApiTest.cs" />
     <Compile Include="Tests\SearchHtmlTest.cs" />
+    <Compile Include="Tests\SeriesTest.cs" />
     <Compile Include="Tests\VideoMylistLoginTest.cs" />
     <Compile Include="Tests\VideoMylistPublicTest.cs" />
     <Compile Include="Tests\VideoWatchTest.cs" />

@@ -67,14 +67,14 @@ namespace NiconicoToolkit.UWP.Test.Tests
             {
                 Assert.IsNotNull(item.Description);
                 Assert.IsNotNull(item.RawTitle);
-                Assert.AreNotEqual(item.PubDate, default(DateTimeOffset));
-
+                
                 var moreData = item.GetMoreData();
 
-                Assert.AreNotEqual(moreData.Length, default(TimeSpan));
+                Assert.AreNotEqual(default(TimeSpan), moreData.Length);
                 Assert.IsTrue(!string.IsNullOrWhiteSpace(moreData.Title));
                 Assert.IsTrue(!string.IsNullOrWhiteSpace(moreData.ThumbnailUrl));
                 Assert.IsTrue(moreData.WatchCount > 0);
+                Assert.AreNotEqual(default(DateTime), moreData.PostedAt);
             }
         }
 
@@ -96,14 +96,14 @@ namespace NiconicoToolkit.UWP.Test.Tests
             {
                 Assert.IsNotNull(item.Description);
                 Assert.IsNotNull(item.RawTitle);
-                Assert.AreNotEqual(item.PubDate, default(DateTimeOffset));
 
                 var moreData = item.GetMoreData();
 
-                Assert.AreNotEqual(moreData.Length, default(TimeSpan));
+                Assert.AreNotEqual(default(TimeSpan), moreData.Length);
                 Assert.IsTrue(!string.IsNullOrWhiteSpace(moreData.Title));
                 Assert.IsTrue(!string.IsNullOrWhiteSpace(moreData.ThumbnailUrl));
                 Assert.IsTrue(moreData.WatchCount > 0);
+                Assert.AreNotEqual(default(DateTime), moreData.PostedAt);
             }
         }
 

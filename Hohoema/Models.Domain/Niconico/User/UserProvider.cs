@@ -32,7 +32,7 @@ namespace Hohoema.Models.Domain.Niconico.User
         {
             try
             {
-                var userName = await NiconicoSession.ToolkitContext.User.GetUserNicknameAsync(userId);
+                var userName = await _niconicoSession.ToolkitContext.User.GetUserNicknameAsync(userId);
 
                 if (userName != null)
                 {

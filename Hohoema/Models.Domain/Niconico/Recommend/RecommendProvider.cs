@@ -28,8 +28,8 @@ namespace Hohoema.Models.Domain.Niconico.Recommend
             var (res, nicoVideo) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
             return nicoVideo.ProviderType switch
             {
-                OwnerType.User => await NiconicoSession.ToolkitContext.Recommend.GetVideoReccommendAsync(nicoVideo.VideoId),
-                OwnerType.Channel => await NiconicoSession.ToolkitContext.Recommend.GetChannelVideoReccommendAsync(nicoVideo.VideoId, nicoVideo.ProviderId, res.Tags.TagInfo.Select(x => x.Tag)),
+                OwnerType.User => await _niconicoSession.ToolkitContext.Recommend.GetVideoReccommendAsync(nicoVideo.VideoId),
+                OwnerType.Channel => await _niconicoSession.ToolkitContext.Recommend.GetChannelVideoReccommendAsync(nicoVideo.VideoId, nicoVideo.ProviderId, res.Tags.TagInfo.Select(x => x.Tag)),
                 _ => null
             };
         }

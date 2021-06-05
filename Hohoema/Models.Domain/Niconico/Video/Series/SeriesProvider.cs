@@ -6,17 +6,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Models.Infrastructure;
 
 namespace Hohoema.Models.Domain.Niconico.Video.Series
 {
     using UserSeries = Mntone.Nico2.Users.Series.UserSeries;
-    public sealed class SeriesRepository
+    public sealed class SeriesProvider : ProviderBase
     {
-        private readonly NiconicoSession _niconicoSession;
-
-        public SeriesRepository(NiconicoSession niconicoSession)
+        public SeriesProvider(NiconicoSession niconicoSession)
+            : base(niconicoSession)
         {
-            _niconicoSession = niconicoSession;
         }
 
         public async Task<IList<UserSeries>> GetUserSeriesAsync(string userId)
@@ -34,9 +33,9 @@ namespace Hohoema.Models.Domain.Niconico.Video.Series
             return items;
         }
 
-        public async Task<SeriesDetails> GetSeriesVideosAsync(string seriesId)
+        public async Task<NiconicoToolkit.Series.SeriesDetails> GetSeriesVideosAsync(string seriesId)
         {
-            return await _niconicoSession.Context.Video.GetSeriesVideosAsync(seriesId);
+            return await _niconicoSession.ToolkitContext.Series.GetSeriesVideosAsync(seriesId);
         }
     }
 }

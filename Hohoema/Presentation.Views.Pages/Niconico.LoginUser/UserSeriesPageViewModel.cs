@@ -39,7 +39,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
 
         public UserSeriesPageViewModel(
-            SeriesRepository seriesRepository,
+            SeriesProvider seriesRepository,
             UserProvider userProvider,
             PageManager pageManager,
             HohoemaPlaylist hohoemaPlaylist,
@@ -53,7 +53,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             AddSubscriptionCommand = addSubscriptionCommand;
         }
 
-        private readonly SeriesRepository _seriesRepository;
+        private readonly SeriesProvider _seriesRepository;
         private readonly UserProvider _userProvider;
         private readonly PageManager _pageManager;
 

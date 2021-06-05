@@ -213,7 +213,7 @@
     <Compile Include="Models.Domain\Niconico\Video\NicoVideoProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Video\Ranking\RankingGenreCache.cs" />
     <Compile Include="Models.Domain\Niconico\Video\Ranking\RankingProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\Series\SeriesRepository.cs" />
+    <Compile Include="Models.Domain\Niconico\Video\Series\SeriesProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Video\VideoCacheSettings_Legacy.cs" />
     <Compile Include="Models.Domain\Niconico\Video\VideoFilteringSettings.cs" />
     <Compile Include="Models.Domain\Niconico\Video\VideoRankingSettings.cs" />

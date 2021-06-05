@@ -21,6 +21,7 @@ using NiconicoToolkit.Channels;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Follow;
 using NiconicoToolkit.SearchWithCeApi;
+using NiconicoToolkit.Series;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -55,7 +56,25 @@ namespace NiconicoToolkit
             Channel = new ChannelClient(this);
             Mylist = new MylistClient(this);
             Follow = new FollowClient(this);
+            Series = new SeriesClient(this);
         }
+
+
+        public HttpClient HttpClient { get; }
+
+        public AccountClient Account { get; }
+        public LiveClient Live { get; }
+        public UserClient User { get; }
+        public VideoClient Video { get; }
+        public ActivityClient Activity { get; }
+        public SearchWithPageClient SearchWithPage { get; }
+        public SearchWithCeApiClient SearchWithCeApi { get; }
+        public RecommendClient Recommend { get; }
+        public ChannelClient Channel { get; }
+        public MylistClient Mylist { get; }
+        public FollowClient Follow { get; }
+        public SeriesClient Series { get; }
+
 
         TimeSpan _minPageAccessInterval = TimeSpan.FromSeconds(1);
         DateTime _prevPageAccessTime;
@@ -84,20 +103,6 @@ namespace NiconicoToolkit
 
             HttpClient.DefaultRequestHeaders.Add("Origin", "https://www.nicovideo.jp");
         }
-
-        public HttpClient HttpClient { get; }
-
-        public AccountClient Account { get; }
-        public LiveClient Live { get; }
-        public UserClient User { get; }
-        public VideoClient Video { get; }
-        public ActivityClient Activity { get; }
-        public SearchWithPageClient SearchWithPage { get; }
-        public SearchWithCeApiClient SearchWithCeApi { get; }
-        public RecommendClient Recommend { get; }
-        public ChannelClient Channel { get; }
-        public MylistClient Mylist { get; }
-        public FollowClient Follow { get; }
 
         #region 
 

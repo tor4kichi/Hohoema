@@ -22,14 +22,14 @@ namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
 
         public async Task<VideoWatchHistory.VideoWatchHistoryItem[]> GetHistoryAsync(int page = 0, int pageSize = 100)
         {
-            using var _ = await NiconicoSession.SigninLock.LockAsync();
+            using var _ = await _niconicoSession.SigninLock.LockAsync();
             
-            if (!NiconicoSession.IsLoggedIn)
+            if (!_niconicoSession.IsLoggedIn)
             {
                 throw new HohoemaExpception("Failed get login user video watch history. Require LogIn.");
             }
 
-            var res = await NiconicoSession.ToolkitContext.Activity.VideoWachHistory.GetWatchHistoryAsync(0, 100);
+            var res = await _niconicoSession.ToolkitContext.Activity.VideoWachHistory.GetWatchHistoryAsync(0, 100);
 
             if (res.Meta.IsSuccess is false) { throw new HohoemaExpception("Failed get login user video watch history"); }
 
@@ -44,19 +44,19 @@ namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
 
         public async Task<bool> RemoveAllHistoriesAsync()
         {
-            var res = await NiconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteAllWatchHistoriesAsync();
+            var res = await _niconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteAllWatchHistoriesAsync();
             return res.IsSuccess;
         }
 
         public async Task<bool> RemoveHistoryAsync(string videoId)
         {
-            var res = await NiconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteWatchHistoriesAsync(videoId);
+            var res = await _niconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteWatchHistoriesAsync(videoId);
             return res.IsSuccess;
         }
 
         public async Task<bool> RemoveHistoryAsync(IEnumerable<string> videoIdList)
         {
-            var res = await NiconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteWatchHistoriesAsync(videoIdList);
+            var res = await _niconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteWatchHistoriesAsync(videoIdList);
             return res.IsSuccess;
         }
     }

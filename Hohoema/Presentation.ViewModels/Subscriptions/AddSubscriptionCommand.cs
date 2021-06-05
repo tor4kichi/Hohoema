@@ -23,14 +23,14 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions
         private readonly UserProvider _userProvider;
         private readonly ChannelProvider _channelProvider;
         private readonly NotificationService _notificationService;
-        private readonly SeriesRepository _seriesRepository;
+        private readonly SeriesProvider _seriesRepository;
 
         public AddSubscriptionCommand(
             SubscriptionManager subscriptionManager,
             UserProvider userProvider,
             ChannelProvider channelProvider,
             NotificationService notificationService,
-            SeriesRepository seriesRepository
+            SeriesProvider seriesRepository
             )
         {
             _subscriptionManager = subscriptionManager;

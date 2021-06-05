@@ -7,7 +7,7 @@ using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
-using Mntone.Nico2.Videos.Series;
+using NiconicoToolkit.Series;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
 using System;
@@ -41,7 +41,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         public SeriesPageViewModel(
             HohoemaPlaylist hohoemaPlaylist,
-            SeriesRepository seriesRepository,
+            SeriesProvider seriesRepository,
             AddSubscriptionCommand addSubscriptionCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
@@ -52,7 +52,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             SelectionModeToggleCommand = selectionModeToggleCommand;
         }
 
-        private readonly SeriesRepository _seriesRepository;
+        private readonly SeriesProvider _seriesRepository;
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
@@ -83,12 +83,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 Series = new UserSeriesItemViewModel(_seriesDetails);
                 User = new UserViewModel(_seriesDetails.Owner);
             }
+
             await base.OnNavigatedToAsync(parameters);
         }
 
         protected override IIncrementalSource<VideoListItemControlViewModel> GenerateIncrementalSource()
         {
-            return new SeriesVideosIncrementalSource(_seriesDetails.Videos);
+            return new SeriesVideosIncrementalSource(_seriesDetails);
         }
 
         
@@ -139,11 +140,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
     public class SeriesVideosIncrementalSource : HohoemaIncrementalSourceBase<VideoListItemControlViewModel>
     {
-        private List<SeriresVideo> _videos;
+        private List<SeriesVideo> _videos => _seriesDetails.Videos;
+        private SeriesOwner _owner => _seriesDetails.Owner;
+        private readonly SeriesDetails _seriesDetails;
 
-        public SeriesVideosIncrementalSource(List<SeriresVideo> videos)
+        public SeriesVideosIncrementalSource(SeriesDetails seriesDetails)
         {
-            _videos = videos;
+            _seriesDetails = seriesDetails;
         }
 
         protected override ValueTask<int> ResetSourceImpl()
@@ -162,7 +165,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 itemVM.CommentCount = item.CommentCount;
                 itemVM.MylistCount = item.MylistCount;
 
-                await itemVM.EnsureProviderIdAsync(ct).ConfigureAwait(false);
+                itemVM.ProviderId = _owner.Id;
+                itemVM.ProviderType = NiconicoToolkit.Video.OwnerType.User;
+                itemVM.ProviderName = _owner.Nickname;
 
                 yield return itemVM;
 

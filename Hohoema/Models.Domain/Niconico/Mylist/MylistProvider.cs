@@ -53,11 +53,11 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             }
             else
             {
-                var res = await NiconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistGroupid, 0, 1);
+                var res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistGroupid, 0, 1);
                 
                 if (res.Data?.Mylist != null) { return res.Data.Mylist; }
 
-                res = await NiconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylistGroupid, 0, 1);
+                res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylistGroupid, 0, 1);
 
                 return res.Data?.Mylist;
             }
@@ -67,7 +67,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
         {
             if (mylistGroupId == "0")
             {
-                var res = await NiconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync(0, 1);
+                var res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync(0, 1);
                 var detail = res.Data.Mylist;
                 var mylist = new MylistPlaylist(mylistGroupId, this)
                 {
@@ -102,7 +102,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
         public async Task<List<MylistPlaylist>> GetMylistsByUser(string userId)
         {
-            var groups = await NiconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId, 1);
+            var groups = await _niconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId, 1);
 
             if (groups == null) { return null; }
 
@@ -133,7 +133,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
         {
             var res = await ContextActionAsync(async context =>
             {
-                return await NiconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, (int)page, (int)pageSize, sortKey, sortOrder);
+                return await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, (int)page, (int)pageSize, sortKey, sortOrder);
             });
             
             if (res.Meta.IsSuccess is false) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }

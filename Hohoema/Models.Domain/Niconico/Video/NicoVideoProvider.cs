@@ -133,7 +133,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         MemoryCache _cache;
         MemoryCacheEntryOptions _entryOptions;
-        NiconicoToolkit.SearchWithCeApi.Video.VideoSearchSubClient SearchClient => NiconicoSession.ToolkitContext.SearchWithCeApi.Video;
+        NiconicoToolkit.SearchWithCeApi.Video.VideoSearchSubClient SearchClient => _niconicoSession.ToolkitContext.SearchWithCeApi.Video;
 
 
         static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(5);
@@ -252,7 +252,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         /// <returns></returns>
         public async Task<(VideoIdSearchSingleResponse Response, NicoVideo NicoVideo)> GetVideoInfoAsync(string rawVideoId, CancellationToken ct = default)
         {
-            if (NiconicoSession.ServiceStatus.IsOutOfService())
+            if (_niconicoSession.ServiceStatus.IsOutOfService())
             {
                 throw new InvalidOperationException();
             }
@@ -372,12 +372,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         public async Task<WatchPageResponse> GetWatchPageResponseAsync(string rawVideoId, bool noHisotry = false)
         {
-            if (NiconicoSession.ServiceStatus.IsOutOfService())
+            if (_niconicoSession.ServiceStatus.IsOutOfService())
             {
                 return null;
             }
 
-            var data = await NiconicoSession.ToolkitContext.Video.VideoWatch.GetInitialWatchDataAsync(rawVideoId, !noHisotry, !noHisotry);
+            var data = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetInitialWatchDataAsync(rawVideoId, !noHisotry, !noHisotry);
             if (data.WatchApiResponse?.WatchApiData is not null and var watchData)
             {
                 UpdateCache(rawVideoId, info =>
