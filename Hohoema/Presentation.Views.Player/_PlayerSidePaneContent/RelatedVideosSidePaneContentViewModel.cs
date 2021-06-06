@@ -201,24 +201,24 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                     // チャンネル動画の一覧を取得する
                     // ページアクセスが必要なので先頭ページを取って
                     // 全体の分量を把握してから全ページ取得を行う
-                    List<ChannelVideoInfo> channelVideos = new List<ChannelVideoInfo>();
-                    var channelVideosFirstPage = await ChannelProvider.GetChannelVideo(sourceVideo.Owner.OwnerId, 0);
-                    var uncheckedCount = channelVideosFirstPage.TotalCount - channelVideosFirstPage.Videos.Count;
-                    if (channelVideosFirstPage.TotalCount != 0)
-                    {
-                        channelVideos.AddRange(channelVideosFirstPage.Videos);
+                    //List<ChannelVideoInfo> channelVideos = new List<ChannelVideoInfo>();
+                    //var channelVideosFirstPage = await ChannelProvider.GetChannelVideo(sourceVideo.Owner.OwnerId, 0);
+                    //var uncheckedCount = channelVideosFirstPage.TotalCount - channelVideosFirstPage.Videos.Count;
+                    //if (channelVideosFirstPage.TotalCount != 0)
+                    //{
+                    //    channelVideos.AddRange(channelVideosFirstPage.Videos);
 
-                        var uncheckedPageCount = (int)Math.Ceiling((double)uncheckedCount / 20); /* チャンネル動画１ページ = 20 動画 */
-                        foreach (var page in Enumerable.Range(1, uncheckedPageCount))
-                        {
-                            var channelVideoInfo = await ChannelProvider.GetChannelVideo(sourceVideo.Owner.OwnerId, page);
-                            channelVideos.AddRange(channelVideoInfo.Videos);
-                        }
+                    //    var uncheckedPageCount = (int)Math.Ceiling((double)uncheckedCount / 20); /* チャンネル動画１ページ = 20 動画 */
+                    //    foreach (var page in Enumerable.Range(1, uncheckedPageCount))
+                    //    {
+                    //        var channelVideoInfo = await ChannelProvider.GetChannelVideo(sourceVideo.Owner.OwnerId, page);
+                    //        channelVideos.AddRange(channelVideoInfo.Videos);
+                    //    }
 
-                        db_channelInfo.Videos = channelVideos;
-                    }
+                    //    db_channelInfo.Videos = channelVideos;
+                    //}
 
-                    _nicoChannelCacheRepository.AddOrUpdate(db_channelInfo);
+                    //_nicoChannelCacheRepository.AddOrUpdate(db_channelInfo);
 
 
                     var collectionView = new AdvancedCollectionView(db_channelInfo.Videos);

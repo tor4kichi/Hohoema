@@ -122,6 +122,7 @@
   <ItemGroup>
     <Compile Include="Tests\AccountTestHelper.cs" />
     <Compile Include="Tests\ActivityTest.cs" />
+    <Compile Include="Tests\ChannelTest.cs" />
     <Compile Include="Tests\FollowTest.cs" />
     <Compile Include="Tests\LiveTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

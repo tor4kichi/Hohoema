@@ -145,42 +145,52 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
                 ChannelInfo = null;
 
-                try
-                {
-                    var channelInfo = await ChannelProvider.GetChannelInfo(RawChannelId);
-
-                    ChannelId = channelInfo.ChannelId;
-                    ChannelName = channelInfo.Name;
-                    ChannelScreenName = channelInfo.ScreenName;
-                    ChannelOpenTime = channelInfo.ParseOpenTime();
-                    ChannelUpdateTime = channelInfo.ParseUpdateTime();
-                    ChannelInfo = new ChannelInfo() { Id = ChannelId?.ToString(), Label = ChannelName };
-                }
-                catch
-                {
-                    ChannelName = RawChannelId;
-                }
-
-                try
-                {
-                    if (NiconicoSession.IsLoggedIn)
-                    {
-                        FollowContext = await ChannelFollowContext.CreateAsync(_channelFollowProvider, ChannelInfo);
-                    }
-                    else
-                    {
-                        FollowContext = ChannelFollowContext.Default;
-                    }
-                }
-                catch
-                {
-                    FollowContext = ChannelFollowContext.Default;
-                }
+                await UpdateChannelInfo();
             }
 
             await base.OnNavigatedToAsync(parameters);
         }
 
+
+        async Task UpdateChannelInfo()
+        {
+            try
+            {
+                var channelInfo = await ChannelProvider.GetChannelInfo(RawChannelId);
+
+                ChannelId = channelInfo.ChannelId;
+                ChannelName = channelInfo.Name;
+                ChannelScreenName = channelInfo.ScreenName;
+                ChannelOpenTime = channelInfo.ParseOpenTime();
+                ChannelUpdateTime = channelInfo.ParseUpdateTime();
+                ChannelInfo = new ChannelInfo() { Id = ChannelId?.ToString(), Label = ChannelName };
+
+                await UpdateFollowChannelAsync(ChannelInfo);
+            }
+            catch
+            {
+                ChannelName = RawChannelId;
+            }
+        }
+
+        async Task UpdateFollowChannelAsync(ChannelInfo channelInfo)
+        {
+            try
+            {
+                if (NiconicoSession.IsLoggedIn)
+                {
+                    FollowContext = await ChannelFollowContext.CreateAsync(_channelFollowProvider, channelInfo);
+                }
+                else
+                {
+                    FollowContext = ChannelFollowContext.Default;
+                }
+            }
+            catch
+            {
+                FollowContext = ChannelFollowContext.Default;
+            }
+        }
 
         protected override IIncrementalSource<ChannelVideoListItemViewModel> GenerateIncrementalSource()
         {
@@ -233,7 +243,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         public string ChannelId { get; }
         public ChannelProvider ChannelProvider { get; }
 
-        ChannelVideoResponse _FirstResponse;
         public ChannelVideoLoadingSource(string channelId, ChannelProvider channelProvider)
         {
             ChannelId = channelId;
@@ -247,72 +256,48 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         protected override async IAsyncEnumerable<ChannelVideoListItemViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
-            if (_FirstResponse == null)
-            {
-                yield break;
-            }
+            if (_IsEndPage) { yield break; }
 
-            if (_IsEndPage)
-            {
-                yield break;
-            }
-
-            ChannelVideoResponse res;
-
-            if (head == 0)
-            {
-                res = _FirstResponse;
-            }
-            else
-            {
-                var page = (int)(head / OneTimeLoadCount);
-                res = await ChannelProvider.GetChannelVideo(ChannelId, page);
-            }
+            var page = (int)(head / OneTimeLoadCount);
+            var res = await ChannelProvider.GetChannelVideo(ChannelId, page);
 
             ct.ThrowIfCancellationRequested();
 
-            _IsEndPage = res != null ? (res.Videos.Count < OneTimeLoadCount) : true;
+            _IsEndPage = res != null ? (res.Data.Videos.Length < OneTimeLoadCount) : true;
 
-            if (res != null)
+            if (!res.IsSuccess) { yield break; }
+
+            foreach (var video in res.Data.Videos)
             {
-                foreach (var video in res.Videos)
+                // so0123456のフォーマットの動画ID
+                // var videoId = video.PurchasePreviewUrl.Split('/').Last();
+
+                var channelVideo = new ChannelVideoListItemViewModel(video.ItemId, video.Title, video.ThumbnailUrl, video.Length, video.PostedAt);
+                if (video.IsRequirePayment)
                 {
-                    // so0123456のフォーマットの動画ID
-                    // var videoId = video.PurchasePreviewUrl.Split('/').Last();
-
-                    var channelVideo = new ChannelVideoListItemViewModel(video.ItemId, video.Title, video.ThumbnailUrl, video.Length, video.PostedAt);
-                    if (video.IsRequirePayment)
-                    {
-                        channelVideo.Permission = NiconicoToolkit.Video.VideoPermission.RequirePay;
-                    }
-                    else if (video.IsFreeForMember)
-                    {
-                        channelVideo.Permission = NiconicoToolkit.Video.VideoPermission.FreeForChannelMember;
-                    }
-                    else if (video.IsMemberUnlimitedAccess)
-                    {
-                        channelVideo.Permission = NiconicoToolkit.Video.VideoPermission.MemberUnlimitedAccess;
-                    }
-                    channelVideo.ViewCount = video.ViewCount;
-                    channelVideo.CommentCount = video.CommentCount;
-                    channelVideo.MylistCount = video.MylistCount; 
-
-                    yield return channelVideo;
-
-                    ct.ThrowIfCancellationRequested();
+                    channelVideo.Permission = NiconicoToolkit.Video.VideoPermission.RequirePay;
                 }
-            }
-            else
-            {
-                yield break;
+                else if (video.IsFreeForMember)
+                {
+                    channelVideo.Permission = NiconicoToolkit.Video.VideoPermission.FreeForChannelMember;
+                }
+                else if (video.IsMemberUnlimitedAccess)
+                {
+                    channelVideo.Permission = NiconicoToolkit.Video.VideoPermission.MemberUnlimitedAccess;
+                }
+                channelVideo.ViewCount = video.ViewCount;
+                channelVideo.CommentCount = video.CommentCount;
+                channelVideo.MylistCount = video.MylistCount;
+
+                yield return channelVideo;
+
+                ct.ThrowIfCancellationRequested();
             }
         }
 
-        protected override async ValueTask<int> ResetSourceImpl()
+        protected override ValueTask<int> ResetSourceImpl()
         {
-            _FirstResponse = await ChannelProvider.GetChannelVideo(ChannelId, 0);
-
-            return _FirstResponse?.TotalCount ?? 0;
+            return new ValueTask<int>(1);
         }
     }
 

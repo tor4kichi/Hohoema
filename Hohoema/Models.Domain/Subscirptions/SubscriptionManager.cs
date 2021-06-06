@@ -317,8 +317,8 @@ namespace Hohoema.Models.Domain.Subscriptions
             int page = 0;
             var res = await channelProvider.GetChannelVideo(channelId, page);
 
-            var videoItems = res.Videos;
-            var currentItemsCount = videoItems?.Count ?? 0;
+            var videoItems = res.Data.Videos;
+            var currentItemsCount = videoItems?.Length ?? 0;
             
             if (videoItems == null || currentItemsCount == 0)
             {
@@ -333,7 +333,7 @@ namespace Hohoema.Models.Domain.Subscriptions
                     video.Title = item.Title;
                     video.PostedAt = item.PostedAt;
                     video.Length = item.Length;
-                    video.Description = item.Description;
+                    video.Description ??= item.ShortDescription;
                     video.ThumbnailUrl = item.ThumbnailUrl;
 
                     return default;

@@ -8,11 +8,16 @@ namespace NiconicoToolkit.Channels
 {
     public sealed class ChannelVideoResponse : ResponseWithMeta
     {
-        public int TotalCount { get; set; }
-        public int Page { get; set; }
-        public List<ChannelVideoItem> Videos { get; set; }
+        public ChannelVideoData Data { get; set; }
     }
 
+
+    public sealed class ChannelVideoData
+    {
+        public int TotalCount { get; set; }
+        public int Page { get; set; }
+        public ChannelVideoItem[] Videos { get; set; }
+    }
 
     public sealed class ChannelVideoItem
     {
@@ -28,7 +33,7 @@ namespace NiconicoToolkit.Channels
 
         public DateTime PostedAt { get; set; }
 
-        public string Description { get; set; }
+        public string ShortDescription { get; set; }
 
         public string CommentSummary { get; set; }
 

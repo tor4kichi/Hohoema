@@ -13,6 +13,7 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using NiconicoToolkit.Video;
+using NiconicoToolkit.Channels;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
@@ -161,25 +162,27 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 // チャンネル動画の一覧を取得する
                 // ページアクセスが必要なので先頭ページを取って
                 // 全体の分量を把握してから全ページ取得を行う
-                List<ChannelVideoInfo> channelVideos = new List<ChannelVideoInfo>();
-                var channelVideosFirstPage = await _channelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, 0);
-                var uncheckedCount = channelVideosFirstPage.TotalCount - channelVideosFirstPage.Videos.Count;
-                if (channelVideosFirstPage.TotalCount != 0)
-                {
-                    channelVideos.AddRange(channelVideosFirstPage.Videos);
+                //List<ChannelVideoItem> channelVideos = new List<ChannelVideoItem>();
+                //var channelVideosFirstPage = await _channelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, 0);
+                //if (channelVideosFirstPage.Data is not null and var channelData)
+                //{
+                //    var uncheckedCount = channelData.TotalCount - channelData.Videos.Length;
+                //    if (channelData.TotalCount != 0)
+                //    {
+                //        channelVideos.AddRange(channelData.Videos);
 
-                    var uncheckedPageCount = (int)Math.Ceiling((double)uncheckedCount / 20); /* チャンネル動画１ページ = 20 動画 */
-                    foreach (var page in Enumerable.Range(1, uncheckedPageCount))
-                    {
-                        var channelVideoInfo = await _channelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, page);
-                        channelVideos.AddRange(channelVideoInfo.Videos);
-                    }
+                //        var uncheckedPageCount = (int)Math.Ceiling((double)uncheckedCount / 20); /* チャンネル動画１ページ = 20 動画 */
+                //        foreach (var page in Enumerable.Range(1, uncheckedPageCount))
+                //        {
+                //            var channelVideoInfo = await _channelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, page);
+                //            channelVideos.AddRange(channelData.Videos);
+                //        }
 
-                    db_channelInfo.Videos = channelVideos;
-                }
+                //        db_channelInfo.Videos = channelVideos;
+                //    }
 
-                _nicoChannelCacheRepository.AddOrUpdate(db_channelInfo);
-
+                //    _nicoChannelCacheRepository.AddOrUpdate(db_channelInfo);
+                //}
 
                 var collectionView = new AdvancedCollectionView(db_channelInfo.Videos);
                 collectionView.SortDescriptions.Add(new SortDescription(nameof(ChannelVideoInfo.PostedAt), SortDirection.Ascending));
