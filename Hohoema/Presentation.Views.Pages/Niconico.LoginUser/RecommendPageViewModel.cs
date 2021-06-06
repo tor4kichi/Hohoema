@@ -26,14 +26,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             LoginUserRecommendProvider loginUserRecommendProvider,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            NicoVideoCacheRepository nicoVideoRepository
+            NicoVideoProvider nicoVideoProvider
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
             LoginUserRecommendProvider = loginUserRecommendProvider;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
-            _nicoVideoRepository = nicoVideoRepository;
+            _nicoVideoProvider = nicoVideoProvider;
         }
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -44,7 +44,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
         
         protected override IIncrementalSource<RecommendVideoListItem> GenerateIncrementalSource()
         {
-            var source = new RecommendVideoIncrementalLoadingSource(LoginUserRecommendProvider, _nicoVideoRepository);
+            var source = new RecommendVideoIncrementalLoadingSource(LoginUserRecommendProvider, _nicoVideoProvider);
             RecommendSourceTags = source.RecommendSourceTags
                .ToReadOnlyReactiveCollection(x => new NicoVideoTag(x));
             RaisePropertyChanged(nameof(RecommendSourceTags));
@@ -52,7 +52,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
         }
 
         private DelegateCommand<string> _OpenTagCommand;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
 
         public DelegateCommand<string> OpenTagCommand
         {
@@ -78,7 +78,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
         public RecommendVideoListItem(
             Mntone.Nico2.Videos.Recommend.Item item
             )
-            : base(item.Id, item.ParseTitle(), item.ThumbnailUrl, item.ParseLengthToTimeSpan())
+            : base(item.Id, item.ParseTitle(), item.ThumbnailUrl, item.ParseLengthToTimeSpan(), item.ParseForstRetroeveToDateTimeOffset().DateTime)
         {
             _Item = item;
             RecommendSourceTag = _Item.AdditionalInfo?.Sherlock.Tag;
@@ -89,11 +89,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
     {
         public RecommendVideoIncrementalLoadingSource(
             LoginUserRecommendProvider loginUserRecommendProvider,
-            NicoVideoCacheRepository nicoVideoRepository
+            NicoVideoProvider nicoVideoProvider
             )
         {
             LoginUserRecommendProvider = loginUserRecommendProvider;
-            _nicoVideoRepository = nicoVideoRepository;
+            _nicoVideoProvider = nicoVideoProvider;
         }
 
         public LoginUserRecommendProvider LoginUserRecommendProvider { get; }
@@ -105,7 +105,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
         public ObservableCollection<string> RecommendSourceTags { get; } = new ObservableCollection<string>();
 
         private bool _EndOfRecommend = false;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
 
         public override uint OneTimeLoadCount => 18;
 
@@ -141,18 +141,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
                 foreach (var item in _PrevRecommendContent.Items)
                 {
-                    var video = _nicoVideoRepository.Get(item.Id);
-                    video.ThumbnailUrl = item.ThumbnailUrl;
-                    video.Title = item.ParseTitle();
-                    video.Length = item.ParseLengthToTimeSpan();
-                    video.ViewCount = item.ViewCounter;
-                    video.CommentCount = item.NumRes;
-                    video.MylistCount = item.MylistCounter;
-                    video.PostedAt = item.ParseForstRetroeveToDateTimeOffset().DateTime;
-                    _nicoVideoRepository.AddOrUpdate(video);
+                    var video = _nicoVideoProvider.UpdateCache(item.Id, video => 
+                    {                    
+                        video.ThumbnailUrl = item.ThumbnailUrl;
+                        video.Title = item.ParseTitle();
+                        video.Length = item.ParseLengthToTimeSpan();
+                        video.PostedAt = item.ParseForstRetroeveToDateTimeOffset().DateTime;
+                        return (false, default);
+                    });
 
                     var vm = new RecommendVideoListItem(item);
-                    vm.Setup(video);
+                    vm.ViewCount= item.ViewCounter;
+                    vm.MylistCount = item.MylistCounter;
+                    vm.CommentCount = item.NumRes;
+                    
+
                     yield return vm;
 
                     ct.ThrowIfCancellationRequested();

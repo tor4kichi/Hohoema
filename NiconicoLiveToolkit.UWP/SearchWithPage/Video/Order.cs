@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NiconicoToolkit.Search.Video
+namespace NiconicoToolkit.SearchWithPage.Video
 {
     /// <summary>
     /// 整列方向

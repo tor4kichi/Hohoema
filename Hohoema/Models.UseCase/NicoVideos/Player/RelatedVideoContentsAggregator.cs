@@ -12,6 +12,8 @@ using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Models.Domain.Niconico.Mylist;
+using NiconicoToolkit.Video;
+using NiconicoToolkit.Channels;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
@@ -40,32 +42,30 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
            MylistRepository mylistRepository,
            HohoemaPlaylist hohoemaPlaylist,
            PageManager pageManager,
-           NicoVideoCacheRepository nicoVideoRepository,
            NicoChannelCacheRepository nicoChannelCacheRepository
            )
         {
-            NicoVideoProvider = nicoVideoProvider;
-            ChannelProvider = channelProvider;
+            _nicoVideoProvider = nicoVideoProvider;
+            _channelProvider = channelProvider;
             _mylistRepository = mylistRepository;
-            HohoemaPlaylist = hohoemaPlaylist;
-            PageManager = pageManager;
-            _nicoVideoRepository = nicoVideoRepository;
+            _hohoemaPlaylist = hohoemaPlaylist;
+            _pageManager = pageManager;
             _nicoChannelCacheRepository = nicoChannelCacheRepository;
         }
+
+        private readonly NicoVideoProvider _nicoVideoProvider;
+        private readonly ChannelProvider _channelProvider;
+        private readonly HohoemaPlaylist _hohoemaPlaylist;
+        private readonly PageManager _pageManager;
+        private readonly MylistRepository _mylistRepository;
+        private readonly NicoChannelCacheRepository _nicoChannelCacheRepository;
 
         public NicoVideoSessionProvider Video { get; }
 
         public string JumpVideoId { get; set; }
-        public NicoVideoProvider NicoVideoProvider { get; }
-        public ChannelProvider ChannelProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
-        public PageManager PageManager { get; }
         public bool HasVideoDescription { get; private set; }
 
         const double _SeriesVideosTitleSimilarityValue = 0.7;
-        private readonly MylistRepository _mylistRepository;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
-        private readonly NicoChannelCacheRepository _nicoChannelCacheRepository;
         private static VideoRelatedContents _cachedVideoRelatedContents;
 
         public async Task<VideoRelatedContents> GetRelatedContentsAsync(string videoId)
@@ -75,8 +75,8 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 return _cachedVideoRelatedContents;
             }
 
-            var videoInfo = _nicoVideoRepository.Get(videoId);
-            var videoViewerHelpInfo = NicoVideoSessionProvider.GetVideoRelatedInfomationWithVideoDescription(videoId, videoInfo.DescriptionWithHtml);
+            var videoInfo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
+            var videoViewerHelpInfo = NicoVideoSessionProvider.GetVideoRelatedInfomationWithVideoDescription(videoId, videoInfo.Description);
 
             VideoRelatedContents result = new VideoRelatedContents(videoId);
             // ニコスクリプトで指定されたジャンプ先動画
@@ -100,7 +100,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             seriesVideos.Add(videoInfo);
             foreach (var id in videoIds)
             {
-                var video = await NicoVideoProvider.GetNicoVideoInfo(id, requireLatest: true);
+                var video = await _nicoVideoProvider.GetCachedVideoInfoAsync(id);
 
                 var titleSimilarity = videoInfo.Title.CalculateSimilarity(video.Title);
                 if (titleSimilarity > _SeriesVideosTitleSimilarityValue)
@@ -143,7 +143,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
             // チャンネル動画で次動画が見つからなかった場合は
             // チャンネル動画一覧から次動画をサジェストする
-            if (videoInfo.Owner.UserType == NicoVideoUserType.Channel
+            if (videoInfo.Owner.UserType == OwnerType.Channel
                 && result.NextVideo == null
                 )
             {
@@ -162,25 +162,27 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 // チャンネル動画の一覧を取得する
                 // ページアクセスが必要なので先頭ページを取って
                 // 全体の分量を把握してから全ページ取得を行う
-                List<ChannelVideoInfo> channelVideos = new List<ChannelVideoInfo>();
-                var channelVideosFirstPage = await ChannelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, 0);
-                var uncheckedCount = channelVideosFirstPage.TotalCount - channelVideosFirstPage.Videos.Count;
-                if (channelVideosFirstPage.TotalCount != 0)
-                {
-                    channelVideos.AddRange(channelVideosFirstPage.Videos);
+                //List<ChannelVideoItem> channelVideos = new List<ChannelVideoItem>();
+                //var channelVideosFirstPage = await _channelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, 0);
+                //if (channelVideosFirstPage.Data is not null and var channelData)
+                //{
+                //    var uncheckedCount = channelData.TotalCount - channelData.Videos.Length;
+                //    if (channelData.TotalCount != 0)
+                //    {
+                //        channelVideos.AddRange(channelData.Videos);
 
-                    var uncheckedPageCount = (int)Math.Ceiling((double)uncheckedCount / 20); /* チャンネル動画１ページ = 20 動画 */
-                    foreach (var page in Enumerable.Range(1, uncheckedPageCount))
-                    {
-                        var channelVideoInfo = await ChannelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, page);
-                        channelVideos.AddRange(channelVideoInfo.Videos);
-                    }
+                //        var uncheckedPageCount = (int)Math.Ceiling((double)uncheckedCount / 20); /* チャンネル動画１ページ = 20 動画 */
+                //        foreach (var page in Enumerable.Range(1, uncheckedPageCount))
+                //        {
+                //            var channelVideoInfo = await _channelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, page);
+                //            channelVideos.AddRange(channelData.Videos);
+                //        }
 
-                    db_channelInfo.Videos = channelVideos;
-                }
+                //        db_channelInfo.Videos = channelVideos;
+                //    }
 
-                _nicoChannelCacheRepository.AddOrUpdate(db_channelInfo);
-
+                //    _nicoChannelCacheRepository.AddOrUpdate(db_channelInfo);
+                //}
 
                 var collectionView = new AdvancedCollectionView(db_channelInfo.Videos);
                 collectionView.SortDescriptions.Add(new SortDescription(nameof(ChannelVideoInfo.PostedAt), SortDirection.Ascending));
@@ -194,9 +196,8 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     var nextVideo = collectionView.ElementAtOrDefault(pos + 1) as ChannelVideoInfo;
                     if (nextVideo != null)
                     {
-                        var videoVM = new VideoListItemControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length);
+                        var videoVM = new VideoListItemControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length, nextVideo.PostedAt);
                         videoVM.Permission = nextVideo.IsRequirePayment ? NiconicoToolkit.Video.VideoPermission.RequirePay : NiconicoToolkit.Video.VideoPermission.None;
-                        videoVM.PostedAt = nextVideo.PostedAt;
                         videoVM.ViewCount = nextVideo.ViewCount;
                         videoVM.CommentCount = nextVideo.CommentCount;
                         videoVM.MylistCount = nextVideo.MylistCount;

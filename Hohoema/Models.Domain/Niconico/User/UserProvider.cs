@@ -11,27 +11,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static Mntone.Nico2.Users.User.UserDetailResponse;
+using NiconicoToolkit.Video;
+using NiconicoToolkit.User;
+using UserDetailResponse = NiconicoToolkit.User.UserDetailResponse;
 
 namespace Hohoema.Models.Domain.Niconico.User
 {
     public sealed class UserProvider : ProviderBase
     {
         private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
 
         public UserProvider(NiconicoSession niconicoSession,
-            NicoVideoOwnerCacheRepository nicoVideoOwnerRepository
+            NicoVideoOwnerCacheRepository nicoVideoOwnerRepository,
+            NicoVideoProvider nicoVideoProvider
             )
             : base(niconicoSession)
         {
             _nicoVideoOwnerRepository = nicoVideoOwnerRepository;
+            _nicoVideoProvider = nicoVideoProvider;
         }
 
-        public async Task<string> GetUserName(string userId)
+        public async Task<string> GetUserNameAsync(string userId)
         {
             try
             {
-                var userName = await NiconicoSession.ToolkitContext.User.GetUserNicknameAsync(userId);
+                var userName = await _niconicoSession.ToolkitContext.User.GetUserNicknameAsync(userId);
 
                 if (userName != null)
                 {
@@ -41,7 +46,7 @@ namespace Hohoema.Models.Domain.Niconico.User
                         owner = new NicoVideoOwner()
                         {
                             OwnerId = userId,
-                            UserType = NicoVideoUserType.User
+                            UserType = OwnerType.User
                         };
                     }
                     owner.ScreenName = userName.Nickname;
@@ -56,15 +61,12 @@ namespace Hohoema.Models.Domain.Niconico.User
             }
         }
 
-        public async Task<NicoVideoOwner> GetUser(string userId)
+        public async Task<NicoVideoOwner> GetUserInfoAsync(string userId)
         {
-            var userRes = await ContextActionWithPageAccessWaitAsync(async context =>
-            {
-                return await context.User.GetUserAsync(userId);
-            }); 
+            var userRes = await _niconicoSession.ToolkitContext.User.GetUserInfoAsync(userId);
 
             var owner = _nicoVideoOwnerRepository.Get(userId);
-            if (userRes.Status == "ok")
+            if (userRes.IsOK)
             {
                 var user = userRes.User;
                 if (owner == null)
@@ -72,11 +74,11 @@ namespace Hohoema.Models.Domain.Niconico.User
                     owner = new NicoVideoOwner()
                     {
                         OwnerId = userId,
-                        UserType = NicoVideoUserType.User
+                        UserType = OwnerType.User
                     };
                 }
                 owner.ScreenName = user.Nickname;
-                owner.IconUrl = user.ThumbnailUrl;
+                owner.IconUrl = user.ThumbnailUrl.OriginalString;
 
                 _nicoVideoOwnerRepository.UpdateItem(owner);
             }
@@ -85,26 +87,24 @@ namespace Hohoema.Models.Domain.Niconico.User
         }
 
 
-        public async Task<UserDetails> GetUserDetail(string userId)
+        public async Task<UserDetailResponse> GetUserDetailAsync(string userId)
         {
-            var detail = await ContextActionWithPageAccessWaitAsync(async context =>
-            {
-                return await context.User.GetUserDetailAsync(userId);
-            });
+            var detail = await _niconicoSession.ToolkitContext.User.GetUserDetailAsync(userId);
 
             var owner = _nicoVideoOwnerRepository.Get(userId);
-            if (detail != null)
+            if (detail.IsSuccess)
             {
                 if (owner == null)
                 {
                     owner = new NicoVideoOwner()
                     {
                         OwnerId = userId,
-                        UserType = NicoVideoUserType.User
+                        UserType = OwnerType.User
                     };
                 }
-                owner.ScreenName = detail.User.Nickname;
-                owner.IconUrl = detail.User.Icons.Small.OriginalString;
+                var ownerData = detail.Data;
+                owner.ScreenName = ownerData.User.Nickname;
+                owner.IconUrl = ownerData.User.Icons.Small.OriginalString;
 
 
                 _nicoVideoOwnerRepository.UpdateItem(owner);
@@ -114,12 +114,19 @@ namespace Hohoema.Models.Domain.Niconico.User
         }
 
 
-        public async Task<Mntone.Nico2.Videos.Users.UserVideosResponse> GetUserVideos(uint userId, uint page, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
+        public async Task<NiconicoToolkit.User.UserVideoResponse> GetUserVideosAsync(uint userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
         {
-            return await ContextActionWithPageAccessWaitAsync(async context =>
+            var res = await _niconicoSession.ToolkitContext.User.GetUserVideoAsync(userId, page, pageSize, sortKey, sortOrder);
+
+            if (res.IsSuccess)
             {
-                return await context.Video.GetUserVideosAsync(userId, page/*, sort, order*/);
-            });
+                foreach (var item in res.Data.Items)
+                {
+                    _nicoVideoProvider.UpdateCache(item.Essential.Id, item.Essential);
+                }
+            }
+
+            return res;
         }
     }
 }

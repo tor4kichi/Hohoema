@@ -1,4 +1,4 @@
-﻿namespace NiconicoToolkit.Search.Video
+﻿namespace NiconicoToolkit.SearchWithPage.Video
 {
     public enum Range
     {

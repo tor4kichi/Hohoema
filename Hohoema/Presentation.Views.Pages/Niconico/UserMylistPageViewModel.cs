@@ -99,7 +99,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             {
                 try
                 {
-                    var userInfo = await UserProvider.GetUser(UserId);
+                    var userInfo = await UserProvider.GetUserInfoAsync(UserId);
                     UserName = userInfo.ScreenName;
                 }
                 catch (Exception ex)

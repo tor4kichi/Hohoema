@@ -50,24 +50,24 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public async Task<FollowChannelResponse> GetChannelsAsync(uint offset, uint pageSize)
         {
-            if (!NiconicoSession.IsLoggedIn)
+            if (!_niconicoSession.IsLoggedIn)
             {
                 throw new InvalidOperationException();
             }
 
-            return await NiconicoSession.ToolkitContext.Follow.Channel.GetFollowChannelAsync(offset, pageSize);
+            return await _niconicoSession.ToolkitContext.Follow.Channel.GetFollowChannelAsync(offset, pageSize);
         }
 
         public Task<bool> IsFollowingAsync(IChannel channel) => IsFollowingAsync(channel.Id);
 
         public async Task<ContentManageResult> AddFollowAsync(IChannel channel)
         {
-            if (!NiconicoSession.IsLoggedIn)
+            if (!_niconicoSession.IsLoggedIn)
             {
                 return ContentManageResult.Failed;
             }
 
-            var result = await NiconicoSession.ToolkitContext.Follow.Channel.AddFollowChannelAsync(channel.Id);
+            var result = await _niconicoSession.ToolkitContext.Follow.Channel.AddFollowChannelAsync(channel.Id);
 
             if (result.IsSucceed)
             {
@@ -80,7 +80,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public async Task<ContentManageResult> RemoveFollowAsync(IChannel channel)
         {
-            if (!NiconicoSession.IsLoggedIn)
+            if (!_niconicoSession.IsLoggedIn)
             {
                 return ContentManageResult.Failed;
             }
@@ -90,7 +90,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Exist; 
             }
 
-            var result = await NiconicoSession.ToolkitContext.Follow.Channel.DeleteFollowChannelAsync(channel.Id);
+            var result = await _niconicoSession.ToolkitContext.Follow.Channel.DeleteFollowChannelAsync(channel.Id);
 
             if (result.IsSucceed)
             {
@@ -103,28 +103,28 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public async Task<bool> IsFollowingAsync(string channelId)
         {
-            var channelInfo = await NiconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
-            var res = await NiconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync((uint)channelInfo.ChannelId);
+            var channelInfo = await _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
+            var res = await _niconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync((uint)channelInfo.ChannelId);
 
             return res.Data?.Session?.IsFollowing ?? false;
         }
 
         public async Task<bool> IsFollowingAsync(uint numberId)
         {
-            var res = await NiconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync(numberId);
+            var res = await _niconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync(numberId);
 
             return res.Data?.Session?.IsFollowing ?? false;
         }
 
         public async Task<ChannelAuthorityResponse> GetChannelAuthorityAsync(uint numberId)
         {
-            return await NiconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync(numberId);
+            return await _niconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync(numberId);
         }
 
         public async Task<ChannelAuthorityResponse> GetChannelAuthorityAsync(string channelScreenName)
         {
-            var channelInfo = await NiconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelScreenName);
-            return await NiconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync((uint)channelInfo.ChannelId);
+            var channelInfo = await _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelScreenName);
+            return await _niconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync((uint)channelInfo.ChannelId);
 
         }
     }

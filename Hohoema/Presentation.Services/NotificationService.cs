@@ -99,9 +99,9 @@ namespace Hohoema.Presentation.Services
 
         private async Task<InAppNotificationPayload> SubmitVideoContentSuggestion(string videoId)
         {
-            var nicoVideo = await NicoVideoProvider.GetNicoVideoInfo(videoId);
+            var (res, nicoVideo) = await NicoVideoProvider.GetVideoInfoAsync(videoId);
 
-            if (nicoVideo.IsDeleted || string.IsNullOrEmpty(nicoVideo.Title)) { return null; }
+            if (res.Video.IsDeleted || string.IsNullOrEmpty(nicoVideo.Title)) { return null; }
 
             return new InAppNotificationPayload()
             {
@@ -145,7 +145,7 @@ namespace Hohoema.Presentation.Services
 
         private async Task<InAppNotificationPayload> SubmitLiveContentSuggestion(string liveId)
         {
-            var liveDesc = await NicoLiveProvider.NiconicoSession.ToolkitContext.Live.CasApi.GetLiveProgramAsync(liveId);
+            var liveDesc = await NicoLiveProvider.GetCasLiveProgramInfoAsync(liveId);
 
             if (liveDesc == null) { return null; }
 
@@ -263,7 +263,7 @@ namespace Hohoema.Presentation.Services
 
         private async Task<InAppNotificationPayload> SubmitUserSuggestion(string userId)
         {
-            var user = await UserProvider.GetUser(userId);
+            var user = await UserProvider.GetUserInfoAsync(userId);
 
             if (user == null) { return null; }
 

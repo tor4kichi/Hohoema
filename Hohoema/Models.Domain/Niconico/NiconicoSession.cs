@@ -18,6 +18,7 @@ using Hohoema.Models.Domain.Application;
 using NiconicoToolkit.Account;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using Hohoema.Models.Infrastructure;
 
 namespace Hohoema.Models.Domain.Niconico
 {
@@ -317,7 +318,8 @@ namespace Hohoema.Models.Domain.Niconico
             try
             {
                 var user = await context.User.GetUserInfoAsync(_UserId.ToString());
-                return (user.Nickname, user.ThumbnailUrl);
+                if (!user.IsOK) { throw new HohoemaExpception(); }
+                return (user.User.Nickname, user.User.ThumbnailUrl);
             }
             catch (Exception ex)
             {

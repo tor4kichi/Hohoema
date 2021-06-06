@@ -49,23 +49,23 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public async Task<FollowMylistResponse> GetFollowMylistsAsync(uint sampleItemsCount = 3)
         {
-            if (!NiconicoSession.IsLoggedIn)
+            if (!_niconicoSession.IsLoggedIn)
             {
                 throw new InvalidOperationException();
             }
 
 
-            return await NiconicoSession.ToolkitContext.Follow.Mylist.GetFollowMylistsAsync(sampleItemsCount);
+            return await _niconicoSession.ToolkitContext.Follow.Mylist.GetFollowMylistsAsync(sampleItemsCount);
         }
 
         public async Task<ContentManageResult> AddFollowAsync(IMylist mylist)
         {
-            if (!NiconicoSession.IsLoggedIn)
+            if (!_niconicoSession.IsLoggedIn)
             {
                 return ContentManageResult.Failed;
             }
 
-            var result = await NiconicoSession.ToolkitContext.Follow.Mylist.AddFollowMylistAsync(mylist.Id);
+            var result = await _niconicoSession.ToolkitContext.Follow.Mylist.AddFollowMylistAsync(mylist.Id);
 
             if (result is ContentManageResult.Success or ContentManageResult.Exist)
             {
@@ -77,7 +77,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public async Task<ContentManageResult> RemoveFollowAsync(IMylist mylist)
         {
-            if (!NiconicoSession.IsLoggedIn)
+            if (!_niconicoSession.IsLoggedIn)
             {
                 return ContentManageResult.Failed;
             }
@@ -87,7 +87,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Exist; 
             }
 
-            var result = await NiconicoSession.ToolkitContext.Follow.Mylist.RemoveFollowMylistAsync(mylist.Id);
+            var result = await _niconicoSession.ToolkitContext.Follow.Mylist.RemoveFollowMylistAsync(mylist.Id);
 
             if (result is ContentManageResult.Success)
             {

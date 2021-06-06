@@ -49,12 +49,12 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public async Task<List<FollowTagsResponse.Tag>> GetAllAsync()
         {
-            if (!NiconicoSession.IsLoggedIn)
+            if (!_niconicoSession.IsLoggedIn)
             {
                 return new List<FollowTagsResponse.Tag>();
             }
 
-            var res = await NiconicoSession.ToolkitContext.Follow.Tag.GetFollowTagsAsync();
+            var res = await _niconicoSession.ToolkitContext.Follow.Tag.GetFollowTagsAsync();
 
             return res.Data.Tags;
         }
@@ -63,14 +63,14 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public async Task<ContentManageResult> AddFollowAsync(ITag tag)
         {
-            if (!NiconicoSession.IsLoggedIn)
+            if (!_niconicoSession.IsLoggedIn)
             {
                 return ContentManageResult.Failed;
             }
 
             var result = await ContextActionAsync(context =>
             {
-                return NiconicoSession.ToolkitContext.Follow.Tag.AddFollowTagAsync(tag.Tag);
+                return _niconicoSession.ToolkitContext.Follow.Tag.AddFollowTagAsync(tag.Tag);
             });
 
             if (result is ContentManageResult.Success or ContentManageResult.Exist)
@@ -83,7 +83,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public async Task<ContentManageResult> RemoveFollowAsync(ITag tag)
         {
-            if (!NiconicoSession.IsLoggedIn)
+            if (!_niconicoSession.IsLoggedIn)
             {
                 return ContentManageResult.Failed;
             }
@@ -95,7 +95,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
             var result = await ContextActionAsync(context =>
             {
-                return NiconicoSession.ToolkitContext.Follow.Tag.RemoveFollowTagAsync(tag.Tag);
+                return _niconicoSession.ToolkitContext.Follow.Tag.RemoveFollowTagAsync(tag.Tag);
             });
 
             if (result is ContentManageResult.Success)

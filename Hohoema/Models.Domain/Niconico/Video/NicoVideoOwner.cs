@@ -7,16 +7,10 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Niconico.Channel;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {
-    public enum NicoVideoUserType
-    {
-        User,
-        Channel,
-        Hidden,
-    }
-
     public class NicoVideoOwner : IUser, IChannel
     {
         [BsonId]
@@ -24,7 +18,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         public string IconUrl { get; set; }
 
-        public NicoVideoUserType UserType { get; set; }
+        public OwnerType UserType { get; set; }
 
         public string ScreenName { get; set; }
 

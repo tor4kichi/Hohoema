@@ -28,7 +28,13 @@ namespace Hohoema.Models.Domain.Niconico.Live
                 return await context.Nicocas.GetLiveProgramAsync(liveId);
             });
         }
-        
+
+        public async Task<NiconicoToolkit.Live.Cas.LiveProgramResponse> GetCasLiveProgramInfoAsync(string liveId)
+        {
+            return await _niconicoSession.ToolkitContext.Live.CasApi.GetLiveProgramAsync(liveId);
+        }
+
+
 
         public async Task<Mntone.Nico2.Live.Watch.ProgramInfo> GetLiveProgramInfoAsync(string liveId)
         {

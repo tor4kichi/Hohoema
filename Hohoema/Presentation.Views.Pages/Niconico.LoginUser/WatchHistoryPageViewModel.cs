@@ -115,25 +115,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                                     x.Video.Id,
                                     x.Video.Title,
                                     x.Video.Thumbnail.ListingUrl.OriginalString,
-                                    TimeSpan.FromSeconds(x.Video.Duration)
+                                    TimeSpan.FromSeconds(x.Video.Duration),
+                                    x.Video.RegisteredAt.DateTime
                                     );
-
-                                vm.PostedAt = x.Video.RegisteredAt.DateTime;
 
                                 vm.ProviderId = x.Video.Owner.Id;
                                 vm.ProviderType = x.Video.Owner.OwnerType switch
                                 {
-                                    OwnerType.User => NicoVideoUserType.User,
-                                    OwnerType.Channel => NicoVideoUserType.Channel,
-                                    _ => NicoVideoUserType.Hidden
+                                    NiconicoToolkit.Video.OwnerType.User => OwnerType.User,
+                                    NiconicoToolkit.Video.OwnerType.Channel => OwnerType.Channel,
+                                    _ => OwnerType.Hidden
                                 };
                                 vm.ProviderName = x.Video.Owner.Name;
 
                                 vm.CommentCount = x.Video.Count.Comment;
                                 vm.ViewCount = x.Video.Count.View;
                                 vm.MylistCount = x.Video.Count.Mylist;
-
-                                await vm.InitializeAsync(default);
 
                                 Histories.Add(vm);
                             }
@@ -160,7 +157,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 		public DateTime LastWatchedAt { get; }
 		public uint UserViewCount { get;  }
 
-        public HistoryVideoListItemControlViewModel(DateTime lastWatchedAt, uint viewCount, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength) : base(rawVideoId, title, thumbnailUrl, videoLength)
+        public HistoryVideoListItemControlViewModel(DateTime lastWatchedAt, uint viewCount, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt)
+            : base(rawVideoId, title, thumbnailUrl, videoLength, postedAt)
         {
             LastWatchedAt = lastWatchedAt;
             UserViewCount = viewCount;

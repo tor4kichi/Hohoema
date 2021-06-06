@@ -8,6 +8,7 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Uwp.UI;
 using Mntone.Nico2.Channels.Video;
+using NiconicoToolkit.Video;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
            MylistRepository mylistRepository,
            HohoemaPlaylist hohoemaPlaylist,
            PageManager pageManager,
-           NicoVideoCacheRepository nicoVideoRepository,
            NicoChannelCacheRepository nicoChannelCacheRepository,
            IScheduler scheduler
            )
@@ -36,7 +36,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             _mylistRepository = mylistRepository;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
-            _nicoVideoRepository = nicoVideoRepository;
             _nicoChannelCacheRepository = nicoChannelCacheRepository;
             _scheduler = scheduler;
 
@@ -87,7 +86,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         private bool _IsInitialized = false;
         const double _SeriesVideosTitleSimilarityValue = 0.7;
         private readonly MylistRepository _mylistRepository;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly NicoChannelCacheRepository _nicoChannelCacheRepository;
         private readonly IScheduler _scheduler;
 
@@ -112,16 +110,16 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             {
                 if (_IsInitialized) { return; }
 
-                var sourceVideo = _nicoVideoRepository.Get(videoId);
+                var sourceVideo = NicoVideoProvider.GetCachedVideoInfo(videoId);
                 _VideoViewerHelpInfo = NicoVideoSessionProvider.GetVideoRelatedInfomationWithVideoDescription(videoId, sourceVideo.Title);
 
                 // ニコスクリプトで指定されたジャンプ先動画
                 if (JumpVideoId != null)
                 {
-                    var jumpVideo = await NicoVideoProvider.GetNicoVideoInfo(JumpVideoId, requireLatest: true);
+                    var (res, jumpVideo) = await NicoVideoProvider.GetVideoInfoAsync(JumpVideoId);
                     if (jumpVideo != null)
                     {
-                        JumpVideo = new VideoListItemControlViewModel(jumpVideo);
+                        JumpVideo = new VideoListItemControlViewModel(res.Video, res.Thread);
                         RaisePropertyChanged(nameof(JumpVideo));
                     }
                 }
@@ -136,7 +134,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                     var videoIds = _VideoViewerHelpInfo.GetVideoIds();
                     foreach (var id in videoIds)
                     {
-                        var video = await NicoVideoProvider.GetNicoVideoInfo(id, requireLatest: true);
+                        var video = await NicoVideoProvider.GetCachedVideoInfoAsync(id);
 
                         var titleSimilarity = sourceVideo.Title.CalculateSimilarity(video.Title);
                         if (titleSimilarity > _SeriesVideosTitleSimilarityValue)
@@ -184,7 +182,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
                 // チャンネル動画で次動画が見つからなかった場合は
                 // チャンネル動画一覧から次動画をサジェストする
-                if (sourceVideo.Owner?.UserType == NicoVideoUserType.Channel
+                if (sourceVideo.Owner?.UserType == OwnerType.Channel
                     && NextVideo == null
                     )
                 {
@@ -203,24 +201,24 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                     // チャンネル動画の一覧を取得する
                     // ページアクセスが必要なので先頭ページを取って
                     // 全体の分量を把握してから全ページ取得を行う
-                    List<ChannelVideoInfo> channelVideos = new List<ChannelVideoInfo>();
-                    var channelVideosFirstPage = await ChannelProvider.GetChannelVideo(sourceVideo.Owner.OwnerId, 0);
-                    var uncheckedCount = channelVideosFirstPage.TotalCount - channelVideosFirstPage.Videos.Count;
-                    if (channelVideosFirstPage.TotalCount != 0)
-                    {
-                        channelVideos.AddRange(channelVideosFirstPage.Videos);
+                    //List<ChannelVideoInfo> channelVideos = new List<ChannelVideoInfo>();
+                    //var channelVideosFirstPage = await ChannelProvider.GetChannelVideo(sourceVideo.Owner.OwnerId, 0);
+                    //var uncheckedCount = channelVideosFirstPage.TotalCount - channelVideosFirstPage.Videos.Count;
+                    //if (channelVideosFirstPage.TotalCount != 0)
+                    //{
+                    //    channelVideos.AddRange(channelVideosFirstPage.Videos);
 
-                        var uncheckedPageCount = (int)Math.Ceiling((double)uncheckedCount / 20); /* チャンネル動画１ページ = 20 動画 */
-                        foreach (var page in Enumerable.Range(1, uncheckedPageCount))
-                        {
-                            var channelVideoInfo = await ChannelProvider.GetChannelVideo(sourceVideo.Owner.OwnerId, page);
-                            channelVideos.AddRange(channelVideoInfo.Videos);
-                        }
+                    //    var uncheckedPageCount = (int)Math.Ceiling((double)uncheckedCount / 20); /* チャンネル動画１ページ = 20 動画 */
+                    //    foreach (var page in Enumerable.Range(1, uncheckedPageCount))
+                    //    {
+                    //        var channelVideoInfo = await ChannelProvider.GetChannelVideo(sourceVideo.Owner.OwnerId, page);
+                    //        channelVideos.AddRange(channelVideoInfo.Videos);
+                    //    }
 
-                        db_channelInfo.Videos = channelVideos;
-                    }
+                    //    db_channelInfo.Videos = channelVideos;
+                    //}
 
-                    _nicoChannelCacheRepository.AddOrUpdate(db_channelInfo);
+                    //_nicoChannelCacheRepository.AddOrUpdate(db_channelInfo);
 
 
                     var collectionView = new AdvancedCollectionView(db_channelInfo.Videos);
@@ -235,7 +233,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                         var nextVideo = collectionView.ElementAtOrDefault(pos + 1) as ChannelVideoInfo;
                         if (nextVideo != null)
                         {
-                            var videoVM = new VideoListItemControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length);
+                            var videoVM = new VideoListItemControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length, nextVideo.PostedAt);
                             if (nextVideo.IsRequirePayment)
                             {
                                 videoVM.Permission = NiconicoToolkit.Video.VideoPermission.RequirePay;
@@ -249,7 +247,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                                 videoVM.Permission = NiconicoToolkit.Video.VideoPermission.MemberUnlimitedAccess;
                             }
 
-                            videoVM.PostedAt = nextVideo.PostedAt;
                             videoVM.ViewCount = nextVideo.ViewCount;
                             videoVM.CommentCount = nextVideo.CommentCount;
                             videoVM.MylistCount = nextVideo.MylistCount;
@@ -283,7 +280,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 {
                     Videos.AddRange((IEnumerable<VideoListItemControlViewModel>)(items.Video_info?.Select((Func<Mntone.Nico2.Mylist.Video_info, VideoListItemControlViewModel>)(x =>
                     {
-                        var video = _nicoVideoRepository.Get(x.Video.Id);
+                        var video = NicoVideoProvider.GetCachedVideoInfo(x.Video.Id);
                         video.Title = x.Video.Title;
                         video.ThumbnailUrl = x.Video.Thumbnail_url;
 

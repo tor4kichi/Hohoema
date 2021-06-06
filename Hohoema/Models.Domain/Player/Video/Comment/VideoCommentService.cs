@@ -38,7 +38,7 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
             var chatResult = res.ChatResult;
             return new CommentPostResult()
             {
-                CommentNo = (int)chatResult.No,
+                CommentNo = (int)(chatResult.No ?? -1),
                 StatusCode = chatResult.Status,
                 ThreadId = chatResult.Thread,
                 VideoPosition = position,

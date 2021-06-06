@@ -18,14 +18,15 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
     
     public sealed class MylistProvider : ProviderBase
     {
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
 
-        public MylistProvider(NiconicoSession niconicoSession,
-            NicoVideoCacheRepository nicoVideoRepository
+        public MylistProvider(
+            NiconicoSession niconicoSession,
+            NicoVideoProvider nicoVideoProvider
             )
             : base(niconicoSession)
         {
-            _nicoVideoRepository = nicoVideoRepository;
+            _nicoVideoProvider = nicoVideoProvider;
         }
 
         public class MylistItemsGetResult
@@ -37,7 +38,8 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             public int HeadPosition { get; set; }
             public int TotalCount { get; set; }
 
-            public IReadOnlyCollection<NicoVideo> Items { get; set; }
+            public IReadOnlyCollection<MylistItem> Items { get; set; }
+            public IReadOnlyCollection<NicoVideo> NicoVideoItems { get; set; }
         }
 
 
@@ -50,11 +52,11 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             }
             else
             {
-                var res = await NiconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistGroupid, 0, 1);
+                var res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistGroupid, 0, 1);
                 
                 if (res.Data?.Mylist != null) { return res.Data.Mylist; }
 
-                res = await NiconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylistGroupid, 0, 1);
+                res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylistGroupid, 0, 1);
 
                 return res.Data?.Mylist;
             }
@@ -64,7 +66,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
         {
             if (mylistGroupId == "0")
             {
-                var res = await NiconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync(0, 1);
+                var res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync(0, 1);
                 var detail = res.Data.Mylist;
                 var mylist = new MylistPlaylist(mylistGroupId, this)
                 {
@@ -99,7 +101,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
         public async Task<List<MylistPlaylist>> GetMylistsByUser(string userId)
         {
-            var groups = await NiconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId);
+            var groups = await _niconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId, 1);
 
             if (groups == null) { return null; }
 
@@ -130,47 +132,21 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
         {
             var res = await ContextActionAsync(async context =>
             {
-                return await NiconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, (int)page, (int)pageSize, sortKey, sortOrder);
+                return await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, (int)page, (int)pageSize, sortKey, sortOrder);
             });
             
-            if (res.Meta.Status != 200) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }
+            if (res.Meta.IsSuccess is false) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }
 
             var videos = res.Data.Mylist.Items;
-            var resultItems = new List<NicoVideo>();
+            var resultItems = new List<MylistItem>();
+            var nicoVideoList = new List<NicoVideo>();
+
             foreach (var item in videos)
             {
-                var nicoVideo = _nicoVideoRepository.Get(item.Video.Id);
-                nicoVideo.Title = item.Video.Title;
-                nicoVideo.ThumbnailUrl = item.Video.Thumbnail.ListingUrl.OriginalString;
-                nicoVideo.PostedAt = item.Video.RegisteredAt.DateTime;
-                nicoVideo.Length = TimeSpan.FromSeconds(item.Video.Duration);
-                nicoVideo.IsDeleted = item.IsDeleted;
-                nicoVideo.DescriptionWithHtml = item.Description;
-                nicoVideo.MylistCount = (int)item.Video.Count.Mylist;
-                nicoVideo.CommentCount = (int)item.Video.Count.Comment;
-                nicoVideo.ViewCount = (int)item.Video.Count.View;
+                var nicoVideo = _nicoVideoProvider.UpdateCache(item.WatchId, item.Video, item.IsDeleted);
 
-                nicoVideo.Owner = new NicoVideoOwner()
-                {
-                    OwnerId = item.Video.Owner.Id ,
-                    UserType = item.Video.Owner.OwnerType switch
-                    {
-                        OwnerType.Channel => NicoVideoUserType.Channel,
-                        OwnerType.Hidden => NicoVideoUserType.Hidden,
-                        OwnerType.User => NicoVideoUserType.User,
-                        _ => throw new NotSupportedException(),
-                    }
-                };
-
-                // OwnerType.Hiddenだった場合にOwnerIdのNull例外が発生するのでオーナー情報を削除しておく
-                if (nicoVideo.Owner.UserType is NicoVideoUserType.Hidden)
-                {
-                    nicoVideo.Owner = null;
-                }
-
-                _nicoVideoRepository.AddOrUpdate(nicoVideo);
-
-                resultItems.Add(nicoVideo);
+                nicoVideoList.Add(nicoVideo);
+                resultItems.Add(item);
             }
 
             return new MylistItemsGetResult()
@@ -178,7 +154,8 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
                 IsSuccess = true,
                 MylistId = mylistId,
                 HeadPosition = (int)(pageSize * page),
-                Items = new ReadOnlyCollection<NicoVideo>(resultItems),
+                Items = new ReadOnlyCollection<MylistItem>(resultItems),
+                NicoVideoItems = new ReadOnlyCollection<NicoVideo>(nicoVideoList),
                 TotalCount = (int)res.Data.Mylist.TotalItemCount,
             };
         }

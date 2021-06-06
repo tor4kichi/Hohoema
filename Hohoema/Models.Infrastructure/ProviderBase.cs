@@ -14,27 +14,27 @@ namespace Hohoema.Models.Infrastructure
     {
         public ProviderBase(NiconicoSession niconicoSession)
         {
-            NiconicoSession = niconicoSession;
+            _niconicoSession = niconicoSession;
         }
 
-        public NiconicoSession NiconicoSession { get; }
-
-        protected static FastAsyncLock ContextLock { get; } = new FastAsyncLock();
-        private NiconicoContext Context => NiconicoSession.Context;
+        protected NiconicoSession _niconicoSession { get; }
+        
+        protected static FastAsyncLock _contextLock { get; } = new FastAsyncLock();
+        private NiconicoContext _context => _niconicoSession.Context;
 
         protected async Task<T> ContextActionAsync<T>(Func<NiconicoContext, Task<T>> taskFactory, CancellationToken ct = default)
         {
-            using (await ContextLock.LockAsync(ct))
+            using (await _contextLock.LockAsync(ct))
             {
-                return await taskFactory.Invoke(Context);
+                return await taskFactory.Invoke(_context);
             }
         }
 
         protected async Task ContextActionAsync(Func<NiconicoContext, Task> taskFactory, CancellationToken ct = default)
         {
-            using (await ContextLock.LockAsync(ct))
+            using (await _contextLock.LockAsync(ct))
             {
-                await taskFactory.Invoke(Context);
+                await taskFactory.Invoke(_context);
             }
         }
 

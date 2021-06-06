@@ -2,6 +2,9 @@
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Models.Domain.Player.Video.Comment;
+using Hohoema.Models.Infrastructure;
+using Hohoema.Presentation.Services;
+using Microsoft.AppCenter.Analytics;
 using Mntone.Nico2;
 using MvvmHelpers;
 using NiconicoToolkit.Video.Watch.NMSG_Comment;
@@ -28,9 +31,9 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         CompositeDisposable _disposables = new CompositeDisposable();
 
         private readonly IScheduler _scheduler;
-        private readonly VideoCacheCommentRepository _commentRepository;
         private readonly CommentDisplayingRangeExtractor _commentDisplayingRangeExtractor;
         private readonly CommentFilteringFacade _commentFiltering;
+        private readonly NotificationService _notificationService;
         private readonly PlayerSettings _playerSettings;
         private INiconicoCommentSessionProvider _niconicoCommentSessionProvider;
         private readonly MediaPlayer _mediaPlayer;
@@ -68,17 +71,17 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         public CommentPlayer(
             MediaPlayer mediaPlayer, 
             IScheduler scheduler,
-            VideoCacheCommentRepository commentRepository,
             CommentDisplayingRangeExtractor commentDisplayingRangeExtractor,
             CommentFilteringFacade commentFiltering,
+            NotificationService notificationService,
             PlayerSettings playerSettings
             )
         {
             _mediaPlayer = mediaPlayer;
             _scheduler = scheduler;
-            _commentRepository = commentRepository;
             _commentDisplayingRangeExtractor = commentDisplayingRangeExtractor;
             _commentFiltering = commentFiltering;
+            _notificationService = notificationService;
             _playerSettings = playerSettings;
             Comments = new ObservableRangeCollection<VideoComment>();
 
@@ -269,63 +272,69 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
         private async Task SubmitComment()
         {
-            using (await _commentUpdateLock.LockAsync(default))
+            using var _lock = await _commentUpdateLock.LockAsync(default);
+
+            if (_commentSession == null) { return; }
+
+            NowSubmittingComment.Value = true;
+
+            Debug.WriteLine($"try comment submit:{WritingComment.Value}");
+
+            var postComment = WritingComment.Value;
+            var posision = _mediaPlayer.PlaybackSession.Position;
+            var command = CommandText.Value;
+
+            try
             {
-                if (_commentSession == null) { return; }
+                CommentPostResult res = await _commentSession.PostComment(postComment, posision, command);
 
-                NowSubmittingComment.Value = true;
-
-                Debug.WriteLine($"try comment submit:{WritingComment.Value}");
-
-                var posision = _mediaPlayer.PlaybackSession.Position;
-
-                try
+                if (res.Status == ChatResultCode.Success)
                 {
-                    var command = CommandText.Value;
-                    var res = await _commentSession.PostComment(WritingComment.Value, posision, command);
+                    Debug.WriteLine("コメントの投稿に成功: " + res.CommentNo);
 
-                    if (res.Status == ChatResultCode.Success)
+                    VideoComment videoComment = new()
                     {
-                        Debug.WriteLine("コメントの投稿に成功: " + res.CommentNo);
+                        CommentId = (uint)res.CommentNo,
+                        VideoPosition = posision,
+                        UserId = _commentSession.UserId,
+                        CommentText = postComment,
+                    };
 
-                        var commentVM = new VideoComment()
-                        {
-                            CommentId = (uint)res.CommentNo,
-                            VideoPosition = posision,
-                            UserId = _commentSession.UserId,
-                            CommentText = WritingComment.Value,
-                        };
-
-                        foreach (var action in MailToCommandHelper.MakeCommandActions(command.Split(' ')))
-                        {
-                            action(commentVM);
-                        }
-
-                        Comments.Add(commentVM);
-                        
-                        ResetDisplayingComments(Comments);
-
-                        WritingComment.Value = "";
-                    }
-                    else
+                    foreach (var action in MailToCommandHelper.MakeCommandActions(command.Split(' ')))
                     {
-                        CommentSubmitFailed?.Invoke(this, EventArgs.Empty);
-
-                        //                    _NotificationService.ShowToast("コメント投稿", $"{_commentSession.ContentId} へのコメント投稿に失敗 （error code : {res.StatusCode}", duration: Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Short);
-
-                        Debug.WriteLine("コメントの投稿に失敗: " + res.Status.ToString());
+                        action(videoComment);
                     }
 
+                    Comments.Add(videoComment);
+
+                    ResetDisplayingComments(Comments);
+
+                    WritingComment.Value = "";
                 }
-                catch (NotSupportedException ex)
+                else
                 {
-                    Debug.WriteLine(ex.ToString());
-                }
-                finally
-                {
-                    NowSubmittingComment.Value = false;
+                    CommentSubmitFailed?.Invoke(this, EventArgs.Empty);
+
+                    _notificationService.ShowLiteInAppNotification_Fail($"{_commentSession.ContentId} へのコメント投稿に失敗\n ステータスコード：{res.StatusCode}");
+
+                    ErrorTrackingManager.TrackError(new HohoemaExpception("SubmitComment Failed"), new Dictionary<string, string>()
+                    {
+                        { "ContentId",  _commentSession.ContentId },
+                        { "Command", command },
+                        { "CommentLength", postComment?.Length.ToString() },
+                        { "StatusCode", res.StatusCode.ToString() },
+                    });
                 }
             }
+            catch (NotSupportedException ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+            finally
+            {
+                NowSubmittingComment.Value = false;
+            }
+            
         }
 
 
@@ -362,19 +371,10 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
             Comments.AddRange(commentsAction(comments.Cast<VideoComment>().OrderBy(x => x.VideoPosition)));
 
-            if (commentSession is VideoCommentService onlineCommentSession)
-            {
-                _ = Task.Run(() =>
-                {
-                    _commentRepository.SetCache(commentSession.ContentId, Comments);
-                });
-            }
-
             ResetDisplayingComments(Comments);
 
             _NicoScriptList.Sort((x, y) => (int)(x.BeginTime.Ticks - y.BeginTime.Ticks));
             System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
-            
         }
 
 

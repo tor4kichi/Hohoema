@@ -22,7 +22,7 @@ namespace NiconicoToolkit.UWP.Test.Tests
 
         void TestRecommendResponse(VideoRecommendResponse res)
         {
-            Assert.IsTrue(res.Meta.IsOK);
+            Assert.IsTrue(res.Meta.IsSuccess);
 
             Assert.IsNotNull(res.Data.Recipe);
             Assert.IsNotNull(res.Data.RecommendId);
@@ -68,7 +68,7 @@ namespace NiconicoToolkit.UWP.Test.Tests
         [DataRow("so38760676")]
         public async Task GetChannelVideoRecommendAsync(string videoId)
         {
-            var video = await _context.Video.GetVideoInfoAsync(videoId);            
+            var video = await _context.SearchWithCeApi.Video.IdSearchAsync(videoId);            
             var res = await _context.Recommend.GetChannelVideoReccommendAsync(videoId, video.Video.CommunityId, video.Tags.TagInfo.Select(x => x.Tag));
             
             TestRecommendResponse(res);

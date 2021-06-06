@@ -24,8 +24,6 @@ namespace NiconicoToolkit.Rss.Video
 
         public Uri WatchPageUrl { get; set; }
 
-        public DateTimeOffset PubDate { get; set; }
-
         public string Description { get; set; }
 
     }
@@ -38,6 +36,7 @@ namespace NiconicoToolkit.Rss.Video
         public int WatchCount { get; set; }
         public int CommentCount { get; set; }
         public int MylistCount { get; set; }
+        public DateTime PostedAt { get; set; }
     }
 
 
@@ -93,15 +92,42 @@ namespace NiconicoToolkit.Rss.Video
                 }
                 else if (node.ClassName == "nico-info-total-view")
                 {
-                    moreData.WatchCount = int.Parse(new string(node.TextContent.Where(c => Char.IsDigit(c)).ToArray()));
+                    moreData.WatchCount = node.TextContent.Where(c => Char.IsDigit(c)).ToDigit();
                 }
                 else if (node.ClassName == "nico-info-total-res")
                 {
-                    moreData.CommentCount = int.Parse(new string(node.TextContent.Where(c => Char.IsDigit(c)).ToArray()));
+                    moreData.CommentCount = node.TextContent.Where(c => Char.IsDigit(c)).ToDigit();
                 }
                 else if (node.ClassName == "nico-info-total-mylist")
                 {
-                    moreData.MylistCount = int.Parse(new string(node.TextContent.Where(c => Char.IsDigit(c)).ToArray()));
+                    moreData.MylistCount = node.TextContent.Where(c => Char.IsDigit(c)).ToDigit();
+                }
+                else if (node.ClassName == "nico-info-date")
+                {
+                    // 2021年06月04日 02：00：00
+                    static int C2N(char c) => (int)(c - '0');
+
+                    var year = C2N(node.TextContent[0]) * 1000
+                        + C2N(node.TextContent[1]) * 100
+                        + C2N(node.TextContent[2]) * 10
+                        + C2N(node.TextContent[3]);
+
+                    var month = C2N(node.TextContent[5]) * 10
+                        + C2N(node.TextContent[6]);
+
+                    var day = C2N(node.TextContent[8]) * 10
+                        + C2N(node.TextContent[9]);
+
+                    var hour = C2N(node.TextContent[12]) * 10
+                        + C2N(node.TextContent[13]);
+                    
+                    var minutes = C2N(node.TextContent[15]) * 10
+                        + C2N(node.TextContent[16]);
+                   
+                    var second = C2N(node.TextContent[18]) * 10
+                        + C2N(node.TextContent[19]);
+
+                    moreData.PostedAt = new DateTime(year, month, day, hour, minutes, second);
                 }
             }
 

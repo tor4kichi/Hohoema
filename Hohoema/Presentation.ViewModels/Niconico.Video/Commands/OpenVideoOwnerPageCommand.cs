@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.UseCase.PageNavigation;
+using NiconicoToolkit.Video;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -27,11 +28,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.VideoListPage.Commands
         {
             if (parameter is IVideoContentProvider video)
             {
-                if (video.ProviderType == NicoVideoUserType.User)
+                if (video.ProviderType == OwnerType.User)
                 {
                     _pageManager.OpenPageWithId(Models.Domain.PageNavigation.HohoemaPageType.UserInfo, video.ProviderId);
                 }
-                else if (video.ProviderType == NicoVideoUserType.Channel)
+                else if (video.ProviderType == OwnerType.Channel)
                 {
                     // TODO: チャンネル情報ページを開く
                 }

@@ -2,6 +2,7 @@
 using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Models.Domain.Niconico.User;
 using Hohoema.Models.Domain.Niconico.Video;
+using NiconicoToolkit.Video;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -53,7 +54,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
                 string ownerName = null;
                 if (string.IsNullOrEmpty(ownerName))
                 {
-                    if (provider.ProviderType == NicoVideoUserType.User)
+                    if (provider.ProviderType == OwnerType.User)
                     {
                         var user = _nicoVideoOwnerRepository.Get(provider.ProviderId);
                         if (user?.ScreenName is not null)
@@ -62,10 +63,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
                         }
                         else
                         {
-                            ownerName = await UserProvider.GetUserName(provider.ProviderId);
+                            ownerName = await UserProvider.GetUserNameAsync(provider.ProviderId);
                         }
                     }
-                    else if (provider.ProviderType == NicoVideoUserType.Channel)
+                    else if (provider.ProviderType == OwnerType.Channel)
                     {
                         ownerName = await ChannelProvider.GetChannelNameWithCacheAsync(provider.ProviderId);
                     }

@@ -45,12 +45,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         private readonly PageManager _pageManager;
         private readonly LocalMylistManager _localMylistManager;
+        private readonly NicoVideoProvider _nicoVideoProvider;
 
         public LocalPlaylistPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             LocalMylistManager localMylistManager,
             HohoemaPlaylist hohoemaPlaylist,
+            NicoVideoProvider nicoVideoProvider,
             LocalPlaylistDeleteCommand localPlaylistDeleteCommand,
             PlaylistPlayAllCommand playlistPlayAllCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
@@ -60,6 +62,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
             _pageManager = pageManager;
             _localMylistManager = localMylistManager;
             HohoemaPlaylist = hohoemaPlaylist;
+            _nicoVideoProvider = nicoVideoProvider;
             LocalPlaylistDeleteCommand = localPlaylistDeleteCommand;
             PlaylistPlayAllCommand = playlistPlayAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
@@ -115,7 +118,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
 
         protected override IIncrementalSource<VideoListItemControlViewModel> GenerateIncrementalSource()
         {
-            return new LocalPlaylistIncrementalLoadingSource(Playlist);
+            return new LocalPlaylistIncrementalLoadingSource(Playlist, _nicoVideoProvider);
         }
 
 
@@ -167,27 +170,29 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Video
     public class LocalPlaylistIncrementalLoadingSource : HohoemaIncrementalSourceBase<VideoListItemControlViewModel>
     {
         private readonly LocalPlaylist _playlist;
+        private readonly NicoVideoProvider _nicoVideoProvider;
 
-        public List<NicoVideo> _Items { get; private set; }
-
-        public LocalPlaylistIncrementalLoadingSource(LocalPlaylist playlist)
+        public LocalPlaylistIncrementalLoadingSource(
+            LocalPlaylist playlist,
+            NicoVideoProvider nicoVideoProvider
+            )
         {
             _playlist = playlist;
+            _nicoVideoProvider = nicoVideoProvider;
         }
 
         protected override ValueTask<int> ResetSourceImpl()
         {
-            _Items = _playlist.GetPlaylistItems();
-            return new ValueTask<int>(_Items.Count);
+            return new ValueTask<int>(_playlist.Count);
         }
 
         protected override async IAsyncEnumerable<VideoListItemControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct)
         {
-            foreach (var item in _Items.Skip(head).Take(count))
+            var targetItems = _playlist.GetPlaylistItems(head, count);
+            var items = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(targetItems.Select(x => x.ContentId));
+            foreach (var item in items)
             {
-                var vm = new VideoListItemControlViewModel(item);
-                await vm.InitializeAsync(ct).ConfigureAwait(false);
-                yield return vm;
+                yield return new VideoListItemControlViewModel(item);
             }
         }
 

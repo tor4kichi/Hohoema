@@ -131,5 +131,21 @@ namespace NiconicoToolkit
 		{
 			return value ? "1" : "0";
 		}
+
+
+
+		public static int ToDigit(this IEnumerable<char> chars)
+		{
+			int num = 0;
+			foreach (var c in chars)
+            {
+#if DEBUG
+				System.Diagnostics.Debug.Assert(char.IsDigit(c));
+#endif
+				num *= 10;
+				num += (int)(c - '0');
+            }
+			return num;
+		}
 	}
 }

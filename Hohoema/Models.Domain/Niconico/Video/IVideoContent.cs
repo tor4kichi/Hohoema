@@ -12,12 +12,13 @@ namespace Hohoema.Models.Domain.Niconico.Video
     {
         TimeSpan Length { get; }
         string ThumbnailUrl { get; }
+        DateTime PostedAt { get; }
     }
 
     public interface IVideoContentProvider
     {
         string ProviderId { get; }
-        NicoVideoUserType ProviderType { get; }
+        OwnerType ProviderType { get; }
     }
 
     public interface IVideoDetail : IVideoContent, IVideoContentProvider
@@ -29,29 +30,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         int CommentCount { get; }
 
         string Description { get; }
-        DateTime PostedAt { get; }
         bool IsDeleted { get; }
         VideoPermission Permission { get; }
-    }
-
-    public interface IVideoDetailWritable : IVideoDetail
-    {
-        new string ProviderId { get; set; }
-        new NicoVideoUserType ProviderType { get; set; }
-
-        new string Label { get; set; }
-        new TimeSpan Length { get; set; }
-        new DateTime PostedAt { get; set; }
-
-        new int ViewCount { get; set; }
-        new int MylistCount { get; set; }
-        new int CommentCount { get; set; }
-
-        new string ThumbnailUrl { get; set; }
-
-        new string Description { get; set; }
-        new bool IsDeleted { get; set; }
-
-        new VideoPermission Permission { get; set; }
     }
 }

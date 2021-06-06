@@ -41,7 +41,7 @@ namespace Hohoema.Models.Helpers
 
         static public void CopyToClipboard(NicoVideo video)
         {
-            CopyToClipboard(Helpers.ShareHelper.MakeShareText(video));
+            CopyToClipboard(Helpers.ShareHelper.MakeShareTextWithTitle(video));
         }
 
         static readonly Regex NicoContentRegex = new Regex("https?:\\/\\/([\\w\\W]*?)\\/((\\w*)\\/)*([\\w-]*)");

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NiconicoToolkit.Rss.Video;
+using Windows.Web.Syndication;
 
 namespace NiconicoToolkit.Ranking.Video
 {
@@ -264,8 +265,10 @@ namespace NiconicoToolkit.Ranking.Video
         private async Task<RssVideoResponse> GetRssVideoResponseAsync(string url, CancellationToken ct)
         {
             System.Diagnostics.Debug.WriteLine(url);
-            var feed = await _client.RetrieveFeedAsync(new Uri(url)).AsTask(ct);
 
+            var text = await _context.GetStringAsync(url);
+            var feed = new SyndicationFeed();
+            feed.Load(text);
             var items = new List<RssVideoData>();
             foreach (var item in feed.Items)
             {
@@ -273,8 +276,7 @@ namespace NiconicoToolkit.Ranking.Video
                 {
                     RawTitle = item.Title.Text,
                     WatchPageUrl = item.Links[0].Uri,
-                    Description = item.Summary.Text,
-                    PubDate = item.PublishedDate
+                    Description = item.Summary.Text
                 });
             }
 

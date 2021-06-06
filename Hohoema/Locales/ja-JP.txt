@@ -604,7 +604,7 @@ FollowItemType.Channel = チャンネル
 
 FollowAddedNotification_WithItemName = 「{0}」をフォローしました
 FollowRemovedNotification_WithItemName = 「{0}」のフォローを解除しました
-ConfirmRemoveFollow_DialogDescWithItemName = 「{0}」のフォローを解除します
+ConfirmRemoveFollow_DialogDescWithItemName = 「{0}({1})」のフォローを解除します
 ConfirmRemoveFollow_DialogTitle = フォロー解除の確認
 RemoveFollow = フォロー解除
 

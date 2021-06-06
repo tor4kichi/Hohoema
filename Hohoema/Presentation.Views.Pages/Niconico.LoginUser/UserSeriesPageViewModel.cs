@@ -39,21 +39,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
 
         public UserSeriesPageViewModel(
-            SeriesRepository seriesRepository,
+            SeriesProvider seriesRepository,
             UserProvider userProvider,
             PageManager pageManager,
             HohoemaPlaylist hohoemaPlaylist,
             AddSubscriptionCommand addSubscriptionCommand
             )
         {
-            _seriesRepository = seriesRepository;
+            _seriesProvider = seriesRepository;
             _userProvider = userProvider;
             _pageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
             AddSubscriptionCommand = addSubscriptionCommand;
         }
 
-        private readonly SeriesRepository _seriesRepository;
+        private readonly SeriesProvider _seriesProvider;
         private readonly UserProvider _userProvider;
         private readonly PageManager _pageManager;
 
@@ -100,12 +100,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             {
                 if (parameters.TryGetValue("id", out string id))
                 {
-                    var serieses = await _seriesRepository.GetUserSeriesAsync(id);
+                    var serieses = await _seriesProvider.GetUserSeriesAsync(id);
                     UserSeriesList = serieses.Select(x => new UserSeriesItemViewModel(x)).ToList();
 
+                    var userInfo = await _userProvider.GetUserInfoAsync(id);
+                    if (userInfo != null)
+                    {
+                        User = new SeriesOwnerViewModel(userInfo);
+                    }
+                    else
+                    {
 
-                    var userInfo = await _userProvider.GetUserDetail(id);
-                    User = new SeriesOwnerViewModel(userInfo);
+                    }
                 }
             }
             finally

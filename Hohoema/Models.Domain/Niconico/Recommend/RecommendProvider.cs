@@ -1,6 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Infrastructure;
 using NiconicoToolkit.Recommend;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,21 +25,11 @@ namespace Hohoema.Models.Domain.Niconico.Recommend
 
         public async Task<VideoRecommendResponse> GetVideoRecommendAsync(string videoId)
         {
-            var nicoVideo = await _nicoVideoProvider.GetNicoVideoInfo(videoId);
-            return await GetVideoRecommendAsync(nicoVideo);
-        }
-
-        public async Task<VideoRecommendResponse> GetVideoRecommendAsync(NicoVideo nicoVideo)
-        {
-            if (nicoVideo.Owner.OwnerId is null)
-            {
-                nicoVideo = await _nicoVideoProvider.GetNicoVideoInfo(nicoVideo.RawVideoId, true);
-            }
-
+            var (res, nicoVideo) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
             return nicoVideo.ProviderType switch
             {
-                NicoVideoUserType.User => await NiconicoSession.ToolkitContext.Recommend.GetVideoReccommendAsync(nicoVideo.VideoId),
-                NicoVideoUserType.Channel => await NiconicoSession.ToolkitContext.Recommend.GetChannelVideoReccommendAsync(nicoVideo.VideoId, nicoVideo.ProviderId, nicoVideo.Tags.Select(x => x.Tag)),
+                OwnerType.User => await _niconicoSession.ToolkitContext.Recommend.GetVideoReccommendAsync(nicoVideo.VideoId),
+                OwnerType.Channel => await _niconicoSession.ToolkitContext.Recommend.GetChannelVideoReccommendAsync(nicoVideo.VideoId, nicoVideo.ProviderId, res.Tags.TagInfo.Select(x => x.Tag)),
                 _ => null
             };
         }

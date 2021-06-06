@@ -20,13 +20,15 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Share
 
         protected override void Execute(object content)
         {
-            var shareContent = ShareHelper.MakeShareText(content as INiconicoContent);
-            ShareHelper.Share(shareContent);
+            if (content is INiconicoContent nicoContent)
+            {
+                ShareHelper.Share(nicoContent);
 
-            Analytics.TrackEvent("OpenShareUICommand", new Dictionary<string, string>
+                Analytics.TrackEvent("OpenShareUICommand", new Dictionary<string, string>
                 {
                     { "ContentType", content.GetType().Name }
                 });
+            }
         }
     }
 }

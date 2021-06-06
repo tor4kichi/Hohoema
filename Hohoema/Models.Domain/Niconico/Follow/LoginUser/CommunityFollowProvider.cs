@@ -51,30 +51,30 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public async Task<UserOwnedCommunityResponse> GetUserOwnedCommunitiesAsync(uint userId)
         {
-            if (!NiconicoSession.IsLoggedIn)
+            if (!_niconicoSession.IsLoggedIn)
             {
                 throw new InvalidOperationException();
             }
 
-            return await NiconicoSession.ToolkitContext.Follow.Community.GetUserOwnedCommunitiesAsync(userId);
+            return await _niconicoSession.ToolkitContext.Follow.Community.GetUserOwnedCommunitiesAsync(userId);
         }
 
 
         public async Task<FollowCommunityResponse> GetCommunityItemsAsync(uint pageSize, uint page )
         {
-            if (!NiconicoSession.IsLoggedIn)
+            if (!_niconicoSession.IsLoggedIn)
             {
                 throw new InvalidOperationException();
             }
 
-            return await NiconicoSession.ToolkitContext.Follow.Community.GetFollowCommunityAsync((int)page, (int)pageSize);
+            return await _niconicoSession.ToolkitContext.Follow.Community.GetFollowCommunityAsync((int)page, (int)pageSize);
         }
 
         public Task<bool> IsFollowingAsync(ICommunity community) => IsFollowingAsync(community.Id);
 
         public async Task<ContentManageResult> AddFollowAsync(ICommunity community)
         {
-            var result = await NiconicoSession.ToolkitContext.Follow.Community.AddFollowCommunityAsync(community.Id);
+            var result = await _niconicoSession.ToolkitContext.Follow.Community.AddFollowCommunityAsync(community.Id);
 
             if (result is ContentManageResult.Success or ContentManageResult.Exist)
             {
@@ -87,7 +87,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public async Task<ContentManageResult> RemoveFollowAsync(ICommunity community)
         {
-            if (!NiconicoSession.IsLoggedIn)
+            if (!_niconicoSession.IsLoggedIn)
             {
                 return ContentManageResult.Failed;
             }
@@ -97,7 +97,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Exist;
             }
 
-            var result = await NiconicoSession.ToolkitContext.Follow.Community.RemoveFollowCommunityAsync(community.Id);
+            var result = await _niconicoSession.ToolkitContext.Follow.Community.RemoveFollowCommunityAsync(community.Id);
 
             if (result is ContentManageResult.Success)
             {
@@ -110,13 +110,13 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public async Task<bool> IsFollowingAsync(string id)
         {
-            var res = await NiconicoSession.ToolkitContext.Follow.Community.GetCommunityAuthorityAsync(id);
+            var res = await _niconicoSession.ToolkitContext.Follow.Community.GetCommunityAuthorityAsync(id);
             return res.Data?.IsMember ?? false;
         }
 
         public Task<CommunityAuthorityResponse> GetCommunityAuthorityAsync(string id)
         {
-            return NiconicoSession.ToolkitContext.Follow.Community.GetCommunityAuthorityAsync(id);
+            return _niconicoSession.ToolkitContext.Follow.Community.GetCommunityAuthorityAsync(id);
         }
     }
 

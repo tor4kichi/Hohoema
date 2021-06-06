@@ -41,16 +41,18 @@ namespace Hohoema.Models.Domain.Playlist
     public sealed class LocalPlaylist : IPlaylist
     {
         private readonly PlaylistRepository _playlistRepository;
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly IMessenger _messenger;
 
-        internal LocalPlaylist(string id, string label, PlaylistRepository playlistRepository, NicoVideoCacheRepository nicoVideoRepository, IMessenger messenger)
+        internal LocalPlaylist(string id, string label, PlaylistRepository playlistRepository, NicoVideoProvider nicoVideoProvider, IMessenger messenger)
         {
             Id = id;
             Label = label;
             _playlistRepository = playlistRepository;
-            _nicoVideoRepository = nicoVideoRepository;
+            _nicoVideoProvider = nicoVideoProvider;
             _messenger = messenger;
+
+            Count = _playlistRepository.GetCount(Id);
         }
 
         public string Id { get; }
@@ -123,10 +125,9 @@ namespace Hohoema.Models.Domain.Playlist
 
 
 
-        public List<NicoVideo> GetPlaylistItems()
+        public List<PlaylistItemEntity> GetPlaylistItems(int start, int count)
         {
-            var items = _playlistRepository.GetItems(Id);
-            return _nicoVideoRepository.Get(items.Select(x => x.ContentId));
+            return _playlistRepository.GetItems(Id, start, count);
         }
 
         public bool RemovePlaylistItem(IVideoContent item)

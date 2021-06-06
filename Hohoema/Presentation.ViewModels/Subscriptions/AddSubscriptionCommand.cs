@@ -8,6 +8,7 @@ using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.Services;
 using I18NPortable;
 using Microsoft.AppCenter.Analytics;
+using NiconicoToolkit.Video;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -22,14 +23,14 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions
         private readonly UserProvider _userProvider;
         private readonly ChannelProvider _channelProvider;
         private readonly NotificationService _notificationService;
-        private readonly SeriesRepository _seriesRepository;
+        private readonly SeriesProvider _seriesRepository;
 
         public AddSubscriptionCommand(
             SubscriptionManager subscriptionManager,
             UserProvider userProvider,
             ChannelProvider channelProvider,
             NotificationService notificationService,
-            SeriesRepository seriesRepository
+            SeriesProvider seriesRepository
             )
         {
             _subscriptionManager = subscriptionManager;
@@ -55,8 +56,8 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions
             {
                 IVideoContentProvider videoContent => videoContent.ProviderType switch
                 {
-                    NicoVideoUserType.User => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.User, default(string)),
-                    NicoVideoUserType.Channel => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.Channel, default(string)),
+                    OwnerType.User => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.User, default(string)),
+                    OwnerType.Channel => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.Channel, default(string)),
                     _ => throw new NotSupportedException()
                 },
                 IMylist mylist => (id: mylist.Id, sourceType: SubscriptionSourceType.Mylist, mylist.Label),
@@ -95,7 +96,7 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions
 
         async Task<string> ResolveUserName(string id)
         {
-            var user = await _userProvider.GetUser(id);
+            var user = await _userProvider.GetUserInfoAsync(id);
             return user.ScreenName;
         }
 

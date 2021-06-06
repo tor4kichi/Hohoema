@@ -9,7 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NiconicoToolkit.Ranking.Video;
 
-namespace NiconicoToolkit.Search.Video
+namespace NiconicoToolkit.SearchWithPage.Video
 {
     public sealed class VideoSearchSubClient
     {

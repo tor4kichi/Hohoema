@@ -12,6 +12,11 @@ namespace Hohoema.Models.Helpers
 {
 	public static class SortHelper
 	{
+		public static string ToCulturizedText(NiconicoToolkit.SearchWithCeApi.Video.VideoSortKey sort, NiconicoToolkit.SearchWithCeApi.Video.VideoSortOrder order)
+		{
+			return ToCulturizedText((Sort)sort, (Order)order);
+		}
+
 		public static string ToCulturizedText(Sort sort, Order order)
 		{
 			var isAscending = order == Order.Ascending;

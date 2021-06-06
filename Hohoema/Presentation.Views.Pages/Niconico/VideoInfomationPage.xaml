@@ -185,15 +185,15 @@
 
           <TextBlock >
               <Run Text="{i18nExt:Localize Key=ViewCount}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" /><LineBreak />
-              <Run Text="{Binding VideoInfo.ViewCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+              <Run Text="{Binding VideoDetails.ViewCount, Converter={StaticResource ToUserFriendlyNumber}}" />
           </TextBlock>
           <TextBlock >
               <Run Text="{i18nExt:Localize Key=CommentCount}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" /><LineBreak />
-              <Run Text="{Binding VideoInfo.CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+              <Run Text="{Binding VideoDetails.CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" />
           </TextBlock>
           <TextBlock >
               <Run Text="{i18nExt:Localize Key=MylistCount}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" /><LineBreak />
-              <Run Text="{Binding VideoInfo.MylistCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+              <Run Text="{Binding VideoDetails.MylistCount, Converter={StaticResource ToUserFriendlyNumber}}" />
           </TextBlock>
         </uwpControls:WrapPanel>
 
@@ -221,7 +221,7 @@
         <!-- シリーズ -->
         <StackPanel Visibility="{Binding VideoDetails.Series, Converter={StaticResource NotNullToVisibility}}">
           <StackPanel Orientation="Horizontal">
-            <TextBlock Text="{i18nExt:Localize Key=HohoemaPageType.Series}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 16 0 0" />
+            <TextBlock Text="{i18nExt:Localize Key=Series}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 0 0 0" />
           </StackPanel>
 
           <uwpControls:DockPanel Margin="0 8" XYFocusUpNavigationStrategy="NavigationDirectionDistance">
@@ -247,26 +247,52 @@
           </uwpControls:DockPanel>
 
 
-          <StackPanel Orientation="Horizontal" XYFocusUpNavigationStrategy="NavigationDirectionDistance"
-                              Visibility="{Binding VideoDetails.Series.Video.Prev, Converter={StaticResource NotNullToVisibility}}"
-                              >
-            <TextBlock VerticalAlignment="Center" Margin="0 0 8 0">
-                    <Run Text="{i18nExt:Localize Key=Preview}" />:
-            </TextBlock>
-            <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetails.Series.Video.Prev.Id}">
-              <TextBlock Text="{Binding VideoDetails.Series.Video.Prev.Title}" />
-            </HyperlinkButton>
-          </StackPanel>
+          <StackPanel>
 
-          <StackPanel Orientation="Horizontal"
-                              Visibility="{Binding VideoDetails.Series.Video.Next, Converter={StaticResource NotNullToVisibility}}"
-                              >
-            <TextBlock VerticalAlignment="Center" Margin="0 0 8 0">
-                    <Run Text="{i18nExt:Localize Key=Next}" />:
-            </TextBlock>
-            <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetails.Series.Video.Next.Id}">
-              <TextBlock Text="{Binding VideoDetails.Series.Video.Next.Title}" />
-            </HyperlinkButton>
+            <uwpControls:DockPanel Visibility="{Binding PrevSeriesVideo, Converter={StaticResource NotNullToVisibility}}"
+                        Margin="0 16 0 0"
+                                   >
+              <TextBlock VerticalAlignment="Center" Margin="8"
+                         Opacity="0.7"
+                         uwpControls:DockPanel.Dock="Left"
+                         HorizontalAlignment="Center"
+                         >
+                    <Run Text="{i18nExt:Localize Key=Preview}" />
+              </TextBlock>
+
+              <local1:VideoItemsListView ItemsSource="{Binding PrevSeriesVideo}"
+                                         ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                         >
+                <local1:VideoItemsListView.ItemTemplate>
+                  <DataTemplate>
+                    <local1:VideoListItemControl />
+                  </DataTemplate>
+                </local1:VideoItemsListView.ItemTemplate>
+              </local1:VideoItemsListView>
+            </uwpControls:DockPanel>
+
+            <uwpControls:DockPanel Visibility="{Binding NextSeriesVideo, Converter={StaticResource NotNullToVisibility}}"
+                        Margin="0 16 0 0"
+                                   >
+              <TextBlock VerticalAlignment="Center" Margin="8"
+                         Opacity="0.7"
+                         uwpControls:DockPanel.Dock="Left"
+                         HorizontalAlignment="Center"
+                         >
+                    <Run Text="{i18nExt:Localize Key=Next}" />
+              </TextBlock>
+
+              <local1:VideoItemsListView ItemsSource="{Binding NextSeriesVideo}"
+                                         ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                         >
+                <local1:VideoItemsListView.ItemTemplate>
+                  <DataTemplate>
+                    <local1:VideoListItemControl />
+                  </DataTemplate>
+                </local1:VideoItemsListView.ItemTemplate>
+              </local1:VideoItemsListView>
+            </uwpControls:DockPanel>
+
           </StackPanel>
 
           <HyperlinkButton Visibility="Collapsed">

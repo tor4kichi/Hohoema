@@ -4,15 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NiconicoToolkit.Search
+namespace NiconicoToolkit.SearchWithCeApi
 {
-    public sealed class SearchClient 
+    public sealed class SearchWithCeApiClient
     {
-        private readonly NiconicoContext _context;
-
-        public SearchClient(NiconicoContext context)
+        public SearchWithCeApiClient(NiconicoContext context)
         {
-            _context = context;
             Video = new Video.VideoSearchSubClient(context);
         }
 

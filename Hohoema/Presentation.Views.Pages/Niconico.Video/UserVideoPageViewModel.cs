@@ -12,6 +12,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Mntone.Nico2.Videos.Users;
+using NiconicoToolkit.User;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
@@ -77,13 +78,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             if (parameters.TryGetValue<string>("id", out string userId))
             {
                 UserId = userId;
+                
+                var res = await UserProvider.GetUserDetailAsync(UserId);
+                if (res.IsSuccess)
+                {
+                    User = res.Data.User;
 
-                User = await UserProvider.GetUserDetail(UserId);
+                    UserInfo.Value = new UserInfoViewModel(User.Nickname, User.Id.ToString(), User.Icons.Small.OriginalString);
+                    UserName = User.Nickname;
+                }
 
                 if (User != null)
                 {
-                    UserInfo.Value = new UserInfoViewModel(User.User.Nickname, User.User.Id.ToString(), User.User.Icons.Small.OriginalString);
-                    UserName = User.User.Nickname;
                 }
                 else
                 {
@@ -134,7 +140,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             set { SetProperty(ref _IsOwnerVideoPrivate, value); }
         }
 
-        public UserDetails User { get; private set; }
+        public UserDetail User { get; private set; }
 
 		
 		public string UserId { get; private set; }
@@ -143,50 +149,49 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
 	public class UserVideoIncrementalSource : HohoemaIncrementalSourceBase<VideoListItemControlViewModel>
 	{
-		public uint UserId { get; }
-		public UserProvider UserProvider { get; }
 
         public override uint OneTimeLoadCount => 25;
 
-        public UserDetails User { get; private set;}
+        public uint UserId { get; }
+		public UserProvider UserProvider { get; }
+        public UserDetail User { get; private set;}
 
-        UserVideosResponse _firstRes;
-        public List<UserVideosResponse> _ResList;
-		
-		public UserVideoIncrementalSource(string userId, UserDetails userDetail, UserProvider userProvider)
+		public UserVideoIncrementalSource(string userId, UserDetail userDetail, UserProvider userProvider)
 		{
 			UserId = uint.Parse(userId);
 			User = userDetail;
             UserProvider = userProvider;
-			_ResList = new List<UserVideosResponse>();
 		}
 
+        bool _isEnd = false;
+        int _count = 0;
         protected override async IAsyncEnumerable<VideoListItemControlViewModel> GetPagedItemsImpl(int start, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
-            var res = start == 0 ? _firstRes : await UserProvider.GetUserVideos(UserId, (uint)start / OneTimeLoadCount);
+            if (_isEnd) { yield break; }
+
+            var res = await UserProvider.GetUserVideosAsync(UserId, start / (int)OneTimeLoadCount);
 
             ct.ThrowIfCancellationRequested();
 
             var items = res.Data.Items;
             foreach (var item in items)
             {
-                var vm = new VideoListItemControlViewModel(item.Id, item.Title, item.Thumbnail.ListingUrl.OriginalString, TimeSpan.FromSeconds(item.Duration));
-                vm.PostedAt = item.RegisteredAt.DateTime;
-                vm.ViewCount = (int)item.Count.View;
-                vm.CommentCount = (int)item.Count.Comment;
-                vm.MylistCount = (int)item.Count.Mylist;
+                var vm = new VideoListItemControlViewModel(item.Essential);
 
-                await vm.InitializeAsync(ct).ConfigureAwait(false);
+                await vm.EnsureProviderIdAsync(ct).ConfigureAwait(false);
                 yield return vm;
 
                 ct.ThrowIfCancellationRequested();
             }
+
+            _count += items.Length;
+
+            _isEnd = _count >= res.Data.TotalCount;
         }
 
-        protected override async ValueTask<int> ResetSourceImpl()
+        protected override ValueTask<int> ResetSourceImpl()
         {
-            _firstRes = await UserProvider.GetUserVideos(UserId, (uint)0);
-            return (int)_firstRes.Data.TotalCount;
+            return new ValueTask<int>(1);
         }
     }
 }

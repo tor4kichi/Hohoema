@@ -29,6 +29,7 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico.Mylist;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.UseCase.PageNavigation
 {
@@ -207,11 +208,11 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         }
 
                     case IVideoContentProvider videoContent:
-                        if (videoContent.ProviderType == NicoVideoUserType.User)
+                        if (videoContent.ProviderType == OwnerType.User)
                         {
                             OpenPageWithId(HohoemaPageType.UserVideo, videoContent.ProviderId);
                         }
-                        else if (videoContent.ProviderType == NicoVideoUserType.Channel)
+                        else if (videoContent.ProviderType == OwnerType.Channel)
                         {
                             OpenPageWithId(HohoemaPageType.ChannelVideo, videoContent.ProviderId);
                         }
@@ -249,13 +250,13 @@ namespace Hohoema.Models.UseCase.PageNavigation
                 switch (parameter)
                 {
                     case IVideoContentProvider videoContent:
-                        if (videoContent.ProviderType == NicoVideoUserType.User)
+                        if (videoContent.ProviderType == OwnerType.User)
                         {
                             var p = new NavigationParameters();
                             p.Add("id", videoContent.ProviderId);
                             OpenPage(HohoemaPageType.UserInfo, p);
                         }
-                        else if (videoContent.ProviderType == NicoVideoUserType.Channel)
+                        else if (videoContent.ProviderType == OwnerType.Channel)
                         {
                             var p = new NavigationParameters();
                             p.Add("id", videoContent.ProviderId);
