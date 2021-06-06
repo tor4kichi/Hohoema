@@ -38,6 +38,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             IScheduler scheduler,
             ApplicationLayoutManager applicationLayoutManager,
             HohoemaPlaylist hohoemaPlaylist,
+            NicoVideoProvider nicoVideoProvider,
             PageManager pageManager,
             NicoRepoSettings activityFeedSettings,
             LoginUserNicoRepoProvider loginUserNicoRepoProvider,
@@ -48,6 +49,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
             _scheduler = scheduler;
             ApplicationLayoutManager = applicationLayoutManager;
             HohoemaPlaylist = hohoemaPlaylist;
+            _nicoVideoProvider = nicoVideoProvider;
             ActivityFeedSettings = activityFeedSettings;
             LoginUserNicoRepoProvider = loginUserNicoRepoProvider;
             SubscriptionManager = subscriptionManager;
@@ -117,12 +119,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
         protected override IIncrementalSource<INicoRepoItem> GenerateIncrementalSource()
         {
-            return new LoginUserNicoRepoTimelineSource(LoginUserNicoRepoProvider, SubscriptionManager, NicoRepoType.Value, NicoRepoDisplayTarget.Value);
+            return new LoginUserNicoRepoTimelineSource(LoginUserNicoRepoProvider, _nicoVideoProvider, SubscriptionManager, NicoRepoType.Value, NicoRepoDisplayTarget.Value);
         }
 
 
         DelegateCommand<object> _openNicoRepoItemCommand;
         private readonly IScheduler _scheduler;
+        private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly OpenLiveContentCommand _openLiveContentCommand;
 
         public DelegateCommand<object> OpenNicoRepoItemCommand => _openNicoRepoItemCommand
@@ -194,11 +197,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
     {
         private readonly NicoRepoEntry _nicoRepoEntry;
 
-        public NicoRepoVideoTimeline(NicoRepoEntry nicoRepoEntry, NicoRepoItemTopic itemType) 
+        public NicoRepoVideoTimeline(NicoVideo nicoVideo, NicoRepoEntry nicoRepoEntry, NicoRepoItemTopic itemType) 
             : base(nicoRepoEntry.GetContentId(), nicoRepoEntry.Object.Name, nicoRepoEntry.Object.Image.OriginalString, TimeSpan.Zero, nicoRepoEntry.Updated.DateTime)
         {
             _nicoRepoEntry = nicoRepoEntry;
             ItemTopic = itemType;
+
+            VideoId = nicoVideo.VideoId;
+            if (VideoId != RawVideoId)
+            {
+                SubscribeAll(VideoId);
+            }
 
             if (_nicoRepoEntry.Actor != null)
             {
@@ -217,29 +226,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                 }
             }
 
+            SetLength(nicoVideo.Length);
             ItempTopicDescription = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, _nicoRepoEntry);
-            /*
-
-            if (TimelineItem.SenderNiconicoUser != null)
-            {
-                ProviderId = TimelineItem.SenderNiconicoUser.Id.ToString();
-                ProviderName = TimelineItem.SenderNiconicoUser.Nickname;
-                ProviderType = UserType.User;
-            }
-
-
-            if (TimelineItem.SenderNiconicoUser != null)
-            {
-                this.Description = this.TimelineItem.SenderNiconicoUser.Nickname;
-            }
-            else if (TimelineItem.SenderChannel != null)
-            {
-                this.Description = this.TimelineItem.SenderChannel.Name;
-                _OwnerUserId = TimelineItem.SenderChannel.Id.ToString();
-                ProviderType = UserType.Channel;
-            }
-            */
-
         }        
 
         public string ItempTopicDescription { get; }
@@ -248,7 +236,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
         protected override void OnInitialized()
         {
-            SetLength(Length);
         }
     }
 
@@ -309,12 +296,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
         public LoginUserNicoRepoTimelineSource(
             LoginUserNicoRepoProvider loginUserNicoRepoProvider,
+            NicoVideoProvider nicoVideoProvider,
             SubscriptionManager subscriptionManager,
             NicoRepoType nicoRepoType,
             NicoRepoDisplayTarget nicoRepoTarget
             )
         {
             LoginUserNicoRepoProvider = loginUserNicoRepoProvider;
+            _nicoVideoProvider = nicoVideoProvider;
             SubscriptionManager = subscriptionManager;
             _nicoRepoType = nicoRepoType;
             _nicoRepoDisplayTarget = nicoRepoTarget;
@@ -340,6 +329,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
 
         DateTime NiconamaDisplayTime = DateTime.Now - TimeSpan.FromHours(6);
+        private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly NicoRepoType _nicoRepoType;
         private readonly NicoRepoDisplayTarget _nicoRepoDisplayTarget;
 
@@ -361,30 +351,37 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 
             if (nicoRepoResponse.Meta.Status != 200) { yield break; }
 
+
+
             _prevRes = nicoRepoResponse;
 #if DEBUG
             List<string> triggers = new List<string>();
 #endif
-            foreach (var item in nicoRepoResponse.Data)
+
+            // Note: ニコレポで取得できるチャンネル動画は基本的に動画IDが数字のみで、"so1234567" みたいな形式ではない
+            // このためアプリ内での扱いを
+            var topicTypeMapedEntries = nicoRepoResponse.Data.Select(x => (TopicType: NicoRepoItemTopicExtension.ToNicoRepoTopicType(x.MuteContext.Trigger), Item: x)).ToList();
+            var numberIdVideoTopics = topicTypeMapedEntries
+                .Where(x => IsVideoTopic(x.TopicType));
+            var videoNicoVideoItems = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(numberIdVideoTopics.Select(x => x.Item.GetContentId()));
+            var videoDict = videoNicoVideoItems.ToDictionary(x => x.RawVideoId);
+
+            foreach (var item in topicTypeMapedEntries)
             {
 #if DEBUG
-                triggers.AddDistinct(item.MuteContext.Trigger);
+                triggers.AddDistinct(item.Item.MuteContext.Trigger);
 #endif
-
-                var topicType = NicoRepoItemTopicExtension.ToNicoRepoTopicType(item.MuteContext.Trigger);
-                if (topicType == NicoRepoItemTopic.Live_User_Program_OnAirs
-                || topicType == NicoRepoItemTopic.Live_User_Program_Reserve
-                || topicType == NicoRepoItemTopic.Live_Channel_Program_Onairs
-                || topicType == NicoRepoItemTopic.Live_Channel_Program_Reserve)
+                var topicType = item.TopicType;
+                if (IsLiveTopic(topicType))
                 {
-                    yield return new NicoRepoLiveTimeline(item, topicType);
+                    yield return new NicoRepoLiveTimeline(item.Item, topicType);
                 }
-                else if (topicType == NicoRepoItemTopic.NicoVideo_User_Video_Upload ||
-                        topicType == NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video ||
-                        topicType == NicoRepoItemTopic.NicoVideo_Channel_Video_Upload)
+                else if (IsVideoTopic(topicType))
                 {
-                    var vm = new NicoRepoVideoTimeline(item, topicType);
-                    await vm.EnsureProviderIdAsync(ct).ConfigureAwait(false);
+                    var id = item.Item.GetContentId();
+                    var nicoVideo = videoDict[id];
+                    var vm = new NicoRepoVideoTimeline(nicoVideo, item.Item, topicType);
+                    //await vm.EnsureProviderIdAsync(ct).ConfigureAwait(false);
                     yield return vm;
                 }
                 else
@@ -398,6 +395,25 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
 #if DEBUG
             Debug.WriteLine(string.Join(" ", triggers));
 #endif
+        }
+
+        public static bool IsLiveTopic(NicoRepoItemTopic topic)
+        {
+            return topic
+                is NicoRepoItemTopic.Live_User_Program_OnAirs
+                or NicoRepoItemTopic.Live_User_Program_Reserve
+                or NicoRepoItemTopic.Live_Channel_Program_Onairs
+                or NicoRepoItemTopic.Live_Channel_Program_Reserve
+                ;
+        }
+
+        public static bool IsVideoTopic(NicoRepoItemTopic topic)
+        {
+            return topic
+                is NicoRepoItemTopic.NicoVideo_User_Video_Upload
+                or NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video
+                or NicoRepoItemTopic.NicoVideo_Channel_Video_Upload
+                ;
         }
 
     }

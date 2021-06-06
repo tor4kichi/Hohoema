@@ -419,7 +419,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        private static readonly NicoVideoProvider _nicoVideoProvider;
+        protected static readonly NicoVideoProvider _nicoVideoProvider;
         private static readonly VideoFilteringSettings _ngSettings;
 
         private static readonly OpenVideoOwnerPageCommand _openVideoOwnerPageCommand;
@@ -445,6 +445,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 if (SetProperty(ref _ProviderId, value))
                 {
                     RegisterVideoOwnerFilteringMessageReceiver(_ProviderId, oldProviderId);
+                    UpdateIsHidenVideoOwner(this);
                 }
             }
         }
@@ -552,7 +553,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        void UpdateIsHidenVideoOwner(IVideoContent video)
+        protected void UpdateIsHidenVideoOwner(IVideoContent video)
         {
             if (video != null)
             {

@@ -271,6 +271,11 @@ namespace Hohoema.Models.Domain.Niconico.Video
         public async ValueTask<string> ResolveVideoTitleAsync(string videoId, CancellationToken ct = default)
         {
             var video = await GetCachedVideoInfoAsync(videoId, ct);
+            if (video.Title == null)
+            {
+                (_, video) = await GetVideoInfoAsync(videoId, ct);
+            }
+
             return video.Title;
         }
 

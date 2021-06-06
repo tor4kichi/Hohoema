@@ -22,6 +22,7 @@ using System.Security.Cryptography;
 using System.Collections;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Infrastructure;
 
 namespace Hohoema.Models.Domain.VideoCache
 {
@@ -219,7 +220,7 @@ namespace Hohoema.Models.Domain.VideoCache
             if (videoId.All(x => char.IsDigit(x)))
             {
                 var id = _nicoVideoProvider.GetCachedVideoInfo(videoId);
-                if (id != null)
+                if (id?.VideoId != null)
                 {
                     videoId = id.VideoId;
                 }
@@ -233,6 +234,30 @@ namespace Hohoema.Models.Domain.VideoCache
                     }
 #endif
                 }
+            }
+        }
+
+        /// <summary>
+        /// videoIdが数字で始まるIDの場合にsm/so等で始まる動画IDに置き換える。
+        /// </summary>
+        /// <param name="videoId"></param>
+        private async ValueTask<(bool IsNumberId, string NonNumberId)> EnsureNonNumberVideoIdAsync(string videoId)
+        {
+            if (videoId.All(x => char.IsDigit(x)))
+            {
+                var video = await _nicoVideoProvider.GetCachedVideoInfoAsync(videoId);
+                if (video?.VideoId != null)
+                {
+                    return (true, video.VideoId);
+                }
+                else
+                {
+                    throw new HohoemaExpception("数字のみのIDを動画IDに変換できなかった: " + videoId);
+                }
+            }
+            else
+            {
+                return (false, videoId);
             }
         }
 
@@ -366,7 +391,12 @@ namespace Hohoema.Models.Domain.VideoCache
         {
             using (await _updateLock.LockAsync())
             {
-                EnsureNonNumberVideoId(ref videoId);
+                var (isNumberId, nonNumberId) = await EnsureNonNumberVideoIdAsync(videoId);
+                if (isNumberId)
+                {
+                    Debug.WriteLine($"数字のみのエイリアス動画IDを動画コンテンツIDに変換 {videoId} -> {nonNumberId}");
+                    videoId = nonNumberId;
+                }
 
                 var entity = _videoCacheItemRepository.GetVideoCache(videoId);
 
