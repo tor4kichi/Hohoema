@@ -28,6 +28,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
     {
         Unknown,
         Deleted,
+        RequireNetworkConnection,
         VideoFormatNotSupported,
         NotPlayPermit_RequirePay,
         NotPlayPermit_RequireChannelMember,
@@ -103,7 +104,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             VideoCacheManager videoCacheManager,
             NicoVideoSessionProvider nicoVideoSessionProvider,
             DialogService dialogService,
-            VideoCacheCommentRepository commentRepository,
             NicoVideoProvider nicoVideoProvider
             )
         {
@@ -111,7 +111,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             _videoCacheManager = videoCacheManager;
             _nicoVideoSessionProvider = nicoVideoSessionProvider;
             _dialogService = dialogService;
-            _commentRepository = commentRepository;
             _nicoVideoProvider = nicoVideoProvider;
         }
 
@@ -119,7 +118,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         private readonly VideoCacheManager _videoCacheManager;
         private readonly NicoVideoSessionProvider _nicoVideoSessionProvider;
         private readonly DialogService _dialogService;
-        private readonly VideoCacheCommentRepository _commentRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
 
 
@@ -148,50 +146,15 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
         public async Task<PlayingOrchestrateResult> PreperePlayWithCache(string videoId)
         {
-            INiconicoCommentSessionProvider commentSessionProvider = null;
-            INicoVideoDetails nicoVideoDetails = null;
             if (!InternetConnection.IsInternet())
             {
-                var cachedComment = _commentRepository.GetCached(videoId);
-                if (cachedComment != null)
-                {
-                    commentSessionProvider = new CachedCommentsProvider(videoId, cachedComment.Comments);
-                }
-
-                var (videoRes, nicoVideo) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
-                if (videoRes != null)
-                {
-                    var video = videoRes.Video;
-                    var details= new CachedVideoDetails()
-                    {
-                        VideoTitle = video.Title,
-                        ViewCount = (int)video.ViewCount,
-                        CommentCount = (int)videoRes.Thread.NumRes,
-                        MylistCount = (int)video.MylistCount,
-                        VideoLength = TimeSpan.FromSeconds(video.LengthInSeconds),
-                        SubmitDate = video.FirstRetrieve.DateTime,
-                        OwnerType = nicoVideo.Owner.UserType,
-                        OwnerIconUrl = nicoVideo.Owner.IconUrl,
-                        ProviderId = nicoVideo.Owner.OwnerId,
-                        ProviderName = nicoVideo.Owner.ScreenName,
-                        Tags = videoRes.Tags.TagInfo.Select(x => new NicoVideoTag(x.Tag)).ToArray(),
-                        DescriptionHtml = video.Description,
-                        ThumbnailUrl = video.ThumbnailUrl.OriginalString
-                    };
-
-                    
-
-                    nicoVideoDetails = details;
-                }
-            }
-            else
-            {
-                var preparePlayVideo = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoId);
-                commentSessionProvider = preparePlayVideo;
-                nicoVideoDetails = preparePlayVideo?.GetVideoDetails();
+                return new PlayingOrchestrateResult(PlayingOrchestrateFailedReason.RequireNetworkConnection);
             }
 
-            // キャッシュからコメントを取得する方法が必要
+            var preparePlayVideo = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoId);
+            var commentSessionProvider = preparePlayVideo;
+            var nicoVideoDetails = preparePlayVideo?.GetVideoDetails();
+
             return new PlayingOrchestrateResult(
                 new CachedVideoSessionProvider(_videoCacheManager.GetVideoCache(videoId), _niconicoSession),
                 commentSessionProvider,
@@ -201,6 +164,11 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
         public async Task<PlayingOrchestrateResult> PreperePlayWithOnline(string videoId)
         {
+            if (!InternetConnection.IsInternet())
+            {
+                return new PlayingOrchestrateResult(PlayingOrchestrateFailedReason.RequireNetworkConnection);
+            }
+
             var preparePlayVideo = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoId);
             if (preparePlayVideo.IsSuccess)
             {
@@ -265,57 +233,4 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
         public bool IsLikedVideo { get; set; }
     }
-
-
-    public sealed class CachedCommentsProvider : INiconicoCommentSessionProvider
-    {
-        private readonly IReadOnlyCollection<VideoComment> _comments;
-
-        public CachedCommentsProvider(string videoId, IReadOnlyCollection<VideoComment> comments)
-        {
-            ContentId = videoId;
-            _comments = comments;
-        }
-        public string ContentId { get; }
-
-        public Task<ICommentSession> CreateCommentSessionAsync()
-        {
-            return Task.FromResult(new OfflineVideoCommentSession(ContentId, _comments) as ICommentSession);
-        }
-    }
-
-    public sealed class OfflineVideoCommentSession : ICommentSession
-    {
-        private readonly IReadOnlyCollection<VideoComment> _comments;
-
-        public OfflineVideoCommentSession(string videoId, IReadOnlyCollection<VideoComment> comments)
-        {
-            ContentId = videoId;
-            _comments = comments;
-        }
-
-        public string ContentId { get; }
-
-        public string UserId => throw new NotSupportedException();
-
-        public bool CanPostComment => false;
-
-        public event EventHandler<IComment> RecieveComment;
-
-        public void Dispose()
-        {
-            // do nothing.
-        }
-
-        public Task<IReadOnlyCollection<IComment>> GetInitialComments()
-        {
-            return Task.FromResult((IReadOnlyCollection<IComment>)_comments);
-        }
-
-        public Task<CommentPostResult> PostComment(string message, TimeSpan position, string commands)
-        {
-            throw new NotSupportedException();
-        }
-    }
-
 }

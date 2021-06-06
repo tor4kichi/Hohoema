@@ -31,7 +31,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         CompositeDisposable _disposables = new CompositeDisposable();
 
         private readonly IScheduler _scheduler;
-        private readonly VideoCacheCommentRepository _commentRepository;
         private readonly CommentDisplayingRangeExtractor _commentDisplayingRangeExtractor;
         private readonly CommentFilteringFacade _commentFiltering;
         private readonly NotificationService _notificationService;
@@ -72,7 +71,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         public CommentPlayer(
             MediaPlayer mediaPlayer, 
             IScheduler scheduler,
-            VideoCacheCommentRepository commentRepository,
             CommentDisplayingRangeExtractor commentDisplayingRangeExtractor,
             CommentFilteringFacade commentFiltering,
             NotificationService notificationService,
@@ -81,7 +79,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         {
             _mediaPlayer = mediaPlayer;
             _scheduler = scheduler;
-            _commentRepository = commentRepository;
             _commentDisplayingRangeExtractor = commentDisplayingRangeExtractor;
             _commentFiltering = commentFiltering;
             _notificationService = notificationService;
@@ -374,19 +371,10 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
             Comments.AddRange(commentsAction(comments.Cast<VideoComment>().OrderBy(x => x.VideoPosition)));
 
-            if (commentSession is VideoCommentService onlineCommentSession)
-            {
-                _ = Task.Run(() =>
-                {
-                    _commentRepository.SetCache(commentSession.ContentId, Comments);
-                });
-            }
-
             ResetDisplayingComments(Comments);
 
             _NicoScriptList.Sort((x, y) => (int)(x.BeginTime.Ticks - y.BeginTime.Ticks));
             System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
-            
         }
 
 

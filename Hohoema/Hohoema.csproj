@@ -243,7 +243,6 @@
     <Compile Include="Models.Domain\Player\Video\Cache\NicoVideoCached.cs" />
     <Compile Include="Models.Domain\Player\Video\Cache\NicoVideoCacheProgress.cs" />
     <Compile Include="Models.Domain\Player\Video\Cache\NicoVideoCacheState.cs" />
-    <Compile Include="Models.Domain\Player\Video\Cache\VideoCacheCommentRepository.cs" />
     <Compile Include="Models.Domain\Player\Video\Cache\VideoCacheManagerLegacy.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\CommentClient.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\CommentCommandPermissionType.cs" />
