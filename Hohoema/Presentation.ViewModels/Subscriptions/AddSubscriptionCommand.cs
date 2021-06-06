@@ -96,7 +96,7 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions
 
         async Task<string> ResolveUserName(string id)
         {
-            var user = await _userProvider.GetUser(id);
+            var user = await _userProvider.GetUserInfoAsync(id);
             return user.ScreenName;
         }
 

@@ -63,7 +63,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
                         }
                         else
                         {
-                            ownerName = await UserProvider.GetUserName(provider.ProviderId);
+                            ownerName = await UserProvider.GetUserNameAsync(provider.ProviderId);
                         }
                     }
                     else if (provider.ProviderType == OwnerType.Channel)

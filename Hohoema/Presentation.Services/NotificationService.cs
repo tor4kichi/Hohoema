@@ -263,7 +263,7 @@ namespace Hohoema.Presentation.Services
 
         private async Task<InAppNotificationPayload> SubmitUserSuggestion(string userId)
         {
-            var user = await UserProvider.GetUser(userId);
+            var user = await UserProvider.GetUserInfoAsync(userId);
 
             if (user == null) { return null; }
 

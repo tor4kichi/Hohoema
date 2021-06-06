@@ -38,6 +38,26 @@ namespace NiconicoToolkit.UWP.Test.Tests
 
 
         [TestMethod]
+        [DataRow(53842185u)] // チャンネルを持たないユーザー
+        [DataRow(6982981u)] // チャンネル保持したユーザー
+        public async Task GetUserDetailAsync(uint userId)
+        {
+            var res = await _userClient.GetUserDetailAsync(userId);
+
+            Assert.IsTrue(res.IsSuccess);
+
+            Assert.IsNotNull(res.Data, "res.Data is null");
+            Assert.IsNotNull(res.Data.User, "res.Data.User is null");
+            Assert.IsNotNull(res.Data.User.Nickname, "res.Data.User.Nickname is null");
+            Assert.IsNotNull(res.Data.User.Icons, "res.Data.User.Icons is null");
+            Assert.IsNotNull(res.Data.User.Icons.Small, "res.Data.User.Icons.Small is null");
+            Assert.IsNotNull(res.Data.User.Icons.Large, "res.Data.User.Icons.Large is null");
+            Assert.IsNotNull(res.Data.User.Description, "res.Data.User.Description is null");
+            Assert.IsNotNull(res.Data.FollowStatus, "res.Data.FollowStatus is null");
+        }
+
+
+        [TestMethod]
         [DataRow(53842185u)]
         public async Task GetUserVideoAsync(uint userId)
         {

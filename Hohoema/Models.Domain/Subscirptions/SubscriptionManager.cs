@@ -289,7 +289,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             List<NicoVideo> items = new List<NicoVideo>();
             int page = 0;
 
-            var res = await userProvider.GetUserVideos(id, page);
+            var res = await userProvider.GetUserVideosAsync(id, page, 50);
 
             var videoItems = res.Data.Items;
             var currentItemsCount = videoItems?.Length ?? 0;

@@ -163,6 +163,7 @@
     <Compile Include="Series\SeriesClient.cs" />
     <Compile Include="Series\SeriesListResponse.cs" />
     <Compile Include="User\NicovideoUserResponse.cs" />
+    <Compile Include="User\UserDetailResponseContainer.cs" />
     <Compile Include="User\UserNicknameResponse.cs" />
     <Compile Include="User\UserVideoResponse.cs" />
     <Compile Include="User\UserVideoSortKey.cs" />

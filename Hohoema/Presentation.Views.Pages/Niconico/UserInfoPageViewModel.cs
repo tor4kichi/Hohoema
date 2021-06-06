@@ -1,8 +1,5 @@
 ﻿using I18NPortable;
-using Mntone.Nico2;
-
 using Hohoema.Models.Domain;
-
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase;
@@ -33,6 +30,7 @@ using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+using Hohoema.Models.Infrastructure;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 {
@@ -312,9 +310,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
 
             try
             {
-                var userInfo = await UserProvider.GetUserDetail(UserId);
+                var userInfo = await UserProvider.GetUserDetailAsync(UserId);
+                if (!userInfo.IsSuccess)
+                {
+                    throw new HohoemaExpception();
+                }
 
-                var user = userInfo;
+                var user = userInfo.Data;
                 UserName = user.User.Nickname;
                 IconUrl = user.User.Icons.Small.OriginalString;
 
@@ -360,7 +362,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
             {
                 await Task.Delay(500);
 
-                var userVideos = await UserProvider.GetUserVideos(uint.Parse(UserId), 1);
+                var userVideos = await UserProvider.GetUserVideosAsync(uint.Parse(UserId), 1);
                 foreach (var item in userVideos.Data.Items.Take(5))
                 {
                     var vm = new VideoListItemControlViewModel(item.Essential);

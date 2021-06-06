@@ -12,6 +12,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Mntone.Nico2.Videos.Users;
+using NiconicoToolkit.User;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
@@ -77,13 +78,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             if (parameters.TryGetValue<string>("id", out string userId))
             {
                 UserId = userId;
+                
+                var res = await UserProvider.GetUserDetailAsync(UserId);
+                if (res.IsSuccess)
+                {
+                    User = res.Data.User;
 
-                User = await UserProvider.GetUserDetail(UserId);
+                    UserInfo.Value = new UserInfoViewModel(User.Nickname, User.Id.ToString(), User.Icons.Small.OriginalString);
+                    UserName = User.Nickname;
+                }
 
                 if (User != null)
                 {
-                    UserInfo.Value = new UserInfoViewModel(User.User.Nickname, User.User.Id.ToString(), User.User.Icons.Small.OriginalString);
-                    UserName = User.User.Nickname;
                 }
                 else
                 {
@@ -134,7 +140,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             set { SetProperty(ref _IsOwnerVideoPrivate, value); }
         }
 
-        public UserDetails User { get; private set; }
+        public UserDetail User { get; private set; }
 
 		
 		public string UserId { get; private set; }
@@ -148,9 +154,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         public uint UserId { get; }
 		public UserProvider UserProvider { get; }
-        public UserDetails User { get; private set;}
+        public UserDetail User { get; private set;}
 
-		public UserVideoIncrementalSource(string userId, UserDetails userDetail, UserProvider userProvider)
+		public UserVideoIncrementalSource(string userId, UserDetail userDetail, UserProvider userProvider)
 		{
 			UserId = uint.Parse(userId);
 			User = userDetail;
@@ -163,7 +169,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         {
             if (_isEnd) { yield break; }
 
-            var res = await UserProvider.GetUserVideos(UserId, start / (int)OneTimeLoadCount);
+            var res = await UserProvider.GetUserVideosAsync(UserId, start / (int)OneTimeLoadCount);
 
             ct.ThrowIfCancellationRequested();
 

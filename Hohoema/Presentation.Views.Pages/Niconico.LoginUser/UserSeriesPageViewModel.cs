@@ -103,9 +103,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.LoginUser
                     var serieses = await _seriesProvider.GetUserSeriesAsync(id);
                     UserSeriesList = serieses.Select(x => new UserSeriesItemViewModel(x)).ToList();
 
+                    var userInfo = await _userProvider.GetUserInfoAsync(id);
+                    if (userInfo != null)
+                    {
+                        User = new SeriesOwnerViewModel(userInfo);
+                    }
+                    else
+                    {
 
-                    var userInfo = await _userProvider.GetUserDetail(id);
-                    User = new SeriesOwnerViewModel(userInfo);
+                    }
                 }
             }
             finally
