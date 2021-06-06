@@ -470,8 +470,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                         throw new Models.Infrastructure.HohoemaExpception();
                     }
 
-                    // 投稿者情報が必要なので、オンラインから情報取得
-                    VideoInfo = await NicoVideoProvider.GetCachedVideoInfoAsync(videoId);
+                    // 投稿者情報やHTMLなDescriptionが必要なので、オンラインから情報取得
+                    (_, VideoInfo) = await NicoVideoProvider.GetVideoInfoAsync(videoId);
                     
                     await UpdateVideoDescription();
 
@@ -486,13 +486,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                         };
                     }
 
-
-                    /*
-                    await Task.WhenAll(
-                        InitializeRelatedVideos(),
-                        InitializeIchibaItems()
-                        );
-                    */
                     UpdateSelfZoning();
 
                     OpenOwnerUserPageCommand.RaiseCanExecuteChanged();
