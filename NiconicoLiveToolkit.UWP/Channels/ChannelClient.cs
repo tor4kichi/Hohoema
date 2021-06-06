@@ -78,6 +78,13 @@ namespace NiconicoToolkit.Channels
                 throw new NotSupportedException();
             }
         }
+
+
+
+        public Task<ChannelVideoResponse> GetChannelVideoAsync(string channelId)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class ChannelInfo

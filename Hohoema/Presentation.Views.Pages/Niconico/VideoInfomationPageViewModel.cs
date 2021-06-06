@@ -470,19 +470,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
                         throw new Models.Infrastructure.HohoemaExpception();
                     }
 
+                    // 投稿者情報が必要なので、オンラインから情報取得
                     VideoInfo = await NicoVideoProvider.GetCachedVideoInfoAsync(videoId);
                     
-                    
-
                     await UpdateVideoDescription();
 
                     if (NiconicoSession.IsLoggedIn)
                     {
-                        VideoInfo.Owner.ScreenName = VideoDetails.ProviderName;
+                        var owner = await NicoVideoProvider.ResolveVideoOwnerAsync(videoId);
                         FollowContext = VideoInfo.ProviderType switch
                         {
-                            OwnerType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, VideoInfo.Owner),
-                            OwnerType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, VideoInfo.Owner),
+                            OwnerType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, owner),
+                            OwnerType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, owner),
                             _ => null
                         };
                     }
@@ -611,10 +610,19 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         {
             if (_IsInitializedIchibaItems) { return; }
 
-            var ichiba = await NiconicoSession.Context.Embed.GetIchiba(VideoInfo.RawVideoId);
-            IchibaItems = ichiba.GetMainIchibaItems();                
-
-            _IsInitializedIchibaItems = true;
+            try
+            {
+                var ichiba = await NiconicoSession.Context.Embed.GetIchiba(VideoInfo.RawVideoId);
+                IchibaItems = ichiba.GetMainIchibaItems();
+            }
+            catch (Exception e)
+            {
+                ErrorTrackingManager.TrackError(e);
+            }
+            finally
+            {
+                _IsInitializedIchibaItems = true;
+            }
         }
 
 
@@ -629,41 +637,48 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico
         {
             if (_IsInitializedRelatedVideos) { return; }
 
-
-            var res = await _recommendProvider.GetVideoRecommendAsync(VideoInfo.RawVideoId);
-
-            if (_navigationCancellationToken.IsCancellationRequested) { return; }
-
-            if (res?.IsSuccess ?? false)
+            try
             {
-                List<VideoListItemControlViewModel> items = new List<VideoListItemControlViewModel>();
+                var res = await _recommendProvider.GetVideoRecommendAsync(VideoInfo.RawVideoId);
 
-                foreach (var x in res.Data.Items)
+                if (_navigationCancellationToken.IsCancellationRequested) { return; }
+
+                if (res?.IsSuccess ?? false)
                 {
-                    if (x.ContentType != NiconicoToolkit.Recommend.RecommendContentType.Video)
+                    List<VideoListItemControlViewModel> items = new List<VideoListItemControlViewModel>();
+
+                    foreach (var x in res.Data.Items)
                     {
-                        continue;
+                        if (x.ContentType != NiconicoToolkit.Recommend.RecommendContentType.Video)
+                        {
+                            continue;
+                        }
+
+                        var video = x.ContentAsVideo;
+                        var vm = new VideoListItemControlViewModel(video);
+                        items.Add(vm);
                     }
 
-                    var video = x.ContentAsVideo;
-                    var vm = new VideoListItemControlViewModel(video);
-                    items.Add(vm);
-                }
+                    if (_navigationCancellationToken.IsCancellationRequested)
+                    {
+                        items.DisposeAll();
+                        return;
+                    }
 
-                if (_navigationCancellationToken.IsCancellationRequested)
-                {
-                    items.DisposeAll();
-                    return;
+                    RelatedVideos = items;
                 }
-
-                RelatedVideos = items;
             }
-
-            
-
-            _IsInitializedRelatedVideos = true;
-            
+            catch (Exception ex)
+            {
+                ErrorTrackingManager.TrackError(ex);
+            }
+            finally
+            {
+                _IsInitializedRelatedVideos = true;
+            }            
         }
+
+
         private async Task UpdateVideoDescription()
         {
             if (VideoInfo.RawVideoId == null)
