@@ -320,6 +320,12 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             )
             : base(rawVideoId, title, thumbnailUrl, videoLength, postedAt)
         {
+            UpdateIsHidenVideoOwner(this);
+            
+            if (VideoId != RawVideoId && VideoId != null)
+            {
+                SubscribeAll(VideoId);
+            }
         }
 
         public VideoListItemControlViewModel(
@@ -336,6 +342,13 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 _ProviderId = videoItem.Owner.Id;
                 ProviderType = videoItem.Owner.OwnerType;
                 _ProviderName = videoItem.Owner.Name;
+            }
+
+            UpdateIsHidenVideoOwner(this);
+
+            if (VideoId != RawVideoId && VideoId != null)
+            {
+                SubscribeAll(VideoId);
             }
         }
 
@@ -385,6 +398,13 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 _ProviderId = videoItem.Owner.OwnerId;
                 ProviderType = videoItem.Owner.UserType;
                 _ProviderName = videoItem.Owner.ScreenName;
+            }
+
+            UpdateIsHidenVideoOwner(this);
+
+            if (VideoId != RawVideoId && VideoId != null)
+            {
+                SubscribeAll(VideoId);
             }
         }
 
