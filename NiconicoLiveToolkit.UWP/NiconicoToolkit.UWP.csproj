@@ -160,6 +160,7 @@
     <Compile Include="SearchWithCeApi\Video\VideoSortOrder.cs" />
     <Compile Include="SearchWithCeApi\Video\VideoIdSearchSingleResponse.cs" />
     <Compile Include="Series\SeriesClient.cs" />
+    <Compile Include="Series\SeriesListResponse.cs" />
     <Compile Include="User\NicovideoUserResponse.cs" />
     <Compile Include="User\UserNicknameResponse.cs" />
     <Compile Include="User\UserVideoResponse.cs" />

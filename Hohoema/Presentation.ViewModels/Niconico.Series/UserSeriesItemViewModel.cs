@@ -1,14 +1,14 @@
-﻿using Mntone.Nico2.Users.Series;
-using Hohoema.Models.Domain.Niconico.Video;
+﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Video.Series;
+using NiconicoToolkit.Series;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Series
 {
     public class UserSeriesItemViewModel : ISeries
     {
-        private readonly UserSeries _userSeries;
+        private readonly SeriesItem _userSeries;
 
-        public UserSeriesItemViewModel(UserSeries userSeries)
+        public UserSeriesItemViewModel(SeriesItem userSeries)
         {
             _userSeries = userSeries;
         }

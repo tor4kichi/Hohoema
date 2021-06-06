@@ -8,16 +8,27 @@ using System.Net;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using NiconicoToolkit.Video;
 
 namespace NiconicoToolkit.Series
 {
     public sealed class SeriesClient
     {
         private readonly NiconicoContext _context;
+        private readonly JsonSerializerOptions _options;
 
         public SeriesClient(NiconicoContext context)
         {
             _context = context;
+            _options = new JsonSerializerOptions()
+            {
+                Converters =
+                {
+                    new JsonStringEnumMemberConverter()
+                }
+            };
         }
 
         public async Task<SeriesDetails> GetSeriesVideosAsync(string seriesId)
@@ -140,12 +151,14 @@ namespace NiconicoToolkit.Series
                 // シリーズオーナー
                 {
                     var userContainerNode = document.QuerySelector("body > div.BaseLayout-main > div.Series > div.SeriesAdditionalContainer > div.SeriesAdditionalContainer-ownerArea");
-                    var iconNode = userContainerNode.QuerySelector("span.UserIcon > img");
+                    var iconNode = userContainerNode.QuerySelector("span > img");
                     var userInfoNode = userContainerNode.QuerySelector("a");
 
+                    var id = userInfoNode.GetAttribute("href").Split('/').Last();
                     seriesDetails.Owner = new SeriesOwner()
                     {
-                        Id = new string(userInfoNode.GetAttribute("href").SkipWhile(c => !char.IsDigit(c)).ToArray()),
+                        Id = id,
+                        OwnerType = id.StartsWith("ch") ? OwnerType.Channel : OwnerType.User,
                         IconUrl = iconNode.GetAttribute("src"),
                         Nickname = userInfoNode.TextContent,
                     };
@@ -153,6 +166,24 @@ namespace NiconicoToolkit.Series
             }
 
             return seriesDetails;
+        }
+
+        public Task<SeriesListResponse> GetUserSeriesAsync(uint userId, int page = 0, int pageSize = 100)
+        {
+            return GetUserSeriesAsync_Internal(userId, page, pageSize);
+        }
+
+        public Task<SeriesListResponse> GetUserSeriesAsync(string userId, int page = 0, int pageSize = 100)
+        {
+            return GetUserSeriesAsync_Internal(userId, page, pageSize);
+        }
+
+        private Task<SeriesListResponse> GetUserSeriesAsync_Internal<IdType>(IdType userId, int page, int pageSize)
+        {
+            return _context.GetJsonAsAsync<SeriesListResponse>(
+                $"https://nvapi.nicovideo.jp/v1/users/{userId}/series?page={page+1}&pageSize={pageSize}",
+                _options
+                );
         }
     }
 
@@ -181,6 +212,7 @@ namespace NiconicoToolkit.Series
 
     public class SeriesOwner
     {
+        public OwnerType OwnerType { get; set; }
         public string Id { get; set; }
         public string Nickname { get; set; }
         public string IconUrl { get; set; }
