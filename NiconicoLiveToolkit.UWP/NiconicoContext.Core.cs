@@ -78,7 +78,7 @@ namespace NiconicoToolkit
 
         TimeSpan _minPageAccessInterval = TimeSpan.FromSeconds(1);
         DateTime _prevPageAccessTime;
-        internal async Task WaitPageAccess()
+        internal async ValueTask WaitPageAccessAsync()
         {
             var elapsedTime = DateTime.Now - _prevPageAccessTime;
             if (elapsedTime < _minPageAccessInterval)

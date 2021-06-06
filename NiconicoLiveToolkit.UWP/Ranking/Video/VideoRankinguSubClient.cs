@@ -38,7 +38,7 @@ namespace NiconicoToolkit.Ranking.Video
 
         async Task<List<RankingGenrePickedTag>> Internal_GetPickedTagAsync(string url, bool isHotTopic, CancellationToken ct)
         {
-            await _context.WaitPageAccess();
+            await _context.WaitPageAccessAsync();
 
             IHtmlDocument doc;
             var parser = new HtmlParser();

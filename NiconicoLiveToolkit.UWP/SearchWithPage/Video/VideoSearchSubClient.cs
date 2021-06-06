@@ -144,7 +144,7 @@ namespace NiconicoToolkit.SearchWithPage.Video
 
 		private async Task<SearchResponse> _Search_Internal(string urlWithQuery, bool isTagSearch, CancellationToken ct)
 		{
-			await _context.WaitPageAccess();
+			await _context.WaitPageAccessAsync();
 
 			var res = await _context.GetAsync(urlWithQuery);
 			if (!res.IsSuccessStatusCode) { return new SearchResponse() { StatusCode = (uint)res.StatusCode }; }

@@ -71,7 +71,7 @@ namespace NiconicoToolkit.User
 
         private async Task<UserDetailResponse> GetUserDetailAsync_Internal<IdType>(IdType userId)
         {
-            await _context.WaitPageAccess();
+            await _context.WaitPageAccessAsync();
 
             var res = await _context.GetAsync($"https://www.nicovideo.jp/user/{userId}");
             if (!res.IsSuccessStatusCode)

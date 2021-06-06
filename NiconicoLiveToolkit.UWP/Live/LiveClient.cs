@@ -36,7 +36,7 @@ namespace NiconicoToolkit.Live
         const string LiveWatchPageFormat = "https://live2.nicovideo.jp/watch/{0}";
         public async Task<LiveWatchPageDataProp> GetLiveWatchPageDataPropAsync(string liveId, CancellationToken ct = default)
         {
-            await _context.WaitPageAccess();
+            await _context.WaitPageAccessAsync();
 
             var html = await _context.GetStringAsync(string.Format(LiveWatchPageFormat, liveId));
             var scriptIdPosition = html.IndexOf("id=\"embedded-data\"");

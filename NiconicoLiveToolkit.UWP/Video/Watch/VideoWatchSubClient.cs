@@ -46,7 +46,7 @@ namespace NiconicoToolkit.Video.Watch
                 .AppendQueryString(dict)
                 .ToString();
 
-            await _context.WaitPageAccess();
+            await _context.WaitPageAccessAsync();
             var res = await _context.GetAsync(url);
             if (!res.IsSuccessStatusCode)
             {
