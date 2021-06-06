@@ -150,7 +150,7 @@
     <Compile Include="Mylist\IMylistItem.cs" />
     <Compile Include="Mylist\NvapiMylistItem.cs" />
     <Compile Include="SearchWithCeApi\SearchWithCeApiClient.cs" />
-    <Compile Include="SearchWithCeApi\Video\CeApiResponseBase.cs" />
+    <Compile Include="CeApiResponseBase.cs" />
     <Compile Include="SearchWithCeApi\Video\ThreadItem.cs" />
     <Compile Include="SearchWithCeApi\Video\VideoItem.cs" />
     <Compile Include="SearchWithCeApi\Video\VideoIdSearchResponse.cs" />
@@ -160,6 +160,11 @@
     <Compile Include="SearchWithCeApi\Video\VideoSortOrder.cs" />
     <Compile Include="SearchWithCeApi\Video\VideoIdSearchSingleResponse.cs" />
     <Compile Include="Series\SeriesClient.cs" />
+    <Compile Include="User\NicovideoUserResponse.cs" />
+    <Compile Include="User\UserNicknameResponse.cs" />
+    <Compile Include="User\UserVideoResponse.cs" />
+    <Compile Include="User\UserVideoSortKey.cs" />
+    <Compile Include="User\UserVideoSortOrder.cs" />
     <Compile Include="Video\NvapiVideoItem.cs" />
     <Compile Include="DeserializationExtensions.cs" />
     <Compile Include="JsonConveterExtensions.cs" />

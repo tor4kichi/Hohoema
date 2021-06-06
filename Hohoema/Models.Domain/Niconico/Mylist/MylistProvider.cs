@@ -143,33 +143,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
             foreach (var item in videos)
             {
-                var nicoVideo = _nicoVideoProvider.UpdateCache(item.Video.Id, video => 
-                {
-                    video.Title = item.Video.Title;
-                    video.ThumbnailUrl = item.Video.Thumbnail.ListingUrl.OriginalString;
-                    video.PostedAt = item.Video.RegisteredAt.DateTime;
-                    video.Length = TimeSpan.FromSeconds(item.Video.Duration);
-                    video.Description = item.Description;
-                    video.Owner = new NicoVideoOwner()
-                    {
-                        OwnerId = item.Video.Owner.Id,
-                        UserType = item.Video.Owner.OwnerType switch
-                        {
-                            NiconicoToolkit.Video.OwnerType.Channel => OwnerType.Channel,
-                            NiconicoToolkit.Video.OwnerType.Hidden => OwnerType.Hidden,
-                            NiconicoToolkit.Video.OwnerType.User => OwnerType.User,
-                            _ => throw new NotSupportedException(),
-                        }
-                    };
-
-                    // OwnerType.Hiddenだった場合にOwnerIdのNull例外が発生するのでオーナー情報を削除しておく
-                    if (video.Owner.UserType is OwnerType.Hidden)
-                    {
-                        video.Owner = null;
-                    }
-
-                    return (item.IsDeleted, default);
-                });
+                var nicoVideo = _nicoVideoProvider.UpdateCache(item.WatchId, item.Video, item.IsDeleted);
 
                 nicoVideoList.Add(nicoVideo);
                 resultItems.Add(item);

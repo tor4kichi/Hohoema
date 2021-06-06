@@ -147,6 +147,42 @@ namespace Hohoema.Models.Domain.Niconico.Video
             StrongReferenceMessenger.Default.Send(new VideoDeletedMessage(new VideoDeleteMessageData(videoId, deleteReason, title)));
         }
 
+        public NicoVideo UpdateCache(string videoId, NvapiVideoItem nvapiVideoItem, bool isDeleted = false, long deleted = 0)
+        {
+            var video = GetCachedVideoInfo(videoId);
+            if (video == null)
+            {
+                video = new NicoVideo() { RawVideoId = videoId };
+                _nicoVideoRepository.CreateItem(video);
+
+                Debug.WriteLine("set video to memory cache" + videoId);
+                _cache.Set(videoId, video, _entryOptions);
+            }
+
+            return UpdateCache(video, video => 
+            {
+                video.VideoId = nvapiVideoItem.Id;
+                video.Title = nvapiVideoItem.Title;
+                video.ThumbnailUrl = nvapiVideoItem.Thumbnail.ListingUrl.OriginalString;
+                video.PostedAt = nvapiVideoItem.RegisteredAt.DateTime;
+                video.Length = TimeSpan.FromSeconds(nvapiVideoItem.Duration);
+                video.Description ??= nvapiVideoItem.ShortDescription;
+                if (nvapiVideoItem.Owner is not null and var owner)
+                {
+                    video.Owner ??= new NicoVideoOwner()
+                    {
+                        OwnerId = owner.Id,
+                        UserType = owner.OwnerType,
+                    };
+
+                    video.Owner.ScreenName = owner.Name;
+                    video.Owner.IconUrl = owner.IconUrl?.OriginalString;
+                }
+
+                return (false, default);
+            });
+        }
+
         public NicoVideo UpdateCache(string videoId, Func<NicoVideo, (bool IsDeleted, long? deleteReason)> updateDelegate)
         {
             var video = GetCachedVideoInfo(videoId);

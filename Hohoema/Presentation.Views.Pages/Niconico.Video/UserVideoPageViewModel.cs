@@ -150,42 +150,42 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 		public UserProvider UserProvider { get; }
         public UserDetails User { get; private set;}
 
-        UserVideosResponse _firstRes;
-        public List<UserVideosResponse> _ResList;
-		
 		public UserVideoIncrementalSource(string userId, UserDetails userDetail, UserProvider userProvider)
 		{
 			UserId = uint.Parse(userId);
 			User = userDetail;
             UserProvider = userProvider;
-			_ResList = new List<UserVideosResponse>();
 		}
 
+        bool _isEnd = false;
+        int _count = 0;
         protected override async IAsyncEnumerable<VideoListItemControlViewModel> GetPagedItemsImpl(int start, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
-            var res = start == 0 ? _firstRes : await UserProvider.GetUserVideos(UserId, (uint)start / OneTimeLoadCount);
+            if (_isEnd) { yield break; }
+
+            var res = await UserProvider.GetUserVideos(UserId, start / (int)OneTimeLoadCount);
 
             ct.ThrowIfCancellationRequested();
 
             var items = res.Data.Items;
             foreach (var item in items)
             {
-                var vm = new VideoListItemControlViewModel(item.Id, item.Title, item.Thumbnail.ListingUrl.OriginalString, TimeSpan.FromSeconds(item.Duration), item.RegisteredAt.DateTime);
-                vm.ViewCount = (int)item.Count.View;
-                vm.CommentCount = (int)item.Count.Comment;
-                vm.MylistCount = (int)item.Count.Mylist;
+                var vm = new VideoListItemControlViewModel(item.Essential);
 
                 await vm.EnsureProviderIdAsync(ct).ConfigureAwait(false);
                 yield return vm;
 
                 ct.ThrowIfCancellationRequested();
             }
+
+            _count += items.Length;
+
+            _isEnd = _count >= res.Data.TotalCount;
         }
 
-        protected override async ValueTask<int> ResetSourceImpl()
+        protected override ValueTask<int> ResetSourceImpl()
         {
-            _firstRes = await UserProvider.GetUserVideos(UserId, (uint)0);
-            return (int)_firstRes.Data.TotalCount;
+            return new ValueTask<int>(1);
         }
     }
 }

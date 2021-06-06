@@ -169,27 +169,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
         private NicoVideo MylistDataToNicoVideoData(MylistItem item)
         {
-            return _nicoVideoProvider.UpdateCache(item.WatchId, video => 
-            {
-                video.RawVideoId = item.WatchId;
-                video.VideoId = item.WatchId;
-                video.Title = item.Video.Title;
-                video.Description = item.Description;
-                video.Length = TimeSpan.FromSeconds(item.Video.Duration);
-                video.PostedAt = item.Video.RegisteredAt.DateTime;
-                video.ThumbnailUrl = item.Video.Thumbnail.ListingUrl.OriginalString;
-                
-                var owner = item.Video.Owner;
-                video.Owner = new NicoVideoOwner()
-                {
-                    OwnerId = owner.Id ?? "hidden",
-                    ScreenName = owner.Name ?? "hidden",
-                    UserType = owner.OwnerType,
-                    IconUrl = owner.IconUrl?.OriginalString,
-                };
-
-                return (item.IsDeleted, default);
-            });
+            return _nicoVideoProvider.UpdateCache(item.WatchId, item.Video, item.IsDeleted);
         }
 
 

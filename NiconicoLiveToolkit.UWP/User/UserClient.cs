@@ -10,10 +10,18 @@ namespace NiconicoToolkit.User
     public sealed class UserClient
     {
         private readonly NiconicoContext _context;
+        private readonly JsonSerializerOptions _options;
 
         internal UserClient(NiconicoContext context)
         {
             _context = context;
+            _options = new JsonSerializerOptions()
+            {
+                Converters =
+                {
+                    new JsonStringEnumMemberConverter()
+                }
+            };
         }
 
 
@@ -36,89 +44,31 @@ namespace NiconicoToolkit.User
         public async Task<UserInfo> GetUserInfoAsync(string id)
         {
             var res = await _context.GetJsonAsAsync<NicovideoUserResponseContainer>(string.Format(UserDetailsApiUrlFormat, id));
-            return res.NicovideoUserResponse?.User;
+            return res.Response?.User;
         }
 
         public async Task<UserInfo> GetUserInfoAsync(uint id)
         {   
             var res = await _context.GetJsonAsAsync<NicovideoUserResponseContainer>(string.Format(UserDetailsApiUrlFormat, id));
-            return res.NicovideoUserResponse?.User;
+            return res.Response?.User;
         }
 
-        
-    }
+        public Task<UserVideoResponse> GetUserVideoAsync(uint userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
+        {
+            return GetUserVideoAsync_Internal(userId, page, pageSize, sortKey, sortOrder);
+        }
 
+        public Task<UserVideoResponse> GetUserVideoAsync(string userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
+        {
+            return GetUserVideoAsync_Internal(userId, page, pageSize, sortKey, sortOrder);
+        }
 
-    public partial class NicovideoUserResponseContainer
-    {
-        [JsonPropertyName("niconico_response")]
-        public NicovideoUserResponse NicovideoUserResponse { get; set; }
-    }
-
-    public partial class NicovideoUserResponse
-    {
-        [JsonPropertyName("user")]
-        public UserInfo User { get; set; }
-
-        [JsonPropertyName("vita_option")]
-        public VitaOption VitaOption { get; set; }
-
-        [JsonPropertyName("additionals")]
-        public string Additionals { get; set; }
-
-        [JsonPropertyName("@status")]
-        public string Status { get; set; }
-
-        [JsonPropertyName("error")]
-        public Error Error { get; set; }
-
-
-        public bool IsOK => Status == "ok";
-    }
-
-    public partial class Error
-    {
-        [JsonPropertyName("code")]
-        public string Code { get; set; }
-
-        [JsonPropertyName("description")]
-        public string Description { get; set; }
-    }
-
-    public partial class UserInfo
-    {
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
-
-        [JsonPropertyName("nickname")]
-        public string Nickname { get; set; }
-
-        [JsonPropertyName("thumbnail_url")]
-        public Uri ThumbnailUrl { get; set; }
-    }
-
-    public partial class VitaOption
-    {
-        [JsonPropertyName("user_secret")]
-        public string UserSecret { get; set; }
-    }
-    
-
-
-
-
-
-    public class UserNicknameResponse
-    {
-        [JsonPropertyName("data")]
-        public UserNickname User { get; set; }
-    }
-    public class UserNickname
-    {
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
-
-        [JsonPropertyName("nickname")]
-        public string Nickname { get; set; }
+        private Task<UserVideoResponse> GetUserVideoAsync_Internal<IdType>(IdType userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
+        {
+            return _context.GetJsonAsAsync<UserVideoResponse>(
+                $"https://nvapi.nicovideo.jp/v2/users/{userId}/videos?sortKey={sortKey.GetDescription()}&sortOrder={sortOrder.GetDescription()}&pageSize={pageSize}&page={page + 1}"
+                , _options
+                );
+        }
     }
 }

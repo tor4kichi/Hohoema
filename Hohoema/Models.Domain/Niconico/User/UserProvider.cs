@@ -13,19 +13,23 @@ using System.Text;
 using System.Threading.Tasks;
 using static Mntone.Nico2.Users.User.UserDetailResponse;
 using NiconicoToolkit.Video;
+using NiconicoToolkit.User;
 
 namespace Hohoema.Models.Domain.Niconico.User
 {
     public sealed class UserProvider : ProviderBase
     {
         private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
 
         public UserProvider(NiconicoSession niconicoSession,
-            NicoVideoOwnerCacheRepository nicoVideoOwnerRepository
+            NicoVideoOwnerCacheRepository nicoVideoOwnerRepository,
+            NicoVideoProvider nicoVideoProvider
             )
             : base(niconicoSession)
         {
             _nicoVideoOwnerRepository = nicoVideoOwnerRepository;
+            _nicoVideoProvider = nicoVideoProvider;
         }
 
         public async Task<string> GetUserName(string userId)
@@ -115,12 +119,19 @@ namespace Hohoema.Models.Domain.Niconico.User
         }
 
 
-        public async Task<Mntone.Nico2.Videos.Users.UserVideosResponse> GetUserVideos(uint userId, uint page, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
+        public async Task<NiconicoToolkit.User.UserVideoResponse> GetUserVideos(uint userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
         {
-            return await ContextActionWithPageAccessWaitAsync(async context =>
+            var res = await _niconicoSession.ToolkitContext.User.GetUserVideoAsync(userId, page, pageSize, sortKey, sortOrder);
+
+            if (res.IsSuccess)
             {
-                return await context.Video.GetUserVideosAsync(userId, page/*, sort, order*/);
-            });
+                foreach (var item in res.Data.Items)
+                {
+                    _nicoVideoProvider.UpdateCache(item.Essential.Id, item.Essential);
+                }
+            }
+
+            return res;
         }
     }
 }
