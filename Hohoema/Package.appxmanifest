@@ -35,14 +35,6 @@
       <uap:ApplicationContentUriRules>
         <uap:Rule Match="https://*.nicovideo.jp" Type="include" WindowsRuntimeAccess="none" />
       </uap:ApplicationContentUriRules>
-      <Extensions>
-        <uap:Extension Category="windows.protocol">
-          <uap:Protocol Name="niconico" DesiredView="useHalf">
-            <uap:Logo>Assets\ProtocolLogo.png</uap:Logo>
-            <uap:DisplayName>Hohoema</uap:DisplayName>
-          </uap:Protocol>
-        </uap:Extension>
-      </Extensions>
     </Application>
   </Applications>
   <Capabilities>
