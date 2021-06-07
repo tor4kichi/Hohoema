@@ -112,7 +112,7 @@ namespace NiconicoToolkit.Channels
                 .AppendQueryString(dict)
                 .ToString();
 
-            await _context.WaitPageAccess();
+            await _context.WaitPageAccessAsync();
 
             var res = await _context.GetAsync(url);
 
