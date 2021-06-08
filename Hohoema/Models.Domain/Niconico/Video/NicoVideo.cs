@@ -1,5 +1,4 @@
 ﻿using LiteDB;
-using Mntone.Nico2;
 using NiconicoToolkit.Video;
 using Prism.Mvvm;
 using System;

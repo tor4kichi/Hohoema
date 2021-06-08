@@ -275,6 +275,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
 
                 Videos = new List<VideoListItemControlViewModel>();
+                /*
                 var items = await NicoVideoProvider.GetRelatedVideos(videoId, 0, 10);
                 if (items.Video_info?.Any() ?? false)
                 {
@@ -288,6 +289,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                         return vm;
                     }))));
                 }
+                */
 
                 CurrentVideo = Videos.FirstOrDefault(x => x.RawVideoId == videoId);
                 RaisePropertyChanged(nameof(Videos));

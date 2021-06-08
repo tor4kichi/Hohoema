@@ -246,7 +246,6 @@
     <Compile Include="Models.Domain\Player\Video\Comment\CommentClient.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\CommentCommandPermissionType.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\CommentServerInfo.cs" />
-    <Compile Include="Models.Domain\Player\Video\Comment\CommentSubmitInfo.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\NicoScript.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\VideoComment.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\VideoCommentService.cs" />

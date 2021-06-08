@@ -6,7 +6,7 @@ using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
-using Mntone.Nico2.Videos.Histories;
+//using Mntone.Nico2.Videos.Histories;
 using NiconicoToolkit.Video;
 using Prism.Commands;
 using Prism.Navigation;
@@ -53,8 +53,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
         public WatchHistoryRemoveAllCommand WatchHistoryRemoveAllCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public ObservableCollection<HistoryVideoListItemControlViewModel> Histories { get; }
-
-        HistoriesResponse _HistoriesResponse;
 
 
         public override void OnNavigatedTo(INavigationParameters parameters)

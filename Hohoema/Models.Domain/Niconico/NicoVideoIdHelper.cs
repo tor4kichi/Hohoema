@@ -15,7 +15,7 @@ namespace Hohoema.Models.Helpers
 		}
 		public static string VideoIdToWatchPageUrl(string id)
 		{
-			return Mntone.Nico2.NiconicoUrls.VideoWatchPageUrl + id;
+			return $"https://www.nicovideo.jp/watch/{id}";
 		}
 	}
 }

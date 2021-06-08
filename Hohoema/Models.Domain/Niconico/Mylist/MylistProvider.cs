@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Mylist.MylistGroup;
-using NiconicoToolkit.Mylist;
+﻿using NiconicoToolkit.Mylist;
 using Hohoema.Database;
 
 using Hohoema.Models.Domain.Niconico.Video;
@@ -130,10 +129,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
         public async Task<MylistItemsGetResult> GetMylistVideoItems(string mylistId, int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
-            var res = await ContextActionAsync(async context =>
-            {
-                return await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, page, pageSize, sortKey, sortOrder);
-            });
+            var res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, page, pageSize, sortKey, sortOrder);
             
             if (res.Meta.IsSuccess is false) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }
 

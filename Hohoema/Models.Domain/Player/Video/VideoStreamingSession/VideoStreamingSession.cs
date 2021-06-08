@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Helpers;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;

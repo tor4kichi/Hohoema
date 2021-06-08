@@ -6,11 +6,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:ichiba="using:Mntone.Nico2.Embed.Ichiba"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"
-    d:DataContext="{d:DesignData Type=ichiba:IchibaItem}"
     >
 
   <Grid BorderBrush="{ThemeResource SystemAccentColorDark2}" BorderThickness="1" Padding="8" MaxWidth="320"

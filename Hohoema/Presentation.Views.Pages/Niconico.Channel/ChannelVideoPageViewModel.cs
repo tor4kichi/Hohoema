@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Mntone.Nico2.Channels.Video;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain;
 using Prism.Commands;

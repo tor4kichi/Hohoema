@@ -1,6 +1,4 @@
-﻿using Mntone.Nico2.Mylist;
-
-using Hohoema.Models.Domain;
+﻿using Hohoema.Models.Domain;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

@@ -1,7 +1,4 @@
-﻿using Mntone.Nico2;
-using Mntone.Nico2.Mylist;
-using Mntone.Nico2.Videos.Recommend;
-using Hohoema.Database;
+﻿using Hohoema.Database;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Infrastructure;
 using System;
@@ -486,34 +483,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
         }
 
 
-        public async Task<NicoVideoResponse> GetRelatedVideos(string videoId, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
-        {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.Video.GetRelatedVideoAsync(videoId, from, limit, sort, order);
-            });
-        }
-
-
-        public async Task<RecommendResponse> GetRecommendFirstAsync()
-        {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.Video.GetRecommendFirstAsync();
-            });
-        }
-
-        public async Task<RecommendContent> GetRecommendAsync(RecommendResponse res, RecommendContent prevInfo = null)
-        {
-            var user_tags = res.UserTagParam;
-            var seed = res.Seed;
-            var page = prevInfo?.RecommendInfo.Page ?? res.Page;
-            return await ContextActionAsync(async context =>
-            {
-                return await context.Video.GetRecommendAsync(user_tags, seed, page);
-            });
-            
-        }
 
     }
 }

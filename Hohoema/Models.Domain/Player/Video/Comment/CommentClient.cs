@@ -31,9 +31,6 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
 
         internal DmcWatchApiData DmcWatch { get; set; }
 
-        private CommentSubmitInfo DefaultThreadSubmitInfo { get; set; }
-        private CommentSubmitInfo CommunityThreadSubmitInfo { get; set; }
-
 
         private CommentSession _CommentSession;
         private readonly NiconicoSession _niconicoSession;
@@ -89,7 +86,6 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
                 if (!Helpers.InternetConnection.IsInternet()) { return false; }
 
                 if (CommentServerInfo == null) { return false; }
-                if (DefaultThreadSubmitInfo == null) { return false; }
 
                 return true;
             }

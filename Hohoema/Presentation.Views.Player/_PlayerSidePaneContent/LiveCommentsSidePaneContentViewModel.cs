@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Videos.Comment;
-using Hohoema.Models.Domain;
+﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico.Video;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
