@@ -689,15 +689,6 @@ namespace Hohoema
 
                 await Container.Resolve<NavigationTriggerFromExternal>().Process(arguments);
             }
-            else if (args.Kind == ActivationKind.Protocol)
-            {
-                var param = (args as IActivatedEventArgs) as ProtocolActivatedEventArgs;
-                var uri = param.Uri;
-
-                await Container.Resolve<NavigationTriggerFromExternal>().Process(param.Uri);
-            }
-
-            
         }
 
 

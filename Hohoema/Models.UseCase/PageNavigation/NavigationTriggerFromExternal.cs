@@ -41,20 +41,6 @@ namespace Hohoema.Models.UseCase.PageNavigation
             _messenger = messenger;
         }
 
-        public async Task Process(Uri uri)
-        {
-            var maybeNicoContentId = new string(uri.OriginalString.Skip("niconico://".Length).TakeWhile(x => x != '?' && x != '/').ToArray());
-            if (Mntone.Nico2.NiconicoRegex.IsVideoId(maybeNicoContentId)
-                    || maybeNicoContentId.All(x => x >= '0' && x <= '9'))
-            {
-                await PlayVideoFromExternal(maybeNicoContentId);
-            }
-            else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
-            {
-                PlayLiveVideoFromExternal(maybeNicoContentId);
-            }
-        }
-
         public async Task Process(string arguments)
         {
             var toastArguments = ToastArguments.Parse(arguments);
