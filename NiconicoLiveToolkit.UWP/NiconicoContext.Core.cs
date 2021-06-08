@@ -22,6 +22,7 @@ using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Follow;
 using NiconicoToolkit.SearchWithCeApi;
 using NiconicoToolkit.Series;
+using NiconicoToolkit.NicoRepo;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -40,6 +41,15 @@ namespace NiconicoToolkit
             HttpClient.DefaultRequestHeaders.UserAgent.TryParseAdd($"{nameof(NiconicoToolkit)}/1.0 (+{yourSiteUrl})");
         }
 
+        JsonSerializerOptions _defaultOptions = new JsonSerializerOptions()
+        {
+            Converters =
+            {
+                new JsonStringEnumMemberConverter(),
+            },
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+        };
+
         public NiconicoContext(
             HttpClient httpClient
             )
@@ -57,6 +67,7 @@ namespace NiconicoToolkit
             Mylist = new MylistClient(this);
             Follow = new FollowClient(this);
             Series = new SeriesClient(this);
+            NicoRepo = new NicoRepoClient(this, _defaultOptions);
         }
 
 
@@ -74,6 +85,7 @@ namespace NiconicoToolkit
         public MylistClient Mylist { get; }
         public FollowClient Follow { get; }
         public SeriesClient Series { get; }
+        public NicoRepoClient NicoRepo { get; }
 
 
         TimeSpan _minPageAccessInterval = TimeSpan.FromSeconds(1);

@@ -126,6 +126,7 @@
     <Compile Include="Tests\FollowTest.cs" />
     <Compile Include="Tests\LiveTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\NicoRepoTest.cs" />
     <Compile Include="Tests\RecommendTest.cs" />
     <Compile Include="Tests\SearchCeApiTest.cs" />
     <Compile Include="Tests\SearchHtmlTest.cs" />

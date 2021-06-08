@@ -10,11 +10,8 @@ using System.Net.Http;
 
 namespace NiconicoToolkit.Follow
 {
-    public sealed class UserOwnedCommunityResponse
+    public sealed class UserOwnedCommunityResponse : ResponseWithMeta
     {
-        [JsonPropertyName("meta")]
-        public Meta Meta { get; set; }
-
         [JsonPropertyName("data")]
         public UserOwnedCommunity Data { get; set; }
     }

@@ -11,8 +11,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using I18NPortable;
 using Microsoft.Toolkit.Collections;
-using Mntone.Nico2.Live;
-using Mntone.Nico2.NicoRepo;
+using NiconicoToolkit.NicoRepo;
 using NiconicoToolkit.Video;
 using Prism.Commands;
 using Prism.Navigation;
@@ -56,7 +55,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             SubscriptionManager = subscriptionManager;
             _openLiveContentCommand = openLiveContentCommand;
             
-            NicoRepoType = new ReactiveProperty<NicoRepoType>(Mntone.Nico2.NicoRepo.NicoRepoType.Video, mode:ReactivePropertyMode.DistinctUntilChanged);
+            NicoRepoType = new ReactiveProperty<NicoRepoType>(NiconicoToolkit.NicoRepo.NicoRepoType.Video, mode:ReactivePropertyMode.DistinctUntilChanged);
             NicoRepoDisplayTarget = new ReactiveProperty<NicoRepoDisplayTarget>(mode: ReactivePropertyMode.DistinctUntilChanged);
 
             new[]
@@ -72,13 +71,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             .AddTo(_CompositeDisposable);
         }
 
-        bool _NicoRepoItemTopicsChanged;
+        bool _NicoRepoMuteContextTriggersChanged;
 
         public ImmutableArray<NicoRepoType> NicoRepoTypeList { get; } = new[]
         {
-            Mntone.Nico2.NicoRepo.NicoRepoType.All,
-            Mntone.Nico2.NicoRepo.NicoRepoType.Video,
-            Mntone.Nico2.NicoRepo.NicoRepoType.Program,
+            NiconicoToolkit.NicoRepo.NicoRepoType.All,
+            NiconicoToolkit.NicoRepo.NicoRepoType.Video,
+            NiconicoToolkit.NicoRepo.NicoRepoType.Program,
         }
         .ToImmutableArray();
 
@@ -97,7 +96,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
             // ニレコポ表示設定をニコレポの設定に書き戻し
-//            ActivityFeedSettings.DisplayNicoRepoItemTopics = DisplayNicoRepoItemTopics.Distinct().ToList();
+//            ActivityFeedSettings.DisplayNicoRepoMuteContextTriggers = DisplayNicoRepoMuteContextTriggers.Distinct().ToList();
 
             base.OnNavigatedFrom(parameters);
         }
@@ -105,12 +104,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
         protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
         {
             /*
-            if (!ActivityFeedSettings.DisplayNicoRepoItemTopics.All(x => DisplayNicoRepoItemTopics.Any(y => x == y)))
+            if (!ActivityFeedSettings.DisplayNicoRepoMuteContextTriggers.All(x => DisplayNicoRepoMuteContextTriggers.Any(y => x == y)))
             {
-                DisplayNicoRepoItemTopics.Clear();
-                DisplayNicoRepoItemTopics.AddRange(ActivityFeedSettings.DisplayNicoRepoItemTopics);
+                DisplayNicoRepoMuteContextTriggers.Clear();
+                DisplayNicoRepoMuteContextTriggers.AddRange(ActivityFeedSettings.DisplayNicoRepoMuteContextTriggers);
 
-                _NicoRepoItemTopicsChanged = false;
+                _NicoRepoMuteContextTriggersChanged = false;
                 return true;
             }
             */
@@ -156,7 +155,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
 
         public string Title { get; }
 
-        public NicoRepoLiveTimeline(NicoRepoEntry nicoRepoEntry, NicoRepoItemTopic itemTopic) 
+        public NicoRepoLiveTimeline(NicoRepoEntry nicoRepoEntry, NicoRepoMuteContextTrigger itemTopic) 
             : base(nicoRepoEntry.GetContentId())
         {
             _nicoRepoEntry = nicoRepoEntry;
@@ -174,8 +173,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
 
             this.CommunityType = _nicoRepoEntry.MuteContext.Sender.IdType switch
             {
-                SenderIdTypeEnum.User => CommunityType.Community,
-                SenderIdTypeEnum.Channel => CommunityType.Channel,
+                SenderIdTypeEnum.User => Mntone.Nico2.Live.CommunityType.Community,
+                SenderIdTypeEnum.Channel => Mntone.Nico2.Live.CommunityType.Channel,
                 _ => throw new NotSupportedException()
             };
 
@@ -184,21 +183,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
 
         public string ItempTopicDescription { get; }
 
-        public NicoRepoItemTopic ItemTopic { get; private set; }
+        public NicoRepoMuteContextTrigger ItemTopic { get; private set; }
 
         public string BroadcasterId => CommunityGlobalId.ToString();
     }
 
     public interface INicoRepoItem
     {
-        NicoRepoItemTopic ItemTopic { get; }
+        NicoRepoMuteContextTrigger ItemTopic { get; }
     }
 
     public class NicoRepoVideoTimeline : VideoListItemControlViewModel, IVideoContent, INicoRepoItem
     {
         private readonly NicoRepoEntry _nicoRepoEntry;
 
-        public NicoRepoVideoTimeline(NicoVideo nicoVideo, NicoRepoEntry nicoRepoEntry, NicoRepoItemTopic itemType) 
+        public NicoRepoVideoTimeline(NicoVideo nicoVideo, NicoRepoEntry nicoRepoEntry, NicoRepoMuteContextTrigger itemType) 
             : base(nicoRepoEntry.GetContentId(), nicoRepoEntry.Object.Name, nicoRepoEntry.Object.Image.OriginalString, TimeSpan.Zero, nicoRepoEntry.Updated.DateTime)
         {
             _nicoRepoEntry = nicoRepoEntry;
@@ -233,7 +232,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
 
         public string ItempTopicDescription { get; }
 
-        public NicoRepoItemTopic ItemTopic { get; private set; }
+        public NicoRepoMuteContextTrigger ItemTopic { get; private set; }
 
         protected override void OnInitialized()
         {
@@ -244,27 +243,27 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
     public static class NicoRepoTimelineVM 
     {
       
-        public static string ItemTopictypeToDescription(NicoRepoItemTopic topicType, NicoRepoEntry timelineItem)
+        public static string ItemTopictypeToDescription(NicoRepoMuteContextTrigger topicType, NicoRepoEntry timelineItem)
         {
             switch (topicType)
             {
-                case NicoRepoItemTopic.Unknown:
+                case NicoRepoMuteContextTrigger.Unknown:
                     return "Unknown".Translate();
-                case NicoRepoItemTopic.NicoVideo_User_Video_Upload:
+                case NicoRepoMuteContextTrigger.NicoVideo_User_Video_Upload:
                     return "NicoRepo_Video_UserVideoUpload".Translate(timelineItem.Actor.Name);
-                case NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video:
+                case NicoRepoMuteContextTrigger.NicoVideo_User_Mylist_Add_Video:
                     return "NicoRepo_Video_UserMylistAddVideo".Translate(timelineItem.Actor.Name);
-                case NicoRepoItemTopic.NicoVideo_User_Community_Video_Add:
+                case NicoRepoMuteContextTrigger.NicoVideo_User_Community_Video_Add:
                     return "NicoRepo_Video_CommunityAddVideo".Translate(timelineItem.Actor.Name);
-                case NicoRepoItemTopic.NicoVideo_Channel_Video_Upload:
+                case NicoRepoMuteContextTrigger.NicoVideo_Channel_Video_Upload:
                     return "NicoRepo_Video_ChannelVideoUpload".Translate(timelineItem.Actor.Name);
-                case NicoRepoItemTopic.Live_User_Program_OnAirs:
+                case NicoRepoMuteContextTrigger.Live_User_Program_OnAirs:
                     return "NicoRepo_Live_UserProgramOnAirs".Translate(timelineItem.Actor.Name);
-                case NicoRepoItemTopic.Live_User_Program_Reserve:
+                case NicoRepoMuteContextTrigger.Live_User_Program_Reserve:
                     return "NicoRepo_Live_UserProgramReserve".Translate(timelineItem.Actor.Name);
-                case NicoRepoItemTopic.Live_Channel_Program_Onairs:
+                case NicoRepoMuteContextTrigger.Live_Channel_Program_Onairs:
                     return "NicoRepo_Live_ChannelProgramOnAirs".Translate(timelineItem.Actor.Name);
-                case NicoRepoItemTopic.Live_Channel_Program_Reserve:
+                case NicoRepoMuteContextTrigger.Live_Channel_Program_Reserve:
                     return "NicoRepo_Live_ChannelProgramReserve".Translate(timelineItem.Actor.Name);
                 default:
                     return string.Empty;
@@ -317,22 +316,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
 
         NicoRepoEntriesResponse _prevRes;
 
-        public static bool IsLiveTopic(NicoRepoItemTopic topic)
+        public static bool IsLiveTopic(NicoRepoMuteContextTrigger topic)
         {
             return topic
-                is NicoRepoItemTopic.Live_User_Program_OnAirs
-                or NicoRepoItemTopic.Live_User_Program_Reserve
-                or NicoRepoItemTopic.Live_Channel_Program_Onairs
-                or NicoRepoItemTopic.Live_Channel_Program_Reserve
+                is NicoRepoMuteContextTrigger.Live_User_Program_OnAirs
+                or NicoRepoMuteContextTrigger.Live_User_Program_Reserve
+                or NicoRepoMuteContextTrigger.Live_Channel_Program_Onairs
+                or NicoRepoMuteContextTrigger.Live_Channel_Program_Reserve
                 ;
         }
 
-        public static bool IsVideoTopic(NicoRepoItemTopic topic)
+        public static bool IsVideoTopic(NicoRepoMuteContextTrigger topic)
         {
             return topic
-                is NicoRepoItemTopic.NicoVideo_User_Video_Upload
-                or NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video
-                or NicoRepoItemTopic.NicoVideo_Channel_Video_Upload
+                is NicoRepoMuteContextTrigger.NicoVideo_User_Video_Upload
+                or NicoRepoMuteContextTrigger.NicoVideo_User_Mylist_Add_Video
+                or NicoRepoMuteContextTrigger.NicoVideo_Channel_Video_Upload
                 ;
         }
 
@@ -351,7 +350,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
 
             // Note: ニコレポで取得できるチャンネル動画は基本的に動画IDが数字のみで、"so1234567" みたいな形式ではない
             // このためアプリ内での扱いを
-            var topicTypeMapedEntries = nicoRepoResponse.Data.Select(x => (TopicType: NicoRepoItemTopicExtension.ToNicoRepoTopicType(x.MuteContext.Trigger), Item: x)).ToList();
+            var topicTypeMapedEntries = nicoRepoResponse.Data.Select(x => (TopicType: x.GetMuteContextTrigger(), Item: x)).ToList();
             var numberIdVideoTopics = topicTypeMapedEntries
                 .Where(x => IsVideoTopic(x.TopicType));
             var videoNicoVideoItems = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(numberIdVideoTopics.Select(x => x.Item.GetContentId()));
@@ -372,7 +371,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
                     var id = item.Item.GetContentId();
                     var nicoVideo = videoDict[id];
                     var vm = new NicoRepoVideoTimeline(nicoVideo, item.Item, topicType);
-                    //await vm.EnsureProviderIdAsync(ct).ConfigureAwait(false);
                     return vm as INicoRepoItem;
                 }
                 else
@@ -388,83 +386,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
         }
     }
 
-    public static class NicoRepoItemTopicExtension
+    
+
+    public class SelectableNicoRepoMuteContextTrigger
     {
-        public static NicoRepoItemTopic ToNicoRepoTopicType(string topic)
-        {
-            NicoRepoItemTopic topicType = NicoRepoItemTopic.Unknown;
-            switch (topic)
-            {
-                case "video.nicovideo_user_video_upload":
-                    topicType = NicoRepoItemTopic.NicoVideo_User_Video_Upload;
-                    break;
-                case "video.nicovideo_channel_video_upload":
-                    topicType = NicoRepoItemTopic.NicoVideo_Channel_Video_Upload;
-                    break;
-
-                case "program.live_user_program_onairs":
-                    topicType = NicoRepoItemTopic.Live_User_Program_OnAirs;
-                    break;
-                case "program.live_channel_program_onairs":
-                    topicType = NicoRepoItemTopic.Live_Channel_Program_Onairs;
-                    break;
-                case "program.live_user_program_reserve":
-                    topicType = NicoRepoItemTopic.Live_User_Program_Reserve;
-                    break;
-                case "program.live_channel_program_reserve":
-                    topicType = NicoRepoItemTopic.Live_Channel_Program_Reserve;
-                    break;
-
-
-                case "live.user.program.onairs":
-                    topicType = NicoRepoItemTopic.Live_User_Program_OnAirs;
-                    break;
-                case "live.user.program.reserve":
-                    topicType = NicoRepoItemTopic.Live_User_Program_Reserve;
-                    break;
-                case "nicovideo.user.video.kiriban.play":
-                    topicType = NicoRepoItemTopic.NicoVideo_User_Video_Kiriban_Play;
-                    break;
-                case "nicovideo.user.video.upload":
-                    topicType = NicoRepoItemTopic.NicoVideo_User_Video_Upload;
-                    break;
-                case "nicovideo.community.level.raise":
-                    topicType = NicoRepoItemTopic.NicoVideo_Community_Level_Raise;
-                    break;
-                case "nicovideo.user.mylist.add.video":
-                    topicType = NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video;
-                    break;
-                case "nicovideo.user.community.video.add":
-                    topicType = NicoRepoItemTopic.NicoVideo_User_Community_Video_Add;
-                    break;
-                case "nicovideo.user.video.update_highest_rankings":
-                    topicType = NicoRepoItemTopic.NicoVideo_User_Video_UpdateHighestRankings;
-                    break;
-                case "nicovideo.user.video.advertise":
-                    topicType = NicoRepoItemTopic.NicoVideo_User_Video_Advertise;
-                    break;
-                case "nicovideo.channel.blomaga.upload":
-                    topicType = NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload;
-                    break;
-                case "nicovideo.channel.video.upload":
-                    topicType = NicoRepoItemTopic.NicoVideo_Channel_Video_Upload;
-                    break;
-                case "live.channel.program.onairs":
-                    topicType = NicoRepoItemTopic.Live_Channel_Program_Onairs;
-                    break;
-                case "live.channel.program.reserve":
-                    topicType = NicoRepoItemTopic.Live_Channel_Program_Reserve;
-                    break;
-                default:
-                    break;
-            }
-
-            return topicType;
-        }
-    }
-
-    public class SelectableNicoRepoItemTopic
-    {
-        public NicoRepoItemTopic Topic { get; set; }
+        public NicoRepoMuteContextTrigger Topic { get; set; }
     }
 }

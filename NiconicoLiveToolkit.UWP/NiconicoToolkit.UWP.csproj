@@ -152,6 +152,7 @@
     <Compile Include="NiconicoToolkitException.cs" />
     <Compile Include="Mylist\IMylistItem.cs" />
     <Compile Include="Mylist\NvapiMylistItem.cs" />
+    <Compile Include="NicoRepo\NicoRepoClient.cs" />
     <Compile Include="SearchWithCeApi\SearchWithCeApiClient.cs" />
     <Compile Include="CeApiResponseBase.cs" />
     <Compile Include="SearchWithCeApi\Video\ThreadItem.cs" />

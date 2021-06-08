@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.Niconico.NicoRepo;
 using Newtonsoft.Json;
+using NiconicoToolkit.NicoRepo;
 using Reactive.Bindings.Extensions;
 using System;
 using System.IO;
@@ -40,17 +41,17 @@ namespace Hohoema.Models.Domain.Legacy
 
             var pin = await SettingsBase.Load<PinSettings>(PinSettingsFileName, userFolder);
 
-            if (nicorepoAndFeed.DisplayNicoRepoItemTopics.Count == 0)
+            if (nicorepoAndFeed.DisplayNicoRepoMuteContextTriggers.Count == 0)
             {
-                nicorepoAndFeed.DisplayNicoRepoItemTopics.AddRange(new []
+                nicorepoAndFeed.DisplayNicoRepoMuteContextTriggers.AddRange(new []
                 {
-                    NicoRepoItemTopic.NicoVideo_User_Video_Upload,
-                    NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video,
-                    NicoRepoItemTopic.Live_Channel_Program_Onairs,
-                    NicoRepoItemTopic.Live_Channel_Program_Reserve,
-                    NicoRepoItemTopic.NicoVideo_Channel_Video_Upload,
-                    NicoRepoItemTopic.Live_User_Program_OnAirs,
-                    NicoRepoItemTopic.Live_User_Program_Reserve,
+                    NicoRepoMuteContextTrigger.NicoVideo_User_Video_Upload,
+                    NicoRepoMuteContextTrigger.NicoVideo_User_Mylist_Add_Video,
+                    NicoRepoMuteContextTrigger.Live_Channel_Program_Onairs,
+                    NicoRepoMuteContextTrigger.Live_Channel_Program_Reserve,
+                    NicoRepoMuteContextTrigger.NicoVideo_Channel_Video_Upload,
+                    NicoRepoMuteContextTrigger.Live_User_Program_OnAirs,
+                    NicoRepoMuteContextTrigger.Live_User_Program_Reserve,
                 });
             }
 

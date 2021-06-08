@@ -195,7 +195,6 @@
     <Compile Include="Models.Domain\Niconico\Mylist\MylistPlaylist.cs" />
     <Compile Include="Models.Domain\Niconico\Mylist\MylistPlaylistExtension.cs" />
     <Compile Include="Models.Domain\Niconico\Mylist\MylistProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\NicoRepo\NicoRepoItemTopic.cs" />
     <Compile Include="Models.Domain\Niconico\NicoRepo\NicoRepoSettings.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\LoginUser\TagFollowProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\LoginUser\UserFollowProvider.cs" />

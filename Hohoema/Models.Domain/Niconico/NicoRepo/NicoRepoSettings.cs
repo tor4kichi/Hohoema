@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Infrastructure;
 using Hohoema.Presentation.ViewModels;
+using NiconicoToolkit.NicoRepo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,14 +14,14 @@ namespace Hohoema.Models.Domain.Niconico.NicoRepo
     {
         public NicoRepoSettings()
         {
-            DisplayNicoRepoItemTopics = Read(new List<NicoRepoItemTopic>(), nameof(DisplayNicoRepoItemTopics));
+            DisplayNicoRepoMuteContextTriggers = Read(new List<NicoRepoMuteContextTrigger>(), nameof(DisplayNicoRepoMuteContextTriggers));
         }
 
-        private List<NicoRepoItemTopic> _DisplayNicoRepoItemTopics;
-        public List<NicoRepoItemTopic> DisplayNicoRepoItemTopics
+        private List<NicoRepoMuteContextTrigger> _DisplayNicoRepoMuteContextTriggers;
+        public List<NicoRepoMuteContextTrigger> DisplayNicoRepoMuteContextTriggers
         {
-            get { return _DisplayNicoRepoItemTopics; }
-            set { SetProperty(ref _DisplayNicoRepoItemTopics, value); }
+            get { return _DisplayNicoRepoMuteContextTriggers; }
+            set { SetProperty(ref _DisplayNicoRepoMuteContextTriggers, value); }
         }        
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.Niconico.NicoRepo;
 using Hohoema.Presentation.ViewModels;
+using NiconicoToolkit.NicoRepo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,11 +14,11 @@ namespace Hohoema.Models.Domain.Legacy
     public class ActivityFeedSettings : SettingsBase
     {
         [DataMember]
-        public List<NicoRepoItemTopic> DisplayNicoRepoItemTopics { get; set; }
+        public List<NicoRepoMuteContextTrigger> DisplayNicoRepoMuteContextTriggers { get; set; }
 
         public ActivityFeedSettings()
         {
-            DisplayNicoRepoItemTopics = new List<NicoRepoItemTopic>();
+            DisplayNicoRepoMuteContextTriggers = new List<NicoRepoMuteContextTrigger>();
         }
     }
 }
