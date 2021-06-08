@@ -96,7 +96,7 @@ namespace Hohoema.Models.Helpers
         {
             ClipboardDetectedEventArgs clipboardValue = null;
 
-            if (Mntone.Nico2.NiconicoRegex.IsVideoId(contentId))
+            if (NiconicoToolkit.ContentIdHelper.IsVideoId(contentId))
             {
                 clipboardValue = new ClipboardDetectedEventArgs()
                 {
@@ -104,7 +104,7 @@ namespace Hohoema.Models.Helpers
                     Id = contentId
                 };
             }
-            else if (Mntone.Nico2.NiconicoRegex.IsLiveId(contentId))
+            else if (NiconicoToolkit.ContentIdHelper.IsLiveId(contentId))
             {
                 clipboardValue = new ClipboardDetectedEventArgs()
                 {
@@ -129,7 +129,7 @@ namespace Hohoema.Models.Helpers
 
                 var contentId = contentIdGroup.Value;
 
-                if (Mntone.Nico2.NiconicoRegex.IsVideoId(contentId))
+                if (NiconicoToolkit.ContentIdHelper.IsVideoId(contentId))
                 {
                     clipboardValue = new ClipboardDetectedEventArgs()
                     {
@@ -137,7 +137,7 @@ namespace Hohoema.Models.Helpers
                         Id = contentId
                     };
                 }
-                else if (Mntone.Nico2.NiconicoRegex.IsLiveId(contentId))
+                else if (NiconicoToolkit.ContentIdHelper.IsLiveId(contentId))
                 {
                     clipboardValue = new ClipboardDetectedEventArgs()
                     {

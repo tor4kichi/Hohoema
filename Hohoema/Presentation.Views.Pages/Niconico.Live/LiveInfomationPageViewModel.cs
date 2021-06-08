@@ -131,7 +131,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
 
             IsLiveIdAvairable = this.ObserveProperty(x => x.LiveId)
-                .Select(x => x != null ? NiconicoRegex.IsLiveId(x) : false)
+                .Select(x => x != null ? NiconicoToolkit.ContentIdHelper.IsLiveId(x) : false)
                 .ToReadOnlyReactiveProperty()
                 .AddTo(_CompositeDisposable);
 

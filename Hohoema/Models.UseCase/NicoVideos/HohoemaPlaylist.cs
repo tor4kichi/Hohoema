@@ -176,7 +176,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         static bool IsVideoId(string videoId)
         {
-            return NiconicoRegex.IsVideoId(videoId) && !int.TryParse(videoId, out var _);
+            return NiconicoToolkit.ContentIdHelper.IsVideoId(videoId, allowAllNumberId: true);
         }
 
         public event EventHandler<VideoPlayedEventArgs> VideoPlayed;
