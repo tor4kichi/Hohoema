@@ -29,40 +29,40 @@
     >
   <Page.Resources>
     <DataTemplate x:Key="TimeshiftItem_Reserved">
-      <StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+      <Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Spacing="8">
           <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource LocalizeConverter}}" FontSize="13" Opacity="0.6" />
           <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}" FontSize="13" Opacity="0.6" />
         </StackPanel>
         <controls:LiveVideoListItem />
-      </StackPanel>
+      </Grid>
     </DataTemplate>
     <DataTemplate x:Key="TimeshiftItem_Watch">
-      <StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+      <Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Spacing="8">
           <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource LocalizeConverter}}" FontSize="13" Opacity="0.6" />
           <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}" FontSize="13" Opacity="0.6" />
         </StackPanel>
         <controls:LiveVideoListItem />
-      </StackPanel>
+      </Grid>
     </DataTemplate>
     <DataTemplate x:Key="TimeshiftItem_TimeOut">
-      <StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+      <Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Spacing="8">
           <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource LocalizeConverter}}" FontSize="13" Opacity="0.6" />
           <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}" FontSize="13" Opacity="0.6" />
         </StackPanel>
         <controls:LiveVideoListItem />
-      </StackPanel>
+      </Grid>
     </DataTemplate>
     <DataTemplate x:Key="TimeshiftItem_UnknownStatus">
-      <StackPanel>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+      <Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Spacing="8">
           <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource LocalizeConverter}}" FontSize="13" Opacity="0.6" />
           <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}" FontSize="13" Opacity="0.6" />
         </StackPanel>
         <controls:LiveVideoListItem />
-      </StackPanel>
+      </Grid>
     </DataTemplate>
     <templateselector:ValueDataTemplateSelector x:Key="TimeshiftItemTemplateSelector" PropertyName="ReservationStatus" Default="{StaticResource TimeshiftItem_Watch}">
       <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.RESERVED}" Template="{StaticResource TimeshiftItem_Reserved}" />
