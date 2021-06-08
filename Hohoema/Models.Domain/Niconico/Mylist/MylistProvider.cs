@@ -99,9 +99,9 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
 
 
-        public async Task<List<MylistPlaylist>> GetMylistsByUser(string userId)
+        public async Task<List<MylistPlaylist>> GetMylistsByUser(string userId, int sampleItemCount = 0)
         {
-            var groups = await _niconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId, 1);
+            var groups = await _niconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId, sampleItemCount);
 
             if (groups == null) { return null; }
 
@@ -128,11 +128,11 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
 
 
-        public async Task<MylistItemsGetResult> GetMylistVideoItems(string mylistId, MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
+        public async Task<MylistItemsGetResult> GetMylistVideoItems(string mylistId, int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
             var res = await ContextActionAsync(async context =>
             {
-                return await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, (int)page, (int)pageSize, sortKey, sortOrder);
+                return await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, page, pageSize, sortKey, sortOrder);
             });
             
             if (res.Meta.IsSuccess is false) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }

@@ -6,10 +6,12 @@ using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Microsoft.Toolkit.Collections;
 using Mntone.Nico2.Videos.Recommend;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -42,13 +44,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRecommend
         public PageManager PageManager { get; }
         public ReadOnlyObservableCollection<NicoVideoTag> RecommendSourceTags { get; private set; }
         
-        protected override IIncrementalSource<RecommendVideoListItem> GenerateIncrementalSource()
+        protected override (int, IIncrementalSource<RecommendVideoListItem>) GenerateIncrementalSource()
         {
             var source = new RecommendVideoIncrementalLoadingSource(LoginUserRecommendProvider, _nicoVideoProvider);
             RecommendSourceTags = source.RecommendSourceTags
                .ToReadOnlyReactiveCollection(x => new NicoVideoTag(x));
             RaisePropertyChanged(nameof(RecommendSourceTags));
-            return source;
+            return (RecommendVideoIncrementalLoadingSource.OneTimeLoadCount, source);
         }
 
         private DelegateCommand<string> _OpenTagCommand;
@@ -85,7 +87,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRecommend
         }
     }
 
-    public sealed class RecommendVideoIncrementalLoadingSource : HohoemaIncrementalSourceBase<RecommendVideoListItem>
+    public sealed class RecommendVideoIncrementalLoadingSource : IIncrementalSource<RecommendVideoListItem>
     {
         public RecommendVideoIncrementalLoadingSource(
             LoginUserRecommendProvider loginUserRecommendProvider,
@@ -95,6 +97,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRecommend
             LoginUserRecommendProvider = loginUserRecommendProvider;
             _nicoVideoProvider = nicoVideoProvider;
         }
+
+        public const int OneTimeLoadCount = 18;
 
         public LoginUserRecommendProvider LoginUserRecommendProvider { get; }
         
@@ -107,82 +111,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRecommend
         private bool _EndOfRecommend = false;
         private readonly NicoVideoProvider _nicoVideoProvider;
 
-        public override uint OneTimeLoadCount => 18;
-
-
-        protected override async IAsyncEnumerable<RecommendVideoListItem> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
-        {
-            if (_EndOfRecommend)
-            {
-                yield break;
-            }
-
-            // 初回はページアクセスで得られるデータを使う
-            if (_PrevRecommendContent == null)
-            {
-                _PrevRecommendContent = _RecommendResponse?.FirstData;
-            }
-            else
-            {
-                _PrevRecommendContent = await LoginUserRecommendProvider.GetRecommendAsync(_RecommendResponse, _PrevRecommendContent);
-            }
-
-            ct.ThrowIfCancellationRequested();
-
-            if (_PrevRecommendContent != null && _PrevRecommendContent.Status == "ok")
-            {
-                _EndOfRecommend = _PrevRecommendContent?.RecommendInfo.EndOfRecommend ?? true;
-
-                AddRecommendTags(
-                    _PrevRecommendContent.Items.Select(x => x.AdditionalInfo?.Sherlock.Tag)
-                    .Where(x => x != null)
-                    );
-
-
-                foreach (var item in _PrevRecommendContent.Items)
-                {
-                    var video = _nicoVideoProvider.UpdateCache(item.Id, video => 
-                    {                    
-                        video.ThumbnailUrl = item.ThumbnailUrl;
-                        video.Title = item.ParseTitle();
-                        video.Length = item.ParseLengthToTimeSpan();
-                        video.PostedAt = item.ParseForstRetroeveToDateTimeOffset().DateTime;
-                        return (false, default);
-                    });
-
-                    var vm = new RecommendVideoListItem(item);
-                    vm.ViewCount= item.ViewCounter;
-                    vm.MylistCount = item.MylistCounter;
-                    vm.CommentCount = item.NumRes;
-                    
-
-                    yield return vm;
-
-                    ct.ThrowIfCancellationRequested();
-                }
-            }
-        }
-
-        protected override async ValueTask<int> ResetSourceImpl()
-        {
-            _RecommendResponse = await LoginUserRecommendProvider.GetRecommendFirstAsync();
-            if (_RecommendResponse.FirstData.Status == "ok")
-            {
-                _EndOfRecommend = _RecommendResponse.FirstData.RecommendInfo.EndOfRecommend;
-
-                AddRecommendTags(
-                    _RecommendResponse.FirstData.Items.Select(x => x.AdditionalInfo?.Sherlock.Tag)
-                    .Where(x => x != null)
-                    );
-
-            }
-            else
-            {
-                _EndOfRecommend = true;
-            }
-            return 1000;
-        }
-
 
         private void AddRecommendTags(IEnumerable<string> tags)
         {
@@ -193,6 +121,83 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRecommend
                     _RecommendSourceTagsHashSet.Add(tag);
                     RecommendSourceTags.Add(tag);
                 }
+            }
+        }
+
+       async Task<IEnumerable<RecommendVideoListItem>> IIncrementalSource<RecommendVideoListItem>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
+        {
+            if (_EndOfRecommend)
+            {
+                return Enumerable.Empty<RecommendVideoListItem>();
+            }
+
+            try
+            {
+                // 初回はページアクセスで得られるデータを使う
+                if (_PrevRecommendContent == null)
+                {
+                    _RecommendResponse = await LoginUserRecommendProvider.GetRecommendFirstAsync();
+                    if (_RecommendResponse.FirstData.Status == "ok")
+                    {
+                        _EndOfRecommend = _RecommendResponse.FirstData.RecommendInfo.EndOfRecommend;
+
+                        AddRecommendTags(
+                            _RecommendResponse.FirstData.Items.Select(x => x.AdditionalInfo?.Sherlock.Tag)
+                            .Where(x => x != null)
+                            );
+
+                    }
+                    else
+                    {
+                        _EndOfRecommend = true;
+                    }
+
+                    _PrevRecommendContent = _RecommendResponse?.FirstData;
+                }
+                else
+                {
+                    _PrevRecommendContent = await LoginUserRecommendProvider.GetRecommendAsync(_RecommendResponse, _PrevRecommendContent);
+                }
+
+                ct.ThrowIfCancellationRequested();
+
+                if (_PrevRecommendContent == null || _PrevRecommendContent.Status != "ok")
+                {
+                    _EndOfRecommend = true;
+                    return Enumerable.Empty<RecommendVideoListItem>();
+                }
+
+                _EndOfRecommend = _PrevRecommendContent?.RecommendInfo.EndOfRecommend ?? true;
+
+                AddRecommendTags(
+                    _PrevRecommendContent.Items.Select(x => x.AdditionalInfo?.Sherlock.Tag)
+                    .Where(x => x != null)
+                    );
+
+                return _PrevRecommendContent.Items.Select(item =>
+                {
+                    var video = _nicoVideoProvider.UpdateCache(item.Id, video =>
+                    {
+                        video.ThumbnailUrl = item.ThumbnailUrl;
+                        video.Title = item.ParseTitle();
+                        video.Length = item.ParseLengthToTimeSpan();
+                        video.PostedAt = item.ParseForstRetroeveToDateTimeOffset().DateTime;
+                        return (false, default);
+                    });
+
+                    var vm = new RecommendVideoListItem(item);
+                    vm.ViewCount = item.ViewCounter;
+                    vm.MylistCount = item.MylistCounter;
+                    vm.CommentCount = item.NumRes;
+
+                    return vm;
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorTrackingManager.TrackError(ex);
+                _EndOfRecommend = true;
+                return Enumerable.Empty<RecommendVideoListItem>();
             }
         }
     }

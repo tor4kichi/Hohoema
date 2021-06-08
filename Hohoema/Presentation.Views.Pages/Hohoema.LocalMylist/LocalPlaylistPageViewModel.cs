@@ -23,6 +23,7 @@ using System.Runtime.CompilerServices;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Pins;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using Microsoft.Toolkit.Collections;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 {
@@ -116,9 +117,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         }
 
 
-        protected override IIncrementalSource<VideoListItemControlViewModel> GenerateIncrementalSource()
+        protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
         {
-            return new LocalPlaylistIncrementalLoadingSource(Playlist, _nicoVideoProvider);
+            return (LocalPlaylistIncrementalLoadingSource.OneTimeLoadingCount, new LocalPlaylistIncrementalLoadingSource(Playlist, _nicoVideoProvider));
         }
 
 
@@ -167,7 +168,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         }
     }
 
-    public class LocalPlaylistIncrementalLoadingSource : HohoemaIncrementalSourceBase<VideoListItemControlViewModel>
+    public class LocalPlaylistIncrementalLoadingSource : IIncrementalSource<VideoListItemControlViewModel>
     {
         private readonly LocalPlaylist _playlist;
         private readonly NicoVideoProvider _nicoVideoProvider;
@@ -181,20 +182,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
             _nicoVideoProvider = nicoVideoProvider;
         }
 
-        protected override ValueTask<int> ResetSourceImpl()
-        {
-            return new ValueTask<int>(_playlist.Count);
-        }
+        public const int OneTimeLoadingCount = 10;
 
-        protected override async IAsyncEnumerable<VideoListItemControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct)
+        async Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
-            var targetItems = _playlist.GetPlaylistItems(head, count);
+            var head = pageIndex * pageSize;
+            var targetItems = _playlist.GetPlaylistItems(head, pageSize);
             var items = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(targetItems.Select(x => x.ContentId));
-            foreach (var item in items)
-            {
-                yield return new VideoListItemControlViewModel(item);
-            }
-        }
 
+            ct.ThrowIfCancellationRequested();
+            return items.Select(item => new VideoListItemControlViewModel(item));
+        }
     }
 }

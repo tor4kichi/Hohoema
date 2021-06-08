@@ -25,6 +25,8 @@ using Hohoema.Models.Domain.Niconico;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+using Microsoft.Toolkit.Collections;
+using NiconicoToolkit.Channels;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 {
@@ -192,9 +194,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
             }
         }
 
-        protected override IIncrementalSource<ChannelVideoListItemViewModel> GenerateIncrementalSource()
+        protected override (int, IIncrementalSource<ChannelVideoListItemViewModel>) GenerateIncrementalSource()
         {
-            return new ChannelVideoLoadingSource(ChannelId?.ToString() ?? RawChannelId, ChannelProvider);
+            return (ChannelVideoLoadingSource.OneTimeLoadCount, new ChannelVideoLoadingSource(ChannelId?.ToString() ?? RawChannelId, ChannelProvider));
         }
 
 
@@ -238,7 +240,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
         }
     }
 
-    public class ChannelVideoLoadingSource : HohoemaIncrementalSourceBase<ChannelVideoListItemViewModel>
+    public class ChannelVideoLoadingSource : IIncrementalSource<ChannelVideoListItemViewModel>
     {
         public string ChannelId { get; }
         public ChannelProvider ChannelProvider { get; }
@@ -250,24 +252,28 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
         }
 
 
-        public override uint OneTimeLoadCount => 20;
+        public const int OneTimeLoadCount = 20;
 
         bool _IsEndPage = false;
 
-        protected override async IAsyncEnumerable<ChannelVideoListItemViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
+        async Task<IEnumerable<ChannelVideoListItemViewModel>> IIncrementalSource<ChannelVideoListItemViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
-            if (_IsEndPage) { yield break; }
+            if (_IsEndPage) { return Enumerable.Empty<ChannelVideoListItemViewModel>(); }
 
-            var page = (int)(head / OneTimeLoadCount);
-            var res = await ChannelProvider.GetChannelVideo(ChannelId, page);
+            var res = await ChannelProvider.GetChannelVideo(ChannelId, pageIndex);
 
             ct.ThrowIfCancellationRequested();
 
             _IsEndPage = res != null ? (res.Data.Videos.Length < OneTimeLoadCount) : true;
 
-            if (!res.IsSuccess) { yield break; }
+            if (!res.IsSuccess) { return Enumerable.Empty<ChannelVideoListItemViewModel>(); }
 
-            foreach (var video in res.Data.Videos)
+            return ToChannelVideoVMItems(res.Data.Videos);
+        }
+
+        IEnumerable<ChannelVideoListItemViewModel> ToChannelVideoVMItems(ChannelVideoItem[] items)
+        {
+            foreach (var video in items)
             {
                 // so0123456のフォーマットの動画ID
                 // var videoId = video.PurchasePreviewUrl.Split('/').Last();
@@ -290,14 +296,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
                 channelVideo.MylistCount = video.MylistCount;
 
                 yield return channelVideo;
-
-                ct.ThrowIfCancellationRequested();
             }
-        }
-
-        protected override ValueTask<int> ResetSourceImpl()
-        {
-            return new ValueTask<int>(1);
         }
     }
 

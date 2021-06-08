@@ -18,6 +18,8 @@ using Prism.Ioc;
 using Windows.System;
 using Uno.Threading;
 using Hohoema.Models.UseCase;
+using Microsoft.Toolkit.Collections;
+using Microsoft.Toolkit.Uwp;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -86,14 +88,6 @@ namespace Hohoema.Presentation.ViewModels
                 ItemsView.Clear();
                 ItemsView = null;
                 RaisePropertyChanged(nameof(ItemsView));
-
-                if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
-                {
-                    hohoemaIncrementalSource.Error -= HohoemaIncrementalSource_Error;
-                }
-                oldItems.BeginLoading -= BeginLoadingItems;
-                oldItems.DoneLoading -= CompleteLoadingItems;
-                oldItems.Dispose();
             }
 
             base.Dispose();
@@ -137,10 +131,6 @@ namespace Hohoema.Presentation.ViewModels
             using (var releaser = await _ItemsUpdateLock.LockAsync(NavigationCancellationToken))
             {
                 _cachedItemsView = ItemsView;
-                if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
-                {
-                    oldItems.StopLoading();
-                }
 
                 // Note: ListViewのItemTemplae内でUserControlを利用した場合のメモリリークバグを回避するListView.ItemsSourceにnullを与える
                 ItemsView = null;
@@ -152,16 +142,6 @@ namespace Hohoema.Presentation.ViewModels
 
         private void DisposeItemsView(AdvancedCollectionView acv)
         {
-            if (acv?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
-            {
-                if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
-                {
-                    hohoemaIncrementalSource.Error -= HohoemaIncrementalSource_Error;
-                }
-                oldItems.BeginLoading -= BeginLoadingItems;
-                oldItems.DoneLoading -= CompleteLoadingItems;
-                oldItems.Dispose();
-            }
         }
 
         private async Task ResetList_Internal(CancellationToken ct)
@@ -180,7 +160,7 @@ namespace Hohoema.Presentation.ViewModels
 
                 try
                 {
-                    var source = GenerateIncrementalSource();
+                    var (pageSize, source) = GenerateIncrementalSource();
 
                     if (source == null)
                     {
@@ -188,22 +168,10 @@ namespace Hohoema.Presentation.ViewModels
                         return;
                     }
 
-                    MaxItemsCount.Value = await source.ResetSource(ct);
-
-                    var items = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
-
-                    items.BeginLoading += BeginLoadingItems;
-                    items.DoneLoading += CompleteLoadingItems;
-
-                    if (items.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
-                    {
-                        (items.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
-                    }
+                    var items = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source, pageSize, BeginLoadingItems, onEndLoading: CompleteLoadingItems, OnLodingItemError);
 
                     ItemsView = new AdvancedCollectionView(items);
                     RaisePropertyChanged(nameof(ItemsView));
-
-                    //await ItemsView.LoadMoreItemsAsync(items.Source.OneTimeLoadCount);
 
                     PostResetList();
                 }
@@ -215,6 +183,11 @@ namespace Hohoema.Presentation.ViewModels
                     throw;
                 }
             }
+        }
+
+        private void OnLodingItemError(Exception obj)
+        {
+            throw new NotImplementedException();
         }
 
         protected void ResetList()
@@ -232,10 +205,6 @@ namespace Hohoema.Presentation.ViewModels
             });
         }
 
-		private void HohoemaIncrementalSource_Error()
-		{
-			HasError.Value = true;
-		}
 
 		private void BeginLoadingItems()
 		{
@@ -256,7 +225,7 @@ namespace Hohoema.Presentation.ViewModels
             LatestUpdateTime = DateTime.Now;
         }
 
-		protected abstract IIncrementalSource<ITEM_VM> GenerateIncrementalSource();
+		protected abstract (int PageSize, IIncrementalSource<ITEM_VM> IncrementalSource) GenerateIncrementalSource();
 
 		protected virtual bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
         {

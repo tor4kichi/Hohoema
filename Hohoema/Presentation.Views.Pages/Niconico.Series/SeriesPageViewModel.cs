@@ -7,6 +7,7 @@ using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Series;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -87,9 +88,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
             await base.OnNavigatedToAsync(parameters);
         }
 
-        protected override IIncrementalSource<VideoListItemControlViewModel> GenerateIncrementalSource()
+        protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
         {
-            return new SeriesVideosIncrementalSource(_seriesDetails);
+            return (SeriesVideosIncrementalSource.OneTimeLoadingCount, new SeriesVideosIncrementalSource(_seriesDetails));
         }
 
         
@@ -138,7 +139,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
     }
 
 
-    public class SeriesVideosIncrementalSource : HohoemaIncrementalSourceBase<VideoListItemControlViewModel>
+    public class SeriesVideosIncrementalSource : IIncrementalSource<VideoListItemControlViewModel>
     {
         private List<SeriesDetails.SeriesVideo> _videos => _seriesDetails.Videos;
         private SeriesDetails.SeriesOwner _owner => _seriesDetails.Owner;
@@ -149,16 +150,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
             _seriesDetails = seriesDetails;
         }
 
-        protected override ValueTask<int> ResetSourceImpl()
-        {
-            return new ValueTask<int>(_videos.Count);
-        }
+        public const int OneTimeLoadingCount = 25;
 
-        protected override async IAsyncEnumerable<VideoListItemControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
+        Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
         {
-            ct.ThrowIfCancellationRequested();
-
-            foreach (var item in _videos.Skip(head).Take(count))
+            var head = pageIndex * pageSize;
+            return Task.FromResult(_videos.Skip(head).Take(pageSize).Select(item =>
             {
                 var itemVM = new VideoListItemControlViewModel(item.Id, item.Title, item.ThumbnailUrl.OriginalString, item.Duration, item.PostAt);
                 itemVM.ViewCount = item.WatchCount;
@@ -169,10 +166,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
                 itemVM.ProviderType = NiconicoToolkit.Video.OwnerType.User;
                 itemVM.ProviderName = _owner.Nickname;
 
-                yield return itemVM;
-
-                ct.ThrowIfCancellationRequested();
-            }
+                return itemVM;
+            }));
         }
     }
 

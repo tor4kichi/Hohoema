@@ -8,6 +8,7 @@ using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Models.UseCase.PageNavigation;
+using Microsoft.Toolkit.Collections;
 using Prism.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -117,18 +118,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         }
 
 
-        protected override IIncrementalSource<MylistPlaylist> GenerateIncrementalSource()
+        protected override (int, IIncrementalSource<MylistPlaylist>) GenerateIncrementalSource()
         {
-            if (UserId == null)
-            {
-                UserId = NiconicoSession.UserIdString;
-            }
+            UserId ??= NiconicoSession.UserIdString;
 
-            return new OtherUserMylistIncrementalLoadingSource(UserId, _mylistRepository);
+            return (25 /* 全件取得するため指定不要 */, new OtherUserMylistIncrementalLoadingSource(UserId, _mylistRepository));
         }
     }
 
-    public sealed class OtherUserMylistIncrementalLoadingSource : HohoemaIncrementalSourceBase<MylistPlaylist>
+    public sealed class OtherUserMylistIncrementalLoadingSource : IIncrementalSource<MylistPlaylist>
     {
         List<MylistPlaylist> _userMylists { get; set; }
 
@@ -142,30 +140,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             _mylistRepository = mylistRepository;
         }
 
-        protected override async IAsyncEnumerable<MylistPlaylist> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
-        {
-            ct.ThrowIfCancellationRequested();
-
-            foreach (var item in _userMylists.Skip(head).Take(count))
-            {
-                yield return item;
-
-                ct.ThrowIfCancellationRequested();
-            }
-        }
-
-        protected override async ValueTask<int> ResetSourceImpl()
+        async Task<IEnumerable<MylistPlaylist>> IIncrementalSource<MylistPlaylist>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
         {
             try
             {
-                _userMylists = await _mylistRepository.GetUserMylistsAsync(UserId);
+                _userMylists ??= await _mylistRepository.GetUserMylistsAsync(UserId);
+
+                var head = pageIndex * pageSize;
+                return _userMylists.Skip(head).Take(pageSize);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                ErrorTrackingManager.TrackError(ex);
+                return Enumerable.Empty<MylistPlaylist>();
             }
 
-            return _userMylists?.Count ?? 0;
         }
     }
 }

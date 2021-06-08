@@ -20,6 +20,7 @@ using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Presentation.ViewModels.Niconico.Search;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Niconico.Mylist;
+using Microsoft.Toolkit.Collections;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
@@ -216,16 +217,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         #region Implement HohoemaVideListViewModelBase
 
 
-        protected override IIncrementalSource<MylistPlaylist> GenerateIncrementalSource()
+        protected override (int, IIncrementalSource<MylistPlaylist>) GenerateIncrementalSource()
 		{
-			return new MylistSearchSource(new MylistSearchPagePayloadContent()
-            {
-                Keyword = SearchOption.Keyword,
-                Sort = SearchOption.Sort,
-                Order = SearchOption.Order
-            } 
-            , SearchProvider
-            );
+			return (MylistSearchSource.OneTimeLoadCount, 
+                new MylistSearchSource(new MylistSearchPagePayloadContent()
+                {
+                    Keyword = SearchOption.Keyword,
+                    Sort = SearchOption.Sort,
+                    Order = SearchOption.Order
+                } 
+                , SearchProvider)
+                );
 		}
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
@@ -249,66 +251,30 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             SearchProvider = searchProvider;
         }
 
-
-        public int MaxPageCount { get; private set; }
-
 		public MylistSearchPagePayloadContent SearchOption { get; private set; }
         public SearchProvider SearchProvider { get; }
 
-        private MylistSearchResponse _MylistGroupResponse;
+        public const int OneTimeLoadCount = 10;
 
-
-
-
-
-
-		public uint OneTimeLoadCount
-		{
-			get
-			{
-				return 10;
-			}
-		}
-
-
-		public async ValueTask<int> ResetSource(CancellationToken ct)
-		{
-			// Note: 件数が1だとJsonのParseがエラーになる
-			var res = await SearchProvider.MylistSearchAsync(
-				SearchOption.Keyword,
-				0,
-				2,
-				SearchOption.Sort, 
-				SearchOption.Order
-				);
-
-			return res.TotalCount;
-		}
-
-
-		
-
-		public async IAsyncEnumerable<MylistPlaylist> GetPagedItems(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
-		{
-			var result = await SearchProvider.MylistSearchAsync(
-				SearchOption.Keyword
-				, (uint)head
-				, (uint)count
-				, SearchOption.Sort
-				, SearchOption.Order
-			);
+        async Task<IEnumerable<MylistPlaylist>> IIncrementalSource<MylistPlaylist>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
+        {
+            var head = pageIndex * pageSize;
+            var result = await SearchProvider.MylistSearchAsync(
+                SearchOption.Keyword
+                , (uint)head
+                , (uint)pageSize
+                , SearchOption.Sort
+                , SearchOption.Order
+            );
 
             ct.ThrowIfCancellationRequested();
 
-            if (result.IsSuccess)
+            if (!result.IsSuccess)
             {
-                foreach (var item in result.Items)
-                {
-                    yield return item;
-
-                    ct.ThrowIfCancellationRequested();
-                }
+                return Enumerable.Empty<MylistPlaylist>();
             }
+
+            return result.Items;
         }
-	}
+    }
 }

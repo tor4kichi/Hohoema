@@ -22,6 +22,7 @@ using Hohoema.Presentation.ViewModels.Community;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
+using Microsoft.Toolkit.Collections;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 {
@@ -137,9 +138,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 
 
 
-		protected override IIncrementalSource<CommunityVideoInfoViewModel> GenerateIncrementalSource()
+		protected override (int, IIncrementalSource<CommunityVideoInfoViewModel>) GenerateIncrementalSource()
 		{
-			return new CommunityVideoIncrementalSource(CommunityId, (int)CommunityDetail.VideoCount, CommunityProvider);
+			return (CommunityVideoIncrementalSource.OneTimeLoadCount, new CommunityVideoIncrementalSource(CommunityId, (int)CommunityDetail.VideoCount, CommunityProvider));
 		}
 
         private DelegateCommand _OpenCommunityPageCommand;
@@ -163,7 +164,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 	}
 
 
-	public class CommunityVideoIncrementalSource : HohoemaIncrementalSourceBase<CommunityVideoInfoViewModel>
+	public class CommunityVideoIncrementalSource : IIncrementalSource<CommunityVideoInfoViewModel>
 	{
         public CommunityProvider CommunityProvider { get; }
 
@@ -173,67 +174,33 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 		public List<RssVideoData> Items { get; private set; } = new List<RssVideoData>();
 
 		public CommunityVideoIncrementalSource(string communityId, int videoCount, CommunityProvider communityProvider)
-			: base()
 		{
             CommunityProvider = communityProvider;
 			CommunityId = communityId;
 			VideoCount = videoCount;
 		}
 
+		public const int OneTimeLoadCount = 18; // RSSの一回のページアイテム数が18個なので、表示スピード考えてその半分
 
-
-
-		#region Implements HohoemaPreloadingIncrementalSourceBase		
-
-		public override uint OneTimeLoadCount => 9; // RSSの一回のページアイテム数が18個なので、表示スピード考えてその半分
-
-		protected override ValueTask<int> ResetSourceImpl()
-		{
-			Items = new List<RssVideoData>();
-			return new ValueTask<int>(VideoCount);
-		}
-
-		protected override async IAsyncEnumerable<CommunityVideoInfoViewModel> GetPagedItemsImpl(int start, int count, [EnumeratorCancellation] CancellationToken ct = default)
-		{
-			if (count >= VideoCount)
-			{
-				yield break;
-			}
-
-			var tail = (start + count);
-			while (Items.Count < tail)
-			{
-				try
-				{
-					var pageCount = (uint)(start / 20) + 1;
-
-					Debug.WriteLine("communitu video : page " + pageCount);
-					var videoRss = await CommunityProvider.GetCommunityVideo(CommunityId, pageCount);
-					var items = videoRss.Items;
-
-					Items.AddRange(items);
-				}
-				catch (Exception ex)
-				{
-					TriggerError(ex);
-					yield break;
-				}
-
-				ct.ThrowIfCancellationRequested();
-			}
-
-			foreach (var item in Items.Skip(start).Take(count))
+        async Task<IEnumerable<CommunityVideoInfoViewModel>> IIncrementalSource<CommunityVideoInfoViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
+        {
+			try
             {
-				var vm = new CommunityVideoInfoViewModel(item);
-				yield return vm;
+				var videoRss = await CommunityProvider.GetCommunityVideo(CommunityId, (uint)pageIndex);
+				if (!videoRss.IsOK || videoRss.Items == null || !videoRss.Items.Any())
+				{
+					return Enumerable.Empty<CommunityVideoInfoViewModel>();
+				}
 
-				ct.ThrowIfCancellationRequested();
+				return videoRss.Items.Select(x => new CommunityVideoInfoViewModel(x));
+			}
+            catch (Exception e)
+            {
+				ErrorTrackingManager.TrackError(e);
+				return Enumerable.Empty<CommunityVideoInfoViewModel>();
 			}
 		}
-
-
-		#endregion
-	}
+    }
 
 
 	

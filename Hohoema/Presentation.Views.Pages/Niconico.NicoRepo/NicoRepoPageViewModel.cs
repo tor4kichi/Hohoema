@@ -10,6 +10,7 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using I18NPortable;
+using Microsoft.Toolkit.Collections;
 using Mntone.Nico2.Live;
 using Mntone.Nico2.NicoRepo;
 using NiconicoToolkit.Video;
@@ -117,9 +118,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             return base.CheckNeedUpdateOnNavigateTo(mode);
         }
 
-        protected override IIncrementalSource<INicoRepoItem> GenerateIncrementalSource()
+        protected override (int, IIncrementalSource<INicoRepoItem>) GenerateIncrementalSource()
         {
-            return new LoginUserNicoRepoTimelineSource(LoginUserNicoRepoProvider, _nicoVideoProvider, SubscriptionManager, NicoRepoType.Value, NicoRepoDisplayTarget.Value);
+            return (LoginUserNicoRepoTimelineSource.OneTimeLoadCount, new LoginUserNicoRepoTimelineSource(LoginUserNicoRepoProvider, _nicoVideoProvider, SubscriptionManager, NicoRepoType.Value, NicoRepoDisplayTarget.Value));
         }
 
 
@@ -284,12 +285,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
     }
 
 
-    public class LoginUserNicoRepoTimelineSource : HohoemaIncrementalSourceBase<INicoRepoItem>
+    public class LoginUserNicoRepoTimelineSource : IIncrementalSource<INicoRepoItem>
     {
         // 通常10だが、ニコレポの表示フィルタを掛けた場合に
         // 追加読み込み時に表示対象が見つからない場合
         // 追加読み込みが途絶えるため、多めに設定している
-        public override uint OneTimeLoadCount => 25;
+        public const int OneTimeLoadCount = 25;
 
         public LoginUserNicoRepoProvider LoginUserNicoRepoProvider { get; }
         public SubscriptionManager SubscriptionManager { get; }
@@ -309,93 +310,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             _nicoRepoDisplayTarget = nicoRepoTarget;
         }
 
-
-        NicoRepoEntriesResponse _firstRes;
-
-        protected override async ValueTask<int> ResetSourceImpl()
-        {
-            var nicoRepoResponse = await LoginUserNicoRepoProvider.GetLoginUserNicoRepoAsync(_nicoRepoType, _nicoRepoDisplayTarget);
-
-            if (nicoRepoResponse.Data?.Any() ?? false)
-            {
-                _firstRes = nicoRepoResponse;
-                return 500;
-            }
-            else
-            {
-                return 500;
-            }
-        }
-
-
         DateTime NiconamaDisplayTime = DateTime.Now - TimeSpan.FromHours(6);
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly NicoRepoType _nicoRepoType;
         private readonly NicoRepoDisplayTarget _nicoRepoDisplayTarget;
 
         NicoRepoEntriesResponse _prevRes;
-
-        protected override async IAsyncEnumerable<INicoRepoItem> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
-        {
-            NicoRepoEntriesResponse nicoRepoResponse;
-            if (head == 0 && _firstRes != null)
-            {
-                nicoRepoResponse = _firstRes;
-            }
-            else
-            {
-                nicoRepoResponse = await LoginUserNicoRepoProvider.GetLoginUserNicoRepoAsync(_nicoRepoType, _nicoRepoDisplayTarget, _prevRes);
-            }
-
-            ct.ThrowIfCancellationRequested();
-
-            if (nicoRepoResponse.Meta.Status != 200) { yield break; }
-
-
-
-            _prevRes = nicoRepoResponse;
-#if DEBUG
-            List<string> triggers = new List<string>();
-#endif
-
-            // Note: ニコレポで取得できるチャンネル動画は基本的に動画IDが数字のみで、"so1234567" みたいな形式ではない
-            // このためアプリ内での扱いを
-            var topicTypeMapedEntries = nicoRepoResponse.Data.Select(x => (TopicType: NicoRepoItemTopicExtension.ToNicoRepoTopicType(x.MuteContext.Trigger), Item: x)).ToList();
-            var numberIdVideoTopics = topicTypeMapedEntries
-                .Where(x => IsVideoTopic(x.TopicType));
-            var videoNicoVideoItems = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(numberIdVideoTopics.Select(x => x.Item.GetContentId()));
-            var videoDict = videoNicoVideoItems.ToDictionary(x => x.RawVideoId);
-
-            foreach (var item in topicTypeMapedEntries)
-            {
-#if DEBUG
-                triggers.AddDistinct(item.Item.MuteContext.Trigger);
-#endif
-                var topicType = item.TopicType;
-                if (IsLiveTopic(topicType))
-                {
-                    yield return new NicoRepoLiveTimeline(item.Item, topicType);
-                }
-                else if (IsVideoTopic(topicType))
-                {
-                    var id = item.Item.GetContentId();
-                    var nicoVideo = videoDict[id];
-                    var vm = new NicoRepoVideoTimeline(nicoVideo, item.Item, topicType);
-                    //await vm.EnsureProviderIdAsync(ct).ConfigureAwait(false);
-                    yield return vm;
-                }
-                else
-                {
-                    //throw new NotSupportedException(topicType.ToString());
-                }
-
-                ct.ThrowIfCancellationRequested();
-            }
-
-#if DEBUG
-            Debug.WriteLine(string.Join(" ", triggers));
-#endif
-        }
 
         public static bool IsLiveTopic(NicoRepoItemTopic topic)
         {
@@ -416,6 +336,56 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
                 ;
         }
 
+        async Task<IEnumerable<INicoRepoItem>> IIncrementalSource<INicoRepoItem>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
+        {
+            var nicoRepoResponse = await LoginUserNicoRepoProvider.GetLoginUserNicoRepoAsync(_nicoRepoType, _nicoRepoDisplayTarget, _prevRes);
+
+            ct.ThrowIfCancellationRequested();
+
+            if (nicoRepoResponse.Meta.Status != 200) { return Enumerable.Empty<INicoRepoItem>(); }
+
+            _prevRes = nicoRepoResponse;
+#if DEBUG
+            List<string> triggers = new List<string>();
+#endif
+
+            // Note: ニコレポで取得できるチャンネル動画は基本的に動画IDが数字のみで、"so1234567" みたいな形式ではない
+            // このためアプリ内での扱いを
+            var topicTypeMapedEntries = nicoRepoResponse.Data.Select(x => (TopicType: NicoRepoItemTopicExtension.ToNicoRepoTopicType(x.MuteContext.Trigger), Item: x)).ToList();
+            var numberIdVideoTopics = topicTypeMapedEntries
+                .Where(x => IsVideoTopic(x.TopicType));
+            var videoNicoVideoItems = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(numberIdVideoTopics.Select(x => x.Item.GetContentId()));
+            var videoDict = videoNicoVideoItems.ToDictionary(x => x.RawVideoId);
+
+            return topicTypeMapedEntries.Select(item =>
+            {
+#if DEBUG
+                triggers.AddDistinct(item.Item.MuteContext.Trigger);
+#endif
+                var topicType = item.TopicType;
+                if (IsLiveTopic(topicType))
+                {
+                    return new NicoRepoLiveTimeline(item.Item, topicType) as INicoRepoItem;
+                }
+                else if (IsVideoTopic(topicType))
+                {
+                    var id = item.Item.GetContentId();
+                    var nicoVideo = videoDict[id];
+                    var vm = new NicoRepoVideoTimeline(nicoVideo, item.Item, topicType);
+                    //await vm.EnsureProviderIdAsync(ct).ConfigureAwait(false);
+                    return vm as INicoRepoItem;
+                }
+                else
+                {
+                    return null;
+                }
+            })
+                .Where(x => x != null);
+
+#if DEBUG
+            //Debug.WriteLine(string.Join(" ", triggers));
+#endif
+        }
     }
 
     public static class NicoRepoItemTopicExtension

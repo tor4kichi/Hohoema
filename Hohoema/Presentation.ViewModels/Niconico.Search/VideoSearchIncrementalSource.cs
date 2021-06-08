@@ -12,9 +12,9 @@ using NiconicoToolkit.SearchWithPage.Video;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Search
 {
-    public class VideoSearchSource : HohoemaIncrementalSourceBase<VideoListItemControlViewModel>
+    public class VideoSearchIncrementalSource : IIncrementalSource<VideoListItemControlViewModel>
 	{
-        public VideoSearchSource(string keyword, bool isTagSearch, VideoSortKey sortKey, VideoSortOrder sortOrder, SearchProvider searchProvider)
+        public VideoSearchIncrementalSource(string keyword, bool isTagSearch, VideoSortKey sortKey, VideoSortOrder sortOrder, SearchProvider searchProvider)
         {
             Keyword = keyword;
             IsTagSearch = isTagSearch;
@@ -23,7 +23,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Search
             SearchProvider = searchProvider;
         }
 
-        public override uint OneTimeLoadCount => 30;
+        // Note: 50以上じゃないと２回目の取得が失敗する
+        public const int OneTimeLoadingCount = 50;  
 
         public string Keyword { get; }
 
@@ -34,40 +35,27 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Search
 
 		public SearchProvider SearchProvider { get; }
 
-        protected override async IAsyncEnumerable<VideoListItemControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation]CancellationToken ct)
+        async Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
             VideoListingResponse res = null;
+            var head = pageIndex * pageSize;
             if (!IsTagSearch)
             {
-                res = await SearchProvider.GetKeywordSearch(Keyword, (uint)head, (uint)count, SortKey, SortOrder);
+                res = await SearchProvider.GetKeywordSearch(Keyword, (uint)head, (uint)pageSize, SortKey, SortOrder);
             }
             else
             {
-                res = await SearchProvider.GetTagSearch(Keyword, (uint)head, (uint)count, SortKey, SortOrder);
+                res = await SearchProvider.GetTagSearch(Keyword, (uint)head, (uint)pageSize, SortKey, SortOrder);
             }
 
             ct.ThrowIfCancellationRequested();
 
             if (res == null || res.Videos == null)
             {
-
+                return Enumerable.Empty<VideoListItemControlViewModel>();
             }
-            else
-            {
-                foreach (var item in res.Videos.Where(x => x != null))
-                {
-                    var vm = new VideoListItemControlViewModel(item.Video, item.Thread);
 
-                    yield return vm;
-
-                    ct.ThrowIfCancellationRequested();
-                }
-            }
-        }
-
-        protected override ValueTask<int> ResetSourceImpl()
-        {
-            return new ValueTask<int>(1);
+            return res.Videos.Select(x => new VideoListItemControlViewModel(x.Video, x.Thread));
         }
     }
 }

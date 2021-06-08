@@ -35,6 +35,8 @@ using System.Threading.Tasks;
 using Windows.UI.Popups;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Microsoft.AppCenter.Crashes;
+using Microsoft.Toolkit.Collections;
+using Microsoft.Toolkit.Uwp;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 {
@@ -517,7 +519,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                     {
                         if (Mylist.Value != null)
                         {
-                            MylistItems = await CreateItemsSourceAsync(Mylist.Value);
+                            MylistItems = CreateItemsSource(Mylist.Value);
                         }
                     }));
             }
@@ -647,7 +649,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
 
 
-            MylistItems = await CreateItemsSourceAsync(mylist);
+            MylistItems = CreateItemsSource(mylist);
             MaxItemsCount = Mylist.Value.Count;
 
             try
@@ -681,22 +683,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         }
        
 
-        private async Task<ICollection<IVideoContent>> CreateItemsSourceAsync(MylistPlaylist mylist)
+        private ICollection<IVideoContent> CreateItemsSource(MylistPlaylist mylist)
         {
             var sortItem = SelectedSortItem.Value;
             if (sortItem == null) { return null; }
 
             if (mylist is LoginUserMylistPlaylist loginUserMylist)
             {
-                var source = new LoginUserMylistIncrementalSource(loginUserMylist, sortItem.Key, sortItem.Order);
-                await source.ResetSource();
-                return new IncrementalLoadingCollection<LoginUserMylistIncrementalSource, IVideoContent>(source);
+                return new IncrementalLoadingCollection<LoginUserMylistIncrementalSource, IVideoContent>(
+                    new LoginUserMylistIncrementalSource(loginUserMylist, sortItem.Key, sortItem.Order)
+                    );
             }
             else
             {
-                var source = new MylistIncrementalSource(mylist, sortItem.Key, sortItem.Order);
-                await source.ResetSource();
-                return new IncrementalLoadingCollection<MylistIncrementalSource, IVideoContent>(source);
+                return new IncrementalLoadingCollection<MylistIncrementalSource, IVideoContent>(
+                    new MylistIncrementalSource(mylist, sortItem.Key, sortItem.Order)
+                    );
             }
         }
 
@@ -715,7 +717,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         }
     }
     
-	public class MylistIncrementalSource : HohoemaIncrementalSourceBase<IVideoContent>
+	public class MylistIncrementalSource : IIncrementalSource<IVideoContent>
 	{
         private readonly MylistPlaylist _mylist;
 
@@ -731,70 +733,35 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             DefaultSortOrder = defaultSortOrder;
         }
 
-
-
-
-
-
-        #region Implements HohoemaPreloadingIncrementalSourceBase		
-
-
-
-        MylistItemsGetResult _firstResult;
-
         public MylistSortKey DefaultSortKey { get; }
         public MylistSortOrder DefaultSortOrder { get; }
 
-        protected override async ValueTask<int> ResetSourceImpl()
+        async Task<IEnumerable<IVideoContent>> IIncrementalSource<IVideoContent>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
         {
-            var result = await _mylist.GetItemsAsync(DefaultSortKey, DefaultSortOrder, OneTimeLoadCount, 0);
-            _firstResult = result;
-            isEndReached = false;
-            return result.TotalCount;
-        }
-
-        bool isEndReached;
-        protected override async IAsyncEnumerable<IVideoContent> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
-        {
-            if (head == 0)
+            try
             {
-                foreach (var item in _firstResult.Items)
+                var result = await _mylist.GetItemsAsync(pageIndex, pageSize, DefaultSortKey, DefaultSortOrder);
+
+                if (!result.IsSuccess || result.Items == null || !result.Items.Any())
                 {
-                    yield return item;
+                    return Enumerable.Empty<IVideoContent>();
                 }
-            }
-            else if (_firstResult.TotalCount <= head || isEndReached)
-            {
-                
-            }
-            else
-            {
-                var page = (uint)(head / OneTimeLoadCount);
-                var result = await _mylist.GetItemsAsync(DefaultSortKey, DefaultSortOrder, OneTimeLoadCount, page);
 
-                ct.ThrowIfCancellationRequested();
-
-                if (result.IsSuccess)
-                {
-                    isEndReached = result.Items.Count != OneTimeLoadCount;
-                    foreach (var item in result.Items)
-                    {
-                        var vm = new VideoListItemControlViewModel(item);
-                        yield return vm;
-                    }
-                }
+                return result.Items.Select(x => new VideoListItemControlViewModel(x.Video));
+            }
+            catch (Exception e)
+            {
+                ErrorTrackingManager.TrackError(e);
+                return Enumerable.Empty<IVideoContent>();
             }
         }
-
-        #endregion
 
     }
 
-    public class LoginUserMylistIncrementalSource : HohoemaIncrementalSourceBase<IVideoContent>
+    public class LoginUserMylistIncrementalSource : IIncrementalSource<IVideoContent>
     {
         private readonly LoginUserMylistPlaylist _mylist;
-        private List<IVideoContent> _ItemsCache;
-
+        
         public MylistSortKey DefaultSortKey { get; }
         public MylistSortOrder DefaultSortOrder { get; }
 
@@ -810,42 +777,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             DefaultSortOrder = defaultSortOrder;
         }
 
-
-
-
-
-
-        #region Implements HohoemaPreloadingIncrementalSourceBase		
-
-        protected override ValueTask<int> ResetSourceImpl()
-        {
-            isEndReached = false;
-            return new ValueTask<int>(_mylist.Count);
-        }
-
         bool isEndReached;
-        protected override async IAsyncEnumerable<IVideoContent> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
+
+        async Task<IEnumerable<IVideoContent>> IIncrementalSource<IVideoContent>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
             if (isEndReached)
             {
-                yield break;
+                return Enumerable.Empty<IVideoContent>();
             }
 
-            var page = (uint)(head / OneTimeLoadCount);
-            var items = await _mylist.GetLoginUserMylistItemsAsync(DefaultSortKey, DefaultSortOrder, OneTimeLoadCount, page);
-            isEndReached = items.Count != OneTimeLoadCount;
+            var items = await _mylist.GetLoginUserMylistItemsAsync(pageIndex, pageSize, DefaultSortKey, DefaultSortOrder);
+            isEndReached = items.Count != pageSize;
 
             ct.ThrowIfCancellationRequested();
 
-            foreach (var item in items)
-            {
-                var vm = new VideoListItemControlViewModel(item.MylistItem.Video);
-                await vm.EnsureProviderIdAsync(ct).ConfigureAwait(false);
-                yield return vm;
-            }
+            return items.Select(x => new VideoListItemControlViewModel(x.MylistItem.Video));
         }
-
-        #endregion
-
     }
 }

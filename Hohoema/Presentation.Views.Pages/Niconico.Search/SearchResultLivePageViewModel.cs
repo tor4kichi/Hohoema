@@ -24,6 +24,8 @@ using System.Collections.ObjectModel;
 using Uno.Extensions;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Models.Domain.Pins;
+using Microsoft.Toolkit.Collections;
+using Mntone.Nico2.Live.ReservationsInDetail;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
@@ -149,7 +151,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         #endregion
 
-        public override Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
@@ -160,7 +162,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             _NowNavigatingTo = true;
             try
             {
-
+                if (NiconicoSession.IsLoggedIn)
+                {
+                    _reservation = await NiconicoSession.Context.Live.GetReservationsInDetailAsync();
+                }
             }
             finally
             {
@@ -177,7 +182,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                 _searchHistoryRepository.Searched(Keyword, SearchTarget.Niconama);
             }
 
-            return base.OnNavigatedToAsync(parameters);
+            await base.OnNavigatedToAsync(parameters);
         }
 
         protected override void PostResetList()
@@ -186,7 +191,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         }
 
 
-        protected override IIncrementalSource<LiveInfoListItemViewModel> GenerateIncrementalSource()
+        protected override (int, IIncrementalSource<LiveInfoListItemViewModel>) GenerateIncrementalSource()
 		{
             var query = LiveSearchOptionsQuery.Create(Keyword, SelectedLiveStatus.Value);
             if (SelectedProviders.Empty() is false)
@@ -216,11 +221,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             }
             _query = query;
 
-            return new LiveSearchSource(query, SearchProvider, NiconicoSession, _nicoLiveCacheRepository);
+            return (LiveSearchSource.OneTimeLoadCount, new LiveSearchSource(query, _reservation, SearchProvider, NiconicoSession, _nicoLiveCacheRepository));
 		}
 
         LiveSearchOptionsQuery _query;
         DelegateCommand _SearchOptionsUpdatedCommand;
+        private ReservationsInDetailResponse _reservation;
+
         public DelegateCommand SearchOptionsUpdatedCommand => _SearchOptionsUpdatedCommand ??= new DelegateCommand(UpdatedSearchOptions);
 
 
@@ -242,75 +249,45 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
 
 
-	public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>, IDisposable
+	public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>
 	{
         public LiveSearchSource(
             LiveSearchOptionsQuery query,
+            ReservationsInDetailResponse reservation,
             SearchProvider searchProvider,
             NiconicoSession niconicoSession,
             NicoLiveCacheRepository nicoLiveCacheRepository
             )
         {
             Query = query;
+            _reservation = reservation;
             SearchProvider = searchProvider;
             NiconicoSession = niconicoSession;
             _nicoLiveCacheRepository = nicoLiveCacheRepository;
         }
 
         private HashSet<string> SearchedVideoIdsHash = new HashSet<string>();
+        private ReservationsInDetailResponse _reservation;
+
         public LiveSearchOptionsQuery Query { get; }
         private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
         public SearchProvider SearchProvider { get; }
         public NiconicoSession NiconicoSession { get; }
 
-		public uint OneTimeLoadCount => 40;
+		public const int OneTimeLoadCount = 40;
 
-
-        Mntone.Nico2.Live.ReservationsInDetail.ReservationsInDetailResponse _Reservations;
-
-       
-
-        private LiveSearchPageScrapingResult _firstResult;
-		public async ValueTask<int> ResetSource(CancellationToken ct)
+       		
+        async Task<IEnumerable<LiveInfoListItemViewModel>> IIncrementalSource<LiveInfoListItemViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
 		{
-			int totalCount = 0;
-			try
-			{
-                Query.UsePage(0);
-                _firstResult = await SearchProvider.LiveSearchAsync(Query);
+            Query.UsePage(pageIndex);
 
-                totalCount = _firstResult.Data.TotalCount;
-			}
-			catch { }
-
-            ct.ThrowIfCancellationRequested();
-
-            try
-            {
-                // ログインしてない場合はタイムシフト予約は取れない
-                if(NiconicoSession.IsLoggedIn)
-                {
-                    _Reservations = await NiconicoSession.Context.Live.GetReservationsInDetailAsync();
-                }
-            }
-            catch { }
-            
-            ct.ThrowIfCancellationRequested();
-
-            return totalCount;
-		}
-
-		public async IAsyncEnumerable<LiveInfoListItemViewModel> GetPagedItems(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
-		{
-            int page = head / (int)OneTimeLoadCount;
-            Query.UsePage(page);
-
-            var res = page is 0 ? _firstResult : await SearchProvider.LiveSearchAsync(Query);
+            var res = await SearchProvider.LiveSearchAsync(Query);
 
             ct.ThrowIfCancellationRequested();
 
             using (res.Data)
             {
+                List<LiveInfoListItemViewModel> items = new();
                 foreach (var item in res.Data.SearchResultItems)
                 {
                     if (!SearchedVideoIdsHash.Contains(item.LiveId))
@@ -326,13 +303,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                         var liveInfoVM = new LiveInfoListItemViewModel(item.LiveId);
                         liveInfoVM.Setup(item);
 
-                        var reserve = _Reservations?.ReservedProgram.FirstOrDefault(reservation => item.LiveId == reservation.Id);
+                        var reserve = _reservation?.ReservedProgram.FirstOrDefault(reservation => item.LiveId == reservation.Id);
                         if (reserve != null)
                         {
                             liveInfoVM.SetReservation(reserve);
                         }
 
-                        yield return liveInfoVM;
+                        items.Add(liveInfoVM);
                     }
                     else
                     {
@@ -341,12 +318,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
                     ct.ThrowIfCancellationRequested();
                 }
-            }
-        }
 
-        public void Dispose()
-        {
-            _firstResult?.Data.Dispose();
+                return items;
+            }
         }
     }
 }

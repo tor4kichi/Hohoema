@@ -59,7 +59,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             }
             else
             {
-                return await _mylistProvider.GetMylistsByUser(userId);
+                return await _mylistProvider.GetMylistsByUser(userId, 1);
             }
         }
     }

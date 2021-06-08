@@ -7,6 +7,9 @@ using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using I18NPortable;
+using Microsoft.Toolkit.Collections;
+using Mntone.Nico2.Live.Reservation;
+using Mntone.Nico2.Live.ReservationsInDetail;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -137,15 +140,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             base.PostResetList();
         }
 
-        protected override IIncrementalSource<LiveInfoListItemViewModel> GenerateIncrementalSource()
+        protected override (int, IIncrementalSource<LiveInfoListItemViewModel>) GenerateIncrementalSource()
         {
-            return new TimeshiftIncrementalCollectionSource(LoginUserLiveReservationProvider, NicoLiveProvider);
+            return (TimeshiftIncrementalCollectionSource.OneTimeLoadCount, new TimeshiftIncrementalCollectionSource(LoginUserLiveReservationProvider, NicoLiveProvider));
         }
     }
 
 
 
-    public class TimeshiftIncrementalCollectionSource : HohoemaIncrementalSourceBase<LiveInfoListItemViewModel>
+    public class TimeshiftIncrementalCollectionSource : IIncrementalSource<LiveInfoListItemViewModel>
     {
         public TimeshiftIncrementalCollectionSource(LoginUserLiveReservationProvider liveReservationProvider, NicoLiveProvider nicoLiveProvider)
         {
@@ -153,33 +156,28 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             NicoLiveProvider = nicoLiveProvider;
         }
 
-        public override uint OneTimeLoadCount => 30;
+        public const int OneTimeLoadCount = 30;
 
         public NiconicoSession NiconicoSession { get; }
         public LoginUserLiveReservationProvider LiveReservationProvider { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
 
-        IReadOnlyList<Mntone.Nico2.Live.ReservationsInDetail.Program> _Reservations;
-        Mntone.Nico2.Live.Reservation.MyTimeshiftListData _TimeshiftList;
+        ReservationsInDetailResponse _Reservations;
+        MyTimeshiftListData _TimeshiftList;
 
-        protected override async ValueTask<int> ResetSourceImpl()
+
+        async Task<IEnumerable<LiveInfoListItemViewModel>> IIncrementalSource<LiveInfoListItemViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
-            var reservations = await LiveReservationProvider.GetReservtionsAsync();
+            _Reservations ??= await LiveReservationProvider.GetReservtionsAsync();
+            _TimeshiftList ??= await LiveReservationProvider.GetTimeshiftListAsync();
 
-            _Reservations = reservations.ReservedProgram;
-
-            _TimeshiftList = await LiveReservationProvider.GetTimeshiftListAsync();
-
-            return reservations.ReservedProgram.Count;
-        }
-
-        protected override async IAsyncEnumerable<LiveInfoListItemViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
-        {
             ct.ThrowIfCancellationRequested();
 
             // 生放送情報の詳細をローカルDBに確保
             // 既に存在する場合はスキップ
-            foreach (var item in _Reservations.Skip(head).Take(count).ToArray())
+            var head = pageIndex * pageSize;
+            List<LiveInfoListItemViewModel> items = new ();
+            foreach (var item in _Reservations.ReservedProgram.Skip(head).Take(pageSize))
             {
                 var liveData = await NicoLiveProvider.GetLiveInfoAsync(item.Id);
                 var tsItem = _TimeshiftList?.Items.FirstOrDefault(y => y.Id == item.Id);
@@ -190,12 +188,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
                 liveInfoVM.SetReservation(item);
 
-                yield return liveInfoVM;
+                items.Add(liveInfoVM);
 
                 ct.ThrowIfCancellationRequested();
             }
-        }
 
-        
+            return items;
+        }
     }
 }

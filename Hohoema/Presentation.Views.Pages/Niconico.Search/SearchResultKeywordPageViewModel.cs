@@ -10,6 +10,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Search;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Microsoft.Toolkit.Collections;
 using Mntone.Nico2;
 using NiconicoToolkit.SearchWithCeApi.Video;
 using Prism.Commands;
@@ -285,9 +286,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         #region Implement HohoemaVideListViewModelBase
 
-        protected override IIncrementalSource<VideoListItemControlViewModel> GenerateIncrementalSource()
+        protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
 		{
-            return new VideoSearchSource(SearchOption.Keyword, false, SearchOption.Sort, SearchOption.Order, SearchProvider);
+            return (VideoSearchIncrementalSource.OneTimeLoadingCount, new VideoSearchIncrementalSource(SearchOption.Keyword, false, SearchOption.Sort, SearchOption.Order, SearchProvider));
 		}
 
 		protected override void PostResetList()

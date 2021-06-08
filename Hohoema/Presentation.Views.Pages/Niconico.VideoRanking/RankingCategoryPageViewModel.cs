@@ -31,6 +31,7 @@ using Hohoema.Models.Domain.Niconico;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Rss.Video;
 using MonkeyCache;
+using Microsoft.Toolkit.Collections;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 {
@@ -369,7 +370,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         }
 
 
-        protected override IIncrementalSource<RankedVideoListItemControlViewModel> GenerateIncrementalSource()
+        protected override (int, IIncrementalSource<RankedVideoListItemControlViewModel>) GenerateIncrementalSource()
         {
             IsFailedRefreshRanking.Value = false;
 
@@ -381,13 +382,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                 source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _barrel);
 
                 CanChangeRankingParameter.Value = true;
+
+                return (CategoryRankingLoadingSource.OneTimeLoadCount, source);
             }
             catch
             {
                 IsFailedRefreshRanking.Value = true;
-            }            
 
-            return source;
+                return default;
+            }            
         }
 
         protected override void PostResetList()
@@ -399,7 +402,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
     }
 
 
-    public class CategoryRankingLoadingSource : HohoemaIncrementalSourceBase<RankedVideoListItemControlViewModel>
+    public class CategoryRankingLoadingSource : IIncrementalSource<RankedVideoListItemControlViewModel>
     {
         private readonly TimeSpan RankingResponseExpireDuration = TimeSpan.FromMinutes(10);
 
@@ -427,21 +430,47 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             _options = new RankingOptions(genre, term, tag);
         }
 
+        public const int OneTimeLoadCount = 20;
 
-        #region Implements HohoemaPreloadingIncrementalSourceBase		
 
-        public override uint OneTimeLoadCount => 20;
-
-        protected override async IAsyncEnumerable<RankedVideoListItemControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
+        private async ValueTask<RssVideoResponse> GetCachedRankingRssAsync()
         {
-            int index = 0;
-            var targetItems = _rankingRssResponse.Items.Skip(head).Take(count);
+            var key = _options.ToString();
+            if (!_barrel.IsExpired(key))
+            {
+                return _barrel.Get<RssVideoResponse>(key);
+            }
+            else
+            {
+                var res = await _niconicoSession.ToolkitContext.Video.Ranking.GetRankingRssAsync(_options.Genre, _options.Tag, _options.Term);
+                if (res.IsOK)
+                {
+                    _barrel.Add(key, res, RankingResponseExpireDuration);
+                }
+                return res;
+            }
+        }
+
+        FastAsyncLock _lock = new FastAsyncLock();
+        int rankIndex = 0;
+        async Task<IEnumerable<RankedVideoListItemControlViewModel>> IIncrementalSource<RankedVideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
+        {
+
+            _rankingRssResponse ??= await GetCachedRankingRssAsync();
+
+            ct.ThrowIfCancellationRequested();
+
+            int head = pageIndex * pageSize;
+            var targetItems = _rankingRssResponse.Items.Skip(head).Take(pageSize);
             var owners = await _nicoVideoProvider.ResolveVideoOwnersAsync(targetItems.Select(x => x.GetVideoId()));
-            foreach (var item in _rankingRssResponse.Items.Skip(head).Take(count))
+
+            ct.ThrowIfCancellationRequested();
+
+            return targetItems.Select((item, offset) =>
             {
                 var videoId = item.GetVideoId();
                 var itemData = item.GetMoreData();
-                var vm = new RankedVideoListItemControlViewModel((uint)(head + index + 1), videoId, item.GetRankTrimmingTitle(), itemData.ThumbnailUrl, itemData.Length, itemData.PostedAt);
+                var vm = new RankedVideoListItemControlViewModel((uint)(head + offset + 1), videoId, item.GetRankTrimmingTitle(), itemData.ThumbnailUrl, itemData.Length, itemData.PostedAt);
 
                 vm.CommentCount = itemData.CommentCount;
                 vm.ViewCount = itemData.WatchCount;
@@ -452,36 +481,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                 vm.ProviderName = owner.ScreenName;
                 vm.ProviderType = owner.UserType;
 
-                yield return vm;
-
-                index++;
-
-                ct.ThrowIfCancellationRequested();
-            }
+                return vm;
+            });
         }
-
-        protected override async ValueTask<int> ResetSourceImpl()
-        {
-            var key = _options.ToString();
-            if (!_barrel.IsExpired(key))
-            {
-                _rankingRssResponse = _barrel.Get<RssVideoResponse>(key);
-            }
-            else
-            {
-                _rankingRssResponse = await _niconicoSession.ToolkitContext.Video.Ranking.GetRankingRssAsync(_options.Genre, _options.Tag, _options.Term);
-                if (_rankingRssResponse.IsOK)
-                {
-                    _barrel.Add(key, _rankingRssResponse, RankingResponseExpireDuration);
-                }
-            }
-
-            return _rankingRssResponse.Items.Count;
-
-        }
-
-
-        #endregion
     }
 
 

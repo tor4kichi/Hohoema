@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
+using NiconicoToolkit.Mylist;
 using System.Collections.Generic;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist
@@ -11,8 +12,10 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
         public bool IsDefaultMylist { get; set; }
         public int ItemsHeadPosition { get; set; }
         public int TotalCount { get; set; }
-        public IReadOnlyCollection<NicoVideo> Items { get; set; }
+        public IReadOnlyCollection<NicoVideo> NicoVideoItems { get; set; }
 
-        public int Count => Items.Count;
+        public int Count => NicoVideoItems.Count;
+
+        public IReadOnlyCollection<MylistItem> Items { get; internal set; }
     }
 }

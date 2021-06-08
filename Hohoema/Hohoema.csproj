@@ -158,7 +158,6 @@
     <Compile Include="Models.Helpers\HtmlFileHelper.cs" />
     <Compile Include="Models.Helpers\HttpRandomAccessStream.cs" />
     <Compile Include="Models.Helpers\IAsyncInitialize.cs" />
-    <Compile Include="Models.Helpers\IncrementalLoadingCollection.cs" />
     <Compile Include="Models.Helpers\InternetConnection.cs" />
     <Compile Include="Models.Domain\Application\LisenceSummary.cs" />
     <Compile Include="Models.Helpers\ListExtention.cs" />
@@ -434,7 +433,7 @@
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowCommunityIncrementalSource.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowCommunityViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchHistoryListItemViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Search\VideoSearchSource.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Search\VideoSearchIncrementalSource.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Channel\ChannelVideoPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Mylist\MylistSortViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityPageViewModel.cs" />
@@ -503,7 +502,6 @@
     <Compile Include="Presentation.ViewModels\Flyouts\FollowItemFlyoutViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Flyouts\MylistItemFlyoutViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Flyouts\SubscriptionItemFlyoutViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\HohoemaIncrementalSourceBase.cs" />
     <Compile Include="Presentation.ViewModels\HohoemaListingPageItemBase.cs" />
     <Compile Include="Presentation.ViewModels\HohoemaListingPageViewModelBase.cs" />
     <Compile Include="Presentation.ViewModels\HohoemaSecondaryViewFrameViewModel.cs" />

@@ -49,9 +49,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
     public class LiveData : ILiveContent
     {
-        private readonly NiconicoToolkit.Live.Cas.Data _liveProgram;
+        private readonly NiconicoToolkit.Live.Cas.LiveProgramData _liveProgram;
 
-        public LiveData(NiconicoToolkit.Live.Cas.Data liveProgram, string providerName)
+        public LiveData(NiconicoToolkit.Live.Cas.LiveProgramData liveProgram, string providerName)
         {
             _liveProgram = liveProgram;
         }
@@ -265,8 +265,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
         public IReadOnlyReactiveProperty<bool> IsLiveIdAvairable { get; }
 
-        private NiconicoToolkit.Live.Cas.Data _LiveProgram;
-        public NiconicoToolkit.Live.Cas.Data LiveProgram
+        private NiconicoToolkit.Live.Cas.LiveProgramData _LiveProgram;
+        public NiconicoToolkit.Live.Cas.LiveProgramData LiveProgram
         {
             get { return _LiveProgram; }
             private set
