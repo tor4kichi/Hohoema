@@ -690,13 +690,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
             if (mylist is LoginUserMylistPlaylist loginUserMylist)
             {
-                return new IncrementalLoadingCollection<LoginUserMylistIncrementalSource, IVideoContent>(
+                return new HohoemaListingPageViewModelBase<IVideoContent>.HohoemaIncrementalLoadingCollection(
                     new LoginUserMylistIncrementalSource(loginUserMylist, sortItem.Key, sortItem.Order)
                     );
             }
             else
             {
-                return new IncrementalLoadingCollection<MylistIncrementalSource, IVideoContent>(
+                return new HohoemaListingPageViewModelBase<IVideoContent>.HohoemaIncrementalLoadingCollection(
                     new MylistIncrementalSource(mylist, sortItem.Key, sortItem.Order)
                     );
             }

@@ -28,6 +28,64 @@ namespace Hohoema.Presentation.ViewModels
     public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaPageViewModelBase
     {
 
+        /// <summary>
+        /// ListViewBaseが初回表示時に複数回取得動作を実行してしまう問題を回避するためのワークアラウンド
+        /// １回目の取得内容を２分割して２回に分けて届ける。３回目以降はそのまま取得して返すだけ。
+        /// </summary>
+        /// <remarks>ListViewBase.IncrementalLoadingThreshold が未指定でないと動作しない</remarks>
+        public class HohoemaIncrementalLoadingCollection : IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>
+        {
+            public HohoemaIncrementalLoadingCollection(int itemsPerPage = 20, Action onStartLoading = null, Action onEndLoading = null, Action<Exception> onError = null) : base(itemsPerPage, onStartLoading, onEndLoading, onError)
+            {
+            }
+
+            public HohoemaIncrementalLoadingCollection(IIncrementalSource<ITEM_VM> source, int itemsPerPage = 20, Action onStartLoading = null, Action onEndLoading = null, Action<Exception> onError = null) : base(source, itemsPerPage, onStartLoading, onEndLoading, onError)
+            {
+            }
+
+            int _timing = 0;
+            List<ITEM_VM> _dividedPresentItemsSource;
+            int _firstItemsCount = 0;
+
+            protected override async Task<IEnumerable<ITEM_VM>> LoadDataAsync(CancellationToken cancellationToken)
+            {
+                _timing++;
+                if (_timing == 1)
+                {
+                    var itemsEnumerable = await base.LoadDataAsync(cancellationToken);
+                    var listedItems = itemsEnumerable.ToList();
+                    if (!listedItems.Any())
+                    {
+                        return Enumerable.Empty<ITEM_VM>();
+                    }
+
+                    _dividedPresentItemsSource = listedItems;
+
+                    var firstItems = _dividedPresentItemsSource.Take(_dividedPresentItemsSource.Count / 2);
+                    _firstItemsCount = firstItems.Count();
+                    return firstItems;
+                }
+                else if (_timing == 2)
+                {
+                    if (_dividedPresentItemsSource == null)
+                    {
+                        return Enumerable.Empty<ITEM_VM>();
+                    }
+
+                    var items = _dividedPresentItemsSource;
+                    _dividedPresentItemsSource = null;
+                    return items.Skip(_firstItemsCount);
+                }
+                else
+                {
+                    return await base.LoadDataAsync(cancellationToken);
+                }
+            }
+        }
+
+
+
+
         public ReactiveProperty<int> MaxItemsCount { get; private set; }
         public ReactiveProperty<int> LoadedItemsCount { get; private set; }
 
@@ -168,7 +226,7 @@ namespace Hohoema.Presentation.ViewModels
                         return;
                     }
 
-                    var items = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source, pageSize, BeginLoadingItems, onEndLoading: CompleteLoadingItems, OnLodingItemError);
+                    var items = new HohoemaIncrementalLoadingCollection(source, pageSize, BeginLoadingItems, onEndLoading: CompleteLoadingItems, OnLodingItemError);
 
                     ItemsView = new AdvancedCollectionView(items);
                     RaisePropertyChanged(nameof(ItemsView));

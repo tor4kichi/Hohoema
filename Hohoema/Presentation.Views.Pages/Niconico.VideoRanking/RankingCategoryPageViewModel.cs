@@ -451,11 +451,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             }
         }
 
-        FastAsyncLock _lock = new FastAsyncLock();
-        int rankIndex = 0;
         async Task<IEnumerable<RankedVideoListItemControlViewModel>> IIncrementalSource<RankedVideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
-
             _rankingRssResponse ??= await GetCachedRankingRssAsync();
 
             ct.ThrowIfCancellationRequested();
