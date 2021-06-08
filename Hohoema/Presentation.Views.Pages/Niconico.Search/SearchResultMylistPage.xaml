@@ -10,7 +10,7 @@
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
   xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:actions="using:Hohoema.Presentation.Views.Actions"
-  xmlns:mylistPages="using:Hohoema.Presentation.Views.Pages.Niconico.Video.Mylists"
+  xmlns:mylistPages="using:Hohoema.Presentation.Views.Pages.Niconico.Mylist"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
   DataContext="{x:Null}"

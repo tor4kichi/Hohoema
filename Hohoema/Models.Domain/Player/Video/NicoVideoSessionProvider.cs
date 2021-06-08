@@ -37,7 +37,7 @@ namespace Hohoema.Models.Domain.Player.Video
         double LoudnessCorrectionValue { get; }
 
         bool IsSeriesVideo { get; }
-        Series Series { get; }
+        WatchApiSeries Series { get; }
 
         bool IsLikedVideo { get; }
     }
@@ -94,7 +94,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
        
         public bool IsSeriesVideo => _dmcWatchRes?.Series != null;
-        public Series Series => _dmcWatchRes?.Series;
+        public WatchApiSeries Series => _dmcWatchRes?.Series;
 
         public bool IsLikedVideo => _dmcWatchRes.Video.Viewer?.Like.IsLiked ?? false;
     }

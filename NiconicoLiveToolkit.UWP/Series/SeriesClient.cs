@@ -52,7 +52,7 @@ namespace NiconicoToolkit.Series
                     var titleNode = summryParentNode.QuerySelector("div.SeriesDetailContainer-body > div.SeriesDetailContainer-bodyTitle");
                     var countNode = summryParentNode.QuerySelector("div.SeriesDetailContainer-body > div.SeriesDetailContainer-bodyMeta");
 
-                    seriesDetails.Series = new Series()
+                    seriesDetails.Series = new SeriesDetails.SeriesItem()
                     {
                         ThumbnailUrl = thumbNode.GetAttribute("data-background-image").ToUri(),
                         Title = titleNode.TextContent,
@@ -68,7 +68,7 @@ namespace NiconicoToolkit.Series
                         throw new WebException("series not contain video list");
                     }
 
-                    List<SeriesVideo> videos = new List<SeriesVideo>(); ;
+                    List<SeriesDetails.SeriesVideo> videos = new List<SeriesDetails.SeriesVideo>(); ;
                     foreach (var videoNode in videoListContainerNode.ChildNodes.Where(x => x is IHtmlDivElement).Cast<IHtmlDivElement>())
                     {
                         var videoId = videoNode.GetAttribute("data-video-itemdata-video-id");
@@ -130,7 +130,7 @@ namespace NiconicoToolkit.Series
                             }
                         }
 
-                        var seriesVideo = new SeriesVideo()
+                        var seriesVideo = new SeriesDetails.SeriesVideo()
                         {
                             Id = videoId,
                             ThumbnailUrl = thumbNode.GetAttribute("data-background-image").ToUri(),
@@ -155,7 +155,7 @@ namespace NiconicoToolkit.Series
                     var userInfoNode = userContainerNode.QuerySelector("a");
 
                     var id = userInfoNode.GetAttribute("href").Split('/').Last();
-                    seriesDetails.Owner = new SeriesOwner()
+                    seriesDetails.Owner = new SeriesDetails.SeriesOwner()
                     {
                         Id = id,
                         OwnerType = id.StartsWith("ch") ? OwnerType.Channel : OwnerType.User,
@@ -189,48 +189,50 @@ namespace NiconicoToolkit.Series
 
     public class SeriesDetails
     {
-        public Series Series { get; set; }
+        public SeriesItem Series { get; set; }
         public SeriesOwner Owner { get; set; }
         public string DescriptionHTML { get; set; }
         public List<SeriesVideo> Videos { get; set; }
+
+
+        public class SeriesVideo
+        {
+            public Uri ThumbnailUrl { get; set; }
+            public string Id { get; set; }
+            public string Title { get; set; }
+            public TimeSpan Duration { get; set; }
+            public DateTime PostAt { get; set; }
+            public int WatchCount { get; set; }
+            public int CommentCount { get; set; }
+            public int MylistCount { get; set; }
+        }
+
+
+
+
+        public class SeriesOwner
+        {
+            public OwnerType OwnerType { get; set; }
+            public string Id { get; set; }
+            public string Nickname { get; set; }
+            public string IconUrl { get; set; }
+        }
+
+        public class SeriesSimple
+        {
+            public string Id { get; set; }
+            public string Title { get; set; }
+        }
+
+
+
+        public class SeriesItem
+        {
+            public string Id { get; set; }
+            public string Title { get; set; }
+            public int? Count { get; set; }
+            public Uri ThumbnailUrl { get; set; }
+        }
     }
 
-    public class SeriesVideo
-    {
-        public Uri ThumbnailUrl { get; set; }
-        public string Id { get; set; }
-        public string Title { get; set; }
-        public TimeSpan Duration { get; set; }
-        public DateTime PostAt { get; set; }
-        public int WatchCount { get; set; }
-        public int CommentCount { get; set; }
-        public int MylistCount { get; set; }
-    }
-
-
-
-
-    public class SeriesOwner
-    {
-        public OwnerType OwnerType { get; set; }
-        public string Id { get; set; }
-        public string Nickname { get; set; }
-        public string IconUrl { get; set; }
-    }
-
-    public class SeriesSimple
-    {
-        public string Id { get; set; }
-        public string Title { get; set; }
-    }
-
-
-
-    public class Series
-    {
-        public string Id { get; set; }
-        public string Title { get; set; }
-        public int? Count { get; set; }
-        public Uri ThumbnailUrl { get; set; }
-    }
 }

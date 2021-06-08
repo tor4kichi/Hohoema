@@ -33,6 +33,7 @@ using Hohoema.Models.Domain.Application;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
+using Hohoema.Presentation.ViewModels.Pages.Niconico.Video;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 {
