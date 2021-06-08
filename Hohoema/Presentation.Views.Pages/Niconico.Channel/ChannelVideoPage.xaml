@@ -69,7 +69,7 @@
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
               <AppBarButton Label="{i18nExt:Localize Key=OpenWithBrowser}"
-                                            Command="{Binding ExternalAccessService.OpenLinkCommand}"
+                                            Command="{Binding OpenLinkCommand}"
                                               CommandParameter="{Binding ChannelInfo}"
                                             VerticalAlignment="Center"
                                             UseSystemFocusVisuals="True"

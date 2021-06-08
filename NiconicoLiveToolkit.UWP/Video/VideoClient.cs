@@ -34,6 +34,7 @@ namespace NiconicoToolkit.Video
             VideoWatch = new VideoWatchSubClient(context, _option);
         }
 
+        public static string MakeWatchPageUrl(string videoId) => VideoWatchSubClient.MakeWatchPageUrl(videoId);
     }
 
 }

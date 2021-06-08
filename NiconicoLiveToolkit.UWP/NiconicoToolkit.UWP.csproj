@@ -130,6 +130,7 @@
     <Compile Include="Channels\ChannelAdmissionResponse.cs" />
     <Compile Include="Channels\ChannelClient.cs" />
     <Compile Include="Channels\ChannelVideoResponse.cs" />
+    <Compile Include="Community\CommunityClient.cs" />
     <Compile Include="ContentIdHelper.cs" />
     <Compile Include="Follow\ChannelAuthorityResponse.cs" />
     <Compile Include="Follow\ChannelFollowResult.cs" />

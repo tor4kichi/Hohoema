@@ -161,7 +161,6 @@
     <Compile Include="Models.Helpers\InternetConnection.cs" />
     <Compile Include="Models.Domain\Application\LisenceSummary.cs" />
     <Compile Include="Models.Helpers\ListExtention.cs" />
-    <Compile Include="Models.Domain\Niconico\NicoVideoIdHelper.cs" />
     <Compile Include="Models.Helpers\ObservableHashSet.cs" />
     <Compile Include="Models.Helpers\StorageFolderExtention.cs" />
     <Compile Include="Models.Helpers\StringHelper.cs" />
