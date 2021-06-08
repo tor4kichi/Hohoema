@@ -85,7 +85,7 @@ namespace NiconicoToolkit.Live.WatchSession.ToClientMessage
         public int ServerTime { get; set; }
 
         [JsonPropertyName("last_res")]
-        public int LastRes { get; set; }
+        public int? LastRes { get; set; }
 
         [JsonPropertyName("ticket")]
         public string Ticket { get; set; }

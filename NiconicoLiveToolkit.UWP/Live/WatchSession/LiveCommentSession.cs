@@ -186,13 +186,13 @@ namespace NiconicoToolkit.Live.WatchSession
         private bool ProcessThreadMessage(Thread_CommentSessionToClientMessage thread)
         {
             _ticket = thread.Ticket;
-            _LastRes = thread.LastRes;
+            _LastRes = thread.LastRes ?? 0;
 
             StartHeartbeatTimer();
 
             Connected?.Invoke(this, new CommentServerConnectedEventArgs()
             {
-                LastRes = thread.LastRes,
+                LastRes = thread.LastRes ?? 0,
                 Resultcode = thread.Resultcode,
                 Revision = thread.Revision,
                 ServerTime = thread.ServerTime,
