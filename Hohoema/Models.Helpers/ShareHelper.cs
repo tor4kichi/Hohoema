@@ -193,7 +193,7 @@ namespace Hohoema.Models.Helpers
 
             request.Data.SetText(_ShareText);
 
-            request.Data.Properties.Title = " ";
+            request.Data.Properties.Title = _ShareTitleText;
             request.Data.Properties.ApplicationName = "Hohoema";
 
             sender.DataRequested -= DataTransferManager_DataRequested;
