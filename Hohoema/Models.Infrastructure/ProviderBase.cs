@@ -52,27 +52,21 @@ namespace Hohoema.Models.Infrastructure
             await ContextActionAsync(taskFactory, ct);
         }
 
-
-
-        static FastAsyncLock _NicoPageAccessLock { get; } = new FastAsyncLock();
+        static FastAsyncLock _pageAccessLock = new FastAsyncLock();
         static DateTime LastPageApiAccessTime = DateTime.MinValue;
         static readonly TimeSpan PageAccessMinimumInterval = TimeSpan.FromSeconds(0.5);
 
-
-        static private async Task WaitNicoPageAccess(CancellationToken ct)
+        static protected async Task WaitNicoPageAccess(CancellationToken ct = default)
         {
-            using (await _NicoPageAccessLock.LockAsync(ct))
+            using (await _pageAccessLock.LockAsync(ct))
             {
                 var duration = DateTime.Now - LastPageApiAccessTime;
+                LastPageApiAccessTime = DateTime.Now;
                 if (duration < PageAccessMinimumInterval)
                 {
                     await Task.Delay(PageAccessMinimumInterval - duration);
                 }
-
-                LastPageApiAccessTime = DateTime.Now;
             }
         }
-
-
     }
 }

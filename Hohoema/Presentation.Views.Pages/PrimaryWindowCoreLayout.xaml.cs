@@ -33,11 +33,11 @@ using System.Threading;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Windows.System;
 using Microsoft.Toolkit.Uwp;
-using Hohoema.Presentation.Views.Pages.Niconico;
-using Hohoema.Presentation.Views.Pages.Niconico.LoginUser;
 using Hohoema.Presentation.Services.UINavigation;
 using Hohoema.Models.Infrastructure;
 using Hohoema.Models.UseCase;
+using Hohoema.Presentation.Views.Pages.Niconico.VideoRanking;
+using Hohoema.Presentation.Views.Pages.Niconico.Follow;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 

@@ -10,10 +10,10 @@ namespace NiconicoToolkit.Live.Cas
     public sealed class LiveProgramResponse : ResponseWithMeta
     {
         [JsonPropertyName("data")]
-        public Data Data { get; set; }
+        public LiveProgramData Data { get; set; }
     }
 
-    public sealed class Data
+    public sealed class LiveProgramData
     {
         [JsonPropertyName("id")]
         public string Id { get; set; }

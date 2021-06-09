@@ -72,11 +72,11 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
         public async Task<List<(MylistItem MylistItem, NicoVideo NicoVideo)>> GetAll(MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
             List<(MylistItem, NicoVideo)> items = new();
-            uint page = 0;
+            int page = 0;
 
             while (items.Count != Count)
             {
-                var res = await _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this, sortKey, sortOrder, 25, page);
+                var res = await _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this, page, 25, sortKey, sortOrder);
                 items.AddRange(res);
                 page++;
             }
@@ -84,9 +84,9 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             return items;
         }
 
-        public Task<List<(MylistItem MylistItem, NicoVideo NicoVideo)>> GetLoginUserMylistItemsAsync(MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
+        public Task<List<(MylistItem MylistItem, NicoVideo NicoVideo)>> GetLoginUserMylistItemsAsync(int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
-            return _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this, sortKey, sortOrder, pageSize, page);
+            return _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this, page, pageSize, sortKey, sortOrder);
         }
 
 

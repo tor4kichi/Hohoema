@@ -4,6 +4,12 @@ using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
+using NiconicoToolkit.Channels;
+using NiconicoToolkit.Community;
+using NiconicoToolkit.Live;
+using NiconicoToolkit.Mylist;
+using NiconicoToolkit.User;
+using NiconicoToolkit.Video;
 using System;
 using System.IO;
 using System.Linq;
@@ -14,28 +20,28 @@ namespace Hohoema.Models.Helpers
 {
     public static class ShareHelper
     {
-        static public Uri ConvertToUrl(INiconicoObject content)
+        public static Uri ConvertToUrl(INiconicoObject content)
         {
             Uri uri = null;
             switch (content)
             {
                 case IUser user:
-                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.MakeUserPageUrl(user.Id)));
+                    uri = new Uri(UserClient.MakeUserPageUrl(user.Id));
                     break;
                 case IVideoContent videoContent:
-                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.VideoWatchPageUrl, videoContent.Id));
+                    uri = new Uri(VideoClient.MakeWatchPageUrl(videoContent.Id));
                     break;
                 case IMylist mylist:
-                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.MakeMylistPageUrl(mylist.Id)));
+                    uri = new Uri(MylistClient.MakeMylistPageUrl(mylist.Id));
                     break;
                 case ILiveContent live:
-                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.LiveWatchPageUrl, live.Id));
+                    uri = new Uri(LiveClient.MakeLiveWatchPageUrl(live.Id));
                     break;
                 case IChannel channel:
-                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.ChannelUrlBase, "channel", "ch" + channel.Id));
+                    uri = new Uri(ChannelClient.MakeChannelPageUrl(channel.Id));
                     break;
                 case ICommunity community:
-                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.CommynitySammaryPageUrl, community.Id));
+                    uri = new Uri(CommunityClient.MakeCommunityPageUrl(community.Id));
                     break;
 
                 default:
@@ -187,7 +193,7 @@ namespace Hohoema.Models.Helpers
 
             request.Data.SetText(_ShareText);
 
-            request.Data.Properties.Title = " ";
+            request.Data.Properties.Title = _ShareTitleText;
             request.Data.Properties.ApplicationName = "Hohoema";
 
             sender.DataRequested -= DataTransferManager_DataRequested;

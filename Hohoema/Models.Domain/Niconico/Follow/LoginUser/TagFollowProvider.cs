@@ -68,10 +68,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Failed;
             }
 
-            var result = await ContextActionAsync(context =>
-            {
-                return _niconicoSession.ToolkitContext.Follow.Tag.AddFollowTagAsync(tag.Tag);
-            });
+            var result = await _niconicoSession.ToolkitContext.Follow.Tag.AddFollowTagAsync(tag.Tag);
 
             if (result is ContentManageResult.Success or ContentManageResult.Exist)
             {
@@ -93,10 +90,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Exist;
             }
 
-            var result = await ContextActionAsync(context =>
-            {
-                return _niconicoSession.ToolkitContext.Follow.Tag.RemoveFollowTagAsync(tag.Tag);
-            });
+            var result = await _niconicoSession.ToolkitContext.Follow.Tag.RemoveFollowTagAsync(tag.Tag);
 
             if (result is ContentManageResult.Success)
             {
@@ -106,15 +100,10 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             return result;
         }
 
-        public Task<bool> IsFollowingAsync(string tag)
+        public async Task<bool> IsFollowingAsync(string tag)
         {
-            return ContextActionAsync(async context =>
-            {
-//                return context.User.IsFollowingTagAsync(tag);
-
-                var res = await context.User.GetFollowTagsAsync();
-                return res.Data.Tags.Any(t => t.Name == tag);
-            });
+            var res = await _niconicoSession.ToolkitContext.Follow.Tag.GetFollowTagsAsync();
+            return res.Data.Tags.Any(t => t.Name == tag);
         }
 
     }

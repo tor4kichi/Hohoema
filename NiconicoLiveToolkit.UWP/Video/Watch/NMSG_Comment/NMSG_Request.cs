@@ -7,7 +7,13 @@ using System.Threading.Tasks;
 
 namespace NiconicoToolkit.Video.Watch.NMSG_Comment
 {
-    public class PingItem
+    internal interface ICommentSessionCommand { }
+
+    internal interface ICommentSessionCommand_Sending : ICommentSessionCommand { }
+
+    internal interface ICommentSessionCommand_Recieving : ICommentSessionCommand { }
+
+    public class PingItem : ICommentSessionCommand
     {
         public PingItem()
         {
@@ -25,13 +31,13 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
     }
 
 
-    public class Ping
+    public class Ping 
     {
         [JsonPropertyName("content")]
         public string Content { get; set; }
     }
 
-    public class ThreadItem
+    public class ThreadItem : ICommentSessionCommand_Sending
     {
         [JsonPropertyName("thread")]
         public Thread_CommentRequest Thread { get; set; }
@@ -77,7 +83,7 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
 
     }
 
-    public class ThreadLeavesItem
+    public class ThreadLeavesItem : ICommentSessionCommand_Sending
     {
         [JsonPropertyName("thread_leaves")]
         public ThreadLeaves ThreadLeaves { get; set; }
@@ -123,7 +129,7 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
         }
     }
 
-    public sealed class PostChatData
+    public sealed class PostChatData : ICommentSessionCommand_Sending
     {
         [JsonPropertyName("chat")]
         public PostChat Chat { get; set; }

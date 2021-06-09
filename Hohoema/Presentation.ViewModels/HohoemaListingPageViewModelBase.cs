@@ -18,6 +18,8 @@ using Prism.Ioc;
 using Windows.System;
 using Uno.Threading;
 using Hohoema.Models.UseCase;
+using Microsoft.Toolkit.Collections;
+using Microsoft.Toolkit.Uwp;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -25,6 +27,64 @@ namespace Hohoema.Presentation.ViewModels
 
     public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaPageViewModelBase
     {
+
+        /// <summary>
+        /// ListViewBaseが初回表示時に複数回取得動作を実行してしまう問題を回避するためのワークアラウンド
+        /// １回目の取得内容を２分割して２回に分けて届ける。３回目以降はそのまま取得して返すだけ。
+        /// </summary>
+        /// <remarks>ListViewBase.IncrementalLoadingThreshold が未指定でないと動作しない</remarks>
+        public class HohoemaIncrementalLoadingCollection : IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>
+        {
+            public HohoemaIncrementalLoadingCollection(int itemsPerPage = 20, Action onStartLoading = null, Action onEndLoading = null, Action<Exception> onError = null) : base(itemsPerPage, onStartLoading, onEndLoading, onError)
+            {
+            }
+
+            public HohoemaIncrementalLoadingCollection(IIncrementalSource<ITEM_VM> source, int itemsPerPage = 20, Action onStartLoading = null, Action onEndLoading = null, Action<Exception> onError = null) : base(source, itemsPerPage, onStartLoading, onEndLoading, onError)
+            {
+            }
+
+            int _timing = 0;
+            List<ITEM_VM> _dividedPresentItemsSource;
+            int _firstItemsCount = 0;
+
+            protected override async Task<IEnumerable<ITEM_VM>> LoadDataAsync(CancellationToken cancellationToken)
+            {
+                _timing++;
+                if (_timing == 1)
+                {
+                    var itemsEnumerable = await base.LoadDataAsync(cancellationToken);
+                    var listedItems = itemsEnumerable.ToList();
+                    if (!listedItems.Any())
+                    {
+                        return Enumerable.Empty<ITEM_VM>();
+                    }
+
+                    _dividedPresentItemsSource = listedItems;
+
+                    var firstItems = _dividedPresentItemsSource.Take(_dividedPresentItemsSource.Count / 2);
+                    _firstItemsCount = firstItems.Count();
+                    return firstItems;
+                }
+                else if (_timing == 2)
+                {
+                    if (_dividedPresentItemsSource == null)
+                    {
+                        return Enumerable.Empty<ITEM_VM>();
+                    }
+
+                    var items = _dividedPresentItemsSource;
+                    _dividedPresentItemsSource = null;
+                    return items.Skip(_firstItemsCount);
+                }
+                else
+                {
+                    return await base.LoadDataAsync(cancellationToken);
+                }
+            }
+        }
+
+
+
 
         public ReactiveProperty<int> MaxItemsCount { get; private set; }
         public ReactiveProperty<int> LoadedItemsCount { get; private set; }
@@ -86,14 +146,6 @@ namespace Hohoema.Presentation.ViewModels
                 ItemsView.Clear();
                 ItemsView = null;
                 RaisePropertyChanged(nameof(ItemsView));
-
-                if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
-                {
-                    hohoemaIncrementalSource.Error -= HohoemaIncrementalSource_Error;
-                }
-                oldItems.BeginLoading -= BeginLoadingItems;
-                oldItems.DoneLoading -= CompleteLoadingItems;
-                oldItems.Dispose();
             }
 
             base.Dispose();
@@ -137,10 +189,6 @@ namespace Hohoema.Presentation.ViewModels
             using (var releaser = await _ItemsUpdateLock.LockAsync(NavigationCancellationToken))
             {
                 _cachedItemsView = ItemsView;
-                if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
-                {
-                    oldItems.StopLoading();
-                }
 
                 // Note: ListViewのItemTemplae内でUserControlを利用した場合のメモリリークバグを回避するListView.ItemsSourceにnullを与える
                 ItemsView = null;
@@ -152,16 +200,6 @@ namespace Hohoema.Presentation.ViewModels
 
         private void DisposeItemsView(AdvancedCollectionView acv)
         {
-            if (acv?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
-            {
-                if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
-                {
-                    hohoemaIncrementalSource.Error -= HohoemaIncrementalSource_Error;
-                }
-                oldItems.BeginLoading -= BeginLoadingItems;
-                oldItems.DoneLoading -= CompleteLoadingItems;
-                oldItems.Dispose();
-            }
         }
 
         private async Task ResetList_Internal(CancellationToken ct)
@@ -180,7 +218,7 @@ namespace Hohoema.Presentation.ViewModels
 
                 try
                 {
-                    var source = GenerateIncrementalSource();
+                    var (pageSize, source) = GenerateIncrementalSource();
 
                     if (source == null)
                     {
@@ -188,22 +226,10 @@ namespace Hohoema.Presentation.ViewModels
                         return;
                     }
 
-                    MaxItemsCount.Value = await source.ResetSource(ct);
-
-                    var items = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
-
-                    items.BeginLoading += BeginLoadingItems;
-                    items.DoneLoading += CompleteLoadingItems;
-
-                    if (items.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
-                    {
-                        (items.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
-                    }
+                    var items = new HohoemaIncrementalLoadingCollection(source, pageSize, BeginLoadingItems, onEndLoading: CompleteLoadingItems, OnLodingItemError);
 
                     ItemsView = new AdvancedCollectionView(items);
                     RaisePropertyChanged(nameof(ItemsView));
-
-                    //await ItemsView.LoadMoreItemsAsync(items.Source.OneTimeLoadCount);
 
                     PostResetList();
                 }
@@ -215,6 +241,11 @@ namespace Hohoema.Presentation.ViewModels
                     throw;
                 }
             }
+        }
+
+        private void OnLodingItemError(Exception obj)
+        {
+            throw new NotImplementedException();
         }
 
         protected void ResetList()
@@ -232,10 +263,6 @@ namespace Hohoema.Presentation.ViewModels
             });
         }
 
-		private void HohoemaIncrementalSource_Error()
-		{
-			HasError.Value = true;
-		}
 
 		private void BeginLoadingItems()
 		{
@@ -256,7 +283,7 @@ namespace Hohoema.Presentation.ViewModels
             LatestUpdateTime = DateTime.Now;
         }
 
-		protected abstract IIncrementalSource<ITEM_VM> GenerateIncrementalSource();
+		protected abstract (int PageSize, IIncrementalSource<ITEM_VM> IncrementalSource) GenerateIncrementalSource();
 
 		protected virtual bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
         {

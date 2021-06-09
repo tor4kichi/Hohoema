@@ -126,7 +126,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             return mylistGroups;
         }
 
-        public async Task<List<(MylistItem MylistItem, NicoVideo NicoVideo)>> GetLoginUserMylistItemsAsync(IMylist mylist, MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
+        public async Task<List<(MylistItem MylistItem, NicoVideo NicoVideo)>> GetLoginUserMylistItemsAsync(IMylist mylist, int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
             if (mylist.UserId != _niconicoSession.UserIdString)
             {
@@ -135,7 +135,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
             if (mylist.IsDefaultMylist())
             {
-                var mylistItemsRes = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync((int)page, (int)pageSize, sortKey, sortOrder);
+                var mylistItemsRes = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync(page, pageSize, sortKey, sortOrder);
                 var res = mylistItemsRes.Data.Mylist;
                 var items = res.Items;
                 foreach (var item in items)

@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Mntone.Nico2.NicoRepo;
 using Hohoema.Models.Infrastructure;
+using NiconicoToolkit.NicoRepo;
 
 namespace Hohoema.Models.Domain.Niconico.NicoRepo.LoginUser
 {
@@ -15,20 +15,9 @@ namespace Hohoema.Models.Domain.Niconico.NicoRepo.LoginUser
         {
         }
 
-        public async Task<NicoRepoResponse> GetLoginUserNicoRepo(NicoRepoTimelineType type, string lastItemId = null)
+        public Task<NicoRepoEntriesResponse> GetLoginUserNicoRepoAsync(NicoRepoType type, NicoRepoDisplayTarget target, NicoRepoEntriesResponse prevRes = null)
         {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.NicoRepo.GetLoginUserNicoRepo(type, lastItemId);
-            });
-        }
-
-        public async Task<NicoRepoEntriesResponse> GetLoginUserNicoRepoAsync(NicoRepoType type, NicoRepoDisplayTarget target, NicoRepoEntriesResponse prevRes = null)
-        {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.NicoRepo.GetLoginUserNicoRepoEntriesAsync(type, target, prevRes?.Meta?.MinId);
-            });
+            return _niconicoSession.ToolkitContext.NicoRepo.GetLoginUserNicoRepoEntriesAsync(type, target, prevRes?.Meta?.MinId);
         }
     }
 }

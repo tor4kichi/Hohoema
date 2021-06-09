@@ -21,15 +21,10 @@ namespace Hohoema.Models.Domain.Player
         Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQuality quality);
     }
 
-
-    // TODO: QualityとQualityIDは一つのクラスで扱うべき
-
     public class Quality
     {
         public string QualityId { get; }
         public NicoVideoQuality NicoVideoQuality { get; }
-
-        // TODO: Mntone.Video.VideoContentの情報を持たせる
     }
 
 }

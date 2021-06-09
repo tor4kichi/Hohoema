@@ -369,9 +369,9 @@ namespace Hohoema.Models.Domain.Subscriptions
         static private async Task<List<NicoVideo>> GetMylistFeedResult(string mylistId, MylistProvider mylistProvider)
         {
             List<NicoVideo> items = new List<NicoVideo>();
-            uint page = 0;
-            const uint itemGetCountPerPage = 50;
-            var result = await mylistProvider.GetMylistVideoItems(mylistId, MylistSortKey.AddedAt, MylistSortOrder.Desc, itemGetCountPerPage, page);
+            int page = 0;
+            const int itemGetCountPerPage = 50;
+            var result = await mylistProvider.GetMylistVideoItems(mylistId, page, itemGetCountPerPage, MylistSortKey.AddedAt, MylistSortOrder.Desc);
 
             var videoItems = result.Items;
             var currentItemsCount = videoItems?.Count ?? 0;

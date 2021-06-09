@@ -1,9 +1,4 @@
-﻿using Mntone.Nico2;
-using Mntone.Nico2.Mylist;
-using NiconicoToolkit.Mylist;
-using Mntone.Nico2.Users.User;
-using Mntone.Nico2.Users.Video;
-using Hohoema.Database;
+﻿using Hohoema.Database;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Infrastructure;
 using System;

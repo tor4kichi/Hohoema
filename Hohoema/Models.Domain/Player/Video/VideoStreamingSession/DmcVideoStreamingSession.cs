@@ -63,9 +63,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
         private async Task<DmcSessionResponse> GetDmcSessionAsync()
         {
-            if (_dmcWatchData == null) { return null; }
-
-            if (_dmcWatchData.Media == null) { return null; }
+            if (_dmcWatchData?.Media == null) { return null; }
 
             if (VideoContent == null)
             {

@@ -1,5 +1,5 @@
 ﻿using I18NPortable;
-using Mntone.Nico2.Mylist;
+//using Mntone.Nico2.Mylist;
 using Hohoema.Models.Domain;
 using Reactive.Bindings;
 using System;
@@ -105,12 +105,5 @@ namespace Hohoema.Dialogs
 		{
 
 		}
-	}
-
-
-	public class IncoTypeVM
-	{
-		public IconType IconType { get; set; }
-		public Color Color { get; set; }
 	}
 }

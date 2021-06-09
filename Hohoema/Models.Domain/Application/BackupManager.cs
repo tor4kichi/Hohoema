@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.UI;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using NiconicoToolkit.NicoRepo;
 
 namespace Hohoema.Models.Domain.Application
 {
@@ -183,7 +184,7 @@ namespace Hohoema.Models.Domain.Application
 
                 NicoRepoSettings = new NicoRepoSettingsBackupEntry
                 {
-                    DisplayNicoRepoItemTopics = _nicoRepoSettings.DisplayNicoRepoItemTopics.Select(x => x.ToString()).ToArray()
+                    DisplayNicoRepoMuteContextTriggers = _nicoRepoSettings.DisplayNicoRepoMuteContextTriggers.Select(x => x.ToString()).ToArray()
                 },
 
                 CommentSettingsBackupEntry = new CommentSettingsBackupEntry
@@ -380,9 +381,9 @@ namespace Hohoema.Models.Domain.Application
         {
             if (backup.NicoRepoSettings == null) { return; }
 
-            if (backup.NicoRepoSettings.DisplayNicoRepoItemTopics?.Any() ?? false)
+            if (backup.NicoRepoSettings.DisplayNicoRepoMuteContextTriggers?.Any() ?? false)
             {
-                _nicoRepoSettings.DisplayNicoRepoItemTopics = backup.NicoRepoSettings.DisplayNicoRepoItemTopics.Select(x => Enum.TryParse<NicoRepoItemTopic>(x, out var type) ? type : default(NicoRepoItemTopic?)).Where(x => x != null).Select(x => x.Value).ToList();
+                _nicoRepoSettings.DisplayNicoRepoMuteContextTriggers = backup.NicoRepoSettings.DisplayNicoRepoMuteContextTriggers.Select(x => Enum.TryParse<NicoRepoMuteContextTrigger>(x, out var type) ? type : default(NicoRepoMuteContextTrigger?)).Where(x => x != null).Select(x => x.Value).ToList();
             }
         }
 
@@ -651,8 +652,8 @@ namespace Hohoema.Models.Domain.Application
 
     public sealed class NicoRepoSettingsBackupEntry
     {
-        [JsonPropertyName("displayNicoRepoItemTopics")]
-        public string[] DisplayNicoRepoItemTopics { get; set; }
+        [JsonPropertyName("displayNicoRepoMuteContextTriggers")]
+        public string[] DisplayNicoRepoMuteContextTriggers { get; set; }
     }
 
 

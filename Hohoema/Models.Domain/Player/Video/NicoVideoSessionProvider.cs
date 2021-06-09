@@ -37,7 +37,7 @@ namespace Hohoema.Models.Domain.Player.Video
         double LoudnessCorrectionValue { get; }
 
         bool IsSeriesVideo { get; }
-        Series Series { get; }
+        WatchApiSeries Series { get; }
 
         bool IsLikedVideo { get; }
     }
@@ -94,7 +94,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
        
         public bool IsSeriesVideo => _dmcWatchRes?.Series != null;
-        public Series Series => _dmcWatchRes?.Series;
+        public WatchApiSeries Series => _dmcWatchRes?.Series;
 
         public bool IsLikedVideo => _dmcWatchRes.Video.Viewer?.Like.IsLiked ?? false;
     }
@@ -137,12 +137,13 @@ namespace Hohoema.Models.Domain.Player.Video
             IsSuccess = false;
         }
 
-        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, PreparePlayVideoFailedReason failedReason)
+        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, PreparePlayVideoFailedReason failedReason, DmcWatchApiData dmcWatchData = null)
             : this(contentId, niconicoSession)
         {
             AvailableQualities = ImmutableArray<NicoVideoQualityEntity>.Empty;
             IsSuccess = false;
             FailedReason = failedReason;
+            _dmcWatchData = dmcWatchData;
         }
 
         public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, DmcWatchApiData dmcWatchData)
@@ -491,23 +492,23 @@ namespace Hohoema.Models.Domain.Player.Video
                 }
                 else if (dmcRes.WatchApiResponse.WatchApiData.Video.IsDeleted)
                 {
-                    return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.Deleted);
+                    return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.Deleted, dmcRes.WatchApiResponse.WatchApiData);
                 }
                 else if (dmcRes.WatchApiResponse.WatchApiData.Media.Delivery == null)
                 {
                     var preview = dmcRes.WatchApiResponse.WatchApiData.Payment.Preview;
                     if (preview.Premium.IsEnabled)
                     {
-                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember);
+                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePremiumMember, dmcRes.WatchApiResponse.WatchApiData);
 
                     }
                     else if (preview.Ppv.IsEnabled)
                     {
-                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePay);
+                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequirePay, dmcRes.WatchApiResponse.WatchApiData);
                     }
                     else if (preview.Admission.IsEnabled)
                     {
-                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequireChannelMember);
+                        return new PreparePlayVideoResult(rawVideoId, _niconicoSession, PreparePlayVideoFailedReason.NotPlayPermit_RequireChannelMember, dmcRes.WatchApiResponse.WatchApiData);
                     }
                     else
                     {

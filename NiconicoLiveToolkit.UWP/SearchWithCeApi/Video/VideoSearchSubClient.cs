@@ -66,6 +66,8 @@ namespace NiconicoToolkit.SearchWithCeApi.Video
                 dict.Add("sort", sort.Value.GetDescription());
             }
 
+            await _context.WaitPageAccessAsync();
+
             var url = new StringBuilder("http://api.ce.nicovideo.jp/nicoapi/v1/video.search")
                 .AppendQueryString(dict)
                 .ToString();
@@ -97,6 +99,8 @@ namespace NiconicoToolkit.SearchWithCeApi.Video
             {
                 dict.Add("sort", sort.Value.GetDescription());
             }
+
+            await _context.WaitPageAccessAsync();
 
             var url = new StringBuilder("http://api.ce.nicovideo.jp/nicoapi/v1/tag.search")
                 .AppendQueryString(dict)

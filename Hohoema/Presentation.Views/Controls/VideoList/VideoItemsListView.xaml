@@ -127,7 +127,6 @@
 
           </TransitionCollection>
         </ListView.ItemContainerTransitions>
-
       </ListView>
 
     </uwpcontrol:DockPanel>

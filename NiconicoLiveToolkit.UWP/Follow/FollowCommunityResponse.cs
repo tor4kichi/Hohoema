@@ -7,15 +7,10 @@ using System.Threading.Tasks;
 
 namespace NiconicoToolkit.Follow
 {
-    public sealed class FollowCommunityResponse
+    public sealed class FollowCommunityResponse : ResponseWithMeta<FollowCommunityMeta>
     {
-        [JsonPropertyName("meta")]
-        public FollowCommunityMeta Meta { get; set; }
-
         [JsonPropertyName("data")]
         public FollowCommunity[] Data { get; set; }
-
-        public bool IsSuccess => Meta.IsSuccess;
     }
 
     public sealed class FollowCommunity : IFollowCommunity

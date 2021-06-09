@@ -97,14 +97,11 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             return result;
         }
 
-        public Task<bool> IsFollowingAsync(string id)
+        public async Task<bool> IsFollowingAsync(string id)
         {
-            return ContextActionAsync(async context =>
-            {
-                var numberId = long.Parse(id);
-                var res = await context.User.GetFollowMylistsAsync(0);
-                return res.Data.Mylists.Any(x => x.Id == numberId);
-            });
+            var numberId = long.Parse(id);
+            var res = await _niconicoSession.ToolkitContext.Follow.Mylist.GetFollowMylistsAsync(0);
+            return res.Data.Mylists.Any(x => x.Id == numberId);
         }
 
         //Task<ContentManageResult> IFollowProvider<IMylist>.AddFollowAsync(IMylist followable) => AddFollowAsync(followable.Id);

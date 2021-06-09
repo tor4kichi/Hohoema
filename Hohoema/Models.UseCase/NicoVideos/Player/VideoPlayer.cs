@@ -171,7 +171,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             }
 
             NowPlayingWithDmcVideo = _currentSession is DmcVideoStreamingSession;
-            
+
             await _currentSession.StartPlayback(_mediaPlayer, startPosition);
         }
 
@@ -202,13 +202,17 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     {
                         try
                         {
-
-
                             var session = _mediaPlayer.PlaybackSession;
-                            if (_mediaPlayer.Source == null
-                            || session.PlaybackState == MediaPlaybackState.None)
+                            if (session == null)
                             {
-                                if (session.NaturalDuration - _prevPosition < TimeSpan.FromSeconds(1))
+                                await PlayAsync(startPosition: _prevPosition ?? TimeSpan.Zero);
+                            }
+                            else if (_mediaPlayer.Source == null
+                                || session.PlaybackState == MediaPlaybackState.None)
+                            {
+                                var isEndReached = session.NaturalDuration - _prevPosition < TimeSpan.FromSeconds(1);
+                                if (session?.NaturalDuration != TimeSpan.Zero
+                                    && isEndReached)
                                 {
                                     _prevPosition = TimeSpan.Zero;
                                 }
@@ -221,6 +225,11 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                             }
                             else if (session.PlaybackState == MediaPlaybackState.Paused)
                             {
+                                var isEndReached = session.NaturalDuration - _prevPosition < TimeSpan.FromSeconds(1);
+                                if (isEndReached)
+                                {
+                                    session.Position = TimeSpan.Zero;
+                                }
                                 _mediaPlayer.Play();
                             }
                         }

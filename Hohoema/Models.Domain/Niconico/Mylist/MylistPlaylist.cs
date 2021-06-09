@@ -49,7 +49,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
         public DateTime CreateTime { get; internal set; }
 
 
-        public async Task<MylistItemsGetResult> GetItemsAsync(MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
+        public async Task<MylistItemsGetResult> GetItemsAsync(int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
            
             //if (this.IsDefaultMylist())
@@ -65,7 +65,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             // 他ユーザーマイリストとして取得を実行
             try
             {
-                var result = await GetMylistItemsWithRangeAsync(sortKey, sortOrder, pageSize, page);
+                var result = await GetMylistItemsWithRangeAsync(page, pageSize, sortKey, sortOrder);
 
                 return new MylistItemsGetResult()
                 {
@@ -73,7 +73,8 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
                     IsDefaultMylist = this.IsDefaultMylist(),
                     Mylist = this,
                     IsLoginUserMylist = false,
-                    Items = result.NicoVideoItems,
+                    NicoVideoItems = result.NicoVideoItems,
+                    Items = result.Items,
                     ItemsHeadPosition = result.HeadPosition,
                     TotalCount = result.TotalCount,
                 };
@@ -86,17 +87,17 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             return new MylistItemsGetResult() { IsSuccess = false };
         }
 
-        public Task<MylistProvider.MylistItemsGetResult> GetMylistItemsWithRangeAsync(MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
+        public Task<MylistProvider.MylistItemsGetResult> GetMylistItemsWithRangeAsync(int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
-            return _mylistProvider.GetMylistVideoItems(Id, sortKey, sortOrder, pageSize, page);
+            return _mylistProvider.GetMylistVideoItems(Id, page, pageSize, sortKey, sortOrder);
         }
 
         public async Task<MylistProvider.MylistItemsGetResult> GetMylistAllItems(MylistSortKey sortKey = MylistSortKey.AddedAt, MylistSortOrder sortOrder = MylistSortOrder.Asc)
         {
-            uint page = 0;
+            int page = 0;
             const int pageSize = 25;
 
-            var firstResult = await _mylistProvider.GetMylistVideoItems(Id, sortKey, sortOrder, pageSize, page);
+            var firstResult = await _mylistProvider.GetMylistVideoItems(Id, page, pageSize, sortKey, sortOrder);
             if (!firstResult.IsSuccess || firstResult.TotalCount == firstResult.Items.Count)
             {
                 return firstResult;
@@ -111,7 +112,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             do
             {
                 await Task.Delay(500);
-                var result = await _mylistProvider.GetMylistVideoItems(Id, sortKey, sortOrder, pageSize, page);
+                var result = await _mylistProvider.GetMylistVideoItems(Id, page, pageSize, sortKey, sortOrder);
                 if (result.IsSuccess)
                 {
                     itemsList.AddRange(result.Items);

@@ -333,9 +333,9 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             )
             : this(videoItem.Id, videoItem.Title, videoItem.Thumbnail.Url.OriginalString, TimeSpan.FromSeconds(videoItem.Duration), videoItem.RegisteredAt.DateTime)
         {
-            _ViewCount = videoItem.Count.View;
-            _CommentCount = videoItem.Count.Comment;
-            _MylistCount = videoItem.Count.Mylist;
+            ViewCount = videoItem.Count.View;
+            CommentCount = videoItem.Count.Comment;
+            MylistCount = videoItem.Count.Mylist;
 
             if (videoItem.Owner is not null)
             {
@@ -355,9 +355,9 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         public VideoListItemControlViewModel(NiconicoToolkit.SearchWithCeApi.Video.VideoItem video, NiconicoToolkit.SearchWithCeApi.Video.ThreadItem thread)            
             : this(video.Id, video.Title, video.ThumbnailUrl.OriginalString, TimeSpan.FromSeconds(video.LengthInSeconds), video.FirstRetrieve.DateTime)
         {
-            _ViewCount = video.ViewCount;
-            _MylistCount = video.MylistCount;
-            _CommentCount =thread.NumRes;
+            ViewCount = video.ViewCount;
+            MylistCount = video.MylistCount;
+            CommentCount =thread.NumRes;
             _IsDeleted = video.Deleted != 0;
             if (Enum.IsDefined(typeof(PrivateReasonType), video.Deleted))
             {
@@ -472,27 +472,12 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        private int _ViewCount;
-        public int ViewCount
-        {
-            get { return _ViewCount; }
-            set { SetProperty(ref _ViewCount, value); }
-        }
+        public int ViewCount { get; set; }
 
 
-        private int _MylistCount;
-        public int MylistCount
-        {
-            get { return _MylistCount; }
-            set { SetProperty(ref _MylistCount, value); }
-        }
+        public int MylistCount { get; set; }
 
-        private int _CommentCount;
-        public int CommentCount
-        {
-            get { return _CommentCount; }
-            set { SetProperty(ref _CommentCount, value); }
-        }
+        public int CommentCount { get; set; }
 
         private bool _IsDeleted;
         public bool IsDeleted

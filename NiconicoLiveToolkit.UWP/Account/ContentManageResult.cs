@@ -40,7 +40,7 @@ namespace NiconicoToolkit.Account
             {
                 return ContentManageResult.Exist;
             }
-            else if ((int)code >= 400 && (int)code <=499)
+            else if (HttpStatusCodeHelper.IsSuccessStatusCode((int)code))
             {
                 return ContentManageResult.Success;
             }

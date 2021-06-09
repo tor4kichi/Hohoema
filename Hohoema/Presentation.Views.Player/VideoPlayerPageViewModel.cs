@@ -635,9 +635,9 @@ namespace Hohoema.Presentation.ViewModels.Player
 
     public class VideoSeriesViewModel : ISeries
     {
-        private readonly Series _userSeries;
+        private readonly WatchApiSeries _userSeries;
 
-        public VideoSeriesViewModel(Series userSeries)
+        public VideoSeriesViewModel(WatchApiSeries userSeries)
         {
             _userSeries = userSeries;
         }

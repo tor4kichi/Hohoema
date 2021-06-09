@@ -9,7 +9,6 @@ using NiconicoToolkit.Series;
 
 namespace Hohoema.Models.Domain.Niconico.Video.Series
 {
-    using UserSeries = Mntone.Nico2.Users.Series.UserSeries;
     public sealed class SeriesProvider : ProviderBase
     {
         public SeriesProvider(NiconicoSession niconicoSession)
@@ -32,7 +31,7 @@ namespace Hohoema.Models.Domain.Niconico.Video.Series
             return items;
         }
 
-        public async Task<NiconicoToolkit.Series.SeriesDetails> GetSeriesVideosAsync(string seriesId)
+        public async Task<SeriesDetails> GetSeriesVideosAsync(string seriesId)
         {
             return await _niconicoSession.ToolkitContext.Series.GetSeriesVideosAsync(seriesId);
         }

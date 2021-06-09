@@ -41,6 +41,11 @@ namespace NiconicoToolkit.Mylist
             LoginUser = new LoginUserMylistSubClient(context);
         }
 
+        public static string MakeMylistPageUrl(string mylistId)
+        {
+            return $"https://www.nicovideo.jp/mylist/{mylistId}";
+        }
+
         
         public async Task<GetUserMylistGroupsResponse> GetUserMylistGroupsAsync(string userId, int sampleItemCount = 0)
         {

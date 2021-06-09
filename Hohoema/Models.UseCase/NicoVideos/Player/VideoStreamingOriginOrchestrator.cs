@@ -229,7 +229,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
         public bool IsSeriesVideo => false;
 
-        public Series Series => null;
+        public WatchApiSeries Series => null;
 
         public bool IsLikedVideo { get; set; }
     }

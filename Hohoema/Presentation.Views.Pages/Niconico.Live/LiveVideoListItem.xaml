@@ -137,14 +137,12 @@
 
       <Grid uwpUI:DockPanel.Dock="Left">
         
-        <uwpUI:ImageEx  Source="{Binding ThumbnailUrl}"
-                        IsCacheEnabled="False"
+        <Image  Source="{Binding ThumbnailUrl}"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Stretch="Uniform"
-                        VerticalContentAlignment="Center"
-                        HorizontalContentAlignment="Center"
-                        Height="100"
+                        Width="180"
+                        MaxHeight="120"
                         />
 
         <ContentControl Content="{Binding}" ContentTemplateSelector="{StaticResource ThumbnailBadgeLiveStatusTemplateSelector}" 

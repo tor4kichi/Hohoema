@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Videos.Comment;
-using Hohoema.Presentation.ViewModels;
+﻿using Hohoema.Presentation.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,6 +18,7 @@ using System.Reactive.Disposables;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using Windows.UI.Core;
+using NiconicoToolkit.Live.WatchSession;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 

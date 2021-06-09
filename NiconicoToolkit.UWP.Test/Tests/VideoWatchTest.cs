@@ -58,6 +58,8 @@ namespace NiconicoToolkit.UWP.Test.Tests
             await OpenHlsAsync(session);
         }
 
+        // TooManyRequestで失敗するためIgnore
+        [Ignore]
         [TestMethod]
         [DataRow("so38538458")]
         public async Task PlayVideoHlsAsync(string videoId)
@@ -73,6 +75,8 @@ namespace NiconicoToolkit.UWP.Test.Tests
             await OpenHlsAsync(session);
         }
 
+        // TooManyRequestで失敗するためIgnore
+        [Ignore]
         [TestMethod]
         [DataRow("so38538458")]
         public async Task PlayVideoForceProgressiveMp4Async(string videoId)

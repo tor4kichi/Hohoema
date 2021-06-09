@@ -30,6 +30,19 @@ namespace NiconicoToolkit.Channels
             };
         }
 
+        public static string MakeChannelPageUrl(string channelId)
+        {
+            var directiryName = ChannelIdToURLDirectoryName(channelId);
+            return $"https://ch.nicovideo.jp/{directiryName}";
+        }
+
+        public static string MakeChannelVideoPageUrl(string channelId)
+        {
+            var directiryName = ChannelIdToURLDirectoryName(channelId);
+            return $"https://ch.nicovideo.jp/{directiryName}/video";
+        }
+
+
         public enum ChannelAdmissionAdditinals
         {
             [Description("channelMemberProduct")]

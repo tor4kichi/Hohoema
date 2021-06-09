@@ -64,7 +64,7 @@ namespace NiconicoToolkit.Video.Watch
         public Ranking Ranking { get; set; }
 
         [JsonPropertyName("series")]
-        public Series Series { get; set; }
+        public WatchApiSeries Series { get; set; }
 
         [JsonPropertyName("smartphone")]
         public object Smartphone { get; set; }
@@ -760,7 +760,7 @@ namespace NiconicoToolkit.Video.Watch
         public DateTimeOffset DateTime { get; set; }
     }
 
-    public partial class Series
+    public partial class WatchApiSeries
     {
         [JsonPropertyName("id")]
         public long Id { get; set; }

@@ -158,11 +158,9 @@
     <Compile Include="Models.Helpers\HtmlFileHelper.cs" />
     <Compile Include="Models.Helpers\HttpRandomAccessStream.cs" />
     <Compile Include="Models.Helpers\IAsyncInitialize.cs" />
-    <Compile Include="Models.Helpers\IncrementalLoadingCollection.cs" />
     <Compile Include="Models.Helpers\InternetConnection.cs" />
     <Compile Include="Models.Domain\Application\LisenceSummary.cs" />
     <Compile Include="Models.Helpers\ListExtention.cs" />
-    <Compile Include="Models.Domain\Niconico\NicoVideoIdHelper.cs" />
     <Compile Include="Models.Helpers\ObservableHashSet.cs" />
     <Compile Include="Models.Helpers\StorageFolderExtention.cs" />
     <Compile Include="Models.Helpers\StringHelper.cs" />
@@ -197,7 +195,6 @@
     <Compile Include="Models.Domain\Niconico\Mylist\MylistPlaylist.cs" />
     <Compile Include="Models.Domain\Niconico\Mylist\MylistPlaylistExtension.cs" />
     <Compile Include="Models.Domain\Niconico\Mylist\MylistProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\NicoRepo\NicoRepoItemTopic.cs" />
     <Compile Include="Models.Domain\Niconico\NicoRepo\NicoRepoSettings.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\LoginUser\TagFollowProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\LoginUser\UserFollowProvider.cs" />
@@ -247,7 +244,6 @@
     <Compile Include="Models.Domain\Player\Video\Comment\CommentClient.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\CommentCommandPermissionType.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\CommentServerInfo.cs" />
-    <Compile Include="Models.Domain\Player\Video\Comment\CommentSubmitInfo.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\NicoScript.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\VideoComment.cs" />
     <Compile Include="Models.Domain\Player\Video\Comment\VideoCommentService.cs" />
@@ -408,16 +404,16 @@
     <Compile Include="Presentation.ViewModels\Niconico.Share\CopyToClipboardCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Share\OpenLinkCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Share\OpenShareUICommand.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema.Video\CacheManagementPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema.Video\LocalPlaylistManagePageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema.Video\LocalPlaylistPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema\DebugPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema\SettingsPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema.Video\SubscriptionManagementPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Hohoema.VideoCache\CacheManagementPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistManagePageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\DebugPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\SettingsPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Hohoema.Subscription\SubscriptionManagementPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Subscriptions\AddKeywordSearchSubscriptionCommand.cs" />
     <Compile Include="Presentation.ViewModels\Subscriptions\AddSubscriptionCommand.cs" />
     <Compile Include="Presentation.ViewModels\Subscriptions\AddTagSearchSubscriptionCommand.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema.Video\VideoQueuePageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Hohoema.Queue\VideoQueuePageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\BlankPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Series\UserSeriesItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Series\SeriesOwnerViewModel.cs" />
@@ -434,19 +430,19 @@
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowCommunityIncrementalSource.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowCommunityViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchHistoryListItemViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Search\VideoSearchSource.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\ChannelVideoPageViewModel.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Search\VideoSearchIncrementalSource.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Channel\ChannelVideoPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Mylist\MylistSortViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico\CommunityPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\CommunityVideoPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityVideoPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Live\NicoLiveUserIdAddToNGCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Live\NicoLiveUserIdRemoveFromNGCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Live\OpenBroadcasterInfoCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Live\OpenLiveContentCommand.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Live\LiveInfomationPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\MylistPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\OwnerMylistManagePageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico\UserMylistPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\MylistPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\OwnerMylistManagePageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\UserMylistPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Search\RemoveSearchHistoryCommand.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultCommunityPageViewModel.cs" />
@@ -455,18 +451,17 @@
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultMylistPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultTagPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Search\VideoSearchSortOptionListItem.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\SeriesPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\UserSeriesPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\FollowManagePageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\LoginPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Series\SeriesPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Series\UserSeriesPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Follow\FollowManagePageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Account\LogoutFromNiconicoCommand.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\NicoRepoPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\RecommendPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\TimeshiftPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\WatchHistoryPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico\UserInfoPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.NicoRepo\NicoRepoPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.VideoRecommend\RecommendPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Live\TimeshiftPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Activity\WatchHistoryPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.User\UserInfoPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.User\UserInfoViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\UserVideoPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.User\UserVideoPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\VideoCache.Commands\CacheAddRequestCommand.cs" />
     <Compile Include="Presentation.ViewModels\VideoCache.Commands\CacheDeleteRequestCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\HiddenVideoOwnerAddCommand.cs" />
@@ -494,17 +489,16 @@
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\WatchHistoryRemoveAllCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\WatchHistoryRemoveItemCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\VideoListItemControlViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico\RankingCategoryListPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\RankingCategoryPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryListPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Ranking\Messages\RankingGenreCustomizeEvent.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Ranking\FavoriteRankingGenreItemCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Ranking\HiddenRankingGenreItemCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Ranking\UnFavoriteRankingGenreItemCommand.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico\VideoInfomationPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Video\VideoInfomationPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Flyouts\FollowItemFlyoutViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Flyouts\MylistItemFlyoutViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Flyouts\SubscriptionItemFlyoutViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\HohoemaIncrementalSourceBase.cs" />
     <Compile Include="Presentation.ViewModels\HohoemaListingPageItemBase.cs" />
     <Compile Include="Presentation.ViewModels\HohoemaListingPageViewModelBase.cs" />
     <Compile Include="Presentation.ViewModels\HohoemaSecondaryViewFrameViewModel.cs" />
@@ -544,40 +538,40 @@
     <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\VideoMenuSubPageContent.cs" />
     <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\QueueMenuItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\SelectableItem.cs" />
-    <Compile Include="Presentation.Views.Pages\Hohoema.Video\CacheManagementPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Hohoema.VideoCache\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Hohoema.Video\LocalPlaylistManagePage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistManagePage.xaml.cs">
       <DependentUpon>LocalPlaylistManagePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Hohoema.Video\LocalPlaylistPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistPage.xaml.cs">
       <DependentUpon>LocalPlaylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Hohoema\SettingsPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Hohoema.Video\SubscriptionManagementPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Hohoema.Subscription\SubscriptionManagementPage.xaml.cs">
       <DependentUpon>SubscriptionManagementPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Hohoema.Video\VideoQueuePage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Hohoema.Queue\VideoQueuePage.xaml.cs">
       <DependentUpon>VideoQueuePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\BlankPage.xaml.cs">
       <DependentUpon>BlankPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\ChannelVideoPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.Channel\ChannelVideoPage.xaml.cs">
       <DependentUpon>ChannelVideoPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Search\CommunityInfoControl.xaml.cs">
       <DependentUpon>CommunityInfoControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico\CommunityPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityPage.xaml.cs">
       <DependentUpon>CommunityPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\CommunityVideoPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityVideoPage.xaml.cs">
       <DependentUpon>CommunityVideoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Hohoema\DebugPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\DebugPage.xaml.cs">
       <DependentUpon>DebugPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views\Controls\ListItem\HohoemaListItemMiniCard.xaml.cs">
@@ -592,16 +586,16 @@
     <Compile Include="Presentation.Views.Pages\Niconico.Live\LiveVideoListItem.xaml.cs">
       <DependentUpon>LiveVideoListItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico\MylistListItem.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\MylistListItem.xaml.cs">
       <DependentUpon>MylistListItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\MylistPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\OwnerMylistManagePage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\OwnerMylistManagePage.xaml.cs">
       <DependentUpon>OwnerMylistManagePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico\UserMylistPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\UserMylistPage.xaml.cs">
       <DependentUpon>UserMylistPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchHistoryListItem.xaml.cs">
@@ -625,34 +619,31 @@
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultTagPage.xaml.cs">
       <DependentUpon>SearchResultTagPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\SeriesPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.Series\SeriesPage.xaml.cs">
       <DependentUpon>SeriesPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\UserSeriesPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.Series\UserSeriesPage.xaml.cs">
       <DependentUpon>UserSeriesPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\FollowManagePage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.Follow\FollowManagePage.xaml.cs">
       <DependentUpon>FollowManagePage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\LoginPage.xaml.cs">
-      <DependentUpon>LoginPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\NicoRepoPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.NicoRepo\NicoRepoPage.xaml.cs">
       <DependentUpon>NicoRepoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\RecommendPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.VideoRecommend\RecommendPage.xaml.cs">
       <DependentUpon>RecommendPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\TimeshiftPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.Live\TimeshiftPage.xaml.cs">
       <DependentUpon>TimeshiftPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.LoginUser\WatchHistoryPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.Activity\WatchHistoryPage.xaml.cs">
       <DependentUpon>WatchHistoryPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico\UserInfoPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.User\UserInfoPage.xaml.cs">
       <DependentUpon>UserInfoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\UserVideoPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.User\UserVideoPage.xaml.cs">
       <DependentUpon>UserVideoPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views\Controls\VideoList\VideoItemsListView.xaml.cs">
@@ -661,13 +652,13 @@
     <Compile Include="Presentation.Views\Controls\VideoList\VideoListItemControl.xaml.cs">
       <DependentUpon>VideoListItemControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico\RankingCategoryListPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryListPage.xaml.cs">
       <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Video\RankingCategoryPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryPage.xaml.cs">
       <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico\VideoInfomationPage.xaml.cs">
+    <Compile Include="Presentation.Views.Pages\Niconico.Video\VideoInfomationPage.xaml.cs">
       <DependentUpon>VideoInfomationPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views\Controls\AppTitleBar.xaml.cs">
@@ -1068,27 +1059,27 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Presentation.Views.Pages\Hohoema.Video\CacheManagementPage.xaml">
+    <Page Include="Presentation.Views.Pages\Hohoema.VideoCache\CacheManagementPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Hohoema.Video\LocalPlaylistManagePage.xaml">
+    <Page Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistManagePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views.Pages\Hohoema.Video\LocalPlaylistPage.xaml">
+    <Page Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Hohoema\SettingsPage.xaml">
+    <Page Include="Presentation.Views.Pages\SettingsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Hohoema.Video\SubscriptionManagementPage.xaml">
+    <Page Include="Presentation.Views.Pages\Hohoema.Subscription\SubscriptionManagementPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Hohoema.Video\VideoQueuePage.xaml">
+    <Page Include="Presentation.Views.Pages\Hohoema.Queue\VideoQueuePage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1096,7 +1087,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Video\ChannelVideoPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.Channel\ChannelVideoPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1104,15 +1095,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico\CommunityPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.Community\CommunityPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Video\CommunityVideoPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.Community\CommunityVideoPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Hohoema\DebugPage.xaml">
+    <Page Include="Presentation.Views.Pages\DebugPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1144,19 +1135,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico\MylistListItem.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.Mylist\MylistListItem.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Video\MylistPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.Mylist\MylistPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.LoginUser\OwnerMylistManagePage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.Mylist\OwnerMylistManagePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico\UserMylistPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.Mylist\UserMylistPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1188,43 +1179,39 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Video\SeriesPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.Series\SeriesPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.LoginUser\UserSeriesPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.Series\UserSeriesPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.LoginUser\FollowManagePage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.Follow\FollowManagePage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.LoginUser\LoginPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.NicoRepo\NicoRepoPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.LoginUser\NicoRepoPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.VideoRecommend\RecommendPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.LoginUser\RecommendPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.Live\TimeshiftPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.LoginUser\TimeshiftPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.Activity\WatchHistoryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.LoginUser\WatchHistoryPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.User\UserInfoPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico\UserInfoPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Video\UserVideoPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.User\UserVideoPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1236,15 +1223,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico\RankingCategoryListPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryListPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Video\RankingCategoryPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico\VideoInfomationPage.xaml">
+    <Page Include="Presentation.Views.Pages\Niconico.Video\VideoInfomationPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

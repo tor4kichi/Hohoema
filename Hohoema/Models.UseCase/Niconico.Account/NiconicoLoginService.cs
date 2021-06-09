@@ -1,5 +1,4 @@
 ﻿using I18NPortable;
-using Mntone.Nico2;
 using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Views.Dialogs;
 using Prism.Commands;

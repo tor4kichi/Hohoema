@@ -26,6 +26,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
 using NiconicoToolkit.SearchWithCeApi.Video;
+using Microsoft.Toolkit.Collections;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
@@ -340,9 +341,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         #region Implement HohoemaVideListViewModelBase
 
-        protected override IIncrementalSource<VideoListItemControlViewModel> GenerateIncrementalSource()
+        protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
 		{
-            return new VideoSearchSource(SearchOption.Keyword, SearchOption.SearchTarget == SearchTarget.Tag, SearchOption.Sort, SearchOption.Order, SearchProvider);
+            return (VideoSearchIncrementalSource.OneTimeLoadingCount, new VideoSearchIncrementalSource(SearchOption.Keyword, SearchOption.SearchTarget == SearchTarget.Tag, SearchOption.Sort, SearchOption.Order, SearchProvider));
         }
 
 		

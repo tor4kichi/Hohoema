@@ -231,8 +231,8 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 HasRecomend.Value = false;
             }));
 
-        Series _series;
-        public void SetCurrentVideoSeries(Series series)
+        WatchApiSeries _series;
+        public void SetCurrentVideoSeries(WatchApiSeries series)
         {
             _series = series;
         }

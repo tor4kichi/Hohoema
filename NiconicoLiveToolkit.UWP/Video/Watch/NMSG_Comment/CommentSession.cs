@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -13,17 +14,98 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
 {
     public sealed class CommentSession
     {
-        private readonly JsonSerializerOptions _CommentCommandResponseJsonSerializerOptions = new JsonSerializerOptions()
+       
+        class CommentSessionContext
         {
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            Converters =
+            private readonly JsonSerializerOptions _CommentCommandResponseJsonSerializerOptions = new JsonSerializerOptions()
             {
-                new NMSG_ResponseConverter(),
-                new NMSG_ChatResultConverter(),
-                new LongToStringConverter(),
-            }
-        };
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+                Converters =
+                {
+                    new NMSG_ResponseConverter(),
+                    new NMSG_ChatResultConverter(),
+                    new LongToStringConverter(),
+                }
+            };
+            private readonly NiconicoContext _context;
+            private int _SubmitTimes = 0;
+            private int _SeqNum = 0;
 
+            public CommentSessionContext(NiconicoContext context)
+            {
+                _context = context;
+            }
+
+            void IncrementSequenceNumber(int incrementCount)
+            {
+                _SeqNum += incrementCount;
+                _SubmitTimes += 1;
+            }
+
+            internal CommentSessionSendingCommandBuilder CreateNextCommandBuilder()
+            {
+                return new CommentSessionSendingCommandBuilder(_SubmitTimes, _SeqNum);
+            }
+
+            public async Task<T> SendCommentCommandAsync<T>(Uri server, CommentSessionSendingCommandBuilder dataBuilder)
+            {
+                var requestParamsJson = dataBuilder.GetSerializeJson();
+
+#if WINDOWS_UWP
+                HttpStringContent content = new HttpStringContent(requestParamsJson);
+#else
+#endif
+                IncrementSequenceNumber(dataBuilder.IncrementCount);
+                return await _context.PostJsonAsAsync<T>(
+                    $"{server.OriginalString}/api.json", content, _CommentCommandResponseJsonSerializerOptions);
+            }
+
+        }
+
+        class CommentSessionSendingCommandBuilder
+        {
+            private static readonly JsonSerializerOptions _options = new JsonSerializerOptions()
+            {
+                DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+            };
+
+            List<object> _commands;
+            public int SubmitTime { get; }
+            public int SeqNum { get; }
+            public int IncrementCount { get; private set; }
+            
+            public CommentSessionSendingCommandBuilder(int submitTime, int seqNum)
+            {
+                SubmitTime = submitTime;
+                SeqNum = seqNum;
+                IncrementCount = 0;
+                _commands = new List<object>();
+
+                AddCommand_Internal(new PingItem($"rs:{SubmitTime}"));
+            }
+
+            public void AddCommand<CommandType>(CommandType command)
+                where CommandType : ICommentSessionCommand_Sending
+            {
+                var currentSeqNum = SeqNum + IncrementCount;
+                AddCommand_Internal(new PingItem($"ps:{currentSeqNum}"));
+                AddCommand_Internal(command);
+                AddCommand_Internal(new PingItem($"pf:{currentSeqNum}"));
+                IncrementCount++;
+            }
+
+            public string GetSerializeJson()
+            {
+                AddCommand_Internal(new PingItem($"rf:{SubmitTime}"));
+                return JsonSerializer.Serialize(_commands, _options);
+            }
+
+            private void AddCommand_Internal<CommandType>(CommandType command)
+                where CommandType : ICommentSessionCommand
+            {
+                _commands.Add(command);
+            }
+        }
 
         private readonly NiconicoContext _context;
         private readonly DmcWatchApiData _dmcApiData;
@@ -36,11 +118,12 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
 
         private string _DefaultPostTargetThreadId;
         private string DefaultPostTargetThreadId => _DefaultPostTargetThreadId ?? (_DefaultPostTargetThreadId = _defaultPostTargetThread.Id.ToString());
-        private int _SubmitTimes = 0;
-        private int _SeqNum = 0;
         private string _ThreadLeavesContentString;
         private int _LastRes = 0;
         private string _Ticket = null;
+
+
+        private readonly CommentSessionContext _commentSessionContext;
 
         public CommentSession(NiconicoContext context, DmcWatchApiData dmcApiData)
         {
@@ -53,33 +136,26 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
             _isPremium = _dmcApiData.Viewer?.IsPremium ?? false;
 
             _ThreadLeavesContentString = ThreadLeaves.MakeContentString(TimeSpan.FromSeconds(dmcApiData.Video.Duration));
+
+            _commentSessionContext = new CommentSessionContext(context);
         }
 
         public bool CanPostComment => _Ticket != null;
 
 
-        private void IncrementSequenceNumber(int incrementCount)
-        {
-            _SeqNum += incrementCount;
-            _SubmitTimes += 1;
-        }
+        
 
         public async Task<NMSG_Response> GetCommentFirstAsync()
         {
             var hasCommunityThread = _comment.Threads.Any(x => x.Label == "community");
 
-            List<object> commentCommandList = new List<object>();
-
-            commentCommandList.Add(new PingItem($"rs:{_SubmitTimes}"));
-            var seqNum = _SeqNum;
+            var builder = _commentSessionContext.CreateNextCommandBuilder();
             foreach (var thread in _comment.Threads)
             {
                 if (!thread.IsActive)
                 {
                     continue;
                 }
-
-                commentCommandList.Add(new PingItem($"ps:{_SeqNum + seqNum}"));
 
                 ThreadKeyResponse threadKey = null;
                 if (thread.IsThreadkeyRequired)
@@ -89,7 +165,7 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
 
                 if (thread.IsOwnerThread)
                 {
-                    commentCommandList.Add(new ThreadItem()
+                    builder.AddCommand(new ThreadItem()
                     {
                         Thread = new Thread_CommentRequest()
                         {
@@ -105,7 +181,7 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
                 }
                 else
                 {
-                    commentCommandList.Add(new ThreadItem()
+                    builder.AddCommand(new ThreadItem()
                     {
                         Thread = new Thread_CommentRequest()
                         {
@@ -121,16 +197,9 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
                     });
                 }
 
-
-                commentCommandList.Add(new PingItem($"pf:{_SeqNum + seqNum}"));
-
-                ++seqNum;
-
                 if (thread.IsLeafRequired)
                 {
-                    commentCommandList.Add(new PingItem($"ps:{_SeqNum + seqNum}"));
-
-                    commentCommandList.Add(new ThreadLeavesItem()
+                    builder.AddCommand(new ThreadLeavesItem()
                     {
                         ThreadLeaves = new ThreadLeaves()
                         {
@@ -145,27 +214,20 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
                             Content = _ThreadLeavesContentString,
                         }
                     });
-
-                    commentCommandList.Add(new PingItem($"pf:{_SeqNum + seqNum}"));
-
-                    ++seqNum;
                 }
             }
 
-            commentCommandList.Add(new PingItem($"rf:{_SubmitTimes}"));
-
-
             // コメント取得リクエストを送信
-            var res = await SendCommentCommandAsync<NMSG_Response>(_defaultPostTargetThread.Server, commentCommandList.ToArray());
+            var res = await _commentSessionContext.SendCommentCommandAsync<NMSG_Response>(_defaultPostTargetThread.Server, builder);
 
             var defaultPostThreadInfo = res.Threads.FirstOrDefault(x => x.Thread == DefaultPostTargetThreadId);
             if (defaultPostThreadInfo != null)
             {
                 _LastRes = defaultPostThreadInfo.LastRes;
                 _Ticket = defaultPostThreadInfo.Ticket ?? _Ticket;
-
-                IncrementSequenceNumber(commentCommandList.Count);
             }
+
+            
 
             return res;
         }
@@ -183,39 +245,32 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
                 threadKey = await GetThreadKeyAsync(_defaultPostTargetThread.Id);
             }
 
-            object[] commentCommandList = new object[]
-            {
-                new PingItem($"rs:{_SubmitTimes}"),
-                new PingItem($"ps:{_SeqNum}"),
-                new ThreadItem()
-                {
-                    Thread = new Thread_CommentRequest()
-                    {
-                        Fork = _defaultPostTargetThread.Fork,
-                        UserId = _userId,
-                        ThreadId = DefaultPostTargetThreadId,
-                        Version = "20061206",
-                        Userkey = _userKey,
-                        ResFrom = _LastRes,
+            var builder = _commentSessionContext.CreateNextCommandBuilder();
 
-                        Threadkey = threadKey?.ThreadKey,
-                        Force184 = threadKey?.Force184,
-                    }
-                },
-                new PingItem($"pf:{_SeqNum}"),
-                new PingItem($"rf:{_SubmitTimes}"),
-            };
+            builder.AddCommand(new ThreadItem()
+            {
+                Thread = new Thread_CommentRequest()
+                {
+                    Fork = _defaultPostTargetThread.Fork,
+                    UserId = _userId,
+                    ThreadId = DefaultPostTargetThreadId,
+                    Version = "20061206",
+                    Userkey = _userKey,
+                    ResFrom = _LastRes,
+
+                    Threadkey = threadKey?.ThreadKey,
+                    Force184 = threadKey?.Force184,
+                }
+            });
 
             // コメント取得リクエストを送信
-            var res = await SendCommentCommandAsync<NMSG_Response>(_defaultPostTargetThread.Server, commentCommandList);
+            var res = await _commentSessionContext.SendCommentCommandAsync<NMSG_Response>(_defaultPostTargetThread.Server, builder);
 
             var defaultPostThreadInfo = res.Threads.FirstOrDefault(x => x.Thread == DefaultPostTargetThreadId);
             if (defaultPostThreadInfo != null)
             {
                 _LastRes = defaultPostThreadInfo.LastRes;
                 _Ticket = defaultPostThreadInfo.Ticket ?? _Ticket;
-
-                IncrementSequenceNumber(commentCommandList.Length);
             }
 
             return res;
@@ -231,22 +286,7 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
             return new(nvc["threadkey"], nvc["force_184"]);
         }
 
-        private async Task<T> SendCommentCommandAsync<T>(Uri server, object[] parameter)
-        {
-            var requestParamsJson = JsonSerializer.Serialize(parameter, new JsonSerializerOptions()
-            {
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
-            });
-
-#if WINDOWS_UWP
-            HttpStringContent content = new HttpStringContent(requestParamsJson);
-#else
-#endif
-
-            return await _context.PostJsonAsAsync<T>(
-                $"{server.OriginalString}/api.json", content, _CommentCommandResponseJsonSerializerOptions);
-        }
-
+        
 
 
         #region Post Comment
@@ -265,36 +305,30 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
             }
 
             var vpos = (int)(posision.TotalMilliseconds * 0.1);
-            object[] commentCommandList = new object[]
-            {
-                new PingItem($"rs:{_SubmitTimes}"),
-                new PingItem($"ps:{_SeqNum}"),
-                new PostChatData()
-                {
-                    Chat = new PostChat()
-                    {
-                        ThreadId = DefaultPostTargetThreadId,
-                        Vpos = vpos,
-                        Mail = mail,
-                        Ticket = _Ticket,
-                        UserId = _userId,
-                        Content = comment,
-                        PostKey = postKey,
-//                        Premium = _isPremium ? "1" : "0"
-                    }
-                },
-                new PingItem($"pf:{_SeqNum}"),
-                new PingItem($"rf:{_SubmitTimes}"),
-            };
 
-            var res = await SendCommentCommandAsync<PostCommentResponse>(_defaultPostTargetThread.Server, commentCommandList);
+            var builder = _commentSessionContext.CreateNextCommandBuilder();
+            builder.AddCommand(new PostChatData()
+            {
+                Chat = new PostChat()
+                {
+                    ThreadId = DefaultPostTargetThreadId,
+                    Vpos = vpos,
+                    Mail = mail,
+                    Ticket = _Ticket,
+                    UserId = _userId,
+                    Content = comment,
+                    PostKey = postKey,
+                    //                        Premium = _isPremium ? "1" : "0"
+                }
+            });
+            
+
+            var res = await _commentSessionContext.SendCommentCommandAsync<PostCommentResponse>(_defaultPostTargetThread.Server, builder);
 
             if (res?.ChatResult.Status == ChatResultCode.Success)
             {
                 _LastRes = (int)res.ChatResult.No;
             }
-
-            IncrementSequenceNumber(commentCommandList.Length);
 
             return res;
         }

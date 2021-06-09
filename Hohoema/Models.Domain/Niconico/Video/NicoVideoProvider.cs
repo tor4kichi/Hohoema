@@ -1,7 +1,4 @@
-﻿using Mntone.Nico2;
-using Mntone.Nico2.Mylist;
-using Mntone.Nico2.Videos.Recommend;
-using Hohoema.Database;
+﻿using Hohoema.Database;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Infrastructure;
 using System;
@@ -211,9 +208,18 @@ namespace Hohoema.Models.Domain.Niconico.Video
                 PublishVideoDeletedEvent(video.RawVideoId, result.deleteReason, video.Title);
             }
 
-
+            if (video.Owner?.UserType == OwnerType.Hidden)
+            {
+                video.Owner = null;
+            }
+            
             video.LastUpdated = DateTime.Now;
             _nicoVideoRepository.UpdateItem(video);
+
+            if (video.Owner != null)
+            {
+                _nicoVideoOwnerRepository.UpdateItem(video.Owner);
+            }
 
             return video;
         }
@@ -372,8 +378,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         IconUrl = info.Owner?.IconUrl,
                         ScreenName = info.Owner?.ScreenName,
                     };
-
-                    _nicoVideoOwnerRepository.UpdateItem(info.Owner);
                 }
                 else
                 {
@@ -384,8 +388,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
                         IconUrl = info.Owner?.IconUrl,
                         ScreenName = info.Owner?.ScreenName,
                     };
-
-                    _nicoVideoOwnerRepository.UpdateItem(info.Owner);
                 }
 
                 return (video.Deleted != 0, video.Deleted);
@@ -461,8 +463,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
                             OwnerId = userOwner.Id.ToString(),
                             UserType = OwnerType.User
                         };
-
-                        _nicoVideoOwnerRepository.UpdateItem(info.Owner);
                     }
                     else if (watchData.Channel is not null and var channelOwner)
                     {
@@ -473,8 +473,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
                             OwnerId = channelOwner.Id,
                             UserType = OwnerType.Channel
                         };
-
-                        _nicoVideoOwnerRepository.UpdateItem(info.Owner);
                     }
 
                     return (watchData.Video.IsDeleted, default);
@@ -485,34 +483,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
         }
 
 
-        public async Task<NicoVideoResponse> GetRelatedVideos(string videoId, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
-        {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.Video.GetRelatedVideoAsync(videoId, from, limit, sort, order);
-            });
-        }
-
-
-        public async Task<RecommendResponse> GetRecommendFirstAsync()
-        {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.Video.GetRecommendFirstAsync();
-            });
-        }
-
-        public async Task<RecommendContent> GetRecommendAsync(RecommendResponse res, RecommendContent prevInfo = null)
-        {
-            var user_tags = res.UserTagParam;
-            var seed = res.Seed;
-            var page = prevInfo?.RecommendInfo.Page ?? res.Page;
-            return await ContextActionAsync(async context =>
-            {
-                return await context.Video.GetRecommendAsync(user_tags, seed, page);
-            });
-            
-        }
 
     }
 }

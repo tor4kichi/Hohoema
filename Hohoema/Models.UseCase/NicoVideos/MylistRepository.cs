@@ -1,6 +1,4 @@
-﻿using Mntone.Nico2.Mylist;
-
-using Hohoema.Models.Domain;
+﻿using Hohoema.Models.Domain;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -59,7 +57,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             }
             else
             {
-                return await _mylistProvider.GetMylistsByUser(userId);
+                return await _mylistProvider.GetMylistsByUser(userId, 1);
             }
         }
     }

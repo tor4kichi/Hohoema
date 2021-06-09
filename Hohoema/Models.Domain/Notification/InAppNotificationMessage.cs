@@ -8,6 +8,7 @@ using Windows.UI.Xaml.Controls;
 using Unity;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using NiconicoToolkit.Account;
 
 namespace Hohoema.Models.Domain.Notification
 {
@@ -70,7 +71,7 @@ namespace Hohoema.Models.Domain.Notification
 
 
         public static InAppNotificationPayload CreateRegistrationResultNotification(
-            Mntone.Nico2.ContentManageResult registrationResult,
+            ContentManageResult registrationResult,
             string containerKindLabel,
             string containerTitle,
             string targetTitle,
@@ -78,11 +79,11 @@ namespace Hohoema.Models.Domain.Notification
             )
         {
             string notifyContent = null;
-            if (registrationResult == Mntone.Nico2.ContentManageResult.Success)
+            if (registrationResult == ContentManageResult.Success)
             {
                 notifyContent = "CompleteRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerTitle, targetTitle);
             }
-            else if (registrationResult == Mntone.Nico2.ContentManageResult.Exist)
+            else if (registrationResult == ContentManageResult.Exist)
             {
                 notifyContent = "ExistRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerTitle, targetTitle);
             }

@@ -58,6 +58,11 @@ namespace NiconicoToolkit.User
 
 
 
+        public static string MakeUserPageUrl<IdType>(IdType userId)
+        {
+            return $"https://www.nicovideo.jp/user/{userId}";
+        }
+
 
         public Task<UserDetailResponse> GetUserDetailAsync(string userId)
         {
@@ -73,7 +78,7 @@ namespace NiconicoToolkit.User
         {
             await _context.WaitPageAccessAsync();
 
-            var res = await _context.GetAsync($"https://www.nicovideo.jp/user/{userId}");
+            var res = await _context.GetAsync(MakeUserPageUrl(userId));
             if (!res.IsSuccessStatusCode)
             {
                 return new UserDetailResponse()

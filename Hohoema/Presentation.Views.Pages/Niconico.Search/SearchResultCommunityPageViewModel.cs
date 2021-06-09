@@ -20,6 +20,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Hohoema.Models.UseCase.Niconico.Account;
+using Microsoft.Toolkit.Collections;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
@@ -244,9 +245,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             return base.OnNavigatedToAsync(parameters);
         }
 
-        protected override IIncrementalSource<CommunityInfoControlViewModel> GenerateIncrementalSource()
+        protected override (int, IIncrementalSource<CommunityInfoControlViewModel>) GenerateIncrementalSource()
 		{
-			return new CommunitySearchSource(
+			return (CommunitySearchSource.OneTimeLoadCount,  new CommunitySearchSource(
                 new CommunitySearchPagePayloadContent()
                 {
                     Keyword = SearchOption.Keyword,
@@ -255,7 +256,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                     Sort = SearchOption.Sort
                 },
                 SearchProvider
-            );
+            ));
 		}
 
         protected override void PostResetList()
@@ -288,10 +289,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             SearchProvider = searchProvider;
         }
 
-        public uint OneTimeLoadCount => 10;
+        public const int OneTimeLoadCount = 10;
+
 
 		public uint TotalCount { get; private set; }
-		public CommunitySearchResponse FirstResponse { get; private set; }
 
 		public string SearchKeyword { get; private set; }
 		public CommunitySearchMode Mode { get; private set; }
@@ -299,65 +300,24 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 		public Order Order { get; private set; }
         public SearchProvider SearchProvider { get; }
 
-        public async ValueTask<int> ResetSource(CancellationToken ct)
-		{
-			try
-			{
-				FirstResponse = await SearchProvider.SearchCommunity(
-					SearchKeyword
-					, 1
-					, Sort
-					, Order
-					, Mode
-					);
+        async Task<IEnumerable<CommunityInfoControlViewModel>> IIncrementalSource<CommunityInfoControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
+        {
+            var res = await SearchProvider.SearchCommunity(
+                SearchKeyword
+                , (uint)pageIndex
+                , Sort
+                , Order
+                , Mode
+                );
 
-				if (FirstResponse != null)
-				{
-					TotalCount = FirstResponse.TotalCount;
-				}
-			}
-			catch { }
-			
-
-			return (int)TotalCount;
-		}
-
-		public async IAsyncEnumerable<CommunityInfoControlViewModel> GetPagedItems(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
-		{
-			CommunitySearchResponse res = head == 0 ? FirstResponse : null;
-
-			if (res == null)
-			{
-				var page = (uint)((head + count) / OneTimeLoadCount);
-				res = await SearchProvider.SearchCommunity(
-					SearchKeyword
-					, page
-					, Sort
-					, Order
-					, Mode
-					);
-			}
-
-            ct.ThrowIfCancellationRequested();
-
-			if (res == null)
-			{
-                yield break;
-			}
-
-			if (false == res.IsStatusOK)
-			{
-                yield break;
-            }
-
-            foreach (var item in res.Communities)
+            if (res == null || !res.IsStatusOK)
             {
-                yield return new CommunityInfoControlViewModel(item);
-                ct.ThrowIfCancellationRequested();
+                return Enumerable.Empty<CommunityInfoControlViewModel>();
             }
-		}
 
-	}
+            return res.Communities.Select(item => new CommunityInfoControlViewModel(item));
+        }
+    }
 
 	public class CommunityInfoControlViewModel : HohoemaListingPageItemBase, ICommunity
     {

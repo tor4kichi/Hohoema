@@ -96,11 +96,8 @@ namespace NiconicoToolkit.Mylist.LoginUser
         }
 
 
-        public sealed class ChangeMylistGroupsOrderResponse
+        public sealed class ChangeMylistGroupsOrderResponse : ResponseWithMeta
         {
-            [JsonPropertyName("meta")]
-            public Meta Meta { get; set; }
-
             [JsonPropertyName("data")]
             public ChangeMylistGroupsOrderData Data { get; set; }
         }

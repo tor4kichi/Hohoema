@@ -265,12 +265,9 @@
 
 
       <Style TargetType="ListViewItem" x:Key="VideoListViewItemStyle">
-        <Setter Property="HorizontalContentAlignment"
-                                Value="Stretch" 
-                                    />
-        <Setter Property="Margin"
-                                Value="0 0 0 0" 
-                                />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Height" Value="92" />
+        <Setter Property="Margin" Value="0 0 0 0" />
         <Setter Property="Padding" Value="0 8 16 8" />
         <Setter Property="UseSystemFocusVisuals" Value="True" />
         <Setter Property="BorderThickness" Value="0 0 0 1" />
