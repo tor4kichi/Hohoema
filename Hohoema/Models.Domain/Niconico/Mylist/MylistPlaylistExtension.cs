@@ -10,5 +10,10 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
         {
             return mylist?.Id == DefailtMylistId;
         }
+
+        public static bool IsDefaultMylistId(string mylistId)
+        {
+            return mylistId == DefailtMylistId;
+        }
     }
 }

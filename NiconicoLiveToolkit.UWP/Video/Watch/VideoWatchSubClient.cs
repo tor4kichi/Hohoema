@@ -12,7 +12,13 @@ using System.Text.Json;
 using System.Net;
 using System.Collections.Specialized;
 using NiconicoToolkit.Video.Watch.Dmc;
+#if WINDOWS_UWP
 using Windows.Web.Http;
+using Windows.Web.Http.Headers;
+#else
+using System.Net.Http;
+using System.Net.Http.Headers;
+#endif
 
 namespace NiconicoToolkit.Video.Watch
 {
@@ -150,9 +156,10 @@ namespace NiconicoToolkit.Video.Watch
             var sessionUrl = $"{watchData.Media.Delivery.Movie.Session.Urls[0].UrlUnsafe}?_format=json";
             var requestJson = JsonSerializer.Serialize(req, new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
 #if WINDOWS_UWP
-            return await _context.PostJsonAsAsync<DmcSessionResponse>(
+            return await _context.SendJsonAsAsync<DmcSessionResponse>(
+                HttpMethod.Post,
                 sessionUrl,
-                new HttpStringContent(requestJson, Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json")
+                requestJson
                 );
 #else
             return await _context.PostAsync(sessionUrl, new StringContent(decodedJson, UnicodeEncoding.UTF8, "application/json"));

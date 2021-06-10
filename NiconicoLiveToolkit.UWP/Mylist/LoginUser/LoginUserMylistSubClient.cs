@@ -52,7 +52,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
 
         public async Task<CreateMylistResponse> CreateMylistAsync(string name, string description, bool isPublic, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
-            return await _context.PostJsonAsAsync<CreateMylistResponse>("https://nvapi.nicovideo.jp/v1/users/me/mylists", new Dictionary<string, string>()
+            return await _context.SendJsonAsAsync<CreateMylistResponse>(HttpMethod.Post, "https://nvapi.nicovideo.jp/v1/users/me/mylists", new Dictionary<string, string>()
             {
                 { "name", name },
                 { "description", description },
@@ -73,14 +73,14 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 { "defaultSortOrder", sortOrder.GetDescription() },
             };
             var httpContent = new HttpFormUrlEncodedContent(dict);
-            var res = await _context.SendAsync(HttpMethod.Put, $"https://nvapi.nicovideo.jp/v1/users/me/mylists/{mylistId}", httpContent);
+            var res = await _context.SendAsync(HttpMethod.Put, $"https://nvapi.nicovideo.jp/v1/users/me/mylists/{mylistId}", httpContent, completionOption: HttpCompletionOption.ResponseHeadersRead);
             return res.IsSuccessStatusCode;
         }
 
 
         public async Task<bool> RemoveMylistAsync(string mylistId)
         {
-            var res = await _context.SendAsync(HttpMethod.Delete, $"https://nvapi.nicovideo.jp/v1/users/me/mylists/{mylistId}");
+            var res = await _context.SendAsync(HttpMethod.Delete, $"https://nvapi.nicovideo.jp/v1/users/me/mylists/{mylistId}", completionOption: HttpCompletionOption.ResponseHeadersRead);
             return res.IsSuccessStatusCode;
         }
 

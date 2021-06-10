@@ -175,16 +175,6 @@ namespace NiconicoToolkit
             return await res.Content.ReadAsAsync<T>(options);
         }
 
-#if WINDOWS_UWP
-        internal async Task<T> GetJsonAsAsync<T>(HttpMethod httpMethod, string url, IHttpContent httpContent = null, JsonSerializerOptions options = null, Action<HttpRequestHeaderCollection> headerModifier = null)
-#else
-		internal async Task<T> GetJsonAsAsync<T>(HttpMethod httpMethod, string url, HttpContent httpContent = null, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
-#endif
-        {
-            var message = await SendAsync(httpMethod, url, content: httpContent, headerModifier);
-            return await message.Content.ReadAsAsync<T>(options);
-        }
-
 
 #if WINDOWS_UWP
         internal Task<HttpResponseMessage> PostAsync(string path, CancellationToken ct = default)
@@ -238,36 +228,6 @@ namespace NiconicoToolkit
 #endif
 
 
-        internal Task<T> PostJsonAsAsync<T>(string path, Dictionary<string, string> pairs, JsonSerializerOptions options = null)
-        {
-            return PostJsonAsAsync<T>(new Uri(path), pairs, options);
-        }
-
-        internal async Task<T> PostJsonAsAsync<T>(Uri path, Dictionary<string, string> pairs, JsonSerializerOptions options = null)
-        {
-            var pairsContent = pairs;
-#if WINDOWS_UWP
-            var content = new HttpFormUrlEncodedContent(pairsContent);
-#else
-            var content = new FormUrlEncodedContent(pairsContent);
-#endif
-            return await PostJsonAsAsync<T>(path, content);
-        }
-
-#if WINDOWS_UWP
-
-        internal Task<T> PostJsonAsAsync<T>(string path, IHttpContent content, JsonSerializerOptions options = null)
-        {
-            return PostJsonAsAsync<T>(new Uri(path), content, options);
-        }
-
-        internal async Task<T> PostJsonAsAsync<T>(Uri path, IHttpContent content, JsonSerializerOptions options = null)
-        {
-            var res = await PostAsync(path, content);
-            return await res.Content.ReadAsAsync<T>(options);
-        }
-#endif
-
 #if WINDOWS_UWP
 
         internal Task<HttpResponseMessage> SendAsync(HttpMethod httpMethod, string path, IHttpContent content = null, Action<HttpRequestHeaderCollection> headerFiller = null, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken ct = default)
@@ -297,16 +257,75 @@ namespace NiconicoToolkit
         }
 #endif
 
-
-        internal Task<T> DeleteJsonAsAsync<T>(string path, JsonSerializerOptions options = null, CancellationToken ct = default)
+#if WINDOWS_UWP
+        internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, JsonSerializerOptions options = null, Action<HttpRequestHeaderCollection> headerModifier = null)
+#else
+		internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
+#endif
         {
-            return DeleteJsonAsAsync<T>(new Uri(path), options, ct);
+            return SendJsonAsAsync<T>(httpMethod, url, httpContent: null, options, headerModifier);
         }
 
-        internal async Task<T> DeleteJsonAsAsync<T>(Uri path, JsonSerializerOptions options = null, CancellationToken ct = default)
+
+
+#if WINDOWS_UWP
+        internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, string stringHttpContent, JsonSerializerOptions options = null, Action<HttpRequestHeaderCollection> headerModifier = null)
+#else
+		internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, string stringHttpContent, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
+#endif
         {
-            var res = await SendAsync(HttpMethod.Delete, path, ct: ct);
-            return await res.Content.ReadAsAsync<T>(options, ct);
+#if WINDOWS_UWP
+            var content = new HttpStringContent(stringHttpContent);
+#else
+            var content = new HttpStringContent(stringHttpContent);
+#endif
+            return SendJsonAsAsync<T>(httpMethod, url, content, options, headerModifier);
+        }
+
+
+
+#if WINDOWS_UWP
+        internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, Dictionary<string, string> pairs, JsonSerializerOptions options = null, Action<HttpRequestHeaderCollection> headerModifier = null)
+#else
+		internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, Dictionary<string, string> pairs, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
+#endif
+        {
+            return SendJsonAsAsync<T>(httpMethod, url, pairs, options, headerModifier);
+        }
+
+#if WINDOWS_UWP
+        internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, Uri url, Dictionary<string, string> pairs, JsonSerializerOptions options = null, Action<HttpRequestHeaderCollection> headerModifier = null)
+#else
+		internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, Uri url, Dictionary<string, string> pairs, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
+#endif
+        {
+#if WINDOWS_UWP
+            var content = new HttpFormUrlEncodedContent(pairs);
+#else
+            var content = new FormUrlEncodedContent(pairs);
+#endif
+            return SendJsonAsAsync<T>(httpMethod, url, content, options, headerModifier);
+        }
+
+
+#if WINDOWS_UWP
+        internal async Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, IHttpContent httpContent, JsonSerializerOptions options = null, Action<HttpRequestHeaderCollection> headerModifier = null)
+#else
+		internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, HttpContent httpContent = null, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
+#endif
+        {
+            var message = await SendAsync(httpMethod, new Uri(url), httpContent, headerModifier);
+            return await message.Content.ReadAsAsync<T>(options);
+        }
+
+#if WINDOWS_UWP
+        internal async Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, Uri url, IHttpContent httpContent, JsonSerializerOptions options = null, Action<HttpRequestHeaderCollection> headerModifier = null)
+#else
+		internal async Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, HttpContent httpContent = null, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
+#endif
+        {
+            var message = await SendAsync(httpMethod, url, httpContent, headerModifier);
+            return await message.Content.ReadAsAsync<T>(options);
         }
 
 #endregion

@@ -342,7 +342,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 _ProviderId = videoItem.Owner.Id;
                 ProviderType = videoItem.Owner.OwnerType;
                 _ProviderName = videoItem.Owner.Name;
-                ProviderIconUrl = videoItem.Owner.IconUrl.OriginalString;
+                ProviderIconUrl = videoItem.Owner.IconUrl?.OriginalString;
             }
 
             UpdateIsHidenVideoOwner(this);
