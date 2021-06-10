@@ -19,6 +19,7 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using Windows.UI.Core;
 using NiconicoToolkit.Live.WatchSession;
+using NiconicoToolkit.Comment;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 

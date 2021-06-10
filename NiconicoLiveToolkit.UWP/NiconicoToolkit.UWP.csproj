@@ -190,7 +190,7 @@
     <Compile Include="Live\Search\LiveSearchClient.cs" />
     <Compile Include="Live\WatchPageProp\DataProps.cs" />
     <Compile Include="Live\WatchSession\ChatResult.cs" />
-    <Compile Include="Live\WatchSession\CommandType.cs" />
+    <Compile Include="Comment\CommandType.cs" />
     <Compile Include="Live\WatchSession\Live2WatchSession.cs" />
     <Compile Include="Live\WatchSession\LiveChatData.cs" />
     <Compile Include="Live\WatchSession\LiveCommentSession.cs" />

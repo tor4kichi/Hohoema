@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NiconicoToolkit.Live.WatchSession
+namespace NiconicoToolkit.Comment
 {
 	public enum CommandType
 	{
