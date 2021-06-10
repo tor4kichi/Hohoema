@@ -25,7 +25,6 @@ namespace Hohoema.Models.Domain.Player.Video
 
         DateTime SubmitDate { get; }
 
-        string ProviderName { get; }
         string OwnerIconUrl { get; }
 
         bool IsChannelOwnedVideo { get; }
@@ -113,6 +112,8 @@ namespace Hohoema.Models.Domain.Player.Video
         string INiconicoObject.Label => VideoTitle;
 
         OwnerType IVideoContentProvider.ProviderType => _dmcWatchRes.Channel != null ? OwnerType.Channel : OwnerType.User;
+
+        string IVideoDetail.ProviderIconUrl => OwnerIconUrl;
 
         bool IEquatable<IVideoContent>.Equals(IVideoContent other)
         {

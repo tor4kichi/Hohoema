@@ -342,6 +342,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 _ProviderId = videoItem.Owner.Id;
                 ProviderType = videoItem.Owner.OwnerType;
                 _ProviderName = videoItem.Owner.Name;
+                ProviderIconUrl = videoItem.Owner.IconUrl.OriginalString;
             }
 
             UpdateIsHidenVideoOwner(this);
@@ -398,6 +399,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 _ProviderId = videoItem.Owner.OwnerId;
                 ProviderType = videoItem.Owner.UserType;
                 _ProviderName = videoItem.Owner.ScreenName;
+                ProviderIconUrl = videoItem.Owner.IconUrl;
             }
 
             UpdateIsHidenVideoOwner(this);
@@ -477,6 +479,9 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             set { SetProperty(ref _ProviderName, value); }
         }
 
+
+        
+        public string ProviderIconUrl { get; private set; }
 
         public OwnerType ProviderType { get; set; }
 

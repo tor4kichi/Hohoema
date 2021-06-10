@@ -112,7 +112,7 @@
                       HorizontalAlignment="Left"
                       >
             <CommandBar.PrimaryCommands>
-              <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{Binding IsLikedVideo, Mode=TwoWay}" IsEnabled="{Binding NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
+              <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{Binding LikesContext.IsLikes, Mode=TwoWay}" IsEnabled="{Binding LikesContext.NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
               <AppBarButton Icon="Download" Label="{i18nExt:Localize Key=CacheRequest}" Command="{Binding CacheAddRequestCommand}" CommandParameter="{Binding VideoInfo}" Visibility="{Binding NiconicoSession.IsPremiumAccount, Converter={StaticResource BooleanToVisibility}}" />
 
               <AppBarButton x:Name="ShareSubButton" Label="{i18nExt:Localize Key=Share}" Command="{Binding OpenShareUICommand}" CommandParameter="{Binding VideoInfo}" />

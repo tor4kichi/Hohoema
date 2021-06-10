@@ -23,6 +23,7 @@ using NiconicoToolkit.Follow;
 using NiconicoToolkit.SearchWithCeApi;
 using NiconicoToolkit.Series;
 using NiconicoToolkit.NicoRepo;
+using NiconicoToolkit.Likes;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -68,6 +69,7 @@ namespace NiconicoToolkit
             Follow = new FollowClient(this);
             Series = new SeriesClient(this);
             NicoRepo = new NicoRepoClient(this, _defaultOptions);
+            Likes = new LikesClient(this, _defaultOptions);
         }
 
 
@@ -86,7 +88,7 @@ namespace NiconicoToolkit
         public FollowClient Follow { get; }
         public SeriesClient Series { get; }
         public NicoRepoClient NicoRepo { get; }
-
+        public LikesClient Likes { get; }
 
         TimeSpan _minPageAccessInterval = TimeSpan.FromSeconds(1);
         DateTime _prevPageAccessTime;
@@ -172,6 +174,17 @@ namespace NiconicoToolkit
             var res = await HttpClient.GetAsync(path);
             return await res.Content.ReadAsAsync<T>(options);
         }
+
+#if WINDOWS_UWP
+        internal async Task<T> GetJsonAsAsync<T>(HttpMethod httpMethod, string url, IHttpContent httpContent = null, JsonSerializerOptions options = null, Action<HttpRequestHeaderCollection> headerModifier = null)
+#else
+		internal async Task<T> GetJsonAsAsync<T>(HttpMethod httpMethod, string url, HttpContent httpContent = null, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
+#endif
+        {
+            var message = await SendAsync(httpMethod, url, content: httpContent, headerModifier);
+            return await message.Content.ReadAsAsync<T>(options);
+        }
+
 
 #if WINDOWS_UWP
         internal Task<HttpResponseMessage> PostAsync(string path, CancellationToken ct = default)

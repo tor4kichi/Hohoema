@@ -389,6 +389,7 @@
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowTagGroupViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowUserGroupViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Follow\IFollowContext.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Likes\VideoLikesContext.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Live\LiveInfoListItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Share\CopyToClipboardWithShareTextCommand.cs" />
     <Compile Include="Presentation.Services\UINavigation\UINavigationButtons.cs" />

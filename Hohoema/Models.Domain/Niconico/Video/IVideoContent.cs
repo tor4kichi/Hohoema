@@ -32,5 +32,8 @@ namespace Hohoema.Models.Domain.Niconico.Video
         string Description { get; }
         bool IsDeleted { get; }
         VideoPermission Permission { get; }
+
+        string ProviderName { get; }
+        string ProviderIconUrl { get; }
     }
 }

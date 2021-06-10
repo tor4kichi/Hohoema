@@ -147,6 +147,7 @@
     <Compile Include="Follow\UserOwnedCommunityResponse.cs" />
     <Compile Include="HttpContentExtensions.cs" />
     <Compile Include="HttpStatusCodeHelper.cs" />
+    <Compile Include="Likes\LikesClient.cs" />
     <Compile Include="Mylist\LoginUser\MoveOrCopyMylistItemsResponse.cs" />
     <Compile Include="Mylist\LoginUser\WatchAfterItemsResponse.cs" />
     <Compile Include="NiconicoToolkitException.cs" />
