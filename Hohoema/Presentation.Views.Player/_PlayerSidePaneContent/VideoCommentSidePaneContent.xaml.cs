@@ -21,10 +21,10 @@ namespace Hohoema.Presentation.Views.Player
 {
     public sealed partial class VideoCommentSidePaneContent : UserControl
     {
-        VideoCommentSizePaneContentViewModel _viewModel;
+        VideoCommentSidePaneContentViewModel _viewModel;
         public VideoCommentSidePaneContent()
         {
-            DataContext = _viewModel = App.Current.Container.Resolve<VideoCommentSizePaneContentViewModel>();
+            DataContext = _viewModel = App.Current.Container.Resolve<VideoCommentSidePaneContentViewModel>();
             this.InitializeComponent();
         }
     }

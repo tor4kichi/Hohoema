@@ -197,40 +197,4 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             }
         }
     }
-
-    public sealed class CachedVideoDetails : INicoVideoDetails
-    {
-        public string VideoTitle { get; set; }
-
-        public NicoVideoTag[] Tags { get; set; }
-
-        public string ThumbnailUrl { get; set; }
-
-        public TimeSpan VideoLength { get; set; }
-
-        public DateTime SubmitDate { get; set; }
-
-        public int ViewCount { get; set; }
-
-        public int CommentCount { get; set; }
-
-        public int MylistCount { get; set; }
-
-        public string ProviderId { get; set; }
-        public string ProviderName { get; set; }
-        public OwnerType OwnerType { get; set; }
-        public string OwnerIconUrl { get; set; }
-
-        public bool IsChannelOwnedVideo { get; set; }
-
-        public string DescriptionHtml { get; set; }
-
-        public double LoudnessCorrectionValue { get; set; }
-
-        public bool IsSeriesVideo => false;
-
-        public WatchApiSeries Series => null;
-
-        public bool IsLikedVideo { get; set; }
-    }
 }

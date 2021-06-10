@@ -104,7 +104,7 @@
             <TextBlock Text="{i18nExt:Localize Key=PlaybackRate}"
                        Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <ComboBox SelectedItem="{x:Bind _viewModel.PlayerSettings.PlaybackRate, Mode=TwoWay, UpdateSourceTrigger=Default}"
+            <ComboBox SelectedItem="{Binding PlayerSettings.PlaybackRate, Mode=TwoWay, UpdateSourceTrigger=Default}"
                               ItemsSource="{x:Bind VideoPlaybackRateList}"
                             HorizontalAlignment="Right"
                             >
@@ -121,7 +121,7 @@
                        Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
             <ComboBox ItemsSource="{x:Bind PlaylistEndActionList}"
-                              SelectedItem="{x:Bind _viewModel.PlayerSettings.PlaylistEndAction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedItem="{Binding PlayerSettings.PlaylistEndAction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       HorizontalAlignment="Right"
                               >
               <ComboBox.ItemTemplate>
@@ -136,7 +136,7 @@
             <TextBlock Text="{i18nExt:Localize Key=NextVideoAutoDectectionAndMove}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.AutoMoveNextVideoOnPlaylistEmpty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+            <ToggleSwitch IsOn="{Binding PlayerSettings.AutoMoveNextVideoOnPlaylistEmpty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                           HorizontalAlignment="Right"
                           HorizontalContentAlignment="Right"
                           Margin="0"
@@ -161,7 +161,7 @@
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                                
                            />
-            <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.IsDefaultCommentWithAnonymous, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+            <ToggleSwitch IsOn="{Binding PlayerSettings.IsDefaultCommentWithAnonymous, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                         HorizontalAlignment="Right"
                         />
           </Grid>
@@ -169,7 +169,7 @@
             <TextBlock Text="{i18nExt:Localize Key=PauseWithWritingComment}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.PauseWithCommentWriting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <ToggleSwitch IsOn="{Binding PlayerSettings.PauseWithCommentWriting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                         HorizontalAlignment="Right"
                         />
           </Grid>
@@ -188,7 +188,7 @@
             <TextBlock Text="{i18nExt:Localize Key=CommentDisplayDuration}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.CommentDisplayDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToDoubleConverter}}"
+            <toolkit:NumericUpDown Value="{Binding PlayerSettings.CommentDisplayDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToDoubleConverter}}"
                             Maximum="10"
                             Minimum="1"
                             SmallChange="0.5"
@@ -206,7 +206,7 @@
                            uwpControls:DockPanel.Dock="Left"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.DefaultCommentFontScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <toolkit:NumericUpDown Value="{Binding PlayerSettings.DefaultCommentFontScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                        SmallChange="0.05"
                                        LargeChange="1.0"
                                        Minimum="0.1"
@@ -224,7 +224,7 @@
             <TextBlock Text="{i18nExt:Localize Key=CommentOpacity}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <Slider Value="{x:Bind _viewModel.PlayerSettings.CommentOpacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <Slider Value="{Binding PlayerSettings.CommentOpacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             Width="200"
                             Maximum="1.0"
                             Minimum="0.0"
@@ -232,7 +232,7 @@
                             StepFrequency="0.01"
                             SmallChange="0.05"
                             LargeChange="0.2"
-                            Header="{x:Bind _viewModel.PlayerSettings.CommentOpacity, Mode=OneWay}"
+                            Header="{Binding PlayerSettings.CommentOpacity, Mode=OneWay}"
                             HorizontalAlignment="Right"
                             HorizontalContentAlignment="Left"
                           />
@@ -242,7 +242,7 @@
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
             <ComboBox ItemsSource="{x:Bind CommentColorList}"
-                              SelectedItem="{x:Bind _viewModel.PlayerSettings.CommentColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedItem="{Binding PlayerSettings.CommentColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               
                     HorizontalAlignment="Right"
                           >
@@ -276,7 +276,7 @@
                                Style="{StaticResource SettingsOptionTitleTextBlock}"
                                />
             <ComboBox ItemsSource="{x:Bind _NGScoreShareLevels}"
-                      SelectedItem="{x:Bind _viewModel.CommentFiltering.ShareNGScore, Mode=TwoWay, Converter={StaticResource CommentNGScoreShareLevelConverter}}"
+                      SelectedItem="{Binding CommentFiltering.ShareNGScore, Mode=TwoWay, Converter={StaticResource CommentNGScoreShareLevelConverter}}"
                       HorizontalAlignment="Right"
                       >
               <ComboBox.ItemTemplate>
@@ -446,7 +446,7 @@
             <TextBlock Text="{i18nExt:Localize Key=NicoScript_Default}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.NicoScript_Default_Enabled, Mode=TwoWay}"                                
+            <ToggleSwitch IsOn="{Binding PlayerSettings.NicoScript_Default_Enabled, Mode=TwoWay}"                                
                             HorizontalAlignment="Right"
                                         />
           </Grid>
@@ -454,7 +454,7 @@
             <TextBlock Text="{i18nExt:Localize Key=NicoScript_DisallowSeek}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.NicoScript_DisallowSeek_Enabled, Mode=TwoWay}"
+            <ToggleSwitch IsOn="{Binding PlayerSettings.NicoScript_DisallowSeek_Enabled, Mode=TwoWay}"
                             HorizontalAlignment="Right"
                                         />
           </Grid>
@@ -462,7 +462,7 @@
             <TextBlock Text="{i18nExt:Localize Key=NicoScript_DisallowComment}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.NicoScript_DisallowComment_Enabled, Mode=TwoWay}"
+            <ToggleSwitch IsOn="{Binding PlayerSettings.NicoScript_DisallowComment_Enabled, Mode=TwoWay}"
                             HorizontalAlignment="Right"
                                         />
           </Grid>
@@ -470,7 +470,7 @@
             <TextBlock Text="{i18nExt:Localize Key=NicoScript_Jump}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.NicoScript_Jump_Enabled, Mode=TwoWay}"
+            <ToggleSwitch IsOn="{Binding PlayerSettings.NicoScript_Jump_Enabled, Mode=TwoWay}"
                             HorizontalAlignment="Right"
                                         />
           </Grid>
@@ -502,7 +502,7 @@
             <TextBlock Text="{i18nExt:Localize Key=SoundVolumeChangeValueWithMouseScroll}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.SoundVolumeChangeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
+            <toolkit:NumericUpDown Value="{Binding PlayerSettings.SoundVolumeChangeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
                                                 SmallChange="1"
                                                 LargeChange="5"
                                                 Minimum="1"

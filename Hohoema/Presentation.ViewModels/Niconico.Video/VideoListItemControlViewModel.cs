@@ -408,6 +408,26 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             }
         }
 
+        public VideoListItemControlViewModel(
+           IVideoDetail videoItem
+           )
+           : this(videoItem.Id, videoItem.Label, videoItem.ThumbnailUrl, videoItem.Length, videoItem.PostedAt)
+        {
+            _ProviderId = videoItem.ProviderId;
+            ProviderType = videoItem.ProviderType;
+
+            ViewCount = videoItem.ViewCount;
+            CommentCount = videoItem.CommentCount;
+            MylistCount = videoItem.MylistCount;
+
+            UpdateIsHidenVideoOwner(this);
+
+            if (VideoId != RawVideoId && VideoId != null)
+            {
+                SubscribeAll(VideoId);
+            }
+        }
+
         public bool Equals(IVideoContent other)
         {
             return Id == other.Id;

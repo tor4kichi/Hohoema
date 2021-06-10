@@ -51,7 +51,10 @@ namespace Hohoema.Presentation.Views.Controls.VideoList.VideoListItem
 
         private static void OnImageUrlChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            ((VideoListItem)d)._templateChildImage.Source = e.NewValue is string strUrl ? new BitmapImage(new Uri(strUrl)) : null;
+            if (((VideoListItem)d)._templateChildImage is not null and var templatedChildImage)
+            {
+                templatedChildImage.Source = e.NewValue is string strUrl ? new BitmapImage(new Uri(strUrl)) : null;
+            }
         }
 
         public string ImageSubText

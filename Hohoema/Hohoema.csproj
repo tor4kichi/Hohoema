@@ -866,7 +866,7 @@
     <Compile Include="Presentation.Views\TemplateSelector\HohoemaFlyoutTemplateSelector.cs" />
     <Compile Include="Presentation.Views\TemplateSelector\MenuSubPageTemplateSelector.cs" />
     <Compile Include="Presentation.Views\TemplateSelector\NullableTemplateSelector.cs" />
-    <Compile Include="Presentation.Views\TemplateSelector\PlayerSidePaneContentTemplateSelector.cs" />
+    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\PlayerSidePaneContentTemplateSelector.cs" />
     <Compile Include="Presentation.Views\TemplateSelector\TypeBasedTemplateSelector.cs" />
     <Compile Include="Presentation.Views\TemplateSelector\ValueDataTemplateSelector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

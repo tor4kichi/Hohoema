@@ -1,6 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player.Video.Comment;
+using NiconicoToolkit.Video;
 using NiconicoToolkit.Video.Watch;
 using System;
 using System.Collections.Generic;
@@ -15,21 +16,18 @@ namespace Hohoema.Models.Domain.Player.Video
 {
 
 
-    public interface INicoVideoDetails
+    public interface INicoVideoDetails : IVideoDetail
     {
         string VideoTitle { get; }
         NicoVideoTag[] Tags { get; }
 
-        string ThumbnailUrl { get; }
         TimeSpan VideoLength { get; }
 
         DateTime SubmitDate { get; }
-        int ViewCount { get; }
-        int CommentCount { get; }
-        int MylistCount { get; }
-        string ProviderId { get; }
+
         string ProviderName { get; }
         string OwnerIconUrl { get; }
+
         bool IsChannelOwnedVideo { get; }
 
         string DescriptionHtml { get; }
@@ -52,6 +50,8 @@ namespace Hohoema.Models.Domain.Player.Video
             _dmcWatchRes = dmcWatchData;
             Tags = _dmcWatchRes.Tag.Items.Select(x => new NicoVideoTag(x.Name)).ToArray();
         }
+
+        public string VideoId => _dmcWatchRes.Video.Id;
 
         public string VideoTitle => _dmcWatchRes.Video.Title;
 
@@ -97,6 +97,27 @@ namespace Hohoema.Models.Domain.Player.Video
         public WatchApiSeries Series => _dmcWatchRes?.Series;
 
         public bool IsLikedVideo => _dmcWatchRes.Video.Viewer?.Like.IsLiked ?? false;
+
+        string IVideoDetail.Description => DescriptionHtml;
+
+        bool IVideoDetail.IsDeleted => _dmcWatchRes.Video.IsDeleted;
+
+        VideoPermission IVideoDetail.Permission => throw new NotSupportedException();
+
+        TimeSpan IVideoContent.Length => VideoLength;
+
+        DateTime IVideoContent.PostedAt => SubmitDate;
+
+        string INiconicoObject.Id => VideoId;
+
+        string INiconicoObject.Label => VideoTitle;
+
+        OwnerType IVideoContentProvider.ProviderType => _dmcWatchRes.Channel != null ? OwnerType.Channel : OwnerType.User;
+
+        bool IEquatable<IVideoContent>.Equals(IVideoContent other)
+        {
+            return this.VideoId == other.Id;
+        }
     }
 
     public enum PreparePlayVideoFailedReason

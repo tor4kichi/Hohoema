@@ -71,28 +71,28 @@
       <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=PlayWithSecondaryView}"></MenuFlyoutItem>
       <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></ToggleMenuFlyoutItem>
     </MenuFlyout>
-    <templateselector:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
-      <templateselector:PlayerSidePaneContentTemplateSelecter.Empty>
+    <local:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
+      <local:PlayerSidePaneContentTemplateSelecter.Empty>
         <DataTemplate>
           <!-- empty -->
         </DataTemplate>
-      </templateselector:PlayerSidePaneContentTemplateSelecter.Empty>
-      <templateselector:PlayerSidePaneContentTemplateSelecter.Playlist>
+      </local:PlayerSidePaneContentTemplateSelecter.Empty>
+      <local:PlayerSidePaneContentTemplateSelecter.Playlist>
         <DataTemplate>
           <local:PlaylistSidePaneContent />
         </DataTemplate>
-      </templateselector:PlayerSidePaneContentTemplateSelecter.Playlist>
-      <templateselector:PlayerSidePaneContentTemplateSelecter.Comments>
+      </local:PlayerSidePaneContentTemplateSelecter.Playlist>
+      <local:PlayerSidePaneContentTemplateSelecter.Comments>
         <DataTemplate>
           <local:LiveCommentsSidePaneContent />
         </DataTemplate>
-      </templateselector:PlayerSidePaneContentTemplateSelecter.Comments>
-      <templateselector:PlayerSidePaneContentTemplateSelecter.Settings>
+      </local:PlayerSidePaneContentTemplateSelecter.Comments>
+      <local:PlayerSidePaneContentTemplateSelecter.Settings>
         <DataTemplate>
           <local:LiveSettingsSidePaneContent />
         </DataTemplate>
-      </templateselector:PlayerSidePaneContentTemplateSelecter.Settings>
-    </templateselector:PlayerSidePaneContentTemplateSelecter>
+      </local:PlayerSidePaneContentTemplateSelecter.Settings>
+    </local:PlayerSidePaneContentTemplateSelecter>
   </Page.Resources>
   <Border x:Name="LayoutRoot" Background="{ThemeResource AppBarBorderThemeBrush}" SizeChanged="LayoutRoot_SizeChanged">
     <toolkit:LayoutTransformControl x:Name="LayoutTransform">

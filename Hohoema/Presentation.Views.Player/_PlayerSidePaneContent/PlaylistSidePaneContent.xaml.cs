@@ -21,10 +21,8 @@ namespace Hohoema.Presentation.Views.Player
 {
     public sealed partial class PlaylistSidePaneContent : UserControl
     {
-        private PlaylistSidePaneContentViewModel _viewModel { get; }
         public PlaylistSidePaneContent()
         {
-            DataContext = _viewModel = App.Current.Container.Resolve<PlaylistSidePaneContentViewModel>();
             this.InitializeComponent();
         }
     }
