@@ -20,6 +20,7 @@ using Uno.Threading;
 using Hohoema.Models.UseCase;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
+using Uno.Disposables;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -200,6 +201,15 @@ namespace Hohoema.Presentation.ViewModels
 
         private void DisposeItemsView(AdvancedCollectionView acv)
         {
+            if (acv == null) { return; }
+
+            foreach (var item in acv)
+            {
+                item.TryDispose();
+            }
+
+            acv?.Source?.TryDispose();
+            acv.TryDispose();
         }
 
         private async Task ResetList_Internal(CancellationToken ct)
@@ -243,9 +253,9 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        private void OnLodingItemError(Exception obj)
+        private void OnLodingItemError(Exception e)
         {
-            throw new NotImplementedException();
+            ErrorTrackingManager.TrackError(e);
         }
 
         protected void ResetList()
