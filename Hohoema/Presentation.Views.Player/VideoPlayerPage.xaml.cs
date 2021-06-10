@@ -322,39 +322,5 @@ namespace Hohoema.Presentation.Views.Player
 
 
 
-        #region SidePageContent
-
-
-
-        public PlayerSidePaneContentType SidePaneType
-        {
-            get { return (PlayerSidePaneContentType)GetValue(SidePaneTypeProperty); }
-            set { SetValue(SidePaneTypeProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for SidePaneType.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty SidePaneTypeProperty =
-            DependencyProperty.Register("SidePaneType", typeof(PlayerSidePaneContentType), typeof(VideoPlayerPage), new PropertyMetadata(PlayerSidePaneContentType.None));
-
-        DelegateCommand<string> _selectSidePaneCommand;
-        DelegateCommand<string> SelectSidePaneCommand => _selectSidePaneCommand
-            ?? (_selectSidePaneCommand = new DelegateCommand<string>(str =>
-            {
-                if (Enum.TryParse<PlayerSidePaneContentType>(str, out var type))
-                {
-                    if (type == SidePaneType || type == PlayerSidePaneContentType.None)
-                    {
-                        PlayerSplitView.IsPaneOpen = false;
-                        SidePaneType = PlayerSidePaneContentType.None;
-                    }
-                    else
-                    {
-                        SidePaneType = type;
-                        PlayerSplitView.IsPaneOpen = true;
-                    }
-                }
-            }));
-
-        #endregion
     }
 }

@@ -40,6 +40,8 @@ using Hohoema.Presentation.Views.Player;
 using NiconicoToolkit.Video.Watch;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.SearchWithCeApi.Video;
+using Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent;
+using Hohoema.Presentation.ViewModels.Niconico.Likes;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -87,7 +89,11 @@ namespace Hohoema.Presentation.ViewModels.Player
             OpenLinkCommand openLinkCommand,
             CopyToClipboardCommand copyToClipboardCommand,
             CopyToClipboardWithShareTextCommand copyToClipboardWithShareTextCommand,
-            OpenShareUICommand openShareUICommand
+            OpenShareUICommand openShareUICommand,
+            PlaylistSidePaneContentViewModel playlistSidePaneContentViewModel,
+            SettingsSidePaneContentViewModel settingsSidePaneContentViewModel,
+            VideoCommentSidePaneContentViewModel videoCommentSidePaneContent,
+            RelatedVideosSidePaneContentViewModel relatedVideosSidePaneContentViewModel
             )
         {
             _scheduler = scheduler;
@@ -123,6 +129,10 @@ namespace Hohoema.Presentation.ViewModels.Player
             CopyToClipboardCommand = copyToClipboardCommand;
             CopyToClipboardWithShareTextCommand = copyToClipboardWithShareTextCommand;
             OpenShareUICommand = openShareUICommand;
+            _playlistSidePaneContentViewModel = playlistSidePaneContentViewModel;
+            _settingsSidePaneContentViewModel = settingsSidePaneContentViewModel;
+            _videoCommentSidePaneContentViewModel = videoCommentSidePaneContent;
+            _relatedVideosSidePaneContentViewModel = relatedVideosSidePaneContentViewModel;
             ObservableMediaPlayer = observableMediaPlayer
                 .AddTo(_CompositeDisposable);
             WindowService = windowService
@@ -234,6 +244,10 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         private readonly VideoStreamingOriginOrchestrator _videoStreamingOriginOrchestrator;
         private readonly RestoreNavigationManager _restoreNavigationManager;
+        private readonly PlaylistSidePaneContentViewModel _playlistSidePaneContentViewModel;
+        private readonly SettingsSidePaneContentViewModel _settingsSidePaneContentViewModel;
+        private readonly VideoCommentSidePaneContentViewModel _videoCommentSidePaneContentViewModel;
+        private readonly RelatedVideosSidePaneContentViewModel _relatedVideosSidePaneContentViewModel;
         private readonly KeepActiveDisplayWhenPlaying _keepActiveDisplayWhenPlaying;
 
 
@@ -261,27 +275,11 @@ namespace Hohoema.Presentation.ViewModels.Player
         }
 
         // ニコニコの「いいね」
-
-        private bool _isLikedVideo;
-        public bool IsLikedVideo
+        private VideoLikesContext _LikesContext = VideoLikesContext.Default;
+        public VideoLikesContext LikesContext
         {
-            get { return _isLikedVideo; }
-            set { SetProperty(ref _isLikedVideo, value); }
-        }
-
-        private string _LikeThanksMessage;
-        public string LikeThanksMessage
-        {
-            get { return _LikeThanksMessage; }
-            private set { SetProperty(ref _LikeThanksMessage, value); }
-        }
-
-
-        private bool _NowLikeProcessing;
-        public bool NowLikeProcessing
-        {
-            get { return _NowLikeProcessing; }
-            private set { SetProperty(ref _NowLikeProcessing, value); }
+            get => _LikesContext;
+            set => SetProperty(ref _LikesContext, value);
         }
 
 
@@ -300,7 +298,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             get { return _CannotPlayReason; }
             set { SetProperty(ref _CannotPlayReason, value); }
         }
-
 
 
 
@@ -369,8 +366,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             VideoDetails = result.VideoDetails;
 
             SoundVolumeManager.LoudnessCorrectionValue = VideoDetails.LoudnessCorrectionValue;
-            IsLikedVideo = VideoDetails.IsLikedVideo;
-
+            
             // 動画再生コンテンツをセット
             await VideoPlayer.UpdatePlayingVideoAsync(result.VideoSessionProvider);
 
@@ -418,13 +414,10 @@ namespace Hohoema.Presentation.ViewModels.Player
             RaisePropertyChanged(nameof(VideoSeries));
 
             // 好きの切り替え
-            this.ObserveProperty(x => x.IsLikedVideo, isPushCurrentValueAtFirst: false)
-                .Where(x => !NowLikeProcessing)
-                .Subscribe(async like => 
-                {
-                    await ProcessLikeAsync(like);
-                })
-                .AddTo(_NavigatingCompositeDisposable);
+            if (NiconicoSession.IsLoggedIn)
+            {
+                LikesContext = new VideoLikesContext(VideoDetails, NiconicoSession.ToolkitContext.Likes, _NotificationService);
+            }
 
             StartStateSavingTimer();
 
@@ -436,55 +429,6 @@ namespace Hohoema.Presentation.ViewModels.Player
         }
 
         
-        private async Task ProcessLikeAsync(bool like)
-        {
-            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
-
-            NowLikeProcessing = true;
-
-            try
-            {
-                if (like)
-                {
-                    var res = await NiconicoSession.Context.User.DoLikeVideoAsync(this.VideoId);
-                    if (!res.IsOK)
-                    {
-                        this.IsLikedVideo = false;
-                    }
-                    else
-                    {
-                        LikeThanksMessage = res.ThanksMessage;
-
-                        if (!string.IsNullOrEmpty(LikeThanksMessage))
-                        {
-                            _NotificationService.ShowInAppNotification(new InAppNotificationPayload()
-                            {
-                                Title = "LikeThanksMessageDescWithVideoOwnerName".Translate(VideoInfo.Owner?.ScreenName),
-                                Icon = VideoInfo.Owner?.IconUrl,
-                                Content = LikeThanksMessage,
-                                IsShowDismissButton = true,
-                                ShowDuration = TimeSpan.FromSeconds(7),
-                            });
-                        }
-                    }
-                }
-                else
-                {
-                    LikeThanksMessage = null;
-
-                    var res = await NiconicoSession.Context.User.UnDoLikeVideoAsync(this.VideoId);
-                    if (!res.IsOK)
-                    {
-                        this.IsLikedVideo = true;
-                    }
-                }
-            }
-            finally
-            {
-                NowLikeProcessing = false;
-            }
-        }
 
         private void CheckDeleted(VideoIdSearchSingleResponse res)
         {
@@ -562,6 +506,11 @@ namespace Hohoema.Presentation.ViewModels.Player
             IsNotSupportVideoType = false;
             CannotPlayReason = null;
 
+            _relatedVideosSidePaneContentViewModel.Clear();
+            PlayerSplitViewIsPaneOpen = false;
+
+            LikesContext = VideoLikesContext.Default;
+
             base.OnNavigatedFrom(parameters);
         }
 
@@ -631,6 +580,65 @@ namespace Hohoema.Presentation.ViewModels.Player
             }
         }
 
+
+        #region SidePaneContent
+
+        private PlayerSidePaneContentType _SidePaneType;
+        public PlayerSidePaneContentType SidePaneType
+        {
+            get => _SidePaneType;
+            set => SetProperty(ref _SidePaneType, value);
+        }
+
+        private bool _PlayerSplitViewIsPaneOpen;
+        public bool PlayerSplitViewIsPaneOpen
+        {
+            get => _PlayerSplitViewIsPaneOpen;
+            set => SetProperty(ref _PlayerSplitViewIsPaneOpen, value);
+        }
+
+        private object _SidePaneViewModel;
+        public object SidePaneViewModel
+        {
+            get => _SidePaneViewModel;
+            set => SetProperty(ref _SidePaneViewModel, value);
+        }
+
+
+        private DelegateCommand<string> _selectSidePaneCommand;
+        public DelegateCommand<string> SelectSidePaneCommand => _selectSidePaneCommand
+            ?? (_selectSidePaneCommand = new DelegateCommand<string>(str =>
+            {
+                if (Enum.TryParse<PlayerSidePaneContentType>(str, out var type))
+                {
+                    if (type == SidePaneType || type == PlayerSidePaneContentType.None)
+                    {
+                        SidePaneType = PlayerSidePaneContentType.None;
+                        SidePaneViewModel = EmptySidePaneContentViewModel.Default;
+                        PlayerSplitViewIsPaneOpen = false;
+                    }
+                    else
+                    {
+                        SidePaneType = type;
+                        SidePaneViewModel = SidePaneType switch
+                        {
+                            PlayerSidePaneContentType.Playlist => _playlistSidePaneContentViewModel,
+                            PlayerSidePaneContentType.Comment => _videoCommentSidePaneContentViewModel,
+                            PlayerSidePaneContentType.Setting => _settingsSidePaneContentViewModel,
+                            PlayerSidePaneContentType.RelatedVideos => _relatedVideosSidePaneContentViewModel,
+                            _ => EmptySidePaneContentViewModel.Default,
+                        };
+
+                        if (SidePaneViewModel is RelatedVideosSidePaneContentViewModel vm)
+                        {
+                            _ = vm.InitializeRelatedVideos(VideoDetails);
+                        }
+                        PlayerSplitViewIsPaneOpen = true;
+                    }
+                }
+            }));
+
+        #endregion
     }
 
     public class VideoSeriesViewModel : ISeries

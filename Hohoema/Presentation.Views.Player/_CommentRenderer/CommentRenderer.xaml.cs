@@ -273,7 +273,12 @@ namespace Hohoema.Presentation.Views.Player
                         var comment = renderComment.Comment;
                         if (renderComment.EndPosition > frame.CurrentVpos)
                         {
-                            
+                            var duration = (renderComment.EndPosition - frame.CurrentVpos) * frame.PlaybackRateInverse;
+                            if (duration <= TimeSpan.Zero)
+                            {
+                                continue;
+                            }
+
                             var ab = AnimationBuilder.Create()
                                 .Translation(Axis.Y)
                                 .NormalizedKeyFrames(b => b
@@ -281,7 +286,7 @@ namespace Hohoema.Presentation.Views.Player
                                 .Translation(Axis.X,
                                     from: renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos),
                                     to: -renderComment.TextWidth,
-                                    duration: (renderComment.EndPosition - frame.CurrentVpos) * frame.PlaybackRateInverse,
+                                    duration: duration,
                                     easingType: EasingType.Linear
                                 )
                                 ;

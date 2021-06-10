@@ -118,6 +118,15 @@
 
     </VisualStateManager.VisualStateGroups>
 
+    <ProgressRing IsActive="{Binding NowLoading}"
+                  Visibility="{Binding NowLoading, Converter={StaticResource BooleanToVisibility}}"
+                  VerticalAlignment="Top"
+                  HorizontalAlignment="Center"
+                  Height="48"
+                  Width="48"
+                  Margin="0 48 0 0"
+                  />
+
     <toolkit:DockPanel x:Name="RootLayout">
 
       <StackPanel toolkit:DockPanel.Dock="Top"
@@ -140,26 +149,6 @@
         <StackPanel>
 
           <StackPanel toolkit:DockPanel.Dock="Top"
-                      Visibility="{Binding JumpVideo, Converter={StaticResource NotNullToVisibility}}">
-            <!-- ＠ジャンプ動画 -->
-            <TextBlock Text="＠ジャンプ"
-                       Style="{StaticResource SubtitleTextBlockStyle}"
-                       Margin="8 8" />
-
-            <Button Content="{Binding JumpVideo}"
-                    Command="{Binding HohoemaPlaylist.PlayCommand}"
-                    CommandParameter="{Binding JumpVideo}"
-                    Background="Transparent">
-              <Button.ContentTemplate>
-                <DataTemplate>
-                  <videoListPage:VideoListItemControl />
-                </DataTemplate>
-              </Button.ContentTemplate>
-            </Button>
-
-          </StackPanel>
-
-          <StackPanel toolkit:DockPanel.Dock="Top"
                       Visibility="{Binding NextVideo, Converter={StaticResource NotNullToVisibility}}">
             <!-- 次動画 -->
             <TextBlock Text="次パート動画"
@@ -167,7 +156,7 @@
                        Margin="8 8" />
 
             <Button Content="{Binding NextVideo}"
-                    Command="{Binding HohoemaPlaylist.PlayCommand}"
+                    Command="{Binding PlayCommand}"
                     CommandParameter="{Binding NextVideo}"
                     Background="Transparent">
               <Button.ContentTemplate>
@@ -178,38 +167,7 @@
             </Button>
 
           </StackPanel>
-
-          <StackPanel Visibility="{Binding OtherVideos, Converter={StaticResource CollectionVisibilityConverter}}">
-
-            <TextBlock Text="オススメ動画"
-                       Style="{StaticResource SubtitleTextBlockStyle}"
-                       Margin="8 8" />
-            <ListView ItemsSource="{Binding OtherVideos}"
-                      SelectionMode="Single"
-                      SingleSelectionFollowsFocus="False"
-                      IsItemClickEnabled="True"
-                      x:Name="VideoOwnerOtherVideosListView"
-                      Background="{StaticResource HohoemaPlayerBackgroundBrush}"
-                      ItemTemplate="{StaticResource VideoLiteItemControl}"
-                      IsTabStop="False">
-              <i:Interaction.Behaviors>
-                <core:EventTriggerBehavior EventName="ItemClick">
-                  <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
-                                            InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-                </core:EventTriggerBehavior>
-              </i:Interaction.Behaviors>
-              <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                  <Setter Property="Margin"
-                          Value="0" />
-                  <Setter Property="Padding"
-                          Value="0 8 8 8" />
-                </Style>
-              </ListView.ItemContainerStyle>
-            </ListView>
-
-          </StackPanel>
-
+          <!--
           <StackPanel Visibility="{Binding Mylists, Converter={StaticResource CollectionVisibilityConverter}}">
 
             <TextBlock Text="オススメマイリスト"
@@ -224,7 +182,7 @@
                       IsTabStop="False">
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemClick">
-                  <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                  <core:InvokeCommandAction Command="{Binding OpenMylistCommand}"
                                             InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                 </core:EventTriggerBehavior>
               </i:Interaction.Behaviors>
@@ -244,8 +202,8 @@
             </ListView>
 
           </StackPanel>
-
-          <StackPanel Visibility="{Binding Videos, Converter={StaticResource CollectionVisibilityConverter}}">
+-->
+          <StackPanel Visibility="{Binding Videos, Converter={StaticResource CollectionVisibilityConverter}}" HorizontalAlignment="Stretch">
 
             <TextBlock Text="関連動画"
                        Style="{StaticResource SubtitleTextBlockStyle}"
@@ -261,7 +219,7 @@
                       IsTabStop="False">
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemClick">
-                  <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+                  <core:InvokeCommandAction Command="{Binding PlayCommand}"
                                             InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                 </core:EventTriggerBehavior>
               </i:Interaction.Behaviors>
@@ -271,6 +229,7 @@
                           Value="0" />
                   <Setter Property="Padding"
                           Value="0 8 8 8" />
+                  <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                 </Style>
               </ListView.ItemContainerStyle>
             </ListView>

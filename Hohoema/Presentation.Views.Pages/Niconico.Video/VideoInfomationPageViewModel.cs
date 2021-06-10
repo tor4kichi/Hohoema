@@ -46,6 +46,7 @@ using System.Threading;
 using Uno.Disposables;
 using NiconicoToolkit.Video.Watch;
 using NiconicoToolkit.Video;
+using Hohoema.Presentation.ViewModels.Niconico.Likes;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
@@ -199,29 +200,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
 
         // ニコニコの「いいね」
-
-        private bool _isLikedVideo;
-        public bool IsLikedVideo
+        private VideoLikesContext _LikesContext = VideoLikesContext.Default;
+        public VideoLikesContext LikesContext
         {
-            get { return _isLikedVideo; }
-            set { SetProperty(ref _isLikedVideo, value); }
+            get => _LikesContext;
+            set => SetProperty(ref _LikesContext, value);
         }
-
-        private string _LikeThanksMessage;
-        public string LikeThanksMessage
-        {
-            get { return _LikeThanksMessage; }
-            private set { SetProperty(ref _LikeThanksMessage, value); }
-        }
-
-
-        private bool _NowLikeProcessing;
-        public bool NowLikeProcessing
-        {
-            get { return _NowLikeProcessing; }
-            private set { SetProperty(ref _NowLikeProcessing, value); }
-        }
-
 
 
         private DelegateCommand _OpenFilterSettingPageCommand;
@@ -457,9 +441,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             NowLoading.Value = true;
             IsLoadFailed.Value = false;
 
-            NowLikeProcessing = true;
-            IsLikedVideo = false;
-
             try
             {
                 if (parameters.TryGetValue("id", out string videoId))
@@ -492,13 +473,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     OpenOwnerUserVideoPageCommand.RaiseCanExecuteChanged();
 
                     // 好きの切り替え
-                    this.ObserveProperty(x => x.IsLikedVideo, isPushCurrentValueAtFirst: false)
-                        .Where(x => !NowLikeProcessing)
-                        .Subscribe(async like =>
-                        {
-                            await ProcessLikeAsync(like);
-                        })
-                        .AddTo(_NavigatingCompositeDisposable);
+                    if(NiconicoSession.IsLoggedIn && VideoDetails != null)
+                    {
+                        LikesContext = new VideoLikesContext(VideoDetails, NiconicoSession.ToolkitContext.Likes, NotificationService);
+                    }
                 }                
             }
             catch (Exception ex)
@@ -510,7 +488,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             finally
             {
                 NowLoading.Value = false;
-                NowLikeProcessing = false;
             }
 
         }
@@ -543,59 +520,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             VideoDescriptionHyperlinkItems = null;
 
             base.OnNavigatedFrom(parameters);
-        }
-
-        
-
-
-        private async Task ProcessLikeAsync(bool like)
-        {
-            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
-
-            NowLikeProcessing = true;
-
-            try
-            {
-                if (like)
-                {
-                    var res = await NiconicoSession.Context.User.DoLikeVideoAsync(this.VideoInfo.VideoId);
-                    if (!res.IsOK)
-                    {
-                        this.IsLikedVideo = false;
-                    }
-                    else
-                    {
-                        LikeThanksMessage = res.ThanksMessage;
-
-                        if (!string.IsNullOrEmpty(LikeThanksMessage))
-                        {
-                            NotificationService.ShowInAppNotification(new InAppNotificationPayload()
-                            {
-                                Title = "LikeThanksMessageDescWithVideoOwnerName".Translate(VideoInfo.Owner?.ScreenName),
-                                Content = LikeThanksMessage,
-                                IsShowDismissButton = true,
-                                ShowDuration = TimeSpan.FromSeconds(7),
-                            });
-                        }
-                    }
-                }
-                else
-                {
-                    LikeThanksMessage = null;
-
-                    var res = await NiconicoSession.Context.User.UnDoLikeVideoAsync(this.VideoInfo.VideoId);
-                    if (!res.IsOK)
-                    {
-                        this.IsLikedVideo = true;
-                    }
-                }
-            }
-            finally
-            {
-                NowLikeProcessing = false;
-            }
-        }
+        }        
 
 
         bool _IsInitializedIchibaItems = false;
@@ -714,10 +639,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                         PrevSeriesVideo = new[] { new VideoListItemControlViewModel(prevSeriesVideo) };
                     }
                 }
-
-                NowLikeProcessing = true;
-                IsLikedVideo = VideoDetails.IsLikedVideo;
-                NowLikeProcessing = false;
             }
             catch
             {

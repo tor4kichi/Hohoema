@@ -114,49 +114,49 @@
       <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=PlayWithSecondaryView}"></MenuFlyoutItem>
       <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></ToggleMenuFlyoutItem>
     </MenuFlyout>
-    <templateselector:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
-      <templateselector:PlayerSidePaneContentTemplateSelecter.Empty>
+    <local:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
+      <local:PlayerSidePaneContentTemplateSelecter.Empty>
         <DataTemplate>
           <!-- empty -->
         </DataTemplate>
-      </templateselector:PlayerSidePaneContentTemplateSelecter.Empty>
-      <templateselector:PlayerSidePaneContentTemplateSelecter.Playlist>
+      </local:PlayerSidePaneContentTemplateSelecter.Empty>
+      <local:PlayerSidePaneContentTemplateSelecter.Playlist>
         <DataTemplate>
           <local:PlaylistSidePaneContent />
         </DataTemplate>
-      </templateselector:PlayerSidePaneContentTemplateSelecter.Playlist>
-      <templateselector:PlayerSidePaneContentTemplateSelecter.Comments>
+      </local:PlayerSidePaneContentTemplateSelecter.Playlist>
+      <local:PlayerSidePaneContentTemplateSelecter.Comments>
         <DataTemplate>
           <local:VideoCommentSidePaneContent />
         </DataTemplate>
-      </templateselector:PlayerSidePaneContentTemplateSelecter.Comments>
-      <templateselector:PlayerSidePaneContentTemplateSelecter.Settings>
+      </local:PlayerSidePaneContentTemplateSelecter.Comments>
+      <local:PlayerSidePaneContentTemplateSelecter.Settings>
         <DataTemplate>
           <local:VideoSettingsSidePaneContent />
         </DataTemplate>
-      </templateselector:PlayerSidePaneContentTemplateSelecter.Settings>
-      <templateselector:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
+      </local:PlayerSidePaneContentTemplateSelecter.Settings>
+      <local:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
         <DataTemplate>
           <local:RelatedVideosSidePaneContent />
         </DataTemplate>
-      </templateselector:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
-    </templateselector:PlayerSidePaneContentTemplateSelecter>
+      </local:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
+    </local:PlayerSidePaneContentTemplateSelecter>
   </UserControl.Resources>
   <Grid x:Name="LayoutRoot" Background="{ThemeResource AppBarBorderThemeBrush}">
     <toolkit:LayoutTransformControl x:Name="LayoutTransform">
       <toolkit:LayoutTransformControl.Transform>
         <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
       </toolkit:LayoutTransformControl.Transform>
-      <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" IsPaneOpen="False">
+      <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" IsPaneOpen="{Binding PlayerSplitViewIsPaneOpen, Mode=TwoWay}">
         <i:Interaction.Behaviors>
           <!-- サイドペインが閉じられたら コンテンツVMをリセット -->
           <core:EventTriggerBehavior EventName="PaneClosed">
-            <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="SidePaneType" Value="{x:Bind players:PlayerSidePaneContentType.None}" />
+            <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="SidePaneType" Value="{x:Bind players:PlayerSidePaneContentType.None}" />
           </core:EventTriggerBehavior>
         </i:Interaction.Behaviors>
         <SplitView.Pane>
           <Grid x:Name="PlayerSidePaneLayout">
-            <ContentControl Content="{x:Bind SidePaneType, Mode=OneWay}" ContentTemplateSelector="{StaticResource PlayerSidePaneContentTemplateSelecter}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+            <ContentControl Content="{Binding SidePaneViewModel, Mode=OneWay}" ContentTemplateSelector="{StaticResource PlayerSidePaneContentTemplateSelecter}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
           </Grid>
         </SplitView.Pane>
         <SplitView.Content>
@@ -337,9 +337,9 @@
                               >
 
                     <CommandBar.PrimaryCommands>
-                      <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{Binding IsLikedVideo, Mode=TwoWay}" IsEnabled="{Binding NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
+                      <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{Binding LikesContext.IsLikes, Mode=TwoWay}" IsEnabled="{Binding LikesContext.NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
                       <AppBarButton x:Name="ShowVideoInfoButon" Label="{i18nExt:Localize Key=VideoInfomation}" Command="{Binding OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
-                      <AppBarButton Command="{x:Bind SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="{i18nExt:Localize Key=RelatedInfomation}" />
+                      <AppBarButton Command="{Binding SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="{i18nExt:Localize Key=RelatedInfomation}" />
                       <AppBarButton x:Name="ShareButton" Label="{i18nExt:Localize Key=Share}" Icon="Link" Visibility="Collapsed" Command="{Binding OpenShareUICommand}" CommandParameter="{Binding VideoInfo}"></AppBarButton>
                       <AppBarButton x:Name="CopyActionsAppBarButton" Label="{i18nExt:Localize Key=Copy}" Visibility="Visible">
                         <AppBarButton.Flyout>
@@ -578,13 +578,13 @@
                     </StackPanel>
                     <!-- Settings etc -->
                     <toolkit:WrapPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
-                      <Button x:Name="OpenCommentListButton" Background="Transparent" Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Comment">
+                      <Button x:Name="OpenCommentListButton" Background="Transparent" Command="{Binding SelectSidePaneCommand}" CommandParameter="Comment">
                         <iconPack:PackIconMaterial Kind="Comment" Width="24" Height="24"></iconPack:PackIconMaterial>
                       </Button>
-                      <Button x:Name="OpenPlaylistButton" Background="Transparent" Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Playlist">
+                      <Button x:Name="OpenPlaylistButton" Background="Transparent" Command="{Binding SelectSidePaneCommand}" CommandParameter="Playlist">
                         <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="24" Height="24"></iconPack:PackIconMaterial>
                       </Button>
-                      <Button x:Name="OpenSettingsPaneButton" Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Setting" Background="Transparent">
+                      <Button x:Name="OpenSettingsPaneButton" Command="{Binding SelectSidePaneCommand}" CommandParameter="Setting" Background="Transparent">
                         <SymbolIcon Symbol="Setting" />
                       </Button>
                     </toolkit:WrapPanel>
@@ -1326,7 +1326,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind SidePaneType, Mode=OneWay}" EqualTo="Comment" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding SidePaneType, Mode=OneWay}" EqualTo="Comment" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerSplitView.DisplayMode" Value="Inline" />

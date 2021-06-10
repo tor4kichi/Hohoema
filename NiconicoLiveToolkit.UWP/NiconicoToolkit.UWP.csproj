@@ -147,6 +147,7 @@
     <Compile Include="Follow\UserOwnedCommunityResponse.cs" />
     <Compile Include="HttpContentExtensions.cs" />
     <Compile Include="HttpStatusCodeHelper.cs" />
+    <Compile Include="Likes\LikesClient.cs" />
     <Compile Include="Mylist\LoginUser\MoveOrCopyMylistItemsResponse.cs" />
     <Compile Include="Mylist\LoginUser\WatchAfterItemsResponse.cs" />
     <Compile Include="NiconicoToolkitException.cs" />
@@ -190,7 +191,7 @@
     <Compile Include="Live\Search\LiveSearchClient.cs" />
     <Compile Include="Live\WatchPageProp\DataProps.cs" />
     <Compile Include="Live\WatchSession\ChatResult.cs" />
-    <Compile Include="Live\WatchSession\CommandType.cs" />
+    <Compile Include="Comment\CommandType.cs" />
     <Compile Include="Live\WatchSession\Live2WatchSession.cs" />
     <Compile Include="Live\WatchSession\LiveChatData.cs" />
     <Compile Include="Live\WatchSession\LiveCommentSession.cs" />

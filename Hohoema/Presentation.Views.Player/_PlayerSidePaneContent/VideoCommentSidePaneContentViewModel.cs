@@ -17,11 +17,11 @@ using Hohoema.Models.Domain.Player.Video.Comment;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {
-    public sealed class VideoCommentSizePaneContentViewModel : BindableBase, IDisposable
+    public sealed class VideoCommentSidePaneContentViewModel : BindableBase, IDisposable
     {
         public CommentFilteringFacade CommentFiltering { get; }
 
-        public VideoCommentSizePaneContentViewModel(
+        public VideoCommentSidePaneContentViewModel(
             CommentPlayer commentPlayer,
             CommentFilteringFacade  commentFiltering,
             Services.DialogService dialogService

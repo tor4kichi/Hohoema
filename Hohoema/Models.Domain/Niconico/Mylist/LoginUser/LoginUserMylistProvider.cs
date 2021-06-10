@@ -163,7 +163,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
         static public bool IsDefaultMylist(IMylist mylist)
         {
-            return mylist?.Id == "0";
+            return MylistPlaylistExtension.IsDefaultMylistId(mylist?.Id);
         }
 
 
@@ -193,21 +193,38 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
 
 
-        public async Task<ContentManageResult> AddMylistItem(string mylistGroupId, string videoId, string mylistComment = "")
+        public Task<ContentManageResult> AddMylistItem(string mylistGroupId, string videoId, string mylistComment = "")
         {
-            return await _niconicoSession.ToolkitContext.Mylist.LoginUser.AddMylistItemAsync(
-                mylistGroupId
-                , videoId
-                , mylistComment
-                );
+            if (MylistPlaylistExtension.IsDefaultMylistId(mylistGroupId))
+            {
+                return _niconicoSession.ToolkitContext.Mylist.LoginUser.AddWatchAfterMylistItemAsync(
+                    videoId
+                    , mylistComment
+                    );
+            }
+            else
+            {
+                return _niconicoSession.ToolkitContext.Mylist.LoginUser.AddMylistItemAsync(
+                    mylistGroupId
+                    , videoId
+                    , mylistComment
+                    );
+            }
         }
 
 
-        public async Task<ContentManageResult> RemoveMylistItem(string mylistGroupid, string videoId)
+        public async Task<ContentManageResult> RemoveMylistItem(string mylistGroupId, string videoId)
         {
-            var itemId = _loginUserMylistItemIdRepository.GetItemId(mylistGroupid, videoId);
+            var itemId = _loginUserMylistItemIdRepository.GetItemId(mylistGroupId, videoId);
             if (itemId == null) { return ContentManageResult.Failed; }
-            return await _niconicoSession.ToolkitContext.Mylist.LoginUser.RemoveMylistItemsAsync(mylistGroupid, new[] { itemId });
+            if (MylistPlaylistExtension.IsDefaultMylistId(mylistGroupId))
+            {
+                return await _niconicoSession.ToolkitContext.Mylist.LoginUser.RemoveWatchAfterItemsAsync(new[] { itemId });
+            }
+            else
+            {
+                return await _niconicoSession.ToolkitContext.Mylist.LoginUser.RemoveMylistItemsAsync(mylistGroupId, new[] { itemId });
+            }
         }
 
         public async Task<MoveOrCopyMylistItemsResponse> CopyMylistTo(string sourceMylistGroupId, string targetGroupId, params string[] videoIdList)

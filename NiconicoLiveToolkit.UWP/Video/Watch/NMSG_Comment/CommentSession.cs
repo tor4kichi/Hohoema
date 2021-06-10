@@ -8,7 +8,13 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.Web;
+#if WINDOWS_UWP
 using Windows.Web.Http;
+using Windows.Web.Http.Headers;
+#else
+using System.Net.Http;
+using System.Net.Http.Headers;
+#endif
 
 namespace NiconicoToolkit.Video.Watch.NMSG_Comment
 {
@@ -51,13 +57,9 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
             {
                 var requestParamsJson = dataBuilder.GetSerializeJson();
 
-#if WINDOWS_UWP
-                HttpStringContent content = new HttpStringContent(requestParamsJson);
-#else
-#endif
                 IncrementSequenceNumber(dataBuilder.IncrementCount);
-                return await _context.PostJsonAsAsync<T>(
-                    $"{server.OriginalString}/api.json", content, _CommentCommandResponseJsonSerializerOptions);
+                return await _context.SendJsonAsAsync<T>( HttpMethod.Post, 
+                    $"{server.OriginalString}/api.json", requestParamsJson, _CommentCommandResponseJsonSerializerOptions);
             }
 
         }

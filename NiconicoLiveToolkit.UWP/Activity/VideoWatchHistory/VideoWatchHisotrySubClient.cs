@@ -7,6 +7,13 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+#if WINDOWS_UWP
+using Windows.Web.Http;
+using Windows.Web.Http.Headers;
+#else
+using System.Net.Http;
+using System.Net.Http.Headers;
+#endif
 
 
 namespace NiconicoToolkit.Activity.VideoWatchHistory
@@ -55,7 +62,7 @@ namespace NiconicoToolkit.Activity.VideoWatchHistory
                 })
                 .ToString();
 
-            return _context.DeleteJsonAsAsync<VideoWatchHistoryDeleteResult>(url, _options);
+            return _context.SendJsonAsAsync<VideoWatchHistoryDeleteResult>(HttpMethod.Delete, url, _options);
         }
 
         public Task<VideoWatchHistoryDeleteResult> DeleteWatchHistoriesAsync(IEnumerable<string> targets)
@@ -67,7 +74,7 @@ namespace NiconicoToolkit.Activity.VideoWatchHistory
                 })
                 .ToString();
 
-            return _context.DeleteJsonAsAsync<VideoWatchHistoryDeleteResult>(url, _options);
+            return _context.SendJsonAsAsync<VideoWatchHistoryDeleteResult>(HttpMethod.Delete, url, _options);
         }
 
 
@@ -80,7 +87,7 @@ namespace NiconicoToolkit.Activity.VideoWatchHistory
                 })
                 .ToString();
 
-            return _context.DeleteJsonAsAsync<VideoWatchHistoryDeleteResult>(url, _options);
+            return _context.SendJsonAsAsync<VideoWatchHistoryDeleteResult>(HttpMethod.Delete, url, _options);
         }
     }
 

@@ -389,6 +389,7 @@
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowTagGroupViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowUserGroupViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Follow\IFollowContext.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Likes\VideoLikesContext.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Live\LiveInfoListItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Share\CopyToClipboardWithShareTextCommand.cs" />
     <Compile Include="Presentation.Services\UINavigation\UINavigationButtons.cs" />
@@ -866,7 +867,7 @@
     <Compile Include="Presentation.Views\TemplateSelector\HohoemaFlyoutTemplateSelector.cs" />
     <Compile Include="Presentation.Views\TemplateSelector\MenuSubPageTemplateSelector.cs" />
     <Compile Include="Presentation.Views\TemplateSelector\NullableTemplateSelector.cs" />
-    <Compile Include="Presentation.Views\TemplateSelector\PlayerSidePaneContentTemplateSelector.cs" />
+    <Compile Include="Presentation.Views.Player\_PlayerSidePaneContent\PlayerSidePaneContentTemplateSelector.cs" />
     <Compile Include="Presentation.Views\TemplateSelector\TypeBasedTemplateSelector.cs" />
     <Compile Include="Presentation.Views\TemplateSelector\ValueDataTemplateSelector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

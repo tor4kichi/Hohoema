@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Videos.Comment;
-using Hohoema.Models.Domain;
+﻿using Hohoema.Models.Domain;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -17,6 +16,7 @@ using System.Reactive.Concurrency;
 using System.Threading;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Niconico;
+using NiconicoToolkit.Comment;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -111,7 +111,7 @@ namespace Hohoema.Presentation.ViewModels
 				commands.Add(CustomCommandText.Value);
 			}
 
-			return String.Join(" ", commands.Distinct());
+			return String.Join(' ', commands.Distinct());
 		}
 
         public void Dispose()

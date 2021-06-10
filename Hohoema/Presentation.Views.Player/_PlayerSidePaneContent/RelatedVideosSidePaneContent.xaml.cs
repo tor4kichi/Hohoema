@@ -21,12 +21,8 @@ namespace Hohoema.Presentation.Views.Player
 {
     public sealed partial class RelatedVideosSidePaneContent : UserControl
     {
-        private RelatedVideosSidePaneContentViewModel _viewModel { get; }
-
         public RelatedVideosSidePaneContent()
         {
-            DataContext = _viewModel = App.Current.Container.Resolve<RelatedVideosSidePaneContentViewModel>();
-
             this.InitializeComponent();
         }
     }

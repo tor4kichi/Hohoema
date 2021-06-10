@@ -23,11 +23,8 @@ namespace Hohoema.Presentation.Views.Player
 {
 	public sealed partial class VideoSettingsSidePaneContent : UserControl
 	{
-		private SettingsSidePaneContentViewModel _viewModel { get; }
 		public VideoSettingsSidePaneContent()
 		{
-			DataContext = _viewModel = App.Current.Container.Resolve<SettingsSidePaneContentViewModel>();
-
 			this.InitializeComponent();
 		}
 
