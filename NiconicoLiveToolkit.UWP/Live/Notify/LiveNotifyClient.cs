@@ -29,14 +29,24 @@ namespace NiconicoToolkit.Live.Notify
             };
         }
 
+
+        internal static class Urls
+        {
+            public const string P_LiveApiUrl = "https://papi.live.nicovideo.jp/api/";
+
+            public const string P_LiveNotifyboxApiUrl = $"{P_LiveApiUrl}relive/notifybox";
+            public const string P_LiveNotifyboxUnreadApiUrl = $"{P_LiveNotifyboxApiUrl}.unread";
+            
+        }
+
         public async Task<LiveNotifyUnreadResponse> GetUnreadLiveNotifyAsync()
         {
-            return await _context.GetJsonAsAsync<LiveNotifyUnreadResponse>("https://papi.live.nicovideo.jp/api/relive/notifybox.unread");
+            return await _context.GetJsonAsAsync<LiveNotifyUnreadResponse>(Urls.P_LiveNotifyboxUnreadApiUrl);
         }
 
         public async Task<LiveNotifyContentResponse> GetLiveNotifyAsync(int rows = 100)
         {
-            return await _context.GetJsonAsAsync<LiveNotifyContentResponse>($"https://papi.live.nicovideo.jp/api/relive/notifybox.content?rows={rows}", _jsonSerializeOptions);
+            return await _context.GetJsonAsAsync<LiveNotifyContentResponse>($"{Urls.P_LiveNotifyboxApiUrl}.content?rows={rows}", _jsonSerializeOptions);
         }
     }
     

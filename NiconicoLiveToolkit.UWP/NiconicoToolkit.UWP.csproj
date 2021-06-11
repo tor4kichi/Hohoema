@@ -16,7 +16,7 @@
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -129,7 +129,10 @@
     <Compile Include="Activity\ActivityClient.cs" />
     <Compile Include="Channels\ChannelAdmissionResponse.cs" />
     <Compile Include="Channels\ChannelClient.cs" />
+    <Compile Include="Channels\ChannelInfo.cs" />
     <Compile Include="Channels\ChannelVideoResponse.cs" />
+    <Compile Include="Channels\ChannelVideoSortKey.cs" />
+    <Compile Include="Channels\ChannelVideoSortOrder.cs" />
     <Compile Include="Community\CommunityApiDateTimeJsonConverter.cs" />
     <Compile Include="Community\CommunityAuthorityResponse.cs" />
     <Compile Include="Community\CommunityClient.cs" />
@@ -142,7 +145,6 @@
     <Compile Include="ContentIdHelper.cs" />
     <Compile Include="Follow\ChannelAuthorityResponse.cs" />
     <Compile Include="Follow\ChannelFollowResult.cs" />
-    <Compile Include="Follow\CommunityAuthorityResponse.cs" />
     <Compile Include="Follow\FollowChannelResponse.cs" />
     <Compile Include="Follow\FollowClient.cs" />
     <Compile Include="Follow\FollowCommunityResponse.cs" />
@@ -156,12 +158,17 @@
     <Compile Include="HttpContentExtensions.cs" />
     <Compile Include="HttpStatusCodeHelper.cs" />
     <Compile Include="Likes\LikesClient.cs" />
+    <Compile Include="Mylist\LoginUser\ChangeMylistGroupsOrderResponse.cs" />
     <Compile Include="Mylist\LoginUser\MoveOrCopyMylistItemsResponse.cs" />
     <Compile Include="Mylist\LoginUser\WatchAfterItemsResponse.cs" />
     <Compile Include="NiconicoToolkitException.cs" />
     <Compile Include="Mylist\IMylistItem.cs" />
     <Compile Include="Mylist\NvapiMylistItem.cs" />
+    <Compile Include="NiconicoUrls.cs" />
     <Compile Include="NicoRepo\NicoRepoClient.cs" />
+    <Compile Include="NicoRepo\NicoRepoDisplayTarget.cs" />
+    <Compile Include="NicoRepo\NicoRepoEntriesResponse.cs" />
+    <Compile Include="NicoRepo\NicoRepoMuteContextTrigger.cs" />
     <Compile Include="SearchWithCeApi\SearchWithCeApiClient.cs" />
     <Compile Include="CeApiResponseBase.cs" />
     <Compile Include="SearchWithCeApi\Video\ThreadItem.cs" />
@@ -177,6 +184,7 @@
     <Compile Include="User\NicovideoUserResponse.cs" />
     <Compile Include="User\UserDetailResponseContainer.cs" />
     <Compile Include="User\UserNicknameResponse.cs" />
+    <Compile Include="User\UsersResponse.cs" />
     <Compile Include="User\UserVideoResponse.cs" />
     <Compile Include="User\UserVideoSortKey.cs" />
     <Compile Include="User\UserVideoSortOrder.cs" />
@@ -187,16 +195,15 @@
     <Compile Include="Live\Cas\CasLiveClient.cs" />
     <Compile Include="Live\Cas\CasLiveProviderType.cs" />
     <Compile Include="Live\Cas\NicocasLiveProgramResponse.cs" />
-    <Compile Include="Live\Events\CommentPostedEventArgs.cs" />
-    <Compile Include="Live\Events\CommentRecievedEventArgs.cs" />
-    <Compile Include="Live\Events\CommentServerConnectedEventArgs.cs" />
-    <Compile Include="Live\Events\CommentServerDisconnectedEventArgs.cs" />
+    <Compile Include="Live\WatchSession\Events\CommentPostedEventArgs.cs" />
+    <Compile Include="Live\WatchSession\Events\CommentRecievedEventArgs.cs" />
+    <Compile Include="Live\WatchSession\Events\CommentServerConnectedEventArgs.cs" />
+    <Compile Include="Live\WatchSession\Events\CommentServerDisconnectedEventArgs.cs" />
     <Compile Include="Live\LiveClient.cs" />
     <Compile Include="Live\LiveStatus.cs" />
     <Compile Include="Live\Notify\LiveNotifyClient.cs" />
     <Compile Include="Live\ProviderType.cs" />
-    <Compile Include="Live\Search\EnumHelper.cs" />
-    <Compile Include="Live\Search\LiveSearchClient.cs" />
+    <Compile Include="SearchWithPage\Live\LiveSearchClient.cs" />
     <Compile Include="Live\WatchPageProp\DataProps.cs" />
     <Compile Include="Live\WatchSession\ChatResult.cs" />
     <Compile Include="Comment\CommandType.cs" />

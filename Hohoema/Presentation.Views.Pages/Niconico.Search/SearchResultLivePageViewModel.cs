@@ -19,7 +19,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using NiconicoToolkit.Live;
-using NiconicoToolkit.Live.Search;
+using NiconicoToolkit.SearchWithPage.Live;
 using System.Collections.ObjectModel;
 using Uno.Extensions;
 using Hohoema.Presentation.ViewModels.Niconico.Live;

@@ -30,14 +30,14 @@ namespace NiconicoToolkit.SearchWithCeApi.Video
 
         public async Task<VideoIdSearchSingleResponse> IdSearchAsync(string videoId)
         {
-            string url = $"http://api.ce.nicovideo.jp/nicoapi/v1/video.info?v={videoId}&__format=json";
+            string url = $"{NiconicoUrls.CeNicoApiV1Url}video.info?v={videoId}&__format=json";
             var res = await _context.GetJsonAsAsync<VideoSingleIdSearchResponseContainer>(url, _option);
             return res.Response;
         }
 
         public async Task<VideoIdSearchResponse> IdSearchAsync(IEnumerable<string> videoIdList)
         {
-            string url = $"http://api.ce.nicovideo.jp/nicoapi/v1/video.array?v={string.Join(Uri.EscapeDataString(","), videoIdList)}&__format=json";
+            string url = $"{NiconicoUrls.CeNicoApiV1Url}video.array?v={string.Join(Uri.EscapeDataString(","), videoIdList)}&__format=json";
             var res = await _context.GetJsonAsAsync<VideoIdSearchResponseContainer>(url, _option);
             return res.Response;
         }
@@ -68,7 +68,7 @@ namespace NiconicoToolkit.SearchWithCeApi.Video
 
             await _context.WaitPageAccessAsync();
 
-            var url = new StringBuilder("http://api.ce.nicovideo.jp/nicoapi/v1/video.search")
+            var url = new StringBuilder($"{NiconicoUrls.CeNicoApiV1Url}video.search")
                 .AppendQueryString(dict)
                 .ToString();
 
@@ -102,7 +102,7 @@ namespace NiconicoToolkit.SearchWithCeApi.Video
 
             await _context.WaitPageAccessAsync();
 
-            var url = new StringBuilder("http://api.ce.nicovideo.jp/nicoapi/v1/tag.search")
+            var url = new StringBuilder($"{NiconicoUrls.CeNicoApiV1Url}tag.search")
                 .AppendQueryString(dict)
                 .ToString();
 

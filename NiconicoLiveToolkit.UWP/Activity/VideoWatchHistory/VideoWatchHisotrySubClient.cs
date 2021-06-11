@@ -35,13 +35,16 @@ namespace NiconicoToolkit.Activity.VideoWatchHistory
                     new JsonStringEnumMemberConverter(),
                 },
             };
-        }
+        }        
 
-        public const string WatchHitoryApi = "https://nvapi.nicovideo.jp/v1/users/me/watch/history";
+        internal static class Urls
+        {
+            public const string WatchHitoryApi = $"{NiconicoUrls.NvApiV1Url}users/me/watch/history";
+        }
 
         public Task<VideoWatchHistory> GetWatchHistoryAsync(int page, int pageSize)
         {
-            var url = new StringBuilder(WatchHitoryApi)
+            var url = new StringBuilder(Urls.WatchHitoryApi)
                 .AppendQueryString(new NameValueCollection()
                 {
                     { "page", (page+1).ToString() },
@@ -55,7 +58,7 @@ namespace NiconicoToolkit.Activity.VideoWatchHistory
 
         public Task<VideoWatchHistoryDeleteResult> DeleteWatchHistoriesAsync(string target)
         {
-            var url = new StringBuilder(WatchHitoryApi)
+            var url = new StringBuilder(Urls.WatchHitoryApi)
                 .AppendQueryString(new NameValueCollection()
                 {
                     { "target", target },
@@ -67,7 +70,7 @@ namespace NiconicoToolkit.Activity.VideoWatchHistory
 
         public Task<VideoWatchHistoryDeleteResult> DeleteWatchHistoriesAsync(IEnumerable<string> targets)
         {
-            var url = new StringBuilder(WatchHitoryApi)
+            var url = new StringBuilder(Urls.WatchHitoryApi)
                 .AppendQueryString(new NameValueCollection()
                 {
                     { "target", string.Join(',', targets) },
@@ -80,7 +83,7 @@ namespace NiconicoToolkit.Activity.VideoWatchHistory
 
         public Task<VideoWatchHistoryDeleteResult> DeleteAllWatchHistoriesAsync()
         {
-            var url = new StringBuilder(WatchHitoryApi)
+            var url = new StringBuilder(Urls.WatchHitoryApi)
                 .AppendQueryString(new NameValueCollection()
                 {
                     { "target", "all" },

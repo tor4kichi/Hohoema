@@ -1,10 +1,13 @@
 ﻿
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NiconicoToolkit.Live;
+using NiconicoToolkit.SearchWithPage.Live;
 using NiconicoToolkit.SearchWithPage.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NiconicoToolkit.UWP.Test.Tests
@@ -84,6 +87,19 @@ namespace NiconicoToolkit.UWP.Test.Tests
                     Assert.IsTrue(!string.IsNullOrWhiteSpace(tag));
                 }
             }
+        }
+
+
+
+
+
+        [TestMethod]
+        [DataRow("Splatoon2", LiveStatus.Onair)]
+        [DataRow("動物", LiveStatus.Past)]
+        [DataRow("弾いてみた", LiveStatus.Reserved)]
+        public async Task GetLiveSeaerchResultAsync(string keyword, LiveStatus liveStatus)
+        {
+            var res = await _searchClient.Live.GetLiveSearchPageScrapingResultAsync(LiveSearchOptionsQuery.Create(keyword, liveStatus), default(CancellationToken));
         }
     }
 }

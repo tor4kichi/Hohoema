@@ -77,5 +77,54 @@ namespace NiconicoToolkit
                 throw new InvalidOperationException();
             }
         }
+
+
+        public static bool IsChannelId(string id, bool allowNumberOnlyId = true)
+        {
+            if (allowNumberOnlyId && id.IsAllDigit())
+            {
+                return true;
+            }
+            else if (id.StartsWith("ch") && id.Skip(2).IsAllDigit())
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public static string EnsureNonPrefixChannelId(string id)
+        {
+            if (id.IsAllDigit())
+            {
+                return id;
+            }
+            else if (IsChannelId(id, allowNumberOnlyId: false))
+            {
+                return id.Remove(0, 2);
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
+        public static (bool IsScreenName, string channelId) EnsurePrefixChannelIdOrScreenName(string channelId)
+        {
+            if (channelId.StartsWith("ch") && channelId.Skip(2).IsAllDigit())
+            {
+                return (false, channelId);
+            }
+            else if (channelId.IsAllDigit())
+            {
+                return (false, "ch" + channelId);
+            }
+            else
+            {
+                return (true, channelId);
+            }
+        }
     }
 }

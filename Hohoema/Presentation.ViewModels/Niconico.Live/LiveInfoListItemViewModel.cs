@@ -7,7 +7,7 @@ using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
 using Mntone.Nico2.Live;
 using NiconicoToolkit.Live;
-using NiconicoToolkit.Live.Search;
+using NiconicoToolkit.SearchWithPage.Live;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Unity;

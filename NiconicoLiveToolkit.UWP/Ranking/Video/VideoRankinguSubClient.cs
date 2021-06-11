@@ -146,9 +146,12 @@ namespace NiconicoToolkit.Ranking.Video
 
             try
             {
-                StringBuilder sb = new StringBuilder(VideoRankingConstants.NiconicoRankingGenreDomain);
-                sb.Append(genre.GetDescription());
-                return await GetRssVideoResponseAsync(dict.ToQueryString(sb).ToString(), ct);
+                var url = new StringBuilder(VideoRankingConstants.NiconicoRankingGenreDomain)
+                    .Append(genre.GetDescription())
+                    .AppendQueryString(dict)
+                    .ToString();
+
+                return await GetRssVideoResponseAsync(url, ct);
             }
             catch
             {
@@ -187,9 +190,12 @@ namespace NiconicoToolkit.Ranking.Video
 
             try
             {
-                StringBuilder sb = new StringBuilder(VideoRankingConstants.NiconicoRankingGenreDomain);
-                sb.Append(genre.GetDescription());
-                return await GetRssVideoResponseAsync(dict.ToQueryString(sb).ToString(), ct);
+                var url = new StringBuilder(VideoRankingConstants.NiconicoRankingGenreDomain)
+                    .Append(genre.GetDescription())
+                    .AppendQueryString(dict)
+                    .ToString();
+
+                return await GetRssVideoResponseAsync(url, ct);
             }
             catch
             {
@@ -223,8 +229,10 @@ namespace NiconicoToolkit.Ranking.Video
 
             try
             {
-                StringBuilder sb = new StringBuilder(VideoRankingConstants.NiconicoRankingHotTopicDomain);
-                return await GetRssVideoResponseAsync(dict.ToQueryString(sb).ToString(), ct);
+                var url = new StringBuilder(VideoRankingConstants.NiconicoRankingHotTopicDomain)
+                    .AppendQueryString(dict)
+                    .ToString();
+                return await GetRssVideoResponseAsync(url, ct);
             }
             catch
             {
@@ -250,8 +258,10 @@ namespace NiconicoToolkit.Ranking.Video
 
             try
             {
-                StringBuilder sb = new StringBuilder(VideoRankingConstants.NiconicoRankingHotTopicDomain);
-                return await GetRssVideoResponseAsync(dict.ToQueryString(sb).ToString(), ct);
+                var url = new StringBuilder(VideoRankingConstants.NiconicoRankingHotTopicDomain)
+                    .AppendQueryString(dict)
+                    .ToString();
+                return await GetRssVideoResponseAsync(url, ct);
             }
             catch
             {
@@ -259,13 +269,8 @@ namespace NiconicoToolkit.Ranking.Video
             }
         }
 
-
-        Windows.Web.Syndication.SyndicationClient _client = new Windows.Web.Syndication.SyndicationClient();
-
         private async Task<RssVideoResponse> GetRssVideoResponseAsync(string url, CancellationToken ct)
         {
-            System.Diagnostics.Debug.WriteLine(url);
-
             var text = await _context.GetStringAsync(url);
             var feed = new SyndicationFeed();
             feed.Load(text);

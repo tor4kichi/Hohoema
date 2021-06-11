@@ -1,5 +1,4 @@
-﻿using NiconicoToolkit.Live.Events;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -11,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NiconicoToolkit.Live.WatchSession;
 using NiconicoToolkit.Live.WatchSession.ToClientMessage;
+using NiconicoToolkit.Live.WatchSession.Events;
 
 namespace NiconicoToolkit.Live.WatchSession
 {

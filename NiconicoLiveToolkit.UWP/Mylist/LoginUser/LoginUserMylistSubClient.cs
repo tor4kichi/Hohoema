@@ -43,16 +43,31 @@ namespace NiconicoToolkit.Mylist.LoginUser
 
         }
 
+        internal static class Urls
+        {
+            public const string NvApiV1LoginUserApiUrl = $"{NiconicoUrls.NvApiV1Url}users/me/";
+            public const string NvApiV1MylistApiUrl = $"{NvApiV1LoginUserApiUrl}mylists";            
+            public const string NvApiV1MylistApiDirectoryUrl = $"{NvApiV1MylistApiUrl}/";
+
+            public const string NvApiV1MylistOrderApiUrl = $"{NvApiV1MylistApiDirectoryUrl}order";
+
+            public const string NvApiV1WatchAfterApiUrl = $"{NvApiV1LoginUserApiUrl}watch-later";
+            public const string NvApiV1WatchAfterItemsApiUrl = $"{NvApiV1LoginUserApiUrl}deflist/items";
+
+            public const string NvApiV1MoveMylistItemsApiUrl = $"{NvApiV1LoginUserApiUrl}move-mylist-items";
+            public const string NvApiV1CopyMylistItemsApiUrl = $"{NvApiV1LoginUserApiUrl}copy-mylist-items";
+        }
+
         public Task<LoginUserMylistsResponse> GetMylistGroupsAsync(int sampleItemCount = 0)
         {
-            return _context.GetJsonAsAsync<LoginUserMylistsResponse>($"https://nvapi.nicovideo.jp/v1/users/me/mylists?sampleItemCount={sampleItemCount}", _defaultOptions);
+            return _context.GetJsonAsAsync<LoginUserMylistsResponse>($"{Urls.NvApiV1MylistApiUrl}?sampleItemCount={sampleItemCount}", _defaultOptions);
         }
 
 
 
         public async Task<CreateMylistResponse> CreateMylistAsync(string name, string description, bool isPublic, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
-            return await _context.SendJsonAsAsync<CreateMylistResponse>(HttpMethod.Post, "https://nvapi.nicovideo.jp/v1/users/me/mylists", new Dictionary<string, string>()
+            return await _context.SendJsonAsAsync<CreateMylistResponse>(HttpMethod.Post, Urls.NvApiV1MylistApiUrl, new Dictionary<string, string>()
             {
                 { "name", name },
                 { "description", description },
@@ -73,14 +88,14 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 { "defaultSortOrder", sortOrder.GetDescription() },
             };
             var httpContent = new HttpFormUrlEncodedContent(dict);
-            var res = await _context.SendAsync(HttpMethod.Put, $"https://nvapi.nicovideo.jp/v1/users/me/mylists/{mylistId}", httpContent, completionOption: HttpCompletionOption.ResponseHeadersRead);
+            var res = await _context.SendAsync(HttpMethod.Put, $"{Urls.NvApiV1MylistApiUrl}/{mylistId}", httpContent, completionOption: HttpCompletionOption.ResponseHeadersRead);
             return res.IsSuccessStatusCode;
         }
 
 
         public async Task<bool> RemoveMylistAsync(string mylistId)
         {
-            var res = await _context.SendAsync(HttpMethod.Delete, $"https://nvapi.nicovideo.jp/v1/users/me/mylists/{mylistId}", completionOption: HttpCompletionOption.ResponseHeadersRead);
+            var res = await _context.SendAsync(HttpMethod.Delete, $"{Urls.NvApiV1MylistApiUrl}/{mylistId}", completionOption: HttpCompletionOption.ResponseHeadersRead);
             return res.IsSuccessStatusCode;
         }
 
@@ -91,24 +106,9 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 { "order", string.Join(',', orderedMylistIds) }
             });
 
-            var res = await _context.SendAsync(HttpMethod.Put, "https://nvapi.nicovideo.jp/v1/users/me/mylists/order", httpContent);
+            var res = await _context.SendAsync(HttpMethod.Put, Urls.NvApiV1MylistOrderApiUrl, httpContent);
             return await res.Content.ReadAsAsync<ChangeMylistGroupsOrderResponse>(_defaultOptions);
         }
-
-
-        public sealed class ChangeMylistGroupsOrderResponse : ResponseWithMeta
-        {
-            [JsonPropertyName("data")]
-            public ChangeMylistGroupsOrderData Data { get; set; }
-        }
-
-
-        public sealed class ChangeMylistGroupsOrderData
-        {
-            [JsonPropertyName("mylistIds")]
-            public string[] MylistIds { get; set; }
-        }
-
 
 
 
@@ -123,7 +123,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
             if (sortKey is not null) dict.Add("sortKey", sortKey.Value.GetDescription());
             if (sortOrder is not null) dict.Add("sortOrder", sortOrder.Value.GetDescription());
 
-            var uri = new StringBuilder("https://nvapi.nicovideo.jp/v1/users/me/watch-later")
+            var uri = new StringBuilder(Urls.NvApiV1WatchAfterApiUrl)
                 .AppendQueryString(dict)
                 .ToString();
             return _context.GetJsonAsAsync<WatchAfterItemsResponse>(uri, _defaultOptions);
@@ -131,7 +131,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
 
         public async Task<ContentManageResult> AddWatchAfterMylistItemAsync(string watchId, string memo)
         {
-            var res = await _context.PostAsync("https://nvapi.nicovideo.jp/v1/users/me/watch-later", new Dictionary<string, string>
+            var res = await _context.PostAsync(Urls.NvApiV1WatchAfterApiUrl, new Dictionary<string, string>
             {
                 { "watchId", watchId },
                 { "memo", memo }
@@ -147,7 +147,8 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 { "description", memo }
             };
 
-            var url = new StringBuilder("https://nvapi.nicovideo.jp/v1/users/me/deflist/items/")
+            var url = new StringBuilder(Urls.NvApiV1WatchAfterItemsApiUrl)
+                .Append("/")
                 .Append(itemId)
                 .ToString();
 
@@ -163,7 +164,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 { "itemIds", string.Join(',', itemIds) }
             };
 
-            var url = new StringBuilder("https://nvapi.nicovideo.jp/v1/users/me/watch-later")
+            var url = new StringBuilder(Urls.NvApiV1WatchAfterApiUrl)
                 .AppendQueryString(dict)
                 .ToString();
 
@@ -195,7 +196,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
             if (sortKey is not null) dict.Add("sortKey", sortKey.Value.GetDescription());
             if (sortOrder is not null) dict.Add("sortOrder", sortOrder.Value.GetDescription());
 
-            var uri = new StringBuilder("https://nvapi.nicovideo.jp/v1/users/me/mylists/")
+            var uri = new StringBuilder(Urls.NvApiV1MylistApiDirectoryUrl)
                 .Append(mylistId)
                 .AppendQueryString(dict)
                 .ToString();
@@ -213,7 +214,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 { "description", memo }
             };
 
-            var url = new StringBuilder("https://nvapi.nicovideo.jp/v1/users/me/mylists/")
+            var url = new StringBuilder(Urls.NvApiV1MylistApiDirectoryUrl)
                 .Append(mylistId)
                 .Append("/items")
                 .AppendQueryString(dict)
@@ -231,7 +232,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 { "description", memo }
             };
 
-            var url = new StringBuilder("https://nvapi.nicovideo.jp/v1/users/me/mylists/")
+            var url = new StringBuilder(Urls.NvApiV1MylistApiDirectoryUrl)
                 .Append(mylistId)
                 .Append("/items/")
                 .Append(itemId)
@@ -249,7 +250,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 { "itemIds", string.Join(',', itemIds) }
             };
 
-            var url = new StringBuilder("https://nvapi.nicovideo.jp/v1/users/me/mylists/")
+            var url = new StringBuilder(Urls.NvApiV1MylistApiDirectoryUrl)
                 .Append(mylistId)
                 .Append("/items")
                 .AppendQueryString(dict)
@@ -280,7 +281,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 { "itemIds", string.Join(',', itemIds) }
             };
 
-            var url = new StringBuilder("https://nvapi.nicovideo.jp/v1/users/me/move-mylist-items")
+            var url = new StringBuilder(Urls.NvApiV1MoveMylistItemsApiUrl)
                 .AppendQueryString(dict)
                 .ToString();
 
@@ -296,7 +297,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 { "itemIds", string.Join(',', itemIds) }
             };
 
-            var url = new StringBuilder("https://nvapi.nicovideo.jp/v1/users/me/copy-mylist-items")
+            var url = new StringBuilder(Urls.NvApiV1CopyMylistItemsApiUrl)
                 .AppendQueryString(dict)
                 .ToString();
 
@@ -304,5 +305,4 @@ namespace NiconicoToolkit.Mylist.LoginUser
         }
 
     }
-
 }

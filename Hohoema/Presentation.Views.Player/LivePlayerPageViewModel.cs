@@ -49,6 +49,7 @@ using Windows.System;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
+using NiconicoToolkit.Live.WatchSession.Events;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -1133,7 +1134,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             });
         }
 
-        private void _CommentSession_CommentReceived(object sender, NiconicoToolkit.Live.Events.CommentReceivedEventArgs e)
+        private void _CommentSession_CommentReceived(object sender, CommentReceivedEventArgs e)
         {
             LiveComment ChatToComment(LiveChatData x)
             {
@@ -1215,17 +1216,17 @@ namespace Hohoema.Presentation.ViewModels.Player
             }
         }
 
-        private void _CommentSession_CommentPosted(object sender, NiconicoToolkit.Live.Events.CommentPostedEventArgs e)
+        private void _CommentSession_CommentPosted(object sender, CommentPostedEventArgs e)
         {
             
         }
 
-        private void _CommentSession_Connected(object sender, NiconicoToolkit.Live.Events.CommentServerConnectedEventArgs e)
+        private void _CommentSession_Connected(object sender, CommentServerConnectedEventArgs e)
         {
             
         }
 
-        private void _CommentSession_Disconnected(object sender, NiconicoToolkit.Live.Events.CommentServerDisconnectedEventArgs e)
+        private void _CommentSession_Disconnected(object sender, CommentServerDisconnectedEventArgs e)
         {
         }
 

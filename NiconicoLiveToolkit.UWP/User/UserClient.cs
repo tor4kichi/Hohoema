@@ -29,52 +29,42 @@ namespace NiconicoToolkit.User
         }
 
 
-        public static class Urls
+        internal static class Urls
         {
-            public static string MakeUsersApiUrl(IEnumerable<int> userIds)
-            {
-                return new StringBuilder("https://public.api.nicovideo.jp/v1/users.json?userIds=")
-                    .AppendJoin(Uri.EscapeDataString(","), userIds)
-                    .ToString();
-            }
+            public const string CeApiV1UserDetailsApiUrlFormat = $"{NiconicoUrls.CeApiV1Url}user.info?__format=json&user_id={{0}}";
+            public const string LiveApiV1NicknameApiUrlFormat = $"{NiconicoUrls.LiveApiV1Url}user/nickname?userId={{0}}";
         }
 
 
-        const string NicknameApiUrlFormat = "https://api.live2.nicovideo.jp/api/v1/user/nickname?userId={0}";
         public async Task<UserNickname> GetUserNicknameAsync(string id)
         {
-            var res = await _context.GetJsonAsAsync<UserNicknameResponse>(string.Format(NicknameApiUrlFormat, id));
+            var res = await _context.GetJsonAsAsync<UserNicknameResponse>(string.Format(Urls.LiveApiV1NicknameApiUrlFormat, id));
             return res.User;
         }
 
         public async Task<UserNickname> GetUserNicknameAsync(uint id)
         {
-            var res = await _context.GetJsonAsAsync<UserNicknameResponse>(string.Format(NicknameApiUrlFormat, id));
+            var res = await _context.GetJsonAsAsync<UserNicknameResponse>(string.Format(Urls.LiveApiV1NicknameApiUrlFormat, id));
             return res.User;
         }
 
 
 
-        const string UserDetailsApiUrlFormat = "http://api.ce.nicovideo.jp/api/v1/user.info?__format=json&user_id={0}";
         public async Task<NicovideoUserResponse> GetUserInfoAsync(string id)
         {
-            var res = await _context.GetJsonAsAsync<NicovideoUserResponseContainer>(string.Format(UserDetailsApiUrlFormat, id));
+            var res = await _context.GetJsonAsAsync<NicovideoUserResponseContainer>(string.Format(Urls.CeApiV1UserDetailsApiUrlFormat, id));
             return res.Response;
         }
 
         public async Task<NicovideoUserResponse> GetUserInfoAsync(uint id)
         {   
-            var res = await _context.GetJsonAsAsync<NicovideoUserResponseContainer>(string.Format(UserDetailsApiUrlFormat, id));
+            var res = await _context.GetJsonAsAsync<NicovideoUserResponseContainer>(string.Format(Urls.CeApiV1UserDetailsApiUrlFormat, id));
             return res.Response;
         }
 
 
 
-        public static string MakeUserPageUrl<IdType>(IdType userId)
-        {
-            return $"https://www.nicovideo.jp/user/{userId}";
-        }
-
+        
 
         public Task<UserDetailResponse> GetUserDetailAsync(string userId)
         {
@@ -90,7 +80,7 @@ namespace NiconicoToolkit.User
         {
             await _context.WaitPageAccessAsync();
 
-            var res = await _context.GetAsync(MakeUserPageUrl(userId));
+            var res = await _context.GetAsync(NiconicoUrls.MakeUserPageUrl(userId));
             if (!res.IsSuccessStatusCode)
             {
                 return new UserDetailResponse()
@@ -130,7 +120,7 @@ namespace NiconicoToolkit.User
         private Task<UserVideoResponse> GetUserVideoAsync_Internal<IdType>(IdType userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
         {
             return _context.GetJsonAsAsync<UserVideoResponse>(
-                $"https://nvapi.nicovideo.jp/v2/users/{userId}/videos?sortKey={sortKey.GetDescription()}&sortOrder={sortOrder.GetDescription()}&pageSize={pageSize}&page={page + 1}"
+                $"{NiconicoUrls.NvApiV2Url}users/{userId}/videos?sortKey={sortKey.GetDescription()}&sortOrder={sortOrder.GetDescription()}&pageSize={pageSize}&page={page + 1}"
                 , _options
                 );
         }
@@ -143,57 +133,13 @@ namespace NiconicoToolkit.User
             {
                 dict.Add("userIds", id.ToString());
             }
-            var url = new StringBuilder("https://public.api.nicovideo.jp/v1/users.json")
+            var url = new StringBuilder($"{NiconicoUrls.PublicApiV1Url}users.json")
                 .AppendQueryString(dict)
                 .ToString();
 
             return _context.GetJsonAsAsync<UsersResponse>(url);
         }
 
-    }
-
-    public sealed class UsersResponse : ResponseWithMeta
-    {
-        [JsonPropertyName("data")]
-        public UsersData[] Data { get; set; }
-
-
-        public sealed class UsersData
-        {
-            [JsonPropertyName("userId")]
-            [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
-            public int UserId { get; set; }
-
-            [JsonPropertyName("nickname")]
-            public string Nickname { get; set; }
-
-            [JsonPropertyName("description")]
-            public string Description { get; set; }
-
-            [JsonPropertyName("hasPremiumOrStrongerRights")]
-            public bool HasPremiumOrStrongerRights { get; set; }
-
-            [JsonPropertyName("hasSuperPremiumOrStrongerRights")]
-            public bool HasSuperPremiumOrStrongerRights { get; set; }
-
-            [JsonPropertyName("icons")]
-            public Icons Icons { get; set; }
-        }
-
-        public sealed class Icons
-        {
-            [JsonPropertyName("urls")]
-            public Urls Urls { get; set; }
-        }
-
-        public sealed class Urls
-        {
-            [JsonPropertyName("150x150")]
-            public Uri The150X150 { get; set; }
-
-            [JsonPropertyName("50x50")]
-            public Uri The50X50 { get; set; }
-        }
     }
 
 }

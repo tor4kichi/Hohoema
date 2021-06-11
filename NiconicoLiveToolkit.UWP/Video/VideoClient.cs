@@ -33,8 +33,6 @@ namespace NiconicoToolkit.Video
             Ranking = new VideoRankinguSubClient(context);
             VideoWatch = new VideoWatchSubClient(context, _option);
         }
-
-        public static string MakeWatchPageUrl(string videoId) => VideoWatchSubClient.MakeWatchPageUrl(videoId);
     }
 
 }

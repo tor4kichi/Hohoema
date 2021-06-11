@@ -10,7 +10,6 @@ using System.Buffers;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Account;
 using System.Text.Json.Serialization;
-using NiconicoToolkit.Live.Search;
 using Windows.Storage.Streams;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
@@ -51,6 +50,7 @@ namespace NiconicoToolkit
             },
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
         };
+
 
         public NiconicoContext(
             HttpClient httpClient

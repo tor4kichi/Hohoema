@@ -53,6 +53,15 @@ namespace NiconicoToolkit.Follow
             Community = new CommunityFollowSubClient(this, _context, _defaultOptions);
         }
 
+
+        internal static class Urls
+        {
+            public const string NvapiV1FollowingApiUrl = $"{NiconicoUrls.NvApiV1Url}users/me/following/";
+            
+            public const string PublicV1FollowingApiUrl = $"{NiconicoUrls.PublicApiV1Url}user/followees/";
+        }
+
+
         public sealed class TagsFollowSubClient
         {
             private readonly FollowClient _followClient;
@@ -78,12 +87,12 @@ namespace NiconicoToolkit.Follow
 
             public Task<ContentManageResult> AddFollowTagAsync(string tag)
             {
-                return _followClient.AddFollowInternalAsync($"https://nvapi.nicovideo.jp/v1/users/me/following/tags?tag={tag}");
+                return _followClient.AddFollowInternalAsync($"{Urls.NvapiV1FollowingApiUrl}tags?tag={tag}");
             }
 
             public Task<ContentManageResult> RemoveFollowTagAsync(string tag)
             {
-                return _followClient.RemoveFollowInternalAsync($"https://nvapi.nicovideo.jp/v1/users/me/following/tags?tag={tag}");
+                return _followClient.RemoveFollowInternalAsync($"{Urls.NvapiV1FollowingApiUrl}tags?tag={tag}");
             }
 
             /*
@@ -112,7 +121,7 @@ namespace NiconicoToolkit.Follow
 
             public async Task<FollowUsersResponse> GetFollowUsersAsync(uint pageSize, FollowUsersResponse lastUserResponse = null)
             {
-                var uri = $"https://nvapi.nicovideo.jp/v1/users/me/following/users?pageSize={pageSize}";
+                var uri = $"{Urls.NvapiV1FollowingApiUrl}users?pageSize={pageSize}";
                 if (lastUserResponse != null)
                 {
                     uri += "&cursor=" + lastUserResponse.Data.Summary.Cursor;
@@ -125,12 +134,12 @@ namespace NiconicoToolkit.Follow
 
             public Task<ContentManageResult> AddFollowUserAsync(string userId)
             {
-                return _followClient.AddFollowInternalAsync($"https://public.api.nicovideo.jp/v1/user/followees/niconico-users/{userId}.json");
+                return _followClient.AddFollowInternalAsync($"{Urls.PublicV1FollowingApiUrl}niconico-users/{userId}.json");
             }
 
             public Task<ContentManageResult> RemoveFollowUserAsync(string userId)
             {
-                return _followClient.RemoveFollowInternalAsync($"https://public.api.nicovideo.jp/v1/user/followees/niconico-users/{userId}.json");
+                return _followClient.RemoveFollowInternalAsync($"{Urls.PublicV1FollowingApiUrl}niconico-users/{userId}.json");
             }
 
             public Task<bool> IsFollowingUserAsync(uint userId)
@@ -171,7 +180,7 @@ namespace NiconicoToolkit.Follow
 
             public Task<ContentManageResult> RemoveFollowMylistAsync(string mylistId)
             {
-                return _followClient.RemoveFollowInternalAsync($"https://nvapi.nicovideo.jp/v1/users/me/following/mylists/{mylistId}");
+                return _followClient.RemoveFollowInternalAsync($"{Urls.NvapiV1FollowingApiUrl}mylists/{mylistId}");
             }
 
             /*
@@ -199,7 +208,7 @@ namespace NiconicoToolkit.Follow
 
             public async Task<FollowChannelResponse> GetFollowChannelAsync(uint offset = 0, uint limit = 25)
             {
-                var uri = $"https://public.api.nicovideo.jp/v1/user/followees/channels.json?limit={limit}&offset={offset}";
+                var uri = $"{Urls.PublicV1FollowingApiUrl}channels.json?limit={limit}&offset={offset}";
                 await _context.PrepareCorsAsscessAsync(HttpMethod.Get, uri);
                 return await _context.GetJsonAsAsync<FollowChannelResponse>(uri, _options);
             }
@@ -210,7 +219,7 @@ namespace NiconicoToolkit.Follow
             public async Task<ChannelAuthorityResponse> GetChannelAuthorityAsync(uint channelNumberId)
             {
                 return await _context.GetJsonAsAsync<ChannelAuthorityResponse>(
-                    $"https://public.api.nicovideo.jp/v1/channel/channelapp/channels/{channelNumberId}.json", _options
+                    $"{NiconicoUrls.PublicApiV1Url}channel/channelapp/channels/{channelNumberId}.json", _options
                     );
             }
 
@@ -225,21 +234,7 @@ namespace NiconicoToolkit.Follow
 
             private async Task<ChannelFollowApiInfo> GetFollowChannelApiInfo(string channelId)
             {
-                bool isScreenName = true;
-                if (channelId.StartsWith("ch") && char.IsDigit(channelId.Last()))
-                {
-                    isScreenName = false;
-                }
-                else if (channelId.All(c => char.IsDigit(c)))
-                {
-                    channelId = "ch" + channelId;
-                    isScreenName = false;
-                }
-
-                var res = await _context.GetAsync(isScreenName
-                    ? $"http://ch.nicovideo.jp/{channelId}"
-                    : $"http://ch.nicovideo.jp/channel/{channelId}"
-                    );
+                var res = await _context.GetAsync(NiconicoUrls.MakeChannelPageUrl(channelId));
 
                 var htmlParser = new HtmlParser();
 
@@ -286,7 +281,7 @@ namespace NiconicoToolkit.Follow
 
             public async Task<FollowCommunityResponse> GetFollowCommunityAsync(int page = 0, int limit = 25)
             {
-                var uri = $"https://public.api.nicovideo.jp/v1/user/followees/communities.json?limit={limit}&page={page}";
+                var uri = $"{Urls.PublicV1FollowingApiUrl}communities.json?limit={limit}&page={page}";
                 await _context.PrepareCorsAsscessAsync(HttpMethod.Get, uri);
                 return await _context.GetJsonAsAsync<FollowCommunityResponse>(uri, _options);
             }
@@ -295,27 +290,16 @@ namespace NiconicoToolkit.Follow
             public Task<UserOwnedCommunityResponse> GetUserOwnedCommunitiesAsync(uint userId)
             {
                 return _context.GetJsonAsAsync<UserOwnedCommunityResponse>(
-                    $"https://public.api.nicovideo.jp/v1/user/{userId}/communities.json", _options
-                    );
-            }
-
-
-            public async Task<CommunityAuthorityResponse> GetCommunityAuthorityAsync(string communityId)
-            {
-                var communityIdWoCo = communityId.Substring(2);
-                var communityJoinPageUrl = new Uri($"https://com.nicovideo.jp/motion/{communityId}");
-
-                return await _context.GetJsonAsAsync<CommunityAuthorityResponse>(
-                    $"https://com.nicovideo.jp/api/v1/communities/{communityIdWoCo}/authority.json", _options
+                    $"{NiconicoUrls.PublicApiV1Url}user/{userId}/communities.json", _options
                     );
             }
 
             public async Task<ContentManageResult> AddFollowCommunityAsync(string communityId)
             {
-                var communityIdWoCo = communityId.Substring(2);
-                var communityJoinPageUrl = new Uri($"https://com.nicovideo.jp/motion/{communityId}");
+                var nonPrefixCommunityId = ContentIdHelper.EnsureNonPrefixCommunityId(communityId);
+                var communityJoinPageUrl = new Uri($"{NiconicoUrls.CommunityPageUrl}motion/{communityId}");
 
-                var uri = $"https://com.nicovideo.jp/api/v1/communities/{communityIdWoCo}/follows.json";
+                var uri = $"{NiconicoUrls.CommunityV1ApiUrl}communities/{nonPrefixCommunityId}/follows.json";
                 //            await PrepareCorsAsscessAsync(HttpMethod.Post, uri);
 
                 var res = await _context.SendAsync(HttpMethod.Post, uri, content: null, headers =>
@@ -404,7 +388,7 @@ namespace NiconicoToolkit.Follow
             /// <returns></returns>
             public async Task<ContentManageResult> RemoveFollowCommunityAsync(string communityId)
             {
-                var url = $"https://com.nicovideo.jp/leave/{communityId}";
+                var url = $"{NiconicoUrls.CommunityPageUrl}leave/{communityId}";
                 var token = await GetCommunityLeaveTokenAsync(url, communityId);
                 var dict = new Dictionary<string, string>();
                 dict.Add("time", token.Time);

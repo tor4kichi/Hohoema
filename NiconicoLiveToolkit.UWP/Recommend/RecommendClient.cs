@@ -28,9 +28,14 @@ namespace NiconicoToolkit.Recommend
             };
         }
 
+        internal static class Urls
+        {
+            public const string NvApiV1RecommendApiUrl = $"{NiconicoUrls.NvApiV1Url}recommend";
+        }
+
         public Task<VideoRecommendResponse> GetVideoReccommendAsync(string videoId)
         {
-            string url = $"https://nvapi.nicovideo.jp/v1/recommend?recipeId=video_watch_recommendation&videoId={videoId}&site=nicovideo&_frontendId=6&_frontendVersion=0";
+            string url = $"{Urls.NvApiV1RecommendApiUrl}?recipeId=video_watch_recommendation&videoId={videoId}&site=nicovideo&_frontendId=6&_frontendVersion=0";
             return _context.GetJsonAsAsync<VideoRecommendResponse>(url, _options);
         }
 
@@ -45,7 +50,7 @@ namespace NiconicoToolkit.Recommend
         public Task<VideoRecommendResponse> GetChannelVideoReccommendAsync(string videoId, string channelId, IEnumerable<string> tags)
         {
             var tagsEncoded = Uri.EscapeDataString(string.Join(' ', tags));
-            string url = $"https://nvapi.nicovideo.jp/v1/recommend?recipeId=video_channel_watch_recommendation&videoId={videoId}&channelId={channelId}&tags={tagsEncoded}&site=nicovideo&_frontendId=6&_frontendVersion=0";
+            string url = $"{Urls.NvApiV1RecommendApiUrl}?recipeId=video_channel_watch_recommendation&videoId={videoId}&channelId={channelId}&tags={tagsEncoded}&site=nicovideo&_frontendId=6&_frontendVersion=0";
             return _context.GetJsonAsAsync<VideoRecommendResponse>(url, _options);
         }
     }

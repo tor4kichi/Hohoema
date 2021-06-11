@@ -1,4 +1,4 @@
-﻿namespace NiconicoToolkit.Live.Events
+﻿namespace NiconicoToolkit.Live.WatchSession.Events
 {
     public struct CommentServerDisconnectedEventArgs
     {

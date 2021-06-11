@@ -14,8 +14,10 @@ namespace NiconicoToolkit.SearchWithPage
         {
             _context = context;
             Video = new Video.VideoSearchSubClient(context);
+            Live = new Live.LiveSearchClient(context);
         }
 
         public Video.VideoSearchSubClient Video { get; }
+        public Live.LiveSearchClient Live { get; }
     }
 }

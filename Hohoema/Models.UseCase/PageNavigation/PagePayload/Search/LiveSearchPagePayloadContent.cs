@@ -1,8 +1,9 @@
 ﻿using Hohoema.Models.Domain;
 using System.Runtime.Serialization;
 using Hohoema.Models.Domain.PageNavigation;
-using NiconicoToolkit.Live.Search;
+using NiconicoToolkit.SearchWithPage.Live;
 using NiconicoToolkit.Live;
+using NiconicoToolkit.SearchWithPage.Live;
 
 namespace Hohoema.Models.UseCase.PageNavigation
 {

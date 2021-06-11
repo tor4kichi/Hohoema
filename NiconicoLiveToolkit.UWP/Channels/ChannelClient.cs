@@ -30,16 +30,17 @@ namespace NiconicoToolkit.Channels
             };
         }
 
-        public static string MakeChannelPageUrl(string channelId)
+        internal static class Urls
         {
-            var directiryName = ChannelIdToURLDirectoryName(channelId);
-            return $"https://ch.nicovideo.jp/{directiryName}";
-        }
+            internal static string ChannelIdToURLDirectoryName(string channelId)
+            {
+                var (isScreenName, prefixChannelId) = ContentIdHelper.EnsurePrefixChannelIdOrScreenName(channelId);
+                return isScreenName
+                    ? channelId
+                    : $"channel/{prefixChannelId}"
+                    ;
+            }
 
-        public static string MakeChannelVideoPageUrl(string channelId)
-        {
-            var directiryName = ChannelIdToURLDirectoryName(channelId);
-            return $"https://ch.nicovideo.jp/{directiryName}/video";
         }
 
 
@@ -52,10 +53,7 @@ namespace NiconicoToolkit.Channels
 
         public async Task<ChannelAdmissionResponse> GetChannelAdmissionAsync(string channelId, params ChannelAdmissionAdditinals[] additinals)
         {
-            if (channelId.StartsWith("ch"))
-            {
-                channelId = channelId.Remove(0, 2);
-            }
+            var nonPrefixChannelId = ContentIdHelper.EnsureNonPrefixCommunityId(channelId);
 
             NameValueCollection dict = new NameValueCollection() 
             {
@@ -67,8 +65,8 @@ namespace NiconicoToolkit.Channels
                 dict.Add("additionalResources", add.GetDescription());
             }
 
-            var url = new StringBuilder("https://public-api.ch.nicovideo.jp/v2/open/channels/")
-                .Append(channelId)
+            var url = new StringBuilder($"{NiconicoUrls.ChannelPublicApiV2Url}open/channels/")
+                .Append(nonPrefixChannelId)
                 .AppendQueryString(dict)
                 .ToString();
 
@@ -78,48 +76,20 @@ namespace NiconicoToolkit.Channels
 
         public Task<ChannelInfo> GetChannelInfoAsync(string channelId)
         {
-            string channelIdNumberOnly = channelId;
-
-            if (channelId.StartsWith("ch") && channelId.Skip(2).All(c => char.IsDigit(c)))
-            {
-                channelIdNumberOnly = channelId.Remove(0, 2);
-            }
-
-            if (!channelIdNumberOnly.All(c => char.IsDigit(c)))
-            {
-                throw new NotSupportedException();
-            }
-
-            return _context.GetJsonAsAsync<ChannelInfo>($"http://ch.nicovideo.jp/api/ch.info/{channelIdNumberOnly}");
+            var nonPrefixChannelId = ContentIdHelper.EnsureNonPrefixCommunityId(channelId);
+            return _context.GetJsonAsAsync<ChannelInfo>($"{NiconicoUrls.ChannelApiUrl}ch.info/{nonPrefixChannelId}");
         }
 
-
-        private static string ChannelIdToURLDirectoryName(string channelId)
-        {
-            if (channelId.StartsWith("ch"))
-            {
-                if (channelId.Skip(2).All(c => c >= '0' && c <= '9'))
-                {
-                    return $"channel/{channelId}";
-                }
-            }
-            else if (channelId.All(c => c >= '0' && c <= '9'))
-            {
-                return $"channel/ch{channelId}";
-            }
-
-            return channelId;
-        }
 
         public async Task<ChannelVideoResponse> GetChannelVideoAsync(string channelId, int page, ChannelVideoSortKey? sortKey = null, ChannelVideoSortOrder? sortOrder = null)
         {
-            var directoryName = ChannelIdToURLDirectoryName(channelId);
+            var directoryName = Urls.ChannelIdToURLDirectoryName(channelId);
             var dict = new NameValueCollection() { { "page", (page + 1).ToString() } };
 
             if (sortKey is not null) { dict.Add("sort", sortKey.Value.GetDescription()); }
             if (sortOrder is not null) { dict.Add("order", sortOrder.Value.GetDescription()); }
 
-            var url = new StringBuilder("https://ch.nicovideo.jp/")
+            var url = new StringBuilder(NiconicoUrls.ChannelPageUrl)
                 .Append(directoryName)
                 .Append("/video")
                 .AppendQueryString(dict)
@@ -219,75 +189,6 @@ namespace NiconicoToolkit.Channels
 
                 return channelVideoResponse;
             }
-        }
-    }
-
-    public enum ChannelVideoSortKey
-    {
-        [Description("f")]
-        FirstRetrieve,
-
-        [Description("v")]
-        ViewCount,
-
-        [Description("r")]
-        CommentCount,
-
-        [Description("m")]
-        MylistCount,
-
-        [Description("n")]
-        NewComment,
-
-        [Description("l")]
-        Length,
-    }
-
-    public enum ChannelVideoSortOrder
-    {
-        [Description("d")]
-        Desc,
-        
-        [Description("a")]
-        Asc,
-    }
-
-    public class ChannelInfo
-    {
-
-        [JsonPropertyName("channel_id")]
-        public int ChannelId { get; set; }
-
-        [JsonPropertyName("category_id")]
-        public int CategoryId { get; set; }
-
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-
-        [JsonPropertyName("company_viewname")]
-        public string CompanyViewname { get; set; }
-
-        [JsonPropertyName("open_time")]
-        public string OpenTime { get; set; }
-
-        [JsonPropertyName("update_time")]
-        public string UpdateTime { get; set; }
-
-        //[JsonPropertyName("dfp_setting")]
-        //public string DfpSetting { get; set; }
-
-        [JsonPropertyName("screen_name")]
-        public string ScreenName { get; set; }
-
-
-        public DateTime ParseOpenTime()
-        {
-            return DateTime.Parse(OpenTime);
-        }
-
-        public DateTime ParseUpdateTime()
-        {
-            return DateTime.Parse(UpdateTime);
         }
     }
 }

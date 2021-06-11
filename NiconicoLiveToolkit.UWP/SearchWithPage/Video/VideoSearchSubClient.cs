@@ -34,14 +34,21 @@ namespace NiconicoToolkit.SearchWithPage.Video
 			if (start >= end)
 			{
 				throw new InvalidOperationException("end date is must be after start date");
-			}
+            }
+        }
+
+
+        internal static class Urls
+        {
+			public const string VideoSearchPageUrl = $"{NiconicoUrls.NicoHomePageUrl}search/";
+			public const string TagSearchPageUrl = $"{NiconicoUrls.NicoHomePageUrl}tag/";
+
+
 		}
+
 
 		public const int MaxPageCount = 50;
 		public const int OnePageItemsCount = 32;
-
-		public const string VideoSearchPageUrl = "https://www.nicovideo.jp/search/";
-		public const string TagSearchPageUrl = "https://www.nicovideo.jp/tag/";
 
 
 
@@ -86,7 +93,7 @@ namespace NiconicoToolkit.SearchWithPage.Video
 			if (genre is not null)
 				query.Add("genre", genre.Value.GetDescription());
 
-			var url = new StringBuilder(!isTagSearch ? VideoSearchPageUrl : TagSearchPageUrl)
+			var url = new StringBuilder(!isTagSearch ? Urls.VideoSearchPageUrl : Urls.TagSearchPageUrl)
 				.Append(System.Net.WebUtility.UrlEncode(keyword))
 				.AppendQueryString(query)
 				.ToString();
@@ -134,7 +141,7 @@ namespace NiconicoToolkit.SearchWithPage.Video
 			if (genre is not null)
 				query.Add("genre", genre.Value.GetDescription());
 
-			var url = new StringBuilder(!isTagSearch ? VideoSearchPageUrl : TagSearchPageUrl)
+			var url = new StringBuilder(!isTagSearch ? Urls.VideoSearchPageUrl : Urls.TagSearchPageUrl)
 				.Append(System.Net.WebUtility.UrlEncode(keyword))
 				.AppendQueryString(query)
 				.ToString();

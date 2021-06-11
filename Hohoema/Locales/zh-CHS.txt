@@ -602,9 +602,9 @@ FollowItemType.Tag = 标签
 FollowItemType.Community = 社区
 FollowItemType.Channel = 频道
 
-FollowAddedNotification_WithItemName = 跟随“ {0}”
-FollowRemovedNotification_WithItemName = 未关注的“ {0}”
-ConfirmRemoveFollow_DialogDescWithItemName = 取消关注“ {0}（{1}）”
+FollowAddedNotification_WithItemName = 跟随“{0}”
+FollowRemovedNotification_WithItemName = 未关注的“{0}”
+ConfirmRemoveFollow_DialogDescWithItemName = 取消关注“{0}”
 ConfirmRemoveFollow_DialogTitle = 确认取消关注
 RemoveFollow = 取消关注
 

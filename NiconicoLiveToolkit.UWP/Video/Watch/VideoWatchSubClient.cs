@@ -33,12 +33,6 @@ namespace NiconicoToolkit.Video.Watch
             _options = options;
         }
 
-        public const string WatchPageUrl = @"https://www.nicovideo.jp/watch/";
-
-        public static string MakeWatchPageUrl(string videoId)
-        {
-            return $"{WatchPageUrl}{videoId}";
-        }
 
         public async Task<WatchPageResponse> GetInitialWatchDataAsync(string videoId, bool incrementViewCounter = true, bool addHistory = true, CancellationToken ct = default)
         {
@@ -53,7 +47,7 @@ namespace NiconicoToolkit.Video.Watch
                 dict.Add("add_history", "false");
             }
 
-            var url = new StringBuilder(WatchPageUrl)
+            var url = new StringBuilder(NiconicoUrls.WatchPageUrl)
                 .Append(videoId)
                 .AppendQueryString(dict)
                 .ToString();

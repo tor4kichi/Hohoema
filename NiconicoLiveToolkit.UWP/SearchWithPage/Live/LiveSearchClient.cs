@@ -15,13 +15,10 @@ using System.Web;
 using System.IO;
 using AngleSharp.Html.Dom;
 using AngleSharp.Dom;
+using NiconicoToolkit.Live;
 
-namespace NiconicoToolkit.Live.Search
+namespace NiconicoToolkit.SearchWithPage.Live
 {
-	/// <summary>
-	/// niconicoコンテンツ検索APIの生放送検索
-	/// </summary>
-	/// <see cref="https://site.nicovideo.jp/search-api-docs/search.html"/>
 	public sealed class LiveSearchClient
     {
 		internal LiveSearchClient(NiconicoContext context)

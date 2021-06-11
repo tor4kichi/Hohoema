@@ -27,25 +27,26 @@ namespace NiconicoToolkit.Likes
             _options = options;
         }
 
-        public static class Urls
+        internal static class Urls
         {
-            public const string LikeApiUrl = "https://nvapi.nicovideo.jp/v1/users/me/likes/items?videoId=";
-            public const string LikeListupApiUrl = "https://nvapi.nicovideo.jp/v1/users/me/likes?";
+            public const string NvApiV1LikeApiUrl = $"{NiconicoUrls.NvApiV1Url}users/me/likes";
+            public const string NvApiV1LikeVideoItemsApiUrl = $"{NvApiV1LikeApiUrl}/items?videoId=";
+            
         }
 
         public async Task<LikeActionResponse> DoLikeVideoAsync(string videoId)
         {
-            return await _context.SendJsonAsAsync<LikeActionResponse>(httpMethod: HttpMethod.Post, Urls.LikeApiUrl + videoId, options: _options);
+            return await _context.SendJsonAsAsync<LikeActionResponse>(httpMethod: HttpMethod.Post, Urls.NvApiV1LikeVideoItemsApiUrl + videoId, options: _options);
         }
 
         public async Task<LikeActionResponse> UnDoLikeVideoAsync(string videoId)
         {
-            return await _context.SendJsonAsAsync<LikeActionResponse>(httpMethod: HttpMethod.Delete, Urls.LikeApiUrl + videoId, options: _options);
+            return await _context.SendJsonAsAsync<LikeActionResponse>(httpMethod: HttpMethod.Delete, Urls.NvApiV1LikeVideoItemsApiUrl + videoId, options: _options);
         }
 
         public async Task<LikesListResponse> GetLikesAsync(int page, int pageSize)
         {
-            return await _context.GetJsonAsAsync<LikesListResponse>($"{Urls.LikeListupApiUrl}pageSize={pageSize}&page={page + 1}", options: _options);
+            return await _context.GetJsonAsAsync<LikesListResponse>($"{Urls.NvApiV1LikeApiUrl}?pageSize={pageSize}&page={page + 1}", options: _options);
         }
     }
 

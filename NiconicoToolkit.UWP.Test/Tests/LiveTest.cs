@@ -1,6 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NiconicoToolkit.Live;
-using NiconicoToolkit.Live.Search;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,14 +49,5 @@ namespace NiconicoToolkit.UWP.Test.Tests
             var res = await _liveClient.GetLiveWatchPageDataPropAsync(liveId);
         }
 
-
-        [TestMethod]
-        [DataRow("Splatoon2", LiveStatus.Onair)]
-        [DataRow("動物", LiveStatus.Past)]
-        [DataRow("弾いてみた", LiveStatus.Reserved)]
-        public async Task GetLiveSeaerchResultAsync(string keyword, LiveStatus liveStatus)
-        {
-            var res = await _liveClient.Search.GetLiveSearchPageScrapingResultAsync(LiveSearchOptionsQuery.Create(keyword, liveStatus), default(CancellationToken));
-        }
     }
 }

@@ -35,7 +35,7 @@ namespace NiconicoToolkit.Series
         {
             HtmlParser parser = new HtmlParser();
 
-            var res = await _context.GetAsync($"https://www.nicovideo.jp/series/{seriesId}");
+            var res = await _context.GetAsync($"{NiconicoUrls.NicoHomePageUrl}series/{seriesId}");
             if (!res.IsSuccessStatusCode)
             {
                 throw new WebException($"not found series({seriesId}), status code : {res.StatusCode}");
@@ -181,7 +181,7 @@ namespace NiconicoToolkit.Series
         private Task<SeriesListResponse> GetUserSeriesAsync_Internal<IdType>(IdType userId, int page, int pageSize)
         {
             return _context.GetJsonAsAsync<SeriesListResponse>(
-                $"https://nvapi.nicovideo.jp/v1/users/{userId}/series?page={page+1}&pageSize={pageSize}",
+                $"{NiconicoUrls.NvApiV1Url}users/{userId}/series?page={page+1}&pageSize={pageSize}",
                 _options
                 );
         }

@@ -52,12 +52,18 @@ namespace NiconicoToolkit
             }
         }
 
-        public static void AddEnumIfNotNull<T>(this NameValueCollection nvc, string key, T? value)
+        public static void AddEnumWithDescription<T>(this NameValueCollection nvc, string key, T value)
+            where T : Enum
+        {
+            nvc.Add(key, value.GetDescription());
+        }
+
+        public static void AddEnumIfNotNullWithDescription<T>(this NameValueCollection nvc, string key, T? value)
             where T : struct, Enum
         {
             if (value is not null and T realValue)
             {
-                nvc.Add(key, realValue.GetDescription<T>());
+                nvc.Add(key, realValue.GetDescription());
             }
         }
     }

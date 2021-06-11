@@ -1,5 +1,4 @@
 ﻿using NiconicoToolkit.Live.Notify;
-using NiconicoToolkit.Live.Search;
 using NiconicoToolkit.Live.WatchPageProp;
 using NiconicoToolkit.Live.WatchSession;
 using System;
@@ -22,26 +21,19 @@ namespace NiconicoToolkit.Live
         internal LiveClient(NiconicoContext context)
         {
             _context = context;
-            Search = new LiveSearchClient(context);
             CasApi = new Cas.CasLiveClient(context);
             LiveNotify = new LiveNotifyClient(context);
         }
 
-        public LiveSearchClient Search { get; }
         public Cas.CasLiveClient CasApi { get; }
         public LiveNotifyClient LiveNotify { get; }
 
-        public static string MakeLiveWatchPageUrl(string liveId)
-        {
-            return $"{LiveWatchPageUrl}{liveId}";
-        }
 
-        const string LiveWatchPageUrl = "https://live2.nicovideo.jp/watch/";
         public async Task<LiveWatchPageDataProp> GetLiveWatchPageDataPropAsync(string liveId, CancellationToken ct = default)
         {
             await _context.WaitPageAccessAsync();
 
-            var html = await _context.GetStringAsync(MakeLiveWatchPageUrl(liveId));
+            var html = await _context.GetStringAsync(NiconicoUrls.MakeLiveWatchPageUrl(liveId));
             var scriptIdPosition = html.IndexOf("id=\"embedded-data\"");
             if (scriptIdPosition < 0) { throw new Exception(); }
 
