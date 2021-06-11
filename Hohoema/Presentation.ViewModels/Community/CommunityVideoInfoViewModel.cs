@@ -37,18 +37,18 @@ namespace Hohoema.Presentation.ViewModels.Community
 
         public VideoPermission Permission => VideoPermission.Unknown;
 
-        public CommunityVideoInfoViewModel(CommunityVideo info)
+        public CommunityVideoInfoViewModel(NiconicoToolkit.Community.CommunityVideoListItemsResponse.CommunityVideoListItem video)
 		{
-			Title = info.Title;
-            Id = info.VideoId;
+			Title = video.Title;
+            Id = video.Id;
             
 
-            Label = info.Title;
-            if (info.ThumbnailUrl != null)
+            Label = video.Title;
+            if (video.ThumbnailUrl != null)
             {
-                AddImageUrl(info.ThumbnailUrl);
+                AddImageUrl(video.ThumbnailUrl.OriginalString);
             }
-            ThumbnailUrl = info.ThumbnailUrl;
+            ThumbnailUrl = video.ThumbnailUrl.OriginalString;
         }
 
         public CommunityVideoInfoViewModel(Mntone.Nico2.RssVideoData rssVideoData)

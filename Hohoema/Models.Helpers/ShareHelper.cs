@@ -41,7 +41,7 @@ namespace Hohoema.Models.Helpers
                     uri = new Uri(ChannelClient.MakeChannelPageUrl(channel.Id));
                     break;
                 case ICommunity community:
-                    uri = new Uri(CommunityClient.MakeCommunityPageUrl(community.Id));
+                    uri = new Uri(CommunityClient.Urls.MakeCommunityPageUrl(community.Id));
                     break;
 
                 default:

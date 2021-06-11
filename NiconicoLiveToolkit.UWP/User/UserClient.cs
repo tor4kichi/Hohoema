@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.IO;
 using System.Net;
+using System.Collections.Specialized;
 
 namespace NiconicoToolkit.User
 {
@@ -25,6 +26,17 @@ namespace NiconicoToolkit.User
                     new JsonStringEnumMemberConverter()
                 }
             };
+        }
+
+
+        public static class Urls
+        {
+            public static string MakeUsersApiUrl(IEnumerable<int> userIds)
+            {
+                return new StringBuilder("https://public.api.nicovideo.jp/v1/users.json?userIds=")
+                    .AppendJoin(Uri.EscapeDataString(","), userIds)
+                    .ToString();
+            }
         }
 
 
@@ -122,5 +134,66 @@ namespace NiconicoToolkit.User
                 , _options
                 );
         }
+
+
+        public Task<UsersResponse> GetUsersAsync(IEnumerable<int> userIds)
+        {
+            var dict = new NameValueCollection();
+            foreach (var id in userIds)
+            {
+                dict.Add("userIds", id.ToString());
+            }
+            var url = new StringBuilder("https://public.api.nicovideo.jp/v1/users.json")
+                .AppendQueryString(dict)
+                .ToString();
+
+            return _context.GetJsonAsAsync<UsersResponse>(url);
+        }
+
     }
+
+    public sealed class UsersResponse : ResponseWithMeta
+    {
+        [JsonPropertyName("data")]
+        public UsersData[] Data { get; set; }
+
+
+        public sealed class UsersData
+        {
+            [JsonPropertyName("userId")]
+            [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+            public int UserId { get; set; }
+
+            [JsonPropertyName("nickname")]
+            public string Nickname { get; set; }
+
+            [JsonPropertyName("description")]
+            public string Description { get; set; }
+
+            [JsonPropertyName("hasPremiumOrStrongerRights")]
+            public bool HasPremiumOrStrongerRights { get; set; }
+
+            [JsonPropertyName("hasSuperPremiumOrStrongerRights")]
+            public bool HasSuperPremiumOrStrongerRights { get; set; }
+
+            [JsonPropertyName("icons")]
+            public Icons Icons { get; set; }
+        }
+
+        public sealed class Icons
+        {
+            [JsonPropertyName("urls")]
+            public Urls Urls { get; set; }
+        }
+
+        public sealed class Urls
+        {
+            [JsonPropertyName("150x150")]
+            public Uri The150X150 { get; set; }
+
+            [JsonPropertyName("50x50")]
+            public Uri The50X50 { get; set; }
+        }
+    }
+
 }

@@ -75,5 +75,23 @@ namespace NiconicoToolkit.UWP.Test.Tests
                 Assert.IsNotNull(sample.Essential.Title, "sample.Essential.Title is null");
             }
         }
+
+
+        [TestMethod]
+        [DataRow(53842185, 6982981)] 
+        public async Task GetUsersAsync(int userId1, int userId2)
+        {
+            var res = await _userClient.GetUsersAsync(new[] { userId1, userId2 });
+
+            Assert.IsTrue(res.IsSuccess);
+
+            foreach (var user in res.Data)
+            {
+                Assert.IsNotNull(user, "res.Data[0] is null");
+                Assert.IsNotNull(user.Nickname, "user.Nickname is null");
+                Assert.IsNotNull(user.Icons?.Urls, "user.Icons.Urls is null");
+                Assert.IsNotNull(user.Description, "user.Description is null");
+            }
+        }
     }
 }

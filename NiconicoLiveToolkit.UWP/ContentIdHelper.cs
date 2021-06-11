@@ -8,7 +8,7 @@ namespace NiconicoToolkit
 {
     public static class ContentIdHelper
     {
-        private static bool IsAllDigit(this IEnumerable<char> cList)
+        public static bool IsAllDigit(this IEnumerable<char> cList)
         {
             return cList.All(char.IsDigit);
         }
@@ -45,6 +45,37 @@ namespace NiconicoToolkit
             }
         }
 
+        public const string CommunityIdPrefix = "co";
+        public static bool IsCommunityId(string id, bool allowNumberOnlyId = true)
+        {
+            if (id.StartsWith(CommunityIdPrefix) && id.Skip(2).IsAllDigit())
+            {
+                return true;
+            }
+            else if (allowNumberOnlyId && id.IsAllDigit())
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
 
+        public static string EnsureNonPrefixCommunityId(string id)
+        {
+            if (id.IsAllDigit())
+            {
+                return id;
+            }
+            else if (IsCommunityId(id, false))
+            {
+                return id.Remove(0, 2);
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
     }
 }

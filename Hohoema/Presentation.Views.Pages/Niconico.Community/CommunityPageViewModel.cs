@@ -280,12 +280,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
                     HasCurrentLiveInfo = CurrentLiveInfoList.Count > 0;
 
                     CommunityVideoSamples = new List<CommunityVideoInfoViewModel>();
+                    /*
                     foreach (var sampleVideo in CommunityDetail.VideoList)
                     {
                         var videoInfoVM = new CommunityVideoInfoViewModel(sampleVideo);
 
                         CommunityVideoSamples.Add(videoInfoVM);
                     }
+                    */
 
 
                     RaisePropertyChanged(nameof(CommunityOwnerName));

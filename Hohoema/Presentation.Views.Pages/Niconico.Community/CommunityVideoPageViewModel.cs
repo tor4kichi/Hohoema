@@ -186,13 +186,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
         {
 			try
             {
-				var videoRss = await CommunityProvider.GetCommunityVideo(CommunityId, (uint)pageIndex);
-				if (!videoRss.IsOK || videoRss.Items == null || !videoRss.Items.Any())
+				var head = pageIndex * pageSize;
+				var (listRes, itemsRes) = await CommunityProvider.GetCommunityVideoAsync(CommunityId, head, pageSize, sortKey: null, sortOrder: null);
+				if (itemsRes == null || !itemsRes.IsSuccess || itemsRes.Data.Videos == null || itemsRes.Data.Videos.Length == 0)
 				{
 					return Enumerable.Empty<CommunityVideoInfoViewModel>();
 				}
 
-				return videoRss.Items.Select(x => new CommunityVideoInfoViewModel(x));
+				return itemsRes.Data.Videos.Select(x => new CommunityVideoInfoViewModel(x));
 			}
             catch (Exception e)
             {

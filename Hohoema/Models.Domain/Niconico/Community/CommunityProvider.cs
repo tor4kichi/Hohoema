@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NiconicoToolkit.Community;
 
 namespace Hohoema.Models.Domain.Niconico.Community
 {
@@ -40,19 +41,22 @@ namespace Hohoema.Models.Domain.Niconico.Community
         }
 
 
-        public async Task<RssVideoResponse> GetCommunityVideo(
+        public async Task<(CommunityVideoResponse, CommunityVideoListItemsResponse)> GetCommunityVideoAsync(
             string communityId,
-            uint page
+            int? offset,
+            int? limit,
+            CommunityVideoSortKey? sortKey,
+            CommunityVideoSortOrder? sortOrder
             )
         {
-            return await ContextActionAsync(async context =>
+            var listRes =  await _niconicoSession.ToolkitContext.Community.GetCommunityVideoListAsync(communityId, offset, limit, sortKey, sortOrder);
+            if (!listRes.IsSuccess)
             {
-                return await context.Community.GetCommunityVideoAsync(communityId, page);
-            });
+                return (listRes, null);
+            }
+
+            var itemsRes = await _niconicoSession.ToolkitContext.Community.GetCommunityVideoListItemsAsync(listRes.Data.Contents.Select(x => x.ContentId));
+            return (listRes, itemsRes);
         }
-
-
-
-
     }
 }

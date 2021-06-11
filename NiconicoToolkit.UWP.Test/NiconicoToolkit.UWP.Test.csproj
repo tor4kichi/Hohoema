@@ -123,6 +123,7 @@
     <Compile Include="Tests\AccountTestHelper.cs" />
     <Compile Include="Tests\ActivityTest.cs" />
     <Compile Include="Tests\ChannelTest.cs" />
+    <Compile Include="Tests\CommunityTest.cs" />
     <Compile Include="Tests\FollowTest.cs" />
     <Compile Include="Tests\LikesTest.cs" />
     <Compile Include="Tests\LiveTest.cs" />
