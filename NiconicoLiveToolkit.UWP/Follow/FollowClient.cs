@@ -158,7 +158,7 @@ namespace NiconicoToolkit.Follow
 
             public async Task<FollowMylistResponse> GetFollowMylistsAsync(int sampleItemCount = 3)
             {
-                var uri = $"https://nvapi.nicovideo.jp/v1/users/me/following/mylists?sampleItemCount={sampleItemCount}";
+                var uri = $"{Urls.NvapiV1FollowingApiUrl}mylists?sampleItemCount={sampleItemCount}";
                 await _context.PrepareCorsAsscessAsync(HttpMethod.Get, uri);
                 return await _context.GetJsonAsAsync<FollowMylistResponse>(uri, _options);
             }
@@ -169,7 +169,7 @@ namespace NiconicoToolkit.Follow
 
             public Task<ContentManageResult> AddFollowMylistAsync(string mylistId)
             {
-                return _followClient.AddFollowInternalAsync($"https://nvapi.nicovideo.jp/v1/users/me/following/mylists/{mylistId}");
+                return _followClient.AddFollowInternalAsync($"{Urls.NvapiV1FollowingApiUrl}mylists/{mylistId}");
             }
 
             public Task<ContentManageResult> RemoveFollowMylistAsync(string mylistId)
