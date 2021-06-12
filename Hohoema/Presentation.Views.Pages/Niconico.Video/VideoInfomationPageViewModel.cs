@@ -17,7 +17,6 @@ using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using I18NPortable;
-using Mntone.Nico2;
 using Mntone.Nico2.Embed.Ichiba;
 using Prism.Commands;
 using Prism.Navigation;

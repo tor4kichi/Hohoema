@@ -318,6 +318,7 @@
     <Folder Include="Account\User\" />
     <Folder Include="Activity\LikesHistory\" />
     <Folder Include="Activity\LiveWatchHistory\" />
+    <Folder Include="Ichiba\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

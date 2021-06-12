@@ -15,7 +15,11 @@ namespace NiconicoToolkit
 
         public static bool IsVideoId(string id, bool allowAllNumberId = true)
         {
-            if (id.StartsWith("sm") && id.Skip(2).IsAllDigit())
+            if (id == null)
+            {
+                return false;
+            }
+            else if  (id.StartsWith("sm") && id.Skip(2).IsAllDigit())
             {
                 return true;
             }
@@ -35,7 +39,11 @@ namespace NiconicoToolkit
 
         public static bool IsLiveId(string id)
         {
-            if (id.StartsWith("lv") && id.Skip(2).IsAllDigit())
+            if (id == null)
+            {
+                return false;
+            }
+            else if (id.StartsWith("lv") && id.Skip(2).IsAllDigit())
             {
                 return true;
             }
@@ -48,7 +56,11 @@ namespace NiconicoToolkit
         public const string CommunityIdPrefix = "co";
         public static bool IsCommunityId(string id, bool allowNumberOnlyId = true)
         {
-            if (id.StartsWith(CommunityIdPrefix) && id.Skip(2).IsAllDigit())
+            if (id == null)
+            {
+                return false;
+            }
+            else if (id.StartsWith(CommunityIdPrefix) && id.Skip(2).IsAllDigit())
             {
                 return true;
             }
@@ -81,7 +93,11 @@ namespace NiconicoToolkit
 
         public static bool IsChannelId(string id, bool allowNumberOnlyId = true)
         {
-            if (allowNumberOnlyId && id.IsAllDigit())
+            if (id == null)
+            {
+                return false;
+            }
+            else if (allowNumberOnlyId && id.IsAllDigit())
             {
                 return true;
             }

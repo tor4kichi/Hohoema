@@ -5,7 +5,7 @@ using Hohoema.Models.Domain.Player.Video.Comment;
 using Hohoema.Models.Infrastructure;
 using Hohoema.Presentation.Services;
 using Microsoft.AppCenter.Analytics;
-using Mntone.Nico2;
+//using Mntone.Nico2;
 using MvvmHelpers;
 using NiconicoToolkit.Video.Watch.NMSG_Comment;
 using Reactive.Bindings;
@@ -668,7 +668,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
 
                             Debug.WriteLine($"{beginTime.ToString()} に {condition} へのジャンプを設定");
                         }
-                        else if (NiconicoRegex.IsVideoId(condition))
+                        else if (NiconicoToolkit.ContentIdHelper.IsVideoId(condition))
                         {
                             var message = nicoScriptContents.ElementAtOrDefault(2);
 

@@ -302,20 +302,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         async Task<IEnumerable<CommunityInfoControlViewModel>> IIncrementalSource<CommunityInfoControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
         {
-            var res = await SearchProvider.SearchCommunity(
-                SearchKeyword
-                , (uint)pageIndex
-                , Sort
-                , Order
-                , Mode
-                );
-
-            if (res == null || !res.IsStatusOK)
-            {
-                return Enumerable.Empty<CommunityInfoControlViewModel>();
-            }
-
-            return res.Communities.Select(item => new CommunityInfoControlViewModel(item));
+            throw new NotSupportedException();
         }
     }
 

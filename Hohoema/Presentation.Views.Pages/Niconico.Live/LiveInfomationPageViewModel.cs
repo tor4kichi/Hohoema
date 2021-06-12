@@ -58,7 +58,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
         string ILiveContent.ProviderId => _liveProgram.ProviderId;
         string ILiveContent.ProviderName { get; }
-        ProviderType ILiveContent.ProviderType => Enum.Parse<ProviderType>(_liveProgram.ProviderType);
+        ProviderType ILiveContent.ProviderType => _liveProgram.ProviderType;
 
 
         string INiconicoObject.Id => _liveProgram.Id;

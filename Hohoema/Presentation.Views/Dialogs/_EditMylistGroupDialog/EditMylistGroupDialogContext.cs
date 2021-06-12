@@ -1,5 +1,4 @@
 ﻿using I18NPortable;
-//using Mntone.Nico2.Mylist;
 using Hohoema.Models.Domain;
 using Reactive.Bindings;
 using System;

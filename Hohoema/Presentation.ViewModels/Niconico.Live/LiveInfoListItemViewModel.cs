@@ -18,6 +18,7 @@ using System.Threading.Tasks;
 using Unity;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.UseCase;
+using NiconicoToolkit.Live.Cas;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {
@@ -242,22 +243,28 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
             }
         }
 
-        public void Setup(Mntone.Nico2.Nicocas.Live.NicoCasLiveProgramData liveData)
+        public void Setup(LiveProgramData liveData)
         {
             //CommunityName = data.;
 
-            ThumbnailUrl = liveData.ThumbnailUrl;
-            CommunityThumbnail = liveData.ThumbnailUrl;
+            ThumbnailUrl = liveData.ThumbnailUrl.OriginalString;
+            CommunityThumbnail = liveData.ThumbnailUrl.OriginalString;
 
             CommunityGlobalId = liveData.ProviderId;
-            CommunityType = liveData.CommunityType;
+            CommunityType = liveData.ProviderType switch
+            {
+                ProviderType.Official => CommunityType.Official,
+                ProviderType.Channel => CommunityType.Channel,
+                ProviderType.Community => CommunityType.Community,
+                _ => throw new NotSupportedException(),
+            };
 
             LiveTitle = liveData.Title;
             ShortDescription = liveData.Description;
-            ViewCounter = liveData.Viewers;
-            CommentCount = liveData.Comments;
-            StartTime = liveData.ShowTime.BeginAt;
-            EndTime = liveData.ShowTime.EndAt;
+            ViewCounter = liveData.Viewers ?? 0;
+            CommentCount = liveData.Comments ?? 0;
+            StartTime = liveData.ShowTime.BeginAt.DateTime;
+            EndTime = liveData.ShowTime.EndAt.DateTime;
             IsTimeshiftEnabled = liveData.Timeshift.Enabled;
             IsCommunityMemberOnly = liveData.IsMemberOnly;
 
