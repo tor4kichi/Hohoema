@@ -31,12 +31,12 @@ namespace Hohoema.Models.Domain.Niconico.Search
 
 
 
-        public Task<NiconicoToolkit.SearchWithCeApi.Video.VideoListingResponse> GetKeywordSearch(string keyword, uint from, uint limit, VideoSortKey sort = VideoSortKey.FirstRetrieve, VideoSortOrder order = VideoSortOrder.Desc)
+        public Task<NiconicoToolkit.SearchWithCeApi.Video.VideoListingResponse> GetKeywordSearch(string keyword, int from, int limit, VideoSortKey sort = VideoSortKey.FirstRetrieve, VideoSortOrder order = VideoSortOrder.Desc)
         {
             return _niconicoSession.ToolkitContext.SearchWithCeApi.Video.KeywordSearchAsync(keyword, from, limit, sort, order);
         }
 
-        public Task<NiconicoToolkit.SearchWithCeApi.Video.VideoListingResponse> GetTagSearch(string tag, uint from, uint limit, VideoSortKey sort = VideoSortKey.FirstRetrieve, VideoSortOrder order = VideoSortOrder.Desc)
+        public Task<NiconicoToolkit.SearchWithCeApi.Video.VideoListingResponse> GetTagSearch(string tag, int from, int limit, VideoSortKey sort = VideoSortKey.FirstRetrieve, VideoSortOrder order = VideoSortOrder.Desc)
         {
             return _niconicoSession.ToolkitContext.SearchWithCeApi.Video.TagSearchAsync(tag, from, limit, sort, order);
         }

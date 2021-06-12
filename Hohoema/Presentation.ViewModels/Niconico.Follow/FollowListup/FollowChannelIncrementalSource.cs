@@ -27,8 +27,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
                 return Enumerable.Empty<IChannel>();
             }
 
-            uint offset = (uint)(pageIndex * pageSize);
-            var res = await _channelFollowProvider.GetChannelsAsync(offset: offset, (uint)pageSize);
+            int offset = pageIndex * pageSize;
+            var res = await _channelFollowProvider.GetChannelsAsync(offset: offset, pageSize);
 
             TotalCount = res.Meta.Total;
             

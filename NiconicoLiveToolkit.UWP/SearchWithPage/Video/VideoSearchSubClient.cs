@@ -61,7 +61,7 @@ namespace NiconicoToolkit.SearchWithPage.Video
 		internal Task<SearchResponse> VideoSearchAsync(
 			string keyword, 
 			bool isTagSearch,
-			uint? pageCount = null, 
+			int? pageCount = null, 
 			Sort? sort = null, 
 			Order? order = null,
 			Range? range = null,
@@ -104,7 +104,7 @@ namespace NiconicoToolkit.SearchWithPage.Video
 		internal Task<SearchResponse> VideoSearchAsync(
 			string keyword,
 			bool isTagSearch,
-			uint? pageCount = null,
+			int? pageCount = null,
 			Sort? sort = null,
 			Order? order = null,
 			RangeDatePair? rangeDatePair = null,
@@ -167,7 +167,7 @@ namespace NiconicoToolkit.SearchWithPage.Video
 
 	public sealed class VideoSearchQueryBuilder
     {
-		internal uint? _pageCount;
+		internal int? _pageCount;
 		internal Sort? _sort;
 		internal Order? _order;
 		internal Range? _range;
@@ -206,7 +206,7 @@ namespace NiconicoToolkit.SearchWithPage.Video
 			_genre = null;
 		}
 
-		public VideoSearchQueryBuilder SetPageCount(uint pageCount)
+		public VideoSearchQueryBuilder SetPageCount(int pageCount)
         {
 			_pageCount = pageCount;
 			return this;

@@ -119,7 +119,7 @@ namespace NiconicoToolkit.Follow
             }
 
 
-            public async Task<FollowUsersResponse> GetFollowUsersAsync(uint pageSize, FollowUsersResponse lastUserResponse = null)
+            public async Task<FollowUsersResponse> GetFollowUsersAsync(int pageSize, FollowUsersResponse lastUserResponse = null)
             {
                 var uri = $"{Urls.NvapiV1FollowingApiUrl}users?pageSize={pageSize}";
                 if (lastUserResponse != null)
@@ -162,7 +162,7 @@ namespace NiconicoToolkit.Follow
             }
 
 
-            public async Task<FollowMylistResponse> GetFollowMylistsAsync(uint sampleItemCount = 3)
+            public async Task<FollowMylistResponse> GetFollowMylistsAsync(int sampleItemCount = 3)
             {
                 var uri = $"https://nvapi.nicovideo.jp/v1/users/me/following/mylists?sampleItemCount={sampleItemCount}";
                 await _context.PrepareCorsAsscessAsync(HttpMethod.Get, uri);
@@ -206,7 +206,7 @@ namespace NiconicoToolkit.Follow
             }
 
 
-            public async Task<FollowChannelResponse> GetFollowChannelAsync(uint offset = 0, uint limit = 25)
+            public async Task<FollowChannelResponse> GetFollowChannelAsync(int offset = 0, int limit = 25)
             {
                 var uri = $"{Urls.PublicV1FollowingApiUrl}channels.json?limit={limit}&offset={offset}";
                 await _context.PrepareCorsAsscessAsync(HttpMethod.Get, uri);

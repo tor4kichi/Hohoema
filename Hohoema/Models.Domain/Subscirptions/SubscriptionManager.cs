@@ -390,7 +390,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             const int itemGetCountPerPage = 50;
 
             var head = page * itemGetCountPerPage;
-            var res = await searchProvider.GetKeywordSearch(keyword, (uint)head, itemGetCountPerPage);
+            var res = await searchProvider.GetKeywordSearch(keyword, head, itemGetCountPerPage);
 
             var videoItems = res.Videos;
             var currentItemsCount = videoItems?.Length ?? 0;
@@ -436,7 +436,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             const int itemGetCountPerPage = 50;
 
             var head = page * itemGetCountPerPage;
-            var res = await searchProvider.GetTagSearch(tag, (uint)head, itemGetCountPerPage);
+            var res = await searchProvider.GetTagSearch(tag, head, itemGetCountPerPage);
 
             var videoItems = res.Videos;
             var currentItemsCount = videoItems?.Length ?? 0;

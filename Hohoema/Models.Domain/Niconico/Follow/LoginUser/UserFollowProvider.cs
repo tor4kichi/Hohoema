@@ -76,7 +76,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 throw new InvalidOperationException();
             }
 
-            return _niconicoSession.ToolkitContext.Follow.User.GetFollowUsersAsync((uint)pageSize, lastRes);
+            return _niconicoSession.ToolkitContext.Follow.User.GetFollowUsersAsync(pageSize, lastRes);
         }
 
         Task<bool> IFollowProvider<IUser>.IsFollowingAsync(IUser followable) => IsFollowingAsync(followable.Id);

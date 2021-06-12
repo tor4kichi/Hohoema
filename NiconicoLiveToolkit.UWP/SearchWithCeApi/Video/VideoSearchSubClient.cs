@@ -44,8 +44,8 @@ namespace NiconicoToolkit.SearchWithCeApi.Video
 
         public async Task<VideoListingResponse> KeywordSearchAsync(
 			string keyword
-			, uint from
-			, uint limit
+			, int from
+			, int limit
 			, VideoSortKey? sort = null
 			, VideoSortOrder? order = null
 			)
@@ -78,8 +78,8 @@ namespace NiconicoToolkit.SearchWithCeApi.Video
 
 		public async Task<VideoListingResponse> TagSearchAsync(
 			string tag
-			, uint from
-			, uint limit
+			, int from
+			, int limit
 			, VideoSortKey? sort = null
 			, VideoSortOrder? order = null
 			)
