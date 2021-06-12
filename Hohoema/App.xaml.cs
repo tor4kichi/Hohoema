@@ -96,7 +96,7 @@ namespace Hohoema
         /// </summary>
         public App()
         {
-            UnhandledException += App_UnhandledException;
+            UnhandledException += PrismUnityApplication_UnhandledException;
 
             // XboxOne向けの設定
             // 基本カーソル移動で必要なときだけポインターを出現させる
@@ -126,18 +126,6 @@ namespace Hohoema
 
             this.InitializeComponent();
         }
-
-        private void App_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
-        {
-            ErrorTrackingManager.TrackError(e.Exception);
-        }
-
-        /*
-        private void Instance_UnhandledExceptionOccurred(object sender, UnhandledExceptionOccurredEventArgs e)
-        {
-            ErrorTrackingManager.TrackError(e.Exception);            
-        }
-        */
 
         public override async Task OnStartAsync(StartArgs args)
         {
@@ -939,25 +927,25 @@ namespace Hohoema
         {
             Debug.Write(e.Message);
 
+            e.Handled = true;
+
             if (e.Exception is OperationCanceledException)
             {
-                e.Handled = true;
                 return;
             }
 
             if (e.Exception is ObjectDisposedException)
             {
-                e.Handled = true;
                 return;
             }
 
             if (!isFirstCrashe)
             {
-                e.Handled = true;
                 return;
             }
 
             isFirstCrashe = false;
+            e.Handled = true;
 
             if (IsDebugModeEnabled)
             {
@@ -1021,8 +1009,6 @@ namespace Hohoema
             {
                 ErrorTrackingManager.TrackError(e.Exception);
             }
-
-            e.Handled = true;
         }
 
         // エラー報告用に画面のスクショを取れるように
