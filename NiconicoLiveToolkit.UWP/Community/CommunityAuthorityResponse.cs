@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using NiconicoToolkit.User;
+using System.Text.Json.Serialization;
 
 namespace NiconicoToolkit.Community
 {
@@ -11,7 +12,7 @@ namespace NiconicoToolkit.Community
         public sealed class CommunityAuthorityData
         {
             [JsonPropertyName("user_id")]
-            public int UserId { get; set; }
+            public UserId UserId { get; set; }
             [JsonPropertyName("is_owner")]
             public bool IsOwner { get; set; }
             [JsonPropertyName("is_member")]

@@ -71,7 +71,7 @@ namespace NiconicoToolkit.User
         //public List<string> Sns { get; set; }
 
         [JsonPropertyName("id")]
-        public long Id { get; set; }
+        public UserId Id { get; set; }
 
         [JsonPropertyName("nickname")]
         public string Nickname { get; set; }

@@ -16,16 +16,10 @@ namespace NiconicoToolkit.User
         private readonly NiconicoContext _context;
         private readonly JsonSerializerOptions _options;
 
-        internal UserClient(NiconicoContext context)
+        internal UserClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
-            _options = new JsonSerializerOptions()
-            {
-                Converters =
-                {
-                    new JsonStringEnumMemberConverter()
-                }
-            };
+            _options = defaultOptions;
         }
 
 
@@ -36,47 +30,22 @@ namespace NiconicoToolkit.User
         }
 
 
-        public async Task<UserNickname> GetUserNicknameAsync(string id)
+        public async Task<UserNickname> GetUserNicknameAsync(UserId id)
         {
-            var res = await _context.GetJsonAsAsync<UserNicknameResponse>(string.Format(Urls.LiveApiV1NicknameApiUrlFormat, id));
-            return res.User;
-        }
-
-        public async Task<UserNickname> GetUserNicknameAsync(uint id)
-        {
-            var res = await _context.GetJsonAsAsync<UserNicknameResponse>(string.Format(Urls.LiveApiV1NicknameApiUrlFormat, id));
+            var res = await _context.GetJsonAsAsync<UserNicknameResponse>(string.Format(Urls.LiveApiV1NicknameApiUrlFormat, id), _options);
             return res.User;
         }
 
 
 
-        public async Task<NicovideoUserResponse> GetUserInfoAsync(string id)
+        public async Task<NicovideoUserResponse> GetUserInfoAsync(UserId id)
         {
-            var res = await _context.GetJsonAsAsync<NicovideoUserResponseContainer>(string.Format(Urls.CeApiV1UserDetailsApiUrlFormat, id));
+            var res = await _context.GetJsonAsAsync<NicovideoUserResponseContainer>(string.Format(Urls.CeApiV1UserDetailsApiUrlFormat, id), _options);
             return res.Response;
         }
 
-        public async Task<NicovideoUserResponse> GetUserInfoAsync(uint id)
-        {   
-            var res = await _context.GetJsonAsAsync<NicovideoUserResponseContainer>(string.Format(Urls.CeApiV1UserDetailsApiUrlFormat, id));
-            return res.Response;
-        }
-
-
-
-        
-
-        public Task<UserDetailResponse> GetUserDetailAsync(string userId)
-        {
-            return GetUserDetailAsync_Internal(userId);
-        }
-
-        public Task<UserDetailResponse> GetUserDetailAsync(uint userId)
-        {
-            return GetUserDetailAsync_Internal(userId);
-        }
-
-        private async Task<UserDetailResponse> GetUserDetailAsync_Internal<IdType>(IdType userId)
+              
+        public async Task<UserDetailResponse> GetUserDetailAsync(UserId userId)
         {
             await _context.WaitPageAccessAsync();
 
@@ -105,19 +74,7 @@ namespace NiconicoToolkit.User
         }
 
 
-
-
-        public Task<UserVideoResponse> GetUserVideoAsync(uint userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
-        {
-            return GetUserVideoAsync_Internal(userId, page, pageSize, sortKey, sortOrder);
-        }
-
-        public Task<UserVideoResponse> GetUserVideoAsync(string userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
-        {
-            return GetUserVideoAsync_Internal(userId, page, pageSize, sortKey, sortOrder);
-        }
-
-        private Task<UserVideoResponse> GetUserVideoAsync_Internal<IdType>(IdType userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
+        public Task<UserVideoResponse> GetUserVideoAsync(UserId userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
         {
             return _context.GetJsonAsAsync<UserVideoResponse>(
                 $"{NiconicoUrls.NvApiV2Url}users/{userId}/videos?sortKey={sortKey.GetDescription()}&sortOrder={sortOrder.GetDescription()}&pageSize={pageSize}&page={page + 1}"
@@ -137,7 +94,7 @@ namespace NiconicoToolkit.User
                 .AppendQueryString(dict)
                 .ToString();
 
-            return _context.GetJsonAsAsync<UsersResponse>(url);
+            return _context.GetJsonAsAsync<UsersResponse>(url, _options);
         }
 
     }

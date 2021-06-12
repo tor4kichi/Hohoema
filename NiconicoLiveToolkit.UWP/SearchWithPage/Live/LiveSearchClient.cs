@@ -16,6 +16,7 @@ using System.IO;
 using AngleSharp.Html.Dom;
 using AngleSharp.Dom;
 using NiconicoToolkit.Live;
+using NiconicoToolkit.User;
 
 namespace NiconicoToolkit.SearchWithPage.Live
 {
@@ -34,7 +35,7 @@ namespace NiconicoToolkit.SearchWithPage.Live
 			int? pageStartWith0,
 			LiveSearchPageSortOrder? sortOrder,
 			string channelId,
-			int? userId,
+			UserId? userId,
 			ProviderType[] providerTypes,
 			bool? isTagSearch,
 			bool? disableGrouping,
@@ -90,10 +91,10 @@ namespace NiconicoToolkit.SearchWithPage.Live
 				sb.Append(channelIdValue);
 			}
 
-			if (userId is not null and int userIdValue)
+			if (userId is not null)
 			{
 				sb.Append($"&userId=");
-				sb.Append(userIdValue);
+				sb.Append(userId);
 			}
 
 			if (providerTypes is not null)
@@ -178,7 +179,7 @@ namespace NiconicoToolkit.SearchWithPage.Live
 		public LiveSearchPageSortOrder? SortOrder { get; private set; }
 		public ProviderType[] ProviderTypes { get; private set; }
 		public string ChannelId { get; private set; }
-		public int? UserId { get; private set; }
+		public UserId? UserId { get; private set; }
 		public bool? IsTagSearch { get; private set; }
 		public bool? DisableGrouping { get; private set; }
 		public bool? TimeshiftIsAvailable { get; private set; }
@@ -224,7 +225,7 @@ namespace NiconicoToolkit.SearchWithPage.Live
 		}
 
 
-		public LiveSearchOptionsQuery UseUserId(int userId, bool? disableGrouping = true)
+		public LiveSearchOptionsQuery UseUserId(UserId userId, bool? disableGrouping = true)
 		{
 			if (ChannelId is not null) { throw new ArgumentException(); }
 			UserId = userId;

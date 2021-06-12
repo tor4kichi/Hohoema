@@ -4,6 +4,8 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 #endif
 
+using NiconicoToolkit.User;
+
 namespace NiconicoToolkit
 {
     public static class NiconicoUrls
@@ -42,24 +44,7 @@ namespace NiconicoToolkit
         }
 
 
-
-
-        public static string MakeUserPageUrl(int userId)
-        {
-            return MakeUserPageUrl(userId);
-        }
-
-        public static string MakeUserPageUrl(uint userId)
-        {
-            return MakeUserPageUrl(userId);
-        }
-
-        public static string MakeUserPageUrl(string userId)
-        {
-            return MakeUserPageUrl(userId);
-        }
-
-        internal static string MakeUserPageUrl<IdType>(IdType userId)
+        public static string MakeUserPageUrl(UserId userId)
         {
             return $"{NicoHomePageUrl}user/{userId}";
         }

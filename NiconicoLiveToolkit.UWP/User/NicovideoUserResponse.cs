@@ -23,7 +23,7 @@ namespace NiconicoToolkit.User
     public partial class UserInfo
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public UserId Id { get; set; }
 
         [JsonPropertyName("nickname")]
         public string Nickname { get; set; }

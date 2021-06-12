@@ -1,4 +1,5 @@
 ﻿using NiconicoToolkit.Mylist.LoginUser;
+using NiconicoToolkit.User;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -26,18 +27,10 @@ namespace NiconicoToolkit.Mylist
 
         public LoginUserMylistSubClient LoginUser { get; }
 
-        public MylistClient(NiconicoContext context)
+        public MylistClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
-
-            _defaultOptions = new JsonSerializerOptions()
-            { 
-                Converters =
-                {
-                    new JsonStringEnumMemberConverter(),
-                }
-            };
-
+            _defaultOptions = defaultOptions;
             LoginUser = new LoginUserMylistSubClient(context);
         }
 
@@ -48,7 +41,7 @@ namespace NiconicoToolkit.Mylist
 
 
 
-        public Task<GetUserMylistGroupsResponse> GetUserMylistGroupsAsync(string userId, int sampleItemCount = 0)
+        public Task<GetUserMylistGroupsResponse> GetUserMylistGroupsAsync(UserId userId, int sampleItemCount = 0)
         {
             return _context.GetJsonAsAsync<GetUserMylistGroupsResponse>($"{NiconicoUrls.NvApiV1Url}users/{userId}/mylists?sampleItemCount={sampleItemCount}", _defaultOptions);
         }

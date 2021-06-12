@@ -18,16 +18,10 @@ namespace NiconicoToolkit.Channels
         private readonly NiconicoContext _context;
         private readonly JsonSerializerOptions _options;
 
-        public ChannelClient(NiconicoContext context)
+        public ChannelClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
-            _options = new JsonSerializerOptions()
-            {
-                Converters =
-                {
-                    new JsonStringEnumMemberConverter(),
-                },
-            };
+            _options = defaultOptions;
         }
 
         internal static class Urls

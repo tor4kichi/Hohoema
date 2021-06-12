@@ -16,11 +16,11 @@ namespace NiconicoToolkit.Live.Notify
         private readonly NiconicoContext _context;
         private readonly JsonSerializerOptions _jsonSerializeOptions;
 
-        public LiveNotifyClient(NiconicoContext context)
+        public LiveNotifyClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
 
-            _jsonSerializeOptions = new JsonSerializerOptions()
+            _jsonSerializeOptions = new JsonSerializerOptions(defaultOptions)
             {
                 Converters =
                 {

@@ -15,14 +15,13 @@ namespace NiconicoToolkit.Recommend
         private readonly NiconicoContext _context;
         private readonly JsonSerializerOptions _options;
 
-        public RecommendClient(NiconicoContext context)
+        public RecommendClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
-            _options = new JsonSerializerOptions()
+            _options = new JsonSerializerOptions(defaultOptions)
             {
                 Converters =
                 {
-                    new JsonStringEnumMemberConverter(),
                     new RecommendItemContentConverter(),
                 }
             };

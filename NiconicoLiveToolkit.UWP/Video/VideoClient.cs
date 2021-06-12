@@ -20,15 +20,9 @@ namespace NiconicoToolkit.Video
         public VideoRankinguSubClient Ranking { get; }
         public VideoWatchSubClient VideoWatch { get; }
 
-        internal VideoClient(NiconicoContext context)
+        internal VideoClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
-            _option = new JsonSerializerOptions()
-            {
-                Converters =
-                {
-                    new JsonStringEnumMemberConverter()
-                }
-            };
+            _option = defaultOptions;
             _context = context;
             Ranking = new VideoRankinguSubClient(context);
             VideoWatch = new VideoWatchSubClient(context, _option);

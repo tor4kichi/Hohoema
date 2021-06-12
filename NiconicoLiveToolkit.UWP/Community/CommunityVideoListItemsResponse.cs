@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.User;
+using System;
 using System.Text.Json.Serialization;
 
 namespace NiconicoToolkit.Community
@@ -38,7 +39,7 @@ namespace NiconicoToolkit.Community
             public long ContentLength { get; set; }
 
             [JsonPropertyName("user_id")]
-            public long UserId { get; set; }
+            public UserId UserId { get; set; }
 
             [JsonPropertyName("create_time")]
             public string CreateTime { get; set; }

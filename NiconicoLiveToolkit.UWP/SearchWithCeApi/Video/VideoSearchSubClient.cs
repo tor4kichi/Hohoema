@@ -15,16 +15,10 @@ namespace NiconicoToolkit.SearchWithCeApi.Video
         private readonly NiconicoContext _context;
         private readonly JsonSerializerOptions _option;
 
-        internal VideoSearchSubClient(NiconicoContext context)
+        internal VideoSearchSubClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
-            _option = new JsonSerializerOptions()
-            {
-                Converters =
-                {
-                    new JsonStringEnumMemberConverter()
-                }
-            };
+            _option = defaultOptions;
         }
 
 

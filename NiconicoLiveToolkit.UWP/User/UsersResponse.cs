@@ -12,8 +12,7 @@ namespace NiconicoToolkit.User
         public sealed class UsersData
         {
             [JsonPropertyName("userId")]
-            [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
-            public int UserId { get; set; }
+            public UserId UserId { get; set; }
 
             [JsonPropertyName("nickname")]
             public string Nickname { get; set; }

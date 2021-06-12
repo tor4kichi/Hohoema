@@ -1,6 +1,7 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using NiconicoToolkit.Account;
+using NiconicoToolkit.User;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -34,18 +35,11 @@ namespace NiconicoToolkit.Follow
         public ChannelFollowSubClient Channel { get; }
         public CommunityFollowSubClient Community { get; }
 
-        public FollowClient(NiconicoContext context)
+        public FollowClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
+            _defaultOptions = defaultOptions;
 
-            _defaultOptions = new JsonSerializerOptions() 
-            { 
-                Converters =
-                {
-                    new JsonStringEnumMemberConverter()
-                }
-            };
-            
             Tag = new TagsFollowSubClient(this, _context, _defaultOptions);
             User = new UserFollowSubClient(this, _context, _defaultOptions);
             Mylist = new MylistFollowSubClient(this, _context, _defaultOptions);
@@ -132,17 +126,17 @@ namespace NiconicoToolkit.Follow
             }
 
 
-            public Task<ContentManageResult> AddFollowUserAsync(string userId)
+            public Task<ContentManageResult> AddFollowUserAsync(UserId userId)
             {
                 return _followClient.AddFollowInternalAsync($"{Urls.PublicV1FollowingApiUrl}niconico-users/{userId}.json");
             }
 
-            public Task<ContentManageResult> RemoveFollowUserAsync(string userId)
+            public Task<ContentManageResult> RemoveFollowUserAsync(UserId userId)
             {
                 return _followClient.RemoveFollowInternalAsync($"{Urls.PublicV1FollowingApiUrl}niconico-users/{userId}.json");
             }
 
-            public Task<bool> IsFollowingUserAsync(uint userId)
+            public Task<bool> IsFollowingUserAsync(UserId userId)
             {
                 return _followClient.GetFollowedInternalAsync($"https://public.api.nicovideo.jp/v1/user/followees/niconico-users/{userId}.json");
             }
@@ -287,7 +281,7 @@ namespace NiconicoToolkit.Follow
             }
 
 
-            public Task<UserOwnedCommunityResponse> GetUserOwnedCommunitiesAsync(uint userId)
+            public Task<UserOwnedCommunityResponse> GetUserOwnedCommunitiesAsync(UserId userId)
             {
                 return _context.GetJsonAsAsync<UserOwnedCommunityResponse>(
                     $"{NiconicoUrls.PublicApiV1Url}user/{userId}/communities.json", _options

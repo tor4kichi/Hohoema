@@ -18,12 +18,24 @@ namespace NiconicoToolkit.Live
     {
         private readonly NiconicoContext _context;
 
-        internal LiveClient(NiconicoContext context)
+        internal LiveClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
-            CasApi = new Cas.CasLiveClient(context);
-            LiveNotify = new LiveNotifyClient(context);
+            CasApi = new Cas.CasLiveClient(context, defaultOptions);
+            LiveNotify = new LiveNotifyClient(context, defaultOptions);
+
+            _watchPageJsonSerializerOptions = new JsonSerializerOptions()
+            {
+                Converters = 
+                {
+                    new JsonStringEnumMemberConverter(JsonSnakeCaseNamingPolicy.Instance),
+                    new JsonStringEnumMemberConverter(JsonNamingPolicy.CamelCase),
+                    new LongToStringConverter(),
+                }
+            };
         }
+
+        JsonSerializerOptions _watchPageJsonSerializerOptions;
 
         public Cas.CasLiveClient CasApi { get; }
         public LiveNotifyClient LiveNotify { get; }
@@ -46,19 +58,10 @@ namespace NiconicoToolkit.Live
             var json = html.Substring(dataPropsAttrStartPosition, dataPropsAttrEndPosition - dataPropsAttrStartPosition);
             var decodedJson = WebUtility.HtmlDecode(json);
             var invalidJsonTokenRemoved = decodedJson.Replace("\"type\":\"\",", "");
-            JsonSerializerOptions options = new JsonSerializerOptions()
-            {
-                Converters = 
-                {
-                    new JsonStringEnumMemberConverter(JsonSnakeCaseNamingPolicy.Instance),
-                    new JsonStringEnumMemberConverter(JsonNamingPolicy.CamelCase),
-                    new LongToStringConverter()
-                }
-            };
 
             Debug.WriteLine(decodedJson);
 
-            return JsonDeserializeHelper.Deserialize<LiveWatchPageDataProp>(invalidJsonTokenRemoved, options);
+            return JsonDeserializeHelper.Deserialize<LiveWatchPageDataProp>(invalidJsonTokenRemoved, _watchPageJsonSerializerOptions);
         }        
 
 

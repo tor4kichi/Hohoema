@@ -16,6 +16,7 @@ using Uno;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.SearchWithCeApi.Video;
+using NiconicoToolkit.User;
 
 namespace Hohoema.Models.Domain.Subscriptions
 {
@@ -283,7 +284,7 @@ namespace Hohoema.Models.Domain.Subscriptions
         }
 
 
-        private async Task<List<NicoVideo>> GetUserVideosFeedResult(string userId,UserProvider userProvider)
+        private async Task<List<NicoVideo>> GetUserVideosFeedResult(UserId userId, UserProvider userProvider)
         {
             var id = uint.Parse(userId);
             List<NicoVideo> items = new List<NicoVideo>();

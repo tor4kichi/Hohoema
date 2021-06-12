@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using I18NPortable;
 using NiconicoToolkit.Video;
+using NiconicoToolkit.User;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist
 {
@@ -98,7 +99,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
 
 
-        public async Task<List<MylistPlaylist>> GetMylistsByUser(string userId, int sampleItemCount = 0)
+        public async Task<List<MylistPlaylist>> GetMylistsByUser(UserId userId, int sampleItemCount = 0)
         {
             var groups = await _niconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId, sampleItemCount);
 

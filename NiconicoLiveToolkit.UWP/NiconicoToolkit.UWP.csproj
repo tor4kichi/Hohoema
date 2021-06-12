@@ -181,8 +181,10 @@
     <Compile Include="SearchWithCeApi\Video\VideoIdSearchSingleResponse.cs" />
     <Compile Include="Series\SeriesClient.cs" />
     <Compile Include="Series\SeriesListResponse.cs" />
+    <Compile Include="System.Text.Json.Serialization\UserIdJsonConverter.cs" />
     <Compile Include="User\NicovideoUserResponse.cs" />
     <Compile Include="User\UserDetailResponseContainer.cs" />
+    <Compile Include="User\UserId.cs" />
     <Compile Include="User\UserNicknameResponse.cs" />
     <Compile Include="User\UsersResponse.cs" />
     <Compile Include="User\UserVideoResponse.cs" />

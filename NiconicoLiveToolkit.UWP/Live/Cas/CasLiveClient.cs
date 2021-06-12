@@ -12,11 +12,11 @@ namespace NiconicoToolkit.Live.Cas
         private readonly NiconicoContext _context;
         private readonly JsonSerializerOptions _jsonSerializeOptions;
 
-        internal CasLiveClient(NiconicoContext context)
+        internal CasLiveClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
 
-            _jsonSerializeOptions = new JsonSerializerOptions()
+            _jsonSerializeOptions = new JsonSerializerOptions(defaultOptions)
             {
                 Converters =
                 {

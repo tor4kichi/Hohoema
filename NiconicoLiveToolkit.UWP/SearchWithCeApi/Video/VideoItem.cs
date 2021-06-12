@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.User;
+using System;
 using System.Text.Json.Serialization;
 
 namespace NiconicoToolkit.SearchWithCeApi.Video
@@ -9,8 +10,7 @@ namespace NiconicoToolkit.SearchWithCeApi.Video
         public string Id { get; set; }
 
         [JsonPropertyName("user_id")]
-        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
-        public int UserId { get; set; }
+        public UserId UserId { get; set; }
 
         [JsonPropertyName("deleted")]
         [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]

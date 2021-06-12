@@ -14,10 +14,10 @@ namespace NiconicoToolkit.Community
         private readonly NiconicoContext _context;
         private readonly JsonSerializerOptions _options;
 
-        internal CommunityClient(NiconicoContext context)
+        internal CommunityClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
-            _options = new JsonSerializerOptions() 
+            _options = new JsonSerializerOptions(defaultOptions) 
             {
                 PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy(),
                 Converters =
@@ -43,7 +43,7 @@ namespace NiconicoToolkit.Community
                 .Append("/authority.json")
                 .ToString();
 
-            return _context.GetJsonAsAsync<CommunityAuthorityResponse>(url);
+            return _context.GetJsonAsAsync<CommunityAuthorityResponse>(url, _options);
         }
 
         public Task<CommunityVideoResponse> GetCommunityVideoListAsync(string communityId, int? offset = 0, int? limit = 20, CommunityVideoSortKey? sortKey = null, CommunityVideoSortOrder? sortOrder = null)

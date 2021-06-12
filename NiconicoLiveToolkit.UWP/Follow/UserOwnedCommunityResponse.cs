@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.User;
+using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using static NiconicoToolkit.Follow.FollowCommunityResponse;
@@ -37,7 +38,7 @@ namespace NiconicoToolkit.Follow
         public CommunityStatus Status { get; set; }
 
         [JsonPropertyName("ownerId")]
-        public long OwnerId { get; set; }
+        public UserId OwnerId { get; set; }
 
         [JsonPropertyName("createTime")]
         public DateTimeOffset CreateTime { get; set; }

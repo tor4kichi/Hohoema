@@ -34,6 +34,9 @@ namespace NiconicoToolkit.UWP.Test.Tests
         public async Task GetUserNickNameAsync(uint userId)
         {
             var res = await _userClient.GetUserNicknameAsync(userId);
+
+            Assert.AreNotEqual(default(UserId), res.Id, "res.Id is default(UserId)");
+            Assert.IsNotNull(res.Nickname, "res.Nickname is null");
         }
 
 

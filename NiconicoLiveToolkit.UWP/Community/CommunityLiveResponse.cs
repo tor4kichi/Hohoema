@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.User;
+using System;
 using System.Text.Json.Serialization;
 
 namespace NiconicoToolkit.Community
@@ -32,7 +33,7 @@ namespace NiconicoToolkit.Community
             public CommunityLiveStatus Status { get; set; }
 
             [JsonPropertyName("user_id")]
-            public long UserId { get; set; }
+            public UserId UserId { get; set; }
 
             [JsonPropertyName("watch_url")]
             public Uri WatchUrl { get; set; }

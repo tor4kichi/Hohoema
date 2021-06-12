@@ -47,6 +47,7 @@ namespace NiconicoToolkit
             Converters =
             {
                 new JsonStringEnumMemberConverter(),
+                new UserIdJsonConverter()
             },
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
         };
@@ -57,21 +58,21 @@ namespace NiconicoToolkit
             )
         {
             HttpClient = httpClient;
-            Live = new LiveClient(this);
+            Live = new LiveClient(this, _defaultOptions);
             Account = new AccountClient(this);
-            User = new UserClient(this);
-            Video = new VideoClient(this);
-            Activity = new ActivityClient(this);
+            User = new UserClient(this, _defaultOptions);
+            Video = new VideoClient(this, _defaultOptions);
+            Activity = new ActivityClient(this, _defaultOptions);
             SearchWithPage = new SearchWithPageClient(this);
-            SearchWithCeApi = new SearchWithCeApiClient(this);
-            Recommend = new RecommendClient(this);
-            Channel = new ChannelClient(this);
-            Mylist = new MylistClient(this);
-            Follow = new FollowClient(this);
-            Series = new SeriesClient(this);
+            SearchWithCeApi = new SearchWithCeApiClient(this, _defaultOptions);
+            Recommend = new RecommendClient(this, _defaultOptions);
+            Channel = new ChannelClient(this, _defaultOptions);
+            Mylist = new MylistClient(this, _defaultOptions);
+            Follow = new FollowClient(this, _defaultOptions);
+            Series = new SeriesClient(this, _defaultOptions);
             NicoRepo = new NicoRepoClient(this, _defaultOptions);
             Likes = new LikesClient(this, _defaultOptions);
-            Community = new CommunityClient(this);
+            Community = new CommunityClient(this, _defaultOptions);
         }
 
 
