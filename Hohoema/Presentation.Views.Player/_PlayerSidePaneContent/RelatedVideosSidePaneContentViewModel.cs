@@ -3,6 +3,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.NicoVideos.Player;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using NiconicoToolkit;
@@ -23,12 +24,14 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         public RelatedVideosSidePaneContentViewModel(
             NiconicoSession niconicoSession,
             HohoemaPlaylist hohoemaPlaylist,
-            PageManager pageManager
+            PageManager pageManager,
+            RelatedVideoContentsAggregator relatedVideoContentsAggregator
            )
         {
             _niconicoSession = niconicoSession;
             _hohoemaPlaylist = hohoemaPlaylist;
             _pageManager = pageManager;
+            _relatedVideoContentsAggregator = relatedVideoContentsAggregator;
             PlayCommand = _hohoemaPlaylist.PlayCommand;
             OpenMylistCommand = _pageManager.OpenPageCommand;
         }
@@ -51,7 +54,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         private readonly NiconicoSession _niconicoSession;
         private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly PageManager _pageManager;
-
+        private readonly RelatedVideoContentsAggregator _relatedVideoContentsAggregator;
 
         public bool NowLoading { get; private set; }
 
@@ -81,8 +84,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
         public async Task InitializeRelatedVideos(INicoVideoDetails currentVideo)
         {
-            string videoId = currentVideo.VideoId;
-
             NowLoading = true;
             RaisePropertyChanged(nameof(NowLoading));
             try
@@ -92,35 +93,13 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                     if (_IsInitialized) { return; }
                     _IsInitialized = true;
 
+                    var result = await _relatedVideoContentsAggregator.GetRelatedContentsAsync(currentVideo);
+
                     CurrentVideo = new VideoListItemControlViewModel(currentVideo);
                     RaisePropertyChanged(nameof(CurrentVideo));
 
-                    VideoRecommendResponse recommendResponse = null;
-                    if (currentVideo is IVideoContentProvider provider)
-                    {
-                        if (provider.ProviderType == OwnerType.Channel)
-                        {
-                            recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetChannelVideoReccommendAsync(currentVideo.Id, provider.ProviderId, currentVideo.Tags.Select(x => x.Tag).ToArray());
-                        }
-                    }
-
-                    if (recommendResponse == null)
-                    {
-                        recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetVideoReccommendAsync(currentVideo.Id);
-                    }
-
-                    if (recommendResponse?.IsSuccess ?? false)
-                    {
-                        Videos = new List<VideoListItemControlViewModel>();
-                        foreach (var item in recommendResponse.Data.Items)
-                        {
-                            if (item.ContentType is RecommendContentType.Video)
-                            {
-                                Videos.Add(new VideoListItemControlViewModel(item.ContentAsVideo));
-                            }
-                        }
-                        RaisePropertyChanged(nameof(Videos));
-                    }
+                    Videos = result.OtherVideos;
+                    RaisePropertyChanged(nameof(Videos));
 
                     if (currentVideo.Series?.Video.Next is not null and NvapiVideoItem nextSeriesVideo)
                     {

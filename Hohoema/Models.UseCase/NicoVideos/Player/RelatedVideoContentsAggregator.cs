@@ -14,6 +14,8 @@ using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Channels;
+using Hohoema.Models.Domain.Niconico;
+using NiconicoToolkit.Recommend;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
@@ -37,6 +39,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
     public sealed class RelatedVideoContentsAggregator 
     {
         public RelatedVideoContentsAggregator(
+            NiconicoSession niconicoSession,
            NicoVideoProvider nicoVideoProvider,
            ChannelProvider channelProvider,
            MylistRepository mylistRepository,
@@ -44,6 +47,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
            PageManager pageManager
            )
         {
+            _niconicoSession = niconicoSession;
             _nicoVideoProvider = nicoVideoProvider;
             _channelProvider = channelProvider;
             _mylistRepository = mylistRepository;
@@ -51,6 +55,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             _pageManager = pageManager;
         }
 
+        private readonly NiconicoSession _niconicoSession;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly ChannelProvider _channelProvider;
         private readonly HohoemaPlaylist _hohoemaPlaylist;
@@ -65,8 +70,9 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         const double _SeriesVideosTitleSimilarityValue = 0.7;
         private static VideoRelatedContents _cachedVideoRelatedContents;
 
-        public async Task<VideoRelatedContents> GetRelatedContentsAsync(string videoId)
+        public async Task<VideoRelatedContents> GetRelatedContentsAsync(INicoVideoDetails currentVideo)
         {
+            var videoId = currentVideo.VideoId;
             if (_cachedVideoRelatedContents?.ContentId == videoId)
             {
                 return _cachedVideoRelatedContents;
@@ -75,19 +81,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             var videoInfo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
             var videoViewerHelpInfo = NicoVideoSessionProvider.GetVideoRelatedInfomationWithVideoDescription(videoId, videoInfo.Description);
 
-            VideoRelatedContents result = new VideoRelatedContents(videoId);
-            // ニコスクリプトで指定されたジャンプ先動画
-            /*
-            if (JumpVideoId != null)
-            {
-                var video = await NicoVideoProvider.GetNicoVideoInfo(JumpVideoId, requireLatest: true);
-                if (video != null)
-                {
-                    JumpVideo = new VideoListItemControlViewModel(video);
-                    RaisePropertyChanged(nameof(JumpVideo));
-                }
-            }
-            */
+            VideoRelatedContents result = new VideoRelatedContents(videoId);            
 
             // 再生中アイテムのタイトルと投稿者説明文に含まれる動画IDの動画タイトルを比較して
             // タイトル文字列が近似する動画をシリーズ動画として取り込む
@@ -150,15 +144,31 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             }
 
 
-            /*
-            var videos = await Video.GetRelatedVideos(videoId);
-            Videos = videos.Select(x =>
+            VideoRecommendResponse recommendResponse = null;
+            if (currentVideo is IVideoContentProvider provider)
             {
-                var vm = new VideoListItemControlViewModel(x);
-                return vm;
-            })
-            .ToList();
-            */
+                if (provider.ProviderType == OwnerType.Channel)
+                {
+                    recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetChannelVideoReccommendAsync(currentVideo.Id, provider.ProviderId, currentVideo.Tags.Select(x => x.Tag).ToArray());
+                }
+            }
+
+            if (recommendResponse == null)
+            {
+                recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetVideoReccommendAsync(currentVideo.Id);
+            }
+
+            if (recommendResponse?.IsSuccess ?? false)
+            {
+                result.OtherVideos = new List<VideoListItemControlViewModel>();
+                foreach (var item in recommendResponse.Data.Items)
+                {
+                    if (item.ContentType is RecommendContentType.Video)
+                    {
+                        result.OtherVideos.Add(new VideoListItemControlViewModel(item.ContentAsVideo));
+                    }
+                }
+            }
 
             result.CurrentVideo = result.Videos.FirstOrDefault(x => x.RawVideoId == videoId);
 
