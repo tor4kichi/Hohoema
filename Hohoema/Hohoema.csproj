@@ -168,7 +168,6 @@
     <Compile Include="Models.Domain\Niconico\Channel\ChannelNameCacheRepository.cs" />
     <Compile Include="Models.Domain\Niconico\Channel\ChannelProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Channel\IChannel.cs" />
-    <Compile Include="Models.Domain\Niconico\Channel\NicoChannelCacheRepository.cs" />
     <Compile Include="Models.Domain\Niconico\Community\CommunityProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Community\ICommunity.cs" />
     <Compile Include="Models.Domain\Niconico\INiconicoContent.cs" />
