@@ -24,9 +24,11 @@ namespace NiconicoToolkit
         public const string ChannelPublicApiV2Url = "https://public-api.ch.nicovideo.jp/v2/";
         public const string ChannelApiUrl = $"{ChannelPageUrl}api/";
 
-
         public const string CommunityPageUrl = "https://com.nicovideo.jp/";
         public const string CommunityV1ApiUrl = $"{CommunityPageUrl}api/v1/";
+
+        public const string IchibaPageUrl = "http://ichiba.nicovideo.jp/";
+
 
         public const string WatchPageUrl = $"{NicoHomePageUrl}watch/";
 

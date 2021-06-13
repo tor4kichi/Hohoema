@@ -17,7 +17,6 @@ using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using I18NPortable;
-using Mntone.Nico2.Embed.Ichiba;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
@@ -46,6 +45,7 @@ using Uno.Disposables;
 using NiconicoToolkit.Video.Watch;
 using NiconicoToolkit.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Likes;
+using NiconicoToolkit.Ichiba;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
@@ -519,9 +519,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             VideoDescriptionHyperlinkItems = null;
 
             base.OnNavigatedFrom(parameters);
-        }        
+        }
 
-
+        
         bool _IsInitializedIchibaItems = false;
         public async void InitializeIchibaItems()
         {
@@ -529,8 +529,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
             try
             {
-                var ichiba = await NiconicoSession.Context.Embed.GetIchiba(VideoInfo.RawVideoId);
-                IchibaItems = ichiba.GetMainIchibaItems();
+                var ichiba = await NiconicoSession.ToolkitContext.Ichiba.GetIchibaItemsAsync(VideoInfo.RawVideoId);
+                IchibaItems = ichiba.MainItems;
+                RaisePropertyChanged(nameof(IchibaItems));
             }
             catch (Exception e)
             {
@@ -648,19 +649,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
             try
             {
-                ApplicationTheme appTheme;
-                if (_appearanceSettings.ApplicationTheme == ElementTheme.Dark)
-                {
-                    appTheme = ApplicationTheme.Dark;
-                }
-                else if (_appearanceSettings.ApplicationTheme == ElementTheme.Light)
-                {
-                    appTheme = ApplicationTheme.Light;
-                }
-                else
-                {
-                    appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
-                }
+                var appTheme = GetCurrentApplicationTheme();
 
                 DescriptionHtml = await HtmlFileHelper.ToCompletlyHtmlAsync(VideoDetails.DescriptionHtml, appTheme);
             }
@@ -718,6 +707,26 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 Debug.WriteLine("動画説明からリンクを抜き出す処理に失敗");
                 throw;
             }
+        }
+
+
+        private ApplicationTheme GetCurrentApplicationTheme()
+        {
+            ApplicationTheme appTheme;
+            if (_appearanceSettings.ApplicationTheme == ElementTheme.Dark)
+            {
+                appTheme = ApplicationTheme.Dark;
+            }
+            else if (_appearanceSettings.ApplicationTheme == ElementTheme.Light)
+            {
+                appTheme = ApplicationTheme.Light;
+            }
+            else
+            {
+                appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
+            }
+
+            return appTheme;
         }
 
         private void UpdateSelfZoning()

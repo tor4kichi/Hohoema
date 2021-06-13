@@ -70,7 +70,7 @@ namespace NiconicoToolkit.Channels
 
         public Task<ChannelInfo> GetChannelInfoAsync(string channelId)
         {
-            var nonPrefixChannelId = ContentIdHelper.EnsureNonPrefixCommunityId(channelId);
+            var nonPrefixChannelId = ContentIdHelper.EnsureNonPrefixChannelId(channelId);
             return _context.GetJsonAsAsync<ChannelInfo>($"{NiconicoUrls.ChannelApiUrl}ch.info/{nonPrefixChannelId}");
         }
 

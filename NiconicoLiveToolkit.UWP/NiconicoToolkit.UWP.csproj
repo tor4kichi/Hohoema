@@ -157,6 +157,7 @@
     <Compile Include="Follow\UserOwnedCommunityResponse.cs" />
     <Compile Include="HttpContentExtensions.cs" />
     <Compile Include="HttpStatusCodeHelper.cs" />
+    <Compile Include="Ichiba\IchibaClient.cs" />
     <Compile Include="Likes\LikesClient.cs" />
     <Compile Include="Mylist\LoginUser\ChangeMylistGroupsOrderResponse.cs" />
     <Compile Include="Mylist\LoginUser\MoveOrCopyMylistItemsResponse.cs" />
@@ -318,7 +319,6 @@
     <Folder Include="Account\User\" />
     <Folder Include="Activity\LikesHistory\" />
     <Folder Include="Activity\LiveWatchHistory\" />
-    <Folder Include="Ichiba\" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

@@ -24,6 +24,7 @@ using NiconicoToolkit.Series;
 using NiconicoToolkit.NicoRepo;
 using NiconicoToolkit.Likes;
 using NiconicoToolkit.Community;
+using NiconicoToolkit.Ichiba;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -73,6 +74,7 @@ namespace NiconicoToolkit
             NicoRepo = new NicoRepoClient(this, _defaultOptions);
             Likes = new LikesClient(this, _defaultOptions);
             Community = new CommunityClient(this, _defaultOptions);
+            Ichiba = new IchibaClient(this, _defaultOptions);
         }
 
 
@@ -93,6 +95,7 @@ namespace NiconicoToolkit
         public NicoRepoClient NicoRepo { get; }
         public LikesClient Likes { get; }
         public CommunityClient Community { get; }
+        public IchibaClient Ichiba { get; }
 
         TimeSpan _minPageAccessInterval = TimeSpan.FromSeconds(1);
         DateTime _prevPageAccessTime;
