@@ -351,8 +351,7 @@ namespace Hohoema
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.VideoInfomationPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoRanking.RankingCategoryListPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoRanking.RankingCategoryPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoRecommend.RecommendPage>();
-
+            
             containerRegistry.RegisterForNavigation<Presentation.Views.Player.LivePlayerPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Player.VideoPlayerPage>();
 

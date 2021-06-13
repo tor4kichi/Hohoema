@@ -185,7 +185,6 @@
     <Compile Include="Models.Domain\Niconico\Live\LoginUser\LoginUserLiveReservationProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\LoginUserHistoryProvider.cs" />
     <Compile Include="Models.Domain\Niconico\NicoRepo\LoginUser\LoginUserNicoRepoProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Recommend\LoginUser\LoginUserRecommendProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\LoginUser\MylistFollowProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Mylist\IMylist.cs" />
     <Compile Include="Models.Domain\Niconico\Mylist\LoginUser\LoginUserMylistPlaylist.cs" />
@@ -456,7 +455,6 @@
     <Compile Include="Presentation.Views.Pages\Niconico.Follow\FollowManagePageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Account\LogoutFromNiconicoCommand.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.NicoRepo\NicoRepoPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.VideoRecommend\RecommendPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Live\TimeshiftPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Activity\WatchHistoryPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.User\UserInfoPageViewModel.cs" />
@@ -630,9 +628,6 @@
     </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.NicoRepo\NicoRepoPage.xaml.cs">
       <DependentUpon>NicoRepoPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.VideoRecommend\RecommendPage.xaml.cs">
-      <DependentUpon>RecommendPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Live\TimeshiftPage.xaml.cs">
       <DependentUpon>TimeshiftPage.xaml</DependentUpon>
@@ -1192,10 +1187,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Presentation.Views.Pages\Niconico.NicoRepo\NicoRepoPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.VideoRecommend\RecommendPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
