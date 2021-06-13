@@ -290,7 +290,7 @@ namespace NiconicoToolkit.Follow
 
             public async Task<ContentManageResult> AddFollowCommunityAsync(string communityId)
             {
-                var nonPrefixCommunityId = ContentIdHelper.EnsureNonPrefixCommunityId(communityId);
+                var nonPrefixCommunityId = ContentIdHelper.RemoveContentIdPrefix(communityId);
                 var communityJoinPageUrl = new Uri($"{NiconicoUrls.CommunityPageUrl}motion/{communityId}");
 
                 var uri = $"{NiconicoUrls.CommunityV1ApiUrl}communities/{nonPrefixCommunityId}/follows.json";

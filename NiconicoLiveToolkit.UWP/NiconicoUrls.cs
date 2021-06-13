@@ -11,7 +11,8 @@ namespace NiconicoToolkit
     public static class NiconicoUrls
     {
         public const string NicoHomePageUrl = "https://www.nicovideo.jp/";
-        public const string NicoLivePageUrl = "https://live2.nicovideo.jp/";
+        public const string NicoLive2PageUrl = "https://live2.nicovideo.jp/";
+        public const string NicoLivePageUrl = "https://live.nicovideo.jp/";
 
         public const string NvApiV1Url = "https://nvapi.nicovideo.jp/v1/";
         public const string NvApiV2Url = "https://nvapi.nicovideo.jp/v2/";
@@ -38,7 +39,7 @@ namespace NiconicoToolkit
         }
 
 
-        public const string LiveWatchPageUrl = $"{NicoLivePageUrl}watch/";
+        public const string LiveWatchPageUrl = $"{NicoLive2PageUrl}watch/";
 
         public static string MakeLiveWatchPageUrl(string liveId)
         {

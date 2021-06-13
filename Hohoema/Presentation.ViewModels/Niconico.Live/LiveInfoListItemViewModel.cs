@@ -19,6 +19,7 @@ using Unity;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.UseCase;
 using NiconicoToolkit.Live.Cas;
+using NiconicoToolkit.Live.Timeshift;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {
@@ -54,7 +55,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
 
         private readonly NiconicoSession _niconicoSession;
 
-        public Mntone.Nico2.Live.ReservationsInDetail.Program Reservation { get; private set; }
+        public TimeshiftReservationDetailItem Reservation { get; private set; }
 
 
         public string LiveId { get; }
@@ -88,8 +89,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
 
         public bool IsXbox => DeviceTypeHelper.IsXbox;
 
-        public DateTime ExpiredAt { get; internal set; }
-        public Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus? ReservationStatus { get; internal set; }
+        public DateTime? ExpiredAt { get; internal set; }
+        public ReservationStatus? ReservationStatus { get; internal set; }
 
 
         string ILiveContent.ProviderId => CommunityGlobalId;
@@ -108,7 +109,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
 
         string INiconicoObject.Label => LiveTitle;
 
-        public void SetReservation(Mntone.Nico2.Live.ReservationsInDetail.Program reservationInfo)
+        public void SetReservation(TimeshiftReservationDetailItem reservationInfo)
         {
             Reservation = reservationInfo;
             ReservationStatus = LiveStatus is LiveStatus.Onair ? null : reservationInfo?.GetReservationStatus();
@@ -448,8 +449,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
                             if (result)
                             {
                                 var reservationProvider = App.Current.Container.Resolve<LoginUserLiveReservationProvider>();
-                                var reservations = await reservationProvider.GetReservtionsAsync();
-                                var reservation = reservations.ReservedProgram.FirstOrDefault(x => x.Id == LiveId);
+                                var reservations = await reservationProvider.GetReservtionsDetailAsync();
+                                var reservation = reservations.Data.Items.FirstOrDefault(x => LiveId.EndsWith(x.LiveIdWithoutPrefix));
                                 if (reservation != null)
                                 {
                                     SetReservation(reservation);

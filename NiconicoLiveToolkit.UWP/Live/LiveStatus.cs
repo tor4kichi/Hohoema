@@ -6,6 +6,7 @@ namespace NiconicoToolkit.Live
     {
         Reserved,
         Onair, 
-        Past
+        Past,
+        BeforeRelease,
     };
 }

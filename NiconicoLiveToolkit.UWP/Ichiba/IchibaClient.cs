@@ -43,7 +43,7 @@ namespace NiconicoToolkit.Ichiba
 
             if (ContentIdHelper.IsChannelId(channelId))
             {
-                dict.Add("ch", ContentIdHelper.EnsureNonPrefixChannelId(channelId));
+                dict.Add("ch", ContentIdHelper.RemoveContentIdPrefix(channelId));
             }
             else
             {

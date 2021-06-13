@@ -219,7 +219,17 @@ namespace NiconicoToolkit.Live.Cas
 
         // Note: SnakeCase 
         [JsonPropertyName("status")]
-        public TimeshiftStatus Status { get; set; }
+        public string Status { get; set; }
+
+
+        public TimeshiftStatus TimeshiftStatus => Status switch
+        {
+            "before_release" => TimeshiftStatus.BeforeRelease,
+            "released" => TimeshiftStatus.Released,
+            "expired" => TimeshiftStatus.Expired,
+            _ => TimeshiftStatus.None,
+        };
+
     }
 
     /// <summary>

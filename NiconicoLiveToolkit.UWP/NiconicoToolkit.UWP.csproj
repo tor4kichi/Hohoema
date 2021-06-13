@@ -159,6 +159,9 @@
     <Compile Include="HttpStatusCodeHelper.cs" />
     <Compile Include="Ichiba\IchibaClient.cs" />
     <Compile Include="Likes\LikesClient.cs" />
+    <Compile Include="Timeshift\ReservationToken.cs" />
+    <Compile Include="Timeshift\ReserveTimeshiftResponse.cs" />
+    <Compile Include="Timeshift\TimeshiftClient.cs" />
     <Compile Include="Mylist\LoginUser\ChangeMylistGroupsOrderResponse.cs" />
     <Compile Include="Mylist\LoginUser\MoveOrCopyMylistItemsResponse.cs" />
     <Compile Include="Mylist\LoginUser\WatchAfterItemsResponse.cs" />
@@ -183,6 +186,9 @@
     <Compile Include="Series\SeriesClient.cs" />
     <Compile Include="Series\SeriesListResponse.cs" />
     <Compile Include="System.Text.Json.Serialization\UserIdJsonConverter.cs" />
+    <Compile Include="Timeshift\TimeshiftReservationsDetailResponse.cs" />
+    <Compile Include="Timeshift\TimeshiftReservationsResponse.cs" />
+    <Compile Include="Timeshift\UseTimeshiftViewingAuthorityResponse.cs" />
     <Compile Include="User\NicovideoUserResponse.cs" />
     <Compile Include="User\UserDetailResponseContainer.cs" />
     <Compile Include="User\UserId.cs" />
@@ -305,6 +311,9 @@
     </PackageReference>
     <PackageReference Include="System.Text.Json">
       <Version>5.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="U8XmlParser">
+      <Version>1.0.1</Version>
     </PackageReference>
     <PackageReference Include="WebSocket4Net">
       <Version>0.15.2</Version>

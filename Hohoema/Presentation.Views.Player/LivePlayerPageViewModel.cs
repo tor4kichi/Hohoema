@@ -50,6 +50,7 @@ using Windows.UI;
 using Windows.UI.Xaml;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
 using NiconicoToolkit.Live.WatchSession.Events;
+using NiconicoToolkit.Live.Timeshift;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -784,10 +785,10 @@ namespace Hohoema.Presentation.ViewModels.Player
         {
             if (NiconicoSession.IsLoggedIn)
             {
-                var timeshiftDetailsRes = await LoginUserLiveReservationProvider.GetReservtionsAsync();
-                foreach (var timeshift in timeshiftDetailsRes.ReservedProgram)
+                var timeshiftDetailsRes = await LoginUserLiveReservationProvider.GetReservtionsDetailAsync();
+                foreach (var timeshift in timeshiftDetailsRes.Data.Items)
                 {
-                    if (LiveId.EndsWith(timeshift.Id))
+                    if (LiveId.EndsWith(timeshift.LiveIdWithoutPrefix))
                     {
                         _TimeshiftProgram = timeshift;
                     }
@@ -808,7 +809,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             // チケットを使用するかダイアログで表示する
             // タイムシフトでの視聴かつタイムシフトの視聴予約済みかつ視聴権が未取得の場合は
             // 視聴権の使用を確認する
-            if (_TimeshiftProgram?.GetReservationStatus() == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.FIRST_WATCH)
+            if (_TimeshiftProgram?.GetReservationStatus() == ReservationStatus.FIRST_WATCH)
             {
                 var dialog = App.Current.Container.Resolve<Services.DialogService>();
 
@@ -818,10 +819,10 @@ namespace Hohoema.Presentation.ViewModels.Player
                 // ただし公開期限がそれより先に来る場合には公開期限が視聴期限となる
                 var outdatedTime = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) + (EndTime - StartTime) + TimeSpan.FromHours(24);
                 string desc = string.Empty;
-                if (outdatedTime > _TimeshiftProgram.ExpiredAt)
+                if (_TimeshiftProgram.ExpiredAt != null && outdatedTime > _TimeshiftProgram.ExpiredAt)
                 {
-                    outdatedTime = _TimeshiftProgram.ExpiredAt.LocalDateTime;
-                    desc = "Dialog_ConfirmTimeshiftWatch_WatchLimitByDate".Translate(_TimeshiftProgram.ExpiredAt.ToString("g"));
+                    outdatedTime = _TimeshiftProgram.ExpiredAt.Value.LocalDateTime;
+                    desc = "Dialog_ConfirmTimeshiftWatch_WatchLimitByDate".Translate(_TimeshiftProgram.ExpiredAt.Value.ToString("g"));
                 }
                 else
                 {
@@ -837,11 +838,9 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                 if (result)
                 {
-                    var token = await LoginUserLiveReservationProvider.GetReservationTokenAsync();
-
                     await Task.Delay(500);
 
-                    await LoginUserLiveReservationProvider.UseReservationAsync(_TimeshiftProgram.Id, token);
+                    await LoginUserLiveReservationProvider.UseReservationAsync(_TimeshiftProgram.LiveIdWithoutPrefix);
 
                     await Task.Delay(3000);
 
@@ -1644,7 +1643,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         private ConcurrentStack<uint> UnresolvedUserId = new ConcurrentStack<uint>();
         private ConcurrentDictionary<uint, List<LiveComment>> UserIdToComments = new ConcurrentDictionary<uint, List<LiveComment>>();
-        private Mntone.Nico2.Live.ReservationsInDetail.Program _TimeshiftProgram;
+        private TimeshiftReservationDetailItem _TimeshiftProgram;
 
         private void UpdateCommentUserName(uint userId, string name)
         {

@@ -55,7 +55,7 @@ namespace NiconicoToolkit.Community
 
         public Task<CommunityAuthorityResponse> GetCommunityAuthorityForLoginUserAsync(string communityId)
         {
-            string nonPrefixCommunityId = ContentIdHelper.EnsureNonPrefixCommunityId(communityId);
+            string nonPrefixCommunityId = ContentIdHelper.RemoveContentIdPrefix(communityId);
             var url = new StringBuilder(Urls.CommunityV1CommunitiesApiUrl)
                 .Append(nonPrefixCommunityId)
                 .Append("/authority.json")
@@ -68,7 +68,7 @@ namespace NiconicoToolkit.Community
         {
             // ex) https://com.nicovideo.jp/api/v1/communities/540200/contents/videos.json?limit=20&offset=0&sort=c&direction=d&_=1623371150520
 
-            string nonPrefixCommunityId = ContentIdHelper.EnsureNonPrefixCommunityId(communityId);
+            string nonPrefixCommunityId = ContentIdHelper.RemoveContentIdPrefix(communityId);
             NameValueCollection dict = new();
             dict.AddIfNotNull("offset", offset);
             dict.AddIfNotNull("limit", limit);
@@ -99,7 +99,7 @@ namespace NiconicoToolkit.Community
         {
             // ex) https://com.nicovideo.jp/api/v1/communities/1408350/lives.json?limit=30&offset=0
 
-            string nonPrefixCommunityId = ContentIdHelper.EnsureNonPrefixCommunityId(communityId);
+            string nonPrefixCommunityId = ContentIdHelper.RemoveContentIdPrefix(communityId);
             NameValueCollection dict = new();
             dict.AddIfNotNull("offset", offset);
             dict.AddIfNotNull("limit", limit);

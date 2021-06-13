@@ -27,8 +27,9 @@ namespace NiconicoToolkit.Live.Cas
 
         public Task<LiveProgramResponse> GetLiveProgramAsync(string liveId)
         {
+            var liveIdWithPrefix = ContentIdHelper.EnsurePrefixLiveId(liveId);
             const string NicocasLiveUrlFormat = @"https://api.cas.nicovideo.jp/v1/services/live/programs/{0}";
-            return _context.GetJsonAsAsync<LiveProgramResponse>(string.Format(NicocasLiveUrlFormat, liveId), _jsonSerializeOptions);
+            return _context.GetJsonAsAsync<LiveProgramResponse>(string.Format(NicocasLiveUrlFormat, liveIdWithPrefix), _jsonSerializeOptions);
         }
     }
 }

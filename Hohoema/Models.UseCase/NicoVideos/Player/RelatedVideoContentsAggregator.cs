@@ -1,5 +1,4 @@
 ﻿using Microsoft.Toolkit.Uwp.UI;
-using Mntone.Nico2.Channels.Video;
 using Hohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;

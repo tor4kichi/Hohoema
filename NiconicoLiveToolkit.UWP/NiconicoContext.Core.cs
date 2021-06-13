@@ -25,6 +25,7 @@ using NiconicoToolkit.NicoRepo;
 using NiconicoToolkit.Likes;
 using NiconicoToolkit.Community;
 using NiconicoToolkit.Ichiba;
+using NiconicoToolkit.Live.Timeshift;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -75,6 +76,7 @@ namespace NiconicoToolkit
             Likes = new LikesClient(this, _defaultOptions);
             Community = new CommunityClient(this, _defaultOptions);
             Ichiba = new IchibaClient(this, _defaultOptions);
+            Timeshift = new TimeshiftClient(this, _defaultOptions);
         }
 
 
@@ -96,6 +98,8 @@ namespace NiconicoToolkit
         public LikesClient Likes { get; }
         public CommunityClient Community { get; }
         public IchibaClient Ichiba { get; }
+        public TimeshiftClient Timeshift { get; }
+
 
         TimeSpan _minPageAccessInterval = TimeSpan.FromSeconds(1);
         DateTime _prevPageAccessTime;

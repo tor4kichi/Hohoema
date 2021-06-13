@@ -1,6 +1,5 @@
-﻿using Mntone.Nico2.Live.Reservation;
-using Mntone.Nico2.Live.ReservationsInDetail;
-using Hohoema.Models.Infrastructure;
+﻿using Hohoema.Models.Infrastructure;
+using NiconicoToolkit.Live.Timeshift;
 using System;
 using System.Threading.Tasks;
 
@@ -14,52 +13,71 @@ namespace Hohoema.Models.Domain.Niconico.Live.LoginUser
         }
 
 
-        public async Task<ReservationResponse> ReservtionAsync(string liveId, bool isOverrwite = false)
+        private static ReservationToken _token;
+
+        public Task<ReserveTimeshiftResponse> ReservtionAsync(string liveId, bool isOverrwite = false)
         {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.Live.ReservationAsync(liveId, isOverrwite);
-            });
+            return _niconicoSession.ToolkitContext.Timeshift.ReserveTimeshiftAsync(liveId, isOverrwite);
         }
 
-        public async Task<ReservationsInDetailResponse> GetReservtionsAsync()
+        public async Task<TimeshiftReservationsResponse> GetReservtionsAsync()
         {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.Live.GetReservationsInDetailAsync();
-            });
+            var res = await _niconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsAsync();
+
+            _token = res?.Data?.ReservationToken;
+
+            return res;
         }
 
-        public async Task<MyTimeshiftListData> GetTimeshiftListAsync()
+
+        public Task<TimeshiftReservationsDetailResponse> GetReservtionsDetailAsync()
         {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.Live.GetMyTimeshiftListAsync();
-            });
+            return _niconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
         }
 
-        public async Task<ReservationToken> GetReservationTokenAsync()
+        private async Task<ReservationToken> GetReservationTokenAsync(bool forceRefresh = false)
         {
-            return await ContextActionAsync(async context =>
+            if (_token is null)
             {
-                return await context.Live.GetReservationTokenAsync();
-            });
+                _token = await _niconicoSession.ToolkitContext.Timeshift.GetReservationToken();
+            }
+
+            if (_token == null)
+            {
+                throw new HohoemaExpception("Failed refresh ReservationToken.");
+            }
+
+            return _token;
         }
 
-        public async Task DeleteReservationAsync(string reservationId, ReservationToken token)
+        public async Task DeleteReservationAsync(string liveId)
         {
-            await ContextActionAsync(async context =>
+            var token = await GetReservationTokenAsync();
+
+            try
             {
-                await context.Live.DeleteReservationAsync(reservationId, token);
-            });
+                await _niconicoSession.ToolkitContext.Timeshift.DeleteTimeshiftReservationAsync(liveId, token);
+            }
+            catch
+            {
+                token = await GetReservationTokenAsync(forceRefresh: true);
+                await _niconicoSession.ToolkitContext.Timeshift.DeleteTimeshiftReservationAsync(liveId, token);
+            }
         }
 
-        public async Task UseReservationAsync(string liveId, ReservationToken token)
+        public async Task UseReservationAsync(string liveId)
         {
-            await ContextActionAsync(async context =>
+            var token = await GetReservationTokenAsync();
+
+            try
             {
-                await context.Live.UseReservationAsync(liveId, token);
-            });
+                await _niconicoSession.ToolkitContext.Timeshift.UseTimeshiftViewingAuthorityAsync(liveId, token);
+            }
+            catch
+            {
+                token = await GetReservationTokenAsync(forceRefresh: true);
+                await _niconicoSession.ToolkitContext.Timeshift.UseTimeshiftViewingAuthorityAsync(liveId, token);
+            }
         }
     }
 }

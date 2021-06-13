@@ -13,6 +13,57 @@ namespace NiconicoToolkit
             return cList.All(char.IsDigit);
         }
 
+
+        public static bool TryRemoveContentIdPrefix(string inStr, out string outStr)
+        {
+            int index = 0;
+            foreach (var c in inStr)
+            {
+                if (char.IsDigit(c))
+                {
+                    break;
+                }
+
+                index++;
+            }
+
+            if (index != 0)
+            {
+                if (!inStr.Skip(index).IsAllDigit())
+                {
+                    outStr = string.Empty;
+                    return false;
+                }
+
+                outStr = inStr.Remove(0, index);
+                return true;
+            }
+            else if (inStr.IsAllDigit())
+            {
+                outStr = inStr;
+                return true;
+            }
+            else
+            {
+                outStr = string.Empty;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// sm/lv/co などのコンテンツIDの前置文字列を削除して数字のみにして返す
+        /// </summary>
+        /// <param name="str"></param>
+        /// <returns></returns>
+        public static string RemoveContentIdPrefix(string str)
+        {
+            return TryRemoveContentIdPrefix(str, out var outStr)
+                ? outStr
+                : throw new InvalidOperationException()
+                ;
+        }
+
+
         public static bool IsVideoId(string id, bool allowAllNumberId = true)
         {
             if (id == null)
@@ -43,7 +94,7 @@ namespace NiconicoToolkit
             {
                 return false;
             }
-            else if (id.StartsWith("lv") && id.Skip(2).IsAllDigit())
+            else if (id.StartsWith(LiveIdPrefix) && id.Skip(2).IsAllDigit())
             {
                 return true;
             }
@@ -52,6 +103,24 @@ namespace NiconicoToolkit
                 return false;
             }
         }
+
+        public const string LiveIdPrefix = "lv";
+        public static string EnsurePrefixLiveId(string id)
+        {
+            if (id.StartsWith(LiveIdPrefix))
+            {
+                return id;
+            }
+            else if (id.IsAllDigit())
+            {
+                return LiveIdPrefix + id;
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+        }
+
 
         public const string CommunityIdPrefix = "co";
         public static bool IsCommunityId(string id, bool allowNumberOnlyId = true)
@@ -74,23 +143,8 @@ namespace NiconicoToolkit
             }
         }
 
-        public static string EnsureNonPrefixCommunityId(string id)
-        {
-            if (id.IsAllDigit())
-            {
-                return id;
-            }
-            else if (IsCommunityId(id, false))
-            {
-                return id.Remove(0, 2);
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-        }
 
-
+        public const string ChannelIdPrefix = "ch";
         public static bool IsChannelId(string id, bool allowNumberOnlyId = true)
         {
             if (id == null)
@@ -101,7 +155,7 @@ namespace NiconicoToolkit
             {
                 return true;
             }
-            else if (id.StartsWith("ch") && id.Skip(2).IsAllDigit())
+            else if (id.StartsWith(ChannelIdPrefix) && id.Skip(2).IsAllDigit())
             {
                 return true;
             }
@@ -111,31 +165,15 @@ namespace NiconicoToolkit
             }
         }
 
-        public static string EnsureNonPrefixChannelId(string id)
-        {
-            if (id.IsAllDigit())
-            {
-                return id;
-            }
-            else if (IsChannelId(id, allowNumberOnlyId: false))
-            {
-                return id.Remove(0, 2);
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
         public static (bool IsScreenName, string channelId) EnsurePrefixChannelIdOrScreenName(string channelId)
         {
-            if (channelId.StartsWith("ch") && channelId.Skip(2).IsAllDigit())
+            if (channelId.StartsWith(ChannelIdPrefix) && channelId.Skip(2).IsAllDigit())
             {
                 return (false, channelId);
             }
             else if (channelId.IsAllDigit())
             {
-                return (false, "ch" + channelId);
+                return (false, ChannelIdPrefix + channelId);
             }
             else
             {

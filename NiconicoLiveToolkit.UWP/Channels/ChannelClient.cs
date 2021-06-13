@@ -47,7 +47,7 @@ namespace NiconicoToolkit.Channels
 
         public async Task<ChannelAdmissionResponse> GetChannelAdmissionAsync(string channelId, params ChannelAdmissionAdditinals[] additinals)
         {
-            var nonPrefixChannelId = ContentIdHelper.EnsureNonPrefixCommunityId(channelId);
+            var nonPrefixChannelId = ContentIdHelper.RemoveContentIdPrefix(channelId);
 
             NameValueCollection dict = new NameValueCollection() 
             {
@@ -70,7 +70,7 @@ namespace NiconicoToolkit.Channels
 
         public Task<ChannelInfo> GetChannelInfoAsync(string channelId)
         {
-            var nonPrefixChannelId = ContentIdHelper.EnsureNonPrefixChannelId(channelId);
+            var nonPrefixChannelId = ContentIdHelper.RemoveContentIdPrefix(channelId);
             return _context.GetJsonAsAsync<ChannelInfo>($"{NiconicoUrls.ChannelApiUrl}ch.info/{nonPrefixChannelId}");
         }
 

@@ -154,6 +154,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
             IchibaItems = new ReadOnlyObservableCollection<IchibaItem>(_IchibaItems);
 
+            /*
             ReccomendItems = _ReccomendItems.ToReadOnlyReactiveCollection(x =>
             {
                 var liveId = "lv" + x.ProgramId;
@@ -169,6 +170,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                 return liveInfoVM;
             })
                 .AddTo(_CompositeDisposable);
+            */
 
             IsShowOpenLiveContentButton = 
                 new[]
@@ -532,21 +534,24 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
                     await RefreshHtmlDescriptionAsync(programInfo.Data.Description);
 
-                    var communityInfo = await NiconicoSession.Context.Community.GetCommunifyInfoAsync(programInfo.Data.SocialGroupId);
-                    if (communityInfo.IsStatusOK)
+                    if (programInfo.Data.ProviderType == ProviderType.Community)
                     {
-                        var community = communityInfo.Community;
-                        Community = new LiveCommunityInfo() 
-                        { 
-                            Id = community.GlobalId, 
-                            Label = community.Name,
-                            Thumbnail = community.Thumbnail,
-                            Description = community.Description
-                        };
-                    }
-                    else
-                    {
-                        Community = null;
+                        var communityInfo = await NiconicoSession.Context.Community.GetCommunifyInfoAsync(programInfo.Data.SocialGroupId);
+                        if (communityInfo.IsStatusOK)
+                        {
+                            var community = communityInfo.Community;
+                            Community = new LiveCommunityInfo()
+                            {
+                                Id = community.GlobalId,
+                                Label = community.Name,
+                                Thumbnail = community.Thumbnail,
+                                Description = community.Description
+                            };
+                        }
+                        else
+                        {
+                            Community = null;
+                        }
                     }
 
                     await RefreshReservationInfo(liveId);

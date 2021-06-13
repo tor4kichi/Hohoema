@@ -10,8 +10,6 @@ using Prism.Mvvm;
 using System.Reactive.Linq;
 using System.Diagnostics;
 using Reactive.Bindings.Extensions;
-using Mntone.Nico2.Searches.Community;
-using Mntone.Nico2.Searches.Live;
 using Hohoema.Models.UseCase.PageNavigation;
 
 using Unity;

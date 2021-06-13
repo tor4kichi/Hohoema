@@ -25,7 +25,7 @@ using Uno.Extensions;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Models.Domain.Pins;
 using Microsoft.Toolkit.Collections;
-using Mntone.Nico2.Live.ReservationsInDetail;
+using NiconicoToolkit.Live.Timeshift;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
@@ -164,7 +164,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             {
                 if (NiconicoSession.IsLoggedIn)
                 {
-                    _reservation = await NiconicoSession.Context.Live.GetReservationsInDetailAsync();
+                    _reservation = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
                 }
             }
             finally
@@ -226,7 +226,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         LiveSearchOptionsQuery _query;
         DelegateCommand _SearchOptionsUpdatedCommand;
-        private ReservationsInDetailResponse _reservation;
+        private TimeshiftReservationsDetailResponse _reservation;
 
         public DelegateCommand SearchOptionsUpdatedCommand => _SearchOptionsUpdatedCommand ??= new DelegateCommand(UpdatedSearchOptions);
 
@@ -253,7 +253,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 	{
         public LiveSearchSource(
             LiveSearchOptionsQuery query,
-            ReservationsInDetailResponse reservation,
+            TimeshiftReservationsDetailResponse reservation,
             SearchProvider searchProvider,
             NiconicoSession niconicoSession,
             NicoLiveCacheRepository nicoLiveCacheRepository
@@ -267,7 +267,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         }
 
         private HashSet<string> SearchedVideoIdsHash = new HashSet<string>();
-        private ReservationsInDetailResponse _reservation;
+        private TimeshiftReservationsDetailResponse _reservation;
 
         public LiveSearchOptionsQuery Query { get; }
         private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
@@ -303,7 +303,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                         var liveInfoVM = new LiveInfoListItemViewModel(item.LiveId);
                         liveInfoVM.Setup(item);
 
-                        var reserve = _reservation?.ReservedProgram.FirstOrDefault(reservation => item.LiveId == reservation.Id);
+                        var reserve = _reservation?.Data.Items.FirstOrDefault(reservation => item.LiveId == reservation.LiveIdWithoutPrefix);
                         if (reserve != null)
                         {
                             liveInfoVM.SetReservation(reserve);
