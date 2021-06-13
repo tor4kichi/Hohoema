@@ -9,9 +9,11 @@ namespace NiconicoToolkit.SearchWithCeApi.Video
 {
     public enum VideoSortOrder
     {
-        [Description("d")]
-        Desc,
         [Description("a")]
         Asc,
+
+
+        [Description("d")]
+        Desc,
     }
 }

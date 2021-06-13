@@ -14,7 +14,7 @@ namespace Hohoema.Models.Helpers
 	{
 		public static string ToCulturizedText(NiconicoToolkit.SearchWithCeApi.Video.VideoSortKey sort, NiconicoToolkit.SearchWithCeApi.Video.VideoSortOrder order)
 		{
-			return ToCulturizedText((Sort)sort, (Order)order);
+			return ToCulturizedText((Sort)sort, order is NiconicoToolkit.SearchWithCeApi.Video.VideoSortOrder.Asc ? Order.Ascending : Order.Descending);
 		}
 
 		public static string ToCulturizedText(Sort sort, Order order)
