@@ -320,7 +320,7 @@ namespace NiconicoToolkit.Live.WatchPageProp
         [J("text")] public string Text { get; set; }
         [J("existsNicopediaArticle")] public bool ExistsNicopediaArticle { get; set; }
         [J("nicopediaArticlePageUrl")] public Uri NicopediaArticlePageUrl { get; set; }
-        [J("type")] public TagType Type { get; set; }
+        [J("type")] public string Type { get; set; }
         [J("isLocked")] public bool IsLocked { get; set; }
         [J("isDeletable")] public bool IsDeletable { get; set; }
     }

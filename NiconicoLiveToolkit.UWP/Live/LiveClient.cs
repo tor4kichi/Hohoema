@@ -1,4 +1,5 @@
-﻿using NiconicoToolkit.Live.Notify;
+﻿using AngleSharp.Html.Parser;
+using NiconicoToolkit.Live.Notify;
 using NiconicoToolkit.Live.WatchPageProp;
 using NiconicoToolkit.Live.WatchSession;
 using System;
@@ -11,6 +12,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace NiconicoToolkit.Live
 {
@@ -45,23 +47,18 @@ namespace NiconicoToolkit.Live
         {
             await _context.WaitPageAccessAsync();
 
-            var html = await _context.GetStringAsync(NiconicoUrls.MakeLiveWatchPageUrl(liveId));
-            var scriptIdPosition = html.IndexOf("id=\"embedded-data\"");
-            if (scriptIdPosition < 0) { throw new Exception(); }
+            HtmlParser htmlParser = new HtmlParser();
+            var res = await _context.GetAsync(NiconicoUrls.MakeLiveWatchPageUrl(liveId));
+            using (var contentStream = await res.Content.ReadAsInputStreamAsync())
+            using (var stream = contentStream.AsStreamForRead())
+            using (var document = await htmlParser.ParseDocumentAsync(stream))
+            {
+                var embeddedDataNode = document.QuerySelector("#embedded-data");
+                var dataPropText = embeddedDataNode.GetAttribute("data-props");
+                var decodedJson = WebUtility.HtmlDecode(dataPropText);
 
-            const string datapropsString = "data-props=\"";
-            var dataPropsAttrHeadPosition = html.IndexOf(datapropsString, scriptIdPosition);
-            if (dataPropsAttrHeadPosition < 0) { throw new Exception(); }
-
-            var dataPropsAttrStartPosition = dataPropsAttrHeadPosition + datapropsString.Length;
-            var dataPropsAttrEndPosition = html.IndexOf("\"></script>", dataPropsAttrStartPosition);
-            var json = html.Substring(dataPropsAttrStartPosition, dataPropsAttrEndPosition - dataPropsAttrStartPosition);
-            var decodedJson = WebUtility.HtmlDecode(json);
-            var invalidJsonTokenRemoved = decodedJson.Replace("\"type\":\"\",", "");
-
-            Debug.WriteLine(decodedJson);
-
-            return JsonDeserializeHelper.Deserialize<LiveWatchPageDataProp>(invalidJsonTokenRemoved, _watchPageJsonSerializerOptions);
+                return JsonDeserializeHelper.Deserialize<LiveWatchPageDataProp>(decodedJson, _watchPageJsonSerializerOptions);
+            }
         }        
 
 
