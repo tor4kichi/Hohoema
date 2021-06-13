@@ -58,9 +58,7 @@ namespace NiconicoToolkit.User
                 };
             }
 
-            HtmlParser parser = new HtmlParser();
-            using (var stream = await res.Content.ReadAsInputStreamAsync())
-            using (var document = await parser.ParseDocumentAsync(stream.AsStreamForRead()))
+            return await res.Content.ReadHtmlDocumentActionAsync(document =>
             {
                 var dataNode = document.QuerySelector("#js-initial-userpage-data");
                 var json = dataNode.GetAttribute("data-initial-data");
@@ -70,7 +68,7 @@ namespace NiconicoToolkit.User
                     Status = (long)res.StatusCode
                 };
                 return userDetailRes.Detail;
-            }
+            });
         }
 
 

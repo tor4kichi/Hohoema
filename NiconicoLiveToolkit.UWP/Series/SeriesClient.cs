@@ -35,10 +35,9 @@ namespace NiconicoToolkit.Series
                 throw new WebException($"not found series({seriesId}), status code : {res.StatusCode}");
             }
 
-            SeriesDetails seriesDetails = new SeriesDetails();
-            using (var stream = await res.Content.ReadAsInputStreamAsync())
-            using (var document = await parser.ParseDocumentAsync(stream.AsStreamForRead()))
+            return await res.Content.ReadHtmlDocumentActionAsync(document =>
             {
+                SeriesDetails seriesDetails = new SeriesDetails();
                 // シリーズの概要
                 {
                     var summryParentNode = document.QuerySelector("body > div.BaseLayout-main > div.Series > div.BaseLayout-block.Series-2column > div.Series-columnMain > div > div.SeriesDetailContainer-media");
@@ -157,9 +156,9 @@ namespace NiconicoToolkit.Series
                         Nickname = userInfoNode.TextContent,
                     };
                 }
-            }
 
-            return seriesDetails;
+                return seriesDetails;
+            });
         }
 
 

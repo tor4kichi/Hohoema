@@ -100,10 +100,9 @@ namespace NiconicoToolkit.Channels
             
             if (!res.IsSuccessStatusCode) { return channelVideoResponse; }
 
-            HtmlParser parser = new HtmlParser();
-            using (var stream = await res.Content.ReadAsInputStreamAsync())
-            using (var document = await parser.ParseDocumentAsync(stream.AsStreamForRead()))
+            return await res.Content.ReadHtmlDocumentActionAsync(document => 
             {
+            
                 // 件数
                 static int GetCount(IHtmlDocument document)
                 {
@@ -182,7 +181,7 @@ namespace NiconicoToolkit.Channels
                 };
 
                 return channelVideoResponse;
-            }
+            });
         }
     }
 }

@@ -232,15 +232,16 @@ namespace NiconicoToolkit.Follow
 
                 var htmlParser = new HtmlParser();
 
-                using var stream = await res.Content.ReadAsInputStreamAsync();
-                using var document = await htmlParser.ParseDocumentAsync(stream.AsStreamForRead());
-                var bookmarkAnchorNode = document.QuerySelector("#head_cp_menu > div > div > div:nth-child(1) > a");
-                return new ChannelFollowApiInfo()
+                return await res.Content.ReadHtmlDocumentActionAsync(document =>
                 {
-                    AddApi = bookmarkAnchorNode.Attributes["api_add"].Value,
-                    DeleteApi = bookmarkAnchorNode.Attributes["api_delete"].Value,
-                    Params = System.Net.WebUtility.HtmlDecode(bookmarkAnchorNode.Attributes["params"].Value)
-                };
+                    var bookmarkAnchorNode = document.QuerySelector("#head_cp_menu > div > div > div:nth-child(1) > a");
+                    return new ChannelFollowApiInfo()
+                    {
+                        AddApi = bookmarkAnchorNode.Attributes["api_add"].Value,
+                        DeleteApi = bookmarkAnchorNode.Attributes["api_delete"].Value,
+                        Params = System.Net.WebUtility.HtmlDecode(bookmarkAnchorNode.Attributes["params"].Value)
+                    };
+                });
             }
 
             public async Task<ChannelFollowResult> AddFollowChannelAsync(string channelId)
@@ -339,39 +340,37 @@ namespace NiconicoToolkit.Follow
 
             private async Task<CommunityLeaveToken> GetCommunityLeaveTokenAsync(string url, string communityId)
             {
-                CommunityLeaveToken leaveToken = new CommunityLeaveToken()
-                {
-                    CommunityId = communityId
-                };
-
                 var res = await _context.GetAsync(url);
-                var parser = new HtmlParser();
-                using var stream = await res.Content.ReadAsInputStreamAsync();
-                using var document = await parser.ParseDocumentAsync(stream.AsStreamForRead());
-
-                var hiddenInputs = document.QuerySelectorAll("body > main > div > form > input");
-
-                foreach (var hiddenInput in hiddenInputs)
+                var token = await res.Content.ReadHtmlDocumentActionAsync(document =>
                 {
-                    var nameAttr = hiddenInput.GetAttribute("name");
-                    if (nameAttr == "time")
-                    {
-                        var timeValue = hiddenInput.GetAttribute("value");
-                        leaveToken.Time = timeValue;
-                    }
-                    else if (nameAttr == "commit_key")
-                    {
-                        var commit_key = hiddenInput.GetAttribute("value");
-                        leaveToken.CommitKey = commit_key;
-                    }
-                    else if (nameAttr == "commit")
-                    {
-                        var commit = hiddenInput.GetAttribute("value");
-                        leaveToken.Commit = commit;
-                    }
-                }
+                    CommunityLeaveToken leaveToken = new CommunityLeaveToken();
+                    var hiddenInputs = document.QuerySelectorAll("body > main > div > form > input");
 
-                return leaveToken;
+                    foreach (var hiddenInput in hiddenInputs)
+                    {
+                        var nameAttr = hiddenInput.GetAttribute("name");
+                        if (nameAttr == "time")
+                        {
+                            var timeValue = hiddenInput.GetAttribute("value");
+                            leaveToken.Time = timeValue;
+                        }
+                        else if (nameAttr == "commit_key")
+                        {
+                            var commit_key = hiddenInput.GetAttribute("value");
+                            leaveToken.CommitKey = commit_key;
+                        }
+                        else if (nameAttr == "commit")
+                        {
+                            var commit = hiddenInput.GetAttribute("value");
+                            leaveToken.Commit = commit;
+                        }
+                    }
+
+                    return leaveToken;
+                });
+
+                token.CommunityId = communityId;
+                return token;
             }
 
             /// <summary>

@@ -144,14 +144,11 @@ namespace NiconicoToolkit.Live.Timeshift
             {
                 var res = await _context.GetAsync(Urls.MyTimeshiftListHtmlFragmentApiUrl);
 
-                HtmlParser htmlParser = new HtmlParser();
-                using (var contentStream = await res.Content.ReadAsInputStreamAsync())
-                using (var stream = contentStream.AsStreamForRead())
-                using (var document = await htmlParser.ParseDocumentAsync(stream))
+                return await res.Content.ReadHtmlDocumentActionAsync(document =>
                 {
                     var tokenNode = document.QuerySelector("input#confirm");
                     return new ReservationToken(tokenNode.GetAttribute("value"));
-                }
+                });
             }
             catch
             {
@@ -200,10 +197,7 @@ namespace NiconicoToolkit.Live.Timeshift
                 return ResponseWithMeta.CreateFromStatusCode<TimeshiftReservationsResponse>(res.StatusCode);
             }
 
-            HtmlParser htmlParser = new HtmlParser();           
-            using (var contentStream = await res.Content.ReadAsInputStreamAsync())
-            using (var stream = contentStream.AsStreamForRead())
-            using (var document = await htmlParser.ParseDocumentAsync(stream))
+            return await res.Content.ReadHtmlDocumentActionAsync(document =>
             {
                 var tokenNode = document.QuerySelector("input#confirm");
                 var token = new ReservationToken(tokenNode.GetAttribute("value"));
@@ -235,12 +229,12 @@ namespace NiconicoToolkit.Live.Timeshift
                 {
                     Meta = new Meta() { Status = (long)res.StatusCode },
                     Data = new TimeshiftReservationsData()
-                    { 
+                    {
                         ReservationToken = token,
                         Items = itemNodes.Select(HtmlElementToReservationItem).ToList()
                     }
                 };
-            }
+            });
         }
 
 

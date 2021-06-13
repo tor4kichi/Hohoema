@@ -59,9 +59,7 @@ namespace NiconicoToolkit.Video.Watch
                 throw new WebException("Video watch loading failed. status code : " + res.StatusCode);
             }
 
-            var parser = new HtmlParser();
-            using (var stream = await res.Content.ReadAsInputStreamAsync())
-            using (var document = await parser.ParseDocumentAsync(stream.AsStreamForRead(), ct))
+            return await res.Content.ReadHtmlDocumentActionAsync(document =>
             {
                 // ログイン済みの場合
                 var canWatchPageNode = document.QuerySelector("#js-initial-watch-data");
@@ -91,7 +89,7 @@ namespace NiconicoToolkit.Video.Watch
                         JsonSerializer.Deserialize<DmcWatchApiEnvironment>(WebUtility.HtmlDecode(environmentString), _options)
                         ));
                 }
-            }
+            });
         }
 
 

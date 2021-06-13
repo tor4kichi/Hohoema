@@ -47,18 +47,15 @@ namespace NiconicoToolkit.Live
         {
             await _context.WaitPageAccessAsync();
 
-            HtmlParser htmlParser = new HtmlParser();
             var res = await _context.GetAsync(NiconicoUrls.MakeLiveWatchPageUrl(liveId));
-            using (var contentStream = await res.Content.ReadAsInputStreamAsync())
-            using (var stream = contentStream.AsStreamForRead())
-            using (var document = await htmlParser.ParseDocumentAsync(stream))
+            return await res.Content.ReadHtmlDocumentActionAsync(document =>
             {
                 var embeddedDataNode = document.QuerySelector("#embedded-data");
                 var dataPropText = embeddedDataNode.GetAttribute("data-props");
                 var decodedJson = WebUtility.HtmlDecode(dataPropText);
 
                 return JsonDeserializeHelper.Deserialize<LiveWatchPageDataProp>(decodedJson, _watchPageJsonSerializerOptions);
-            }
+            });
         }        
 
 

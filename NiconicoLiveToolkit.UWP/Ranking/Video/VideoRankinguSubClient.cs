@@ -40,19 +40,16 @@ namespace NiconicoToolkit.Ranking.Video
         {
             await _context.WaitPageAccessAsync();
 
-            IHtmlDocument doc;
-            var parser = new HtmlParser();
             var res = await _context.GetAsync(url, ct: ct);
-            using (var contentStream = await res.Content.ReadAsInputStreamAsync())
-            using (doc = await parser.ParseDocumentAsync(contentStream.AsStreamForRead()))
+            return await res.Content.ReadHtmlDocumentActionAsync(document =>
             {
                 // ページ上の .RankingFilterTag となる要素を列挙する
-                var tagAnchorElements = isHotTopic 
-                    ? doc.QuerySelectorAll(@"section.HotTopicsContainer > ul > li > a") 
-                    : doc.QuerySelectorAll(@"section.RepresentedTagsContainer > ul > li > a") 
+                var tagAnchorElements = isHotTopic
+                    ? document.QuerySelectorAll(@"section.HotTopicsContainer > ul > li > a")
+                    : document.QuerySelectorAll(@"section.RepresentedTagsContainer > ul > li > a")
                     ;
 
-                List<RankingGenrePickedTag> items = new ();
+                List<RankingGenrePickedTag> items = new();
                 foreach (var element in tagAnchorElements)
                 {
                     var tag = new RankingGenrePickedTag();
@@ -66,7 +63,7 @@ namespace NiconicoToolkit.Ranking.Video
                 }
 
                 return items;
-            }
+            });
         }
 
         /// <summary>
