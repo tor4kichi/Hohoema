@@ -174,7 +174,20 @@
       "author": [ "Armin Reiter" ],
       "lisence_type": "MIT",
       "lisence_page_url": "https://github.com/codehollow/FeedReader/blob/master/LICENSE"
+    },
+    {
+      "name": "U8XmlParser",
+      "site": "https://github.com/ikorin24/U8XmlParser",
+      "author": [ "ikorin24", "and all contributors" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/ikorin24/U8XmlParser/blob/master/LICENSE"
+    },
+    {
+      "name": "IDisposableAnalyzers",
+      "site": "https://github.com/DotNetAnalyzers/IDisposableAnalyzers",
+      "author": [ ".NET Analyzers" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/DotNetAnalyzers/IDisposableAnalyzers/blob/master/LICENSE"
     }
   ]
-
 }
