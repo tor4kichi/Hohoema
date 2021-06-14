@@ -134,7 +134,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             set => SetProperty(ref _RankingGenre, value);
         }
 
-        public ReactiveProperty<RankingGenreTag> SelectedRankingTag { get; private set; }
+        public ReactivePropertySlim<RankingGenreTag> SelectedRankingTag { get; private set; }
         public ReactiveProperty<RankingTerm?> SelectedRankingTerm { get; private set; }
 
         public IReadOnlyReactiveProperty<RankingTerm[]> CurrentSelectableRankingTerms { get; }
@@ -142,8 +142,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         public ObservableCollection<RankingGenreTag> PickedTags { get; } = new ObservableCollection<RankingGenreTag>();
 
 
-        public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
-        public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
+        public ReactivePropertySlim<bool> IsFailedRefreshRanking { get; private set; }
+        public ReactivePropertySlim<bool> CanChangeRankingParameter { get; private set; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
@@ -181,12 +181,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             RankingSettings = rankingSettings;
             _notificationService = notificationService;
             SelectionModeToggleCommand = selectionModeToggleCommand;
-            IsFailedRefreshRanking = new ReactiveProperty<bool>(false)
+            IsFailedRefreshRanking = new ReactivePropertySlim<bool>(false)
                 .AddTo(_CompositeDisposable);
-            CanChangeRankingParameter = new ReactiveProperty<bool>(false)
+            CanChangeRankingParameter = new ReactivePropertySlim<bool>(false)
                 .AddTo(_CompositeDisposable);
 
-            SelectedRankingTag = new ReactiveProperty<RankingGenreTag>()
+            SelectedRankingTag = new ReactivePropertySlim<RankingGenreTag>()
                 .AddTo(_CompositeDisposable);
             SelectedRankingTerm = new ReactiveProperty<RankingTerm?>(RankingTerm.Hour)
                 .AddTo(_CompositeDisposable);

@@ -10,7 +10,7 @@
   xmlns:controls="using:Hohoema.Presentation.Views.Controls"
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
@@ -54,14 +54,32 @@
         </Grid>
       </videolistPage:VideoItemsListView.Header>
       <videolistPage:VideoItemsListView.ItemTemplate>
-        <DataTemplate>
+        <DataTemplate x:DataType="vm:HistoryVideoListItemControlViewModel"
+                      xmlns:vm="using:Hohoema.Presentation.ViewModels.Pages.Niconico.Activity"
+                      >
           <Grid>
-            <videolistPage:VideoListItemControl />
-            
-            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#77777777">
-              <Run Text="{Binding LastWatchedAt, Converter={StaticResource DateTimeToString}}" /></TextBlock>
-            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="24" Foreground="#77777777">
-              <Run Text="{Binding UserViewCount}" /></TextBlock>
+            <videolistPage:VideoListItemControl 
+                Title="{x:Bind Label}"                 
+                ThumbnailUrl="{x:Bind ThumbnailUrl}"
+                Length="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"  
+                IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
+                IsWatched="{x:Bind IsWatched, Mode=OneWay}"
+                IsDeleted="{x:Bind IsDeleted}"
+                IsHidden="{x:Bind VideoHiddenInfo, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}"
+                CacheStatus="{x:Bind CacheStatus, Mode=OneWay}"
+                PostedAt="{x:Bind PostedAt, Converter={StaticResource DateTimeToString}}"
+                PrivateReason="{x:Bind PrivateReason, Converter={StaticResource LocalizeConverter}}"
+                ViewCount="{x:Bind ViewCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                CommentCount="{x:Bind CommentCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                MylistCount="{x:Bind MylistCount, Converter={StaticResource ToUserFriendlyNumber}}"
+              />
+
+            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#77777777"
+                       Text="{x:Bind LastWatchedAt, Converter={StaticResource DateTimeToString}}"
+                       />
+            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="24" Foreground="#77777777"
+                       Text="{x:Bind UserViewCount}" 
+                       />
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>

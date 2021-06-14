@@ -9,7 +9,7 @@
   xmlns:controls="using:Hohoema.Presentation.Views.Controls"
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"   
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   NavigationCacheMode="Enabled"
   mc:Ignorable="d"
   >
@@ -76,9 +76,11 @@
       </videolistPage:VideoItemsListView.Header>
 
       <videolistPage:VideoItemsListView.ItemTemplate>
-        <DataTemplate>
+        <DataTemplate x:DataType="rankingPageVM:RankedVideoListItemControlViewModel"
+                      xmlns:rankingPageVM="using:Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking"
+                      >
           <Grid>
-            <TextBlock Text="{Binding Rank}"
+            <TextBlock Text="{x:Bind Rank}"
                        Style="{StaticResource HeaderTextBlockStyle}"
                        Opacity="0.25"
                        VerticalAlignment="Bottom"
@@ -87,7 +89,21 @@
                        Width="70"
                        FontWeight="Bold" />
 
-            <videolistPage:VideoListItemControl />
+            <videolistPage:VideoListItemControl 
+                Title="{x:Bind Label}"                 
+                ThumbnailUrl="{x:Bind ThumbnailUrl}"
+                Length="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"  
+                IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
+                IsWatched="{x:Bind IsWatched, Mode=OneWay}"
+                IsDeleted="{x:Bind IsDeleted}"
+                IsHidden="{x:Bind VideoHiddenInfo, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}"
+                CacheStatus="{x:Bind CacheStatus, Mode=OneWay}"
+                PostedAt="{x:Bind PostedAt, Converter={StaticResource DateTimeToString}}"
+                PrivateReason="{x:Bind PrivateReason, Converter={StaticResource LocalizeConverter}}"
+                ViewCount="{x:Bind ViewCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                CommentCount="{x:Bind CommentCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                MylistCount="{x:Bind MylistCount, Converter={StaticResource ToUserFriendlyNumber}}"
+              />
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>

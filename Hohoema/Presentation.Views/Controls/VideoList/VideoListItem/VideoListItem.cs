@@ -24,6 +24,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList.VideoListItem
             this.DefaultStyleKey = typeof(VideoListItem);
         }
 
+        private Image _templateChildImage;
 
         protected override void OnApplyTemplate()
         {
@@ -135,40 +136,5 @@ namespace Hohoema.Presentation.Views.Controls.VideoList.VideoListItem
         }
 
 
-
-
-
-#region Queue Action 
-
-
-
-
-        public ICommand MiddleClickOrSwipeRightCommand
-        {
-            get { return (ICommand)GetValue(MiddleClickOrSwipeRightCommandProperty); }
-            set { SetValue(MiddleClickOrSwipeRightCommandProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for MiddleClickOrSwipeRightCommand.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MiddleClickOrSwipeRightCommandProperty =
-            DependencyProperty.Register("MiddleClickOrSwipeRightCommand", typeof(ICommand), typeof(VideoListItem), new PropertyMetadata(null));
-        private Image _templateChildImage;
-
-        protected override void OnPointerPressed(PointerRoutedEventArgs e)
-        {
-            base.OnPointerPressed(e);
-
-            if (e.Handled == true) { return; }
-
-            var point = e.GetCurrentPoint(this);
-            if (point.Properties.IsMiddleButtonPressed)
-            {
-                MiddleClickOrSwipeRightCommand?.Execute(DataContext);
-
-                e.Handled = true;
-            }
-        }
-
-#endregion
     }
 }

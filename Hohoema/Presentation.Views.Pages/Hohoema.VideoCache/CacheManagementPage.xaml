@@ -132,8 +132,7 @@
               ImageSubText="{Binding Length, Converter={StaticResource TimeToMovieLengthConverter}}"
               IsQueueItem="{Binding IsQueueItem}"
               CacheStatus="{Binding CacheStatus}"
-              MiddleClickOrSwipeRightCommand="{Binding ToggleWatchAfterCommand}">
-
+              >
               <Grid>
                 <StackPanel VerticalAlignment="Center" Spacing="4">
                   <TextBlock Text="{Binding Label}" FontSize="16"

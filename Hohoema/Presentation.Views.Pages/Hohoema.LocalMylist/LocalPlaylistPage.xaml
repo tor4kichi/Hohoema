@@ -14,7 +14,7 @@
   xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
   xmlns:controls="using:Hohoema.Presentation.Views.Controls"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   NavigationCacheMode="Enabled"
@@ -24,6 +24,7 @@
 
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
                                       ItemCommand="{Binding PlayWithCurrentPlaylistCommand}"
+                                      ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
                                       PlaylistPassToFlyout="{Binding Playlist}"
                                       x:Name="VideoItemsListView"
@@ -83,15 +84,6 @@
           </StackPanel>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
-
-      <videolistPage:VideoItemsListView.ItemTemplate>
-        <DataTemplate>
-          <Grid>
-            <videolistPage:VideoListItemControl />
-          </Grid>
-        </DataTemplate>
-      </videolistPage:VideoItemsListView.ItemTemplate>
-
     </videolistPage:VideoItemsListView>
 
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">

@@ -337,6 +337,9 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             CommentCount = videoItem.Count.Comment;
             MylistCount = videoItem.Count.Mylist;
 
+            IsDeleted = videoItem.IsDeleted;
+
+
             if (videoItem.Owner is not null)
             {
                 _ProviderId = videoItem.Owner.Id;
@@ -360,7 +363,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             MylistCount = video.MylistCount;
             CommentCount =thread.NumRes;
             _IsDeleted = video.Deleted != 0;
-            if (Enum.IsDefined(typeof(PrivateReasonType), video.Deleted))
+            if (_IsDeleted && Enum.IsDefined(typeof(PrivateReasonType), video.Deleted))
             {
                 _PrivateReason = (PrivateReasonType)video.Deleted;
             }
@@ -519,8 +522,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        private PrivateReasonType _PrivateReason;
-        public PrivateReasonType PrivateReason
+        private PrivateReasonType? _PrivateReason;
+        public PrivateReasonType? PrivateReason
         {
             get { return _PrivateReason; }
             set { SetProperty(ref _PrivateReason, value); }

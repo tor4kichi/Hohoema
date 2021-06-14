@@ -20,9 +20,7 @@
     d:DesignWidth="400">
 
   <UserControl.Resources>
-    <DataTemplate x:Key="VideoLiteItemControl">
-      <videoListPage:VideoListItemControl IsThumbnailUseCache="False" />
-    </DataTemplate>
+    
     <DataTemplate x:Key="MiniListItemTemplate">
       <toolkit:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
@@ -158,12 +156,9 @@
             <Button Content="{Binding NextVideo}"
                     Command="{Binding PlayCommand}"
                     CommandParameter="{Binding NextVideo}"
+                    ContentTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                     Background="Transparent">
-              <Button.ContentTemplate>
-                <DataTemplate>
-                  <videoListPage:VideoListItemControl />
-                </DataTemplate>
-              </Button.ContentTemplate>
+              
             </Button>
 
           </StackPanel>
@@ -215,7 +210,7 @@
                       IsItemClickEnabled="True"
                       x:Name="PlaylistItemsListView"
                       Background="{StaticResource HohoemaPlayerBackgroundBrush}"
-                      ItemTemplate="{StaticResource VideoLiteItemControl}"
+                      ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                       IsTabStop="False">
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemClick">

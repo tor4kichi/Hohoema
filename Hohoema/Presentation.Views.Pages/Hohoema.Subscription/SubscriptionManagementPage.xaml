@@ -6,7 +6,6 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-  xmlns:viewModels="using:Hohoema.Presentation.ViewModels.Pages.AppFeaturePages"
   xmlns:mycontrols="using:Hohoema.Presentation.Views.Controls"
   xmlns:myTemplateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
   xmlns:material="using:MahApps.Metro.IconPacks"

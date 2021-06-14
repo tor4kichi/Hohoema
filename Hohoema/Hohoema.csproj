@@ -645,9 +645,6 @@
     <Compile Include="Presentation.Views\Controls\VideoList\VideoItemsListView.xaml.cs">
       <DependentUpon>VideoItemsListView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views\Controls\VideoList\VideoListItemControl.xaml.cs">
-      <DependentUpon>VideoListItemControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryListPage.xaml.cs">
       <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
     </Compile>
@@ -671,6 +668,7 @@
     <Compile Include="Presentation.Views\Controls\LiteInAppNotification\LiteInAppNotification.cs" />
     <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.cs" />
     <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
+    <Compile Include="Presentation.Views\Controls\VideoList\VideoListItemControl\VideoListItemControl.cs" />
     <Compile Include="Presentation.Views\Controls\VideoList\VideoListItem\VideoListItem.cs" />
     <Compile Include="Presentation.Views\Converters\CacheStateToColorBrushConverter.cs" />
     <Compile Include="Presentation.Views\Converters\DateTimetoStringConverter.cs" />
@@ -866,6 +864,9 @@
     <Compile Include="Presentation.Views\TemplateSelector\TypeBasedTemplateSelector.cs" />
     <Compile Include="Presentation.Views\TemplateSelector\ValueDataTemplateSelector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Styles\VideoListItemControlDefaultTemplate.xaml.cs">
+      <DependentUpon>VideoListItemControlDefaultTemplate.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -1216,10 +1217,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views\Controls\VideoList\VideoListItemControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryListPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1251,6 +1248,10 @@
     <Page Include="Presentation.Views\Controls\TransientContainer\TransientContainer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Presentation.Views\Controls\VideoList\VideoListItemControl\VideoListItemControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Presentation.Views\Controls\VideoList\VideoListItem\VideoListItem.xaml">
       <SubType>Designer</SubType>
@@ -1427,6 +1428,10 @@
     <Page Include="Styles\UWPUIControlsDefaultStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\VideoListItemControlDefaultTemplate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Styles\VideoProgressBarStyle.xaml">
       <Generator>MSBuild:Compile</Generator>

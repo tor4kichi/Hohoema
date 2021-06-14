@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -45,6 +46,28 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.NicoRepo
         public NicoRepoPage()
         {
             this.InitializeComponent();
+        }
+    }
+
+
+    public sealed class NicoRepoTimelineItemTemplateSelector : DataTemplateSelector
+    {
+        public DataTemplate VideoItem { get; set; }
+        public DataTemplate LiveItem { get; set; }
+
+        protected override DataTemplate SelectTemplateCore(object item)
+        {
+            return SelectTemplateCore(item, null);
+        }
+
+        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        {
+            return item switch
+            {
+                NicoRepoVideoTimeline => VideoItem,
+                NicoRepoLiveTimeline => LiveItem,
+                _ => throw new NotSupportedException(),
+            };
         }
     }
 }

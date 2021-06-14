@@ -4,6 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:local="using:Hohoema.Presentation.Views.Pages.Niconico.NicoRepo"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
@@ -17,65 +18,72 @@
   xmlns:videoListPage="using:Hohoema.Presentation.Views.Controls.VideoList"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
-  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
+  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors" 
+  xmlns:vm="using:Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo" 
   DataContext="{x:Null}"
   NavigationCacheMode="Enabled"
   mc:Ignorable="d"
   >
   <Page.Resources>
-    <templateSelector:TypeBasedTemplateSelector x:Key="NicoRepoItemTemplateSelector">
-      <templateSelector:TypeBasedTemplateSelector.DefaultTemplate>
-        <DataTemplate x:DataType="viewModels:HohoemaListingPageItemBase">
-          <Grid>
-            <TextBlock Text="{Binding ItemTopic}"
-                       Opacity="0.7"
-                       FontSize="12"
-                       HorizontalAlignment="Right"
-                       VerticalAlignment="Bottom" />
-          </Grid>
-        </DataTemplate>
-      </templateSelector:TypeBasedTemplateSelector.DefaultTemplate>
+    <local:NicoRepoTimelineItemTemplateSelector x:Key="NicoRepoItemTemplateSelector">
       <!-- Video Item -->
-      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo.NicoRepoVideoTimeline, Converter={StaticResource StringToType}}"
-                    >
-        <Grid>
-          <TextBlock Text="{Binding ItempTopicDescription}"
+      <local:NicoRepoTimelineItemTemplateSelector.VideoItem>
+        <DataTemplate x:DataType="vm:NicoRepoVideoTimeline">
+          <Grid>
+            <TextBlock Text="{x:Bind ItempTopicDescription}"
                      Opacity="0.7"
                      FontSize="12"
                      HorizontalAlignment="Right"
                      VerticalAlignment="Bottom" />
-          <videoListPage:VideoListItemControl />
-        </Grid>
-      </DataTemplate>
+
+            <videoListPage:VideoListItemControl 
+                Title="{x:Bind Label}"                 
+                ThumbnailUrl="{x:Bind ThumbnailUrl}"
+                Length="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"  
+                IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
+                IsWatched="{x:Bind IsWatched, Mode=OneWay}"
+                IsDeleted="{x:Bind IsDeleted}"
+                IsHidden="{x:Bind VideoHiddenInfo, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}"
+                CacheStatus="{x:Bind CacheStatus, Mode=OneWay}"
+                PostedAt="{x:Bind PostedAt, Converter={StaticResource DateTimeToString}}"
+                PrivateReason="{x:Bind PrivateReason, Converter={StaticResource LocalizeConverter}}"
+                ViewCount="{x:Bind ViewCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                CommentCount="{x:Bind CommentCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                MylistCount="{x:Bind MylistCount, Converter={StaticResource ToUserFriendlyNumber}}"
+              />
+          </Grid>
+        </DataTemplate>
+      </local:NicoRepoTimelineItemTemplateSelector.VideoItem>
       <!-- Live Item -->
-      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo.NicoRepoLiveTimeline, Converter={StaticResource StringToType}}"
-                    >
-        <Grid Margin="8 0 8 0">
-          <StackPanel>
-            <uwpcontrols:DockPanel Margin="0 0 0 0">
-              <uwpcontrols:ImageEx Source="{Binding ThumbnailUrl}" Width="36" Height="36" CornerRadius="24" uwpcontrols:DockPanel.Dock="Left" />
-              <TextBlock Text="{Binding StartTime, Converter={StaticResource ToRelationalTime}}" uwpcontrols:DockPanel.Dock="Right" 
+      <local:NicoRepoTimelineItemTemplateSelector.LiveItem>
+        <DataTemplate >
+          <Grid Margin="8 0 8 0">
+            <StackPanel>
+              <uwpcontrols:DockPanel Margin="0 0 0 0">
+                <uwpcontrols:ImageEx Source="{Binding ThumbnailUrl}" Width="36" Height="36" CornerRadius="24" uwpcontrols:DockPanel.Dock="Left" />
+                <TextBlock Text="{Binding StartTime, Converter={StaticResource ToRelationalTime}}" uwpcontrols:DockPanel.Dock="Right" 
                            VerticalAlignment="Center"                         
                            />
 
-              <TextBlock Text="{Binding ItempTopicDescription}"
+                <TextBlock Text="{Binding ItempTopicDescription}"
                            Margin="8 0 0 0"
                            VerticalAlignment="Center"
                      />
-            </uwpcontrols:DockPanel>
-
-            <StackPanel Margin="42 0 0 0" Spacing="8">
-              <uwpcontrols:DockPanel>
-                <uwpcontrols:ImageEx Source="{Binding CommunityThumbnail}" CornerRadius="4" Height="64" Stretch="Uniform" />
-                <TextBlock Text="{Binding LiveTitle}" VerticalAlignment="Center" Margin="8 0" TextTrimming="CharacterEllipsis" MaxLines="2" TextWrapping="Wrap" />
               </uwpcontrols:DockPanel>
 
+              <StackPanel Margin="42 0 0 0" Spacing="8">
+                <uwpcontrols:DockPanel>
+                  <uwpcontrols:ImageEx Source="{Binding CommunityThumbnail}" CornerRadius="4" Height="64" Stretch="Uniform" />
+                  <TextBlock Text="{Binding LiveTitle}" VerticalAlignment="Center" Margin="8 0" TextTrimming="CharacterEllipsis" MaxLines="2" TextWrapping="Wrap" />
+                </uwpcontrols:DockPanel>
+
+              </StackPanel>
             </StackPanel>
-          </StackPanel>
-          
-        </Grid>
-      </DataTemplate>
-    </templateSelector:TypeBasedTemplateSelector>
+
+          </Grid>
+        </DataTemplate>
+      </local:NicoRepoTimelineItemTemplateSelector.LiveItem>
+    </local:NicoRepoTimelineItemTemplateSelector>
   </Page.Resources>
   <Grid>
 

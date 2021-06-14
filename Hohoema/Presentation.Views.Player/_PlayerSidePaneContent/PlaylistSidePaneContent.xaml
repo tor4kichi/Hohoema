@@ -61,6 +61,7 @@
 
       <ListView x:Name="ItemsListView"
                 ItemsSource="{Binding CollectionViewSource.View}" 
+                ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                 SelectionMode="None" 
                 SingleSelectionFollowsFocus="False"
                 IsItemClickEnabled="True"
@@ -87,11 +88,6 @@
             <Setter Property="Padding" Value="0 8" />
           </Style>
         </ListView.ItemContainerStyle>
-        <ListView.ItemTemplate>
-          <DataTemplate>
-            <videoList:VideoListItemControl IsThumbnailUseCache="False" />
-          </DataTemplate>
-        </ListView.ItemTemplate>
       </ListView>
 
     </toolkit:DockPanel>

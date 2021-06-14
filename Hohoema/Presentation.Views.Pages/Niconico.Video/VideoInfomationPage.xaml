@@ -262,12 +262,8 @@
 
               <local1:VideoItemsListView ItemsSource="{Binding PrevSeriesVideo}"
                                          ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                         ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                                          >
-                <local1:VideoItemsListView.ItemTemplate>
-                  <DataTemplate>
-                    <local1:VideoListItemControl />
-                  </DataTemplate>
-                </local1:VideoItemsListView.ItemTemplate>
               </local1:VideoItemsListView>
             </uwpControls:DockPanel>
 
@@ -284,12 +280,8 @@
 
               <local1:VideoItemsListView ItemsSource="{Binding NextSeriesVideo}"
                                          ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                         ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                                          >
-                <local1:VideoItemsListView.ItemTemplate>
-                  <DataTemplate>
-                    <local1:VideoListItemControl />
-                  </DataTemplate>
-                </local1:VideoItemsListView.ItemTemplate>
               </local1:VideoItemsListView>
             </uwpControls:DockPanel>
 
@@ -388,10 +380,12 @@
         <!-- 関連動画 -->
         <Grid>
           <ListView ItemsSource="{Binding RelatedVideos, Mode=OneWay}"
-                          IsItemClickEnabled="True"
-                          SelectionMode="None"
-                          SingleSelectionFollowsFocus="False"
-                          ItemContainerStyle="{StaticResource VideoListViewItemStyle}">
+                    ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
+                    IsItemClickEnabled="True"
+                    SelectionMode="None"
+                    SingleSelectionFollowsFocus="False"
+                    ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+                    >
             <ListView.Header>
               <StackPanel Spacing="8">
                 <TextBlock Text="{i18nExt:Localize Key=RelatedVideos}"  Style="{StaticResource SubtitleTextBlockStyle}"  />
@@ -404,11 +398,6 @@
                                                 InputConverter="{StaticResource ItemClickEventArgsConverter}" />
               </core:EventTriggerBehavior>
             </i:Interaction.Behaviors>
-            <ListView.ItemTemplate>
-              <DataTemplate>
-                <local1:VideoListItemControl />
-              </DataTemplate>
-            </ListView.ItemTemplate>
           </ListView>
         </Grid>
       </StackPanel>
