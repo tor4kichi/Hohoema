@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Dialogs
 {
-	public class TextInputDialogContext
+	public sealed class TextInputDialogContext : IDisposable
 	{
         private SynchronizationContextScheduler _CurrentWindowContextScheduler;
         public SynchronizationContextScheduler CurrentWindowContextScheduler
@@ -42,6 +42,10 @@ namespace Hohoema.Dialogs
 			return Text.Value;
 		}
 
-
-	}
+        public void Dispose()
+        {
+			Text.Dispose();
+			IsValid.Dispose();
+		}
+    }
 }

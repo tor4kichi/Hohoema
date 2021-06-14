@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {
-    public sealed class RelatedVideosSidePaneContentViewModel : SidePaneContentViewModelBase
+    public sealed class RelatedVideosSidePaneContentViewModel : SidePaneContentViewModelBase, IDisposable
     {
         public RelatedVideosSidePaneContentViewModel(
             NiconicoSession niconicoSession,
@@ -58,6 +58,13 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
         public bool NowLoading { get; private set; }
 
+        public override void Dispose()
+        {
+            CurrentVideo?.Dispose();
+            NextVideo?.Dispose();
+            base.Dispose();
+        }
+
         public void Clear()
         {
             CurrentVideo?.Dispose();
@@ -95,6 +102,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
                     var result = await _relatedVideoContentsAggregator.GetRelatedContentsAsync(currentVideo);
 
+                    CurrentVideo?.Dispose();
                     CurrentVideo = new VideoListItemControlViewModel(currentVideo);
                     RaisePropertyChanged(nameof(CurrentVideo));
 
@@ -103,6 +111,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
                     if (currentVideo.Series?.Video.Next is not null and NvapiVideoItem nextSeriesVideo)
                     {
+                        NextVideo?.Dispose();
                         NextVideo = new VideoListItemControlViewModel(nextSeriesVideo);
                         RaisePropertyChanged(nameof(NextVideo));
                     }

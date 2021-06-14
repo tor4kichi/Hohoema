@@ -29,7 +29,7 @@ namespace NiconicoToolkit.Series
         {
             HtmlParser parser = new HtmlParser();
 
-            var res = await _context.GetAsync($"{NiconicoUrls.NicoHomePageUrl}series/{seriesId}");
+            using var res = await _context.GetAsync($"{NiconicoUrls.NicoHomePageUrl}series/{seriesId}");
             if (!res.IsSuccessStatusCode)
             {
                 throw new WebException($"not found series({seriesId}), status code : {res.StatusCode}");

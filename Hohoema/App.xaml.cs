@@ -215,12 +215,15 @@ namespace Hohoema
                 }
             };
 
+#pragma warning disable IDISP001 // Dispose created.
+            var unityContainer = Container.GetContainer();
+#pragma warning restore IDISP001 // Dispose created.
             var primaryWindowContentNavigationService = _primaryWindowCoreLayout.CreateNavigationService();
-            Container.GetContainer().RegisterInstance(primaryWindowContentNavigationService);
+            unityContainer.RegisterInstance(primaryWindowContentNavigationService);
 
             var primaryViewPlayerNavigationService = _primaryWindowCoreLayout.CreatePlayerNavigationService();
             var name = "PrimaryPlayerNavigationService";
-            Container.GetContainer().RegisterInstance(name, primaryViewPlayerNavigationService);
+            unityContainer.RegisterInstance(name, primaryViewPlayerNavigationService);
 
 
 
@@ -272,6 +275,7 @@ namespace Hohoema
             unityContainer.RegisterSingleton<NicoRepoSettings>();
             unityContainer.RegisterSingleton<CommentFliteringRepository>();
 
+            unityContainer.RegisterSingleton<NicoVideoProvider>();
 
 
             unityContainer.RegisterSingleton<NiconicoSession>();

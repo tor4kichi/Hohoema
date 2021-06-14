@@ -320,7 +320,7 @@ namespace Hohoema.Models.Domain.VideoCache
                 .ToList();
         }
 
-
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("IDisposableAnalyzers.Correctness", "IDISP001:Dispose created.", Justification = "<保留中>")]
         public async Task<MediaSource> GetCacheVideoMediaSource(VideoCacheItem item)
         {
             // require online
@@ -373,7 +373,8 @@ namespace Hohoema.Models.Domain.VideoCache
                 throw new VideoCacheException("VideoCacheItem is can not play, require same size");
             }
 
-            var ms = MediaSource.CreateFromStream(stream.AsRandomAccessStream(), "movie/mp4");
+            var rss = stream.AsRandomAccessStream();
+            var ms = MediaSource.CreateFromStream(rss, "movie/mp4");
             await ms.OpenAsync();
             if (ms.Duration?.TotalSeconds - watchData.DmcWatchResponse.Video.Duration >= 2.0)
             {

@@ -43,7 +43,7 @@ namespace Hohoema.Presentation.Views.StateTrigger
             }
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             if (Target is not null and var target)
             {

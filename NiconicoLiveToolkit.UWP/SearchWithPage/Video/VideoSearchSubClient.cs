@@ -153,12 +153,13 @@ namespace NiconicoToolkit.SearchWithPage.Video
 		{
 			await _context.WaitPageAccessAsync();
 
-			var res = await _context.GetAsync(urlWithQuery);
+			using var res = await _context.GetAsync(urlWithQuery);
 			if (!res.IsSuccessStatusCode) { return new SearchResponse() { StatusCode = (uint)res.StatusCode }; }
 
 			using (var stream = await res.Content.ReadAsInputStreamAsync())
 			using (var context = AngleSharp.BrowsingContext.New())
-			using (var document = await context.GetService<IHtmlParser>().ParseDocumentAsync(stream.AsStreamForRead(), ct))
+			using (var contentStream = stream.AsStreamForRead())
+			using (var document = await context.GetService<IHtmlParser>().ParseDocumentAsync(contentStream, ct))
 			{
 				return new SearchResponse(document, isTagSearch) { StatusCode = (uint)res.StatusCode };
 			}

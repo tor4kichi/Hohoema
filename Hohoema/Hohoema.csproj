@@ -131,6 +131,7 @@
     </Compile>
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
     <Compile Include="FixPrism\BindableBaseWithFix.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="Locales\LocaleToDisplayNameConverter.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
@@ -959,6 +960,11 @@
     </PackageReference>
     <PackageReference Include="I18NPortable">
       <Version>1.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="IDisposableAnalyzers">
+      <Version>3.4.13</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="LiteDB">
       <Version>4.1.4</Version>

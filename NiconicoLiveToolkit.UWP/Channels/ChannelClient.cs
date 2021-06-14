@@ -91,7 +91,7 @@ namespace NiconicoToolkit.Channels
 
             await _context.WaitPageAccessAsync();
 
-            var res = await _context.GetAsync(url);
+            using var res = await _context.GetAsync(url);
 
             ChannelVideoResponse channelVideoResponse = new()
             {

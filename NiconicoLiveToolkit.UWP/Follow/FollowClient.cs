@@ -228,9 +228,7 @@ namespace NiconicoToolkit.Follow
 
             private async Task<ChannelFollowApiInfo> GetFollowChannelApiInfo(string channelId)
             {
-                var res = await _context.GetAsync(NiconicoUrls.MakeChannelPageUrl(channelId));
-
-                var htmlParser = new HtmlParser();
+                using var res = await _context.GetAsync(NiconicoUrls.MakeChannelPageUrl(channelId));
 
                 return await res.Content.ReadHtmlDocumentActionAsync(document =>
                 {
@@ -297,7 +295,7 @@ namespace NiconicoToolkit.Follow
                 var uri = $"{NiconicoUrls.CommunityV1ApiUrl}communities/{nonPrefixCommunityId}/follows.json";
                 //            await PrepareCorsAsscessAsync(HttpMethod.Post, uri);
 
-                var res = await _context.SendAsync(HttpMethod.Post, uri, content: null, headers =>
+                using var res = await _context.SendAsync(HttpMethod.Post, uri, content: null, headers =>
                 {
 #if WINDOWS_UWP
                     headers.Referer = communityJoinPageUrl;
@@ -340,7 +338,7 @@ namespace NiconicoToolkit.Follow
 
             private async Task<CommunityLeaveToken> GetCommunityLeaveTokenAsync(string url, string communityId)
             {
-                var res = await _context.GetAsync(url);
+                using var res = await _context.GetAsync(url);
                 var token = await res.Content.ReadHtmlDocumentActionAsync(document =>
                 {
                     CommunityLeaveToken leaveToken = new CommunityLeaveToken();
@@ -389,12 +387,12 @@ namespace NiconicoToolkit.Follow
                 dict.Add("commit", token.Commit);
 
 #if WINDOWS_UWP
-                var content = new HttpFormUrlEncodedContent(dict);
+                using var content = new HttpFormUrlEncodedContent(dict);
 #else
             var content = new FormUrlEncodedContent(dict);
 #endif
 
-                var postResult = await _context.SendAsync(HttpMethod.Post, url, content: content, headers =>
+                using var postResult = await _context.SendAsync(HttpMethod.Post, url, content: content, headers =>
                 {
                     headers.Add("Upgrade-Insecure-Requests", "1");
                     headers.Add("Referer", url);
@@ -419,7 +417,7 @@ namespace NiconicoToolkit.Follow
 
         private async Task<bool> GetFollowedInternalAsync(string uri)
         {
-            var res= await _context.SendAsync(HttpMethod.Get, uri, content: null, headers =>
+            using var res = await _context.SendAsync(HttpMethod.Get, uri, content: null, headers =>
             {
                 headers.Add("X-Request-With", "https://www.nicovideo.jp/my/follow");
             });
@@ -431,7 +429,7 @@ namespace NiconicoToolkit.Follow
         private async Task<ContentManageResult> AddFollowInternalAsync(string uri)
         {
             await _context.PrepareCorsAsscessAsync(HttpMethod.Post, uri);
-            var res = await _context.SendAsync(HttpMethod.Post, uri, content: null, headers =>
+            using var res = await _context.SendAsync(HttpMethod.Post, uri, content: null, headers =>
             {
                 headers.Add("X-Request-With", "https://www.nicovideo.jp");
             }
@@ -442,8 +440,8 @@ namespace NiconicoToolkit.Follow
 
         private async Task<ContentManageResult> RemoveFollowInternalAsync(string uri)
         {
-//            await _context.PrepareCorsAsscessAsync(HttpMethod.Delete, uri);
-            var res = await _context.SendAsync(HttpMethod.Delete, uri, content: null, headers =>
+            //            await _context.PrepareCorsAsscessAsync(HttpMethod.Delete, uri);
+            using var res = await _context.SendAsync(HttpMethod.Delete, uri, content: null, headers =>
             {
                 headers.Add("X-Request-With", "https://www.nicovideo.jp");
             }

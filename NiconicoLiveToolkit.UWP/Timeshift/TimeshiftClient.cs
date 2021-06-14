@@ -53,7 +53,7 @@ namespace NiconicoToolkit.Live.Timeshift
 
         public async Task<TimeshiftReservationsDetailResponse> GetTimeshiftReservationsDetailAsync()
         {
-            var res = await _context.GetAsync($"{Urls.TimeshiftWachingReservationApiUrl}?mode=detaillist");
+            using var res = await _context.GetAsync($"{Urls.TimeshiftWachingReservationApiUrl}?mode=detaillist");
 
             if (!res.IsSuccessStatusCode)
             {
@@ -142,7 +142,7 @@ namespace NiconicoToolkit.Live.Timeshift
         {
             try
             {
-                var res = await _context.GetAsync(Urls.MyTimeshiftListHtmlFragmentApiUrl);
+                using var res = await _context.GetAsync(Urls.MyTimeshiftListHtmlFragmentApiUrl);
 
                 return await res.Content.ReadHtmlDocumentActionAsync(document =>
                 {
@@ -162,7 +162,7 @@ namespace NiconicoToolkit.Live.Timeshift
             return DeleteTimeshiftReservationAsync(new string[] { liveId }, reservationDeleteToken);
         }
 
-        public Task DeleteTimeshiftReservationAsync(IEnumerable<string> liveIds, ReservationToken reservationDeleteToken)
+        public async Task DeleteTimeshiftReservationAsync(IEnumerable<string> liveIds, ReservationToken reservationDeleteToken)
         {
             if (ReservationToken.InavalidToken == reservationDeleteToken)
             {
@@ -185,13 +185,13 @@ namespace NiconicoToolkit.Live.Timeshift
                 .AppendQueryString(dict)
                 .ToString();
 
-            return _context.PostAsync(url);
+            using var _ = await _context.PostAsync(url);
         }
 
 
         public async Task<TimeshiftReservationsResponse> GetTimeshiftReservationsAsync()
         {
-            var res = await _context.GetAsync(Urls.MyTimeshiftListHtmlFragmentApiUrl);
+            using var res = await _context.GetAsync(Urls.MyTimeshiftListHtmlFragmentApiUrl);
             if (!res.IsSuccessStatusCode)
             {
                 return ResponseWithMeta.CreateFromStatusCode<TimeshiftReservationsResponse>(res.StatusCode);
@@ -251,7 +251,7 @@ namespace NiconicoToolkit.Live.Timeshift
                 { "token", token.Token},
             };
 
-            var res = await _context.PostAsync(Urls.TimeshiftWachingReservationApiUrl, dict);
+            using var res = await _context.PostAsync(Urls.TimeshiftWachingReservationApiUrl, dict);
             return ResponseWithMeta.CreateFromStatusCode<UseTimeshiftViewingAuthorityResponse>(res.StatusCode);
         }
     }

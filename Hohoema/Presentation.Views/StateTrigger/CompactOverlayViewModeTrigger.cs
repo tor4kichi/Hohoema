@@ -9,7 +9,7 @@ using Windows.UI.Xaml;
 
 namespace Hohoema.Presentation.Views.StateTrigger
 {
-    public class CompactOverlayViewModeTrigger : InvertibleStateTrigger, IDisposable
+    public sealed class CompactOverlayViewModeTrigger : InvertibleStateTrigger, IDisposable
     {
         public CompactOverlayViewModeTrigger()
         {

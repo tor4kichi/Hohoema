@@ -378,7 +378,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 // デフォルト指定した画質で再生開始
                 await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition);
             }
-            catch (Models.Domain.VideoCache.VideoCacheException cacheEx)
+            catch (Models.Domain.VideoCache.VideoCacheException)
             {
                 result = await _videoStreamingOriginOrchestrator.PreperePlayWithOnline(VideoId);
                 VideoDetails = result.VideoDetails;

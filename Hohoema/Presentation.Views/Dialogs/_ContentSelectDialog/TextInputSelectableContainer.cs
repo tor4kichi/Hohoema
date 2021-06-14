@@ -48,7 +48,8 @@ namespace Hohoema.Dialogs
 			if (IsSelectFromCandidate)
 			{
 				var dispatcher = Windows.UI.Xaml.Window.Current.Dispatcher;
-				Text
+#pragma warning disable IDISP004 // Don't ignore created IDisposable.
+                Text
 					.Throttle(TimeSpan.FromSeconds(0.5))
 					.Where(x => !string.IsNullOrWhiteSpace(x))
 					.Subscribe(async x => 
@@ -84,8 +85,10 @@ namespace Hohoema.Dialogs
 					}
 				})
 				.AddTo(_CompositeDisposable);
+#pragma warning restore IDISP004 // Don't ignore created IDisposable.
 
-				SelectedItem.Subscribe(x => 
+#pragma warning disable IDISP004 // Don't ignore created IDisposable.
+                SelectedItem.Subscribe(x => 
 				{
 					_IsValidatedSelection = x != null;
 					RaisePropertyChanged(nameof(IsValidatedSelection));
@@ -93,10 +96,12 @@ namespace Hohoema.Dialogs
 					SelectionItemChanged?.Invoke(this);
 				})
 				.AddTo(_CompositeDisposable);
-			}
+#pragma warning restore IDISP004 // Don't ignore created IDisposable.
+            }
 			else
 			{
-				Text.Subscribe(x => 
+#pragma warning disable IDISP004 // Don't ignore created IDisposable.
+                Text.Subscribe(x => 
 				{
 					_IsValidatedSelection = !string.IsNullOrEmpty(x);
 					RaisePropertyChanged(nameof(IsValidatedSelection));
@@ -104,14 +109,18 @@ namespace Hohoema.Dialogs
 					SelectionItemChanged?.Invoke(this);
 				})
 				.AddTo(_CompositeDisposable);
-			}
+#pragma warning restore IDISP004 // Don't ignore created IDisposable.
+            }
 		}
 
 
 		public override void Dispose()
 		{
 			_CompositeDisposable.Dispose();
-			base.Dispose();
+            Text?.Dispose();
+            SelectedItem?.Dispose();
+            NowUpdateCandidateList?.Dispose();
+            base.Dispose();
 		}
 
 		private bool _IsValidatedSelection;

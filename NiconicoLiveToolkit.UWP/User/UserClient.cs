@@ -49,7 +49,7 @@ namespace NiconicoToolkit.User
         {
             await _context.WaitPageAccessAsync();
 
-            var res = await _context.GetAsync(NiconicoUrls.MakeUserPageUrl(userId));
+            using var res = await _context.GetAsync(NiconicoUrls.MakeUserPageUrl(userId));
             if (!res.IsSuccessStatusCode)
             {
                 return new UserDetailResponse()

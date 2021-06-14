@@ -7,7 +7,7 @@ using Windows.UI.Xaml;
 
 namespace Hohoema.Presentation.Views.StateTrigger
 {
-	public class WindowActiveTrigger : InvertibleStateTrigger, IDisposable
+	public sealed class WindowActiveTrigger : InvertibleStateTrigger, IDisposable
 	{
 		public WindowActiveTrigger()
 		{

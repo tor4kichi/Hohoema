@@ -20,7 +20,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace Hohoema.Dialogs
 {
-    public sealed partial class NiconicoTwoFactorAuthDialog : ContentDialog
+    public sealed partial class NiconicoTwoFactorAuthDialog : ContentDialog, IDisposable
     {
 
         public static readonly DependencyProperty WebViewContentProperty =
@@ -28,12 +28,12 @@ namespace Hohoema.Dialogs
                 nameof(WebViewContent),
                 typeof(object),
                 typeof(NiconicoTwoFactorAuthDialog),
-                new PropertyMetadata(null, async (x, y) => 
+                new PropertyMetadata(null, (x, y) => 
                 {
                     var @this = x as NiconicoTwoFactorAuthDialog;
                     if (@this.WebViewContent is HttpResponseMessage res)
                     {
-                        var m = new Windows.Web.Http.HttpRequestMessage(Windows.Web.Http.HttpMethod.Get, res.Headers.Location);
+                        using var m = new Windows.Web.Http.HttpRequestMessage(Windows.Web.Http.HttpMethod.Get, res.Headers.Location);
                         foreach (var h in res.RequestMessage.Headers)
                         {
                             m.Headers.Add(h.Key, string.Join(' ', h.Value));
@@ -103,6 +103,11 @@ namespace Hohoema.Dialogs
 
                 WebView.Focus(FocusState.Programmatic);
             }
+        }
+
+        public void Dispose()
+        {
+            NowLoading.Dispose();
         }
     }
 }

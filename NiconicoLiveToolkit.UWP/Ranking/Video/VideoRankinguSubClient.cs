@@ -40,7 +40,7 @@ namespace NiconicoToolkit.Ranking.Video
         {
             await _context.WaitPageAccessAsync();
 
-            var res = await _context.GetAsync(url, ct: ct);
+            using var res = await _context.GetAsync(url, ct: ct);
             return await res.Content.ReadHtmlDocumentActionAsync(document =>
             {
                 // ページ上の .RankingFilterTag となる要素を列挙する

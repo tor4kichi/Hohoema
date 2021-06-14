@@ -36,6 +36,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
             void HandleCommentFilterConditionChanged()
             {
+#pragma warning disable IDISP004 // Don't ignore created IDisposable.
                 new[]
                 {
                 Observable.FromEventPattern<CommentFilteringFacade.CommentOwnerIdFilteredEventArgs>(
@@ -62,6 +63,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 }   
                 .Merge()
                 .Subscribe(_ => Comments.RefreshFilter())
+#pragma warning restore IDISP004 // Don't ignore created IDisposable.
                 .AddTo(_disposables);
 
                 using (Comments.DeferRefresh())

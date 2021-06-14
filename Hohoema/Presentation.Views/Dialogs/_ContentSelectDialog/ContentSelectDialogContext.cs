@@ -13,7 +13,7 @@ using System.Threading;
 namespace Hohoema.Dialogs
 {
 
-    public class ContentSelectDialogContext : BindableBase, IDisposable
+    public sealed class ContentSelectDialogContext : BindableBase, IDisposable
 	{
         private SynchronizationContextScheduler _CurrentWindowContextScheduler;
         public SynchronizationContextScheduler CurrentWindowContextScheduler

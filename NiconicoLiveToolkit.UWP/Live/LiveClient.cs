@@ -47,7 +47,7 @@ namespace NiconicoToolkit.Live
         {
             await _context.WaitPageAccessAsync();
 
-            var res = await _context.GetAsync(NiconicoUrls.MakeLiveWatchPageUrl(liveId));
+            using var res = await _context.GetAsync(NiconicoUrls.MakeLiveWatchPageUrl(liveId));
             return await res.Content.ReadHtmlDocumentActionAsync(document =>
             {
                 var embeddedDataNode = document.QuerySelector("#embedded-data");

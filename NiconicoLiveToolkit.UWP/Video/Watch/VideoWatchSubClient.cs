@@ -53,7 +53,7 @@ namespace NiconicoToolkit.Video.Watch
                 .ToString();
 
             await _context.WaitPageAccessAsync();
-            var res = await _context.GetAsync(url);
+            using var res = await _context.GetAsync(url);
             if (!res.IsSuccessStatusCode)
             {
                 throw new WebException("Video watch loading failed. status code : " + res.StatusCode);
@@ -116,7 +116,7 @@ namespace NiconicoToolkit.Video.Watch
 
             try
             {
-                var res = await _context.SendAsync(HttpMethod.Get, url, null, headers => 
+                using var res = await _context.SendAsync(HttpMethod.Get, url, null, headers => 
                 {
                     headers.Add("Accept", "*/*");
                     headers.Referer = new Uri($"https://www.nicovideo.jp/watch/{videoId}");
@@ -309,7 +309,7 @@ namespace NiconicoToolkit.Video.Watch
             var session = watch.Media.Delivery.Movie.Session;
             var sessionUrl = $"{session.Urls[0].UrlUnsafe}/{sessionRes.Data.Session.Id}?_format=json&_method=PUT";
 
-            var result = await _context.SendAsync(HttpMethod.Options, sessionUrl, content: null,
+            using var result = await _context.SendAsync(HttpMethod.Options, sessionUrl, content: null,
                 (headers) =>
                 {
                     headers.Add("Access-Control-Request-Method", "POST");
@@ -339,12 +339,12 @@ namespace NiconicoToolkit.Video.Watch
             //var message = new HttpRequestMessage(HttpMethod.Post, new Uri(sessionUrl));
             var requestJson = JsonSerializer.Serialize(sessionRes.Data, new JsonSerializerOptions()  { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull } );
 #if WINDOWS_UWP
-            var content = new HttpStringContent(requestJson, Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
+            using var content = new HttpStringContent(requestJson, Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
 #else
-            var content = new StringContent(requestJson, UnicodeEncoding.UTF8, "application/json");
+            using var content = new StringContent(requestJson, UnicodeEncoding.UTF8, "application/json");
 #endif
 
-            var result = await _context.SendAsync(HttpMethod.Post, sessionUrl, content, 
+            using var result = await _context.SendAsync(HttpMethod.Post, sessionUrl, content, 
                 (headers) => 
                 {
                     headers.UserAgent.Add(_context.HttpClient.DefaultRequestHeaders.UserAgent.First());
@@ -372,11 +372,11 @@ namespace NiconicoToolkit.Video.Watch
             var requestJson = JsonSerializer.Serialize(sessionRes.Data, new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
 
 #if WINDOWS_UWP
-            var content = new HttpStringContent(requestJson, Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
+            using var content = new HttpStringContent(requestJson, Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
 #else
-            var content = new StringContent(requestJson, UnicodeEncoding.UTF8, "application/json");
+            using var content = new StringContent(requestJson, UnicodeEncoding.UTF8, "application/json");
 #endif
-            var result = await _context.SendAsync(HttpMethod.Post, sessionUrl, content,
+            using var result = await _context.SendAsync(HttpMethod.Post, sessionUrl, content,
                (headers) =>
                {
                    headers.Add("Access-Control-Request-Method", "POST");
@@ -402,7 +402,7 @@ namespace NiconicoToolkit.Video.Watch
             var session = watch.Media.Delivery.Movie.Session;
             var sessionUrl = $"{session.Urls[0].UrlUnsafe}/{sessionRes.Data.Session.Id}?_format=json&_method=DELETE";
 
-            var result = await _context.SendAsync(HttpMethod.Options, sessionUrl, content: null, headers => 
+            using var result = await _context.SendAsync(HttpMethod.Options, sessionUrl, content: null, headers => 
             {
                 headers.Add("Access-Control-Request-Method", "POST");
                 headers.Add("Access-Control-Request-Headers", "content-type");
@@ -427,7 +427,7 @@ namespace NiconicoToolkit.Video.Watch
             var refererUri = new Uri($"https://www.nicovideo.jp/watch/{contentId}");
 
             {
-                var optionRes = await _context.SendAsync(HttpMethod.Options, uri, null, 
+                using var optionRes = await _context.SendAsync(HttpMethod.Options, uri, null, 
                     headers => 
                     {
                         headers.Add("Access-Control-Request-Headers", "x-frontend-id,x-frontend-version");
@@ -445,7 +445,7 @@ namespace NiconicoToolkit.Video.Watch
                 if (!optionRes.IsSuccessStatusCode) { return false; }
             }
             {
-                var watchRes = await _context.SendAsync(HttpMethod.Get, uri, null, 
+                using var watchRes = await _context.SendAsync(HttpMethod.Get, uri, null, 
                     headers => 
                     {
                         headers.Add("X-Frontend-Id", "6");

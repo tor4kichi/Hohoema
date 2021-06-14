@@ -176,6 +176,7 @@ namespace Hohoema.Models.Domain.Player.Video
             {
                 Debug.WriteLine($"{_dmcWatchData.Video.Title} のハートビートを開始しました");
 
+                _DmcSessionHeartbeatTimer?.Dispose();
                 _DmcSessionHeartbeatTimer = new Timer(_DmcSessionHeartbeatTimer_Tick, this, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
             }
         }

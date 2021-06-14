@@ -72,7 +72,7 @@ namespace Hohoema.Models.Domain.Niconico
         public Exception Exception { get; set; }
     }
 
-    public sealed class NiconicoSession : FixPrism.BindableBase
+    public sealed class NiconicoSession : FixPrism.BindableBase, IDisposable
     {
         public NiconicoSession( 
             IScheduler scheduler,
@@ -91,6 +91,13 @@ namespace Hohoema.Models.Domain.Niconico
 
             Scheduler = scheduler;
             _messenger = messenger;
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            _Context?.Dispose();
         }
 
         private void OnNetworkStatusChanged(object sender)
@@ -126,10 +133,6 @@ namespace Hohoema.Models.Domain.Niconico
             }
             else
             {
-                Scheduler.Schedule(async () =>
-                {
-//                    await SignOut();
-                });
             }
         }
 
@@ -224,7 +227,13 @@ namespace Hohoema.Models.Domain.Niconico
             get { return _Context ??= new NiconicoContext(HohoemaUserAgent); }
             private set 
             {
-                SetProperty(ref _Context, value);
+                var old = _Context;
+#pragma warning disable IDISP003 // Dispose previous before re-assigning.
+                if (SetProperty(ref _Context, value))
+#pragma warning restore IDISP003 // Dispose previous before re-assigning.
+                {
+                    old?.Dispose();
+                }
             }
         }
 

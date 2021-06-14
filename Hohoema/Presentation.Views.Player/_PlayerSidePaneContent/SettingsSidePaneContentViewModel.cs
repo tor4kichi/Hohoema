@@ -94,11 +94,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         private readonly VideoFilteringSettings _videoFilteringRepository;
         private readonly IScheduler _scheduler;
         
-        protected override void OnDispose()
-        {
-            base.OnDispose();
-        }
-
         private void OnRemoveNGCommentUserIdFromList(string userId)
         {
             CommentFiltering.RemoveFilteringCommentOwnerId(userId);
