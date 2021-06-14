@@ -76,8 +76,8 @@ namespace NiconicoToolkit.Video.Watch
                     var tagText = requireActionPageNode.GetAttribute("data-tags");
 
                     return new WatchPageResponse(new RequireActionForGuestWatchPageResponse(
-                        JsonSerializer.Deserialize<VideoDataForGuest>(WebUtility.HtmlDecode(videoDataText), _options),
-                        JsonSerializer.Deserialize<TagsForGuest>(WebUtility.HtmlDecode(tagText), _options)
+                        JsonSerializer.Deserialize<VideoDataForGuest>(videoDataText, _options),
+                        JsonSerializer.Deserialize<TagsForGuest>(tagText, _options)
                         ));
                 }
                 else
@@ -85,8 +85,8 @@ namespace NiconicoToolkit.Video.Watch
                     var watchDataString = canWatchPageNode.GetAttribute("data-api-data");
                     var environmentString = canWatchPageNode.GetAttribute("data-environment");
                     return new WatchPageResponse(new DmcWatchApiResponse(
-                        JsonSerializer.Deserialize<DmcWatchApiData>(WebUtility.HtmlDecode(watchDataString), _options),
-                        JsonSerializer.Deserialize<DmcWatchApiEnvironment>(WebUtility.HtmlDecode(environmentString), _options)
+                        JsonSerializer.Deserialize<DmcWatchApiData>(watchDataString, _options),
+                        JsonSerializer.Deserialize<DmcWatchApiEnvironment>(environmentString, _options)
                         ));
                 }
             });
