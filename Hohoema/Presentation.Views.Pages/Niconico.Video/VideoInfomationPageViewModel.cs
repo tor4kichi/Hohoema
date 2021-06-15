@@ -46,6 +46,7 @@ using NiconicoToolkit.Video.Watch;
 using NiconicoToolkit.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Likes;
 using NiconicoToolkit.Ichiba;
+using AngleSharp.Html.Parser;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
@@ -664,27 +665,26 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             VideoDescriptionHyperlinkItems.Clear();
             try
             {
-                var htmlDocument = new HtmlAgilityPack.HtmlDocument();
-                htmlDocument.LoadHtml(VideoDetails.DescriptionHtml);
-                var root = htmlDocument.DocumentNode;
-                var anchorNodes = root.Descendants("a");
+                HtmlParser htmlParser = new HtmlParser();
+                using var document = await htmlParser.ParseDocumentAsync(VideoDetails.DescriptionHtml);
+                var anchorNodes = document.QuerySelectorAll("a");
 
                 foreach (var anchor in anchorNodes)
                 {
                     var href = anchor.Attributes["href"].Value;
                     if (!Uri.IsWellFormedUriString(href, UriKind.Absolute))
                     {
-                        Debug.WriteLine("リンク抽出スキップ: " + anchor.InnerText);
+                        Debug.WriteLine("リンク抽出スキップ: " + anchor.TextContent);
                         continue;
                     }
 
                     VideoDescriptionHyperlinkItems.Add(new HyperlinkItem()
                     {
-                        Label = anchor.InnerText,
+                        Label = anchor.TextContent,
                         Url = new Uri(href)
                     });
 
-                    Debug.WriteLine($"{anchor.InnerText} : {anchor.Attributes["href"].Value}");
+                    Debug.WriteLine($"{anchor.TextContent} : {anchor.Attributes["href"].Value}");
                 }
 
                 var matches = GeneralUrlRegex.Matches(VideoDetails.DescriptionHtml);

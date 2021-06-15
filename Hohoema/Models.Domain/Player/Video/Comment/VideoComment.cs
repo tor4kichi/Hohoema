@@ -12,6 +12,7 @@ using Windows.UI;
 using Windows.UI.Xaml;
 using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
+using AngleSharp.Html.Parser;
 
 namespace Hohoema.Models.Domain.Player.Video.Comment
 {
@@ -140,16 +141,15 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
         {
             if (text == null) { return null; }
 
-            var doc = new HtmlAgilityPack.HtmlDocument();
-            doc.LoadHtml(text);
+            HtmlParser htmlParser = new HtmlParser();
+            using var document = htmlParser.ParseDocument(text);
 
-            var root = doc.DocumentNode;
-            var anchorNode = root.Descendants("a").FirstOrDefault();
+            var anchorNode = document.QuerySelector("a");
             if (anchorNode != null)
             {
-                if (anchorNode.Attributes.Contains("href"))
+                if (anchorNode.GetAttribute("href") is not null and var href)
                 {
-                    return new Uri(anchorNode.Attributes["href"].Value);
+                    return new Uri(href);
                 }
             }
 

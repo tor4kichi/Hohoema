@@ -35,6 +35,7 @@ using NiconicoToolkit.Ichiba;
 using NiconicoToolkit.Live.Timeshift;
 using NiconicoToolkit;
 using NiconicoToolkit.Recommend;
+using AngleSharp.Html.Parser;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 {
@@ -609,23 +610,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
                 try
                 {
-                    var htmlDocument = new HtmlAgilityPack.HtmlDocument();
-                    htmlDocument.LoadHtml(htmlDescription);
-                    var root = htmlDocument.DocumentNode;
-                    var anchorNodes = root.Descendants("a");
+                    HtmlParser htmlParser = new HtmlParser();
+                    using var document = await htmlParser.ParseDocumentAsync(htmlDescription);
+                    var anchorNodes = document.QuerySelectorAll("a");
 
                     foreach (var anchor in anchorNodes)
                     {
                         var url = new Uri(anchor.Attributes["href"].Value);
                         string label = null;
-                        var text = anchor.InnerText;
+                        var text = anchor.TextContent;
                         if (string.IsNullOrWhiteSpace(text) || text.Contains('\n') || text.Contains('\r'))
                         {
                             label = url.OriginalString;
                         }
                         else
                         {
-                            label = new string(anchor.InnerText.TrimStart(' ', '\n', '\r').TakeWhile(c => c != ' ' || c != '　').ToArray());
+                            label = new string(anchor.TextContent.TrimStart(' ', '\n', '\r').TakeWhile(c => c != ' ' || c != '　').ToArray());
                         }
 
                         DescriptionHyperlinkItems.Add(new HyperlinkItem()
@@ -634,7 +634,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                             Url = url
                         });
 
-                        Debug.WriteLine($"{anchor.InnerText} : {anchor.Attributes["href"].Value}");
+                        Debug.WriteLine($"{anchor.TextContent} : {anchor.Attributes["href"].Value}");
                     }
 
                     /*

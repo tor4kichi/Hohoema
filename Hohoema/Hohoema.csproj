@@ -934,8 +934,8 @@
     <PackageReference Include="AdaptiveTriggerLibrary">
       <Version>1.2.2</Version>
     </PackageReference>
-    <PackageReference Include="HtmlAgilityPack">
-      <Version>1.11.12</Version>
+    <PackageReference Include="AngleSharp">
+      <Version>0.14.0</Version>
     </PackageReference>
     <PackageReference Include="I18NPortable">
       <Version>1.0.1</Version>

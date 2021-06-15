@@ -1,13 +1,6 @@
 ﻿{
   "items": [
     {
-      "name": "HtmlAgilityPack.NetCore",
-      "site": "https://github.com/noliar/HtmlAgilityPack.NetCore",
-      "author": [ "Zulfahmi Ahmad" ],
-      "lisence_type": "Apache_v2",
-      "lisence_page_url": "https://github.com/noliar/HtmlAgilityPack.NetCore/blob/master/LICENSE-2.0.txt"
-    },
-    {
       "name": "Newtonsoft.Json",
       "site": "http://www.newtonsoft.com/json",
       "author": [ "James Newton-King" ],
