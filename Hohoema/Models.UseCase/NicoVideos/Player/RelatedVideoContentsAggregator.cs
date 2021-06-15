@@ -148,13 +148,13 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             {
                 if (provider.ProviderType == OwnerType.Channel)
                 {
-                    recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetChannelVideoReccommendAsync(currentVideo.Id, provider.ProviderId, currentVideo.Tags.Select(x => x.Tag).ToArray());
+                    recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetVideoRecommendForChannelAsync(currentVideo.Id, provider.ProviderId, currentVideo.Tags.Select(x => x.Tag).ToArray());
                 }
             }
 
             if (recommendResponse == null)
             {
-                recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetVideoReccommendAsync(currentVideo.Id);
+                recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetVideoRecommendForNotChannelAsync(currentVideo.Id);
             }
 
             if (recommendResponse?.IsSuccess ?? false)

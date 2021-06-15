@@ -650,43 +650,6 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
 
        
-        public static void Setup(this VideoListItemControlViewModel vm, Mntone.Nico2.Users.Video.VideoData data)
-        {
-            if (vm.RawVideoId != data.VideoId) { throw new Models.Infrastructure.HohoemaExpception(); }
-
-            //vm.PostedAt = data.SubmitTime;
-            //vm.Length = data.Length;
-        }
-
-
-        // とりあえずマイリストから取得したデータによる初期化
-        public static void Setup(this VideoListItemControlViewModel vm, Mntone.Nico2.Mylist.MylistData data)
-        {
-            if (data.WatchId != vm.RawVideoId) { throw new Models.Infrastructure.HohoemaExpception(); }
-
-            // vm.VideoId = data.id
-            //vm.PostedAt = data.CreateTime;
-
-            vm.ViewCount = (int)data.ViewCount;
-            vm.CommentCount = (int)data.CommentCount;
-            vm.MylistCount = (int)data.MylistCount;            
-        }
-
-
-        // 個別マイリストから取得したデータによる初期化
-        public static void Setup(this VideoListItemControlViewModel vm, Mntone.Nico2.Searches.Video.VideoInfo data)
-        {
-            if (vm.RawVideoId != data.Video.Id) { throw new Models.Infrastructure.HohoemaExpception(); }
-
-            //vm.VideoId = data.Video.Id;
-            //vm.PostedAt = data.Video.FirstRetrieve;
-            vm.ViewCount = (int)data.Video.ViewCount;
-            vm.CommentCount = (int)data.Thread.GetCommentCount();
-            vm.MylistCount = (int)data.Video.MylistCount;
-
-            vm.ProviderType = data.Video.ProviderType == "channel" ? OwnerType.Channel : OwnerType.User;
-            vm.ProviderId = vm.ProviderType == OwnerType.Channel ? data.Video.CommunityId : data.Video.UserId;
-        }
 
     }
 

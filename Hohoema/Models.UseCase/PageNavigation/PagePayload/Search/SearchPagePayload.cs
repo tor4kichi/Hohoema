@@ -24,14 +24,6 @@ namespace Hohoema.Models.UseCase.PageNavigation
 			{
 				SearchTarget = SearchTarget.Tag;
 			}
-			else if (content is MylistSearchPagePayloadContent)
-			{
-				SearchTarget = SearchTarget.Mylist;
-			}
-			else if (content is CommunitySearchPagePayloadContent)
-			{
-				SearchTarget = SearchTarget.Community;
-			}
 			else if (content is LiveSearchPagePayloadContent)
 			{
 				SearchTarget = SearchTarget.Niconama;
@@ -59,12 +51,6 @@ namespace Hohoema.Models.UseCase.PageNavigation
 					break;
 				case SearchTarget.Tag:
 					_Content = Newtonsoft.Json.JsonConvert.DeserializeObject<TagSearchPagePayloadContent>(ContentJson);
-					break;
-				case SearchTarget.Mylist:
-					_Content = Newtonsoft.Json.JsonConvert.DeserializeObject<MylistSearchPagePayloadContent>(ContentJson);
-					break;
-				case SearchTarget.Community:
-					_Content = Newtonsoft.Json.JsonConvert.DeserializeObject<CommunitySearchPagePayloadContent>(ContentJson);
 					break;
 				case SearchTarget.Niconama:
 					_Content = Newtonsoft.Json.JsonConvert.DeserializeObject<LiveSearchPagePayloadContent>(ContentJson);

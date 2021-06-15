@@ -138,7 +138,7 @@ namespace NiconicoToolkit.Live.Timeshift
         /// タイムシフト予約の削除用トークンを取得します。（要ログインセッション）
         /// </summary>
         /// <returns></returns>
-        public async Task<ReservationToken> GetReservationToken()
+        public async Task<ReservationToken> GetReservationTokenAsync()
         {
             try
             {

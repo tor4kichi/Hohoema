@@ -5,7 +5,6 @@ using Hohoema.Models.Domain.Player.Video.Comment;
 using Hohoema.Models.Infrastructure;
 using Hohoema.Presentation.Services;
 using Microsoft.AppCenter.Analytics;
-//using Mntone.Nico2;
 using MvvmHelpers;
 using NiconicoToolkit.Video.Watch.NMSG_Comment;
 using Reactive.Bindings;

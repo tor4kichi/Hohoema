@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Infrastructure;
 using LiteDB;
-using Mntone.Nico2.Live;
+using NiconicoToolkit.Live;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +26,7 @@ namespace Hohoema.Models.Domain.Niconico.Live
         public string PictureUrl { get; set; }
         public string ThumbnailUrl { get; set; }
 
-        public CommunityType ProviderType { get; set; }
+        public ProviderType ProviderType { get; set; }
         public string BroadcasterId { get; set; }
         public bool IsMemberOnly { get; set; }
 

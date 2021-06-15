@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Communities.Detail;
-using NiconicoToolkit.Live;
+﻿using NiconicoToolkit.Live;
 using Hohoema.Models.Domain.Niconico.Live;
 
 namespace Hohoema.Presentation.ViewModels.Community
@@ -9,6 +8,7 @@ namespace Hohoema.Presentation.ViewModels.Community
 		public string LiveTitle { get; private set; }
 		public string LiveId { get; private set; }
 
+        /*
 		public CurrentLiveInfoViewModel(CommunityLiveInfo liveInfo, CommunityDetail community)
         {
 			LiveTitle = liveInfo.LiveTitle;
@@ -17,6 +17,7 @@ namespace Hohoema.Presentation.ViewModels.Community
             ProviderId = community.Id;
             ProviderName = community.Name;
 		}
+        */
 
         public string Id => LiveId;
 

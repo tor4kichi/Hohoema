@@ -344,10 +344,11 @@ namespace Hohoema.Models.Domain.VideoCache
             }
 
             // require watch permission
-            var watchData = await _niconicoSession.Context.Video.GetDmcWatchResponseAsync(item.VideoId);
-            if (watchData?.DmcWatchResponse?.Media?.Delivery is null)
+            var watchData = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetInitialWatchDataAsync(item.VideoId);
+            var watchApiData = watchData?.WatchApiResponse?.WatchApiData;
+            if (watchApiData?.Media?.Delivery is null)
             {
-                throw new VideoCacheException("VideoCacheItem is can not play, require content access permission. reason : " + watchData?.DmcWatchResponse?.OkReason);
+                throw new VideoCacheException("VideoCacheItem is can not play, require content access permission. reason : " + watchApiData?.OkReason);
             }
 
 #if DEBUG
@@ -376,7 +377,7 @@ namespace Hohoema.Models.Domain.VideoCache
             var rss = stream.AsRandomAccessStream();
             var ms = MediaSource.CreateFromStream(rss, "movie/mp4");
             await ms.OpenAsync();
-            if (ms.Duration?.TotalSeconds - watchData.DmcWatchResponse.Video.Duration >= 2.0)
+            if (ms.Duration?.TotalSeconds - watchApiData.Video.Duration >= 2.0)
             {
                 ms.Dispose();
                 throw new VideoCacheException("VideoCacheItem is can not play, require same duration");

@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Communities.Detail;
-using NiconicoToolkit.Live;
+﻿using NiconicoToolkit.Live;
 using Hohoema.Models.Domain.Niconico.Live;
 using System;
 
@@ -7,19 +6,16 @@ namespace Hohoema.Presentation.ViewModels.Community
 {
     public class CommunityLiveInfoViewModel : ILiveContent
 	{
-        public CommunityLiveInfoViewModel(LiveInfo info)
+        public CommunityLiveInfoViewModel()
         {
-            LiveInfo = info;
+            //LiveInfo = info;
 
-            LiveId = LiveInfo.LiveId;
-            LiveTitle = LiveInfo.LiveId;
-            StartTime = LiveInfo.StartTime;
-            StreamerName = LiveInfo.StreamerName;
+            //LiveId = LiveInfo.LiveId;
+            //LiveTitle = LiveInfo.LiveId;
+            //StartTime = LiveInfo.StartTime;
+            //StreamerName = LiveInfo.StreamerName;
         }
 
-
-
-        public LiveInfo LiveInfo { get; private set; }
 
 
 		public string LiveId { get; private set; }

@@ -344,9 +344,7 @@ namespace Hohoema
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.NicoRepo.NicoRepoPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultTagPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultMylistPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultKeywordPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultCommunityPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultLivePage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Series.SeriesPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Series.UserSeriesPage>();
@@ -399,15 +397,18 @@ namespace Hohoema
                 }
             }
 
-            await TryMigrationAsync(new Type[]
+            if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.IsAppUpdated)
             {
-                //typeof(MigrationCommentFilteringSettings),
-                //typeof(CommentFilteringNGScoreZeroFixture),
-                //typeof(SettingsMigration_V_0_23_0),
-                //typeof(SearchPageQueryMigrate_0_26_0),
-                typeof(VideoCacheDatabaseMigration_V_0_29_0),
-            });
-
+                await TryMigrationAsync(new Type[]
+                {
+                    //typeof(MigrationCommentFilteringSettings),
+                    //typeof(CommentFilteringNGScoreZeroFixture),
+                    //typeof(SettingsMigration_V_0_23_0),
+                    //typeof(SearchPageQueryMigrate_0_26_0),
+                    typeof(VideoCacheDatabaseMigration_V_0_29_0),
+                    typeof(SearchTargetMigration_V_1_1_0),
+                });
+            }
             // 機能切り替え管理クラスをDIコンテナに登録
             // Xaml側で扱いやすくするためApp.xaml上でインスタンス生成させている
             {

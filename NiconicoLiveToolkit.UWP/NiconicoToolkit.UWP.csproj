@@ -159,6 +159,10 @@
     <Compile Include="HttpStatusCodeHelper.cs" />
     <Compile Include="Ichiba\IchibaClient.cs" />
     <Compile Include="Likes\LikesClient.cs" />
+    <Compile Include="Recommend\LiveRecommendResponse.cs" />
+    <Compile Include="Recommend\RecommendContentType.cs" />
+    <Compile Include="Recommend\RecommendType.cs" />
+    <Compile Include="Recommend\VideoRecommendResponse.cs" />
     <Compile Include="Timeshift\ReservationToken.cs" />
     <Compile Include="Timeshift\ReserveTimeshiftResponse.cs" />
     <Compile Include="Timeshift\TimeshiftClient.cs" />

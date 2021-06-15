@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Communities.Detail;
-using Hohoema.Models.Domain.Niconico.Video;
+﻿using Hohoema.Models.Domain.Niconico.Video;
 using System;
 using System.Linq;
 using System.Reactive.Linq;

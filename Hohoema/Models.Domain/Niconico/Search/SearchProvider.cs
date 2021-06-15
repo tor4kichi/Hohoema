@@ -38,15 +38,11 @@ namespace Hohoema.Models.Domain.Niconico.Search
             return _niconicoSession.ToolkitContext.SearchWithCeApi.Video.TagSearchAsync(tag, from, limit, sort, order);
         }
 
-        public async Task<NiconicoToolkit.SearchWithPage.Live.LiveSearchPageScrapingResult> LiveSearchAsync(
+        public Task<NiconicoToolkit.SearchWithPage.Live.LiveSearchPageScrapingResult> LiveSearchAsync(
             NiconicoToolkit.SearchWithPage.Live.LiveSearchOptionsQuery query
             )
         {
-            return await ContextActionWithPageAccessWaitAsync(async context =>
-            {
-                return await _niconicoSession.ToolkitContext.SearchWithPage.Live.GetLiveSearchPageScrapingResultAsync(query, CancellationToken.None);
-            });
-            
+            return _niconicoSession.ToolkitContext.SearchWithPage.Live.GetLiveSearchPageScrapingResultAsync(query, CancellationToken.None);
         }
 
 

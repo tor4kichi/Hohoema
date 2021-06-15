@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Helpers;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -96,8 +95,6 @@ namespace Hohoema.Models.Domain.Niconico
         public override void Dispose()
         {
             base.Dispose();
-
-            _Context?.Dispose();
         }
 
         private void OnNetworkStatusChanged(object sender)
@@ -221,24 +218,6 @@ namespace Hohoema.Models.Domain.Niconico
             private set { SetProperty(ref _ServiceStatus, value); }
         }
 
-        private NiconicoContext _Context;
-        public NiconicoContext Context
-        {
-            get { return _Context ??= new NiconicoContext(HohoemaUserAgent); }
-            private set 
-            {
-                var old = _Context;
-#pragma warning disable IDISP003 // Dispose previous before re-assigning.
-                if (SetProperty(ref _Context, value))
-#pragma warning restore IDISP003 // Dispose previous before re-assigning.
-                {
-                    old?.Dispose();
-                }
-            }
-        }
-
-
-
         public NiconicoToolkit.NiconicoContext ToolkitContext { get; }
 
         public IScheduler Scheduler { get; }
@@ -309,9 +288,6 @@ namespace Hohoema.Models.Domain.Niconico
         {
             UpdateServiceStatus();
 
-            _Context?.Dispose();
-            Context = null;
-
             LogInFailed?.Invoke(this, new NiconicoSessionLoginErrorEventArgs()
             {
                 LoginFailedReason = InternetConnection.IsInternet()
@@ -351,8 +327,6 @@ namespace Hohoema.Models.Domain.Niconico
             {
                 if (!Helpers.InternetConnection.IsInternet())
                 {
-                    Context?.Dispose();
-                    Context = null;
                     return NiconicoSessionStatus.Failed;
                 }
             }
@@ -365,8 +339,6 @@ namespace Hohoema.Models.Domain.Niconico
             using (_ = await SigninLock.LockAsync())
             {
                 Debug.WriteLine("try login");
-
-                var context = new NiconicoContext(HohoemaUserAgent, new NiconicoAuthenticationToken(mailOrTelephone, password));
 
                 /*
                 if (withClearAuthenticationCache)
@@ -396,13 +368,10 @@ namespace Hohoema.Models.Domain.Niconico
                         });
                     }
 
-                    Context = context;
-
                     return result.status;
                 }
                 catch (Exception e)
                 {
-                    context.Dispose();
                     ToolkitContext.Account.RequireTwoFactorAuth -= Account_RequireTwoFactorAuth;
                     ToolkitContext.Account.LoggedIn -= Account_LoggedIn;
                     HandleLoginError(e);
@@ -456,25 +425,15 @@ namespace Hohoema.Models.Domain.Niconico
                 IsLoggedIn = false;
 
                 UpdateServiceStatus();
-
-                if (Context == null)
-                {
-                    return result;
-                }
-
                 try
                 {
                     if (Helpers.InternetConnection.IsInternet())
                     {
                         result = await ToolkitContext.Account.SignOutAsync();
                     }
- 
-                    Context.Dispose();
                 }
                 finally
                 {
-                    Context = null;
-
                     LogOut?.Invoke(this, EventArgs.Empty);
                 }
             }

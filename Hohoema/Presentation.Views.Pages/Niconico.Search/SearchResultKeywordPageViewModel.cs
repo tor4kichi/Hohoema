@@ -11,7 +11,6 @@ using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Collections;
-using Mntone.Nico2;
 using NiconicoToolkit.SearchWithCeApi.Video;
 using Prism.Commands;
 using Prism.Navigation;

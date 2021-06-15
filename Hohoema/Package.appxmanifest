@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3" IgnorableNamespaces="uap mp uap3">
-  <Identity Name="18803tor4kichi.Hohoema" Publisher="CN=DFF1CEA0-5963-4197-8676-6105C5E8CE4B" Version="1.0.13.0" />
+  <Identity Name="18803tor4kichi.Hohoema" Publisher="CN=DFF1CEA0-5963-4197-8676-6105C5E8CE4B" Version="1.1.0.0" />
   <mp:PhoneIdentity PhoneProductId="01cfd879-0a19-44a7-b5db-11bdbd13f0df" PhonePublisherId="00000000-0000-0000-0000-000000000000" />
   <Properties>
     <DisplayName>Hohoema</DisplayName>

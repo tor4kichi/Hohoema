@@ -138,7 +138,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 		public bool HasNews { get; private set; }
 
 		// 生放送
-		public List<CurrentLiveInfoViewModel> CurrentLiveInfoList { get; private set; }
+		//public List<CurrentLiveInfoViewModel> CurrentLiveInfoList { get; private set; }
 
 		// 動画
 		public List<CommunityVideoInfoViewModel> CommunityVideoSamples { get; private set; }

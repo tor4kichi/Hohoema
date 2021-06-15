@@ -54,18 +54,16 @@ namespace Hohoema.Models.Domain.Niconico.Video.Ranking
                 }
             }
 
-            return await ContextActionWithPageAccessWaitAsync(async context => 
-            {
-                var tagsRaw = await _niconicoSession.ToolkitContext.Video.Ranking.GetGenrePickedTagAsync(genre);
-                var tags = tagsRaw.Select(x => new RankingGenreTag() { Label = x.DisplayName, Tag = x.Tag, Genre = genre }).ToList();
-                _rankingGenreCache.Upsert(genre, tags.Select(x => new RankingGenreTagEntry() { DisplayName = x.Label, Tag = x.Tag }));
-                return tags;
-            }, ct);
+            var tagsRaw = await _niconicoSession.ToolkitContext.Video.Ranking.GetGenrePickedTagAsync(genre);
+            var tags = tagsRaw.Select(x => new RankingGenreTag() { Label = x.DisplayName, Tag = x.Tag, Genre = genre }).ToList();
+            _rankingGenreCache.Upsert(genre, tags.Select(x => new RankingGenreTagEntry() { DisplayName = x.Label, Tag = x.Tag }));
+
+            return tags;
         }
 
-        public async Task<RssVideoResponse> GetRankingGenreWithTagAsync(RankingGenre genre, string tag, RankingTerm term, int page = 1)
+        public Task<RssVideoResponse> GetRankingGenreWithTagAsync(RankingGenre genre, string tag, RankingTerm term, int page = 1)
         {
-            return await _niconicoSession.ToolkitContext.Video.Ranking.GetRankingRssAsync(genre, tag, term, page);
+            return _niconicoSession.ToolkitContext.Video.Ranking.GetRankingRssAsync(genre, tag, term, page);
         }
     }
 }

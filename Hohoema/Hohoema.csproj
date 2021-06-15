@@ -306,6 +306,7 @@
     <Compile Include="Models.Domain\Application\IMigateAsync.cs" />
     <Compile Include="Models.UseCase\Migration\MigrationCommentFilteringSettings.cs" />
     <Compile Include="Models.UseCase\Migration\SearchPageQueryMigrate_0_26_0.cs" />
+    <Compile Include="Models.UseCase\Migration\SearchTargetMigration_V_1_1_0.cs" />
     <Compile Include="Models.UseCase\Migration\SettingsMigration_V_0_23_0.cs" />
     <Compile Include="Models.UseCase\PageNavigation\NavigationTriggerFromExternal.cs" />
     <Compile Include="Models.UseCase\VideoCache\Events\EndCacheSaveFolderChangingMessage.cs" />
@@ -364,11 +365,9 @@
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\LoginRedirectPayload.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\MylistPagePayload.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\PagePayloadBase.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\CommunitySearchPagePayloadContent.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\ISearchPagePayloadContent.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\KeywordSearchPagePayloadContent.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\LiveSearchPagePayloadContent.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\MylistSearchPagePayloadContent.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\SearchPagePayload.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\SearchPagePayloadContentBase.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\SearchPagePayloadContentHelper.cs" />
@@ -445,10 +444,8 @@
     <Compile Include="Presentation.Views.Pages\Niconico.Mylist\UserMylistPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Search\RemoveSearchHistoryCommand.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultCommunityPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultKeywordPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultLivePageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultMylistPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultTagPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Search\VideoSearchSortOptionListItem.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Series\SeriesPageViewModel.cs" />
@@ -603,17 +600,11 @@
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchPage.xaml.cs">
       <DependentUpon>SearchPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultCommunityPage.xaml.cs">
-      <DependentUpon>SearchResultCommunityPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultKeywordPage.xaml.cs">
       <DependentUpon>SearchResultKeywordPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultLivePage.xaml.cs">
       <DependentUpon>SearchResultLivePage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultMylistPage.xaml.cs">
-      <DependentUpon>SearchResultMylistPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultTagPage.xaml.cs">
       <DependentUpon>SearchResultTagPage.xaml</DependentUpon>
@@ -881,19 +872,6 @@
     <Content Include="Assets\BadgeLogo.scale-400.png" />
     <Content Include="Assets\hohoema-icon-final.png" />
     <Content Include="Assets\html\template.html" />
-    <Content Include="Assets\LibLisencies\AdaptiveTriggerLibrary.txt" />
-    <Content Include="Assets\LibLisencies\Entity Framework Core.txt" />
-    <Content Include="Assets\LibLisencies\FFmpeg.txt" />
-    <Content Include="Assets\LibLisencies\FFmpegInterop.txt" />
-    <Content Include="Assets\LibLisencies\HtmlAgilityPack.NetCore.txt" />
-    <Content Include="Assets\LibLisencies\Material Design Icons.txt" />
-    <Content Include="Assets\LibLisencies\Newtonsoft.Json.txt" />
-    <Content Include="Assets\LibLisencies\OpenNiconico2.txt" />
-    <Content Include="Assets\LibLisencies\Prism.txt" />
-    <Content Include="Assets\LibLisencies\ReactiveProperty.txt" />
-    <Content Include="Assets\LibLisencies\RtmpClient.UWP.txt" />
-    <Content Include="Assets\LibLisencies\UWP Community Toolkit.txt" />
-    <Content Include="Assets\LibLisencies\WinRTXamlToolkit.UWP.txt" />
     <Content Include="Assets\LockScreenLogo.scale-100.png" />
     <Content Include="Assets\LockScreenLogo.scale-150.png" />
     <Content Include="Assets\NewStoreLogo.scale-100.png" />
@@ -1161,19 +1139,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Search\SearchResultCommunityPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Presentation.Views.Pages\Niconico.Search\SearchResultKeywordPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Presentation.Views.Pages\Niconico.Search\SearchResultLivePage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Search\SearchResultMylistPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1458,10 +1428,6 @@
     <ProjectReference Include="..\NiconicoLiveToolkit.UWP\NiconicoToolkit.UWP.csproj">
       <Project>{311b8388-57d0-4724-ad17-be76a2abf0a9}</Project>
       <Name>NiconicoToolkit.UWP</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OpenNiconico2\Mntone.Nico2.UWP_Latest\Mntone.Nico2.UWP_Latest.csproj">
-      <Project>{cc63ef1d-ecd6-478d-8852-5c45fbbf697a}</Project>
-      <Name>Mntone.Nico2.UWP_Latest</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

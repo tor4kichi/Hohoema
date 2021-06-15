@@ -43,22 +43,10 @@ namespace Hohoema.Models.UseCase.Migration
                     pin.Parameter = pin.Parameter + $"&service={SearchTarget.Tag}";
                     _pinSettings.UpdateItem(pin);
                 }
-                else if (pin.PageType == Domain.PageNavigation.HohoemaPageType.SearchResultMylist)
-                {
-                    pin.PageType = Domain.PageNavigation.HohoemaPageType.Search;
-                    pin.Parameter = pin.Parameter + $"&service={SearchTarget.Mylist}";
-                    _pinSettings.UpdateItem(pin);
-                }
                 else if (pin.PageType == Domain.PageNavigation.HohoemaPageType.SearchResultLive)
                 {
                     pin.PageType = Domain.PageNavigation.HohoemaPageType.Search;
                     pin.Parameter = pin.Parameter + $"&service={SearchTarget.Niconama}";
-                    _pinSettings.UpdateItem(pin);
-                }
-                else if (pin.PageType == Domain.PageNavigation.HohoemaPageType.SearchResultCommunity)
-                {
-                    pin.PageType = Domain.PageNavigation.HohoemaPageType.Search;
-                    pin.Parameter = pin.Parameter + $"&service={SearchTarget.Community}";
                     _pinSettings.UpdateItem(pin);
                 }
 #pragma warning restore CS0612 // 型またはメンバーが旧型式です

@@ -81,5 +81,12 @@ namespace Hohoema.Models.Domain.Application
             set => Save(value);
         }
 
+
+
+        public bool IsSearchTargetOmmitMylistAndCommunityMigrated_V_1_1_0
+        {
+            get => Read<bool>();
+            set => Save(value);
+        }
     }
 }

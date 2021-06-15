@@ -39,7 +39,7 @@ namespace Hohoema.Models.Domain.Niconico.Live.LoginUser
         {
             if (_token is null)
             {
-                _token = await _niconicoSession.ToolkitContext.Timeshift.GetReservationToken();
+                _token = await _niconicoSession.ToolkitContext.Timeshift.GetReservationTokenAsync();
             }
 
             if (_token == null)

@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2;
-using NiconicoToolkit.SearchWithCeApi.Video;
+﻿using NiconicoToolkit.SearchWithCeApi.Video;
 using System;
 using System.Runtime.Serialization;
 

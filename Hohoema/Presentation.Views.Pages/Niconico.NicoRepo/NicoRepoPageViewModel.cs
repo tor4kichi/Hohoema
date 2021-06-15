@@ -11,6 +11,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using I18NPortable;
 using Microsoft.Toolkit.Collections;
+using NiconicoToolkit.Live;
 using NiconicoToolkit.NicoRepo;
 using NiconicoToolkit.Video;
 using Prism.Commands;
@@ -173,8 +174,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
 
             this.CommunityType = _nicoRepoEntry.MuteContext.Sender.IdType switch
             {
-                SenderIdTypeEnum.User => Mntone.Nico2.Live.CommunityType.Community,
-                SenderIdTypeEnum.Channel => Mntone.Nico2.Live.CommunityType.Channel,
+                SenderIdTypeEnum.User => ProviderType.Community,
+                SenderIdTypeEnum.Channel => ProviderType.Channel,
                 _ => throw new NotSupportedException()
             };
 

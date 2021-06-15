@@ -174,8 +174,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                 SearchTarget.Keyword,
                 SearchTarget.Tag,
                 SearchTarget.Niconama,
-                SearchTarget.Mylist,
-                SearchTarget.Community,
             };
 
             SelectedTarget = new ReactiveProperty<SearchTarget>(_LastSelectedTarget)
@@ -254,8 +252,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 					SearchTarget.Keyword => nameof(SearchResultKeywordPage),
 					SearchTarget.Tag => nameof(SearchResultTagPage),
 					SearchTarget.Niconama => nameof(SearchResultLivePage),
-					SearchTarget.Mylist => nameof(SearchResultMylistPage),
-					SearchTarget.Community => nameof(SearchResultCommunityPage),
 					_ => null
 				};
 

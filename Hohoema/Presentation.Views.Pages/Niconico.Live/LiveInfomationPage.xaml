@@ -15,7 +15,6 @@
       xmlns:controls="using:Hohoema.Presentation.Views.Controls"
       xmlns:myTrigger="using:Hohoema.Presentation.Views.StateTrigger"
       xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
-      xmlns:live="using:Mntone.Nico2.Live"
       xmlns:windowsStateTriggers="using:WindowsStateTriggers"
       xmlns:liveVM="using:Hohoema.Presentation.ViewModels.Pages.Niconico.Live" 
       xmlns:liveViews="using:Hohoema.Presentation.Views.Pages.Niconico.Live"
@@ -457,6 +456,7 @@
       </VisualStateGroup>
       
       <!-- コミュニティ種別 -->
+      <!-- 
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -485,7 +485,9 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      -->
       <!-- 放送ステータス種別 -->
+      <!-- 
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -516,6 +518,7 @@
           <VisualState.Setters></VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      -->
       <!-- タイムシフト予約状況 -->
       <VisualStateGroup>
         <VisualState>

@@ -165,6 +165,22 @@ namespace NiconicoToolkit
             }
         }
 
+        public static string EnsurePrefixChannelId(string channelId)
+        {
+            if (channelId.StartsWith(ChannelIdPrefix) && channelId.Skip(2).IsAllDigit())
+            {
+                return channelId;
+            }
+            else if (channelId.IsAllDigit())
+            {
+                return ChannelIdPrefix + channelId;
+            }
+            else
+            {
+                throw new ArgumentException(nameof(channelId));
+            }
+        }
+
         public static (bool IsScreenName, string channelId) EnsurePrefixChannelIdOrScreenName(string channelId)
         {
             if (channelId.StartsWith(ChannelIdPrefix) && channelId.Skip(2).IsAllDigit())
