@@ -18,6 +18,7 @@
   <Grid>
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
                                       ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                      ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
                                       x:Name="VideoItemsListView"
@@ -48,15 +49,6 @@
           </CommandBar>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
-
-      <videolistPage:VideoItemsListView.ItemTemplate>
-        <DataTemplate>
-          <Grid>
-            <videolistPage:VideoListItemControl />
-          </Grid>
-        </DataTemplate>
-      </videolistPage:VideoItemsListView.ItemTemplate>
-
     </videolistPage:VideoItemsListView>
 
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">

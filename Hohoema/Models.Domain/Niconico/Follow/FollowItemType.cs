@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,46 +17,4 @@ namespace Hohoema.Models.Domain.Niconico.Follow
 	}
 
 
-	public static class FollowItemTypeExtention
-	{
-		public static NiconicoItemType? ToNiconicoItemType(this FollowItemType favorite)
-		{
-			switch (favorite)
-			{
-				case FollowItemType.User:
-					return NiconicoItemType.User;
-				case FollowItemType.Tag:
-					return null;
-				case FollowItemType.Mylist:
-					return NiconicoItemType.Mylist;					
-                case FollowItemType.Channel:
-                    return null;
-				case FollowItemType.Community:
-					return null;
-				default:
-					throw new NotSupportedException();
-			}
-		}
-
-		public static FollowItemType FromNiconicoItemType(NiconicoItemType? niconicoItemType)
-		{
-			if (niconicoItemType.HasValue)
-			{
-				switch (niconicoItemType.Value)
-				{
-					case NiconicoItemType.Mylist:
-						return FollowItemType.Mylist;
-
-					case NiconicoItemType.User:
-						return FollowItemType.User;
-					default:
-						throw new NotSupportedException();
-				}
-			}
-			else
-			{
-				return FollowItemType.Tag;
-			}
-		}
-	}
 }

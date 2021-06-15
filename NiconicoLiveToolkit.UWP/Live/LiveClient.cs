@@ -1,5 +1,5 @@
-﻿using NiconicoToolkit.Live.Notify;
-using NiconicoToolkit.Live.Search;
+﻿using AngleSharp.Html.Parser;
+using NiconicoToolkit.Live.Notify;
 using NiconicoToolkit.Live.WatchPageProp;
 using NiconicoToolkit.Live.WatchSession;
 using System;
@@ -12,6 +12,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace NiconicoToolkit.Live
 {
@@ -19,54 +20,42 @@ namespace NiconicoToolkit.Live
     {
         private readonly NiconicoContext _context;
 
-        internal LiveClient(NiconicoContext context)
+        internal LiveClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
-            Search = new LiveSearchClient(context);
-            CasApi = new Cas.CasLiveClient(context);
-            LiveNotify = new LiveNotifyClient(context);
-        }
+            CasApi = new Cas.CasLiveClient(context, defaultOptions);
+            LiveNotify = new LiveNotifyClient(context, defaultOptions);
 
-        public LiveSearchClient Search { get; }
-        public Cas.CasLiveClient CasApi { get; }
-        public LiveNotifyClient LiveNotify { get; }
-
-        public static string MakeLiveWatchPageUrl(string liveId)
-        {
-            return $"{LiveWatchPageUrl}{liveId}";
-        }
-
-        const string LiveWatchPageUrl = "https://live2.nicovideo.jp/watch/";
-        public async Task<LiveWatchPageDataProp> GetLiveWatchPageDataPropAsync(string liveId, CancellationToken ct = default)
-        {
-            await _context.WaitPageAccessAsync();
-
-            var html = await _context.GetStringAsync(MakeLiveWatchPageUrl(liveId));
-            var scriptIdPosition = html.IndexOf("id=\"embedded-data\"");
-            if (scriptIdPosition < 0) { throw new Exception(); }
-
-            const string datapropsString = "data-props=\"";
-            var dataPropsAttrHeadPosition = html.IndexOf(datapropsString, scriptIdPosition);
-            if (dataPropsAttrHeadPosition < 0) { throw new Exception(); }
-
-            var dataPropsAttrStartPosition = dataPropsAttrHeadPosition + datapropsString.Length;
-            var dataPropsAttrEndPosition = html.IndexOf("\"></script>", dataPropsAttrStartPosition);
-            var json = html.Substring(dataPropsAttrStartPosition, dataPropsAttrEndPosition - dataPropsAttrStartPosition);
-            var decodedJson = WebUtility.HtmlDecode(json);
-            var invalidJsonTokenRemoved = decodedJson.Replace("\"type\":\"\",", "");
-            JsonSerializerOptions options = new JsonSerializerOptions()
+            _watchPageJsonSerializerOptions = new JsonSerializerOptions()
             {
                 Converters = 
                 {
                     new JsonStringEnumMemberConverter(JsonSnakeCaseNamingPolicy.Instance),
                     new JsonStringEnumMemberConverter(JsonNamingPolicy.CamelCase),
-                    new LongToStringConverter()
+                    new LongToStringConverter(),
                 }
             };
+        }
 
-            Debug.WriteLine(decodedJson);
+        JsonSerializerOptions _watchPageJsonSerializerOptions;
 
-            return JsonDeserializeHelper.Deserialize<LiveWatchPageDataProp>(invalidJsonTokenRemoved, options);
+        public Cas.CasLiveClient CasApi { get; }
+        public LiveNotifyClient LiveNotify { get; }
+
+
+        public async Task<LiveWatchPageDataProp> GetLiveWatchPageDataPropAsync(string liveId, CancellationToken ct = default)
+        {
+            await _context.WaitPageAccessAsync();
+
+            using var res = await _context.GetAsync(NiconicoUrls.MakeLiveWatchPageUrl(liveId));
+            return await res.Content.ReadHtmlDocumentActionAsync(document =>
+            {
+                var embeddedDataNode = document.QuerySelector("#embedded-data");
+                var dataPropText = embeddedDataNode.GetAttribute("data-props");
+                var decodedJson = WebUtility.HtmlDecode(dataPropText);
+
+                return JsonDeserializeHelper.Deserialize<LiveWatchPageDataProp>(decodedJson, _watchPageJsonSerializerOptions);
+            });
         }        
 
 

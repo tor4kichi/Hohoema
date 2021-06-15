@@ -1,5 +1,4 @@
-﻿using Hohoema.Models.Domain.Niconico.Community;
-using Hohoema.Models.Domain.Niconico.Search;
+﻿using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Helpers;
@@ -302,55 +301,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         async Task<IEnumerable<CommunityInfoControlViewModel>> IIncrementalSource<CommunityInfoControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
         {
-            var res = await SearchProvider.SearchCommunity(
-                SearchKeyword
-                , (uint)pageIndex
-                , Sort
-                , Order
-                , Mode
-                );
-
-            if (res == null || !res.IsStatusOK)
-            {
-                return Enumerable.Empty<CommunityInfoControlViewModel>();
-            }
-
-            return res.Communities.Select(item => new CommunityInfoControlViewModel(item));
+            throw new NotSupportedException();
         }
     }
-
-	public class CommunityInfoControlViewModel : HohoemaListingPageItemBase, ICommunity
-    {
-		public string Name { get; private set; }
-		public string ShortDescription { get; private set; }
-		public string UpdateDate { get; private set; }
-		public string IconUrl { get; private set; }
-		public uint Level { get; private set; }
-		public uint MemberCount { get; private set; }
-		public uint VideoCount { get; private set; }
-
-		public string CommunityId { get; private set; }
-
-        public string Id => CommunityId;
-
-        public CommunityInfoControlViewModel(Mntone.Nico2.Searches.Community.NicoCommynity commu)
-		{
-			CommunityId = commu.Id;
-            Name = commu.Name;
-            ShortDescription = commu.ShortDescription;
-            UpdateDate = commu.DateTime;
-            IconUrl = commu.IconUrl.AbsoluteUri;
-
-            Level = commu.Level;
-			MemberCount = commu.MemberCount;
-			VideoCount = commu.VideoCount;
-
-            Label = commu.Name;
-            Description = commu.ShortDescription;
-            AddImageUrl(commu.IconUrl.OriginalString);
-        }
-
-        
-
-	}
 }

@@ -16,6 +16,7 @@ using Uno;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.SearchWithCeApi.Video;
+using NiconicoToolkit.User;
 
 namespace Hohoema.Models.Domain.Subscriptions
 {
@@ -283,7 +284,7 @@ namespace Hohoema.Models.Domain.Subscriptions
         }
 
 
-        private async Task<List<NicoVideo>> GetUserVideosFeedResult(string userId,UserProvider userProvider)
+        private async Task<List<NicoVideo>> GetUserVideosFeedResult(UserId userId, UserProvider userProvider)
         {
             var id = uint.Parse(userId);
             List<NicoVideo> items = new List<NicoVideo>();
@@ -390,7 +391,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             const int itemGetCountPerPage = 50;
 
             var head = page * itemGetCountPerPage;
-            var res = await searchProvider.GetKeywordSearch(keyword, (uint)head, itemGetCountPerPage);
+            var res = await searchProvider.GetKeywordSearch(keyword, head, itemGetCountPerPage);
 
             var videoItems = res.Videos;
             var currentItemsCount = videoItems?.Length ?? 0;
@@ -436,7 +437,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             const int itemGetCountPerPage = 50;
 
             var head = page * itemGetCountPerPage;
-            var res = await searchProvider.GetTagSearch(tag, (uint)head, itemGetCountPerPage);
+            var res = await searchProvider.GetTagSearch(tag, head, itemGetCountPerPage);
 
             var videoItems = res.Videos;
             var currentItemsCount = videoItems?.Length ?? 0;

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.User;
+using System;
 using System.Collections.Generic;
 
 namespace NiconicoToolkit.Follow
@@ -12,7 +13,7 @@ namespace NiconicoToolkit.Follow
         long Level { get; }
         string Name { get; }
         CommunityOptionFlags OptionFlags { get; }
-        long OwnerId { get; }
+        UserId OwnerId { get; }
         CommunityStatus Status { get; }
         List<CommunityTag> Tags { get; }
         long ThreadCount { get; }

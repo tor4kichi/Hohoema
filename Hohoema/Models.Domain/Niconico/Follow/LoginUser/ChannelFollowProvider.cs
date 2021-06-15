@@ -48,7 +48,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             _messenger = messenger;
         }
 
-        public async Task<FollowChannelResponse> GetChannelsAsync(uint offset, uint pageSize)
+        public async Task<FollowChannelResponse> GetChannelsAsync(int offset, int pageSize)
         {
             if (!_niconicoSession.IsLoggedIn)
             {

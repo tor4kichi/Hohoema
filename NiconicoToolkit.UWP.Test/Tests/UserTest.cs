@@ -34,6 +34,9 @@ namespace NiconicoToolkit.UWP.Test.Tests
         public async Task GetUserNickNameAsync(uint userId)
         {
             var res = await _userClient.GetUserNicknameAsync(userId);
+
+            Assert.AreNotEqual(default(UserId), res.Id, "res.Id is default(UserId)");
+            Assert.IsNotNull(res.Nickname, "res.Nickname is null");
         }
 
 
@@ -73,6 +76,24 @@ namespace NiconicoToolkit.UWP.Test.Tests
                 var sample = res.Data.Items[0];
                 Assert.IsNotNull(sample.Essential, "sample.Essential is null");
                 Assert.IsNotNull(sample.Essential.Title, "sample.Essential.Title is null");
+            }
+        }
+
+
+        [TestMethod]
+        [DataRow(53842185, 6982981)] 
+        public async Task GetUsersAsync(int userId1, int userId2)
+        {
+            var res = await _userClient.GetUsersAsync(new[] { userId1, userId2 });
+
+            Assert.IsTrue(res.IsSuccess);
+
+            foreach (var user in res.Data)
+            {
+                Assert.IsNotNull(user, "res.Data[0] is null");
+                Assert.IsNotNull(user.Nickname, "user.Nickname is null");
+                Assert.IsNotNull(user.Icons?.Urls, "user.Icons.Urls is null");
+                Assert.IsNotNull(user.Description, "user.Description is null");
             }
         }
     }

@@ -31,37 +31,48 @@ namespace Hohoema.Models.UseCase.VideoCache
             _nicoVideoProvider = nicoVideoProvider;
 
             _messenger = WeakReferenceMessenger.Default;
-        }
-
-        IMessenger _messenger;
-
-        public StorageFolder VideoCacheFolder => _videoCacheManager.VideoCacheFolder;
-
-        public async Task InitializeAsync()
-        {
-            // キャッシュフォルダの指定
-            if (StorageApplicationPermissions.FutureAccessList.ContainsItem(CACHE_FOLDER_NAME))
-            {
-                _videoCacheManager.VideoCacheFolder = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(CACHE_FOLDER_NAME);
-            }
-            else
-            {
-                var folder = await DownloadsFolder.CreateFolderAsync(CACHE_FOLDER_NAME, CreationCollisionOption.GenerateUniqueName);
-                StorageApplicationPermissions.FutureAccessList.AddOrReplace(CACHE_FOLDER_NAME, folder);
-                _videoCacheManager.VideoCacheFolder = folder;
-            }
-
-            // キャッシュの暗号化を初期化
-            var file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/VideoCache_EncryptionKey_32byte.txt"));
-            var bytes = await file.ReadBytesAsync();
-            _videoCacheManager.SetXts(XTSSharp.XtsAes128.Create(bytes.Take(32).ToArray()));
-
 
             // キャッシュファイル名の解決方法を設定
             VideoCacheManager.ResolveVideoTitle = (id) =>
             {
                 return _nicoVideoProvider.ResolveVideoTitleAsync(id);
             };
+        }
+
+        IMessenger _messenger;
+
+        public StorageFolder VideoCacheFolder => _videoCacheManager.VideoCacheFolder;
+
+        bool _isInitialized = false;
+        public async Task InitializeAsync()
+        {
+            if (_isInitialized) { return; }
+
+            try
+            {
+                // キャッシュフォルダの指定
+                if (StorageApplicationPermissions.FutureAccessList.ContainsItem(CACHE_FOLDER_NAME))
+                {
+                    _videoCacheManager.VideoCacheFolder = await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(CACHE_FOLDER_NAME);
+                }
+                else
+                {
+                    var folder = await DownloadsFolder.CreateFolderAsync(CACHE_FOLDER_NAME, CreationCollisionOption.GenerateUniqueName);
+                    StorageApplicationPermissions.FutureAccessList.AddOrReplace(CACHE_FOLDER_NAME, folder);
+                    _videoCacheManager.VideoCacheFolder = folder;
+                }
+
+                // キャッシュの暗号化を初期化
+                var file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/VideoCache_EncryptionKey_32byte.txt"));
+                var bytes = await file.ReadBytesAsync();
+                _videoCacheManager.SetXts(XTSSharp.XtsAes128.Create(bytes.Take(32).ToArray()));
+            }
+            catch (Exception e)
+            {
+                ErrorTrackingManager.TrackError(e);
+            }
+
+            _isInitialized = true;
         }
 
         public async Task ChangeVideoCacheFolder()

@@ -19,7 +19,11 @@ namespace Hohoema.Presentation.Views.Converters
 
             if (value is DateTime time)
             {
-                if (time == DateTime.MaxValue)
+                if (time == DateTime.MinValue || time == default)
+                {
+                    return "";
+                }
+                else if (time == DateTime.MaxValue)
                 {
                     return "Expired_Unlimited".Translate();
                 }

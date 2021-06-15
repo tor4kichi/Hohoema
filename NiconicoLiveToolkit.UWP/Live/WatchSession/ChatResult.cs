@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NiconicoToolkit.Live
+namespace NiconicoToolkit.Live.WatchSession
 {
 	public enum ChatResult
 	{

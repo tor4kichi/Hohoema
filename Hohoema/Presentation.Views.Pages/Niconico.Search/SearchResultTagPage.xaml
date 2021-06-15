@@ -18,7 +18,13 @@
   Transitions="{StaticResource SuppressNavigationTransitionCollection}"
   >
   <Grid>
-    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}" x:Name="VideoItemsListView">
+    <videolistPage:VideoItemsListView 
+      ItemsSource="{Binding ItemsView}" 
+      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" 
+      ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
+      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" 
+      RefreshCommand="{Binding RefreshCommand}" 
+      x:Name="VideoItemsListView">
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <StackPanel >
@@ -57,13 +63,6 @@
           </StackPanel>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
-      <videolistPage:VideoItemsListView.ItemTemplate>
-        <DataTemplate>
-          <Grid>
-            <videolistPage:VideoListItemControl />
-          </Grid>
-        </DataTemplate>
-      </videolistPage:VideoItemsListView.ItemTemplate>
     </videolistPage:VideoItemsListView>
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
       <TextBlock Text="{i18nExt:Localize Key=TagSearchNoItems}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />

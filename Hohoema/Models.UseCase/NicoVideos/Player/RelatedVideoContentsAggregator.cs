@@ -1,5 +1,4 @@
 ﻿using Microsoft.Toolkit.Uwp.UI;
-using Mntone.Nico2.Channels.Video;
 using Hohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
@@ -14,6 +13,8 @@ using Hohoema.Presentation.ViewModels.VideoListPage;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Channels;
+using Hohoema.Models.Domain.Niconico;
+using NiconicoToolkit.Recommend;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
@@ -37,28 +38,28 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
     public sealed class RelatedVideoContentsAggregator 
     {
         public RelatedVideoContentsAggregator(
+            NiconicoSession niconicoSession,
            NicoVideoProvider nicoVideoProvider,
            ChannelProvider channelProvider,
            MylistRepository mylistRepository,
            HohoemaPlaylist hohoemaPlaylist,
-           PageManager pageManager,
-           NicoChannelCacheRepository nicoChannelCacheRepository
+           PageManager pageManager
            )
         {
+            _niconicoSession = niconicoSession;
             _nicoVideoProvider = nicoVideoProvider;
             _channelProvider = channelProvider;
             _mylistRepository = mylistRepository;
             _hohoemaPlaylist = hohoemaPlaylist;
             _pageManager = pageManager;
-            _nicoChannelCacheRepository = nicoChannelCacheRepository;
         }
 
+        private readonly NiconicoSession _niconicoSession;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly ChannelProvider _channelProvider;
         private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly PageManager _pageManager;
         private readonly MylistRepository _mylistRepository;
-        private readonly NicoChannelCacheRepository _nicoChannelCacheRepository;
 
         public NicoVideoSessionProvider Video { get; }
 
@@ -68,8 +69,9 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         const double _SeriesVideosTitleSimilarityValue = 0.7;
         private static VideoRelatedContents _cachedVideoRelatedContents;
 
-        public async Task<VideoRelatedContents> GetRelatedContentsAsync(string videoId)
+        public async Task<VideoRelatedContents> GetRelatedContentsAsync(INicoVideoDetails currentVideo)
         {
+            var videoId = currentVideo.VideoId;
             if (_cachedVideoRelatedContents?.ContentId == videoId)
             {
                 return _cachedVideoRelatedContents;
@@ -78,19 +80,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             var videoInfo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
             var videoViewerHelpInfo = NicoVideoSessionProvider.GetVideoRelatedInfomationWithVideoDescription(videoId, videoInfo.Description);
 
-            VideoRelatedContents result = new VideoRelatedContents(videoId);
-            // ニコスクリプトで指定されたジャンプ先動画
-            /*
-            if (JumpVideoId != null)
-            {
-                var video = await NicoVideoProvider.GetNicoVideoInfo(JumpVideoId, requireLatest: true);
-                if (video != null)
-                {
-                    JumpVideo = new VideoListItemControlViewModel(video);
-                    RaisePropertyChanged(nameof(JumpVideo));
-                }
-            }
-            */
+            VideoRelatedContents result = new VideoRelatedContents(videoId);            
 
             // 再生中アイテムのタイトルと投稿者説明文に含まれる動画IDの動画タイトルを比較して
             // タイトル文字列が近似する動画をシリーズ動画として取り込む
@@ -141,72 +131,6 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             }
 
 
-            // チャンネル動画で次動画が見つからなかった場合は
-            // チャンネル動画一覧から次動画をサジェストする
-            if (videoInfo.Owner.UserType == OwnerType.Channel
-                && result.NextVideo == null
-                )
-            {
-                // DBからチャンネル情報を取得
-                var db_channelInfo = _nicoChannelCacheRepository.GetFromRawId(videoInfo.Owner.OwnerId);
-                if (db_channelInfo == null)
-                {
-                    db_channelInfo = new NicoChannelInfo()
-                    {
-                        RawId = videoInfo.Owner.OwnerId,
-                        ThumbnailUrl = videoInfo.Owner.IconUrl,
-                        Name = videoInfo.Owner.ScreenName
-                    };
-                }
-
-                // チャンネル動画の一覧を取得する
-                // ページアクセスが必要なので先頭ページを取って
-                // 全体の分量を把握してから全ページ取得を行う
-                //List<ChannelVideoItem> channelVideos = new List<ChannelVideoItem>();
-                //var channelVideosFirstPage = await _channelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, 0);
-                //if (channelVideosFirstPage.Data is not null and var channelData)
-                //{
-                //    var uncheckedCount = channelData.TotalCount - channelData.Videos.Length;
-                //    if (channelData.TotalCount != 0)
-                //    {
-                //        channelVideos.AddRange(channelData.Videos);
-
-                //        var uncheckedPageCount = (int)Math.Ceiling((double)uncheckedCount / 20); /* チャンネル動画１ページ = 20 動画 */
-                //        foreach (var page in Enumerable.Range(1, uncheckedPageCount))
-                //        {
-                //            var channelVideoInfo = await _channelProvider.GetChannelVideo(videoInfo.Owner.OwnerId, page);
-                //            channelVideos.AddRange(channelData.Videos);
-                //        }
-
-                //        db_channelInfo.Videos = channelVideos;
-                //    }
-
-                //    _nicoChannelCacheRepository.AddOrUpdate(db_channelInfo);
-                //}
-
-                var collectionView = new AdvancedCollectionView(db_channelInfo.Videos);
-                collectionView.SortDescriptions.Add(new SortDescription(nameof(ChannelVideoInfo.PostedAt), SortDirection.Ascending));
-                collectionView.SortDescriptions.Add(new SortDescription(nameof(ChannelVideoInfo.ItemId), SortDirection.Ascending));
-                collectionView.RefreshSorting();
-
-                var item = collectionView.FirstOrDefault(x => (x as ChannelVideoInfo).Title == videoInfo.Title);
-                var pos = collectionView.IndexOf(item);
-                if (pos >= 0)
-                {
-                    var nextVideo = collectionView.ElementAtOrDefault(pos + 1) as ChannelVideoInfo;
-                    if (nextVideo != null)
-                    {
-                        var videoVM = new VideoListItemControlViewModel(nextVideo.ItemId, nextVideo.Title, nextVideo.ThumbnailUrl, nextVideo.Length, nextVideo.PostedAt);
-                        videoVM.Permission = nextVideo.IsRequirePayment ? NiconicoToolkit.Video.VideoPermission.RequirePay : NiconicoToolkit.Video.VideoPermission.None;
-                        videoVM.ViewCount = nextVideo.ViewCount;
-                        videoVM.CommentCount = nextVideo.CommentCount;
-                        videoVM.MylistCount = nextVideo.MylistCount;
-
-                        result.NextVideo = videoVM;
-                    }
-                }
-            }
-
             // マイリスト
             var relatedMylistIds = videoViewerHelpInfo.GetMylistIds();
             foreach (var mylistId in relatedMylistIds)
@@ -219,15 +143,31 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             }
 
 
-            /*
-            var videos = await Video.GetRelatedVideos(videoId);
-            Videos = videos.Select(x =>
+            VideoRecommendResponse recommendResponse = null;
+            if (currentVideo is IVideoContentProvider provider)
             {
-                var vm = new VideoListItemControlViewModel(x);
-                return vm;
-            })
-            .ToList();
-            */
+                if (provider.ProviderType == OwnerType.Channel)
+                {
+                    recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetVideoRecommendForChannelAsync(currentVideo.Id, provider.ProviderId, currentVideo.Tags.Select(x => x.Tag).ToArray());
+                }
+            }
+
+            if (recommendResponse == null)
+            {
+                recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetVideoRecommendForNotChannelAsync(currentVideo.Id);
+            }
+
+            if (recommendResponse?.IsSuccess ?? false)
+            {
+                result.OtherVideos = new List<VideoListItemControlViewModel>();
+                foreach (var item in recommendResponse.Data.Items)
+                {
+                    if (item.ContentType is RecommendContentType.Video)
+                    {
+                        result.OtherVideos.Add(new VideoListItemControlViewModel(item.ContentAsVideo));
+                    }
+                }
+            }
 
             result.CurrentVideo = result.Videos.FirstOrDefault(x => x.RawVideoId == videoId);
 

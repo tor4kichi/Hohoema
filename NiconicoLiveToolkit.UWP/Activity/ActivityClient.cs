@@ -11,10 +11,10 @@ namespace NiconicoToolkit.Activity
     {
         private readonly NiconicoContext _context;
 
-        public ActivityClient(NiconicoContext context)
+        public ActivityClient(NiconicoContext context, System.Text.Json.JsonSerializerOptions defaultOptions)
         {
             _context = context;
-            VideoWachHistory = new VideoWatchHisotrySubClient(context);
+            VideoWachHistory = new VideoWatchHisotrySubClient(context, defaultOptions);
         }
 
         public VideoWatchHisotrySubClient VideoWachHistory { get; }

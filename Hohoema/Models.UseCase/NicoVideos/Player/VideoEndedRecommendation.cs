@@ -19,6 +19,7 @@ using Windows.Media.Playback;
 using Windows.UI.Xaml;
 using Hohoema.Models.Domain.Player;
 using NiconicoToolkit.Video.Watch;
+using Hohoema.Models.Domain.Player.Video;
 
 namespace Hohoema.Models.UseCase.NicoVideos.Player
 {
@@ -60,6 +61,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     _playNext = false;
                     _endedProcessed = false;
                     HasRecomend.Value = false;
+                    _currentVideoDetail = null;
                 })
                 .AddTo(_disposables);
         }
@@ -128,21 +130,24 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                     return;
                 }
 
-                _relatedVideoContentsAggregator.GetRelatedContentsAsync(_videoPlayer.PlayingVideoId)
-                    .ContinueWith(async task =>
-                    {
-                        var relatedVideos = await task;
-
-                        _scheduler.Schedule(() =>
+                if (_currentVideoDetail != null)
+                {
+                    _relatedVideoContentsAggregator.GetRelatedContentsAsync(_currentVideoDetail)
+                        .ContinueWith(async task =>
                         {
-                            _videoRelatedContents = relatedVideos;
-                            HasNextVideo = _videoRelatedContents.NextVideo != null;
-                            NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
-                            HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                            var relatedVideos = await task;
 
-                            Debug.WriteLine("動画情報から次の動画を提示: " + NextVideoTitle);
+                            _scheduler.Schedule(() =>
+                            {
+                                _videoRelatedContents = relatedVideos;
+                                HasNextVideo = _videoRelatedContents.NextVideo != null;
+                                NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
+                                HasRecomend.Value = HasNextVideo && IsEnded.Value;
+
+                                Debug.WriteLine("動画情報から次の動画を提示: " + NextVideoTitle);
+                            });
                         });
-                    });
+                }
             }
             finally
             {
@@ -231,10 +236,12 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 HasRecomend.Value = false;
             }));
 
+        INicoVideoDetails _currentVideoDetail;
         WatchApiSeries _series;
-        public void SetCurrentVideoSeries(WatchApiSeries series)
+        public void SetCurrentVideoSeries(INicoVideoDetails videoDetail)
         {
-            _series = series;
+            _currentVideoDetail = videoDetail;
+            _series = _currentVideoDetail.Series;
         }
 
 

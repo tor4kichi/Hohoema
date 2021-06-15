@@ -74,7 +74,10 @@ namespace Hohoema.Presentation.Views.Controls
         }
 
         CompositeDisposable _CompositeDisposable;
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("IDisposableAnalyzers.Correctness", "IDISP006:Implement IDisposable.", Justification = "<保留中>")]
         CancellationTokenSource _AnimationCts;
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("IDisposableAnalyzers.Correctness", "IDISP004:Don't ignore created IDisposable.", Justification = "<保留中>")]
         private void TransientContainer_Loaded(object sender, RoutedEventArgs e)
         {
             _CompositeDisposable = new CompositeDisposable();

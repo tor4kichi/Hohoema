@@ -9,8 +9,8 @@ using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using NiconicoToolkit.Video;
+using NiconicoToolkit.User;
 
 namespace NiconicoToolkit.Series
 {
@@ -19,32 +19,25 @@ namespace NiconicoToolkit.Series
         private readonly NiconicoContext _context;
         private readonly JsonSerializerOptions _options;
 
-        public SeriesClient(NiconicoContext context)
+        public SeriesClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
-            _options = new JsonSerializerOptions()
-            {
-                Converters =
-                {
-                    new JsonStringEnumMemberConverter()
-                }
-            };
+            _options = defaultOptions;
         }
 
         public async Task<SeriesDetails> GetSeriesVideosAsync(string seriesId)
         {
             HtmlParser parser = new HtmlParser();
 
-            var res = await _context.GetAsync($"https://www.nicovideo.jp/series/{seriesId}");
+            using var res = await _context.GetAsync($"{NiconicoUrls.NicoHomePageUrl}series/{seriesId}");
             if (!res.IsSuccessStatusCode)
             {
                 throw new WebException($"not found series({seriesId}), status code : {res.StatusCode}");
             }
 
-            SeriesDetails seriesDetails = new SeriesDetails();
-            using (var stream = await res.Content.ReadAsInputStreamAsync())
-            using (var document = await parser.ParseDocumentAsync(stream.AsStreamForRead()))
+            return await res.Content.ReadHtmlDocumentActionAsync(document =>
             {
+                SeriesDetails seriesDetails = new SeriesDetails();
                 // シリーズの概要
                 {
                     var summryParentNode = document.QuerySelector("body > div.BaseLayout-main > div.Series > div.BaseLayout-block.Series-2column > div.Series-columnMain > div > div.SeriesDetailContainer-media");
@@ -163,25 +156,16 @@ namespace NiconicoToolkit.Series
                         Nickname = userInfoNode.TextContent,
                     };
                 }
-            }
 
-            return seriesDetails;
+                return seriesDetails;
+            });
         }
 
-        public Task<SeriesListResponse> GetUserSeriesAsync(uint userId, int page = 0, int pageSize = 100)
-        {
-            return GetUserSeriesAsync_Internal(userId, page, pageSize);
-        }
 
-        public Task<SeriesListResponse> GetUserSeriesAsync(string userId, int page = 0, int pageSize = 100)
-        {
-            return GetUserSeriesAsync_Internal(userId, page, pageSize);
-        }
-
-        private Task<SeriesListResponse> GetUserSeriesAsync_Internal<IdType>(IdType userId, int page, int pageSize)
+        public Task<SeriesListResponse> GetUserSeriesAsync(UserId userId, int page = 0, int pageSize = 100)
         {
             return _context.GetJsonAsAsync<SeriesListResponse>(
-                $"https://nvapi.nicovideo.jp/v1/users/{userId}/series?page={page+1}&pageSize={pageSize}",
+                $"{NiconicoUrls.NvApiV1Url}users/{userId}/series?page={page+1}&pageSize={pageSize}",
                 _options
                 );
         }

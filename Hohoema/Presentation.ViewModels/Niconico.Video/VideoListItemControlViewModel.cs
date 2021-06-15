@@ -337,6 +337,9 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             CommentCount = videoItem.Count.Comment;
             MylistCount = videoItem.Count.Mylist;
 
+            IsDeleted = videoItem.IsDeleted;
+
+
             if (videoItem.Owner is not null)
             {
                 _ProviderId = videoItem.Owner.Id;
@@ -360,7 +363,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             MylistCount = video.MylistCount;
             CommentCount =thread.NumRes;
             _IsDeleted = video.Deleted != 0;
-            if (Enum.IsDefined(typeof(PrivateReasonType), video.Deleted))
+            if (_IsDeleted && Enum.IsDefined(typeof(PrivateReasonType), video.Deleted))
             {
                 _PrivateReason = (PrivateReasonType)video.Deleted;
             }
@@ -519,8 +522,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        private PrivateReasonType _PrivateReason;
-        public PrivateReasonType PrivateReason
+        private PrivateReasonType? _PrivateReason;
+        public PrivateReasonType? PrivateReason
         {
             get { return _PrivateReason; }
             set { SetProperty(ref _PrivateReason, value); }
@@ -647,43 +650,6 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
 
        
-        public static void Setup(this VideoListItemControlViewModel vm, Mntone.Nico2.Users.Video.VideoData data)
-        {
-            if (vm.RawVideoId != data.VideoId) { throw new Models.Infrastructure.HohoemaExpception(); }
-
-            //vm.PostedAt = data.SubmitTime;
-            //vm.Length = data.Length;
-        }
-
-
-        // とりあえずマイリストから取得したデータによる初期化
-        public static void Setup(this VideoListItemControlViewModel vm, Mntone.Nico2.Mylist.MylistData data)
-        {
-            if (data.WatchId != vm.RawVideoId) { throw new Models.Infrastructure.HohoemaExpception(); }
-
-            // vm.VideoId = data.id
-            //vm.PostedAt = data.CreateTime;
-
-            vm.ViewCount = (int)data.ViewCount;
-            vm.CommentCount = (int)data.CommentCount;
-            vm.MylistCount = (int)data.MylistCount;            
-        }
-
-
-        // 個別マイリストから取得したデータによる初期化
-        public static void Setup(this VideoListItemControlViewModel vm, Mntone.Nico2.Searches.Video.VideoInfo data)
-        {
-            if (vm.RawVideoId != data.Video.Id) { throw new Models.Infrastructure.HohoemaExpception(); }
-
-            //vm.VideoId = data.Video.Id;
-            //vm.PostedAt = data.Video.FirstRetrieve;
-            vm.ViewCount = (int)data.Video.ViewCount;
-            vm.CommentCount = (int)data.Thread.GetCommentCount();
-            vm.MylistCount = (int)data.Video.MylistCount;
-
-            vm.ProviderType = data.Video.ProviderType == "channel" ? OwnerType.Channel : OwnerType.User;
-            vm.ProviderId = vm.ProviderType == OwnerType.Channel ? data.Video.CommunityId : data.Video.UserId;
-        }
 
     }
 

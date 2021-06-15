@@ -1,4 +1,5 @@
 ﻿using NiconicoToolkit.Mylist.LoginUser;
+using NiconicoToolkit.User;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -26,44 +27,35 @@ namespace NiconicoToolkit.Mylist
 
         public LoginUserMylistSubClient LoginUser { get; }
 
-        public MylistClient(NiconicoContext context)
+        public MylistClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
-
-            _defaultOptions = new JsonSerializerOptions()
-            { 
-                Converters =
-                {
-                    new JsonStringEnumMemberConverter(),
-                }
-            };
-
+            _defaultOptions = defaultOptions;
             LoginUser = new LoginUserMylistSubClient(context);
         }
 
-        public static string MakeMylistPageUrl(string mylistId)
+        internal static class Urls
         {
-            return $"https://www.nicovideo.jp/mylist/{mylistId}";
+            public const string NvapiV2MylistApiUrl = $"{NiconicoUrls.NvApiV2Url}mylists/";
         }
 
-        
-        public async Task<GetUserMylistGroupsResponse> GetUserMylistGroupsAsync(string userId, int sampleItemCount = 0)
-        {
-            var url = $"https://nvapi.nicovideo.jp/v1/users/{userId}/mylists?sampleItemCount={sampleItemCount}";
 
-            return await _context.GetJsonAsAsync<GetUserMylistGroupsResponse>(url, _defaultOptions);
+
+        public Task<GetUserMylistGroupsResponse> GetUserMylistGroupsAsync(UserId userId, int sampleItemCount = 0)
+        {
+            return _context.GetJsonAsAsync<GetUserMylistGroupsResponse>($"{NiconicoUrls.NvApiV1Url}users/{userId}/mylists?sampleItemCount={sampleItemCount}", _defaultOptions);
         }
 
 
         public Task<GetMylistItemsResponse> GetMylistItemsAsync(string mylistId, int? page = null, int? pageSize = null, MylistSortKey? sortKey = null, MylistSortOrder? sortOrder = null)
         {
             var dict = new NameValueCollection();
-            if (page is not null) dict.Add("page", (page.Value + 1).ToString());
-            if (pageSize is not null) dict.Add("pageSize", pageSize.Value.ToString());
-            if (sortKey is not null) dict.Add("sortKey", sortKey.Value.GetDescription());
-            if (sortOrder is not null) dict.Add("sortOrder", sortOrder.Value.GetDescription());
+            dict.AddIfNotNull<int>("page", page is null ? null : (page.Value + 1));
+            dict.AddIfNotNull("pageSize", pageSize);
+            dict.AddEnumIfNotNullWithDescription("sortKey", sortKey);
+            dict.AddEnumIfNotNullWithDescription("sortOrder", sortOrder);
 
-            var url = new StringBuilder(" https://nvapi.nicovideo.jp/v2/mylists/")
+            var url = new StringBuilder(Urls.NvapiV2MylistApiUrl)
                 .Append(mylistId)
                 .AppendQueryString(dict)
                 .ToString();

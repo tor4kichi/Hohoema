@@ -16,7 +16,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Share;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {
-	public class LiveCommentsSidePaneContentViewModel : SidePaneContentViewModelBase
+	public sealed class LiveCommentsSidePaneContentViewModel : SidePaneContentViewModelBase
 	{
 		public LiveCommentsSidePaneContentViewModel(
             CommentFilteringFacade commentFiltering, 
@@ -43,8 +43,14 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 .AddTo(_CompositeDisposable);
         }
 
+        public override void Dispose()
+        {
+            IsCommentListScrollWithVideo?.Dispose();
+            IsNGCommentUserIdEnabled?.Dispose();
+            base.Dispose();
+        }
 
-		public void UpdatePlayPosition(uint videoPosition)
+        public void UpdatePlayPosition(uint videoPosition)
 		{
 			if (IsCommentListScrollWithVideo.Value)
 			{

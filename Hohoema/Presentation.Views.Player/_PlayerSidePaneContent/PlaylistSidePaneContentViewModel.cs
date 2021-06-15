@@ -102,6 +102,18 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             };
         }
 
+        public override void Dispose()
+        {
+            CurrentItems?.Dispose();
+            CurrentPlaylistName?.Dispose();
+            IsShuffleEnabled?.Dispose();
+            IsListRepeatModeEnable?.Dispose();
+            IsReverseEnabled?.Dispose();
+            PlaylistCanGoBack?.Dispose();
+            PlaylistCanGoNext?.Dispose();
+            base.Dispose();
+        }
+
         PlaylistCollectionViewItem _currentPlaylistViewItem;
 
         public class PlaylistCollectionViewItem

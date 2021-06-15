@@ -4,12 +4,8 @@ using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
-using NiconicoToolkit.Channels;
-using NiconicoToolkit.Community;
+using NiconicoToolkit;
 using NiconicoToolkit.Live;
-using NiconicoToolkit.Mylist;
-using NiconicoToolkit.User;
-using NiconicoToolkit.Video;
 using System;
 using System.IO;
 using System.Linq;
@@ -26,22 +22,22 @@ namespace Hohoema.Models.Helpers
             switch (content)
             {
                 case IUser user:
-                    uri = new Uri(UserClient.MakeUserPageUrl(user.Id));
+                    uri = new Uri(NiconicoUrls.MakeUserPageUrl(user.Id));
                     break;
                 case IVideoContent videoContent:
-                    uri = new Uri(VideoClient.MakeWatchPageUrl(videoContent.Id));
+                    uri = new Uri(NiconicoUrls.MakeWatchPageUrl(videoContent.Id));
                     break;
                 case IMylist mylist:
-                    uri = new Uri(MylistClient.MakeMylistPageUrl(mylist.Id));
+                    uri = new Uri(NiconicoUrls.MakeMylistPageUrl(mylist.Id));
                     break;
                 case ILiveContent live:
-                    uri = new Uri(LiveClient.MakeLiveWatchPageUrl(live.Id));
+                    uri = new Uri(NiconicoUrls.MakeLiveWatchPageUrl(live.Id));
                     break;
                 case IChannel channel:
-                    uri = new Uri(ChannelClient.MakeChannelPageUrl(channel.Id));
+                    uri = new Uri(NiconicoUrls.MakeChannelPageUrl(channel.Id));
                     break;
                 case ICommunity community:
-                    uri = new Uri(CommunityClient.MakeCommunityPageUrl(community.Id));
+                    uri = new Uri(NiconicoUrls.MakeCommunityPageUrl(community.Id));
                     break;
 
                 default:

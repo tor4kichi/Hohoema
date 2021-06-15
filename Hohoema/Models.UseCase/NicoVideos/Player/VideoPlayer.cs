@@ -27,7 +27,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
     // 再生中プレイリストの管理
     // 再生するウィンドウの選択を管理
 
-    public class VideoPlayer : BindableBase, IDisposable
+    public sealed class VideoPlayer : BindableBase, IDisposable
     {
         public VideoPlayer(
             MediaPlayer mediaPlayer,

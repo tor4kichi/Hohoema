@@ -13,11 +13,15 @@ namespace Hohoema.Models.Domain.PageNavigation
 {
     public sealed class RestoreNavigationManager
     {
-        private readonly NavigationStackRepository _navigationStackRepository;
+        private static readonly NavigationStackRepository _navigationStackRepository;
+
+        static RestoreNavigationManager()
+        {
+            _navigationStackRepository ??= new NavigationStackRepository();
+        }
 
         public RestoreNavigationManager()
         {
-            _navigationStackRepository = new NavigationStackRepository();
         }
 
 

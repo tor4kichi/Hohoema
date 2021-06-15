@@ -123,7 +123,9 @@
     <Compile Include="Tests\AccountTestHelper.cs" />
     <Compile Include="Tests\ActivityTest.cs" />
     <Compile Include="Tests\ChannelTest.cs" />
+    <Compile Include="Tests\CommunityTest.cs" />
     <Compile Include="Tests\FollowTest.cs" />
+    <Compile Include="Tests\IchibaTest.cs" />
     <Compile Include="Tests\LikesTest.cs" />
     <Compile Include="Tests\LiveTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -132,6 +134,7 @@
     <Compile Include="Tests\SearchCeApiTest.cs" />
     <Compile Include="Tests\SearchHtmlTest.cs" />
     <Compile Include="Tests\SeriesTest.cs" />
+    <Compile Include="Tests\TimeshiftReservationTest.cs" />
     <Compile Include="Tests\VideoMylistLoginTest.cs" />
     <Compile Include="Tests\VideoMylistPublicTest.cs" />
     <Compile Include="Tests\VideoWatchTest.cs" />

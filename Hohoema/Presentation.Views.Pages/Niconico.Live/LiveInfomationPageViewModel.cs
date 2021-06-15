@@ -1,7 +1,4 @@
 ﻿using I18NPortable;
-using Mntone.Nico2;
-using Mntone.Nico2.Embed.Ichiba;
-using Mntone.Nico2.Live.Recommend;
 using NiconicoToolkit.Live;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Helpers;
@@ -34,6 +31,11 @@ using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Presentation.ViewModels.Pages.Niconico.Video;
+using NiconicoToolkit.Ichiba;
+using NiconicoToolkit.Live.Timeshift;
+using NiconicoToolkit;
+using NiconicoToolkit.Recommend;
+using AngleSharp.Html.Parser;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 {
@@ -58,7 +60,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
         string ILiveContent.ProviderId => _liveProgram.ProviderId;
         string ILiveContent.ProviderName { get; }
-        ProviderType ILiveContent.ProviderType => Enum.Parse<ProviderType>(_liveProgram.ProviderType);
+        ProviderType ILiveContent.ProviderType => _liveProgram.ProviderType;
 
 
         string INiconicoObject.Id => _liveProgram.Id;
@@ -154,6 +156,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
             IchibaItems = new ReadOnlyObservableCollection<IchibaItem>(_IchibaItems);
 
+            /*
             ReccomendItems = _ReccomendItems.ToReadOnlyReactiveCollection(x =>
             {
                 var liveId = "lv" + x.ProgramId;
@@ -169,6 +172,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                 return liveInfoVM;
             })
                 .AddTo(_CompositeDisposable);
+            */
 
             IsShowOpenLiveContentButton = 
                 new[]
@@ -273,7 +277,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             {
                 if (SetProperty(ref _LiveProgram, value))
                 {
-                    LivePageUrl = _LiveProgram != null ? NiconicoUrls.LiveWatchPageUrl + LiveId : null;
+                    LivePageUrl = _LiveProgram != null ? NiconicoUrls.MakeLiveWatchPageUrl(LiveId) : null;
                 }
             }
         }
@@ -302,11 +306,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             private set { SetProperty(ref _Community, value); }
         }
 
+        /*
         private DateTime? _ExpiredTime;
         public DateTime? ExpiredTime
         {
             get { return _ExpiredTime; }
             private set { SetProperty(ref _ExpiredTime, value); }
+        }
+        */
+
+        private string _timeshiftStatus;
+        public string TimeshiftStatus
+        {
+            get { return _timeshiftStatus; }
+            set { SetProperty(ref _timeshiftStatus, value); }
         }
 
 
@@ -363,7 +376,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
         public ReadOnlyObservableCollection<IchibaItem> IchibaItems { get; }
 
 
-        private ObservableCollection<LiveRecommendData> _ReccomendItems = new ObservableCollection<LiveRecommendData>();
+        private ObservableCollection<LiveRecommendItem> _ReccomendItems = new ObservableCollection<LiveRecommendItem>();
         public ReadOnlyReactiveCollection<LiveInfoListItemViewModel> ReccomendItems { get; }
 
 
@@ -379,9 +392,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                     {
                         if (!NiconicoSession.IsLoggedIn) { return; }
 
-                        var reservations = await NiconicoSession.Context.Live.GetReservationsAsync();
+                        var reservations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
                         
-                        if (reservations.Any(x => LiveId.EndsWith(x)))
+                        if (reservations.Data.Items.Any(x => LiveId.EndsWith(x.LiveIdWithoutPrefix)))
                         {
                             var result = await DeleteReservation(LiveId, LiveProgram.Title);
                             if (result)
@@ -408,7 +421,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
             bool isDeleted = false;
 
-            var token = await NiconicoSession.Context.Live.GetReservationTokenAsync();
+            var token = await NiconicoSession.ToolkitContext.Timeshift.GetReservationTokenAsync();
 
             if (token == null) { return isDeleted; }
 
@@ -420,11 +433,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                 )
                 )
             {
-                await NiconicoSession.Context.Live.DeleteReservationAsync(liveId, token);
+                await NiconicoSession.ToolkitContext.Timeshift.DeleteTimeshiftReservationAsync(liveId, token);
 
-                var deleteAfterReservations = await NiconicoSession.Context.Live.GetReservationsAsync();
+                var deleteAfterReservations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
 
-                isDeleted = !deleteAfterReservations.Any(x => liveId.EndsWith(x));
+                isDeleted = !deleteAfterReservations.Data.Items.Any(x => liveId.EndsWith(x.LiveIdWithoutPrefix));
                 if (isDeleted)
                 {
                     // 削除成功
@@ -447,7 +460,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
         private async Task<bool> AddReservation(string liveId, string liveTitle)
         {
-            var result = await NiconicoSession.Context.Live.ReservationAsync(liveId);
+            var result = await NiconicoSession.ToolkitContext.Timeshift.ReserveTimeshiftAsync(liveId, overwrite: false);
 
             bool isAdded = false;
             if (result.IsCanOverwrite)
@@ -461,11 +474,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                        "Cancel".Translate()
                     ))
                 {
-                    result = await NiconicoSession.Context.Live.ReservationAsync(liveId, isOverwrite: true);
+                    result = await NiconicoSession.ToolkitContext.Timeshift.ReserveTimeshiftAsync(liveId, overwrite: true);
                 }
             }
 
-            if (result.IsOK)
+            if (result.IsSuccess)
             {
                 // 予約できてるはず
                 // LiveInfoのタイムシフト周りの情報と共に通知
@@ -526,27 +539,30 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             try
             {
                 var programInfo = await NiconicoSession.ToolkitContext.Live.CasApi.GetLiveProgramAsync(liveId);
-                if (programInfo.Meta.Status == 200)
+                if (programInfo.IsSuccess)
                 {
                     await RefreshLiveTagsAsync(programInfo.Data.Tags);
 
                     await RefreshHtmlDescriptionAsync(programInfo.Data.Description);
 
-                    var communityInfo = await NiconicoSession.Context.Community.GetCommunifyInfoAsync(programInfo.Data.SocialGroupId);
-                    if (communityInfo.IsStatusOK)
+                    if (programInfo.Data.ProviderType == ProviderType.Community)
                     {
-                        var community = communityInfo.Community;
-                        Community = new LiveCommunityInfo() 
-                        { 
-                            Id = community.GlobalId, 
-                            Label = community.Name,
-                            Thumbnail = community.Thumbnail,
-                            Description = community.Description
-                        };
-                    }
-                    else
-                    {
-                        Community = null;
+                        var communityInfo = await NiconicoSession.ToolkitContext.Community.GetCommunityInfoAsync(programInfo.Data.SocialGroupId);
+                        if (communityInfo.IsOK)
+                        {
+                            var community = communityInfo.Community;
+                            Community = new LiveCommunityInfo()
+                            {
+                                Id = community.GlobalId,
+                                Label = community.Name,
+                                Thumbnail = community.ThumbnailNonSsl.OriginalString,
+                                Description = community.Description
+                            };
+                        }
+                        else
+                        {
+                            Community = null;
+                        }
                     }
 
                     await RefreshReservationInfo(liveId);
@@ -594,23 +610,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
                 try
                 {
-                    var htmlDocument = new HtmlAgilityPack.HtmlDocument();
-                    htmlDocument.LoadHtml(htmlDescription);
-                    var root = htmlDocument.DocumentNode;
-                    var anchorNodes = root.Descendants("a");
+                    HtmlParser htmlParser = new HtmlParser();
+                    using var document = await htmlParser.ParseDocumentAsync(htmlDescription);
+                    var anchorNodes = document.QuerySelectorAll("a");
 
                     foreach (var anchor in anchorNodes)
                     {
                         var url = new Uri(anchor.Attributes["href"].Value);
                         string label = null;
-                        var text = anchor.InnerText;
+                        var text = anchor.TextContent;
                         if (string.IsNullOrWhiteSpace(text) || text.Contains('\n') || text.Contains('\r'))
                         {
                             label = url.OriginalString;
                         }
                         else
                         {
-                            label = new string(anchor.InnerText.TrimStart(' ', '\n', '\r').TakeWhile(c => c != ' ' || c != '　').ToArray());
+                            label = new string(anchor.TextContent.TrimStart(' ', '\n', '\r').TakeWhile(c => c != ' ' || c != '　').ToArray());
                         }
 
                         DescriptionHyperlinkItems.Add(new HyperlinkItem()
@@ -619,7 +634,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                             Url = url
                         });
 
-                        Debug.WriteLine($"{anchor.InnerText} : {anchor.Attributes["href"].Value}");
+                        Debug.WriteLine($"{anchor.TextContent} : {anchor.Attributes["href"].Value}");
                     }
 
                     /*
@@ -676,12 +691,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
         async Task RefreshReservationInfo(string liveId)
         {
-            var reseevations = await NiconicoSession.Context.Live.GetReservationsInDetailAsync();
-            var thisLiveReservation = reseevations.ReservedProgram.FirstOrDefault(x => liveId.EndsWith(x.Id));
+            var reseevations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
+            var thisLiveReservation = reseevations.Data.Items.FirstOrDefault(x => liveId.EndsWith(x.LiveIdWithoutPrefix));
             if (thisLiveReservation != null)
             {
-                var timeshiftList = await NiconicoSession.Context.Live.GetMyTimeshiftListAsync();
-                ExpiredTime = (timeshiftList.Items.FirstOrDefault(x => x.Id == liveId)?.WatchTimeLimit ?? thisLiveReservation.ExpiredAt).LocalDateTime;
+                var timeshiftList = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsAsync();
+                TimeshiftStatus = timeshiftList.Data.Items.FirstOrDefault(x => x.Id == liveId)?.StatusText ?? thisLiveReservation.ExpiredAt?.ToString();
             }
 
             _IsTsPreserved.Value = thisLiveReservation != null;
@@ -700,15 +715,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
                 try
                 {
-                    var ichibaResponse = await NiconicoSession.Context.Embed.GetIchiba(LiveProgram.Id);
+                    var ichibaResponse = await NiconicoSession.ToolkitContext.Ichiba.GetIchibaItemsAsync(LiveProgram.Id);
                     if (ichibaResponse != null)
                     {
-                        foreach (var ichibaItem in ichibaResponse.GetMainIchibaItems() ?? Enumerable.Empty<IchibaItem>())
+                        foreach (var ichibaItem in ichibaResponse.MainItems ?? Enumerable.Empty<IchibaItem>())
                         {
                             _IchibaItems.Add(ichibaItem);
                         }
 
-                        foreach (var ichibaItem in ichibaResponse.GetPickupIchibaItems() ?? Enumerable.Empty<IchibaItem>())
+                        foreach (var ichibaItem in ichibaResponse.PickupItems ?? Enumerable.Empty<IchibaItem>())
                         {
                             _IchibaItems.Add(ichibaItem);
                         }
@@ -729,7 +744,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             }
         }
 
-        Mntone.Nico2.Live.ReservationsInDetail.ReservationsInDetailResponse _Reservations;
+        TimeshiftReservationsDetailResponse _Reservations;
 
         AsyncLock _LiveRecommendLock = new AsyncLock();
         private readonly AppearanceSettings _appearanceSettings;
@@ -753,7 +768,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                 {
                     if (NiconicoSession.IsLoggedIn)
                     {
-                        _Reservations = await NiconicoSession.Context.Live.GetReservationsInDetailAsync();
+                        _Reservations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
                     }
                 }
                 catch { }
@@ -763,14 +778,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                     LiveRecommendResponse recommendResponse = null;
                     if (LiveProgram?.SocialGroupId.StartsWith("co") ?? false)
                     {
-                        recommendResponse = await NiconicoSession.Context.Live.GetCommunityRecommendAsync(LiveProgram.Id, LiveProgram.SocialGroupId);
+                        recommendResponse = await NiconicoSession.ToolkitContext.Recommend.GetLiveRecommendForUserAsync(LiveProgram.Id, LiveProgram.ProviderId);
                     }
                     else
                     {
-                        recommendResponse = await NiconicoSession.Context.Live.GetOfficialOrChannelLiveRecommendAsync(LiveProgram.Id);
+                        recommendResponse = await NiconicoSession.ToolkitContext.Recommend.GetLiveRecommendForChannelAsync(LiveProgram.Id, LiveProgram.SocialGroupId);
                     }
 
-                    foreach (var recommendItem in recommendResponse.RecommendItems)
+                    foreach (var recommendItem in recommendResponse.Data.Items)
                     {
                         _ReccomendItems.Add(recommendItem);
                     }

@@ -10,8 +10,6 @@ using Prism.Mvvm;
 using System.Reactive.Linq;
 using System.Diagnostics;
 using Reactive.Bindings.Extensions;
-using Mntone.Nico2.Searches.Community;
-using Mntone.Nico2.Searches.Live;
 using Hohoema.Models.UseCase.PageNavigation;
 
 using Unity;
@@ -176,8 +174,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                 SearchTarget.Keyword,
                 SearchTarget.Tag,
                 SearchTarget.Niconama,
-                SearchTarget.Mylist,
-                SearchTarget.Community,
             };
 
             SelectedTarget = new ReactiveProperty<SearchTarget>(_LastSelectedTarget)
@@ -256,8 +252,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 					SearchTarget.Keyword => nameof(SearchResultKeywordPage),
 					SearchTarget.Tag => nameof(SearchResultTagPage),
 					SearchTarget.Niconama => nameof(SearchResultLivePage),
-					SearchTarget.Mylist => nameof(SearchResultMylistPage),
-					SearchTarget.Community => nameof(SearchResultCommunityPage),
 					_ => null
 				};
 

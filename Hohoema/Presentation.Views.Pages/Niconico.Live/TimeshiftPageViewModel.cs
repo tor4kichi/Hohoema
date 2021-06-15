@@ -8,8 +8,7 @@ using Hohoema.Presentation.Services;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using I18NPortable;
 using Microsoft.Toolkit.Collections;
-using Mntone.Nico2.Live.Reservation;
-using Mntone.Nico2.Live.ReservationsInDetail;
+using NiconicoToolkit.Live.Timeshift;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -65,9 +64,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                     {
                         try
                         {
-                            var reservations = await LoginUserLiveReservationProvider.GetReservtionsAsync();
+                            var reservations = await LoginUserLiveReservationProvider.GetReservtionsDetailAsync();
 
-                            var dateOutReservations = reservations.ReservedProgram.Where(x => x.IsOutDated).ToList();
+                            var dateOutReservations = reservations.Data.Items.Where(x => x.IsOutDated).ToList();
 
                             if (dateOutReservations.Count == 0) { return; }
 
@@ -87,11 +86,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                                 () => AsyncInfo.Run<int>(async (cancelToken, progress) =>
                                 {
                                     int cnt = 0;
-                                    var token = await LoginUserLiveReservationProvider.GetReservationTokenAsync();
-
                                     foreach (var reservation in dateOutReservations)
                                     {
-                                        await LoginUserLiveReservationProvider.DeleteReservationAsync(reservation.Id, token);
+                                        await LoginUserLiveReservationProvider.DeleteReservationAsync(reservation.LiveIdWithoutPrefix);
 
                                         await Task.Delay(TimeSpan.FromSeconds(1));
 
@@ -162,14 +159,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
         public LoginUserLiveReservationProvider LiveReservationProvider { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
 
-        ReservationsInDetailResponse _Reservations;
-        MyTimeshiftListData _TimeshiftList;
+        TimeshiftReservationsDetailResponse _Reservations;
+        TimeshiftReservationsResponse _TimeshiftList;
 
 
         async Task<IEnumerable<LiveInfoListItemViewModel>> IIncrementalSource<LiveInfoListItemViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
-            _Reservations ??= await LiveReservationProvider.GetReservtionsAsync();
-            _TimeshiftList ??= await LiveReservationProvider.GetTimeshiftListAsync();
+            _Reservations ??= await LiveReservationProvider.GetReservtionsDetailAsync();
+            //_TimeshiftList ??= await LiveReservationProvider.GetReservtionsAsync();
 
             ct.ThrowIfCancellationRequested();
 
@@ -177,13 +174,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             // 既に存在する場合はスキップ
             var head = pageIndex * pageSize;
             List<LiveInfoListItemViewModel> items = new ();
-            foreach (var item in _Reservations.ReservedProgram.Skip(head).Take(pageSize))
+            foreach (var item in _Reservations.Data.Items.Skip(head).Take(pageSize))
             {
-                var liveData = await NicoLiveProvider.GetLiveInfoAsync(item.Id);
-                var tsItem = _TimeshiftList?.Items.FirstOrDefault(y => y.Id == item.Id);
+                var liveData = await NicoLiveProvider.GetLiveInfoAsync(item.LiveIdWithoutPrefix);
+                //var tsItem = _TimeshiftList.Data.Items.FirstOrDefault(y => y.Id == item.LiveIdWithoutPrefix);
 
-                var liveInfoVM = new LiveInfoListItemViewModel(item.Id);
-                liveInfoVM.ExpiredAt = (tsItem?.WatchTimeLimit ?? item.ExpiredAt).LocalDateTime;
+                var liveInfoVM = new LiveInfoListItemViewModel(item.LiveIdWithoutPrefix);
+                liveInfoVM.ExpiredAt = item.ExpiredAt?.LocalDateTime;
                 liveInfoVM.Setup(liveData.Data);
 
                 liveInfoVM.SetReservation(item);

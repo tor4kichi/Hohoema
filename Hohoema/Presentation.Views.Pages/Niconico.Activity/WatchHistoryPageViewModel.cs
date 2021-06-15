@@ -6,7 +6,6 @@ using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
-//using Mntone.Nico2.Videos.Histories;
 using NiconicoToolkit.Video;
 using Prism.Commands;
 using Prism.Navigation;

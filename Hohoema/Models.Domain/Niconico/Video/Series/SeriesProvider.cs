@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Infrastructure;
 using NiconicoToolkit.Series;
+using NiconicoToolkit.User;
 
 namespace Hohoema.Models.Domain.Niconico.Video.Series
 {
@@ -16,7 +17,7 @@ namespace Hohoema.Models.Domain.Niconico.Video.Series
         {
         }
 
-        public async Task<IList<SeriesItem>> GetUserSeriesAsync(string userId)
+        public async Task<IList<SeriesItem>> GetUserSeriesAsync(UserId userId)
         {
             List<SeriesItem> items = new();
             var res = await _niconicoSession.ToolkitContext.Series.GetUserSeriesAsync(userId, 0);

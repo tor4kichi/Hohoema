@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.User;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -41,7 +42,7 @@ namespace NiconicoToolkit.Follow
         public string StrippedDescription { get; set; }
 
         [JsonPropertyName("id")]
-        public long Id { get; set; }
+        public UserId Id { get; set; }
 
         [JsonPropertyName("nickname")]
         public string Nickname { get; set; }

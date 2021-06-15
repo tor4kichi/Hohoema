@@ -1,20 +1,6 @@
 ﻿{
   "items": [
     {
-      "name": "HtmlAgilityPack.NetCore",
-      "site": "https://github.com/noliar/HtmlAgilityPack.NetCore",
-      "author": [ "Zulfahmi Ahmad" ],
-      "lisence_type": "Apache_v2",
-      "lisence_page_url": "https://github.com/noliar/HtmlAgilityPack.NetCore/blob/master/LICENSE-2.0.txt"
-    },
-    {
-      "name": "Newtonsoft.Json",
-      "site": "http://www.newtonsoft.com/json",
-      "author": [ "James Newton-King" ],
-      "lisence_type": "MIT",
-      "lisence_page_url": "https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md"
-    },
-    {
       "name": "ReactiveProperty",
       "site": "https://github.com/runceel/ReactiveProperty",
       "author": [ "neuecc", "xin9le", "okazuki" ],
@@ -34,13 +20,6 @@
       "author": [ ".NET Foundation" ],
       "lisence_type": "Apache_v2",
       "lisence_page_url": "https://github.com/PrismLibrary/Prism/blob/master/LICENSE"
-    },
-    {
-      "name": "OpenNiconico2",
-      "site": "https://github.com/tor4kichi/OpenNiconico2",
-      "author": [ "mntone", "tor4kichi" ],
-      "lisence_type": "Simplified_BSD",
-      "lisence_page_url": "https://github.com/tor4kichi/OpenNiconico2/blob/master/license.md"
     },
     {
       "name": "Material Design Icons",
@@ -76,13 +55,6 @@
       "author": [ "Mauricio David" ],
       "lisence_type": "MIT",
       "lisence_page_url": "https://github.com/mbdavid/LiteDB/blob/master/LICENSE"
-    },
-    {
-      "name": "MonkeyCache.LiteDB",
-      "site": "https://github.com/jamesmontemagno/monkey-cache",
-      "author": [ "James Montemagno" ],
-      "lisence_type": "MIT",
-      "lisence_page_url": "https://github.com/jamesmontemagno/monkey-cache/blob/master/LICENSE"
     },
     {
       "name": "Macross Software JSON Extensions",
@@ -174,7 +146,20 @@
       "author": [ "Armin Reiter" ],
       "lisence_type": "MIT",
       "lisence_page_url": "https://github.com/codehollow/FeedReader/blob/master/LICENSE"
+    },
+    {
+      "name": "U8XmlParser",
+      "site": "https://github.com/ikorin24/U8XmlParser",
+      "author": [ "ikorin24", "and all contributors" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/ikorin24/U8XmlParser/blob/master/LICENSE"
+    },
+    {
+      "name": "IDisposableAnalyzers",
+      "site": "https://github.com/DotNetAnalyzers/IDisposableAnalyzers",
+      "author": [ ".NET Analyzers" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/DotNetAnalyzers/IDisposableAnalyzers/blob/master/LICENSE"
     }
   ]
-
 }

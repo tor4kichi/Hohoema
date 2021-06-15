@@ -1,5 +1,4 @@
 ﻿using Hohoema.Models.Domain.Niconico.NicoRepo;
-using Newtonsoft.Json;
 using NiconicoToolkit.NicoRepo;
 using Reactive.Bindings.Extensions;
 using System;
@@ -8,6 +7,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -161,7 +161,7 @@ namespace Hohoema.Models.Domain.Legacy
 				{
 					try
 					{
-						var obj = JsonConvert.DeserializeObject<T>(rawText);
+						var obj = JsonSerializer.Deserialize<T>(rawText);
 						obj.FileName = filename;
 						obj.Folder = folder;
 						result = obj;
@@ -198,7 +198,7 @@ namespace Hohoema.Models.Domain.Legacy
 			{
 				await _FileLock.WaitAsync();
 				var file = await Folder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
-				var serializedText = JsonConvert.SerializeObject(this);
+				var serializedText = JsonSerializer.Serialize(this);
 
 				await FileIO.WriteTextAsync(file, serializedText);
 			}

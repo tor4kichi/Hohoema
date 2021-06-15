@@ -11,7 +11,6 @@ using Hohoema.Models.UseCase.Player;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
-using Mntone.Nico2;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;

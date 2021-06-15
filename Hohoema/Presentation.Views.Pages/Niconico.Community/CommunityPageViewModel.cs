@@ -1,6 +1,4 @@
-﻿using Mntone.Nico2.Communities.Detail;
-using Mntone.Nico2.Communities.Info;
-using Hohoema.Models.Domain;
+﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
@@ -26,6 +24,9 @@ using Hohoema.Presentation.ViewModels.Community;
 using Hohoema.Presentation.ViewModels.Niconico.User;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
+using NiconicoToolkit.Community;
+using NiconicoToolkit;
+
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 {
     using CommunityFollowContext = FollowContext<ICommunity>;
@@ -92,7 +93,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 
         public string CommunityId { get; private set; }
 
-		public Mntone.Nico2.Communities.Info.CommunityInfo CommunityInfo { get; private set; }
+		public CommunityInfoData CommunityInfo { get; private set; }
 
 
 		public string CommunityName => CommunityInfo?.Name;
@@ -101,29 +102,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 
 		public bool IsPublic => CommunityInfo?.IsPublic ?? false;
 
-		public bool IsOfficial => CommunityInfo?.IsOfficial ?? false;
+		public int CommunityLevel => CommunityInfo?.Level ?? 0;
 
-		public uint MaxUserCount => CommunityInfo?.UserMax ?? 0;
-
-		public uint UserCount => CommunityInfo?.UserCount ?? 0;
-
-		public uint CommunityLevel => CommunityInfo?.Level ?? 0;
-
-		public DateTime CreatedAt => CommunityInfo?.CreateTime ?? DateTime.MinValue;
-
-		public string ThumbnailUrl => CommunityInfo?.Thumbnail;
-
-		public Uri TopUrl => CommunityInfo?.TopUrl != null ? new Uri(CommunityInfo.TopUrl) : null;
+		public string ThumbnailUrl => CommunityInfo?.ThumbnailNonSsl?.OriginalString;
 
 
-
-		public CommunityDetail CommunityDetail { get; private set; }
-
-		public string CommunityOwnerName => CommunityDetail?.OwnerUserName;
-
-		public uint VideoCount => CommunityDetail?.VideoCount ?? 0;
-
-		public string PrivilegeDescription => CommunityDetail?.PrivilegeDescription;
 
 		public string CanNotFollowReason { get; private set; }
 
@@ -155,7 +138,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 		public bool HasNews { get; private set; }
 
 		// 生放送
-		public List<CurrentLiveInfoViewModel> CurrentLiveInfoList { get; private set; }
+		//public List<CurrentLiveInfoViewModel> CurrentLiveInfoList { get; private set; }
 
 		// 動画
 		public List<CommunityVideoInfoViewModel> CommunityVideoSamples { get; private set; }
@@ -207,28 +190,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 
                     var res = await CommunityProvider.GetCommunityInfo(CommunityId);
 
-                    if (res == null || !res.IsStatusOK) { return; }
+                    if (res == null || !res.IsOK) { return; }
 
                     CommunityInfo = res.Community;
 
                     RaisePropertyChanged(nameof(CommunityName));
                     RaisePropertyChanged(nameof(IsPublic));
                     RaisePropertyChanged(nameof(CommunityDescription));
-                    RaisePropertyChanged(nameof(IsOfficial));
-                    RaisePropertyChanged(nameof(MaxUserCount));
-                    RaisePropertyChanged(nameof(UserCount));
                     RaisePropertyChanged(nameof(CommunityLevel));
-                    RaisePropertyChanged(nameof(CreatedAt));
                     RaisePropertyChanged(nameof(ThumbnailUrl));
-                    RaisePropertyChanged(nameof(TopUrl));
-
-
-
-                    var detail = await CommunityProvider.GetCommunityDetail(CommunityId);
-
-                    if (detail == null && !detail.IsStatusOK) { return; }
-
-                    CommunityDetail = detail.CommunitySammary.CommunityDetail;
 
                     ApplicationTheme appTheme;
                     if (_appearanceSettings.ApplicationTheme == ElementTheme.Dark)
@@ -243,69 +213,72 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
                     {
                         appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
                     }
-                    var profileHtmlId = $"{CommunityId}_profile";
-                    ProfileHtmlFileUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(profileHtmlId, CommunityDetail.ProfielHtml, appTheme);
-
-                    OwnerUserInfo = new UserInfoViewModel(
-                        CommunityDetail.OwnerUserName,
-                        CommunityDetail.OwnerUserId
-                        );
-
-                    IsOwnedCommunity = NiconicoSession.UserId.ToString() == OwnerUserInfo.Id;
-
-                    Tags = CommunityDetail.Tags.Select(x => new NicoVideoTag(x))
-                        .ToList();
-
-                    FutureLiveList = CommunityDetail.FutureLiveList.Select(x => new CommunityLiveInfoViewModel(x))
-                        .ToList();
-
-                    RecentLiveList = CommunityDetail.RecentLiveList.Select(x => new CommunityLiveInfoViewModel(x))
-                        .ToList();
-
-                    NewsList = new List<CommunityNewsViewModel>();
-                    foreach (var news in CommunityDetail.NewsList)
-                    {
-                        var newsVM = await CommunityNewsViewModel.Create(CommunityId, news.Title, news.PostAuthor, news.PostDate, news.ContentHtml, PageManager, _appearanceSettings);
-                        NewsList.Add(newsVM);
-                    }
+                    //var profileHtmlId = $"{CommunityId}_profile";
+                    //ProfileHtmlFileUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(profileHtmlId, CommunityDetail.ProfielHtml, appTheme);
 
 
+                    //OwnerUserInfo = new UserInfoViewModel(
+                    //    CommunityDetail.OwnerUserName,
+                    //    CommunityDetail.OwnerUserId
+                    //    );
 
-                    HasNews = NewsList.Count > 0;
+                    //IsOwnedCommunity = NiconicoSession.UserId.ToString() == OwnerUserInfo.Id;
+
+                    //Tags = CommunityDetail.Tags.Select(x => new NicoVideoTag(x))
+                    //    .ToList();
+
+                    //FutureLiveList = CommunityDetail.FutureLiveList.Select(x => new CommunityLiveInfoViewModel(x))
+                    //    .ToList();
+
+                    //RecentLiveList = CommunityDetail.RecentLiveList.Select(x => new CommunityLiveInfoViewModel(x))
+                    //    .ToList();
+
+                    //NewsList = new List<CommunityNewsViewModel>();
+                    //foreach (var news in CommunityDetail.NewsList)
+                    //{
+                    //    var newsVM = await CommunityNewsViewModel.Create(CommunityId, news.Title, news.PostAuthor, news.PostDate, news.ContentHtml, PageManager, _appearanceSettings);
+                    //    NewsList.Add(newsVM);
+                    //}
 
 
-                    CurrentLiveInfoList = CommunityDetail.CurrentLiveList.Select(x => new CurrentLiveInfoViewModel(x, CommunityDetail))
-                        .ToList();
 
-                    HasCurrentLiveInfo = CurrentLiveInfoList.Count > 0;
-
-                    CommunityVideoSamples = new List<CommunityVideoInfoViewModel>();
-                    foreach (var sampleVideo in CommunityDetail.VideoList)
-                    {
-                        var videoInfoVM = new CommunityVideoInfoViewModel(sampleVideo);
-
-                        CommunityVideoSamples.Add(videoInfoVM);
-                    }
+                    //HasNews = NewsList.Count > 0;
 
 
-                    RaisePropertyChanged(nameof(CommunityOwnerName));
-                    RaisePropertyChanged(nameof(VideoCount));
-                    RaisePropertyChanged(nameof(PrivilegeDescription));
+                    //CurrentLiveInfoList = CommunityDetail.CurrentLiveList.Select(x => new CurrentLiveInfoViewModel(x, CommunityDetail))
+                    //    .ToList();
+
+                    //HasCurrentLiveInfo = CurrentLiveInfoList.Count > 0;
+
+                    //CommunityVideoSamples = new List<CommunityVideoInfoViewModel>();
+                    ///*
+                    //foreach (var sampleVideo in CommunityDetail.VideoList)
+                    //{
+                    //    var videoInfoVM = new CommunityVideoInfoViewModel(sampleVideo);
+
+                    //    CommunityVideoSamples.Add(videoInfoVM);
+                    //}
+                    //*/
+
+
+                    //RaisePropertyChanged(nameof(CommunityOwnerName));
+                    //RaisePropertyChanged(nameof(VideoCount));
+                    //RaisePropertyChanged(nameof(PrivilegeDescription));
                     //					RaisePropertyChanged(nameof(IsJoinAutoAccept));
                     //					RaisePropertyChanged(nameof(IsJoinWithoutPrivacyInfo));
                     //					RaisePropertyChanged(nameof(IsCanLiveOnlyPrivilege));
                     //					RaisePropertyChanged(nameof(IsCanAcceptJoinOnlyPrivilege));
                     //					RaisePropertyChanged(nameof(IsCanSubmitVideoOnlyPrivilege));
 
-                    RaisePropertyChanged(nameof(ProfileHtmlFileUri));
-                    RaisePropertyChanged(nameof(OwnerUserInfo));
-                    RaisePropertyChanged(nameof(Tags));
-                    RaisePropertyChanged(nameof(FutureLiveList));
-                    RaisePropertyChanged(nameof(NewsList));
-                    RaisePropertyChanged(nameof(HasNews));
-                    RaisePropertyChanged(nameof(CurrentLiveInfoList));
-                    RaisePropertyChanged(nameof(HasCurrentLiveInfo));
-                    RaisePropertyChanged(nameof(CommunityVideoSamples));
+                    //RaisePropertyChanged(nameof(ProfileHtmlFileUri));
+                    //RaisePropertyChanged(nameof(OwnerUserInfo));
+                    //RaisePropertyChanged(nameof(Tags));
+                    //RaisePropertyChanged(nameof(FutureLiveList));
+                    //RaisePropertyChanged(nameof(NewsList));
+                    //RaisePropertyChanged(nameof(HasNews));
+                    //RaisePropertyChanged(nameof(CurrentLiveInfoList));
+                    //RaisePropertyChanged(nameof(HasCurrentLiveInfo));
+                    //RaisePropertyChanged(nameof(CommunityVideoSamples));
 
 
                     Community = new Community() { Id = CommunityId, Label = CommunityName };
@@ -354,7 +327,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
                 return _OpenCommunityWebPagePageCommand
                     ?? (_OpenCommunityWebPagePageCommand = new DelegateCommand(async () =>
                     {
-                        await Launcher.LaunchUriAsync(TopUrl);
+                        if (ContentIdHelper.IsCommunityId(CommunityId))
+                        {
+                            await Launcher.LaunchUriAsync(new Uri(NiconicoUrls.MakeCommunityPageUrl(CommunityId)));
+                        }
                     }));
             }
         }
@@ -399,10 +375,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 				{
 					CanNotFollowReason = "参加には承認が必要";
 				}
-				else if (CommunityInfo.option_flag_details.CommunityPrivUserAuth == "1")
-				{
-					CanNotFollowReason = "参加には個人情報公開が必要";
-				}
+				//else if (CommunityInfo.OptionFlagDetails.CommunityPrivUserAuth == "1")
+				//{
+				//	CanNotFollowReason = "参加には個人情報公開が必要";
+				//}
 				else
 				{
 					CanNotFollowReason = null;

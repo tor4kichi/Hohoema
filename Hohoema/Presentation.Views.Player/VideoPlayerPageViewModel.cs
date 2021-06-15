@@ -378,7 +378,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 // デフォルト指定した画質で再生開始
                 await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition);
             }
-            catch (Models.Domain.VideoCache.VideoCacheException cacheEx)
+            catch (Models.Domain.VideoCache.VideoCacheException)
             {
                 result = await _videoStreamingOriginOrchestrator.PreperePlayWithOnline(VideoId);
                 VideoDetails = result.VideoDetails;
@@ -407,7 +407,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             smtc.DisplayUpdater.Update();
 
             // 実行順依存：VideoPlayerで再生開始後に次シリーズ動画を設定する
-            VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails.Series);
+            VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails);
             Debug.WriteLine("次シリーズ動画: " + VideoDetails.Series?.Video.Next?.Title);
 
             VideoSeries = VideoDetails.Series is not null and var series ? new VideoSeriesViewModel(series) : null;

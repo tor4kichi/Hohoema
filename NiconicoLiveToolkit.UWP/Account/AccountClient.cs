@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Http.Headers;
 using Windows.Web.Http.Headers;
+using System.Text.Json;
+using NiconicoToolkit.User;
 
 #if WINDOWS_UWP
 using Windows.Web.Http;
@@ -37,13 +39,13 @@ namespace NiconicoToolkit.Account
 
     public sealed class NiconicoLoggedInEventArgs
     {
-        public NiconicoLoggedInEventArgs(uint userId, bool isPremiumAccount)
+        public NiconicoLoggedInEventArgs(UserId userId, bool isPremiumAccount)
         {
             UserId = userId;
             IsPremiumAccount = isPremiumAccount;
         }
 
-        public uint UserId { get; }
+        public UserId UserId { get; }
         public bool IsPremiumAccount { get; }
     }
 
@@ -89,7 +91,7 @@ namespace NiconicoToolkit.Account
             return __IsSignedInAsync_Internal(res);
         }
 
-        public async Task<(NiconicoSessionStatus status, NiconicoAccountAuthority authority, uint userId)> SignInAsync(MailAndPasswordAuthToken authToken, CancellationToken ct = default)
+        public async Task<(NiconicoSessionStatus status, NiconicoAccountAuthority authority, UserId userId)> SignInAsync(MailAndPasswordAuthToken authToken, CancellationToken ct = default)
         {
             var dict = new Dictionary<string, string>()
             {
@@ -101,7 +103,7 @@ namespace NiconicoToolkit.Account
                 var res = await _context.GetAsync(LoginPageUrl);
                 if (!res.IsSuccessStatusCode)
                 {
-                    return (NiconicoSessionStatus.ServiceUnavailable, NiconicoAccountAuthority.NotSignedIn, uint.MinValue);
+                    return (NiconicoSessionStatus.ServiceUnavailable, NiconicoAccountAuthority.NotSignedIn, default);
                 }
 
                 var signInStatus = __IsSignedInAsync_Internal(res);
@@ -118,7 +120,7 @@ namespace NiconicoToolkit.Account
             {
                 RequireTwoFactorAuth?.Invoke(this, new NiconicoTwoFactorAuthEventArgs(this, loginResultResponse.RequestMessage.RequestUri));
 
-                return (NiconicoSessionStatus.RequireTwoFactorAuth, NiconicoAccountAuthority.NotSignedIn, uint.MinValue);
+                return (NiconicoSessionStatus.RequireTwoFactorAuth, NiconicoAccountAuthority.NotSignedIn, default);
             }
             else
             {
@@ -126,12 +128,12 @@ namespace NiconicoToolkit.Account
                 if (result.authority == NiconicoAccountAuthority.NotSignedIn)
                 {
                     LogInFailed?.Invoke(this, EventArgs.Empty);
-                    return (NiconicoSessionStatus.Failed, result.authority, uint.MinValue);
+                    return (NiconicoSessionStatus.Failed, result.authority, default);
                 }
                 else
                 {
-                    LoggedIn?.Invoke(this, new NiconicoLoggedInEventArgs(result.userId.Value, result.authority == NiconicoAccountAuthority.Premium));
-                    return (NiconicoSessionStatus.Success, result.authority, result.userId.Value);
+                    LoggedIn?.Invoke(this, new NiconicoLoggedInEventArgs(result.userId, result.authority == NiconicoAccountAuthority.Premium));
+                    return (NiconicoSessionStatus.Success, result.authority, result.userId);
                 }
             }
         }
@@ -176,7 +178,7 @@ namespace NiconicoToolkit.Account
             return NiconicoSessionStatus.Failed;
         }
 
-        private (NiconicoAccountAuthority authority, uint? userId) __GetAccountAuthority_Internal(HttpResponseMessage response)
+        private (NiconicoAccountAuthority authority, UserId userId) __GetAccountAuthority_Internal(HttpResponseMessage response)
         {
             if (response.IsSuccessStatusCode)
             {
@@ -189,7 +191,7 @@ namespace NiconicoToolkit.Account
                     {
                         if (response.Headers.TryGetValue(XNiconicoId, out var userId))
                         {
-                            return (auth, userId.ToUInt());
+                            return (auth, new UserId(userId));
                         }
                     }
                 }
@@ -202,7 +204,7 @@ namespace NiconicoToolkit.Account
                     {
                         if (response.Headers.TryGetValues(XNiconicoId, out var userIds))
                         {
-                            var userId = userIds.First().ToUInt();
+                            var userId = new UserId(userIds.First().ToUInt());
                             return (auth, userId);
                         }
                     }
@@ -210,7 +212,7 @@ namespace NiconicoToolkit.Account
 #endif
             }
 
-            return (NiconicoAccountAuthority.NotSignedIn, null);
+            return (NiconicoAccountAuthority.NotSignedIn, default);
         }
 
 
@@ -248,7 +250,7 @@ namespace NiconicoToolkit.Account
             if (status == NiconicoSessionStatus.Success)
             {
                 var info = __GetAccountAuthority_Internal(res);
-                LoggedIn?.Invoke(this, new NiconicoLoggedInEventArgs(info.userId.Value, info.authority == NiconicoAccountAuthority.Premium));
+                LoggedIn?.Invoke(this, new NiconicoLoggedInEventArgs(info.userId, info.authority == NiconicoAccountAuthority.Premium));
             }
 
             return status;

@@ -11,7 +11,5 @@ namespace Hohoema.Models.Domain.PageNavigation
 		Keyword,
 		Tag,
         Niconama,
-        Mylist,
-		Community,
 	}
 }

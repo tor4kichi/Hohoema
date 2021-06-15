@@ -13,7 +13,7 @@
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:myConv="using:Hohoema.Presentation.Views.Converters"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
@@ -23,7 +23,13 @@
   </Page.Resources>
   
   <Grid>
-    <videolistPage:VideoItemsListView ItemsSource="{Binding MylistItems}" ItemCommand="{Binding PlayWithCurrentPlaylistCommand}" RefreshCommand="{Binding RefreshCommand}" PlaylistPassToFlyout="{Binding Mylist.Value}" x:Name="VideoItemsListView">
+    <videolistPage:VideoItemsListView ItemsSource="{Binding MylistItems}" 
+                                      ItemCommand="{Binding PlayWithCurrentPlaylistCommand}" 
+                                      ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
+                                      RefreshCommand="{Binding RefreshCommand}" 
+                                      PlaylistPassToFlyout="{Binding Mylist.Value}" 
+                                      x:Name="VideoItemsListView"
+                                      >
       <videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
         <DataTemplate>
           <flyouts:VideoItemFlyout />
@@ -94,13 +100,6 @@
           </CommandBar>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
-      <videolistPage:VideoItemsListView.ItemTemplate>
-        <DataTemplate>
-          <Grid>
-            <videolistPage:VideoListItemControl />
-          </Grid>
-        </DataTemplate>
-      </videolistPage:VideoItemsListView.ItemTemplate>
     </videolistPage:VideoItemsListView>
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>

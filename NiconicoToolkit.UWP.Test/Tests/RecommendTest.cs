@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NiconicoToolkit.Recommend;
+using NiconicoToolkit.User;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -59,19 +60,60 @@ namespace NiconicoToolkit.UWP.Test.Tests
         [DataRow("sm38589779")]
         public async Task GetVideoRecommendAsync(string videoId)
         {
-            var res = await _context.Recommend.GetVideoReccommendAsync(videoId);
+            var res = await _context.Recommend.GetVideoRecommendForNotChannelAsync(videoId);
 
             TestRecommendResponse(res);
         }
 
         [TestMethod]
         [DataRow("so38760676")]
-        public async Task GetChannelVideoRecommendAsync(string videoId)
+        public async Task GetVideoChannelRecommendAsync(string videoId)
         {
             var video = await _context.SearchWithCeApi.Video.IdSearchAsync(videoId);            
-            var res = await _context.Recommend.GetChannelVideoReccommendAsync(videoId, video.Video.CommunityId, video.Tags.TagInfo.Select(x => x.Tag));
+            var res = await _context.Recommend.GetVideoRecommendForChannelAsync(videoId, video.Video.CommunityId, video.Tags.TagInfo.Select(x => x.Tag));
             
             TestRecommendResponse(res);
         }
+
+
+        [TestMethod]
+        [DataRow("lv332342875", "91190464")]
+        public async Task GetLiveUserRecommendAsync(string liveId, string userId)
+        {
+            var res = await _context.Recommend.GetLiveRecommendForUserAsync(liveId, userId);
+            TestLiveRecommend(res);
+        }
+
+
+        [TestMethod]
+        [DataRow("lv331311774", "ch2647027")]
+        public async Task GetLiveChannelRecommendAsync(string liveId, string channelId)
+        {
+            var res = await _context.Recommend.GetLiveRecommendForChannelAsync(liveId, channelId);
+            TestLiveRecommend(res);
+        }
+
+        private void TestLiveRecommend(LiveRecommendResponse res)
+        {
+
+            Assert.IsTrue(res.IsSuccess, "failed");
+
+            Assert.IsNotNull(res.Data, "res.Data is null");
+            Assert.IsNotNull(res.Data.RecipeId, "res.Data.RecipeId is null");
+            Assert.IsNotNull(res.Data.RecommendId, "res.Data.RecommendId is null");
+            Assert.IsNotNull(res.Data.Items, "res.Data.Values is null");
+
+            if (res.Data.Items.Any())
+            {
+                foreach (var item in res.Data.Items.Take(3))
+                {
+                    Assert.IsNotNull(item.Id, "item.Id is null");
+                    Assert.IsNotNull(item.ContentMeta, "item.ContentMeta is null");
+                    Assert.IsNotNull(item.ContentMeta.ContentId, "item.ContentMeta.ContentId is null");
+                    Assert.IsNotNull(item.ContentMeta.Title, "item.ContentMeta.Title is null");
+                }
+            }
+        }
+
     }
 }

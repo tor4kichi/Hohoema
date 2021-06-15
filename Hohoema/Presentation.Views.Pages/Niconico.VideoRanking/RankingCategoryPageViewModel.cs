@@ -30,8 +30,8 @@ using Hohoema.Models.Domain.Notification;
 using Hohoema.Models.Domain.Niconico;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Rss.Video;
-using MonkeyCache;
 using Microsoft.Toolkit.Collections;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 {
@@ -134,7 +134,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             set => SetProperty(ref _RankingGenre, value);
         }
 
-        public ReactiveProperty<RankingGenreTag> SelectedRankingTag { get; private set; }
+        public ReactivePropertySlim<RankingGenreTag> SelectedRankingTag { get; private set; }
         public ReactiveProperty<RankingTerm?> SelectedRankingTerm { get; private set; }
 
         public IReadOnlyReactiveProperty<RankingTerm[]> CurrentSelectableRankingTerms { get; }
@@ -142,8 +142,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         public ObservableCollection<RankingGenreTag> PickedTags { get; } = new ObservableCollection<RankingGenreTag>();
 
 
-        public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
-        public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
+        public ReactivePropertySlim<bool> IsFailedRefreshRanking { get; private set; }
+        public ReactivePropertySlim<bool> CanChangeRankingParameter { get; private set; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
@@ -152,14 +152,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public RankingProvider RankingProvider { get; }
 
-        private readonly IBarrel _barrel;
         private readonly NiconicoSession _niconicoSession;
         private readonly NotificationService _notificationService;
         private readonly FastAsyncLock _updateLock = new FastAsyncLock();
 
-
+        MemoryCache _rankingMemoryCache;
         public RankingCategoryPageViewModel(
-            IBarrel barrel,
             ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
             PageManager pageManager,
@@ -171,7 +169,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
-            _barrel = barrel;
             ApplicationLayoutManager = applicationLayoutManager;
             _niconicoSession = niconicoSession;
             PageManager = pageManager;
@@ -181,12 +178,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             RankingSettings = rankingSettings;
             _notificationService = notificationService;
             SelectionModeToggleCommand = selectionModeToggleCommand;
-            IsFailedRefreshRanking = new ReactiveProperty<bool>(false)
-                .AddTo(_CompositeDisposable);
-            CanChangeRankingParameter = new ReactiveProperty<bool>(false)
+
+            _rankingMemoryCache = new MemoryCache(new MemoryCacheOptions())
                 .AddTo(_CompositeDisposable);
 
-            SelectedRankingTag = new ReactiveProperty<RankingGenreTag>()
+            IsFailedRefreshRanking = new ReactivePropertySlim<bool>(false)
+                .AddTo(_CompositeDisposable);
+            CanChangeRankingParameter = new ReactivePropertySlim<bool>(false)
+                .AddTo(_CompositeDisposable);
+
+            SelectedRankingTag = new ReactivePropertySlim<RankingGenreTag>()
                 .AddTo(_CompositeDisposable);
             SelectedRankingTerm = new ReactiveProperty<RankingTerm?>(RankingTerm.Hour)
                 .AddTo(_CompositeDisposable);
@@ -242,7 +243,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                 })
                 .AddTo(_CompositeDisposable);
         }
-
 
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
@@ -379,7 +379,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             IIncrementalSource<RankedVideoListItemControlViewModel> source = null;
             try
             {
-                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _barrel);
+                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _rankingMemoryCache);
 
                 CanChangeRankingParameter.Value = true;
 
@@ -408,9 +408,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
         private readonly NiconicoSession _niconicoSession;
         private readonly NicoVideoProvider _nicoVideoProvider;
-        private readonly IBarrel _barrel;
-
-
+        private readonly MemoryCache _memoryCache;
         RankingOptions _options;
         RssVideoResponse _rankingRssResponse;
 
@@ -420,13 +418,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             RankingTerm term,
             NiconicoSession niconicoSession,
             NicoVideoProvider nicoVideoProvider,
-            IBarrel barrel
+            MemoryCache memoryCache
             )
             : base()
         {
             _niconicoSession = niconicoSession;
             _nicoVideoProvider = nicoVideoProvider;
-            _barrel = barrel;
+            _memoryCache = memoryCache;
             _options = new RankingOptions(genre, term, tag);
         }
 
@@ -435,17 +433,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
         private async ValueTask<RssVideoResponse> GetCachedRankingRssAsync()
         {
-            var key = _options.ToString();
-            if (!_barrel.IsExpired(key))
+            if (_memoryCache.TryGetValue<RssVideoResponse>(_options, out var res))
             {
-                return _barrel.Get<RssVideoResponse>(key);
+                return res;
             }
             else
             {
-                var res = await _niconicoSession.ToolkitContext.Video.Ranking.GetRankingRssAsync(_options.Genre, _options.Tag, _options.Term);
+                res = await _niconicoSession.ToolkitContext.Video.Ranking.GetRankingRssAsync(_options.Genre, _options.Tag, _options.Term);
                 if (res.IsOK)
                 {
-                    _barrel.Add(key, res, RankingResponseExpireDuration);
+                    _memoryCache.Set(_options, res, TimeSpan.FromMinutes(5));
                 }
                 return res;
             }

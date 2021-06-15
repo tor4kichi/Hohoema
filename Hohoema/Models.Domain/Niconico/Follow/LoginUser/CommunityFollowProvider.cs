@@ -7,6 +7,9 @@ using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using NiconicoToolkit.Follow;
 using NiconicoToolkit.Account;
+using NiconicoToolkit.Community;
+using NiconicoToolkit;
+using NiconicoToolkit.User;
 
 namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 {
@@ -49,7 +52,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public static CommunituFollowAdditionalInfo CommunituFollowAdditionalInfo { get; set; }
 
-        public async Task<UserOwnedCommunityResponse> GetUserOwnedCommunitiesAsync(uint userId)
+        public async Task<UserOwnedCommunityResponse> GetUserOwnedCommunitiesAsync(UserId userId)
         {
             if (!_niconicoSession.IsLoggedIn)
             {
@@ -110,13 +113,13 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         public async Task<bool> IsFollowingAsync(string id)
         {
-            var res = await _niconicoSession.ToolkitContext.Follow.Community.GetCommunityAuthorityAsync(id);
+            var res = await _niconicoSession.ToolkitContext.Community.GetCommunityAuthorityForLoginUserAsync(id);
             return res.Data?.IsMember ?? false;
         }
 
         public Task<CommunityAuthorityResponse> GetCommunityAuthorityAsync(string id)
         {
-            return _niconicoSession.ToolkitContext.Follow.Community.GetCommunityAuthorityAsync(id);
+            return _niconicoSession.ToolkitContext.Community.GetCommunityAuthorityForLoginUserAsync(id);
         }
     }
 

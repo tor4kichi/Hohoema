@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-  xmlns:nicoSeries="using:Mntone.Nico2.Videos.Series" 
   xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:viewModels="using:Hohoema.Presentation.ViewModels.Niconico.Series" 
   xmlns:i="using:Microsoft.Xaml.Interactivity"

@@ -291,8 +291,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
         public ReactiveProperty<MylistPlaylist> Mylist { get; private set; }
 
-        private ICollection<IVideoContent> _mylistItems;
-        public ICollection<IVideoContent> MylistItems
+        private ICollection<VideoListItemControlViewModel> _mylistItems;
+        public ICollection<VideoListItemControlViewModel> MylistItems
         {
             get { return _mylistItems; }
             private set { SetProperty(ref _mylistItems, value); }
@@ -683,20 +683,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         }
        
 
-        private ICollection<IVideoContent> CreateItemsSource(MylistPlaylist mylist)
+        private ICollection<VideoListItemControlViewModel> CreateItemsSource(MylistPlaylist mylist)
         {
             var sortItem = SelectedSortItem.Value;
             if (sortItem == null) { return null; }
 
             if (mylist is LoginUserMylistPlaylist loginUserMylist)
             {
-                return new HohoemaListingPageViewModelBase<IVideoContent>.HohoemaIncrementalLoadingCollection(
+                return new HohoemaListingPageViewModelBase<VideoListItemControlViewModel>.HohoemaIncrementalLoadingCollection(
                     new LoginUserMylistIncrementalSource(loginUserMylist, sortItem.Key, sortItem.Order)
                     );
             }
             else
             {
-                return new HohoemaListingPageViewModelBase<IVideoContent>.HohoemaIncrementalLoadingCollection(
+                return new HohoemaListingPageViewModelBase<VideoListItemControlViewModel>.HohoemaIncrementalLoadingCollection(
                     new MylistIncrementalSource(mylist, sortItem.Key, sortItem.Order)
                     );
             }
@@ -717,7 +717,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         }
     }
     
-	public class MylistIncrementalSource : IIncrementalSource<IVideoContent>
+	public class MylistIncrementalSource : IIncrementalSource<VideoListItemControlViewModel>
 	{
         private readonly MylistPlaylist _mylist;
 
@@ -736,7 +736,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         public MylistSortKey DefaultSortKey { get; }
         public MylistSortOrder DefaultSortOrder { get; }
 
-        async Task<IEnumerable<IVideoContent>> IIncrementalSource<IVideoContent>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
+        async Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
         {
             try
             {
@@ -744,7 +744,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
                 if (!result.IsSuccess || result.Items == null || !result.Items.Any())
                 {
-                    return Enumerable.Empty<IVideoContent>();
+                    return Enumerable.Empty<VideoListItemControlViewModel>();
                 }
 
                 return result.Items.Select(x => new VideoListItemControlViewModel(x.Video));
@@ -752,13 +752,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             catch (Exception e)
             {
                 ErrorTrackingManager.TrackError(e);
-                return Enumerable.Empty<IVideoContent>();
+                return Enumerable.Empty<VideoListItemControlViewModel>();
             }
         }
 
     }
 
-    public class LoginUserMylistIncrementalSource : IIncrementalSource<IVideoContent>
+    public class LoginUserMylistIncrementalSource : IIncrementalSource<VideoListItemControlViewModel>
     {
         private readonly LoginUserMylistPlaylist _mylist;
         
@@ -779,11 +779,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
         bool isEndReached;
 
-        async Task<IEnumerable<IVideoContent>> IIncrementalSource<IVideoContent>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
+        async Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
             if (isEndReached)
             {
-                return Enumerable.Empty<IVideoContent>();
+                return Enumerable.Empty<VideoListItemControlViewModel>();
             }
 
             var items = await _mylist.GetLoginUserMylistItemsAsync(pageIndex, pageSize, DefaultSortKey, DefaultSortOrder);

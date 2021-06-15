@@ -56,7 +56,7 @@ namespace Hohoema.Models.Domain.VideoCache
             try
             {
                 var uri = await _dmcVideoStreamingSession.GetDownloadUrlAndSetupDownloadSession();
-                downloadStream = await HttpRandomAccessStream.CreateAsync(_dmcVideoStreamingSession.NiconicoSession.Context.HttpClient, uri);
+                downloadStream = await HttpRandomAccessStream.CreateAsync(_dmcVideoStreamingSession.NiconicoSession.ToolkitContext.HttpClient, uri);
             }
             catch
             {

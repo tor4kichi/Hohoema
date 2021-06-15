@@ -119,7 +119,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         {
             _nicoVideoRepository = new NicoVideoCacheRepository(liteDatabase);
             _nicoVideoOwnerRepository = new NicoVideoOwnerCacheRepository(liteDatabase);
-            _cache = new MemoryCache(new MemoryCacheOptions());
+            _cache ??= new MemoryCache(new MemoryCacheOptions());
             _entryOptions = new MemoryCacheEntryOptions()
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
@@ -128,7 +128,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             };
         }
 
-        MemoryCache _cache;
+        static MemoryCache _cache;
         MemoryCacheEntryOptions _entryOptions;
         NiconicoToolkit.SearchWithCeApi.Video.VideoSearchSubClient SearchClient => _niconicoSession.ToolkitContext.SearchWithCeApi.Video;
 

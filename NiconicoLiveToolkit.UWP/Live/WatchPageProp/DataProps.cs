@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace NiconicoToolkit.Live.WatchPageProp
 {
+    using NiconicoToolkit.User;
     // Generated with https://app.quicktype.io/
 
     using System;
@@ -319,7 +320,7 @@ namespace NiconicoToolkit.Live.WatchPageProp
         [J("text")] public string Text { get; set; }
         [J("existsNicopediaArticle")] public bool ExistsNicopediaArticle { get; set; }
         [J("nicopediaArticlePageUrl")] public Uri NicopediaArticlePageUrl { get; set; }
-        [J("type")] public TagType Type { get; set; }
+        [J("type")] public string Type { get; set; }
         [J("isLocked")] public bool IsLocked { get; set; }
         [J("isDeletable")] public bool IsDeletable { get; set; }
     }
@@ -425,7 +426,7 @@ namespace NiconicoToolkit.Live.WatchPageProp
         [J("description")] public string Description { get; set; }
         [J("tags")] public string Tags { get; set; }
         [J("live_status")] public LiveStatus LiveStatus { get; set; }
-        [J("user_id")] public long? UserId { get; set; }
+        [J("user_id")] public UserId? UserId { get; set; }
         [J("provider_type")] public ProviderType ProviderType { get; set; }
         [J("timeshift_expired")] public DateTimeOffset? TimeshiftExpired { get; set; }
         [J("open_time")] public DateTimeOffset OpenTime { get; set; }

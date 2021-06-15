@@ -43,10 +43,10 @@ namespace NiconicoToolkit.UWP.Test.Tests
 
 
         [TestMethod]
-        [DataRow("53842185")] // ユーザー
-        public async Task GetUserSeriesAsync(string seriesId)
+        [DataRow(53842185)] // ユーザー
+        public async Task GetUserSeriesAsync(int userId)
         {
-            var res = await _context.Series.GetUserSeriesAsync(seriesId);
+            var res = await _context.Series.GetUserSeriesAsync(userId);
             Assert.IsTrue(res.IsSuccess);
 
             Assert.IsNotNull(res.Data);

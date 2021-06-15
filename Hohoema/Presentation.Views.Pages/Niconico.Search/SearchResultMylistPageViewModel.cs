@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Mntone.Nico2.Searches.Mylist;
 using Prism.Commands;
 using Mntone.Nico2;
 using Reactive.Bindings;
@@ -258,6 +257,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         async Task<IEnumerable<MylistPlaylist>> IIncrementalSource<MylistPlaylist>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
+            return Enumerable.Empty<MylistPlaylist>();
+            /*
             var head = pageIndex * pageSize;
             var result = await SearchProvider.MylistSearchAsync(
                 SearchOption.Keyword
@@ -275,6 +276,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             }
 
             return result.Items;
+            */
         }
     }
 }

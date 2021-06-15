@@ -28,7 +28,8 @@ namespace Hohoema.Presentation.Views.Extensions
         }
 
         static Dictionary<FrameworkElement, CompositeDisposable> _disposersMap = new Dictionary<FrameworkElement, CompositeDisposable>();
-        
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("IDisposableAnalyzers.Correctness", "IDISP001:Dispose created.", Justification = "<保留中>")]
         private static void DisposeOnUnloadedTargetPropertyChanged(DependencyObject s, DependencyPropertyChangedEventArgs e)
         {
             if (e.NewValue is FrameworkElement newTarget)
@@ -77,8 +78,8 @@ namespace Hohoema.Presentation.Views.Extensions
 
             if (_disposersMap.Remove(fe, out var d))
             {
-                d.Dispose();
                 d.Clear();
+                d.Dispose();
             }
         }
     }

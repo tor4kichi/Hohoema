@@ -10,7 +10,6 @@ using System.Buffers;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Account;
 using System.Text.Json.Serialization;
-using NiconicoToolkit.Live.Search;
 using Windows.Storage.Streams;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
@@ -24,6 +23,9 @@ using NiconicoToolkit.SearchWithCeApi;
 using NiconicoToolkit.Series;
 using NiconicoToolkit.NicoRepo;
 using NiconicoToolkit.Likes;
+using NiconicoToolkit.Community;
+using NiconicoToolkit.Ichiba;
+using NiconicoToolkit.Live.Timeshift;
 #if WINDOWS_UWP
 using Windows.Web.Http;
 using Windows.Web.Http.Headers;
@@ -47,29 +49,34 @@ namespace NiconicoToolkit
             Converters =
             {
                 new JsonStringEnumMemberConverter(),
+                new UserIdJsonConverter()
             },
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
         };
+
 
         public NiconicoContext(
             HttpClient httpClient
             )
         {
             HttpClient = httpClient;
-            Live = new LiveClient(this);
+            Live = new LiveClient(this, _defaultOptions);
             Account = new AccountClient(this);
-            User = new UserClient(this);
-            Video = new VideoClient(this);
-            Activity = new ActivityClient(this);
+            User = new UserClient(this, _defaultOptions);
+            Video = new VideoClient(this, _defaultOptions);
+            Activity = new ActivityClient(this, _defaultOptions);
             SearchWithPage = new SearchWithPageClient(this);
-            SearchWithCeApi = new SearchWithCeApiClient(this);
-            Recommend = new RecommendClient(this);
-            Channel = new ChannelClient(this);
-            Mylist = new MylistClient(this);
-            Follow = new FollowClient(this);
-            Series = new SeriesClient(this);
+            SearchWithCeApi = new SearchWithCeApiClient(this, _defaultOptions);
+            Recommend = new RecommendClient(this, _defaultOptions);
+            Channel = new ChannelClient(this, _defaultOptions);
+            Mylist = new MylistClient(this, _defaultOptions);
+            Follow = new FollowClient(this, _defaultOptions);
+            Series = new SeriesClient(this, _defaultOptions);
             NicoRepo = new NicoRepoClient(this, _defaultOptions);
             Likes = new LikesClient(this, _defaultOptions);
+            Community = new CommunityClient(this, _defaultOptions);
+            Ichiba = new IchibaClient(this, _defaultOptions);
+            Timeshift = new TimeshiftClient(this, _defaultOptions);
         }
 
 
@@ -89,6 +96,10 @@ namespace NiconicoToolkit
         public SeriesClient Series { get; }
         public NicoRepoClient NicoRepo { get; }
         public LikesClient Likes { get; }
+        public CommunityClient Community { get; }
+        public IchibaClient Ichiba { get; }
+        public TimeshiftClient Timeshift { get; }
+
 
         TimeSpan _minPageAccessInterval = TimeSpan.FromSeconds(1);
         DateTime _prevPageAccessTime;

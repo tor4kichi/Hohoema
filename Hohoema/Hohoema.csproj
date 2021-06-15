@@ -131,6 +131,7 @@
     </Compile>
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
     <Compile Include="FixPrism\BindableBaseWithFix.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="Locales\LocaleToDisplayNameConverter.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
@@ -168,7 +169,6 @@
     <Compile Include="Models.Domain\Niconico\Channel\ChannelNameCacheRepository.cs" />
     <Compile Include="Models.Domain\Niconico\Channel\ChannelProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Channel\IChannel.cs" />
-    <Compile Include="Models.Domain\Niconico\Channel\NicoChannelCacheRepository.cs" />
     <Compile Include="Models.Domain\Niconico\Community\CommunityProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Community\ICommunity.cs" />
     <Compile Include="Models.Domain\Niconico\INiconicoContent.cs" />
@@ -186,7 +186,6 @@
     <Compile Include="Models.Domain\Niconico\Live\LoginUser\LoginUserLiveReservationProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\LoginUserHistoryProvider.cs" />
     <Compile Include="Models.Domain\Niconico\NicoRepo\LoginUser\LoginUserNicoRepoProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Recommend\LoginUser\LoginUserRecommendProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\LoginUser\MylistFollowProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Mylist\IMylist.cs" />
     <Compile Include="Models.Domain\Niconico\Mylist\LoginUser\LoginUserMylistPlaylist.cs" />
@@ -307,8 +306,10 @@
     <Compile Include="Models.Domain\Application\IMigateAsync.cs" />
     <Compile Include="Models.UseCase\Migration\MigrationCommentFilteringSettings.cs" />
     <Compile Include="Models.UseCase\Migration\SearchPageQueryMigrate_0_26_0.cs" />
+    <Compile Include="Models.UseCase\Migration\SearchTargetMigration_V_1_1_0.cs" />
     <Compile Include="Models.UseCase\Migration\SettingsMigration_V_0_23_0.cs" />
     <Compile Include="Models.UseCase\PageNavigation\NavigationTriggerFromExternal.cs" />
+    <Compile Include="Models.UseCase\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
     <Compile Include="Models.UseCase\VideoCache\Events\EndCacheSaveFolderChangingMessage.cs" />
     <Compile Include="Models.UseCase\VideoCache\Events\StartCacheSaveFolderChangingAsyncRequestMessage.cs" />
     <Compile Include="Models.UseCase\VideoCache\Events\VideoCacheProgressChangedMessage.cs" />
@@ -338,7 +339,6 @@
     <Compile Include="Models.UseCase\Subscriptions\FeedResultAddToWatchLater.cs" />
     <Compile Include="Models.UseCase\Subscriptions\LatestSubscriptionVideosNotifier.cs" />
     <Compile Include="Models.UseCase\Subscriptions\SubscriptionUpdateManager.cs" />
-    <Compile Include="Models.UseCase\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheDownloadOperationManager.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheFolderManager.cs" />
     <Compile Include="Models.UseCase\WindowService.cs" />
@@ -365,11 +365,9 @@
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\LoginRedirectPayload.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\MylistPagePayload.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\PagePayloadBase.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\CommunitySearchPagePayloadContent.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\ISearchPagePayloadContent.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\KeywordSearchPagePayloadContent.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\LiveSearchPagePayloadContent.cs" />
-    <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\MylistSearchPagePayloadContent.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\SearchPagePayload.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\SearchPagePayloadContentBase.cs" />
     <Compile Include="Models.UseCase\PageNavigation\PagePayload\Search\SearchPagePayloadContentHelper.cs" />
@@ -446,10 +444,8 @@
     <Compile Include="Presentation.Views.Pages\Niconico.Mylist\UserMylistPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Search\RemoveSearchHistoryCommand.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultCommunityPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultKeywordPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultLivePageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultMylistPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultTagPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Search\VideoSearchSortOptionListItem.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Series\SeriesPageViewModel.cs" />
@@ -457,7 +453,6 @@
     <Compile Include="Presentation.Views.Pages\Niconico.Follow\FollowManagePageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Account\LogoutFromNiconicoCommand.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.NicoRepo\NicoRepoPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Pages\Niconico.VideoRecommend\RecommendPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Live\TimeshiftPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Activity\WatchHistoryPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.User\UserInfoPageViewModel.cs" />
@@ -605,17 +600,11 @@
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchPage.xaml.cs">
       <DependentUpon>SearchPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultCommunityPage.xaml.cs">
-      <DependentUpon>SearchResultCommunityPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultKeywordPage.xaml.cs">
       <DependentUpon>SearchResultKeywordPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultLivePage.xaml.cs">
       <DependentUpon>SearchResultLivePage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultMylistPage.xaml.cs">
-      <DependentUpon>SearchResultMylistPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchResultTagPage.xaml.cs">
       <DependentUpon>SearchResultTagPage.xaml</DependentUpon>
@@ -632,9 +621,6 @@
     <Compile Include="Presentation.Views.Pages\Niconico.NicoRepo\NicoRepoPage.xaml.cs">
       <DependentUpon>NicoRepoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.VideoRecommend\RecommendPage.xaml.cs">
-      <DependentUpon>RecommendPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Live\TimeshiftPage.xaml.cs">
       <DependentUpon>TimeshiftPage.xaml</DependentUpon>
     </Compile>
@@ -649,9 +635,6 @@
     </Compile>
     <Compile Include="Presentation.Views\Controls\VideoList\VideoItemsListView.xaml.cs">
       <DependentUpon>VideoItemsListView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Presentation.Views\Controls\VideoList\VideoListItemControl.xaml.cs">
-      <DependentUpon>VideoListItemControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.VideoRanking\RankingCategoryListPage.xaml.cs">
       <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
@@ -676,6 +659,7 @@
     <Compile Include="Presentation.Views\Controls\LiteInAppNotification\LiteInAppNotification.cs" />
     <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.cs" />
     <Compile Include="Presentation.Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
+    <Compile Include="Presentation.Views\Controls\VideoList\VideoListItemControl\VideoListItemControl.cs" />
     <Compile Include="Presentation.Views\Controls\VideoList\VideoListItem\VideoListItem.cs" />
     <Compile Include="Presentation.Views\Converters\CacheStateToColorBrushConverter.cs" />
     <Compile Include="Presentation.Views\Converters\DateTimetoStringConverter.cs" />
@@ -871,6 +855,9 @@
     <Compile Include="Presentation.Views\TemplateSelector\TypeBasedTemplateSelector.cs" />
     <Compile Include="Presentation.Views\TemplateSelector\ValueDataTemplateSelector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Styles\VideoListItemControlDefaultTemplate.xaml.cs">
+      <DependentUpon>VideoListItemControlDefaultTemplate.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -885,19 +872,6 @@
     <Content Include="Assets\BadgeLogo.scale-400.png" />
     <Content Include="Assets\hohoema-icon-final.png" />
     <Content Include="Assets\html\template.html" />
-    <Content Include="Assets\LibLisencies\AdaptiveTriggerLibrary.txt" />
-    <Content Include="Assets\LibLisencies\Entity Framework Core.txt" />
-    <Content Include="Assets\LibLisencies\FFmpeg.txt" />
-    <Content Include="Assets\LibLisencies\FFmpegInterop.txt" />
-    <Content Include="Assets\LibLisencies\HtmlAgilityPack.NetCore.txt" />
-    <Content Include="Assets\LibLisencies\Material Design Icons.txt" />
-    <Content Include="Assets\LibLisencies\Newtonsoft.Json.txt" />
-    <Content Include="Assets\LibLisencies\OpenNiconico2.txt" />
-    <Content Include="Assets\LibLisencies\Prism.txt" />
-    <Content Include="Assets\LibLisencies\ReactiveProperty.txt" />
-    <Content Include="Assets\LibLisencies\RtmpClient.UWP.txt" />
-    <Content Include="Assets\LibLisencies\UWP Community Toolkit.txt" />
-    <Content Include="Assets\LibLisencies\WinRTXamlToolkit.UWP.txt" />
     <Content Include="Assets\LockScreenLogo.scale-100.png" />
     <Content Include="Assets\LockScreenLogo.scale-150.png" />
     <Content Include="Assets\NewStoreLogo.scale-100.png" />
@@ -960,11 +934,16 @@
     <PackageReference Include="AdaptiveTriggerLibrary">
       <Version>1.2.2</Version>
     </PackageReference>
-    <PackageReference Include="HtmlAgilityPack">
-      <Version>1.11.12</Version>
+    <PackageReference Include="AngleSharp">
+      <Version>0.14.0</Version>
     </PackageReference>
     <PackageReference Include="I18NPortable">
       <Version>1.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="IDisposableAnalyzers">
+      <Version>3.4.13</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="LiteDB">
       <Version>4.1.4</Version>
@@ -1016,12 +995,6 @@
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
       <Version>2.4.3</Version>
-    </PackageReference>
-    <PackageReference Include="MonkeyCache.LiteDB">
-      <Version>1.3.1-beta</Version>
-    </PackageReference>
-    <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.2</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>4.2.1</Version>
@@ -1160,19 +1133,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Search\SearchResultCommunityPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Presentation.Views.Pages\Niconico.Search\SearchResultKeywordPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Presentation.Views.Pages\Niconico.Search\SearchResultLivePage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Search\SearchResultMylistPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1196,10 +1161,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.VideoRecommend\RecommendPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Presentation.Views.Pages\Niconico.Live\TimeshiftPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1217,10 +1178,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Presentation.Views\Controls\VideoList\VideoItemsListView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Presentation.Views\Controls\VideoList\VideoListItemControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1255,6 +1212,10 @@
     <Page Include="Presentation.Views\Controls\TransientContainer\TransientContainer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Presentation.Views\Controls\VideoList\VideoListItemControl\VideoListItemControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Presentation.Views\Controls\VideoList\VideoListItem\VideoListItem.xaml">
       <SubType>Designer</SubType>
@@ -1432,6 +1393,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Styles\VideoListItemControlDefaultTemplate.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Styles\VideoProgressBarStyle.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1457,10 +1422,6 @@
     <ProjectReference Include="..\NiconicoLiveToolkit.UWP\NiconicoToolkit.UWP.csproj">
       <Project>{311b8388-57d0-4724-ad17-be76a2abf0a9}</Project>
       <Name>NiconicoToolkit.UWP</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OpenNiconico2\Mntone.Nico2.UWP_Latest\Mntone.Nico2.UWP_Latest.csproj">
-      <Project>{cc63ef1d-ecd6-478d-8852-5c45fbbf697a}</Project>
-      <Name>Mntone.Nico2.UWP_Latest</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

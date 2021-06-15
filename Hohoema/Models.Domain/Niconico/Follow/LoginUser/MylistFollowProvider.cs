@@ -47,7 +47,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             _messenger = messenger;
         }
 
-        public async Task<FollowMylistResponse> GetFollowMylistsAsync(uint sampleItemsCount = 3)
+        public async Task<FollowMylistResponse> GetFollowMylistsAsync(int sampleItemsCount = 3)
         {
             if (!_niconicoSession.IsLoggedIn)
             {

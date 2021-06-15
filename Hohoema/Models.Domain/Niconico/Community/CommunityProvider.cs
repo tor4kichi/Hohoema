@@ -1,12 +1,10 @@
-﻿using Mntone.Nico2;
-using Mntone.Nico2.Communities.Detail;
-using Mntone.Nico2.Communities.Info;
-using Hohoema.Models.Infrastructure;
+﻿using Hohoema.Models.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NiconicoToolkit.Community;
 
 namespace Hohoema.Models.Domain.Niconico.Community
 {
@@ -17,42 +15,27 @@ namespace Hohoema.Models.Domain.Niconico.Community
         {
         }
 
-        public async Task<NicovideoCommunityResponse> GetCommunityInfo(
-            string communityId
-            )
+        public Task<CommunityInfoResponse> GetCommunityInfo(string communityId)
         {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.Community.GetCommunifyInfoAsync(communityId);
-            });
-            
+            return _niconicoSession.ToolkitContext.Community.GetCommunityInfoAsync(communityId);
         }
 
-
-        public async Task<CommunityDetailResponse> GetCommunityDetail(
-            string communityId
-            )
-        {
-            return await ContextActionWithPageAccessWaitAsync(async context =>
-            {
-                return await context.Community.GetCommunityDetailAsync(communityId);
-            });
-        }
-
-
-        public async Task<RssVideoResponse> GetCommunityVideo(
+        public async Task<(CommunityVideoResponse, CommunityVideoListItemsResponse)> GetCommunityVideoAsync(
             string communityId,
-            uint page
+            int? offset,
+            int? limit,
+            CommunityVideoSortKey? sortKey,
+            CommunityVideoSortOrder? sortOrder
             )
         {
-            return await ContextActionAsync(async context =>
+            var listRes =  await _niconicoSession.ToolkitContext.Community.GetCommunityVideoListAsync(communityId, offset, limit, sortKey, sortOrder);
+            if (!listRes.IsSuccess)
             {
-                return await context.Community.GetCommunityVideoAsync(communityId, page);
-            });
+                return (listRes, null);
+            }
+
+            var itemsRes = await _niconicoSession.ToolkitContext.Community.GetCommunityVideoListItemsAsync(listRes.Data.Contents.Select(x => x.ContentId));
+            return (listRes, itemsRes);
         }
-
-
-
-
     }
 }

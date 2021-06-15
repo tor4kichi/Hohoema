@@ -5,7 +5,6 @@ using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase.Player;
 using Microsoft.AppCenter.Crashes;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,6 +20,7 @@ using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
 using Prism.Ioc;
+using System.Text.Json;
 
 namespace Hohoema.Models.UseCase
 {    
@@ -44,7 +44,7 @@ namespace Hohoema.Models.UseCase
         public static Dictionary<string, string> MakeReportParameters()
         {
             var pageName = _pageManager.CurrentPageType.ToString();
-            var pageParameter = _pageManager.CurrentPageNavigationParameters is not null ? JsonConvert.SerializeObject(_pageManager.CurrentPageNavigationParameters) : "null";
+            var pageParameter = _pageManager.CurrentPageNavigationParameters is not null ? JsonSerializer.Serialize(_pageManager.CurrentPageNavigationParameters) : "null";
 
             return new Dictionary<string, string>
             {

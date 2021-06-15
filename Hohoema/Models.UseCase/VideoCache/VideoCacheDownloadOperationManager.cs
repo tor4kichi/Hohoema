@@ -315,7 +315,9 @@ namespace Hohoema.Models.UseCase.VideoCache
         {
             using (await _downloadTsakUpdateLock.LockAsync())
             {
-                if (!CanLaunchDownloadOperationLoop())
+                if (!CanLaunchDownloadOperationLoop()
+                    || !_videoCacheManager.HasPendingOrPausingVideoCacheItem()
+                    )
                 {
                     return;
                 }

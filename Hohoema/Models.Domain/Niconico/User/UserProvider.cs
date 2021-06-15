@@ -82,7 +82,7 @@ namespace Hohoema.Models.Domain.Niconico.User
         }
 
 
-        public async Task<UserDetailResponse> GetUserDetailAsync(string userId)
+        public async Task<UserDetailResponse> GetUserDetailAsync(UserId userId)
         {
             var detail = await _niconicoSession.ToolkitContext.User.GetUserDetailAsync(userId);
 
@@ -109,7 +109,7 @@ namespace Hohoema.Models.Domain.Niconico.User
         }
 
 
-        public async Task<NiconicoToolkit.User.UserVideoResponse> GetUserVideosAsync(uint userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
+        public async Task<NiconicoToolkit.User.UserVideoResponse> GetUserVideosAsync(UserId userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
         {
             var res = await _niconicoSession.ToolkitContext.User.GetUserVideoAsync(userId, page, pageSize, sortKey, sortOrder);
 

@@ -31,13 +31,13 @@ namespace NiconicoToolkit.Live.Cas
         public Time ShowTime { get; set; }
 
         [JsonPropertyName("viewers")]
-        public long? Viewers { get; set; }
+        public int? Viewers { get; set; }
 
         [JsonPropertyName("comments")]
-        public long? Comments { get; set; }
+        public int? Comments { get; set; }
 
         [JsonPropertyName("timeshiftReservedCount")]
-        public long TimeshiftReservedCount { get; set; }
+        public int TimeshiftReservedCount { get; set; }
 
         [JsonPropertyName("thumbnailUrl")]
         public Uri ThumbnailUrl { get; set; }
@@ -63,7 +63,7 @@ namespace NiconicoToolkit.Live.Cas
         };
 
         [JsonPropertyName("providerType")]
-        public string ProviderType { get; set; }
+        public ProviderType ProviderType { get; set; }
 
         [JsonPropertyName("providerId")]
         public string ProviderId { get; set; }
@@ -219,7 +219,17 @@ namespace NiconicoToolkit.Live.Cas
 
         // Note: SnakeCase 
         [JsonPropertyName("status")]
-        public TimeshiftStatus Status { get; set; }
+        public string Status { get; set; }
+
+
+        public TimeshiftStatus TimeshiftStatus => Status switch
+        {
+            "before_release" => TimeshiftStatus.BeforeRelease,
+            "released" => TimeshiftStatus.Released,
+            "expired" => TimeshiftStatus.Expired,
+            _ => TimeshiftStatus.None,
+        };
+
     }
 
     /// <summary>
@@ -252,7 +262,5 @@ namespace NiconicoToolkit.Live.Cas
         /// </summary>
         Expired, 
     };
-
-
 
 }

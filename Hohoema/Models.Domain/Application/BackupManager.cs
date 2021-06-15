@@ -212,8 +212,9 @@ namespace Hohoema.Models.Domain.Application
         public async Task<BackupContainer> ReadBackupContainerAsync(StorageFile storageFile, CancellationToken ct = default)
         {
             using (var stream = await storageFile.OpenReadAsync())
+            using (var jsonStream = stream.AsStreamForRead())
             {
-                return await JsonSerializer.DeserializeAsync<BackupContainer>(stream.AsStreamForRead(), _options, ct);
+                return await JsonSerializer.DeserializeAsync<BackupContainer>(jsonStream, _options, ct);
             }
         }
 

@@ -17,7 +17,7 @@ using System.Reactive.Disposables;
 
 namespace Hohoema.Presentation.Views.Behaviors
 {
-	public class VisiblityFadeChanger : Behavior<FrameworkElement>
+	public sealed class VisiblityFadeChanger : Behavior<FrameworkElement>, IDisposable
 	{
 
 
@@ -115,8 +115,8 @@ namespace Hohoema.Presentation.Views.Behaviors
 
         void ResetAutoHideThrottling()
         {
-            _AutoHideThrottlingDisposer?.Dispose();
-            _AutoHideThrottlingDisposer = AutoHideSubject.Throttle(Delay)
+            _autoHideThrottlingDisposer?.Dispose();
+            _autoHideThrottlingDisposer = AutoHideSubject.Throttle(Delay)
                    .Subscribe(_ =>
                    {
                        var task = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -270,17 +270,19 @@ namespace Hohoema.Presentation.Views.Behaviors
             IsVisible = !IsVisible;
         }
 
-        CompositeDisposable _CompositeDisposable;
+        private CompositeDisposable _CompositeDisposable;
 
-        IDisposable _AutoHideThrottlingDisposer;
+        private IDisposable _autoHideThrottlingDisposer;
 
         protected override void OnAttached()
         {
             base.OnAttached();
 
+            _CompositeDisposable?.Dispose();
             _CompositeDisposable = new CompositeDisposable();
 
             var associatedObject = AssociatedObject;
+#pragma warning disable IDISP004 // Don't ignore created IDisposable.
             AssociatedObject.ObserveDependencyProperty(FrameworkElement.OpacityProperty)
                 .Subscribe(_ =>
                 {
@@ -294,8 +296,10 @@ namespace Hohoema.Presentation.Views.Behaviors
                     }
                 })
                 .AddTo(_CompositeDisposable);
+#pragma warning restore IDISP004 // Don't ignore created IDisposable.
 
-            _AutoHideThrottlingDisposer = AutoHideSubject.Throttle(Delay)
+            _autoHideThrottlingDisposer?.Dispose();
+            _autoHideThrottlingDisposer = AutoHideSubject.Throttle(Delay)
                 .Subscribe(_ =>
             {
                 var task = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -306,6 +310,7 @@ namespace Hohoema.Presentation.Views.Behaviors
                     }
                 });
             });
+                
 
             AssociatedObject.PointerMoved += AssociatedObject_PointerMoved;
         }
@@ -321,13 +326,19 @@ namespace Hohoema.Presentation.Views.Behaviors
 		{
 			base.OnDetaching();
 
-            _AutoHideThrottlingDisposer?.Dispose();
+            _autoHideThrottlingDisposer?.Dispose();
+            _autoHideThrottlingDisposer = null;
             _CompositeDisposable?.Dispose();
+            _CompositeDisposable = null;
 
             this.AssociatedObject.Visibility = Visibility.Visible;
 		}
 
-
-
-	}
+        public void Dispose()
+        {
+            _autoHideThrottlingDisposer?.Dispose();
+            AutoHideSubject.Dispose();
+            _CompositeDisposable?.Dispose();
+        }
+    }
 }

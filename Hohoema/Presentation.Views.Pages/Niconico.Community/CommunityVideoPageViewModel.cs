@@ -6,8 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-using Mntone.Nico2;
-using Mntone.Nico2.Communities.Detail;
 using System.Diagnostics;
 using Prism.Commands;
 using Prism.Navigation;
@@ -78,8 +76,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 
         public string CommunityId { get; private set; }
 
-		public CommunityDetail CommunityDetail { get; private set; }
-
 		private string _CommunityName;
 		public string CommunityName
 		{
@@ -103,11 +99,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 
                 try
                 {
-                    var res = await CommunityProvider.GetCommunityDetail(CommunityId);
-                    CommunityDetail = res.CommunitySammary.CommunityDetail;
-
-                    CommunityName = CommunityDetail.Name;
-
+                    var res = await CommunityProvider.GetCommunityInfo(CommunityId);
+                    
+                    CommunityName = res.Community.Name;
 				}
 				catch
                 {
@@ -140,7 +134,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 
 		protected override (int, IIncrementalSource<CommunityVideoInfoViewModel>) GenerateIncrementalSource()
 		{
-			return (CommunityVideoIncrementalSource.OneTimeLoadCount, new CommunityVideoIncrementalSource(CommunityId, (int)CommunityDetail.VideoCount, CommunityProvider));
+			return (CommunityVideoIncrementalSource.OneTimeLoadCount, new CommunityVideoIncrementalSource(CommunityId, 1, CommunityProvider));
 		}
 
         private DelegateCommand _OpenCommunityPageCommand;
@@ -171,8 +165,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 		public string CommunityId { get; private set; }
 		public int VideoCount { get; private set; }
 
-		public List<RssVideoData> Items { get; private set; } = new List<RssVideoData>();
-
 		public CommunityVideoIncrementalSource(string communityId, int videoCount, CommunityProvider communityProvider)
 		{
             CommunityProvider = communityProvider;
@@ -180,19 +172,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 			VideoCount = videoCount;
 		}
 
-		public const int OneTimeLoadCount = 18; // RSSの一回のページアイテム数が18個なので、表示スピード考えてその半分
+		public const int OneTimeLoadCount = 20; 
 
         async Task<IEnumerable<CommunityVideoInfoViewModel>> IIncrementalSource<CommunityVideoInfoViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
 			try
             {
-				var videoRss = await CommunityProvider.GetCommunityVideo(CommunityId, (uint)pageIndex);
-				if (!videoRss.IsOK || videoRss.Items == null || !videoRss.Items.Any())
+				var head = pageIndex * pageSize;
+				var (listRes, itemsRes) = await CommunityProvider.GetCommunityVideoAsync(CommunityId, head, pageSize, sortKey: null, sortOrder: null);
+				if (itemsRes == null || !itemsRes.IsSuccess || itemsRes.Data.Videos == null || itemsRes.Data.Videos.Length == 0)
 				{
 					return Enumerable.Empty<CommunityVideoInfoViewModel>();
 				}
 
-				return videoRss.Items.Select(x => new CommunityVideoInfoViewModel(x));
+				return itemsRes.Data.Videos.Select(x => new CommunityVideoInfoViewModel(x));
 			}
             catch (Exception e)
             {

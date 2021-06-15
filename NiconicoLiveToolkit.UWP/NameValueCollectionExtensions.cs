@@ -26,12 +26,45 @@ namespace NiconicoToolkit
                     sb.Append(Uri.EscapeDataString(key));
                     sb.Append("=");
                     sb.Append(Uri.EscapeDataString(value));
-                }
 
-                isFirst = false;
+                    isFirst = false;
+                }
             }
 
             return sb;
+        }
+
+        public static void AddIfNotNull<T>(this NameValueCollection nvc, string key, T value)
+            where T : class
+        {
+            if (value is not null)
+            {
+                nvc.Add(key, value.ToString());
+            }
+        }
+
+        public static void AddIfNotNull<T>(this NameValueCollection nvc, string key, T? value)
+            where T : struct
+        {
+            if (value is not null and T realValue)
+            {
+                nvc.Add(key, realValue.ToString());
+            }
+        }
+
+        public static void AddEnumWithDescription<T>(this NameValueCollection nvc, string key, T value)
+            where T : Enum
+        {
+            nvc.Add(key, value.GetDescription());
+        }
+
+        public static void AddEnumIfNotNullWithDescription<T>(this NameValueCollection nvc, string key, T? value)
+            where T : struct, Enum
+        {
+            if (value is not null and T realValue)
+            {
+                nvc.Add(key, realValue.GetDescription());
+            }
         }
     }
 

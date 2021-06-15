@@ -11,7 +11,6 @@ using Hohoema.Presentation.ViewModels.Niconico.Search;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
-using Mntone.Nico2;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
@@ -198,15 +197,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                 Order = VideoSortOrder.Asc,
                 Sort = VideoSortKey.MylistCount,
             },
-			// V1APIだとサポートしてない
-			/* 
-			new SearchSortOptionListItem()
-			{
-				Label = "人気の高い順",
-				Sort = VideoSortKey.Popurarity,
-				Order = Mntone.Nico2.Order.Desc,
-			},
-			*/
 		};
 
         public IReadOnlyList<SearchSortOptionListItem> VideoSearchOptionListItems => _VideoSearchOptionListItems;

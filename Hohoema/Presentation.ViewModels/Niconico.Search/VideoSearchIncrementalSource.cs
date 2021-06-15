@@ -41,11 +41,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Search
             var head = pageIndex * pageSize;
             if (!IsTagSearch)
             {
-                res = await SearchProvider.GetKeywordSearch(Keyword, (uint)head, (uint)pageSize, SortKey, SortOrder);
+                res = await SearchProvider.GetKeywordSearch(Keyword, head, pageSize, SortKey, SortOrder);
             }
             else
             {
-                res = await SearchProvider.GetTagSearch(Keyword, (uint)head, (uint)pageSize, SortKey, SortOrder);
+                res = await SearchProvider.GetTagSearch(Keyword, head, pageSize, SortKey, SortOrder);
             }
 
             ct.ThrowIfCancellationRequested();

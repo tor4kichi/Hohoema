@@ -103,12 +103,12 @@ namespace Hohoema.Models.Domain.Player.Video
 
         protected override async Task<MediaSource> GetPlyaingVideoMediaSource()
         {
-            if (!NiconicoSession.Context.HttpClient.DefaultRequestHeaders.ContainsKey("Origin"))
+            if (!NiconicoSession.ToolkitContext.HttpClient.DefaultRequestHeaders.ContainsKey("Origin"))
             {
-                NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Add("Origin", "https://www.nicovideo.jp");
+                NiconicoSession.ToolkitContext.HttpClient.DefaultRequestHeaders.Add("Origin", "https://www.nicovideo.jp");
             }
 
-            NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Referer = new Uri($"https://www.nicovideo.jp/watch/{_dmcWatchData.Video.Id}");
+            NiconicoSession.ToolkitContext.HttpClient.DefaultRequestHeaders.Referer = new Uri($"https://www.nicovideo.jp/watch/{_dmcWatchData.Video.Id}");
 
 
             var session = await GetDmcSessionAsync();
@@ -138,13 +138,13 @@ namespace Hohoema.Models.Domain.Player.Video
                  
                 if (hlsParameters.Encryption?.HlsEncryptionV1?.KeyUri != null)
                 {
-                    var key = await this.NiconicoSession.Context.HttpClient.GetStringAsync(new Uri(hlsParameters.Encryption.HlsEncryptionV1.KeyUri));
+                    var key = await this.NiconicoSession.ToolkitContext.HttpClient.GetStringAsync(new Uri(hlsParameters.Encryption.HlsEncryptionV1.KeyUri));
                 }
 
-                var amsResult = await AdaptiveMediaSource.CreateFromUriAsync(uri, this.NiconicoSession.Context.HttpClient);
+                var amsResult = await AdaptiveMediaSource.CreateFromUriAsync(uri, this.NiconicoSession.ToolkitContext.HttpClient);
                 if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
                 {
-                    await NiconicoSession.Context.Video.SendOfficialHlsWatchAsync(_dmcWatchData.Video.Id, _dmcWatchData.Media.Delivery.TrackingId);
+                    await NiconicoSession.ToolkitContext.Video.VideoWatch.SendOfficialHlsWatchAsync(_dmcWatchData.Video.Id, _dmcWatchData.Media.Delivery.TrackingId);
 
                     return MediaSource.CreateFromAdaptiveMediaSource(amsResult.MediaSource);
                 }
@@ -176,6 +176,7 @@ namespace Hohoema.Models.Domain.Player.Video
             {
                 Debug.WriteLine($"{_dmcWatchData.Video.Title} のハートビートを開始しました");
 
+                _DmcSessionHeartbeatTimer?.Dispose();
                 _DmcSessionHeartbeatTimer = new Timer(_DmcSessionHeartbeatTimer_Tick, this, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
             }
         }

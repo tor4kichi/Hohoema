@@ -1,5 +1,4 @@
 ﻿using I18NPortable;
-//using Mntone.Nico2.Mylist;
 using Hohoema.Models.Domain;
 using Reactive.Bindings;
 using System;
@@ -18,7 +17,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Mylist;
 
 namespace Hohoema.Dialogs
 {
-	public class EditMylistGroupDialogContext
+	public sealed class EditMylistGroupDialogContext : IDisposable
 	{
 		IScheduler _scheduler;
 
@@ -79,7 +78,17 @@ namespace Hohoema.Dialogs
 			};
 		}
 
-		public ReactiveProperty<bool> CanEditCompletion { get; private set; }
+        public void Dispose()
+        {
+			CanEditCompletion?.Dispose();
+			MylistName?.Dispose();
+            MylistDescription?.Dispose();
+            MylistIsPublicIndex?.Dispose();
+            SelectedSort?.Dispose();
+            LastErrorMessage?.Dispose();
+        }
+
+        public ReactiveProperty<bool> CanEditCompletion { get; private set; }
 
 		public string DialogTitle { get; private set; }
 

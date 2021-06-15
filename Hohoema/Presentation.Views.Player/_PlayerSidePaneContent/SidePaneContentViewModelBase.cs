@@ -12,24 +12,19 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {
 	public abstract class SidePaneContentViewModelBase : BindableBase, IDisposable
 	{
-        protected CompositeDisposable _CompositeDisposable;
+        private static readonly CompositeDisposable compositeDisposable = new CompositeDisposable();
+        protected ICollection<IDisposable> _CompositeDisposable = compositeDisposable;
 
 		public SidePaneContentViewModelBase()
 		{
-			_CompositeDisposable = new CompositeDisposable();
 		}
 
         virtual public Task OnEnter() { return Task.CompletedTask; }
         virtual public void OnLeave() { }
 
-
-        protected virtual void OnDispose() { }
-
-		public void Dispose()
+		public virtual void Dispose()
 		{
-			OnDispose();
-
-			_CompositeDisposable?.Dispose();
+			compositeDisposable?.Dispose();
 		}
 	}
 }

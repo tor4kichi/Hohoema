@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -28,8 +27,9 @@ namespace Hohoema.Models.Domain
 			var file = await StorageFile.GetFileFromPathAsync(LisenceSummaryFilePath);
 
 			using (var stream = await file.OpenAsync(FileAccessMode.Read))
+			using (var readStream = stream.AsStreamForRead())
 			{
-				return await System.Text.Json.JsonSerializer.DeserializeAsync<LisenceSummary>(stream.AsStreamForRead());
+				return await System.Text.Json.JsonSerializer.DeserializeAsync<LisenceSummary>(readStream);
             }
 		}
 	}

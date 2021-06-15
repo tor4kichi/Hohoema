@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml.Controls;
 using Hohoema.Models.Domain.Notification;
+using NiconicoToolkit.Community;
 
 namespace Hohoema.Presentation.Services
 {
@@ -145,7 +146,7 @@ namespace Hohoema.Presentation.Services
 
         private async Task<InAppNotificationPayload> SubmitLiveContentSuggestion(string liveId)
         {
-            var liveDesc = await NicoLiveProvider.GetCasLiveProgramInfoAsync(liveId);
+            var liveDesc = await NicoLiveProvider.GetLiveInfoAsync(liveId);
 
             if (liveDesc == null) { return null; }
 
@@ -181,7 +182,7 @@ namespace Hohoema.Presentation.Services
                     }
             };
 
-            if (liveDesc.Data.ProviderType == ProviderType.Community.ToString().ToLower())
+            if (liveDesc.Data.ProviderType == ProviderType.Community)
             {
                 payload.Commands.Add(new InAppNotificationCommand()
                 {
@@ -231,19 +232,19 @@ namespace Hohoema.Presentation.Services
 
         private async Task<InAppNotificationPayload> SubmitCommunityContentSuggestion(string communityId)
         {
-            Mntone.Nico2.Communities.Detail.CommunityDetailResponse communityDetail = null;
+            CommunityInfoResponse communityInfo = null;
             try
             {
-                communityDetail = await CommunityProvider.GetCommunityDetail(communityId);
+                communityInfo = await CommunityProvider.GetCommunityInfo(communityId);
             }
             catch { }
 
-            if (communityDetail == null || !communityDetail.IsStatusOK) { return null; }
+            if (communityInfo?.IsOK != true || communityInfo.Community == null) { return null; }
 
-            var communityInfo = communityDetail.CommunitySammary.CommunityDetail;
+            var community = communityInfo.Community;
             return new InAppNotificationPayload()
             {
-                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(communityInfo.Name),
+                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(community.Name),
                 ShowDuration = DefaultNotificationShowDuration,
                 IsShowDismissButton = true,
                 Commands = {
