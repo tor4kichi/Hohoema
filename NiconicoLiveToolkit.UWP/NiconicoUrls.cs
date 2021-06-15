@@ -41,7 +41,7 @@ namespace NiconicoToolkit
 
         public const string LiveWatchPageUrl = $"{NicoLive2PageUrl}watch/";
 
-        public static string MakeLiveWatchPageUrl(string liveId)
+        public static string MakeLiveWatchPageUrl(Live.LiveId liveId)
         {
             return $"{LiveWatchPageUrl}{liveId}";
         }

@@ -64,17 +64,20 @@ namespace NiconicoToolkit
         }
 
 
+        public const string VideoIdPrefixForChannel = "so";
+        public const string VideoIdPrefixForUser = "sm";
+
         public static bool IsVideoId(string id, bool allowAllNumberId = true)
         {
             if (id == null)
             {
                 return false;
             }
-            else if  (id.StartsWith("sm") && id.Skip(2).IsAllDigit())
+            else if  (id.StartsWith(VideoIdPrefixForUser) && id.Skip(2).IsAllDigit())
             {
                 return true;
             }
-            else if (id.StartsWith("so") && id.Skip(2).IsAllDigit())
+            else if (id.StartsWith(VideoIdPrefixForChannel) && id.Skip(2).IsAllDigit())
             {
                 return true;
             }
@@ -88,13 +91,17 @@ namespace NiconicoToolkit
             }
         }
 
-        public static bool IsLiveId(string id)
+        public static bool IsLiveId(string id, bool allowNonPrefixId = true)
         {
             if (id == null)
             {
                 return false;
             }
             else if (id.StartsWith(LiveIdPrefix) && id.Skip(2).IsAllDigit())
+            {
+                return true;
+            }
+            else if (allowNonPrefixId && id.IsAllDigit())
             {
                 return true;
             }

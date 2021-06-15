@@ -1,4 +1,5 @@
 ﻿using NiconicoToolkit.Live;
+using NiconicoToolkit.User;
 using System;
 using System.Text.Json.Serialization;
 
@@ -60,7 +61,7 @@ namespace NiconicoToolkit.Recommend
         public LiveStatus LiveStatus { get; set; }
 
         [JsonPropertyName("user_id")]
-        public long? UserId { get; set; }
+        public UserId? UserId { get; set; }
 
         [JsonPropertyName("provider_type")]
         public ProviderType ProviderType { get; set; }

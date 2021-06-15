@@ -126,6 +126,7 @@
     <Compile Include="Tests\CommunityTest.cs" />
     <Compile Include="Tests\FollowTest.cs" />
     <Compile Include="Tests\IchibaTest.cs" />
+    <Compile Include="Tests\IdTest.cs" />
     <Compile Include="Tests\LikesTest.cs" />
     <Compile Include="Tests\LiveTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

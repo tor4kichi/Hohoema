@@ -49,7 +49,9 @@ namespace NiconicoToolkit
             Converters =
             {
                 new JsonStringEnumMemberConverter(),
-                new UserIdJsonConverter()
+                new NiconicoIdJsonConverter(),
+                new UserIdJsonConverter(),
+                new LiveIdJsonConverter(),                
             },
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
         };

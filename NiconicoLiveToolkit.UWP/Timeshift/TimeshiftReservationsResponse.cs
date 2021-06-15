@@ -28,7 +28,7 @@ namespace NiconicoToolkit.Live.Timeshift
     {
         internal TimeshiftReservation() { }
 
-        public string Id { get; internal set; }
+        public LiveId Id { get; internal set; }
         public string Title { get; internal set; }
         public string StatusText { get; internal set; }
         public TimeshiftStatus Status { get; internal set; }

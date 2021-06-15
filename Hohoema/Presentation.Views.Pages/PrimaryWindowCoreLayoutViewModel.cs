@@ -738,8 +738,7 @@ namespace Hohoema.Presentation.ViewModels
         public string Title => _content.Title;
         public string CommunityName => _content.CommunityName;
         public string ThumbnailUrl => _content.ThumbnailUrl.OriginalString;
-        private string _liveId;
-        public string LiveId => _liveId ??= "lv" + _content.Id;
+        public LiveId LiveId => _content.Id;
 
         public string ProviderId => throw new NotImplementedException();
         public string ProviderName => CommunityName;

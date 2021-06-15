@@ -29,18 +29,10 @@ namespace NiconicoToolkit.Mylist.LoginUser
         private readonly NiconicoContext _context;
         private readonly JsonSerializerOptions _defaultOptions;
 
-        public LoginUserMylistSubClient(NiconicoContext context)
+        public LoginUserMylistSubClient(NiconicoContext context, JsonSerializerOptions defaultOptions)
         {
             _context = context;
-
-            _defaultOptions = new JsonSerializerOptions()
-            {
-                Converters =
-                {
-                    new JsonStringEnumMemberConverter(),
-                }
-            };
-
+            _defaultOptions = defaultOptions;
         }
 
         internal static class Urls

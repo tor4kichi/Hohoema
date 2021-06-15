@@ -159,10 +159,14 @@
     <Compile Include="HttpStatusCodeHelper.cs" />
     <Compile Include="Ichiba\IchibaClient.cs" />
     <Compile Include="Likes\LikesClient.cs" />
+    <Compile Include="Live\LiveId.cs" />
+    <Compile Include="NiconicoId.cs" />
     <Compile Include="Recommend\LiveRecommendResponse.cs" />
     <Compile Include="Recommend\RecommendContentType.cs" />
     <Compile Include="Recommend\RecommendType.cs" />
     <Compile Include="Recommend\VideoRecommendResponse.cs" />
+    <Compile Include="System.Text.Json.Serialization\LiveIdJsonConverter.cs" />
+    <Compile Include="System.Text.Json.Serialization\NiconicoIdJsonConverter.cs" />
     <Compile Include="Timeshift\ReservationToken.cs" />
     <Compile Include="Timeshift\ReserveTimeshiftResponse.cs" />
     <Compile Include="Timeshift\TimeshiftClient.cs" />

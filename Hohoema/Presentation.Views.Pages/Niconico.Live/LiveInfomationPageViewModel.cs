@@ -159,7 +159,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             /*
             ReccomendItems = _ReccomendItems.ToReadOnlyReactiveCollection(x =>
             {
-                var liveId = "lv" + x.ProgramId;
+                var liveId = x.ProgramId;
                 var liveInfoVM = new LiveInfoListItemViewModel(liveId);
                 liveInfoVM.Setup(x);
 

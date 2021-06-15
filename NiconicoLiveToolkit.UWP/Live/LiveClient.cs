@@ -33,6 +33,9 @@ namespace NiconicoToolkit.Live
                     new JsonStringEnumMemberConverter(JsonSnakeCaseNamingPolicy.Instance),
                     new JsonStringEnumMemberConverter(JsonNamingPolicy.CamelCase),
                     new LongToStringConverter(),
+                    new NiconicoIdJsonConverter(),
+                    new UserIdJsonConverter(),
+                    new LiveIdJsonConverter()
                 }
             };
         }
@@ -43,12 +46,11 @@ namespace NiconicoToolkit.Live
         public LiveNotifyClient LiveNotify { get; }
 
 
-        public async Task<LiveWatchPageDataProp> GetLiveWatchPageDataPropAsync(string liveId, CancellationToken ct = default)
+        public async Task<LiveWatchPageDataProp> GetLiveWatchPageDataPropAsync(LiveId liveId, CancellationToken ct = default)
         {
             await _context.WaitPageAccessAsync();
 
-            var liveIdWithPrefix = ContentIdHelper.EnsurePrefixLiveId(liveId);
-            using var res = await _context.GetAsync(NiconicoUrls.MakeLiveWatchPageUrl(liveIdWithPrefix));
+            using var res = await _context.GetAsync(NiconicoUrls.MakeLiveWatchPageUrl(liveId));
             return await res.Content.ReadHtmlDocumentActionAsync(document =>
             {
                 var embeddedDataNode = document.QuerySelector("#embedded-data");

@@ -92,15 +92,15 @@ namespace NiconicoToolkit.Rss.Video
                 }
                 else if (node.ClassName == "nico-info-total-view")
                 {
-                    moreData.WatchCount = node.TextContent.Where(c => Char.IsDigit(c)).ToDigit();
+                    moreData.WatchCount = node.TextContent.Where(c => Char.IsDigit(c)).ToInt();
                 }
                 else if (node.ClassName == "nico-info-total-res")
                 {
-                    moreData.CommentCount = node.TextContent.Where(c => Char.IsDigit(c)).ToDigit();
+                    moreData.CommentCount = node.TextContent.Where(c => Char.IsDigit(c)).ToInt();
                 }
                 else if (node.ClassName == "nico-info-total-mylist")
                 {
-                    moreData.MylistCount = node.TextContent.Where(c => Char.IsDigit(c)).ToDigit();
+                    moreData.MylistCount = node.TextContent.Where(c => Char.IsDigit(c)).ToInt();
                 }
                 else if (node.ClassName == "nico-info-date")
                 {

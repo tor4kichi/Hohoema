@@ -117,17 +117,11 @@ namespace NiconicoToolkit.Live.Timeshift
 
 
 
-        public Task<ReserveTimeshiftResponse> ReserveTimeshiftAsync(string liveId, bool overwrite)
+        public Task<ReserveTimeshiftResponse> ReserveTimeshiftAsync(LiveId liveId, bool overwrite)
         {
-            if (!ContentIdHelper.IsLiveId(liveId))
-            {
-                throw new ArgumentException("liveId must contain \"lv\" prefix.");
-            }
-
-            var nonPrefixLiveId = ContentIdHelper.RemoveContentIdPrefix(liveId);
             var dict = new NameValueCollection()
             {
-                { "vid", nonPrefixLiveId },
+                { "vid", liveId.ToStringWithoutPrefix() },
                 { "overwrite", overwrite.ToString1Or0() },
             };
 

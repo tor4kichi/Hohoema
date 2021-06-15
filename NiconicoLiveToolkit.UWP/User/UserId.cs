@@ -8,7 +8,7 @@ namespace NiconicoToolkit.User
 {
     public readonly struct UserId : IEquatable<UserId>
     {
-        private readonly uint _userId;
+        public readonly uint RawId;
 
         public UserId(int userId)
         {
@@ -17,28 +17,37 @@ namespace NiconicoToolkit.User
                 throw new ArgumentOutOfRangeException(nameof(userId), "userId must be positive number.");
             }
 
-            _userId = (uint)userId;
+            RawId = (uint)userId;
         }
 
         public UserId(uint userId)
         {
-            _userId = userId;
+            RawId = userId;
         }
 
         public UserId(string userId)
         {
-            _userId = uint.Parse(userId);
+            RawId = uint.Parse(userId);
         }
 
-        public static implicit operator int(UserId userId) => (int)userId._userId;
-        public static implicit operator uint(UserId userId) => (uint)userId._userId;
+        public static implicit operator int(UserId userId) => (int)userId.RawId;
+        public static implicit operator uint(UserId userId) => (uint)userId.RawId;
         public static implicit operator string(UserId userId) => userId.ToString();
 
         public static implicit operator UserId(int userId) => new UserId(userId);
         public static implicit operator UserId(uint userId) => new UserId(userId);
         public static implicit operator UserId(string userId) => new UserId(userId);
 
+        public static implicit operator NiconicoId(UserId userId) => new NiconicoId(userId.RawId, NiconicoContentIdType.User);
+        public static explicit operator UserId(NiconicoId niconicoId)
+        {
+            if (niconicoId.IsUserId is false)
+            {
+                throw new InvalidCastException();
+            }
 
+            return new UserId(niconicoId.RawId);
+        }
         public static bool operator ==(UserId lhs, UserId rhs) => lhs.Equals(rhs);
         public static bool operator !=(UserId lhs, UserId rhs) => !(lhs == rhs);
 
@@ -57,7 +66,7 @@ namespace NiconicoToolkit.User
         {
             return obj switch
             {
-                UserId id => _userId.Equals(id),
+                UserId id => RawId.Equals(id),
 
                 _ => base.Equals(obj)
             };            
@@ -65,23 +74,23 @@ namespace NiconicoToolkit.User
 
         public bool Equals(UserId other)
         {
-            if (this._userId == 0 || other._userId == 0) return false;
+            if (this.RawId == 0 || other.RawId == 0) return false;
 
-            return this._userId == other._userId;
+            return this.RawId == other.RawId;
         }
 
         public bool Equals(int other)
         {
-            if (this._userId == 0 || (uint)other == 0) return false;
+            if (this.RawId == 0 || (uint)other == 0) return false;
 
-            return this._userId == (uint)other;
+            return this.RawId == (uint)other;
         }
 
         public bool Equals(uint other)
         {
-            if (this._userId == 0 || other == 0) return false;
+            if (this.RawId == 0 || other == 0) return false;
 
-            return this._userId == other;
+            return this.RawId == other;
         }
 
 
@@ -90,13 +99,13 @@ namespace NiconicoToolkit.User
 
         public override string ToString()
         {
-            return _userId.ToString();
+            return RawId.ToString();
         }
 
 
         public override int GetHashCode()
         {
-            return _userId.GetHashCode();
+            return RawId.GetHashCode();
         }
 
     }

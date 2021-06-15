@@ -141,7 +141,7 @@ namespace NiconicoToolkit.Live.WatchPageProp
     public partial class Program
     {
         [J("allegation")] public Allegation Allegation { get; set; }
-        [J("nicoliveProgramId")] public string NicoliveProgramId { get; set; }
+        [J("nicoliveProgramId")] public LiveId NicoliveProgramId { get; set; }
         [J("reliveProgramId")] public string ReliveProgramId { get; set; }
         [J("providerType")] public ProviderType ProviderType { get; set; }
         [J("visualProviderType")] public ProviderType VisualProviderType { get; set; }
