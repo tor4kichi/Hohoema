@@ -1,4 +1,5 @@
 ﻿using Prism.Mvvm;
+using System.Text.Json;
 
 namespace Hohoema.Models.UseCase.PageNavigation
 {
@@ -6,19 +7,16 @@ namespace Hohoema.Models.UseCase.PageNavigation
 	{
 		public string ToParameterString()
 		{
-            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings()
-			{
-				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Objects
-			});
+            return JsonSerializer.Serialize(this);
 		}
 
 		public static T FromParameterString<T>(string json)
 		{
             try
             {
-                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+                return JsonSerializer.Deserialize<T>(json);
             }
-            catch (Newtonsoft.Json.JsonReaderException)
+            catch (JsonException)
             {
                 return default(T);
             }

@@ -1,6 +1,7 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.PageNavigation;
 using System.Runtime.Serialization;
+using System.Text.Json;
 
 namespace Hohoema.Models.UseCase.PageNavigation
 {
@@ -47,13 +48,13 @@ namespace Hohoema.Models.UseCase.PageNavigation
 			switch (SearchTarget)
 			{
 				case SearchTarget.Keyword:
-					_Content = Newtonsoft.Json.JsonConvert.DeserializeObject<KeywordSearchPagePayloadContent>(ContentJson);
+					_Content = JsonSerializer.Deserialize<KeywordSearchPagePayloadContent>(ContentJson);
 					break;
 				case SearchTarget.Tag:
-					_Content = Newtonsoft.Json.JsonConvert.DeserializeObject<TagSearchPagePayloadContent>(ContentJson);
+					_Content = JsonSerializer.Deserialize<TagSearchPagePayloadContent>(ContentJson);
 					break;
 				case SearchTarget.Niconama:
-					_Content = Newtonsoft.Json.JsonConvert.DeserializeObject<LiveSearchPagePayloadContent>(ContentJson);
+					_Content = JsonSerializer.Deserialize<LiveSearchPagePayloadContent>(ContentJson);
 					break;
 				default:
 					break;

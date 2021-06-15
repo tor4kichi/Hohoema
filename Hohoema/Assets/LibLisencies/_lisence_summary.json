@@ -1,13 +1,6 @@
 ﻿{
   "items": [
     {
-      "name": "Newtonsoft.Json",
-      "site": "http://www.newtonsoft.com/json",
-      "author": [ "James Newton-King" ],
-      "lisence_type": "MIT",
-      "lisence_page_url": "https://github.com/JamesNK/Newtonsoft.Json/blob/master/LICENSE.md"
-    },
-    {
       "name": "ReactiveProperty",
       "site": "https://github.com/runceel/ReactiveProperty",
       "author": [ "neuecc", "xin9le", "okazuki" ],
@@ -62,13 +55,6 @@
       "author": [ "Mauricio David" ],
       "lisence_type": "MIT",
       "lisence_page_url": "https://github.com/mbdavid/LiteDB/blob/master/LICENSE"
-    },
-    {
-      "name": "MonkeyCache.LiteDB",
-      "site": "https://github.com/jamesmontemagno/monkey-cache",
-      "author": [ "James Montemagno" ],
-      "lisence_type": "MIT",
-      "lisence_page_url": "https://github.com/jamesmontemagno/monkey-cache/blob/master/LICENSE"
     },
     {
       "name": "Macross Software JSON Extensions",

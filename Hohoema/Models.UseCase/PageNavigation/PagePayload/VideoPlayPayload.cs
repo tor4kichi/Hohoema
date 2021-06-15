@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Niconico.Video;
+using System.Text.Json;
 
 namespace Hohoema.Models.UseCase.PageNavigation
 {
@@ -15,12 +16,12 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
 		public string ToParameterString()
 		{
-			return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+			return JsonSerializer.Serialize(this);
 		}
 
 		public static VideoPlayPayload FromParameterString(string json)
 		{
-			return Newtonsoft.Json.JsonConvert.DeserializeObject<VideoPlayPayload>(json);
+			return JsonSerializer.Deserialize<VideoPlayPayload>(json);
 		}
 
 	}

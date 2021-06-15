@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Hohoema.Models.Domain.Live
@@ -22,12 +23,12 @@ namespace Hohoema.Models.Domain.Live
 
 		public string ToParameterString()
 		{
-			return Newtonsoft.Json.JsonConvert.SerializeObject(this);
+			return JsonSerializer.Serialize(this);
 		}
 
 		public static LiveVideoPagePayload FromParameterString(string json)
 		{
-			return Newtonsoft.Json.JsonConvert.DeserializeObject<LiveVideoPagePayload>(json);
+			return JsonSerializer.Deserialize<LiveVideoPagePayload>(json);
 		}
 
 	}

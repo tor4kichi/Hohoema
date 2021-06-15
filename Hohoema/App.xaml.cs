@@ -27,7 +27,6 @@ using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Helpers;
-using Newtonsoft.Json;
 using Prism;
 using Prism.Commands;
 using Prism.Ioc;
@@ -213,9 +212,6 @@ namespace Hohoema
 
             LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
             unityContainer.RegisterInstance<LiteDatabase>(db);
-
-            MonkeyCache.LiteDB.Barrel.ApplicationId = nameof(Hohoema);
-            unityContainer.RegisterInstance<MonkeyCache.IBarrel>(MonkeyCache.LiteDB.Barrel.Current);
 
             var mainWindowsScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
             // 各ウィンドウごとのスケジューラを作るように
