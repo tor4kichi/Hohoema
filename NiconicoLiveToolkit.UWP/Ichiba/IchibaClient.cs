@@ -91,8 +91,8 @@ namespace NiconicoToolkit.Ichiba
                     {
                         AmazonItemLink = thumbnailNode.GetAttribute("href").ToUri(),
                         IchibaUrl = thumbnailNode.GetAttribute("href").ToUri(),
-                        Maker = shopNode?.TextContent ?? categoryNode?.TextContent,
-                        Price = priceNumberNode.TextContent,
+                        Maker = shopNode?.TextContent ?? categoryNode?.TextContent ?? string.Empty,
+                        Price = priceNumberNode?.TextContent ?? string.Empty,
                         ThumbnailUrl = imgNode?.GetAttribute("src").ToUri(),
                         Title = WebUtility.HtmlDecode(itemNameNode.TextContent)
                     };
