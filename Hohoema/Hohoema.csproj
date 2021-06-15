@@ -309,6 +309,7 @@
     <Compile Include="Models.UseCase\Migration\SearchTargetMigration_V_1_1_0.cs" />
     <Compile Include="Models.UseCase\Migration\SettingsMigration_V_0_23_0.cs" />
     <Compile Include="Models.UseCase\PageNavigation\NavigationTriggerFromExternal.cs" />
+    <Compile Include="Models.UseCase\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
     <Compile Include="Models.UseCase\VideoCache\Events\EndCacheSaveFolderChangingMessage.cs" />
     <Compile Include="Models.UseCase\VideoCache\Events\StartCacheSaveFolderChangingAsyncRequestMessage.cs" />
     <Compile Include="Models.UseCase\VideoCache\Events\VideoCacheProgressChangedMessage.cs" />
@@ -338,7 +339,6 @@
     <Compile Include="Models.UseCase\Subscriptions\FeedResultAddToWatchLater.cs" />
     <Compile Include="Models.UseCase\Subscriptions\LatestSubscriptionVideosNotifier.cs" />
     <Compile Include="Models.UseCase\Subscriptions\SubscriptionUpdateManager.cs" />
-    <Compile Include="Models.UseCase\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheDownloadOperationManager.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheFolderManager.cs" />
     <Compile Include="Models.UseCase\WindowService.cs" />

@@ -129,6 +129,8 @@ namespace Hohoema
 
         public override async Task OnStartAsync(StartArgs args)
         {
+            using var initializeLock = await InitializeLock.LockAsync();
+
             if (args.Arguments is LaunchActivatedEventArgs launchArgs)
             {
                 SplashScreen = launchArgs.SplashScreen;
@@ -140,52 +142,19 @@ namespace Hohoema
                 Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.TrackAppUse(launchArgs);
             }
 
-            await EnsureInitializeAsync();
-
             if (args.StartKind == StartKinds.Launch)
             {
-                if (!_isNavigationStackRestored)
-                {
-#if DEBUG
-                    var niconicoSession = Container.Resolve<NiconicoSession>();
-
-                    // 外部から起動した場合にサインイン動作と排他的動作にさせたい
-                    // こうしないと再生処理を正常に開始できない
-                    using (await niconicoSession.SigninLock.LockAsync())
-                    {
-                        await Task.Delay(50);
-                    }
-                    _isNavigationStackRestored = true;
-                    //                    await _primaryWindowCoreLayout.RestoreNavigationStack();
-#else
-                    var navigationService = Container.Resolve<PageManager>();
-                    var settings = Container.Resolve<AppearanceSettings>();
-                    navigationService.OpenPage(settings.FirstAppearPageType);
-#endif
-                    // TODO: 前回再生中に終了したコンテンツを表示するかユーザーに確認
-#if DEBUG
-                    var vm = _primaryWindowCoreLayout.DataContext as PrimaryWindowCoreLayoutViewModel;
-                    var lastPlaying = vm.RestoreNavigationManager.GetCurrentPlayerEntry();
-                    if (lastPlaying != null)
-                    {
-                        // TODO: 前回再生中コンテンツ復帰時に再生リストを取得できるようにする（ローカルマイリストやチャンネル動画一覧含む）
-                        var hohoemaPlaylist = Container.Resolve<HohoemaPlaylist>();
-                        hohoemaPlaylist.Play(lastPlaying.ContentId, position: lastPlaying.Position);
-                    }
-#endif
-                }
+                
 
             }
             else if (args.StartKind == StartKinds.Activate)
             {
-                _ = OnActivateApplicationAsync(args.Arguments as IActivatedEventArgs);
+                await OnActivateApplicationAsync(args.Arguments as IActivatedEventArgs);
             }
             else if (args.StartKind == StartKinds.Background)
             {
-                BackgroundActivated(args.Arguments as BackgroundActivatedEventArgs);
+                await BackgroundActivated(args.Arguments as BackgroundActivatedEventArgs);
             }
-
-            
 
             await base.OnStartAsync(args);
         }
@@ -366,6 +335,8 @@ namespace Hohoema
         bool isInitialized = false;
         private async Task EnsureInitializeAsync()
         {
+            using var initializeLock = await InitializeLock.LockAsync();
+
             if (isInitialized) { return; }
             isInitialized = true;
 
@@ -443,8 +414,6 @@ namespace Hohoema
             //Console.WriteLine(I18N.Current.Locale);
             //Console.WriteLine(CultureInfo.CurrentCulture.Name);
 
-            // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
-            var mylitManager = Container.Resolve<LoginUserOwnedMylistManager>();
 
             Resources["IsXbox"] = DeviceTypeHelper.IsXbox;
             Resources["IsMobile"] = DeviceTypeHelper.IsMobile;
@@ -556,11 +525,14 @@ namespace Hohoema
             // 2段階認証を処理するログインサービスをインスタンス化
             var loginService = Container.Resolve<NiconicoLoginService>();
 
-            // バージョン間データ統合
+            // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
+            var mylitManager = Container.Resolve<LoginUserOwnedMylistManager>();
+
             {
                 var unityContainer = Container.GetContainer();
 
                 unityContainer.Resolve<Models.UseCase.Migration.CommentFilteringNGScoreZeroFixture>().Migration();
+
 
 
                 // アプリのユースケース系サービスを配置
@@ -568,8 +540,8 @@ namespace Hohoema
                 unityContainer.RegisterInstance(unityContainer.Resolve<CheckingClipboardAndNotificationService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<FollowNotificationAndConfirmListener>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<SubscriptionUpdateManager>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<FeedResultAddToWatchLater>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<SyncWatchHistoryOnLoggedIn>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<FeedResultAddToWatchLater>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<LatestSubscriptionVideosNotifier>());
 
                 unityContainer.RegisterInstance(unityContainer.Resolve<VideoPlayRequestBridgeToPlayer>());
@@ -688,9 +660,11 @@ namespace Hohoema
 
 
 
-        public override void OnInitialized()
+        public override async void OnInitialized()
         {
             Window.Current.Activate();
+
+            await EnsureInitializeAsync();
 
             // ログイン
             try
@@ -699,7 +673,7 @@ namespace Hohoema
                 if (AccountManager.HasPrimaryAccount())
                 {
                     // サインイン処理の待ちを初期化内でしないことで初期画面表示を早める
-                    _ = niconicoSession.SignInWithPrimaryAccount();
+                    await niconicoSession.SignInWithPrimaryAccount();
                 }
             }
             catch
@@ -707,12 +681,48 @@ namespace Hohoema
                 Debug.WriteLine("ログイン処理に失敗");
             }
 
+#if !DEBUG
+            var navigationService = Container.Resolve<PageManager>();
+            var settings = Container.Resolve<AppearanceSettings>();
+            navigationService.OpenPage(settings.FirstAppearPageType);
+#endif
+
+#if DEBUG
+            try
+            {
+                if (!_isNavigationStackRestored)
+                {
+                    var niconicoSession = Container.Resolve<NiconicoSession>();
+
+                    // 外部から起動した場合にサインイン動作と排他的動作にさせたい
+                    // こうしないと再生処理を正常に開始できない
+                    using (await niconicoSession.SigninLock.LockAsync())
+                    {
+                        await Task.Delay(50);
+                    }
+                    _isNavigationStackRestored = true;
+                    //                    await _primaryWindowCoreLayout.RestoreNavigationStack();
+                    // TODO: 前回再生中に終了したコンテンツを表示するかユーザーに確認
+                    var vm = _primaryWindowCoreLayout.DataContext as PrimaryWindowCoreLayoutViewModel;
+                    var lastPlaying = vm.RestoreNavigationManager.GetCurrentPlayerEntry();
+                    if (lastPlaying != null)
+                    {
+                        // TODO: 前回再生中コンテンツ復帰時に再生リストを取得できるようにする（ローカルマイリストやチャンネル動画一覧含む）
+                        var hohoemaPlaylist = Container.Resolve<HohoemaPlaylist>();
+                        hohoemaPlaylist.Play(lastPlaying.ContentId, position: lastPlaying.Position);
+                    }
+                }
+            }
+            catch { }
+#endif
+
+
             base.OnInitialized();
         }
 
 
 
-        async void BackgroundActivated(BackgroundActivatedEventArgs args)
+        async Task BackgroundActivated(BackgroundActivatedEventArgs args)
         {
             var deferral = args.TaskInstance.GetDeferral();
 
@@ -863,10 +873,10 @@ namespace Hohoema
         }
 
 
-        #endregion
+#endregion
 
 
-        #region Theme 
+#region Theme 
 
 
         const string ThemeTypeKey = "Theme";
