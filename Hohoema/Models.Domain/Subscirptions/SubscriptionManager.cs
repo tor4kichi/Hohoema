@@ -93,7 +93,7 @@ namespace Hohoema.Models.Domain.Subscriptions
 
         public SubscriptionSourceEntity AddSubscription(IMylist mylist)
         {
-            return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = mylist.Label, SourceParameter = mylist.Id, SourceType = SubscriptionSourceType.Mylist });
+            return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = mylist.Name, SourceParameter = mylist.Id, SourceType = SubscriptionSourceType.Mylist });
         }
 
         public SubscriptionSourceEntity AddKeywordSearchSubscription(string keyword)
@@ -356,7 +356,7 @@ namespace Hohoema.Models.Domain.Subscriptions
                 return _nicoVideoProvider.UpdateCache(video.Id, v => 
                 {
                     v.Title = video.Title;
-                    v.VideoId = video.Id;
+                    v.VideoAliasId = video.Id;
                     v.PostedAt = video.PostAt;
                     v.Length = video.Duration;
                     v.ThumbnailUrl = video.ThumbnailUrl.OriginalString;
@@ -367,7 +367,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             ;
         }
 
-        static private async Task<List<NicoVideo>> GetMylistFeedResult(string mylistId, MylistProvider mylistProvider)
+        static private async Task<List<NicoVideo>> GetMylistFeedResult(MylistId mylistId, MylistProvider mylistProvider)
         {
             List<NicoVideo> items = new List<NicoVideo>();
             int page = 0;
@@ -405,7 +405,7 @@ namespace Hohoema.Models.Domain.Subscriptions
                 {
                     var video = _nicoVideoProvider.UpdateCache(item.Video.Id, video => 
                     {
-                        video.VideoId = item.Video.Id;
+                        video.VideoAliasId = item.Video.Id;
                         video.Title = item.Video.Title;
                         video.PostedAt = item.Video.FirstRetrieve.DateTime;
                         video.Length = item.Video.Duration;

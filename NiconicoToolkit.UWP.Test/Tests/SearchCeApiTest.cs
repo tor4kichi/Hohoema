@@ -61,7 +61,7 @@ namespace NiconicoToolkit.UWP.Test.Tests
         [DataRow("sm9", "so38721201")]
         public async Task IdSearchAsync(string videoId1, string videoId2)
         {
-            var ids = new[] { videoId1, videoId2 };
+            var ids = new[] { (VideoId)videoId1, (VideoId)videoId2 };
             var res = await _context.SearchWithCeApi.Video.IdSearchAsync(ids);
 
             Assert.IsTrue(res.IsOK);

@@ -1,19 +1,10 @@
 ﻿using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
+using NiconicoToolkit;
+using NiconicoToolkit.Mylist;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist
 {
     public static class MylistPlaylistExtension
-    {
-        public const string DefailtMylistId = "0";
-
-        public static bool IsDefaultMylist(this IMylist mylist)
-        {
-            return mylist?.Id == DefailtMylistId;
-        }
-
-        public static bool IsDefaultMylistId(string mylistId)
-        {
-            return mylistId == DefailtMylistId;
-        }
+    {     
     }
 }

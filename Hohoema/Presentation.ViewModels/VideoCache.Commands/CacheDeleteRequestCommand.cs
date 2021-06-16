@@ -28,26 +28,26 @@ namespace Hohoema.Presentation.ViewModels.VideoCache.Commands
 
         protected override async void Execute(IVideoContent content)
         {
-            var status = _videoCacheManager.GetVideoCacheStatus(content.Id);
+            var status = _videoCacheManager.GetVideoCacheStatus(content.VideoId);
             
             if (status is null) { return; }
 
             if (status is VideoCacheStatus.Completed)
             {
                 var confirmed = await _dialogService.ShowMessageDialog(
-                    "ConfirmCacheRemoveContent".Translate(content.Label),
+                    "ConfirmCacheRemoveContent".Translate(content.Title),
                     $"ConfirmCacheRemoveTitle".Translate(),
                     acceptButtonText: "Delete".Translate(),
                     "Cancel".Translate()
                     );
                 if (confirmed)
                 {
-                    await _videoCacheManager.CancelCacheRequestAsync(content.Id);
+                    await _videoCacheManager.CancelCacheRequestAsync(content.VideoId);
                 }
             }
             else
             {
-                await _videoCacheManager.CancelCacheRequestAsync(content.Id);
+                await _videoCacheManager.CancelCacheRequestAsync(content.VideoId);
             }
         }
 
@@ -56,7 +56,7 @@ namespace Hohoema.Presentation.ViewModels.VideoCache.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            var anyCached = items.Any(x => _videoCacheManager.GetVideoCacheStatus(x.Id) is VideoCacheStatus.Completed);
+            var anyCached = items.Any(x => _videoCacheManager.GetVideoCacheStatus(x.VideoId) is VideoCacheStatus.Completed);
             if (anyCached)
             {
                 var confirmed = await _dialogService.ShowMessageDialog(
@@ -69,7 +69,7 @@ namespace Hohoema.Presentation.ViewModels.VideoCache.Commands
                 {
                     foreach (var item in items)
                     {
-                        await _videoCacheManager.CancelCacheRequestAsync(item.Id);
+                        await _videoCacheManager.CancelCacheRequestAsync(item.VideoId);
                     }
                 }
             }
@@ -77,7 +77,7 @@ namespace Hohoema.Presentation.ViewModels.VideoCache.Commands
             {
                 foreach (var item in items)
                 {
-                    await _videoCacheManager.CancelCacheRequestAsync(item.Id);
+                    await _videoCacheManager.CancelCacheRequestAsync(item.VideoId);
                 }
             }
         }

@@ -84,7 +84,7 @@ namespace NiconicoToolkit.Community
             return _context.GetJsonAsAsync<CommunityVideoResponse>(url, _options);
         }
 
-        public Task<CommunityVideoListItemsResponse> GetCommunityVideoListItemsAsync(IEnumerable<string> videoIds)
+        public Task<CommunityVideoListItemsResponse> GetCommunityVideoListItemsAsync(IEnumerable<NiconicoId> videoIds)
         {
             // ex) https://com.nicovideo.jp/api/v1/videos.json?video_ids=sm26963608,sm26963450,sm26963253
 

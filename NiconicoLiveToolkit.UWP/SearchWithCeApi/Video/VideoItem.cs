@@ -1,4 +1,5 @@
 ﻿using NiconicoToolkit.User;
+using NiconicoToolkit.Video;
 using System;
 using System.Text.Json.Serialization;
 
@@ -7,7 +8,7 @@ namespace NiconicoToolkit.SearchWithCeApi.Video
     public class VideoItem
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public VideoId Id { get; set; }
 
         [JsonPropertyName("user_id")]
         public UserId UserId { get; set; }

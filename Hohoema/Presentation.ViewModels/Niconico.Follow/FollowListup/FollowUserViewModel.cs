@@ -1,6 +1,7 @@
 ﻿using System;
 using Hohoema.Models.Domain.Niconico;
 using NiconicoToolkit.Follow;
+using NiconicoToolkit.User;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
@@ -13,11 +14,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             _userFollowItem = userFollowItem;
         }
 
-        private string _Id;
-        public string Id => _Id ??= _userFollowItem.Id.ToString();
+        public UserId UserId => _userFollowItem.Id;
 
 
-        public string Label => _userFollowItem.Nickname;
+        public string Nickname => _userFollowItem.Nickname;
 
         public Uri IconUrl_Small => _userFollowItem.Icons.Small;
         public Uri IconUrl_Large => _userFollowItem.Icons.Large;

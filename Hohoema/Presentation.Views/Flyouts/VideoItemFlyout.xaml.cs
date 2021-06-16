@@ -292,8 +292,8 @@ namespace Hohoema.Presentation.Views.Flyouts
             {
                 // 一つでもキャッシュ済みがあれば削除ボタンを表示
                 // 一つでも未キャッシュがあれば取得ボタンを表示
-                var anyItemsCached = SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.Id) is not null);
-                var anyItemsNotCached = SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.Id) is null or VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading or VideoCacheStatus.Failed);
+                var anyItemsCached = SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.VideoId) is not null);
+                var anyItemsNotCached = SelectedVideoItems.Any(x => VideoCacheManager.GetVideoCacheStatus(x.VideoId) is null or VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading or VideoCacheStatus.Failed);
 
                 var notCachedToVisible = (canNewDownloadCache && anyItemsNotCached).ToVisibility();
                 CacheRequest.Visibility = notCachedToVisible;
@@ -311,8 +311,8 @@ namespace Hohoema.Presentation.Views.Flyouts
             }
             else
             {
-                var itemCached = VideoCacheManager.GetVideoCacheStatus(content.Id) is not null;
-                var itemNotCached = VideoCacheManager.GetVideoCacheStatus(content.Id) is null or VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading or VideoCacheStatus.Failed;
+                var itemCached = VideoCacheManager.GetVideoCacheStatus(content.VideoId) is not null;
+                var itemNotCached = VideoCacheManager.GetVideoCacheStatus(content.VideoId) is null or VideoCacheStatus.DownloadPaused or VideoCacheStatus.Downloading or VideoCacheStatus.Failed;
 
                 var notCachedToVisible = (canNewDownloadCache && itemNotCached).ToVisibility();
                 CacheRequest.Visibility = notCachedToVisible;

@@ -15,12 +15,12 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Share
         protected override bool CanExecute(object content)
         {
             return Windows.ApplicationModel.DataTransfer.DataTransferManager.IsSupported()
-                        && (content as INiconicoContent)?.Id != null;
+                        && (content as INiconicoObject) != null;
         }
 
         protected override void Execute(object content)
         {
-            if (content is INiconicoContent nicoContent)
+            if (content is INiconicoObject nicoContent)
             {
                 ShareHelper.Share(nicoContent);
 

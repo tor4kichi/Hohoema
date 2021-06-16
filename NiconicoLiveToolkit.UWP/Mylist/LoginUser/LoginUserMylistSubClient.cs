@@ -79,26 +79,26 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 { "defaultSortKey", sortKey.GetDescription() },
                 { "defaultSortOrder", sortOrder.GetDescription() },
             };
-            var httpContent = new HttpFormUrlEncodedContent(dict);
-            var res = await _context.SendAsync(HttpMethod.Put, $"{Urls.NvApiV1MylistApiUrl}/{mylistId}", httpContent, completionOption: HttpCompletionOption.ResponseHeadersRead);
+            using var httpContent = new HttpFormUrlEncodedContent(dict);
+            using var res = await _context.SendAsync(HttpMethod.Put, $"{Urls.NvApiV1MylistApiUrl}/{mylistId}", httpContent, completionOption: HttpCompletionOption.ResponseHeadersRead);
             return res.IsSuccessStatusCode;
         }
 
 
         public async Task<bool> RemoveMylistAsync(string mylistId)
         {
-            var res = await _context.SendAsync(HttpMethod.Delete, $"{Urls.NvApiV1MylistApiUrl}/{mylistId}", completionOption: HttpCompletionOption.ResponseHeadersRead);
+            using var res = await _context.SendAsync(HttpMethod.Delete, $"{Urls.NvApiV1MylistApiUrl}/{mylistId}", completionOption: HttpCompletionOption.ResponseHeadersRead);
             return res.IsSuccessStatusCode;
         }
 
         public async Task<ChangeMylistGroupsOrderResponse> ChangeMylistGroupsOrderAsync<T>(IEnumerable<T> orderedMylistIds)
         {
-            var httpContent = new HttpFormUrlEncodedContent(new Dictionary<string, string>()
+            using var httpContent = new HttpFormUrlEncodedContent(new Dictionary<string, string>()
             {
                 { "order", string.Join(',', orderedMylistIds) }
             });
 
-            var res = await _context.SendAsync(HttpMethod.Put, Urls.NvApiV1MylistOrderApiUrl, httpContent);
+            using var res = await _context.SendAsync(HttpMethod.Put, Urls.NvApiV1MylistOrderApiUrl, httpContent);
             return await res.Content.ReadAsAsync<ChangeMylistGroupsOrderResponse>(_defaultOptions);
         }
 
@@ -123,7 +123,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
 
         public async Task<ContentManageResult> AddWatchAfterMylistItemAsync(string watchId, string memo)
         {
-            var res = await _context.PostAsync(Urls.NvApiV1WatchAfterApiUrl, new Dictionary<string, string>
+            using var res = await _context.PostAsync(Urls.NvApiV1WatchAfterApiUrl, new Dictionary<string, string>
             {
                 { "watchId", watchId },
                 { "memo", memo }
@@ -144,7 +144,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 .Append(itemId)
                 .ToString();
 
-            var res = await _context.PostAsync(url, dict);
+            using var res = await _context.PostAsync(url, dict);
             return res.StatusCode.ToContentManagerResult();
         }
 
@@ -160,20 +160,20 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 .AppendQueryString(dict)
                 .ToString();
 
-            var res = await _context.SendAsync(HttpMethod.Delete, url);
+            using var res = await _context.SendAsync(HttpMethod.Delete, url);
             return res.StatusCode.ToContentManagerResult();
         }
 
 
         public async Task<MoveOrCopyMylistItemsResponse> MoveMylistItemsFromWatchAfterAsync(string mylistId, IEnumerable<string> itemIds)
         {
-            var res = await MoveMylistItemsAsync_Internal(from: "deflist", to: mylistId, itemIds);
+            using var res = await MoveMylistItemsAsync_Internal(from: "deflist", to: mylistId, itemIds);
             return await res.Content.ReadAsAsync<MoveOrCopyMylistItemsResponse>();
         }
 
         public async Task<MoveOrCopyMylistItemsResponse> CopyMylistItemsFromWatchAfterAsync(string mylistId, IEnumerable<string> itemIds)
         {
-            var res = await CopyMylistItemsAsync_Internal(from: "deflist", to: mylistId, itemIds);
+            using var res = await CopyMylistItemsAsync_Internal(from: "deflist", to: mylistId, itemIds);
             return await res.Content.ReadAsAsync<MoveOrCopyMylistItemsResponse>();
         }
 
@@ -212,7 +212,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 .AppendQueryString(dict)
                 .ToString();
 
-            var res = await _context.PostAsync(url);
+            using var res = await _context.PostAsync(url);
             return res.StatusCode.ToContentManagerResult();
         }
 
@@ -231,7 +231,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 .AppendQueryString(dict)
                 .ToString();
 
-            var res = await _context.PostAsync(url);
+            using var res = await _context.PostAsync(url);
             return res.StatusCode.ToContentManagerResult();
         }
 
@@ -248,19 +248,19 @@ namespace NiconicoToolkit.Mylist.LoginUser
                 .AppendQueryString(dict)
                 .ToString();
 
-            var res = await _context.SendAsync(HttpMethod.Delete, url);
+            using var res = await _context.SendAsync(HttpMethod.Delete, url);
             return res.StatusCode.ToContentManagerResult();
         }
 
         public async Task<MoveOrCopyMylistItemsResponse> MoveMylistItemsAsync(string fromMylistId, string toMylistId, IEnumerable<string> itemIds)
         {
-            var res = await MoveMylistItemsAsync_Internal(from: fromMylistId, to: toMylistId, itemIds);
+            using var res = await MoveMylistItemsAsync_Internal(from: fromMylistId, to: toMylistId, itemIds);
             return await res.Content.ReadAsAsync<MoveOrCopyMylistItemsResponse>();
         }
 
         public async Task<MoveOrCopyMylistItemsResponse> CopyMylistItemsAsync(string fromMylistId, string toMylistId, IEnumerable<string> itemIds)
         {
-            var res = await CopyMylistItemsAsync_Internal(from: fromMylistId, to: toMylistId, itemIds);
+            using var res = await CopyMylistItemsAsync_Internal(from: fromMylistId, to: toMylistId, itemIds);
             return await res.Content.ReadAsAsync<MoveOrCopyMylistItemsResponse>();
         }
 

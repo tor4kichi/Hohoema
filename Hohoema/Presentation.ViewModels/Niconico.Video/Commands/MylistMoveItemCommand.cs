@@ -50,9 +50,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             {
                 targetMylist = _userMylistManager.Mylists.Any() ?
                     await _dialogService.ShowSingleSelectDialogAsync(
-                    _userMylistManager.Mylists.Where(x => x.Id != SourceMylist.Id).ToList(),
-                    nameof(LoginUserMylistPlaylist.Label),
-                    (mylist, s) => mylist.Label.Contains(s),
+                    _userMylistManager.Mylists.Where(x => x.MylistId != SourceMylist.MylistId).ToList(),
+                    nameof(LoginUserMylistPlaylist.Name),
+                    (mylist, s) => mylist.Name.Contains(s),
                     "SelectMoveTargetMylist".Translate(),
                     "Select".Translate(),
                     "CreateNew".Translate(),
@@ -65,14 +65,14 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             if (targetMylist != null)
             {
                 var itemsCount = items.Count();
-                var result = await SourceMylist.MoveItemAsync(targetMylist.Id, items.Select(x => x.Id).ToArray());
+                var result = await SourceMylist.MoveItemAsync(targetMylist.MylistId, items.Select(x => x.VideoId).ToArray());
                 if (result != ContentManageResult.Failed)
                 {
-                    _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistMovedItems_Success".Translate(targetMylist.Label, itemsCount));
+                    _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistMovedItems_Success".Translate(targetMylist.Name, itemsCount));
                 }
                 else
                 {
-                    _notificationService.ShowLiteInAppNotification_Fail("InAppNotification_MylistMovedItems_Fail".Translate(targetMylist.Label));
+                    _notificationService.ShowLiteInAppNotification_Fail("InAppNotification_MylistMovedItems_Fail".Translate(targetMylist.Name));
                 }
             }
         }

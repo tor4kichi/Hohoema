@@ -2,6 +2,7 @@
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,13 +14,13 @@ namespace Hohoema.Models.Domain.Playlist
     public sealed class LocalPlaylistItemRemovedEventArgs
     {
         public string PlaylistId { get; internal set; }
-        public IReadOnlyCollection<string> RemovedItems { get; internal set; }
+        public IReadOnlyCollection<VideoId> RemovedItems { get; internal set; }
     }
 
     public sealed class LocalPlaylistItemAddedEventArgs
     {
         public string PlaylistId { get; internal set; }
-        public IReadOnlyCollection<string> AddedItems { get; internal set; }
+        public IReadOnlyCollection<VideoId> AddedItems { get; internal set; }
     }
 
     public sealed class LocalPlaylistItemAddedMessage : ValueChangedMessage<LocalPlaylistItemAddedEventArgs>
@@ -47,7 +48,7 @@ namespace Hohoema.Models.Domain.Playlist
         internal LocalPlaylist(string id, string label, PlaylistRepository playlistRepository, NicoVideoProvider nicoVideoProvider, IMessenger messenger)
         {
             Id = id;
-            Label = label;
+            Name = label;
             _playlistRepository = playlistRepository;
             _nicoVideoProvider = nicoVideoProvider;
             _messenger = messenger;
@@ -57,15 +58,15 @@ namespace Hohoema.Models.Domain.Playlist
 
         public string Id { get; }
 
-        public string Label { get; private set; }
+        public string Name { get; private set; }
 
         public void UpdateLabel(string label)
         {
             if (string.IsNullOrWhiteSpace(label)) { throw new InvalidOperationException(); }
 
-            if (string.Compare(Label, label) != 0)
+            if (string.Compare(Name, label) != 0)
             {
-                Label = label;
+                Name = label;
                 UpdatePlaylistInfo();
             }
         }
@@ -85,12 +86,12 @@ namespace Hohoema.Models.Domain.Playlist
 
         public void AddPlaylistItem(IVideoContent item)
         {
-            _playlistRepository.AddItem(Id, item.Id);
+            _playlistRepository.AddItem(Id, item.VideoId);
 
             var message = new LocalPlaylistItemAddedMessage(new()
             {
                 PlaylistId = Id,
-                AddedItems = new[] { item.Id }
+                AddedItems = new[] { item.VideoId }
             });
             _messenger.Send(message);
             _messenger.Send(message, Id);
@@ -111,7 +112,7 @@ namespace Hohoema.Models.Domain.Playlist
 
         public void AddPlaylistItem(IEnumerable<IVideoContent> items)
         {
-            var ids = items.Select(x => x.Id).ToList();
+            var ids = items.Select(x => x.VideoId).ToList();
             _playlistRepository.AddItems(Id, ids);
 
             var message = new LocalPlaylistItemAddedMessage(new()
@@ -132,14 +133,14 @@ namespace Hohoema.Models.Domain.Playlist
 
         public bool RemovePlaylistItem(IVideoContent item)
         {
-            var result = _playlistRepository.DeleteItem(Id, item.Id);
+            var result = _playlistRepository.DeleteItem(Id, item.VideoId);
 
             if (result)
             {
                 var message = new LocalPlaylistItemRemovedMessage(new()
                 {
                     PlaylistId = Id,
-                    RemovedItems = new[] { item.Id }
+                    RemovedItems = new[] { item.VideoId }
                 });
                 _messenger.Send(message);
                 _messenger.Send(message, Id);
@@ -152,7 +153,7 @@ namespace Hohoema.Models.Domain.Playlist
 
         public int RemovePlaylistItems(IEnumerable<IVideoContent> items)
         {
-            var ids = items.Select(x => x.Id).ToList();
+            var ids = items.Select(x => x.VideoId).ToList();
             var result = _playlistRepository.DeleteItems(Id, ids);
 
             if (result > 0)
@@ -178,7 +179,7 @@ namespace Hohoema.Models.Domain.Playlist
             _playlistRepository.UpsertPlaylist(new PlaylistEntity()
             {
                 Id = this.Id,
-                Label = this.Label,
+                Label = this.Name,
                 Count = 1,
                 PlaylistOrigin = PlaylistOrigin.Local,
                 ThumbnailImage = this.ThumbnailImage,

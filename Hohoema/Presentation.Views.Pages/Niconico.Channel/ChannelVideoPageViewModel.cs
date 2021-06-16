@@ -26,6 +26,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Channels;
+using NiconicoToolkit;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 {
@@ -34,9 +35,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
     public sealed class ChannelInfo : IChannel
     {
-        public string Id { get; set; }
+        public NiconicoId ChannelId { get; set; }
 
-        public string Label { get; set; }
+        public string Name { get; set; }
 
     }
 
@@ -80,8 +81,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
         public string RawChannelId { get; set; }
 
-        private int? _ChannelId;
-        public int? ChannelId
+        private NiconicoId? _ChannelId;
+        public NiconicoId? ChannelId
         {
             get { return _ChannelId; }
             set { SetProperty(ref _ChannelId, value); }
@@ -159,12 +160,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
             {
                 var channelInfo = await ChannelProvider.GetChannelInfo(RawChannelId);
 
-                ChannelId = channelInfo.ChannelId;
+                ChannelId = new NiconicoId(channelInfo.ChannelId, NiconicoIdType.Channel);
                 ChannelName = channelInfo.Name;
                 ChannelScreenName = channelInfo.ScreenName;
                 ChannelOpenTime = channelInfo.ParseOpenTime();
                 ChannelUpdateTime = channelInfo.ParseUpdateTime();
-                ChannelInfo = new ChannelInfo() { Id = ChannelId?.ToString(), Label = ChannelName };
+                ChannelInfo = new ChannelInfo() { ChannelId = ChannelId.Value, Name = ChannelName };
 
                 await UpdateFollowChannelAsync(ChannelInfo);
             }
@@ -195,7 +196,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
         protected override (int, IIncrementalSource<ChannelVideoListItemViewModel>) GenerateIncrementalSource()
         {
-            return (ChannelVideoLoadingSource.OneTimeLoadCount, new ChannelVideoLoadingSource(ChannelId?.ToString() ?? RawChannelId, ChannelProvider));
+            return (ChannelVideoLoadingSource.OneTimeLoadCount, new ChannelVideoLoadingSource(ChannelId.Value, ChannelProvider));
         }
 
 
@@ -241,11 +242,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
     public class ChannelVideoLoadingSource : IIncrementalSource<ChannelVideoListItemViewModel>
     {
-        public string ChannelId { get; }
+        public NiconicoId ChannelId { get; }
         public ChannelProvider ChannelProvider { get; }
 
-        public ChannelVideoLoadingSource(string channelId, ChannelProvider channelProvider)
+        public ChannelVideoLoadingSource(NiconicoId channelId, ChannelProvider channelProvider)
         {
+            if (!channelId.IsChannelId) { throw new InvalidOperationException(); }
+
             ChannelId = channelId;
             ChannelProvider = channelProvider;
         }

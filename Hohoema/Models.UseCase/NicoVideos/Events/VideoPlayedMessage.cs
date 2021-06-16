@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Events
 
         public sealed class VideoPlayedEventArgs
         {
-            public string ContentId { get; set; }
+            public VideoId ContentId { get; set; }
             public TimeSpan PlayedPosition { get; set; }
         }
     }

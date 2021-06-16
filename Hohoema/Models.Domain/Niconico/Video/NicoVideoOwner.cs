@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Niconico.Channel;
 using NiconicoToolkit.Video;
+using NiconicoToolkit;
+using NiconicoToolkit.User;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {
@@ -24,9 +26,15 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         string IUser.IconUrl => this.IconUrl;
 
-        string INiconicoObject.Id => this.OwnerId;
+        UserId IUser.UserId => UserType == OwnerType.User ? OwnerId : throw new InvalidOperationException();
 
-        string INiconicoObject.Label => this.ScreenName;
+        string IUser.Nickname => UserType == OwnerType.User ? ScreenName : throw new InvalidOperationException();
+
+        NiconicoId IChannel.ChannelId => UserType == OwnerType.Channel ? OwnerId : throw new InvalidOperationException();
+
+        string IChannel.Name => UserType == OwnerType.Channel ? ScreenName : throw new InvalidOperationException();
+
+        string INiconicoGroup.Name => UserType == OwnerType.Channel ? ScreenName : throw new InvalidOperationException();
     }
 
 

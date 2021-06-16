@@ -19,14 +19,14 @@ namespace Hohoema.Models.Domain.PageNavigation
             {
             }
 
-            public void Set(string mylistId, MylistSortKey sortKey, MylistSortOrder sortOrder)
+            public void Set(MylistId mylistId, MylistSortKey sortKey, MylistSortOrder sortOrder)
             {
                 _collection.Upsert(new MylistUserSelectedSortEntry() { MylistId = mylistId, SortKey = sortKey, SortOrder = sortOrder });
             }
 
-            public MylistUserSelectedSortEntry Get(string mylistId)
+            public MylistUserSelectedSortEntry Get(MylistId mylistId)
             {
-                return _collection.FindById(mylistId);
+                return _collection.FindById(mylistId.ToString());
             }
         }
 
@@ -36,12 +36,12 @@ namespace Hohoema.Models.Domain.PageNavigation
             _mylistUserSelectedSortRepository_Internal = mylistUserSelectedSortRepository_Internal;
         }
 
-        public void SetMylistSort(string mylistId, MylistSortKey sortKey, MylistSortOrder sortOrder)
+        public void SetMylistSort(MylistId mylistId, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
             _mylistUserSelectedSortRepository_Internal.Set(mylistId, sortKey, sortOrder);
         }
 
-        public (MylistSortKey? SortKey, MylistSortOrder? SortOrder) GetMylistSort(string mylistId)
+        public (MylistSortKey? SortKey, MylistSortOrder? SortOrder) GetMylistSort(MylistId mylistId)
         {
             var entry = _mylistUserSelectedSortRepository_Internal.Get(mylistId);
             return (entry?.SortKey, entry?.SortOrder);

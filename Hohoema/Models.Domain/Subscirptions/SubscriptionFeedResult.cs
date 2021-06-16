@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.Domain.Subscriptions
 {

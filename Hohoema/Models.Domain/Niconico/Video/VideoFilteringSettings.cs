@@ -72,7 +72,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         public bool TryGetHiddenReason(IVideoContent video, out FilteredResult result)
         {
-            if (TryGetFilteredResultVideoId(video.Id, out var condi))
+            if (TryGetFilteredResultVideoId(video.VideoId, out var condi))
             {
                 result = new FilteredResult()
                 {
@@ -92,7 +92,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
                 return true;
             }
-            else if (video.Label != null && TryGetHiddenVideoTitle(video.Label, out var title))
+            else if (video.Title != null && TryGetHiddenVideoTitle(video.Title, out var title))
             {
                 result = new FilteredResult()
                 {

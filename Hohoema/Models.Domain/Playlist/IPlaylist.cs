@@ -12,7 +12,7 @@ namespace Hohoema.Models.Domain.Playlist
 {
     public interface IPlaylist
     {
-        string Label { get; }
+        string Name { get; }
         string Id { get; }
 
         int SortIndex { get; }

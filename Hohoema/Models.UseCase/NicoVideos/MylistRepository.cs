@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.Niconico.Mylist;
+using NiconicoToolkit;
+using NiconicoToolkit.Mylist;
+using NiconicoToolkit.User;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {
@@ -27,15 +30,13 @@ namespace Hohoema.Models.UseCase.NicoVideos
             _mylistProvider = mylistProvider;
         }
 
-        public const string DefailtMylistId = "0";
-
-        public bool IsLoginUserMylistId(string mylistId)
+        public bool IsLoginUserMylistId(MylistId mylistId)
         {
             return _userMylistManager.HasMylistGroup(mylistId);
         }
 
 
-        public async Task<MylistPlaylist> GetMylist(string mylistId)
+        public async Task<MylistPlaylist> GetMylist(MylistId mylistId)
         {
             await _userMylistManager.WaitUpdate();
 
@@ -49,7 +50,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             }
         }
 
-        public async Task<List<MylistPlaylist>> GetUserMylistsAsync(string userId)
+        public async Task<List<MylistPlaylist>> GetUserMylistsAsync(UserId userId)
         {
             if (_niconicoSession.UserIdString == userId)
             {

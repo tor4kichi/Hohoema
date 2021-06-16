@@ -3,13 +3,14 @@ using Hohoema.Models.Domain.Playlist;
 using System;
 using Hohoema.Models.Domain.Niconico.Follow;
 using NiconicoToolkit.Mylist;
+using NiconicoToolkit.User;
+using NiconicoToolkit;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist
 {
-    public interface IMylist : IPlaylist, IFollowable
+    public interface IMylist : IPlaylist, IFollowable, INiconicoObject
     {
-        new string Label { get; }
-        new string Id { get; }
+        MylistId MylistId { get; }
         string Description { get; }
         string UserId { get; }
         bool IsPublic { get; }

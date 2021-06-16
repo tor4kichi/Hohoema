@@ -3,6 +3,7 @@ using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Presentation.Services;
 using I18NPortable;
 using NiconicoToolkit.Activity.VideoWatchHistory;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,12 +13,12 @@ namespace Hohoema.Models.UseCase.NicoVideos
 {
     public sealed class WatchHistoryRemovedEventArgs
     {
-        public string VideoId { get; set; }
+        public VideoId VideoId { get; set; }
     }
 
     public sealed class ContentWatchedEventArgs
     {
-        public string ContentId { get; set; }
+        public VideoId ContentId { get; set; }
     }
 
     public sealed class WatchHistoryManager
@@ -47,10 +48,10 @@ namespace Hohoema.Models.UseCase.NicoVideos
         {
             try
             {
-                var result = await _LoginUserVideoWatchHistoryProvider.RemoveHistoryAsync(watchHistory.Id);
+                var result = await _LoginUserVideoWatchHistoryProvider.RemoveHistoryAsync(watchHistory.VideoId);
                 if (result)
                 {
-                    WatchHistoryRemoved?.Invoke(this, new WatchHistoryRemovedEventArgs() { VideoId = watchHistory.Id });
+                    WatchHistoryRemoved?.Invoke(this, new WatchHistoryRemovedEventArgs() { VideoId = watchHistory.VideoId });
 
                     _notificationService.ShowLiteInAppNotification_Success("VideoHistory_DeleteOne_Success".Translate());
                 }
@@ -72,12 +73,12 @@ namespace Hohoema.Models.UseCase.NicoVideos
         {
             try
             {
-                var result = await _LoginUserVideoWatchHistoryProvider.RemoveHistoryAsync(watchHistoryItems.Select(x => x.Id));
+                var result = await _LoginUserVideoWatchHistoryProvider.RemoveHistoryAsync(watchHistoryItems.Select(x => x.VideoId));
                 if (result)
                 {
                     foreach (var item in watchHistoryItems)
                     {
-                        WatchHistoryRemoved?.Invoke(this, new WatchHistoryRemovedEventArgs() { VideoId = item.Id });
+                        WatchHistoryRemoved?.Invoke(this, new WatchHistoryRemovedEventArgs() { VideoId = item.VideoId });
                     }
 
                     _notificationService.ShowLiteInAppNotification_Success("VideoHistory_DeleteOne_Success".Translate());

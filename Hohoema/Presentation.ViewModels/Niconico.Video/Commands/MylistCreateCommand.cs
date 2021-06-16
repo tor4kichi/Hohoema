@@ -47,7 +47,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
                 if (parameter is IVideoContent content)
                 {
-                    await mylist.AddItem(content.Id);
+                    await mylist.AddItem(content.VideoId);
                 }
                 else if (parameter is string videoId)
                 {

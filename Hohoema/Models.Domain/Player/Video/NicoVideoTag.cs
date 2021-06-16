@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,9 +16,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
 		string ITag.Tag => Tag;
 
-		string INiconicoObject.Id => Tag;
-
-        string INiconicoObject.Label => Tag;
+        string Label => Tag;
 
         public NicoVideoTag() { }
 

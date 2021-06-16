@@ -33,7 +33,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
         {
             public bool IsSuccess { get; set; }
 
-            public string MylistId { get; set; }
+            public MylistId MylistId { get; set; }
 
             public int HeadPosition { get; set; }
             public int TotalCount { get; set; }
@@ -44,33 +44,33 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
 
 
-        private async Task<IMylistItem> GetMylistGroupDetail(string mylistGroupid)
+        private async Task<IMylistItem> GetMylistGroupDetail(MylistId mylistId)
         {
-            if (mylistGroupid == "0")
+            if (mylistId.IsWatchAfterMylist)
             {
                 throw new NotSupportedException();
             }
             else
             {
-                var res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistGroupid, 0, 1);
+                var res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, 0, 1);
                 
                 if (res.Data?.Mylist != null) { return res.Data.Mylist; }
 
-                res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylistGroupid, 0, 1);
+                res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylistId, 0, 1);
 
                 return res.Data?.Mylist;
             }
         }
 
-        public async Task<MylistPlaylist> GetMylist(string mylistGroupId)
+        public async Task<MylistPlaylist> GetMylist(MylistId mylistId)
         {
-            if (mylistGroupId == "0")
+            if (mylistId.IsWatchAfterMylist)
             {
                 var res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync(0, 1);
                 var detail = res.Data.Mylist;
-                var mylist = new MylistPlaylist(mylistGroupId, this)
+                var mylist = new MylistPlaylist(mylistId, this)
                 {
-                    Label = "WatchAfterMylist".Translate(),
+                    Name = "WatchAfterMylist".Translate(),
                     Count = (int)detail.TotalItemCount,
                     IsPublic = true,
                     ThumbnailImages = detail.Items?.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
@@ -79,11 +79,11 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             }
             else
             {
-                var detail = await GetMylistGroupDetail(mylistGroupId);
+                var detail = await GetMylistGroupDetail(mylistId);
 
                 var mylist = new MylistPlaylist(detail.Id.ToString(), this)
                 {
-                    Label = detail.Name,
+                    Name = detail.Name,
                     Count = (int)detail.ItemsCount,
                     CreateTime = detail.CreatedAt.DateTime,
                     //DefaultSortOrder = ,
@@ -109,7 +109,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             {
                 return new MylistPlaylist(x.Id.ToString(), this)
                 {
-                    Label = x.Name,
+                    Name = x.Name,
                     Count = (int)x.ItemsCount,
                     SortIndex = i,
                     UserId = x.Owner.Id,
@@ -128,7 +128,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
 
 
-        public async Task<MylistItemsGetResult> GetMylistVideoItems(string mylistId, int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
+        public async Task<MylistItemsGetResult> GetMylistVideoItems(MylistId mylistId, int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
             var res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, page, pageSize, sortKey, sortOrder);
             

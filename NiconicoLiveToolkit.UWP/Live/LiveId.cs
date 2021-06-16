@@ -46,7 +46,7 @@ namespace NiconicoToolkit.Live
         public static implicit operator LiveId(uint liveId) => new LiveId(liveId);
         public static implicit operator LiveId(string liveId) => new LiveId(liveId);
 
-        public static implicit operator NiconicoId(LiveId liveId) => new NiconicoId(liveId.RawId, NiconicoContentIdType.Live);
+        public static implicit operator NiconicoId(LiveId liveId) => new NiconicoId(liveId.RawId, NiconicoIdType.Live);
         public static explicit operator LiveId(NiconicoId niconicoId)
         {
             if (niconicoId.IsLiveId is false)

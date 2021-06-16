@@ -73,11 +73,11 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             return await _niconicoSession.ToolkitContext.Follow.Community.GetFollowCommunityAsync((int)page, (int)pageSize);
         }
 
-        public Task<bool> IsFollowingAsync(ICommunity community) => IsFollowingAsync(community.Id);
+        public Task<bool> IsFollowingAsync(ICommunity community) => IsFollowingAsync(community.CommunityId);
 
         public async Task<ContentManageResult> AddFollowAsync(ICommunity community)
         {
-            var result = await _niconicoSession.ToolkitContext.Follow.Community.AddFollowCommunityAsync(community.Id);
+            var result = await _niconicoSession.ToolkitContext.Follow.Community.AddFollowCommunityAsync(community.CommunityId);
 
             if (result is ContentManageResult.Success or ContentManageResult.Exist)
             {
@@ -100,7 +100,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Exist;
             }
 
-            var result = await _niconicoSession.ToolkitContext.Follow.Community.RemoveFollowCommunityAsync(community.Id);
+            var result = await _niconicoSession.ToolkitContext.Follow.Community.RemoveFollowCommunityAsync(community.CommunityId);
 
             if (result is ContentManageResult.Success)
             {

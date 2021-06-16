@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
@@ -11,6 +12,9 @@ using Hohoema.Models.UseCase.Player;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using NiconicoToolkit;
+using NiconicoToolkit.Live;
+using NiconicoToolkit.Video;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -52,7 +56,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
     public sealed class QueueItemAddedMessageData
     {
-        public string AddedItem { get; internal set; }
+        public VideoId AddedItem { get; internal set; }
     }
 
     public sealed class QueueItemAddedMessage : ValueChangedMessage<QueueItemAddedMessageData>
@@ -65,7 +69,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
     public sealed class QueueItemRemovedMessageData
     {
-        public string RemovedItem { get; internal set; }
+        public VideoId RemovedItem { get; internal set; }
 
     }
 
@@ -79,7 +83,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
     public sealed class QueueItemIndexUpdateMessageData
     {
-        public string ContentId { get; internal set; }
+        public VideoId ContentId { get; internal set; }
         public int Index { get; internal set; }
     }
 
@@ -133,12 +137,12 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         public bool Equals(IVideoContent x, IVideoContent y)
         {
-            return x.Id == y.Id;
+            return x.VideoId == y.VideoId;
         }
 
         public int GetHashCode(IVideoContent obj)
         {
-            return obj.Id.GetHashCode();
+            return obj.VideoId.GetHashCode();
         }
     }
 
@@ -175,7 +179,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         static bool IsVideoId(string videoId)
         {
-            return NiconicoToolkit.ContentIdHelper.IsVideoId(videoId, allowAllNumberId: true);
+            return NiconicoToolkit.ContentIdHelper.IsVideoId(videoId, allowNonPrefixId: true);
         }
 
         public event EventHandler<VideoPlayedEventArgs> VideoPlayed;
@@ -284,14 +288,14 @@ namespace Hohoema.Models.UseCase.NicoVideos
             switch (args.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    _playlistRepository.AddItems(playlist.Id, args.NewItems.Cast<IVideoContent>().Select(x => x?.Id).Where(x => !(x is null)));
+                    _playlistRepository.AddItems(playlist.Id, args.NewItems.Cast<IVideoContent>().Select(x => x.VideoId));
                     break;
                 case NotifyCollectionChangedAction.Move:
                     // TODO: 全消し＆全追加
                     System.Diagnostics.Debug.WriteLine($"[{playlist.Id}] not implement items Move action.");
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    _playlistRepository.DeleteItems(playlist.Id, args.OldItems.Cast<IVideoContent>().Select(x => x.Id));
+                    _playlistRepository.DeleteItems(playlist.Id, args.OldItems.Cast<IVideoContent>().Select(x => x.VideoId));
                     break;
                 case NotifyCollectionChangedAction.Replace:
                     System.Diagnostics.Debug.WriteLine($"[{playlist.Id}] not implement items Replace action.");
@@ -373,7 +377,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         void OnPlayRequested(object sender, PlaylistPlayerPlayRequestEventArgs args)
         {
-            StrongReferenceMessenger.Default.Send(new PlayerPlayVideoRequestMessage(new() { VideoId = args.Content.Id, Position = args.Position }));
+            StrongReferenceMessenger.Default.Send(new PlayerPlayVideoRequestMessage(new() { VideoId = args.Content.VideoId, Position = args.Position }));
 
             RaisePropertyChanged(nameof(CurrentItem));
         } 
@@ -417,7 +421,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             get => _player.CanGoBack;
         }
 
-        public async void Play(string videoId, IPlaylist playlist = null, TimeSpan position = default)
+        public async void Play(VideoId videoId, IPlaylist playlist = null, TimeSpan position = default)
         {
             if (!IsVideoId(videoId))
             {
@@ -506,9 +510,9 @@ namespace Hohoema.Models.UseCase.NicoVideos
             int index = 0;
             foreach (var item in QueuePlaylist)
             {
-                message.Value.ContentId = item.Id;
+                message.Value.ContentId = item.VideoId;
                 message.Value.Index = index++;
-                WeakReferenceMessenger.Default.Send<QueueItemIndexUpdateMessage, string>(message, item.Id);
+                WeakReferenceMessenger.Default.Send<QueueItemIndexUpdateMessage, string>(message, item.VideoId);
             }
         }
 
@@ -538,7 +542,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 }
                 else
                 {
-                    ResolveVideoItemAsync(item.Id)
+                    ResolveVideoItemAsync(item.VideoId)
                         .ContinueWith(prevTask => QueuePlaylist.AddOnScheduler(prevTask.Result));
                 }
             }
@@ -550,24 +554,24 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 }
                 else
                 {
-                    ResolveVideoItemAsync(item.Id)
+                    ResolveVideoItemAsync(item.VideoId)
                         .ContinueWith(prevTask => QueuePlaylist.InsertOnScheduler(0, prevTask.Result)); ;
                 }
             }
 
-            WeakReferenceMessenger.Default.Send<QueueItemAddedMessage, string>(new QueueItemAddedMessage(new() { AddedItem = item.Id }), item.Id);
+            WeakReferenceMessenger.Default.Send<QueueItemAddedMessage, string>(new QueueItemAddedMessage(new() { AddedItem = item.VideoId }), item.VideoId);
         }
 
         public void RemoveQueue(IVideoContent item)
         {
             QueuePlaylist.RemoveOnScheduler(item);
             
-            WeakReferenceMessenger.Default.Send<QueueItemRemovedMessage, string>(new QueueItemRemovedMessage(new() { RemovedItem = item.Id }), item.Id);
+            WeakReferenceMessenger.Default.Send<QueueItemRemovedMessage, string>(new QueueItemRemovedMessage(new() { RemovedItem = item.VideoId }), item.VideoId);
         }
 
         public int RemoveQueueIfWatched()
         {
-            var playedItems = QueuePlaylist.Where(x => _videoPlayedHistoryRepository.IsVideoPlayed(x.Id)).ToList();
+            var playedItems = QueuePlaylist.Where(x => _videoPlayedHistoryRepository.IsVideoPlayed(x.VideoId)).ToList();
             int removeCount = 0;
             foreach (var item in playedItems)
             {
@@ -579,9 +583,9 @@ namespace Hohoema.Models.UseCase.NicoVideos
         }
 
 
-        public (bool, int) IsQueuePlaylistItem(string id)
+        public (bool, int) IsQueuePlaylistItem(VideoId id)
         {
-            var item = QueuePlaylist.FirstOrDefault(x => x.Id == id);
+            var item = QueuePlaylist.FirstOrDefault(x => x.VideoId == id);
             if (item == null) { return (false, -1); }
             var index = QueuePlaylist.IndexOf(item);
             return (true, index);
@@ -635,7 +639,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             return playlistItems;
         }
 
-        async Task<NicoVideo> ResolveVideoItemAsync(string videoId)
+        async Task<NicoVideo> ResolveVideoItemAsync(VideoId videoId)
         {
             return await _nicoVideoProvider.GetCachedVideoInfoAsync(videoId);
         }
@@ -643,20 +647,20 @@ namespace Hohoema.Models.UseCase.NicoVideos
         public void PlayDone(IVideoContent playedItem, TimeSpan playedPosition)
         {
             // キュープレイリストから視聴済みを削除
-            var queueItem = QueuePlaylist.FirstOrDefault(x => x.Id == playedItem.Id);
+            var queueItem = QueuePlaylist.FirstOrDefault(x => x.VideoId == playedItem.VideoId);
             if (queueItem != null)
             {
                 RemoveQueue(queueItem);
             }
 
             // アイテムを視聴済みにマーク
-            var history = _videoPlayedHistoryRepository.VideoPlayed(playedItem.Id, playedPosition);
-            System.Diagnostics.Debug.WriteLine("視聴完了: " + playedItem.Label);
+            var history = _videoPlayedHistoryRepository.VideoPlayed(playedItem.VideoId, playedPosition);
+            System.Diagnostics.Debug.WriteLine("視聴完了: " + playedItem.Title);
 
             // 視聴完了のイベントをトリガー
-            VideoPlayed?.Invoke(this, new VideoPlayedEventArgs(playedItem.Id, (int)history.PlayCount));
+            VideoPlayed?.Invoke(this, new VideoPlayedEventArgs(playedItem.VideoId, (int)history.PlayCount));
 
-            StrongReferenceMessenger.Default.Send(new Events.VideoPlayedMessage(new () { ContentId = playedItem.Id, PlayedPosition = playedPosition }), playedItem.Id);
+            StrongReferenceMessenger.Default.Send(new Events.VideoPlayedMessage(new () { ContentId = playedItem.VideoId, PlayedPosition = playedPosition }), playedItem.VideoId);
         }
 
 
@@ -692,6 +696,10 @@ namespace Hohoema.Models.UseCase.NicoVideos
                             if (item is string contentId)
                             {
                                 Play(contentId);
+                            }
+                            else if (item is VideoId videoId)
+                            {
+                                Play(videoId);
                             }
                             else if (item is IVideoContent playlistItem)
                             {
@@ -1002,39 +1010,34 @@ namespace Hohoema.Models.UseCase.NicoVideos
             :base(scheduler)
         {
             Id = id;
-            Label = label;
+            Name = label;
         }
 
         public int SortIndex => 0;
 
         public string Id { get; }
 
-        public string Label { get; }
+        public string Name { get; }
 
         public Uri[] ThumbnailImages => null;
 
         public Uri ThumbnailImage => null;
     }
     
-    public class LiveVideoPlaylistItem : INiconicoContent
+    public class LiveVideoPlaylistItem : ILiveContent
     {
-        public LiveVideoPlaylistItem(string contentId, string title)
+        public LiveVideoPlaylistItem(LiveId contentId, string title)
         {
-            ContentId = contentId;
+            LiveId = contentId;
             Title = title;
         }
 
         [DataMember]
-        public string ContentId { get; }
+        public LiveId LiveId { get; }
 
         [DataMember]
         public string Title { get; }
 
-        [IgnoreDataMember]
-        string INiconicoObject.Id => ContentId;
-
-        [IgnoreDataMember]
-        string INiconicoObject.Label => Title;
     }
 
     public enum PlaylistItemType

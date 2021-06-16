@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
+using NiconicoToolkit.Video;
 using System;
 using System.Threading.Tasks;
 using Windows.Media.Core;
@@ -7,7 +8,7 @@ namespace Hohoema.Models.Domain.VideoCache
 {
     public class VideoCacheItem
     {
-        public string VideoId { get; }
+        public VideoId VideoId { get; }
 
         public string FileName { get; internal set; }
 

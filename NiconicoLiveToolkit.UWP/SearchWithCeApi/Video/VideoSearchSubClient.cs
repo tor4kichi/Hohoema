@@ -22,14 +22,14 @@ namespace NiconicoToolkit.SearchWithCeApi.Video
         }
 
 
-        public async Task<VideoIdSearchSingleResponse> IdSearchAsync(string videoId)
+        public async Task<VideoIdSearchSingleResponse> IdSearchAsync(VideoId videoId)
         {
             string url = $"{NiconicoUrls.CeNicoApiV1Url}video.info?v={videoId}&__format=json";
             var res = await _context.GetJsonAsAsync<VideoSingleIdSearchResponseContainer>(url, _option);
             return res.Response;
         }
 
-        public async Task<VideoIdSearchResponse> IdSearchAsync(IEnumerable<string> videoIdList)
+        public async Task<VideoIdSearchResponse> IdSearchAsync(IEnumerable<VideoId> videoIdList)
         {
             string url = $"{NiconicoUrls.CeNicoApiV1Url}video.array?v={string.Join(Uri.EscapeDataString(","), videoIdList)}&__format=json";
             var res = await _context.GetJsonAsAsync<VideoIdSearchResponseContainer>(url, _option);

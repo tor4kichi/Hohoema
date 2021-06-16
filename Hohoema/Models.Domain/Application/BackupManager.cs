@@ -25,6 +25,7 @@ using Windows.Storage;
 using Windows.UI;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using NiconicoToolkit.NicoRepo;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.Domain.Application
 {
@@ -236,7 +237,7 @@ namespace Hohoema.Models.Domain.Application
                 }
                 
                 _playlistRepository.UpsertPlaylist(playlist);
-                _playlistRepository.AddItems(playlist.Id, p.VideoIdList);
+                _playlistRepository.AddItems(playlist.Id, p.VideoIdList.Select(x => (VideoId)x));
             }
         }
 

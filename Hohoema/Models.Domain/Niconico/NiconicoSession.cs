@@ -18,6 +18,7 @@ using NiconicoToolkit.Account;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using Hohoema.Models.Infrastructure;
+using NiconicoToolkit.User;
 
 namespace Hohoema.Models.Domain.Niconico
 {
@@ -226,16 +227,10 @@ namespace Hohoema.Models.Domain.Niconico
 
 
 
-        public bool IsLoginUserId(string id)
+        public bool IsLoginUserId(UserId id)
         {
             return UserIdString == id;
         }
-
-        public bool IsLoginUserId(uint id)
-        {
-            return UserId == id;
-        }
-
 
         #region Login Manager
 

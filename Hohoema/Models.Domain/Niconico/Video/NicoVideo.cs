@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using NiconicoToolkit;
 using NiconicoToolkit.Video;
 using Prism.Mvvm;
 using System;
@@ -13,8 +14,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
     public class NicoVideo : IVideoContent, IVideoContentProvider
     {
         [BsonId]
-        public string RawVideoId { get; set; }
-        public string VideoId { get; set; }
+        public string Id { get; set; }
+
+        private VideoId? _videoId;
+        public VideoId VideoId => _videoId ??= Id;
+
+        public VideoId? VideoAliasId { get; set; }
 
         public string Title { get; set; }
         public string ThumbnailUrl { get; set; }
@@ -27,9 +32,6 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         public DateTime LastUpdated { get; set; }
 
-
-        [BsonIgnore]
-        public string Id => VideoId ?? RawVideoId;
 
         [BsonIgnore]
         public string Label
@@ -76,7 +78,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         public bool Equals(IVideoContent other)
         {
-            return Id == other.Id;
+            return Id == other.VideoId;
         }
 
         public override int GetHashCode()

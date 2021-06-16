@@ -25,7 +25,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
         {
             if (parameter is ILiveContent liveContent)
             {
-                StrongReferenceMessenger.Default.Send(new PlayerPlayLiveRequestMessage(new () { LiveId = liveContent.Id }));
+                StrongReferenceMessenger.Default.Send(new PlayerPlayLiveRequestMessage(new () { LiveId = liveContent.LiveId }));
             }
         }
     }

@@ -31,13 +31,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 {
     using CommunityFollowContext = FollowContext<ICommunity>;
 
-    public sealed class Community : ICommunity
-    {
-        public string Id { get; set; }
-
-        public string Label { get; set; }
-    }
-
 
     public class CommunityPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
@@ -83,8 +76,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
             CommunityProvider = communityProvider;
         }
 
-        private Community _community;
-        public Community Community
+        private CommunityViewModel _community;
+        public CommunityViewModel Community
         {
             get { return _community; }
             set { SetProperty(ref _community, value); }
@@ -281,7 +274,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
                     //RaisePropertyChanged(nameof(CommunityVideoSamples));
 
 
-                    Community = new Community() { Id = CommunityId, Label = CommunityName };
+                    Community = new CommunityViewModel() { CommunityId = CommunityId, Name = CommunityName };
 
                     // フォロー表示・操作の準備
 

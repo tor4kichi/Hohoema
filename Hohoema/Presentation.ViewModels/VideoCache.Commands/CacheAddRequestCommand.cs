@@ -33,7 +33,7 @@ namespace Hohoema.Presentation.ViewModels.VideoCache.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            _ = _videoCacheManager.PushCacheRequestAsync(content.Id, VideoQuality);
+            _ = _videoCacheManager.PushCacheRequestAsync(content.VideoId, VideoQuality);
         }
     }
 }

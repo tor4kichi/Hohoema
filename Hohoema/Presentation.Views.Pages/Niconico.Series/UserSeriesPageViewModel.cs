@@ -24,16 +24,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
         {
             return new HohoemaPin()
             {
-                Label = User.Label,
+                Label = User.Nickname,
                 PageType = HohoemaPageType.UserSeries,
-                Parameter = $"id={User.Id}"
+                Parameter = $"id={User.UserId}"
             };
         }
 
         public IObservable<string> GetTitleObservable()
         {
             return this.ObserveProperty(x => x.User)
-                .Select(x => x == null ? null : "UserSeriesListWithOwnerName".Translate(x.Label));
+                .Select(x => x == null ? null : "UserSeriesListWithOwnerName".Translate(x.Nickname));
         }
 
 

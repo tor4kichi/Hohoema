@@ -23,6 +23,7 @@ using System.Collections;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Infrastructure;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.Domain.VideoCache
 {
@@ -201,7 +202,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
         #region Delete on Server
 
-        public Task<bool> DeleteFromNiconicoServer(string videoId)
+        public Task<bool> DeleteFromNiconicoServer(VideoId videoId)
         {
             EnsureNonNumberVideoId(ref videoId);
 
@@ -215,14 +216,15 @@ namespace Hohoema.Models.Domain.VideoCache
         /// videoIdが数字で始まるIDの場合にsm/so等で始まる動画IDに置き換える。
         /// </summary>
         /// <param name="videoId"></param>
-        private void EnsureNonNumberVideoId(ref string videoId)
+        private void EnsureNonNumberVideoId(ref VideoId videoId)
         {
-            if (videoId.All(x => char.IsDigit(x)))
+            // TODO: VideoIdType.VideoAlias対応
+            if (videoId.IdType == VideoIdType.VideoAlias)
             {
                 var id = _nicoVideoProvider.GetCachedVideoInfo(videoId);
-                if (id?.VideoId != null)
+                if (id?.Id != null)
                 {
-                    videoId = id.VideoId;
+                    videoId = id.Id;
                 }
                 else
                 {
@@ -246,9 +248,9 @@ namespace Hohoema.Models.Domain.VideoCache
             if (videoId.All(x => char.IsDigit(x)))
             {
                 var video = await _nicoVideoProvider.GetCachedVideoInfoAsync(videoId);
-                if (video?.VideoId != null)
+                if (video?.VideoAliasId != null)
                 {
-                    return (true, video.VideoId);
+                    return (true, video.VideoAliasId);
                 }
                 else
                 {
@@ -285,7 +287,7 @@ namespace Hohoema.Models.Domain.VideoCache
 #endif
         }        
 
-        public VideoCacheItem GetVideoCache(string videoId)
+        public VideoCacheItem GetVideoCache(VideoId videoId)
         {
             EnsureNonNumberVideoId(ref videoId);
 
@@ -300,7 +302,7 @@ namespace Hohoema.Models.Domain.VideoCache
             return _videoItemMap[videoId] = EntityToItem(this, entity);
         }
 
-        public VideoCacheStatus? GetVideoCacheStatus(string videoId)
+        public VideoCacheStatus? GetVideoCacheStatus(VideoId videoId)
         {
             EnsureNonNumberVideoId(ref videoId);
 
@@ -389,7 +391,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
 
 
-        public async Task PushCacheRequestAsync(string videoId, NicoVideoQuality requestCacheQuality)
+        public async Task PushCacheRequestAsync(VideoId videoId, NicoVideoQuality requestCacheQuality)
         {
             using (await _updateLock.LockAsync())
             {
@@ -474,7 +476,7 @@ namespace Hohoema.Models.Domain.VideoCache
             }
         }
 
-        public Task<bool> CancelCacheRequestAsync(string videoId)
+        public Task<bool> CancelCacheRequestAsync(VideoId videoId)
         {
             EnsureNonNumberVideoId(ref videoId);
 
@@ -483,7 +485,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
 
 
-        private async Task<bool> CancelCacheRequestAsync_Internal(string videoId, VideoCacheCancelReason reason)
+        private async Task<bool> CancelCacheRequestAsync_Internal(VideoId videoId, VideoCacheCancelReason reason)
         {
             using (await _updateLock.LockAsync())
             {
@@ -993,7 +995,7 @@ namespace Hohoema.Models.Domain.VideoCache
 
 
 
-        private async Task<StorageFile> GetCacheVideoFileAsync(string videoId)
+        private async Task<StorageFile> GetCacheVideoFileAsync(VideoId videoId)
         {
             var entity = _videoCacheItemRepository.GetVideoCache(videoId);
             if (entity is null) { return null; }
@@ -1130,7 +1132,7 @@ namespace Hohoema.Models.Domain.VideoCache
         /// <param name="quality"></param>
         /// <param name="file"></param>
         /// <returns></returns>
-        internal async Task ImportCacheRequestAsync(string videoId, NicoVideoQuality quality, StorageFile file)
+        internal async Task ImportCacheRequestAsync(VideoId videoId, NicoVideoQuality quality, StorageFile file)
         {
             var (isNumberId, realVideoId) = await GetVideoIdIfNumberVideoIdAsync(videoId);
             if (isNumberId)
@@ -1186,7 +1188,7 @@ namespace Hohoema.Models.Domain.VideoCache
         /// <param name="videoId"></param>
         /// <param name="quality"></param>
         /// <returns></returns>
-        internal async Task PushCacheRequest_Legacy(string videoId, NicoVideoQuality quality)
+        internal async Task PushCacheRequest_Legacy(VideoId videoId, NicoVideoQuality quality)
         {
             var (isNumberId, realVideoId) = await GetVideoIdIfNumberVideoIdAsync(videoId);
             if (isNumberId)

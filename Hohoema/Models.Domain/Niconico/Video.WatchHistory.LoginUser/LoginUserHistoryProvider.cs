@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Infrastructure;
 using NiconicoToolkit.Activity.VideoWatchHistory;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,13 +49,13 @@ namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
             return res.IsSuccess;
         }
 
-        public async Task<bool> RemoveHistoryAsync(string videoId)
+        public async Task<bool> RemoveHistoryAsync(VideoId videoId)
         {
             var res = await _niconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteWatchHistoriesAsync(videoId);
             return res.IsSuccess;
         }
 
-        public async Task<bool> RemoveHistoryAsync(IEnumerable<string> videoIdList)
+        public async Task<bool> RemoveHistoryAsync(IEnumerable<VideoId> videoIdList)
         {
             var res = await _niconicoSession.ToolkitContext.Activity.VideoWachHistory.DeleteWatchHistoriesAsync(videoIdList);
             return res.IsSuccess;

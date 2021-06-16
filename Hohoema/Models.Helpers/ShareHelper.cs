@@ -22,22 +22,22 @@ namespace Hohoema.Models.Helpers
             switch (content)
             {
                 case IUser user:
-                    uri = new Uri(NiconicoUrls.MakeUserPageUrl(user.Id));
+                    uri = new Uri(NiconicoUrls.MakeUserPageUrl(user.UserId));
                     break;
                 case IVideoContent videoContent:
-                    uri = new Uri(NiconicoUrls.MakeWatchPageUrl(videoContent.Id));
+                    uri = new Uri(NiconicoUrls.MakeWatchPageUrl(videoContent.VideoId));
                     break;
                 case IMylist mylist:
-                    uri = new Uri(NiconicoUrls.MakeMylistPageUrl(mylist.Id));
+                    uri = new Uri(NiconicoUrls.MakeMylistPageUrl(mylist.MylistId));
                     break;
                 case ILiveContent live:
-                    uri = new Uri(NiconicoUrls.MakeLiveWatchPageUrl(live.Id));
+                    uri = new Uri(NiconicoUrls.MakeLiveWatchPageUrl(live.LiveId));
                     break;
                 case IChannel channel:
-                    uri = new Uri(NiconicoUrls.MakeChannelPageUrl(channel.Id));
+                    uri = new Uri(NiconicoUrls.MakeChannelPageUrl(channel.ChannelId));
                     break;
                 case ICommunity community:
-                    uri = new Uri(NiconicoUrls.MakeCommunityPageUrl(community.Id));
+                    uri = new Uri(NiconicoUrls.MakeCommunityPageUrl(community.CommunityId));
                     break;
 
                 default:
@@ -54,47 +54,47 @@ namespace Hohoema.Models.Helpers
 
         public static string MakeShareText(NicoVideo video)
         {
-            if (!string.IsNullOrEmpty(video.VideoId))
+            if (!string.IsNullOrEmpty(video.VideoAliasId))
             {
-                return MakeShareText(video.VideoId);
+                return MakeShareText(video.VideoAliasId);
             }
             else
             {
-                return MakeShareText(video.RawVideoId);
+                return MakeShareText(video.Id);
             }
         }
 
-        public static string MakeShareText(INiconicoContent parameter)
+        public static string MakeShareText(INiconicoObject parameter)
         {
             if (parameter is IVideoContent videoContent)
             {
-                return MakeShareText(videoContent.Id);
+                return MakeShareText(videoContent.VideoId);
             }
             else if (parameter is ILiveContent liveContent)
             {
-                return MakeShareText(liveContent.Id, "ニコニコ生放送");
+                return MakeShareText(liveContent.LiveId, "ニコニコ生放送");
             }
             else if (parameter is ICommunity communityContent)
             {
-                return MakeShareText(communityContent.Id, "ニコニミュニティ");
+                return MakeShareText(communityContent.CommunityId, "ニコニミュニティ");
             }
             else if (parameter is IMylist mylistContent)
             {
-                return MakeShareText($"mylist/{mylistContent.Id}");
+                return MakeShareText($"mylist/{mylistContent.MylistId}");
             }
             else if (parameter is IUser userContent)
             {
-                return MakeShareText($"user/{userContent.Id}");
+                return MakeShareText($"user/{userContent.UserId}");
             }
             else
             {
-                return MakeShareText(parameter.Id);
+                throw new NotSupportedException();
             }
         }
 
-        public static string MakeShareTextWithTitle(INiconicoContent parameter)
+        public static string MakeShareTextWithTitle(INiconicoObject parameter)
         {
-            return $"{parameter.Label} {MakeShareText(parameter)}";
+            return $"{parameter.GetLabel()} {MakeShareText(parameter)}";
         }
 
         public static string MakeShareText(string id, params string[] hashTags)
@@ -176,9 +176,9 @@ namespace Hohoema.Models.Helpers
             }
         }
 
-        public static void Share(INiconicoContent content)
+        public static void Share(INiconicoObject content)
         {
-            Share(content.Label, MakeShareText(content));
+            Share(content.GetLabel(), MakeShareText(content));
         }
 
 

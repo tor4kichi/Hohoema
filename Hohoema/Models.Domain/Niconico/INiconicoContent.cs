@@ -1,17 +1,18 @@
-﻿namespace Hohoema.Models.Domain.Niconico
+﻿using NiconicoToolkit;
+
+namespace Hohoema.Models.Domain.Niconico
 {
     public interface INiconicoObject
     {
-        string Id { get; }
-        string Label { get; }
     }
 
     public interface INiconicoContent : INiconicoObject
     {
+        public string Title { get; }
     }
 
     public interface INiconicoGroup : INiconicoObject
     {
-        
+        public string Name { get; }
     }
 }

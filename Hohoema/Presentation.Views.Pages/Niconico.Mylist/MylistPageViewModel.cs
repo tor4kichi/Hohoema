@@ -48,15 +48,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         {
             return new HohoemaPin()
             {
-                Label = Mylist.Value.Label,
+                Label = Mylist.Value.Name,
                 PageType = HohoemaPageType.Mylist,
-                Parameter = $"id={Mylist.Value.Id}"
+                Parameter = $"id={Mylist.Value.MylistId}"
             };
         }
 
         IObservable<string> ITitleUpdatablePage.GetTitleObservable()
         {
-            return Mylist.Select(x => x?.Label);
+            return Mylist.Select(x => x?.Name);
         }
 
         public MylistPageViewModel(
@@ -390,7 +390,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                         {
                             MylistGroupEditData data = new MylistGroupEditData()
                             {
-                                Name = mylist.Label,
+                                Name = mylist.Name,
                                 Description = mylist.Description,
                                 IsPublic = mylist.IsPublic,
                                 DefaultSortKey = mylist.DefaultSortKey,
@@ -402,11 +402,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                             {
                                 if (true == await DialogService.ShowEditMylistGroupDialogAsync(data))
                                 {
-                                    var result = await LoginUserMylistProvider.UpdateMylist(mylist.Id, data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder);
+                                    var result = await LoginUserMylistProvider.UpdateMylist(mylist.MylistId, data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder);
 
                                     if (result)
                                     {
-                                        mylist.Label = data.Name;
+                                        mylist.Name = data.Name;
                                         mylist.IsPublic = data.IsPublic;
                                         mylist.DefaultSortKey = data.DefaultSortKey;
                                         mylist.DefaultSortOrder = data.DefaultSortOrder;
@@ -446,7 +446,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                     {
                         // 確認ダイアログ
                         var mylistOrigin = mylist.GetOrigin();
-                        var contentMessage = "ConfirmDeleteX_ImpossibleReDo".Translate(mylist.Label);
+                        var contentMessage = "ConfirmDeleteX_ImpossibleReDo".Translate(mylist.Name);
 
                         var dialog = new MessageDialog(contentMessage, $"ConfirmDeleteX".Translate(PlaylistOrigin.Mylist.Translate()));
                         dialog.Commands.Add(new UICommand("Delete".Translate(), async (i) =>
@@ -480,7 +480,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                         }
                         else if (mylist is LoginUserMylistPlaylist loginUserMylist)
                         {
-                            return !loginUserMylist.IsDefaultMylist();
+                            return !loginUserMylist.MylistId.IsWatchAfterMylist;
                         }
                         else
                         {
@@ -559,25 +559,35 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            string mylistId = null;
+            MylistId? maybeMylistId = null;
 
             if (parameters.TryGetValue<string>("id", out var idString))
             {
-                mylistId = idString;
+                maybeMylistId = idString;
             }
-            else if (parameters.TryGetValue<int>("id", out var idInt))
+            else if (parameters.TryGetValue<uint>("id", out var idInt))
             {
-                mylistId = idInt.ToString();
+                maybeMylistId = idInt;
+            }
+            if (parameters.TryGetValue<MylistId>("id", out var justMylistId))
+            {
+                maybeMylistId = justMylistId;
             }
 
+            if (maybeMylistId == null) 
+            {
+
+            }
+
+            var mylistId = maybeMylistId.Value;
             var mylist = await _mylistRepository.GetMylist(mylistId);
 
             if (mylist == null) { return; }
 
             Mylist.Value = mylist;
             
-            IsUserOwnerdMylist = _mylistRepository.IsLoginUserMylistId(mylist.Id);
-            IsLoginUserDeflist = mylist.IsDefaultMylist();
+            IsUserOwnerdMylist = _mylistRepository.IsLoginUserMylistId(mylist.MylistId);
+            IsLoginUserDeflist = mylist.MylistId.IsWatchAfterMylist;
             IsWatchAfterLocalMylist = false;
             IsLocalMylist = false;
 
@@ -590,7 +600,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 .Subscribe(e =>
                 {
                     var args = e.EventArgs;
-                    if (args.MylistId == Mylist.Value.Id)
+                    if (args.MylistId == Mylist.Value.MylistId)
                     {
                         RefreshCommand.Execute();
                     }
@@ -604,11 +614,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                     .Subscribe(e =>
                     {
                         var args = e.EventArgs;
-                        if (args.MylistId == Mylist.Value.Id)
+                        if (args.MylistId == Mylist.Value.MylistId)
                         {
                             foreach (var removed in args.SuccessedItems)
                             {
-                                var removedItem = MylistItems.FirstOrDefault(x => x.Id == removed);
+                                var removedItem = MylistItems.FirstOrDefault(x => x.VideoId == removed);
                                 if (removedItem != null)
                                 {
                                     MylistItems.Remove(removedItem);
@@ -625,11 +635,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 .Subscribe(e =>
                 {
                     var args = e.EventArgs;
-                    if (args.SourceMylistId == Mylist.Value.Id)
+                    if (args.SourceMylistId == Mylist.Value.MylistId)
                     {
                         foreach (var id in args.SuccessedItems)
                         {
-                            var removeTarget = MylistItems.FirstOrDefault(x => x.Id == id);
+                            var removeTarget = MylistItems.FirstOrDefault(x => x.VideoId == id);
                             MylistItems.Remove(removeTarget);
                         }
                     }
@@ -672,7 +682,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             {
                 RefreshCommand.Execute();
 
-                _mylistUserSelectedSortRepository.SetMylistSort(Mylist.Value.Id, x.Key, x.Order);
+                _mylistUserSelectedSortRepository.SetMylistSort(Mylist.Value.MylistId, x.Key, x.Order);
             })
                 .AddTo(_NavigatingCompositeDisposable);
 

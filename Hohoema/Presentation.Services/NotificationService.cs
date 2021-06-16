@@ -20,6 +20,9 @@ using Windows.UI.Notifications;
 using Windows.UI.Xaml.Controls;
 using Hohoema.Models.Domain.Notification;
 using NiconicoToolkit.Community;
+using NiconicoToolkit.Mylist;
+using NiconicoToolkit.User;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Presentation.Services
 {
@@ -98,7 +101,7 @@ namespace Hohoema.Presentation.Services
 
 
 
-        private async Task<InAppNotificationPayload> SubmitVideoContentSuggestion(string videoId)
+        private async Task<InAppNotificationPayload> SubmitVideoContentSuggestion(VideoId videoId)
         {
             var (res, nicoVideo) = await NicoVideoProvider.GetVideoInfoAsync(videoId);
 
@@ -144,7 +147,7 @@ namespace Hohoema.Presentation.Services
             };
         }
 
-        private async Task<InAppNotificationPayload> SubmitLiveContentSuggestion(string liveId)
+        private async Task<InAppNotificationPayload> SubmitLiveContentSuggestion(LiveId liveId)
         {
             var liveDesc = await NicoLiveProvider.GetLiveInfoAsync(liveId);
 
@@ -199,7 +202,7 @@ namespace Hohoema.Presentation.Services
             return payload;
         }
 
-        private async Task<InAppNotificationPayload> SubmitMylistContentSuggestion(string mylistId)
+        private async Task<InAppNotificationPayload> SubmitMylistContentSuggestion(MylistId mylistId)
         {
             MylistPlaylist mylistDetail = null;
             try
@@ -212,7 +215,7 @@ namespace Hohoema.Presentation.Services
 
             return new InAppNotificationPayload()
             {
-                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(mylistDetail.Label),
+                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(mylistDetail.Name),
                 ShowDuration = DefaultNotificationShowDuration,
                 IsShowDismissButton = true,
                 Commands = {
@@ -262,7 +265,7 @@ namespace Hohoema.Presentation.Services
             };
         }
 
-        private async Task<InAppNotificationPayload> SubmitUserSuggestion(string userId)
+        private async Task<InAppNotificationPayload> SubmitUserSuggestion(UserId userId)
         {
             var user = await UserProvider.GetUserInfoAsync(userId);
 

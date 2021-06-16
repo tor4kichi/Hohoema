@@ -35,7 +35,7 @@ namespace Hohoema.Models.Domain.Legacy
                 if (result != null) return result;
             }
 
-            result = IsNGVideoTitle(info.Label);
+            result = IsNGVideoTitle(info.Title);
 			if (result != null) return result;
 
 			return result;

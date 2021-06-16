@@ -129,13 +129,13 @@ namespace Hohoema.Models.UseCase.NicoVideos
             WeakReferenceMessenger.Default.Register<LocalPlaylist, LocalPlaylistItemAddedMessage, string>(playlist, playlist.Id, (r, m) => 
             {
                 var sender = r;
-                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistAddedItems".Translate(sender.Label, m.Value.AddedItems.Count));
+                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistAddedItems".Translate(sender.Name, m.Value.AddedItems.Count));
             });
 
             WeakReferenceMessenger.Default.Register<LocalPlaylist, LocalPlaylistItemRemovedMessage, string>(playlist, playlist.Id, (r, m) =>
             {
                 var sender = r;
-                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistRemovedItems".Translate(sender.Label, m.Value.RemovedItems.Count));
+                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistRemovedItems".Translate(sender.Name, m.Value.RemovedItems.Count));
             });
         }
 

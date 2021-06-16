@@ -19,6 +19,7 @@ using Windows.UI.Notifications;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Application;
 using Microsoft.AppCenter.Crashes;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.UseCase.VideoCache
 {
@@ -408,18 +409,18 @@ namespace Hohoema.Models.UseCase.VideoCache
         }
 
 
-        private void TriggerVideoCacheStatusChanged(string videoId)
+        private void TriggerVideoCacheStatusChanged(VideoId videoId)
         {
             var item = _videoCacheManager.GetVideoCache(videoId);
             var message = new Events.VideoCacheStatusChangedMessage((videoId, item?.Status, item));
-            _messenger.Send<Events.VideoCacheStatusChangedMessage, string>(message, videoId);
+            _messenger.Send<Events.VideoCacheStatusChangedMessage, VideoId>(message, videoId);
             _messenger.Send<Events.VideoCacheStatusChangedMessage>(message);
         }
 
         private void TriggerVideoCacheProgressChanged(VideoCacheItem item)
         {
             var message = new Events.VideoCacheProgressChangedMessage(item);
-            _messenger.Send<Events.VideoCacheProgressChangedMessage, string>(message, item.VideoId);
+            _messenger.Send<Events.VideoCacheProgressChangedMessage, VideoId>(message, item.VideoId);
             _messenger.Send<Events.VideoCacheProgressChangedMessage>(message);
         }
 

@@ -76,7 +76,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
             OpenMylistCommand.Subscribe(listItem =>
             {
-                _pageManager.OpenPageWithId(HohoemaPageType.Mylist, listItem.Id);
+                _pageManager.OpenPageWithId(HohoemaPageType.Mylist, listItem.MylistId);
             });
 
             AddMylistGroupCommand = new DelegateCommand(async () =>
@@ -120,15 +120,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
             RemoveMylistGroupCommand = new DelegateCommand<LoginUserMylistPlaylist>(async (mylist) =>
             {
-                if (mylist.IsDefaultMylist()) { return; }
+                if (mylist.MylistId.IsWatchAfterMylist) { return; }
 
                 // 確認ダイアログ
-                var contentMessage = "ConfirmDeleteX_ImpossibleReDo".Translate(mylist.Label);
+                var contentMessage = "ConfirmDeleteX_ImpossibleReDo".Translate(mylist.Name);
 
                 var dialog = new MessageDialog(contentMessage, "ConfirmDeleteX".Translate("Mylist".Translate()));
                 dialog.Commands.Add(new UICommand("Delete".Translate(), async (i) =>
                 {
-                    if (await _userMylistManager.RemoveMylist(mylist.Id))
+                    if (await _userMylistManager.RemoveMylist(mylist.MylistId))
                     {
                         await RefreshPlaylistItems();
                     }
@@ -144,14 +144,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
             EditMylistGroupCommand = new DelegateCommand<LoginUserMylistPlaylist>(async mylist =>
             {
-                if (mylist.IsDefaultMylist())
+                if (mylist.MylistId.IsWatchAfterMylist)
                 {
                     return;
                 }
 
                 MylistGroupEditData data = new MylistGroupEditData()
                 {
-                    Name = mylist.Label,
+                    Name = mylist.Name,
                     Description = mylist.Description,
                     IsPublic = mylist.IsPublic,
                     DefaultSortKey = mylist.DefaultSortKey,
@@ -163,7 +163,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 {
                     if (true == await _dialogService.ShowCreateMylistGroupDialogAsync(data))
                     {
-                        if (await mylist.UpdateMylistInfo(mylist.Id, data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder))
+                        if (await mylist.UpdateMylistInfo(mylist.MylistId, data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder))
                         {
                             break;
                         }
@@ -216,7 +216,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                         using var _ = await _niconicoSession.SigninLock.LockAsync();
                         await _userMylistManager.WaitUpdate();
 
-                        _sourcePlaylistItems.AddRange(_userMylistManager.Mylists.Where(x => x.IsDefaultMylist() is false));
+                        _sourcePlaylistItems.AddRange(_userMylistManager.Mylists.Where(x => x.MylistId.IsWatchAfterMylist is false));
                     }
                 }
                 finally

@@ -60,7 +60,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
                         // キチンとやるなら 新着の無い購読ソースの動画が歯抜けにならぬよう SubscriptionManager.GetAllSubscriptionInfo() を利用して埋める必要がある
 
                         var backup = _hohoemaPlaylist.QueuePlaylist.ToImmutableArray();
-                        var watchAfterItems = _hohoemaPlaylist.QueuePlaylist.ToDictionary(x => x.Id);
+                        var watchAfterItems = _hohoemaPlaylist.QueuePlaylist.ToDictionary(x => x.VideoId);
                         _hohoemaPlaylist.QueuePlaylist.ClearOnScheduler();
                         
                         List<NicoVideo> videos = new List<NicoVideo>();

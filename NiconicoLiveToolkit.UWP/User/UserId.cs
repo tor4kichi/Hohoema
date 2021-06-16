@@ -38,7 +38,7 @@ namespace NiconicoToolkit.User
         public static implicit operator UserId(uint userId) => new UserId(userId);
         public static implicit operator UserId(string userId) => new UserId(userId);
 
-        public static implicit operator NiconicoId(UserId userId) => new NiconicoId(userId.RawId, NiconicoContentIdType.User);
+        public static implicit operator NiconicoId(UserId userId) => new NiconicoId(userId.RawId, NiconicoIdType.User);
         public static explicit operator UserId(NiconicoId niconicoId)
         {
             if (niconicoId.IsUserId is false)

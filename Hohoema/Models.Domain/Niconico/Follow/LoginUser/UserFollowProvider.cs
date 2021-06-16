@@ -6,6 +6,7 @@ using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using NiconicoToolkit.Follow;
 using NiconicoToolkit.Account;
+using NiconicoToolkit.User;
 
 namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 {
@@ -79,7 +80,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             return _niconicoSession.ToolkitContext.Follow.User.GetFollowUsersAsync(pageSize, lastRes);
         }
 
-        Task<bool> IFollowProvider<IUser>.IsFollowingAsync(IUser followable) => IsFollowingAsync(followable.Id);
+        Task<bool> IFollowProvider<IUser>.IsFollowingAsync(IUser followable) => IsFollowingAsync(followable.UserId);
 
         public async Task<ContentManageResult> AddFollowAsync(IUser user)
         {
@@ -88,7 +89,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Failed;
             }
 
-            var result = await _niconicoSession.ToolkitContext.Follow.User.AddFollowUserAsync(user.Id);
+            var result = await _niconicoSession.ToolkitContext.Follow.User.AddFollowUserAsync(user.UserId);
 
             if (result is ContentManageResult.Success or ContentManageResult.Exist)
             {
@@ -110,7 +111,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Exist;
             }
 
-            var result = await _niconicoSession.ToolkitContext.Follow.User.RemoveFollowUserAsync(user.Id);
+            var result = await _niconicoSession.ToolkitContext.Follow.User.RemoveFollowUserAsync(user.UserId);
 
             if (result is ContentManageResult.Success)
             {
@@ -120,13 +121,8 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             return result;
         }
 
-        public Task<bool> IsFollowingAsync(string id)
-        {
-            return IsFollowingAsync(uint.Parse(id));
-        }
 
-
-        public Task<bool> IsFollowingAsync(uint id)
+        public Task<bool> IsFollowingAsync(UserId id)
         {
             return _niconicoSession.ToolkitContext.Follow.User.IsFollowingUserAsync(id);
         }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
 {
@@ -14,9 +15,9 @@ namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
         {
         }
 
-        public VideoPlayHistoryEntry VideoPlayed(string videoId, TimeSpan playedPosition)
+        public VideoPlayHistoryEntry VideoPlayed(VideoId videoId, TimeSpan playedPosition)
         {
-            var history = _collection.FindById(videoId);
+            var history = _collection.FindById(videoId.ToString());
             if (history != null)
             {
                 history.PlayCount++;
@@ -37,9 +38,9 @@ namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
             return history;
         }
 
-        public VideoPlayHistoryEntry VideoPlayedIfNotWatched(string videoId, TimeSpan playedPosition)
+        public VideoPlayHistoryEntry VideoPlayedIfNotWatched(VideoId videoId, TimeSpan playedPosition)
         {
-            var history = _collection.FindById(videoId);
+            var history = _collection.FindById(videoId.ToString());
             if (history != null)
             {
                 return history;
@@ -60,19 +61,19 @@ namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
             return history;
         }
 
-        public VideoPlayHistoryEntry Get(string videoId)
+        public VideoPlayHistoryEntry Get(VideoId videoId)
         {
-            return _collection.FindById(videoId);
+            return _collection.FindById(videoId.ToString());
         }
 
-        public bool IsVideoPlayed(string videoId)
+        public bool IsVideoPlayed(VideoId videoId)
         {
-            return _collection.FindById(videoId)?.PlayCount > 0;
+            return _collection.FindById(videoId.ToString())?.PlayCount > 0;
         }
 
-        public bool IsVideoPlayed(string videoId, out VideoPlayHistoryEntry history)
+        public bool IsVideoPlayed(VideoId videoId, out VideoPlayHistoryEntry history)
         {
-            var entry = _collection.FindById(videoId);
+            var entry = _collection.FindById(videoId.ToString());
             history = entry;
             return entry?.PlayCount > 0;
         }

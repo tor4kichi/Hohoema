@@ -161,19 +161,19 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         OpenPage(pin.PageType, pin.Parameter);
                         break;
                     case IVideoContent videoContent:
-                        OpenPageWithId(HohoemaPageType.VideoInfomation, videoContent.Id);
+                        OpenPageWithId(HohoemaPageType.VideoInfomation, videoContent.VideoId);
                         break;
                     case ILiveContent liveContent:
-                        OpenPageWithId(HohoemaPageType.LiveInfomation, liveContent.Id);
+                        OpenPageWithId(HohoemaPageType.LiveInfomation, liveContent.LiveId);
                         break;
                     case ICommunity communityContent:
-                        OpenPageWithId(HohoemaPageType.Community, communityContent.Id);
+                        OpenPageWithId(HohoemaPageType.Community, communityContent.CommunityId);
                         break;
                     case IMylist mylistContent:
-                        OpenPageWithId(HohoemaPageType.Mylist, mylistContent.Id);
+                        OpenPageWithId(HohoemaPageType.Mylist, mylistContent.MylistId);
                         break;
                     case IUser user:
-                        OpenPageWithId(HohoemaPageType.UserInfo, user.Id);
+                        OpenPageWithId(HohoemaPageType.UserInfo, user.UserId);
                         break;
                     case ITag tag:
                         this.Search(SearchTarget.Tag, tag.Tag);
@@ -182,7 +182,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         this.Search(history.Target, history.Keyword);
                         break;
                     case IChannel channel:
-                        OpenPageWithId(HohoemaPageType.ChannelVideo, channel.Id);
+                        OpenPageWithId(HohoemaPageType.ChannelVideo, channel.ChannelId);
                         break;
                     case IPlaylist playlist:
                         OpenPageWithId(HohoemaPageType.LocalPlaylist, playlist.Id);
@@ -218,16 +218,16 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         }
                         break;
                     case ILiveContent liveContent:
-                        OpenPageWithId(HohoemaPageType.LiveInfomation, liveContent.Id);
+                        OpenPageWithId(HohoemaPageType.LiveInfomation, liveContent.LiveId);
                         break;
                     case ICommunity communityContent:
-                        OpenPageWithId(HohoemaPageType.CommunityVideo, communityContent.Id);
+                        OpenPageWithId(HohoemaPageType.CommunityVideo, communityContent.CommunityId);
                         break;
                     case IMylist mylistContent:
                         OpenPageWithId(HohoemaPageType.Mylist, mylistContent.Id);
                         break;
                     case IUser user:
-                        OpenPageWithId(HohoemaPageType.UserVideo, user.Id);
+                        OpenPageWithId(HohoemaPageType.UserVideo, user.UserId);
                         break;
                     case ITag tag:
                         this.Search(SearchTarget.Tag, tag.Tag);
@@ -236,7 +236,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         this.Search(history.Target, history.Keyword);
                         break;
                     case IChannel channel:
-                        OpenPageWithId(HohoemaPageType.ChannelVideo, channel.Id);
+                        OpenPageWithId(HohoemaPageType.ChannelVideo, channel.ChannelId);
                         break;
                 }
             }));
@@ -264,7 +264,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         }
 
                         break;
-                    case ILiveContent liveContent:
+                    case ILiveContentProvider liveContent:
                         if (liveContent.ProviderType == ProviderType.Community)
                         {
                             var p = new NavigationParameters();

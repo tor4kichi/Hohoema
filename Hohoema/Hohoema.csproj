@@ -144,6 +144,8 @@
     <Compile Include="Models.Domain\Application\FeatureFlags.cs" />
     <Compile Include="Models.Domain\Application\HohoemaAppServiceLevel.cs" />
     <Compile Include="Models.Domain\Application\ToastNotificationConstants.cs" />
+    <Compile Include="Models.Domain\Niconico\FollowableExtension.cs" />
+    <Compile Include="Models.Domain\Niconico\NiconicoObjectExtension.cs" />
     <Compile Include="Models.Domain\Niconico\Recommend\RecommendProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\IWatchHistory.cs" />
     <Compile Include="Models.Infrastructure\HohoemaExpception.cs" />
@@ -407,6 +409,7 @@
     <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistManagePageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\DebugPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\SettingsPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Hohoema.Subscription\SubscriptionManagementPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Subscriptions\AddKeywordSearchSubscriptionCommand.cs" />

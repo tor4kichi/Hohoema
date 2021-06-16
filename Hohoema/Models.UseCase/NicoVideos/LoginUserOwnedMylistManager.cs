@@ -103,7 +103,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
         public int DeflistRegistrationCount => Deflist.Count;
         public int MylistRegistrationCapacity => _niconicoSession.IsPremiumAccount ? 25000 : 100;
 
-        public int MylistRegistrationCount => Mylists.Where(x => !x.IsDefaultMylist()).Sum((System.Func<MylistPlaylist, int>)(x => (int)x.Count));
+        public int MylistRegistrationCount => Mylists.Where(x => !x.MylistId.IsWatchAfterMylist).Sum((System.Func<MylistPlaylist, int>)(x => (int)x.Count));
 
         public const int MaxUserMylistGroupCount = 25;
         public const int MaxPremiumUserMylistGroupCount = 50;
@@ -139,11 +139,11 @@ namespace Hohoema.Models.UseCase.NicoVideos
             var playlist = (LoginUserMylistPlaylist)sender;
             if (e.FailedItems?.Any() ?? false)
             {
-                _notificationService.ShowLiteInAppNotification_Fail("InAppNotification_MylistAddedItems_Fail".Translate(playlist.Label));
+                _notificationService.ShowLiteInAppNotification_Fail("InAppNotification_MylistAddedItems_Fail".Translate(playlist.Name));
             }
             else
             {
-                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistAddedItems_Success".Translate(playlist.Label, e.SuccessedItems.Count));
+                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistAddedItems_Success".Translate(playlist.Name, e.SuccessedItems.Count));
             }
         }
 
@@ -152,18 +152,18 @@ namespace Hohoema.Models.UseCase.NicoVideos
             var playlist = (LoginUserMylistPlaylist)sender;
             if (e.FailedItems?.Any() ?? false)
             {
-                _notificationService.ShowLiteInAppNotification_Fail("InAppNotification_MylistRemovedItems_Fail".Translate(playlist.Label));
+                _notificationService.ShowLiteInAppNotification_Fail("InAppNotification_MylistRemovedItems_Fail".Translate(playlist.Name));
             }
             else
             {
-                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistRemovedItems_Success".Translate(playlist.Label, e.SuccessedItems.Count));
+                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistRemovedItems_Success".Translate(playlist.Name, e.SuccessedItems.Count));
             }
         }
 
 
-        public bool HasMylistGroup(string groupId)
+        public bool HasMylistGroup(MylistId groupId)
 		{
-			return Mylists.Any(x => x.Id == groupId);
+			return Mylists.Any(x => x.MylistId == groupId);
 		}
 
         public async Task WaitUpdate(CancellationToken ct = default)
@@ -171,16 +171,16 @@ namespace Hohoema.Models.UseCase.NicoVideos
             using var _ = await _updateLock.LockAsync(ct);
         }
 
-		public LoginUserMylistPlaylist GetMylistGroup(string groupId)
+		public LoginUserMylistPlaylist GetMylistGroup(MylistId groupId)
 		{
-			return Mylists.SingleOrDefault(x => x.Id == groupId);
+			return Mylists.SingleOrDefault(x => x.MylistId == groupId);
 		}
 
-        public async Task<LoginUserMylistPlaylist> GetMylistGroupAsync(string groupId, CancellationToken ct = default)
+        public async Task<LoginUserMylistPlaylist> GetMylistGroupAsync(MylistId groupId, CancellationToken ct = default)
         {
             using (await _updateLock.LockAsync(ct))
             {
-                return Mylists.SingleOrDefault(x => x.Id == groupId);
+                return Mylists.SingleOrDefault(x => x.MylistId == groupId);
             }
         }
 
@@ -204,7 +204,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
                         foreach (var mylistGroup in groups ?? Enumerable.Empty<LoginUserMylistPlaylist>())
                         {
-                            if (mylistGroup.IsDefaultMylist())
+                            if (mylistGroup.MylistId.IsWatchAfterMylist)
                             {
                                 Deflist = mylistGroup;
                             }
@@ -228,7 +228,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             if (result != null)
             {
                 await SyncMylistGroups();
-                return _mylists.FirstOrDefault(x => x.Id == result);
+                return _mylists.FirstOrDefault(x => x.MylistId == result);
             }
             else
             {
@@ -237,9 +237,9 @@ namespace Hohoema.Models.UseCase.NicoVideos
         }
 
 		
-		public async Task<bool> RemoveMylist(string mylistGroupId)
+		public async Task<bool> RemoveMylist(MylistId mylistId)
 		{
-			var result = await _loginUserMylistProvider.RemoveMylist(mylistGroupId);
+			var result = await _loginUserMylistProvider.RemoveMylist(mylistId);
 
 			if (result)
 			{

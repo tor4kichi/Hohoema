@@ -32,7 +32,7 @@ namespace NiconicoToolkit.Community
             public CommunityContentKind ContentKind { get; set; }
 
             [JsonPropertyName("content_id")]
-            public string ContentId { get; set; }
+            public NiconicoId ContentId { get; set; }
 
             [JsonPropertyName("original")]
             public long Original { get; set; }

@@ -1,6 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player.Video.Comment;
+using NiconicoToolkit;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Video.Watch;
 using System;
@@ -18,7 +19,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
     public interface INicoVideoDetails : IVideoDetail
     {
-        string VideoTitle { get; }
+        string Title { get; }
         NicoVideoTag[] Tags { get; }
 
         TimeSpan VideoLength { get; }
@@ -50,9 +51,10 @@ namespace Hohoema.Models.Domain.Player.Video
             Tags = _dmcWatchRes.Tag.Items.Select(x => new NicoVideoTag(x.Name)).ToArray();
         }
 
-        public string VideoId => _dmcWatchRes.Video.Id;
 
-        public string VideoTitle => _dmcWatchRes.Video.Title;
+        public VideoId VideoId => _dmcWatchRes.Video.Id;
+
+        public string Title => _dmcWatchRes.Video.Title;
 
         public NicoVideoTag[] Tags { get; }
 
@@ -107,9 +109,6 @@ namespace Hohoema.Models.Domain.Player.Video
 
         DateTime IVideoContent.PostedAt => SubmitDate;
 
-        string INiconicoObject.Id => VideoId;
-
-        string INiconicoObject.Label => VideoTitle;
 
         OwnerType IVideoContentProvider.ProviderType => _dmcWatchRes.Channel != null ? OwnerType.Channel : OwnerType.User;
 
@@ -117,7 +116,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
         bool IEquatable<IVideoContent>.Equals(IVideoContent other)
         {
-            return this.VideoId == other.Id;
+            return this.VideoId == other.VideoId;
         }
     }
 

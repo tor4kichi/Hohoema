@@ -10,7 +10,7 @@ namespace NiconicoToolkit.Video
         public string Type { get; set; }
 
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public VideoId Id { get; set; }
 
         [JsonPropertyName("title")]
         public string Title { get; set; }

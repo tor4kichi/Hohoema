@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.Domain.Playlist
 {
@@ -89,12 +90,12 @@ namespace Hohoema.Models.Domain.Playlist
                 return _collection.DeleteMany(x => x.PlaylistId == playlistId);
             }
 
-            public bool DeletePlaylistItem(string playlistId, string contentId)
+            public bool DeletePlaylistItem(string playlistId, VideoId contentId)
             {
                 return _collection.DeleteMany(x => x.PlaylistId == playlistId && x.ContentId == contentId) > 0;
             }
 
-            public int DeletePlaylistItem(string playlistId, IEnumerable<string> contentId)
+            public int DeletePlaylistItem(string playlistId, IEnumerable<VideoId> contentId)
             {
                 var hashSet = contentId.ToHashSet();
                 return _collection.DeleteMany(x => x.PlaylistId == playlistId && hashSet.Contains(x.ContentId));
@@ -173,7 +174,7 @@ namespace Hohoema.Models.Domain.Playlist
             });
         }
 
-        public void AddItems(string playlistId, IEnumerable<string> items)
+        public void AddItems(string playlistId, IEnumerable<VideoId> items)
         {
             _itemsDbService.UpdateItem(items.Where(itemId => !_itemsDbService.Exists(x => x.PlaylistId == playlistId && x.ContentId == itemId)).Select(item => new PlaylistItemEntity()
             {
@@ -182,12 +183,12 @@ namespace Hohoema.Models.Domain.Playlist
             }));
         }
 
-        public bool DeleteItem(string playlistId, string contentId)
+        public bool DeleteItem(string playlistId, VideoId contentId)
         {
             return _itemsDbService.DeletePlaylistItem(playlistId, contentId);
         }
 
-        public int DeleteItems(string playlistId, IEnumerable<string> contentIdList)
+        public int DeleteItems(string playlistId, IEnumerable<VideoId> contentIdList)
         {
             return _itemsDbService.DeletePlaylistItem(playlistId, contentIdList);
         }

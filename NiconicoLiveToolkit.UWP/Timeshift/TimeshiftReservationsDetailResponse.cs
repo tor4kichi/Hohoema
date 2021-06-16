@@ -47,7 +47,7 @@ namespace NiconicoToolkit.Live.Timeshift
         /// <summary>
 		/// ID
 		/// </summary>
-		public string LiveIdWithoutPrefix { get; internal set; }
+		public LiveId LiveId { get; internal set; }
 
         /// <summary>
         /// 題名

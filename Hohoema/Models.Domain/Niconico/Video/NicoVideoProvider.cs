@@ -32,7 +32,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             Title = title;
         }
 
-        public string VideoId { get; set; }
+        public VideoId VideoId { get; set; }
         public long? DeleteReason { get; }
         public string Title { get; }
     }
@@ -53,23 +53,23 @@ namespace Hohoema.Models.Domain.Niconico.Video
         {
         }
 
-        public NicoVideo Get(string videoId)
+        public NicoVideo Get(VideoId videoId)
         {
             return _collection
                 .Include(x => x.Owner)
-                .FindById(videoId)
-                ?? new NicoVideo() { RawVideoId = videoId };
+                .FindById(videoId.ToString())
+                ?? new NicoVideo() { Id = videoId };
         }
 
         public string GetVideoId(string rawVideoId)
         {
             return _collection.FindById(rawVideoId)
-                ?.VideoId;
+                ?.VideoAliasId;
         }
 
-        public List<NicoVideo> Get(IEnumerable<string> videoIds)
+        public List<NicoVideo> Get(IEnumerable<VideoId> videoIds)
         {
-            return videoIds.Select(id => _collection.FindById(id) ?? new NicoVideo() { RawVideoId = id }).ToList();
+            return videoIds.Select(id => _collection.FindById(id.ToString()) ?? new NicoVideo() { Id = id }).ToList();
         }
 
         public bool AddOrUpdate(NicoVideo video)
@@ -149,7 +149,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             var video = GetCachedVideoInfo(videoId);
             if (video == null)
             {
-                video = new NicoVideo() { RawVideoId = videoId };
+                video = new NicoVideo() { Id = videoId };
                 _nicoVideoRepository.CreateItem(video);
 
                 Debug.WriteLine("set video to memory cache" + videoId);
@@ -158,7 +158,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
             return UpdateCache(video, video => 
             {
-                video.VideoId = nvapiVideoItem.Id;
+                video.VideoAliasId = nvapiVideoItem.Id;
                 video.Title = nvapiVideoItem.Title;
                 video.ThumbnailUrl = nvapiVideoItem.Thumbnail.ListingUrl.OriginalString;
                 video.PostedAt = nvapiVideoItem.RegisteredAt.DateTime;
@@ -185,7 +185,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             var video = GetCachedVideoInfo(videoId);
             if (video == null)
             {
-                video = new NicoVideo() { RawVideoId = videoId };
+                video = new NicoVideo() { Id = videoId };
                 _nicoVideoRepository.CreateItem(video);
                 
                 Debug.WriteLine("set video to memory cache" + videoId);
@@ -205,7 +205,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             var result = updateDelegate(video);
             if (result.IsDeleted)
             {
-                PublishVideoDeletedEvent(video.RawVideoId, result.deleteReason, video.Title);
+                PublishVideoDeletedEvent(video.Id, result.deleteReason, video.Title);
             }
 
             if (video.Owner?.UserType == OwnerType.Hidden)
@@ -226,7 +226,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
 
 
-        public NicoVideo GetCachedVideoInfo(string videoId)
+        public NicoVideo GetCachedVideoInfo(VideoId videoId)
         {
             if (_cache.TryGetValue<NicoVideo>(videoId, out var video)) 
             {
@@ -244,16 +244,16 @@ namespace Hohoema.Models.Domain.Niconico.Video
             return video;
         }
 
-        public List<NicoVideo> GetCachedVideoInfoItems(IEnumerable<string> videoIds)
+        public List<NicoVideo> GetCachedVideoInfoItems(IEnumerable<VideoId> videoIds)
         {
             return videoIds.Select(x => GetCachedVideoInfo(x)).ToList();
         }
 
 
-        public async ValueTask<List<NicoVideo>> GetCachedVideoInfoItemsAsync(IEnumerable<string> videoIds, CancellationToken ct = default)
+        public async ValueTask<List<NicoVideo>> GetCachedVideoInfoItemsAsync(IEnumerable<VideoId> videoIds, CancellationToken ct = default)
         {
             var cachedVideos = GetCachedVideoInfoItems(videoIds);
-            var ids = cachedVideos.Where(x => x.Owner is null).Select(x => x.RawVideoId);
+            var ids = cachedVideos.Where(x => x.Owner is null).Select(x => x.VideoId);
             if (ids.Any())
             {
                 await GetVideoInfoManyAsync(ids).ToArrayAsync(ct);
@@ -263,7 +263,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         }
 
 
-        public async ValueTask<NicoVideo> GetCachedVideoInfoAsync(string videoId, CancellationToken ct = default)
+        public async ValueTask<NicoVideo> GetCachedVideoInfoAsync(VideoId videoId, CancellationToken ct = default)
         {
             var video = GetCachedVideoInfo(videoId);
             if (video == null)
@@ -274,7 +274,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             return video;
         }
 
-        public async ValueTask<string> ResolveVideoTitleAsync(string videoId, CancellationToken ct = default)
+        public async ValueTask<string> ResolveVideoTitleAsync(VideoId videoId, CancellationToken ct = default)
         {
             var video = await GetCachedVideoInfoAsync(videoId, ct);
             if (video.Title == null)
@@ -285,20 +285,20 @@ namespace Hohoema.Models.Domain.Niconico.Video
             return video.Title;
         }
 
-        public async ValueTask<string> ResolveThumbnailUrlAsync(string videoId, CancellationToken ct = default)
+        public async ValueTask<string> ResolveThumbnailUrlAsync(VideoId videoId, CancellationToken ct = default)
         {
             var video = await GetCachedVideoInfoAsync(videoId, ct);
             return video.ThumbnailUrl;
         }
 
 
-        public async ValueTask<IDictionary<string, NicoVideoOwner>> ResolveVideoOwnersAsync(IEnumerable<string> videoIds, CancellationToken ct = default)
+        public async ValueTask<IDictionary<VideoId, NicoVideoOwner>> ResolveVideoOwnersAsync(IEnumerable<VideoId> videoIds, CancellationToken ct = default)
         {
             var cachedVideos = await GetCachedVideoInfoItemsAsync(videoIds, ct);
-            return cachedVideos.ToDictionary(x => x.RawVideoId, x => x.Owner);
+            return cachedVideos.ToDictionary(x => x.VideoId, x => x.Owner);
         }
 
-        public async ValueTask<NicoVideoOwner> ResolveVideoOwnerAsync(string videoId, CancellationToken ct = default)
+        public async ValueTask<NicoVideoOwner> ResolveVideoOwnerAsync(VideoId videoId, CancellationToken ct = default)
         {
             var video = GetCachedVideoInfo(videoId);
             if (video?.Owner == null)
@@ -318,7 +318,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         /// </summary>
         /// <param name="rawVideoId"></param>
         /// <returns></returns>
-        public async Task<(VideoIdSearchSingleResponse Response, NicoVideo NicoVideo)> GetVideoInfoAsync(string rawVideoId, CancellationToken ct = default)
+        public async Task<(VideoIdSearchSingleResponse Response, NicoVideo NicoVideo)> GetVideoInfoAsync(VideoId rawVideoId, CancellationToken ct = default)
         {
             if (_niconicoSession.ServiceStatus.IsOutOfService())
             {
@@ -358,12 +358,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
             }            
         }
 
-        private NicoVideo UpdateVideo(string videoId, VideoItem video)
+        private NicoVideo UpdateVideo(VideoId videoId, VideoItem video)
         {
             return UpdateCache(videoId, info =>
             {
                 info.Title = video.Title;
-                info.VideoId = video.Id;
+                info.VideoAliasId = video.Id;
                 info.Length = TimeSpan.FromSeconds(video.LengthInSeconds);
                 info.PostedAt = video.FirstRetrieve.DateTime;
                 info.ThumbnailUrl = video.ThumbnailUrl.OriginalString;
@@ -394,7 +394,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             });
         }
 
-        public async IAsyncEnumerable<VideoItem> GetVideoInfoManyAsync(IEnumerable<string> idItems, bool isLatestRequired = true, [EnumeratorCancellation] CancellationToken ct = default)
+        public async IAsyncEnumerable<VideoItem> GetVideoInfoManyAsync(IEnumerable<VideoId> idItems, bool isLatestRequired = true, [EnumeratorCancellation] CancellationToken ct = default)
         {
             var res = await Task.Run(async () =>
             {
@@ -434,20 +434,20 @@ namespace Hohoema.Models.Domain.Niconico.Video
         }
 
 
-        public async Task<WatchPageResponse> GetWatchPageResponseAsync(string rawVideoId, bool noHisotry = false)
+        public async Task<WatchPageResponse> GetWatchPageResponseAsync(VideoId videoId, bool noHisotry = false)
         {
             if (_niconicoSession.ServiceStatus.IsOutOfService())
             {
                 return null;
             }
 
-            var data = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetInitialWatchDataAsync(rawVideoId, !noHisotry, !noHisotry);
+            var data = await _niconicoSession.ToolkitContext.Video.VideoWatch.GetInitialWatchDataAsync(videoId, !noHisotry, !noHisotry);
             if (data.WatchApiResponse?.WatchApiData is not null and var watchData)
             {
-                UpdateCache(rawVideoId, info =>
+                UpdateCache(videoId, info =>
                 {
                     var video = watchData.Video;
-                    info.VideoId = rawVideoId;
+                    info.VideoAliasId = videoId;
                     info.Title = video.Title;
                     info.Length = TimeSpan.FromSeconds(video.Duration);
                     info.PostedAt = video.RegisteredAt.DateTime;

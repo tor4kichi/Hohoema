@@ -26,12 +26,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 {
 	using CommunityFollowContext = FollowContext<ICommunity>;
 
-    public class CommunityInfo : ICommunity
-    {
-        public string Id { get; internal set; }
-
-        public string Label { get; internal set; }
-    }
+    
 
     public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>, IPinablePage, ITitleUpdatablePage
 	{
@@ -117,7 +112,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 					{
 						if (!string.IsNullOrWhiteSpace(CommunityId))
 						{
-							FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, new CommunityInfo() { Id = CommunityId, Label = CommunityName });
+							FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, new CommunityViewModel() { CommunityId = CommunityId, Name = CommunityName });
 						}
 					}
 				}

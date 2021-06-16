@@ -6,6 +6,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Playlist;
+using NiconicoToolkit;
 using NiconicoToolkit.Mylist;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist
@@ -14,20 +16,20 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
     {
         private readonly MylistProvider _mylistProvider;
 
-        public MylistPlaylist(string id)
+        public MylistPlaylist(MylistId id)
         {
-            Id = id;
+            MylistId = id;
         }
 
-        public MylistPlaylist(string id, MylistProvider mylistProvider)
+        public MylistPlaylist(MylistId id, MylistProvider mylistProvider)
         {
-            Id = id;
+            MylistId = id;
             _mylistProvider = mylistProvider;
         }
 
-        public string Id { get; }
+        public MylistId MylistId { get; }
 
-        public string Label { get; internal set; }
+        public string Name { get; internal set; }
 
         public int Count { get; internal set; }
 
@@ -48,11 +50,12 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
         public DateTime CreateTime { get; internal set; }
 
+        string IPlaylist.Id => MylistId.ToString();
 
         public async Task<MylistItemsGetResult> GetItemsAsync(int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
            
-            //if (this.IsDefaultMylist())
+            //if (this.MylistId.IsWatchAfterMylist)
             {
                 //throw new ArgumentException("とりあえずマイリストはログインしていなければアクセスできません。");
             }
@@ -70,7 +73,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
                 return new MylistItemsGetResult()
                 {
                     IsSuccess = true,
-                    IsDefaultMylist = this.IsDefaultMylist(),
+                    IsDefaultMylist = this.MylistId.IsWatchAfterMylist,
                     Mylist = this,
                     IsLoginUserMylist = false,
                     NicoVideoItems = result.NicoVideoItems,
@@ -89,7 +92,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
         public Task<MylistProvider.MylistItemsGetResult> GetMylistItemsWithRangeAsync(int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
-            return _mylistProvider.GetMylistVideoItems(Id, page, pageSize, sortKey, sortOrder);
+            return _mylistProvider.GetMylistVideoItems(MylistId, page, pageSize, sortKey, sortOrder);
         }
 
         public async Task<MylistProvider.MylistItemsGetResult> GetMylistAllItems(MylistSortKey sortKey = MylistSortKey.AddedAt, MylistSortOrder sortOrder = MylistSortOrder.Asc)
@@ -97,7 +100,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             int page = 0;
             const int pageSize = 25;
 
-            var firstResult = await _mylistProvider.GetMylistVideoItems(Id, page, pageSize, sortKey, sortOrder);
+            var firstResult = await _mylistProvider.GetMylistVideoItems(MylistId, page, pageSize, sortKey, sortOrder);
             if (!firstResult.IsSuccess || firstResult.TotalCount == firstResult.Items.Count)
             {
                 return firstResult;
@@ -112,7 +115,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             do
             {
                 await Task.Delay(500);
-                var result = await _mylistProvider.GetMylistVideoItems(Id, page, pageSize, sortKey, sortOrder);
+                var result = await _mylistProvider.GetMylistVideoItems(MylistId, page, pageSize, sortKey, sortOrder);
                 if (result.IsSuccess)
                 {
                     itemsList.AddRange(result.Items);
@@ -126,7 +129,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
             return new MylistProvider.MylistItemsGetResult()
             {
-                MylistId = Id,
+                MylistId = MylistId,
                 HeadPosition = 0,
                 TotalCount = totalCount,
                 IsSuccess = true,

@@ -13,11 +13,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Series
             _userDetail = userDetail;
         }
 
-        public string Id => _userDetail.OwnerId.ToString();
+        public UserId UserId => (_userDetail as IUser).UserId;
 
-        public string Label => _userDetail.ScreenName;
+        public string Nickname => (_userDetail as IUser).Nickname;
 
-        public string IconUrl => _userDetail.IconUrl;
+        public string IconUrl => (_userDetail as IUser).IconUrl;
     }
 
     

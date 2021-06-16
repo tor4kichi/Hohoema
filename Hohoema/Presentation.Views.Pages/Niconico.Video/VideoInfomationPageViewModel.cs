@@ -56,15 +56,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         {
             return new HohoemaPin()
             {
-                Label = VideoDetails.VideoTitle,
+                Label = VideoDetails.Title,
                 PageType = HohoemaPageType.VideoInfomation,
-                Parameter = $"id={VideoInfo.VideoId}"
+                Parameter = $"id={VideoInfo.VideoAliasId}"
             };
         }
 
         IObservable<string> ITitleUpdatablePage.GetTitleObservable()
         {
-            return this.ObserveProperty(x => x.VideoDetails).Select(x => x?.VideoTitle);
+            return this.ObserveProperty(x => x.VideoDetails).Select(x => x?.Title);
         }
 
         public VideoInfomationPageViewModel(
@@ -330,7 +330,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                         }
                         else if (playlist is LoginUserMylistPlaylist loginUserMylist)
                         {
-                            _ = loginUserMylist.AddItem(VideoInfo.RawVideoId);
+                            _ = loginUserMylist.AddItem(VideoInfo.Id);
                         }
                     }));
             }
@@ -530,7 +530,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
             try
             {
-                var ichiba = await NiconicoSession.ToolkitContext.Ichiba.GetIchibaItemsAsync(VideoInfo.RawVideoId);
+                var ichiba = await NiconicoSession.ToolkitContext.Ichiba.GetIchibaItemsAsync(VideoInfo.Id);
                 IchibaItems = ichiba.MainItems;
                 RaisePropertyChanged(nameof(IchibaItems));
             }
@@ -558,7 +558,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
             try
             {
-                var res = await _recommendProvider.GetVideoRecommendAsync(VideoInfo.RawVideoId);
+                var res = await _recommendProvider.GetVideoRecommendAsync(VideoInfo.Id);
 
                 if (_navigationCancellationToken.IsCancellationRequested) { return; }
 
@@ -600,7 +600,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         private async Task UpdateVideoDescription()
         {
-            if (VideoInfo.RawVideoId == null)
+            if (VideoInfo.Id == null)
             {
                 return;
             }
@@ -609,7 +609,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
             try
             {
-                var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.RawVideoId, noHistory: true);
+                var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.Id, noHistory: true);
                 VideoDetails = res.GetVideoDetails();
 
 

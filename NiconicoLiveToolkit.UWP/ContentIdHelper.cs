@@ -64,10 +64,10 @@ namespace NiconicoToolkit
         }
 
 
-        public const string VideoIdPrefixForChannel = "so";
         public const string VideoIdPrefixForUser = "sm";
+        public const string VideoIdPrefixForChannel = "so";
 
-        public static bool IsVideoId(string id, bool allowAllNumberId = true)
+        public static bool IsVideoId(string id, bool allowNonPrefixId = true)
         {
             if (id == null)
             {
@@ -81,7 +81,7 @@ namespace NiconicoToolkit
             {
                 return true;
             }
-            else if (allowAllNumberId && id.IsAllDigit())
+            else if (allowNonPrefixId && id.IsAllDigit())
             {
                 return true;
             }

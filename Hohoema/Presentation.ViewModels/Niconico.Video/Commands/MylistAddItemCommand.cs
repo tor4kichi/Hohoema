@@ -47,8 +47,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             var targetMylist = _userMylistManager.Mylists.Any() ?
                     await _dialogService.ShowSingleSelectDialogAsync(
                     _userMylistManager.Mylists.ToList(),
-                    nameof(LoginUserMylistPlaylist.Label),
-                    (mylist, s) => mylist.Label.Contains(s),
+                    nameof(LoginUserMylistPlaylist.Name),
+                    (mylist, s) => mylist.Name.Contains(s),
                     "SelectMylist".Translate(),
                     "Select".Translate(),
                     "CreateNew".Translate(),
@@ -59,7 +59,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
             if (targetMylist != null)
             {
-                var addedResult = await targetMylist.AddItem(items.Select(x => x.Id));
+                var addedResult = await targetMylist.AddItem(items.Select(x => x.VideoId));
                 if (addedResult.SuccessedItems.Any() && addedResult.FailedItems.Empty())
                 {
 //                    NotificationService.ShowLiteInAppNotification("InAppNotification_MylistAddedItems_Success".Translate(targetMylist.Label, addedResult.SuccessedItems.Count));
