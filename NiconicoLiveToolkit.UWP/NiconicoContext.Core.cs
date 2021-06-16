@@ -54,6 +54,7 @@ namespace NiconicoToolkit
                 new VideoIdJsonConverter(),
                 new LiveIdJsonConverter(),
                 new MylistIdJsonConverter(),
+                new ChannelIdJsonConverter(),
             },
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
         };
@@ -68,6 +69,7 @@ namespace NiconicoToolkit
                 new VideoIdJsonConverter(),
                 new LiveIdJsonConverter(),
                 new MylistIdJsonConverter(),
+                new ChannelIdJsonConverter(),
             }
         };
 

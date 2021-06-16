@@ -23,7 +23,7 @@ namespace Hohoema.Models.Domain.Niconico.Recommend
             _nicoVideoProvider = nicoVideoProvider;
         }
 
-        public async Task<VideoRecommendResponse> GetVideoRecommendAsync(string videoId)
+        public async Task<VideoRecommendResponse> GetVideoRecommendAsync(VideoId videoId)
         {
             var (res, nicoVideo) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
             return nicoVideo.ProviderType switch

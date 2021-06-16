@@ -20,13 +20,14 @@ namespace Hohoema.Models.Domain.Niconico.Channel
             _channelNameCacheRepository = channelNameCacheRepository;
         }
 
-        public async ValueTask<string> GetChannelNameWithCacheAsync(string channelId)
+        public async ValueTask<string> GetChannelNameWithCacheAsync(ChannelId channelId)
         {
-            var cached = _channelNameCacheRepository.FindById(channelId);
+            var strChannelId = channelId.ToString();
+            var cached = _channelNameCacheRepository.FindById(strChannelId);
             if (cached == null)
             {
                 var info = await GetChannelInfo(channelId);
-                cached = new ChannelEntity() { ChannelId = channelId, ScreenName = info.ScreenName };
+                cached = new ChannelEntity() { ChannelId = strChannelId, ScreenName = info.ScreenName };
                 _channelNameCacheRepository.UpdateItem(cached);
             }
 
@@ -34,12 +35,12 @@ namespace Hohoema.Models.Domain.Niconico.Channel
         }
 
 
-        public Task<ChannelVideoResponse> GetChannelVideo(string channelId, int page)
+        public Task<ChannelVideoResponse> GetChannelVideo(string channelIdOrScreenName, int page)
         {
-            return _niconicoSession.ToolkitContext.Channel.GetChannelVideoAsync(channelId, page);
+            return _niconicoSession.ToolkitContext.Channel.GetChannelVideoAsync(channelIdOrScreenName, page);
         }
 
-        public Task<ChannelInfo> GetChannelInfo(string channelId)
+        public Task<ChannelInfo> GetChannelInfo(ChannelId channelId)
         {
             return _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
         }

@@ -325,7 +325,9 @@ namespace Hohoema.Presentation.ViewModels.Player
         {
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
 
-            VideoId = parameters.GetValue<string>("id");
+            VideoId = parameters.GetValue<string>("id")
+                ?? parameters.GetValue<VideoId>("id")
+                ;
 
             _requestVideoQuality = PlayerSettings.DefaultVideoQuality;
             if (parameters.TryGetValue("quality", out NicoVideoQuality quality))

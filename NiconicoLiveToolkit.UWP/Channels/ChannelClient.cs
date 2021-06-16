@@ -26,14 +26,6 @@ namespace NiconicoToolkit.Channels
 
         internal static class Urls
         {
-            internal static string ChannelIdToURLDirectoryName(string channelId)
-            {
-                var (isScreenName, prefixChannelId) = ContentIdHelper.EnsurePrefixChannelIdOrScreenName(channelId);
-                return isScreenName
-                    ? channelId
-                    : $"channel/{prefixChannelId}"
-                    ;
-            }
 
         }
 
@@ -45,10 +37,8 @@ namespace NiconicoToolkit.Channels
         }
 
 
-        public async Task<ChannelAdmissionResponse> GetChannelAdmissionAsync(string channelId, params ChannelAdmissionAdditinals[] additinals)
+        public async Task<ChannelAdmissionResponse> GetChannelAdmissionAsync(ChannelId channelId, params ChannelAdmissionAdditinals[] additinals)
         {
-            var nonPrefixChannelId = ContentIdHelper.RemoveContentIdPrefix(channelId);
-
             NameValueCollection dict = new NameValueCollection() 
             {
                 { "_frontendId",  "6" },
@@ -59,8 +49,9 @@ namespace NiconicoToolkit.Channels
                 dict.Add("additionalResources", add.GetDescription());
             }
 
-            var url = new StringBuilder($"{NiconicoUrls.ChannelPublicApiV2Url}open/channels/")
-                .Append(nonPrefixChannelId)
+            var url = new StringBuilder(NiconicoUrls.ChannelPublicApiV2Url)
+                .Append("open/channels/")
+                .Append(channelId.ToStringWithoutPrefix())
                 .AppendQueryString(dict)
                 .ToString();
 
@@ -68,23 +59,29 @@ namespace NiconicoToolkit.Channels
         }
 
 
-        public Task<ChannelInfo> GetChannelInfoAsync(string channelId)
+        public Task<ChannelInfo> GetChannelInfoAsync(ChannelId channelId)
         {
-            var nonPrefixChannelId = ContentIdHelper.RemoveContentIdPrefix(channelId);
-            return _context.GetJsonAsAsync<ChannelInfo>($"{NiconicoUrls.ChannelApiUrl}ch.info/{nonPrefixChannelId}");
+            return _context.GetJsonAsAsync<ChannelInfo>($"{NiconicoUrls.ChannelApiUrl}ch.info/{channelId.ToStringWithoutPrefix()}");
         }
 
-
-        public async Task<ChannelVideoResponse> GetChannelVideoAsync(string channelId, int page, ChannelVideoSortKey? sortKey = null, ChannelVideoSortOrder? sortOrder = null)
+        public Task<ChannelVideoResponse> GetChannelVideoAsync(ChannelId channelId, int page, ChannelVideoSortKey? sortKey = null, ChannelVideoSortOrder? sortOrder = null)
         {
-            var directoryName = Urls.ChannelIdToURLDirectoryName(channelId);
+            return GetChannelVideoAsync_Internal(NiconicoUrls.MakeChannelPageUrl(channelId), page, sortKey, sortOrder);
+        }
+
+        public Task<ChannelVideoResponse> GetChannelVideoAsync(string channelIdOrScreenName, int page, ChannelVideoSortKey? sortKey = null, ChannelVideoSortOrder? sortOrder = null)
+        {
+            return GetChannelVideoAsync_Internal(NiconicoUrls.MakeChannelPageUrl(channelIdOrScreenName), page, sortKey, sortOrder);
+        }
+
+        async Task<ChannelVideoResponse> GetChannelVideoAsync_Internal(string channelPageUrl, int page, ChannelVideoSortKey? sortKey, ChannelVideoSortOrder? sortOrder)
+        {
             var dict = new NameValueCollection() { { "page", (page + 1).ToString() } };
 
             if (sortKey is not null) { dict.Add("sort", sortKey.Value.GetDescription()); }
             if (sortOrder is not null) { dict.Add("order", sortOrder.Value.GetDescription()); }
 
-            var url = new StringBuilder(NiconicoUrls.ChannelPageUrl)
-                .Append(directoryName)
+            var url = new StringBuilder(channelPageUrl)
                 .Append("/video")
                 .AppendQueryString(dict)
                 .ToString();

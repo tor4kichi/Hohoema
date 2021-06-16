@@ -75,9 +75,9 @@ namespace Hohoema.Models.Domain.VideoCache
         }
 
 
-        public VideoCacheEntity GetVideoCache(string id)
+        public VideoCacheEntity GetVideoCache(string videoId)
         {
-            return _videoCacheDbService.FindById(id);
+            return _videoCacheDbService.FindById(videoId);
         }
 
         public IEnumerable<VideoCacheEntity> GetItems(int head, int count, VideoCacheStatus status)

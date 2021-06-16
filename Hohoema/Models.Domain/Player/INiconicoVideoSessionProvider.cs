@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -10,13 +11,13 @@ namespace Hohoema.Models.Domain.Player
 {
     public interface INiconicoCommentSessionProvider
     {
-        string ContentId { get; }
+        VideoId ContentId { get; }
         Task<ICommentSession> CreateCommentSessionAsync();
     }
 
     public interface INiconicoVideoSessionProvider
     {
-        string ContentId { get; }
+        VideoId ContentId { get; }
         ImmutableArray<NicoVideoQualityEntity> AvailableQualities { get; }
         Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQuality quality);
     }

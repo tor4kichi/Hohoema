@@ -8,6 +8,7 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 using NiconicoToolkit.Account;
 using NiconicoToolkit.Follow;
 using NiconicoToolkit;
+using NiconicoToolkit.Channels;
 
 namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 {
@@ -102,7 +103,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
         }
 
 
-        public async Task<bool> IsFollowingAsync(NiconicoId channelId)
+        public async Task<bool> IsFollowingAsync(ChannelId channelId)
         {
             var channelInfo = await _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
             var res = await _niconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync((uint)channelInfo.ChannelId);

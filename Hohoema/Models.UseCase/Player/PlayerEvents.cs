@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using NiconicoToolkit.Live;
 using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace Hohoema.Models.UseCase.Player
 
     public struct PlayerPlayLiveRequestEventArgs
     {
-        public string LiveId { get; set; }
+        public LiveId LiveId { get; set; }
     }
 
 

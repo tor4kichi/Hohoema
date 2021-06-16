@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 #endif
 
+using NiconicoToolkit.Channels;
 using NiconicoToolkit.User;
 
 namespace NiconicoToolkit
@@ -66,16 +67,26 @@ namespace NiconicoToolkit
 
 
 
-        public static string MakeChannelPageUrl(string channelId)
+        public static string MakeChannelPageUrl(string channelIdOrScreenName)
         {
-            var (isScreenName, checkedChannelId) = ContentIdHelper.EnsurePrefixChannelIdOrScreenName(channelId);
+            var (isScreenName, checkedChannelId) = ContentIdHelper.EnsurePrefixChannelIdOrScreenName(channelIdOrScreenName);
             return isScreenName
                 ? $"{ChannelPageUrl}{checkedChannelId}"
                 : $"{ChannelPageUrl}channel/{checkedChannelId}"
                 ;
         }
 
+        public static string MakeChannelPageUrl(ChannelId channelId)
+        {
+            return $"{ChannelPageUrl}channel/{channelId}";
+        }
+
         public static string MakeChannelVideoPageUrl(string channelId)
+        {
+            return $"{MakeChannelPageUrl(channelId)}/video";
+        }
+
+        public static string MakeChannelVideoPageUrl(ChannelId channelId)
         {
             return $"{MakeChannelPageUrl(channelId)}/video";
         }

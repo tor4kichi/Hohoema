@@ -869,7 +869,9 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            LiveId = parameters.GetValue<string>("id");
+            LiveId = parameters.GetValue<string>("id")
+                ?? parameters.GetValue<LiveId>("id")
+                ;
 
             if (parameters.TryGetValue<string>("title", out var title))
             {

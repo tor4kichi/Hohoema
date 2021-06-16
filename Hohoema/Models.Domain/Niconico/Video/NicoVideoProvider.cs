@@ -25,7 +25,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 {
     public class VideoDeleteMessageData
     {
-        public VideoDeleteMessageData(string videoId, long? deleteReason, string title)
+        public VideoDeleteMessageData(VideoId videoId, long? deleteReason, string title)
         {
             VideoId = videoId;
             DeleteReason = deleteReason;
@@ -139,12 +139,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
 
-        private void PublishVideoDeletedEvent(string videoId, long? deleteReason, string title)
+        private void PublishVideoDeletedEvent(VideoId videoId, long? deleteReason, string title)
         {
             StrongReferenceMessenger.Default.Send(new VideoDeletedMessage(new VideoDeleteMessageData(videoId, deleteReason, title)));
         }
 
-        public NicoVideo UpdateCache(string videoId, NvapiVideoItem nvapiVideoItem, bool isDeleted = false, long deleted = 0)
+        public NicoVideo UpdateCache(VideoId videoId, NvapiVideoItem nvapiVideoItem, bool isDeleted = false, long deleted = 0)
         {
             var video = GetCachedVideoInfo(videoId);
             if (video == null)
@@ -180,7 +180,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             });
         }
 
-        public NicoVideo UpdateCache(string videoId, Func<NicoVideo, (bool IsDeleted, long? deleteReason)> updateDelegate)
+        public NicoVideo UpdateCache(VideoId videoId, Func<NicoVideo, (bool IsDeleted, long? deleteReason)> updateDelegate)
         {
             var video = GetCachedVideoInfo(videoId);
             if (video == null)
@@ -205,7 +205,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             var result = updateDelegate(video);
             if (result.IsDeleted)
             {
-                PublishVideoDeletedEvent(video.Id, result.deleteReason, video.Title);
+                PublishVideoDeletedEvent(video.VideoId, result.deleteReason, video.Title);
             }
 
             if (video.Owner?.UserType == OwnerType.Hidden)

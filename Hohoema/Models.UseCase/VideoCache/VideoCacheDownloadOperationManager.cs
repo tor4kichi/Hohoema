@@ -413,15 +413,15 @@ namespace Hohoema.Models.UseCase.VideoCache
         {
             var item = _videoCacheManager.GetVideoCache(videoId);
             var message = new Events.VideoCacheStatusChangedMessage((videoId, item?.Status, item));
-            _messenger.Send<Events.VideoCacheStatusChangedMessage, VideoId>(message, videoId);
-            _messenger.Send<Events.VideoCacheStatusChangedMessage>(message);
+            _messenger.Send(message, videoId);
+            _messenger.Send(message);
         }
 
         private void TriggerVideoCacheProgressChanged(VideoCacheItem item)
         {
             var message = new Events.VideoCacheProgressChangedMessage(item);
-            _messenger.Send<Events.VideoCacheProgressChangedMessage, VideoId>(message, item.VideoId);
-            _messenger.Send<Events.VideoCacheProgressChangedMessage>(message);
+            _messenger.Send(message, item.VideoId);
+            _messenger.Send(message);
         }
 
 

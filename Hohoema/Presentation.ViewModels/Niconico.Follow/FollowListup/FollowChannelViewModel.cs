@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.Niconico.Channel;
 using NiconicoToolkit;
+using NiconicoToolkit.Channels;
 using NiconicoToolkit.Follow;
 using System;
 
@@ -18,7 +19,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         public string Description => _followChannel.Description;
 
-        public NiconicoId ChannelId => (int)_followChannel.Id;
+        public ChannelId ChannelId => _followChannel.Id;
 
         public string Name => _followChannel.Name;
     }

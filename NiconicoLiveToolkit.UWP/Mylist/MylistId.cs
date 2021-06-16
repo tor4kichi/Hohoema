@@ -42,7 +42,7 @@ namespace NiconicoToolkit.Mylist
         public static implicit operator MylistId(uint mylistId) => new MylistId(mylistId);
         public static implicit operator MylistId(string mylistId) => new MylistId(mylistId);
 
-        public static implicit operator NiconicoId(MylistId mylistId) => new NiconicoId(mylistId.RawId, NiconicoIdType.User);
+        public static implicit operator NiconicoId(MylistId mylistId) => new NiconicoId(mylistId.RawId, NiconicoIdType.Mylist);
         public static explicit operator MylistId(NiconicoId niconicoId)
         {
             if (niconicoId.IsMylistId is false)

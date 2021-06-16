@@ -130,7 +130,7 @@ namespace NiconicoToolkit
 
 
         public const string CommunityIdPrefix = "co";
-        public static bool IsCommunityId(string id, bool allowNumberOnlyId = true)
+        public static bool IsCommunityId(string id, bool allowNonPrefixId = true)
         {
             if (id == null)
             {
@@ -140,7 +140,7 @@ namespace NiconicoToolkit
             {
                 return true;
             }
-            else if (allowNumberOnlyId && id.IsAllDigit())
+            else if (allowNonPrefixId && id.IsAllDigit())
             {
                 return true;
             }
@@ -152,13 +152,13 @@ namespace NiconicoToolkit
 
 
         public const string ChannelIdPrefix = "ch";
-        public static bool IsChannelId(string id, bool allowNumberOnlyId = true)
+        public static bool IsChannelId(string id, bool allowNonPrefixId = true)
         {
             if (id == null)
             {
                 return false;
             }
-            else if (allowNumberOnlyId && id.IsAllDigit())
+            else if (allowNonPrefixId && id.IsAllDigit())
             {
                 return true;
             }

@@ -11,6 +11,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.Services;
 using System.Reflection;
 using Hohoema.Models.UseCase.NicoVideos;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
@@ -52,6 +53,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
                 else if (parameter is string videoId)
                 {
                     await mylist.AddItem(videoId);
+                }
+                else if (parameter is VideoId justVideoId)
+                {
+                    await mylist.AddItem(justVideoId);
                 }
             }
 

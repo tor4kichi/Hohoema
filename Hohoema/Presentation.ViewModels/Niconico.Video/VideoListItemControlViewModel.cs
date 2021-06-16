@@ -293,7 +293,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         private void UnsubscribeCacheState()
         {
-            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, string>(this, VideoId);
+            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, VideoId>(this, VideoId);
         }
 
         #endregion

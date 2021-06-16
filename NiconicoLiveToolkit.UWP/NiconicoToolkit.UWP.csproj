@@ -129,6 +129,7 @@
     <Compile Include="Activity\ActivityClient.cs" />
     <Compile Include="Channels\ChannelAdmissionResponse.cs" />
     <Compile Include="Channels\ChannelClient.cs" />
+    <Compile Include="Channels\ChannelId.cs" />
     <Compile Include="Channels\ChannelInfo.cs" />
     <Compile Include="Channels\ChannelVideoResponse.cs" />
     <Compile Include="Channels\ChannelVideoSortKey.cs" />
@@ -136,6 +137,7 @@
     <Compile Include="Community\CommunityApiDateTimeJsonConverter.cs" />
     <Compile Include="Community\CommunityAuthorityResponse.cs" />
     <Compile Include="Community\CommunityClient.cs" />
+    <Compile Include="Community\CommunityId.cs" />
     <Compile Include="Community\CommunityLiveResponse.cs" />
     <Compile Include="Community\CommunityLiveStatus.cs" />
     <Compile Include="Community\CommunityVideoListItemsResponse.cs" />
@@ -166,6 +168,7 @@
     <Compile Include="Recommend\RecommendContentType.cs" />
     <Compile Include="Recommend\RecommendType.cs" />
     <Compile Include="Recommend\VideoRecommendResponse.cs" />
+    <Compile Include="System.Text.Json.Serialization\ChannelIdJsonConverter.cs" />
     <Compile Include="System.Text.Json.Serialization\LiveIdJsonConverter.cs" />
     <Compile Include="System.Text.Json.Serialization\MylistIdJsonConverter.cs" />
     <Compile Include="System.Text.Json.Serialization\NiconicoIdJsonConverter.cs" />

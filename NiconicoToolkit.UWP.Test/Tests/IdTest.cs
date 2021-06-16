@@ -1,5 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NiconicoToolkit.Channels;
 using NiconicoToolkit.Live;
+using NiconicoToolkit.Mylist;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
 using System;
@@ -256,6 +258,58 @@ namespace NiconicoToolkit.UWP.Test.Tests
             NiconicoId idB = new LiveId("lv123456");
 
             Assert.AreEqual(NiconicoIdType.Live, idB.IdType);
+            Assert.AreEqual(idA, idB);
+        }
+
+        #endregion
+
+
+
+        #region Test ChannelId
+
+        [TestMethod]
+        public void ChannelId_Equeal()
+        {
+            var idA = new ChannelId(123456);
+            var idB = new ChannelId("ch123456");
+
+            Assert.AreEqual(idA, idB);
+        }
+
+
+        [TestMethod]
+        public void ChannelId_ToNiconicoId()
+        {
+            var idA = new ChannelId(123456);
+            NiconicoId idB = new ChannelId("ch123456");
+
+            Assert.AreEqual(NiconicoIdType.Channel, idB.IdType);
+            Assert.AreEqual(idA, idB);
+        }
+
+        #endregion
+
+
+
+        #region Test MylistId
+
+        [TestMethod]
+        public void MylistId_Equeal()
+        {
+            var idA = new MylistId(123456);
+            var idB = new MylistId("123456");
+
+            Assert.AreEqual(idA, idB);
+        }
+
+
+        [TestMethod]
+        public void MylistId_ToNiconicoId()
+        {
+            var idA = new MylistId(123456);
+            NiconicoId idB = new MylistId("123456");
+
+            Assert.AreEqual(NiconicoIdType.Mylist, idB.IdType);
             Assert.AreEqual(idA, idB);
         }
 

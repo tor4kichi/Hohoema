@@ -10,6 +10,7 @@ using Hohoema.Models.Domain.Niconico.Channel;
 using NiconicoToolkit.Video;
 using NiconicoToolkit;
 using NiconicoToolkit.User;
+using NiconicoToolkit.Channels;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {
@@ -30,7 +31,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         string IUser.Nickname => UserType == OwnerType.User ? ScreenName : throw new InvalidOperationException();
 
-        NiconicoId IChannel.ChannelId => UserType == OwnerType.Channel ? OwnerId : throw new InvalidOperationException();
+        ChannelId IChannel.ChannelId => UserType == OwnerType.Channel ? OwnerId : throw new InvalidOperationException();
 
         string IChannel.Name => UserType == OwnerType.Channel ? ScreenName : throw new InvalidOperationException();
 

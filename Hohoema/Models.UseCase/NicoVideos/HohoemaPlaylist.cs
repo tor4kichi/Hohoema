@@ -177,10 +177,6 @@ namespace Hohoema.Models.UseCase.NicoVideos
         public const string QueuePlaylistId = "@view";
 
 
-        static bool IsVideoId(string videoId)
-        {
-            return NiconicoToolkit.ContentIdHelper.IsVideoId(videoId, allowNonPrefixId: true);
-        }
 
         public event EventHandler<VideoPlayedEventArgs> VideoPlayed;
 
@@ -423,11 +419,6 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         public async void Play(VideoId videoId, IPlaylist playlist = null, TimeSpan position = default)
         {
-            if (!IsVideoId(videoId))
-            {
-                return;
-            }
-
             var videoContent = await ResolveVideoItemAsync(videoId);
             Play(videoContent, playlist, position);
         }
@@ -512,18 +503,13 @@ namespace Hohoema.Models.UseCase.NicoVideos
             {
                 message.Value.ContentId = item.VideoId;
                 message.Value.Index = index++;
-                WeakReferenceMessenger.Default.Send<QueueItemIndexUpdateMessage, string>(message, item.VideoId);
+                WeakReferenceMessenger.Default.Send(message, item.VideoId);
             }
         }
 
 
-        public async void AddQueuePlaylist(string videoId, ContentInsertPosition position = ContentInsertPosition.Tail)
+        public async void AddQueuePlaylist(VideoId videoId, ContentInsertPosition position = ContentInsertPosition.Tail)
         {
-            if (!IsVideoId(videoId))
-            {
-                return;
-            }
-
             var videoContent = await ResolveVideoItemAsync(videoId);
 
             AddQueuePlaylist(videoContent, position);
@@ -559,14 +545,14 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 }
             }
 
-            WeakReferenceMessenger.Default.Send<QueueItemAddedMessage, string>(new QueueItemAddedMessage(new() { AddedItem = item.VideoId }), item.VideoId);
+            WeakReferenceMessenger.Default.Send(new QueueItemAddedMessage(new() { AddedItem = item.VideoId }), item.VideoId);
         }
 
         public void RemoveQueue(IVideoContent item)
         {
             QueuePlaylist.RemoveOnScheduler(item);
             
-            WeakReferenceMessenger.Default.Send<QueueItemRemovedMessage, string>(new QueueItemRemovedMessage(new() { RemovedItem = item.VideoId }), item.VideoId);
+            WeakReferenceMessenger.Default.Send(new QueueItemRemovedMessage(new() { RemovedItem = item.VideoId }), item.VideoId);
         }
 
         public int RemoveQueueIfWatched()

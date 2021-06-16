@@ -35,7 +35,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
     public sealed class ChannelInfo : IChannel
     {
-        public NiconicoId ChannelId { get; set; }
+        public ChannelId ChannelId { get; set; }
 
         public string Name { get; set; }
 
@@ -79,10 +79,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
             SelectionModeToggleCommand = selectionModeToggleCommand;
         }
 
-        public string RawChannelId { get; set; }
-
-        private NiconicoId? _ChannelId;
-        public NiconicoId? ChannelId
+        private ChannelId? _ChannelId;
+        public ChannelId? ChannelId
         {
             get { return _ChannelId; }
             set { SetProperty(ref _ChannelId, value); }
@@ -141,12 +139,24 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            ChannelId = null;
+            ChannelInfo = null;
+
             if (parameters.TryGetValue("id", out string id))
             {
-                RawChannelId = id;
+                ChannelId = id;
+            }
+            else if (parameters.TryGetValue("id", out uint nonPrefixId))
+            {
+                ChannelId = nonPrefixId;
+            }
+            else if (parameters.TryGetValue("id", out ChannelId channelId))
+            {
+                ChannelId = channelId;
+            }
 
-                ChannelInfo = null;
-
+            if (ChannelId != null)
+            {
                 await UpdateChannelInfo();
             }
 
@@ -158,20 +168,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
         {
             try
             {
-                var channelInfo = await ChannelProvider.GetChannelInfo(RawChannelId);
+                var channelInfo = await ChannelProvider.GetChannelInfo(ChannelId.Value);
 
-                ChannelId = new NiconicoId(channelInfo.ChannelId, NiconicoIdType.Channel);
+                ChannelId = channelInfo.ChannelId;
                 ChannelName = channelInfo.Name;
                 ChannelScreenName = channelInfo.ScreenName;
                 ChannelOpenTime = channelInfo.ParseOpenTime();
                 ChannelUpdateTime = channelInfo.ParseUpdateTime();
-                ChannelInfo = new ChannelInfo() { ChannelId = ChannelId.Value, Name = ChannelName };
+                ChannelInfo = new ChannelInfo() { ChannelId = channelInfo.ChannelId, Name = ChannelName };
 
                 await UpdateFollowChannelAsync(ChannelInfo);
             }
             catch
             {
-                ChannelName = RawChannelId;
+                ChannelName = ChannelId;
             }
         }
 
@@ -242,13 +252,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
     public class ChannelVideoLoadingSource : IIncrementalSource<ChannelVideoListItemViewModel>
     {
-        public NiconicoId ChannelId { get; }
+        public ChannelId ChannelId { get; }
         public ChannelProvider ChannelProvider { get; }
 
-        public ChannelVideoLoadingSource(NiconicoId channelId, ChannelProvider channelProvider)
+        public ChannelVideoLoadingSource(ChannelId channelId, ChannelProvider channelProvider)
         {
-            if (!channelId.IsChannelId) { throw new InvalidOperationException(); }
-
             ChannelId = channelId;
             ChannelProvider = channelProvider;
         }

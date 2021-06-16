@@ -135,7 +135,7 @@ namespace Hohoema.Models.Domain.Player.Video
         public bool IsSuccess { get; }
 
 
-        public string ContentId { get; private set; }
+        public VideoId ContentId { get; private set; }
         
         public ImmutableArray<NicoVideoQualityEntity> AvailableQualities { get; }
 
@@ -144,13 +144,13 @@ namespace Hohoema.Models.Domain.Player.Video
 
         private readonly NiconicoSession _niconicoSession;
 
-        PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession)
+        PreparePlayVideoResult(VideoId contentId, NiconicoSession niconicoSession)
         {
             ContentId = contentId;
             _niconicoSession = niconicoSession;
         }
 
-        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, Exception e)
+        public PreparePlayVideoResult(VideoId contentId, NiconicoSession niconicoSession, Exception e)
             : this(contentId, niconicoSession)
         {
             Exception = e;
@@ -158,7 +158,7 @@ namespace Hohoema.Models.Domain.Player.Video
             IsSuccess = false;
         }
 
-        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, PreparePlayVideoFailedReason failedReason, DmcWatchApiData dmcWatchData = null)
+        public PreparePlayVideoResult(VideoId contentId, NiconicoSession niconicoSession, PreparePlayVideoFailedReason failedReason, DmcWatchApiData dmcWatchData = null)
             : this(contentId, niconicoSession)
         {
             AvailableQualities = ImmutableArray<NicoVideoQualityEntity>.Empty;
@@ -167,7 +167,7 @@ namespace Hohoema.Models.Domain.Player.Video
             _dmcWatchData = dmcWatchData;
         }
 
-        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, DmcWatchApiData dmcWatchData)
+        public PreparePlayVideoResult(VideoId contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, DmcWatchApiData dmcWatchData)
             : this(contentId, niconicoSession)
         {
             _ownershipManager = ownershipManager;
@@ -340,12 +340,12 @@ namespace Hohoema.Models.Domain.Player.Video
 
     public sealed class SessionOwnershipRemoveRequestedEventArgs
     {
-        public SessionOwnershipRemoveRequestedEventArgs(string videoId)
+        public SessionOwnershipRemoveRequestedEventArgs(VideoId videoId)
         {
             VideoId = videoId;
         }
 
-        public string VideoId { get; }
+        public VideoId VideoId { get; }
     }
 
 
@@ -385,13 +385,13 @@ namespace Hohoema.Models.Domain.Player.Video
             private readonly NicoVideoSessionOwnershipManager _ownershipManager;
 
             bool _isDisposed;
-            internal VideoSessionOwnership(string videoId, NicoVideoSessionOwnershipManager ownershipManager)
+            internal VideoSessionOwnership(VideoId videoId, NicoVideoSessionOwnershipManager ownershipManager)
             {
                 VideoId = videoId;
                 _ownershipManager = ownershipManager;
             }
 
-            public string VideoId { get; }
+            public VideoId VideoId { get; }
 
             public void Dispose()
             {
@@ -409,7 +409,7 @@ namespace Hohoema.Models.Domain.Player.Video
             }
         }
 
-        public async Task<VideoSessionOwnership> TryRentVideoSessionOwnershipAsync(string videoId, bool isPriorityRent)
+        public async Task<VideoSessionOwnership> TryRentVideoSessionOwnershipAsync(VideoId videoId, bool isPriorityRent)
         {
             if (CanAddDownloadLine())
             {
@@ -500,7 +500,7 @@ namespace Hohoema.Models.Domain.Player.Video
         readonly private NiconicoSession _niconicoSession;
         private readonly NicoVideoSessionOwnershipManager _nicoVideoSessionOwnershipManager;
 
-        public async Task<PreparePlayVideoResult> PreparePlayVideoAsync(string rawVideoId, bool noHistory = false)
+        public async Task<PreparePlayVideoResult> PreparePlayVideoAsync(VideoId rawVideoId, bool noHistory = false)
         {
             if (!Helpers.InternetConnection.IsInternet()) { return null; }
 
