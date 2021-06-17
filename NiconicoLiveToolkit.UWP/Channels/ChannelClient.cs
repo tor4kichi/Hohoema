@@ -158,7 +158,7 @@ namespace NiconicoToolkit.Channels
                                 }
                                 else if (countNode.ClassList.Contains("mylist"))
                                 {
-                                    item.MylistCount = countNode.QuerySelector("a > var").TextContent.ToInt();
+                                    item.MylistCount = countNode.QuerySelector("var").TextContent.ToInt();
                                 }
                             }
 
