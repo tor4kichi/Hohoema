@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Uno.Extensions;
 using Uno.Threading;
+using static Hohoema.Models.Domain.Niconico.Mylist.LoginUser.LoginUserMylistProvider;
 
 namespace Hohoema.Models.UseCase.NicoVideos
 {
@@ -26,17 +27,21 @@ namespace Hohoema.Models.UseCase.NicoVideos
         public LoginUserOwnedMylistManager(
             NiconicoSession niconicoSession,
             LoginUserMylistProvider loginUserMylistProvider,
-            NotificationService notificationService
+            NotificationService notificationService,
+            LoginUserMylistItemIdRepository loginUserMylistItemIdRepository
             )
         {
             _niconicoSession = niconicoSession;
             _loginUserMylistProvider = loginUserMylistProvider;
             _notificationService = notificationService;
+            _loginUserMylistItemIdRepository = loginUserMylistItemIdRepository;
             _mylists = new ObservableCollection<LoginUserMylistPlaylist>();
             Mylists = new ReadOnlyObservableCollection<LoginUserMylistPlaylist>(_mylists);
 
             _niconicoSession.LogIn += async (_, e) =>
             {
+                _loginUserMylistItemIdRepository.Clear();
+
                 try
                 {
                     using (await _mylistSyncLock.LockAsync(default))
@@ -88,6 +93,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
         readonly private NiconicoSession _niconicoSession;
         readonly private LoginUserMylistProvider _loginUserMylistProvider;
         private readonly NotificationService _notificationService;
+        private readonly LoginUserMylistItemIdRepository _loginUserMylistItemIdRepository;
 
         public LoginUserMylistPlaylist Deflist { get; private set; }
 

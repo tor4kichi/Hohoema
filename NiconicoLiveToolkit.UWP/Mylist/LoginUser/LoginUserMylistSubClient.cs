@@ -149,7 +149,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
         }
 
 
-        public async Task<ContentManageResult> RemoveWatchAfterItemsAsync(IEnumerable<string> itemIds)
+        public async Task<ContentManageResult> RemoveWatchAfterItemsAsync(IEnumerable<long> itemIds)
         {
             NameValueCollection dict = new NameValueCollection()
             {
@@ -165,13 +165,13 @@ namespace NiconicoToolkit.Mylist.LoginUser
         }
 
 
-        public async Task<MoveOrCopyMylistItemsResponse> MoveMylistItemsFromWatchAfterAsync(string mylistId, IEnumerable<string> itemIds)
+        public async Task<MoveOrCopyMylistItemsResponse> MoveMylistItemsFromWatchAfterAsync(string mylistId, IEnumerable<long> itemIds)
         {
             using var res = await MoveMylistItemsAsync_Internal(from: "deflist", to: mylistId, itemIds);
             return await res.Content.ReadAsAsync<MoveOrCopyMylistItemsResponse>();
         }
 
-        public async Task<MoveOrCopyMylistItemsResponse> CopyMylistItemsFromWatchAfterAsync(string mylistId, IEnumerable<string> itemIds)
+        public async Task<MoveOrCopyMylistItemsResponse> CopyMylistItemsFromWatchAfterAsync(string mylistId, IEnumerable<long> itemIds)
         {
             using var res = await CopyMylistItemsAsync_Internal(from: "deflist", to: mylistId, itemIds);
             return await res.Content.ReadAsAsync<MoveOrCopyMylistItemsResponse>();
@@ -235,7 +235,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
             return res.StatusCode.ToContentManagerResult();
         }
 
-        public async Task<ContentManageResult> RemoveMylistItemsAsync(string mylistId, IEnumerable<string> itemIds)
+        public async Task<ContentManageResult> RemoveMylistItemsAsync(string mylistId, IEnumerable<long> itemIds)
         {
             NameValueCollection dict = new NameValueCollection()
             {
@@ -252,19 +252,19 @@ namespace NiconicoToolkit.Mylist.LoginUser
             return res.StatusCode.ToContentManagerResult();
         }
 
-        public async Task<MoveOrCopyMylistItemsResponse> MoveMylistItemsAsync(string fromMylistId, string toMylistId, IEnumerable<string> itemIds)
+        public async Task<MoveOrCopyMylistItemsResponse> MoveMylistItemsAsync(string fromMylistId, string toMylistId, IEnumerable<long> itemIds)
         {
             using var res = await MoveMylistItemsAsync_Internal(from: fromMylistId, to: toMylistId, itemIds);
             return await res.Content.ReadAsAsync<MoveOrCopyMylistItemsResponse>();
         }
 
-        public async Task<MoveOrCopyMylistItemsResponse> CopyMylistItemsAsync(string fromMylistId, string toMylistId, IEnumerable<string> itemIds)
+        public async Task<MoveOrCopyMylistItemsResponse> CopyMylistItemsAsync(string fromMylistId, string toMylistId, IEnumerable<long> itemIds)
         {
             using var res = await CopyMylistItemsAsync_Internal(from: fromMylistId, to: toMylistId, itemIds);
             return await res.Content.ReadAsAsync<MoveOrCopyMylistItemsResponse>();
         }
 
-        private Task<HttpResponseMessage> MoveMylistItemsAsync_Internal(string from, string to, IEnumerable<string> itemIds)
+        private Task<HttpResponseMessage> MoveMylistItemsAsync_Internal(string from, string to, IEnumerable<long> itemIds)
         {
             NameValueCollection dict = new NameValueCollection()
             {
@@ -280,7 +280,7 @@ namespace NiconicoToolkit.Mylist.LoginUser
             return _context.PostAsync(url);
         }
 
-        private Task<HttpResponseMessage> CopyMylistItemsAsync_Internal(string from, string to, IEnumerable<string> itemIds)
+        private Task<HttpResponseMessage> CopyMylistItemsAsync_Internal(string from, string to, IEnumerable<long> itemIds)
         {
             NameValueCollection dict = new NameValueCollection()
             {

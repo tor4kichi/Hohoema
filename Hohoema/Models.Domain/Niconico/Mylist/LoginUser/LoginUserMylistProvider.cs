@@ -24,21 +24,26 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                 _collection.EnsureIndex(x => x.MylistGroupId);
             }
 
-            public void AddItem(string itemId, string mylistId, string videoId)
+            public void AddItem(long itemId, string mylistId, string videoId)
             {
                 _collection.Upsert(new LoginUserMylistItemIdEntry() { ItemId = itemId, MylistGroupId = mylistId, VideoId = videoId });
             }
 
-            public string GetItemId(string mylistId, string videoId)
+            public long GetItemId(string mylistId, string videoId)
             {
-                return _collection.FindOne(x => x.MylistGroupId == mylistId && x.VideoId == videoId)?.ItemId;
+                return _collection.FindOne(x => x.MylistGroupId == mylistId && x.VideoId == videoId)?.ItemId ?? throw new InvalidOperationException();
+            }
+
+            internal void Clear()
+            {
+                _collection.DeleteAll();
             }
         }
 
         public sealed class LoginUserMylistItemIdEntry
         {
             [BsonId]
-            public string ItemId { get; set; }
+            public long ItemId { get; set; }
 
             [BsonField]
             public string MylistGroupId { get; set; }
@@ -140,7 +145,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                 var items = res.Items;
                 foreach (var item in items)
                 {
-                    _loginUserMylistItemIdRepository.AddItem(item.ItemId.ToString(), mylist.MylistId, item.WatchId);
+                    _loginUserMylistItemIdRepository.AddItem(item.ItemId, mylist.MylistId, item.WatchId);
                 }
 
                 return items.Select(x => (x, MylistDataToNicoVideoData(x))).ToList();
@@ -153,7 +158,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                 var items = res.Items;
                 foreach (var item in items)
                 {
-                    _loginUserMylistItemIdRepository.AddItem(item.ItemId.ToString(), mylist.MylistId, item.WatchId);
+                    _loginUserMylistItemIdRepository.AddItem(item.ItemId, mylist.MylistId, item.WatchId);
                 }
 
                 return items.Select(x => (x, MylistDataToNicoVideoData(x))).ToList();
@@ -210,7 +215,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
         public async Task<ContentManageResult> RemoveMylistItem(MylistId mylistId, VideoId videoId)
         {
             var itemId = _loginUserMylistItemIdRepository.GetItemId(mylistId, videoId);
-            if (itemId == null) { return ContentManageResult.Failed; }
+
             if (mylistId.IsWatchAfterMylist)
             {
                 return await _niconicoSession.ToolkitContext.Mylist.LoginUser.RemoveWatchAfterItemsAsync(new[] { itemId });
