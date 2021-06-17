@@ -8,6 +8,7 @@ using Hohoema.Presentation.Services;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using NiconicoToolkit.Account;
 using NiconicoToolkit.Video;
+using System.Linq;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 {
@@ -162,7 +163,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             return args;
         }
 
-        public async Task<ContentManageResult> CopyItemAsync(MylistId targetMylistId, params VideoId[] itemIds)
+        public async Task<ContentManageResult> CopyItemAsync(MylistId targetMylistId, IEnumerable<VideoId> itemIds)
         {
             var result = await _loginUserMylistProvider.CopyMylistTo(MylistId, targetMylistId, itemIds);
             if (result.Meta.IsSuccess)
@@ -171,14 +172,14 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                 {
                     SourceMylistId = MylistId,
                     TargetMylistId = targetMylistId,
-                    SuccessedItems = itemIds
+                    SuccessedItems = result.Data.ProcessedIds.Select(x => (VideoId)x).ToArray()
                 });
             }
 
             return result.Meta.IsSuccess ? ContentManageResult.Success : ContentManageResult.Failed;
         }
 
-        public async Task<ContentManageResult> MoveItemAsync(MylistId targetMylistId, params VideoId[] itemIds)
+        public async Task<ContentManageResult> MoveItemAsync(MylistId targetMylistId, IEnumerable<VideoId> itemIds)
         {
             var result = await _loginUserMylistProvider.MoveMylistTo(MylistId, targetMylistId, itemIds);
             if (result.Meta.IsSuccess)
@@ -187,7 +188,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                 {
                     SourceMylistId = MylistId,
                     TargetMylistId = targetMylistId,
-                    SuccessedItems = itemIds
+                    SuccessedItems = result.Data.ProcessedIds.Select(x => (VideoId)x).ToArray()
                 });
             }
 

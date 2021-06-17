@@ -221,14 +221,14 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             }
         }
 
-        public async Task<MoveOrCopyMylistItemsResponse> CopyMylistTo(MylistId sourceMylistGroupId, MylistId targetGroupId, params VideoId[] videoIdList)
+        public async Task<MoveOrCopyMylistItemsResponse> CopyMylistTo(MylistId sourceMylistGroupId, MylistId targetGroupId, IEnumerable<VideoId> videoIdList)
         {
             var items = videoIdList.Select(x => _loginUserMylistItemIdRepository.GetItemId(sourceMylistGroupId, x));
             return await _niconicoSession.ToolkitContext.Mylist.LoginUser.CopyMylistItemsAsync(sourceMylistGroupId, targetGroupId, items.ToArray());
         }
 
 
-        public async Task<MoveOrCopyMylistItemsResponse> MoveMylistTo(MylistId sourceMylistGroupId, MylistId targetGroupId, params VideoId[] videoIdList)
+        public async Task<MoveOrCopyMylistItemsResponse> MoveMylistTo(MylistId sourceMylistGroupId, MylistId targetGroupId, IEnumerable<VideoId> videoIdList)
         {
             var items = videoIdList.Select(x => _loginUserMylistItemIdRepository.GetItemId(sourceMylistGroupId, x));
             return await _niconicoSession.ToolkitContext.Mylist.LoginUser.MoveMylistItemsAsync(sourceMylistGroupId, targetGroupId, items.ToArray());
