@@ -92,12 +92,13 @@ namespace Hohoema.Models.Domain.Playlist
 
             public bool DeletePlaylistItem(string playlistId, VideoId contentId)
             {
-                return _collection.DeleteMany(x => x.PlaylistId == playlistId && x.ContentId == contentId) > 0;
+                var strId = contentId.ToString();
+                return _collection.DeleteMany(x => x.PlaylistId == playlistId && x.ContentId == strId) > 0;
             }
 
             public int DeletePlaylistItem(string playlistId, IEnumerable<VideoId> contentId)
             {
-                var hashSet = contentId.ToHashSet();
+                var hashSet = contentId.Select(x => x.ToString()).ToHashSet();
                 return _collection.DeleteMany(x => x.PlaylistId == playlistId && hashSet.Contains(x.ContentId));
             }
 

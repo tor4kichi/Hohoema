@@ -15,13 +15,13 @@ namespace Hohoema.Models.Domain.Niconico.Community
         {
         }
 
-        public Task<CommunityInfoResponse> GetCommunityInfo(string communityId)
+        public Task<CommunityInfoResponse> GetCommunityInfo(CommunityId communityId)
         {
             return _niconicoSession.ToolkitContext.Community.GetCommunityInfoAsync(communityId);
         }
 
         public async Task<(CommunityVideoResponse, CommunityVideoListItemsResponse)> GetCommunityVideoAsync(
-            string communityId,
+            CommunityId communityId,
             int? offset,
             int? limit,
             CommunityVideoSortKey? sortKey,

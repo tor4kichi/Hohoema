@@ -90,7 +90,7 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
         public string Thread { get; set; }
 
         [JsonPropertyName("no")]
-        public int No { get; set; }
+        public uint No { get; set; }
 
         [JsonPropertyName("vpos")]
         public int Vpos { get; set; }

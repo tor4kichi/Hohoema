@@ -187,7 +187,7 @@ namespace Hohoema.Presentation.ViewModels
 
                         if (NiconicoSession.IsLoggedIn)
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.UserInfo, NiconicoSession.UserIdString);
+                            PageManager.OpenPageWithId(HohoemaPageType.UserInfo, NiconicoSession.UserId);
                         }
                     }));
             }

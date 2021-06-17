@@ -77,7 +77,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             {
                 Name = "WatchAfterMylist".Translate(),
                 Count = (int)defMylist.Data.Mylist.TotalItemCount,
-                UserId = _niconicoSession.UserIdString,
+                UserId = _niconicoSession.UserId,
                 ThumbnailImages = defMylist.Data.Mylist.Items.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
             };
         }
@@ -128,7 +128,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
         public async Task<List<(MylistItem MylistItem, NicoVideo NicoVideo)>> GetLoginUserMylistItemsAsync(IMylist mylist, int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
-            if (mylist.UserId != _niconicoSession.UserIdString)
+            if (mylist.UserId != _niconicoSession.UserId)
             {
                 throw new ArgumentException();
             }

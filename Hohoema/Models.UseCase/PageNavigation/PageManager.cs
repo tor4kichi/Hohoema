@@ -30,6 +30,10 @@ using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using NiconicoToolkit.Video;
+using NiconicoToolkit.User;
+using NiconicoToolkit.Mylist;
+using NiconicoToolkit.Channels;
+using NiconicoToolkit.Community;
 
 namespace Hohoema.Models.UseCase.PageNavigation
 {
@@ -129,19 +133,19 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         switch (followItem.FollowItemType)
                         {
                             case FollowItemType.User:
-                                OpenPageWithId(HohoemaPageType.UserInfo, followItem.Id);
+                                OpenPageWithId(HohoemaPageType.UserInfo, (UserId)followItem.Id);
                                 break;
                             case FollowItemType.Tag:
                                 this.Search(SearchTarget.Tag, followItem.Id);
                                 break;
                             case FollowItemType.Mylist:
-                                OpenPageWithId(HohoemaPageType.Mylist, followItem.Id);
+                                OpenPageWithId(HohoemaPageType.Mylist, (MylistId)followItem.Id);
                                 break;
                             case FollowItemType.Channel:
-                                OpenPageWithId(HohoemaPageType.ChannelVideo, followItem.Id);
+                                OpenPageWithId(HohoemaPageType.ChannelVideo, (ChannelId)followItem.Id);
                                 break;
                             case FollowItemType.Community:
-                                OpenPageWithId(HohoemaPageType.Community, followItem.Id);
+                                OpenPageWithId(HohoemaPageType.Community, (CommunityId)followItem.Id);
                                 break;
                             default:
                                 break;
@@ -385,9 +389,9 @@ namespace Hohoema.Models.UseCase.PageNavigation
             OpenPage(pageType, parameter, stackBehavior);
         }
 
-        public void OpenPageWithId(HohoemaPageType pageType, string id, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
+        public void OpenPageWithId<T>(HohoemaPageType pageType, T id, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
         {
-            INavigationParameters parameter = new NavigationParameters($"id={id}");
+            INavigationParameters parameter = new NavigationParameters(("id", id));
             OpenPage(pageType, parameter, stackBehavior);
         }
 

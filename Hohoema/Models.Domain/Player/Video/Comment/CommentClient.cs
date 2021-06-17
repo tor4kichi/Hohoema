@@ -126,14 +126,14 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
             return new VideoComment()
             {
                 CommentText = rawComment.Content,
-                CommentId = (uint)rawComment.No,
+                CommentId = rawComment.No,
                 VideoPosition = rawComment.Vpos.ToTimeSpan(),
                 UserId = rawComment.UserId,
                 Mail = rawComment.Mail,
                 NGScore = rawComment.Score ?? 0,
                 IsAnonymity = rawComment.Anonymity != 0,
-                IsLoginUserComment = _niconicoSession.IsLoggedIn && rawComment.UserId == _niconicoSession.UserIdString,
-                IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
+                IsLoginUserComment = _niconicoSession.IsLoggedIn && rawComment.Anonymity == 0 && rawComment.UserId == _niconicoSession.UserId,
+                //IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
                 DeletedFlag = rawComment.Deleted ?? 0
             };
         }

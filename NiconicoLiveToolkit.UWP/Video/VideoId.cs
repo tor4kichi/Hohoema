@@ -16,9 +16,10 @@ namespace NiconicoToolkit.Video
     {
         public readonly uint RawId;
         public readonly VideoIdType IdType;
+        public readonly string StrId;
 
 
-        public VideoId(int id, VideoIdType idType)
+        private VideoId(int id, VideoIdType idType)
         {
             if (id <= 0)
             {
@@ -27,12 +28,14 @@ namespace NiconicoToolkit.Video
 
             RawId = (uint)id;
             IdType = idType;
+            StrId = ToPrefixId(RawId, IdType);
         }
 
-        public VideoId(uint id, VideoIdType idType)
+        private VideoId(uint id, VideoIdType idType)
         {
             RawId = id;
             IdType = idType;
+            StrId = ToPrefixId(RawId, IdType);
         }
 
         public VideoId(int id)
@@ -45,7 +48,7 @@ namespace NiconicoToolkit.Video
         {
         }
 
-        public VideoId(string id, VideoIdType idType)
+        private VideoId(string id, VideoIdType idType)
         {
             var (number, realIdType) = ExtractIdNumberAndIdType(id);
             if (realIdType != idType)
@@ -55,11 +58,13 @@ namespace NiconicoToolkit.Video
 
             RawId = number;
             IdType = idType;
+            StrId = id;
         }
 
         public VideoId(string id)
         {
             (RawId, IdType) = ExtractIdNumberAndIdType(id);
+            StrId = id;
         }
 
 
@@ -190,28 +195,23 @@ namespace NiconicoToolkit.Video
         /// <returns>VideoId like "lv123456"</returns>
         public override string ToString()
         {
-            return IdType switch
+            return StrId;
+        }
+
+        public static string ToPrefixId(uint rawId, VideoIdType idType)
+        {
+            return idType switch
             {
-                VideoIdType.VideoForUser => ContentIdHelper.VideoIdPrefixForUser + RawId,
-                VideoIdType.VideoForChannel => ContentIdHelper.VideoIdPrefixForChannel + RawId,
-                VideoIdType.VideoAlias => RawId.ToString(),
+                VideoIdType.VideoForUser => ContentIdHelper.VideoIdPrefixForUser + rawId,
+                VideoIdType.VideoForChannel => ContentIdHelper.VideoIdPrefixForChannel + rawId,
+                VideoIdType.VideoAlias => rawId.ToString(),
                 _ => throw new InvalidOperationException(),
             };
         }
 
-        /// <summary>
-        /// Get VideoId "without" prefix.
-        /// </summary>
-        /// <returns>VideoId like "123456"</returns>
-        public string ToStringWithoutPrefix()
-        {
-            return RawId.ToString();
-        }
-
-
         public override int GetHashCode()
         {
-            return RawId.GetHashCode();
+            return StrId.GetHashCode();
         }
 
     }

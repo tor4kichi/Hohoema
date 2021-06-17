@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NiconicoToolkit.Channels;
+using NiconicoToolkit.Community;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.User;
@@ -310,6 +311,32 @@ namespace NiconicoToolkit.UWP.Test.Tests
             NiconicoId idB = new MylistId("123456");
 
             Assert.AreEqual(NiconicoIdType.Mylist, idB.IdType);
+            Assert.AreEqual(idA, idB);
+        }
+
+        #endregion
+
+
+
+        #region Test CommunityId
+
+        [TestMethod]
+        public void CommunityId_Equeal()
+        {
+            var idA = new CommunityId(123456);
+            var idB = new CommunityId("co123456");
+
+            Assert.AreEqual(idA, idB);
+        }
+
+
+        [TestMethod]
+        public void CommunityId_ToNiconicoId()
+        {
+            var idA = new CommunityId(123456);
+            NiconicoId idB = new CommunityId("co123456");
+
+            Assert.AreEqual(NiconicoIdType.Community, idB.IdType);
             Assert.AreEqual(idA, idB);
         }
 

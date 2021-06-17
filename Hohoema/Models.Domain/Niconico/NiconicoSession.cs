@@ -174,22 +174,12 @@ namespace Hohoema.Models.Domain.Niconico
         /// <summary>
         /// ユーザーID
         /// </summary>
-        private uint _UserId;
-        public uint UserId
+        private UserId _UserId;
+        public UserId UserId
         {
-            get { return _UserId; }
-            private set
-            {
-                if (SetProperty(ref _UserId, value))
-                {
-                    UserIdString = _UserId.ToString();
-                    RaisePropertyChanged(nameof(UserIdString));
-                }
-            }
-
+            get => _UserId;
+            private set => SetProperty(ref _UserId, value);
         }
-
-        public string UserIdString { get; private set; }
 
         string _UserName;
         public string UserName
@@ -229,7 +219,7 @@ namespace Hohoema.Models.Domain.Niconico
 
         public bool IsLoginUserId(UserId id)
         {
-            return UserIdString == id;
+            return UserId == id;
         }
 
         #region Login Manager

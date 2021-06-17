@@ -111,13 +111,13 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
         }
 
 
-        public async Task<bool> IsFollowingAsync(string id)
+        public async Task<bool> IsFollowingAsync(CommunityId id)
         {
             var res = await _niconicoSession.ToolkitContext.Community.GetCommunityAuthorityForLoginUserAsync(id);
             return res.Data?.IsMember ?? false;
         }
 
-        public Task<CommunityAuthorityResponse> GetCommunityAuthorityAsync(string id)
+        public Task<CommunityAuthorityResponse> GetCommunityAuthorityAsync(CommunityId id)
         {
             return _niconicoSession.ToolkitContext.Community.GetCommunityAuthorityForLoginUserAsync(id);
         }

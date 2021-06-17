@@ -52,7 +52,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         public async Task<List<MylistPlaylist>> GetUserMylistsAsync(UserId userId)
         {
-            if (_niconicoSession.UserIdString == userId)
+            if (_niconicoSession.UserId == userId)
             {
                 return _userMylistManager.Mylists.Cast<MylistPlaylist>().ToList();
             }

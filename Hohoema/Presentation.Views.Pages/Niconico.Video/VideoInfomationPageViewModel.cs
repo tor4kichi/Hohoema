@@ -441,43 +441,52 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             NowLoading.Value = true;
             IsLoadFailed.Value = false;
 
+            VideoId? videoId = null;
+            if (parameters.TryGetValue("id", out string strVideoId))
+            {
+                videoId = strVideoId;
+            }
+            else if (parameters.TryGetValue("id", out VideoId justVideoId))
+            {
+                videoId = justVideoId;
+            }
+
+            if (videoId == null)
+            {
+                IsLoadFailed.Value = true;
+                NowLoading.Value = false;
+                return;
+            }
+
             try
             {
-                if (parameters.TryGetValue("id", out string videoId))
-                {                    
-                    if (videoId == null)
+
+                // 投稿者情報やHTMLなDescriptionが必要なので、オンラインから情報取得
+                (_, VideoInfo) = await NicoVideoProvider.GetVideoInfoAsync(videoId.Value);
+
+                await UpdateVideoDescription();
+
+                if (NiconicoSession.IsLoggedIn)
+                {
+                    var owner = await NicoVideoProvider.ResolveVideoOwnerAsync(videoId.Value);
+                    FollowContext = VideoInfo.ProviderType switch
                     {
-                        IsLoadFailed.Value = true;
-                        throw new Models.Infrastructure.HohoemaExpception();
-                    }
+                        OwnerType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, owner),
+                        OwnerType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, owner),
+                        _ => null
+                    };
+                }
 
-                    // 投稿者情報やHTMLなDescriptionが必要なので、オンラインから情報取得
-                    (_, VideoInfo) = await NicoVideoProvider.GetVideoInfoAsync(videoId);
-                    
-                    await UpdateVideoDescription();
+                UpdateSelfZoning();
 
-                    if (NiconicoSession.IsLoggedIn)
-                    {
-                        var owner = await NicoVideoProvider.ResolveVideoOwnerAsync(videoId);
-                        FollowContext = VideoInfo.ProviderType switch
-                        {
-                            OwnerType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, owner),
-                            OwnerType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, owner),
-                            _ => null
-                        };
-                    }
+                OpenOwnerUserPageCommand.RaiseCanExecuteChanged();
+                OpenOwnerUserVideoPageCommand.RaiseCanExecuteChanged();
 
-                    UpdateSelfZoning();
-
-                    OpenOwnerUserPageCommand.RaiseCanExecuteChanged();
-                    OpenOwnerUserVideoPageCommand.RaiseCanExecuteChanged();
-
-                    // 好きの切り替え
-                    if(NiconicoSession.IsLoggedIn && VideoDetails != null)
-                    {
-                        LikesContext = new VideoLikesContext(VideoDetails, NiconicoSession.ToolkitContext.Likes, NotificationService);
-                    }
-                }                
+                // 好きの切り替え
+                if (NiconicoSession.IsLoggedIn && VideoDetails != null)
+                {
+                    LikesContext = new VideoLikesContext(VideoDetails, NiconicoSession.ToolkitContext.Likes, NotificationService);
+                }
             }
             catch (Exception ex)
             {

@@ -36,12 +36,13 @@ using NiconicoToolkit.Live.Timeshift;
 using NiconicoToolkit;
 using NiconicoToolkit.Recommend;
 using AngleSharp.Html.Parser;
+using NiconicoToolkit.Community;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 {
     public class LiveCommunityInfo : ICommunity
     {
-        public NiconicoId CommunityId { get; set; }
+        public CommunityId CommunityId { get; set; }
 
         public string Name { get; set; }
 

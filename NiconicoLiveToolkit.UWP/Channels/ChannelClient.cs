@@ -61,7 +61,7 @@ namespace NiconicoToolkit.Channels
 
         public Task<ChannelInfo> GetChannelInfoAsync(ChannelId channelId)
         {
-            return _context.GetJsonAsAsync<ChannelInfo>($"{NiconicoUrls.ChannelApiUrl}ch.info/{channelId.ToStringWithoutPrefix()}");
+            return _context.GetJsonAsAsync<ChannelInfo>($"{NiconicoUrls.ChannelApiUrl}ch.info/{channelId.ToStringWithoutPrefix()}", _options);
         }
 
         public Task<ChannelVideoResponse> GetChannelVideoAsync(ChannelId channelId, int page, ChannelVideoSortKey? sortKey = null, ChannelVideoSortOrder? sortOrder = null)

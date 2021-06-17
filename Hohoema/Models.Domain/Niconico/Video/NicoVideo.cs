@@ -78,12 +78,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         public bool Equals(IVideoContent other)
         {
-            return Id == other.VideoId;
+            return VideoId == other.VideoId;
         }
 
         public override int GetHashCode()
         {
-            return Id.GetHashCode();
+            return VideoId.GetHashCode();
         }
     }
 

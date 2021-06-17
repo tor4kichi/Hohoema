@@ -27,7 +27,7 @@ namespace Hohoema.Models.Domain.Niconico.User
             _nicoVideoProvider = nicoVideoProvider;
         }
 
-        public async Task<string> GetUserNameAsync(string userId)
+        public async Task<string> GetUserNameAsync(UserId userId)
         {
             try
             {
@@ -56,7 +56,7 @@ namespace Hohoema.Models.Domain.Niconico.User
             }
         }
 
-        public async Task<NicoVideoOwner> GetUserInfoAsync(string userId)
+        public async Task<NicoVideoOwner> GetUserInfoAsync(UserId userId)
         {
             var userRes = await _niconicoSession.ToolkitContext.User.GetUserInfoAsync(userId);
 

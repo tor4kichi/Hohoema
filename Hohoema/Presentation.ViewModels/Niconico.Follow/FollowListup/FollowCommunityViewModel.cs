@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.Niconico.Community;
 using NiconicoToolkit;
+using NiconicoToolkit.Community;
 using NiconicoToolkit.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
@@ -10,7 +11,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         private readonly IFollowCommunity _followCommunity;
 
-        public NiconicoId CommunityId => _followCommunity.GlobalId;
+        public CommunityId CommunityId => _followCommunity.GlobalId;
 
         public string Name => _followCommunity.Name;
 

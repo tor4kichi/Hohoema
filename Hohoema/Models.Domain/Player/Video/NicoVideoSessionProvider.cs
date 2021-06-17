@@ -308,7 +308,7 @@ namespace Hohoema.Models.Domain.Player.Video
                 commentClient.CommentServerInfo.CommunityThreadId = communityThread.Id;
             }
 
-            return Task.FromResult(new VideoCommentService(commentClient, _niconicoSession.UserIdString) as ICommentSession);
+            return Task.FromResult(new VideoCommentService(commentClient, _niconicoSession.UserId) as ICommentSession);
         }
 
 
