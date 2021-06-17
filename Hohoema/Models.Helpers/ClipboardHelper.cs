@@ -17,6 +17,7 @@ namespace Hohoema.Models.Helpers
         Community,
         User,
         Channel,
+        Series,
     }
 
 
@@ -96,7 +97,7 @@ namespace Hohoema.Models.Helpers
         {
             ClipboardDetectedEventArgs clipboardValue = null;
 
-            if (NiconicoToolkit.ContentIdHelper.IsVideoId(contentId))
+            if (NiconicoToolkit.ContentIdHelper.IsVideoId(contentId, allowNonPrefixId: false))
             {
                 clipboardValue = new ClipboardDetectedEventArgs()
                 {
@@ -129,23 +130,7 @@ namespace Hohoema.Models.Helpers
 
                 var contentId = contentIdGroup.Value;
 
-                if (NiconicoToolkit.ContentIdHelper.IsVideoId(contentId))
-                {
-                    clipboardValue = new ClipboardDetectedEventArgs()
-                    {
-                        Type = ContentType.Video,
-                        Id = contentId
-                    };
-                }
-                else if (NiconicoToolkit.ContentIdHelper.IsLiveId(contentId))
-                {
-                    clipboardValue = new ClipboardDetectedEventArgs()
-                    {
-                        Type = ContentType.Live,
-                        Id = contentId
-                    };
-                }
-                else if (contentTypeGroup.Success)
+                if (contentTypeGroup.Success)
                 {
                     var contentType = contentTypeGroup.Value;
                     switch (contentType)
@@ -178,6 +163,13 @@ namespace Hohoema.Models.Helpers
                                 Id = contentId
                             };
                             break;
+                        case "series":
+                            clipboardValue = new ClipboardDetectedEventArgs()
+                            {
+                                Type = ContentType.Series,
+                                Id = contentId
+                            };
+                            break;
                     }
                 }
                 else if (hostNameGroup.Success)
@@ -193,6 +185,22 @@ namespace Hohoema.Models.Helpers
                             Id = contentId
                         };
                     }
+                }
+                else if (NiconicoToolkit.ContentIdHelper.IsVideoId(contentId, allowNonPrefixId: false))
+                {
+                    clipboardValue = new ClipboardDetectedEventArgs()
+                    {
+                        Type = ContentType.Video,
+                        Id = contentId
+                    };
+                }
+                else if (NiconicoToolkit.ContentIdHelper.IsLiveId(contentId))
+                {
+                    clipboardValue = new ClipboardDetectedEventArgs()
+                    {
+                        Type = ContentType.Live,
+                        Id = contentId
+                    };
                 }
             }
 

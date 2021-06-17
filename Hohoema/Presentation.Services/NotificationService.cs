@@ -23,6 +23,7 @@ using NiconicoToolkit.Community;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
+using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.Services
 {
@@ -40,10 +41,12 @@ namespace Hohoema.Presentation.Services
         public UserProvider UserProvider { get; }
 
         private readonly IMessenger _messenger;
+        private readonly NiconicoSession _niconicoSession;
 
         public HohoemaNotificationService(
             PageManager pageManager,
             HohoemaPlaylist playlist,
+            NiconicoSession niconicoSession,
             NotificationService notificationService,
             NicoVideoProvider nicoVideoProvider,
             MylistProvider mylistProvider,
@@ -54,6 +57,7 @@ namespace Hohoema.Presentation.Services
         {
             PageManager = pageManager;
             Playlist = playlist;
+            _niconicoSession = niconicoSession;
             NotificationService = notificationService;
             NicoVideoProvider = nicoVideoProvider;
             MylistProvider = mylistProvider;
@@ -88,6 +92,9 @@ namespace Hohoema.Presentation.Services
                 case ContentType.Channel:
 
                     // TODO: 
+                    break;
+                case ContentType.Series:
+                    notificationPayload = SubmitSeriesSuggestion(id);
                     break;
                 default:
                     break;
@@ -301,7 +308,34 @@ namespace Hohoema.Presentation.Services
             };
         }
 
+        private async Task<InAppNotificationPayload> SubmitSeriesSuggestion(string seriesId)
+        {
+            var series = await _niconicoSession.ToolkitContext.Series.GetSeriesVideosAsync(seriesId);
 
+            if (!(series.Videos?.Any() ?? false))
+            {
+                return null;
+            }
+
+            return new InAppNotificationPayload()
+            {
+                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(series.Series.Title),
+                ShowDuration = DefaultNotificationShowDuration,
+                IsShowDismissButton = true,
+                Commands = {
+                        new InAppNotificationCommand()
+                        {
+                            Label = HohoemaPageType.Series.Translate(),
+                            Command = new DelegateCommand(() =>
+                            {
+                                PageManager.OpenPageWithId(HohoemaPageType.Series, seriesId);
+
+                                NotificationService.DismissInAppNotification();
+                            })
+                        }
+                    }
+            };
+        }
     }
 
     public sealed class NotificationService
