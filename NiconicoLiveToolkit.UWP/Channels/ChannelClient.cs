@@ -121,7 +121,7 @@ namespace NiconicoToolkit.Channels
 
                             item.ThumbnailUrl = imageNode.GetAttribute("src");
                             item.Length = lengthNode.TextContent.ToTimeSpan();
-                            item.CommentSummary = lastResNode.TextContent;
+                            item.CommentSummary = lastResNode?.TextContent ?? string.Empty;
                             var ppv = imageAnchorNode.QuerySelector(".purchase_type > span");
                             if (ppv != null)
                             {
