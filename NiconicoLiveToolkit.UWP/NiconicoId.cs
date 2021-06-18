@@ -61,7 +61,7 @@ namespace NiconicoToolkit
         {
             if (idWithPrefix == null || idWithPrefix.Length == 0)
             {
-                throw new ArgumentException();
+                return (0, NiconicoIdType.Unknown);
             }
 
             if (ContentIdHelper.IsAllDigit(idWithPrefix))

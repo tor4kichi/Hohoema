@@ -42,7 +42,7 @@ namespace NiconicoToolkit.SearchWithCeApi.Video
         public int MylistCount { get; set; }
 
         [JsonPropertyName("community_id")]
-        public string CommunityId { get; set; }
+        public NiconicoId CommunityId { get; set; }
 
         [JsonPropertyName("ppv_video")]
         [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
