@@ -111,9 +111,9 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             return res.Data?.Session?.IsFollowing ?? false;
         }
 
-        public async Task<ChannelAuthorityResponse> GetChannelAuthorityAsync(uint numberId)
+        public async Task<ChannelAuthorityResponse> GetChannelAuthorityAsync(ChannelId channelId)
         {
-            return await _niconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync(numberId);
+            return await _niconicoSession.ToolkitContext.Follow.Channel.GetChannelAuthorityAsync(channelId);
         }
 
         public async Task<ChannelAuthorityResponse> GetChannelAuthorityAsync(string channelScreenName)

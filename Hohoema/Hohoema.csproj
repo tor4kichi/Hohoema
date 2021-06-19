@@ -410,6 +410,13 @@
     <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\DebugPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityViewModel.cs" />
+    <Compile Include="Presentation.Views\Mylist\MylistCardView.cs" />
+    <Compile Include="Presentation.Views\Flyouts\ChannelInfoFlyout.xaml.cs">
+      <DependentUpon>ChannelInfoFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presentation.Views\Flyouts\UserInfoFlyout.xaml.cs">
+      <DependentUpon>UserInfoFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Presentation.Views.Pages\SettingsPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Hohoema.Subscription\SubscriptionManagementPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Subscriptions\AddKeywordSearchSubscriptionCommand.cs" />
@@ -584,9 +591,6 @@
     </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Live\LiveVideoListItem.xaml.cs">
       <DependentUpon>LiveVideoListItem.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\MylistListItem.xaml.cs">
-      <DependentUpon>MylistListItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Mylist\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
@@ -1048,6 +1052,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Presentation.Views\Mylist\MylistCardView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation.Views\Flyouts\ChannelInfoFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation.Views\Flyouts\UserInfoFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Presentation.Views.Pages\SettingsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1109,10 +1125,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Presentation.Views.Pages\Niconico.Live\LiveVideoListItem.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Mylist\MylistListItem.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

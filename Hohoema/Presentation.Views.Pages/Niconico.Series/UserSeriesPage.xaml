@@ -50,16 +50,9 @@
 
       <GridView.ItemTemplate>
         <DataTemplate x:DataType="viewModels:UserSeriesItemViewModel">
-          <uwpControls:DockPanel>
-            <Grid uwpControls:DockPanel.Dock="Top">
-              <uwpControls:ImageEx Source="{x:Bind ThumbnailUrl}" Height="80"  />
-            </Grid>
-
-            <StackPanel Spacing="16">
-              <TextBlock Text="{x:Bind Title}" TextWrapping="Wrap" />
-            </StackPanel>
-
-          </uwpControls:DockPanel>
+          <mylistView:MylistCardView xmlns:mylistView="using:Hohoema.Presentation.Views.Mylist"
+                                      PlaylistName="{x:Bind Title}" ImageUrl="{x:Bind ThumbnailUrl}" ImageCaption="{x:Bind ItemsCount}" ImageHeight="100"
+                                               />
         </DataTemplate>
       </GridView.ItemTemplate>
     </GridView>

@@ -216,7 +216,7 @@ namespace NiconicoToolkit.Follow
             public async Task<ChannelAuthorityResponse> GetChannelAuthorityAsync(ChannelId channelNumberId)
             {
                 return await _context.GetJsonAsAsync<ChannelAuthorityResponse>(
-                    $"{NiconicoUrls.PublicApiV1Url}channel/channelapp/channels/{channelNumberId}.json", _options
+                    $"{NiconicoUrls.PublicApiV1Url}channel/channelapp/channels/{channelNumberId.ToStringWithoutPrefix()}.json", _options
                     );
             }
 
@@ -248,14 +248,14 @@ namespace NiconicoToolkit.Follow
             public async Task<ChannelFollowResult> AddFollowChannelAsync(ChannelId channelId)
             {
                 var apiInfo = await GetFollowChannelApiInfo(channelId);
-                return await _context.GetJsonAsAsync<ChannelFollowResult>($"{apiInfo.AddApi}?{apiInfo.Params}");
+                return await _context.GetJsonAsAsync<ChannelFollowResult>($"{apiInfo.AddApi}?{apiInfo.Params}", _options);
             }
 
 
             public async Task<ChannelFollowResult> DeleteFollowChannelAsync(ChannelId channelId)
             {
                 var apiInfo = await GetFollowChannelApiInfo(channelId);
-                return await _context.GetJsonAsAsync<ChannelFollowResult>($"{apiInfo.DeleteApi}?{apiInfo.Params}");
+                return await _context.GetJsonAsAsync<ChannelFollowResult>($"{apiInfo.DeleteApi}?{apiInfo.Params}", _options);
 
             }
         }
@@ -425,7 +425,7 @@ namespace NiconicoToolkit.Follow
                 headers.Add("X-Request-With", "https://www.nicovideo.jp/my/follow");
             });
 
-            var result = await res.Content.ReadAsAsync<FollowedResultResponce>();
+            var result = await res.Content.ReadAsAsync<FollowedResultResponce>(_defaultOptions);
             return result.Data.IsFollowing;
         }
 
