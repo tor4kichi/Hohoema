@@ -10,8 +10,13 @@ using Hohoema.Presentation.ViewModels.Niconico.Ranking.Messages;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Ranking
 {
-    class UnFavoriteRankingGenreItemCommand : DelegateCommandBase
+    public sealed class UnFavoriteRankingGenreItemCommand : DelegateCommandBase
     {
+
+        public UnFavoriteRankingGenreItemCommand()
+        {
+        }
+
         protected override bool CanExecute(object parameter)
         {
             return parameter is RankingItem;
@@ -30,7 +35,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Ranking
                     throw new NotSupportedException();
                 }
 
-                StrongReferenceMessenger.Default.Send(new RankingGenreUnFavoriteRequestedEvent(new()
+                WeakReferenceMessenger.Default.Send(new RankingGenreUnFavoriteRequestedEvent(new()
                 {
                     RankingGenre = rankingItem.Genre.Value,
                     Tag = rankingItem.Tag

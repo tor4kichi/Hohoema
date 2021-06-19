@@ -151,7 +151,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
         public void PlayLiveVideoFromExternal(LiveId liveId)
         {
-            StrongReferenceMessenger.Default.Send(new PlayerPlayLiveRequestMessage(new() { LiveId = liveId }));
+            _messenger.Send(new PlayerPlayLiveRequestMessage(new() { LiveId = liveId }));
         }
 
 

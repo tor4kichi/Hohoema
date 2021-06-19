@@ -62,18 +62,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
     public class PageManager : BindableBase
     {
-        public PageManager(
-            IScheduler scheduler,
-            AppearanceSettings appearanceSettings,
-            VideoCacheSettings_Legacy cacheSettings,
-            HohoemaPlaylist playlist
-            )
-        {
-            Scheduler = scheduler;
-            AppearanceSettings = appearanceSettings;
-            CacheSettings = cacheSettings;
-            HohoemaPlaylist = playlist;
-        }
+        private readonly IMessenger _messenger;
 
 
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
@@ -97,6 +86,21 @@ namespace Hohoema.Models.UseCase.PageNavigation
             HohoemaPageType.VideoCacheIntroduction,
             HohoemaPageType.EpilogueIntroduction,
         };
+
+        public PageManager(
+            IScheduler scheduler,
+            IMessenger messenger,
+            AppearanceSettings appearanceSettings,
+            VideoCacheSettings_Legacy cacheSettings,
+            HohoemaPlaylist playlist
+            )
+        {
+            Scheduler = scheduler;
+            _messenger = messenger;
+            AppearanceSettings = appearanceSettings;
+            CacheSettings = cacheSettings;
+            HohoemaPlaylist = playlist;
+        }
 
         public static bool IsHiddenMenuPage(HohoemaPageType pageType)
         {
@@ -354,7 +358,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
         public void OpenDebugPage()
         {
-            StrongReferenceMessenger.Default.Send(new PageNavigationEvent(new ()
+            _messenger.Send(new PageNavigationEvent(new ()
             {
                 PageName = nameof(Presentation.Views.Pages.Hohoema.DebugPage),
                 IsMainViewTarget = true,
@@ -369,7 +373,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                 CurrentPageType = pageType;
                 CurrentPageNavigationParameters = parameter;
 
-                StrongReferenceMessenger.Default.Send(new PageNavigationEvent(new()
+                _messenger.Send(new PageNavigationEvent(new()
                 {
                     PageName = _pageTypeToName[pageType],
                     Paramter = parameter,
@@ -398,8 +402,6 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
         static readonly Dictionary<HohoemaPageType, string> _pageTypeToName = Enum.GetValues(typeof(HohoemaPageType))
             .Cast<HohoemaPageType>().Select(x => (x, x + "Page")).ToDictionary(x => x.x, x => x.Item2);
-
-
         public bool IsIgnoreRecordPageType(HohoemaPageType pageType)
 		{
 			return IgnoreRecordNavigationStack.Contains(pageType);

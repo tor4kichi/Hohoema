@@ -402,19 +402,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                             {
                                 if (true == await DialogService.ShowEditMylistGroupDialogAsync(data))
                                 {
-                                    var result = await LoginUserMylistProvider.UpdateMylist(mylist.MylistId, data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder);
+                                    var result = await LoginUserMylistProvider.UpdateMylist(mylist, data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder);
 
                                     if (result)
                                     {
-                                        mylist.Name = data.Name;
-                                        mylist.IsPublic = data.IsPublic;
-                                        mylist.DefaultSortKey = data.DefaultSortKey;
-                                        mylist.DefaultSortOrder = data.DefaultSortOrder;
-                                        mylist.Description = data.Description;
-
                                         Mylist.ForceNotify();
-
-                                        // TODO: IsPublicなどの情報を表示
 
                                         Microsoft.AppCenter.Analytics.Analytics.TrackEvent("Mylist_Edit");
 

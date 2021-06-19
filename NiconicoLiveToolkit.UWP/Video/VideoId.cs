@@ -8,8 +8,7 @@ namespace NiconicoToolkit.Video
 {
     public enum VideoIdType
     {
-        VideoForUser,
-        VideoForChannel,
+        Video,
         VideoAlias,
     }
     public readonly struct VideoId : IEquatable<VideoId>
@@ -86,13 +85,9 @@ namespace NiconicoToolkit.Video
             }
 
             ReadOnlySpan<char> prefix = idWithPrefix.AsSpan(0, 2);
-            if (prefix.SequenceEqual(ContentIdHelper.VideoIdPrefixForUser.AsSpan()))
+            if (ContentIdHelper.IsVideoId(idWithPrefix))
             {
-                return (idWithPrefix.Skip(2).ToUInt(), VideoIdType.VideoForUser);
-            }
-            else if (prefix.SequenceEqual(ContentIdHelper.VideoIdPrefixForChannel.AsSpan()))
-            {
-                return (idWithPrefix.Skip(2).ToUInt(), VideoIdType.VideoForChannel);
+                return (idWithPrefix.Skip(2).ToUInt(), VideoIdType.Video);
             }
             else
             {
@@ -108,15 +103,32 @@ namespace NiconicoToolkit.Video
         public static implicit operator VideoId(uint videoId) => new VideoId(videoId, VideoIdType.VideoAlias);
         public static implicit operator VideoId(string videoId) => new VideoId(videoId);
 
-        public static implicit operator NiconicoId(VideoId videoId) => new NiconicoId(videoId.RawId, FromVideoIdType(videoId.IdType));
+        public static implicit operator NiconicoId(VideoId videoId)
+        {
+            if (videoId.IdType == VideoIdType.Video)
+            {
+                return new NiconicoId(videoId.StrId, FromVideoIdType(videoId.IdType));
+            }
+            else
+            {
+                return new NiconicoId(videoId.RawId, FromVideoIdType(videoId.IdType));
+            }
+        }
+
         public static explicit operator VideoId(NiconicoId niconicoId)
         {
-            if (niconicoId.IsVideoId is false)
+            if (niconicoId.IsVideoId)
+            {
+                return new VideoId(niconicoId.StrId, ToVideoIdType(niconicoId.IdType));
+            }
+            else if (niconicoId.IsVideoAliasId)
+            {
+                return new VideoId(niconicoId.RawId, ToVideoIdType(niconicoId.IdType));
+            }
+            else
             {
                 throw new InvalidCastException();
             }
-
-            return new VideoId(niconicoId.RawId, ToVideoIdType(niconicoId.IdType));
         }
 
 
@@ -124,8 +136,7 @@ namespace NiconicoToolkit.Video
         {
             return idType switch
             {
-                NiconicoIdType.VideoForUser => VideoIdType.VideoForUser,
-                NiconicoIdType.VideoForChannel => VideoIdType.VideoForChannel,
+                NiconicoIdType.Video => VideoIdType.Video,
                 NiconicoIdType.VideoAlias => VideoIdType.VideoAlias,
                 NiconicoIdType.Unknown => VideoIdType.VideoAlias,
                 _ => throw new InvalidOperationException($"can not convert to {nameof(VideoIdType)} from {nameof(NiconicoIdType)} ({idType})"),
@@ -136,8 +147,7 @@ namespace NiconicoToolkit.Video
         {
             return idType switch
             {
-                VideoIdType.VideoForUser => NiconicoIdType.VideoForUser,
-                VideoIdType.VideoForChannel => NiconicoIdType.VideoForChannel,
+                VideoIdType.Video => NiconicoIdType.Video,
                 VideoIdType.VideoAlias => NiconicoIdType.VideoAlias,
                 _ => throw new InvalidOperationException(),
             };
@@ -202,8 +212,7 @@ namespace NiconicoToolkit.Video
         {
             return idType switch
             {
-                VideoIdType.VideoForUser => ContentIdHelper.VideoIdPrefixForUser + rawId,
-                VideoIdType.VideoForChannel => ContentIdHelper.VideoIdPrefixForChannel + rawId,
+                VideoIdType.Video => throw new InvalidOperationException(),
                 VideoIdType.VideoAlias => rawId.ToString(),
                 _ => throw new InvalidOperationException(),
             };

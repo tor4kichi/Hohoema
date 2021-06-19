@@ -12,8 +12,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {
     public sealed class OpenLiveContentCommand : DelegateCommandBase
     {
-        public OpenLiveContentCommand()
+        private readonly IMessenger _messenger;
+
+        public OpenLiveContentCommand(IMessenger messenger)
         {
+            _messenger = messenger;
         }
 
         protected override bool CanExecute(object parameter)
@@ -25,7 +28,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
         {
             if (parameter is ILiveContent liveContent)
             {
-                StrongReferenceMessenger.Default.Send(new PlayerPlayLiveRequestMessage(new () { LiveId = liveContent.LiveId }));
+                _messenger.Send(new PlayerPlayLiveRequestMessage(new () { LiveId = liveContent.LiveId }));
             }
         }
     }

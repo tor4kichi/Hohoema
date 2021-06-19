@@ -185,6 +185,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         public HohoemaPlaylist(
             IScheduler scheduler,
+            IMessenger messenger,
             PlaylistRepository playlistRepository,
             NicoVideoProvider nicoVideoProvider,
             MylistRepository mylistRepository,
@@ -194,7 +195,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             )
         {
             _scheduler = scheduler;
-            
+            _messenger = messenger;
             _player = new PlaylistPlayer(this, playerSettings);
             _player.PlayRequested += OnPlayRequested;
 
@@ -304,6 +305,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
 
         private readonly IScheduler _scheduler;
+        private readonly IMessenger _messenger;
         private readonly PlaylistPlayer _player;
         private readonly PlaylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
@@ -373,7 +375,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
 
         void OnPlayRequested(object sender, PlaylistPlayerPlayRequestEventArgs args)
         {
-            StrongReferenceMessenger.Default.Send(new PlayerPlayVideoRequestMessage(new() { VideoId = args.Content.VideoId, Position = args.Position }));
+            _messenger.Send(new PlayerPlayVideoRequestMessage(new() { VideoId = args.Content.VideoId, Position = args.Position }));
 
             RaisePropertyChanged(nameof(CurrentItem));
         } 
@@ -503,7 +505,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             {
                 message.Value.ContentId = item.VideoId;
                 message.Value.Index = index++;
-                WeakReferenceMessenger.Default.Send(message, item.VideoId);
+                _messenger.Send(message, item.VideoId);
             }
         }
 
@@ -545,14 +547,14 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 }
             }
 
-            WeakReferenceMessenger.Default.Send(new QueueItemAddedMessage(new() { AddedItem = item.VideoId }), item.VideoId);
+            _messenger.Send(new QueueItemAddedMessage(new() { AddedItem = item.VideoId }), item.VideoId);
         }
 
         public void RemoveQueue(IVideoContent item)
         {
             QueuePlaylist.RemoveOnScheduler(item);
-            
-            WeakReferenceMessenger.Default.Send(new QueueItemRemovedMessage(new() { RemovedItem = item.VideoId }), item.VideoId);
+
+            _messenger.Send(new QueueItemRemovedMessage(new() { RemovedItem = item.VideoId }), item.VideoId);
         }
 
         public int RemoveQueueIfWatched()
@@ -646,7 +648,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             // 視聴完了のイベントをトリガー
             VideoPlayed?.Invoke(this, new VideoPlayedEventArgs(playedItem.VideoId, (int)history.PlayCount));
 
-            StrongReferenceMessenger.Default.Send(new Events.VideoPlayedMessage(new () { ContentId = playedItem.VideoId, PlayedPosition = playedPosition }), playedItem.VideoId);
+            _messenger.Send(new Events.VideoPlayedMessage(new () { ContentId = playedItem.VideoId, PlayedPosition = playedPosition }), playedItem.VideoId);
         }
 
 

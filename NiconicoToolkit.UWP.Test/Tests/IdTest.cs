@@ -27,11 +27,10 @@ namespace NiconicoToolkit.UWP.Test.Tests
         [TestMethod]
         public void NiconicoId_VideoIdForUser()
         {
-            var id_test = new NiconicoId("sm1234567", NiconicoIdType.VideoForUser);
+            var id_test = new NiconicoId("sm1234567", NiconicoIdType.Video);
             Assert.IsFalse(id_test.IsUserId);
             Assert.IsTrue(id_test.IsVideoId);
-            Assert.IsTrue(id_test.IsVideoIdForUser);
-            Assert.IsFalse(id_test.IsVideoIdForChannel);
+            Assert.IsFalse(id_test.IsVideoAliasId);
             Assert.IsFalse(id_test.IsLiveId);
             Assert.IsFalse(id_test.IsCommunityId);
             Assert.IsFalse(id_test.IsChannelId);
@@ -42,17 +41,16 @@ namespace NiconicoToolkit.UWP.Test.Tests
         public void NiconicoId_VideoIdForUser_ParsePrefix()
         {
             var videoId_test2 = new NiconicoId("sm1234567");
-            Assert.AreEqual(NiconicoIdType.VideoForUser, videoId_test2.IdType);
+            Assert.AreEqual(NiconicoIdType.Video, videoId_test2.IdType);
         }
 
         [TestMethod]
         public void NiconicoId_VideoIdForChannel()
         {
-            var id_test = new NiconicoId("so1234567", NiconicoIdType.VideoForChannel);
+            var id_test = new NiconicoId("so1234567", NiconicoIdType.Video);
             Assert.IsFalse(id_test.IsUserId);
             Assert.IsTrue(id_test.IsVideoId);
-            Assert.IsFalse(id_test.IsVideoIdForUser);
-            Assert.IsTrue(id_test.IsVideoIdForChannel);
+            Assert.IsFalse(id_test.IsVideoAliasId);
             Assert.IsFalse(id_test.IsLiveId);
             Assert.IsFalse(id_test.IsCommunityId);
             Assert.IsFalse(id_test.IsChannelId);
@@ -64,7 +62,7 @@ namespace NiconicoToolkit.UWP.Test.Tests
         public void NiconicoId_VideoIdForChannel_ParsePrefix()
         {
             var videoId_test2 = new NiconicoId("so1234567");
-            Assert.AreEqual(NiconicoIdType.VideoForChannel, videoId_test2.IdType);
+            Assert.AreEqual(NiconicoIdType.Video, videoId_test2.IdType);
         }
 
 
@@ -74,8 +72,8 @@ namespace NiconicoToolkit.UWP.Test.Tests
             var id_test = new NiconicoId("lv222222");
             Assert.IsFalse(id_test.IsUserId);
             Assert.IsFalse(id_test.IsVideoId);
-            Assert.IsFalse(id_test.IsVideoIdForUser);
-            Assert.IsFalse(id_test.IsVideoIdForChannel);
+            Assert.IsFalse(id_test.IsVideoId);
+            Assert.IsFalse(id_test.IsVideoAliasId);
             Assert.IsTrue(id_test.IsLiveId);
             Assert.IsFalse(id_test.IsCommunityId);
             Assert.IsFalse(id_test.IsChannelId);
@@ -96,8 +94,7 @@ namespace NiconicoToolkit.UWP.Test.Tests
             var id_test = new NiconicoId("co1234567", NiconicoIdType.Community);
             Assert.IsFalse(id_test.IsUserId);
             Assert.IsFalse(id_test.IsVideoId);
-            Assert.IsFalse(id_test.IsVideoIdForUser);
-            Assert.IsFalse(id_test.IsVideoIdForChannel);
+            Assert.IsFalse(id_test.IsVideoAliasId);
             Assert.IsFalse(id_test.IsLiveId);
             Assert.IsTrue(id_test.IsCommunityId);
             Assert.IsFalse(id_test.IsChannelId);
@@ -117,8 +114,7 @@ namespace NiconicoToolkit.UWP.Test.Tests
             var id_test = new NiconicoId(1234567, NiconicoIdType.User);
             Assert.IsTrue(id_test.IsUserId);
             Assert.IsFalse(id_test.IsVideoId);
-            Assert.IsFalse(id_test.IsVideoIdForUser);
-            Assert.IsFalse(id_test.IsVideoIdForChannel);
+            Assert.IsFalse(id_test.IsVideoAliasId);
             Assert.IsFalse(id_test.IsLiveId);
             Assert.IsFalse(id_test.IsCommunityId);
             Assert.IsFalse(id_test.IsChannelId);
@@ -129,20 +125,20 @@ namespace NiconicoToolkit.UWP.Test.Tests
         [TestMethod]
         public void NiconicoId_Expected_InvalidVideoIdForChannel()
         {
-            Assert.ThrowsException<ArgumentException>(() => 
+            Assert.ThrowsException<ArgumentException>((Action)(() => 
             {
-                var id_test = new NiconicoId("sm1234567", NiconicoIdType.VideoForChannel);
-            });
+                var id_test = new NiconicoId("sm1234567", (NiconicoIdType)NiconicoIdType.Video);
+            }));
         }
 
         [Ignore]
         [TestMethod]
         public void NiconicoId_Expected_InvalidId()
         {
-            Assert.ThrowsException<ArgumentException>(() =>
+            Assert.ThrowsException<ArgumentException>((Action)(() =>
             {
-                var id_test = new NiconicoId("sm123456dd", NiconicoIdType.VideoForChannel);
-            });
+                var id_test = new NiconicoId("sm123456dd", (NiconicoIdType)NiconicoIdType.Video);
+            }));
         }
 
         [Ignore]
@@ -171,8 +167,8 @@ namespace NiconicoToolkit.UWP.Test.Tests
         [TestMethod]
         public void NiconicoId_NotEquals()
         {
-            var idA = new NiconicoId(123456, NiconicoIdType.VideoForUser);
-            var idB = new NiconicoId("sm1234567", NiconicoIdType.VideoForUser);
+            var idA = new NiconicoId(123456, NiconicoIdType.Video);
+            var idB = new NiconicoId("sm1234567", NiconicoIdType.Video);
 
             Assert.AreNotEqual(idA, idB);
         }
@@ -212,10 +208,13 @@ namespace NiconicoToolkit.UWP.Test.Tests
         public void VideoId()
         {
             var idA = new VideoId("sm12345");
-            Assert.AreEqual(VideoIdType.VideoForUser, idA.IdType);
+            Assert.AreEqual(VideoIdType.Video, idA.IdType);
 
             var idB = new VideoId("so012345");
-            Assert.AreEqual(VideoIdType.VideoForChannel, idB.IdType);
+            Assert.AreEqual(VideoIdType.Video, idB.IdType);
+
+            var idC = new VideoId("nm012345");
+            Assert.AreEqual(VideoIdType.Video, idC.IdType);
         }
 
 

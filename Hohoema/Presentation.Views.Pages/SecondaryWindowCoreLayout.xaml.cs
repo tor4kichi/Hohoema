@@ -38,13 +38,13 @@ namespace Hohoema.Presentation.Views.Pages
             _liteNotificationEventSubscriber.Dispose();
             _liteNotificationEventSubscriber = null;
 
-            StrongReferenceMessenger.Default.Unregister<LiteNotificationMessage>(this);
+            WeakReferenceMessenger.Default.Unregister<LiteNotificationMessage>(this);
         }
 
         private void SecondaryViewCoreLayout_Loaded(object sender, RoutedEventArgs e)
         {
             var currentContext = SynchronizationContext.Current;
-            StrongReferenceMessenger.Default.Register<LiteNotificationMessage>(this, (r, m) => 
+            WeakReferenceMessenger.Default.Register<LiteNotificationMessage>(this, (r, m) => 
                 {
                     if (currentContext != SynchronizationContext.Current)
                     {

@@ -163,7 +163,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 {
                     if (true == await _dialogService.ShowCreateMylistGroupDialogAsync(data))
                     {
-                        if (await mylist.UpdateMylistInfo(mylist.MylistId, data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder))
+                        if (await mylist.UpdateMylistInfo(data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder))
                         {
                             break;
                         }

@@ -161,6 +161,7 @@
     <Compile Include="HttpContentExtensions.cs" />
     <Compile Include="HttpStatusCodeHelper.cs" />
     <Compile Include="Ichiba\IchibaClient.cs" />
+    <Compile Include="IsExternalInit.cs" />
     <Compile Include="Likes\LikesClient.cs" />
     <Compile Include="Live\LiveId.cs" />
     <Compile Include="Mylist\MylistId.cs" />

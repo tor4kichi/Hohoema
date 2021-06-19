@@ -10,11 +10,13 @@ namespace NiconicoToolkit
     {
         public readonly uint RawId;
         public readonly NiconicoIdType IdType;
+        public readonly string? StrId;
 
         public NiconicoId(uint id, NiconicoIdType idType)
         {
             RawId = id;
             IdType = idType;
+            StrId = null;
         }
 
         public NiconicoId(uint id)
@@ -31,6 +33,7 @@ namespace NiconicoToolkit
 
             RawId = (uint)id;
             IdType = idType;
+            StrId = null;
         }
 
         public NiconicoId(int id)
@@ -42,18 +45,21 @@ namespace NiconicoToolkit
         public NiconicoId(string id, NiconicoIdType idType)
         {
             var (nonPrefixId, type) = IdTypeFromIdPrefix(id);
+#if DEBUG
             if (type != NiconicoIdType.Unknown && type != idType)
             {
                 throw new ArgumentException("Difference NiconicoContentIdType between argument idType and extract prefix from id.");
             }
-
+#endif
             RawId = nonPrefixId;
-            IdType = type;
+            IdType = type != NiconicoIdType.Unknown ? type : idType;
+            StrId = id;
         }
 
         public NiconicoId(string idWithPrefix)
         {
             (RawId, IdType) = IdTypeFromIdPrefix(idWithPrefix);
+            StrId = idWithPrefix;
         }
 
 
@@ -76,13 +82,9 @@ namespace NiconicoToolkit
 
             ReadOnlySpan<char> prefix = idWithPrefix.AsSpan(0, 2);            
             
-            if (prefix.SequenceEqual(ContentIdHelper.VideoIdPrefixForUser.AsSpan()))
+            if (ContentIdHelper.IsVideoId(idWithPrefix, allowNonPrefixId: false))
             {
-                return (idWithPrefix.Skip(2).ToUInt(), NiconicoIdType.VideoForUser);
-            }
-            else if (prefix.SequenceEqual(ContentIdHelper.VideoIdPrefixForChannel.AsSpan()))
-            {
-                return (idWithPrefix.Skip(2).ToUInt(), NiconicoIdType.VideoForChannel);
+                return (idWithPrefix.Skip(2).ToUInt(), NiconicoIdType.Video);
             }
             else if (prefix.SequenceEqual(ContentIdHelper.LiveIdPrefix.AsSpan()))
             {
@@ -98,11 +100,25 @@ namespace NiconicoToolkit
             }
             else
             {
-                return (idWithPrefix.ToUInt(), NiconicoIdType.Unknown);
+                return (0, NiconicoIdType.Unknown);
             }
 
         }
 
+        public static bool TryCreate(string maybeId, out NiconicoId id)
+        {
+            var (number, type) = IdTypeFromIdPrefix(maybeId);
+            if (type != NiconicoIdType.Unknown)
+            {
+                id = new NiconicoId(maybeId);
+                return true;
+            }
+            else
+            {
+                id = new NiconicoId();
+                return false;
+            }
+        }
 
         public static implicit operator int(NiconicoId id) => (int)id.RawId;
         public static implicit operator uint(NiconicoId id) => (uint)id.RawId;
@@ -178,12 +194,11 @@ namespace NiconicoToolkit
             return IdType switch
             {
                 NiconicoIdType.User => RawId.ToString(),
-                NiconicoIdType.VideoForUser => ContentIdHelper.VideoIdPrefixForUser + RawId.ToString(),
-                NiconicoIdType.VideoForChannel => ContentIdHelper.VideoIdPrefixForChannel + RawId.ToString(),
+                NiconicoIdType.Video => StrId ?? throw new InvalidOperationException(),
                 NiconicoIdType.VideoAlias => RawId.ToString(),
-                NiconicoIdType.Live => ContentIdHelper.LiveIdPrefix + RawId.ToString(),
-                NiconicoIdType.Community => ContentIdHelper.CommunityIdPrefix + RawId.ToString(),
-                NiconicoIdType.Channel => ContentIdHelper.ChannelIdPrefix + RawId.ToString(),
+                NiconicoIdType.Live => StrId ?? ContentIdHelper.LiveIdPrefix + RawId.ToString(),
+                NiconicoIdType.Community => StrId ?? ContentIdHelper.CommunityIdPrefix + RawId.ToString(),
+                NiconicoIdType.Channel => StrId ?? ContentIdHelper.ChannelIdPrefix + RawId.ToString(),
                 NiconicoIdType.Mylist => RawId.ToString(),
                 _ => RawId.ToString(),
             };
@@ -194,14 +209,13 @@ namespace NiconicoToolkit
         /// <returns></returns>
         public readonly override int GetHashCode()
         {
-            return RawId.GetHashCode();
+            return RawId != 0 ? RawId.GetHashCode() : StrId?.GetHashCode() ?? throw new InvalidOperationException();
         }
 
 
         public readonly bool IsUserId => IdType is NiconicoIdType.User;
-        public readonly bool IsVideoId => IdType is NiconicoIdType.VideoForUser or NiconicoIdType.VideoForChannel or NiconicoIdType.VideoAlias;
-        public readonly bool IsVideoIdForUser => IdType is NiconicoIdType.VideoForUser;
-        public readonly bool IsVideoIdForChannel => IdType is NiconicoIdType.VideoForChannel;
+        public readonly bool IsVideoId => IdType is NiconicoIdType.Video;
+        public readonly bool IsVideoAliasId => IdType is NiconicoIdType.VideoAlias;
         public readonly bool IsLiveId => IdType is NiconicoIdType.Live;
         public readonly bool IsCommunityId => IdType is NiconicoIdType.Community;
         public readonly bool IsChannelId => IdType is NiconicoIdType.Channel;
@@ -213,12 +227,12 @@ namespace NiconicoToolkit
     {
         Unknown,
         User,
-        VideoForUser,
-        VideoForChannel,
+        Video,
         VideoAlias,
         Live,
         Community,
         Channel,
         Mylist,
+        Series,
     }
 }

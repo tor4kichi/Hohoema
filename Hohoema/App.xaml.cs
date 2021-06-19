@@ -68,9 +68,11 @@ using Windows.Storage.AccessCache;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.AppCenter.Utils;
 using Microsoft.Extensions.Logging;
+using Hohoema.Models.Infrastructure;
 
 namespace Hohoema
 {
+
     /// <summary>
     /// 既定の Application クラスを補完するアプリケーション固有の動作を提供します。
     /// </summary>
@@ -109,20 +111,7 @@ namespace Hohoema
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 0;
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.RetryCount = 3;
 
-            // see@ https://www.typea.info/blog/index.php/2017/08/06/uwp_1/
-            try
-            {
-                var appcenter_settings = new Windows.ApplicationModel.Resources.ResourceLoader(".appcenter");
-                var appcenterSecrets = appcenter_settings.GetString("AppCenter_Secrets");
-
-                Crashes.SendingErrorReport += (sender, args) => { Debug.WriteLine(args.Report.ToString()); };
-                Crashes.SentErrorReport += (sender, args) => { Debug.WriteLine(args.Report.ToString()); };
-                AppCenter.SetUserId(Guid.NewGuid().ToString());                
-                AppCenter.Start(appcenterSecrets, typeof(Analytics), typeof(Crashes));
-                Crashes.NotifyUserConfirmation(UserConfirmation.AlwaysSend);
-            }
-            catch { }
-
+            
             this.InitializeComponent();
         }
 
@@ -143,8 +132,19 @@ namespace Hohoema
 
             if (args.StartKind == StartKinds.Launch)
             {
-                
+                // see@ https://www.typea.info/blog/index.php/2017/08/06/uwp_1/
+                try
+                {
+                    var appcenter_settings = new Windows.ApplicationModel.Resources.ResourceLoader(".appcenter");
+                    var appcenterSecrets = appcenter_settings.GetString("AppCenter_Secrets");
 
+                    Crashes.SendingErrorReport += (sender, args) => { Debug.WriteLine(args.Report.ToString()); };
+                    Crashes.SentErrorReport += (sender, args) => { Debug.WriteLine(args.Report.ToString()); };
+                    AppCenter.SetUserId(Guid.NewGuid().ToString());
+                    AppCenter.Start(appcenterSecrets, typeof(Analytics), typeof(Crashes));
+                    Crashes.NotifyUserConfirmation(UserConfirmation.AlwaysSend);
+                }
+                catch { }
             }
             else if (args.StartKind == StartKinds.Activate)
             {
@@ -207,7 +207,9 @@ namespace Hohoema
         public override void RegisterTypes(IContainerRegistry container)
         {
             var unityContainer = container.GetContainer();
-            
+
+            unityContainer.RegisterType<LocalObjectStorageHelper>(new InjectionFactory(c => new LocalObjectStorageHelper(new SystemTextJsonSerializer())));
+
             unityContainer.RegisterInstance<IMessenger>(WeakReferenceMessenger.Default);
 
             LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
@@ -220,8 +222,6 @@ namespace Hohoema
 
             // MediaPlayerを各ウィンドウごとに一つずつ作るように
             unityContainer.RegisterType<MediaPlayer>(new PerThreadLifetimeManager());
-
-            unityContainer.RegisterType<LocalObjectStorageHelper>(new InjectionConstructor(new JsonObjectSerializer()));
 
             // Service
             unityContainer.RegisterSingleton<PageManager>();

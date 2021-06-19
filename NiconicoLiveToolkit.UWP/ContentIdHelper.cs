@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace NiconicoToolkit
@@ -66,6 +67,10 @@ namespace NiconicoToolkit
 
         public const string VideoIdPrefixForUser = "sm";
         public const string VideoIdPrefixForChannel = "so";
+        public const string VideoIdPrefixForMadeOfOfficialMovieMaker = "nm";
+
+        internal const string VideoIdRegexBase = @"(?:sm|nm|so|ca|ax|yo|nl|ig|na|cw|z[a-e]|om|sk|yk)\d{1,14}"; // cd/fx/sd
+        readonly static Regex VideoIdRegex = new Regex('^' + VideoIdRegexBase + '$');
 
         public static bool IsVideoId(string id, bool allowNonPrefixId = true)
         {
@@ -73,11 +78,7 @@ namespace NiconicoToolkit
             {
                 return false;
             }
-            else if  (id.StartsWith(VideoIdPrefixForUser) && id.Skip(2).IsAllDigit())
-            {
-                return true;
-            }
-            else if (id.StartsWith(VideoIdPrefixForChannel) && id.Skip(2).IsAllDigit())
+            else if (VideoIdRegex.IsMatch(id))
             {
                 return true;
             }

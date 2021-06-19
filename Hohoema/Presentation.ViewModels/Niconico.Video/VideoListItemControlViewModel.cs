@@ -40,10 +40,12 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         private static readonly HohoemaPlaylist _hohoemaPlaylist;
         private static readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
         private static readonly VideoCacheManager _cacheManager;
+        private static readonly IMessenger _messenger;
         protected static readonly IScheduler _scheduler;
 
         static VideoItemViewModel()
         {
+            _messenger = App.Current.Container.Resolve<IMessenger>();
             _hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
             _cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
             _scheduler = App.Current.Container.Resolve<IScheduler>();
@@ -96,19 +98,19 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             if (_subsribedVideoId is not null and VideoId subscribedVideoId)
             {
-                WeakReferenceMessenger.Default.Unregister<VideoPlayedMessage, VideoId>(this, subscribedVideoId);
-                WeakReferenceMessenger.Default.Unregister<QueueItemAddedMessage, VideoId>(this, subscribedVideoId);
-                WeakReferenceMessenger.Default.Unregister<QueueItemRemovedMessage, VideoId>(this, subscribedVideoId);
-                WeakReferenceMessenger.Default.Unregister<QueueItemIndexUpdateMessage, VideoId>(this, subscribedVideoId);
-                WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<VideoPlayedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<QueueItemAddedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<QueueItemRemovedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<QueueItemIndexUpdateMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<VideoCacheStatusChangedMessage, VideoId>(this, subscribedVideoId);
                 _subsribedVideoId = null;
             }
 
-            WeakReferenceMessenger.Default.Register<VideoPlayedMessage, VideoId>(this, videoId);
-            WeakReferenceMessenger.Default.Register<QueueItemAddedMessage, VideoId>(this, videoId);
-            WeakReferenceMessenger.Default.Register<QueueItemRemovedMessage, VideoId>(this, videoId);
-            WeakReferenceMessenger.Default.Register<QueueItemIndexUpdateMessage, VideoId>(this, videoId);
-            WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage, VideoId>(this, videoId);
+            _messenger.Register<VideoPlayedMessage, VideoId>(this, videoId);
+            _messenger.Register<QueueItemAddedMessage, VideoId>(this, videoId);
+            _messenger.Register<QueueItemRemovedMessage, VideoId>(this, videoId);
+            _messenger.Register<QueueItemIndexUpdateMessage, VideoId>(this, videoId);
+            _messenger.Register<VideoCacheStatusChangedMessage, VideoId>(this, videoId);
 
             (IsQueueItem, QueueItemIndex) = _hohoemaPlaylist.IsQueuePlaylistItem(videoId);
             var cacheRequest = _cacheManager.GetVideoCache(videoId);
@@ -124,11 +126,11 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             if (_subsribedVideoId is not null and VideoId subscribedVideoId)
             {
-                WeakReferenceMessenger.Default.Unregister<VideoPlayedMessage, VideoId>(this, subscribedVideoId);
-                WeakReferenceMessenger.Default.Unregister<QueueItemAddedMessage, VideoId>(this, subscribedVideoId);
-                WeakReferenceMessenger.Default.Unregister<QueueItemRemovedMessage, VideoId>(this, subscribedVideoId);
-                WeakReferenceMessenger.Default.Unregister<QueueItemIndexUpdateMessage, VideoId>(this, subscribedVideoId);
-                WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<VideoPlayedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<QueueItemAddedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<QueueItemRemovedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<QueueItemIndexUpdateMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<VideoCacheStatusChangedMessage, VideoId>(this, subscribedVideoId);
                 _subsribedVideoId = null;
             }
         }
@@ -169,7 +171,10 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             IsWatched = watched;
             if (!watched)
             {
-                StrongReferenceMessenger.Default.Register<VideoPlayedMessage, VideoId>(this, videoId);
+                if (!_messenger.IsRegistered<VideoPlayedMessage, VideoId>(this, videoId))
+                {
+                    _messenger.Register<VideoPlayedMessage, VideoId>(this, videoId);
+                }
             }
             else
             {
@@ -184,7 +189,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             if (videoId != null)
             {
-                StrongReferenceMessenger.Default.Unregister<VideoPlayedMessage, VideoId>(this, videoId.Value);
+                _messenger.Unregister<VideoPlayedMessage, VideoId>(this, videoId.Value);
             }
         }
 
@@ -293,7 +298,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         private void UnsubscribeCacheState()
         {
-            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, VideoId>(this, VideoId);
+            _messenger.Unregister<VideoCacheStatusChangedMessage, VideoId>(this, VideoId);
         }
 
         #endregion

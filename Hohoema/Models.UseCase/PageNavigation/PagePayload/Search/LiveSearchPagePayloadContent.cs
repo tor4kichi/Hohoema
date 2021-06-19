@@ -3,7 +3,6 @@ using System.Runtime.Serialization;
 using Hohoema.Models.Domain.PageNavigation;
 using NiconicoToolkit.SearchWithPage.Live;
 using NiconicoToolkit.Live;
-using NiconicoToolkit.SearchWithPage.Live;
 
 namespace Hohoema.Models.UseCase.PageNavigation
 {

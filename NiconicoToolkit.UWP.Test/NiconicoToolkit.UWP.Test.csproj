@@ -124,6 +124,7 @@
     <Compile Include="Tests\ActivityTest.cs" />
     <Compile Include="Tests\ChannelTest.cs" />
     <Compile Include="Tests\CommunityTest.cs" />
+    <Compile Include="Tests\ExtractContenntIdTest.cs" />
     <Compile Include="Tests\FollowTest.cs" />
     <Compile Include="Tests\IchibaTest.cs" />
     <Compile Include="Tests\IdTest.cs" />

@@ -23,6 +23,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         IRecipient<PlayerPlayLiveRequestMessage>,
         IRecipient<ChangePlayerDisplayViewRequestMessage>
     {
+        private readonly IMessenger _messenger;
         private readonly ScondaryViewPlayerManager _secondaryPlayerManager;
         private readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
         
@@ -30,18 +31,22 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         FastAsyncLock _asyncLock = new FastAsyncLock();
 
         public VideoPlayRequestBridgeToPlayer(
+            IMessenger messenger,
             ScondaryViewPlayerManager playerViewManager,
-            PrimaryViewPlayerManager primaryViewPlayerManager
+            PrimaryViewPlayerManager primaryViewPlayerManager,
+            LocalObjectStorageHelper localObjectStorageHelper
             )
         {
+            _messenger = messenger;
             _secondaryPlayerManager = playerViewManager;
             _primaryViewPlayerManager = primaryViewPlayerManager;
+            _localObjectStorage = localObjectStorageHelper;
 
             DisplayMode = ReadDisplayMode();
 
-            StrongReferenceMessenger.Default.Register<PlayerPlayVideoRequestMessage>(this);
-            StrongReferenceMessenger.Default.Register<PlayerPlayLiveRequestMessage>(this);
-            StrongReferenceMessenger.Default.Register<ChangePlayerDisplayViewRequestMessage>(this);
+            _messenger.Register<PlayerPlayVideoRequestMessage>(this);
+            _messenger.Register<PlayerPlayLiveRequestMessage>(this);
+            _messenger.Register<ChangePlayerDisplayViewRequestMessage>(this);
         }
 
 
@@ -103,13 +108,13 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         }
 
 
-        static LocalObjectStorageHelper _localObjectStorage = new LocalObjectStorageHelper(new JsonObjectSerializer());
+        private readonly LocalObjectStorageHelper _localObjectStorage;
         void SaveDisplayMode()
         {
             _localObjectStorage.Save(nameof(PlayerDisplayView), DisplayMode);
         }
 
-        public static PlayerDisplayView ReadDisplayMode()
+        public PlayerDisplayView ReadDisplayMode()
         {
             return _localObjectStorage.Read<PlayerDisplayView>(nameof(PlayerDisplayView));
         }
