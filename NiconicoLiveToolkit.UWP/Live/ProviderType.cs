@@ -8,6 +8,7 @@ namespace NiconicoToolkit.Live
     {
         Channel,
         Community,
-        Official
+        Official,
+        User
     };
 }
