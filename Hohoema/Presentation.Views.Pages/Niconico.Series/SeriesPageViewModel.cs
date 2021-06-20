@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Video.Series;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Pins;
@@ -9,6 +10,7 @@ using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Series;
+using NiconicoToolkit.User;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
 using System;
@@ -66,8 +68,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
             set { SetProperty(ref _series, value); }
         }
 
-        private UserViewModel _user;
-        public UserViewModel User
+        private NicoVideoOwner _user;
+        public NicoVideoOwner User
         {
             get { return _user; }
             set { SetProperty(ref _user, value); }
@@ -82,7 +84,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
             {
                 _seriesDetails = await _seriesRepository.GetSeriesVideosAsync(seriesId);
                 Series = new UserSeriesItemViewModel(_seriesDetails);
-                User = new UserViewModel(_seriesDetails.Owner);
+                User = new NicoVideoOwner()
+                {
+                    OwnerId = _seriesDetails.Owner.Id,
+                    UserType = _seriesDetails.Owner.OwnerType,
+                    ScreenName = _seriesDetails.Owner.Nickname,
+                    IconUrl = _seriesDetails.Owner.IconUrl,
+                };
             }
 
             await base.OnNavigatedToAsync(parameters);
@@ -95,21 +103,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 
         
 
-        public class UserViewModel : IUser
-        {
-            private readonly SeriesDetails.SeriesOwner _userDetail;
-
-            public UserViewModel(SeriesDetails.SeriesOwner userDetail)
-            {
-                _userDetail = userDetail;
-            }
-
-            public string Id => _userDetail.Id;
-
-            public string Label => _userDetail.Nickname;
-
-            public string IconUrl => _userDetail.IconUrl;
-        }
+        
 
         public class UserSeriesItemViewModel : ISeries
         {

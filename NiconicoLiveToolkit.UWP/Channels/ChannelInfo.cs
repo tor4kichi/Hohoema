@@ -7,7 +7,7 @@ namespace NiconicoToolkit.Channels
     {
 
         [JsonPropertyName("channel_id")]
-        public int ChannelId { get; set; }
+        public ChannelId ChannelId { get; set; }
 
         [JsonPropertyName("category_id")]
         public int CategoryId { get; set; }

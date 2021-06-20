@@ -41,8 +41,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
                 playlist = localPlaylistManager.LocalPlaylists.Any() ?
                     await dialogService.ShowSingleSelectDialogAsync(
                     localPlaylistManager.LocalPlaylists.ToList(),
-                    nameof(LocalPlaylist.Label),
-                    (mylist, s) => mylist.Label.Contains(s),
+                    nameof(LocalPlaylist.Name),
+                    (mylist, s) => mylist.Name.Contains(s),
                     "SelectLocalMylist".Translate(),
                     "Select".Translate(),
                     "CreateNew".Translate(),

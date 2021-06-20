@@ -26,15 +26,16 @@ namespace NiconicoToolkit.Video.Watch
     {
         private readonly NiconicoContext _context;
         private readonly JsonSerializerOptions _options;
-
+        private readonly JsonSerializerOptions _dmcSessionSerializerOptions;
         public VideoWatchSubClient(NiconicoContext context, JsonSerializerOptions options)
         {
             _context = context;
             _options = options;
+            _dmcSessionSerializerOptions = new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull };
         }
 
 
-        public async Task<WatchPageResponse> GetInitialWatchDataAsync(string videoId, bool incrementViewCounter = true, bool addHistory = true, CancellationToken ct = default)
+        public async Task<WatchPageResponse> GetInitialWatchDataAsync(VideoId videoId, bool incrementViewCounter = true, bool addHistory = true, CancellationToken ct = default)
         {
             NameValueCollection dict = new();
             if (incrementViewCounter == false)
@@ -48,7 +49,7 @@ namespace NiconicoToolkit.Video.Watch
             }
 
             var url = new StringBuilder(NiconicoUrls.WatchPageUrl)
-                .Append(videoId)
+                .Append(videoId.ToString())
                 .AppendQueryString(dict)
                 .ToString();
 
@@ -95,7 +96,7 @@ namespace NiconicoToolkit.Video.Watch
 
 
 
-        public async Task<DmcWatchApiData> GetDmcWatchJsonAsync(string videoId, bool isLoggedIn, string actionTrackId)
+        public async Task<DmcWatchApiData> GetDmcWatchJsonAsync(VideoId videoId, bool isLoggedIn, string actionTrackId)
         {
             var dict = new NameValueCollection();
             dict.Add("_frontendId", "6");
@@ -110,7 +111,7 @@ namespace NiconicoToolkit.Video.Watch
             var url = new StringBuilder("https://www.nicovideo.jp/api/watch/")
                 .Append(isLoggedIn ? "v3" : "v3_guest")
                 .Append("/")
-                .Append(videoId)
+                .Append(videoId.ToString())
                 .AppendQueryString(dict)
                 .ToString();
 
@@ -146,7 +147,7 @@ namespace NiconicoToolkit.Video.Watch
         {
             var req = CreateDmcSessioRequest(watchData, videoQuality, audioQuality, hlsMode);
             var sessionUrl = $"{watchData.Media.Delivery.Movie.Session.Urls[0].UrlUnsafe}?_format=json";
-            var requestJson = JsonSerializer.Serialize(req, new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
+            var requestJson = JsonSerializer.Serialize(req, _dmcSessionSerializerOptions);
 #if WINDOWS_UWP
             return await _context.SendJsonAsAsync<DmcSessionResponse>(
                 HttpMethod.Post,
@@ -337,7 +338,7 @@ namespace NiconicoToolkit.Video.Watch
             var session = watch.Media.Delivery.Movie.Session;
             var sessionUrl = $"{session.Urls[0].UrlUnsafe}/{sessionRes.Data.Session.Id}?_format=json&_method=PUT";
             //var message = new HttpRequestMessage(HttpMethod.Post, new Uri(sessionUrl));
-            var requestJson = JsonSerializer.Serialize(sessionRes.Data, new JsonSerializerOptions()  { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull } );
+            var requestJson = JsonSerializer.Serialize(sessionRes.Data, _dmcSessionSerializerOptions);
 #if WINDOWS_UWP
             using var content = new HttpStringContent(requestJson, Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");
 #else
@@ -369,7 +370,7 @@ namespace NiconicoToolkit.Video.Watch
             var session = watch.Media.Delivery.Movie.Session;
             var sessionUrl = $"{session.Urls[0].UrlUnsafe}/{sessionRes.Data.Session.Id}?_format=json&_method=DELETE";
 
-            var requestJson = JsonSerializer.Serialize(sessionRes.Data, new JsonSerializerOptions() { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull });
+            var requestJson = JsonSerializer.Serialize(sessionRes.Data, _dmcSessionSerializerOptions);
 
 #if WINDOWS_UWP
             using var content = new HttpStringContent(requestJson, Windows.Storage.Streams.UnicodeEncoding.Utf8, "application/json");

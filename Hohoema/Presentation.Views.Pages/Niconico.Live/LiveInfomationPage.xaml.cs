@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Presentation.ViewModels.Pages.Niconico.Live;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,26 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Live
         public LiveInfomationPage()
         {
             this.InitializeComponent();
+
+            Loaded += LiveInfomationPage_Loaded;
+        }
+
+        private void LiveInfomationPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            _LoadingCalled = false;
+        }
+
+        bool _LoadingCalled;
+        private void Grid_EffectiveViewportChanged(FrameworkElement sender, EffectiveViewportChangedEventArgs args)
+        {
+            if (!_LoadingCalled && args.BringIntoViewDistanceY <= 0)
+            {
+                _LoadingCalled = true;
+
+                var vm = (DataContext as LiveInfomationPageViewModel);
+                vm.InitializeIchibaItems();
+                vm.InitializeLiveRecommend();
+            }
         }
     }
 }

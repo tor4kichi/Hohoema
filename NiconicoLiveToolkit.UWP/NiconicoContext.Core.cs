@@ -44,14 +44,35 @@ namespace NiconicoToolkit
             HttpClient.DefaultRequestHeaders.UserAgent.TryParseAdd($"{nameof(NiconicoToolkit)}/1.0 (+{yourSiteUrl})");
         }
 
-        JsonSerializerOptions _defaultOptions = new JsonSerializerOptions()
+        internal static readonly JsonSerializerOptions DefaultOptions = new JsonSerializerOptions()
         {
             Converters =
             {
                 new JsonStringEnumMemberConverter(),
-                new UserIdJsonConverter()
+                new NiconicoIdJsonConverter(),
+                new UserIdJsonConverter(),
+                new VideoIdJsonConverter(),
+                new LiveIdJsonConverter(),
+                new MylistIdJsonConverter(),
+                new ChannelIdJsonConverter(),
+                new CommunityIdJsonConverter(),
             },
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+        };
+
+        internal static readonly JsonSerializerOptions DefaultOptionsSnakeCase = new JsonSerializerOptions()
+        {
+            Converters =
+            {
+                new JsonStringEnumMemberConverter(JsonSnakeCaseNamingPolicy.Instance),
+                new NiconicoIdJsonConverter(),
+                new UserIdJsonConverter(),
+                new VideoIdJsonConverter(),
+                new LiveIdJsonConverter(),
+                new MylistIdJsonConverter(),
+                new ChannelIdJsonConverter(),
+                new CommunityIdJsonConverter(),
+            }
         };
 
 
@@ -60,23 +81,23 @@ namespace NiconicoToolkit
             )
         {
             HttpClient = httpClient;
-            Live = new LiveClient(this, _defaultOptions);
+            Live = new LiveClient(this, DefaultOptions);
             Account = new AccountClient(this);
-            User = new UserClient(this, _defaultOptions);
-            Video = new VideoClient(this, _defaultOptions);
-            Activity = new ActivityClient(this, _defaultOptions);
+            User = new UserClient(this, DefaultOptions);
+            Video = new VideoClient(this, DefaultOptions);
+            Activity = new ActivityClient(this, DefaultOptions);
             SearchWithPage = new SearchWithPageClient(this);
-            SearchWithCeApi = new SearchWithCeApiClient(this, _defaultOptions);
-            Recommend = new RecommendClient(this, _defaultOptions);
-            Channel = new ChannelClient(this, _defaultOptions);
-            Mylist = new MylistClient(this, _defaultOptions);
-            Follow = new FollowClient(this, _defaultOptions);
-            Series = new SeriesClient(this, _defaultOptions);
-            NicoRepo = new NicoRepoClient(this, _defaultOptions);
-            Likes = new LikesClient(this, _defaultOptions);
-            Community = new CommunityClient(this, _defaultOptions);
-            Ichiba = new IchibaClient(this, _defaultOptions);
-            Timeshift = new TimeshiftClient(this, _defaultOptions);
+            SearchWithCeApi = new SearchWithCeApiClient(this, DefaultOptions);
+            Recommend = new RecommendClient(this, DefaultOptions);
+            Channel = new ChannelClient(this, DefaultOptions);
+            Mylist = new MylistClient(this, DefaultOptions);
+            Follow = new FollowClient(this, DefaultOptions);
+            Series = new SeriesClient(this, DefaultOptions);
+            NicoRepo = new NicoRepoClient(this, DefaultOptions);
+            Likes = new LikesClient(this, DefaultOptions);
+            Community = new CommunityClient(this, DefaultOptions);
+            Ichiba = new IchibaClient(this, DefaultOptions);
+            Timeshift = new TimeshiftClient(this, DefaultOptions);
         }
 
 
@@ -132,9 +153,9 @@ namespace NiconicoToolkit
         #region 
 
 #if WINDOWS_UWP
-        internal Task PrepareCorsAsscessAsync(HttpMethod httpMethod, string uri)
+        internal async Task PrepareCorsAsscessAsync(HttpMethod httpMethod, string uri)
         {
-            return SendAsync(httpMethod, uri, content: null, headers => 
+            using var _ =  await SendAsync(httpMethod, uri, content: null, headers => 
             {
                 headers.Add("Access-Control-Request-Headers", "x-frontend-id,x-frontend-version,x-niconico-language,x-request-with");
                 headers.Add("Access-Control-Request-Method", httpMethod.Method);
@@ -182,7 +203,7 @@ namespace NiconicoToolkit
 
         internal async Task<T> GetJsonAsAsync<T>(Uri path, JsonSerializerOptions options = null)
         {
-            var res = await HttpClient.GetAsync(path);
+            using var res = await HttpClient.GetAsync(path);
             return await res.Content.ReadAsAsync<T>(options);
         }
 
@@ -204,16 +225,16 @@ namespace NiconicoToolkit
         }
 
 
-        internal Task<HttpResponseMessage> PostAsync(string path, IEnumerable<KeyValuePair<string, string>> form, CancellationToken ct = default)
+        internal async Task<HttpResponseMessage> PostAsync(string path, IEnumerable<KeyValuePair<string, string>> form, CancellationToken ct = default)
         {
-            var content = new HttpFormUrlEncodedContent(form);
-            return HttpClient.PostAsync(new Uri(path), content).AsTask(ct);
+            using var content = new HttpFormUrlEncodedContent(form);
+            return await HttpClient.PostAsync(new Uri(path), content).AsTask(ct);
         }
 
-        internal Task<HttpResponseMessage> PostAsync(Uri path, IEnumerable<KeyValuePair<string, string>> form, CancellationToken ct = default)
+        internal async Task<HttpResponseMessage> PostAsync(Uri path, IEnumerable<KeyValuePair<string, string>> form, CancellationToken ct = default)
         {
-            var content = new HttpFormUrlEncodedContent(form);
-            return HttpClient.PostAsync(path, content).AsTask(ct);
+            using var content = new HttpFormUrlEncodedContent(form);
+            return await HttpClient.PostAsync(path, content).AsTask(ct);
         }
 
 #else
@@ -248,7 +269,7 @@ namespace NiconicoToolkit
 
         internal async Task<HttpResponseMessage> SendAsync(HttpMethod httpMethod, Uri path, IHttpContent content = null, Action<HttpRequestHeaderCollection> headerFiller = null, HttpCompletionOption completionOption = HttpCompletionOption.ResponseContentRead, CancellationToken ct = default)
         {
-            var req = new HttpRequestMessage(httpMethod, path);
+            using var req = new HttpRequestMessage(httpMethod, path);
             headerFiller?.Invoke(req.Headers);
             req.Content = content;
             return await HttpClient.SendRequestAsync(req, completionOption).AsTask(ct);
@@ -261,7 +282,7 @@ namespace NiconicoToolkit
 
         internal async Task<HttpResponseMessage> SendAsync(HttpMethod httpMethod, Uri path, HttpContent content, Action<HttpRequestHeaders> headerFiller = null, HttpCompletionOption completionOption = HttpCompletionOption.ResponseHeadersRead, CancellationToken ct = default)
         {
-            var req = new HttpRequestMessage(httpMethod, path);
+            using var req = new HttpRequestMessage(httpMethod, path);
             req.Content = content;
             headerFiller?.Invoke(req.Headers);
             return await HttpClient.SendAsync(req, completionOption, ct);
@@ -280,17 +301,17 @@ namespace NiconicoToolkit
 
 
 #if WINDOWS_UWP
-        internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, string stringHttpContent, JsonSerializerOptions options = null, Action<HttpRequestHeaderCollection> headerModifier = null)
+        internal async Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, string stringHttpContent, JsonSerializerOptions options = null, Action<HttpRequestHeaderCollection> headerModifier = null)
 #else
-		internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, string stringHttpContent, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
+		internal async Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, string stringHttpContent, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
 #endif
         {
 #if WINDOWS_UWP
-            var content = new HttpStringContent(stringHttpContent);
+            using var content = new HttpStringContent(stringHttpContent);
 #else
-            var content = new HttpStringContent(stringHttpContent);
+            using var content = new HttpStringContent(stringHttpContent);
 #endif
-            return SendJsonAsAsync<T>(httpMethod, url, content, options, headerModifier);
+            return await SendJsonAsAsync<T>(httpMethod, url, content, options, headerModifier);
         }
 
 
@@ -305,17 +326,17 @@ namespace NiconicoToolkit
         }
 
 #if WINDOWS_UWP
-        internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, Uri url, Dictionary<string, string> pairs, JsonSerializerOptions options = null, Action<HttpRequestHeaderCollection> headerModifier = null)
+        internal async Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, Uri url, Dictionary<string, string> pairs, JsonSerializerOptions options = null, Action<HttpRequestHeaderCollection> headerModifier = null)
 #else
-		internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, Uri url, Dictionary<string, string> pairs, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
+		internal async Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, Uri url, Dictionary<string, string> pairs, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
 #endif
         {
 #if WINDOWS_UWP
-            var content = new HttpFormUrlEncodedContent(pairs);
+            using var content = new HttpFormUrlEncodedContent(pairs);
 #else
-            var content = new FormUrlEncodedContent(pairs);
+            using var content = new FormUrlEncodedContent(pairs);
 #endif
-            return SendJsonAsAsync<T>(httpMethod, url, content, options, headerModifier);
+            return await SendJsonAsAsync<T>(httpMethod, url, content, options, headerModifier);
         }
 
 
@@ -325,7 +346,7 @@ namespace NiconicoToolkit
 		internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, HttpContent httpContent = null, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
 #endif
         {
-            var message = await SendAsync(httpMethod, new Uri(url), httpContent, headerModifier);
+            using var message = await SendAsync(httpMethod, new Uri(url), httpContent, headerModifier);
             return await message.Content.ReadAsAsync<T>(options);
         }
 
@@ -335,7 +356,7 @@ namespace NiconicoToolkit
 		internal async Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, HttpContent httpContent = null, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
 #endif
         {
-            var message = await SendAsync(httpMethod, url, httpContent, headerModifier);
+            using var message = await SendAsync(httpMethod, url, httpContent, headerModifier);
             return await message.Content.ReadAsAsync<T>(options);
         }
 

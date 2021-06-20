@@ -31,7 +31,7 @@ namespace NiconicoToolkit.Mylist
         {
             _context = context;
             _defaultOptions = defaultOptions;
-            LoginUser = new LoginUserMylistSubClient(context);
+            LoginUser = new LoginUserMylistSubClient(context, defaultOptions);
         }
 
         internal static class Urls

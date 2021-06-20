@@ -37,8 +37,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             if (parameter is LocalPlaylist localPlaylist)
             {
                 if (await _dialogService.ShowMessageDialog(
-                    "DeleteLocalPlaylistDescription".Translate(localPlaylist.Label),
-                    "DeleteLocalPlaylistTitle".Translate(localPlaylist.Label),
+                    "DeleteLocalPlaylistDescription".Translate(localPlaylist.Name),
+                    "DeleteLocalPlaylistTitle".Translate(localPlaylist.Name),
                     "Delete".Translate(),
                     "Cancel".Translate()
                     ))

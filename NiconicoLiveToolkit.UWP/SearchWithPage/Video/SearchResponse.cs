@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AngleSharp.Html.Dom;
 using AngleSharp.Dom;
+using NiconicoToolkit.Video;
 
 namespace NiconicoToolkit.SearchWithPage.Video
 {
@@ -77,8 +78,8 @@ namespace NiconicoToolkit.SearchWithPage.Video
 				_element = element;
 			}
 
-			private string _id;
-			public string Id => _id ??= _element.GetAttribute("data-video-id");
+			private VideoId? _id;
+			public VideoId Id => _id ??= _element.GetAttribute("data-video-id");
 
 			private string _title;
 			public string Title => _title ??= _element.QuerySelector(".itemTitle").TextContent;

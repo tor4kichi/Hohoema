@@ -32,6 +32,7 @@ using Hohoema.Models.UseCase.VideoCache.Events;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Uno.Extensions;
 using Hohoema.Models.Domain.Niconico;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
 {
@@ -90,7 +91,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
                 .AddTo(_CompositeDisposable);
 
             IsAllowDownload = new ReactivePropertySlim<bool>(_videoCacheDownloadOperationManager.IsAllowDownload, mode: ReactivePropertyMode.DistinctUntilChanged);
-            IsAllowDownload.Subscribe(isAllowDownload => 
+            IsAllowDownload.Subscribe(isAllowDownload =>
             {
                 if (isAllowDownload)
                 {
@@ -100,7 +101,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
                 {
                     _videoCacheDownloadOperationManager.SuspendDownload();
                 }
-            });
+            })
+                .AddTo(_CompositeDisposable);
 
             AvairableStorageSizeNormalized = new[]
             {
@@ -238,13 +240,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
 
         void IRecipient<VideoCacheStatusChangedMessage>.Receive(VideoCacheStatusChangedMessage message)
         {
-            _scheduler.Schedule(async () =>
+            _scheduler.Schedule((Action)(async () =>
             {
                 var status = message.Value.CacheStatus;
                 CacheVideoViewModel itemVM = null;
                 foreach (var group in Groups)
                 {
-                    itemVM = group.Items.FirstOrDefault(x => x.Id == message.Value.VideoId);
+                    itemVM = group.Items.FirstOrDefault((Func<CacheVideoViewModel, bool>)(x => x.VideoId == message.Value.VideoId));
 
                     if (itemVM != null)
                     {
@@ -274,7 +276,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
                         group.Items.Insert(0, itemVM);
                     }
                 }
-            });
+            }));
         }
     }
 
@@ -286,17 +288,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
             VideoCacheItem videoCacheItem,
             IVideoContent data
             )
-            : this(videoCacheItem, data.Id, data.Label, data.ThumbnailUrl, data.Length, data.PostedAt)
+            : this(videoCacheItem, data.VideoId, data.Title, data.ThumbnailUrl, data.Length, data.PostedAt)
         {
         
         }
 
         private object recipient = new object();
 
-        public CacheVideoViewModel(VideoCacheItem videoCacheItem, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt)
+        public CacheVideoViewModel(VideoCacheItem videoCacheItem, VideoId rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt)
             : base(rawVideoId, title, thumbnailUrl, videoLength, postedAt)
         {
-            WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage, string>(recipient, RawVideoId, (r, m) => RefreshCacheRequestInfomation(m.Value.CacheStatus, m.Value.Item));
+            WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage, VideoId>(recipient, VideoId, (r, m) => RefreshCacheRequestInfomation(m.Value.CacheStatus, m.Value.Item));
             RefreshCacheRequestInfomation(videoCacheItem.Status, videoCacheItem);
         }
 
@@ -306,8 +308,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
         {
             base.Dispose();
 
-            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, string>(recipient, RawVideoId);
-            WeakReferenceMessenger.Default.Unregister<VideoCacheProgressChangedMessage, string>(this, RawVideoId);
+            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, VideoId>(recipient, VideoId);
+            WeakReferenceMessenger.Default.Unregister<VideoCacheProgressChangedMessage, VideoId>(this, VideoId);
         }
 
         public DateTime CacheRequestTime { get; internal set; }
@@ -350,7 +352,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
 
         void RefreshCacheRequestInfomation(VideoCacheStatus? cacheStatus, VideoCacheItem cacheItem = null)
         {
-            _scheduler.Schedule(() =>
+            _scheduler.Schedule((Action)(() =>
             {
                 DownloadProgress = cacheItem?.GetProgressNormalized() ?? 0;
                 HasCacheProgress = cacheStatus is VideoCacheStatus.Downloading or VideoCacheStatus.DownloadPaused;
@@ -360,16 +362,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
 
                 if (cacheStatus is VideoCacheStatus.Downloading)
                 {
-                    if (!WeakReferenceMessenger.Default.IsRegistered<VideoCacheProgressChangedMessage, string>(this, RawVideoId))
+                    if (!WeakReferenceMessenger.Default.IsRegistered<VideoCacheProgressChangedMessage, VideoId>(this, (string)base.VideoId))
                     {
-                        WeakReferenceMessenger.Default.Register<VideoCacheProgressChangedMessage, string>(this, RawVideoId);
+                        WeakReferenceMessenger.Default.Register((IRecipient<VideoCacheProgressChangedMessage>)this, (string)base.VideoId);
                     }
                 }
                 else
                 {
-                    WeakReferenceMessenger.Default.Unregister<VideoCacheProgressChangedMessage, string>(this, RawVideoId);
+                    WeakReferenceMessenger.Default.Unregister<VideoCacheProgressChangedMessage, VideoId>(this, (string)base.VideoId);
                 }
-            });
+            }));
         }
 
         void IRecipient<VideoCacheProgressChangedMessage>.Receive(VideoCacheProgressChangedMessage message)

@@ -12,6 +12,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Ranking
 {
     public sealed class FavoriteRankingGenreItemCommand : DelegateCommandBase
     {
+
+        public FavoriteRankingGenreItemCommand()
+        {
+        }
+
         protected override bool CanExecute(object parameter)
         {
             return parameter is RankingItem;
@@ -34,7 +39,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Ranking
                     throw new NotSupportedException();
                 }
 
-                StrongReferenceMessenger.Default.Send(new RankingGenreFavoriteRequestedEvent(new ()
+                WeakReferenceMessenger.Default.Send(new RankingGenreFavoriteRequestedEvent(new ()
                 {
                     RankingGenre = rankingItem.Genre.Value,
                     Tag = rankingItem.Tag,

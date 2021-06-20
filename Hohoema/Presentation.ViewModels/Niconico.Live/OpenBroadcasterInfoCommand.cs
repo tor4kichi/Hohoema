@@ -23,13 +23,13 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
 
         protected override bool CanExecute(object parameter)
         {
-            return parameter is ILiveContent liveContent
+            return parameter is ILiveContentProvider liveContent
                 && !string.IsNullOrEmpty(liveContent.ProviderId);
         }
 
         protected override void Execute(object parameter)
         {
-            if (parameter is ILiveContent content)
+            if (parameter is ILiveContentProvider content)
             {
                 if (!string.IsNullOrEmpty(content.ProviderId))
                 {

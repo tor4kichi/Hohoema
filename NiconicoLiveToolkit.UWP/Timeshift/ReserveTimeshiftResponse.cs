@@ -47,7 +47,7 @@ namespace NiconicoToolkit.Live.Timeshift
         public string Uid { get; private set; }
 
         [JsonPropertyName("vid")]
-        public string Vid { get; private set; }
+        public LiveId Vid { get; private set; }
 
         [JsonPropertyName("overwrite")]
         public ReserveTimeshiftOverwrite Overwrite { get; private set; }
@@ -57,7 +57,7 @@ namespace NiconicoToolkit.Live.Timeshift
     public sealed class ReserveTimeshiftOverwrite
     {
         [JsonPropertyName("vid")]
-        public string Vid { get; private set; }
+        public LiveId Vid { get; private set; }
 
         [JsonPropertyName("title")]
         public string Title { get; private set; }

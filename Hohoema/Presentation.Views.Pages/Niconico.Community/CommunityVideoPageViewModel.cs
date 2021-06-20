@@ -21,17 +21,13 @@ using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Microsoft.Toolkit.Collections;
+using NiconicoToolkit.Community;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 {
 	using CommunityFollowContext = FollowContext<ICommunity>;
 
-    public class CommunityInfo : ICommunity
-    {
-        public string Id { get; internal set; }
-
-        public string Label { get; internal set; }
-    }
+    
 
     public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>, IPinablePage, ITitleUpdatablePage
 	{
@@ -74,7 +70,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 		}
 
 
-        public string CommunityId { get; private set; }
+        public CommunityId? CommunityId { get; private set; }
 
 		private string _CommunityName;
 		public string CommunityName
@@ -93,38 +89,51 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 		
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            if (parameters.TryGetValue("id", out string id))
+			CommunityId? communityId = null;
+			if (parameters.TryGetValue("id", out string strCommunityId))
+			{
+				communityId = strCommunityId;
+			}
+			else if (parameters.TryGetValue("id", out CommunityId justCommunityId))
+			{
+				communityId = justCommunityId;
+			}
+
+
+			if (communityId == null)
             {
-                CommunityId = id;
+				CommunityId = null;
+				CommunityName = null;
+				FollowContext = CommunityFollowContext.Default;
+				return;
+            }
 
-                try
-                {
-                    var res = await CommunityProvider.GetCommunityInfo(CommunityId);
-                    
-                    CommunityName = res.Community.Name;
-				}
-				catch
-                {
-                    Debug.WriteLine("コミュ情報取得に失敗");
-                }
+			CommunityId = communityId;
+
+			try
+			{
+				var res = await CommunityProvider.GetCommunityInfo(CommunityId.Value);
+
+				CommunityName = res.Community.Name;
+			}
+			catch
+			{
+				Debug.WriteLine("コミュ情報取得に失敗");
+			}
 
 
-				try
-                {
-					FollowContext = CommunityFollowContext.Default;
-					var authority = await _communityFollowProvider.GetCommunityAuthorityAsync(CommunityId);
-					if (!authority.Data.IsOwner)
-					{
-						if (!string.IsNullOrWhiteSpace(CommunityId))
-						{
-							FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, new CommunityInfo() { Id = CommunityId, Label = CommunityName });
-						}
-					}
+			try
+			{
+				FollowContext = CommunityFollowContext.Default;
+				var authority = await _communityFollowProvider.GetCommunityAuthorityAsync(CommunityId.Value);
+				if (!authority.Data.IsOwner)
+				{
+					FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, new CommunityViewModel() { CommunityId = CommunityId.Value, Name = CommunityName });
 				}
-                catch
-                {
-					FollowContext = CommunityFollowContext.Default;
-				}
+			}
+			catch
+			{
+				FollowContext = CommunityFollowContext.Default;
 			}
 
 			await base.OnNavigatedToAsync(parameters);

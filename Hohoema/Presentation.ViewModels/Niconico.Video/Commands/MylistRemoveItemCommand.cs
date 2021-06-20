@@ -22,7 +22,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            _playlist.RemoveItem(content.Id);
+            _playlist.RemoveItem(content.VideoId);
         }
     }
 }

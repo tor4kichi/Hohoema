@@ -12,6 +12,7 @@
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
+  
   mc:Ignorable="d"
   NavigationCacheMode="Enabled"
   Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
@@ -60,16 +61,20 @@
           </CommandBar>
         </Grid>
       </GridView.Header>
-      <GridView.ItemTemplate>
-        <DataTemplate>
-          <local:MylistListItem />
-        </DataTemplate>
-      </GridView.ItemTemplate>
       <GridView.ItemsPanel>
         <ItemsPanelTemplate>
-          <ItemsWrapGrid x:Name="ItemsPanel" Orientation="Horizontal" />
+          <ItemsWrapGrid x:Name="ItemsPanel" Orientation="Horizontal" ItemWidth="200"/>
         </ItemsPanelTemplate>
       </GridView.ItemsPanel>
+      <GridView.ItemTemplate>
+        <DataTemplate x:DataType="mylistModel:LoginUserMylistPlaylist"
+                      xmlns:mylistModel="using:Hohoema.Models.Domain.Niconico.Mylist.LoginUser"
+                      >
+          <mylistView:MylistCardView xmlns:mylistView="using:Hohoema.Presentation.Views.Mylist" 
+                                     PlaylistName="{x:Bind Name}" ImageUrl="{x:Bind ThumbnailImage}" ImageCaption="{x:Bind Count}"
+                                     />
+        </DataTemplate>
+      </GridView.ItemTemplate>
     </GridView>
 
     <VisualStateManager.VisualStateGroups>

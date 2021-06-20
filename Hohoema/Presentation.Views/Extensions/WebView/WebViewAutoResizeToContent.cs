@@ -36,8 +36,14 @@ namespace Hohoema.Presentation.Views.Behaviors
                 h => _parent.SizeChanged += h,
                 h => _parent.SizeChanged -= h
                 )
-                .Where(_=> !double.IsNaN(_parent.ActualWidth) && _parent.ActualWidth != this.AssociatedObject.Width)
-                .Do(_ => this.AssociatedObject.Width = _parent.ActualWidth)
+                .Where(_=> !double.IsNaN(_parent.ActualWidth) && _parent.ActualWidth != this.AssociatedObject?.Width)
+                .Do(_ =>
+                {
+                    if (this.AssociatedObject != null)
+                    {
+                        this.AssociatedObject.Width = _parent.ActualWidth;
+                    }
+                })
                 .Throttle(TimeSpan.FromSeconds(1))
                 .Subscribe(_ => 
                 {

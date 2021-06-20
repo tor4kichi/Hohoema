@@ -40,6 +40,7 @@
         <ResourceDictionary Source="Presentation.Views/Controls/LiteInAppNotification/LiteInAppNotification.xaml"/>
         <ResourceDictionary Source="Presentation.Views/Controls/VideoList/VideoListItem/VideoListItem.xaml"/>
         <ResourceDictionary Source="Presentation.Views/Controls/VideoList/VideoListItemControl/VideoListItemControl.xaml"/>
+        <ResourceDictionary Source="Presentation.Views/Mylist/MylistCardView.xaml"/>
 
         <muxc:XamlControlsResources  />
 

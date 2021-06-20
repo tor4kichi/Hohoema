@@ -85,7 +85,7 @@ namespace NiconicoToolkit.Live.Notify
     public sealed class NotifyboxContent
     {
         [J("id")]
-        public string Id { get; set; }
+        public LiveId Id { get; set; }
 
         [J("title")]
         public string Title { get; set; }

@@ -1,6 +1,7 @@
 ﻿using NiconicoToolkit.Live;
 using Hohoema.Models.Domain.Niconico.Live;
 using System;
+using NiconicoToolkit;
 
 namespace Hohoema.Presentation.ViewModels.Community
 {
@@ -18,21 +19,16 @@ namespace Hohoema.Presentation.ViewModels.Community
 
 
 
-		public string LiveId { get; private set; }
-		public string LiveTitle { get; private set; }
+		public LiveId LiveId { get; private set; }
+		public string Title { get; private set; }
 		public string StreamerName { get; private set; }
 		public DateTime StartTime { get; private set; }
 
         public string BroadcasterId => null;
 
-        public string Id => LiveId;
+        public NiconicoId Id => LiveId;
 
-        public string Label => LiveTitle;
+        public string Label => Title;
 
-        public string ProviderId => null;
-
-        public string ProviderName => StreamerName;
-
-        public ProviderType ProviderType => ProviderType.Official;
     }
 }

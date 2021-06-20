@@ -14,6 +14,8 @@ namespace Hohoema.Models.UseCase.VideoCache
 {
     public sealed class NotificationCacheVideoDeletedService : IRecipient<VideoDeletedMessage>
     {
+        private readonly IMessenger _messenger;
+
         /// <summary>
         /// Models.Provider.NicoVideoProvider内で検出した動画削除のイベントを受けて
         /// キャッシュされた動画を削除します
@@ -21,14 +23,17 @@ namespace Hohoema.Models.UseCase.VideoCache
         /// <param name="videoCacheManager"></param>
         /// <param name="notificationService"></param>
         public NotificationCacheVideoDeletedService(
+            IMessenger messenger,
             VideoCacheManager videoCacheManager,
             NotificationService notificationService
+            
             )
         {
+            _messenger = messenger;
             VideoCacheManager = videoCacheManager;
             NotificationService = notificationService;
 
-            StrongReferenceMessenger.Default.Register<VideoDeletedMessage>(this);
+            _messenger.Register<VideoDeletedMessage>(this);
         }
 
         public VideoCacheManager VideoCacheManager { get; }

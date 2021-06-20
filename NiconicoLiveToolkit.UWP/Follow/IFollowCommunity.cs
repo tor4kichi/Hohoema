@@ -1,4 +1,5 @@
-﻿using NiconicoToolkit.User;
+﻿using NiconicoToolkit.Community;
+using NiconicoToolkit.User;
 using System;
 using System.Collections.Generic;
 
@@ -9,7 +10,7 @@ namespace NiconicoToolkit.Follow
         DateTimeOffset CreateTime { get; }
         string Description { get; }
         string GlobalId { get; }
-        long Id { get; }
+        CommunityId Id { get; }
         long Level { get; }
         string Name { get; }
         CommunityOptionFlags OptionFlags { get; }

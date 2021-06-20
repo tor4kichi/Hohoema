@@ -29,6 +29,7 @@ using Microsoft.AppCenter.Analytics;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.UseCase;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 {
@@ -127,7 +128,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
                 foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo().OrderBy(x => x.entity.SortIndex))
                 {
                     var vm = new SubscriptionViewModel(subscInfo.entity, this, _subscriptionManager, _hohoemaPlaylist, _pageManager, _dialogService);
-                    var items = _nicoVideoProvider.GetCachedVideoInfoItems(subscInfo.feedResult.Videos.Select(x => x.VideoId));
+                    var items = _nicoVideoProvider.GetCachedVideoInfoItems(subscInfo.feedResult.Videos.Select(x => (VideoId)x.VideoId));
                     vm.UpdateFeedResult(items, subscInfo.feedResult.LastUpdatedAt);
                     Subscriptions.Add(vm);
                 }

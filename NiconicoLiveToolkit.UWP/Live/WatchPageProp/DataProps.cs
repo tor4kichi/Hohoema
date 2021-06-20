@@ -141,7 +141,7 @@ namespace NiconicoToolkit.Live.WatchPageProp
     public partial class Program
     {
         [J("allegation")] public Allegation Allegation { get; set; }
-        [J("nicoliveProgramId")] public string NicoliveProgramId { get; set; }
+        [J("nicoliveProgramId")] public LiveId NicoliveProgramId { get; set; }
         [J("reliveProgramId")] public string ReliveProgramId { get; set; }
         [J("providerType")] public ProviderType ProviderType { get; set; }
         [J("visualProviderType")] public ProviderType VisualProviderType { get; set; }
@@ -287,9 +287,13 @@ namespace NiconicoToolkit.Live.WatchPageProp
         [J("name")] public string Name { get; set; }
         [J("pageUrl")] public Uri PageUrl { get; set; }
         [J("nicopediaArticle")] public NicopediaArticle NicopediaArticle { get; set; }
-        [J("programProviderId")] public long? ProgramProviderId { get; set; }
+        [J("programProviderId")] 
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+        public long? ProgramProviderId { get; set; }
         [J("icons")] public Icons Icons { get; set; }
-        [J("level")] public long? Level { get; set; }
+        [J("level")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] 
+        public long? Level { get; set; }
         [J("accountType")] public string AccountType { get; set; }
     }
 
@@ -361,7 +365,10 @@ namespace NiconicoToolkit.Live.WatchPageProp
     public partial class Publication
     {
         [J("status")] public string Status { get; set; }
-        [J("expireTime")] public long? ExpireTime { get; set; }
+
+        [J("expireTime")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] 
+        public long? ExpireTime { get; set; }
     }
 
     public partial class Reservation
@@ -432,12 +439,20 @@ namespace NiconicoToolkit.Live.WatchPageProp
         [J("open_time")] public DateTimeOffset OpenTime { get; set; }
         [J("live_end_time")] public DateTimeOffset LiveEndTime { get; set; }
         [J("is_product_stream")] public bool IsProductStream { get; set; }
-        [J("channel_id")] public long? ChannelId { get; set; }
-        [J("community_id")] public long? CommunityId { get; set; }
-        [J("comment_counter")] public long? CommentCounter { get; set; }
+        [J("channel_id")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] 
+        public long? ChannelId { get; set; }
+        [J("community_id")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] 
+        public long? CommunityId { get; set; }
+        [J("comment_counter")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] 
+        public long? CommentCounter { get; set; }
         [J("timeshift_enabled")] public bool TimeshiftEnabled { get; set; }
         [J("thumbnail_url")] public Uri ThumbnailUrl { get; set; }
-        [J("view_counter")] public long? ViewCounter { get; set; }
+        [J("view_counter")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] 
+        public long? ViewCounter { get; set; }
         [J("ss_adult")] public bool SsAdult { get; set; }
         [J("category_tags")] public string CategoryTags { get; set; }
         [J("title")] public string Title { get; set; }
@@ -928,7 +943,9 @@ namespace NiconicoToolkit.Live.WatchPageProp
         [J("isPayChannel")] public bool? IsPayChannel { get; set; }
         [J("isFollowed")] public bool IsFollowed { get; set; }
         [J("isJoined")] public bool? IsJoined { get; set; }
-        [J("level")] public long? Level { get; set; }
+        [J("level")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)] 
+        public long? Level { get; set; }
     }
 
     public partial class SupplierProgram
@@ -953,12 +970,17 @@ namespace NiconicoToolkit.Live.WatchPageProp
         [J("isOperator")] public bool IsOperator { get; set; }
         [J("isBroadcaster")] public bool IsBroadcaster { get; set; }
         [J("isTrialWatchTarget")] public bool? IsTrialWatchTarget { get; set; }
-        [J("premiumOrigin")] public long PremiumOrigin { get; set; }
+
+        [J("premiumOrigin")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+        public long? PremiumOrigin { get; set; }
+
         [J("permissions")] public List<string> Permissions { get; set; }
         [J("nicosid")] public string Nicosid { get; set; }
         [J("superichiba")] public UserSuperichiba Superichiba { get; set; }
-        
+
         [J("id")]
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
         public long? Id { get; set; }
 
         [J("nickname")]
@@ -1009,7 +1031,7 @@ namespace NiconicoToolkit.Live.WatchPageProp
     {
         public static readonly string NotLogin = "non";
         public static readonly string NormalAccount = "standard";
-        
+
     }
 
     public enum ProgramLiveStatus
@@ -1043,7 +1065,7 @@ namespace NiconicoToolkit.Live.WatchPageProp
         All, Author, Member, Purchaser, PurchaserOrMember
     };
 
-    public enum FluffyContentType { Video, Seiga, Manga};
+    public enum FluffyContentType { Video, Seiga, Manga };
 
     public enum FluffyRecommendType { SugoiSearch, Wakutkool };
 }

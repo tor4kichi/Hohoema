@@ -20,6 +20,11 @@ using Windows.UI.Notifications;
 using Windows.UI.Xaml.Controls;
 using Hohoema.Models.Domain.Notification;
 using NiconicoToolkit.Community;
+using NiconicoToolkit.Mylist;
+using NiconicoToolkit.User;
+using NiconicoToolkit.Video;
+using Hohoema.Models.Domain.Niconico;
+using NiconicoToolkit;
 
 namespace Hohoema.Presentation.Services
 {
@@ -37,20 +42,24 @@ namespace Hohoema.Presentation.Services
         public UserProvider UserProvider { get; }
 
         private readonly IMessenger _messenger;
+        private readonly NiconicoSession _niconicoSession;
 
         public HohoemaNotificationService(
             PageManager pageManager,
             HohoemaPlaylist playlist,
+            NiconicoSession niconicoSession,
             NotificationService notificationService,
             NicoVideoProvider nicoVideoProvider,
             MylistProvider mylistProvider,
             NicoLiveProvider nicoLiveProvider,
             CommunityProvider communityProvider,
-            UserProvider userProvider
+            UserProvider userProvider,
+            IMessenger messenger
             )
         {
             PageManager = pageManager;
             Playlist = playlist;
+            _niconicoSession = niconicoSession;
             NotificationService = notificationService;
             NicoVideoProvider = nicoVideoProvider;
             MylistProvider = mylistProvider;
@@ -58,33 +67,35 @@ namespace Hohoema.Presentation.Services
             CommunityProvider = communityProvider;
             UserProvider = userProvider;
 
-            _messenger = StrongReferenceMessenger.Default;
+            _messenger = messenger;
         }
 
 
-        public async void ShowInAppNotification(ContentType type, string id)
+        public async void ShowInAppNotification(NiconicoId id)
         {
             Task<InAppNotificationPayload> notificationPayload = null;
-            switch (type)
+            switch (id.IdType)
             {
-                case ContentType.Video:
-                    notificationPayload = SubmitVideoContentSuggestion(id);
+                case NiconicoIdType.Video:
+                    notificationPayload = SubmitVideoContentSuggestion((VideoId)id);
                     break;
-                case ContentType.Live:
-                    notificationPayload = SubmitLiveContentSuggestion(id);
+                case NiconicoIdType.Live:
+                    notificationPayload = SubmitLiveContentSuggestion((LiveId)id);
                     break;
-                case ContentType.Mylist:
-                    notificationPayload = SubmitMylistContentSuggestion(id);
+                case NiconicoIdType.Mylist:
+                    notificationPayload = SubmitMylistContentSuggestion((MylistId)id);
                     break;
-                case ContentType.Community:
-                    notificationPayload = SubmitCommunityContentSuggestion(id);
+                case NiconicoIdType.Community:
+                    notificationPayload = SubmitCommunityContentSuggestion((CommunityId)id);
                     break;
-                case ContentType.User:
-                    notificationPayload = SubmitUserSuggestion(id);
+                case NiconicoIdType.User:
+                    notificationPayload = SubmitUserSuggestion((UserId)id);
                     break;
-                case ContentType.Channel:
-
-                    // TODO: 
+                case NiconicoIdType.Channel:
+                    //notificationPayload = SubmitChannelSuggestion(id);
+                    break;
+                case NiconicoIdType.Series:
+                    notificationPayload = SubmitSeriesSuggestion(id);
                     break;
                 default:
                     break;
@@ -98,7 +109,7 @@ namespace Hohoema.Presentation.Services
 
 
 
-        private async Task<InAppNotificationPayload> SubmitVideoContentSuggestion(string videoId)
+        private async Task<InAppNotificationPayload> SubmitVideoContentSuggestion(VideoId videoId)
         {
             var (res, nicoVideo) = await NicoVideoProvider.GetVideoInfoAsync(videoId);
 
@@ -144,7 +155,7 @@ namespace Hohoema.Presentation.Services
             };
         }
 
-        private async Task<InAppNotificationPayload> SubmitLiveContentSuggestion(string liveId)
+        private async Task<InAppNotificationPayload> SubmitLiveContentSuggestion(LiveId liveId)
         {
             var liveDesc = await NicoLiveProvider.GetLiveInfoAsync(liveId);
 
@@ -199,7 +210,7 @@ namespace Hohoema.Presentation.Services
             return payload;
         }
 
-        private async Task<InAppNotificationPayload> SubmitMylistContentSuggestion(string mylistId)
+        private async Task<InAppNotificationPayload> SubmitMylistContentSuggestion(MylistId mylistId)
         {
             MylistPlaylist mylistDetail = null;
             try
@@ -212,7 +223,7 @@ namespace Hohoema.Presentation.Services
 
             return new InAppNotificationPayload()
             {
-                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(mylistDetail.Label),
+                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(mylistDetail.Name),
                 ShowDuration = DefaultNotificationShowDuration,
                 IsShowDismissButton = true,
                 Commands = {
@@ -230,7 +241,7 @@ namespace Hohoema.Presentation.Services
             };
         }
 
-        private async Task<InAppNotificationPayload> SubmitCommunityContentSuggestion(string communityId)
+        private async Task<InAppNotificationPayload> SubmitCommunityContentSuggestion(CommunityId communityId)
         {
             CommunityInfoResponse communityInfo = null;
             try
@@ -262,7 +273,7 @@ namespace Hohoema.Presentation.Services
             };
         }
 
-        private async Task<InAppNotificationPayload> SubmitUserSuggestion(string userId)
+        private async Task<InAppNotificationPayload> SubmitUserSuggestion(UserId userId)
         {
             var user = await UserProvider.GetUserInfoAsync(userId);
 
@@ -297,8 +308,40 @@ namespace Hohoema.Presentation.Services
                     }
             };
         }
+        /*
+        private async Task<InAppNotificationPayload> SubmitChannelSuggestion(string channelIdOrScreenName)
+        {
+            var channel = await _niconicoSession.ToolkitContext.Channel.GetChannelVideoAsync()
+        }
+        */
+        private async Task<InAppNotificationPayload> SubmitSeriesSuggestion(string seriesId)
+        {
+            var series = await _niconicoSession.ToolkitContext.Series.GetSeriesVideosAsync(seriesId);
 
+            if (!(series.Videos?.Any() ?? false))
+            {
+                return null;
+            }
 
+            return new InAppNotificationPayload()
+            {
+                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(series.Series.Title),
+                ShowDuration = DefaultNotificationShowDuration,
+                IsShowDismissButton = true,
+                Commands = {
+                        new InAppNotificationCommand()
+                        {
+                            Label = HohoemaPageType.Series.Translate(),
+                            Command = new DelegateCommand(() =>
+                            {
+                                PageManager.OpenPageWithId(HohoemaPageType.Series, seriesId);
+
+                                NotificationService.DismissInAppNotification();
+                            })
+                        }
+                    }
+            };
+        }
     }
 
     public sealed class NotificationService
@@ -307,9 +350,9 @@ namespace Hohoema.Presentation.Services
         private ToastNotification _prevToastNotification;
         private readonly IMessenger _messenger;
 
-        public NotificationService()
+        public NotificationService(IMessenger messenger)
 		{
-            _messenger = StrongReferenceMessenger.Default;
+            _messenger = messenger;
             _notifier = ToastNotificationManager.CreateToastNotifier();
             ToastNotificationManager.History.Clear();
         }

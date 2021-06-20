@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace NiconicoToolkit
@@ -64,21 +65,24 @@ namespace NiconicoToolkit
         }
 
 
-        public static bool IsVideoId(string id, bool allowAllNumberId = true)
+        public const string VideoIdPrefixForUser = "sm";
+        public const string VideoIdPrefixForChannel = "so";
+        public const string VideoIdPrefixForMadeOfOfficialMovieMaker = "nm";
+
+        internal const string VideoIdRegexBase = @"(?:sm|nm|so|ca|ax|yo|nl|ig|na|cw|z[a-e]|om|sk|yk)\d{1,14}"; // cd/fx/sd
+        readonly static Regex VideoIdRegex = new Regex('^' + VideoIdRegexBase + '$');
+
+        public static bool IsVideoId(string id, bool allowNonPrefixId = true)
         {
             if (id == null)
             {
                 return false;
             }
-            else if  (id.StartsWith("sm") && id.Skip(2).IsAllDigit())
+            else if (VideoIdRegex.IsMatch(id))
             {
                 return true;
             }
-            else if (id.StartsWith("so") && id.Skip(2).IsAllDigit())
-            {
-                return true;
-            }
-            else if (allowAllNumberId && id.IsAllDigit())
+            else if (allowNonPrefixId && id.IsAllDigit())
             {
                 return true;
             }
@@ -88,13 +92,17 @@ namespace NiconicoToolkit
             }
         }
 
-        public static bool IsLiveId(string id)
+        public static bool IsLiveId(string id, bool allowNonPrefixId = true)
         {
             if (id == null)
             {
                 return false;
             }
             else if (id.StartsWith(LiveIdPrefix) && id.Skip(2).IsAllDigit())
+            {
+                return true;
+            }
+            else if (allowNonPrefixId && id.IsAllDigit())
             {
                 return true;
             }
@@ -123,7 +131,7 @@ namespace NiconicoToolkit
 
 
         public const string CommunityIdPrefix = "co";
-        public static bool IsCommunityId(string id, bool allowNumberOnlyId = true)
+        public static bool IsCommunityId(string id, bool allowNonPrefixId = true)
         {
             if (id == null)
             {
@@ -133,7 +141,7 @@ namespace NiconicoToolkit
             {
                 return true;
             }
-            else if (allowNumberOnlyId && id.IsAllDigit())
+            else if (allowNonPrefixId && id.IsAllDigit())
             {
                 return true;
             }
@@ -145,13 +153,13 @@ namespace NiconicoToolkit
 
 
         public const string ChannelIdPrefix = "ch";
-        public static bool IsChannelId(string id, bool allowNumberOnlyId = true)
+        public static bool IsChannelId(string id, bool allowNonPrefixId = true)
         {
             if (id == null)
             {
                 return false;
             }
-            else if (allowNumberOnlyId && id.IsAllDigit())
+            else if (allowNonPrefixId && id.IsAllDigit())
             {
                 return true;
             }

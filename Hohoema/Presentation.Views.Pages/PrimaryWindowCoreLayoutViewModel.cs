@@ -17,8 +17,10 @@ using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using NiconicoToolkit;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Live.Notify;
+using NiconicoToolkit.Mylist;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
@@ -149,7 +151,7 @@ namespace Hohoema.Presentation.ViewModels
                 new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
                 new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo),
                 new MenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory),
-                new MenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters("id=0")),
+                new MenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters($"id={MylistId.WatchAfterMylistId}")),
                 new MylistSubMenuMenu(_userMylistManager, PageManager.OpenPageCommand),
                 _localMylistMenuSubItemViewModel,
                 new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage),
@@ -185,7 +187,7 @@ namespace Hohoema.Presentation.ViewModels
 
                         if (NiconicoSession.IsLoggedIn)
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.UserInfo, NiconicoSession.UserIdString);
+                            PageManager.OpenPageWithId(HohoemaPageType.UserInfo, NiconicoSession.UserId);
                         }
                     }));
             }
@@ -485,7 +487,7 @@ namespace Hohoema.Presentation.ViewModels
                             var items = e.OldItems.Cast<LoginUserMylistPlaylist>();
                             foreach (var removedItem in items)
                             {
-                                var removeMenuItem = Items.FirstOrDefault(x => (x as MylistMenuItemViewModel).Mylist.Id == removedItem.Id);
+                                var removeMenuItem = Items.FirstOrDefault(x => (x as MylistMenuItemViewModel).Mylist.MylistId == removedItem.MylistId);
                                 if (removeMenuItem != null)
                                 {
                                     Items.Remove(removeMenuItem);
@@ -572,7 +574,7 @@ namespace Hohoema.Presentation.ViewModels
     public class MylistMenuItemViewModel : MenuItemViewModel
     {
         public MylistMenuItemViewModel(LoginUserMylistPlaylist mylist) 
-            : base(mylist.Label, HohoemaPageType.Mylist, new NavigationParameters(("id", mylist.Id)))
+            : base(mylist.Name, HohoemaPageType.Mylist, new NavigationParameters(("id", mylist.MylistId)))
         {
             Mylist = mylist;
         }
@@ -584,7 +586,7 @@ namespace Hohoema.Presentation.ViewModels
     public class LocalMylistItemViewModel : MenuItemViewModel
     {
         public LocalMylistItemViewModel(LocalPlaylist localPlaylist)
-            : base(localPlaylist.Label, HohoemaPageType.LocalPlaylist, new NavigationParameters(("id", localPlaylist.Id)))
+            : base(localPlaylist.Name, HohoemaPageType.LocalPlaylist, new NavigationParameters(("id", localPlaylist.Id)))
         {
             LocalPlaylist = localPlaylist;
         }
@@ -738,13 +740,12 @@ namespace Hohoema.Presentation.ViewModels
         public string Title => _content.Title;
         public string CommunityName => _content.CommunityName;
         public string ThumbnailUrl => _content.ThumbnailUrl.OriginalString;
-        private string _liveId;
-        public string LiveId => _liveId ??= "lv" + _content.Id;
+        public LiveId LiveId => _content.Id;
 
         public string ProviderId => throw new NotImplementedException();
         public string ProviderName => CommunityName;
         public ProviderType ProviderType => _content.ProviderType;
-        public string Id => LiveId;
+        public NiconicoId Id => LiveId;
 
         public TimeSpan? _elapsedTime;
         public TimeSpan ElapsedTime => _elapsedTime ??= TimeSpan.FromSeconds(_content.ElapsedTime);

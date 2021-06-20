@@ -38,7 +38,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             PageManager = pageManager;
             _scheduler = scheduler;
             
-            CurrentPlaylistName = HohoemaPlaylist.ObserveProperty(x => x.CurrentPlaylist).Select(x => x?.Label)
+            CurrentPlaylistName = HohoemaPlaylist.ObserveProperty(x => x.CurrentPlaylist).Select(x => x?.Name)
                 .ToReadOnlyReactiveProperty(eventScheduler: _scheduler)
                 .AddTo(_CompositeDisposable);
             IsShuffleEnabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnable, _scheduler)
@@ -82,7 +82,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
             HohoemaPlaylist.ObserveProperty(x => x.CurrentPlaylist).Subscribe(x =>
             {
-                _currentPlaylistViewItem.Label = x?.Label ?? string.Empty;
+                _currentPlaylistViewItem.Label = x?.Name ?? string.Empty;
             })
                 .AddTo(_CompositeDisposable);
 

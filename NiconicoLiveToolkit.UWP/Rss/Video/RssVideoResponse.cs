@@ -1,6 +1,7 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +43,7 @@ namespace NiconicoToolkit.Rss.Video
 
     public static class RankingRssDataExtensions
     {
-        public static string GetVideoId(this RssVideoData data)
+        public static VideoId GetVideoId(this RssVideoData data)
         {
             return data.WatchPageUrl.Segments.Last();
         }
@@ -92,15 +93,15 @@ namespace NiconicoToolkit.Rss.Video
                 }
                 else if (node.ClassName == "nico-info-total-view")
                 {
-                    moreData.WatchCount = node.TextContent.Where(c => Char.IsDigit(c)).ToDigit();
+                    moreData.WatchCount = node.TextContent.Where(c => Char.IsDigit(c)).ToInt();
                 }
                 else if (node.ClassName == "nico-info-total-res")
                 {
-                    moreData.CommentCount = node.TextContent.Where(c => Char.IsDigit(c)).ToDigit();
+                    moreData.CommentCount = node.TextContent.Where(c => Char.IsDigit(c)).ToInt();
                 }
                 else if (node.ClassName == "nico-info-total-mylist")
                 {
-                    moreData.MylistCount = node.TextContent.Where(c => Char.IsDigit(c)).ToDigit();
+                    moreData.MylistCount = node.TextContent.Where(c => Char.IsDigit(c)).ToInt();
                 }
                 else if (node.ClassName == "nico-info-date")
                 {

@@ -40,7 +40,7 @@ namespace NiconicoToolkit.Recommend
     public class VideoReccomendItem
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public NiconicoId Id { get; set; }
 
         [JsonPropertyName("contentType")]
         public RecommendContentType ContentType { get; set; }
@@ -48,8 +48,6 @@ namespace NiconicoToolkit.Recommend
         [JsonPropertyName("recommendType")]
         public RecommendType RecommendType { get; set; }
 
-        //[JsonPropertyName("content")]
-        //public object Content { get; set; }
 
         public NvapiMylistItem ContentAsMylist { get; set; }
 

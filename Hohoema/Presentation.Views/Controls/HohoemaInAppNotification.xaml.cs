@@ -14,7 +14,8 @@ using Hohoema.Models.Domain.Notification;
 
 namespace Hohoema.Presentation.Views.Controls
 {
-    public sealed partial class HohoemaInAppNotification : UserControl
+    public sealed partial class HohoemaInAppNotification : UserControl,
+        IRecipient<InAppNotificationMessage>
     {
         public HohoemaInAppNotification()
         {
@@ -26,12 +27,14 @@ namespace Hohoema.Presentation.Views.Controls
 
             Window.Current.CoreWindow.Activated += CoreWindow_Activated;
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+
+            _messenger = App.Current.Container.Resolve<IMessenger>();
         }
 
         private void HohoemaInAppNotification_Loaded(object sender, RoutedEventArgs e)
         {
-            StrongReferenceMessenger.Default.Register<InAppNotificationMessage>(this, (r, m) => PushNextNotication(m.Value));
-            StrongReferenceMessenger.Default.Register<InAppNotificationDismissMessage>(this, (r, m) =>
+            _messenger.Register<InAppNotificationMessage>(this);
+            _messenger.Register<InAppNotificationDismissMessage>(this, (r, m) =>
             {
                 LiteNotification.Dismiss();
             });
@@ -39,13 +42,13 @@ namespace Hohoema.Presentation.Views.Controls
 
         private void HohoemaInAppNotification_Unloaded(object sender, RoutedEventArgs e)
         {
-            StrongReferenceMessenger.Default.Unregister<InAppNotificationMessage>(this);
-            StrongReferenceMessenger.Default.Unregister<InAppNotificationDismissMessage>(this);
+            _messenger.Unregister<InAppNotificationMessage>(this);
+            _messenger.Unregister<InAppNotificationDismissMessage>(this);
         }
 
 
         private readonly DispatcherQueue _dispatcherQueue;
-
+        private readonly IMessenger _messenger;
         static readonly TimeSpan DefaultShowDuration = TimeSpan.FromSeconds(7);
 
         private InAppNotificationPayload _CurrentNotication;
@@ -102,6 +105,11 @@ namespace Hohoema.Presentation.Views.Controls
             _CurrentNotication = null;
             (sender as Microsoft.Toolkit.Uwp.UI.Controls.InAppNotification).DataContext = null;
             TryNextDisplayNotication();
+        }
+
+        public void Receive(InAppNotificationMessage message)
+        {
+            PushNextNotication(message.Value);
         }
     }
 

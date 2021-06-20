@@ -1,12 +1,13 @@
 ﻿using NiconicoToolkit.Live;
 using Hohoema.Models.Domain.Niconico.Live;
+using NiconicoToolkit;
 
 namespace Hohoema.Presentation.ViewModels.Community
 {
-    public class CurrentLiveInfoViewModel : ILiveContent
+    public class CurrentLiveInfoViewModel : ILiveContent, ILiveContentProvider
     {
-		public string LiveTitle { get; private set; }
-		public string LiveId { get; private set; }
+		public string Title { get; private set; }
+		public LiveId LiveId { get; private set; }
 
         /*
 		public CurrentLiveInfoViewModel(CommunityLiveInfo liveInfo, CommunityDetail community)
@@ -19,9 +20,6 @@ namespace Hohoema.Presentation.ViewModels.Community
 		}
         */
 
-        public string Id => LiveId;
-
-        public string Label => LiveTitle;
 
         public string ProviderId { get; }
 

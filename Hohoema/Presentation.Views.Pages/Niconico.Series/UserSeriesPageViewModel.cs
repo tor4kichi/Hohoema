@@ -7,6 +7,7 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Series;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using I18NPortable;
+using NiconicoToolkit.User;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -24,16 +25,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
         {
             return new HohoemaPin()
             {
-                Label = User.Label,
+                Label = User.Nickname,
                 PageType = HohoemaPageType.UserSeries,
-                Parameter = $"id={User.Id}"
+                Parameter = $"id={User.UserId}"
             };
         }
 
         public IObservable<string> GetTitleObservable()
         {
             return this.ObserveProperty(x => x.User)
-                .Select(x => x == null ? null : "UserSeriesListWithOwnerName".Translate(x.Label));
+                .Select(x => x == null ? null : "UserSeriesListWithOwnerName".Translate(x.Nickname));
         }
 
 
@@ -95,23 +96,39 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            UserId? userId = null;
+            if (parameters.TryGetValue("id", out string id))
+            {
+                userId = id;
+            }
+            else if (parameters.TryGetValue("id", out string strUserid))
+            {
+                userId = strUserid;
+            }
+            else if (parameters.TryGetValue("id", out UserId justUserid))
+            {
+                userId = justUserid;
+            }
+
+            if (userId == null)
+            {
+                return;
+            }
+
             NowUpdating = true;
             try
             {
-                if (parameters.TryGetValue("id", out string id))
+                var serieses = await _seriesProvider.GetUserSeriesAsync(userId.Value);
+                UserSeriesList = serieses.Select(x => new UserSeriesItemViewModel(x)).ToList();
+
+                var userInfo = await _userProvider.GetUserInfoAsync(userId.Value);
+                if (userInfo != null)
                 {
-                    var serieses = await _seriesProvider.GetUserSeriesAsync(id);
-                    UserSeriesList = serieses.Select(x => new UserSeriesItemViewModel(x)).ToList();
+                    User = new SeriesOwnerViewModel(userInfo);
+                }
+                else
+                {
 
-                    var userInfo = await _userProvider.GetUserInfoAsync(id);
-                    if (userInfo != null)
-                    {
-                        User = new SeriesOwnerViewModel(userInfo);
-                    }
-                    else
-                    {
-
-                    }
                 }
             }
             finally

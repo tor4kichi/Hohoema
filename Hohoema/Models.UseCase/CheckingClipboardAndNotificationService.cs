@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Services;
+using NiconicoToolkit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,10 +31,10 @@ namespace Hohoema.Models.UseCase
         {
             if (args.WindowActivationState == CoreWindowActivationState.PointerActivated)
             {
-                var clipboard = await ClipboardHelper.CheckClipboard();
-                if (clipboard != null)
+                NiconicoId? maybeId = await ClipboardHelper.CheckClipboard();
+                if (maybeId is not null and NiconicoId id)
                 {
-                    HohoemaNotificationService.ShowInAppNotification(clipboard.Type, clipboard.Id);
+                    HohoemaNotificationService.ShowInAppNotification(id);
                 }
             }
         }

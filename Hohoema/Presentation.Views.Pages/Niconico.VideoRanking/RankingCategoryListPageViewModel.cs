@@ -34,6 +34,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         IDisposable
     {
         public RankingCategoryListPageViewModel(
+            IMessenger messenger,
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             Services.DialogService dialogService,
@@ -42,6 +43,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             RankingProvider rankingProvider
             )
         {
+            _messenger = messenger;
             ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             HohoemaDialogService = dialogService;
@@ -313,6 +315,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         }
 
         private RankingGenre? _prevSelectedGenre;
+        private readonly IMessenger _messenger;
         private readonly AppFlagsRepository _appFlagsRepository;
         private readonly RankingProvider _rankingProvider;
 
@@ -320,18 +323,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         {
             base.OnNavigatedFrom(parameters);
 
-            StrongReferenceMessenger.Default.Unregister<RankingGenreShowRequestedEvent>(this);
-            StrongReferenceMessenger.Default.Unregister<RankingGenreHiddenRequestedEvent>(this);
-            StrongReferenceMessenger.Default.Unregister<RankingGenreFavoriteRequestedEvent>(this);
-            StrongReferenceMessenger.Default.Unregister<RankingGenreUnFavoriteRequestedEvent>(this);
+            _messenger.Unregister<RankingGenreShowRequestedEvent>(this);
+            _messenger.Unregister<RankingGenreHiddenRequestedEvent>(this);
+            _messenger.Unregister<RankingGenreFavoriteRequestedEvent>(this);
+            _messenger.Unregister<RankingGenreUnFavoriteRequestedEvent>(this);
         }
 
         public override async void OnNavigatedTo(INavigationParameters parameters)
         {
-            StrongReferenceMessenger.Default.Register<RankingGenreShowRequestedEvent>(this);
-            StrongReferenceMessenger.Default.Register<RankingGenreHiddenRequestedEvent>(this);
-            StrongReferenceMessenger.Default.Register<RankingGenreFavoriteRequestedEvent>(this);
-            StrongReferenceMessenger.Default.Register<RankingGenreUnFavoriteRequestedEvent>(this);
+            _messenger.Register<RankingGenreShowRequestedEvent>(this);
+            _messenger.Register<RankingGenreHiddenRequestedEvent>(this);
+            _messenger.Register<RankingGenreFavoriteRequestedEvent>(this);
+            _messenger.Register<RankingGenreUnFavoriteRequestedEvent>(this);
 
             if (!_appFlagsRepository.IsRankingInitialUpdate)
             {

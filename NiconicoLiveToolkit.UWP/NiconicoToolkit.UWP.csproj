@@ -129,6 +129,7 @@
     <Compile Include="Activity\ActivityClient.cs" />
     <Compile Include="Channels\ChannelAdmissionResponse.cs" />
     <Compile Include="Channels\ChannelClient.cs" />
+    <Compile Include="Channels\ChannelId.cs" />
     <Compile Include="Channels\ChannelInfo.cs" />
     <Compile Include="Channels\ChannelVideoResponse.cs" />
     <Compile Include="Channels\ChannelVideoSortKey.cs" />
@@ -136,6 +137,8 @@
     <Compile Include="Community\CommunityApiDateTimeJsonConverter.cs" />
     <Compile Include="Community\CommunityAuthorityResponse.cs" />
     <Compile Include="Community\CommunityClient.cs" />
+    <Compile Include="Community\CommunityId.cs" />
+    <Compile Include="Community\CommunityInfoResponse.cs" />
     <Compile Include="Community\CommunityLiveResponse.cs" />
     <Compile Include="Community\CommunityLiveStatus.cs" />
     <Compile Include="Community\CommunityVideoListItemsResponse.cs" />
@@ -158,11 +161,21 @@
     <Compile Include="HttpContentExtensions.cs" />
     <Compile Include="HttpStatusCodeHelper.cs" />
     <Compile Include="Ichiba\IchibaClient.cs" />
+    <Compile Include="IsExternalInit.cs" />
     <Compile Include="Likes\LikesClient.cs" />
+    <Compile Include="Live\LiveId.cs" />
+    <Compile Include="Mylist\MylistId.cs" />
+    <Compile Include="NiconicoId.cs" />
     <Compile Include="Recommend\LiveRecommendResponse.cs" />
     <Compile Include="Recommend\RecommendContentType.cs" />
     <Compile Include="Recommend\RecommendType.cs" />
     <Compile Include="Recommend\VideoRecommendResponse.cs" />
+    <Compile Include="System.Text.Json.Serialization\ChannelIdJsonConverter.cs" />
+    <Compile Include="System.Text.Json.Serialization\CommunityIdJsonConverter.cs" />
+    <Compile Include="System.Text.Json.Serialization\LiveIdJsonConverter.cs" />
+    <Compile Include="System.Text.Json.Serialization\MylistIdJsonConverter.cs" />
+    <Compile Include="System.Text.Json.Serialization\NiconicoIdJsonConverter.cs" />
+    <Compile Include="System.Text.Json.Serialization\VideoIdJsonConverter.cs" />
     <Compile Include="Timeshift\ReservationToken.cs" />
     <Compile Include="Timeshift\ReserveTimeshiftResponse.cs" />
     <Compile Include="Timeshift\TimeshiftClient.cs" />
@@ -272,6 +285,7 @@
     <Compile Include="Mylist\MylistSortOrder.cs" />
     <Compile Include="Video\PrivateReasonType.cs" />
     <Compile Include="Video\VideoClient.cs" />
+    <Compile Include="Video\VideoId.cs" />
     <Compile Include="Video\VideoPermission.cs" />
     <Compile Include="SearchWithCeApi\Video\VideoProviderType.cs" />
     <Compile Include="Ranking\Video\VideoRankinguSubClient.cs" />
@@ -332,9 +346,6 @@
     <None Include="Live\WatchPageProp\DataPropsSource.Json" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Account\Follow\" />
-    <Folder Include="Account\NicoRepo\" />
-    <Folder Include="Account\User\" />
     <Folder Include="Activity\LikesHistory\" />
     <Folder Include="Activity\LiveWatchHistory\" />
   </ItemGroup>

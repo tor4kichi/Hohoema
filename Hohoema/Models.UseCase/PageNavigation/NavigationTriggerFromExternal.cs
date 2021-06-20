@@ -7,6 +7,8 @@ using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Models.UseCase.Player;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Notifications;
+using NiconicoToolkit.Live;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -115,7 +117,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
 
 
-        public async Task PlayVideoFromExternal(string videoId, string playlistId = null)
+        public async Task PlayVideoFromExternal(VideoId videoId, string playlistId = null)
         {
             var (res, videoInfo) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
 
@@ -147,9 +149,9 @@ namespace Hohoema.Models.UseCase.PageNavigation
             _hohoemaPlaylist.Play(playlist);
         }
 
-        public void PlayLiveVideoFromExternal(string videoId)
+        public void PlayLiveVideoFromExternal(LiveId liveId)
         {
-            StrongReferenceMessenger.Default.Send(new PlayerPlayLiveRequestMessage(new() { LiveId = videoId }));
+            _messenger.Send(new PlayerPlayLiveRequestMessage(new() { LiveId = liveId }));
         }
 
 

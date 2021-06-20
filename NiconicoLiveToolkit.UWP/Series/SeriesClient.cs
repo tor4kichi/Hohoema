@@ -49,7 +49,7 @@ namespace NiconicoToolkit.Series
                     {
                         ThumbnailUrl = thumbNode.GetAttribute("data-background-image").ToUri(),
                         Title = titleNode.TextContent,
-                        Count = countNode.TextContent.Where(x => char.IsDigit(x)).ToDigit()
+                        Count = countNode.TextContent.Where(x => char.IsDigit(x)).ToInt()
                     };
                 }
 

@@ -26,6 +26,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Channels;
+using NiconicoToolkit;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 {
@@ -34,9 +35,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
     public sealed class ChannelInfo : IChannel
     {
-        public string Id { get; set; }
+        public ChannelId ChannelId { get; set; }
 
-        public string Label { get; set; }
+        public string Name { get; set; }
 
     }
 
@@ -78,10 +79,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
             SelectionModeToggleCommand = selectionModeToggleCommand;
         }
 
-        public string RawChannelId { get; set; }
-
-        private int? _ChannelId;
-        public int? ChannelId
+        private ChannelId? _ChannelId;
+        public ChannelId? ChannelId
         {
             get { return _ChannelId; }
             set { SetProperty(ref _ChannelId, value); }
@@ -140,12 +139,24 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            ChannelId = null;
+            ChannelInfo = null;
+
             if (parameters.TryGetValue("id", out string id))
             {
-                RawChannelId = id;
+                ChannelId = id;
+            }
+            else if (parameters.TryGetValue("id", out uint nonPrefixId))
+            {
+                ChannelId = nonPrefixId;
+            }
+            else if (parameters.TryGetValue("id", out ChannelId channelId))
+            {
+                ChannelId = channelId;
+            }
 
-                ChannelInfo = null;
-
+            if (ChannelId != null)
+            {
                 await UpdateChannelInfo();
             }
 
@@ -157,20 +168,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
         {
             try
             {
-                var channelInfo = await ChannelProvider.GetChannelInfo(RawChannelId);
+                var channelInfo = await ChannelProvider.GetChannelInfo(ChannelId.Value);
 
                 ChannelId = channelInfo.ChannelId;
                 ChannelName = channelInfo.Name;
                 ChannelScreenName = channelInfo.ScreenName;
                 ChannelOpenTime = channelInfo.ParseOpenTime();
                 ChannelUpdateTime = channelInfo.ParseUpdateTime();
-                ChannelInfo = new ChannelInfo() { Id = ChannelId?.ToString(), Label = ChannelName };
+                ChannelInfo = new ChannelInfo() { ChannelId = channelInfo.ChannelId, Name = ChannelName };
 
                 await UpdateFollowChannelAsync(ChannelInfo);
             }
             catch
             {
-                ChannelName = RawChannelId;
+                ChannelName = ChannelId;
             }
         }
 
@@ -195,7 +206,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
         protected override (int, IIncrementalSource<ChannelVideoListItemViewModel>) GenerateIncrementalSource()
         {
-            return (ChannelVideoLoadingSource.OneTimeLoadCount, new ChannelVideoLoadingSource(ChannelId?.ToString() ?? RawChannelId, ChannelProvider));
+            return (ChannelVideoLoadingSource.OneTimeLoadCount, new ChannelVideoLoadingSource(ChannelId.Value, ChannelProvider));
         }
 
 
@@ -241,10 +252,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
     public class ChannelVideoLoadingSource : IIncrementalSource<ChannelVideoListItemViewModel>
     {
-        public string ChannelId { get; }
+        public ChannelId ChannelId { get; }
         public ChannelProvider ChannelProvider { get; }
 
-        public ChannelVideoLoadingSource(string channelId, ChannelProvider channelProvider)
+        public ChannelVideoLoadingSource(ChannelId channelId, ChannelProvider channelProvider)
         {
             ChannelId = channelId;
             ChannelProvider = channelProvider;

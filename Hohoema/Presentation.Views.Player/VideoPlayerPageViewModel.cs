@@ -159,7 +159,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 _restoreNavigationManager.SetCurrentPlayerEntry(
                         new PlayerEntry()
                         {
-                            ContentId = VideoInfo.VideoId,
+                            ContentId = VideoInfo.VideoAliasId,
                             Position = MediaPlayer.PlaybackSession.Position,
                             PlaylistId = HohoemaPlaylist.CurrentPlaylist?.Id,
                             PlaylistOrigin = HohoemaPlaylist.CurrentPlaylist?.GetOrigin()
@@ -325,7 +325,9 @@ namespace Hohoema.Presentation.ViewModels.Player
         {
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
 
-            VideoId = parameters.GetValue<string>("id");
+            VideoId = parameters.GetValue<string>("id")
+                ?? parameters.GetValue<VideoId>("id")
+                ;
 
             _requestVideoQuality = PlayerSettings.DefaultVideoQuality;
             if (parameters.TryGetValue("quality", out NicoVideoQuality quality))

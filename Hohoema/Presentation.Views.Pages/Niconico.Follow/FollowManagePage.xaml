@@ -44,7 +44,7 @@
             <uwpControls:ImageEx Source="{Binding IconUrl}" uwpControls:DockPanel.Dock="Left" Width="60" Height="60" CornerRadius="48" />
 
             <StackPanel Margin="16 16 0 0">
-              <TextBlock Text="{Binding Label}" FontSize="16" />
+              <TextBlock Text="{Binding Nickname}" FontSize="16" />
               <TextBlock Text="{Binding Description}" Style="{StaticResource FollowItemDescriptionTextStyle}">
                 <ToolTipService.ToolTip>
                   <StackPanel>
@@ -62,7 +62,7 @@
             <SymbolIcon Symbol="Tag" uwpControls:DockPanel.Dock="Left" VerticalAlignment="Top" />
             
             <StackPanel VerticalAlignment="Center" Margin="16 0 0 0">
-              <TextBlock Text="{Binding Label}" />
+              <TextBlock Text="{Binding Tag}" />
 
               <TextBlock Text="{Binding NicoDicSummary}" Style="{StaticResource FollowItemDescriptionTextStyle}">
                 <ToolTipService.ToolTip>
@@ -89,7 +89,7 @@
             </Grid>
 
             <StackPanel Margin="12 8" VerticalAlignment="Center" Spacing="4">
-              <TextBlock Text="{Binding Label}" FontSize="16" />
+              <TextBlock Text="{Binding Name}" FontSize="16" />
               <TextBlock Text="{Binding Description}" Style="{StaticResource FollowItemDescriptionTextStyle}">
                 <ToolTipService.ToolTip>
                   <StackPanel>
@@ -110,7 +110,7 @@
             <uwpControls:ImageEx Source="{Binding ThumbnailUrl.OriginalString}" uwpControls:DockPanel.Dock="Left" Width="60" Height="60" CornerRadius="48" />
 
             <StackPanel Margin="16 16 0 0">
-              <TextBlock Text="{Binding Label}" FontSize="16" />
+              <TextBlock Text="{Binding Name}" FontSize="16" />
               <TextBlock Text="{Binding Description}" Style="{StaticResource FollowItemDescriptionTextStyle}">
                 <ToolTipService.ToolTip>
                   <StackPanel>
@@ -128,7 +128,7 @@
             <uwpControls:ImageEx Source="{Binding ThumbnailUrl}" uwpControls:DockPanel.Dock="Left" Width="60" Height="60" CornerRadius="48" />
 
             <StackPanel Margin="16 16 0 0">
-              <TextBlock Text="{Binding Label}" FontSize="16" />
+              <TextBlock Text="{Binding Name}" FontSize="16" />
               <TextBlock Text="{Binding Description}" Style="{StaticResource FollowItemDescriptionTextStyle}">
                 <ToolTipService.ToolTip>
                   <StackPanel>

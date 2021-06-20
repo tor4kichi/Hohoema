@@ -63,7 +63,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
                 var result = await dialogService.GetTextAsync(
                     "RenameLocalPlaylist",
                     "RenameLocalPlaylist_Placeholder",
-                    playlist.Label,
+                    playlist.Name,
                     name => !string.IsNullOrWhiteSpace(name)
                     );
 

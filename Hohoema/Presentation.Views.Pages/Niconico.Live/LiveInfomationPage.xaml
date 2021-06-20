@@ -19,321 +19,37 @@
       xmlns:liveVM="using:Hohoema.Presentation.ViewModels.Pages.Niconico.Live" 
       xmlns:liveViews="using:Hohoema.Presentation.Views.Pages.Niconico.Live"
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
-      DataContext="{x:Null}"
+      xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI"
       NavigationCacheMode="Enabled">
   <Grid>
     <ScrollViewer >
-      <StackPanel x:Name="ContentLayout">
-        <Border Height="128" />
-        <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
-          <!-- 視聴開始などのボタン -->
+      <StackPanel x:Name="ContentLayout" Spacing="16">
 
-          <Image Source="{Binding LiveProgram.ThumbnailUrl}"
-                 Height="80"
-                 Width="80"
-                 Margin="0 8 0 16"
-                 toolkit:DockPanel.Dock="Left"
-                 VerticalAlignment="Top" Visibility="Collapsed" />
-        </toolkit:DockPanel>
-        <Pivot Margin="0 8 0 16"
-               x:Name="Pivot">
-          <i:Interaction.Behaviors>
-            <!-- Value="2" is 市場(Ichiba) PivotItem. if reorder items, change with that Value correctly. -->
-            <core:DataTriggerBehavior Binding="{x:Bind Pivot.SelectedIndex, Mode=OneWay}"
-                                      Value="2">
-              <core:CallMethodAction TargetObject="{Binding Live}"
-                                     MethodName="InitializeIchibaItems" />
-            </core:DataTriggerBehavior>
-            <core:DataTriggerBehavior Binding="{x:Bind Pivot.SelectedIndex, Mode=OneWay}"
-                                      Value="3">
-              <core:CallMethodAction TargetObject="{Binding Live}"
-                                     MethodName="InitializeLiveRecommend" />
-            </core:DataTriggerBehavior>
-          </i:Interaction.Behaviors>
-          <Pivot.ItemContainerStyle>
-            <Style TargetType="PivotItem">
-              <Setter Property="Padding"
-                      Value="0" />
-            </Style>
-          </Pivot.ItemContainerStyle>
-          <PivotItem x:Name="LiveInfoPivotItem"
-                     Header="放送情報">
-            <StackPanel>
-              <StackPanel toolkit:DockPanel.Dock="Bottom"
-                          Margin="16 8"
-                          >
-                <TextBlock Opacity="0.7">
-                                <Run Text="{i18nExt:Localize Key=LiveStreamingStartAt}" /> <Run Text="{Binding LiveProgram.ShowTime.BeginAt, Converter={StaticResource DateTimeToString}}" /><LineBreak />
-                                <Run Text="{i18nExt:Localize Key=LiveStreamingEndAt}" /> <Run Text="{Binding LiveProgram.ShowTime.EndAt, Converter={StaticResource DateTimeToString}}" /></TextBlock>
-              </StackPanel>
-              <StackPanel>
-                <TextBlock Text="{i18nExt:Localize Key=LiveStreamingDescription}"
-                           Margin="0 16 8 8"
-                           Style="{StaticResource SubtitleTextBlockStyle}" />
-                <TextBox Text="{Binding LiveProgram.Description}"
-                         IsReadOnly="True"
-                         Background="Transparent"
-                         MaxWidth="800"
-                         TextWrapping="Wrap"
-                         AcceptsReturn="True"
-                         x:Name="LiveDescTextBox" />
-                <WebView Source="{Binding HtmlDescription}"
-                         DefaultBackgroundColor="Transparent"
-                         x:Name="LiveDescWebView"
-                         Visibility="Collapsed"
-                         myExtensions:WebView.UriNotifyCommand="{Binding ScriptNotifyCommand}">
-                  <i:Interaction.Behaviors>
-                    <mybehavior:WebViewAutoResizeToContent />
-                    <!-- WebViewでUINavigationControllerがハマるバグに対応する -->
-                    <mybehavior:PreventSpoilerXYNavigationInWebView />
-                  </i:Interaction.Behaviors>
-                </WebView>
-              </StackPanel>
-              <uwptoolkit:Expander IsExpanded="False"
-                                   Visibility="Collapsed"
-                                   x:Name="DescriptionHyperlinkItems">
-                <uwptoolkit:Expander.HeaderTemplate>
-                  <DataTemplate>
-                    <TextBlock Text="{i18nExt:Localize Key=LinkItemsInLiveStreamingDescription}"
-                               Style="{StaticResource SubtitleTextBlockStyle}" />
-                  </DataTemplate>
-                </uwptoolkit:Expander.HeaderTemplate>
-                <GridView ItemsSource="{Binding DescriptionHyperlinkItems, Mode=OneWay}"
-                          IsItemClickEnabled="True"
-                          HorizontalContentAlignment="Stretch"
-                          SelectionMode="None">
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="ItemClick">
-                      <core:InvokeCommandAction Command="{Binding ScriptNotifyCommand}"
-                                                InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                  <GridView.ItemTemplate>
-                    <DataTemplate>
-                      <TextBlock Text="{Binding Label}" />
-                    </DataTemplate>
-                  </GridView.ItemTemplate>
-                  <GridView.ItemContainerStyle>
-                    <Style TargetType="GridViewItem">
-                      <Setter Property="Padding"
-                              Value="16 8" />
-                      <Setter Property="HorizontalContentAlignment"
-                              Value="Stretch" />
-                    </Style>
-                  </GridView.ItemContainerStyle>
-                </GridView>
-              </uwptoolkit:Expander>
-              <!-- タグ -->
-              <StackPanel>
-                <TextBlock Text="{i18nExt:Localize Key=Tag}"
-                           Margin="0 16 8 8"
-                           Style="{StaticResource SubtitleTextBlockStyle}" />
-                <TextBlock Text="{i18nExt:Localize Key=NoTags}"
-                           Opacity="0.7"
-                           Visibility="{Binding LiveTags, Converter={StaticResource EmptyCollectionVisibilityConverter}}" />
-                <ItemsControl ItemsSource="{Binding LiveTags}">
-                  <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                      <uwptoolkit:WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                  </ItemsControl.ItemsPanel>
-                  <ItemsControl.ItemContainerStyle>
-                    <Style TargetType="ContentPresenter">
-                      <Setter Property="Margin"
-                              Value="0 0 8 8" />
-                    </Style>
-                  </ItemsControl.ItemContainerStyle>
-                  <ItemsControl.ItemTemplateSelector>
-                    <templateselector:ValueDataTemplateSelector PropertyName="Type">
-                      <templateselector:ValueDataTemplate Value="{x:Bind liveVM:LiveTagType.Category}">
-                        <DataTemplate x:DataType="liveVM:LiveTagViewModel">
-                          <Button Command="{Binding SearchLiveTagCommand}"
-                                  CommandParameter="{Binding Live}">
-                            <StackPanel Orientation="Horizontal">
-                              <iconPack:PackIconMaterial Kind="Lock"
-                                                         Height="16"
-                                                         Width="16"
-                                                         Margin="0 0 8 0"
-                                                         VerticalAlignment="Center" />
-                              <TextBlock Text="{Binding Tag}"
-                                         FontWeight="Bold"
-                                         TextWrapping="Wrap"
-                                         VerticalAlignment="Center" />
-                            </StackPanel>
-                          </Button>
-                        </DataTemplate>
-                      </templateselector:ValueDataTemplate>
-                      <templateselector:ValueDataTemplate Value="{x:Bind liveVM:LiveTagType.Locked}">
-                        <DataTemplate x:DataType="liveVM:LiveTagViewModel">
-                          <Button Command="{Binding SearchLiveTagCommand}"
-                                  CommandParameter="{Binding Live}">
-                            <StackPanel Orientation="Horizontal">
-                              <iconPack:PackIconMaterial Kind="Lock"
-                                                         Height="16"
-                                                         Width="16"
-                                                         Margin="0 0 8 0"
-                                                         VerticalAlignment="Center" />
-                              <TextBlock Text="{Binding Tag}"
-                                         TextWrapping="Wrap"
-                                         VerticalAlignment="Center" />
-                            </StackPanel>
-                          </Button>
-                        </DataTemplate>
-                      </templateselector:ValueDataTemplate>
-                      <templateselector:ValueDataTemplate Value="{x:Bind liveVM:LiveTagType.Free}">
-                        <DataTemplate x:DataType="liveVM:LiveTagViewModel">
-                          <Button Command="{Binding SearchLiveTagCommand}"
-                                  CommandParameter="{Binding Live}">
-                            <TextBlock Text="{Binding Tag}"
-                                       TextWrapping="Wrap" />
-                          </Button>
-                        </DataTemplate>
-                      </templateselector:ValueDataTemplate>
-                    </templateselector:ValueDataTemplateSelector>
-                  </ItemsControl.ItemTemplateSelector>
-                </ItemsControl>
-              </StackPanel>
-            </StackPanel>
-          </PivotItem>
-          <PivotItem x:Name="LiveBroadcasterInfoPivotItem">
-            <PivotItem.Header>
-              <StackPanel>
-                <StackPanel Orientation="Horizontal">
-                  <TextBlock Text="{i18nExt:Localize Key=LiveStreamOwner}" />
-                </StackPanel>
-              </StackPanel>
-            </PivotItem.Header>
-            <Grid>
-              <toolkit:DockPanel x:Name="BroadcasterDesc_Other">
-                <StackPanel toolkit:DockPanel.Dock="Top">
-                  <toolkit:DockPanel Margin="0 0 0 0">
-                    <Image Source="{Binding Community.Thumbnail}"
-                           Height="60"
-                           Margin="0 0 8 0"
-                           toolkit:DockPanel.Dock="Left" />
-                    <StackPanel toolkit:DockPanel.Dock="Bottom"
-                                Orientation="Horizontal"
-                                Visibility="Collapsed"
-                                Margin="8 0 0 16">
-                      <TextBlock>
-                            <Run Text="{i18nExt:Localize Key=CommunityMemberCount}" /> : <Run Text="{Binding Community.UserCount}" />
-                      </TextBlock>
-                      <Border Width="16" />
-                      <TextBlock>
-                                <Run Text="{i18nExt:Localize Key=CommunityLevel}" /> : <Run Text="{Binding Community.Level}" /></TextBlock>
-                    </StackPanel>
-                    <TextBlock Text="{Binding Community.Label}"
-                               Style="{StaticResource TitleTextBlockStyle}"
-                               VerticalAlignment="Center"
-                               Margin="16 0 0 0"
-                               />
-                  </toolkit:DockPanel>
-                </StackPanel>
-                <Border Height="16"
-                        toolkit:DockPanel.Dock="Top" />
-                <StackPanel Orientation="Horizontal"
-                            toolkit:DockPanel.Dock="Top">
-                  <Button Content="{i18nExt:Localize Key=CommunityDetail}"
-                          Command="{Binding PageManager.OpenPageCommand}"
-                          CommandParameter="{Binding Community}"
-                          Visibility="{Binding Community, Converter={StaticResource NotNullToVisibility}}" />
-                </StackPanel>
-                <Border Height="16"
-                        toolkit:DockPanel.Dock="Top" />
-                <TextBox Text="{Binding Community.Description}"
-                         AcceptsReturn="True"
-                         IsReadOnly="True"
-                         TextWrapping="Wrap"
-                         MaxWidth="800" />
-              </toolkit:DockPanel>
-              <Grid x:Name="BroadcasterDesc_Official"
-                    Visibility="Collapsed">
-                <TextBlock Text="{i18nExt:Localize Key=ThisStreamingIsPresentedByOfficial}" />
-              </Grid>
-            </Grid>
-          </PivotItem>
-          <PivotItem x:Name="IchibaPivotItem" Header="{i18nExt:Localize Key=NiconicoIchiba}">
-            <Grid Visibility="{Binding IsIchibaInitialized}">
-              <TextBlock Text="{i18nExt:Localize Key=IchibaNoItems}"
-                         Visibility="{Binding IsEmptyIchibaItems}"
-                         Opacity="0.7"
-                         Margin="16" />
-              <ItemsControl ItemsSource="{Binding IchibaItems}"
-                            IsTabStop="False">
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate>
-                    <controls:IchibaItemCard />
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.ItemContainerStyle>
-                  <Style TargetType="ContentPresenter">
-                    <Setter Property="Margin"
-                            Value="0 0 16 8" />
-                  </Style>
-                </ItemsControl.ItemContainerStyle>
-                <ItemsControl.ItemsPanel>
-                  <ItemsPanelTemplate>
-                    <uwptoolkit:WrapPanel Orientation="Horizontal" />
-                  </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-              </ItemsControl>
-            </Grid>
-          </PivotItem>
-          <PivotItem x:Name="RecommendItemsPivotItem" Header="{i18nExt:Localize Key=Recommend}">
-            <StackPanel Visibility="{Binding IsLiveRecommendInitialized}">
-              <TextBlock Visibility="{Binding IsEmptyLiveRecommendItems}" 
-                         Text="{i18nExt:Localize Key=RecommendNotFound}"
-                         Opacity="0.7"
-                         Margin="16" />
-              <ListView ItemsSource="{Binding ReccomendItems}"
-                        IsItemClickEnabled="True"
-                        SelectionMode="None"
-                        HorizontalContentAlignment="Stretch"
-                        myExtensions:ListViewBase.DeferInitialize="True">
-                <i:Interaction.Behaviors>
-                  <core:EventTriggerBehavior EventName="ItemClick">
-                    <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
-                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-                  </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-                <ItemsControl.ItemTemplate>
-                  <DataTemplate>
-                    <liveViews:LiveVideoListItem />
-                  </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ListView.ItemContainerStyle>
-                  <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment"
-                            Value="Stretch" />
-                    <Setter Property="Margin"
-                            Value="0 0 0 0" />
-                    <Setter Property="Padding"
-                            Value="0 8 16 8" />
-                    <Setter Property="UseSystemFocusVisuals"
-                            Value="True" />
-                    <Setter Property="BorderThickness"
-                            Value="0 0 0 1" />
-                    <Setter Property="BorderBrush"
-                            Value="#44707070" />
-                  </Style>
-                </ListView.ItemContainerStyle>
-              </ListView>
-            </StackPanel>
-          </PivotItem>
-        </Pivot>
-      </StackPanel>
-    </ScrollViewer>
-    <uwptoolkit:DockPanel x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}" VerticalAlignment="Top">
-
-      <controls:AppTitleBar Title="{Binding Title}" uwptoolkit:DockPanel.Dock="Top" />
-
-      <uwptoolkit:WrapPanel Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Right"
-                            x:Name="ViewActionButtonsLayout"
-                            Margin="0 48 0 0"
+        <!-- サムネ、タイトル、視聴開始、タイムシフト予約 -->
+        <Border Background="{StaticResource MenuBackgroundBrush}">
+          <uwptoolkit:DockPanel x:Name="HeaderLayout"
                             >
-        <Button x:Name="OpenLiveContentButton"
+
+            <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+              <Image Source="{Binding LiveProgram.ThumbnailUrl}"
+                   Height="80"
+                   Margin="0 8 16 16"
+                   toolkit:DockPanel.Dock="Left"
+                    />
+
+              <controls:AppTitleBar Title="{Binding Title}" />
+            </toolkit:DockPanel>
+
+          
+          </uwptoolkit:DockPanel>
+        </Border>
+
+        <uwptoolkit:WrapPanel Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            x:Name="ViewActionButtonsLayout"
+                            Margin="0 0 0 0"
+                            >
+          <Button x:Name="OpenLiveContentButton"
                 Style="{ThemeResource AccentButtonStyle}"
                 Command="{Binding OpenLiveContentCommand}"
                 CommandParameter="{Binding Live}"
@@ -341,57 +57,321 @@
                 Margin="0 0 8 0"
                 Height="48"
                 Padding="16 0">
-          <StackPanel>
-            <TextBlock Text="{i18nExt:Localize Key=WatchLiveStreaming}"
+            <StackPanel>
+              <TextBlock Text="{i18nExt:Localize Key=WatchLiveStreaming}"
                        HorizontalAlignment="Center" />
-            <TextBlock Visibility="{Binding ExpiredTime, Converter={StaticResource NotNullToVisibility}}"
+              <TextBlock Visibility="{Binding ExpiredTime, Converter={StaticResource NotNullToVisibility}}"
                        Opacity="0.8">
                                     (<Run Text="{i18nExt:Localize Key=TimeShift_WatchLimit}" /> <Run Text="{Binding ExpiredTime, Converter={StaticResource ExpiredDateTimeToString}}" />)</TextBlock>
-          </StackPanel>
-        </Button>
-        <Button x:Name="AddTimeshiftButton" Content="{i18nExt:Localize Key=AddTimeshift}"
+            </StackPanel>
+          </Button>
+          <Button x:Name="AddTimeshiftButton" Content="{i18nExt:Localize Key=AddTimeshift}"
                 Command="{Binding TogglePreserveTimeshift}"
                 Visibility="{Binding IsShowAddTimeshiftButton.Value}"
                 Margin="0 0 8 0" />
-        <Button x:Name="DeleteTimeshiftButton" Content="{i18nExt:Localize Key=AlreadyAddedTimeshift}"
+          <Button x:Name="DeleteTimeshiftButton" Content="{i18nExt:Localize Key=AlreadyAddedTimeshift}"
                 Visibility="{Binding IsShowDeleteTimeshiftButton.Value}"
                 Margin="0 0 8 0">
-          <Button.Flyout>
-            <MenuFlyout>
-              <MenuFlyoutItem Text="{i18nExt:Localize Key=DeleteTimeshift}"
+            <Button.Flyout>
+              <MenuFlyout>
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=DeleteTimeshift}"
                               Command="{Binding TogglePreserveTimeshift}" />
-            </MenuFlyout>
-          </Button.Flyout>
-        </Button>
-        <Button>
-          <SymbolIcon Symbol="More" />
-          <Button.Flyout>
-            <MenuFlyout>
-              <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenWithBrowser}"
+              </MenuFlyout>
+            </Button.Flyout>
+          </Button>
+          <Button>
+            <SymbolIcon Symbol="More" />
+            <Button.Flyout>
+              <MenuFlyout>
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenWithBrowser}"
                               Command="{Binding OpenLinkCommand}"
                               CommandParameter="{Binding Live}" />
-              <MenuFlyoutItem Text="{i18nExt:Localize Key=Share}"
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=Share}"
                               Command="{Binding OpenShareUICommand}"
                               CommandParameter="{Binding Live}"
                               Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}" />
-              <MenuFlyoutSubItem Text="{i18nExt:Localize Key=Copy}"
+                <MenuFlyoutSubItem Text="{i18nExt:Localize Key=Copy}"
                                  Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}">
-                <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingLink}"
+                  <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingLink}"
                                 Command="{Binding CopyToClipboardCommand}"
                                 CommandParameter="{Binding Live}" />
-                <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingId}"
+                  <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingId}"
                                 Command="{Binding CopyToClipboardCommand}"
                                 CommandParameter="{Binding Id}" />
-                <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingShareText}"
+                  <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyLiveStreamingShareText}"
                                 Command="{Binding CopyToClipboardWithShareTextCommand}"
                                 CommandParameter="{Binding Live}" />
-              </MenuFlyoutSubItem>
-            </MenuFlyout>
-          </Button.Flyout>
-        </Button>
-      </uwptoolkit:WrapPanel>
+                </MenuFlyoutSubItem>
+              </MenuFlyout>
+            </Button.Flyout>
+          </Button>
+        </uwptoolkit:WrapPanel>
 
-    </uwptoolkit:DockPanel>
+
+        <!-- 放送日時 -->
+        <StackPanel Orientation="Horizontal">
+          <StackPanel toolkit:DockPanel.Dock="Bottom"
+                          Margin="16 8"
+                          >
+            <TextBlock Text="{i18nExt:Localize Key=LiveStreamingStartAt}" />
+
+            <TextBlock Opacity="0.7">
+               <Run Text="{Binding LiveProgram.ShowTime.BeginAt, Converter={StaticResource DateTimeToString}}" />
+            </TextBlock>
+          </StackPanel>
+
+          <StackPanel toolkit:DockPanel.Dock="Bottom"
+                          Margin="16 8"
+                          >
+            <TextBlock Text="{i18nExt:Localize Key=LiveStreamingEndAt}">
+
+            </TextBlock>
+            <TextBlock Opacity="0.7">
+               <Run Text="{Binding LiveProgram.ShowTime.EndAt, Converter={StaticResource DateTimeToString}}" />
+            </TextBlock>
+            
+          </StackPanel>
+        </StackPanel>
+
+
+        <!-- タグ -->
+        <StackPanel>
+          <!--
+          <TextBlock Text="{i18nExt:Localize Key=Tag}"
+                           Margin="0 16 8 8"
+                           Style="{StaticResource SubtitleTextBlockStyle}" />
+          -->
+          <TextBlock Text="{i18nExt:Localize Key=NoTags}"
+                           Opacity="0.7"
+                           Visibility="{Binding LiveTags, Converter={StaticResource EmptyCollectionVisibilityConverter}}" />
+          <ItemsControl ItemsSource="{Binding LiveTags}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <uwptoolkit:WrapPanel Orientation="Horizontal" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemContainerStyle>
+              <Style TargetType="ContentPresenter">
+                <Setter Property="Margin"
+                              Value="0 0 8 8" />
+              </Style>
+            </ItemsControl.ItemContainerStyle>
+            <ItemsControl.ItemTemplateSelector>
+              <templateselector:ValueDataTemplateSelector PropertyName="Type">
+                <templateselector:ValueDataTemplate Value="{x:Bind liveVM:LiveTagType.Category}">
+                  <DataTemplate x:DataType="liveVM:LiveTagViewModel">
+                    <Button Command="{Binding SearchLiveTagCommand}"
+                                  CommandParameter="{Binding}">
+                      <StackPanel Orientation="Horizontal">
+                        <iconPack:PackIconMaterial Kind="Lock"
+                                                         Height="16"
+                                                         Width="16"
+                                                         Margin="0 0 8 0"
+                                                         VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Tag}"
+                                         FontWeight="Bold"
+                                         TextWrapping="Wrap"
+                                         VerticalAlignment="Center" />
+                      </StackPanel>
+                    </Button>
+                  </DataTemplate>
+                </templateselector:ValueDataTemplate>
+                <templateselector:ValueDataTemplate Value="{x:Bind liveVM:LiveTagType.Locked}">
+                  <DataTemplate x:DataType="liveVM:LiveTagViewModel">
+                    <Button Command="{Binding SearchLiveTagCommand}"
+                                  CommandParameter="{Binding}">
+                      <StackPanel Orientation="Horizontal">
+                        <iconPack:PackIconMaterial Kind="Lock"
+                                                         Height="16"
+                                                         Width="16"
+                                                         Margin="0 0 8 0"
+                                                         VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Tag}"
+                                         TextWrapping="Wrap"
+                                         VerticalAlignment="Center" />
+                      </StackPanel>
+                    </Button>
+                  </DataTemplate>
+                </templateselector:ValueDataTemplate>
+                <templateselector:ValueDataTemplate Value="{x:Bind liveVM:LiveTagType.Free}">
+                  <DataTemplate x:DataType="liveVM:LiveTagViewModel">
+                    <Button Command="{Binding SearchLiveTagCommand}"
+                                  CommandParameter="{Binding}">
+                      <TextBlock Text="{Binding Tag}"
+                                       TextWrapping="Wrap" />
+                    </Button>
+                  </DataTemplate>
+                </templateselector:ValueDataTemplate>
+              </templateselector:ValueDataTemplateSelector>
+            </ItemsControl.ItemTemplateSelector>
+          </ItemsControl>
+        </StackPanel>
+        
+        <!-- 生放送説明文 -->
+        <StackPanel>
+          <TextBlock Text="{i18nExt:Localize Key=LiveStreamingDescription}"
+                           Margin="0 16 8 8"
+                           Style="{StaticResource SubtitleTextBlockStyle}" />
+          <WebView DefaultBackgroundColor="Transparent"
+                         x:Name="LiveDescWebView"
+                         myExtensions:WebView.HtmlString="{Binding HtmlDescription}"
+                         myExtensions:WebView.UriNotifyCommand="{Binding ScriptNotifyCommand}">
+            <i:Interaction.Behaviors>
+              <mybehavior:WebViewAutoResizeToContent />
+              <!-- WebViewでUINavigationControllerがハマるバグに対応する -->
+              <mybehavior:PreventSpoilerXYNavigationInWebView />
+            </i:Interaction.Behaviors>
+          </WebView>
+        </StackPanel>
+        
+        <!-- 説明文内のリンク -->
+        <uwptoolkit:Expander IsExpanded="False"
+                                   Visibility="Collapsed"
+                                   x:Name="DescriptionHyperlinkItems">
+          <uwptoolkit:Expander.HeaderTemplate>
+            <DataTemplate>
+              <TextBlock Text="{i18nExt:Localize Key=LinkItemsInLiveStreamingDescription}"
+                               Style="{StaticResource SubtitleTextBlockStyle}" />
+            </DataTemplate>
+          </uwptoolkit:Expander.HeaderTemplate>
+          <GridView ItemsSource="{Binding DescriptionHyperlinkItems, Mode=OneWay}"
+                          IsItemClickEnabled="True"
+                          HorizontalContentAlignment="Stretch"
+                          SelectionMode="None">
+            <i:Interaction.Behaviors>
+              <core:EventTriggerBehavior EventName="ItemClick">
+                <core:InvokeCommandAction Command="{Binding ScriptNotifyCommand}"
+                                                InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+              </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+            <GridView.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Label}" />
+              </DataTemplate>
+            </GridView.ItemTemplate>
+            <GridView.ItemContainerStyle>
+              <Style TargetType="GridViewItem">
+                <Setter Property="Padding"
+                              Value="16 8" />
+                <Setter Property="HorizontalContentAlignment"
+                              Value="Stretch" />
+              </Style>
+            </GridView.ItemContainerStyle>
+          </GridView>
+        </uwptoolkit:Expander>
+
+
+        <!-- 放送者情報（Community） -->
+        <Grid Visibility="{Binding Community, Converter={StaticResource NotNullToVisibility}}">
+          <toolkit:DockPanel x:Name="BroadcasterDesc_Other">
+            <StackPanel toolkit:DockPanel.Dock="Top">
+              <toolkit:DockPanel Margin="0 0 0 0">
+                <Image Source="{Binding Community.Thumbnail}"
+                           Height="60"
+                           Margin="0 0 8 0"
+                           toolkit:DockPanel.Dock="Left" />
+                <TextBlock Text="{Binding Community.Name}"
+                               Style="{StaticResource TitleTextBlockStyle}"
+                               VerticalAlignment="Center"
+                               Margin="16 0 0 0"
+                               />
+              </toolkit:DockPanel>
+            </StackPanel>
+            <Border Height="16"
+                        toolkit:DockPanel.Dock="Top" />
+            <StackPanel Orientation="Horizontal"
+                            toolkit:DockPanel.Dock="Top">
+              <Button Content="{i18nExt:Localize Key=CommunityDetail}"
+                          Command="{Binding PageManager.OpenPageCommand}"
+                          CommandParameter="{Binding Community}"
+                          Visibility="{Binding Community, Converter={StaticResource NotNullToVisibility}}" />
+            </StackPanel>
+            <Border Height="16"
+                        toolkit:DockPanel.Dock="Top" />
+          </toolkit:DockPanel>
+          <Grid x:Name="BroadcasterDesc_Official"
+                    Visibility="Collapsed">
+            <TextBlock Text="{i18nExt:Localize Key=ThisStreamingIsPresentedByOfficial}" />
+          </Grid>
+        </Grid>
+
+        
+        <!-- 市場 -->
+        <Grid EffectiveViewportChanged="Grid_EffectiveViewportChanged">
+
+          <TextBlock Text="{i18nExt:Localize Key=NiconicoIchiba}" Style="{StaticResource SubtitleTextBlockStyle}" />
+          
+          <TextBlock Text="{i18nExt:Localize Key=IchibaNoItems}"
+                         Visibility="{Binding IsEmptyIchibaItems}"
+                         Opacity="0.7"
+                         Margin="16" />
+          <ItemsControl ItemsSource="{Binding IchibaItems}"
+                            IsTabStop="False">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <controls:IchibaItemCard />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ItemsControl.ItemContainerStyle>
+              <Style TargetType="ContentPresenter">
+                <Setter Property="Margin"
+                            Value="0 0 16 8" />
+              </Style>
+            </ItemsControl.ItemContainerStyle>
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <uwptoolkit:WrapPanel Orientation="Horizontal" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+          </ItemsControl>
+        </Grid>
+        
+        <!-- オススメ -->
+        <StackPanel >
+
+          <TextBlock Text="{i18nExt:Localize Key=Recommend}" Style="{StaticResource SubtitleTextBlockStyle}" />
+          <TextBlock Visibility="{Binding IsEmptyLiveRecommendItems}" 
+                         Text="{i18nExt:Localize Key=RecommendNotFound}"
+                         Opacity="0.7"
+                         Margin="16" />
+          <ListView ItemsSource="{Binding ReccomendItems}"
+                        IsItemClickEnabled="True"
+                        SelectionMode="None"
+                        HorizontalContentAlignment="Stretch"
+                        myExtensions:ListViewBase.DeferInitialize="True">
+            <i:Interaction.Behaviors>
+              <core:EventTriggerBehavior EventName="ItemClick">
+                <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+              </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <liveViews:LiveVideoListItem />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+            <ListView.ItemContainerStyle>
+              <Style TargetType="ListViewItem">
+                <Setter Property="HorizontalContentAlignment"
+                            Value="Stretch" />
+                <Setter Property="Margin"
+                            Value="0 0 0 0" />
+                <Setter Property="Padding"
+                            Value="0 8 16 8" />
+                <Setter Property="UseSystemFocusVisuals"
+                            Value="True" />
+                <Setter Property="BorderThickness"
+                            Value="0 0 0 1" />
+                <Setter Property="BorderBrush"
+                            Value="#44707070" />
+              </Style>
+            </ListView.ItemContainerStyle>
+          </ListView>
+        </StackPanel>
+       
+      </StackPanel>
+    </ScrollViewer>
+    
     
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
@@ -558,33 +538,7 @@
         </VisualState>
       </VisualStateGroup>
       
-      <!-- WebViewを使った放送説明の表示 -->
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <hardTrigger:DeviceFamilyTrigger Condition="Mobile" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters></VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <myTrigger:EqualConditionStateTrigger Condition="{x:Null}"
-                                                  Value="{Binding HtmlDescription, Mode=OneWay}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters></VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="True" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="LiveDescTextBox.Visibility"
-                    Value="Collapsed" />
-            <Setter Target="LiveDescWebView.Visibility"
-                    Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
+      
       <!-- 生放送情報の読み込み状態 -->
       <VisualStateGroup>
         <VisualState>

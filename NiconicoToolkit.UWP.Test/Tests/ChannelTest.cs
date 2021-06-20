@@ -19,6 +19,22 @@ namespace NiconicoToolkit.UWP.Test.Tests
             _context.SetupDefaultRequestHeaders();
         }
 
+
+        [TestMethod]
+        //[DataRow("maidragon")]
+        [DataRow("ch2647775")]
+        [DataRow("2647798")]
+        public async Task GetChannelInfoAsync(string channelId)
+        {
+            var res = await _context.Channel.GetChannelInfoAsync(channelId);
+            Assert.IsTrue(res != null);
+
+            Assert.IsNotNull(res.Name);
+            Assert.IsNotNull(res.ScreenName);
+            Assert.IsNotNull(res.CompanyViewname);
+        }
+
+
         [TestMethod]
         [DataRow("maidragon")]
         [DataRow("ch2647775")]

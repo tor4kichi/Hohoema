@@ -1,4 +1,5 @@
-﻿using NiconicoToolkit.User;
+﻿using NiconicoToolkit.Community;
+using NiconicoToolkit.User;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
@@ -26,7 +27,7 @@ namespace NiconicoToolkit.Follow
     public sealed class OwnedCommunity : IFollowCommunity
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public CommunityId Id { get; set; }
 
         [JsonPropertyName("name")]
         public string Name { get; set; }
@@ -66,9 +67,6 @@ namespace NiconicoToolkit.Follow
 
 
         string IFollowCommunity.GlobalId => Id;
-
-        long? _id;
-        long IFollowCommunity.Id => _id ??= long.Parse(Id.Remove(0, 2));
     }
 
 }

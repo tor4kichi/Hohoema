@@ -43,12 +43,12 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 selectDialogContent = new List<ISelectableContainer>()
                 {
                     new ChoiceFromListSelectableContainer("マイリスト",
-                        mylists.Where(x => ignoreMylistId.All(y => x.Id != y))
-                            .Select(x => new SelectDialogPayload() { Label = x.Label, Id = x.Id, Context = x })
+                        mylists.Where(x => ignoreMylistId.All(y => x.MylistId != y))
+                            .Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.MylistId, Context = x })
                     ),
                     new ChoiceFromListSelectableContainer("ローカルマイリスト",
                         localMylists.Where(x => ignoreMylistId.All(y => x.Id != y))
-                            .Select(x => new SelectDialogPayload() { Label = x.Label, Id = x.Id, Context = x })
+                            .Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
                     ),
                     new ChoiceFromListSelectableContainer("新規作成",
                         new [] {
@@ -64,7 +64,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
                 {
                     new ChoiceFromListSelectableContainer("LocalPlaylist".Translate(),
                         localMylists.Where(x => ignoreMylistId.All(y => x.Id != y))
-                            .Select(x => new SelectDialogPayload() { Label = x.Label, Id = x.Id, Context = x })
+                            .Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
                     ),
                     new ChoiceFromListSelectableContainer("CreateNew".Translate(),
                         new [] {
@@ -95,7 +95,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
                         validater: (str) => !string.IsNullOrWhiteSpace(str)
                         );
                         await _userMylistManager.AddMylist(title, "", false, MylistSortKey.AddedAt, MylistSortOrder.Desc);
-                        resultList = _userMylistManager.Mylists.LastOrDefault(x => x.Label == title);
+                        resultList = _userMylistManager.Mylists.LastOrDefault(x => x.Name == title);
                     }
                     else //if (result.Id == "local")
                     {

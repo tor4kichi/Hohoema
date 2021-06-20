@@ -52,6 +52,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Share;
 using NiconicoToolkit.Live.WatchSession.Events;
 using NiconicoToolkit.Live.Timeshift;
 using AngleSharp.Html.Parser;
+using NiconicoToolkit;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -84,9 +85,9 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         public ProviderType ProviderType { get; set; }
 
-        public string Id { get; set; }
+        public LiveId LiveId { get; set; }
 
-        public string Label { get; set; }
+        public string Title { get; set; }
     }
 
 
@@ -789,7 +790,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 var timeshiftDetailsRes = await LoginUserLiveReservationProvider.GetReservtionsDetailAsync();
                 foreach (var timeshift in timeshiftDetailsRes.Data.Items)
                 {
-                    if (LiveId.EndsWith(timeshift.LiveIdWithoutPrefix))
+                    if (LiveId.EndsWith(timeshift.LiveId))
                     {
                         _TimeshiftProgram = timeshift;
                     }
@@ -841,7 +842,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 {
                     await Task.Delay(500);
 
-                    await LoginUserLiveReservationProvider.UseReservationAsync(_TimeshiftProgram.LiveIdWithoutPrefix);
+                    await LoginUserLiveReservationProvider.UseReservationAsync(_TimeshiftProgram.LiveId);
 
                     await Task.Delay(3000);
 
@@ -868,7 +869,9 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            LiveId = parameters.GetValue<string>("id");
+            LiveId = parameters.GetValue<string>("id")
+                ?? parameters.GetValue<LiveId>("id")
+                ;
 
             if (parameters.TryGetValue<string>("title", out var title))
             {
@@ -885,8 +888,8 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                 LiveInfo = new LiveContent() 
                 {
-                    Label = _PlayerProp.Program.Title,
-                    Id = LiveId,
+                    Title = _PlayerProp.Program.Title,
+                    LiveId = LiveId,
                 };
 
                 if (_PlayerProp.UserProgramWatch.RejectedReasons.Any())

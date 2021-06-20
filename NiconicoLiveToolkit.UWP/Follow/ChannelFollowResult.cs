@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.Channels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,7 @@ namespace NiconicoToolkit.Follow
     {
 
         [JsonPropertyName("channel_id")]
-        public string ChannelId { get; set; }
+        public ChannelId ChannelId { get; set; }
 
         [JsonPropertyName("message")]
         public string Message { get; set; }

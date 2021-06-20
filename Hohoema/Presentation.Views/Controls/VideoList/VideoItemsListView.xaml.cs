@@ -291,7 +291,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
                 SelectActions_AddLocalMylist.Visibility = Visibility.Visible;
 
                 if (PlaylistPassToFlyout?.IsQueuePlaylist() ?? false
-                    || _selectionContext.SelectionItems.Any(x => _hohoemaPlaylist.QueuePlaylist.Any(y => x.Id == y.Id))
+                    || _selectionContext.SelectionItems.Any(x => _hohoemaPlaylist.QueuePlaylist.Any(y => x == y))
                     )
                 {
                     SelectActions_RemoveWatchAfter.Visibility = Visibility.Visible;

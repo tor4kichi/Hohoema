@@ -32,15 +32,7 @@ namespace NiconicoToolkit.Recommend
                 }
             };
 
-            _liveRecommendOptions = new JsonSerializerOptions()
-            {
-                PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy(),
-                Converters =
-                {
-                    new JsonStringEnumMemberConverter(JsonSnakeCaseNamingPolicy.Instance),
-                    new UserIdJsonConverter(),
-                }
-            };
+            _liveRecommendOptions = NiconicoContext.DefaultOptionsSnakeCase;
         }
 
         internal static class Urls
@@ -74,15 +66,10 @@ namespace NiconicoToolkit.Recommend
 
         
 
-        public Task<LiveRecommendResponse> GetLiveRecommendForUserAsync(string liveId, UserId userId, IEnumerable<string> tags = null) 
+        public Task<LiveRecommendResponse> GetLiveRecommendForUserAsync(LiveId liveId, UserId userId, IEnumerable<string> tags = null) 
         {
             // https://live.nicovideo.jp/watch/lv332342875
             // https://live2.nicovideo.jp/front/api/v1/recommend-contents?user_id=91190464&frontend_id=9&tags=アニメ&site=nicolive&content_meta=true&live_id=lv332342875&recipe=live_watch_user&v=1
-
-            if (!ContentIdHelper.IsLiveId(liveId))
-            {
-                throw new ArgumentException("liveId must contain \"lv\" prefix.");
-            }
 
             var dict = new NameValueCollection()
             {
@@ -107,15 +94,10 @@ namespace NiconicoToolkit.Recommend
 
 
 
-        public Task<LiveRecommendResponse> GetLiveRecommendForChannelAsync(string liveId, string channelId, IEnumerable<string> tags = null)
+        public Task<LiveRecommendResponse> GetLiveRecommendForChannelAsync(LiveId liveId, string channelId, IEnumerable<string> tags = null)
         {
             // https://live.nicovideo.jp/watch/lv331311774
             // https://live2.nicovideo.jp/front/api/v1/recommend-contents?channel_id=ch2647027&frontend_id=9&tags=%E3%82%A2%E3%83%8B%E3%83%A1,%E4%B8%8A%E6%98%A0%E4%BC%9A,2021%E5%86%AC%E3%82%A2%E3%83%8B%E3%83%A1,%E8%9C%98%E8%9B%9B%E3%81%A7%E3%81%99%E3%81%8C%E3%80%81%E3%81%AA%E3%81%AB%E3%81%8B%EF%BC%9F,%E6%82%A0%E6%9C%A8%E7%A2%A7,%E5%A0%80%E6%B1%9F%E7%9E%AC,%E6%9D%B1%E5%B1%B1%E5%A5%88%E5%A4%AE,%E7%9F%B3%E5%B7%9D%E7%95%8C%E4%BA%BA,%E5%B0%8F%E5%80%89%E5%94%AF,%E5%96%9C%E5%A4%9A%E6%9D%91%E8%8B%B1%E6%A2%A8&site=nicolive&content_meta=true&live_id=lv331311774&recipe=live_watch_channel&v=1
-
-            if (!ContentIdHelper.IsLiveId(liveId))
-            {
-                throw new ArgumentException("liveId must contain \"lv\" prefix.");
-            }
 
             var channelIdWithPrefix = ContentIdHelper.EnsurePrefixChannelId(channelId);
 

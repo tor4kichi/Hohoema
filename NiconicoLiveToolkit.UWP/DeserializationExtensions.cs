@@ -134,7 +134,7 @@ namespace NiconicoToolkit
 
 
 
-		public static int ToDigit(this IEnumerable<char> chars)
+		public static int ToInt(this IEnumerable<char> chars)
 		{
 			int num = 0;
 			foreach (var c in chars)
@@ -145,6 +145,20 @@ namespace NiconicoToolkit
 				num *= 10;
 				num += (int)(c - '0');
             }
+			return num;
+		}
+
+		public static uint ToUInt(this IEnumerable<char> chars)
+		{
+			uint num = 0;
+			foreach (var c in chars)
+			{
+#if DEBUG
+				System.Diagnostics.Debug.Assert(char.IsDigit(c));
+#endif
+				num *= 10;
+				num += (uint)(c - '0');
+			}
 			return num;
 		}
 	}

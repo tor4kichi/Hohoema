@@ -1,12 +1,13 @@
 ﻿
 using Hohoema.Models.Domain.VideoCache;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.UseCase.VideoCache.Events
 {
-    public sealed class VideoCacheStatusChangedMessage : ValueChangedMessage<(string VideoId, VideoCacheStatus? CacheStatus, VideoCacheItem Item)>
+    public sealed class VideoCacheStatusChangedMessage : ValueChangedMessage<(VideoId VideoId, VideoCacheStatus? CacheStatus, VideoCacheItem Item)>
     {
-        public VideoCacheStatusChangedMessage((string VideoId, VideoCacheStatus?, VideoCacheItem) value) : base(value)
+        public VideoCacheStatusChangedMessage((VideoId VideoId, VideoCacheStatus?, VideoCacheItem) value) : base(value)
         {
         }
     }

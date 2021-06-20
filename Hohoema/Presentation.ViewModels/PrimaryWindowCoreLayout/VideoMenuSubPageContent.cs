@@ -19,7 +19,7 @@ using Hohoema.Models.Domain.Niconico;
 
 namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 {
-    public class VideoMenuSubPageContent : MenuItemBase, IDisposable
+    public sealed class VideoMenuSubPageContent : MenuItemBase, IDisposable
     {
         public VideoMenuSubPageContent(
             NiconicoSession niconicoSession,
@@ -38,12 +38,12 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 
             LocalMylists = LocalMylistManager.LocalPlaylists
                 .ToReadOnlyReactiveCollection(x =>
-                new MenuItemViewModel(x.Label, HohoemaPageType.LocalPlaylist, new NavigationParameters { { "id", x.Id } }) as HohoemaListingPageItemBase
+                new MenuItemViewModel(x.Name, HohoemaPageType.LocalPlaylist, new NavigationParameters { { "id", x.Id } }) as HohoemaListingPageItemBase
                 )
                 .AddTo(_CompositeDisposable);
             Mylists = MylistManager.Mylists
                 .ToReadOnlyReactiveCollection(x =>
-                new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new NavigationParameters { { "id", x.Id } }) as HohoemaListingPageItemBase
+                new MenuItemViewModel(x.Name, HohoemaPageType.Mylist, new NavigationParameters { { "id", x.MylistId } }) as HohoemaListingPageItemBase
                 )
                 .AddTo(_CompositeDisposable);
 

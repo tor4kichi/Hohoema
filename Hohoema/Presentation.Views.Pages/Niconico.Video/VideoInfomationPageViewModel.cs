@@ -56,15 +56,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         {
             return new HohoemaPin()
             {
-                Label = VideoDetails.VideoTitle,
+                Label = VideoDetails.Title,
                 PageType = HohoemaPageType.VideoInfomation,
-                Parameter = $"id={VideoInfo.VideoId}"
+                Parameter = $"id={VideoInfo.VideoAliasId}"
             };
         }
 
         IObservable<string> ITitleUpdatablePage.GetTitleObservable()
         {
-            return this.ObserveProperty(x => x.VideoDetails).Select(x => x?.VideoTitle);
+            return this.ObserveProperty(x => x.VideoDetails).Select(x => x?.Title);
         }
 
         public VideoInfomationPageViewModel(
@@ -330,7 +330,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                         }
                         else if (playlist is LoginUserMylistPlaylist loginUserMylist)
                         {
-                            _ = loginUserMylist.AddItem(VideoInfo.RawVideoId);
+                            _ = loginUserMylist.AddItem(VideoInfo.Id);
                         }
                     }));
             }
@@ -441,43 +441,52 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             NowLoading.Value = true;
             IsLoadFailed.Value = false;
 
+            VideoId? videoId = null;
+            if (parameters.TryGetValue("id", out string strVideoId))
+            {
+                videoId = strVideoId;
+            }
+            else if (parameters.TryGetValue("id", out VideoId justVideoId))
+            {
+                videoId = justVideoId;
+            }
+
+            if (videoId == null)
+            {
+                IsLoadFailed.Value = true;
+                NowLoading.Value = false;
+                return;
+            }
+
             try
             {
-                if (parameters.TryGetValue("id", out string videoId))
-                {                    
-                    if (videoId == null)
+
+                // 投稿者情報やHTMLなDescriptionが必要なので、オンラインから情報取得
+                (_, VideoInfo) = await NicoVideoProvider.GetVideoInfoAsync(videoId.Value);
+
+                await UpdateVideoDescription();
+
+                if (NiconicoSession.IsLoggedIn)
+                {
+                    var owner = await NicoVideoProvider.ResolveVideoOwnerAsync(videoId.Value);
+                    FollowContext = VideoInfo.ProviderType switch
                     {
-                        IsLoadFailed.Value = true;
-                        throw new Models.Infrastructure.HohoemaExpception();
-                    }
+                        OwnerType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, owner),
+                        OwnerType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, owner),
+                        _ => null
+                    };
+                }
 
-                    // 投稿者情報やHTMLなDescriptionが必要なので、オンラインから情報取得
-                    (_, VideoInfo) = await NicoVideoProvider.GetVideoInfoAsync(videoId);
-                    
-                    await UpdateVideoDescription();
+                UpdateSelfZoning();
 
-                    if (NiconicoSession.IsLoggedIn)
-                    {
-                        var owner = await NicoVideoProvider.ResolveVideoOwnerAsync(videoId);
-                        FollowContext = VideoInfo.ProviderType switch
-                        {
-                            OwnerType.User => await FollowContext<IUser>.CreateAsync(_userFollowProvider, owner),
-                            OwnerType.Channel => await FollowContext<IChannel>.CreateAsync(_channelFollowProvider, owner),
-                            _ => null
-                        };
-                    }
+                OpenOwnerUserPageCommand.RaiseCanExecuteChanged();
+                OpenOwnerUserVideoPageCommand.RaiseCanExecuteChanged();
 
-                    UpdateSelfZoning();
-
-                    OpenOwnerUserPageCommand.RaiseCanExecuteChanged();
-                    OpenOwnerUserVideoPageCommand.RaiseCanExecuteChanged();
-
-                    // 好きの切り替え
-                    if(NiconicoSession.IsLoggedIn && VideoDetails != null)
-                    {
-                        LikesContext = new VideoLikesContext(VideoDetails, NiconicoSession.ToolkitContext.Likes, NotificationService);
-                    }
-                }                
+                // 好きの切り替え
+                if (NiconicoSession.IsLoggedIn && VideoDetails != null)
+                {
+                    LikesContext = new VideoLikesContext(VideoDetails, NiconicoSession.ToolkitContext.Likes, NotificationService);
+                }
             }
             catch (Exception ex)
             {
@@ -530,7 +539,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
             try
             {
-                var ichiba = await NiconicoSession.ToolkitContext.Ichiba.GetIchibaItemsAsync(VideoInfo.RawVideoId);
+                var ichiba = await NiconicoSession.ToolkitContext.Ichiba.GetIchibaItemsAsync(VideoInfo.Id);
                 IchibaItems = ichiba.MainItems;
                 RaisePropertyChanged(nameof(IchibaItems));
             }
@@ -558,7 +567,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
             try
             {
-                var res = await _recommendProvider.GetVideoRecommendAsync(VideoInfo.RawVideoId);
+                var res = await _recommendProvider.GetVideoRecommendAsync(VideoInfo.Id);
 
                 if (_navigationCancellationToken.IsCancellationRequested) { return; }
 
@@ -600,7 +609,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         private async Task UpdateVideoDescription()
         {
-            if (VideoInfo.RawVideoId == null)
+            if (VideoInfo.Id == null)
             {
                 return;
             }
@@ -609,7 +618,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
             try
             {
-                var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.RawVideoId, noHistory: true);
+                var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.Id, noHistory: true);
                 VideoDetails = res.GetVideoDetails();
 
 

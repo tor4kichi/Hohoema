@@ -1,4 +1,5 @@
-﻿using NiconicoToolkit.User;
+﻿using NiconicoToolkit.Live;
+using NiconicoToolkit.User;
 using System;
 using System.Text.Json.Serialization;
 
@@ -21,7 +22,7 @@ namespace NiconicoToolkit.Community
         public sealed class CommunityLiveItem
         {
             [JsonPropertyName("id")]
-            public string Id { get; set; }
+            public LiveId Id { get; set; }
 
             [JsonPropertyName("title")]
             public string Title { get; set; }

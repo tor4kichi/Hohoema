@@ -205,7 +205,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             ItemTopic = itemType;
 
             VideoId = nicoVideo.VideoId;
-            if (VideoId != RawVideoId)
+            if (VideoId != VideoId)
             {
                 SubscribeAll(VideoId);
             }
@@ -354,8 +354,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             var topicTypeMapedEntries = nicoRepoResponse.Data.Select(x => (TopicType: x.GetMuteContextTrigger(), Item: x)).ToList();
             var numberIdVideoTopics = topicTypeMapedEntries
                 .Where(x => IsVideoTopic(x.TopicType));
-            var videoNicoVideoItems = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(numberIdVideoTopics.Select(x => x.Item.GetContentId()));
-            var videoDict = videoNicoVideoItems.ToDictionary(x => x.RawVideoId);
+            var videoNicoVideoItems = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(numberIdVideoTopics.Select(x => (VideoId)x.Item.GetContentId()));
+            var videoDict = videoNicoVideoItems.ToDictionary(x => x.Id);
 
             return topicTypeMapedEntries.Select(item =>
             {

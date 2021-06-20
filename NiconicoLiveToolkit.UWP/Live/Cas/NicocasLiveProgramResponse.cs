@@ -16,7 +16,7 @@ namespace NiconicoToolkit.Live.Cas
     public sealed class LiveProgramData
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public LiveId Id { get; set; }
 
         [JsonPropertyName("title")]
         public string Title { get; set; }
