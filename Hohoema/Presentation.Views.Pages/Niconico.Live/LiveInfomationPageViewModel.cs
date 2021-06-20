@@ -57,10 +57,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
         public LiveData(NiconicoToolkit.Live.Cas.LiveProgramData liveProgram, string providerName)
         {
             _liveProgram = liveProgram;
+            ProviderName = providerName;
         }
 
         string ILiveContentProvider.ProviderId => _liveProgram.ProviderId;
-        string ILiveContentProvider.ProviderName { get; }
+        public string ProviderName { get; }
         ProviderType ILiveContentProvider.ProviderType => _liveProgram.ProviderType;
 
 
@@ -284,8 +285,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
         }
 
         // 放送説明
-        private Uri _HtmlDescription;
-        public Uri HtmlDescription
+        private string _HtmlDescription;
+        public string HtmlDescription
         {
             get { return _HtmlDescription; }
             private set { SetProperty(ref _HtmlDescription, value); }
@@ -307,14 +308,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             private set { SetProperty(ref _Community, value); }
         }
 
-        /*
+        
         private DateTime? _ExpiredTime;
         public DateTime? ExpiredTime
         {
             get { return _ExpiredTime; }
             private set { SetProperty(ref _ExpiredTime, value); }
         }
-        */
+        
 
         private string _timeshiftStatus;
         public string TimeshiftStatus
@@ -544,6 +545,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
         async Task RefreshLiveInfoAsync(LiveId liveId)
         {
+            using var _ = await _UpdateLock.LockAsync();
+
             IsLoadFailed.Value = false;
             LoadFailedMessage.Value = string.Empty;
 
@@ -584,7 +587,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
                     // タイムシフト視聴開始の判定処理のため_IsTsPreservedより後にLiveInfoを代入する
                     LiveProgram = programInfo.Data;
-
+                    Live = new LiveData(programInfo.Data, Community?.Name);
                     LiveId = liveId;
                 }
                 else
@@ -621,7 +624,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                     appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
                 }
 
-                HtmlDescription = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(LiveId, htmlDescription, appTheme);
+                HtmlDescription = await HtmlFileHelper.ToCompletlyHtmlAsync(htmlDescription, appTheme);
 
                 try
                 {
@@ -717,12 +720,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             _IsTsPreserved.Value = thisLiveReservation != null;
         }
 
-        AsyncLock _IchibaUpdateLock = new AsyncLock();
         public bool IsIchibaInitialized { get; private set; } = false;
         public bool IsEmptyIchibaItems { get; private set; } = true;
         public async void InitializeIchibaItems()
         {
-            using (var releaser = await _IchibaUpdateLock.LockAsync())
+            using (var releaser = await _UpdateLock.LockAsync())
             {
                 if (LiveProgram == null) { return; }
 
@@ -761,7 +763,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
         TimeshiftReservationsDetailResponse _Reservations;
 
-        AsyncLock _LiveRecommendLock = new AsyncLock();
+        AsyncLock _UpdateLock = new AsyncLock();
         private readonly AppearanceSettings _appearanceSettings;
 
         public bool IsLiveRecommendInitialized { get; private set; } = false;
@@ -773,7 +775,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
         public async void InitializeLiveRecommend()
         {
-            using (var releaser = await _LiveRecommendLock.LockAsync())
+            using (var releaser = await _UpdateLock.LockAsync())
             {
                 if (LiveProgram == null) { return; }
 
@@ -800,12 +802,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                         recommendResponse = await NiconicoSession.ToolkitContext.Recommend.GetLiveRecommendForChannelAsync(LiveProgram.Id, LiveProgram.SocialGroupId);
                     }
 
-                    foreach (var recommendItem in recommendResponse.Data.Items)
+                    if (recommendResponse.IsSuccess)
                     {
-                        _ReccomendItems.Add(recommendItem);
+                        foreach (var recommendItem in recommendResponse.Data.Items)
+                        {
+                            _ReccomendItems.Add(recommendItem);
+                        }
                     }
-
-                    
                 }
                 catch (Exception ex)
                 {
@@ -843,8 +846,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                 return _SearchLiveTagCommand
                     ?? (_SearchLiveTagCommand = new DelegateCommand<LiveTagViewModel>((tagVM) => 
                     {
-                        var pageManager = App.Current.Container.Resolve<PageManager>();
-                        pageManager.Search(SearchTarget.Niconama, tagVM.Tag);
+                        if (tagVM != null)
+                        {
+                            var pageManager = App.Current.Container.Resolve<PageManager>();
+                            pageManager.Search(SearchTarget.Niconama, tagVM.Tag);
+                        }
                     }));
             }
         }
