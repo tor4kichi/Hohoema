@@ -32,7 +32,7 @@ namespace NiconicoToolkit.User
 
         public UserId(string userId)
         {
-            RawId = uint.Parse(userId);
+            RawId = uint.TryParse(userId, out var id) ? id : IgnoreUserId.RawId;
         }
 
         public static implicit operator int(UserId userId) => (int)userId.RawId;
