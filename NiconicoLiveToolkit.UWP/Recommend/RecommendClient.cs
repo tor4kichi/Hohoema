@@ -32,17 +32,7 @@ namespace NiconicoToolkit.Recommend
                 }
             };
 
-            _liveRecommendOptions = new JsonSerializerOptions()
-            {
-                PropertyNamingPolicy = new JsonSnakeCaseNamingPolicy(),
-                Converters =
-                {
-                    new JsonStringEnumMemberConverter(JsonSnakeCaseNamingPolicy.Instance),
-                    new NiconicoIdJsonConverter(),
-                    new UserIdJsonConverter(),
-                    new LiveIdJsonConverter(),
-                }
-            };
+            _liveRecommendOptions = NiconicoContext.DefaultOptionsSnakeCase;
         }
 
         internal static class Urls

@@ -24,6 +24,7 @@ using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Pins;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Collections;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 {
@@ -33,7 +34,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         {
             return new HohoemaPin()
             {
-                Label = Playlist.Label,
+                Label = Playlist.Name,
                 PageType = HohoemaPageType.LocalPlaylist,
                 Parameter = $"id={Playlist.Id}"
             };
@@ -41,7 +42,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 
         IObservable<string> ITitleUpdatablePage.GetTitleObservable()
         {
-            return this.ObserveProperty(x => x.Playlist).Select(x => x?.Label);
+            return this.ObserveProperty(x => x.Playlist).Select(x => x?.Name);
         }
 
         private readonly PageManager _pageManager;
@@ -132,7 +133,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
                     var args = m.Value;
                     foreach (var itemId in args.RemovedItems)
                     {
-                        var removedItem = ItemsView.Cast<VideoListItemControlViewModel>().FirstOrDefault(x => x.Id == itemId);
+                        var removedItem = ItemsView.Cast<VideoListItemControlViewModel>().FirstOrDefault(x => x.VideoId == itemId);
                         if (removedItem != null)
                         {
                             ItemsView.Remove(removedItem);
@@ -188,7 +189,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         {
             var head = pageIndex * pageSize;
             var targetItems = _playlist.GetPlaylistItems(head, pageSize);
-            var items = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(targetItems.Select(x => x.ContentId));
+            var items = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(targetItems.Select(x => (VideoId)x.ContentId));
 
             ct.ThrowIfCancellationRequested();
             return items.Select(item => new VideoListItemControlViewModel(item));

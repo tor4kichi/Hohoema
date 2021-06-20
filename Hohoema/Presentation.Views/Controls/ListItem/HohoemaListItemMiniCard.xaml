@@ -12,77 +12,77 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid >
+  <Grid >
 
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsVisible, Converter={StaticResource BoolNegation}}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ContentLayout.Visibility" Value="Collapsed" />
-                        <Setter Target="ContentCollapsed.Visibility" Value="Visible" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsVisible, Converter={StaticResource BoolNegation}}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ContentLayout.Visibility" Value="Collapsed" />
+            <Setter Target="ContentCollapsed.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
 
-        
-        
-        <Grid x:Name="ContentLayout" 
+
+
+    <Grid x:Name="ContentLayout" 
               BorderBrush="{Binding ThemeColor, Converter={StaticResource ColorToBrush}}"
               BorderThickness="2 0 0 0"
                   Padding="2 0 0 0"
               >
-            <Border>
-                <Image Source="{Binding FirstImageUrl}"
+      <Border>
+        <Image Source="{Binding FirstImageUrl}"
                        Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
                        Stretch="Uniform"
                        VerticalAlignment="Center"
                        
                    />
-            </Border>
+      </Border>
 
-            <Border 
+      <Border 
                         HorizontalAlignment="Right" 
                         VerticalAlignment="Top"
                         Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
                     CornerRadius="0 0 0 4"
                         >
-                <Border.Background>
-                    <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                </Border.Background>
+        <Border.Background>
+          <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+        </Border.Background>
 
-                <TextBlock Text="{Binding ImageCaption, Mode=OneWay}" 
+        <TextBlock Text="{Binding ImageCaption, Mode=OneWay}" 
                                Padding="4 0 6 3" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
                                FontSize="18"
                            
                                
                                />
-            </Border>
+      </Border>
 
-            <Grid VerticalAlignment="Bottom"
+      <Grid VerticalAlignment="Bottom"
                     >
 
 
-                <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" 
+        <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" 
                     Opacity="0.8"
                     />
 
-                <StackPanel Margin="8 8 8 0" >
-                    <StackPanel Visibility="{Binding HasTitle, Converter={StaticResource BooleanToVisibility}}">
-                        <TextBlock Text="{Binding Label}"
+        <StackPanel Margin="8 8 8 0" >
+          <StackPanel Visibility="{Binding HasTitle, Converter={StaticResource BooleanToVisibility}}">
+            <TextBlock Text="{Binding Label}"
                            
                            TextWrapping="Wrap"
                            FontSize="15"
                            />
 
-                        <Border Height="8" />
-                    </StackPanel>
+            <Border Height="8" />
+          </StackPanel>
 
-                    <!--
+          <!--
                     <TextBlock Text="{Binding Description}"
                                Visibility="{Binding IsVisibleDescription, Mode=OneWay}"
                            TextWrapping="Wrap"
@@ -90,16 +90,16 @@
                            Opacity="0.7"
                            />
                     -->
-                </StackPanel>
-            </Grid>
-        </Grid>
+        </StackPanel>
+      </Grid>
+    </Grid>
 
-        <Grid x:Name="ContentCollapsed" Visibility="Collapsed">
-            <TextBlock Text="{Binding InvisibleDescription}" TextWrapping="Wrap" Margin="16"
+    <Grid x:Name="ContentCollapsed" Visibility="Collapsed">
+      <TextBlock Text="{Binding InvisibleDescription}" TextWrapping="Wrap" Margin="16"
                        VerticalAlignment="Bottom"
                        Opacity="0.3"
                        />
-        </Grid>
-
     </Grid>
+
+  </Grid>
 </UserControl>

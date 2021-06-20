@@ -69,7 +69,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
                 .Subscribe(e =>
                 {
                     var args = e.EventArgs;
-                    var removedItem = Histories.FirstOrDefault(x => x.Id == args.VideoId);
+                    var removedItem = Histories.FirstOrDefault(x => x.VideoId == args.VideoId);
                     if (removedItem != null)
                     {
                         Histories.Remove(removedItem);

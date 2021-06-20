@@ -19,6 +19,8 @@ using Hohoema.Models.Domain.Niconico.Live;
 using Microsoft.AppCenter.Analytics;
 using Hohoema.Presentation.Views.Player;
 using Hohoema.Presentation.Views.Pages;
+using NiconicoToolkit.Video;
+using NiconicoToolkit.Live;
 
 namespace Hohoema.Models.UseCase.Player
 {
@@ -130,12 +132,21 @@ namespace Hohoema.Models.UseCase.Player
                 {
                     return await _nicoVideoProvider.ResolveVideoTitleAsync(videoId);
                 }
+                else if (parameters.TryGetValue("id", out VideoId justVideoId))
+                {
+                    return await _nicoVideoProvider.ResolveVideoTitleAsync(justVideoId);
+                }
             }
             else if (pageName == nameof(LivePlayerPage))
             {
                 if (parameters.TryGetValue("id", out string liveId))
                 {
                     var liveData = _nicoLiveCacheRepository.Get(liveId);
+                    return liveData?.Title;
+                }
+                else if (parameters.TryGetValue("id", out LiveId justLiveId))
+                {
+                    var liveData = _nicoLiveCacheRepository.Get(justLiveId);
                     return liveData?.Title;
                 }
             }

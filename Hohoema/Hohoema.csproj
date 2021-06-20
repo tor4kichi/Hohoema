@@ -130,180 +130,16 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
-    <Compile Include="FixPrism\BindableBaseWithFix.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="Locales\LocaleToDisplayNameConverter.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
     <Compile Include="Locales\LocalizeWithParameterConverter.cs" />
-    <Compile Include="Models.Domain\Application\AppearanceSettings.cs" />
-    <Compile Include="Models.Domain\Application\AppFlagsRepository.cs" />
-    <Compile Include="Models.Domain\Application\ApplicationInteractionMode.cs" />
-    <Compile Include="Models.Domain\Application\ApplicationLayout.cs" />
-    <Compile Include="Models.Domain\Application\BackupManager.cs" />
-    <Compile Include="Models.Domain\Application\FeatureFlags.cs" />
-    <Compile Include="Models.Domain\Application\HohoemaAppServiceLevel.cs" />
-    <Compile Include="Models.Domain\Application\ToastNotificationConstants.cs" />
-    <Compile Include="Models.Domain\Niconico\Recommend\RecommendProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\IWatchHistory.cs" />
-    <Compile Include="Models.Infrastructure\HohoemaExpception.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\IFollowProvider.cs" />
-    <Compile Include="Models.Domain\Pins\PinSettings.cs" />
-    <Compile Include="Models.Domain\Niconico\AccountManager.cs" />
-    <Compile Include="Models.Domain\Application\AppUpdateNotice.cs" />
-    <Compile Include="Models.Domain\Player\Video\NicoVideoQuality_Legacy.cs" />
-    <Compile Include="Models.Helpers\AsyncLock.cs" />
-    <Compile Include="Models.Helpers\ColorExtention.cs" />
-    <Compile Include="Models.Helpers\ConnectionRetryUtil.cs" />
-    <Compile Include="Models.Helpers\FilePathHelper.cs" />
-    <Compile Include="Models.Helpers\HtmlFileHelper.cs" />
-    <Compile Include="Models.Helpers\HttpRandomAccessStream.cs" />
-    <Compile Include="Models.Helpers\IAsyncInitialize.cs" />
-    <Compile Include="Models.Helpers\InternetConnection.cs" />
-    <Compile Include="Models.Domain\Application\LisenceSummary.cs" />
-    <Compile Include="Models.Helpers\ListExtention.cs" />
-    <Compile Include="Models.Helpers\ObservableHashSet.cs" />
-    <Compile Include="Models.Helpers\StorageFolderExtention.cs" />
-    <Compile Include="Models.Helpers\StringHelper.cs" />
-    <Compile Include="Models.Domain\Niconico\NiconicoSession.cs" />
-    <Compile Include="Models.Domain\Niconico\Channel\ChannelNameCacheRepository.cs" />
-    <Compile Include="Models.Domain\Niconico\Channel\ChannelProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Channel\IChannel.cs" />
-    <Compile Include="Models.Domain\Niconico\Community\CommunityProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Community\ICommunity.cs" />
-    <Compile Include="Models.Domain\Niconico\INiconicoContent.cs" />
-    <Compile Include="Models.Domain\Niconico\Live\ILiveContent.cs" />
-    <Compile Include="Models.Domain\Niconico\Live\NicoLiveCacheRepository.cs" />
-    <Compile Include="Models.Domain\Niconico\Live\NicoLiveProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Search\SearchHistory.cs" />
-    <Compile Include="Models.Domain\Niconico\Search\SearchProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\ChannelFollowProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\CommunityFollowProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\CommunituFollowAdditionalInfo.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\FollowItemInfo.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\FollowItemType.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\IFollowable.cs" />
-    <Compile Include="Models.Domain\Niconico\Live\LoginUser\LoginUserLiveReservationProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\LoginUserHistoryProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\NicoRepo\LoginUser\LoginUserNicoRepoProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\MylistFollowProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Mylist\IMylist.cs" />
-    <Compile Include="Models.Domain\Niconico\Mylist\LoginUser\LoginUserMylistPlaylist.cs" />
-    <Compile Include="Models.Domain\Niconico\Mylist\LoginUser\LoginUserMylistProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Mylist\MylistItemsGetResult.cs" />
-    <Compile Include="Models.Domain\Niconico\Mylist\MylistPlaylist.cs" />
-    <Compile Include="Models.Domain\Niconico\Mylist\MylistPlaylistExtension.cs" />
-    <Compile Include="Models.Domain\Niconico\Mylist\MylistProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\NicoRepo\NicoRepoSettings.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\TagFollowProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Follow\LoginUser\UserFollowProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Video.WatchHistory.LoginUser\VideoPlayedHistoryRepository.cs" />
-    <Compile Include="Models.Domain\Niconico\User\IUser.cs" />
-    <Compile Include="Models.Domain\Niconico\User\UserNameProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\User\UserProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\Series\ISeries.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\IVideoContent.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\ITag.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\NicoVideo.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\NicoVideoOwner.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\NicoVideoProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\Ranking\RankingGenreCache.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\Ranking\RankingProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\Series\SeriesProvider.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\VideoCacheSettings_Legacy.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\VideoFilteringSettings.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\VideoRankingSettings.cs" />
-    <Compile Include="Models.Domain\PageNavigation\HohoemaPageType.cs" />
-    <Compile Include="Models.Domain\Pins\HohoemaPin.cs" />
-    <Compile Include="Models.Domain\PageNavigation\IPageNavigatable.cs" />
-    <Compile Include="Models.Domain\PageNavigation\IPinablePage.cs" />
-    <Compile Include="Models.Domain\PageNavigation\ISearchHistory.cs" />
-    <Compile Include="Models.Domain\PageNavigation\ITitleUpdatablePage.cs" />
-    <Compile Include="Models.Domain\PageNavigation\MylistUserSelectedSortRepository.cs" />
-    <Compile Include="Models.Domain\PageNavigation\RestoreNavigationManager.cs" />
-    <Compile Include="Models.Domain\PageNavigation\SearchTarget.cs" />
-    <Compile Include="Models.Domain\Player\CommentDisplayMode.cs" />
-    <Compile Include="Models.Domain\Player\CommentFliteringRepository.cs" />
-    <Compile Include="Models.Domain\Player\CommentSizeMode.cs" />
-    <Compile Include="Models.Domain\Player\IComment.cs" />
-    <Compile Include="Models.Domain\Player\ICommentFilter.cs" />
-    <Compile Include="Models.Domain\Player\ICommentService.cs" />
-    <Compile Include="Models.Domain\Player\INiconicoVideoSessionProvider.cs" />
-    <Compile Include="Models.Domain\Player\IStreamingSession.cs" />
-    <Compile Include="Models.Domain\Player\Live\LiveSuggestion.cs" />
-    <Compile Include="Models.Domain\Player\Live\LiveVidePagePayload.cs" />
-    <Compile Include="Models.Domain\Player\Live\NicoLiveInfoType.cs" />
-    <Compile Include="Models.Domain\Player\PlayerSettings.cs" />
-    <Compile Include="Models.Domain\Player\Video\Cache\CachefolderAccessState.cs" />
-    <Compile Include="Models.Domain\Player\Video\Cache\CacheRequestRepository.cs" />
-    <Compile Include="Models.Domain\Player\Video\Cache\NicoVideoCached.cs" />
-    <Compile Include="Models.Domain\Player\Video\Cache\NicoVideoCacheProgress.cs" />
-    <Compile Include="Models.Domain\Player\Video\Cache\NicoVideoCacheState.cs" />
-    <Compile Include="Models.Domain\Player\Video\Cache\VideoCacheManagerLegacy.cs" />
-    <Compile Include="Models.Domain\Player\Video\Comment\CommentClient.cs" />
-    <Compile Include="Models.Domain\Player\Video\Comment\CommentCommandPermissionType.cs" />
-    <Compile Include="Models.Domain\Player\Video\Comment\CommentServerInfo.cs" />
-    <Compile Include="Models.Domain\Player\Video\Comment\NicoScript.cs" />
-    <Compile Include="Models.Domain\Player\Video\Comment\VideoComment.cs" />
-    <Compile Include="Models.Domain\Player\Video\Comment\VideoCommentService.cs" />
-    <Compile Include="Models.Domain\Player\Video\NicoVideoCanNotDownloadReason.cs" />
-    <Compile Include="Models.Domain\Niconico\Video\NicoVideoQuality.cs" />
-    <Compile Include="Models.Domain\Player\Video\NicoVideoQualityEntity.cs" />
-    <Compile Include="Models.Domain\Player\Video\NicoVideoSessionProvider.cs" />
-    <Compile Include="Models.Domain\Player\Video\NicoVideoTag.cs" />
-    <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\DmcVideoStreamingSession.cs" />
-    <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\DownloadProgressVideoStreamingSession.cs" />
-    <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\IVideoStreamingSession.cs" />
-    <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\CachedVideoStreamingSession.cs" />
-    <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\VideoStreamingSession.cs" />
-    <Compile Include="Models.Domain\Playlist\IPlaylist.cs" />
-    <Compile Include="Models.Domain\Playlist\IPlaylistItem.cs" />
-    <Compile Include="Models.Domain\Playlist\LocalPlaylist.cs" />
-    <Compile Include="Models.Domain\Playlist\PlaylistOrigin.cs" />
-    <Compile Include="Models.Domain\Playlist\PlaylistRepository.cs" />
-    <Compile Include="Models.Domain\Purchase\HohoemaPurchase.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionFeedResult.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionFeedResultRepository.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionManager.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionRegistrationRepository.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionSettings.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionSourceEntity.cs" />
-    <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperation.cs" />
-    <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperationOutput.cs" />
-    <Compile Include="Models.Domain\VideoCache\NicoVideoCacheQualityHelper.cs" />
-    <Compile Include="Models.Domain\VideoCache\PrepareNextVideoCacheDownloadingResult.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheDownloadOperation.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheDownloadOperationFailedReason.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheDownloadOperationCreationResult.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheDownloadOperationOutputWithEncryption.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheDownloadOperationProgress.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheDownloadOperationResult.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheEntity.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheException.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheItem.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheItemRepository.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheManager.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheSaveFolderManager.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheSettings.cs" />
-    <Compile Include="Models.Domain\VideoCache\VideoCacheStatus.cs" />
-    <Compile Include="Models.Domain\_Settings_Legacy\AccountSettings.cs" />
-    <Compile Include="Models.Domain\_Settings_Legacy\ActivityFeedSettings.cs" />
-    <Compile Include="Models.Domain\_Settings_Legacy\AppearanceSettings.cs" />
-    <Compile Include="Models.Domain\_Settings_Legacy\CacheSettings.cs" />
-    <Compile Include="Models.Domain\_Settings_Legacy\HohoemaUserSettings.cs" />
-    <Compile Include="Models.Domain\_Settings_Legacy\NGSettings.cs" />
-    <Compile Include="Models.Domain\_Settings_Legacy\PinSettings.cs" />
-    <Compile Include="Models.Domain\_Settings_Legacy\PlayerSettings.cs" />
-    <Compile Include="Models.Domain\_Settings_Legacy\RankingSettings.cs" />
-    <Compile Include="Models.Infrastructure\FlagsRepositoryBase.cs" />
-    <Compile Include="Models.Infrastructure\LiteDbService.cs" />
-    <Compile Include="Models.Infrastructure\JsonObjectSerializer.cs" />
-    <Compile Include="Models.Infrastructure\ProviderBase.cs" />
     <Compile Include="Models.UseCase\ApplicationLayoutManager.cs" />
     <Compile Include="Models.UseCase\ErrorTrackingManager.cs" />
     <Compile Include="Models.UseCase\Migration\CommentFilteringNGScoreZeroFixture.cs" />
     <Compile Include="Models.UseCase\Migration\DatabaseMigrate_0_25_0.cs" />
-    <Compile Include="Models.Domain\Application\IMigateAsync.cs" />
+    <Compile Include="Models.UseCase\Migration\IMigateAsync.cs" />
     <Compile Include="Models.UseCase\Migration\MigrationCommentFilteringSettings.cs" />
     <Compile Include="Models.UseCase\Migration\SearchPageQueryMigrate_0_26_0.cs" />
     <Compile Include="Models.UseCase\Migration\SearchTargetMigration_V_1_1_0.cs" />
@@ -342,16 +178,7 @@
     <Compile Include="Models.UseCase\VideoCache\VideoCacheDownloadOperationManager.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheFolderManager.cs" />
     <Compile Include="Models.UseCase\WindowService.cs" />
-    <Compile Include="Models.Helpers\ClipboardHelper.cs" />
     <Compile Include="Presentation.Services\DialogService.cs" />
-    <Compile Include="Models.Helpers\ApiContractHelper.cs" />
-    <Compile Include="Models.Helpers\DeviceTypeHelper.cs" />
-    <Compile Include="Models.Helpers\DisplayRequestHelper.cs" />
-    <Compile Include="Models.Helpers\InputCapabilityHelper.cs" />
-    <Compile Include="Models.Helpers\ShareHelper.cs" />
-    <Compile Include="Models.Helpers\SortMethodHelper.cs" />
-    <Compile Include="Models.Domain\Notification\InAppNotificationMessage.cs" />
-    <Compile Include="Models.Domain\Notification\LiteNotificationMessage.cs" />
     <Compile Include="Presentation.ViewModels\NavigationQueryHelper.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowContext.cs" />
     <Compile Include="Models.UseCase\Niconico.Account\NiconicoLoginService.cs" />
@@ -407,6 +234,14 @@
     <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistManagePageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\DebugPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityViewModel.cs" />
+    <Compile Include="Presentation.Views\Mylist\MylistCardView.cs" />
+    <Compile Include="Presentation.Views\Flyouts\ChannelInfoFlyout.xaml.cs">
+      <DependentUpon>ChannelInfoFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presentation.Views\Flyouts\UserInfoFlyout.xaml.cs">
+      <DependentUpon>UserInfoFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Presentation.Views.Pages\SettingsPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Hohoema.Subscription\SubscriptionManagementPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Subscriptions\AddKeywordSearchSubscriptionCommand.cs" />
@@ -581,9 +416,6 @@
     </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Live\LiveVideoListItem.xaml.cs">
       <DependentUpon>LiveVideoListItem.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Presentation.Views.Pages\Niconico.Mylist\MylistListItem.xaml.cs">
-      <DependentUpon>MylistListItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Pages\Niconico.Mylist\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
@@ -1045,6 +877,18 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Presentation.Views\Mylist\MylistCardView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation.Views\Flyouts\ChannelInfoFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Presentation.Views\Flyouts\UserInfoFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Presentation.Views.Pages\SettingsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -1106,10 +950,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Presentation.Views.Pages\Niconico.Live\LiveVideoListItem.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Presentation.Views.Pages\Niconico.Mylist\MylistListItem.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1419,6 +1259,10 @@
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Hohoema.Models\Hohoema.Models.csproj">
+      <Project>{5877a9ca-2d3a-4b8b-86ca-d77e6d68cf98}</Project>
+      <Name>Hohoema.Models</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NiconicoLiveToolkit.UWP\NiconicoToolkit.UWP.csproj">
       <Project>{311b8388-57d0-4724-ad17-be76a2abf0a9}</Project>
       <Name>NiconicoToolkit.UWP</Name>

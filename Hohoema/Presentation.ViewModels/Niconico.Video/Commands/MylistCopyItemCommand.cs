@@ -50,9 +50,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             {
                 targetMylist = _userMylistManager.Mylists.Any() ?
                     await _dialogService.ShowSingleSelectDialogAsync(
-                    _userMylistManager.Mylists.Where(x => x.Id != SourceMylist.Id).ToList(),
-                    nameof(LoginUserMylistPlaylist.Label),
-                    (mylist, s) => mylist.Label.Contains(s),
+                    _userMylistManager.Mylists.Where(x => x.MylistId != SourceMylist.MylistId).ToList(),
+                    nameof(LoginUserMylistPlaylist.Name),
+                    (mylist, s) => mylist.Name.Contains(s),
                     "SelectCopyTargetMylist".Translate(),
                     "Select".Translate(),
                     "CreateNew".Translate(),
@@ -64,14 +64,14 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
             if (targetMylist != null)
             {
-                var result = await SourceMylist.CopyItemAsync(targetMylist.Id, items.Select(x => x.Id).ToArray());
+                var result = await SourceMylist.CopyItemAsync(targetMylist.MylistId, items.Select(x => x.VideoId).ToArray());
                 if (result != ContentManageResult.Failed)
                 {
-                    _notificationService.ShowLiteInAppNotification("InAppNotification_MylistCopiedItems_Success".Translate(targetMylist.Label, items.Count()));                        
+                    _notificationService.ShowLiteInAppNotification("InAppNotification_MylistCopiedItems_Success".Translate(targetMylist.Name, items.Count()));                        
                 }
                 else
                 {
-                    _notificationService.ShowLiteInAppNotification("InAppNotification_MylistCopiedItems_Fail".Translate(targetMylist.Label));
+                    _notificationService.ShowLiteInAppNotification("InAppNotification_MylistCopiedItems_Fail".Translate(targetMylist.Name));
                 }
             }
         }

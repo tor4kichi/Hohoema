@@ -1,0 +1,54 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="using:Hohoema.Presentation.Views.Mylist"
+  >
+
+  <Style TargetType="local:MylistCardView">
+    <Setter Property="ImageWidth" Value="180" />
+    <Setter Property="ImageHeight" Value="100" />
+    <Setter Property="Padding" Value="8 4" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="local:MylistCardView">
+          <Grid x:Name="ContentLayout" 
+                  Padding="{TemplateBinding Padding}"
+                Margin="{TemplateBinding Margin}"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+              >
+            <StackPanel HorizontalAlignment="Stretch">
+              
+              <Grid Height="{TemplateBinding ImageHeight}" Width="{TemplateBinding ImageWidth}">
+                <Grid.Background>
+                  <ImageBrush x:Name="ThumbnailImageBrush"  Stretch="UniformToFill"  />
+                </Grid.Background>
+                <Border HorizontalAlignment="Right" Padding="16 0">
+                  <Border.Background>
+                    <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                  </Border.Background>
+                  <TextBlock Text="{TemplateBinding ImageCaption}" 
+                               Padding="4 0 6 3" 
+                               TextWrapping="Wrap" VerticalAlignment="Center" 
+                               FontSize="18"
+                               />
+                </Border>
+              </Grid>
+              <Border MinHeight="32">
+                <TextBlock Text="{TemplateBinding PlaylistName}"
+                           TextWrapping="Wrap"
+                           FontSize="13"                         
+                         MaxLines="2"
+                         VerticalAlignment="Center"
+                           />
+              </Border>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+</ResourceDictionary>

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.Video;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,7 +22,7 @@ namespace NiconicoToolkit.Channels
 
     public sealed class ChannelVideoItem
     {
-        public string ItemId { get; set; }
+        public VideoId ItemId { get; set; }
 
         public string Title { get; set; }
         public string ThumbnailUrl { get; set; }

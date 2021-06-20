@@ -80,7 +80,7 @@ namespace NiconicoToolkit.Live.Timeshift
                         var nameAsSpan = valueNode.Name.AsSpan();
                         if (valueNode.Name.SequenceEqual(s_vidUtf8))
                         {
-                            item.LiveIdWithoutPrefix = valueNode.InnerText.ToString();
+                            item.LiveId = valueNode.InnerText.ToString();
                         }
                         else if (valueNode.Name.SequenceEqual(s_titleUtf8))
                         {
@@ -151,7 +151,7 @@ namespace NiconicoToolkit.Live.Timeshift
         }
 
 
-        public Task DeleteTimeshiftReservationAsync(string liveId, ReservationToken reservationDeleteToken)
+        public Task DeleteTimeshiftReservationAsync(LiveId liveId, ReservationToken reservationDeleteToken)
         {
             return DeleteTimeshiftReservationAsync(new string[] { liveId }, reservationDeleteToken);
         }

@@ -9,6 +9,7 @@ using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.NicoVideos;
 using Hohoema.Models.UseCase.PageNavigation;
 using Microsoft.Toolkit.Collections;
+using NiconicoToolkit.User;
 using Prism.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -70,7 +71,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         private readonly MylistRepository _mylistRepository;
         private readonly LocalMylistManager _localMylistManager;
 
-        public string UserId { get; private set; }
+        public UserId? UserId { get; private set; }
 
         private string _UserName;
         public string UserName
@@ -83,12 +84,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            if (parameters.TryGetValue<string>("id", out string userId))
+            if (parameters.TryGetValue("id", out string userId))
             {
                 UserId = userId;
             }
+            else if (parameters.TryGetValue("id", out UserId justUserId))
+            {
+                UserId = justUserId;
+            }
 
-            if ((UserId == null && NiconicoSession.IsLoggedIn) || NiconicoSession.IsLoginUserId(UserId))
+            if ((UserId == null && NiconicoSession.IsLoggedIn) || NiconicoSession.IsLoginUserId(UserId.Value))
             {
                 // ログインユーザー用のマイリスト一覧ページにリダイレクト
                 PageManager.ForgetLastPage();
@@ -100,7 +105,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             {
                 try
                 {
-                    var userInfo = await UserProvider.GetUserInfoAsync(UserId);
+                    var userInfo = await UserProvider.GetUserInfoAsync(UserId.Value);
                     UserName = userInfo.ScreenName;
                 }
                 catch (Exception ex)
@@ -120,8 +125,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
         protected override (int, IIncrementalSource<MylistPlaylist>) GenerateIncrementalSource()
         {
-            UserId ??= NiconicoSession.UserIdString;
-
             return (25 /* 全件取得するため指定不要 */, new OtherUserMylistIncrementalLoadingSource(UserId, _mylistRepository));
         }
     }

@@ -409,8 +409,9 @@ namespace NiconicoToolkit.Video.Watch.NMSG_Comment
             var leaves = new List<ThreadLeaf>();
             var globalNumRes = default(NGMS_GlobalNumRes);
             using (JsonDocument document = JsonDocument.ParseValue(ref reader))
+            using (var enumerater = document.RootElement.EnumerateArray())
             {
-                foreach (var elem in document.RootElement.EnumerateArray())
+                foreach (var elem in enumerater)
                 {
                     if (elem.TryGetProperty(s_chatUtf8, out var chatJe))
                     {

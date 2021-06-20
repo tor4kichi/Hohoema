@@ -1,6 +1,7 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
 using AngleSharp.Html.Parser;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +43,7 @@ namespace NiconicoToolkit.Rss.Video
 
     public static class RankingRssDataExtensions
     {
-        public static string GetVideoId(this RssVideoData data)
+        public static VideoId GetVideoId(this RssVideoData data)
         {
             return data.WatchPageUrl.Segments.Last();
         }

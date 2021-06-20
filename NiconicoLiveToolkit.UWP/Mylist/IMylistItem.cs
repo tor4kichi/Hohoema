@@ -11,7 +11,7 @@ namespace NiconicoToolkit.Mylist
         MylistSortOrder DefaultSortOrder { get; }
         string Description { get; }
         long FollowerCount { get; }
-        long Id { get; }
+        MylistId Id { get; }
         bool IsFollowing { get; }
         bool IsPublic { get; }
         long ItemsCount { get; }

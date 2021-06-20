@@ -32,7 +32,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         public List<VideoListItemControlViewModel> OtherVideos { get; internal set; } = new List<VideoListItemControlViewModel>();
 
         public List<MylistPlaylist> Mylists { get; internal set; } = new List<MylistPlaylist>();
-        public string ContentId { get; }
+        public VideoId ContentId { get; }
     }
 
     public sealed class RelatedVideoContentsAggregator 
@@ -113,7 +113,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             if (orderedSeriesVideos.Count - 1 > currentVideoIndex)
             {
                 var nextVideo = orderedSeriesVideos.Last();
-                if (nextVideo.RawVideoId != videoId)
+                if (nextVideo.Id != videoId)
                 {
                     result.NextVideo = new VideoListItemControlViewModel(nextVideo);
 
@@ -148,13 +148,13 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             {
                 if (provider.ProviderType == OwnerType.Channel)
                 {
-                    recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetVideoRecommendForChannelAsync(currentVideo.Id, provider.ProviderId, currentVideo.Tags.Select(x => x.Tag).ToArray());
+                    recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetVideoRecommendForChannelAsync(currentVideo.VideoId, provider.ProviderId, currentVideo.Tags.Select(x => x.Tag).ToArray());
                 }
             }
 
             if (recommendResponse == null)
             {
-                recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetVideoRecommendForNotChannelAsync(currentVideo.Id);
+                recommendResponse = await _niconicoSession.ToolkitContext.Recommend.GetVideoRecommendForNotChannelAsync(currentVideo.VideoId);
             }
 
             if (recommendResponse?.IsSuccess ?? false)
@@ -169,7 +169,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 }
             }
 
-            result.CurrentVideo = result.Videos.FirstOrDefault(x => x.RawVideoId == videoId);
+            result.CurrentVideo = result.Videos.FirstOrDefault(x => x.VideoId == videoId);
 
             _cachedVideoRelatedContents = result;
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.Channels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace NiconicoToolkit.Follow
         public SessionChannelInfo Session { get; set; }
 
         [JsonPropertyName("id")]
-        public long Id { get; set; }
+        public ChannelId Id { get; set; }
 
         [JsonPropertyName("name")]
         public string Name { get; set; }

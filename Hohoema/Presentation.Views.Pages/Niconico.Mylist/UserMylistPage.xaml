@@ -72,16 +72,20 @@
             </CommandBar>
           </Grid>
         </GridView.Header>
-        <GridView.ItemTemplate>
-          <DataTemplate>
-            <mylistPages:MylistListItem />
-          </DataTemplate>
-        </GridView.ItemTemplate>
         <GridView.ItemsPanel>
           <ItemsPanelTemplate>
-            <ItemsWrapGrid x:Name="ItemsPanel" Orientation="Horizontal" />
+            <ItemsWrapGrid x:Name="ItemsPanel" Orientation="Horizontal" ItemWidth="200" />
           </ItemsPanelTemplate>
         </GridView.ItemsPanel>
+        <GridView.ItemTemplate>
+          <DataTemplate x:DataType="mylistModel:MylistPlaylist"
+                      xmlns:mylistModel="using:Hohoema.Models.Domain.Niconico.Mylist"
+                      >
+            <mylistView:MylistCardView xmlns:mylistView="using:Hohoema.Presentation.Views.Mylist" 
+                                     PlaylistName="{x:Bind Name}" ImageUrl="{x:Bind ThumbnailImage}" ImageCaption="{x:Bind Count}"
+                                     />
+          </DataTemplate>
+        </GridView.ItemTemplate>
       </GridView>
     </Grid>
     <VisualStateManager.VisualStateGroups>

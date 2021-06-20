@@ -64,11 +64,11 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 
     }
 
-    public class OnAirStream : ILiveContent
+    public class OnAirStream : ILiveContent, ILiveContentProvider
     {
         public string BroadcasterId { get; internal set; }
-        public string Id { get; internal set; }
-        public string Label { get; internal set; }
+        public LiveId LiveId { get; internal set; }
+        public string Title { get; internal set; }
 
         public string CommunityName { get; internal set; }
         public string Thumbnail { get; internal set; }

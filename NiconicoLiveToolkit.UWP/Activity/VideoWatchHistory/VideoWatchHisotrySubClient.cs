@@ -48,7 +48,7 @@ namespace NiconicoToolkit.Activity.VideoWatchHistory
         }
 
 
-        public Task<VideoWatchHistoryDeleteResult> DeleteWatchHistoriesAsync(string target)
+        public Task<VideoWatchHistoryDeleteResult> DeleteWatchHistoriesAsync(VideoId target)
         {
             var url = new StringBuilder(Urls.WatchHitoryApi)
                 .AppendQueryString(new NameValueCollection()
@@ -60,7 +60,7 @@ namespace NiconicoToolkit.Activity.VideoWatchHistory
             return _context.SendJsonAsAsync<VideoWatchHistoryDeleteResult>(HttpMethod.Delete, url, _options);
         }
 
-        public Task<VideoWatchHistoryDeleteResult> DeleteWatchHistoriesAsync(IEnumerable<string> targets)
+        public Task<VideoWatchHistoryDeleteResult> DeleteWatchHistoriesAsync(IEnumerable<VideoId> targets)
         {
             var url = new StringBuilder(Urls.WatchHitoryApi)
                 .AppendQueryString(new NameValueCollection()

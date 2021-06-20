@@ -48,7 +48,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             AvailableQualities = new []{ new NicoVideoQualityEntity(true, _videoCacheItem.DownloadedVideoQuality, _videoCacheItem.DownloadedVideoQuality.ToString()) }.ToImmutableArray();
         }
 
-        public string ContentId => _videoCacheItem.VideoId;
+        public VideoId ContentId => _videoCacheItem.VideoId;
 
         public ImmutableArray<NicoVideoQualityEntity> AvailableQualities { get; }
 
@@ -128,7 +128,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
         /// 再生処理
         /// </summary>
         /// <returns></returns>
-        public async Task<PlayingOrchestrateResult> CreatePlayingOrchestrateResultAsync(string videoId)
+        public async Task<PlayingOrchestrateResult> CreatePlayingOrchestrateResultAsync(VideoId videoId)
         {
 #if !DEBUG
             if (_videoCacheManager.IsCacheDownloadAuthorized() && _videoCacheManager.GetVideoCacheStatus(videoId) == VideoCacheStatus.Completed)
@@ -144,7 +144,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
             }
         }
 
-        public async Task<PlayingOrchestrateResult> PreperePlayWithCache(string videoId)
+        public async Task<PlayingOrchestrateResult> PreperePlayWithCache(VideoId videoId)
         {
             if (!InternetConnection.IsInternet())
             {
@@ -162,7 +162,7 @@ namespace Hohoema.Models.UseCase.NicoVideos.Player
                 );
         }
 
-        public async Task<PlayingOrchestrateResult> PreperePlayWithOnline(string videoId)
+        public async Task<PlayingOrchestrateResult> PreperePlayWithOnline(VideoId videoId)
         {
             if (!InternetConnection.IsInternet())
             {

@@ -43,7 +43,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Likes
             _notificationService = notificationService;
             _isLikes = video.IsLikedVideo;
 
-            WeakReferenceMessenger.Default.Register(this, _video.Id);
+            WeakReferenceMessenger.Default.Register(this, _video.VideoId);
         }
 
         private readonly IVideoDetail _video;
@@ -109,7 +109,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Likes
                 }
                 else
                 {
-                    var res = await _likesClient.UnDoLikeVideoAsync(_video.Id);
+                    var res = await _likesClient.UnDoLikeVideoAsync(_video.VideoId);
                     if (!res.IsSuccess)
                     {
                         IsLikes = true;
@@ -122,7 +122,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Likes
                 NowLikeProcessing = false;
             }
 
-            WeakReferenceMessenger.Default.Send(new LikesChangedMessage(new() { VideoId = _video.Id, IsLikes = _isLikes }), _video.Id);
+            WeakReferenceMessenger.Default.Send(new LikesChangedMessage(new() { VideoId = _video.VideoId, IsLikes = _isLikes }), _video.VideoId);
         }
 
         public void Receive(LikesChangedMessage message)

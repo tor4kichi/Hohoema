@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.Video;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,7 +26,7 @@ namespace NiconicoToolkit.Series
     public sealed class SeriesItem
     {
         [JsonPropertyName("id")]
-        public long Id { get; set; }
+        public VideoId Id { get; set; }
 
         [JsonPropertyName("owner")]
         public Owner Owner { get; set; }

@@ -276,10 +276,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         string ITag.Tag => SearchOption.Keyword;
 
-        string INiconicoObject.Id => SearchOption.Keyword;
-
-        string INiconicoObject.Label => SearchOption.Keyword;
-
         #endregion
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)

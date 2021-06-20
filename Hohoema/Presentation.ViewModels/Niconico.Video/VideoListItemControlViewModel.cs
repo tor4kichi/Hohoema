@@ -13,6 +13,7 @@ using Hohoema.Models.UseCase.VideoCache.Events;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Pages.VideoListPage.Commands;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using NiconicoToolkit;
 using NiconicoToolkit.Video;
 using Prism.Commands;
 using Prism.Unity;
@@ -39,10 +40,12 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         private static readonly HohoemaPlaylist _hohoemaPlaylist;
         private static readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
         private static readonly VideoCacheManager _cacheManager;
+        private static readonly IMessenger _messenger;
         protected static readonly IScheduler _scheduler;
 
         static VideoItemViewModel()
         {
+            _messenger = App.Current.Container.Resolve<IMessenger>();
             _hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
             _cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
             _scheduler = App.Current.Container.Resolve<IScheduler>();
@@ -58,7 +61,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
 
-        public string RawVideoId { get; }
+        public VideoId VideoId { get; init; }
 
         public TimeSpan Length { get; private set; }
 
@@ -67,8 +70,6 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         public Uri ThumbnailUri => !string.IsNullOrWhiteSpace(ThumbnailUrl) ? new Uri(ThumbnailUrl) : null;
 
         public string Title { get; }
-
-        public string Id => RawVideoId;
         
         public string Label => Title;
 
@@ -76,39 +77,40 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         bool IEquatable<IVideoContent>.Equals(IVideoContent other)
         {
-            return this.RawVideoId == other.Id;
+            return this.VideoId == other.VideoId;
         }
 
         public VideoItemViewModel(
-            string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt
+            VideoId videoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt
             )
         {
-            RawVideoId = rawVideoId;
+            VideoId = videoId;
             Title = title;
             ThumbnailUrl = thumbnailUrl;
             Length = videoLength;
             PostedAt = postedAt;
 
-            SubscribeAll(rawVideoId);
+            SubscribeAll(videoId);
         }
 
-        string _subsribedVideoId;
-        protected void SubscribeAll(string videoId)
+        VideoId? _subsribedVideoId;
+        protected void SubscribeAll(VideoId videoId)
         {
-            if (_subsribedVideoId != null)
+            if (_subsribedVideoId is not null and VideoId subscribedVideoId)
             {
-                WeakReferenceMessenger.Default.Unregister<VideoPlayedMessage, string>(this, _subsribedVideoId);
-                WeakReferenceMessenger.Default.Unregister<QueueItemAddedMessage, string>(this, _subsribedVideoId);
-                WeakReferenceMessenger.Default.Unregister<QueueItemRemovedMessage, string>(this, _subsribedVideoId);
-                WeakReferenceMessenger.Default.Unregister<QueueItemIndexUpdateMessage, string>(this, _subsribedVideoId);
-                WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, string>(this, _subsribedVideoId);
+                _messenger.Unregister<VideoPlayedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<QueueItemAddedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<QueueItemRemovedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<QueueItemIndexUpdateMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<VideoCacheStatusChangedMessage, VideoId>(this, subscribedVideoId);
+                _subsribedVideoId = null;
             }
 
-            WeakReferenceMessenger.Default.Register<VideoPlayedMessage, string>(this, videoId);
-            WeakReferenceMessenger.Default.Register<QueueItemAddedMessage, string>(this, videoId);
-            WeakReferenceMessenger.Default.Register<QueueItemRemovedMessage, string>(this, videoId);
-            WeakReferenceMessenger.Default.Register<QueueItemIndexUpdateMessage, string>(this, videoId);
-            WeakReferenceMessenger.Default.Register<VideoCacheStatusChangedMessage, string>(this, videoId);
+            _messenger.Register<VideoPlayedMessage, VideoId>(this, videoId);
+            _messenger.Register<QueueItemAddedMessage, VideoId>(this, videoId);
+            _messenger.Register<QueueItemRemovedMessage, VideoId>(this, videoId);
+            _messenger.Register<QueueItemIndexUpdateMessage, VideoId>(this, videoId);
+            _messenger.Register<VideoCacheStatusChangedMessage, VideoId>(this, videoId);
 
             (IsQueueItem, QueueItemIndex) = _hohoemaPlaylist.IsQueuePlaylistItem(videoId);
             var cacheRequest = _cacheManager.GetVideoCache(videoId);
@@ -122,11 +124,15 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         {
             base.Dispose();
 
-            WeakReferenceMessenger.Default.Unregister<VideoPlayedMessage, string>(this, _subsribedVideoId);
-            WeakReferenceMessenger.Default.Unregister<QueueItemAddedMessage, string>(this, _subsribedVideoId);
-            WeakReferenceMessenger.Default.Unregister<QueueItemRemovedMessage, string>(this, _subsribedVideoId);
-            WeakReferenceMessenger.Default.Unregister<QueueItemIndexUpdateMessage, string>(this, _subsribedVideoId);
-            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, string>(this, _subsribedVideoId);
+            if (_subsribedVideoId is not null and VideoId subscribedVideoId)
+            {
+                _messenger.Unregister<VideoPlayedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<QueueItemAddedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<QueueItemRemovedMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<QueueItemIndexUpdateMessage, VideoId>(this, subscribedVideoId);
+                _messenger.Unregister<VideoCacheStatusChangedMessage, VideoId>(this, subscribedVideoId);
+                _subsribedVideoId = null;
+            }
         }
 
         #region Watched
@@ -157,7 +163,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             LastWatchedPositionInterpolation = Math.Clamp(args.PlayedPosition.TotalSeconds / Length.TotalSeconds, 0.0, 1.0);
         }
 
-        void SubscriptionWatchedIfNotWatch(string videoId)
+        void SubscriptionWatchedIfNotWatch(VideoId videoId)
         {
             UnsubscriptionWatched(_subsribedVideoId);
 
@@ -165,7 +171,10 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             IsWatched = watched;
             if (!watched)
             {
-                StrongReferenceMessenger.Default.Register<VideoPlayedMessage, string>(this, videoId);
+                if (!_messenger.IsRegistered<VideoPlayedMessage, VideoId>(this, videoId))
+                {
+                    _messenger.Register<VideoPlayedMessage, VideoId>(this, videoId);
+                }
             }
             else
             {
@@ -176,11 +185,11 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             }
         }
 
-        void UnsubscriptionWatched(string videoId)
+        void UnsubscriptionWatched(VideoId? videoId)
         {
             if (videoId != null)
             {
-                StrongReferenceMessenger.Default.Unregister<VideoPlayedMessage, string>(this, videoId);
+                _messenger.Unregister<VideoPlayedMessage, VideoId>(this, videoId.Value);
             }
         }
 
@@ -289,7 +298,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         private void UnsubscribeCacheState()
         {
-            WeakReferenceMessenger.Default.Unregister<VideoCacheStatusChangedMessage, string>(this, RawVideoId);
+            _messenger.Unregister<VideoCacheStatusChangedMessage, VideoId>(this, VideoId);
         }
 
         #endregion
@@ -316,13 +325,13 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         }
 
         public VideoListItemControlViewModel(
-            string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt
+            VideoId videoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt
             )
-            : base(rawVideoId, title, thumbnailUrl, videoLength, postedAt)
+            : base(videoId, title, thumbnailUrl, videoLength, postedAt)
         {
             UpdateIsHidenVideoOwner(this);
             
-            if (VideoId != RawVideoId && VideoId != null)
+            if (VideoId != VideoId && VideoId != null)
             {
                 SubscribeAll(VideoId);
             }
@@ -350,7 +359,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             UpdateIsHidenVideoOwner(this);
 
-            if (VideoId != RawVideoId && VideoId != null)
+            if (VideoId != VideoId && VideoId != null)
             {
                 SubscribeAll(VideoId);
             }
@@ -386,7 +395,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             UpdateIsHidenVideoOwner(this);
 
-            if (VideoId != RawVideoId && VideoId != null)
+            if (VideoId != VideoId && VideoId != null)
             {
                 SubscribeAll(VideoId);
             }
@@ -407,7 +416,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             UpdateIsHidenVideoOwner(this);
 
-            if (VideoId != RawVideoId && VideoId != null)
+            if (VideoId != VideoId && VideoId != null)
             {
                 SubscribeAll(VideoId);
             }
@@ -416,7 +425,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         public VideoListItemControlViewModel(
            IVideoDetail videoItem
            )
-           : this(videoItem.Id, videoItem.Label, videoItem.ThumbnailUrl, videoItem.Length, videoItem.PostedAt)
+           : this(videoItem.VideoId, videoItem.Title, videoItem.ThumbnailUrl, videoItem.Length, videoItem.PostedAt)
         {
             _ProviderId = videoItem.ProviderId;
             ProviderType = videoItem.ProviderType;
@@ -427,7 +436,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             UpdateIsHidenVideoOwner(this);
 
-            if (VideoId != RawVideoId && VideoId != null)
+            if (VideoId != VideoId && VideoId != null)
             {
                 SubscribeAll(VideoId);
             }
@@ -435,12 +444,12 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         public bool Equals(IVideoContent other)
         {
-            return Id == other.Id;
+            return VideoId == other.VideoId;
         }
 
         public override int GetHashCode()
         {
-            return Id.GetHashCode();
+            return VideoId.GetHashCode();
         }
 
 
@@ -451,13 +460,6 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         private static readonly IMessenger _messenger;
 
         public OpenVideoOwnerPageCommand OpenVideoOwnerPageCommand => _openVideoOwnerPageCommand;
-
-        private string _VideoId;
-        public string VideoId
-        {
-            get { return _VideoId; }
-            set { SetProperty(ref _VideoId, value); }
-        }
 
 
         private string _ProviderId;
@@ -618,7 +620,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
             if (ProviderId is null && ProviderType != OwnerType.Hidden)
             {
-                var owner = await _nicoVideoProvider.ResolveVideoOwnerAsync(RawVideoId);
+                var owner = await _nicoVideoProvider.ResolveVideoOwnerAsync(VideoId);
                 if (owner is not null)
                 {
                     ProviderId = owner.OwnerId;
@@ -639,7 +641,7 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 		{
 			return new VideoPlayPayload()
 			{
-				VideoId = RawVideoId,
+				VideoId = VideoId,
 				Quality = null,
 			};
 		}

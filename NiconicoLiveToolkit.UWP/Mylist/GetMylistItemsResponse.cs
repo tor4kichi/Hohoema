@@ -32,7 +32,7 @@ namespace NiconicoToolkit.Mylist
 
 
         [JsonPropertyName("id")]
-        public long Id { get; set; }
+        public MylistId Id { get; set; }
 
         [JsonPropertyName("isPublic")]
         public bool IsPublic { get; set; }

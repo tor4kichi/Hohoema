@@ -12,9 +12,6 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         public string Tag => _Tag.Name;
 
-        public string Id => _Tag.Name;
-
-        public string Label => _Tag.Name;
 
         public FollowTagsResponse.Tag _Tag { get; }
 

@@ -35,7 +35,7 @@ namespace NiconicoToolkit.Video.Watch
         }
 
 
-        public async Task<WatchPageResponse> GetInitialWatchDataAsync(string videoId, bool incrementViewCounter = true, bool addHistory = true, CancellationToken ct = default)
+        public async Task<WatchPageResponse> GetInitialWatchDataAsync(VideoId videoId, bool incrementViewCounter = true, bool addHistory = true, CancellationToken ct = default)
         {
             NameValueCollection dict = new();
             if (incrementViewCounter == false)
@@ -49,7 +49,7 @@ namespace NiconicoToolkit.Video.Watch
             }
 
             var url = new StringBuilder(NiconicoUrls.WatchPageUrl)
-                .Append(videoId)
+                .Append(videoId.ToString())
                 .AppendQueryString(dict)
                 .ToString();
 
@@ -96,7 +96,7 @@ namespace NiconicoToolkit.Video.Watch
 
 
 
-        public async Task<DmcWatchApiData> GetDmcWatchJsonAsync(string videoId, bool isLoggedIn, string actionTrackId)
+        public async Task<DmcWatchApiData> GetDmcWatchJsonAsync(VideoId videoId, bool isLoggedIn, string actionTrackId)
         {
             var dict = new NameValueCollection();
             dict.Add("_frontendId", "6");
@@ -111,7 +111,7 @@ namespace NiconicoToolkit.Video.Watch
             var url = new StringBuilder("https://www.nicovideo.jp/api/watch/")
                 .Append(isLoggedIn ? "v3" : "v3_guest")
                 .Append("/")
-                .Append(videoId)
+                .Append(videoId.ToString())
                 .AppendQueryString(dict)
                 .ToString();
 

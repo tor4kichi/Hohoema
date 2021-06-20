@@ -1,5 +1,8 @@
 ﻿using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Domain.Playlist;
+using NiconicoToolkit;
 using NiconicoToolkit.Mylist;
+using NiconicoToolkit.User;
 using System;
 using System.Linq;
 
@@ -14,9 +17,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             _followMylist = followMylist;
         }
 
-        public string Label => _followMylist.Name;
+        public string Name => _followMylist.Name;
 
-        public string Id => _followMylist.Id.ToString();
+        string IPlaylist.Id => _followMylist.Id.ToString();
+
+        public MylistId MylistId => _followMylist.Id;
 
         public string Description => _followMylist.Description;
 

@@ -22,7 +22,7 @@ using NiconicoToolkit.Live.Timeshift;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {
-    public class LiveInfoListItemViewModel : BindableBase, ILiveContent
+    public class LiveInfoListItemViewModel : BindableBase, ILiveContent, ILiveContentProvider
     {
 
         public static PageManager PageManager { get; }
@@ -57,7 +57,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
         public TimeshiftReservationDetailItem Reservation { get; private set; }
 
 
-        public string LiveId { get; }
+        public LiveId LiveId { get; }
 
 		public string CommunityName { get; protected set; }
 		public string CommunityThumbnail { get; protected set; }
@@ -92,15 +92,15 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
         public ReservationStatus? ReservationStatus { get; internal set; }
 
 
-        string ILiveContent.ProviderId => CommunityGlobalId;
+        string ILiveContentProvider.ProviderId => CommunityGlobalId;
 
-        string ILiveContent.ProviderName => CommunityName;
+        string ILiveContentProvider.ProviderName => CommunityName;
 
-        ProviderType ILiveContent.ProviderType => CommunityType;
+        ProviderType ILiveContentProvider.ProviderType => CommunityType;
 
-        string INiconicoObject.Id => LiveId;
+        LiveId ILiveContent.LiveId => LiveId;
 
-        string INiconicoObject.Label => LiveTitle;
+        public string Title => LiveTitle;
 
         public void SetReservation(TimeshiftReservationDetailItem reservationInfo)
         {
@@ -311,7 +311,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
         }
 
 
-        private async Task<bool> DeleteReservation(string liveId, string liveTitle)
+        private async Task<bool> DeleteReservation(LiveId liveId, string liveTitle)
         {
             if (string.IsNullOrEmpty(liveId)) { throw new ArgumentException(nameof(liveId)); }
 
@@ -336,7 +336,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
 
                 var deleteAfterReservations = await niconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
 
-                isDeleted = !deleteAfterReservations.Data.Items.Any(x => liveId.EndsWith(x.LiveIdWithoutPrefix));
+                isDeleted = !deleteAfterReservations.Data.Items.Any(x => liveId == x.LiveId);
                 if (isDeleted)
                 {
                     // 削除成功
@@ -373,7 +373,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
                             {
                                 var reservationProvider = App.Current.Container.Resolve<LoginUserLiveReservationProvider>();
                                 var reservations = await reservationProvider.GetReservtionsDetailAsync();
-                                var reservation = reservations.Data.Items.FirstOrDefault(x => LiveId.EndsWith(x.LiveIdWithoutPrefix));
+                                var reservation = reservations.Data.Items.FirstOrDefault(x => LiveId == x.LiveId);
                                 if (reservation != null)
                                 {
                                     SetReservation(reservation);
@@ -393,7 +393,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
             }
         }
 
-        private async Task<bool> AddReservationAsync(string liveId, string liveTitle)
+        private async Task<bool> AddReservationAsync(LiveId liveId, string liveTitle)
         {
             var niconicoSession = App.Current.Container.Resolve<NiconicoSession>();
             var hohoemaDialogService = App.Current.Container.Resolve<DialogService>();

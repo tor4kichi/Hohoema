@@ -32,7 +32,7 @@ namespace NiconicoToolkit.UWP.Test.Tests
 
             foreach (var item in res.Data.Items.Take(3))
             {
-                Assert.IsNotNull(item.LiveIdWithoutPrefix, "item.Id is null");
+                Assert.IsNotNull(item.LiveId, "item.Id is null");
                 Assert.IsNotNull(item.Title, "item.Title is null");
                 Assert.IsNotNull(item.Status, "item.StatusText is null");
             }

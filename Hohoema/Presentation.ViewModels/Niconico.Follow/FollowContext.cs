@@ -15,9 +15,15 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
     public sealed class FollowContext<ItemType> : BindableBase, IFollowContext where ItemType : IFollowable
     {
-        public static async Task<FollowContext<ItemType>> CreateAsync(IFollowProvider<ItemType> provider, ItemType followable)
+        public static async Task<FollowContext<ItemType>> CreateAsync(IFollowProvider<ItemType> provider, ItemType followable, bool? followed = null)
         {
-            var isFollowing = await provider.IsFollowingAsync(followable);
+            var isFollowing = followed ?? await provider.IsFollowingAsync(followable);
+            return new FollowContext<ItemType>(provider, followable, isFollowing);
+        }
+
+        public static FollowContext<ItemType> Create(IFollowProvider<ItemType> provider, ItemType followable, bool followed)
+        {
+            var isFollowing = followed;
             return new FollowContext<ItemType>(provider, followable, isFollowing);
         }
 
@@ -65,6 +71,17 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             _IsFollowing = isFollowing;
         }
 
+        public Task ToggleFollowAsync()
+        {
+            if (_IsFollowing)
+            {
+                return RemoveFollowAsync();
+            }
+            else
+            {
+                return AddFollowAsync();
+            }
+        }
 
         private DelegateCommand _AddFollowCommand;
         public DelegateCommand AddFollowCommand => _AddFollowCommand
@@ -75,6 +92,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         private async Task AddFollowAsync()
         {
+            if (_followable == null) { return; }
+
             NowChanging = true;
             try
             {
@@ -82,6 +101,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
                 if (result == ContentManageResult.Failed)
                 {
                     IsFollowing = false;
+                }
+                else
+                {
+                    IsFollowing = true;
                 }
             }
             catch (Exception e)
@@ -103,6 +126,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         private async Task RemoveFollowAsync()
         {
+            if (_followable == null) { return; }
+
             NowChanging = true;
             try
             {
@@ -110,6 +135,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
                 if (result != ContentManageResult.Success)
                 {
                     IsFollowing = true;
+                }
+                else
+                {
+                    IsFollowing = false;
                 }
             }
             catch (Exception e)

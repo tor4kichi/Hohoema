@@ -30,6 +30,10 @@ using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using NiconicoToolkit.Video;
+using NiconicoToolkit.User;
+using NiconicoToolkit.Mylist;
+using NiconicoToolkit.Channels;
+using NiconicoToolkit.Community;
 
 namespace Hohoema.Models.UseCase.PageNavigation
 {
@@ -58,18 +62,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
     public class PageManager : BindableBase
     {
-        public PageManager(
-            IScheduler scheduler,
-            AppearanceSettings appearanceSettings,
-            VideoCacheSettings_Legacy cacheSettings,
-            HohoemaPlaylist playlist
-            )
-        {
-            Scheduler = scheduler;
-            AppearanceSettings = appearanceSettings;
-            CacheSettings = cacheSettings;
-            HohoemaPlaylist = playlist;
-        }
+        private readonly IMessenger _messenger;
 
 
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
@@ -93,6 +86,21 @@ namespace Hohoema.Models.UseCase.PageNavigation
             HohoemaPageType.VideoCacheIntroduction,
             HohoemaPageType.EpilogueIntroduction,
         };
+
+        public PageManager(
+            IScheduler scheduler,
+            IMessenger messenger,
+            AppearanceSettings appearanceSettings,
+            VideoCacheSettings_Legacy cacheSettings,
+            HohoemaPlaylist playlist
+            )
+        {
+            Scheduler = scheduler;
+            _messenger = messenger;
+            AppearanceSettings = appearanceSettings;
+            CacheSettings = cacheSettings;
+            HohoemaPlaylist = playlist;
+        }
 
         public static bool IsHiddenMenuPage(HohoemaPageType pageType)
         {
@@ -129,19 +137,19 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         switch (followItem.FollowItemType)
                         {
                             case FollowItemType.User:
-                                OpenPageWithId(HohoemaPageType.UserInfo, followItem.Id);
+                                OpenPageWithId(HohoemaPageType.UserInfo, (UserId)followItem.Id);
                                 break;
                             case FollowItemType.Tag:
                                 this.Search(SearchTarget.Tag, followItem.Id);
                                 break;
                             case FollowItemType.Mylist:
-                                OpenPageWithId(HohoemaPageType.Mylist, followItem.Id);
+                                OpenPageWithId(HohoemaPageType.Mylist, (MylistId)followItem.Id);
                                 break;
                             case FollowItemType.Channel:
-                                OpenPageWithId(HohoemaPageType.ChannelVideo, followItem.Id);
+                                OpenPageWithId(HohoemaPageType.ChannelVideo, (ChannelId)followItem.Id);
                                 break;
                             case FollowItemType.Community:
-                                OpenPageWithId(HohoemaPageType.Community, followItem.Id);
+                                OpenPageWithId(HohoemaPageType.Community, (CommunityId)followItem.Id);
                                 break;
                             default:
                                 break;
@@ -161,19 +169,19 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         OpenPage(pin.PageType, pin.Parameter);
                         break;
                     case IVideoContent videoContent:
-                        OpenPageWithId(HohoemaPageType.VideoInfomation, videoContent.Id);
+                        OpenPageWithId(HohoemaPageType.VideoInfomation, videoContent.VideoId);
                         break;
                     case ILiveContent liveContent:
-                        OpenPageWithId(HohoemaPageType.LiveInfomation, liveContent.Id);
+                        OpenPageWithId(HohoemaPageType.LiveInfomation, liveContent.LiveId);
                         break;
                     case ICommunity communityContent:
-                        OpenPageWithId(HohoemaPageType.Community, communityContent.Id);
+                        OpenPageWithId(HohoemaPageType.Community, communityContent.CommunityId);
                         break;
                     case IMylist mylistContent:
-                        OpenPageWithId(HohoemaPageType.Mylist, mylistContent.Id);
+                        OpenPageWithId(HohoemaPageType.Mylist, mylistContent.MylistId);
                         break;
                     case IUser user:
-                        OpenPageWithId(HohoemaPageType.UserInfo, user.Id);
+                        OpenPageWithId(HohoemaPageType.UserInfo, user.UserId);
                         break;
                     case ITag tag:
                         this.Search(SearchTarget.Tag, tag.Tag);
@@ -182,7 +190,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         this.Search(history.Target, history.Keyword);
                         break;
                     case IChannel channel:
-                        OpenPageWithId(HohoemaPageType.ChannelVideo, channel.Id);
+                        OpenPageWithId(HohoemaPageType.ChannelVideo, channel.ChannelId);
                         break;
                     case IPlaylist playlist:
                         OpenPageWithId(HohoemaPageType.LocalPlaylist, playlist.Id);
@@ -218,16 +226,16 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         }
                         break;
                     case ILiveContent liveContent:
-                        OpenPageWithId(HohoemaPageType.LiveInfomation, liveContent.Id);
+                        OpenPageWithId(HohoemaPageType.LiveInfomation, liveContent.LiveId);
                         break;
                     case ICommunity communityContent:
-                        OpenPageWithId(HohoemaPageType.CommunityVideo, communityContent.Id);
+                        OpenPageWithId(HohoemaPageType.CommunityVideo, communityContent.CommunityId);
                         break;
                     case IMylist mylistContent:
                         OpenPageWithId(HohoemaPageType.Mylist, mylistContent.Id);
                         break;
                     case IUser user:
-                        OpenPageWithId(HohoemaPageType.UserVideo, user.Id);
+                        OpenPageWithId(HohoemaPageType.UserVideo, user.UserId);
                         break;
                     case ITag tag:
                         this.Search(SearchTarget.Tag, tag.Tag);
@@ -236,7 +244,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         this.Search(history.Target, history.Keyword);
                         break;
                     case IChannel channel:
-                        OpenPageWithId(HohoemaPageType.ChannelVideo, channel.Id);
+                        OpenPageWithId(HohoemaPageType.ChannelVideo, channel.ChannelId);
                         break;
                 }
             }));
@@ -264,7 +272,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         }
 
                         break;
-                    case ILiveContent liveContent:
+                    case ILiveContentProvider liveContent:
                         if (liveContent.ProviderType == ProviderType.Community)
                         {
                             var p = new NavigationParameters();
@@ -350,7 +358,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
         public void OpenDebugPage()
         {
-            StrongReferenceMessenger.Default.Send(new PageNavigationEvent(new ()
+            _messenger.Send(new PageNavigationEvent(new ()
             {
                 PageName = nameof(Presentation.Views.Pages.Hohoema.DebugPage),
                 IsMainViewTarget = true,
@@ -365,7 +373,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                 CurrentPageType = pageType;
                 CurrentPageNavigationParameters = parameter;
 
-                StrongReferenceMessenger.Default.Send(new PageNavigationEvent(new()
+                _messenger.Send(new PageNavigationEvent(new()
                 {
                     PageName = _pageTypeToName[pageType],
                     Paramter = parameter,
@@ -385,17 +393,15 @@ namespace Hohoema.Models.UseCase.PageNavigation
             OpenPage(pageType, parameter, stackBehavior);
         }
 
-        public void OpenPageWithId(HohoemaPageType pageType, string id, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
+        public void OpenPageWithId<T>(HohoemaPageType pageType, T id, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
         {
-            INavigationParameters parameter = new NavigationParameters($"id={id}");
+            INavigationParameters parameter = new NavigationParameters(("id", id));
             OpenPage(pageType, parameter, stackBehavior);
         }
 
 
         static readonly Dictionary<HohoemaPageType, string> _pageTypeToName = Enum.GetValues(typeof(HohoemaPageType))
             .Cast<HohoemaPageType>().Select(x => (x, x + "Page")).ToDictionary(x => x.x, x => x.Item2);
-
-
         public bool IsIgnoreRecordPageType(HohoemaPageType pageType)
 		{
 			return IgnoreRecordNavigationStack.Contains(pageType);

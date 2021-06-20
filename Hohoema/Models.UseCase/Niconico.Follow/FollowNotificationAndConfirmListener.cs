@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico.Follow;
+﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Presentation.Services;
 using I18NPortable;
@@ -55,19 +56,19 @@ namespace Hohoema.Models.UseCase.Niconico.Follow
 
         void NotifyFollowAdded(IFollowable item)
         {
-            _notificationService.ShowLiteInAppNotification_Success("FollowAddedNotification_WithItemName".Translate(item.Label));
+            _notificationService.ShowLiteInAppNotification_Success("FollowAddedNotification_WithItemName".Translate(item.GetLabel()));
         }
 
         void NotifyFollowRemoved(IFollowable item)
         {
-            _notificationService.ShowLiteInAppNotification_Success("FollowRemovedNotification_WithItemName".Translate(item.Label));
+            _notificationService.ShowLiteInAppNotification_Success("FollowRemovedNotification_WithItemName".Translate(item.GetLabel()));
         }
 
 
         Task<bool> ConfirmFollowRemovingAsync(IFollowable item)
         {
             return _dialogService.ShowMessageDialog(
-                content: "ConfirmRemoveFollow_DialogDescWithItemName".Translate(item.Label), 
+                content: "ConfirmRemoveFollow_DialogDescWithItemName".Translate(item.GetLabel()), 
                 title: "ConfirmRemoveFollow_DialogTitle".Translate(), 
                 acceptButtonText: "RemoveFollow".Translate(),
                 cancelButtonText: "Cancel".Translate()

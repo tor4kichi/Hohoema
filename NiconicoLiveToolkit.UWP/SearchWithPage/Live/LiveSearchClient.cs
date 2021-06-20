@@ -137,7 +137,7 @@ namespace NiconicoToolkit.SearchWithPage.Live
 			{
 				await _context.WaitPageAccessAsync();
 
-				var responseMessage = await _context.GetAsync(urlWithQuery, ct: cancellationToken);
+				using var responseMessage = await _context.GetAsync(urlWithQuery, ct: cancellationToken);
 				var parser = new HtmlParser();
 				using (var inputStream = await responseMessage.Content.ReadAsInputStreamAsync())
 				{
@@ -429,6 +429,7 @@ namespace NiconicoToolkit.SearchWithPage.Live
 			"searchPage-ProgramList_StatusLabel-future" => LiveSearchItemStatus.Reserved,
 			"searchPage-ProgramList_StatusLabel-timeshift" => LiveSearchItemStatus.PastAndPresentTimeshift,
 			"searchPage-ProgramList_StatusLabel-close" => LiveSearchItemStatus.PastAndNotPresentTimeshift,
+			_ and var str => throw new NotSupportedException(str?.ToString()),
 		};
 
 		private Uri _thumbnail;

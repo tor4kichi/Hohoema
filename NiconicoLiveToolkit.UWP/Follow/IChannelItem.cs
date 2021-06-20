@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.Channels;
+using System;
 
 namespace NiconicoToolkit.Follow
 {
@@ -7,7 +8,7 @@ namespace NiconicoToolkit.Follow
         long BodyPrice { get; set; }
         bool CanAdmit { get; set; }
         string Description { get; set; }
-        long Id { get; set; }
+        ChannelId Id { get; set; }
         bool IsAdult { get; set; }
         bool IsFree { get; set; }
         string Name { get; set; }

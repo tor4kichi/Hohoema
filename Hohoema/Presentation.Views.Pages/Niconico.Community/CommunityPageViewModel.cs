@@ -31,13 +31,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 {
     using CommunityFollowContext = FollowContext<ICommunity>;
 
-    public sealed class Community : ICommunity
-    {
-        public string Id { get; set; }
-
-        public string Label { get; set; }
-    }
-
 
     public class CommunityPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
@@ -83,15 +76,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
             CommunityProvider = communityProvider;
         }
 
-        private Community _community;
-        public Community Community
+        private CommunityViewModel _community;
+        public CommunityViewModel Community
         {
             get { return _community; }
             set { SetProperty(ref _community, value); }
         }
 
 
-        public string CommunityId { get; private set; }
+        public CommunityId? CommunityId { get; private set; }
 
 		public CommunityInfoData CommunityInfo { get; private set; }
 
@@ -177,135 +170,144 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            
-            // ナビゲーションパラメータからコミュニティIDを取得
+            CommunityId? communityId = null;
+            if (parameters.TryGetValue("id", out string strCommunityId))
+            {
+                communityId = strCommunityId;
+            }
+            else if (parameters.TryGetValue("id", out CommunityId justCommunityId))
+            {
+                communityId = justCommunityId;
+            }
+
+
+            if (communityId == null)
+            {
+                CommunityId = null;
+                CommunityInfo = null;
+                FollowContext = CommunityFollowContext.Default;
+                return;
+            }
+
+            CommunityId = communityId;
+
             IsFailed = false;
             try
             {
-                NowLoading = true;
+                var res = await CommunityProvider.GetCommunityInfo(CommunityId.Value);
 
-                if (parameters.TryGetValue("id", out string id))
+                if (res == null || !res.IsOK) { return; }
+
+                CommunityInfo = res.Community;
+
+                RaisePropertyChanged(nameof(CommunityName));
+                RaisePropertyChanged(nameof(IsPublic));
+                RaisePropertyChanged(nameof(CommunityDescription));
+                RaisePropertyChanged(nameof(CommunityLevel));
+                RaisePropertyChanged(nameof(ThumbnailUrl));
+
+                ApplicationTheme appTheme;
+                if (_appearanceSettings.ApplicationTheme == ElementTheme.Dark)
                 {
-                    CommunityId = id;
-
-                    var res = await CommunityProvider.GetCommunityInfo(CommunityId);
-
-                    if (res == null || !res.IsOK) { return; }
-
-                    CommunityInfo = res.Community;
-
-                    RaisePropertyChanged(nameof(CommunityName));
-                    RaisePropertyChanged(nameof(IsPublic));
-                    RaisePropertyChanged(nameof(CommunityDescription));
-                    RaisePropertyChanged(nameof(CommunityLevel));
-                    RaisePropertyChanged(nameof(ThumbnailUrl));
-
-                    ApplicationTheme appTheme;
-                    if (_appearanceSettings.ApplicationTheme == ElementTheme.Dark)
-                    {
-                        appTheme = ApplicationTheme.Dark;
-                    }
-                    else if (_appearanceSettings.ApplicationTheme == ElementTheme.Light)
-                    {
-                        appTheme = ApplicationTheme.Light;
-                    }
-                    else
-                    {
-                        appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
-                    }
-                    //var profileHtmlId = $"{CommunityId}_profile";
-                    //ProfileHtmlFileUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(profileHtmlId, CommunityDetail.ProfielHtml, appTheme);
-
-
-                    //OwnerUserInfo = new UserInfoViewModel(
-                    //    CommunityDetail.OwnerUserName,
-                    //    CommunityDetail.OwnerUserId
-                    //    );
-
-                    //IsOwnedCommunity = NiconicoSession.UserId.ToString() == OwnerUserInfo.Id;
-
-                    //Tags = CommunityDetail.Tags.Select(x => new NicoVideoTag(x))
-                    //    .ToList();
-
-                    //FutureLiveList = CommunityDetail.FutureLiveList.Select(x => new CommunityLiveInfoViewModel(x))
-                    //    .ToList();
-
-                    //RecentLiveList = CommunityDetail.RecentLiveList.Select(x => new CommunityLiveInfoViewModel(x))
-                    //    .ToList();
-
-                    //NewsList = new List<CommunityNewsViewModel>();
-                    //foreach (var news in CommunityDetail.NewsList)
-                    //{
-                    //    var newsVM = await CommunityNewsViewModel.Create(CommunityId, news.Title, news.PostAuthor, news.PostDate, news.ContentHtml, PageManager, _appearanceSettings);
-                    //    NewsList.Add(newsVM);
-                    //}
-
-
-
-                    //HasNews = NewsList.Count > 0;
-
-
-                    //CurrentLiveInfoList = CommunityDetail.CurrentLiveList.Select(x => new CurrentLiveInfoViewModel(x, CommunityDetail))
-                    //    .ToList();
-
-                    //HasCurrentLiveInfo = CurrentLiveInfoList.Count > 0;
-
-                    //CommunityVideoSamples = new List<CommunityVideoInfoViewModel>();
-                    ///*
-                    //foreach (var sampleVideo in CommunityDetail.VideoList)
-                    //{
-                    //    var videoInfoVM = new CommunityVideoInfoViewModel(sampleVideo);
-
-                    //    CommunityVideoSamples.Add(videoInfoVM);
-                    //}
-                    //*/
-
-
-                    //RaisePropertyChanged(nameof(CommunityOwnerName));
-                    //RaisePropertyChanged(nameof(VideoCount));
-                    //RaisePropertyChanged(nameof(PrivilegeDescription));
-                    //					RaisePropertyChanged(nameof(IsJoinAutoAccept));
-                    //					RaisePropertyChanged(nameof(IsJoinWithoutPrivacyInfo));
-                    //					RaisePropertyChanged(nameof(IsCanLiveOnlyPrivilege));
-                    //					RaisePropertyChanged(nameof(IsCanAcceptJoinOnlyPrivilege));
-                    //					RaisePropertyChanged(nameof(IsCanSubmitVideoOnlyPrivilege));
-
-                    //RaisePropertyChanged(nameof(ProfileHtmlFileUri));
-                    //RaisePropertyChanged(nameof(OwnerUserInfo));
-                    //RaisePropertyChanged(nameof(Tags));
-                    //RaisePropertyChanged(nameof(FutureLiveList));
-                    //RaisePropertyChanged(nameof(NewsList));
-                    //RaisePropertyChanged(nameof(HasNews));
-                    //RaisePropertyChanged(nameof(CurrentLiveInfoList));
-                    //RaisePropertyChanged(nameof(HasCurrentLiveInfo));
-                    //RaisePropertyChanged(nameof(CommunityVideoSamples));
-
-
-                    Community = new Community() { Id = CommunityId, Label = CommunityName };
-
-                    // フォロー表示・操作の準備
-
-                    // Note: オーナーコミュニティのフォローを解除＝コミュニティの解散操作となるため注意が必要
-                    // 安全管理上、アプリ上でコミュニティの解散は不可の方向に倒して対応したい
-                    try
-                    {
-                        FollowContext = CommunityFollowContext.Default;
-                        var authority = await _communityFollowProvider.GetCommunityAuthorityAsync(CommunityId);
-                        if (!authority.Data.IsOwner)
-                        {
-                            if (!string.IsNullOrWhiteSpace(CommunityId))
-                            {
-                                FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, Community);
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        FollowContext = CommunityFollowContext.Default;
-                    }
-
-                    UpdateCanNotFollowReason();
+                    appTheme = ApplicationTheme.Dark;
                 }
+                else if (_appearanceSettings.ApplicationTheme == ElementTheme.Light)
+                {
+                    appTheme = ApplicationTheme.Light;
+                }
+                else
+                {
+                    appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
+                }
+                //var profileHtmlId = $"{CommunityId}_profile";
+                //ProfileHtmlFileUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(profileHtmlId, CommunityDetail.ProfielHtml, appTheme);
+
+
+                //OwnerUserInfo = new UserInfoViewModel(
+                //    CommunityDetail.OwnerUserName,
+                //    CommunityDetail.OwnerUserId
+                //    );
+
+                //IsOwnedCommunity = NiconicoSession.UserId.ToString() == OwnerUserInfo.Id;
+
+                //Tags = CommunityDetail.Tags.Select(x => new NicoVideoTag(x))
+                //    .ToList();
+
+                //FutureLiveList = CommunityDetail.FutureLiveList.Select(x => new CommunityLiveInfoViewModel(x))
+                //    .ToList();
+
+                //RecentLiveList = CommunityDetail.RecentLiveList.Select(x => new CommunityLiveInfoViewModel(x))
+                //    .ToList();
+
+                //NewsList = new List<CommunityNewsViewModel>();
+                //foreach (var news in CommunityDetail.NewsList)
+                //{
+                //    var newsVM = await CommunityNewsViewModel.Create(CommunityId, news.Title, news.PostAuthor, news.PostDate, news.ContentHtml, PageManager, _appearanceSettings);
+                //    NewsList.Add(newsVM);
+                //}
+
+
+
+                //HasNews = NewsList.Count > 0;
+
+
+                //CurrentLiveInfoList = CommunityDetail.CurrentLiveList.Select(x => new CurrentLiveInfoViewModel(x, CommunityDetail))
+                //    .ToList();
+
+                //HasCurrentLiveInfo = CurrentLiveInfoList.Count > 0;
+
+                //CommunityVideoSamples = new List<CommunityVideoInfoViewModel>();
+                ///*
+                //foreach (var sampleVideo in CommunityDetail.VideoList)
+                //{
+                //    var videoInfoVM = new CommunityVideoInfoViewModel(sampleVideo);
+
+                //    CommunityVideoSamples.Add(videoInfoVM);
+                //}
+                //*/
+
+
+                //RaisePropertyChanged(nameof(CommunityOwnerName));
+                //RaisePropertyChanged(nameof(VideoCount));
+                //RaisePropertyChanged(nameof(PrivilegeDescription));
+                //					RaisePropertyChanged(nameof(IsJoinAutoAccept));
+                //					RaisePropertyChanged(nameof(IsJoinWithoutPrivacyInfo));
+                //					RaisePropertyChanged(nameof(IsCanLiveOnlyPrivilege));
+                //					RaisePropertyChanged(nameof(IsCanAcceptJoinOnlyPrivilege));
+                //					RaisePropertyChanged(nameof(IsCanSubmitVideoOnlyPrivilege));
+
+                //RaisePropertyChanged(nameof(ProfileHtmlFileUri));
+                //RaisePropertyChanged(nameof(OwnerUserInfo));
+                //RaisePropertyChanged(nameof(Tags));
+                //RaisePropertyChanged(nameof(FutureLiveList));
+                //RaisePropertyChanged(nameof(NewsList));
+                //RaisePropertyChanged(nameof(HasNews));
+                //RaisePropertyChanged(nameof(CurrentLiveInfoList));
+                //RaisePropertyChanged(nameof(HasCurrentLiveInfo));
+                //RaisePropertyChanged(nameof(CommunityVideoSamples));
+
+
+                Community = new CommunityViewModel() { CommunityId = CommunityId.Value, Name = CommunityName };
+
+                // フォロー表示・操作の準備
+
+                // Note: オーナーコミュニティのフォローを解除＝コミュニティの解散操作となるため注意が必要
+                // 安全管理上、アプリ上でコミュニティの解散は不可の方向に倒して対応したい
+                try
+                {
+                    FollowContext = CommunityFollowContext.Default;
+                    var authority = await _communityFollowProvider.GetCommunityAuthorityAsync(CommunityId.Value);
+                    if (!authority.Data.IsOwner)
+                    {
+                        FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, Community);
+                    }
+                }
+                catch
+                {
+                    FollowContext = CommunityFollowContext.Default;
+                }
+
+                UpdateCanNotFollowReason();
             }
             catch (Exception ex)
             {

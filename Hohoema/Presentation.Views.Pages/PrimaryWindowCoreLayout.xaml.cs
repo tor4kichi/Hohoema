@@ -122,7 +122,7 @@ namespace Hohoema.Presentation.Views.Pages
 
             ContentFrame.Navigated += ContentFrame_Navigated;
 
-            StrongReferenceMessenger.Default.Register<PageNavigationEvent>(this, (r, m) => 
+            WeakReferenceMessenger.Default.Register<PageNavigationEvent>(this, (r, m) => 
             {
                 ContentFrameNavigation(m.Value);
             });
@@ -177,7 +177,7 @@ namespace Hohoema.Presentation.Views.Pages
                 });
 
             var currentContext = SynchronizationContext.Current;
-            StrongReferenceMessenger.Default.Register<LiteNotificationMessage>(this, (r, m) => 
+            WeakReferenceMessenger.Default.Register<LiteNotificationMessage>(this, (r, m) => 
             {
                 var payload = m.Value;
                 if (currentContext != SynchronizationContext.Current)
@@ -942,7 +942,7 @@ namespace Hohoema.Presentation.Views.Pages
 
         private void AddShortLiteInAppNotification_Click(object sender, RoutedEventArgs e)
         {
-            StrongReferenceMessenger.Default.Send(new LiteNotificationMessage(new () 
+            WeakReferenceMessenger.Default.Send(new LiteNotificationMessage(new () 
             {
                 Content = "あああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああ",
                 Symbol = Symbol.Accept,
@@ -952,7 +952,7 @@ namespace Hohoema.Presentation.Views.Pages
 
         private void AddLongLiteInAppNotification_Click(object sender, RoutedEventArgs e)
         {
-            StrongReferenceMessenger.Default.Send(new LiteNotificationMessage(new()
+            WeakReferenceMessenger.Default.Send(new LiteNotificationMessage(new()
             {
                 Content = "もっと表示",
                 DisplayDuration = DisplayDuration.MoreAttention,

@@ -850,7 +850,7 @@ namespace NiconicoToolkit.Video.Watch
     public partial class WatchApiVideo
     {
         [JsonPropertyName("id")]
-        public string Id { get; set; }
+        public VideoId Id { get; set; }
 
         [JsonPropertyName("title")]
         public string Title { get; set; }

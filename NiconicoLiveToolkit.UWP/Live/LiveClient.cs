@@ -26,18 +26,7 @@ namespace NiconicoToolkit.Live
             CasApi = new Cas.CasLiveClient(context, defaultOptions);
             LiveNotify = new LiveNotifyClient(context, defaultOptions);
 
-            _watchPageJsonSerializerOptions = new JsonSerializerOptions()
-            {
-                Converters = 
-                {
-                    new JsonStringEnumMemberConverter(JsonSnakeCaseNamingPolicy.Instance),
-                    new JsonStringEnumMemberConverter(JsonNamingPolicy.CamelCase),
-                    new LongToStringConverter(),
-                    new NiconicoIdJsonConverter(),
-                    new UserIdJsonConverter(),
-                    new LiveIdJsonConverter()
-                }
-            };
+            _watchPageJsonSerializerOptions = NiconicoContext.DefaultOptionsSnakeCase;
         }
 
         JsonSerializerOptions _watchPageJsonSerializerOptions;

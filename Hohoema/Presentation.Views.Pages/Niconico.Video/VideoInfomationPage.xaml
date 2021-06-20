@@ -151,6 +151,7 @@
                 <Image Source="{Binding VideoDetails.OwnerIconUrl}" Height="48" Width="48" />
                 <TextBlock Text="{Binding VideoDetails.ProviderName}" VerticalAlignment="Center" Margin="8 0 0 0" />
               </StackPanel>
+              
               <Button.Flyout>
                 <MenuFlyout>
                   <MenuFlyoutItem Text="{i18nExt:Localize Key=VideoOwnerDetail}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding VideoInfo}" />

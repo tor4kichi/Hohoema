@@ -1,6 +1,9 @@
 ﻿using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using NiconicoToolkit.Account;
+using NiconicoToolkit.Channels;
+using NiconicoToolkit.Community;
+using NiconicoToolkit.Mylist;
 using NiconicoToolkit.User;
 using System;
 using System.Collections.Generic;
@@ -167,12 +170,12 @@ namespace NiconicoToolkit.Follow
 
 
 
-            public Task<ContentManageResult> AddFollowMylistAsync(string mylistId)
+            public Task<ContentManageResult> AddFollowMylistAsync(MylistId mylistId)
             {
                 return _followClient.AddFollowInternalAsync($"{Urls.NvapiV1FollowingApiUrl}mylists/{mylistId}");
             }
 
-            public Task<ContentManageResult> RemoveFollowMylistAsync(string mylistId)
+            public Task<ContentManageResult> RemoveFollowMylistAsync(MylistId mylistId)
             {
                 return _followClient.RemoveFollowInternalAsync($"{Urls.NvapiV1FollowingApiUrl}mylists/{mylistId}");
             }
@@ -210,10 +213,10 @@ namespace NiconicoToolkit.Follow
 
 
 
-            public async Task<ChannelAuthorityResponse> GetChannelAuthorityAsync(uint channelNumberId)
+            public async Task<ChannelAuthorityResponse> GetChannelAuthorityAsync(ChannelId channelNumberId)
             {
                 return await _context.GetJsonAsAsync<ChannelAuthorityResponse>(
-                    $"{NiconicoUrls.PublicApiV1Url}channel/channelapp/channels/{channelNumberId}.json", _options
+                    $"{NiconicoUrls.PublicApiV1Url}channel/channelapp/channels/{channelNumberId.ToStringWithoutPrefix()}.json", _options
                     );
             }
 
@@ -242,17 +245,17 @@ namespace NiconicoToolkit.Follow
                 });
             }
 
-            public async Task<ChannelFollowResult> AddFollowChannelAsync(string channelId)
+            public async Task<ChannelFollowResult> AddFollowChannelAsync(ChannelId channelId)
             {
                 var apiInfo = await GetFollowChannelApiInfo(channelId);
-                return await _context.GetJsonAsAsync<ChannelFollowResult>($"{apiInfo.AddApi}?{apiInfo.Params}");
+                return await _context.GetJsonAsAsync<ChannelFollowResult>($"{apiInfo.AddApi}?{apiInfo.Params}", _options);
             }
 
 
-            public async Task<ChannelFollowResult> DeleteFollowChannelAsync(string channelId)
+            public async Task<ChannelFollowResult> DeleteFollowChannelAsync(ChannelId channelId)
             {
                 var apiInfo = await GetFollowChannelApiInfo(channelId);
-                return await _context.GetJsonAsAsync<ChannelFollowResult>($"{apiInfo.DeleteApi}?{apiInfo.Params}");
+                return await _context.GetJsonAsAsync<ChannelFollowResult>($"{apiInfo.DeleteApi}?{apiInfo.Params}", _options);
 
             }
         }
@@ -287,9 +290,9 @@ namespace NiconicoToolkit.Follow
                     );
             }
 
-            public async Task<ContentManageResult> AddFollowCommunityAsync(string communityId)
+            public async Task<ContentManageResult> AddFollowCommunityAsync(CommunityId communityId)
             {
-                var nonPrefixCommunityId = ContentIdHelper.RemoveContentIdPrefix(communityId);
+                var nonPrefixCommunityId = communityId.ToStringWithoutPrefix();
                 var communityJoinPageUrl = new Uri($"{NiconicoUrls.CommunityPageUrl}motion/{communityId}");
 
                 var uri = $"{NiconicoUrls.CommunityV1ApiUrl}communities/{nonPrefixCommunityId}/follows.json";
@@ -336,7 +339,7 @@ namespace NiconicoToolkit.Follow
             // コミュニティオーナーとしてフォロー解除を行うとコミュニティの解散になるため、注意が必要
 
 
-            private async Task<CommunityLeaveToken> GetCommunityLeaveTokenAsync(string url, string communityId)
+            private async Task<CommunityLeaveToken> GetCommunityLeaveTokenAsync(string url, CommunityId communityId)
             {
                 using var res = await _context.GetAsync(url);
                 var token = await res.Content.ReadHtmlDocumentActionAsync(document =>
@@ -377,7 +380,7 @@ namespace NiconicoToolkit.Follow
             /// <param name="communityId"></param>
             /// <remarks>コミュニティオーナーがフォロー解除を行うとコミュニティ解散という重大な操作になるため注意</remarks>
             /// <returns></returns>
-            public async Task<ContentManageResult> RemoveFollowCommunityAsync(string communityId)
+            public async Task<ContentManageResult> RemoveFollowCommunityAsync(CommunityId communityId)
             {
                 var url = $"{NiconicoUrls.CommunityPageUrl}leave/{communityId}";
                 var token = await GetCommunityLeaveTokenAsync(url, communityId);
@@ -406,7 +409,7 @@ namespace NiconicoToolkit.Follow
 
             public class CommunityLeaveToken
             {
-                public string CommunityId { get; set; }
+                public CommunityId CommunityId { get; set; }
                 public string Time { get; set; }
                 public string CommitKey { get; set; }
                 public string Commit { get; set; }
@@ -422,7 +425,7 @@ namespace NiconicoToolkit.Follow
                 headers.Add("X-Request-With", "https://www.nicovideo.jp/my/follow");
             });
 
-            var result = await res.Content.ReadAsAsync<FollowedResultResponce>();
+            var result = await res.Content.ReadAsAsync<FollowedResultResponce>(_defaultOptions);
             return result.Data.IsFollowing;
         }
 

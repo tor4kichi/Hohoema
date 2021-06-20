@@ -8,7 +8,7 @@ namespace NiconicoToolkit.Mylist
     public sealed class NvapiMylistItem : IMylistItem
     {
         [JsonPropertyName("id")]
-        public long Id { get; set; }
+        public MylistId Id { get; set; }
 
         [JsonPropertyName("isPublic")]
         public bool IsPublic { get; set; }

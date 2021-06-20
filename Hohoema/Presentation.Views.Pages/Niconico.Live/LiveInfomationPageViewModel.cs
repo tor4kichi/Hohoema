@@ -36,20 +36,21 @@ using NiconicoToolkit.Live.Timeshift;
 using NiconicoToolkit;
 using NiconicoToolkit.Recommend;
 using AngleSharp.Html.Parser;
+using NiconicoToolkit.Community;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 {
     public class LiveCommunityInfo : ICommunity
     {
-        public string Id { get; set; }
+        public CommunityId CommunityId { get; set; }
 
-        public string Label { get; set; }
+        public string Name { get; set; }
 
         public string Thumbnail { get; set; }
         public string Description { get; internal set; }
     }
 
-    public class LiveData : ILiveContent
+    public class LiveData : ILiveContent, ILiveContentProvider
     {
         private readonly NiconicoToolkit.Live.Cas.LiveProgramData _liveProgram;
 
@@ -58,14 +59,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             _liveProgram = liveProgram;
         }
 
-        string ILiveContent.ProviderId => _liveProgram.ProviderId;
-        string ILiveContent.ProviderName { get; }
-        ProviderType ILiveContent.ProviderType => _liveProgram.ProviderType;
+        string ILiveContentProvider.ProviderId => _liveProgram.ProviderId;
+        string ILiveContentProvider.ProviderName { get; }
+        ProviderType ILiveContentProvider.ProviderType => _liveProgram.ProviderType;
 
 
-        string INiconicoObject.Id => _liveProgram.Id;
+        LiveId ILiveContent.LiveId => _liveProgram.Id;
 
-        string INiconicoObject.Label => _liveProgram.Title;
+        string INiconicoContent.Title => _liveProgram.Title;
 
     }
 
@@ -133,7 +134,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
 
             IsLiveIdAvairable = this.ObserveProperty(x => x.LiveId)
-                .Select(x => x != null ? NiconicoToolkit.ContentIdHelper.IsLiveId(x) : false)
+                .Select(x => x != default(LiveId))
                 .ToReadOnlyReactiveProperty()
                 .AddTo(_CompositeDisposable);
 
@@ -260,8 +261,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
         public ReactiveProperty<bool> IsLoadFailed { get; }
         public ReactiveProperty<string> LoadFailedMessage { get; }
 
-        private string _LiveId;
-        public string LiveId
+        private LiveId _LiveId;
+        public LiveId LiveId
         {
             get { return _LiveId; }
             private set { SetProperty(ref _LiveId, value); }
@@ -394,7 +395,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
                         var reservations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
                         
-                        if (reservations.Data.Items.Any(x => LiveId.EndsWith(x.LiveIdWithoutPrefix)))
+                        if (reservations.Data.Items.Any(x => x.LiveId == LiveId))
                         {
                             var result = await DeleteReservation(LiveId, LiveProgram.Title);
                             if (result)
@@ -437,7 +438,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
                 var deleteAfterReservations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
 
-                isDeleted = !deleteAfterReservations.Data.Items.Any(x => liveId.EndsWith(x.LiveIdWithoutPrefix));
+                isDeleted = !deleteAfterReservations.Data.Items.Any(x => liveId.EndsWith(x.LiveId));
                 if (isDeleted)
                 {
                     // 削除成功
@@ -515,26 +516,40 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            var liveId = parameters.GetValue<string>("id");
-            if (liveId != null)
+            LiveId? maybeLiveId = null;
+            if (parameters.TryGetValue("id", out string strLiveId))
             {
-                await RefreshLiveInfoAsync(liveId);
+                maybeLiveId = strLiveId;
             }
-            else
+            else if (parameters.TryGetValue("id", out uint numberLiveId))
             {
+                maybeLiveId = numberLiveId;
+            }
+            else if (parameters.TryGetValue("id", out LiveId justLiveId))
+            {
+                maybeLiveId = justLiveId;
+            }
 
+            if (maybeLiveId == null)
+            {
+                LiveId = new LiveId();
+                return;
             }
+
+            LiveId = maybeLiveId.Value;
+
+            await RefreshLiveInfoAsync(LiveId);
         }
 
 
-        async Task RefreshLiveInfoAsync(string liveId)
+        async Task RefreshLiveInfoAsync(LiveId liveId)
         {
             IsLoadFailed.Value = false;
             LoadFailedMessage.Value = string.Empty;
 
             IsLiveInfoLoaded.Value = false;
 
-            if (liveId == null) { throw new Models.Infrastructure.HohoemaExpception("Require LiveId in LiveInfomationPage navigation with (e.Parameter as string)"); }
+            if (liveId == default(LiveId)) { throw new Models.Infrastructure.HohoemaExpception("Require LiveId in LiveInfomationPage navigation with (e.Parameter as string)"); }
 
             try
             {
@@ -553,8 +568,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                             var community = communityInfo.Community;
                             Community = new LiveCommunityInfo()
                             {
-                                Id = community.GlobalId,
-                                Label = community.Name,
+                                CommunityId = community.GlobalId,
+                                Name = community.Name,
                                 Thumbnail = community.ThumbnailNonSsl.OriginalString,
                                 Description = community.Description
                             };
@@ -689,10 +704,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             RaisePropertyChanged(nameof(LiveTags));
         }
 
-        async Task RefreshReservationInfo(string liveId)
+        async Task RefreshReservationInfo(LiveId liveId)
         {
             var reseevations = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsDetailAsync();
-            var thisLiveReservation = reseevations.Data.Items.FirstOrDefault(x => liveId.EndsWith(x.LiveIdWithoutPrefix));
+            var thisLiveReservation = reseevations.Data.Items.FirstOrDefault(x => x.LiveId == liveId);
             if (thisLiveReservation != null)
             {
                 var timeshiftList = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsAsync();

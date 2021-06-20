@@ -88,7 +88,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                                     int cnt = 0;
                                     foreach (var reservation in dateOutReservations)
                                     {
-                                        await LoginUserLiveReservationProvider.DeleteReservationAsync(reservation.LiveIdWithoutPrefix);
+                                        await LoginUserLiveReservationProvider.DeleteReservationAsync(reservation.LiveId);
 
                                         await Task.Delay(TimeSpan.FromSeconds(1));
 
@@ -176,10 +176,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             List<LiveInfoListItemViewModel> items = new ();
             foreach (var item in _Reservations.Data.Items.Skip(head).Take(pageSize))
             {
-                var liveData = await NicoLiveProvider.GetLiveInfoAsync(item.LiveIdWithoutPrefix);
+                var liveData = await NicoLiveProvider.GetLiveInfoAsync(item.LiveId);
                 //var tsItem = _TimeshiftList.Data.Items.FirstOrDefault(y => y.Id == item.LiveIdWithoutPrefix);
 
-                var liveInfoVM = new LiveInfoListItemViewModel(item.LiveIdWithoutPrefix);
+                var liveInfoVM = new LiveInfoListItemViewModel(item.LiveId);
                 liveInfoVM.ExpiredAt = item.ExpiredAt?.LocalDateTime;
                 liveInfoVM.Setup(liveData.Data);
 

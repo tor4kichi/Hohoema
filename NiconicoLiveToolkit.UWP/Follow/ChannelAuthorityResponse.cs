@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.Channels;
+using System;
 using System.Text.Json.Serialization;
 #if WINDOWS_UWP
 #else
@@ -64,7 +65,7 @@ namespace NiconicoToolkit.Follow
     public partial class Channel : IChannelItem
     {
         [JsonPropertyName("id")]
-        public long Id { get; set; }
+        public ChannelId Id { get; set; }
 
         [JsonPropertyName("name")]
         public string Name { get; set; }

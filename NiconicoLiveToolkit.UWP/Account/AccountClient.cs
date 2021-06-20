@@ -80,13 +80,13 @@ namespace NiconicoToolkit.Account
 
         public async Task<NiconicoSessionStatus> CheckSessionStatusAsync()
         {
-            var res = await _context.GetAsync(NicoVideoTopPage_SignInCheckUrl);
+            using var res = await _context.GetAsync(NicoVideoTopPage_SignInCheckUrl);
             return __IsSignedInAsync_Internal(res);
         }
 
         public async Task<NiconicoSessionStatus> SignOutAsync()
         {
-            var res = await _context.GetAsync(LogOffUrl);
+            using var res = await _context.GetAsync(LogOffUrl);
             LoggedOut?.Invoke(this, EventArgs.Empty);
             return __IsSignedInAsync_Internal(res);
         }
@@ -100,7 +100,7 @@ namespace NiconicoToolkit.Account
             };
 
             {
-                var res = await _context.GetAsync(LoginPageUrl);
+                using var res = await _context.GetAsync(LoginPageUrl);
                 if (!res.IsSuccessStatusCode)
                 {
                     return (NiconicoSessionStatus.ServiceUnavailable, NiconicoAccountAuthority.NotSignedIn, default);
@@ -114,7 +114,7 @@ namespace NiconicoToolkit.Account
                 }
             }
 
-            var loginResultResponse = await _context.PostAsync(LogInApiUrl, dict, ct);
+            using var loginResultResponse = await _context.PostAsync(LogInApiUrl, dict, ct);
 
             if (IsRequireTwoFactorAuth(loginResultResponse.RequestMessage))
             {
@@ -220,9 +220,9 @@ namespace NiconicoToolkit.Account
         public async Task<NiconicoSessionStatus> MfaAsync(Uri location, string code, bool isTrustedDevice, string deviceName)
         {
 #if WINDOWS_UWP
-            var content = new HttpFormUrlEncodedContent(new Dictionary<string, string>()
+            using var content = new HttpFormUrlEncodedContent(new Dictionary<string, string>()
 #else
-            var content = new FormUrlEncodedContent(new Dictionary<string, string>()
+            using var content = new FormUrlEncodedContent(new Dictionary<string, string>()
 #endif
             {
                 { "otp", code },
@@ -245,7 +245,7 @@ namespace NiconicoToolkit.Account
                 headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3");
             }
 
-            var res = await _context.SendAsync(HttpMethod.Post, location, content, HeaderFiller, HttpCompletionOption.ResponseHeadersRead);
+            using var res = await _context.SendAsync(HttpMethod.Post, location, content, HeaderFiller, HttpCompletionOption.ResponseHeadersRead);
             var status = __IsSignedInAsync_Internal(res); 
             if (status == NiconicoSessionStatus.Success)
             {
