@@ -71,6 +71,7 @@ using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using Hohoema.Models.UseCase.Niconico.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Video;
+using Hohoema.Models.Domain.Player.Comment;
 
 namespace Hohoema
 {

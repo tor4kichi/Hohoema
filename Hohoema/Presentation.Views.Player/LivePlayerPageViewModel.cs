@@ -52,6 +52,7 @@ using NiconicoToolkit.Live.Timeshift;
 using AngleSharp.Html.Parser;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
+using Hohoema.Models.Domain.Player.Comment;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {

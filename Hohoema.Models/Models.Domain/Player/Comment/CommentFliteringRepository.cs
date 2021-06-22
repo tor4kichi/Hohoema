@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.Domain.Player
+namespace Hohoema.Models.Domain.Player.Comment
 {
     public sealed class CommentFliteringRepository 
     {

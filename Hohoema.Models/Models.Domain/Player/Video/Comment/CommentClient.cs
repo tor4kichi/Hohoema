@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using NiconicoToolkit.Video.Watch;
 using NiconicoToolkit.Video.Watch.NMSG_Comment;
+using Hohoema.Models.Domain.Player.Comment;
 
 namespace Hohoema.Models.Domain.Player.Video.Comment
 {

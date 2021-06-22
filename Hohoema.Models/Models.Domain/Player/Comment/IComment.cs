@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
 
-namespace Hohoema.Models.Domain.Player
+namespace Hohoema.Models.Domain.Player.Comment
 {
     public interface IComment
     {

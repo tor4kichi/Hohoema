@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NiconicoToolkit.Video.Watch.NMSG_Comment;
 
-namespace Hohoema.Models.Domain.Player
+namespace Hohoema.Models.Domain.Player.Comment
 {
     public struct CommentPostResult
     {

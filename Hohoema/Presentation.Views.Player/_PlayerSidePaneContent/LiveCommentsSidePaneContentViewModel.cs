@@ -14,6 +14,7 @@ using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
+using Hohoema.Models.Domain.Player.Comment;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {

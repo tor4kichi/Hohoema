@@ -25,6 +25,7 @@ using Windows.UI;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using NiconicoToolkit.NicoRepo;
 using NiconicoToolkit.Video;
+using Hohoema.Models.Domain.Player.Comment;
 
 namespace Hohoema.Models.Domain.Application
 {
