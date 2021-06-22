@@ -7,8 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NiconicoToolkit.Video;
+using Hohoema.Models.Domain.Playlist;
 
-namespace Hohoema.Models.Domain.Playlist
+namespace Hohoema.Models.Domain.LocalMylist
 {
     
     public class PlaylistEntity
@@ -47,7 +48,7 @@ namespace Hohoema.Models.Domain.Playlist
 
 
 
-    public sealed class PlaylistRepository
+    public sealed class LocalMylistRepository
     {
         public sealed class PlaylistDbService : LiteDBServiceBase<PlaylistEntity>
         {
@@ -110,7 +111,7 @@ namespace Hohoema.Models.Domain.Playlist
 
 
 
-        public PlaylistRepository(PlaylistDbService playlistDbService, PlaylistItemsDbService playlistItemsDbService)
+        public LocalMylistRepository(PlaylistDbService playlistDbService, PlaylistItemsDbService playlistItemsDbService)
         {
             _playlistDbService = playlistDbService;
             _itemsDbService = playlistItemsDbService;

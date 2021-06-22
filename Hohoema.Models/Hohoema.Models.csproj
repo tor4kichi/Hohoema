@@ -7,7 +7,7 @@
     <ProjectGuid>{5877A9CA-2D3A-4B8B-86CA-D77E6D68CF98}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Hohoema.Models</RootNamespace>
+    <RootNamespace>Hohoema</RootNamespace>
     <AssemblyName>Hohoema.Models</AssemblyName>
     <DefaultLanguage>ja-JP</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
@@ -237,9 +237,10 @@
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\VideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Playlist\IPlaylist.cs" />
     <Compile Include="Models.Domain\Playlist\IPlaylistItem.cs" />
-    <Compile Include="Models.Domain\Playlist\LocalPlaylist.cs" />
+    <Compile Include="Models.Domain\LocalMylist\LocalPlaylist.cs" />
+    <Compile Include="Models.Domain\Playlist\IPlaylistSource.cs" />
     <Compile Include="Models.Domain\Playlist\PlaylistOrigin.cs" />
-    <Compile Include="Models.Domain\Playlist\PlaylistRepository.cs" />
+    <Compile Include="Models.Domain\LocalMylist\LocalMylistRepository.cs" />
     <Compile Include="Models.Domain\Purchase\HohoemaPurchase.cs" />
     <Compile Include="Models.Domain\Subscirptions\SubscriptionFeedResult.cs" />
     <Compile Include="Models.Domain\Subscirptions\SubscriptionFeedResultRepository.cs" />

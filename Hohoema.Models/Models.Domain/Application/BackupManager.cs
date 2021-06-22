@@ -26,6 +26,7 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 using NiconicoToolkit.NicoRepo;
 using NiconicoToolkit.Video;
 using Hohoema.Models.Domain.Player.Comment;
+using Hohoema.Models.Domain.LocalMylist;
 
 namespace Hohoema.Models.Domain.Application
 {
@@ -38,7 +39,7 @@ namespace Hohoema.Models.Domain.Application
 
     public sealed class BackupManager
     {
-        private readonly PlaylistRepository _playlistRepository;
+        private readonly LocalMylistRepository _playlistRepository;
         private readonly SubscriptionRegistrationRepository _subscriptionRegistrationRepository;
         private readonly PinSettings _pinSettings;
         private readonly VideoRankingSettings _videoRankingSettings;
@@ -52,7 +53,7 @@ namespace Hohoema.Models.Domain.Application
         
 
 
-        public BackupManager(PlaylistRepository playlistRepository,
+        public BackupManager(LocalMylistRepository playlistRepository,
             SubscriptionRegistrationRepository subscriptionRegistrationRepository,
             PinSettings pinSettings,
             VideoRankingSettings videoRankingSettings,

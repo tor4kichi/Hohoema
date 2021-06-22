@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Playlist;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using NiconicoToolkit.Video;
@@ -6,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Hohoema.Models.Domain.Playlist
+namespace Hohoema.Models.Domain.LocalMylist
 {
 
     public sealed class LocalPlaylistItemRemovedEventArgs
@@ -39,11 +40,11 @@ namespace Hohoema.Models.Domain.Playlist
 
     public sealed class LocalPlaylist : IPlaylist
     {
-        private readonly PlaylistRepository _playlistRepository;
+        private readonly LocalMylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly IMessenger _messenger;
 
-        public LocalPlaylist(string id, string label, PlaylistRepository playlistRepository, NicoVideoProvider nicoVideoProvider, IMessenger messenger)
+        public LocalPlaylist(string id, string label, LocalMylistRepository playlistRepository, NicoVideoProvider nicoVideoProvider, IMessenger messenger)
         {
             Id = id;
             Name = label;
