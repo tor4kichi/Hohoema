@@ -13,13 +13,11 @@ using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Migration;
-using Hohoema.Models.UseCase.NicoVideos;
-using Hohoema.Models.UseCase.NicoVideos.Player;
+using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Models.UseCase.Subscriptions;
 using Hohoema.Models.UseCase.VideoCache;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
-using Hohoema.Models.UseCase.Player;
 using Hohoema.Presentation.ViewModels;
 using LiteDB;
 using Microsoft.AppCenter;
@@ -69,6 +67,10 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.AppCenter.Utils;
 using Microsoft.Extensions.Logging;
 using Hohoema.Models.Infrastructure;
+using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.Niconico.Player.Comment;
+using Hohoema.Models.UseCase.Niconico.Video;
+using Hohoema.Presentation.ViewModels.Niconico.Video;
 
 namespace Hohoema
 {

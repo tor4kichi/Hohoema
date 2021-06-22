@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.UseCase.NicoVideos.Events
+namespace Hohoema.Models.UseCase.Niconico.Player.Events
 {
     public sealed class VideoPlayedMessage : ValueChangedMessage<Events.VideoPlayedMessage.VideoPlayedEventArgs>
     {

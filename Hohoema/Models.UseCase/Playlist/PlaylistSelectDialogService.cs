@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NiconicoToolkit.Mylist;
 
-namespace Hohoema.Models.UseCase.NicoVideos
+namespace Hohoema.Models.UseCase.Playlist
 {
     public sealed class PlaylistSelectDialogService
     {

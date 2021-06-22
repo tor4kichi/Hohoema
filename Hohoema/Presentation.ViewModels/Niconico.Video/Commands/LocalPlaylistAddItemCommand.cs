@@ -1,7 +1,6 @@
 ﻿
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -12,6 +11,7 @@ using System.Threading.Tasks;
 using Prism.Ioc;
 using I18NPortable;
 using Hohoema.Presentation.Services;
+using Hohoema.Models.UseCase.Playlist;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {

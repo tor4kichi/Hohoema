@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Application;
 
-namespace Hohoema.Models.UseCase.NicoVideos.Player
+namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 {
 
     

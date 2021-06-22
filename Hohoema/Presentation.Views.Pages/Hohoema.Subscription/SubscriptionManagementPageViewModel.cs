@@ -3,7 +3,7 @@ using Hohoema.FixPrism;
 
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.Services;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Subscriptions;
 using Prism.Commands;
 using Prism.Navigation;

@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico.Live;
-using Hohoema.Models.UseCase.Player;
+using Hohoema.Models.UseCase.Niconico.Player.Events;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Prism.Commands;
 using System;

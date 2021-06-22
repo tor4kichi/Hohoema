@@ -1,7 +1,8 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player;
-using Hohoema.Models.UseCase.NicoVideos.Player;
+using Hohoema.Models.UseCase.Niconico.Player;
+using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;

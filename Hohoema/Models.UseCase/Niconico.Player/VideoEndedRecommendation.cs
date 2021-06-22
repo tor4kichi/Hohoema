@@ -1,7 +1,5 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
-using Hohoema.Models.UseCase.Player;
-using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -20,8 +18,9 @@ using Windows.UI.Xaml;
 using Hohoema.Models.Domain.Player;
 using NiconicoToolkit.Video.Watch;
 using Hohoema.Models.Domain.Player.Video;
+using Hohoema.Models.UseCase.Playlist;
 
-namespace Hohoema.Models.UseCase.NicoVideos.Player
+namespace Hohoema.Models.UseCase.Niconico.Player
 {
     public sealed class VideoEndedRecommendation : BindableBase, IDisposable
     {

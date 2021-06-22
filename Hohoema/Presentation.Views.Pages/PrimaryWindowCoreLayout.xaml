@@ -17,7 +17,7 @@
   xmlns:listItemControls="using:Hohoema.Presentation.Views.Controls"
   xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
   xmlns:mytrigger="using:Hohoema.Presentation.Views.StateTrigger"
-  xmlns:servicesPlayer="using:Hohoema.Models.UseCase.Player" 
+  xmlns:servicesPlayer="using:Hohoema.Models.UseCase.Niconico.Player" 
   xmlns:winui="using:Windows.UI.Xaml.Controls" 
   xmlns:models="using:Hohoema.Models.Domain.Application"  
   xmlns:muxc="using:Microsoft.UI.Xaml.Controls"

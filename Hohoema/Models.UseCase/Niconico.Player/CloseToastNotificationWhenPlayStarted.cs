@@ -1,4 +1,5 @@
-﻿using Hohoema.Presentation.Services;
+﻿using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Presentation.Services;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.UseCase.NicoVideos
+namespace Hohoema.Models.UseCase.Niconico.Player
 {
     public sealed class CloseToastNotificationWhenPlayStarted : IDisposable
     {

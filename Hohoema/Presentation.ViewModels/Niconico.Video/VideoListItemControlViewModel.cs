@@ -6,8 +6,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Models.Domain.VideoCache;
-using Hohoema.Models.UseCase.NicoVideos;
-using Hohoema.Models.UseCase.NicoVideos.Events;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase.VideoCache.Events;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
@@ -27,6 +26,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Unity;
+using Hohoema.Models.UseCase.Niconico.Player.Events;
 
 namespace Hohoema.Presentation.ViewModels.VideoListPage
 {

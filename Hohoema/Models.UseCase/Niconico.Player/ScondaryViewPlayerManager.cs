@@ -28,7 +28,7 @@ using Hohoema.Presentation.Views.Player;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Live;
 
-namespace Hohoema.Models.UseCase.Player
+namespace Hohoema.Models.UseCase.Niconico.Player
 {
     public sealed class ScondaryViewPlayerManager : FixPrism.BindableBase
     {

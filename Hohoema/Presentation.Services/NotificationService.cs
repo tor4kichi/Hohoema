@@ -4,9 +4,6 @@ using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.User;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Helpers;
-using Hohoema.Models.UseCase.NicoVideos;
-using Hohoema.Models.UseCase.Player;
 using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
@@ -25,6 +22,8 @@ using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
 using Hohoema.Models.Domain.Niconico;
 using NiconicoToolkit;
+using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.Niconico.Player.Events;
 
 namespace Hohoema.Presentation.Services
 {

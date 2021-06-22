@@ -8,7 +8,7 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Helpers;
-using Hohoema.Models.UseCase.Player;
+using Hohoema.Models.UseCase.Niconico.Player.Events;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
@@ -31,7 +31,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Uno.Threading;
 
-namespace Hohoema.Models.UseCase.NicoVideos
+namespace Hohoema.Models.UseCase.Playlist
 {
     public class PlayVideoRequestedEventArgs
     {
@@ -381,7 +381,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
         } 
 
 
-
+        
         
 
 
@@ -648,7 +648,7 @@ namespace Hohoema.Models.UseCase.NicoVideos
             // 視聴完了のイベントをトリガー
             VideoPlayed?.Invoke(this, new VideoPlayedEventArgs(playedItem.VideoId, (int)history.PlayCount));
 
-            _messenger.Send(new Events.VideoPlayedMessage(new () { ContentId = playedItem.VideoId, PlayedPosition = playedPosition }), playedItem.VideoId);
+            _messenger.Send(new VideoPlayedMessage(new () { ContentId = playedItem.VideoId, PlayedPosition = playedPosition }), playedItem.VideoId);
         }
 
 

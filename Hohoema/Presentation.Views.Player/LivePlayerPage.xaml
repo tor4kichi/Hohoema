@@ -21,7 +21,7 @@
       xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector" 
       xmlns:windowsTrigger="using:WindowsStateTriggers" 
       xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI" 
-      xmlns:playerService="using:Hohoema.Models.UseCase.Player" 
+      xmlns:playerService="using:Hohoema.Models.UseCase.Niconico.Player" 
       xmlns:models="using:Hohoema.Models.Domain.Application" 
       xmlns:liveToolkitWatchSession="using:NiconicoToolkit.Live.WatchSession" 
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"

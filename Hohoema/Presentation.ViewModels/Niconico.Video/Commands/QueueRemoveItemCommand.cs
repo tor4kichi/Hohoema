@@ -1,6 +1,6 @@
 ﻿
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.Services;
 using I18NPortable;
 using System;

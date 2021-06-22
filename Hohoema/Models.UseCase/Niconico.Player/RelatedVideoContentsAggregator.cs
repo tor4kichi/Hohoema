@@ -15,8 +15,9 @@ using NiconicoToolkit.Video;
 using NiconicoToolkit.Channels;
 using Hohoema.Models.Domain.Niconico;
 using NiconicoToolkit.Recommend;
+using Hohoema.Models.UseCase.Playlist;
 
-namespace Hohoema.Models.UseCase.NicoVideos.Player
+namespace Hohoema.Models.UseCase.Niconico.Player
 {
     public class VideoRelatedContents
     {

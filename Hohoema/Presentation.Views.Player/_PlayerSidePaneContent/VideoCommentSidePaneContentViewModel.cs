@@ -1,8 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.UI;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Presentation.Services;
-using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos.Player;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
@@ -14,6 +12,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Player.Video.Comment;
+using Hohoema.Models.UseCase.Niconico.Player.Comment;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.UseCase.NicoVideos
+namespace Hohoema.Models.UseCase.Niconico.Video
 {
     public sealed class WatchHistoryRemovedEventArgs
     {

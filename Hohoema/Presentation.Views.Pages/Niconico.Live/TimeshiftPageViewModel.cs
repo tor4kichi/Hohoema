@@ -3,7 +3,7 @@ using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.Niconico.Live.LoginUser;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using I18NPortable;

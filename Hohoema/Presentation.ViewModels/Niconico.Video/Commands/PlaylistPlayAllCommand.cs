@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;

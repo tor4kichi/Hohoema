@@ -14,7 +14,7 @@ using Uno.Extensions;
 using Uno.Threading;
 using static Hohoema.Models.Domain.Niconico.Mylist.LoginUser.LoginUserMylistProvider;
 
-namespace Hohoema.Models.UseCase.NicoVideos
+namespace Hohoema.Models.UseCase.Playlist
 {
 
 

@@ -21,7 +21,7 @@ using System.Collections.Immutable;
 using NiconicoToolkit.Video.Watch;
 using NiconicoToolkit.Video;
 
-namespace Hohoema.Models.UseCase.NicoVideos.Player
+namespace Hohoema.Models.UseCase.Niconico.Player
 {
 
     public enum PlayingOrchestrateFailedReason

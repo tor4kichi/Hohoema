@@ -6,7 +6,7 @@ using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using Windows.UI.Xaml.Controls.Primitives;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using System.Collections.Generic;
 using System.Linq;
 using Hohoema.Presentation.Views.Helpers;
@@ -29,6 +29,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Presentation.ViewModels.VideoCache.Commands;
 using Hohoema.Models.Domain.VideoCache;
 using NiconicoToolkit.Video;
+using Hohoema.Presentation.ViewModels.Niconico.Video;
 
 namespace Hohoema.Presentation.Views.Flyouts
 {

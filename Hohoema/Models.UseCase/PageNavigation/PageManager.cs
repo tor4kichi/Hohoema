@@ -11,7 +11,6 @@ using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.UseCase.NicoVideos;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
@@ -34,6 +33,7 @@ using NiconicoToolkit.User;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Channels;
 using NiconicoToolkit.Community;
+using Hohoema.Models.UseCase.Playlist;
 
 namespace Hohoema.Models.UseCase.PageNavigation
 {

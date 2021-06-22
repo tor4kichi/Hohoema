@@ -1,5 +1,4 @@
-﻿
-using Hohoema.Models.Domain.Niconico.Video;
+﻿using Hohoema.Models.Domain.Niconico.Video;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -8,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.UseCase.NicoVideos
+namespace Hohoema.Presentation.ViewModels.Niconico.Video
 {
     public sealed class RequestSelectionStartEventArgs
     {

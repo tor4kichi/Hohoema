@@ -1,5 +1,4 @@
 ﻿using Hohoema.Presentation.Services;
-using Hohoema.Models.UseCase.Player;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Prism.Navigation;
@@ -8,8 +7,9 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Uno.Threading;
+using Hohoema.Models.UseCase.Niconico.Player.Events;
 
-namespace Hohoema.Models.UseCase.NicoVideos.Player
+namespace Hohoema.Models.UseCase.Niconico.Player
 {
     public enum PlayerDisplayView
     {

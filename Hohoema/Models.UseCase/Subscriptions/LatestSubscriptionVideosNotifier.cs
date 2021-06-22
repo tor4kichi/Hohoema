@@ -2,8 +2,6 @@
 using Microsoft.Toolkit.Uwp.Notifications;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.Services;
-using Hohoema.Models.UseCase.PageNavigation;
-using Hohoema.Models.UseCase.NicoVideos;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -15,6 +13,7 @@ using System.Threading.Tasks;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Application;
+using Hohoema.Models.UseCase.Playlist;
 
 namespace Hohoema.Models.UseCase.Subscriptions
 {

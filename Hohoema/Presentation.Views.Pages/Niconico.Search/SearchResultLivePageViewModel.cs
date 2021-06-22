@@ -3,7 +3,7 @@ using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
 using Prism.Commands;

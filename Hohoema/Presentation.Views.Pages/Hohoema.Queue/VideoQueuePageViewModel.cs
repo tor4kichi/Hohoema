@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Prism.Navigation;

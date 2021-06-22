@@ -8,7 +8,7 @@ using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain;
 using Prism.Commands;
 using Prism.Navigation;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.UseCase;
 using System.Runtime.CompilerServices;

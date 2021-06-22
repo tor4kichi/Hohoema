@@ -2,7 +2,7 @@
 
 using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;

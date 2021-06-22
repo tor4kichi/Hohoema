@@ -1,6 +1,5 @@
 ﻿using I18NPortable;
 using Hohoema.Dialogs;
-using Hohoema.Models.UseCase.NicoVideos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +11,7 @@ using Windows.UI.Popups;
 using Windows.Web.Http;
 using Hohoema.Presentation.Views.Dialogs;
 using Hohoema.Models.Domain.Application;
+using Hohoema.Models.UseCase.Playlist;
 
 namespace Hohoema.Presentation.Services
 {

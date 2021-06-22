@@ -10,7 +10,7 @@ using NiconicoToolkit;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.User;
 
-namespace Hohoema.Models.UseCase.NicoVideos
+namespace Hohoema.Models.UseCase.Playlist
 {
 
     public class MylistRepository

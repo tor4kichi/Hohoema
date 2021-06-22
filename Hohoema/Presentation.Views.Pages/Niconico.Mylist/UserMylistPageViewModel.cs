@@ -6,7 +6,7 @@ using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.User;

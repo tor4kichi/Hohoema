@@ -20,7 +20,7 @@ using Windows.Storage;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Application;
 
-namespace Hohoema.Models.UseCase.NicoVideos
+namespace Hohoema.Models.UseCase.Playlist
 {
     public sealed class LocalMylistManager : IDisposable, IRecipient<SettingsRestoredMessage>
     {

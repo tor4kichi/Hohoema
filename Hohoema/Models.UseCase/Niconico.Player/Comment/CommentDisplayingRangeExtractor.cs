@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Player;
 
-namespace Hohoema.Models.UseCase.NicoVideos.Player
+namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 {
     public ref struct CommentDisplayingRangeChanged
     {

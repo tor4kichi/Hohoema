@@ -2,7 +2,6 @@
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.UseCase.NicoVideos;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -12,6 +11,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Uno.Extensions;
+using Hohoema.Models.UseCase.Playlist;
 
 namespace Hohoema.Models.UseCase.Subscriptions
 {

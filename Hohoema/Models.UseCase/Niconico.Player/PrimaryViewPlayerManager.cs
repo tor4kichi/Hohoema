@@ -22,7 +22,7 @@ using Hohoema.Presentation.Views.Pages;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Live;
 
-namespace Hohoema.Models.UseCase.Player
+namespace Hohoema.Models.UseCase.Niconico.Player
 {
     public enum PrimaryPlayerDisplayMode
     {

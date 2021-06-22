@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using System;
 using System.Collections.Generic;
 using System.Linq;

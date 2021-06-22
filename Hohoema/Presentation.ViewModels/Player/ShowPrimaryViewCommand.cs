@@ -1,11 +1,12 @@
-﻿using Prism.Commands;
+﻿using Hohoema.Models.UseCase.Niconico.Player;
+using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.UseCase.Player
+namespace Hohoema.Presentation.ViewModels.Player
 {
     public sealed class ShowPrimaryViewCommand : DelegateCommandBase
     {

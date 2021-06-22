@@ -23,7 +23,7 @@ using Uno.Threading;
 using Windows.Media.Playback;
 using Windows.System;
 
-namespace Hohoema.Models.UseCase.NicoVideos.Player
+namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 {
     public class CommentPlayer : FixPrism.BindableBase, IDisposable
     {

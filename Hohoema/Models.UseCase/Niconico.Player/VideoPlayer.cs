@@ -3,7 +3,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 using Uno.Threading;
 using Windows.Media.Playback;
 
-namespace Hohoema.Models.UseCase.NicoVideos.Player
+namespace Hohoema.Models.UseCase.Niconico.Player
 {
     // VideoPlayerの役割
     // 現在再生中のコンテンツの再生を管理

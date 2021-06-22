@@ -1,6 +1,5 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Player;
@@ -8,11 +7,9 @@ using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos.Player;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
-using Hohoema.Models.UseCase.Player;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Player.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
@@ -34,7 +31,6 @@ using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.Video.Series;
 using Hohoema.Presentation.ViewModels.Niconico.Share;
-using Hohoema.Models.Domain.Notification;
 using System.Collections.Generic;
 using Hohoema.Presentation.Views.Player;
 using NiconicoToolkit.Video.Watch;
@@ -42,6 +38,8 @@ using NiconicoToolkit.Video;
 using NiconicoToolkit.SearchWithCeApi.Video;
 using Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent;
 using Hohoema.Presentation.ViewModels.Niconico.Likes;
+using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.Niconico.Player.Comment;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {

@@ -10,8 +10,8 @@ using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.Services;
 using System.Reflection;
-using Hohoema.Models.UseCase.NicoVideos;
 using NiconicoToolkit.Video;
+using Hohoema.Models.UseCase.Playlist;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {

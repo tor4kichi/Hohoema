@@ -21,7 +21,7 @@ using Reactive.Bindings.Extensions;
 using Windows.UI;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Hohoema.Models.Domain;
-using Hohoema.Models.UseCase.NicoVideos.Player;
+using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Models.Domain.Application;
 using System.Diagnostics;
 using Uno.Disposables;

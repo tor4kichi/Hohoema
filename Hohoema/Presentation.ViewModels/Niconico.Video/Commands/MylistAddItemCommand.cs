@@ -5,13 +5,13 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.Services;
 using Prism.Commands;
-using Hohoema.Models.UseCase.NicoVideos;
 using System.Linq;
 using System.Collections.Generic;
 using Hohoema.Dialogs;
 using Uno.Extensions;
 using System;
 using System.Threading.Tasks;
+using Hohoema.Models.UseCase.Playlist;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {

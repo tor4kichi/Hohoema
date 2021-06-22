@@ -5,7 +5,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Presentation.ViewModels.VideoListPage;

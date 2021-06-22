@@ -8,7 +8,7 @@ using System.Reactive;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.UseCase.Player
+namespace Hohoema.Models.UseCase.Niconico.Player.Events
 {
     public struct PlayerPlayVideoRequestEventArgs
     {
