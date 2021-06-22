@@ -11,7 +11,7 @@ namespace NiconicoToolkit.Live.WatchSession.ToClientMessage
         //[return: MaybeNullAttribute]
         public override WatchServerToClientMessage Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            JsonDocument document = JsonDocument.ParseValue(ref reader);
+            using JsonDocument document = JsonDocument.ParseValue(ref reader);
             var typeProps = document.RootElement.GetProperty("type");
             var typeName = typeProps.GetString();
 

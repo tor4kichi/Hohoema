@@ -12,7 +12,7 @@ namespace NiconicoToolkit.Live.WatchSession.ToClientMessage
         //[return: MaybeNull]
         public override CommentSessionToClientMessage Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var jsonDocument = JsonDocument.ParseValue(ref reader);
+            using var jsonDocument = JsonDocument.ParseValue(ref reader);
             if (jsonDocument.RootElement.TryGetProperty("chat_result", out var chatResultJsonElement))
             {
                 return chatResultJsonElement.ToObject<ChatResult_CommentSessionToClientMessage>(options);
