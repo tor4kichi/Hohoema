@@ -1,4 +1,5 @@
 ﻿
+using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using System;
@@ -23,7 +24,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            _playlist.RemovePlaylistItem(content);
+            _playlist.RemovePlaylistItem(content.VideoId);
         }
 
         protected override void Execute(IEnumerable<IVideoContent> items)
@@ -31,7 +32,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            _playlist.RemovePlaylistItems(items);
+            _playlist.RemovePlaylistItems(items.Select(x => x.VideoId));
         }
     }
 }

@@ -3,7 +3,6 @@ using Microsoft.Toolkit.Uwp.Helpers;
 
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
-using Hohoema.Presentation.Services;
 using Prism.Commands;
 using Reactive.Bindings.Extensions;
 using System;
@@ -19,8 +18,10 @@ using System.Windows.Input;
 using Windows.Storage;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Application;
+using Hohoema.Presentation.Services;
+using Hohoema.Models.Domain.LocalMylist;
 
-namespace Hohoema.Models.UseCase.Playlist
+namespace Hohoema.Models.UseCase.Hohoema.LocalMylist
 {
     public sealed class LocalMylistManager : IDisposable, IRecipient<SettingsRestoredMessage>
     {
@@ -31,9 +32,9 @@ namespace Hohoema.Models.UseCase.Playlist
 
 
         public LocalMylistManager(
-            PlaylistRepository playlistRepository,
+            LocalMylistRepository playlistRepository,
             NicoVideoProvider nicoVideoProvider,
-            NotificationService notificationService
+            INotificationService notificationService
             )
         {
             _playlistRepository = playlistRepository;
@@ -59,10 +60,9 @@ namespace Hohoema.Models.UseCase.Playlist
             _playlists.Clear();
             _playlistIdToEntity.Clear();
 
-            var localPlaylistEntities = _playlistRepository.GetPlaylistsFromOrigin(PlaylistOrigin.Local);
+            var localPlaylistEntities = _playlistRepository.GetPlaylistsFromOrigin(PlaylistItemsSourceOrigin.Local);
             var localPlaylists = localPlaylistEntities.Select(x => new LocalPlaylist(x.Id, x.Label, _playlistRepository, _nicoVideoProvider, WeakReferenceMessenger.Default)
             {
-                Count = _playlistRepository.GetCount(x.Id),
                 ThumbnailImage = x.ThumbnailImage,
             }).ToList();
 
@@ -80,9 +80,9 @@ namespace Hohoema.Models.UseCase.Playlist
         }
 
 
-        private readonly PlaylistRepository _playlistRepository;
+        private readonly LocalMylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
-        private readonly NotificationService _notificationService;
+        private readonly INotificationService _notificationService;
         ObservableCollection<LocalPlaylist> _playlists;
         public ReadOnlyObservableCollection<LocalPlaylist> LocalPlaylists { get; }
 
@@ -110,7 +110,7 @@ namespace Hohoema.Models.UseCase.Playlist
                 Id = LiteDB.ObjectId.NewObjectId().ToString(),
                 Count = 0,
                 Label = label,
-                PlaylistOrigin = PlaylistOrigin.Local
+                PlaylistOrigin = PlaylistItemsSourceOrigin.Local
             };
             _playlistRepository.UpsertPlaylist(entity);
             _playlistIdToEntity.Add(entity.Id, entity);
@@ -126,30 +126,30 @@ namespace Hohoema.Models.UseCase.Playlist
 
         void HandleItemsChanged(LocalPlaylist playlist)
         {
-            WeakReferenceMessenger.Default.Register<LocalPlaylist, LocalPlaylistItemAddedMessage, string>(playlist, playlist.Id, (r, m) => 
+            WeakReferenceMessenger.Default.Register<LocalPlaylist, PlaylistItemAddedMessage, PlaylistId>(playlist, playlist.PlaylistId, (r, m) => 
             {
                 var sender = r;
-                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistAddedItems".Translate(sender.Name, m.Value.AddedItems.Count));
+                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistAddedItems".Translate(sender.Name, m.Value.AddedItem));
             });
 
-            WeakReferenceMessenger.Default.Register<LocalPlaylist, LocalPlaylistItemRemovedMessage, string>(playlist, playlist.Id, (r, m) =>
+            WeakReferenceMessenger.Default.Register<LocalPlaylist, PlaylistItemRemovedMessage, PlaylistId>(playlist, playlist.PlaylistId, (r, m) =>
             {
                 var sender = r;
-                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistRemovedItems".Translate(sender.Name, m.Value.RemovedItems.Count));
+                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistRemovedItems".Translate(sender.Name, m.Value.RemovedItem));
             });
         }
 
         void RemoveHandleItemsChanged(LocalPlaylist playlist)
         {
-            WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemAddedMessage, string>(playlist, playlist.Id);
-            WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemRemovedMessage, string>(playlist, playlist.Id);
+            WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemAddedMessage, PlaylistId>(playlist, playlist.PlaylistId);
+            WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemRemovedMessage, PlaylistId>(playlist, playlist.PlaylistId);
         }
 
 
         public LocalPlaylist CreatePlaylist(string label, IEnumerable<IVideoContent> firstItems)
         {
             var playlist = CreatePlaylist(label);
-            playlist.AddPlaylistItem(firstItems);
+            playlist.AddPlaylistItem(firstItems.Select(x => x.VideoId));
 
             return playlist;
         }
@@ -162,32 +162,16 @@ namespace Hohoema.Models.UseCase.Playlist
 
         public LocalPlaylist GetPlaylist(string playlistId)
         {
-            return _playlists.FirstOrDefault(x => x.Id == playlistId);
+            return _playlists.FirstOrDefault(x => x.PlaylistId.Id == playlistId);
         }
 
         public bool RemovePlaylist(LocalPlaylist localPlaylist)
         {
-            var result = _playlistRepository.DeletePlaylist(localPlaylist.Id);
+            var result = _playlistRepository.DeletePlaylist(localPlaylist.PlaylistId.Id);
             RemoveHandleItemsChanged(localPlaylist);
             return _playlists.Remove(localPlaylist);
         }
 
-
-        private DelegateCommand<string> _AddCommand;
-        public DelegateCommand<string> AddCommand => _AddCommand
-            ?? (_AddCommand = new DelegateCommand<string>((label) =>
-            {
-                try
-                {
-                    CreatePlaylist(label);
-                }
-                catch (Exception e)
-                {
-                    ErrorTrackingManager.TrackError(e);
-                }
-            }
-            , (p) => !string.IsNullOrWhiteSpace(p)
-            ));
 
 
         private DelegateCommand<LocalPlaylist> _RemoveCommand;

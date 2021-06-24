@@ -21,6 +21,7 @@ using Hohoema.Presentation.Views.Player;
 using Hohoema.Presentation.Views.Pages;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Live;
+using Hohoema.Models.Domain.Playlist;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -52,7 +53,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             [Unity.Attributes.Dependency("PrimaryPlayerNavigationService")] Lazy<INavigationService> navigationServiceLazy,
             RestoreNavigationManager restoreNavigationManager,
             NicoLiveCacheRepository nicoLiveCacheRepository,
-            NicoVideoProvider nicoVideoProvider
+            NicoVideoProvider nicoVideoProvider,
+            HohoemaPlaylistPlayer hohoemaPlaylistPlayer
             )
         {
             _view = ApplicationView.GetForCurrentView();
@@ -61,6 +63,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _restoreNavigationManager = restoreNavigationManager;
             _nicoLiveCacheRepository = nicoLiveCacheRepository;
             _nicoVideoProvider = nicoVideoProvider;
+            PlaylistPlayer = hohoemaPlaylistPlayer;
             _navigationService = null;
 
             this.ObserveProperty(x => x.DisplayMode, isPushCurrentValueAtFirst: false)
@@ -126,7 +129,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         async ValueTask<string> ResolveContentNameAsync(string pageName, INavigationParameters parameters)
         {
-            if (pageName == nameof(VideoPlayerPage))
+            if (parameters == null)
+            {
+                return null;
+            }
+            else if (pageName == nameof(VideoPlayerPage))
             {
                 if (parameters.TryGetValue("id", out string videoId))
                 {
@@ -166,6 +173,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public void Close()
         {
+            _ = PlaylistPlayer.ClearAsync();
             _lastPlayedDisplayMode = DisplayMode == PrimaryPlayerDisplayMode.Close ? _lastPlayedDisplayMode : DisplayMode;
             DisplayMode = PrimaryPlayerDisplayMode.Close;
             _view.Title = "";
@@ -309,5 +317,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     ShowWithFill();
                 }
             }));
+
+        public HohoemaPlaylistPlayer PlaylistPlayer { get; }
     }
 }

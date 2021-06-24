@@ -4,6 +4,7 @@ using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase.Playlist;
+using NiconicoToolkit.Video;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -32,14 +33,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         public VideoPlayer(
             MediaPlayer mediaPlayer,
             IScheduler scheduler,
-            HohoemaPlaylist hohoemaPlaylist,
-            PlayerSettings playerSettings
+            PlayerSettings playerSettings,
+            HohoemaPlaylistPlayer hohoemaPlaylistPlayer
             )
         {
             _mediaPlayer = mediaPlayer;
             _scheduler = scheduler;
-            _hohoemaPlaylist = hohoemaPlaylist;
             _playerSettings = playerSettings;
+            _hohoemaPlaylistPlayer = hohoemaPlaylistPlayer;
 
             // Playing Video
             IsPlayWithCache = new ReactiveProperty<bool>(_scheduler, false)
@@ -47,23 +48,25 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
 
             // Playlist
-            PlayNextCommand = _hohoemaPlaylist.ObserveProperty(x => x.CanGoNext)
+            PlayNextCommand = _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlayingIndex)
+                .SelectMany(async x => await _hohoemaPlaylistPlayer.CanGoNextAsync())
                 .ToReactiveCommand(_scheduler)
                 .AddTo(_disposables);
+            PlayNextCommand.Subscribe(async _ => await _hohoemaPlaylistPlayer.GoNextAsync())
+                .AddTo(_disposables);
+#if DEBUG
             PlayNextCommand.CanExecuteChangedAsObservable()
                 .Subscribe(x => Debug.WriteLine("CanPlayNext changed: " + PlayNextCommand.CanExecute()))
                 .AddTo(_disposables);
-            PlayNextCommand.Subscribe(PlayNext)
-                .AddTo(_disposables);
-            PlayPreviousCommand = _hohoemaPlaylist.ObserveProperty(x => x.CanGoBack)
+#endif
+            PlayPreviousCommand = _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlayingIndex)
+                .SelectMany(async x => await _hohoemaPlaylistPlayer.CanGoPreviewAsync())
                 .ToReactiveCommand(_scheduler)
                 .AddTo(_disposables);
-            PlayPreviousCommand.Subscribe(PlayPrevious)
+            PlayPreviousCommand.Subscribe(async _ => await _hohoemaPlaylistPlayer.GoPreviewAsync())
                 .AddTo(_disposables);
 
-            IsShuffleEnabled = _hohoemaPlaylist.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnabled, _scheduler)
-                .AddTo(_disposables);
-            IsReverseEnabled = _hohoemaPlaylist.ToReactivePropertyAsSynchronized(x => x.IsReverseEnable, _scheduler)
+            IsShuffleEnabled = _hohoemaPlaylistPlayer.ToReactivePropertyAsSynchronized(x => x.IsShuffleModeRequested, _scheduler)
                 .AddTo(_disposables);
 
             IsCurrentVideoLoopingEnabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsCurrentVideoLoopingEnabled, _scheduler)
@@ -115,8 +118,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         public ReactiveProperty<bool> IsPlayWithCache { get; }
 
 
-        private string _playingVideoId;
-        public string PlayingVideoId
+        private VideoId _playingVideoId;
+        public VideoId PlayingVideoId
         {
             get { return _playingVideoId; }
             set { SetProperty(ref _playingVideoId, value); }
@@ -285,28 +288,15 @@ namespace Hohoema.Models.UseCase.Niconico.Player
          */
 
 
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly PlayerSettings _playerSettings;
+        private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;
 
         public ReactiveCommand PlayNextCommand { get; }
         public ReactiveCommand PlayPreviousCommand { get; }
 
 
 
-        void PlayNext()
-        {
-            _hohoemaPlaylist.GoNext();
-        }
-
-        void PlayPrevious()
-        {
-            _hohoemaPlaylist.GoBack();
-        }
-
-
-
         public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
-        public ReactiveProperty<bool> IsReverseEnabled { get; private set; }
         public ReactiveProperty<bool> IsCurrentVideoLoopingEnabled { get; private set; }
         public ReadOnlyReactiveCollection<IPlaylistItem> PlaylistItems { get; private set; }
 

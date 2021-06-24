@@ -17,7 +17,7 @@
   <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                         >
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
-                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                      ItemCommand="{Binding VideoPlayCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
                                       x:Name="VideoItemsListView"

@@ -146,9 +146,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         public ReactivePropertySlim<bool> CanChangeRankingParameter { get; private set; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public VideoRankingSettings RankingSettings { get; }
+        public VideoPlayCommand VideoPlayCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public RankingProvider RankingProvider { get; }
 
@@ -161,22 +161,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
             PageManager pageManager,
-            HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             RankingProvider rankingProvider,
             VideoRankingSettings rankingSettings,
             NotificationService notificationService,
+            VideoPlayCommand videoPlayCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
             _niconicoSession = niconicoSession;
             PageManager = pageManager;
-            HohoemaPlaylist = hohoemaPlaylist;
             NicoVideoProvider = nicoVideoProvider;
             RankingProvider = rankingProvider;
             RankingSettings = rankingSettings;
             _notificationService = notificationService;
+            VideoPlayCommand = videoPlayCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
 
             _rankingMemoryCache = new MemoryCache(new MemoryCacheOptions())

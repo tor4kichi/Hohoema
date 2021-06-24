@@ -18,7 +18,7 @@ namespace Hohoema.Models.Domain.LocalMylist
         public string Id { get; set; }
 
         [BsonField]
-        public PlaylistOrigin PlaylistOrigin { get; set; }
+        public PlaylistItemsSourceOrigin PlaylistOrigin { get; set; }
 
         [BsonField]
         public string Label { get; set; }
@@ -61,7 +61,7 @@ namespace Hohoema.Models.Domain.LocalMylist
                 return _collection.FindById(playlistId);
             }
 
-            public IEnumerable<PlaylistEntity> GetPlaylistsFromOrigin(PlaylistOrigin playlistOrigin)
+            public IEnumerable<PlaylistEntity> GetPlaylistsFromOrigin(PlaylistItemsSourceOrigin playlistOrigin)
             {
                 return _collection.Find(x => x.PlaylistOrigin == playlistOrigin);
             }
@@ -130,7 +130,7 @@ namespace Hohoema.Models.Domain.LocalMylist
             return _playlistDbService.GetAllPlaylist();
         }
 
-        public IEnumerable<PlaylistEntity> GetPlaylistsFromOrigin(PlaylistOrigin origin)
+        public IEnumerable<PlaylistEntity> GetPlaylistsFromOrigin(PlaylistItemsSourceOrigin origin)
         {
             return _playlistDbService.GetPlaylistsFromOrigin(origin);
         }
@@ -162,27 +162,42 @@ namespace Hohoema.Models.Domain.LocalMylist
             return _itemsDbService.ClearPlaylistItems(playlistId);
         }
 
-        public void AddItem(string playlistId, string contentId)
+        public PlaylistItemEntity AddItem(string playlistId, string contentId, int index = -1)
         {
             if (_itemsDbService.Exists(x => x.PlaylistId == playlistId && x.ContentId == contentId))
             {
-                return;
+                return null;
             }
 
-            _itemsDbService.UpdateItem(new PlaylistItemEntity()
+            if (index == -1)
+            {
+                index = GetCount(playlistId);
+            }
+
+            var item = new PlaylistItemEntity()
             {
                 PlaylistId = playlistId,
                 ContentId = contentId,
-            });
+                Index = index
+            };
+            _itemsDbService.UpdateItem(item);
+            return item;
         }
 
-        public void AddItems(string playlistId, IEnumerable<VideoId> items)
+        public List<PlaylistItemEntity> AddItems(string playlistId, IEnumerable<VideoId> items)
         {
-            _itemsDbService.UpdateItem(items.Where(itemId => !_itemsDbService.Exists(x => x.PlaylistId == playlistId && x.ContentId == itemId)).Select(item => new PlaylistItemEntity()
+            var entities = items.Where(itemId => !_itemsDbService.Exists(x => x.PlaylistId == playlistId && x.ContentId == itemId)).Select(item => new PlaylistItemEntity()
             {
                 PlaylistId = playlistId,
                 ContentId = item,
-            }));
+            }).ToList();
+            _itemsDbService.UpdateItem(entities);
+            return entities;
+        }
+
+        public void UpdateItem(PlaylistItemEntity entity)
+        {
+            _itemsDbService.UpdateItem(entity);
         }
 
         public bool DeleteItem(string playlistId, VideoId contentId)

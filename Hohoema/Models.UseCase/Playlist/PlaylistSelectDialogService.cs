@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NiconicoToolkit.Mylist;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 
 namespace Hohoema.Models.UseCase.Playlist
 {
@@ -47,8 +48,8 @@ namespace Hohoema.Models.UseCase.Playlist
                             .Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.MylistId, Context = x })
                     ),
                     new ChoiceFromListSelectableContainer("ローカルマイリスト",
-                        localMylists.Where(x => ignoreMylistId.All(y => x.Id != y))
-                            .Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
+                        localMylists.Where(x => ignoreMylistId.All(y => x.PlaylistId.Id != y))
+                            .Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.PlaylistId.Id, Context = x })
                     ),
                     new ChoiceFromListSelectableContainer("新規作成",
                         new [] {
@@ -63,8 +64,8 @@ namespace Hohoema.Models.UseCase.Playlist
                 selectDialogContent = new List<ISelectableContainer>()
                 {
                     new ChoiceFromListSelectableContainer("LocalPlaylist".Translate(),
-                        localMylists.Where(x => ignoreMylistId.All(y => x.Id != y))
-                            .Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
+                        localMylists.Where(x => ignoreMylistId.All(y => x.PlaylistId.Id != y))
+                            .Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.PlaylistId.Id, Context = x })
                     ),
                     new ChoiceFromListSelectableContainer("CreateNew".Translate(),
                         new [] {

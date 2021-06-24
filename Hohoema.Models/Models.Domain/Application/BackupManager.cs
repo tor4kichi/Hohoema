@@ -234,7 +234,7 @@ namespace Hohoema.Models.Domain.Application
                 
                 if (playlist == null)
                 {
-                    playlist = new PlaylistEntity { Id = p.Id, Label = p.Label, PlaylistOrigin = PlaylistOrigin.Local };
+                    playlist = new PlaylistEntity { Id = p.Id, Label = p.Label, PlaylistOrigin = PlaylistItemsSourceOrigin.Local };
                 }
                 
                 _playlistRepository.UpsertPlaylist(playlist);

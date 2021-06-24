@@ -12,6 +12,8 @@ using Prism.Ioc;
 using I18NPortable;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.Domain.LocalMylist;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
@@ -54,7 +56,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
             if (playlist != null)
             {
-                playlist.AddPlaylistItem(items);
+                playlist.AddPlaylistItem(items.Select(x => x.VideoId));
             }
         }
 

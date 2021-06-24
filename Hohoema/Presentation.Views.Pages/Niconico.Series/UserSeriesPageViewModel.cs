@@ -43,14 +43,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
             SeriesProvider seriesRepository,
             UserProvider userProvider,
             PageManager pageManager,
-            HohoemaPlaylist hohoemaPlaylist,
             AddSubscriptionCommand addSubscriptionCommand
             )
         {
             _seriesProvider = seriesRepository;
             _userProvider = userProvider;
             _pageManager = pageManager;
-            HohoemaPlaylist = hohoemaPlaylist;
             AddSubscriptionCommand = addSubscriptionCommand;
         }
 
@@ -86,7 +84,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
         public DelegateCommand<UserSeriesItemViewModel> OpenSeriesVideoPageCommand =>
             _OpenSeriesVideoPageCommand ?? (_OpenSeriesVideoPageCommand = new DelegateCommand<UserSeriesItemViewModel>(ExecuteOpenSeriesVideoPageCommand));
 
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
         void ExecuteOpenSeriesVideoPageCommand(UserSeriesItemViewModel parameter)

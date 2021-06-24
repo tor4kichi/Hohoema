@@ -22,7 +22,7 @@
 
   <Grid>
     <videolistPage:VideoItemsListView ItemsSource="{Binding PlaylistItems}"
-                                      ItemCommand="{Binding PlayCommand}"
+                                      ItemCommand="{Binding VideoPlayCommand}"
                                       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                                       PlaylistPassToFlyout="{Binding Playlist}"
                                       x:Name="VideoItemsListView"

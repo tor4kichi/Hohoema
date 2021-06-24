@@ -1,11 +1,16 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
+using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Hohoema.Models.Domain.LocalMylist
 {
@@ -38,7 +43,7 @@ namespace Hohoema.Models.Domain.LocalMylist
 
 
 
-    public sealed class LocalPlaylist : IPlaylist
+    public sealed class LocalPlaylist : IPlaylist, IShufflePlaylistItemsSource
     {
         private readonly LocalMylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
@@ -46,16 +51,18 @@ namespace Hohoema.Models.Domain.LocalMylist
 
         public LocalPlaylist(string id, string label, LocalMylistRepository playlistRepository, NicoVideoProvider nicoVideoProvider, IMessenger messenger)
         {
-            Id = id;
+            PlaylistId = new PlaylistId() { Id = id, Origin = PlaylistItemsSourceOrigin.Local };
             Name = label;
             _playlistRepository = playlistRepository;
             _nicoVideoProvider = nicoVideoProvider;
             _messenger = messenger;
 
-            Count = _playlistRepository.GetCount(Id);
+            Count = _playlistRepository.GetCount(PlaylistId.Id);
         }
 
-        public string Id { get; }
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+        public event PropertyChangedEventHandler PropertyChanged;
 
         public string Name { get; private set; }
 
@@ -70,7 +77,7 @@ namespace Hohoema.Models.Domain.LocalMylist
             }
         }
 
-        public int Count { get; set; }
+        public int Count { get; private set; }
 
         public int SortIndex { get; set; }
 
@@ -82,24 +89,34 @@ namespace Hohoema.Models.Domain.LocalMylist
             set => _thumbnailImages[0] = value;
         }
 
+        int IShufflePlaylistItemsSource.MaxItemsCount => Count;
 
-        public void AddPlaylistItem(IVideoContent item)
+        int IPlaylistItemsSource.OneTimeItemsCount => 500;
+
+        
+        public PlaylistId PlaylistId { get; }
+
+        Dictionary<VideoId, PlaylistItemEntity> _itemEntityMap = new Dictionary<VideoId, PlaylistItemEntity>();
+
+        public void AddPlaylistItem(VideoId videoId)
         {
-            _playlistRepository.AddItem(Id, item.VideoId);
+            var entity = _playlistRepository.AddItem(PlaylistId.Id, videoId);
 
-            var message = new LocalPlaylistItemAddedMessage(new()
+            var message = new PlaylistItemAddedMessage(new()
             {
-                PlaylistId = Id,
-                AddedItems = new[] { item.VideoId }
+                PlaylistId = PlaylistId,
+                AddedItem = videoId
             });
-            _messenger.Send(message);
-            _messenger.Send(message, Id);
 
-            Count = _playlistRepository.GetCount(Id);
-            if (Count == 1)
-            {
-                UpdateThumbnailImage(new Uri(item.ThumbnailUrl));
-            }
+            _itemEntityMap.Add(videoId, entity);
+
+            _messenger.Send(message);
+            _messenger.Send(message, videoId);
+            _messenger.Send(message, PlaylistId);
+
+            Count = entity.Index;
+
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, videoId));
         }
 
         public void UpdateThumbnailImage(Uri thumbnailImage)
@@ -109,66 +126,42 @@ namespace Hohoema.Models.Domain.LocalMylist
         }
 
 
-        public void AddPlaylistItem(IEnumerable<IVideoContent> items)
+        public void AddPlaylistItem(IEnumerable<VideoId> items)
         {
-            var ids = items.Select(x => x.VideoId).ToList();
-            _playlistRepository.AddItems(Id, ids);
-
-            var message = new LocalPlaylistItemAddedMessage(new()
+            foreach (var videoId in items)
             {
-                PlaylistId = Id,
-                AddedItems = ids
+                AddPlaylistItem(videoId);
+            }
+        }
+
+        public bool RemovePlaylistItem(VideoId videoId)
+        {
+            _itemEntityMap.Remove(videoId, out var entity);
+            Guard.IsNotNull(entity, nameof(entity));
+            var result = _playlistRepository.DeleteItem(PlaylistId.Id, videoId);
+            Guard.IsTrue(result, "LocalMylistRepository.DeleteItem");
+
+            var message = new PlaylistItemRemovedMessage(new()
+            {
+                PlaylistId = PlaylistId,
+                RemovedItem = videoId,
             });
             _messenger.Send(message);
-            _messenger.Send(message, Id);
-        }
+            _messenger.Send(message, videoId);
+            _messenger.Send(message, PlaylistId.Id);
 
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, videoId));
 
-
-        public List<PlaylistItemEntity> GetPlaylistItems(int start, int count)
-        {
-            return _playlistRepository.GetItems(Id, start, count);
-        }
-
-        public bool RemovePlaylistItem(IVideoContent item)
-        {
-            var result = _playlistRepository.DeleteItem(Id, item.VideoId);
-
-            if (result)
-            {
-                var message = new LocalPlaylistItemRemovedMessage(new()
-                {
-                    PlaylistId = Id,
-                    RemovedItems = new[] { item.VideoId }
-                });
-                _messenger.Send(message);
-                _messenger.Send(message, Id);
-            }
-
-            Count = _playlistRepository.GetCount(Id);
-
+            Count = _playlistRepository.GetCount(PlaylistId.Id);
             return result;
         }
 
-        public int RemovePlaylistItems(IEnumerable<IVideoContent> items)
+        public void RemovePlaylistItems(IEnumerable<VideoId> items)
         {
-            var ids = items.Select(x => x.VideoId).ToList();
-            var result = _playlistRepository.DeleteItems(Id, ids);
-
-            if (result > 0)
+            foreach (var id in items)
             {
-                var message = new LocalPlaylistItemRemovedMessage(new()
-                {
-                    PlaylistId = Id,
-                    RemovedItems = ids
-                });
-                _messenger.Send(message);
-                _messenger.Send(message, Id);
+                RemovePlaylistItem(id);
             }
-
-            Count = _playlistRepository.GetCount(Id);
-
-            return result;
         }
 
 
@@ -177,12 +170,18 @@ namespace Hohoema.Models.Domain.LocalMylist
         {
             _playlistRepository.UpsertPlaylist(new PlaylistEntity()
             {
-                Id = this.Id,
+                Id = PlaylistId.Id,
                 Label = this.Name,
-                Count = 1,
-                PlaylistOrigin = PlaylistOrigin.Local,
+                Count = Count,
+                PlaylistOrigin = PlaylistItemsSourceOrigin.Local,
                 ThumbnailImage = this.ThumbnailImage,
             });
+        }
+
+        public ValueTask<IEnumerable<PlaylistItem>> GetRangeAsync(int start, int count, CancellationToken ct)
+        {
+            var items = _playlistRepository.GetItems(PlaylistId.Id, start, count);
+            return new (items.Select((x, i) => new PlaylistItem(PlaylistId, start+i, x.ContentId)));
         }
     }
     

@@ -39,7 +39,7 @@
   <Grid>
 
     <videolistPage:VideoItemsListView ItemsSource="{Binding Source={StaticResource CacheItemsViewSource}}"
-                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                      ItemCommand="{Binding VideoPlayCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
                                       x:Name="VideoItemsListView"

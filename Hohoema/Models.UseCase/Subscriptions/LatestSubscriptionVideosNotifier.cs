@@ -24,7 +24,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
         private readonly NotificationService _notificationService;
 
         static readonly string OpenSubscriptionManagementPageParam = ToastNotificationConstants.MakeOpenPageToastArguments(HohoemaPageType.SubscriptionManagement).ToString();
-        static readonly string PlayWithWatchAfterPlaylistParam = ToastNotificationConstants.MakePlayPlaylistToastArguments(Domain.Playlist.PlaylistOrigin.Local, HohoemaPlaylist.QueuePlaylistId).ToString();
+        static readonly string PlayWithWatchAfterPlaylistParam = ToastNotificationConstants.MakePlayPlaylistToastArguments(Domain.Playlist.PlaylistItemsSourceOrigin.Local, Domain.Playlist.QueuePlaylist.Id.Id).ToString();
 
         List<SubscriptionFeedUpdateResult> Results = new List<SubscriptionFeedUpdateResult>();
 

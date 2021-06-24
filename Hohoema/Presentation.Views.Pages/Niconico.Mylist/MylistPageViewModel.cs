@@ -37,6 +37,9 @@ using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Microsoft.AppCenter.Crashes;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Hohoema.Models.Domain.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 {
@@ -60,6 +63,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         }
 
         public MylistPageViewModel(
+            IMessenger messenger,
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             NiconicoSession niconicoSession,
@@ -69,8 +73,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             LoginUserMylistProvider loginUserMylistProvider,
             LoginUserOwnedMylistManager userMylistManager,
             LocalMylistManager localMylistManager,
-            MylistRepository mylistRepository,
-            HohoemaPlaylist hohoemaPlaylist,
+            MylistResolver mylistRepository,
             SubscriptionManager subscriptionManager,
             MylistUserSelectedSortRepository mylistUserSelectedSortRepository,
             Services.DialogService dialogService,
@@ -78,6 +81,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
+            _messenger = messenger;
             ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
@@ -88,7 +92,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             UserMylistManager = userMylistManager;
             LocalMylistManager = localMylistManager;
             _mylistRepository = mylistRepository;
-            HohoemaPlaylist = hohoemaPlaylist;
             SubscriptionManager = subscriptionManager;
             _mylistUserSelectedSortRepository = mylistUserSelectedSortRepository;
             DialogService = dialogService;
@@ -269,8 +272,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
         public ReactiveProperty<MylistSortViewModel> SelectedSortItem { get; }
 
+        private readonly IMessenger _messenger;
         private readonly MylistFollowProvider _mylistFollowProvider;
-        private readonly MylistRepository _mylistRepository;
+        private readonly MylistResolver _mylistRepository;
         private readonly MylistUserSelectedSortRepository _mylistUserSelectedSortRepository;
         
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -283,7 +287,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
         public LoginUserOwnedMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public DialogService DialogService { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
@@ -440,16 +443,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                         var mylistOrigin = mylist.GetOrigin();
                         var contentMessage = "ConfirmDeleteX_ImpossibleReDo".Translate(mylist.Name);
 
-                        var dialog = new MessageDialog(contentMessage, $"ConfirmDeleteX".Translate(PlaylistOrigin.Mylist.Translate()));
+                        var dialog = new MessageDialog(contentMessage, $"ConfirmDeleteX".Translate(PlaylistItemsSourceOrigin.Mylist.Translate()));
                         dialog.Commands.Add(new UICommand("Delete".Translate(), async (i) =>
                         {
-                            if (mylistOrigin == PlaylistOrigin.Local)
+                            if (mylistOrigin == PlaylistItemsSourceOrigin.Local)
                             {
                                 LocalMylistManager.RemovePlaylist(mylist as LocalPlaylist);
                             }
-                            else if (mylistOrigin == PlaylistOrigin.Mylist)
+                            else if (mylistOrigin == PlaylistItemsSourceOrigin.Mylist)
                             {
-                                await UserMylistManager.RemoveMylist(mylist.Id);
+                                await UserMylistManager.RemoveMylist(mylist.PlaylistId.Id);
                             }
 
 
@@ -495,7 +498,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                         var firstItem = MylistItems.FirstOrDefault();
                         if (firstItem != null)
                         {
-                            HohoemaPlaylist.Play(firstItem, Mylist.Value);
+                            _messenger.Send(new VideoPlayRequestMessage() { VideoId = firstItem.VideoId, PlaylistId = Mylist.Value.MylistId, PlaylistOrigin = Mylist.Value.GetOrigin() });
                         }
                     }));
             }
@@ -712,7 +715,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 return _PlayWithCurrentPlaylistCommand
                     ?? (_PlayWithCurrentPlaylistCommand = new DelegateCommand<IVideoContent>((video) =>
                     {
-                        HohoemaPlaylist.PlayContinueWithPlaylist(video, Mylist.Value);
+                        _messenger.Send(new VideoPlayRequestMessage() { VideoId = video.VideoId, PlaylistId = Mylist.Value.MylistId, PlaylistOrigin = Mylist.Value.GetOrigin() });
                     }
                     ));
             }

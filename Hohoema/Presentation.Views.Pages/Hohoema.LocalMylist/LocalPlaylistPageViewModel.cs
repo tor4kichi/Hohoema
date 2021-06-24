@@ -25,6 +25,8 @@ using Hohoema.Models.Domain.Pins;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Video;
+using Hohoema.Models.Domain.LocalMylist;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 {
@@ -36,7 +38,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
             {
                 Label = Playlist.Name,
                 PageType = HohoemaPageType.LocalPlaylist,
-                Parameter = $"id={Playlist.Id}"
+                Parameter = $"id={Playlist.PlaylistId.Id}"
             };
         }
 
@@ -48,31 +50,31 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         private readonly PageManager _pageManager;
         private readonly LocalMylistManager _localMylistManager;
         private readonly NicoVideoProvider _nicoVideoProvider;
+        private readonly IMessenger _messenger;
 
         public LocalPlaylistPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             LocalMylistManager localMylistManager,
-            HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             LocalPlaylistDeleteCommand localPlaylistDeleteCommand,
             PlaylistPlayAllCommand playlistPlayAllCommand,
-            SelectionModeToggleCommand selectionModeToggleCommand
+            SelectionModeToggleCommand selectionModeToggleCommand,
+            IMessenger messenger
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
             _pageManager = pageManager;
             _localMylistManager = localMylistManager;
-            HohoemaPlaylist = hohoemaPlaylist;
             _nicoVideoProvider = nicoVideoProvider;
             LocalPlaylistDeleteCommand = localPlaylistDeleteCommand;
             PlaylistPlayAllCommand = playlistPlayAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
+            _messenger = messenger;
         }
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
 
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public LocalPlaylistDeleteCommand LocalPlaylistDeleteCommand { get; }
         public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
@@ -112,7 +114,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         {
             if (Playlist != null)
             {
-                WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemRemovedMessage, string>(this, Playlist.Id);
+                WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemRemovedMessage, string>(this, Playlist.PlaylistId.Id);
             }
             base.OnNavigatedFrom(parameters);
         }
@@ -128,7 +130,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         {
             if (Playlist != null)
             {
-                WeakReferenceMessenger.Default.Register<LocalPlaylistItemRemovedMessage, string>(this, Playlist.Id, (r, m) => 
+                WeakReferenceMessenger.Default.Register<LocalPlaylistItemRemovedMessage, string>(this, Playlist.PlaylistId.Id, (r, m) => 
                 {
                     var args = m.Value;
                     foreach (var itemId in args.RemovedItems)
@@ -144,7 +146,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
                 _localMylistManager.LocalPlaylists.ObserveRemoveChanged()
                     .Subscribe(removed =>
                     {
-                        if (Playlist.Id == removed.Id)
+                        if (Playlist.PlaylistId == removed.PlaylistId)
                         {
                             _pageManager.ForgetLastPage();
                             _pageManager.OpenPage(HohoemaPageType.UserMylist);
@@ -162,7 +164,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
                 return _PlayWithCurrentPlaylistCommand
                     ?? (_PlayWithCurrentPlaylistCommand = new DelegateCommand<IVideoContent>((video) =>
                     {
-                        HohoemaPlaylist.PlayContinueWithPlaylist(video, Playlist);
+                        _messenger.Send(new VideoPlayRequestMessage() { VideoId = video.VideoId, PlaylistId = Playlist.PlaylistId.Id, PlaylistOrigin = Playlist.PlaylistId.Origin });
                     }
                     ));
             }
@@ -188,8 +190,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         async Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
             var head = pageIndex * pageSize;
-            var targetItems = _playlist.GetPlaylistItems(head, pageSize);
-            var items = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(targetItems.Select(x => (VideoId)x.ContentId));
+            var targetItems = await _playlist.GetRangeAsync(head, pageSize, ct);
+            var items = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(targetItems.Select(x => x.ItemId));
 
             ct.ThrowIfCancellationRequested();
             return items.Select(item => new VideoListItemControlViewModel(item));

@@ -18,40 +18,41 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
 {
     public sealed class VideoQueuePageViewModel : HohoemaPageViewModelBase, INavigationAware
     {
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
-        private readonly PlaylistObservableCollection _watchAfterPlaylist;
+        private readonly QueuePlaylist _queuePlaylist;
+        private readonly NicoVideoProvider _nicoVideoProvider;
 
-        public IReadOnlyCollection<IVideoContent> PlaylistItems { get; private set; }
-
-        public IPlaylist Playlist => _watchAfterPlaylist;
-        public ICommand PlayCommand => _hohoemaPlaylist.PlayCommand;
-
+        public IReadOnlyCollection<VideoListItemControlViewModel> PlaylistItems { get; private set; }
+        
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public RemoveWatchedItemsInAfterWatchPlaylistCommand RemoveWatchedItemsInAfterWatchPlaylistCommand { get; }
         public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
-        
+        public VideoPlayCommand VideoPlayCommand { get; }
+
         public VideoQueuePageViewModel(
-            HohoemaPlaylist hohoemaPlaylist,
+            QueuePlaylist queuePlaylist,
             ApplicationLayoutManager applicationLayoutManager,
             RemoveWatchedItemsInAfterWatchPlaylistCommand removeWatchedItemsInAfterWatchPlaylistCommand,
             PlaylistPlayAllCommand playlistPlayAllCommand,
-            SelectionModeToggleCommand selectionModeToggleCommand
+            SelectionModeToggleCommand selectionModeToggleCommand,
+            VideoPlayCommand videoPlayCommand,
+            NicoVideoProvider nicoVideoProvider
             )
         {
-            _hohoemaPlaylist = hohoemaPlaylist;
+            _queuePlaylist = queuePlaylist;
             ApplicationLayoutManager = applicationLayoutManager;
             RemoveWatchedItemsInAfterWatchPlaylistCommand = removeWatchedItemsInAfterWatchPlaylistCommand;
             PlaylistPlayAllCommand = playlistPlayAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
-            _watchAfterPlaylist = _hohoemaPlaylist.QueuePlaylist;
+            VideoPlayCommand = videoPlayCommand;
+            _nicoVideoProvider = nicoVideoProvider;
         }
 
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
             base.OnNavigatedTo(parameters);
 
-            PlaylistItems = _watchAfterPlaylist.ToReadOnlyReactiveCollection(x => new VideoListItemControlViewModel(x as NicoVideo))
+            PlaylistItems = _queuePlaylist.ToReadOnlyReactiveCollection(x => new VideoListItemControlViewModel(_nicoVideoProvider.GetCachedVideoInfo(x.ItemId)))
                 .AddTo(_NavigatingCompositeDisposable);
             RaisePropertyChanged(nameof(PlaylistItems));
         }

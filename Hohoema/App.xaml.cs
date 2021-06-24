@@ -72,6 +72,8 @@ using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using Hohoema.Models.UseCase.Niconico.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Video;
 using Hohoema.Models.Domain.Player.Comment;
+using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 
 namespace Hohoema
 {
@@ -226,12 +228,16 @@ namespace Hohoema
             // MediaPlayerを各ウィンドウごとに一つずつ作るように
             unityContainer.RegisterType<MediaPlayer>(new PerThreadLifetimeManager());
 
+            // 再生プレイリスト管理のクラスは各ウィンドウごとに一つずつ作成
+            unityContainer.RegisterType<HohoemaPlaylistPlayer>(new PerThreadLifetimeManager());
+
             // Service
             unityContainer.RegisterSingleton<PageManager>();
             unityContainer.RegisterSingleton<PrimaryViewPlayerManager>();
             unityContainer.RegisterSingleton<ScondaryViewPlayerManager>();
             unityContainer.RegisterSingleton<NiconicoLoginService>();
             unityContainer.RegisterSingleton<DialogService>();
+            unityContainer.RegisterSingleton<INotificationService, NotificationService>();
             unityContainer.RegisterSingleton<NoUIProcessScreenContext>();
 
             // Models
@@ -261,13 +267,14 @@ namespace Hohoema
             unityContainer.RegisterType<CommentPlayer>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<CommentFilteringFacade>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<MediaPlayerSoundVolumeManager>(new PerThreadLifetimeManager());
-            unityContainer.RegisterSingleton<HohoemaPlaylist>();
             unityContainer.RegisterSingleton<LocalMylistManager>();
             unityContainer.RegisterSingleton<VideoItemsSelectionContext>();
             unityContainer.RegisterSingleton<WatchHistoryManager>();
             unityContainer.RegisterSingleton<ApplicationLayoutManager>();
 
             unityContainer.RegisterSingleton<VideoCacheFolderManager>();
+
+            unityContainer.RegisterSingleton<IPlaylistItemsSourceResolver, PlaylistItemsSourceResolver>();
 
 
 
@@ -706,9 +713,7 @@ namespace Hohoema
                     var lastPlaying = vm.RestoreNavigationManager.GetCurrentPlayerEntry();
                     if (lastPlaying != null)
                     {
-                        // TODO: 前回再生中コンテンツ復帰時に再生リストを取得できるようにする（ローカルマイリストやチャンネル動画一覧含む）
-                        var hohoemaPlaylist = Container.Resolve<HohoemaPlaylist>();
-                        hohoemaPlaylist.Play(lastPlaying.ContentId, position: lastPlaying.Position);
+                        _ = WeakReferenceMessenger.Default.Send(new VideoPlayRequestMessage() { VideoId = lastPlaying.ContentId, PlaylistId = lastPlaying.PlaylistId, PlaylistOrigin = lastPlaying.PlaylistOrigin, Potision = lastPlaying.Position });
                     }
                 }
             }

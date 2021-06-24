@@ -42,8 +42,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             NiconicoSession niconicoSession,
            NicoVideoProvider nicoVideoProvider,
            ChannelProvider channelProvider,
-           MylistRepository mylistRepository,
-           HohoemaPlaylist hohoemaPlaylist,
+           MylistResolver mylistRepository,
            PageManager pageManager
            )
         {
@@ -51,16 +50,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _nicoVideoProvider = nicoVideoProvider;
             _channelProvider = channelProvider;
             _mylistRepository = mylistRepository;
-            _hohoemaPlaylist = hohoemaPlaylist;
             _pageManager = pageManager;
         }
 
         private readonly NiconicoSession _niconicoSession;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly ChannelProvider _channelProvider;
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly PageManager _pageManager;
-        private readonly MylistRepository _mylistRepository;
+        private readonly MylistResolver _mylistRepository;
 
         public NicoVideoSessionProvider Video { get; }
 

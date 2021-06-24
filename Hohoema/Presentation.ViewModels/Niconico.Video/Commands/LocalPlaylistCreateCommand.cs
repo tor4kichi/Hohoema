@@ -9,6 +9,7 @@ using I18NPortable;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
@@ -50,7 +51,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
                 if (parameter is IVideoContent content)
                 {
-                    localPlaylist.AddPlaylistItem(content);
+                    localPlaylist.AddPlaylistItem(content.VideoId);
                 }
                 else if (parameter is string itemId)
                 {

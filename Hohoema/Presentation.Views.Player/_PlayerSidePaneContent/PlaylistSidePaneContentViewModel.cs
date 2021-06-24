@@ -18,6 +18,8 @@ using Windows.UI.Xaml.Data;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Domain.Playlist;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {
@@ -26,19 +28,22 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         
         public PlaylistSidePaneContentViewModel(
             MediaPlayer mediaPlayer,
-            HohoemaPlaylist playerModel,
+            HohoemaPlaylistPlayer hohoemaPlaylistPlayer,
             PlayerSettings playerSettings,
             PageManager pageManager,
-            IScheduler scheduler
+            NicoVideoProvider nicoVideoProvider,
+            IScheduler scheduler,
+            IMessenger messenger
             )
         {
             MediaPlayer = mediaPlayer;
-            HohoemaPlaylist = playerModel;
+            _hohoemaPlaylistPlayer = hohoemaPlaylistPlayer;
             _playerSettings = playerSettings;
             PageManager = pageManager;
+            _nicoVideoProvider = nicoVideoProvider;
             _scheduler = scheduler;
-            
-            CurrentPlaylistName = HohoemaPlaylist.ObserveProperty(x => x.CurrentPlaylist).Select(x => x?.Name)
+            _messenger = messenger;
+            CurrentPlaylistName = _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylist).Select(x => x?.Name)
                 .ToReadOnlyReactiveProperty(eventScheduler: _scheduler)
                 .AddTo(_CompositeDisposable);
             IsShuffleEnabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnable, _scheduler)
@@ -51,15 +56,23 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             IsReverseEnabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsReverseModeEnable, _scheduler)
                 .AddTo(_CompositeDisposable);
 
-            PlaylistCanGoBack = HohoemaPlaylist.ObserveProperty(x => x.CanGoBack)
+            PlaylistCanGoBack = _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlayingIndex)
+                .SelectMany(async _ => await _hohoemaPlaylistPlayer.CanGoPreviewAsync())
                 .ToReactiveProperty(_scheduler)
                 .AddTo(_CompositeDisposable);
-            PlaylistCanGoNext = HohoemaPlaylist.ObserveProperty(x => x.CanGoNext)
+            PlaylistCanGoNext = _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlayingIndex)
+                .SelectMany(async _ => await _hohoemaPlaylistPlayer.CanGoNextAsync())
                 .ToReactiveProperty(_scheduler)
                 .AddTo(_CompositeDisposable);
 
-            CurrentItems = HohoemaPlaylist.PlaylistItems.ToReadOnlyReactiveCollection(_scheduler)
-                .AddTo(_CompositeDisposable);
+            CurrentItems = new ObservableCollection<IVideoContent>();
+            foreach (var item in _hohoemaPlaylistPlayer.CopyBufferedItems())
+            {
+                var video = _nicoVideoProvider.GetCachedVideoInfo(item.ItemId);
+                CurrentItems.Add(video);
+            }
+
+            // TODO: HohoemaPlaylistPlayerの内部アイテムの更新にフックしてCurrentItemsを更新する
 
             _currentItemCollectionView = new ObservableCollection<IVideoContent>();
 
@@ -80,18 +93,10 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 _currentPlaylistViewItem
             };
 
-            HohoemaPlaylist.ObserveProperty(x => x.CurrentPlaylist).Subscribe(x =>
+            _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylist).Subscribe(x =>
             {
                 _currentPlaylistViewItem.Label = x?.Name ?? string.Empty;
             })
-                .AddTo(_CompositeDisposable);
-
-            HohoemaPlaylist.ObserveProperty(x => x.CurrentItem)
-                .Subscribe(x => 
-                {
-                    _currentItemCollectionView.Clear();
-                    _currentItemCollectionView.Add(x);
-                })
                 .AddTo(_CompositeDisposable);
 
             CollectionViewSource = new CollectionViewSource()
@@ -104,7 +109,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
         public override void Dispose()
         {
-            CurrentItems?.Dispose();
             CurrentPlaylistName?.Dispose();
             IsShuffleEnabled?.Dispose();
             IsListRepeatModeEnable?.Dispose();
@@ -129,8 +133,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         public CollectionViewSource CollectionViewSource { get; }
 
 
-        public ReadOnlyReactiveCollection<IVideoContent> CurrentItems { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public ObservableCollection<IVideoContent> CurrentItems { get; }
         public MediaPlayer MediaPlayer { get; }
         public PageManager PageManager { get; }
 
@@ -142,10 +145,11 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         public ReactiveProperty<bool> PlaylistCanGoBack { get; private set; }
         public ReactiveProperty<bool> PlaylistCanGoNext { get; private set; }
 
+        private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;
         private readonly PlayerSettings _playerSettings;
+        private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly IScheduler _scheduler;
-
-
+        private readonly IMessenger _messenger;
         private DelegateCommand _ToggleRepeatModeCommand;
         public DelegateCommand ToggleRepeatModeCommand
         {
@@ -197,7 +201,12 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 return _PlayWithCurrentPlaylistCommand
                     ?? (_PlayWithCurrentPlaylistCommand = new DelegateCommand<IVideoContent>((video) =>
                     {
-                        HohoemaPlaylist.PlayContinueWithPlaylist(video, HohoemaPlaylist.CurrentPlaylist);
+                        if (_hohoemaPlaylistPlayer.CurrentPlaylist == null)
+                        {
+                            return;
+                        }
+                        var playlistId = _hohoemaPlaylistPlayer.CurrentPlaylist.PlaylistId;
+                        _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(playlistId.Id, playlistId.Origin, playlistId.SortOptions, video.VideoId));
                     }
                     ));
             }

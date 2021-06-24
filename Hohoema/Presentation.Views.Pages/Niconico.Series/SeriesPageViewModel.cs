@@ -43,21 +43,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 
 
         public SeriesPageViewModel(
-            HohoemaPlaylist hohoemaPlaylist,
             SeriesProvider seriesRepository,
+            VideoPlayCommand videoPlayCommand,
             AddSubscriptionCommand addSubscriptionCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
-            HohoemaPlaylist = hohoemaPlaylist;
             _seriesRepository = seriesRepository;
+            VideoPlayCommand = videoPlayCommand;
             AddSubscriptionCommand = addSubscriptionCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
         }
 
         private readonly SeriesProvider _seriesRepository;
 
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public VideoPlayCommand VideoPlayCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 

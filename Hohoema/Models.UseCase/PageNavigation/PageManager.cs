@@ -65,7 +65,6 @@ namespace Hohoema.Models.UseCase.PageNavigation
         private readonly IMessenger _messenger;
 
 
-        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
         public AppearanceSettings AppearanceSettings { get; }
         public VideoCacheSettings_Legacy CacheSettings { get; }
         public IScheduler Scheduler { get; }
@@ -91,15 +90,13 @@ namespace Hohoema.Models.UseCase.PageNavigation
             IScheduler scheduler,
             IMessenger messenger,
             AppearanceSettings appearanceSettings,
-            VideoCacheSettings_Legacy cacheSettings,
-            HohoemaPlaylist playlist
+            VideoCacheSettings_Legacy cacheSettings
             )
         {
             Scheduler = scheduler;
             _messenger = messenger;
             AppearanceSettings = appearanceSettings;
             CacheSettings = cacheSettings;
-            HohoemaPlaylist = playlist;
         }
 
         public static bool IsHiddenMenuPage(HohoemaPageType pageType)
@@ -193,7 +190,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         OpenPageWithId(HohoemaPageType.ChannelVideo, channel.ChannelId);
                         break;
                     case IPlaylist playlist:
-                        OpenPageWithId(HohoemaPageType.LocalPlaylist, playlist.Id);
+                        OpenPageWithId(HohoemaPageType.LocalPlaylist, playlist.PlaylistId.Id);
                         break;
                 }
             }));
@@ -232,7 +229,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         OpenPageWithId(HohoemaPageType.CommunityVideo, communityContent.CommunityId);
                         break;
                     case IMylist mylistContent:
-                        OpenPageWithId(HohoemaPageType.Mylist, mylistContent.Id);
+                        OpenPageWithId(HohoemaPageType.Mylist, mylistContent.PlaylistId.Id);
                         break;
                     case IUser user:
                         OpenPageWithId(HohoemaPageType.UserVideo, user.UserId);
@@ -282,7 +279,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         break;
                     case IMylist mylist:
                         {
-                            OpenPageWithId(HohoemaPageType.Mylist, mylist.Id);
+                            OpenPageWithId(HohoemaPageType.Mylist, mylist.PlaylistId.Id);
                             break;
 
                         }
@@ -314,7 +311,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
 				// is nico video url?
 				var videoId = uri.AbsolutePath.Split('/').Last();
 				System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
-                HohoemaPlaylist.Play(videoId);
+                _messenger.Send(new VideoPlayRequestMessage() { VideoId = videoId });
 
                 return true;
             }

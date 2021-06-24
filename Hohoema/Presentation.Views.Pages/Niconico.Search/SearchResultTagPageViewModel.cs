@@ -54,10 +54,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             SearchProvider searchProvider,
             TagFollowProvider tagFollowProvider,
             SubscriptionManager subscriptionManager,
-            HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             SearchHistoryRepository searchHistoryRepository,
             Services.DialogService dialogService,
+            VideoPlayCommand videoPlayCommand,
             AddTagSearchSubscriptionCommand addTagSearchSubscriptionCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
@@ -65,12 +65,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             SearchProvider = searchProvider;
             _tagFollowProvider = tagFollowProvider;
             SubscriptionManager = subscriptionManager;
-            HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             _searchHistoryRepository = searchHistoryRepository;
             ApplicationLayoutManager = applicationLayoutManager;
             NiconicoSession = niconicoSession;
             HohoemaDialogService = dialogService;
+            VideoPlayCommand = videoPlayCommand;
             AddTagSearchSubscriptionCommand = addTagSearchSubscriptionCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             FailLoading = new ReactiveProperty<bool>(false)
@@ -111,9 +111,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         public NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
         public SubscriptionManager SubscriptionManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public Services.DialogService HohoemaDialogService { get; }
+        public VideoPlayCommand VideoPlayCommand { get; }
         public AddTagSearchSubscriptionCommand AddTagSearchSubscriptionCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 

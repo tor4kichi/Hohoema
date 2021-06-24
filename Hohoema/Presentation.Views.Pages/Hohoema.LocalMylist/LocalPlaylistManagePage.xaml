@@ -65,7 +65,7 @@
       </GridView.ItemsPanel>
       <GridView.ItemTemplate>
         <DataTemplate x:DataType="playlistModel:LocalPlaylist"
-                      xmlns:playlistModel="using:Hohoema.Models.Domain.Playlist"
+                      xmlns:playlistModel="using:Hohoema.Models.Domain.LocalMylist"
                       >
           <mylistView:MylistCardView xmlns:mylistView="using:Hohoema.Presentation.Views.Mylist" 
                                      PlaylistName="{x:Bind Name}" ImageUrl="{x:Bind ThumbnailImage}" ImageCaption="{x:Bind Count}"

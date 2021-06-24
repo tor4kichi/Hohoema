@@ -22,6 +22,7 @@ using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Community;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 {
@@ -60,14 +61,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 			ApplicationLayoutManager applicationLayoutManager,
 			CommunityProvider communityProvider,
 			CommunityFollowProvider communityFollowProvider,
-            PageManager pageManager
+            PageManager pageManager,
+			VideoPlayCommand videoPlayCommand
 			)
         {
 			ApplicationLayoutManager = applicationLayoutManager;
 			CommunityProvider = communityProvider;
             _communityFollowProvider = communityFollowProvider;
             PageManager = pageManager;
-		}
+            VideoPlayCommand = videoPlayCommand;
+        }
 
 
         public CommunityId? CommunityId { get; private set; }
@@ -164,7 +167,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 		public ApplicationLayoutManager ApplicationLayoutManager { get; }
 		public CommunityProvider CommunityProvider { get; }
         public PageManager PageManager { get; }
-	}
+        public VideoPlayCommand VideoPlayCommand { get; }
+    }
 
 
 	public class CommunityVideoIncrementalSource : IIncrementalSource<CommunityVideoInfoViewModel>

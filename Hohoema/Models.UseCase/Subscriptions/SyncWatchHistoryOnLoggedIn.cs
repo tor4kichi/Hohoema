@@ -14,17 +14,14 @@ namespace Hohoema.Models.UseCase.Subscriptions
     {
         private readonly NiconicoSession _niconicoSession;
         private readonly LoginUserVideoWatchHistoryProvider _LoginUserVideoWatchHistoryProvider;
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
 
         public SyncWatchHistoryOnLoggedIn(
             NiconicoSession niconicoSession,
-            LoginUserVideoWatchHistoryProvider LoginUserVideoWatchHistoryProvider,
-            HohoemaPlaylist hohoemaPlaylist
+            LoginUserVideoWatchHistoryProvider LoginUserVideoWatchHistoryProvider
             )
         {
             _niconicoSession = niconicoSession;
             _LoginUserVideoWatchHistoryProvider = LoginUserVideoWatchHistoryProvider;
-            _hohoemaPlaylist = hohoemaPlaylist;
 
             _niconicoSession.LogIn += _niconicoSession_LogIn;
         }

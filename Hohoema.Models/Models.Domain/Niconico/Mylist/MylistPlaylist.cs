@@ -19,11 +19,12 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
         public MylistPlaylist(MylistId id)
         {
             MylistId = id;
+            PlaylistId = new PlaylistId() { Id = id, Origin = PlaylistItemsSourceOrigin.Mylist };
         }
 
         public MylistPlaylist(MylistId id, MylistProvider mylistProvider)
+            : this(id)
         {
-            MylistId = id;
             _mylistProvider = mylistProvider;
         }
 
@@ -50,7 +51,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
         public DateTime CreateTime { get; internal set; }
 
-        string IPlaylist.Id => MylistId.ToString();
+        public PlaylistId PlaylistId { get; }
 
         public async Task<MylistItemsGetResult> GetItemsAsync(int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {

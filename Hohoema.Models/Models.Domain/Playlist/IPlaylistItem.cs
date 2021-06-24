@@ -9,7 +9,7 @@ namespace Hohoema.Models.Domain.Playlist
 {
     public interface IPlaylistItem : IVideoContent
     {
-        public PlaylistOrigin PlaylistOrigin { get; }
+        public PlaylistItemsSourceOrigin PlaylistOrigin { get; }
         public string PlaylistId { get; }
     }
 }

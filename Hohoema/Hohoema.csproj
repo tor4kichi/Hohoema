@@ -145,6 +145,9 @@
     <Compile Include="Models.UseCase\Migration\SearchTargetMigration_V_1_1_0.cs" />
     <Compile Include="Models.UseCase\Migration\SettingsMigration_V_0_23_0.cs" />
     <Compile Include="Models.UseCase\PageNavigation\NavigationTriggerFromExternal.cs" />
+    <Compile Include="Models.UseCase\Hohoema.LocalMylist\LocalMylistManager.cs" />
+    <Compile Include="Models.UseCase\Playlist\PlaylistItemsSource\LocalMylistPlaylistItemsSource.cs" />
+    <Compile Include="Models.UseCase\Playlist\PlaylistItemsSourceResolver.cs" />
     <Compile Include="Models.UseCase\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
     <Compile Include="Models.UseCase\VideoCache\Events\EndCacheSaveFolderChangingMessage.cs" />
     <Compile Include="Models.UseCase\VideoCache\Events\StartCacheSaveFolderChangingAsyncRequestMessage.cs" />
@@ -153,9 +156,7 @@
     <Compile Include="Models.UseCase\VideoCache\Migration\VideoCacheDatabaseMigration_V_0_29_0.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\CloseToastNotificationWhenPlayStarted.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\Events\VideoPlayedMessage.cs" />
-    <Compile Include="Models.UseCase\Playlist\HohoemaPlaylist.cs" />
-    <Compile Include="Models.UseCase\Playlist\LocalMylistManager.cs" />
-    <Compile Include="Models.UseCase\Playlist\MylistRepository.cs" />
+    <Compile Include="Models.UseCase\Playlist\MylistResolver.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\Comment\CommentDisplayingRangeExtractor.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\Comment\CommentFilteringFacade.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\Comment\CommentPlayer.cs" />
@@ -167,9 +168,12 @@
     <Compile Include="Models.UseCase\Niconico.Player\VideoPlayer.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\VideoPlayRequestBridgeToPlayer.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\VideoStreamingOriginOrchestrator.cs" />
-    <Compile Include="Models.UseCase\Playlist\PlaylistResolver.cs" />
     <Compile Include="Models.UseCase\Playlist\PlaylistSelectDialogService.cs" />
     <Compile Include="Models.UseCase\Playlist\LoginUserOwnedMylistManager.cs" />
+    <Compile Include="Presentation.Services\INotificationService.cs" />
+    <Compile Include="Presentation.Services\NotificationService.cs" />
+    <Compile Include="Presentation.ViewModels\Hohoema.LocalMylist\LocalMylistCreateCommand.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\VideoPlayCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\VideoItemsSelectionContext.cs" />
     <Compile Include="Models.UseCase\Niconico.Video\WatchHistoryManager.cs" />
     <Compile Include="Models.UseCase\Subscriptions\FeedResultAddToWatchLater.cs" />
@@ -183,7 +187,6 @@
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowContext.cs" />
     <Compile Include="Models.UseCase\Niconico.Account\NiconicoLoginService.cs" />
     <Compile Include="Presentation.Services\NoProcessUIScreenContext.cs" />
-    <Compile Include="Presentation.Services\NotificationService.cs" />
     <Compile Include="Models.UseCase\CheckingClipboardAndNotificationService.cs" />
     <Compile Include="Models.UseCase\VideoCache\NotificationCacheVideoDeletedService.cs" />
     <Compile Include="Models.UseCase\Niconico.Follow\FollowNotificationAndConfirmListener.cs" />

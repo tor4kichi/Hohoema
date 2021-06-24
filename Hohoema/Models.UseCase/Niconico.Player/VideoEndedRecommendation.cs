@@ -19,32 +19,43 @@ using Hohoema.Models.Domain.Player;
 using NiconicoToolkit.Video.Watch;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.Domain.Playlist;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
-    public sealed class VideoEndedRecommendation : BindableBase, IDisposable
+    public sealed class VideoEndedRecommendation : BindableBase, IDisposable,
+        IRecipient<PlaybackStopedMessage>
     {
         CompositeDisposable _disposables = new CompositeDisposable();
 
         public VideoEndedRecommendation(
             MediaPlayer mediaPlayer,
             VideoPlayer videoPlayer,
+            IMessenger messenger,
             IScheduler scheduler,
+            QueuePlaylist queuePlaylist,
             RelatedVideoContentsAggregator relatedVideoContentsAggregator,
-            HohoemaPlaylist hohoemaPlaylist,
             PrimaryViewPlayerManager primaryViewPlayerManager,
             PlayerSettings playerSettings,
-            VideoPlayRequestBridgeToPlayer videoPlayRequestBridgeToPlayer
+            VideoPlayRequestBridgeToPlayer videoPlayRequestBridgeToPlayer,
+            HohoemaPlaylistPlayer hohoemaPlaylistPlayer,
+            VideoPlayedHistoryRepository videoPlayedHistoryRepository
             )
         {
             _mediaPlayer = mediaPlayer;
             _videoPlayer = videoPlayer;
+            _messenger = messenger;
             _scheduler = scheduler;
+            _queuePlaylist = queuePlaylist;
             _relatedVideoContentsAggregator = relatedVideoContentsAggregator;
-            _hohoemaPlaylist = hohoemaPlaylist;
             _primaryViewPlayerManager = primaryViewPlayerManager;
             _playerSettings = playerSettings;
             _videoPlayRequestBridgeToPlayer = videoPlayRequestBridgeToPlayer;
+            _hohoemaPlaylistPlayer = hohoemaPlaylistPlayer;
+            _videoPlayedHistoryRepository = videoPlayedHistoryRepository;
             IsEnded = new ReactiveProperty<bool>(_scheduler);
             HasRecomend = new ReactiveProperty<bool>(_scheduler);
             
@@ -63,16 +74,18 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     _currentVideoDetail = null;
                 })
                 .AddTo(_disposables);
+
+            _messenger.Register<PlaybackStopedMessage>(this);
         }
 
         readonly TimeSpan _endedTime = TimeSpan.FromSeconds(-1);
 
         bool _endedProcessed;
-        private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
+        private async void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
         {
             if (sender.PlaybackState == MediaPlaybackState.None) { return; }
             if (_playNext) { return; }
-            if (_videoPlayer.PlayingVideoId == null) { return; }
+            if (_videoPlayer.PlayingVideoId == default(VideoId)) { return; }
 
             bool isInsideEndedRange = sender.Position - sender.NaturalDuration > _endedTime;
             bool isStopped = sender.PlaybackState == MediaPlaybackState.Paused;
@@ -85,8 +98,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     HasRecomend.Value = HasNextVideo && IsEnded.Value;
                     return;
                 }
+                
+                _queuePlaylist.Remove(_videoPlayer.PlayingVideoId);
+                _videoPlayedHistoryRepository.VideoPlayed(_videoPlayer.PlayingVideoId, sender.Position);
 
-                if (_hohoemaPlaylist.PlayDoneAndTryMoveNext(_mediaPlayer.PlaybackSession.Position))
+                if (await _hohoemaPlaylistPlayer.GoNextAsync())
                 {
                     HasRecomend.Value = HasNextVideo && IsEnded.Value;
                     _endedProcessed = true;
@@ -154,6 +170,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             }
         }
 
+        public void Receive(PlaybackStopedMessage message)
+        {
+            var data = message.Value;
+            _queuePlaylist.Remove(data.VideoId);
+            _videoPlayedHistoryRepository.VideoPlayed(data.VideoId, data.EndPosition);
+        }
+
+
         public void Dispose()
         {
             _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
@@ -188,12 +212,15 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         private readonly MediaPlayer _mediaPlayer;
         private readonly VideoPlayer _videoPlayer;
+        private readonly IMessenger _messenger;
         private readonly IScheduler _scheduler;
+        private readonly QueuePlaylist _queuePlaylist;
         private readonly RelatedVideoContentsAggregator _relatedVideoContentsAggregator;
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
         private readonly PlayerSettings _playerSettings;
         private readonly VideoPlayRequestBridgeToPlayer _videoPlayRequestBridgeToPlayer;
+        private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;
+        private readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
 
         public ReactiveProperty<bool> IsEnded { get; }
 
@@ -223,11 +250,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 if (_videoRelatedContents?.NextVideo != null)
                 {
                     var nextVideo = _videoRelatedContents.NextVideo;
-                    _hohoemaPlaylist.Play(nextVideo);
+                    _messenger.Send(new VideoPlayRequestMessage() { VideoId = nextVideo.VideoId });
                 }
                 else if (_series.Video.Next is not null and var nextVideo)
                 {
-                    _hohoemaPlaylist.Play(nextVideo.Id);
+                    _messenger.Send(new VideoPlayRequestMessage() { VideoId = nextVideo.Id });
                 }
 
                 IsEnded.Value = false;
@@ -257,5 +284,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 return;
             }
         }
+
     }
 }

@@ -47,6 +47,8 @@ using NiconicoToolkit.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Likes;
 using NiconicoToolkit.Ichiba;
 using AngleSharp.Html.Parser;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Hohoema.Models.Domain.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
@@ -73,7 +75,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             VideoFilteringSettings ngSettings,
             NiconicoSession niconicoSession,
             LoginUserOwnedMylistManager userMylistManager,
-            HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             LoginUserMylistProvider loginUserMylistProvider,
             SubscriptionManager subscriptionManager,
@@ -81,6 +82,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             PageManager pageManager,
             Services.NotificationService notificationService,
             Services.DialogService dialogService,
+            VideoPlayCommand videoPlayCommand,
             MylistAddItemCommand addMylistCommand,
             LocalPlaylistAddItemCommand localPlaylistAddItemCommand,
             AddSubscriptionCommand addSubscriptionCommand,
@@ -99,7 +101,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             NgSettings = ngSettings;
             NiconicoSession = niconicoSession;
             UserMylistManager = userMylistManager;
-            HohoemaPlaylist = hohoemaPlaylist;
             NicoVideoProvider = nicoVideoProvider;
             LoginUserMylistProvider = loginUserMylistProvider;
             SubscriptionManager = subscriptionManager;
@@ -107,6 +108,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             PageManager = pageManager;
             NotificationService = notificationService;
             DialogService = dialogService;
+            VideoPlayCommand = videoPlayCommand;
             AddMylistCommand = addMylistCommand;
             LocalPlaylistAddItemCommand = localPlaylistAddItemCommand;
             AddSubscriptionCommand = addSubscriptionCommand;
@@ -326,7 +328,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     {
                         if (playlist is LocalPlaylist localPlaylist)
                         {
-                            localPlaylist.AddPlaylistItem(VideoInfo);
+                            localPlaylist.AddPlaylistItem(VideoInfo.VideoId);
                         }
                         else if (playlist is LoginUserMylistPlaylist loginUserMylist)
                         {
@@ -408,13 +410,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         public VideoFilteringSettings NgSettings { get; }
         public NiconicoSession NiconicoSession { get; }
         public LoginUserOwnedMylistManager UserMylistManager { get; }
-        public LocalMylistManager LocalMylistManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public LocalMylistManager LocalMylistManager { get; }        
         public NicoVideoProvider NicoVideoProvider { get; }
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
+        public VideoPlayCommand VideoPlayCommand { get; }
         public MylistAddItemCommand AddMylistCommand { get; }
         public LocalPlaylistAddItemCommand LocalPlaylistAddItemCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }

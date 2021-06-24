@@ -27,6 +27,7 @@ using Hohoema.Presentation.Views.Pages;
 using Hohoema.Presentation.Views.Player;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Live;
+using Hohoema.Models.Domain.Playlist;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -69,6 +70,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         public CoreApplicationView SecondaryCoreAppView { get; private set; }
         public ApplicationView SecondaryAppView { get; private set; }
         public INavigationService SecondaryViewPlayerNavigationService { get; private set; }
+        public HohoemaPlaylistPlayer PlaylistPlayer { get; private set; }
+
 
         bool isMainViewClosed;
         // メインビューを閉じたらプレイヤービューも閉じる
@@ -145,6 +148,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
                     view.VisibleBoundsChanged += View_VisibleBoundsChanged;
                 }
+                
+                PlaylistPlayer = App.Current.Container.Resolve<HohoemaPlaylistPlayer>();
 
                 view.Consolidated += SecondaryAppView_Consolidated;
 
@@ -312,6 +317,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
             await SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(async () =>
             {
+                await PlaylistPlayer.ClearAsync();
+
                 SecondaryAppView.Title = "Hohoema";
 
                 await ShowMainViewAsync();

@@ -12,26 +12,26 @@ using System.Text;
 using System.Threading.Tasks;
 using Uno.Extensions;
 using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.Domain.Playlist;
 
 namespace Hohoema.Models.UseCase.Subscriptions
 {
     public sealed class FeedResultAddToWatchLater
     {
         private readonly SubscriptionManager _subscriptionManager;
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly SubscriptionSettings _subscriptionSettingsRepository;
-
+        private readonly QueuePlaylist _queuePlaylist;
         List<SubscriptionFeedUpdateResult> Results = new List<SubscriptionFeedUpdateResult>();
 
         public FeedResultAddToWatchLater(
             SubscriptionManager subscriptionManager,
-            HohoemaPlaylist hohoemaPlaylist,
-            SubscriptionSettings subscriptionSettingsRepository
+            SubscriptionSettings subscriptionSettingsRepository,
+            QueuePlaylist queuePlaylist
             )
         {
             _subscriptionManager = subscriptionManager;
-            _hohoemaPlaylist = hohoemaPlaylist;
             _subscriptionSettingsRepository = subscriptionSettingsRepository;
+            _queuePlaylist = queuePlaylist;
             Observable.FromEventPattern<SubscriptionFeedUpdateResult>(
                 h => _subscriptionManager.Updated += h,
                 h => _subscriptionManager.Updated -= h
@@ -44,11 +44,19 @@ namespace Hohoema.Models.UseCase.Subscriptions
                     var items = Results.ToList();
                     Results.Clear();
 
+                    foreach (var newVideo in items.SelectMany(x => x.NewVideos))
+                    {
+                        _queuePlaylist.Add(newVideo.VideoId);
+
+                        Debug.WriteLine("[FeedResultAddToWatchLater] added: " + newVideo.Label);
+                    }
+
+                    /*
                     if (!_subscriptionSettingsRepository.IsSortWithSubscriptionUpdated)
                     {
                         foreach (var newVideo in items.SelectMany(x => x.NewVideos))
                         {
-                            _hohoemaPlaylist.AddQueuePlaylist(newVideo);
+                            _queuePlaylist.Add(newVideo);
 
                             Debug.WriteLine("[FeedResultAddToWatchLater] added: " + newVideo.Label);
                         }
@@ -135,7 +143,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
                             _hohoemaPlaylist.QueuePlaylist.AddRangeOnScheduler(backup);
                         }
                     }
-                    
+                    */
                 });
 
         }

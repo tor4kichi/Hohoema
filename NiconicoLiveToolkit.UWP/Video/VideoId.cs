@@ -180,22 +180,16 @@ namespace NiconicoToolkit.Video
 
         public bool Equals(VideoId other)
         {
-            if (this.RawId == 0 || other.RawId == 0) return false;
-
             return this.RawId == other.RawId;
         }
 
         public bool Equals(int other)
         {
-            if (this.RawId == 0 || (uint)other == 0) return false;
-
             return this.RawId == (uint)other;
         }
 
         public bool Equals(uint other)
         {
-            if (this.RawId == 0 || other == 0) return false;
-
             return this.RawId == other;
         }
 

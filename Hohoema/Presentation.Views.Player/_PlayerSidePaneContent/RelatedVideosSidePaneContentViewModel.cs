@@ -16,6 +16,7 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {
@@ -23,22 +24,24 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
     {
         public RelatedVideosSidePaneContentViewModel(
             NiconicoSession niconicoSession,
-            HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            RelatedVideoContentsAggregator relatedVideoContentsAggregator
+            RelatedVideoContentsAggregator relatedVideoContentsAggregator,
+            VideoPlayCommand videoPlayCommand
            )
         {
             _niconicoSession = niconicoSession;
-            _hohoemaPlaylist = hohoemaPlaylist;
             _pageManager = pageManager;
             _relatedVideoContentsAggregator = relatedVideoContentsAggregator;
-            PlayCommand = _hohoemaPlaylist.PlayCommand;
+            VideoPlayCommand = videoPlayCommand;
             OpenMylistCommand = _pageManager.OpenPageCommand;
         }
 
+        private readonly NiconicoSession _niconicoSession;
+        private readonly PageManager _pageManager;
+        private readonly RelatedVideoContentsAggregator _relatedVideoContentsAggregator;
 
-        public DelegateCommand<object> PlayCommand { get; }
         public DelegateCommand<object> OpenMylistCommand { get; }
+        public VideoPlayCommand VideoPlayCommand { get; }
 
         public List<VideoListItemControlViewModel> Videos { get; private set; }
 
@@ -51,10 +54,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         public Models.Helpers.AsyncLock _InitializeLock = new Models.Helpers.AsyncLock();
 
         private bool _IsInitialized = false;
-        private readonly NiconicoSession _niconicoSession;
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
-        private readonly PageManager _pageManager;
-        private readonly RelatedVideoContentsAggregator _relatedVideoContentsAggregator;
 
         public bool NowLoading { get; private set; }
 

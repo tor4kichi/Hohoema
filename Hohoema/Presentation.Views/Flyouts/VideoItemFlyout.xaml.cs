@@ -30,6 +30,9 @@ using Hohoema.Presentation.ViewModels.VideoCache.Commands;
 using Hohoema.Models.Domain.VideoCache;
 using NiconicoToolkit.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Video;
+using Hohoema.Models.Domain.LocalMylist;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.Views.Flyouts
 {
@@ -75,14 +78,16 @@ namespace Hohoema.Presentation.Views.Flyouts
         public bool AllowSelection { get; set; } = true;
 
 
-
-        public static HohoemaPlaylist HohoemaPlaylist { get; }
+        public static QueuePlaylist QueuePlaylist { get; }
         public static PageManager PageManager { get; }
         public static LoginUserOwnedMylistManager UserMylistManager { get; }
         public static LocalMylistManager LocalMylistManager { get; }
         public static SubscriptionManager SubscriptionManager { get; }
         public static VideoCacheManager VideoCacheManager { get; }
         public static VideoItemsSelectionContext VideoItemsSelectionContext { get; }
+
+        private static readonly IMessenger _messenger;
+
         public static MylistCreateCommand CreateMylistCommand { get; }
         public static LocalPlaylistCreateCommand CreateLocalMylistCommand { get; }
         public static AddSubscriptionCommand AddSubscriptionCommand { get; }
@@ -96,9 +101,10 @@ namespace Hohoema.Presentation.Views.Flyouts
 
         static VideoItemFlyout()
         {
+            QueuePlaylist = App.Current.Container.Resolve<QueuePlaylist>();
+            _messenger = App.Current.Container.Resolve<IMessenger>();
             CreateMylistCommand = App.Current.Container.Resolve<MylistCreateCommand>();
             CreateLocalMylistCommand = App.Current.Container.Resolve<LocalPlaylistCreateCommand>();
-            HohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
             PageManager = App.Current.Container.Resolve<PageManager>();
             UserMylistManager = App.Current.Container.Resolve<LoginUserOwnedMylistManager>();
             LocalMylistManager = App.Current.Container.Resolve<LocalMylistManager>();
@@ -195,10 +201,10 @@ namespace Hohoema.Presentation.Views.Flyouts
             RemoveWatchAfter.CommandParameter = dataContext;
             if (isMultipleSelection)
             {
-                AddWatchAfter.Visibility = SelectedVideoItems.All(x => HohoemaPlaylist.QueuePlaylist.Contains(x)).ToInvisibility();
-                RemoveWatchAfter.Visibility = SelectedVideoItems.Any(x => HohoemaPlaylist.QueuePlaylist.Contains(x)).ToVisibility();
+                AddWatchAfter.Visibility = SelectedVideoItems.All(x => QueuePlaylist.Contains(x.VideoId)).ToInvisibility();
+                RemoveWatchAfter.Visibility = SelectedVideoItems.Any(x => QueuePlaylist.Contains(x.VideoId)).ToVisibility();
             }
-            else if (HohoemaPlaylist.QueuePlaylist.Contains(content))
+            else if (QueuePlaylist.Contains(content.VideoId))
             {
                 AddWatchAfter.Visibility = Visibility.Collapsed;
                 RemoveWatchAfter.Visibility = Visibility.Visible;
@@ -213,7 +219,7 @@ namespace Hohoema.Presentation.Views.Flyouts
             // ここから連続再生
             if ((SourceVideoItems?.Any() ?? false)
                 && !isMultipleSelection 
-                && Playlist?.Id == HohoemaPlaylist.QueuePlaylistId
+                && (Playlist?.IsQueuePlaylist() ?? false)
                 )
             {
                 AllPlayFromHereWithWatchAfter.Visibility = Visibility.Visible;
@@ -226,13 +232,14 @@ namespace Hohoema.Presentation.Views.Flyouts
                     {
                         foreach (var videoItem in items)
                         {
-                            HohoemaPlaylist.AddQueuePlaylist(videoItem, ContentInsertPosition.Head);
+                            QueuePlaylist.Insert(0, videoItem.VideoId);
                         }
                     }
 
                     if (items.Count >= 1)
                     {
-                        HohoemaPlaylist.Play(items.Last(), HohoemaPlaylist.QueuePlaylist);
+                        var item = QueuePlaylist.First();
+                        _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(item));
                     }
                 });
                 AllPlayFromHereWithWatchAfter.CommandParameter = dataContext;

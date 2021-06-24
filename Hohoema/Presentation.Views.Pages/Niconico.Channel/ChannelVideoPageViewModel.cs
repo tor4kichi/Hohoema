@@ -64,7 +64,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
             ChannelProvider channelProvider,
             ChannelFollowProvider channelFollowProvider,
             PageManager pageManager,
-            HohoemaPlaylist hohoemaPlaylist,
+            VideoPlayCommand videoPlayCommand,
             OpenLinkCommand openLinkCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
@@ -74,7 +74,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
             ChannelProvider = channelProvider;
             _channelFollowProvider = channelFollowProvider;
             PageManager = pageManager;
-            HohoemaPlaylist = hohoemaPlaylist;
+            VideoPlayCommand = videoPlayCommand;
             OpenLinkCommand = openLinkCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
         }
@@ -229,7 +229,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
         public NiconicoSession NiconicoSession { get; }
         public ChannelProvider ChannelProvider { get; }
         public PageManager PageManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public VideoPlayCommand VideoPlayCommand { get; }
         public OpenLinkCommand OpenLinkCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
     }

@@ -2,6 +2,7 @@
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase.Playlist;
+using Microsoft.Toolkit.Mvvm.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,17 +14,18 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
     public sealed class PlayWithPlaylistCommand : VideoContentSelectionCommandBase
     {
         private readonly IPlaylist _playlist;
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
+        private readonly IMessenger _messenger;
 
-        public PlayWithPlaylistCommand(IPlaylist playlist, HohoemaPlaylist hohoemaPlaylist)
+        public PlayWithPlaylistCommand(IPlaylist playlist, IMessenger messenger)
         {
             _playlist = playlist;
-            _hohoemaPlaylist = hohoemaPlaylist;
+            _messenger = messenger;
         }
 
         protected override void Execute(IVideoContent content)
         {
-            _hohoemaPlaylist.Play(content, _playlist);
+            _messenger.Send(new VideoPlayRequestMessage() { VideoId = content.VideoId, PlaylistId = _playlist.PlaylistId.Id, PlaylistOrigin = _playlist.PlaylistId.Origin });
+            
         }
     }
 }

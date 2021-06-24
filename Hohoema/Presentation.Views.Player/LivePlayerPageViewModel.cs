@@ -105,7 +105,6 @@ namespace Hohoema.Presentation.ViewModels.Player
         public NiconicoSession NiconicoSession { get; }
         public UserProvider UserProvider { get; }
         public CommunityProvider CommunityProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public DialogService _HohoemaDialogService { get; }
         public PageManager PageManager { get; }
 
@@ -392,7 +391,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             UserProvider userProvider,
             UserNameProvider userNameRepository,
             CommunityProvider communityProvider,
-            HohoemaPlaylist hohoemaPlaylist,
             Services.DialogService dialogService,
             PageManager pageManager,
             NotificationService notificationService,
@@ -421,7 +419,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             UserProvider = userProvider;
             _userNameRepository = userNameRepository;
             CommunityProvider = communityProvider;
-            HohoemaPlaylist = hohoemaPlaylist;
 
             _HohoemaDialogService = dialogService;
             PageManager = pageManager;

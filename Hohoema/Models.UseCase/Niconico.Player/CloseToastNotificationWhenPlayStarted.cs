@@ -1,5 +1,7 @@
-﻿using Hohoema.Models.UseCase.Playlist;
+﻿using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.Services;
+using Microsoft.Toolkit.Mvvm.Messaging;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -11,24 +13,30 @@ using System.Threading.Tasks;
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
     public sealed class CloseToastNotificationWhenPlayStarted : IDisposable
+        , IRecipient<VideoPlayRequestMessage>
     {
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly NotificationService _notificationService;
+        private readonly IMessenger _messenger;
         private readonly IDisposable _subscriber;
 
-        public CloseToastNotificationWhenPlayStarted(HohoemaPlaylist hohoemaPlaylist, NotificationService notificationService)
+        public CloseToastNotificationWhenPlayStarted(
+            NotificationService notificationService,
+            IMessenger messenger
+            )
         {
-            _hohoemaPlaylist = hohoemaPlaylist;
             _notificationService = notificationService;
-
-            _subscriber =  _hohoemaPlaylist.ObserveProperty(x => x.CurrentItem)
-                .Where(x => x != null)
-                .Subscribe(_ => _notificationService.HideToast());
+            _messenger = messenger;
+            _messenger.Register(this);
         }
 
         public void Dispose()
         {
             _subscriber.Dispose();
+        }
+
+        public void Receive(VideoPlayRequestMessage message)
+        {
+            _notificationService.HideToast();
         }
     }
 }

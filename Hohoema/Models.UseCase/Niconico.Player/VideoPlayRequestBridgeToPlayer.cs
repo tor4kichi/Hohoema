@@ -8,6 +8,9 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Uno.Threading;
 using Hohoema.Models.UseCase.Niconico.Player.Events;
+using Hohoema.Models.Domain.Playlist;
+using NiconicoToolkit.Video;
+using Hohoema.Models.Infrastructure;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -19,7 +22,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
     public sealed class VideoPlayRequestBridgeToPlayer 
         : IDisposable,
-        IRecipient<PlayerPlayVideoRequestMessage>,
+        IRecipient<VideoPlayRequestMessage>,
         IRecipient<PlayerPlayLiveRequestMessage>,
         IRecipient<ChangePlayerDisplayViewRequestMessage>
     {
@@ -34,17 +37,18 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             IMessenger messenger,
             ScondaryViewPlayerManager playerViewManager,
             PrimaryViewPlayerManager primaryViewPlayerManager,
-            LocalObjectStorageHelper localObjectStorageHelper
+            LocalObjectStorageHelper localObjectStorageHelper,
+            QueuePlaylist queuePlaylist
             )
         {
             _messenger = messenger;
             _secondaryPlayerManager = playerViewManager;
             _primaryViewPlayerManager = primaryViewPlayerManager;
             _localObjectStorage = localObjectStorageHelper;
-
+            _queuePlaylist = queuePlaylist;
             DisplayMode = ReadDisplayMode();
 
-            _messenger.Register<PlayerPlayVideoRequestMessage>(this);
+            _messenger.Register<VideoPlayRequestMessage>(this);
             _messenger.Register<PlayerPlayLiveRequestMessage>(this);
             _messenger.Register<ChangePlayerDisplayViewRequestMessage>(this);
         }
@@ -72,7 +76,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     await _secondaryPlayerManager.CloseAsync().ConfigureAwait(false);
 
                     await Task.Delay(10);
-
+                    
                     _ = _primaryViewPlayerManager.NavigationAsync(pageName, parameters);
                 }
                 else
@@ -109,6 +113,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
 
         private readonly LocalObjectStorageHelper _localObjectStorage;
+        private readonly QueuePlaylist _queuePlaylist;
+
         void SaveDisplayMode()
         {
             _localObjectStorage.Save(nameof(PlayerDisplayView), DisplayMode);
@@ -145,6 +151,113 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
             DisplayMode = mode;
             SaveDisplayMode();
+        }
+
+        public void Receive(VideoPlayRequestMessage message)
+        {
+            message.Reply(VideoPlayAsync(message));
+        }
+
+        private async Task<VideoPlayRequestMessageData> VideoPlayAsync(VideoPlayRequestMessage message)
+        {
+            using (await _asyncLock.LockAsync(default))
+            {
+                var displayMode = DisplayMode == PlayerDisplayView.PrimaryView ? PlayerDisplayView.SecondaryView : PlayerDisplayView.PrimaryView;
+                var pageName = nameof(Presentation.Views.Player.VideoPlayerPage);
+                
+                static PlaylistItem ToPlaylistItem(VideoPlayRequestMessage message, QueuePlaylist queuePlaylist)
+                {
+                    if (message.PlaylistItem != null) { return message.PlaylistItem; }
+
+
+                    bool isPlaylistReady = message.PlaylistId != null
+                        && message.PlaylistOrigin != null;
+                    bool isVideoReady = message.VideoId != null && message.VideoId != default(VideoId);
+
+
+                    if (isPlaylistReady && isVideoReady)
+                    {
+                        return new PlaylistItem(new PlaylistId() { Id = message.PlaylistId, Origin = message.PlaylistOrigin.Value, SortOptions = message.PlaylistSortOptions }, -1, message.VideoId.Value);
+                    }
+                    else if (isPlaylistReady)
+                    {
+                        return new PlaylistItem(new PlaylistId() { Id = message.PlaylistId, Origin = message.PlaylistOrigin.Value, SortOptions = message.PlaylistSortOptions }, -1, default(VideoId));
+                    }
+                    else if (isVideoReady)
+                    {
+                        if (!queuePlaylist.Contains(message.VideoId.Value))
+                        {
+                            return queuePlaylist.Insert(0, message.VideoId.Value);
+                        }
+                        else
+                        {
+                            return queuePlaylist.First(x => x.ItemId == message.VideoId.Value);
+                        }
+                    }
+                    else
+                    {
+                        throw new HohoemaExpception();
+                    }
+
+                }
+
+                static async Task Play(HohoemaPlaylistPlayer player, PlaylistItem playlistItem, TimeSpan? initialPosition)
+                {
+                    await player.PlayAsync(playlistItem, null, initialPosition);
+                }
+
+                if (displayMode == PlayerDisplayView.PrimaryView)
+                {
+                    if (_primaryViewPlayerManager.DisplayMode != PrimaryPlayerDisplayMode.Close)
+                    {
+                        if (DisplayMode == displayMode
+                        && _lastNavigatedPageName == pageName
+                        )
+                        {
+                            System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
+                            return new VideoPlayRequestMessageData() { IsSuccess = false };
+                        }
+                    }
+
+                    
+                    await _secondaryPlayerManager.CloseAsync().ConfigureAwait(false);
+
+                    await Task.Delay(10);
+
+                    await Play(_primaryViewPlayerManager.PlaylistPlayer, ToPlaylistItem(message, _queuePlaylist), message.Potision);
+
+                    await _primaryViewPlayerManager.NavigationAsync(pageName, null);
+
+                    _lastNavigatedPageName = pageName;
+                    _lastNavigatedParameters = null;
+
+                    return new VideoPlayRequestMessageData() { IsSuccess = true };
+                }
+                else
+                {
+                    if (DisplayMode == displayMode
+                    && _lastNavigatedPageName == pageName
+                    )
+                    {
+                        System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
+                        await _secondaryPlayerManager.ShowSecondaryViewAsync();
+                        return new VideoPlayRequestMessageData() { IsSuccess = false };
+                    }
+
+                    _primaryViewPlayerManager.Close();
+
+                    await Task.Delay(10);
+
+                    await Play(_secondaryPlayerManager.PlaylistPlayer, ToPlaylistItem(message, _queuePlaylist), message.Potision);
+
+                    await _secondaryPlayerManager.NavigationAsync(pageName, null).ConfigureAwait(false);
+
+                    _lastNavigatedPageName = pageName;
+                    _lastNavigatedParameters = null;
+                    
+                    return new VideoPlayRequestMessageData() { IsSuccess = true };
+                }
+            }
         }
     }
 }

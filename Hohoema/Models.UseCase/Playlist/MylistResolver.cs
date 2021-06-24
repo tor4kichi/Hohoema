@@ -13,13 +13,13 @@ using NiconicoToolkit.User;
 namespace Hohoema.Models.UseCase.Playlist
 {
 
-    public class MylistRepository
+    public class MylistResolver
     {
         private readonly NiconicoSession _niconicoSession;
         private readonly LoginUserOwnedMylistManager _userMylistManager;
         private readonly MylistProvider _mylistProvider;
 
-        public MylistRepository(
+        public MylistResolver(
             NiconicoSession niconicoSession,
             LoginUserOwnedMylistManager userMylistManager,
             MylistProvider mylistProvider

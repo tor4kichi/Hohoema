@@ -153,7 +153,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             }
             else
             {
-                var mylistItemsRes = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylist.Id, (int)page, (int)pageSize, sortKey, sortOrder);
+                var mylistItemsRes = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylist.PlaylistId.Id, (int)page, (int)pageSize, sortKey, sortOrder);
                 var res = mylistItemsRes.Data.Mylist;
                 var items = res.Items;
                 foreach (var item in items)

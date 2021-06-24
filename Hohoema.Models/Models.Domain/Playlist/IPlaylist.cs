@@ -13,12 +13,6 @@ namespace Hohoema.Models.Domain.Playlist
     public interface IPlaylist
     {
         string Name { get; }
-        string Id { get; }
-
-        int SortIndex { get; }
-        int Count { get; }
-
-        Uri[] ThumbnailImages { get; }
-        Uri ThumbnailImage { get; }
+        public PlaylistId PlaylistId { get; }
     }
 }

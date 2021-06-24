@@ -20,6 +20,7 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 {
@@ -46,9 +47,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             Services.DialogService dialogService,
             NiconicoSession niconicoSession,
             UserProvider userProvider,
-            MylistRepository mylistRepository,
-            LocalMylistManager localMylistManager,
-            HohoemaPlaylist hohoemaPlaylist
+            MylistResolver mylistRepository,
+            LocalMylistManager localMylistManager
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -58,17 +58,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             UserProvider = userProvider;
             _mylistRepository = mylistRepository;
             _localMylistManager = localMylistManager;
-            
-            HohoemaPlaylist = hohoemaPlaylist;
         }
 
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
         public NiconicoSession NiconicoSession { get; }
         public UserProvider UserProvider { get; }
-        private readonly MylistRepository _mylistRepository;
+        private readonly MylistResolver _mylistRepository;
         private readonly LocalMylistManager _localMylistManager;
 
         public UserId? UserId { get; private set; }
@@ -135,9 +132,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
         public string UserId { get; }
 
-        private readonly MylistRepository _mylistRepository;
+        private readonly MylistResolver _mylistRepository;
 
-        public OtherUserMylistIncrementalLoadingSource(string userId, MylistRepository mylistRepository)
+        public OtherUserMylistIncrementalLoadingSource(string userId, MylistResolver mylistRepository)
         {
             UserId = userId;
             _mylistRepository = mylistRepository;

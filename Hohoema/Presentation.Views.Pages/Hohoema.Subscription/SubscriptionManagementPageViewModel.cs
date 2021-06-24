@@ -30,6 +30,7 @@ using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.UseCase;
 using NiconicoToolkit.Video;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 {
@@ -39,10 +40,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
         private readonly SubscriptionManager _subscriptionManager;
         private readonly SubscriptionUpdateManager _subscriptionUpdateManager;
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly DialogService _dialogService;
         private readonly PageManager _pageManager;
         private readonly NicoVideoProvider _nicoVideoProvider;
+        private readonly VideoPlayCommand _videoPlayCommand;
         private readonly IScheduler _scheduler;
 
 
@@ -60,10 +61,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             IScheduler scheduler, 
             SubscriptionManager subscriptionManager,
             SubscriptionUpdateManager subscriptionUpdateManager,
-            HohoemaPlaylist hohoemaPlaylist,
             DialogService dialogService,
             PageManager pageManager,
-            NicoVideoProvider nicoVideoProvider
+            NicoVideoProvider nicoVideoProvider,
+            VideoPlayCommand videoPlayCommand
             )
         {
             WeakReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
@@ -85,10 +86,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
             _subscriptionManager = subscriptionManager;
             _subscriptionUpdateManager = subscriptionUpdateManager;
-            _hohoemaPlaylist = hohoemaPlaylist;
             _dialogService = dialogService;
             _pageManager = pageManager;
             _nicoVideoProvider = nicoVideoProvider;
+            _videoPlayCommand = videoPlayCommand;
             _scheduler = scheduler;
 
             IsAutoUpdateRunning = _subscriptionUpdateManager.ObserveProperty(x => x.IsRunning)
@@ -127,7 +128,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             {
                 foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo().OrderBy(x => x.entity.SortIndex))
                 {
-                    var vm = new SubscriptionViewModel(subscInfo.entity, this, _subscriptionManager, _hohoemaPlaylist, _pageManager, _dialogService);
+                    var vm = new SubscriptionViewModel(subscInfo.entity, this, _subscriptionManager, _pageManager, _dialogService, _videoPlayCommand);
                     var items = _nicoVideoProvider.GetCachedVideoInfoItems(subscInfo.feedResult.Videos.Select(x => (VideoId)x.VideoId));
                     vm.UpdateFeedResult(items, subscInfo.feedResult.LastUpdatedAt);
                     Subscriptions.Add(vm);
@@ -178,7 +179,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         {
             _scheduler.Schedule(() =>
             {
-                var vm = new SubscriptionViewModel(e, this, _subscriptionManager, _hohoemaPlaylist, _pageManager, _dialogService);
+                var vm = new SubscriptionViewModel(e, this, _subscriptionManager, _pageManager, _dialogService, _videoPlayCommand);
                 Subscriptions.Insert(0, vm);
             });
         }
@@ -267,17 +268,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             SubscriptionSourceEntity source,
             SubscriptionManagementPageViewModel pageViewModel,
             SubscriptionManager subscriptionManager,
-            HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            DialogService dialogService
+            DialogService dialogService,
+            VideoPlayCommand videoPlayCommand
             )
         {
             _source = source;
             _pageViewModel = pageViewModel;
             _subscriptionManager = subscriptionManager;
-            _hohoemaPlaylist = hohoemaPlaylist;
             _pageManager = pageManager;
             _dialogService = dialogService;
+            PlayVideoItemCommand = videoPlayCommand;
             IsEnabled = new ReactiveProperty<bool>(_source.IsEnabled)
                 .AddTo(_disposables);
             IsEnabled.Subscribe(isEnabled => 
@@ -292,9 +293,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         internal readonly SubscriptionSourceEntity _source;
         private readonly SubscriptionManagementPageViewModel _pageViewModel;
         private readonly SubscriptionManager _subscriptionManager;
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly PageManager _pageManager;
         private readonly DialogService _dialogService;
+        public VideoPlayCommand PlayVideoItemCommand { get; }
 
         public string SourceParameter => _source.SourceParameter;
         public SubscriptionSourceType SourceType => _source.SourceType;
@@ -304,7 +305,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
         public ObservableCollection<VideoListItemControlViewModel> Videos { get; } = new ObservableCollection<VideoListItemControlViewModel>();
 
-        public IPlaylist WatchAfterPlaylist => _hohoemaPlaylist.QueuePlaylist;
 
         private DateTime _lastUpdatedAt;
         public DateTime LastUpdatedAt
@@ -416,15 +416,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         }
 
 
-
-        private DelegateCommand<VideoListItemControlViewModel> _PlayVideoItemCommand;
-        public DelegateCommand<VideoListItemControlViewModel> PlayVideoItemCommand =>
-            _PlayVideoItemCommand ?? (_PlayVideoItemCommand = new DelegateCommand<VideoListItemControlViewModel>(ExecutePlayVideoItemCommand));
-
-        void ExecutePlayVideoItemCommand(VideoListItemControlViewModel videoVM)
-        {
-            _hohoemaPlaylist.Play(videoVM, _hohoemaPlaylist.QueuePlaylist);
-        }
+        
 
 
 

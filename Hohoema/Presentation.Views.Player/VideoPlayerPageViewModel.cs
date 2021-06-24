@@ -40,6 +40,8 @@ using Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent;
 using Hohoema.Presentation.ViewModels.Niconico.Likes;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Hohoema.Models.Domain.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -48,7 +50,9 @@ namespace Hohoema.Presentation.ViewModels.Player
 	{
         // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
         private readonly IScheduler _scheduler;
-        
+        private readonly QueuePlaylist _queuePlaylist;
+        private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;
+
         public VideoPlayerPageViewModel(
             IScheduler scheduler,
             NiconicoSession niconicoSession,
@@ -59,10 +63,11 @@ namespace Hohoema.Presentation.ViewModels.Player
             PlayerSettings playerSettings,
             VideoCacheSettings_Legacy cacheSettings,
             ApplicationLayoutManager applicationLayoutManager,
-            HohoemaPlaylist hohoemaPlaylist,
             LocalMylistManager localMylistManager,
             LoginUserOwnedMylistManager userMylistManager,
             PageManager pageManager,
+            QueuePlaylist queuePlaylist,
+            HohoemaPlaylistPlayer hohoemaPlaylistPlayer,
             MediaPlayer mediaPlayer,
             NotificationService notificationService,
             DialogService dialogService,
@@ -103,10 +108,11 @@ namespace Hohoema.Presentation.ViewModels.Player
             PlayerSettings = playerSettings;
             CacheSettings = cacheSettings;
             ApplicationLayoutManager = applicationLayoutManager;
-            HohoemaPlaylist = hohoemaPlaylist;
             LocalMylistManager = localMylistManager;
             UserMylistManager = userMylistManager;
             PageManager = pageManager;
+            _queuePlaylist = queuePlaylist;
+            _hohoemaPlaylistPlayer = hohoemaPlaylistPlayer;
             _NotificationService = notificationService;
             _HohoemaDialogService = dialogService;
             AddSubscriptionCommand = addSubscriptionCommand;
@@ -159,8 +165,8 @@ namespace Hohoema.Presentation.ViewModels.Player
                         {
                             ContentId = VideoInfo.VideoAliasId,
                             Position = MediaPlayer.PlaybackSession.Position,
-                            PlaylistId = HohoemaPlaylist.CurrentPlaylist?.Id,
-                            PlaylistOrigin = HohoemaPlaylist.CurrentPlaylist?.GetOrigin()
+                            PlaylistId = _hohoemaPlaylistPlayer.CurrentPlaylistId?.Id,
+                            PlaylistOrigin = _hohoemaPlaylistPlayer.CurrentPlaylistId?.Origin
                         });
             };
         }
@@ -175,7 +181,6 @@ namespace Hohoema.Presentation.ViewModels.Player
         public VideoCacheSettings_Legacy CacheSettings { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public LocalMylistManager LocalMylistManager { get; }
         public LoginUserOwnedMylistManager UserMylistManager { get; }
         public PageManager PageManager { get; }
@@ -323,10 +328,9 @@ namespace Hohoema.Presentation.ViewModels.Player
         {
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
 
-            VideoId = parameters.GetValue<string>("id")
-                ?? parameters.GetValue<VideoId>("id")
-                ;
+            VideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem?.ItemId;
 
+            /*
             _requestVideoQuality = PlayerSettings.DefaultVideoQuality;
             if (parameters.TryGetValue("quality", out NicoVideoQuality quality))
             {
@@ -339,13 +343,16 @@ namespace Hohoema.Presentation.ViewModels.Player
                     _requestVideoQuality = quality;
                 }
             }
+            */
 
+            /*
             TimeSpan startPosition = TimeSpan.Zero;
             if (parameters.TryGetValue("position", out int position))
             {
                 startPosition = TimeSpan.FromSeconds(position);
             }
-           
+            */
+
             // 削除状態をチェック（再生準備より先に行う）
             var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(VideoId);
             VideoInfo = video;
@@ -353,7 +360,8 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             MediaPlayer.AutoPlay = true;
 
-            var result = await _videoStreamingOriginOrchestrator.CreatePlayingOrchestrateResultAsync(VideoId);
+            //var result = await _videoStreamingOriginOrchestrator.CreatePlayingOrchestrateResultAsync(VideoId);
+            var result = _hohoemaPlaylistPlayer.CurrentPlayingSession;
             if (!result.IsSuccess)
             {
                 Title = VideoInfo.Title;
@@ -368,11 +376,11 @@ namespace Hohoema.Presentation.ViewModels.Player
             SoundVolumeManager.LoudnessCorrectionValue = VideoDetails.LoudnessCorrectionValue;
             
             // 動画再生コンテンツをセット
-            await VideoPlayer.UpdatePlayingVideoAsync(result.VideoSessionProvider);
+            //await VideoPlayer.UpdatePlayingVideoAsync(result.VideoSessionProvider);
 
             // そのあとで表示情報を取得
             //VideoInfo ??= await NicoVideoProvider.GetVideoInfoAsync(VideoId);
-
+            /*
             try
             {
                 // デフォルト指定した画質で再生開始
@@ -385,6 +393,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 await VideoPlayer.UpdatePlayingVideoAsync(result.VideoSessionProvider);
                 await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition);
             }
+            */
 
             // コメントを更新
             await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);
@@ -392,6 +401,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             VideoContent = VideoInfo;
             RaisePropertyChanged(nameof(VideoContent));
 
+            /*
             var smtc = SystemMediaTransportControls.GetForCurrentView();
             //            smtc.AutoRepeatModeChangeRequested += Smtc_AutoRepeatModeChangeRequested;
             MediaPlayer.CommandManager.NextReceived += CommandManager_NextReceived;
@@ -405,6 +415,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             smtc.DisplayUpdater.VideoProperties.Title = VideoInfo.Title;
             smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(VideoInfo.ThumbnailUrl));
             smtc.DisplayUpdater.Update();
+            */
 
             // 実行順依存：VideoPlayerで再生開始後に次シリーズ動画を設定する
             VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails);
@@ -457,12 +468,11 @@ namespace Hohoema.Presentation.ViewModels.Player
                     });
 
                     // ローカルプレイリストの場合は勝手に消しておく
-                    if (HohoemaPlaylist.CurrentPlaylist is LocalPlaylist localPlaylist)
+                    if (_hohoemaPlaylistPlayer.CurrentPlaylistId == QueuePlaylist.Id
+                        && VideoInfo != null
+                        )
                     {
-                        if (localPlaylist.IsQueuePlaylist() && VideoInfo != null)
-                        {
-                            HohoemaPlaylist.RemoveQueue(VideoInfo);
-                        }
+                        _queuePlaylist.Remove(VideoInfo.VideoId);
                     }
                 }
             }
@@ -479,22 +489,21 @@ namespace Hohoema.Presentation.ViewModels.Player
         {
             Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
 
-            if (VideoInfo != null)
-            {
-                HohoemaPlaylist.PlayDone(VideoInfo, MediaPlayer.PlaybackSession.Position);
-            }
-
-            MediaPlayer.Source = null;
+            //MediaPlayer.Source = null;
 
             CommentPlayer.ClearCurrentSession();
-            _ = VideoPlayer.ClearCurrentSessionAsync();
+            //_ = VideoPlayer.ClearCurrentSessionAsync();
 
+            /*
             MediaPlayer.CommandManager.NextReceived -= CommandManager_NextReceived;
             MediaPlayer.CommandManager.PreviousReceived -= CommandManager_PreviousReceived;
+            */
 
+            /*
             var smtc = SystemMediaTransportControls.GetForCurrentView();
             smtc.DisplayUpdater.ClearAll();
             smtc.DisplayUpdater.Update();
+            */
 
             StopStateSavingTimer();
 
@@ -570,13 +579,6 @@ namespace Hohoema.Presentation.ViewModels.Player
                 {
                     VideoPlayer.PlayNextCommand.Execute();
                 }
-
-                /*
-                if (HohoemaPlaylist.Player.CanGoBack)
-                {
-                    HohoemaPlaylist.Player.GoBack();
-                }
-                */
             }
         }
 

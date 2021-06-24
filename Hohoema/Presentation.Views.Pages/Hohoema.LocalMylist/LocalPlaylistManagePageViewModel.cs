@@ -15,6 +15,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Hohoema.Models.Domain.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 {
@@ -54,7 +56,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 
             OpenMylistCommand.Subscribe(listItem =>
             {
-                _pageManager.OpenPageWithId(HohoemaPageType.LocalPlaylist, listItem.Id);
+                _pageManager.OpenPageWithId(HohoemaPageType.LocalPlaylist, listItem.PlaylistId.Id);
             });
 
 

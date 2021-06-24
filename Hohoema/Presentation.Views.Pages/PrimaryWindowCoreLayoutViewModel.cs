@@ -1,10 +1,12 @@
 ﻿using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using Hohoema.Models.UseCase.Niconico.Account;
 using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Models.UseCase.PageNavigation;
@@ -542,7 +544,7 @@ namespace Hohoema.Presentation.ViewModels
                             var items = e.OldItems.Cast<LocalPlaylist>();
                             foreach (var removedItem in items)
                             {
-                                var removeMenuItem = Items.FirstOrDefault(x => (x as LocalMylistItemViewModel).LocalPlaylist.Id == removedItem.Id);
+                                var removeMenuItem = Items.FirstOrDefault(x => (x as LocalMylistItemViewModel).LocalPlaylist.PlaylistId == removedItem.PlaylistId);
                                 if (removeMenuItem != null)
                                 {
                                     Items.Remove(removeMenuItem);
@@ -586,7 +588,7 @@ namespace Hohoema.Presentation.ViewModels
     public class LocalMylistItemViewModel : MenuItemViewModel
     {
         public LocalMylistItemViewModel(LocalPlaylist localPlaylist)
-            : base(localPlaylist.Name, HohoemaPageType.LocalPlaylist, new NavigationParameters(("id", localPlaylist.Id)))
+            : base(localPlaylist.Name, HohoemaPageType.LocalPlaylist, new NavigationParameters(("id", localPlaylist.PlaylistId)))
         {
             LocalPlaylist = localPlaylist;
         }
