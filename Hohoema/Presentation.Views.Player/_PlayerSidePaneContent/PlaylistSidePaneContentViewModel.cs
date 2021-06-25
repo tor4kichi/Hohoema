@@ -66,8 +66,9 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 .AddTo(_CompositeDisposable);
 
             CurrentItems = new ObservableCollection<IVideoContent>();
-            foreach (var item in _hohoemaPlaylistPlayer.CopyBufferedItems())
+            foreach (var item in _hohoemaPlaylistPlayer.CopyBufferedItems() ?? Enumerable.Empty<PlaylistItem>())
             {
+                if (item == null) { continue; }
                 var video = _nicoVideoProvider.GetCachedVideoInfo(item.ItemId);
                 CurrentItems.Add(video);
             }

@@ -82,7 +82,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 else
                 {
                     if (DisplayMode == displayMode
-                    && _lastNavigatedPageName == pageName
+                    && _secondaryPlayerManager.LastNavigationPageName == pageName
                     && (_lastNavigatedParameters?.SequenceEqual(parameters) ?? false))
                     {
                         System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
@@ -106,6 +106,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         string _lastNavigatedPageName;
         INavigationParameters _lastNavigatedParameters;
 
+        private PlaylistItem? _lastPlayedItem;
+
+
         public void Dispose()
         {
             SaveDisplayMode();
@@ -125,65 +128,61 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             return _localObjectStorage.Read<PlayerDisplayView>(nameof(PlayerDisplayView));
         }
 
-        public async void Receive(PlayerPlayVideoRequestMessage message)
-        {
-            var pageName = nameof(Presentation.Views.Player.VideoPlayerPage);
-            var parameters = new NavigationParameters($"id={message.Value.VideoId}&position={(int)message.Value.Position.TotalSeconds}");
-
-            await PlayWithCurrentView(DisplayMode, pageName, parameters);
-        }
-
         public async void Receive(PlayerPlayLiveRequestMessage message)
         {
             var pageName = nameof(Presentation.Views.Player.LivePlayerPage);
             var parameters = new NavigationParameters("id=" + message.Value.LiveId);
 
+            // 生放送再生開始前に動画の再生を中止
+            if (DisplayMode == PlayerDisplayView.PrimaryView)
+            {
+                await _primaryViewPlayerManager.PlaylistPlayer.ClearAsync();
+            }
+            else
+            {
+                if (_secondaryPlayerManager.PlaylistPlayer != null)
+                {
+                    await _secondaryPlayerManager.PlaylistPlayer.ClearAsync();
+                }
+            }
+
             await PlayWithCurrentView(DisplayMode, pageName, parameters);
+
+            // 生放送視聴した場合には動画視聴の情報をクリア
+            _lastPlayedItem = null;
         }
 
         public async void Receive(ChangePlayerDisplayViewRequestMessage message)
         {
             var mode = DisplayMode == PlayerDisplayView.PrimaryView ? PlayerDisplayView.SecondaryView : PlayerDisplayView.PrimaryView;
-            if (_lastNavigatedPageName != null && _lastNavigatedParameters != null)
+            DisplayMode = mode;
+            SaveDisplayMode();
+
+            if (_lastPlayedItem != null)
+            {
+                await VideoPlayAsync(_lastPlayedItem, mode);
+            }
+            else if (_lastNavigatedPageName != null && _lastNavigatedParameters != null)
             {
                 await PlayWithCurrentView(mode, _lastNavigatedPageName, _lastNavigatedParameters);
             }
-
-            DisplayMode = mode;
-            SaveDisplayMode();
         }
 
         public void Receive(VideoPlayRequestMessage message)
         {
-            message.Reply(VideoPlayAsync(message));
-        }
-
-        private async Task<VideoPlayRequestMessageData> VideoPlayAsync(VideoPlayRequestMessage message)
-        {
-            using (await _asyncLock.LockAsync(default))
+            static PlaylistItem ToPlaylistItem(VideoPlayRequestMessage message, QueuePlaylist queuePlaylist)
             {
-                var displayMode = DisplayMode == PlayerDisplayView.PrimaryView ? PlayerDisplayView.SecondaryView : PlayerDisplayView.PrimaryView;
-                var pageName = nameof(Presentation.Views.Player.VideoPlayerPage);
-                
-                static PlaylistItem ToPlaylistItem(VideoPlayRequestMessage message, QueuePlaylist queuePlaylist)
+                if (message.PlaylistItem != null) { return message.PlaylistItem; }
+
+
+                bool isPlaylistReady = message.PlaylistId != null
+                    && message.PlaylistOrigin != null;
+                bool isVideoReady = message.VideoId != null && message.VideoId != default(VideoId);
+
+
+                if (isPlaylistReady && isVideoReady)
                 {
-                    if (message.PlaylistItem != null) { return message.PlaylistItem; }
-
-
-                    bool isPlaylistReady = message.PlaylistId != null
-                        && message.PlaylistOrigin != null;
-                    bool isVideoReady = message.VideoId != null && message.VideoId != default(VideoId);
-
-
-                    if (isPlaylistReady && isVideoReady)
-                    {
-                        return new PlaylistItem(new PlaylistId() { Id = message.PlaylistId, Origin = message.PlaylistOrigin.Value, SortOptions = message.PlaylistSortOptions }, -1, message.VideoId.Value);
-                    }
-                    else if (isPlaylistReady)
-                    {
-                        return new PlaylistItem(new PlaylistId() { Id = message.PlaylistId, Origin = message.PlaylistOrigin.Value, SortOptions = message.PlaylistSortOptions }, -1, default(VideoId));
-                    }
-                    else if (isVideoReady)
+                    if (message.PlaylistId == QueuePlaylist.Id.Id && message.PlaylistOrigin == PlaylistItemsSourceOrigin.Local)
                     {
                         if (!queuePlaylist.Contains(message.VideoId.Value))
                         {
@@ -196,11 +195,39 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     }
                     else
                     {
-                        throw new HohoemaExpception();
+                        return new PlaylistItem(new PlaylistId() { Id = message.PlaylistId, Origin = message.PlaylistOrigin.Value, SortOptions = message.PlaylistSortOptions }, -1, message.VideoId.Value);
                     }
-
+                }
+                else if (isPlaylistReady)
+                {
+                    return new PlaylistItem(new PlaylistId() { Id = message.PlaylistId, Origin = message.PlaylistOrigin.Value, SortOptions = message.PlaylistSortOptions }, -1, default(VideoId));
+                }
+                else if (isVideoReady)
+                {
+                    if (!queuePlaylist.Contains(message.VideoId.Value))
+                    {
+                        return queuePlaylist.Insert(0, message.VideoId.Value);
+                    }
+                    else
+                    {
+                        return queuePlaylist.First(x => x.ItemId == message.VideoId.Value);
+                    }
+                }
+                else
+                {
+                    throw new HohoemaExpception();
                 }
 
+            }
+            message.Reply(VideoPlayAsync(ToPlaylistItem(message, _queuePlaylist), DisplayMode));
+        }
+
+        private async Task<VideoPlayRequestMessageData> VideoPlayAsync(PlaylistItem playlistItem, PlayerDisplayView displayMode, TimeSpan? initialPosition = null)
+        {
+            using (await _asyncLock.LockAsync(default))
+            {
+                var pageName = nameof(Presentation.Views.Player.VideoPlayerPage);
+                
                 static async Task Play(HohoemaPlaylistPlayer player, PlaylistItem playlistItem, TimeSpan? initialPosition)
                 {
                     await player.PlayAsync(playlistItem, null, initialPosition);
@@ -208,53 +235,62 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
                 if (displayMode == PlayerDisplayView.PrimaryView)
                 {
-                    if (_primaryViewPlayerManager.DisplayMode != PrimaryPlayerDisplayMode.Close)
+                    if (_secondaryPlayerManager.PlaylistPlayer != null 
+                        && _secondaryPlayerManager.PlaylistPlayer.CurrentPlaylistItem == playlistItem)
                     {
-                        if (DisplayMode == displayMode
-                        && _lastNavigatedPageName == pageName
-                        )
-                        {
-                            System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
-                            return new VideoPlayRequestMessageData() { IsSuccess = false };
-                        }
+                        initialPosition = _secondaryPlayerManager.PlaylistPlayer.GetCurrentPlaybackPosition();
                     }
 
-                    
                     await _secondaryPlayerManager.CloseAsync().ConfigureAwait(false);
+
+                    // 動画ページへの遷移が必要なときだけ遷移
+                    if (_primaryViewPlayerManager.DisplayMode != PrimaryPlayerDisplayMode.Close
+                        || DisplayMode != displayMode
+                        || _lastNavigatedPageName != pageName
+                        )
+                    {
+                        System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
+                        await _primaryViewPlayerManager.NavigationAsync(pageName, null);
+                    }
 
                     await Task.Delay(10);
 
-                    await Play(_primaryViewPlayerManager.PlaylistPlayer, ToPlaylistItem(message, _queuePlaylist), message.Potision);
-
-                    await _primaryViewPlayerManager.NavigationAsync(pageName, null);
+                    await Play(_primaryViewPlayerManager.PlaylistPlayer, playlistItem, initialPosition);
 
                     _lastNavigatedPageName = pageName;
                     _lastNavigatedParameters = null;
+                    _lastPlayedItem = playlistItem;
 
                     return new VideoPlayRequestMessageData() { IsSuccess = true };
                 }
                 else
                 {
-                    if (DisplayMode == displayMode
-                    && _lastNavigatedPageName == pageName
-                    )
+                    if (_primaryViewPlayerManager.PlaylistPlayer != null
+                        && _primaryViewPlayerManager.PlaylistPlayer.CurrentPlaylistItem == playlistItem)
                     {
-                        System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
-                        await _secondaryPlayerManager.ShowSecondaryViewAsync();
-                        return new VideoPlayRequestMessageData() { IsSuccess = false };
+                        initialPosition = _primaryViewPlayerManager.PlaylistPlayer.GetCurrentPlaybackPosition();
                     }
 
                     _primaryViewPlayerManager.Close();
 
+                    // TODO: PlayAsyncは呼び出しつつ、NavigationAsyncだけskipしたい
+                    if (DisplayMode != displayMode
+                    || _secondaryPlayerManager.LastNavigationPageName != pageName
+                    )
+                    {
+                        await _secondaryPlayerManager.NavigationAsync(pageName, null).ConfigureAwait(false);
+                    }
+
+                    await _secondaryPlayerManager.ShowSecondaryViewAsync();
+
                     await Task.Delay(10);
 
-                    await Play(_secondaryPlayerManager.PlaylistPlayer, ToPlaylistItem(message, _queuePlaylist), message.Potision);
-
-                    await _secondaryPlayerManager.NavigationAsync(pageName, null).ConfigureAwait(false);
+                    await Play(_secondaryPlayerManager.PlaylistPlayer, playlistItem, initialPosition);
 
                     _lastNavigatedPageName = pageName;
                     _lastNavigatedParameters = null;
-                    
+                    _lastPlayedItem = playlistItem;
+
                     return new VideoPlayRequestMessageData() { IsSuccess = true };
                 }
             }

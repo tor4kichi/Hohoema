@@ -133,7 +133,7 @@ namespace Hohoema.Models.Domain.Playlist
 
         public async ValueTask<IEnumerable<PlaylistItem>> GetRangeAsync(int start, int count, CancellationToken ct = default)
         {
-            Guard.IsBetween(start + count, 0, MaxBufferSize, "start + count");
+            Guard.IsBetweenOrEqualTo(start + count, 0, MaxBufferSize, "start + count");
 
             int block = start / _playlistItemsSource.OneTimeItemsCount;
             int current = block * _playlistItemsSource.OneTimeItemsCount;
@@ -248,7 +248,7 @@ namespace Hohoema.Models.Domain.Playlist
                 _bufferedPlaylistItemsSource = new BufferedPlaylistItemsSource(playlistItemsSource, shufflePlaylist.MaxItemsCount);
                 _maxItemsCount = shufflePlaylist.MaxItemsCount;
                 _shuffledIndexies = Enumerable.Range(0, shufflePlaylist.MaxItemsCount).Shuffle().ToArray();
-                CurrentPlayingIndex = ToShuffledIndex(current.ItemIndex);
+                CurrentPlayingIndex = IndexTranformWithCurrentPlaylistMode(current.ItemIndex);
                 IsUnlimitedPlaylistSource = false;
             }
             else
@@ -269,31 +269,34 @@ namespace Hohoema.Models.Domain.Playlist
             CurrentPlayingIndex = InvalidIndex;
         }
 
-        private int ToShuffledIndex(int index)
-        {
-            Guard.IsNotNull(_shuffledIndexies, nameof(_shuffledIndexies));
-
-            return _shuffledIndexies[index];
-        }
 
         public async ValueTask<PlaylistItem?> GetNextItemAsync(CancellationToken ct = default)
         {
             if (CurrentPlayingIndex == InvalidIndex) { return null; }
+            if (_bufferedPlaylistItemsSource == null) { return null; }
 
             int index = IndexTranformWithCurrentPlaylistMode(CurrentPlayingIndex + 1);
-            return await _bufferedPlaylistItemsSource.GetAsync(ToShuffledIndex(index), ct);
+            return await _bufferedPlaylistItemsSource.GetAsync(index, ct);
         }
 
         public async ValueTask<PlaylistItem?> GetPreviewItemAsync(CancellationToken ct = default)
         {
             if (CurrentPlayingIndex == InvalidIndex) { return null; }
+            if (_bufferedPlaylistItemsSource == null) { return null; }
 
             int index = IndexTranformWithCurrentPlaylistMode(CurrentPlayingIndex - 1);
-            return await _bufferedPlaylistItemsSource.GetAsync(ToShuffledIndex(index), ct);
+            return await _bufferedPlaylistItemsSource.GetAsync(index, ct);
         }
 
         int IndexTranformWithCurrentPlaylistMode(int index)
         {
+            int ToShuffledIndex(int index)
+            {
+                Guard.IsNotNull(_shuffledIndexies, nameof(_shuffledIndexies));
+
+                return _shuffledIndexies[index];
+            }
+
             int transformed = index;
             if (IsRepeatModeEnabled && _maxItemsCount.HasValue)
             {
@@ -328,7 +331,8 @@ namespace Hohoema.Models.Domain.Playlist
             if (_bufferedPlaylistItemsSource == null) { return false; }
 
             int index = IndexTranformWithCurrentPlaylistMode(CurrentPlayingIndex + 1);
-            Guard.IsBetween(index, 0, _maxItemsCount ?? 5000, nameof(index));
+            if (index >= (_maxItemsCount ?? 5000)) { return false; }
+            Guard.IsBetweenOrEqualTo(index, 0, _maxItemsCount ?? 5000, nameof(index));
             var item = await _bufferedPlaylistItemsSource.GetAsync(index, ct);
             if (item != null)
             {
@@ -348,7 +352,8 @@ namespace Hohoema.Models.Domain.Playlist
             if (_bufferedPlaylistItemsSource == null) { return false; }
 
             int index = IndexTranformWithCurrentPlaylistMode(CurrentPlayingIndex - 1);
-            Guard.IsBetween(index, 0, _maxItemsCount ?? 5000, nameof(index));
+            if (index < 0) { return false; }
+            Guard.IsBetweenOrEqualTo(index, 0, _maxItemsCount ?? 5000, nameof(index));
             var item = await _bufferedPlaylistItemsSource.GetAsync(index, ct);
             if (item != null)
             {
@@ -389,7 +394,13 @@ namespace Hohoema.Models.Domain.Playlist
         }
 
         public PlaylistId? CurrentPlaylistId => _itemsSource?.PlaylistId;
-        public PlaylistItem? CurrentPlaylistItem { get; private set; }
+
+        private PlaylistItem? _currentPlaylistItem;
+        public PlaylistItem? CurrentPlaylistItem
+        {
+            get { return _currentPlaylistItem; }
+            private set { SetProperty(ref _currentPlaylistItem, value); }
+        }
         private IPlaylistItemsSource? _itemsSource;
 
         public PlayingOrchestrateResult CurrentPlayingSession { get; private set; }
@@ -431,8 +442,6 @@ namespace Hohoema.Models.Domain.Playlist
 
             try
             {
-                CurrentPlaylistItem = item;
-
                 var result = await _videoStreamingOriginOrchestrator.CreatePlayingOrchestrateResultAsync(item.ItemId);
                 CurrentPlayingSession = result;
                 if (!result.IsSuccess)
@@ -447,6 +456,7 @@ namespace Hohoema.Models.Domain.Playlist
 
                 Guard.IsNotNull(_mediaPlayer.PlaybackSession, nameof(_mediaPlayer.PlaybackSession));
 
+                CurrentPlaylistItem = item;
 
                 // メディア再生成功時のメッセージを飛ばす
                 _messenger.Send(new PlaybackStartedMessage(new(item, videoSession.Quality, _mediaPlayer.PlaybackSession)));
@@ -518,6 +528,11 @@ namespace Hohoema.Models.Domain.Playlist
 
             StopPlaybackMedia();
             await UpdatePlaylistItemsSourceAsync(null);
+        }
+
+        public TimeSpan? GetCurrentPlaybackPosition()
+        {
+            return _mediaPlayer.PlaybackSession?.Position;
         }
     }
 }

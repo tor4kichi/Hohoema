@@ -159,6 +159,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             _saveTimer.Tick += (s, _) =>
             {
                 //if (PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
+                if (VideoInfo == null) { return; }
 
                 _restoreNavigationManager.SetCurrentPlayerEntry(
                         new PlayerEntry()
@@ -330,6 +331,68 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             VideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem?.ItemId;
 
+            _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
+                .Subscribe(x =>
+                {
+                    _scheduler.ScheduleAsync(async (s, ct) => 
+                    {
+                        if (x == null)
+                        {
+                            VideoInfo = null;
+                            VideoSeries = null;
+                            RaisePropertyChanged(nameof(VideoContent));
+                            RaisePropertyChanged(nameof(VideoSeries));
+                            VideoContent = null;
+                            Title = string.Empty;
+                            IsNotSupportVideoType = false;
+                            LikesContext = VideoLikesContext.Default;
+                            return;
+                        }
+
+                        // 削除状態をチェック（再生準備より先に行う）
+                        var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(x.ItemId);
+                        VideoInfo = video;
+                        CheckDeleted(res);
+
+                        MediaPlayer.AutoPlay = true;
+
+                        //var result = await _videoStreamingOriginOrchestrator.CreatePlayingOrchestrateResultAsync(VideoId);
+                        var result = _hohoemaPlaylistPlayer.CurrentPlayingSession;
+                        if (!result.IsSuccess)
+                        {
+                            Title = VideoInfo.Title;
+                            IsNotSupportVideoType = true;
+                            CannotPlayReason = result.Exception?.Message ?? result.PlayingOrchestrateFailedReason.Translate();
+
+                            return;
+                        }
+
+                        VideoDetails = result.VideoDetails;
+
+                        SoundVolumeManager.LoudnessCorrectionValue = VideoDetails.LoudnessCorrectionValue;
+
+
+                        // コメントを更新
+                        await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);
+
+                        VideoContent = VideoInfo;
+                        RaisePropertyChanged(nameof(VideoContent));
+
+                        VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails);
+                        Debug.WriteLine("次シリーズ動画: " + VideoDetails.Series?.Video.Next?.Title);
+
+                        VideoSeries = VideoDetails.Series is not null and var series ? new VideoSeriesViewModel(series) : null;
+                        RaisePropertyChanged(nameof(VideoSeries));
+
+                        // 好きの切り替え
+                        if (NiconicoSession.IsLoggedIn)
+                        {
+                            LikesContext = new VideoLikesContext(VideoDetails, NiconicoSession.ToolkitContext.Likes, _NotificationService);
+                        }
+                    });
+                })
+                .AddTo(_NavigatingCompositeDisposable);
+
             /*
             _requestVideoQuality = PlayerSettings.DefaultVideoQuality;
             if (parameters.TryGetValue("quality", out NicoVideoQuality quality))
@@ -353,27 +416,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             }
             */
 
-            // 削除状態をチェック（再生準備より先に行う）
-            var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(VideoId);
-            VideoInfo = video;
-            CheckDeleted(res);
-
-            MediaPlayer.AutoPlay = true;
-
-            //var result = await _videoStreamingOriginOrchestrator.CreatePlayingOrchestrateResultAsync(VideoId);
-            var result = _hohoemaPlaylistPlayer.CurrentPlayingSession;
-            if (!result.IsSuccess)
-            {
-                Title = VideoInfo.Title;
-                IsNotSupportVideoType = true;
-                CannotPlayReason = result.Exception?.Message ?? result.PlayingOrchestrateFailedReason.Translate();
-
-                return;
-            }
-            
-            VideoDetails = result.VideoDetails;
-
-            SoundVolumeManager.LoudnessCorrectionValue = VideoDetails.LoudnessCorrectionValue;
+           
             
             // 動画再生コンテンツをセット
             //await VideoPlayer.UpdatePlayingVideoAsync(result.VideoSessionProvider);
@@ -395,11 +438,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             }
             */
 
-            // コメントを更新
-            await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);
-
-            VideoContent = VideoInfo;
-            RaisePropertyChanged(nameof(VideoContent));
 
             /*
             var smtc = SystemMediaTransportControls.GetForCurrentView();
@@ -418,18 +456,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             */
 
             // 実行順依存：VideoPlayerで再生開始後に次シリーズ動画を設定する
-            VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails);
-            Debug.WriteLine("次シリーズ動画: " + VideoDetails.Series?.Video.Next?.Title);
-
-            VideoSeries = VideoDetails.Series is not null and var series ? new VideoSeriesViewModel(series) : null;
-            RaisePropertyChanged(nameof(VideoSeries));
-
-            // 好きの切り替え
-            if (NiconicoSession.IsLoggedIn)
-            {
-                LikesContext = new VideoLikesContext(VideoDetails, NiconicoSession.ToolkitContext.Likes, _NotificationService);
-            }
-
+            
             StartStateSavingTimer();
 
 

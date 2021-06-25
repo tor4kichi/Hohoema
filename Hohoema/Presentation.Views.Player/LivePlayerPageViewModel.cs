@@ -1125,7 +1125,14 @@ namespace Hohoema.Presentation.ViewModels.Player
                 _CommentSession.Connected += _CommentSession_Connected;
                 _CommentSession.Disconnected += _CommentSession_Disconnected;
 
-                await Task.Delay(3000, ct);
+                try
+                {
+                    await Task.Delay(3000, ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    return;
+                }
 
                 if (_CommentSession != null)
                 {

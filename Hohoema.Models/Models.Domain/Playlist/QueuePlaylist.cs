@@ -211,10 +211,9 @@ namespace Hohoema.Models.Domain.Playlist
             RemoveEntity(removeItem.ItemId);
             OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(IShufflePlaylistItemsSource.MaxItemsCount)));
 
-            index--;
-            foreach (var item in base.Items.Skip(index - 1))
+            foreach (var item in base.Items.Skip(index))
             {
-                item.ItemIndex = index--;
+                item.ItemIndex = index++;
                 SendIndexUpdatedMessage(item.ItemIndex, item.ItemId);
                 UpdateEntity(item.ItemIndex, item.ItemId);
             }

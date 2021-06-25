@@ -28,6 +28,7 @@ using Hohoema.Presentation.Views.Player;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Live;
 using Hohoema.Models.Domain.Playlist;
+using Microsoft.Toolkit.Uwp;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -199,6 +200,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         {
             Debug.WriteLine($"SecondaryAppView_Consolidated: IsAppInitiated:{args.IsAppInitiated} IsUserInitiated:{args.IsUserInitiated}");
 
+            await PlaylistPlayer.ClearAsync();
             await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(BlankPage), _BlankPageNavgationTransitionInfo);
 
             // Note: 1803時点での話
@@ -216,6 +218,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 IsShowSecondaryView = false;
             });
 
+            LastNavigationPageName = null;
+
             // プレイヤーを閉じた時に再生中情報をクリア
             if (!isMainViewClosed)
             {
@@ -232,8 +236,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _onceSurpressActivation = true;
         }
 
+        public string LastNavigationPageName { get; private set; }
+
         public async Task NavigationAsync(string pageName, INavigationParameters parameters)
         {
+            LastNavigationPageName = pageName;
             using (await _playerNavigationLock.LockAsync())
             {
                 if (SecondaryCoreAppView == null)
@@ -270,7 +277,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     });
                 });
 
-//                await ShowSecondaryViewAsync();
+                await ShowSecondaryViewAsync();
 
                 IsShowSecondaryView = true;
             }
@@ -279,7 +286,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         async ValueTask<string> ResolveContentNameAsync(string pageName, INavigationParameters parameters)
         {
-            if (pageName == nameof(VideoPlayerPage))
+            if (parameters == null)
+            {
+                return null;
+            }
+            else if (pageName == nameof(VideoPlayerPage))
             {
                 if (parameters.TryGetValue("id", out string videoId))
                 {
@@ -344,7 +355,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public Task ShowSecondaryViewAsync()
         {
-            if (!IsShowSecondaryView) { return Task.CompletedTask; }
+            if (SecondaryAppView == null) { return Task.CompletedTask; }
             if (_onceSurpressActivation)
             {
                 _onceSurpressActivation = false;
@@ -358,15 +369,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 return Task.CompletedTask;
             }
 
-            var currentView = ApplicationView.GetForCurrentView();
-            if (SecondaryAppView != null && currentView.Id != SecondaryAppView.Id)
+            return this.SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(() => 
             {
+                var currentView = ApplicationView.GetForCurrentView();
                 return ApplicationViewSwitcher.TryShowAsStandaloneAsync(SecondaryAppView.Id).AsTask();
-            }
-            else
-            {
-                return Task.CompletedTask;
-            }
+            });
         }
 
 

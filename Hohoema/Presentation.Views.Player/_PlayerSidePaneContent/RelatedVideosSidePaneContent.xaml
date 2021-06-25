@@ -214,7 +214,7 @@
                       IsTabStop="False">
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemClick">
-                  <core:InvokeCommandAction Command="{Binding PlayCommand}"
+                  <core:InvokeCommandAction Command="{Binding VideoPlayCommand}"
                                             InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                 </core:EventTriggerBehavior>
               </i:Interaction.Behaviors>
