@@ -1,5 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico.Player;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Domain.VideoCache;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Infrastructure;
@@ -33,7 +35,7 @@ namespace Hohoema.Models.Domain.Playlist
     }
 
 
-    public record PlaybackFailedMessageData(PlaylistItem Item, NicoVideoQuality? VideoQuality, Exception Exception);
+    public record PlaybackFailedMessageData(PlaylistItem Item, Exception Exception);
 
     public sealed class PlaybackFailedMessage : ValueChangedMessage<PlaybackFailedMessageData>
     {
@@ -236,6 +238,7 @@ namespace Hohoema.Models.Domain.Playlist
         public bool IsRepeatModeEnabled => IsShuffleAndRepeatAvairable && IsRepeatModeRequested;
 
 
+
         public PlaylistItem?[]? CopyBufferedItems()
         {
             return _bufferedPlaylistItemsSource?.CopyBufferedItems();
@@ -367,7 +370,7 @@ namespace Hohoema.Models.Domain.Playlist
             }        
         }
 
-        protected abstract Task PlayAsync_Internal(PlaylistItem item, NicoVideoQuality? nicoVideoQuality = null, TimeSpan? startPosition = null);
+        protected abstract Task PlayAsync_Internal(PlaylistItem item, TimeSpan? startPosition = null);
 
     }
 
@@ -379,18 +382,21 @@ namespace Hohoema.Models.Domain.Playlist
         private readonly MediaPlayer _mediaPlayer;
         private readonly VideoStreamingOriginOrchestrator _videoStreamingOriginOrchestrator;
         private readonly IPlaylistItemsSourceResolver _playlistSourceManager;
+        private readonly PlayerSettings _playerSettings;
 
         public HohoemaPlaylistPlayer(
             IMessenger messenger,
             MediaPlayer mediaPlayer,
             VideoStreamingOriginOrchestrator videoStreamingOriginOrchestrator,
-            IPlaylistItemsSourceResolver playlistSourceManager
+            IPlaylistItemsSourceResolver playlistSourceManager,
+            PlayerSettings playerSettings
             )
         {
             _messenger = messenger;
             _mediaPlayer = mediaPlayer;
             _videoStreamingOriginOrchestrator = videoStreamingOriginOrchestrator;
             _playlistSourceManager = playlistSourceManager;
+            _playerSettings = playerSettings;
         }
 
         public PlaylistId? CurrentPlaylistId => _itemsSource?.PlaylistId;
@@ -407,12 +413,72 @@ namespace Hohoema.Models.Domain.Playlist
 
         IDisposable _videoSessionDisposable;
 
-        public Task PlayAsync(PlaylistItem item, NicoVideoQuality? nicoVideoQuality = null, TimeSpan? startPosition = null)
+
+
+
+        private NicoVideoQualityEntity _currentQuality;
+        public NicoVideoQualityEntity CurrentQuality
         {
-            return PlayAsync_Internal(item, nicoVideoQuality, startPosition);
+            get { return _currentQuality; }
+            private set { SetProperty(ref _currentQuality, value); }
         }
 
-        protected override async Task PlayAsync_Internal(PlaylistItem item, NicoVideoQuality? nicoVideoQuality = null, TimeSpan? startPosition = null)
+
+        private bool _nowPlayingWithCache;
+        public bool NowPlayingWithCache
+        {
+            get { return _nowPlayingWithCache; }
+            private set { SetProperty(ref _nowPlayingWithCache, value); }
+        }
+
+        public IReadOnlyCollection<NicoVideoQualityEntity> AvailableQualities => CurrentPlayingSession?.VideoSessionProvider?.AvailableQualities;
+
+
+        public bool CanPlayQuality(NicoVideoQuality quality)
+        {
+            var qualityEntity = AvailableQualities.FirstOrDefault(x => x.Quality == quality);
+            return qualityEntity?.IsAvailable == true;
+        }
+
+
+        public async Task ChangeQualityAsync(NicoVideoQuality quality)
+        {
+            if (CurrentPlaylistItem == null) { return; }
+
+            if (CurrentPlayingSession?.IsSuccess is null or false)
+            {
+                return;
+            }
+
+            var currentPosition = GetCurrentPlaybackPosition();
+
+            _videoSessionDisposable?.Dispose();
+            _videoSessionDisposable = null;
+
+            var quelityEntity = AvailableQualities.First(x => x.Quality == quality);
+
+            if (quelityEntity.IsAvailable is false)
+            {
+                throw new HohoemaExpception("unavailable video quality : " + quality);
+            }
+
+            var videoSession = await CurrentPlayingSession.VideoSessionProvider.CreateVideoSessionAsync(quality);
+
+            _videoSessionDisposable = videoSession;
+            await videoSession.StartPlayback(_mediaPlayer, currentPosition ?? TimeSpan.Zero);
+
+            CurrentQuality = quelityEntity;
+
+            _playerSettings.DefaultVideoQuality = quality;
+            Guard.IsNotNull(_mediaPlayer.PlaybackSession, nameof(_mediaPlayer.PlaybackSession));
+        }
+
+        public Task PlayAsync(PlaylistItem item, TimeSpan? startPosition = null)
+        {
+            return PlayAsync_Internal(item, startPosition);
+        }
+
+        protected override async Task PlayAsync_Internal(PlaylistItem item, TimeSpan? startPosition = null)
         {
             Guard.IsNotNull(item, nameof(item));
             Guard.IsFalse(item.ItemId == default(VideoId) && item.PlaylistId == null, "Not contain playable VideoId or PlaylistId");            
@@ -427,11 +493,11 @@ namespace Hohoema.Models.Domain.Playlist
 
             if (!isSameVideo)
             {
-                await UpdatePlayingMediaAsync(item, nicoVideoQuality, startPosition);
+                await UpdatePlayingMediaAsync(item, startPosition);
             }
         }
 
-        private async Task UpdatePlayingMediaAsync(PlaylistItem item, NicoVideoQuality? nicoVideoQuality, TimeSpan? startPosition)
+        private async Task UpdatePlayingMediaAsync(PlaylistItem item, TimeSpan? startPosition)
         {
             if (item.ItemId == default(VideoId))
             {
@@ -449,14 +515,24 @@ namespace Hohoema.Models.Domain.Playlist
                     throw new HohoemaExpception("failed playing start.", result.Exception);
                 }
 
-                var videoSession = await result.VideoSessionProvider.CreateVideoSessionAsync(nicoVideoQuality ?? result.VideoSessionProvider.AvailableQualities.LastOrDefault()?.Quality ?? throw new HohoemaExpception());
+                var qualityEntity = AvailableQualities.FirstOrDefault(x => x.Quality == _playerSettings.DefaultVideoQuality);
+                if (qualityEntity?.IsAvailable is null or false)
+                {
+                    qualityEntity = AvailableQualities.SkipWhile(x => !x.IsAvailable).First();
+                }
+                
+                var videoSession = await result.VideoSessionProvider.CreateVideoSessionAsync(qualityEntity.Quality);
 
                 _videoSessionDisposable = videoSession;
                 await videoSession.StartPlayback(_mediaPlayer, startPosition ?? TimeSpan.Zero);
 
+                CurrentQuality = AvailableQualities.First(x => x.Quality == videoSession.Quality);
                 Guard.IsNotNull(_mediaPlayer.PlaybackSession, nameof(_mediaPlayer.PlaybackSession));
 
                 CurrentPlaylistItem = item;
+                RaisePropertyChanged(nameof(AvailableQualities));
+
+                NowPlayingWithCache = videoSession is CachedVideoStreamingSession;
 
                 // メディア再生成功時のメッセージを飛ばす
                 _messenger.Send(new PlaybackStartedMessage(new(item, videoSession.Quality, _mediaPlayer.PlaybackSession)));
@@ -464,7 +540,7 @@ namespace Hohoema.Models.Domain.Playlist
             catch (Exception ex)
             {
                 StopPlaybackMedia();
-                _messenger.Send(new PlaybackFailedMessage(new(item, nicoVideoQuality, ex)));
+                _messenger.Send(new PlaybackFailedMessage(new(item, ex)));
                 throw;
             }
         }

@@ -57,12 +57,12 @@
       <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayPauseToggleButtonTitle}" Command="{Binding VideoPlayer.TogglePlayPauseCommand}" />
       <ToggleMenuFlyoutItem IsChecked="{Binding ObservableMediaPlayer.IsMuted.Value, Mode=TwoWay}" Text="{i18nExt:Localize Key=Mute}" />
       <ToggleMenuFlyoutItem IsChecked="{Binding PlayerSettings.IsCommentDisplay_Video, Mode=TwoWay, Converter={StaticResource BoolNegation}}" Text="{i18nExt:Localize Key=ToggleHideComment}" />
-      <MenuFlyoutSubItem Text="{Binding Source=Quality, Converter={StaticResource LocalizeConverter}}" Visibility="{Binding VideoPlayer.AvailableQualities, Converter={StaticResource CollectionVisibilityConverter}}" x:Name="VideoQualityMenuFlyoutSubImte">
+      <MenuFlyoutSubItem Text="{Binding Source=Quality, Converter={StaticResource LocalizeConverter}}" Visibility="{Binding AvailableQualities, Converter={StaticResource CollectionVisibilityConverter}}" x:Name="VideoQualityMenuFlyoutSubImte">
         <i:Interaction.Behaviors>
-          <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding VideoPlayer.AvailableQualities}" CustomObjectToTag="{Binding}">
+          <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding AvailableQualities}" CustomObjectToTag="{Binding}">
             <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
               <DataTemplate>
-                <MenuFlyoutItem IsEnabled="{Binding IsAvailable}" Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.VideoPlayer.ChangePlayQualityCommand}" CommandParameter="{Binding}"></MenuFlyoutItem>
+                <MenuFlyoutItem IsEnabled="{Binding IsAvailable}" Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.ChangeVideoQualityCommand}" CommandParameter="{Binding}"></MenuFlyoutItem>
               </DataTemplate>
             </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
           </mybehavior:MenuFlyoutSubItemItemsSetter>
@@ -417,11 +417,11 @@
                   <Grid x:Name="VideoProps" Margin="0 0 0 8">
                     <!-- 画質と動画プロバイダーオリジン -->
                     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="8 0 16 0" Spacing="8">
-                      <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding VideoPlayer.NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibilityInverted}}">
-                            <Run Text="{Binding VideoPlayer.CurrentQuality.Quality, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
-                      <HyperlinkButton Visibility="{Binding VideoPlayer.NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibility}}" Padding="0" Opacity="0.7">
-                        <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}">
-                              <Run Text="{Binding VideoPlayer.CurrentQuality.Quality, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
+                      <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibility}}">
+                            <Run Text="{Binding CurrentQuality.Quality, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
+                      <HyperlinkButton Padding="0" Opacity="0.7">
+                        <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibilityInverted}}">
+                              <Run Text="{Binding CurrentQuality.Quality, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                         <i:Interaction.Behaviors>
                           <core:EventTriggerBehavior EventName="Click">
                             <mybehavior:OpenFlyout />
@@ -429,14 +429,14 @@
                         </i:Interaction.Behaviors>
                         <FlyoutBase.AttachedFlyout>
                           <Flyout>
-                            <ListView ItemsSource="{Binding VideoPlayer.AvailableQualities, Mode=OneWay}"
-                                      SelectedItem="{Binding VideoPlayer.CurrentQuality, Mode=OneWay}"
+                            <ListView ItemsSource="{Binding AvailableQualities, Mode=OneWay}"
+                                      SelectedItem="{Binding CurrentQuality, Mode=OneWay}"
                                       SelectionMode="Single"
                                       IsItemClickEnabled="True"
                                       >
                               <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="ItemClick">
-                                  <core:InvokeCommandAction Command="{Binding VideoPlayer.ChangePlayQualityCommand}"
+                                  <core:InvokeCommandAction Command="{Binding ChangeVideoQualityCommand}"
                                                             InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                                 </core:EventTriggerBehavior>
                               </i:Interaction.Behaviors>
@@ -453,9 +453,9 @@
                           </Flyout>
                         </FlyoutBase.AttachedFlyout>
                       </HyperlinkButton>
-                      <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding VideoPlayer.IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibility}}">
+                      <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibility}}">
                                                         (<Run Text="{i18nExt:Localize Key=VideoPlayWithCached}" />)</TextBlock>
-                      <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding VideoPlayer.IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+                      <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibilityInverted}}">
                                                         (<Run Text="{i18nExt:Localize Key=VideoPlayWithOnline}" />)</TextBlock>
                     </StackPanel>
 

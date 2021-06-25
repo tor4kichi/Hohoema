@@ -46,9 +46,12 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
                     foreach (var newVideo in items.SelectMany(x => x.NewVideos))
                     {
-                        _queuePlaylist.Add(newVideo.VideoId);
+                        if (!_queuePlaylist.Contains(newVideo.VideoId))
+                        {
+                            _queuePlaylist.Add(newVideo.VideoId);
 
-                        Debug.WriteLine("[FeedResultAddToWatchLater] added: " + newVideo.Label);
+                            Debug.WriteLine("[FeedResultAddToWatchLater] added: " + newVideo.Label);
+                        }
                     }
 
                     /*

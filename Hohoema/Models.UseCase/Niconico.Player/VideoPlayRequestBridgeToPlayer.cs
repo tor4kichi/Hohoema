@@ -11,6 +11,8 @@ using Hohoema.Models.UseCase.Niconico.Player.Events;
 using Hohoema.Models.Domain.Playlist;
 using NiconicoToolkit.Video;
 using Hohoema.Models.Infrastructure;
+using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Domain.Niconico.Video;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -46,6 +48,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _primaryViewPlayerManager = primaryViewPlayerManager;
             _localObjectStorage = localObjectStorageHelper;
             _queuePlaylist = queuePlaylist;
+
             DisplayMode = ReadDisplayMode();
 
             _messenger.Register<VideoPlayRequestMessage>(this);
@@ -117,7 +120,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         private readonly LocalObjectStorageHelper _localObjectStorage;
         private readonly QueuePlaylist _queuePlaylist;
-
+        
         void SaveDisplayMode()
         {
             _localObjectStorage.Save(nameof(PlayerDisplayView), DisplayMode);
@@ -230,7 +233,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 
                 static async Task Play(HohoemaPlaylistPlayer player, PlaylistItem playlistItem, TimeSpan? initialPosition)
                 {
-                    await player.PlayAsync(playlistItem, null, initialPosition);
+                    await player.PlayAsync(playlistItem, initialPosition);
                 }
 
                 if (displayMode == PlayerDisplayView.PrimaryView)

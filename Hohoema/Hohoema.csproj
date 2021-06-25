@@ -233,6 +233,7 @@
     <Compile Include="Presentation.ViewModels\Niconico.Share\CopyToClipboardCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Share\OpenLinkCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Share\OpenShareUICommand.cs" />
+    <Compile Include="Presentation.ViewModels\Player\Video\ChangeVideoQualityCommand.cs" />
     <Compile Include="Presentation.Views.Pages\Hohoema.VideoCache\CacheManagementPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistManagePageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistPageViewModel.cs" />

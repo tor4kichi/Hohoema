@@ -42,6 +42,7 @@ using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using Hohoema.Models.Domain.LocalMylist;
+using Hohoema.Presentation.ViewModels.Player.Video;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -91,6 +92,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             RestoreNavigationManager restoreNavigationManager,
             OpenLinkCommand openLinkCommand,
             CopyToClipboardCommand copyToClipboardCommand,
+            ChangeVideoQualityCommand changeVideoQualityCommand,
             CopyToClipboardWithShareTextCommand copyToClipboardWithShareTextCommand,
             OpenShareUICommand openShareUICommand,
             PlaylistSidePaneContentViewModel playlistSidePaneContentViewModel,
@@ -131,6 +133,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             _restoreNavigationManager = restoreNavigationManager;
             OpenLinkCommand = openLinkCommand;
             CopyToClipboardCommand = copyToClipboardCommand;
+            ChangeVideoQualityCommand = changeVideoQualityCommand;
             CopyToClipboardWithShareTextCommand = copyToClipboardWithShareTextCommand;
             OpenShareUICommand = openShareUICommand;
             _playlistSidePaneContentViewModel = playlistSidePaneContentViewModel;
@@ -205,6 +208,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         public MediaPlayerSoundVolumeManager SoundVolumeManager { get; }
         public OpenLinkCommand OpenLinkCommand { get; }
         public CopyToClipboardCommand CopyToClipboardCommand { get; }
+        public ChangeVideoQualityCommand ChangeVideoQualityCommand { get; }
         public CopyToClipboardWithShareTextCommand CopyToClipboardWithShareTextCommand { get; }
         public OpenShareUICommand OpenShareUICommand { get; }
         public ObservableMediaPlayer ObservableMediaPlayer { get; }
@@ -237,6 +241,23 @@ namespace Hohoema.Presentation.ViewModels.Player
             get { return _currentQuality; }
             private set { SetProperty(ref _currentQuality, value); }
         }
+
+
+        private IReadOnlyCollection<NicoVideoQualityEntity> _avairableQualities;
+        public IReadOnlyCollection<NicoVideoQualityEntity> AvailableQualities
+        {
+            get { return _avairableQualities; }
+            set { SetProperty(ref _avairableQualities, value); }
+        }
+
+
+        private bool nowPlayingWithCache;
+        public bool NowPlayingWithCache
+        {
+            get { return nowPlayingWithCache; }
+            set { SetProperty(ref nowPlayingWithCache, value); }
+        }
+
 
         public IVideoContent VideoContent { get; private set; }
 
@@ -325,11 +346,17 @@ namespace Hohoema.Presentation.ViewModels.Player
         }
 
 
+
+
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
 
             VideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem?.ItemId;
+
+            _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentQuality)
+                .Subscribe(quality => _scheduler.Schedule(() => CurrentQuality = quality))
+                .AddTo(_NavigatingCompositeDisposable);
 
             _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
                 .Subscribe(x =>
@@ -346,6 +373,8 @@ namespace Hohoema.Presentation.ViewModels.Player
                             Title = string.Empty;
                             IsNotSupportVideoType = false;
                             LikesContext = VideoLikesContext.Default;
+                            AvailableQualities = null;
+                            NowPlayingWithCache = false;
                             return;
                         }
 
@@ -371,6 +400,10 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                         SoundVolumeManager.LoudnessCorrectionValue = VideoDetails.LoudnessCorrectionValue;
 
+                        _requestVideoQuality = PlayerSettings.DefaultVideoQuality;
+                        AvailableQualities = _hohoemaPlaylistPlayer.AvailableQualities;
+                        CurrentQuality = _hohoemaPlaylistPlayer.CurrentQuality;
+                        NowPlayingWithCache = _hohoemaPlaylistPlayer.NowPlayingWithCache;
 
                         // コメントを更新
                         await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);
