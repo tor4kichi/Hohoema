@@ -205,36 +205,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     {
                         try
                         {
-                            var session = _mediaPlayer.PlaybackSession;
-                            if (session == null)
-                            {
-                                await PlayAsync(startPosition: _prevPosition ?? TimeSpan.Zero);
-                            }
-                            else if (_mediaPlayer.Source == null
-                                || session.PlaybackState == MediaPlaybackState.None)
-                            {
-                                var isEndReached = session.NaturalDuration - _prevPosition < TimeSpan.FromSeconds(1);
-                                if (session?.NaturalDuration != TimeSpan.Zero
-                                    && isEndReached)
-                                {
-                                    _prevPosition = TimeSpan.Zero;
-                                }
-
-                                await PlayAsync(startPosition: _prevPosition ?? TimeSpan.Zero);
-                            }
-                            else if (session.PlaybackState == MediaPlaybackState.Playing)
-                            {
-                                _mediaPlayer.Pause();
-                            }
-                            else if (session.PlaybackState == MediaPlaybackState.Paused)
-                            {
-                                var isEndReached = session.NaturalDuration - _prevPosition < TimeSpan.FromSeconds(1);
-                                if (isEndReached)
-                                {
-                                    session.Position = TimeSpan.Zero;
-                                }
-                                _mediaPlayer.Play();
-                            }
+                            
                         }
                         catch (Exception e)
                         {

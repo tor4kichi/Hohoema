@@ -484,20 +484,19 @@ namespace Hohoema.Models.Domain.Playlist
         protected override async Task PlayAsync_Internal(PlaylistItem item, TimeSpan? startPosition = null)
         {
             Guard.IsNotNull(item, nameof(item));
-            Guard.IsFalse(item.ItemId == default(VideoId) && item.PlaylistId == null, "Not contain playable VideoId or PlaylistId");            
+            Guard.IsFalse(item.ItemId == default(VideoId) && item.PlaylistId == null, "Not contain playable VideoId or PlaylistId");
 
-            bool isSameVideo = CurrentPlaylistItem is not null && CurrentPlaylistItem.ItemId == item.ItemId;
-            if (!isSameVideo)
+            if (startPosition == null
+                && CurrentPlaylistItem?.ItemId == item.ItemId)
             {
-                StopPlaybackMedia();
+                startPosition = _mediaPlayer.PlaybackSession?.Position;
             }
+
+            StopPlaybackMedia();
 
             await UpdatePlaylistItemsSourceAsync(item);
 
-            if (!isSameVideo)
-            {
-                await UpdatePlayingMediaAsync(item, startPosition);
-            }
+            await UpdatePlayingMediaAsync(item, startPosition);
         }
 
         private async Task UpdatePlayingMediaAsync(PlaylistItem item, TimeSpan? startPosition)

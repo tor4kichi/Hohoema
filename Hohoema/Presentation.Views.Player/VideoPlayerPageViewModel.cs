@@ -71,6 +71,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             QueuePlaylist queuePlaylist,
             HohoemaPlaylistPlayer hohoemaPlaylistPlayer,
             MediaPlayer mediaPlayer,
+            VideoTogglePlayPauseCommand videoTogglePlayPauseCommand,
             NotificationService notificationService,
             DialogService dialogService,
             AddSubscriptionCommand addSubscriptionCommand,
@@ -150,7 +151,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             _keepActiveDisplayWhenPlaying = keepActiveDisplayWhenPlaying
                 .AddTo(_CompositeDisposable);
             MediaPlayer = mediaPlayer;
-
+            VideoTogglePlayPauseCommand = videoTogglePlayPauseCommand;
             SeekCommand = new MediaPlayerSeekCommand(MediaPlayer);
             SetPlaybackRateCommand = new MediaPlayerSetPlaybackRateCommand(MediaPlayer);
             ToggleMuteCommand = new MediaPlayerToggleMuteCommand(MediaPlayer);
@@ -164,6 +165,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             {
                 //if (PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
                 if (VideoInfo == null) { return; }
+                if (MediaPlayer.CurrentState != MediaPlayerState.Playing) { return; }
 
                 _restoreNavigationManager.SetCurrentPlayerEntry(
                         new PlayerEntry()
@@ -214,7 +216,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
 
         public MediaPlayer MediaPlayer { get; }
-
+        public VideoTogglePlayPauseCommand VideoTogglePlayPauseCommand { get; }
         public NiconicoSession NiconicoSession { get; }
         public VideoPlayer VideoPlayer { get; }
         public CommentPlayer CommentPlayer { get; }

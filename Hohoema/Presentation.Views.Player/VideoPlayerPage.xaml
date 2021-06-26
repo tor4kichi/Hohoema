@@ -54,7 +54,7 @@
     </Style>
 
     <MenuFlyout x:Key="VideoOptionsFlyout">
-      <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayPauseToggleButtonTitle}" Command="{Binding VideoPlayer.TogglePlayPauseCommand}" />
+      <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayPauseToggleButtonTitle}" Command="{Binding VideoTogglePlayPauseCommand}" />
       <ToggleMenuFlyoutItem IsChecked="{Binding ObservableMediaPlayer.IsMuted.Value, Mode=TwoWay}" Text="{i18nExt:Localize Key=Mute}" />
       <ToggleMenuFlyoutItem IsChecked="{Binding PlayerSettings.IsCommentDisplay_Video, Mode=TwoWay, Converter={StaticResource BoolNegation}}" Text="{i18nExt:Localize Key=ToggleHideComment}" />
       <MenuFlyoutSubItem Text="{Binding Source=Quality, Converter={StaticResource LocalizeConverter}}" Visibility="{Binding AvailableQualities, Converter={StaticResource CollectionVisibilityConverter}}" x:Name="VideoQualityMenuFlyoutSubImte">
@@ -179,7 +179,7 @@
               </core:EventTriggerBehavior>
               <!-- スペースキー入力で再生停止の切り替え-->
               <mybehavior:KeyboardTrigger Key="Space" x:Name="PlayPauseToggleKeyboardTrigger">
-                <core:InvokeCommandAction Command="{Binding VideoPlayer.TogglePlayPauseCommand}" />
+                <core:InvokeCommandAction Command="{Binding VideoTogglePlayPauseCommand}" />
               </mybehavior:KeyboardTrigger>
               <mybehavior:KeyboardTrigger Key="Enter" x:Name="CommentSubmitKeyboardTrigger">
                 <mybehavior:KeyboardTrigger.Actions>
@@ -228,7 +228,7 @@
                 <core:InvokeCommandAction Command="{Binding SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" />
               </mybehavior:UINavigationTrigger>
               <mybehavior:UINavigationTrigger x:Name="ControllerTogglePlayPauseTrigger" Kind="Context1" IsEnabled="True">
-                <core:InvokeCommandAction Command="{Binding VideoPlayer.TogglePlayPauseCommand}" />
+                <core:InvokeCommandAction Command="{Binding VideoTogglePlayPauseCommand}" />
               </mybehavior:UINavigationTrigger>
             </i:Interaction.Behaviors>
             <!-- 映像表示 -->
@@ -565,7 +565,7 @@
                       <Button x:Name="PreviewVideoPositionButon" Background="Transparent" Command="{Binding SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}"  Margin="0 0 24 0">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" FontSize="24" />
                       </Button>
-                      <Button x:Name="PlayPauseButton" Command="{Binding VideoPlayer.TogglePlayPauseCommand}" Background="Transparent" Margin="0 0 0 0">
+                      <Button x:Name="PlayPauseButton" Command="{Binding VideoTogglePlayPauseCommand}" Background="Transparent" Margin="0 0 0 0">
                         <iconPack:PackIconMaterial Kind="Play" x:Name="PlayPauseButtonIcon" RenderTransformOrigin="0.5, 0.5">
                           <iconPack:PackIconMaterial.RenderTransform>
                             <CompositeTransform ScaleX="1.35" ScaleY="1.35" />
