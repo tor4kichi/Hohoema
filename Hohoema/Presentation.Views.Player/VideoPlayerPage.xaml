@@ -680,12 +680,12 @@
                     </i:Interaction.Behaviors>
                   </Border>
                   <Border VerticalAlignment="Center" HorizontalAlignment="Left">
-                    <Button MinWidth="24" Height="120" Command="{Binding VideoPlayer.PlayPreviousCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="0 1 1 1">
+                    <Button MinWidth="24" Height="120" Command="{Binding PlayPreviousCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="0 1 1 1">
                       <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE016;" FontSize="20" Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"></TextBlock>
                     </Button>
                   </Border>
                   <Border VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <Button MinWidth="24" Height="120" Command="{Binding VideoPlayer.PlayNextCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="1 1 0 1">
+                    <Button MinWidth="24" Height="120" Command="{Binding PlayNextCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="1 1 0 1">
                       <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE017;" FontSize="20" Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"></TextBlock>
                     </Button>
                   </Border>

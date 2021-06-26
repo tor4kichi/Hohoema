@@ -43,6 +43,7 @@ using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Presentation.ViewModels.Player.Video;
+using Reactive.Bindings;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -173,6 +174,22 @@ namespace Hohoema.Presentation.ViewModels.Player
                             PlaylistOrigin = _hohoemaPlaylistPlayer.CurrentPlaylistId?.Origin
                         });
             };
+
+            PlayNextCommand = _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
+                .SelectMany(async x => await _hohoemaPlaylistPlayer.CanGoNextAsync())
+                .ToAsyncReactiveCommand()
+                .AddTo(_CompositeDisposable);
+
+            PlayNextCommand.Subscribe(async () => await _hohoemaPlaylistPlayer.GoNextAsync(NavigationCancellationToken))
+                .AddTo(_CompositeDisposable);
+
+            PlayPreviousCommand = _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
+                .SelectMany(async x => await _hohoemaPlaylistPlayer.CanGoPreviewAsync())
+                .ToAsyncReactiveCommand()
+                .AddTo(_CompositeDisposable);
+
+            PlayPreviousCommand.Subscribe(async () => await _hohoemaPlaylistPlayer.GoPreviewAsync(NavigationCancellationToken))
+                .AddTo(_CompositeDisposable);
         }
 
 
@@ -230,6 +247,11 @@ namespace Hohoema.Presentation.ViewModels.Player
             get { return _VideoId; }
             set { SetProperty(ref _VideoId, value); }
         }
+
+
+
+        public AsyncReactiveCommand PlayNextCommand { get; }
+        public AsyncReactiveCommand PlayPreviousCommand { get; }
 
 
 
