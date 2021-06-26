@@ -161,7 +161,6 @@
     <Compile Include="Models.UseCase\Niconico.Player\Comment\CommentFilteringFacade.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\Comment\CommentPlayer.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\KeepActiveDisplayWhenPlaying.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\MediaPlayerSoundVolumeManager.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\ObservableMediaPlayer.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\RelatedVideoContentsAggregator.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\VideoEndedRecommendation.cs" />

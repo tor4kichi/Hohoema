@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Media.Playback;
 
-namespace Hohoema.Models.UseCase.Niconico.Player
+namespace Hohoema.Models.Domain.Player
 {
     public class MediaPlayerSoundVolumeManager : BindableBase
     {

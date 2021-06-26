@@ -25,6 +25,7 @@ using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Models.Domain.Application;
 using System.Diagnostics;
 using Uno.Disposables;
+using Hohoema.Models.Domain.Player;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 

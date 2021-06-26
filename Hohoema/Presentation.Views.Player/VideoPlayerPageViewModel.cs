@@ -398,8 +398,6 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                         VideoDetails = result.VideoDetails;
 
-                        SoundVolumeManager.LoudnessCorrectionValue = VideoDetails.LoudnessCorrectionValue;
-
                         _requestVideoQuality = PlayerSettings.DefaultVideoQuality;
                         AvailableQualities = _hohoemaPlaylistPlayer.AvailableQualities;
                         CurrentQuality = _hohoemaPlaylistPlayer.CurrentQuality;

@@ -212,6 +212,7 @@
     <Compile Include="Models.Domain\Player\Live\LiveSuggestion.cs" />
     <Compile Include="Models.Domain\Player\Live\LiveVidePagePayload.cs" />
     <Compile Include="Models.Domain\Player\Live\NicoLiveInfoType.cs" />
+    <Compile Include="Models.Domain\Player\MediaPlayerSoundVolumeManager.cs" />
     <Compile Include="Models.Domain\Player\PlayerSettings.cs" />
     <Compile Include="Models.Domain\Player\Video\Cache\CachefolderAccessState.cs" />
     <Compile Include="Models.Domain\Player\Video\Cache\CacheRequestRepository.cs" />

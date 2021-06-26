@@ -383,13 +383,15 @@ namespace Hohoema.Models.Domain.Playlist
         private readonly VideoStreamingOriginOrchestrator _videoStreamingOriginOrchestrator;
         private readonly IPlaylistItemsSourceResolver _playlistSourceManager;
         private readonly PlayerSettings _playerSettings;
+        private readonly MediaPlayerSoundVolumeManager _soundVolumeManager;
 
         public HohoemaPlaylistPlayer(
             IMessenger messenger,
             MediaPlayer mediaPlayer,
             VideoStreamingOriginOrchestrator videoStreamingOriginOrchestrator,
             IPlaylistItemsSourceResolver playlistSourceManager,
-            PlayerSettings playerSettings
+            PlayerSettings playerSettings,
+            MediaPlayerSoundVolumeManager soundVolumeManager
             )
         {
             _messenger = messenger;
@@ -397,6 +399,7 @@ namespace Hohoema.Models.Domain.Playlist
             _videoStreamingOriginOrchestrator = videoStreamingOriginOrchestrator;
             _playlistSourceManager = playlistSourceManager;
             _playerSettings = playerSettings;
+            _soundVolumeManager = soundVolumeManager;
         }
 
         public PlaylistId? CurrentPlaylistId => _itemsSource?.PlaylistId;
@@ -533,6 +536,7 @@ namespace Hohoema.Models.Domain.Playlist
                 RaisePropertyChanged(nameof(AvailableQualities));
 
                 NowPlayingWithCache = videoSession is CachedVideoStreamingSession;
+                _soundVolumeManager.LoudnessCorrectionValue = CurrentPlayingSession.VideoDetails.LoudnessCorrectionValue;
 
                 // メディア再生成功時のメッセージを飛ばす
                 _messenger.Send(new PlaybackStartedMessage(new(item, videoSession.Quality, _mediaPlayer.PlaybackSession)));
@@ -563,6 +567,8 @@ namespace Hohoema.Models.Domain.Playlist
                 // メディア停止メッセージを飛ばす
                 _messenger.Send(new PlaybackStopedMessage(new(videoId.Value, endPosition, PlaybackStopReason.FromUser)));
             }
+
+            _soundVolumeManager.LoudnessCorrectionValue = 1.0;
         }
 
         private async ValueTask UpdatePlaylistItemsSourceAsync(PlaylistItem? item)
