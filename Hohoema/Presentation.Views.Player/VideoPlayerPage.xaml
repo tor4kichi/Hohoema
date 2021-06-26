@@ -549,8 +549,7 @@
                       </Button>
 
                       <!-- 単品リピート -->
-                      <ToggleButton IsChecked="{Binding VideoPlayer.IsCurrentVideoLoopingEnabled.Value, Mode=TwoWay}" Background="Transparent" UseSystemFocusVisuals="True"
-                                    
+                      <ToggleButton IsChecked="{Binding IsLoopingEnabled.Value, Mode=TwoWay}" Background="Transparent" UseSystemFocusVisuals="True"
                                     >
                         <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon" Kind="Repeat" RenderTransformOrigin="0.5, 0.5">
                           <iconPack:PackIconMaterial.RenderTransform>

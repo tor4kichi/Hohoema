@@ -192,6 +192,18 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             PlayPreviousCommand.Subscribe(async () => await _hohoemaPlaylistPlayer.GoPreviewAsync(NavigationCancellationToken))
                 .AddTo(_CompositeDisposable);
+
+            IsLoopingEnabled = new ReactiveProperty<bool>(initialValue: mediaPlayer.IsLoopingEnabled, raiseEventScheduler: scheduler)
+                .AddTo(_CompositeDisposable);
+            IsLoopingEnabled.Subscribe(x => mediaPlayer.IsLoopingEnabled = x)
+                .AddTo(_CompositeDisposable);
+
+            IsPlaylistShuffleRequeted = _hohoemaPlaylistPlayer.ToReactivePropertyAsSynchronized(x => x.IsShuffleModeRequested, _scheduler)
+                .AddTo(_CompositeDisposable);
+
+            IsAvailablePlaylistRepeatOrShuffle = _hohoemaPlaylistPlayer.ObserveProperty(x => x.IsShuffleAndRepeatAvairable)
+                .ToReadOnlyReactiveProperty();
+
         }
 
 
@@ -273,6 +285,10 @@ namespace Hohoema.Presentation.ViewModels.Player
             get { return _avairableQualities; }
             set { SetProperty(ref _avairableQualities, value); }
         }
+
+        public ReactiveProperty<bool> IsLoopingEnabled { get; }
+        public ReactiveProperty<bool> IsPlaylistShuffleRequeted { get; }
+        public IReadOnlyReactiveProperty<bool> IsAvailablePlaylistRepeatOrShuffle { get; }
 
 
         private bool nowPlayingWithCache;

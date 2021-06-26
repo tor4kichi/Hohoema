@@ -173,6 +173,7 @@ namespace Hohoema.Models.Domain.Playlist
     public abstract class PlaylistPlayer : BindableBase
     {
         private const int InvalidIndex = -1;
+        private readonly MediaPlayer _mediaPlayer;
         private BufferedPlaylistItemsSource? _bufferedPlaylistItemsSource;
 
         private int[] _shuffledIndexies;
@@ -195,7 +196,6 @@ namespace Hohoema.Models.Domain.Playlist
                 {
                     RaisePropertyChanged(nameof(IsShuffleAndRepeatAvairable));
                     RaisePropertyChanged(nameof(IsShuffleModeEnabled));
-                    RaisePropertyChanged(nameof(IsRepeatModeEnabled));
                 }
             }
         }
@@ -222,22 +222,6 @@ namespace Hohoema.Models.Domain.Playlist
         }
 
         public bool IsShuffleModeEnabled => IsShuffleAndRepeatAvairable && IsShuffleModeRequested;
-
-        private bool _isRepeatModeRequested;
-        public bool IsRepeatModeRequested
-        {
-            get { return _isRepeatModeRequested; }
-            set
-            {
-                if (SetProperty(ref _isRepeatModeRequested, value))
-                {
-                    RaisePropertyChanged(nameof(IsRepeatModeEnabled));
-                }
-            }
-        }
-        public bool IsRepeatModeEnabled => IsShuffleAndRepeatAvairable && IsRepeatModeRequested;
-
-
 
         public PlaylistItem?[]? CopyBufferedItems()
         {
@@ -299,22 +283,8 @@ namespace Hohoema.Models.Domain.Playlist
 
                 return _shuffledIndexies[index];
             }
-
-            int transformed = index;
-            if (IsRepeatModeEnabled && _maxItemsCount.HasValue)
-            {
-                if (index >= 0)
-                {
-                    transformed = index % _maxItemsCount.Value;
-                }
-                else
-                {
-                    Guard.IsEqualTo(-1, index, nameof(index));
-                    transformed = index + _maxItemsCount.Value;
-                }
-            }
-
-            return IsShuffleModeEnabled ? ToShuffledIndex(transformed) : transformed;
+            
+            return IsShuffleModeEnabled ? ToShuffledIndex(index) : index;
         }
 
         public async ValueTask<bool> CanGoNextAsync(CancellationToken ct = default)
