@@ -264,7 +264,6 @@ namespace Hohoema
             unityContainer.RegisterSingleton<Models.Domain.VideoCache.VideoCacheSettings>();
 
             // UseCase
-            unityContainer.RegisterType<VideoPlayer>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<CommentPlayer>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<CommentFilteringFacade>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<MediaPlayerSoundVolumeManager>(new PerThreadLifetimeManager());

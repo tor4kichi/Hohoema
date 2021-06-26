@@ -164,7 +164,6 @@
     <Compile Include="Models.UseCase\Niconico.Player\ObservableMediaPlayer.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\RelatedVideoContentsAggregator.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\VideoEndedRecommendation.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\VideoPlayer.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\VideoPlayRequestBridgeToPlayer.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\VideoStreamingOriginOrchestrator.cs" />
     <Compile Include="Models.UseCase\Playlist\PlaylistSelectDialogService.cs" />

@@ -23,17 +23,19 @@ using Hohoema.Models.Domain.Playlist;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using NiconicoToolkit.Video;
+using Uno.Threading;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
     public sealed class VideoEndedRecommendation : BindableBase, IDisposable,
-        IRecipient<PlaybackStopedMessage>
+        IRecipient<PlaybackStopedMessage>,
+        IRecipient<PlaybackStartedMessage>
     {
-        CompositeDisposable _disposables = new CompositeDisposable();
+        private readonly CompositeDisposable _disposables = new CompositeDisposable();
+        private readonly FastAsyncLock _lock = new FastAsyncLock();
 
         public VideoEndedRecommendation(
             MediaPlayer mediaPlayer,
-            VideoPlayer videoPlayer,
             IMessenger messenger,
             IScheduler scheduler,
             QueuePlaylist queuePlaylist,
@@ -46,7 +48,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             )
         {
             _mediaPlayer = mediaPlayer;
-            _videoPlayer = videoPlayer;
             _messenger = messenger;
             _scheduler = scheduler;
             _queuePlaylist = queuePlaylist;
@@ -59,23 +60,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             IsEnded = new ReactiveProperty<bool>(_scheduler);
             HasRecomend = new ReactiveProperty<bool>(_scheduler);
             
-            _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
-
-            _videoPlayer.ObserveProperty(x => x.PlayingVideoId)
-                .Subscribe(x =>
-                {
-                    _series = null;
-                    _videoRelatedContents = null;
-                    HasNextVideo = false;
-                    NextVideoTitle = null;
-                    _playNext = false;
-                    _endedProcessed = false;
-                    HasRecomend.Value = false;
-                    _currentVideoDetail = null;
-                })
-                .AddTo(_disposables);
-
-            _messenger.Register<PlaybackStopedMessage>(this);
+            _messenger.RegisterAll(this);
         }
 
         readonly TimeSpan _endedTime = TimeSpan.FromSeconds(-1);
@@ -83,9 +68,12 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         bool _endedProcessed;
         private async void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
         {
+            using var _ = await _lock.LockAsync(default);
+
             if (sender.PlaybackState == MediaPlaybackState.None) { return; }
             if (_playNext) { return; }
-            if (_videoPlayer.PlayingVideoId == default(VideoId)) { return; }
+            if (_hohoemaPlaylistPlayer.CurrentPlaylistItem == null) { return; }
+            if (sender.NaturalDuration == TimeSpan.Zero) { return; }
 
             bool isInsideEndedRange = sender.Position - sender.NaturalDuration > _endedTime;
             bool isStopped = sender.PlaybackState == MediaPlaybackState.Paused;
@@ -98,19 +86,19 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     HasRecomend.Value = HasNextVideo && IsEnded.Value;
                     return;
                 }
-                
-                _queuePlaylist.Remove(_videoPlayer.PlayingVideoId);
-                _videoPlayedHistoryRepository.VideoPlayed(_videoPlayer.PlayingVideoId, sender.Position);
+
+                var currentVideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem.ItemId;
+                _queuePlaylist.Remove(currentVideoId);
+                _videoPlayedHistoryRepository.VideoPlayed(currentVideoId, sender.Position);
 
                 if (await _hohoemaPlaylistPlayer.GoNextAsync())
                 {
-                    HasRecomend.Value = HasNextVideo && IsEnded.Value;
-                    _endedProcessed = true;
                     return;
                 }
 
                 if (_playerSettings.AutoMoveNextVideoOnPlaylistEmpty)
                 {
+                    /*
                     if (_videoPlayer.PlayingVideoId == null)
                     {
                         _endedProcessed = true;
@@ -122,6 +110,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                         });
                         return;
                     }
+                    */
 
                     if (_series?.Video.Next is not null and var nextVideo)
                     {
@@ -170,16 +159,41 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             }
         }
 
-        public void Receive(PlaybackStopedMessage message)
+
+        public async void Receive(PlaybackStartedMessage message)
         {
+            using var _ = await _lock.LockAsync(default);
+
+            _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+            _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
+        }
+
+        public async void Receive(PlaybackStopedMessage message)
+        {
+            using var _ = await _lock.LockAsync(default);
+
+            _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+
             var data = message.Value;
             _queuePlaylist.Remove(data.VideoId);
             _videoPlayedHistoryRepository.VideoPlayed(data.VideoId, data.EndPosition);
+
+            _series = null;
+            _videoRelatedContents = null;
+            HasNextVideo = false;
+            NextVideoTitle = null;
+            _playNext = false;
+            _endedProcessed = false;
+            HasRecomend.Value = false;
+            _currentVideoDetail = null;
         }
 
 
-        public void Dispose()
+        public async void Dispose()
         {
+            using var _ = await _lock.LockAsync(default);
+
+            _messenger.UnregisterAll(this);
             _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
 
             _disposables.Dispose();
@@ -211,7 +225,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         VideoRelatedContents _videoRelatedContents;
 
         private readonly MediaPlayer _mediaPlayer;
-        private readonly VideoPlayer _videoPlayer;
         private readonly IMessenger _messenger;
         private readonly IScheduler _scheduler;
         private readonly QueuePlaylist _queuePlaylist;

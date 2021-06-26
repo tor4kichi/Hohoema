@@ -80,7 +80,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             LocalPlaylistAddItemCommand localPlaylistAddItemCommand,
             MylistCreateCommand createMylistCommand,
             VideoStreamingOriginOrchestrator videoStreamingOriginOrchestrator,
-            VideoPlayer videoPlayer,
             CommentPlayer commentPlayer,
             CommentCommandEditerViewModel commentCommandEditerViewModel,
             KeepActiveDisplayWhenPlaying keepActiveDisplayWhenPlaying,
@@ -125,7 +124,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             LocalPlaylistAddItemCommand = localPlaylistAddItemCommand;
             CreateMylistCommand = createMylistCommand;
             _videoStreamingOriginOrchestrator = videoStreamingOriginOrchestrator;
-            VideoPlayer = videoPlayer;
             CommentPlayer = commentPlayer;
             CommentCommandEditerViewModel = commentCommandEditerViewModel;
             PrimaryViewPlayerManager = primaryViewPlayerManager;
@@ -229,8 +227,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         public MediaPlayer MediaPlayer { get; }
         public VideoTogglePlayPauseCommand VideoTogglePlayPauseCommand { get; }
-        public NiconicoSession NiconicoSession { get; }
-        public VideoPlayer VideoPlayer { get; }
+        public NiconicoSession NiconicoSession { get; }        
         public CommentPlayer CommentPlayer { get; }
         public CommentCommandEditerViewModel CommentCommandEditerViewModel { get; }
         public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
@@ -369,7 +366,6 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         public override void Dispose()
         {
-            VideoPlayer?.Dispose();
             CommentPlayer?.Dispose();
 
             base.Dispose();
@@ -650,36 +646,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             }
             catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
         }
-
-
-
-
-        private void CommandManager_PreviousReceived(MediaPlaybackCommandManager sender, MediaPlaybackCommandManagerPreviousReceivedEventArgs args)
-        {
-            if (args.Handled != true)
-            {
-                args.Handled = true;
-
-                if (VideoPlayer.PlayPreviousCommand.CanExecute())
-                {
-                    VideoPlayer.PlayPreviousCommand.Execute();
-                }
-            }
-        }
-
-        private void CommandManager_NextReceived(MediaPlaybackCommandManager sender, MediaPlaybackCommandManagerNextReceivedEventArgs args)
-        {
-            if (args.Handled != true)
-            {
-                args.Handled = true;
-
-                if (VideoPlayer.PlayNextCommand.CanExecute())
-                {
-                    VideoPlayer.PlayNextCommand.Execute();
-                }
-            }
-        }
-
 
         #region SidePaneContent
 
