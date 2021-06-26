@@ -460,72 +460,8 @@ namespace Hohoema.Presentation.ViewModels.Player
                 })
                 .AddTo(_NavigatingCompositeDisposable);
 
-            /*
-            _requestVideoQuality = PlayerSettings.DefaultVideoQuality;
-            if (parameters.TryGetValue("quality", out NicoVideoQuality quality))
-            {
-                _requestVideoQuality = quality;
-            }
-            else if (parameters.TryGetValue("quality", out string qualityString))
-            {
-                if (Enum.TryParse(qualityString, out quality))
-                {
-                    _requestVideoQuality = quality;
-                }
-            }
-            */
-
-            /*
-            TimeSpan startPosition = TimeSpan.Zero;
-            if (parameters.TryGetValue("position", out int position))
-            {
-                startPosition = TimeSpan.FromSeconds(position);
-            }
-            */
-
-           
-            
-            // 動画再生コンテンツをセット
-            //await VideoPlayer.UpdatePlayingVideoAsync(result.VideoSessionProvider);
-
-            // そのあとで表示情報を取得
-            //VideoInfo ??= await NicoVideoProvider.GetVideoInfoAsync(VideoId);
-            /*
-            try
-            {
-                // デフォルト指定した画質で再生開始
-                await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition);
-            }
-            catch (Models.Domain.VideoCache.VideoCacheException)
-            {
-                result = await _videoStreamingOriginOrchestrator.PreperePlayWithOnline(VideoId);
-                VideoDetails = result.VideoDetails;
-                await VideoPlayer.UpdatePlayingVideoAsync(result.VideoSessionProvider);
-                await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition);
-            }
-            */
-
-
-            /*
-            var smtc = SystemMediaTransportControls.GetForCurrentView();
-            //            smtc.AutoRepeatModeChangeRequested += Smtc_AutoRepeatModeChangeRequested;
-            MediaPlayer.CommandManager.NextReceived += CommandManager_NextReceived;
-            MediaPlayer.CommandManager.PreviousReceived += CommandManager_PreviousReceived;
-
-            smtc.DisplayUpdater.ClearAll();
-            smtc.IsEnabled = true;
-            smtc.IsPlayEnabled = true;
-            smtc.IsPauseEnabled = true;
-            smtc.DisplayUpdater.Type = MediaPlaybackType.Video;
-            smtc.DisplayUpdater.VideoProperties.Title = VideoInfo.Title;
-            smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(VideoInfo.ThumbnailUrl));
-            smtc.DisplayUpdater.Update();
-            */
-
-            // 実行順依存：VideoPlayerで再生開始後に次シリーズ動画を設定する
             
             StartStateSavingTimer();
-
 
             Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 

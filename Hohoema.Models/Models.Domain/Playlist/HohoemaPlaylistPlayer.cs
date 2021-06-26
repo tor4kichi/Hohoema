@@ -19,8 +19,11 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
+using Windows.Storage.Streams;
+using Windows.System;
 using static Hohoema.Models.Domain.Niconico.Player.VideoStreamingOriginOrchestrator;
 
 namespace Hohoema.Models.Domain.Playlist
@@ -354,6 +357,8 @@ namespace Hohoema.Models.Domain.Playlist
         private readonly IPlaylistItemsSourceResolver _playlistSourceManager;
         private readonly PlayerSettings _playerSettings;
         private readonly MediaPlayerSoundVolumeManager _soundVolumeManager;
+        private readonly SystemMediaTransportControls _smtc;
+        private readonly DispatcherQueue _dispatcherQueue;
 
         public HohoemaPlaylistPlayer(
             IMessenger messenger,
@@ -370,6 +375,9 @@ namespace Hohoema.Models.Domain.Playlist
             _playlistSourceManager = playlistSourceManager;
             _playerSettings = playerSettings;
             _soundVolumeManager = soundVolumeManager;
+
+            _smtc = SystemMediaTransportControls.GetForCurrentView();
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
         }
 
         public PlaylistId? CurrentPlaylistId => _itemsSource?.PlaylistId;
@@ -406,6 +414,19 @@ namespace Hohoema.Models.Domain.Playlist
 
         public IReadOnlyCollection<NicoVideoQualityEntity> AvailableQualities => CurrentPlayingSession?.VideoSessionProvider?.AvailableQualities;
 
+
+        public async ValueTask ClearAsync()
+        {
+            base.Clear();
+
+            StopPlaybackMedia();
+            await UpdatePlaylistItemsSourceAsync(null);
+        }
+
+        public TimeSpan? GetCurrentPlaybackPosition()
+        {
+            return _mediaPlayer.PlaybackSession?.Position;
+        }
 
         public bool CanPlayQuality(NicoVideoQuality quality)
         {
@@ -449,6 +470,36 @@ namespace Hohoema.Models.Domain.Playlist
         public Task PlayAsync(PlaylistItem item, TimeSpan? startPosition = null)
         {
             return PlayAsync_Internal(item, startPosition);
+        }
+        private void StopPlaybackMedia()
+        {
+            var prevSource = _mediaPlayer.Source;
+
+            var endPosition = _mediaPlayer.PlaybackSession.Position;
+            var videoId = CurrentPlaylistItem?.ItemId;
+
+            _videoSessionDisposable?.Dispose();
+            _videoSessionDisposable = null;
+            CurrentPlayingSession = null;
+            _mediaPlayer.Source = null;
+            CurrentPlaylistItem = null;
+
+            if (prevSource != null && videoId.HasValue)
+            {
+                // メディア停止メッセージを飛ばす
+                _messenger.Send(new PlaybackStopedMessage(new(videoId.Value, endPosition, PlaybackStopReason.FromUser)));
+            }
+
+            _soundVolumeManager.LoudnessCorrectionValue = 1.0;
+
+            _dispatcherQueue.TryEnqueue(() => 
+            {
+                _smtc.IsEnabled = false;
+                _smtc.PlaybackStatus = MediaPlaybackStatus.Closed;
+                _smtc.ButtonPressed -= _smtc_ButtonPressed;
+                _smtc.DisplayUpdater.ClearAll();
+                _smtc.DisplayUpdater.Update();
+            });
         }
 
         protected override async Task PlayAsync_Internal(PlaylistItem item, TimeSpan? startPosition = null)
@@ -509,6 +560,30 @@ namespace Hohoema.Models.Domain.Playlist
 
                 // メディア再生成功時のメッセージを飛ばす
                 _messenger.Send(new PlaybackStartedMessage(new(item, videoSession.Quality, _mediaPlayer.PlaybackSession)));
+
+                _mediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
+
+                _mediaPlayer.CommandManager.IsEnabled = false;
+
+                await _dispatcherQueue.EnqueueAsync(async () => 
+                {
+                    _smtc.IsEnabled = true;
+                    _smtc.IsPauseEnabled = true;
+                    _smtc.IsPlayEnabled = true;
+                    _smtc.IsStopEnabled = true;
+                    _smtc.IsFastForwardEnabled = true;
+                    _smtc.IsNextEnabled = await CanGoNextAsync();
+                    _smtc.IsPreviousEnabled = await CanGoPreviewAsync();
+                    _smtc.DisplayUpdater.ClearAll();
+                    _smtc.DisplayUpdater.Type = MediaPlaybackType.Video;
+                    _smtc.DisplayUpdater.VideoProperties.Title = CurrentPlayingSession.VideoDetails.Title;
+                    _smtc.DisplayUpdater.VideoProperties.Subtitle = CurrentPlayingSession.VideoDetails.ProviderName;
+                    _smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(CurrentPlayingSession.VideoDetails.ThumbnailUrl));
+                    _smtc.DisplayUpdater.Update();
+                });
+
+                _smtc.ButtonPressed -= _smtc_ButtonPressed; 
+                _smtc.ButtonPressed += _smtc_ButtonPressed;
             }
             catch (Exception ex)
             {
@@ -518,26 +593,59 @@ namespace Hohoema.Models.Domain.Playlist
             }
         }
 
-        private void StopPlaybackMedia()
+        private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
         {
-            var prevSource = _mediaPlayer.Source;
-            
-            var endPosition = _mediaPlayer.PlaybackSession.Position;
-            var videoId = CurrentPlaylistItem?.ItemId;
-
-            _videoSessionDisposable?.Dispose();
-            _videoSessionDisposable = null;
-            CurrentPlayingSession = null;
-            _mediaPlayer.Source = null;
-            CurrentPlaylistItem = null;
-
-            if (prevSource != null && videoId.HasValue)
+            _smtc.PlaybackStatus = sender.PlaybackState switch
             {
-                // メディア停止メッセージを飛ばす
-                _messenger.Send(new PlaybackStopedMessage(new(videoId.Value, endPosition, PlaybackStopReason.FromUser)));
+                MediaPlaybackState.None => MediaPlaybackStatus.Closed,
+                MediaPlaybackState.Opening => MediaPlaybackStatus.Changing,
+                MediaPlaybackState.Buffering => MediaPlaybackStatus.Changing,
+                MediaPlaybackState.Playing => MediaPlaybackStatus.Playing,
+                MediaPlaybackState.Paused => MediaPlaybackStatus.Paused,
+                _ => throw new NotSupportedException(),
+            };
+            /*
+            if (sender.PlaybackState == MediaPlaybackState.Paused)
+            {
+                _smtc.IsPlayEnabled = true;
+                _smtc.IsPauseEnabled = false;
+                _smtc.DisplayUpdater.Update();
             }
+            else if (sender.PlaybackState == MediaPlaybackState.Playing)
+            {
+                _smtc.IsPlayEnabled = false;
+                _smtc.IsPauseEnabled = true;
+                _smtc.DisplayUpdater.Update();
+            }
+            */
+        }
 
-            _soundVolumeManager.LoudnessCorrectionValue = 1.0;
+        private void _smtc_ButtonPressed(SystemMediaTransportControls sender, SystemMediaTransportControlsButtonPressedEventArgs args)
+        {
+            _dispatcherQueue.TryEnqueue(() => 
+            {
+                switch (args.Button)
+                {
+                    case SystemMediaTransportControlsButton.FastForward:
+                        _mediaPlayer.PlaybackSession.Position += TimeSpan.FromSeconds(30);
+                        break;
+                    case SystemMediaTransportControlsButton.Next:
+                        _ = GoNextAsync();
+                        break;
+                    case SystemMediaTransportControlsButton.Previous:
+                        _ = GoPreviewAsync();
+                        break;
+                    case SystemMediaTransportControlsButton.Stop:
+                        _ = ClearAsync();
+                        break;
+                    case SystemMediaTransportControlsButton.Pause:
+                        _mediaPlayer.Pause();
+                        break;
+                    case SystemMediaTransportControlsButton.Play:
+                        _mediaPlayer.Play();
+                        break;
+                }
+            });
         }
 
         private async ValueTask UpdatePlaylistItemsSourceAsync(PlaylistItem? item)
@@ -573,17 +681,5 @@ namespace Hohoema.Models.Domain.Playlist
         }
 
 
-        public async ValueTask ClearAsync()
-        {
-            base.Clear();
-
-            StopPlaybackMedia();
-            await UpdatePlaylistItemsSourceAsync(null);
-        }
-
-        public TimeSpan? GetCurrentPlaybackPosition()
-        {
-            return _mediaPlayer.PlaybackSession?.Position;
-        }
     }
 }
