@@ -158,12 +158,13 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         public async void Receive(ChangePlayerDisplayViewRequestMessage message)
         {
             var mode = DisplayMode == PlayerDisplayView.PrimaryView ? PlayerDisplayView.SecondaryView : PlayerDisplayView.PrimaryView;
+            var nowViewChanging = DisplayMode != mode;
             DisplayMode = mode;
             SaveDisplayMode();
 
             if (_lastPlayedItem != null)
             {
-                await VideoPlayAsync(_lastPlayedItem, mode);
+                await VideoPlayAsync(_lastPlayedItem, mode, nowViewChanging);
             }
             else if (_lastNavigatedPageName != null && _lastNavigatedParameters != null)
             {
@@ -225,7 +226,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             message.Reply(VideoPlayAsync(ToPlaylistItem(message, _queuePlaylist), DisplayMode));
         }
 
-        private async Task<VideoPlayRequestMessageData> VideoPlayAsync(PlaylistItem playlistItem, PlayerDisplayView displayMode, TimeSpan? initialPosition = null)
+        private async Task<VideoPlayRequestMessageData> VideoPlayAsync(PlaylistItem playlistItem, PlayerDisplayView displayMode, bool nowViewChanging = false, TimeSpan? initialPosition = null)
         {
             using (await _asyncLock.LockAsync(default))
             {
@@ -248,7 +249,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
                     // 動画ページへの遷移が必要なときだけ遷移
                     if (_primaryViewPlayerManager.DisplayMode != PrimaryPlayerDisplayMode.Close
-                        || DisplayMode != displayMode
+                        || nowViewChanging
                         || _lastNavigatedPageName != pageName
                         )
                     {
@@ -277,7 +278,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     _primaryViewPlayerManager.Close();
 
                     // TODO: PlayAsyncは呼び出しつつ、NavigationAsyncだけskipしたい
-                    if (DisplayMode != displayMode
+                    if (nowViewChanging
                     || _secondaryPlayerManager.LastNavigationPageName != pageName
                     )
                     {
