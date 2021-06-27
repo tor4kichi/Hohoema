@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.Niconico.Player;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Domain.VideoCache;
@@ -357,6 +358,7 @@ namespace Hohoema.Models.Domain.Playlist
         private readonly IPlaylistItemsSourceResolver _playlistSourceManager;
         private readonly PlayerSettings _playerSettings;
         private readonly MediaPlayerSoundVolumeManager _soundVolumeManager;
+        private readonly RestoreNavigationManager _restoreNavigationManager;
         private readonly SystemMediaTransportControls _smtc;
         private readonly DispatcherQueue _dispatcherQueue;
 
@@ -366,7 +368,8 @@ namespace Hohoema.Models.Domain.Playlist
             VideoStreamingOriginOrchestrator videoStreamingOriginOrchestrator,
             IPlaylistItemsSourceResolver playlistSourceManager,
             PlayerSettings playerSettings,
-            MediaPlayerSoundVolumeManager soundVolumeManager
+            MediaPlayerSoundVolumeManager soundVolumeManager,
+            RestoreNavigationManager restoreNavigationManager
             )
         {
             _messenger = messenger;
@@ -375,10 +378,44 @@ namespace Hohoema.Models.Domain.Playlist
             _playlistSourceManager = playlistSourceManager;
             _playerSettings = playerSettings;
             _soundVolumeManager = soundVolumeManager;
-
+            _restoreNavigationManager = restoreNavigationManager;
             _smtc = SystemMediaTransportControls.GetForCurrentView();
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+
+            _saveTimer = _dispatcherQueue.CreateTimer();
+            _saveTimer.Interval = TimeSpan.FromSeconds(5);
+            _saveTimer.IsRepeating = true;
+            _saveTimer.Tick += (s, _) =>
+            {
+                //if (PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
+                if (_mediaPlayer.PlaybackSession?.PlaybackState is not MediaPlaybackState.Playing) { return; }
+
+                _restoreNavigationManager.SetCurrentPlayerEntry(
+                        new PlayerEntry()
+                        {
+                            ContentId = CurrentPlaylistItem.ItemId,
+                            Position = _mediaPlayer.PlaybackSession.Position,
+                            PlaylistId = CurrentPlaylistId?.Id,
+                            PlaylistOrigin = CurrentPlaylistId?.Origin
+                        });
+            };
+
+
         }
+
+
+        private readonly DispatcherQueueTimer _saveTimer;
+
+        private void StartStateSavingTimer()
+        {
+            _saveTimer.Start();
+        }
+
+        private void StopStateSavingTimer()
+        {
+            _saveTimer.Stop();
+        }
+
 
         public PlaylistId? CurrentPlaylistId => _itemsSource?.PlaylistId;
 
@@ -500,6 +537,8 @@ namespace Hohoema.Models.Domain.Playlist
                 _smtc.DisplayUpdater.ClearAll();
                 _smtc.DisplayUpdater.Update();
             });
+
+            StopStateSavingTimer();
         }
 
         protected override async Task PlayAsync_Internal(PlaylistItem item, TimeSpan? startPosition = null)
@@ -584,6 +623,8 @@ namespace Hohoema.Models.Domain.Playlist
 
                 _smtc.ButtonPressed -= _smtc_ButtonPressed; 
                 _smtc.ButtonPressed += _smtc_ButtonPressed;
+
+                StartStateSavingTimer();
             }
             catch (Exception ex)
             {

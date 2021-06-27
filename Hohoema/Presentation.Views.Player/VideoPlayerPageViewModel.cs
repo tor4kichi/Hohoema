@@ -90,7 +90,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             TogglePlayerDisplayViewCommand togglePlayerDisplayViewCommand,
             ShowPrimaryViewCommand showPrimaryViewCommand,
             MediaPlayerSoundVolumeManager soundVolumeManager,
-            RestoreNavigationManager restoreNavigationManager,
             OpenLinkCommand openLinkCommand,
             CopyToClipboardCommand copyToClipboardCommand,
             ChangeVideoQualityCommand changeVideoQualityCommand,
@@ -130,7 +129,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             TogglePlayerDisplayViewCommand = togglePlayerDisplayViewCommand;
             ShowPrimaryViewCommand = showPrimaryViewCommand;
             SoundVolumeManager = soundVolumeManager;
-            _restoreNavigationManager = restoreNavigationManager;
             OpenLinkCommand = openLinkCommand;
             CopyToClipboardCommand = copyToClipboardCommand;
             ChangeVideoQualityCommand = changeVideoQualityCommand;
@@ -155,25 +153,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             ToggleMuteCommand = new MediaPlayerToggleMuteCommand(MediaPlayer);
             VolumeUpCommand = new MediaPlayerVolumeUpCommand(SoundVolumeManager);
             VolumeDownCommand = new MediaPlayerVolumeDownCommand(SoundVolumeManager);
-
-            _saveTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
-            _saveTimer.Interval = TimeSpan.FromSeconds(5);
-            _saveTimer.IsRepeating = true;
-            _saveTimer.Tick += (s, _) =>
-            {
-                //if (PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
-                if (VideoInfo == null) { return; }
-                if (MediaPlayer.CurrentState != MediaPlayerState.Playing) { return; }
-
-                _restoreNavigationManager.SetCurrentPlayerEntry(
-                        new PlayerEntry()
-                        {
-                            ContentId = VideoInfo.VideoAliasId,
-                            Position = MediaPlayer.PlaybackSession.Position,
-                            PlaylistId = _hohoemaPlaylistPlayer.CurrentPlaylistId?.Id,
-                            PlaylistOrigin = _hohoemaPlaylistPlayer.CurrentPlaylistId?.Origin
-                        });
-            };
 
             PlayNextCommand = _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
                 .SelectMany(async x => await _hohoemaPlaylistPlayer.CanGoNextAsync())
@@ -251,7 +230,6 @@ namespace Hohoema.Presentation.ViewModels.Player
         public MediaPlayerVolumeUpCommand VolumeUpCommand { get; }
         public MediaPlayerVolumeDownCommand VolumeDownCommand { get; }
 
-        private readonly DispatcherQueueTimer _saveTimer;
         private string _VideoId;
         public string VideoId
         {
@@ -305,7 +283,6 @@ namespace Hohoema.Presentation.ViewModels.Player
         DialogService _HohoemaDialogService;
 
         private readonly VideoStreamingOriginOrchestrator _videoStreamingOriginOrchestrator;
-        private readonly RestoreNavigationManager _restoreNavigationManager;
         private readonly PlaylistSidePaneContentViewModel _playlistSidePaneContentViewModel;
         private readonly SettingsSidePaneContentViewModel _settingsSidePaneContentViewModel;
         private readonly VideoCommentSidePaneContentViewModel _videoCommentSidePaneContentViewModel;
@@ -369,16 +346,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             CommentPlayer?.Dispose();
 
             base.Dispose();
-        }
-
-        private void StartStateSavingTimer()
-        {
-            _saveTimer.Start();
-        }
-
-        private void StopStateSavingTimer()
-        {
-            _saveTimer.Stop();
         }
 
 
@@ -460,9 +427,6 @@ namespace Hohoema.Presentation.ViewModels.Player
                 })
                 .AddTo(_NavigatingCompositeDisposable);
 
-            
-            StartStateSavingTimer();
-
             Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
             App.Current.Resuming += Current_Resuming;
@@ -535,8 +499,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             smtc.DisplayUpdater.Update();
             */
 
-            StopStateSavingTimer();
-
             App.Current.Resuming -= Current_Resuming;
             App.Current.Suspending -= Current_Suspending;
 
@@ -558,8 +520,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             var defferal = e.SuspendingOperation.GetDeferral();
             try
             {
-                StopStateSavingTimer();
-
                 if (MediaPlayer.Source != null)
                 {
                     MediaPlayer.Pause();
@@ -578,7 +538,6 @@ namespace Hohoema.Presentation.ViewModels.Player
         {
             try
             {
-                StartStateSavingTimer();
             }
             catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
         }
