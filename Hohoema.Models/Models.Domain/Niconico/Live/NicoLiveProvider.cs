@@ -19,6 +19,19 @@ namespace Hohoema.Models.Domain.Niconico.Live
         {
             _nicoLiveCacheRepository = nicoLiveCacheRepository;
         }
+
+        public async ValueTask<string> ResolveLiveContentNameAsync(string liveId)
+        {
+            var live = _nicoLiveCacheRepository.Get(liveId);
+            if (live is not null)
+            {
+                return live.Title;
+            }
+
+            var info = await GetLiveInfoAsync(liveId);
+            return info?.Data?.Title;
+        }
+
         
         public async Task<LiveProgramResponse> GetLiveInfoAsync(string liveId)
         {

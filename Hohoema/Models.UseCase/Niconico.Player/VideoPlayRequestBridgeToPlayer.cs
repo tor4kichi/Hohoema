@@ -13,6 +13,8 @@ using NiconicoToolkit.Video;
 using Hohoema.Models.Infrastructure;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Niconico.Live;
+using NiconicoToolkit.Live;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -31,7 +33,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         private readonly IMessenger _messenger;
         private readonly ScondaryViewPlayerManager _secondaryPlayerManager;
         private readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
-        
+
+        private readonly LocalObjectStorageHelper _localObjectStorage;
+        private readonly QueuePlaylist _queuePlaylist;
+        private readonly NicoVideoProvider _nicoVideoProvider;
+        private readonly NicoLiveProvider _nicoLiveProvider;
 
         FastAsyncLock _asyncLock = new FastAsyncLock();
 
@@ -40,7 +46,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             ScondaryViewPlayerManager playerViewManager,
             PrimaryViewPlayerManager primaryViewPlayerManager,
             LocalObjectStorageHelper localObjectStorageHelper,
-            QueuePlaylist queuePlaylist
+            QueuePlaylist queuePlaylist,
+            NicoVideoProvider nicoVideoProvider,
+            NicoLiveProvider nicoLiveProvider
             )
         {
             _messenger = messenger;
@@ -48,7 +56,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _primaryViewPlayerManager = primaryViewPlayerManager;
             _localObjectStorage = localObjectStorageHelper;
             _queuePlaylist = queuePlaylist;
-
+            _nicoVideoProvider = nicoVideoProvider;
+            _nicoLiveProvider = nicoLiveProvider;
             DisplayMode = ReadDisplayMode();
 
             _messenger.Register<VideoPlayRequestMessage>(this);
@@ -57,58 +66,10 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         }
 
 
-        async Task PlayWithCurrentView(PlayerDisplayView displayMode, string pageName, INavigationParameters parameters)
-        {
-            using (await _asyncLock.LockAsync(default))
-            {
-                if (string.IsNullOrEmpty(pageName)) { throw new ArgumentException(nameof(pageName)); }
-
-                if (displayMode == PlayerDisplayView.PrimaryView)
-                {
-                    if (_primaryViewPlayerManager.DisplayMode != PrimaryPlayerDisplayMode.Close)
-                    {
-                        if (DisplayMode == displayMode
-                        && _lastNavigatedPageName == pageName
-                        && (_lastNavigatedParameters?.SequenceEqual(parameters) ?? false))
-                        {
-                            System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
-                            return;
-                        }
-                    }
-
-                    await _secondaryPlayerManager.CloseAsync().ConfigureAwait(false);
-
-                    await Task.Delay(10);
-                    
-                    _ = _primaryViewPlayerManager.NavigationAsync(pageName, parameters);
-                }
-                else
-                {
-                    if (DisplayMode == displayMode
-                    && _secondaryPlayerManager.LastNavigationPageName == pageName
-                    && (_lastNavigatedParameters?.SequenceEqual(parameters) ?? false))
-                    {
-                        System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
-                        await _secondaryPlayerManager.ShowSecondaryViewAsync();
-                        return;
-                    }
-
-                    _primaryViewPlayerManager.Close();
-
-                    await Task.Delay(10);
-
-                    _ = _secondaryPlayerManager.NavigationAsync(pageName, parameters).ConfigureAwait(false);
-                }
-
-                _lastNavigatedPageName = pageName;
-                _lastNavigatedParameters = parameters;
-            }
-        }
 
         public PlayerDisplayView DisplayMode { get; private set; }
-        string _lastNavigatedPageName;
-        INavigationParameters _lastNavigatedParameters;
-
+        
+        private LiveId? _lastPlayedLive;
         private PlaylistItem? _lastPlayedItem;
 
 
@@ -118,9 +79,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         }
 
 
-        private readonly LocalObjectStorageHelper _localObjectStorage;
-        private readonly QueuePlaylist _queuePlaylist;
-        
+
         void SaveDisplayMode()
         {
             _localObjectStorage.Save(nameof(PlayerDisplayView), DisplayMode);
@@ -131,29 +90,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             return _localObjectStorage.Read<PlayerDisplayView>(nameof(PlayerDisplayView));
         }
 
-        public async void Receive(PlayerPlayLiveRequestMessage message)
-        {
-            var pageName = nameof(Presentation.Views.Player.LivePlayerPage);
-            var parameters = new NavigationParameters("id=" + message.Value.LiveId);
-
-            // 生放送再生開始前に動画の再生を中止
-            if (DisplayMode == PlayerDisplayView.PrimaryView)
-            {
-                await _primaryViewPlayerManager.PlaylistPlayer.ClearAsync();
-            }
-            else
-            {
-                if (_secondaryPlayerManager.PlaylistPlayer != null)
-                {
-                    await _secondaryPlayerManager.PlaylistPlayer.ClearAsync();
-                }
-            }
-
-            await PlayWithCurrentView(DisplayMode, pageName, parameters);
-
-            // 生放送視聴した場合には動画視聴の情報をクリア
-            _lastPlayedItem = null;
-        }
 
         public async void Receive(ChangePlayerDisplayViewRequestMessage message)
         {
@@ -166,14 +102,16 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             {
                 await VideoPlayAsync(_lastPlayedItem, mode, nowViewChanging);
             }
-            else if (_lastNavigatedPageName != null && _lastNavigatedParameters != null)
+            else if (_lastPlayedLive != null)
             {
-                await PlayWithCurrentView(mode, _lastNavigatedPageName, _lastNavigatedParameters);
+                await PlayLiveAsync(_lastPlayedLive.Value, mode, nowViewChanging);
             }
         }
 
         public void Receive(VideoPlayRequestMessage message)
         {
+            _lastPlayedLive = null;
+
             static PlaylistItem ToPlaylistItem(VideoPlayRequestMessage message, QueuePlaylist queuePlaylist)
             {
                 if (message.PlaylistItem != null) { return message.PlaylistItem; }
@@ -226,78 +164,160 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             message.Reply(VideoPlayAsync(ToPlaylistItem(message, _queuePlaylist), DisplayMode));
         }
 
-        private async Task<VideoPlayRequestMessageData> VideoPlayAsync(PlaylistItem playlistItem, PlayerDisplayView displayMode, bool nowViewChanging = false, TimeSpan? initialPosition = null)
+        public async void Receive(PlayerPlayLiveRequestMessage message)
         {
-            using (await _asyncLock.LockAsync(default))
+            // 生放送視聴した場合には動画視聴の情報をクリア
+            _lastPlayedItem = null;
+
+            // 生放送再生開始前に動画の再生を中止
+            if (DisplayMode == PlayerDisplayView.PrimaryView)
             {
-                var pageName = nameof(Presentation.Views.Player.VideoPlayerPage);
-                
-                static async Task Play(HohoemaPlaylistPlayer player, PlaylistItem playlistItem, TimeSpan? initialPosition)
+                await _primaryViewPlayerManager.ClearVideoPlayerAsync();
+            }
+            else 
+            {
+                await _secondaryPlayerManager.ClearVideoPlayerAsync();
+            }
+
+            await PlayLiveAsync(message.Value.LiveId, DisplayMode, false);
+        }
+
+
+
+
+        // 動画はHohoemaPlaylistPlayerのモデルによって動画コンテンツの読み込み管理を行っているため
+        // ViewModelの動画ページへのナビゲーションは一回だけでいい
+
+        private async Task<VideoPlayRequestMessageData> VideoPlayAsync(PlaylistItem playlistItem, PlayerDisplayView displayMode, bool nowViewChanging = false)
+        {
+            static async Task Play(HohoemaPlaylistPlayer player, PlaylistItem playlistItem, TimeSpan? initialPosition)
+            {
+                await player.PlayAsync(playlistItem, initialPosition);
+            }
+
+            var pageName = nameof(Presentation.Views.Player.VideoPlayerPage);
+
+            using var _ = await _asyncLock.LockAsync(default);            
+            if (displayMode == PlayerDisplayView.PrimaryView)
+            {
+                TimeSpan? initialPosition = null;
+                if (_secondaryPlayerManager.PlaylistPlayer != null
+                    && _secondaryPlayerManager.PlaylistPlayer.CurrentPlaylistItem == playlistItem)
                 {
-                    await player.PlayAsync(playlistItem, initialPosition);
+                    initialPosition = _secondaryPlayerManager.PlaylistPlayer.GetCurrentPlaybackPosition();
                 }
 
-                if (displayMode == PlayerDisplayView.PrimaryView)
+                await _secondaryPlayerManager.CloseAsync().ConfigureAwait(false);
+
+                if (_primaryViewPlayerManager.DisplayMode != PrimaryPlayerDisplayMode.Close
+                    || nowViewChanging
+                    || _primaryViewPlayerManager.LastNavigatedPageName != pageName
+                    )
                 {
-                    if (_secondaryPlayerManager.PlaylistPlayer != null 
-                        && _secondaryPlayerManager.PlaylistPlayer.CurrentPlaylistItem == playlistItem)
-                    {
-                        initialPosition = _secondaryPlayerManager.PlaylistPlayer.GetCurrentPlaybackPosition();
-                    }
-
-                    await _secondaryPlayerManager.CloseAsync().ConfigureAwait(false);
-
-                    // 動画ページへの遷移が必要なときだけ遷移
-                    if (_primaryViewPlayerManager.DisplayMode != PrimaryPlayerDisplayMode.Close
-                        || nowViewChanging
-                        || _lastNavigatedPageName != pageName
-                        )
-                    {
-                        System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
-                        await _primaryViewPlayerManager.NavigationAsync(pageName, null);
-                    }
-
-                    await Task.Delay(10);
-
-                    await Play(_primaryViewPlayerManager.PlaylistPlayer, playlistItem, initialPosition);
-
-                    _lastNavigatedPageName = pageName;
-                    _lastNavigatedParameters = null;
-                    _lastPlayedItem = playlistItem;
-
-                    return new VideoPlayRequestMessageData() { IsSuccess = true };
+                    System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
+                    await _primaryViewPlayerManager.NavigationAsync(pageName, null);
                 }
-                else
+
+                await Play(_primaryViewPlayerManager.PlaylistPlayer, playlistItem, initialPosition);
+
+                _primaryViewPlayerManager.SetTitle(await ResolveVideoContentNameAsync(playlistItem.ItemId));
+
+                _lastPlayedItem = playlistItem;
+
+                return new VideoPlayRequestMessageData() { IsSuccess = true };
+            }
+            else
+            {
+                TimeSpan? initialPosition = null;
+                if (_primaryViewPlayerManager.PlaylistPlayer != null 
+                    && _primaryViewPlayerManager.PlaylistPlayer.CurrentPlaylistItem == playlistItem)
                 {
-                    if (_primaryViewPlayerManager.PlaylistPlayer != null
-                        && _primaryViewPlayerManager.PlaylistPlayer.CurrentPlaylistItem == playlistItem)
-                    {
-                        initialPosition = _primaryViewPlayerManager.PlaylistPlayer.GetCurrentPlaybackPosition();
-                    }
+                    initialPosition = _primaryViewPlayerManager.PlaylistPlayer.GetCurrentPlaybackPosition();
+                }
 
-                    _primaryViewPlayerManager.Close();
+                await _primaryViewPlayerManager.CloseAsync();
 
-                    // TODO: PlayAsyncは呼び出しつつ、NavigationAsyncだけskipしたい
-                    if (nowViewChanging
+                if (nowViewChanging
                     || _secondaryPlayerManager.LastNavigationPageName != pageName
+                )
+                {
+                    await _secondaryPlayerManager.NavigationAsync(pageName, null).ConfigureAwait(false);
+                }
+
+                await _secondaryPlayerManager.ShowSecondaryViewAsync();
+
+                await Play(_secondaryPlayerManager.PlaylistPlayer, playlistItem, initialPosition);
+
+                _secondaryPlayerManager.SetTitle(await ResolveVideoContentNameAsync(playlistItem.ItemId));
+
+                _lastPlayedItem = playlistItem;
+
+                return new VideoPlayRequestMessageData() { IsSuccess = true };
+            }
+           
+        }
+
+
+        // 生放送はViewModelのナビゲーションベースでコンテンツ読み込みを管理しているため
+        // 新しいコンテンツごとにページをナビゲーションし直す必要がある
+
+        async Task PlayLiveAsync(LiveId liveId, PlayerDisplayView displayMode, bool nowViewChanging)
+        {
+            var pageName = nameof(Presentation.Views.Player.LivePlayerPage);
+            var parameters = new NavigationParameters("id=" + liveId);
+
+            using var _ = await _asyncLock.LockAsync(default);
+            if (displayMode == PlayerDisplayView.PrimaryView)
+            {
+                if (_primaryViewPlayerManager.DisplayMode != PrimaryPlayerDisplayMode.Close)
+                {
+                    if (!nowViewChanging
+                        && _lastPlayedLive == liveId
                     )
                     {
-                        await _secondaryPlayerManager.NavigationAsync(pageName, null).ConfigureAwait(false);
+                        System.Diagnostics.Debug.WriteLine("Navigation skiped. (same LiveId)");
+                        return;
                     }
-
-                    await _secondaryPlayerManager.ShowSecondaryViewAsync();
-
-                    await Task.Delay(10);
-
-                    await Play(_secondaryPlayerManager.PlaylistPlayer, playlistItem, initialPosition);
-
-                    _lastNavigatedPageName = pageName;
-                    _lastNavigatedParameters = null;
-                    _lastPlayedItem = playlistItem;
-
-                    return new VideoPlayRequestMessageData() { IsSuccess = true };
                 }
+
+                await _secondaryPlayerManager.CloseAsync().ConfigureAwait(false);
+
+                await _primaryViewPlayerManager.NavigationAsync(pageName, parameters);
+
+                _primaryViewPlayerManager.SetTitle(await ResolveLiveContentNameAsync(liveId));
+
+                _lastPlayedLive = liveId;
             }
+            else
+            {
+                if (DisplayMode == displayMode
+                    && _secondaryPlayerManager.LastNavigationPageName == pageName
+                    && _lastPlayedLive == liveId)
+                {
+                    System.Diagnostics.Debug.WriteLine("Navigation skiped. (same LiveId)");
+                    await _secondaryPlayerManager.ShowSecondaryViewAsync();
+                    return;
+                }
+
+                await _primaryViewPlayerManager.CloseAsync();
+
+                await _secondaryPlayerManager.NavigationAsync(pageName, parameters).ConfigureAwait(false);
+
+                _secondaryPlayerManager.SetTitle(await ResolveLiveContentNameAsync(liveId));
+
+                _lastPlayedLive = liveId;
+            }            
+        }
+
+
+        async ValueTask<string> ResolveVideoContentNameAsync(VideoId videoId)
+        {
+            return await _nicoVideoProvider.ResolveVideoTitleAsync(videoId);
+        }
+
+        async ValueTask<string> ResolveLiveContentNameAsync(LiveId liveId)
+        {
+            return await _nicoLiveProvider.ResolveLiveContentNameAsync(liveId);
         }
     }
 }

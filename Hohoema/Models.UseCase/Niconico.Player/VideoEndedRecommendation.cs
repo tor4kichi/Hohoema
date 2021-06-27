@@ -209,7 +209,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                         _primaryViewPlayerManager.ShowWithWindowInWindow();
                         return true;
                     case PlaylistEndAction.CloseIfPlayWithCurrentWindow:
-                        _primaryViewPlayerManager.Close();
+                        _primaryViewPlayerManager.CloseAsync();
                         return true;
                 }
 

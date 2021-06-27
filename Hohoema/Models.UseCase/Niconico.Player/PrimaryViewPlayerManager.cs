@@ -43,8 +43,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         IScheduler _scheduler;
         private readonly Lazy<INavigationService> _navigationServiceLazy;
         private readonly RestoreNavigationManager _restoreNavigationManager;
-        private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
-        private readonly NicoVideoProvider _nicoVideoProvider;
         PrimaryPlayerDisplayMode _prevDisplayMode;
 
         Models.Helpers.AsyncLock _navigationLock = new Models.Helpers.AsyncLock();
@@ -52,8 +50,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         public PrimaryViewPlayerManager(IScheduler scheduler,
             [Unity.Attributes.Dependency("PrimaryPlayerNavigationService")] Lazy<INavigationService> navigationServiceLazy,
             RestoreNavigationManager restoreNavigationManager,
-            NicoLiveCacheRepository nicoLiveCacheRepository,
-            NicoVideoProvider nicoVideoProvider,
             HohoemaPlaylistPlayer hohoemaPlaylistPlayer
             )
         {
@@ -61,8 +57,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _scheduler = scheduler;
             _navigationServiceLazy = navigationServiceLazy;
             _restoreNavigationManager = restoreNavigationManager;
-            _nicoLiveCacheRepository = nicoLiveCacheRepository;
-            _nicoVideoProvider = nicoVideoProvider;
             PlaylistPlayer = hohoemaPlaylistPlayer;
             _navigationService = null;
 
@@ -73,6 +67,13 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     _prevDisplayMode = x;
                 });
         }
+
+        public void SetTitle(string title)
+        {
+            _view.Title = title;
+        }
+
+        public string LastNavigatedPageName { get; private set; }
 
         public async Task NavigationAsync(string pageName, INavigationParameters parameters)
         {
@@ -100,11 +101,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                             _view.Title = string.Empty;
                             throw result.Exception ?? new Models.Infrastructure.HohoemaExpception("unknown navigation error.");
                         }
-                        else
-                        {
-                            var name = await ResolveContentNameAsync(pageName, parameters);
-                            _view.Title = name != null ? $"{name}" : string.Empty;
-                        }
+
+                        LastNavigatedPageName = pageName;
 
                         Analytics.TrackEvent("PlayerNavigation", new Dictionary<string, string>
                         {
@@ -127,40 +125,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             using (await _navigationLock.LockAsync()) { }
         }
 
-        async ValueTask<string> ResolveContentNameAsync(string pageName, INavigationParameters parameters)
-        {
-            if (parameters == null)
-            {
-                return null;
-            }
-            else if (pageName == nameof(VideoPlayerPage))
-            {
-                if (parameters.TryGetValue("id", out string videoId))
-                {
-                    return await _nicoVideoProvider.ResolveVideoTitleAsync(videoId);
-                }
-                else if (parameters.TryGetValue("id", out VideoId justVideoId))
-                {
-                    return await _nicoVideoProvider.ResolveVideoTitleAsync(justVideoId);
-                }
-            }
-            else if (pageName == nameof(LivePlayerPage))
-            {
-                if (parameters.TryGetValue("id", out string liveId))
-                {
-                    var liveData = _nicoLiveCacheRepository.Get(liveId);
-                    return liveData?.Title;
-                }
-                else if (parameters.TryGetValue("id", out LiveId justLiveId))
-                {
-                    var liveData = _nicoLiveCacheRepository.Get(justLiveId);
-                    return liveData?.Title;
-                }
-            }
-
-            return null;
-        }
-
         PrimaryPlayerDisplayMode _lastPlayedDisplayMode = PrimaryPlayerDisplayMode.Fill;
 
 
@@ -171,13 +135,19 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             set { SetProperty(ref _DisplayMode, value); }
         }
 
-        public void Close()
+        public async Task CloseAsync()
         {
-            _ = PlaylistPlayer.ClearAsync();
+            await PlaylistPlayer.ClearAsync();
+            LastNavigatedPageName = null;
             _lastPlayedDisplayMode = DisplayMode == PrimaryPlayerDisplayMode.Close ? _lastPlayedDisplayMode : DisplayMode;
             DisplayMode = PrimaryPlayerDisplayMode.Close;
-            _view.Title = "";
+            _view.Title = string.Empty;
             _restoreNavigationManager.ClearCurrentPlayerEntry();
+        }
+
+        public async Task ClearVideoPlayerAsync()
+        {
+            await PlaylistPlayer.ClearAsync();
         }
 
         public void ShowWithFill()
@@ -293,7 +263,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         DelegateCommand _closeCommand;
         public DelegateCommand CloseCommand => _closeCommand 
-            ?? (_closeCommand = new DelegateCommand(Close));
+            ?? (_closeCommand = new DelegateCommand(async () => await CloseAsync()));
 
         DelegateCommand _WindowInWindowCommand;
         public DelegateCommand WindowInWindowCommand => _WindowInWindowCommand

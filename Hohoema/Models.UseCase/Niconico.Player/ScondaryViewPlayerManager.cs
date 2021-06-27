@@ -52,15 +52,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public ScondaryViewPlayerManager(
             IScheduler scheduler,
-            RestoreNavigationManager restoreNavigationManager,
-            NicoVideoProvider nicoVideoProvider,
-            NicoLiveCacheRepository nicoLiveCacheRepository
+            RestoreNavigationManager restoreNavigationManager
             )
         {
             _scheduler = scheduler;
             _restoreNavigationManager = restoreNavigationManager;
-            _nicoVideoProvider = nicoVideoProvider;
-            _nicoLiveCacheRepository = nicoLiveCacheRepository;
             MainViewId = ApplicationView.GetApplicationViewIdForWindow(CoreApplication.MainView.CoreWindow);
         }
 
@@ -107,8 +103,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         public const string secondary_view_size = "secondary_view_size";
         private readonly IScheduler _scheduler;
         private readonly RestoreNavigationManager _restoreNavigationManager;
-        private readonly NicoVideoProvider _nicoVideoProvider;
-        private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
 
         private async Task CreateSecondaryView()
         {
@@ -238,6 +232,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public string LastNavigationPageName { get; private set; }
 
+        public void SetTitle(string title)
+        {
+            SecondaryAppView.Title = title;
+        }
+
         public async Task NavigationAsync(string pageName, INavigationParameters parameters)
         {
             LastNavigationPageName = pageName;
@@ -251,12 +250,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 await SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(async () =>
                 {
                     var result = await SecondaryViewPlayerNavigationService.NavigateAsync(pageName, parameters, _PlayerPageNavgationTransitionInfo);
-                    if (result.Success)
-                    {
-                        var name = await ResolveContentNameAsync(pageName, parameters);
-                        SecondaryAppView.Title = name != null ? $"{name}" : "Hohoema";
-                    }
-                    else
+                    if (!result.Success)
                     {
                         Debug.WriteLine(result.Exception?.ToString());
                         await CloseAsync();
@@ -284,39 +278,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         }
 
 
-        async ValueTask<string> ResolveContentNameAsync(string pageName, INavigationParameters parameters)
-        {
-            if (parameters == null)
-            {
-                return null;
-            }
-            else if (pageName == nameof(VideoPlayerPage))
-            {
-                if (parameters.TryGetValue("id", out string videoId))
-                {
-                    return await _nicoVideoProvider.ResolveVideoTitleAsync(videoId);
-                }
-                else if (parameters.TryGetValue("id", out VideoId justVideoId))
-                {
-                    return await _nicoVideoProvider.ResolveVideoTitleAsync(justVideoId);
-                }
-            }
-            else if (pageName == nameof(LivePlayerPage))
-            {
-                if (parameters.TryGetValue("id", out string liveId))
-                {
-                    var liveData = _nicoLiveCacheRepository.Get(liveId);
-                    return liveData?.Title;
-                }
-                else if (parameters.TryGetValue("id", out LiveId justLiveId))
-                {
-                    var liveData = _nicoLiveCacheRepository.Get(justLiveId);
-                    return liveData?.Title;
-                }
-            }
-
-            return null;
-        }
+        
 
         /// <summary>
         /// SecondaryViewを閉じます。
@@ -337,6 +299,19 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(BlankPage), _BlankPageNavgationTransitionInfo);
 
                 await SecondaryAppView.TryConsolidateAsync();
+            });
+        }
+
+
+        public async Task ClearVideoPlayerAsync()
+        {
+            if (PlaylistPlayer == null) { return; }
+
+            await SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(async () =>
+            {
+                await PlaylistPlayer.ClearAsync();
+
+                SecondaryAppView.Title = "Hohoema";
             });
         }
 
