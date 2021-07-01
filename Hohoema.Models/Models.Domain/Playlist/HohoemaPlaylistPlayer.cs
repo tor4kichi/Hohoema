@@ -593,9 +593,18 @@ namespace Hohoema.Models.Domain.Playlist
             StopStateSavingTimer();
         }
 
-        public async Task ReopenAsync(TimeSpan position = default)
+        public async Task ReopenAsync(TimeSpan? position = null)
         {
-            throw new NotImplementedException();
+            if (CurrentPlaylist != null 
+                && CurrentPlaylistItem != null)
+            {
+                if (position == null)
+                {
+                    position = _mediaPlayer.PlaybackSession?.Position;
+                }
+
+                await UpdatePlayingMediaAsync(CurrentPlaylistItem, position);
+            }
         }
 
         public async Task PlayAsync(IPlaylist playlist)
