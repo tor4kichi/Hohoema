@@ -15,6 +15,8 @@ using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Live;
 using NiconicoToolkit.Live;
+using Hohoema.Models.UseCase.Playlist;
+using Microsoft.Toolkit.Diagnostics;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -38,7 +40,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         private readonly QueuePlaylist _queuePlaylist;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly NicoLiveProvider _nicoLiveProvider;
-
+        private readonly PlaylistItemsSourceResolver _playlistItemsSourceResolver;
         FastAsyncLock _asyncLock = new FastAsyncLock();
 
         public VideoPlayRequestBridgeToPlayer(
@@ -48,7 +50,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             LocalObjectStorageHelper localObjectStorageHelper,
             QueuePlaylist queuePlaylist,
             NicoVideoProvider nicoVideoProvider,
-            NicoLiveProvider nicoLiveProvider
+            NicoLiveProvider nicoLiveProvider,
+            PlaylistItemsSourceResolver playlistItemsSourceResolver
             )
         {
             _messenger = messenger;
@@ -58,6 +61,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _queuePlaylist = queuePlaylist;
             _nicoVideoProvider = nicoVideoProvider;
             _nicoLiveProvider = nicoLiveProvider;
+            _playlistItemsSourceResolver = playlistItemsSourceResolver;
             DisplayMode = ReadDisplayMode();
 
             _messenger.Register<VideoPlayRequestMessage>(this);
@@ -70,7 +74,10 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         public PlayerDisplayView DisplayMode { get; private set; }
         
         private LiveId? _lastPlayedLive;
-        private PlaylistItem? _lastPlayedItem;
+
+        private IPlaylist _lastPlaylist;
+        private IVideoContent? _lastPlayedItem;
+        private int _lastPlayedItemIndex;
 
 
         public void Dispose()
@@ -100,7 +107,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
             if (_lastPlayedItem != null)
             {
-                await VideoPlayAsync(_lastPlayedItem, mode, nowViewChanging);
+                await VideoPlayAsync(_lastPlaylist, _lastPlayedItem, mode, nowViewChanging);
             }
             else if (_lastPlayedLive != null)
             {
@@ -112,56 +119,62 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         {
             _lastPlayedLive = null;
 
-            static PlaylistItem ToPlaylistItem(VideoPlayRequestMessage message, QueuePlaylist queuePlaylist)
+            async Task<VideoPlayRequestMessageData> ResolvePlay(VideoPlayRequestMessage message)
             {
-                if (message.PlaylistItem != null) { return message.PlaylistItem; }
-
-
-                bool isPlaylistReady = message.PlaylistId != null
-                    && message.PlaylistOrigin != null;
-                bool isVideoReady = message.VideoId != null && message.VideoId != default(VideoId);
-
-
-                if (isPlaylistReady && isVideoReady)
+                IPlaylist playlist = null;
+                if (message.PlayWithQueue ?? false)
                 {
-                    if (message.PlaylistId == QueuePlaylist.Id.Id && message.PlaylistOrigin == PlaylistItemsSourceOrigin.Local)
+                    playlist = _queuePlaylist;
+                }
+                else if (message.Playlist != null)
+                {
+                    playlist = message.Playlist;
+                }
+                else if (message.PlaylistId == QueuePlaylist.Id.Id && message.PlaylistOrigin == PlaylistItemsSourceOrigin.Local)
+                {
+                    playlist = _queuePlaylist;
+                }
+                else if (message.PlaylistId != null)
+                {
+                    Guard.IsNotNull(message.PlaylistId, nameof(message.PlaylistId));
+                    Guard.IsNotNull(message.PlaylistOrigin, nameof(message.PlaylistOrigin));
+
+                    var playlistId = new PlaylistId() { Id = message.PlaylistId, Origin = message.PlaylistOrigin.Value };
+                    playlist = await _playlistItemsSourceResolver.ResolveItemsSource(playlistId, message.PlaylistSortOptionsAsString ?? string.Empty);
+                }
+
+                IVideoContent videoResolved = null;
+                if (message.PlaylistItem != null)
+                {
+                    videoResolved = message.PlaylistItem;
+                }
+                else if (playlist.PlaylistId == QueuePlaylist.Id)
+                {
+                    if (message.VideoId is not null and VideoId videoId)
                     {
-                        if (!queuePlaylist.Contains(message.VideoId.Value))
+                        if (!_queuePlaylist.Contains(message.VideoId.Value))
                         {
-                            return queuePlaylist.Insert(0, message.VideoId.Value);
+                            videoResolved = _nicoVideoProvider.GetCachedVideoInfo(message.VideoId.Value);
+                            _queuePlaylist.Insert(0, videoResolved);
                         }
                         else
                         {
-                            return queuePlaylist.First(x => x.ItemId == message.VideoId.Value);
+                            var queueItem = _queuePlaylist.First(x => x.VideoId == message.VideoId.Value);
+                            videoResolved = queueItem;
                         }
                     }
-                    else
-                    {
-                        return new PlaylistItem(new PlaylistId() { Id = message.PlaylistId, Origin = message.PlaylistOrigin.Value, SortOptions = message.PlaylistSortOptions }, -1, message.VideoId.Value);
-                    }
                 }
-                else if (isPlaylistReady)
+                else if (message.VideoId is not null and VideoId videoId)
                 {
-                    return new PlaylistItem(new PlaylistId() { Id = message.PlaylistId, Origin = message.PlaylistOrigin.Value, SortOptions = message.PlaylistSortOptions }, -1, default(VideoId));
-                }
-                else if (isVideoReady)
-                {
-                    if (!queuePlaylist.Contains(message.VideoId.Value))
-                    {
-                        return queuePlaylist.Insert(0, message.VideoId.Value);
-                    }
-                    else
-                    {
-                        return queuePlaylist.First(x => x.ItemId == message.VideoId.Value);
-                    }
-                }
-                else
-                {
-                    throw new HohoemaExpception();
+                    videoResolved = _nicoVideoProvider.GetCachedVideoInfo(message.VideoId.Value);
                 }
 
+                Guard.IsTrue(videoResolved != null || playlist != null, "Video and Playlist empty both of values. require not null each value or not null both.");
+
+                return await VideoPlayAsync(playlist, videoResolved, DisplayMode);
             }
-            message.Reply(VideoPlayAsync(ToPlaylistItem(message, _queuePlaylist), DisplayMode));
+
+            message.Reply(ResolvePlay(message));
         }
 
         public async void Receive(PlayerPlayLiveRequestMessage message)
@@ -188,73 +201,63 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         // 動画はHohoemaPlaylistPlayerのモデルによって動画コンテンツの読み込み管理を行っているため
         // ViewModelの動画ページへのナビゲーションは一回だけでいい
 
-        private async Task<VideoPlayRequestMessageData> VideoPlayAsync(PlaylistItem playlistItem, PlayerDisplayView displayMode, bool nowViewChanging = false)
+        private async Task<VideoPlayRequestMessageData> VideoPlayAsync(IPlaylist playlist, IVideoContent playlistItem, PlayerDisplayView displayMode, bool nowViewChanging = false)
         {
-            static async Task Play(HohoemaPlaylistPlayer player, PlaylistItem playlistItem, TimeSpan? initialPosition)
+            static async Task Play(HohoemaPlaylistPlayer player, IPlaylist playlist, IVideoContent playlistItem, TimeSpan? initialPosition)
             {
-                await player.PlayAsync(playlistItem, initialPosition);
+                if (playlistItem == null)
+                {
+                    await player.PlayAsync(playlist);
+                }
+                else
+                {
+                    await player.PlayAsync(playlist, playlistItem, initialPosition);
+                }
+            }
+            
+            using var _ = await _asyncLock.LockAsync(default);
+
+            IPlayerView sourcePlayerView = displayMode == PlayerDisplayView.PrimaryView ? _primaryViewPlayerManager : _secondaryPlayerManager;
+            IPlayerView destPlayerView = displayMode == PlayerDisplayView.PrimaryView ? _secondaryPlayerManager : _primaryViewPlayerManager;
+
+            Guard.IsReferenceNotEqualTo(sourcePlayerView, destPlayerView, nameof(sourcePlayerView));
+
+            TimeSpan? initialPosition = null;
+            if (destPlayerView.PlaylistPlayer != null
+                && destPlayerView.PlaylistPlayer.CurrentPlaylistItem == playlistItem)
+            {
+                initialPosition = destPlayerView.PlaylistPlayer.GetCurrentPlaybackPosition();
             }
 
-            var pageName = nameof(Presentation.Views.Player.VideoPlayerPage);
+            await destPlayerView.CloseAsync().ConfigureAwait(false);
 
-            using var _ = await _asyncLock.LockAsync(default);            
-            if (displayMode == PlayerDisplayView.PrimaryView)
-            {
-                TimeSpan? initialPosition = null;
-                if (_secondaryPlayerManager.PlaylistPlayer != null
-                    && _secondaryPlayerManager.PlaylistPlayer.CurrentPlaylistItem == playlistItem)
-                {
-                    initialPosition = _secondaryPlayerManager.PlaylistPlayer.GetCurrentPlaybackPosition();
-                }
-
-                await _secondaryPlayerManager.CloseAsync().ConfigureAwait(false);
-
-                if (_primaryViewPlayerManager.DisplayMode != PrimaryPlayerDisplayMode.Close
-                    || nowViewChanging
-                    || _primaryViewPlayerManager.LastNavigatedPageName != pageName
-                    )
-                {
-                    System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
-                    await _primaryViewPlayerManager.NavigationAsync(pageName, null);
-                }
-
-                await Play(_primaryViewPlayerManager.PlaylistPlayer, playlistItem, initialPosition);
-
-                _primaryViewPlayerManager.SetTitle(await ResolveVideoContentNameAsync(playlistItem.ItemId));
-
-                _lastPlayedItem = playlistItem;
-
-                return new VideoPlayRequestMessageData() { IsSuccess = true };
-            }
-            else
-            {
-                TimeSpan? initialPosition = null;
-                if (_primaryViewPlayerManager.PlaylistPlayer != null 
-                    && _primaryViewPlayerManager.PlaylistPlayer.CurrentPlaylistItem == playlistItem)
-                {
-                    initialPosition = _primaryViewPlayerManager.PlaylistPlayer.GetCurrentPlaybackPosition();
-                }
-
-                await _primaryViewPlayerManager.CloseAsync();
-
-                if (nowViewChanging
-                    || _secondaryPlayerManager.LastNavigationPageName != pageName
+            if (nowViewChanging
+                || sourcePlayerView.LastNavigatedPageName != nameof(Presentation.Views.Player.VideoPlayerPage)
                 )
-                {
-                    await _secondaryPlayerManager.NavigationAsync(pageName, null).ConfigureAwait(false);
-                }
-
-                await _secondaryPlayerManager.ShowSecondaryViewAsync();
-
-                await Play(_secondaryPlayerManager.PlaylistPlayer, playlistItem, initialPosition);
-
-                _secondaryPlayerManager.SetTitle(await ResolveVideoContentNameAsync(playlistItem.ItemId));
-
-                _lastPlayedItem = playlistItem;
-
-                return new VideoPlayRequestMessageData() { IsSuccess = true };
+            {
+                System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
+                await sourcePlayerView.NavigationAsync(nameof(Presentation.Views.Player.VideoPlayerPage), null);
             }
-           
+
+            if (playlist.IsQueuePlaylist()
+                && nowViewChanging
+                && playlistItem != null
+                && !_queuePlaylist.Contains(playlistItem)
+                )
+            {
+                _queuePlaylist.Insert(0, playlistItem);
+            }
+
+            await sourcePlayerView.ShowAsync();
+
+            await Play(sourcePlayerView.PlaylistPlayer, playlist, playlistItem, initialPosition);
+
+            // プレイリストから再生した場合playlistItemがnullのケースがありうる
+            sourcePlayerView.SetTitle(await ResolveVideoContentNameAsync(sourcePlayerView.PlaylistPlayer.CurrentPlaylistItem.VideoId));
+
+            _lastPlayedItem = playlistItem;
+            _lastPlaylist = playlist;
+            return new VideoPlayRequestMessageData() { IsSuccess = true };
         }
 
 
@@ -291,11 +294,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             else
             {
                 if (DisplayMode == displayMode
-                    && _secondaryPlayerManager.LastNavigationPageName == pageName
+                    && _secondaryPlayerManager.LastNavigatedPageName == pageName
                     && _lastPlayedLive == liveId)
                 {
                     System.Diagnostics.Debug.WriteLine("Navigation skiped. (same LiveId)");
-                    await _secondaryPlayerManager.ShowSecondaryViewAsync();
+                    await _secondaryPlayerManager.ShowAsync();
                     return;
                 }
 

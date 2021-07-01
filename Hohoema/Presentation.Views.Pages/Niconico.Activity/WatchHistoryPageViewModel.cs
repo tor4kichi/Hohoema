@@ -29,7 +29,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
             NiconicoSession niconicoSession,
             WatchHistoryManager watchHistoryManager,
             PageManager pageManager,
-            VideoPlayCommand videoPlayCommand,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             WatchHistoryRemoveAllCommand watchHistoryRemoveAllCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
@@ -38,7 +38,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
             _niconicoSession = niconicoSession;
             _watchHistoryManager = watchHistoryManager;
             PageManager = pageManager;
-            VideoPlayCommand = videoPlayCommand;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             WatchHistoryRemoveAllCommand = watchHistoryRemoveAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             Histories = new ObservableCollection<HistoryVideoListItemControlViewModel>();
@@ -49,7 +49,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
-        public VideoPlayCommand VideoPlayCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
         public WatchHistoryRemoveAllCommand WatchHistoryRemoveAllCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public ObservableCollection<HistoryVideoListItemControlViewModel> Histories { get; }

@@ -45,7 +45,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         public SearchProvider SearchProvider { get; }
         public SubscriptionManager SubscriptionManager1 { get; }
         public PageManager PageManager { get; }
-        public VideoPlayCommand VideoPlayCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
         public AddKeywordSearchSubscriptionCommand AddKeywordSearchSubscriptionCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public SubscriptionManager SubscriptionManager { get; }
@@ -56,7 +56,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             SubscriptionManager subscriptionManager,
             PageManager pageManager,
             SearchHistoryRepository searchHistoryRepository,
-            VideoPlayCommand videoPlayCommand,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             AddKeywordSearchSubscriptionCommand addKeywordSearchSubscriptionCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
@@ -96,7 +96,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             SearchProvider = searchProvider;
             PageManager = pageManager;
             _searchHistoryRepository = searchHistoryRepository;
-            VideoPlayCommand = videoPlayCommand;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             AddKeywordSearchSubscriptionCommand = addKeywordSearchSubscriptionCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             SubscriptionManager = subscriptionManager;

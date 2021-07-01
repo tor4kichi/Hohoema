@@ -7,6 +7,10 @@ using Hohoema.Models.Domain.Niconico.Video;
 using NiconicoToolkit.Account;
 using NiconicoToolkit.Video;
 using System.Linq;
+using Hohoema.Models.Domain.Playlist;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Threading;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 {
@@ -41,9 +45,11 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
         public IReadOnlyCollection<VideoId> FailedItems { get; internal set; }
     }
 
-    public class LoginUserMylistPlaylist : MylistPlaylist
+    public class LoginUserMylistPlaylist : MylistPlaylist, IUserManagedPlaylist
     {
         LoginUserMylistProvider _loginUserMylistProvider;
+
+        public int TotalCount => Count;
 
         public LoginUserMylistPlaylist(MylistId id, LoginUserMylistProvider loginUserMylistProvider)
             : base(id)
@@ -69,24 +75,18 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             }
         }
 
-        public async Task<List<(MylistItem MylistItem, NicoVideo NicoVideo)>> GetAll(MylistSortKey sortKey, MylistSortOrder sortOrder)
+        public override async Task<MylistItemsGetResult> GetItemsAsync(int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
-            List<(MylistItem, NicoVideo)> items = new();
-            int page = 0;
-
-            while (items.Count != Count)
+            try
             {
-                var res = await _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this, page, 25, sortKey, sortOrder);
-                items.AddRange(res);
-                page++;
+                return await _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this, page, pageSize, sortKey, sortOrder);
+            }
+            catch
+            {
+
             }
 
-            return items;
-        }
-
-        public Task<List<(MylistItem MylistItem, NicoVideo NicoVideo)>> GetLoginUserMylistItemsAsync(int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
-        {
-            return _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this, page, pageSize, sortKey, sortOrder);
+            return new MylistItemsGetResult() { IsSuccess = false };
         }
 
 
@@ -156,10 +156,14 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                 SuccessedItems = successed,
                 FailedItems = failed
             };
+
             MylistItemRemoved?.Invoke(this, args);
+
+            ClearAllWhenMylistChanged();
 
             return args;
         }
+
 
         public async Task<ContentManageResult> CopyItemAsync(MylistId targetMylistId, IEnumerable<VideoId> itemIds)
         {
@@ -188,10 +192,13 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                     TargetMylistId = targetMylistId,
                     SuccessedItems = result.Data.ProcessedIds.Select(x => (VideoId)x).ToArray()
                 });
+
+                ClearAllWhenMylistChanged();
             }
 
             return result.Meta.IsSuccess ? ContentManageResult.Success : ContentManageResult.Failed;
         }
+
 
         public event EventHandler<MylistItemAddedEventArgs> MylistItemAdded;
         public event EventHandler<MylistItemRemovedEventArgs> MylistItemRemoved;
@@ -199,5 +206,15 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
         public event EventHandler<MylistItemCopyEventArgs> MylistCopied;
         public event EventHandler<MylistItemMovedEventArgs> MylistMoved;
 
+        // IShufflePlaylistItemsSource 
+        private void ClearAllWhenMylistChanged()
+        {
+            foreach (var i in Enumerable.Range(0, Count))
+            {
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, null, i));
+            }
+
+        }
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
     }
 }

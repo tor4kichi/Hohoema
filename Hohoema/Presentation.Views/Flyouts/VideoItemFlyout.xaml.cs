@@ -217,40 +217,19 @@ namespace Hohoema.Presentation.Views.Flyouts
 
 
             // ここから連続再生
-            if ((SourceVideoItems?.Any() ?? false)
-                && !isMultipleSelection 
-                && (Playlist?.IsQueuePlaylist() ?? false)
+            if (!isMultipleSelection 
+                && content is not null
+                && playlist is not null
                 )
             {
-                AllPlayFromHereWithWatchAfter.Visibility = Visibility.Visible;
-                AllPlayFromHereWithWatchAfter.Command = new DelegateCommand<IVideoContent>((param) =>
-                {
-                    var index = SourceVideoItems.IndexOf(param);
-                    if (index < 0) { return; }
-                    var items = SourceVideoItems.Take(index + 1).ToList();
-                    if (items.Count >= 2)
-                    {
-                        foreach (var videoItem in items)
-                        {
-                            QueuePlaylist.Insert(0, videoItem.VideoId);
-                        }
-                    }
-
-                    if (items.Count >= 1)
-                    {
-                        var item = QueuePlaylist.First();
-                        _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(item));
-                    }
-                });
-                AllPlayFromHereWithWatchAfter.CommandParameter = dataContext;
-
+                PlaylistPlayFromHere.Visibility = Visibility.Visible;
+                PlaylistPlayFromHere.Command = new PlaylistPlayFromHereCommand(playlist, _messenger);
+                PlaylistPlayFromHere.CommandParameter = content;
             }
             else
             {
-                AllPlayFromHereWithWatchAfter.Visibility = Visibility.Collapsed;
+                PlaylistPlayFromHere.Visibility = Visibility.Collapsed;
             }
-
-
 
             // マイリスト
             AddToMylistItem.Visibility = UserMylistManager.IsLoginUserMylistReady ? Visibility.Visible : Visibility.Collapsed;

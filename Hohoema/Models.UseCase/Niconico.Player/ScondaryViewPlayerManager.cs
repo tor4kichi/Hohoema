@@ -28,11 +28,10 @@ using Hohoema.Presentation.Views.Player;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Live;
 using Hohoema.Models.Domain.Playlist;
-using Microsoft.Toolkit.Uwp;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
-    public sealed class ScondaryViewPlayerManager : FixPrism.BindableBase
+    public sealed class ScondaryViewPlayerManager : FixPrism.BindableBase, IPlayerView
     {
         /* 複数ウィンドウでプレイヤーを一つだけ表示するための管理をしています
          * 
@@ -131,7 +130,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 Window.Current.Activate();
 
                 await ApplicationViewSwitcher.TryShowAsStandaloneAsync(id, ViewSizePreference.UseHalf, MainViewId, ViewSizePreference.UseHalf);
-                
+
                 // ウィンドウサイズの保存と復元
                 if (DeviceTypeHelper.IsDesktop)
                 {
@@ -143,7 +142,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
                     view.VisibleBoundsChanged += View_VisibleBoundsChanged;
                 }
-                
+
                 PlaylistPlayer = App.Current.Container.Resolve<HohoemaPlaylistPlayer>();
 
                 view.Consolidated += SecondaryAppView_Consolidated;
@@ -158,7 +157,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             SecondaryCoreAppView = secondaryView;
             SecondaryViewPlayerNavigationService = result.ns;
 
-            _scheduler.Schedule(() => 
+            _scheduler.Schedule(() =>
             {
                 var primaryView = ApplicationView.GetForCurrentView();
                 primaryView.Consolidated += MainView_Consolidated;
@@ -207,12 +206,12 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 localObjectStorageHelper.Save(secondary_view_size, _PrevSecondaryViewSize);
             }
 
-            _scheduler.Schedule(() => 
+            _scheduler.Schedule(() =>
             {
                 IsShowSecondaryView = false;
             });
 
-            LastNavigationPageName = null;
+            LastNavigatedPageName = null;
 
             // プレイヤーを閉じた時に再生中情報をクリア
             if (!isMainViewClosed)
@@ -230,7 +229,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _onceSurpressActivation = true;
         }
 
-        public string LastNavigationPageName { get; private set; }
+        public string LastNavigatedPageName { get; private set; }
 
         public void SetTitle(string title)
         {
@@ -239,7 +238,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public async Task NavigationAsync(string pageName, INavigationParameters parameters)
         {
-            LastNavigationPageName = pageName;
+            LastNavigatedPageName = pageName;
             using (await _playerNavigationLock.LockAsync())
             {
                 if (SecondaryCoreAppView == null)
@@ -271,14 +270,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     });
                 });
 
-                await ShowSecondaryViewAsync();
+                await ShowAsync();
 
                 IsShowSecondaryView = true;
             }
         }
 
 
-        
+
 
         /// <summary>
         /// SecondaryViewを閉じます。
@@ -328,7 +327,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             }
         }
 
-        public Task ShowSecondaryViewAsync()
+        public Task ShowAsync()
         {
             if (SecondaryAppView == null) { return Task.CompletedTask; }
             if (_onceSurpressActivation)
@@ -344,7 +343,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 return Task.CompletedTask;
             }
 
-            return this.SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(() => 
+            return this.SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(() =>
             {
                 var currentView = ApplicationView.GetForCurrentView();
                 return ApplicationViewSwitcher.TryShowAsStandaloneAsync(SecondaryAppView.Id).AsTask();

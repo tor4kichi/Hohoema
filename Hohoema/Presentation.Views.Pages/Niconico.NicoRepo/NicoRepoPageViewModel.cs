@@ -45,7 +45,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             LoginUserNicoRepoProvider loginUserNicoRepoProvider,
             SubscriptionManager subscriptionManager,
             OpenLiveContentCommand openLiveContentCommand,
-            VideoPlayCommand videoPlayCommand
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand
             )
         {
             _scheduler = scheduler;
@@ -55,7 +55,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             LoginUserNicoRepoProvider = loginUserNicoRepoProvider;
             SubscriptionManager = subscriptionManager;
             _openLiveContentCommand = openLiveContentCommand;
-            VideoPlayCommand = videoPlayCommand;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             NicoRepoType = new ReactiveProperty<NicoRepoType>(NiconicoToolkit.NicoRepo.NicoRepoType.Video, mode:ReactivePropertyMode.DistinctUntilChanged);
             NicoRepoDisplayTarget = new ReactiveProperty<NicoRepoDisplayTarget>(mode: ReactivePropertyMode.DistinctUntilChanged);
 
@@ -90,7 +90,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
         public NicoRepoSettings ActivityFeedSettings { get; }
         public LoginUserNicoRepoProvider LoginUserNicoRepoProvider { get; }
         public SubscriptionManager SubscriptionManager { get; }
-        public VideoPlayCommand VideoPlayCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
@@ -132,7 +132,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             {
                 if (item is NicoRepoVideoTimeline videoItem)
                 {
-                    var command = VideoPlayCommand as ICommand;
+                    var command = VideoPlayWithQueueCommand as ICommand;
                     if (command.CanExecute(videoItem))
                     {
                         command.Execute(videoItem);

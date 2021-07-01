@@ -12,18 +12,18 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
-    public sealed class VideoPlayCommand : DelegateCommandBase
+    public sealed class VideoPlayWithQueueCommand : DelegateCommandBase
     {
         private readonly IMessenger _messenger;
 
-        public VideoPlayCommand(IMessenger messenger)
+        public VideoPlayWithQueueCommand(IMessenger messenger)
         {
             _messenger = messenger;
         }
 
         protected override bool CanExecute(object item)
         {
-            return item is string or IVideoContent or VideoId or PlaylistItem;
+            return item is string or IVideoContent or VideoId;
         }
 
         protected override void Execute(object item)
@@ -32,19 +32,15 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             {
                 if (item is string contentId)
                 {
-                    _messenger.Send(new VideoPlayRequestMessage() { VideoId = contentId });
+                    _messenger.Send(VideoPlayRequestMessage.PlayVideoWithQueue(contentId));
                 }
                 else if (item is VideoId videoId)
                 {
-                    _messenger.Send(new VideoPlayRequestMessage() { VideoId = videoId }); 
+                    _messenger.Send(VideoPlayRequestMessage.PlayVideoWithQueue(videoId));
                 }
                 else if (item is IVideoContent videoContent)
                 {
-                    _messenger.Send(new VideoPlayRequestMessage() { VideoId = videoContent.VideoId });
-                }
-                else if (item is PlaylistItem playlistItem)
-                {
-                    _messenger.Send(new VideoPlayRequestMessage() { VideoId = playlistItem.ItemId, PlaylistId = playlistItem.PlaylistId?.Id, PlaylistOrigin = playlistItem.PlaylistId?.Origin });
+                    _messenger.Send(VideoPlayRequestMessage.PlayVideoWithQueue(videoContent.VideoId));
                 }
             }
             catch (Exception e)

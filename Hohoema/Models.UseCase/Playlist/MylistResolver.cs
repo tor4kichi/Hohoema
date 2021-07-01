@@ -36,7 +36,7 @@ namespace Hohoema.Models.UseCase.Playlist
         }
 
 
-        public async Task<MylistPlaylist> GetMylist(MylistId mylistId)
+        public async Task<MylistPlaylist> GetMylistAsync(MylistId mylistId)
         {
             await _userMylistManager.WaitUpdate();
 

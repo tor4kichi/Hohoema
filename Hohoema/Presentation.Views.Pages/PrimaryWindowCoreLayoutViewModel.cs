@@ -588,7 +588,7 @@ namespace Hohoema.Presentation.ViewModels
     public class LocalMylistItemViewModel : MenuItemViewModel
     {
         public LocalMylistItemViewModel(LocalPlaylist localPlaylist)
-            : base(localPlaylist.Name, HohoemaPageType.LocalPlaylist, new NavigationParameters(("id", localPlaylist.PlaylistId)))
+            : base(localPlaylist.Name, HohoemaPageType.LocalPlaylist, new NavigationParameters(("id", localPlaylist.PlaylistId.Id)))
         {
             LocalPlaylist = localPlaylist;
         }

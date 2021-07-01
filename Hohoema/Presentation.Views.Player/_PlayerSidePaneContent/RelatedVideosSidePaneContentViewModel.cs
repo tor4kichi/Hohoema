@@ -26,13 +26,13 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             NiconicoSession niconicoSession,
             PageManager pageManager,
             RelatedVideoContentsAggregator relatedVideoContentsAggregator,
-            VideoPlayCommand videoPlayCommand
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand
            )
         {
             _niconicoSession = niconicoSession;
             _pageManager = pageManager;
             _relatedVideoContentsAggregator = relatedVideoContentsAggregator;
-            VideoPlayCommand = videoPlayCommand;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             OpenMylistCommand = _pageManager.OpenPageCommand;
         }
 
@@ -41,7 +41,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         private readonly RelatedVideoContentsAggregator _relatedVideoContentsAggregator;
 
         public DelegateCommand<object> OpenMylistCommand { get; }
-        public VideoPlayCommand VideoPlayCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
         public List<VideoListItemControlViewModel> Videos { get; private set; }
 

@@ -36,7 +36,7 @@ namespace Hohoema.Presentation.ViewModels.Player.Video
             var session = _mediaPlayer.PlaybackSession;
             if (session == null && _playlistPlayer.CurrentPlaylistItem != null)
             {
-                await _playlistPlayer.PlayAsync(_playlistPlayer.CurrentPlaylistItem);
+                await _playlistPlayer.ReopenAsync();
             }
             else if (_mediaPlayer.Source == null
                 || session.PlaybackState == MediaPlaybackState.None)
@@ -46,7 +46,7 @@ namespace Hohoema.Presentation.ViewModels.Player.Video
 
                 var state = _restoreNavigationManager.GetCurrentPlayerEntry();
                 TimeSpan prevPosition = TimeSpan.Zero;
-                if (state.ContentId == _playlistPlayer.CurrentPlaylistItem.ItemId)
+                if (state.ContentId == _playlistPlayer.CurrentPlaylistItem.VideoId)
                 {
                     prevPosition = state.Position;
                 }
@@ -58,7 +58,7 @@ namespace Hohoema.Presentation.ViewModels.Player.Video
                     prevPosition = TimeSpan.Zero;
                 }
 
-                await _playlistPlayer.PlayAsync(_playlistPlayer.CurrentPlaylistItem, startPosition: prevPosition);
+                await _playlistPlayer.ReopenAsync(prevPosition);
             }
             else if (session.PlaybackState == MediaPlaybackState.Playing)
             {
@@ -68,7 +68,7 @@ namespace Hohoema.Presentation.ViewModels.Player.Video
             {
                 var state = _restoreNavigationManager.GetCurrentPlayerEntry();
                 TimeSpan prevPosition = TimeSpan.Zero;
-                if (state.ContentId == _playlistPlayer.CurrentPlaylistItem?.ItemId)
+                if (state.ContentId == _playlistPlayer.CurrentPlaylistItem?.VideoId)
                 {
                     prevPosition = state.Position;
                 }

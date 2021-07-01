@@ -39,7 +39,7 @@
   <Grid>
 
     <videolistPage:VideoItemsListView ItemsSource="{Binding Source={StaticResource CacheItemsViewSource}}"
-                                      ItemCommand="{Binding VideoPlayCommand}"
+                                      ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
                                       x:Name="VideoItemsListView"

@@ -4,15 +4,31 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
+using Microsoft.Toolkit.Diagnostics;
 using NiconicoToolkit;
 using NiconicoToolkit.Mylist;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist
 {
-    public class MylistPlaylist : IMylist
+    public record MylistPlaylistSortOptions(MylistSortKey SortKey, MylistSortOrder SortOrder) : IPlaylistSortOptions
+    {
+        public string Serialize()
+        {
+            return JsonSerializer.Serialize(this);
+        }
+
+        public static MylistPlaylistSortOptions Deserialize(string serializedText)
+        {
+            return JsonSerializer.Deserialize<MylistPlaylistSortOptions>(serializedText);
+        }
+    }
+
+    public class MylistPlaylist : IMylist, IPlaylist
     {
         private readonly MylistProvider _mylistProvider;
 
@@ -45,6 +61,21 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
         public MylistSortKey DefaultSortKey { get; internal set; }
         public MylistSortOrder DefaultSortOrder { get; internal set; }
 
+        // TODO: 
+        MylistPlaylistSortOptions _SortOptions;
+        public MylistPlaylistSortOptions SortOptions 
+        {
+            get => _SortOptions ??= new MylistPlaylistSortOptions(DefaultSortKey, DefaultSortOrder);
+            set => _SortOptions = value;
+        }
+
+        IPlaylistSortOptions IPlaylist.SortOptions
+        {
+            get => SortOptions;
+            set => SortOptions = (MylistPlaylistSortOptions)value;
+        }
+        
+
         public Uri[] ThumbnailImages { get; internal set; }
 
         public Uri ThumbnailImage => ThumbnailImages?.FirstOrDefault();
@@ -53,35 +84,14 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
         public PlaylistId PlaylistId { get; }
 
-        public async Task<MylistItemsGetResult> GetItemsAsync(int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
+        public virtual async Task<MylistItemsGetResult> GetItemsAsync(int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
-           
-            //if (this.MylistId.IsWatchAfterMylist)
-            {
-                //throw new ArgumentException("とりあえずマイリストはログインしていなければアクセスできません。");
-            }
-
-            if (!IsPublic)
-            {
-                throw new ArgumentException("非公開マイリストはアクセスできません。");
-            }
+            Guard.IsTrue(IsPublic, nameof(IsPublic));
 
             // 他ユーザーマイリストとして取得を実行
             try
             {
-                var result = await GetMylistItemsWithRangeAsync(page, pageSize, sortKey, sortOrder);
-
-                return new MylistItemsGetResult()
-                {
-                    IsSuccess = true,
-                    IsDefaultMylist = this.MylistId.IsWatchAfterMylist,
-                    Mylist = this,
-                    IsLoginUserMylist = false,
-                    NicoVideoItems = result.NicoVideoItems,
-                    Items = result.Items,
-                    ItemsHeadPosition = result.HeadPosition,
-                    TotalCount = result.TotalCount,
-                };
+                return await _mylistProvider.GetMylistVideoItems(MylistId, page, pageSize, sortKey, sortOrder);
             }
             catch
             {
@@ -91,17 +101,13 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             return new MylistItemsGetResult() { IsSuccess = false };
         }
 
-        public Task<MylistProvider.MylistItemsGetResult> GetMylistItemsWithRangeAsync(int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
-        {
-            return _mylistProvider.GetMylistVideoItems(MylistId, page, pageSize, sortKey, sortOrder);
-        }
 
-        public async Task<MylistProvider.MylistItemsGetResult> GetMylistAllItems(MylistSortKey sortKey = MylistSortKey.AddedAt, MylistSortOrder sortOrder = MylistSortOrder.Asc)
+        const int _pageSize = 100;
+
+        public async Task<MylistItemsGetResult> GetAllItemsAsync(MylistSortKey sortKey = MylistSortKey.AddedAt, MylistSortOrder sortOrder = MylistSortOrder.Asc)
         {
             int page = 0;
-            const int pageSize = 25;
-
-            var firstResult = await _mylistProvider.GetMylistVideoItems(MylistId, page, pageSize, sortKey, sortOrder);
+            var firstResult = await GetItemsAsync(page, _pageSize, sortKey, sortOrder);
             if (!firstResult.IsSuccess || firstResult.TotalCount == firstResult.Items.Count)
             {
                 return firstResult;
@@ -116,7 +122,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             do
             {
                 await Task.Delay(500);
-                var result = await _mylistProvider.GetMylistVideoItems(MylistId, page, pageSize, sortKey, sortOrder);
+                var result = await GetItemsAsync(page, _pageSize, sortKey, sortOrder);
                 if (result.IsSuccess)
                 {
                     itemsList.AddRange(result.Items);
@@ -128,7 +134,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             }
             while (currentCount < totalCount);
 
-            return new MylistProvider.MylistItemsGetResult()
+            return new MylistItemsGetResult()
             {
                 MylistId = MylistId,
                 HeadPosition = 0,
@@ -137,6 +143,39 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
                 Items = new ReadOnlyCollection<MylistItem>(itemsList),
                 NicoVideoItems = new ReadOnlyCollection<NicoVideo>(nicovideoItemsList)
             };
+        }
+
+        public int OneTimeItemsCount => _pageSize;
+
+        List<NicoVideo> _MylistItems;        
+
+        public int IndexOf(IVideoContent video)
+        {
+            Guard.IsNotNull(_MylistItems, nameof(_MylistItems));
+            return _MylistItems.FindIndex(x => x.VideoId == video.VideoId);
+        }
+
+        public bool Contains(IVideoContent video)
+        {
+            return IndexOf(video) >= 0;
+        }
+
+        async Task PreparePagenation(CancellationToken ct = default)
+        {
+            if (_MylistItems == null)
+            {
+                var sortOptions = SortOptions;
+                var result = await GetAllItemsAsync(sortOptions.SortKey, sortOptions.SortOrder);
+                _MylistItems = result.NicoVideoItems.ToList();
+            }
+        }
+
+        public virtual async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct = default)
+        {
+            await PreparePagenation();
+
+            var start = pageIndex * pageSize;
+            return _MylistItems.Skip(start).Take(pageSize);
         }
     }
 }

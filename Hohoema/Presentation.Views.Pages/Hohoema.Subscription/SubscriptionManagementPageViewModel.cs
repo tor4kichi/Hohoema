@@ -43,7 +43,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         private readonly DialogService _dialogService;
         private readonly PageManager _pageManager;
         private readonly NicoVideoProvider _nicoVideoProvider;
-        private readonly VideoPlayCommand _videoPlayCommand;
+        private readonly VideoPlayWithQueueCommand _VideoPlayWithQueueCommand;
         private readonly IScheduler _scheduler;
 
 
@@ -64,7 +64,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             DialogService dialogService,
             PageManager pageManager,
             NicoVideoProvider nicoVideoProvider,
-            VideoPlayCommand videoPlayCommand
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand
             )
         {
             WeakReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
@@ -89,7 +89,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             _dialogService = dialogService;
             _pageManager = pageManager;
             _nicoVideoProvider = nicoVideoProvider;
-            _videoPlayCommand = videoPlayCommand;
+            _VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             _scheduler = scheduler;
 
             IsAutoUpdateRunning = _subscriptionUpdateManager.ObserveProperty(x => x.IsRunning)
@@ -128,7 +128,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             {
                 foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo().OrderBy(x => x.entity.SortIndex))
                 {
-                    var vm = new SubscriptionViewModel(subscInfo.entity, this, _subscriptionManager, _pageManager, _dialogService, _videoPlayCommand);
+                    var vm = new SubscriptionViewModel(subscInfo.entity, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
                     var items = _nicoVideoProvider.GetCachedVideoInfoItems(subscInfo.feedResult.Videos.Select(x => (VideoId)x.VideoId));
                     vm.UpdateFeedResult(items, subscInfo.feedResult.LastUpdatedAt);
                     Subscriptions.Add(vm);
@@ -179,7 +179,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         {
             _scheduler.Schedule(() =>
             {
-                var vm = new SubscriptionViewModel(e, this, _subscriptionManager, _pageManager, _dialogService, _videoPlayCommand);
+                var vm = new SubscriptionViewModel(e, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
                 Subscriptions.Insert(0, vm);
             });
         }
@@ -270,7 +270,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             SubscriptionManager subscriptionManager,
             PageManager pageManager,
             DialogService dialogService,
-            VideoPlayCommand videoPlayCommand
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand
             )
         {
             _source = source;
@@ -278,7 +278,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             _subscriptionManager = subscriptionManager;
             _pageManager = pageManager;
             _dialogService = dialogService;
-            PlayVideoItemCommand = videoPlayCommand;
+            PlayVideoItemCommand = videoPlayWithQueueCommand;
             IsEnabled = new ReactiveProperty<bool>(_source.IsEnabled)
                 .AddTo(_disposables);
             IsEnabled.Subscribe(isEnabled => 
@@ -295,7 +295,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         private readonly SubscriptionManager _subscriptionManager;
         private readonly PageManager _pageManager;
         private readonly DialogService _dialogService;
-        public VideoPlayCommand PlayVideoItemCommand { get; }
+        public VideoPlayWithQueueCommand PlayVideoItemCommand { get; }
 
         public string SourceParameter => _source.SourceParameter;
         public SubscriptionSourceType SourceType => _source.SourceType;

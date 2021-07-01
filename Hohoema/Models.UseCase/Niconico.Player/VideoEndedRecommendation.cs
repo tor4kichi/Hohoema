@@ -87,7 +87,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     return;
                 }
 
-                var currentVideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem.ItemId;
+                var currentVideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem.VideoId;
                 _queuePlaylist.Remove(currentVideoId);
                 _videoPlayedHistoryRepository.VideoPlayed(currentVideoId, sender.Position);
 

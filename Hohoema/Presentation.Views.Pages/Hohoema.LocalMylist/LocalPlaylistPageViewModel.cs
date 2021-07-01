@@ -53,14 +53,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         private readonly IMessenger _messenger;
 
         public LocalPlaylistPageViewModel(
+            IMessenger messenger, 
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             LocalMylistManager localMylistManager,
             NicoVideoProvider nicoVideoProvider,
-            LocalPlaylistDeleteCommand localPlaylistDeleteCommand,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             PlaylistPlayAllCommand playlistPlayAllCommand,
-            SelectionModeToggleCommand selectionModeToggleCommand,
-            IMessenger messenger
+            LocalPlaylistDeleteCommand localPlaylistDeleteCommand,
+            SelectionModeToggleCommand selectionModeToggleCommand            
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -68,6 +69,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
             _localMylistManager = localMylistManager;
             _nicoVideoProvider = nicoVideoProvider;
             LocalPlaylistDeleteCommand = localPlaylistDeleteCommand;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             PlaylistPlayAllCommand = playlistPlayAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             _messenger = messenger;
@@ -78,6 +80,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         public LocalPlaylistDeleteCommand LocalPlaylistDeleteCommand { get; }
         public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
         private LocalPlaylist _Playlist;
         public LocalPlaylist Playlist
@@ -155,20 +158,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
                     .AddTo(_NavigatingCompositeDisposable);
             }
         }
-
-        private DelegateCommand<IVideoContent> _PlayWithCurrentPlaylistCommand;
-        public DelegateCommand<IVideoContent> PlayWithCurrentPlaylistCommand
-        {
-            get
-            {
-                return _PlayWithCurrentPlaylistCommand
-                    ?? (_PlayWithCurrentPlaylistCommand = new DelegateCommand<IVideoContent>((video) =>
-                    {
-                        _messenger.Send(new VideoPlayRequestMessage() { VideoId = video.VideoId, PlaylistId = Playlist.PlaylistId.Id, PlaylistOrigin = Playlist.PlaylistId.Origin });
-                    }
-                    ));
-            }
-        }
     }
 
     public class LocalPlaylistIncrementalLoadingSource : IIncrementalSource<VideoListItemControlViewModel>
@@ -190,11 +179,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         async Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
             var head = pageIndex * pageSize;
-            var targetItems = await _playlist.GetRangeAsync(head, pageSize, ct);
-            var items = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(targetItems.Select(x => x.ItemId));
+            var targetItems = await _playlist.GetPagedItemsAsync(pageIndex, pageSize, ct);
 
             ct.ThrowIfCancellationRequested();
-            return items.Select(item => new VideoListItemControlViewModel(item));
+            return targetItems.Select(item => new VideoListItemControlViewModel(item as NicoVideo) { PlaylistItemToken = new PlaylistItemToken(_playlist.PlaylistId, _playlist.SortOptions, item.VideoId) });
         }
     }
 }

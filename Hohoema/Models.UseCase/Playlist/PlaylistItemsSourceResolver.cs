@@ -8,25 +8,31 @@ namespace Hohoema.Models.UseCase.Playlist
 {
     public interface IPlaylistItemsSourceFactory
     {
-        ValueTask<IPlaylistItemsSource> Create(PlaylistId playlistId);
+        ValueTask<IPlaylist> Create(PlaylistId playlistId);
+        IPlaylistSortOptions DeserializeSortOptions(string serializedSortOptions);
     }
 
 
     public sealed class PlaylistItemsSourceResolver : IPlaylistItemsSourceResolver
     {
         private readonly Lazy<LocalMylistPlaylistItemsSourceFactory> _localMylistPlaylistItemsSourceFactory;
+        private readonly Lazy<MylistPlaylistItemsSourceFactory> _mylistPlaylistItemsSourceFactory;
 
-        public PlaylistItemsSourceResolver(Lazy<LocalMylistPlaylistItemsSourceFactory> localMylistPlaylistItemsSourceFactory)
+        public PlaylistItemsSourceResolver(
+            Lazy<LocalMylistPlaylistItemsSourceFactory> localMylistPlaylistItemsSourceFactory,
+            Lazy<MylistPlaylistItemsSourceFactory> mylistPlaylistItemsSourceFactory
+            )
         {
             _localMylistPlaylistItemsSourceFactory = localMylistPlaylistItemsSourceFactory;
+            _mylistPlaylistItemsSourceFactory = mylistPlaylistItemsSourceFactory;
         }
 
-        public ValueTask<IPlaylistItemsSource> ResolveItemsSource(PlaylistId playlistId)
+        public async ValueTask<IPlaylist> ResolveItemsSource(PlaylistId playlistId, string serializedSortOptions)
         {
             IPlaylistItemsSourceFactory factory = playlistId.Origin switch
             {
                 PlaylistItemsSourceOrigin.Local => _localMylistPlaylistItemsSourceFactory.Value,
-                PlaylistItemsSourceOrigin.Mylist => null,
+                PlaylistItemsSourceOrigin.Mylist => _mylistPlaylistItemsSourceFactory.Value,
                 PlaylistItemsSourceOrigin.ChannelVideos => null,
                 PlaylistItemsSourceOrigin.UserVideos => null,
                 PlaylistItemsSourceOrigin.Series => null,
@@ -36,12 +42,15 @@ namespace Hohoema.Models.UseCase.Playlist
                 _ => throw new NotSupportedException(playlistId.Origin.ToString()),
             };
 
+
             if (factory == null)
             {
                 throw new InvalidOperationException();
             }
 
-            return factory.Create(playlistId);
+            var playlist = await factory.Create(playlistId);
+            playlist.SortOptions = factory.DeserializeSortOptions(serializedSortOptions);
+            return playlist;
         }
     }
 

@@ -18,7 +18,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
 {
     public sealed class VideoQueuePageViewModel : HohoemaPageViewModelBase, INavigationAware
     {
-        private readonly QueuePlaylist _queuePlaylist;
+        public QueuePlaylist QueuePlaylist { get; }
         private readonly NicoVideoProvider _nicoVideoProvider;
 
         public IReadOnlyCollection<VideoListItemControlViewModel> PlaylistItems { get; private set; }
@@ -27,7 +27,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
         public RemoveWatchedItemsInAfterWatchPlaylistCommand RemoveWatchedItemsInAfterWatchPlaylistCommand { get; }
         public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
-        public VideoPlayCommand VideoPlayCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
         public VideoQueuePageViewModel(
             QueuePlaylist queuePlaylist,
@@ -35,16 +35,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
             RemoveWatchedItemsInAfterWatchPlaylistCommand removeWatchedItemsInAfterWatchPlaylistCommand,
             PlaylistPlayAllCommand playlistPlayAllCommand,
             SelectionModeToggleCommand selectionModeToggleCommand,
-            VideoPlayCommand videoPlayCommand,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             NicoVideoProvider nicoVideoProvider
             )
         {
-            _queuePlaylist = queuePlaylist;
+            QueuePlaylist = queuePlaylist;
             ApplicationLayoutManager = applicationLayoutManager;
             RemoveWatchedItemsInAfterWatchPlaylistCommand = removeWatchedItemsInAfterWatchPlaylistCommand;
             PlaylistPlayAllCommand = playlistPlayAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
-            VideoPlayCommand = videoPlayCommand;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             _nicoVideoProvider = nicoVideoProvider;
         }
 
@@ -52,7 +52,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
         {
             base.OnNavigatedTo(parameters);
 
-            PlaylistItems = _queuePlaylist.ToReadOnlyReactiveCollection(x => new VideoListItemControlViewModel(_nicoVideoProvider.GetCachedVideoInfo(x.ItemId)))
+            PlaylistItems = QueuePlaylist.ToReadOnlyReactiveCollection(x => new VideoListItemControlViewModel(_nicoVideoProvider.GetCachedVideoInfo(x.VideoId)))
                 .AddTo(_NavigatingCompositeDisposable);
             RaisePropertyChanged(nameof(PlaylistItems));
         }

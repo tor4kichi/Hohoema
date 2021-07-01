@@ -14,6 +14,8 @@ using NiconicoToolkit.User;
 namespace Hohoema.Models.Domain.Niconico.Mylist
 {
     
+
+
     public sealed class MylistProvider : ProviderBase
     {
         private readonly NicoVideoProvider _nicoVideoProvider;
@@ -27,19 +29,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             _nicoVideoProvider = nicoVideoProvider;
         }
 
-        public class MylistItemsGetResult
-        {
-            public bool IsSuccess { get; set; }
-
-            public MylistId MylistId { get; set; }
-
-            public int HeadPosition { get; set; }
-            public int TotalCount { get; set; }
-
-            public IReadOnlyCollection<MylistItem> Items { get; set; }
-            public IReadOnlyCollection<NicoVideo> NicoVideoItems { get; set; }
-        }
-
+       
 
 
         private async Task<IMylistItem> GetMylistGroupDetail(MylistId mylistId)
@@ -69,7 +59,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
                 var mylist = new MylistPlaylist(mylistId, this)
                 {
                     Name = "WatchAfterMylist".Translate(),
-                    Count = (int)detail.TotalItemCount,
+                    Count = (int)detail.TotalCount,
                     IsPublic = true,
                     ThumbnailImages = detail.Items?.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
                 };

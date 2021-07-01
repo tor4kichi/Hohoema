@@ -48,7 +48,7 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
         {
             if (_queuePlaylist.Any())
             {
-                _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(_queuePlaylist.First()));
+                _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(_queuePlaylist));
             }
         }
 

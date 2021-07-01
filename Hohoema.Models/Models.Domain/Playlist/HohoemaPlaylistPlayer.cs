@@ -6,17 +6,20 @@ using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Domain.VideoCache;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Infrastructure;
+using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using Microsoft.Toolkit.Uwp;
 using NiconicoToolkit.Video;
 using Prism.Mvvm;
+using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,7 +32,7 @@ using static Hohoema.Models.Domain.Niconico.Player.VideoStreamingOriginOrchestra
 
 namespace Hohoema.Models.Domain.Playlist
 {
-    public record PlaybackStartedMessageData(PlaylistItem Item, NicoVideoQuality VideoQuality, MediaPlaybackSession Session);
+    public record PlaybackStartedMessageData(PlaylistId PlaylistId, VideoId VideoId, NicoVideoQuality VideoQuality, MediaPlaybackSession Session);
 
     public sealed class PlaybackStartedMessage : ValueChangedMessage<PlaybackStartedMessageData>
     {
@@ -39,7 +42,7 @@ namespace Hohoema.Models.Domain.Playlist
     }
 
 
-    public record PlaybackFailedMessageData(PlaylistItem Item, Exception Exception);
+    public record PlaybackFailedMessageData(PlaylistId PlaylistId, VideoId VideoId, Exception Exception);
 
     public sealed class PlaybackFailedMessage : ValueChangedMessage<PlaybackFailedMessageData>
     {
@@ -52,7 +55,7 @@ namespace Hohoema.Models.Domain.Playlist
         FromUser,
     }
 
-    public record PlaybackStopedMessageData(VideoId VideoId, TimeSpan EndPosition, PlaybackStopReason StopReason);
+    public record PlaybackStopedMessageData(PlaylistId PlaylistId, VideoId VideoId, TimeSpan EndPosition, PlaybackStopReason StopReason);
 
     public sealed class PlaybackStopedMessage : ValueChangedMessage<PlaybackStopedMessageData>
     {
@@ -61,7 +64,7 @@ namespace Hohoema.Models.Domain.Playlist
         }
     }
 
-    public record PlayingPlaylistChangedMessageData(IPlaylistItemsSource? PlaylistItemsSource);
+    public record PlayingPlaylistChangedMessageData(IPlaylist? PlaylistItemsSource);
 
     public sealed class PlayingPlaylistChangedMessage : ValueChangedMessage<PlayingPlaylistChangedMessageData>
     {
@@ -80,96 +83,119 @@ namespace Hohoema.Models.Domain.Playlist
     }
 
 
+    public interface IBufferedPlaylistItemsSource : IIncrementalSource<IVideoContent>
+    {
+        int BufferLength { get; }
 
-    public sealed class BufferedPlaylistItemsSource : IDisposable, INotifyCollectionChanged
+        int IndexOf(IVideoContent item);
+
+        ValueTask<IVideoContent> GetAsync(int index, CancellationToken ct = default);
+    }
+
+
+    public sealed class BufferedPlaylistItemsSource : ReadOnlyObservableCollection<IVideoContent>, IBufferedPlaylistItemsSource
+    {
+        public const int MaxBufferSize = 2000;
+        private readonly IPlaylist _playlistItemsSource;
+
+        public ReadOnlyObservableCollection<IVideoContent> BufferedItems { get; }
+
+        public int BufferLength => this.Count;
+
+
+        public BufferedPlaylistItemsSource(IPlaylist playlistItemsSource)
+            : base(new ObservableCollection<IVideoContent>())
+        {
+            _playlistItemsSource = playlistItemsSource;
+        }
+
+        public int OneTimeLoadingItemsCount = 30;
+
+
+        public async ValueTask<IVideoContent?> GetAsync(int index, CancellationToken ct = default)
+        {
+            if (index < 0) { return null; }
+
+            var page = index / OneTimeLoadingItemsCount;
+            await GetPagedItemsAsync(page, OneTimeLoadingItemsCount, ct);
+
+            if (index >= this.Items.Count) { return null; }
+
+            return this.Items[index];
+        }
+
+        public async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct = default)
+        {
+            pageSize = OneTimeLoadingItemsCount;
+            int head = pageIndex * pageSize;
+            var cached = this.Items.Skip(head).Take(pageSize);
+            if (cached.Any() && cached.All(x => x is not null))
+            {
+                head += pageSize;
+                return this.Items.Skip(head).Take(pageSize);
+            }
+
+            var items = await _playlistItemsSource.GetPagedItemsAsync(pageIndex, pageSize, ct);
+            foreach (var item in items)
+            {
+                this.Items.Add(item);
+            }
+
+            return this.Items.Skip(head).Take(pageSize);
+        }
+    }
+
+    public sealed class BufferedShufflePlaylistItemsSource : ReadOnlyObservableCollection<IVideoContent>, IBufferedPlaylistItemsSource
     {
         public const int MaxBufferSize = 2000;
         public const int DefaultBufferSize = 500;
 
-        private readonly IPlaylistItemsSource _playlistItemsSource;
-        private PlaylistItem?[] _bufferedItems;
+        private readonly IUserManagedPlaylist _playlistItemsSource;
 
-        private readonly int _maxItemsCount;
+        public int BufferLength => this.Count;
 
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
-
-        public PlaylistItem?[] CopyBufferedItems()
+        public BufferedShufflePlaylistItemsSource(IUserManagedPlaylist shufflePlaylist)
+            : base(new ObservableCollection<IVideoContent>(new IVideoContent[shufflePlaylist.TotalCount]))
         {
-            return _bufferedItems.ToArray();
+            _playlistItemsSource = shufflePlaylist;
+
+            // shufflePlaylist.AddedItem 等をハンドルする
+            // 可変配列として対応したいのでListを使用したほうが良さそう
+            // 
         }
 
-        public BufferedPlaylistItemsSource(IPlaylistItemsSource playlistItemsSource, int initialBufferSize = DefaultBufferSize)
-        {
-            _bufferedItems = new PlaylistItem[initialBufferSize];
-            _playlistItemsSource = playlistItemsSource;
-
-            if (_playlistItemsSource is IShufflePlaylistItemsSource shufflePlaylist)
-            {
-                _maxItemsCount = shufflePlaylist.MaxItemsCount;
-
-                // shufflePlaylist.AddedItem 等をハンドルする
-                // 可変配列として対応したいのでListを使用したほうが良さそう
-            }
-            else
-            {
-                _maxItemsCount = int.MaxValue;
-            }
-                
-        }
-
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
+        public int OneTimeLoadingItemsCount = 30;
 
         public PlaylistId PlaylistId => _playlistItemsSource.PlaylistId;
 
-        public int OneTimeItemsCount => _playlistItemsSource.OneTimeItemsCount;
-
-        
-        public ValueTask<IEnumerable<PlaylistItem>> GetAllAsync(CancellationToken ct = default)
+        public async ValueTask<IVideoContent> GetAsync(int index, CancellationToken ct = default)
         {
-            return GetRangeAsync(0, int.MaxValue, ct);
+            if (index < 0) { return null; }
+            if (index >= this.Items.Count) { return null; }
+
+            var indexInsidePage = index / OneTimeLoadingItemsCount;
+            await GetPagedItemsAsync(indexInsidePage, OneTimeLoadingItemsCount, ct);
+
+            return this.Items[index];
         }
 
-        public async ValueTask<PlaylistItem?> GetAsync(int index, CancellationToken ct = default)
+        public async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct = default)
         {
-            return (await GetRangeAsync(index, 1, ct)).FirstOrDefault();
-        }
-
-        public async ValueTask<IEnumerable<PlaylistItem>> GetRangeAsync(int start, int count, CancellationToken ct = default)
-        {
-            Guard.IsBetweenOrEqualTo(start + count, 0, MaxBufferSize, "start + count");
-
-            int block = start / _playlistItemsSource.OneTimeItemsCount;
-            int current = block * _playlistItemsSource.OneTimeItemsCount;
-            int getTimes = (count + (start - current)) / _playlistItemsSource.OneTimeItemsCount + 1;
-
-            if (_bufferedItems.Length < start + count)
+            var start = pageIndex * OneTimeLoadingItemsCount;
+            int current = pageIndex * OneTimeLoadingItemsCount;
+            if (this.Items.Any() && this.Items.Skip(start).Take(OneTimeLoadingItemsCount).All(x => x is not null))
             {
-                Array.Resize(ref _bufferedItems, start + count);
+                current += OneTimeLoadingItemsCount;
+                return this.Items.Skip(start).Take(OneTimeLoadingItemsCount);
             }
 
-            foreach (int getTime in Enumerable.Range(0, getTimes))
+            var items = await _playlistItemsSource.GetPagedItemsAsync(pageIndex, OneTimeLoadingItemsCount, ct);
+            foreach (var item in items)
             {
-                if (_bufferedItems.Skip(current).Take(_playlistItemsSource.OneTimeItemsCount).All(x => x is not null))
-                {
-                    current += _playlistItemsSource.OneTimeItemsCount;
-                    continue;
-                }
-
-                var items = await _playlistItemsSource.GetRangeAsync(current, _playlistItemsSource.OneTimeItemsCount, ct);                
-                foreach (var item in items)
-                {
-                    _bufferedItems[current++] = item;
-                }
+                this.Items[current++] = item;
             }
 
-            {
-                var items = _bufferedItems.Skip(start).Take(count).ToList();
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items));
-                return items;
-            }
+            return this.Items.Skip(start).Take(OneTimeLoadingItemsCount);
         }
 
     }
@@ -177,8 +203,13 @@ namespace Hohoema.Models.Domain.Playlist
     public abstract class PlaylistPlayer : BindableBase
     {
         private const int InvalidIndex = -1;
-        private readonly MediaPlayer _mediaPlayer;
-        private BufferedPlaylistItemsSource? _bufferedPlaylistItemsSource;
+        private readonly IScheduler _scheduler;
+        private IBufferedPlaylistItemsSource? _bufferedPlaylistItemsSource;
+
+        public PlaylistPlayer(IScheduler scheduler)
+        {
+            _scheduler = scheduler;
+        }
 
         private int[] _shuffledIndexies;
         private int? _maxItemsCount;        
@@ -208,7 +239,7 @@ namespace Hohoema.Models.Domain.Playlist
         public int CurrentPlayingIndex
         {
             get { return _currentPlayingIndex; }
-            set { SetProperty(ref _currentPlayingIndex, value); }
+            protected set { SetProperty(ref _currentPlayingIndex, value); }
         }
         public bool IsShuffleAndRepeatAvairable => !IsUnlimitedPlaylistSource;
 
@@ -227,19 +258,23 @@ namespace Hohoema.Models.Domain.Playlist
 
         public bool IsShuffleModeEnabled => IsShuffleAndRepeatAvairable && IsShuffleModeRequested;
 
-        public PlaylistItem?[]? CopyBufferedItems()
+        public ReadOnlyObservableCollection<IVideoContent> GetBufferedItemsAsSpan()
         {
-            return _bufferedPlaylistItemsSource?.CopyBufferedItems();
+            return _bufferedPlaylistItemsSource as ReadOnlyObservableCollection<IVideoContent>;
         }
 
-        protected void Reset(IPlaylistItemsSource playlistItemsSource, PlaylistItem current)
+        protected IBufferedPlaylistItemsSource Reset(IPlaylist playlistItemsSource)
         {
-            if (playlistItemsSource is IShufflePlaylistItemsSource shufflePlaylist)
+            (_bufferedPlaylistItemsSource as IDisposable)?.Dispose();
+            _bufferedPlaylistItemsSource = null;
+
+            ClearCurrentContent();
+
+            if (playlistItemsSource is IUserManagedPlaylist shufflePlaylist)
             {
-                _bufferedPlaylistItemsSource = new BufferedPlaylistItemsSource(playlistItemsSource, shufflePlaylist.MaxItemsCount);
-                _maxItemsCount = shufflePlaylist.MaxItemsCount;
-                _shuffledIndexies = Enumerable.Range(0, shufflePlaylist.MaxItemsCount).Shuffle().ToArray();
-                CurrentPlayingIndex = IndexTranformWithCurrentPlaylistMode(current.ItemIndex);
+                _bufferedPlaylistItemsSource = new BufferedShufflePlaylistItemsSource(shufflePlaylist);
+                _maxItemsCount = shufflePlaylist.TotalCount;
+                _shuffledIndexies = Enumerable.Range(0, shufflePlaylist.TotalCount).Shuffle().ToArray();
                 IsUnlimitedPlaylistSource = false;
             }
             else
@@ -247,13 +282,38 @@ namespace Hohoema.Models.Domain.Playlist
                 _bufferedPlaylistItemsSource = new BufferedPlaylistItemsSource(playlistItemsSource);
                 _maxItemsCount = null;
                 _shuffledIndexies = null;
-                CurrentPlayingIndex = current.ItemIndex;
                 IsUnlimitedPlaylistSource = true;
             }
+
+            return _bufferedPlaylistItemsSource;
         }
+
+        protected void SetCurrentContent(IVideoContent video, int index)
+        {
+            Guard.IsNotNull(_bufferedPlaylistItemsSource, nameof(_bufferedPlaylistItemsSource));
+
+            
+            CurrentPlayingIndex = index;
+            CurrentPlaylistItem = video;
+        }
+
+        protected void ClearCurrentContent()
+        {
+            CurrentPlayingIndex = -1;
+            CurrentPlaylistItem = null;
+        }
+
+        private IVideoContent? _currentPlaylistItem;
+        public IVideoContent? CurrentPlaylistItem
+        {
+            get { return _currentPlaylistItem; }
+            private set { SetProperty(ref _currentPlaylistItem, value); }
+        }
+
 
         protected void Clear()
         {
+            (_bufferedPlaylistItemsSource as IDisposable)?.Dispose();
             _bufferedPlaylistItemsSource = null;
             _maxItemsCount = null;
             _shuffledIndexies = null;
@@ -261,7 +321,7 @@ namespace Hohoema.Models.Domain.Playlist
         }
 
 
-        public async ValueTask<PlaylistItem?> GetNextItemAsync(CancellationToken ct = default)
+        public async ValueTask<IVideoContent?> GetNextItemAsync(CancellationToken ct = default)
         {
             if (CurrentPlayingIndex == InvalidIndex) { return null; }
             if (_bufferedPlaylistItemsSource == null) { return null; }
@@ -270,7 +330,7 @@ namespace Hohoema.Models.Domain.Playlist
             return await _bufferedPlaylistItemsSource.GetAsync(index, ct);
         }
 
-        public async ValueTask<PlaylistItem?> GetPreviewItemAsync(CancellationToken ct = default)
+        public async ValueTask<IVideoContent?> GetPreviewItemAsync(CancellationToken ct = default)
         {
             if (CurrentPlayingIndex == InvalidIndex) { return null; }
             if (_bufferedPlaylistItemsSource == null) { return null; }
@@ -313,8 +373,8 @@ namespace Hohoema.Models.Domain.Playlist
             var item = await _bufferedPlaylistItemsSource.GetAsync(index, ct);
             if (item != null)
             {
-                await PlayAsync_Internal(item);
-                CurrentPlayingIndex = index;
+                await PlayVideoOnSamePlaylistAsync_Internal(item);
+                SetCurrentContent(item, index);
                 return true;
             }
             else
@@ -334,8 +394,8 @@ namespace Hohoema.Models.Domain.Playlist
             var item = await _bufferedPlaylistItemsSource.GetAsync(index, ct);
             if (item != null)
             {
-                await PlayAsync_Internal(item);
-                CurrentPlayingIndex = index;
+                await PlayVideoOnSamePlaylistAsync_Internal(item);
+                SetCurrentContent(item, index);
                 return true;
             }
             else
@@ -344,7 +404,7 @@ namespace Hohoema.Models.Domain.Playlist
             }        
         }
 
-        protected abstract Task PlayAsync_Internal(PlaylistItem item, TimeSpan? startPosition = null);
+        protected abstract Task PlayVideoOnSamePlaylistAsync_Internal(IVideoContent item, TimeSpan? startPosition = null);
 
     }
 
@@ -355,7 +415,6 @@ namespace Hohoema.Models.Domain.Playlist
         private readonly IMessenger _messenger;
         private readonly MediaPlayer _mediaPlayer;
         private readonly VideoStreamingOriginOrchestrator _videoStreamingOriginOrchestrator;
-        private readonly IPlaylistItemsSourceResolver _playlistSourceManager;
         private readonly PlayerSettings _playerSettings;
         private readonly MediaPlayerSoundVolumeManager _soundVolumeManager;
         private readonly RestoreNavigationManager _restoreNavigationManager;
@@ -363,19 +422,19 @@ namespace Hohoema.Models.Domain.Playlist
         private readonly DispatcherQueue _dispatcherQueue;
 
         public HohoemaPlaylistPlayer(
+            IScheduler scheduler,
             IMessenger messenger,
             MediaPlayer mediaPlayer,
             VideoStreamingOriginOrchestrator videoStreamingOriginOrchestrator,
-            IPlaylistItemsSourceResolver playlistSourceManager,
             PlayerSettings playerSettings,
             MediaPlayerSoundVolumeManager soundVolumeManager,
             RestoreNavigationManager restoreNavigationManager
             )
+            : base(scheduler)
         {
             _messenger = messenger;
             _mediaPlayer = mediaPlayer;
             _videoStreamingOriginOrchestrator = videoStreamingOriginOrchestrator;
-            _playlistSourceManager = playlistSourceManager;
             _playerSettings = playerSettings;
             _soundVolumeManager = soundVolumeManager;
             _restoreNavigationManager = restoreNavigationManager;
@@ -393,7 +452,7 @@ namespace Hohoema.Models.Domain.Playlist
                 _restoreNavigationManager.SetCurrentPlayerEntry(
                         new PlayerEntry()
                         {
-                            ContentId = CurrentPlaylistItem.ItemId,
+                            ContentId = CurrentPlaylistItem.VideoId,
                             Position = _mediaPlayer.PlaybackSession.Position,
                             PlaylistId = CurrentPlaylistId?.Id,
                             PlaylistOrigin = CurrentPlaylistId?.Origin
@@ -419,13 +478,7 @@ namespace Hohoema.Models.Domain.Playlist
 
         public PlaylistId? CurrentPlaylistId => _itemsSource?.PlaylistId;
 
-        private PlaylistItem? _currentPlaylistItem;
-        public PlaylistItem? CurrentPlaylistItem
-        {
-            get { return _currentPlaylistItem; }
-            private set { SetProperty(ref _currentPlaylistItem, value); }
-        }
-        private IPlaylistItemsSource? _itemsSource;
+        private IPlaylist? _itemsSource;
 
         public PlayingOrchestrateResult CurrentPlayingSession { get; private set; }
 
@@ -456,8 +509,11 @@ namespace Hohoema.Models.Domain.Playlist
         {
             base.Clear();
 
-            StopPlaybackMedia();
-            await UpdatePlaylistItemsSourceAsync(null);
+            await _dispatcherQueue.EnqueueAsync(() => 
+            {
+                StopPlaybackMedia();
+                ClearPlaylist();
+            });
         }
 
         public TimeSpan? GetCurrentPlaybackPosition()
@@ -504,27 +560,23 @@ namespace Hohoema.Models.Domain.Playlist
             Guard.IsNotNull(_mediaPlayer.PlaybackSession, nameof(_mediaPlayer.PlaybackSession));
         }
 
-        public Task PlayAsync(PlaylistItem item, TimeSpan? startPosition = null)
-        {
-            return PlayAsync_Internal(item, startPosition);
-        }
         private void StopPlaybackMedia()
         {
             var prevSource = _mediaPlayer.Source;
 
             var endPosition = _mediaPlayer.PlaybackSession.Position;
-            var videoId = CurrentPlaylistItem?.ItemId;
+            var videoId = CurrentPlaylistItem?.VideoId;
 
             _videoSessionDisposable?.Dispose();
             _videoSessionDisposable = null;
             CurrentPlayingSession = null;
             _mediaPlayer.Source = null;
-            CurrentPlaylistItem = null;
+            ClearCurrentContent();
 
             if (prevSource != null && videoId.HasValue)
             {
                 // メディア停止メッセージを飛ばす
-                _messenger.Send(new PlaybackStopedMessage(new(videoId.Value, endPosition, PlaybackStopReason.FromUser)));
+                _messenger.Send(new PlaybackStopedMessage(new(CurrentPlaylistId, videoId.Value, endPosition, PlaybackStopReason.FromUser)));
             }
 
             _soundVolumeManager.LoudnessCorrectionValue = 1.0;
@@ -541,36 +593,72 @@ namespace Hohoema.Models.Domain.Playlist
             StopStateSavingTimer();
         }
 
-        protected override async Task PlayAsync_Internal(PlaylistItem item, TimeSpan? startPosition = null)
+        public async Task ReopenAsync(TimeSpan position = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task PlayAsync(IPlaylist playlist)
+        {
+            StopPlaybackMedia();
+
+            var bufferItemsSource = await UpdatePlaylistItemsSourceAsync(playlist);
+
+            var firstItem = await bufferItemsSource.GetAsync(0);
+
+            await UpdatePlayingMediaAsync(firstItem, null);
+
+            await _dispatcherQueue.EnqueueAsync(() => SetCurrentContent(firstItem, 0));
+        }
+
+        public async Task PlayAsync(IPlaylist playlist, IVideoContent item, TimeSpan? startPosition = null)
         {
             Guard.IsNotNull(item, nameof(item));
-            Guard.IsFalse(item.ItemId == default(VideoId) && item.PlaylistId == null, "Not contain playable VideoId or PlaylistId");
+            Guard.IsFalse(item.VideoId == default(VideoId), "Not contain playable VideoId or PlaylistId");
+
+            var index = playlist.IndexOf(item);
+            Guard.IsBetweenOrEqualTo(index, 0, 5000, nameof(index));
 
             if (startPosition == null
-                && CurrentPlaylistItem?.ItemId == item.ItemId)
+                && CurrentPlaylistItem?.VideoId == item.VideoId)
             {
                 startPosition = _mediaPlayer.PlaybackSession?.Position;
             }
 
             StopPlaybackMedia();
 
-            await UpdatePlaylistItemsSourceAsync(item);
+            await UpdatePlaylistItemsSourceAsync(playlist);
+
+            await UpdatePlayingMediaAsync(item, startPosition);
+
+            await _dispatcherQueue.EnqueueAsync(() => SetCurrentContent(item, index));
+            
+        }
+
+        protected override async Task PlayVideoOnSamePlaylistAsync_Internal(IVideoContent item, TimeSpan? startPosition = null)
+        {
+            Guard.IsNotNull(item, nameof(item));
+            Guard.IsNotNull(CurrentPlaylistId, nameof(CurrentPlaylistId));
+            Guard.IsFalse(item.VideoId == default(VideoId), "Not contain playable VideoId or PlaylistId");
+
+            if (startPosition == null
+                && CurrentPlaylistItem?.VideoId == item.VideoId)
+            {
+                startPosition = _mediaPlayer.PlaybackSession?.Position;
+            }
+
+            StopPlaybackMedia();
 
             await UpdatePlayingMediaAsync(item, startPosition);
         }
 
-        private async Task UpdatePlayingMediaAsync(PlaylistItem item, TimeSpan? startPosition)
+        private async Task UpdatePlayingMediaAsync(IVideoContent item, TimeSpan? startPosition)
         {
-            if (item.ItemId == default(VideoId))
-            {
-                var firstContent = (await _itemsSource.GetRangeAsync(0, 1)).FirstOrDefault();
-                Guard.IsNotNull(firstContent, nameof(firstContent));                
-                item = firstContent;
-            }
+            Guard.IsNotNull(item, nameof(item));
 
             try
             {
-                var result = await _videoStreamingOriginOrchestrator.CreatePlayingOrchestrateResultAsync(item.ItemId);
+                var result = await _videoStreamingOriginOrchestrator.CreatePlayingOrchestrateResultAsync(item.VideoId);
                 CurrentPlayingSession = result;
                 if (!result.IsSuccess)
                 {
@@ -591,14 +679,14 @@ namespace Hohoema.Models.Domain.Playlist
                 CurrentQuality = AvailableQualities.First(x => x.Quality == videoSession.Quality);
                 Guard.IsNotNull(_mediaPlayer.PlaybackSession, nameof(_mediaPlayer.PlaybackSession));
 
-                CurrentPlaylistItem = item;
+
                 RaisePropertyChanged(nameof(AvailableQualities));
 
                 NowPlayingWithCache = videoSession is CachedVideoStreamingSession;
                 _soundVolumeManager.LoudnessCorrectionValue = CurrentPlayingSession.VideoDetails.LoudnessCorrectionValue;
 
                 // メディア再生成功時のメッセージを飛ばす
-                _messenger.Send(new PlaybackStartedMessage(new(item, videoSession.Quality, _mediaPlayer.PlaybackSession)));
+                _messenger.Send(new PlaybackStartedMessage(new(CurrentPlaylistId, item.VideoId, videoSession.Quality, _mediaPlayer.PlaybackSession)));
 
                 _mediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
 
@@ -629,7 +717,7 @@ namespace Hohoema.Models.Domain.Playlist
             catch (Exception ex)
             {
                 StopPlaybackMedia();
-                _messenger.Send(new PlaybackFailedMessage(new(item, ex)));
+                _messenger.Send(new PlaybackFailedMessage(new(CurrentPlaylistId, item.VideoId, ex)));
                 throw;
             }
         }
@@ -689,38 +777,59 @@ namespace Hohoema.Models.Domain.Playlist
             });
         }
 
-        private async ValueTask UpdatePlaylistItemsSourceAsync(PlaylistItem? item)
+        private void ClearPlaylist()
         {
-            if (CurrentPlaylistId != null 
-                && item != null
-                && CurrentPlaylistId == item.PlaylistId)
+            bool isCleared = _itemsSource != null;
+            _itemsSource = null;
+            if (isCleared)
             {
-                return;
+                _messenger.Send(new PlayingPlaylistChangedMessage(new(null)));
+            }
+        }
+
+        /*
+        private async ValueTask UpdatePlaylistItemsSourceAsync(PlaylistId playlistId, string serializedSortOptions, IVideoContent currentItem)
+        {
+            Guard.IsNotNull(playlistId, nameof(playlistId));
+
+            if (CurrentPlaylistId == playlistId) { return; }
+
+            IPlaylist newPlaylist = null;
+            try
+            {
+                newPlaylist = await _playlistSourceManager.ResolveItemsSource(playlistId, serializedSortOptions);                
+            }
+            catch
+            {
+                _messenger.Send(new ResolvePlaylistFailedMessage(new(playlistId)));
+                throw;
             }
 
-            var prevSource = _itemsSource;
-            if (item?.PlaylistId != null)
-            {
-                try
-                {
-                    _itemsSource = await _playlistSourceManager.ResolveItemsSource(item.PlaylistId);
-                    Reset(_itemsSource, item);
-                }
-                catch
-                {
-                    _itemsSource = null;
-                    _messenger.Send(new ResolvePlaylistFailedMessage(new(item.PlaylistId)));
-                }
-            }
-            else
-            {
-                _itemsSource = null;
-            }
-
+            await UpdatePlaylistItemsSourceAsync(newPlaylist, currentItem);
             // プレイリスト更新メッセージを飛ばす
             _messenger.Send(new PlayingPlaylistChangedMessage(new(_itemsSource)));
         }
+        */
 
+        private async ValueTask<IBufferedPlaylistItemsSource> UpdatePlaylistItemsSourceAsync(IPlaylist playlist)
+        {
+            try
+            {
+                var source = Reset(playlist);
+                _itemsSource = playlist;
+
+                // プレイリスト更新メッセージを飛ばす
+                _messenger.Send(new PlayingPlaylistChangedMessage(new(_itemsSource)));
+
+                return source;
+            }
+            catch
+            {
+                _itemsSource = null;
+                _messenger.Send(new ResolvePlaylistFailedMessage(new(playlist.PlaylistId)));
+                throw;
+            }
+        }
 
     }
 }

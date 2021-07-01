@@ -43,7 +43,7 @@ namespace Hohoema.Models.Domain.LocalMylist
 
 
 
-    public sealed class LocalPlaylist : IPlaylist, IShufflePlaylistItemsSource
+    public sealed class LocalPlaylist : IUserManagedPlaylist
     {
         private readonly LocalMylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
@@ -61,8 +61,6 @@ namespace Hohoema.Models.Domain.LocalMylist
         }
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public string Name { get; private set; }
 
@@ -88,10 +86,6 @@ namespace Hohoema.Models.Domain.LocalMylist
             get => _thumbnailImages[0];
             set => _thumbnailImages[0] = value;
         }
-
-        int IShufflePlaylistItemsSource.MaxItemsCount => Count;
-
-        int IPlaylistItemsSource.OneTimeItemsCount => 500;
 
         
         public PlaylistId PlaylistId { get; }
@@ -178,10 +172,49 @@ namespace Hohoema.Models.Domain.LocalMylist
             });
         }
 
-        public ValueTask<IEnumerable<PlaylistItem>> GetRangeAsync(int start, int count, CancellationToken ct)
+        int IUserManagedPlaylist.TotalCount => Count;
+
+        public int OneTimeItemsCount => 500;
+
+        LocalPlaylistSortOptions _SortOptions;
+        public LocalPlaylistSortOptions SortOptions
         {
-            var items = _playlistRepository.GetItems(PlaylistId.Id, start, count);
-            return new (items.Select((x, i) => new PlaylistItem(PlaylistId, start+i, x.ContentId)));
+            get => _SortOptions ??= new LocalPlaylistSortOptions();
+            set => _SortOptions = value;
+        }
+
+        IPlaylistSortOptions IPlaylist.SortOptions 
+        {
+            get => SortOptions;
+            set => SortOptions = (LocalPlaylistSortOptions)value;
+        }
+
+        public int IndexOf(IVideoContent video)
+        {
+            var videoId = video.VideoId.ToString();
+            return SortedItems.FindIndex(x => x.ContentId == videoId);
+        }
+
+        public bool Contains(IVideoContent video)
+        {
+            var videoId = video.VideoId.ToString();
+            return SortedItems.Any(x => x.ContentId == videoId);
+        }
+
+        List<PlaylistItemEntity> _sortedItems;
+        List<PlaylistItemEntity> SortedItems => _sortedItems ??= _playlistRepository.GetItems(PlaylistId.Id);
+        bool _isRequireSort = true;
+
+        public async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
+        {
+            if (_isRequireSort)
+            {
+                // 
+            }
+
+            var start = pageIndex * pageSize;
+            var nicoVideos = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(SortedItems.Skip(start).Take(pageSize).Select(x => (VideoId)x.ContentId), cancellationToken);
+            return nicoVideos;
         }
     }
     

@@ -26,7 +26,7 @@ namespace Hohoema.Models.UseCase.Playlist.PlaylistItemsSource
             _queuePlaylist = queuePlaylist;
         }
 
-        public ValueTask<IPlaylistItemsSource> Create(PlaylistId playlistId)
+        public ValueTask<IPlaylist> Create(PlaylistId playlistId)
         {
             if (playlistId == QueuePlaylist.Id)
             {
@@ -42,6 +42,16 @@ namespace Hohoema.Models.UseCase.Playlist.PlaylistItemsSource
 
                 return new(localPlaylist);
             }
+        }
+
+        public IPlaylistSortOptions DeserializeSortOptions(string serializedSortOptions)
+        {
+            if (string.IsNullOrEmpty(serializedSortOptions))
+            {
+                return new LocalPlaylistSortOptions();
+            }
+
+            return LocalPlaylistSortOptions.Deserialize(serializedSortOptions);
         }
     }
 

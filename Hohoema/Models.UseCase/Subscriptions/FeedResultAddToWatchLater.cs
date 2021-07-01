@@ -48,7 +48,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
                     {
                         if (!_queuePlaylist.Contains(newVideo.VideoId))
                         {
-                            _queuePlaylist.Add(newVideo.VideoId);
+                            _queuePlaylist.Add(newVideo);
 
                             Debug.WriteLine("[FeedResultAddToWatchLater] added: " + newVideo.Label);
                         }

@@ -35,7 +35,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
     }
 
 
-    public sealed class PrimaryViewPlayerManager : FixPrism.BindableBase
+    public sealed class PrimaryViewPlayerManager : FixPrism.BindableBase, IPlayerView
     {
         INavigationService _navigationService;
 
@@ -74,6 +74,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         }
 
         public string LastNavigatedPageName { get; private set; }
+
+        public async Task ShowAsync()
+        {
+            await ApplicationViewSwitcher.TryShowAsStandaloneAsync(_view.Id);
+        }
 
         public async Task NavigationAsync(string pageName, INavigationParameters parameters)
         {

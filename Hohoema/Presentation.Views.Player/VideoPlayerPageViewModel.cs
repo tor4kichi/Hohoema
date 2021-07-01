@@ -355,7 +355,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         {
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
 
-            VideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem?.ItemId;
+            VideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem?.VideoId;
 
             _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentQuality)
                 .Subscribe(quality => _scheduler.Schedule(() => CurrentQuality = quality))
@@ -382,13 +382,12 @@ namespace Hohoema.Presentation.ViewModels.Player
                         }
 
                         // 削除状態をチェック（再生準備より先に行う）
-                        var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(x.ItemId);
+                        var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(x.VideoId);
                         VideoInfo = video;
                         CheckDeleted(res);
 
                         MediaPlayer.AutoPlay = true;
 
-                        //var result = await _videoStreamingOriginOrchestrator.CreatePlayingOrchestrateResultAsync(VideoId);
                         var result = _hohoemaPlaylistPlayer.CurrentPlayingSession;
                         if (!result.IsSuccess)
                         {

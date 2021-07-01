@@ -38,7 +38,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
             foreach (var content in items)
             {
-                _queuePlaylist.Add(content.VideoId);
+                _queuePlaylist.Add(content);
             }
 
             _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistAddedItems_Success".Translate("HohoemaPageType.VideoQueue".Translate(), items.Count()));

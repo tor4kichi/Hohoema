@@ -24,7 +24,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
         protected override void Execute(IVideoContent content)
         {
-            _messenger.Send(new VideoPlayRequestMessage() { VideoId = content.VideoId, PlaylistId = _playlist.PlaylistId.Id, PlaylistOrigin = _playlist.PlaylistId.Origin });
+            _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(_playlist, content));
             
         }
     }

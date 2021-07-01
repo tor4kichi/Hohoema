@@ -7,6 +7,6 @@ namespace Hohoema.Models.Domain.Playlist
 {
     public interface IPlaylistItemsSourceResolver
     {
-        ValueTask<IPlaylistItemsSource> ResolveItemsSource(PlaylistId id);
+        ValueTask<IPlaylist> ResolveItemsSource(PlaylistId id, string serializedSortOptions);
     }
 }

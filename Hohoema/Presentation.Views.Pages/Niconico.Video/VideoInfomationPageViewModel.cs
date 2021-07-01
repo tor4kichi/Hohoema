@@ -82,7 +82,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             PageManager pageManager,
             Services.NotificationService notificationService,
             Services.DialogService dialogService,
-            VideoPlayCommand videoPlayCommand,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             MylistAddItemCommand addMylistCommand,
             LocalPlaylistAddItemCommand localPlaylistAddItemCommand,
             AddSubscriptionCommand addSubscriptionCommand,
@@ -108,7 +108,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             PageManager = pageManager;
             NotificationService = notificationService;
             DialogService = dialogService;
-            VideoPlayCommand = videoPlayCommand;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             AddMylistCommand = addMylistCommand;
             LocalPlaylistAddItemCommand = localPlaylistAddItemCommand;
             AddSubscriptionCommand = addSubscriptionCommand;
@@ -416,7 +416,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         public SubscriptionManager SubscriptionManager { get; }
         public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
-        public VideoPlayCommand VideoPlayCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
         public MylistAddItemCommand AddMylistCommand { get; }
         public LocalPlaylistAddItemCommand LocalPlaylistAddItemCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }

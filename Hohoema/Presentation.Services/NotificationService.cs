@@ -138,7 +138,7 @@ namespace Hohoema.Presentation.Services
                             Label = "@view".Translate(),
                             Command = new DelegateCommand(() =>
                             {
-                                _queuePlaylist.Add(videoId);
+                                _queuePlaylist.Add(nicoVideo);
 
                                 NotificationService.DismissInAppNotification();
                             })

@@ -236,10 +236,8 @@
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\IVideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\VideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Playlist\HohoemaPlaylistPlayer.cs" />
-    <Compile Include="Models.Domain\Playlist\IPlaylist.cs" />
-    <Compile Include="Models.Domain\Playlist\IPlaylistItem.cs" />
     <Compile Include="Models.Domain\LocalMylist\LocalPlaylist.cs" />
-    <Compile Include="Models.Domain\Playlist\IPlaylistItemsSource.cs" />
+    <Compile Include="Models.Domain\Playlist\IPlaylist.cs" />
     <Compile Include="Models.Domain\Playlist\PlaylistExtension.cs" />
     <Compile Include="Models.Domain\Playlist\PlaylistItemsSourceOrigin.cs" />
     <Compile Include="Models.Domain\LocalMylist\LocalMylistRepository.cs" />

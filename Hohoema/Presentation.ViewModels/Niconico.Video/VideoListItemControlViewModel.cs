@@ -31,7 +31,7 @@ using Hohoema.Models.Domain.Playlist;
 
 namespace Hohoema.Presentation.ViewModels.VideoListPage
 {
-    public class VideoItemViewModel : FixPrism.BindableBase, IVideoContent, IDisposable,
+    public class VideoItemViewModel : FixPrism.BindableBase, IVideoContent, IPlaylistPlayableItem, IDisposable,
         IRecipient<VideoPlayedMessage>,
         IRecipient<PlaylistItemAddedMessage>,
         IRecipient<PlaylistItemRemovedMessage>,
@@ -75,6 +75,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         public string Label => Title;
 
         public DateTime PostedAt { get; }
+
+        public PlaylistItemToken? PlaylistItemToken { get; init; }
 
         bool IEquatable<IVideoContent>.Equals(IVideoContent other)
         {

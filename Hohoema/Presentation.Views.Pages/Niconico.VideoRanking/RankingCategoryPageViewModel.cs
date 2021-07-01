@@ -148,7 +148,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         public PageManager PageManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public VideoRankingSettings RankingSettings { get; }
-        public VideoPlayCommand VideoPlayCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public RankingProvider RankingProvider { get; }
 
@@ -165,7 +165,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             RankingProvider rankingProvider,
             VideoRankingSettings rankingSettings,
             NotificationService notificationService,
-            VideoPlayCommand videoPlayCommand,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
         {
@@ -176,7 +176,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             RankingProvider = rankingProvider;
             RankingSettings = rankingSettings;
             _notificationService = notificationService;
-            VideoPlayCommand = videoPlayCommand;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
 
             _rankingMemoryCache = new MemoryCache(new MemoryCacheOptions())

@@ -62,14 +62,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 			CommunityProvider communityProvider,
 			CommunityFollowProvider communityFollowProvider,
             PageManager pageManager,
-			VideoPlayCommand videoPlayCommand
+			VideoPlayWithQueueCommand videoPlayWithQueueCommand
 			)
         {
 			ApplicationLayoutManager = applicationLayoutManager;
 			CommunityProvider = communityProvider;
             _communityFollowProvider = communityFollowProvider;
             PageManager = pageManager;
-            VideoPlayCommand = videoPlayCommand;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
         }
 
 
@@ -167,7 +167,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 		public ApplicationLayoutManager ApplicationLayoutManager { get; }
 		public CommunityProvider CommunityProvider { get; }
         public PageManager PageManager { get; }
-        public VideoPlayCommand VideoPlayCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
     }
 
 

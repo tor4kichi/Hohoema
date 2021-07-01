@@ -24,7 +24,7 @@
   
   <Grid>
     <videolistPage:VideoItemsListView ItemsSource="{Binding MylistItems}" 
-                                      ItemCommand="{Binding PlayWithCurrentPlaylistCommand}" 
+                                      ItemCommand="{Binding VideoPlayWithQueueCommand}" 
                                       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}" 
                                       PlaylistPassToFlyout="{Binding Mylist.Value}" 
@@ -76,7 +76,7 @@
               <!-- 非選択中 -->
               <AppBarToggleButton x:Name="ToggleMylistFavoriteButton" IsChecked="{Binding FollowContext.IsFollowing, Mode=TwoWay}" IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" Icon="Favorite" Label="{i18nExt:Localize Key=Follow}" />
               <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
-              <AppBarButton x:Name="PlayAllButton" Icon="Play" Label="{i18nExt:Localize Key=PlayAll}" Command="{Binding PlayAllVideosFromHeadCommand}"></AppBarButton>
+              <AppBarButton x:Name="PlayAllButton" Icon="Play" Label="{i18nExt:Localize Key=PlayAll}" Command="{Binding PlaylistPlayAllCommand}" CommandParameter="{Binding Mylist.Value}"></AppBarButton>
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Click">

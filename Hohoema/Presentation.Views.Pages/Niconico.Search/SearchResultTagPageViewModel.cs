@@ -57,7 +57,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             PageManager pageManager,
             SearchHistoryRepository searchHistoryRepository,
             Services.DialogService dialogService,
-            VideoPlayCommand videoPlayCommand,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             AddTagSearchSubscriptionCommand addTagSearchSubscriptionCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
@@ -70,7 +70,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             ApplicationLayoutManager = applicationLayoutManager;
             NiconicoSession = niconicoSession;
             HohoemaDialogService = dialogService;
-            VideoPlayCommand = videoPlayCommand;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             AddTagSearchSubscriptionCommand = addTagSearchSubscriptionCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             FailLoading = new ReactiveProperty<bool>(false)
@@ -113,7 +113,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         public SubscriptionManager SubscriptionManager { get; }
         public PageManager PageManager { get; }
         public Services.DialogService HohoemaDialogService { get; }
-        public VideoPlayCommand VideoPlayCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
         public AddTagSearchSubscriptionCommand AddTagSearchSubscriptionCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 

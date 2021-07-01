@@ -133,7 +133,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             var relatedMylistIds = videoViewerHelpInfo.GetMylistIds();
             foreach (var mylistId in relatedMylistIds)
             {
-                var mylist = await _mylistRepository.GetMylist(mylistId);
+                var mylist = await _mylistRepository.GetMylistAsync(mylistId);
                 if (mylist != null)
                 {
                     result.Mylists.Add(mylist);

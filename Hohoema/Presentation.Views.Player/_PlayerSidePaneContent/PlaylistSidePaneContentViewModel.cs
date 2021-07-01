@@ -20,6 +20,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Playlist;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using Microsoft.Toolkit.Diagnostics;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {
@@ -66,10 +67,10 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 .AddTo(_CompositeDisposable);
 
             CurrentItems = new ObservableCollection<IVideoContent>();
-            foreach (var item in _hohoemaPlaylistPlayer.CopyBufferedItems() ?? Enumerable.Empty<PlaylistItem>())
+            foreach (var item in _hohoemaPlaylistPlayer.GetBufferedItemsAsSpan() ?? Enumerable.Empty<IVideoContent>())
             {
                 if (item == null) { continue; }
-                var video = _nicoVideoProvider.GetCachedVideoInfo(item.ItemId);
+                var video = _nicoVideoProvider.GetCachedVideoInfo(item.VideoId);
                 CurrentItems.Add(video);
             }
 
@@ -206,8 +207,13 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                         {
                             return;
                         }
-                        var playlistId = _hohoemaPlaylistPlayer.CurrentPlaylist.PlaylistId;
-                        _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(playlistId.Id, playlistId.Origin, playlistId.SortOptions, video.VideoId));
+
+                        Guard.IsOfType<IPlaylistPlayableItem>(video, nameof(video));
+                        
+                        if (video is IPlaylistPlayableItem playlistPlayableItem && playlistPlayableItem.PlaylistItemToken is not null)
+                        {
+                            _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(playlistPlayableItem.PlaylistItemToken));
+                        }
                     }
                     ));
             }

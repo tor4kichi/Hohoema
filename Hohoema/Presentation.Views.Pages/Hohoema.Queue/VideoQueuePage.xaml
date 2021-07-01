@@ -22,9 +22,9 @@
 
   <Grid>
     <videolistPage:VideoItemsListView ItemsSource="{Binding PlaylistItems}"
-                                      ItemCommand="{Binding VideoPlayCommand}"
+                                      ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
-                                      PlaylistPassToFlyout="{Binding Playlist}"
+                                      PlaylistPassToFlyout="{Binding QueuePlaylist}"
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
@@ -49,7 +49,7 @@
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"
                                 Command="{Binding PlaylistPlayAllCommand}"
-                                CommandParameter="{Binding Playlist}"></AppBarButton>
+                                CommandParameter="{Binding QueuePlaylist}"></AppBarButton>
 
 
                 <!-- 非選択中 -->

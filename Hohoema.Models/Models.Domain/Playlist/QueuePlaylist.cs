@@ -1,5 +1,8 @@
 ﻿using Hohoema.Models.Domain.LocalMylist;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Infrastructure;
 using I18NPortable;
+using LiteDB;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
@@ -60,50 +63,121 @@ namespace Hohoema.Models.Domain.Playlist
     }
 
 
-    public class QueuePlaylist : ReadOnlyObservableCollection<PlaylistItem>, IShufflePlaylistItemsSource
+    public class QueuePlaylistItem : IVideoContent
+    {
+        private QueuePlaylistItem(QueuePlaylistItem item) { }
+
+        public QueuePlaylistItem() { }
+
+        public QueuePlaylistItem(IVideoContent video)
+        {
+            Id = video.VideoId; 
+            Length = video.Length; 
+            Title = video.Title;
+            PostedAt = video.PostedAt;
+            ThumbnailUrl = video.ThumbnailUrl;
+        }
+
+        [BsonId]
+        public string Id { get; init; }
+
+        VideoId? _videoId;
+        public VideoId VideoId => _videoId ??= Id;
+
+        public TimeSpan Length { get; init; }
+
+        public string ThumbnailUrl { get; init; }
+
+        public DateTime PostedAt { get; init; }
+
+        public string Title { get; init; }
+
+        public int Index { get; internal set; }
+
+        public bool Equals(IVideoContent other)
+        {
+            return this.VideoId == other.VideoId;
+        }
+    }
+
+    public class QueuePlaylistRepository : LiteDBServiceBase<QueuePlaylistItem>
+    {
+        public QueuePlaylistRepository(LiteDatabase liteDatabase) : base(liteDatabase)
+        {
+        }
+    }
+
+
+    public record LocalPlaylistSortOptions : IPlaylistSortOptions
+    {
+        public string Serialize()
+        {
+            return System.Text.Json.JsonSerializer.Serialize(this);
+        }
+
+        public static LocalPlaylistSortOptions Deserialize(string serializedText)
+        {
+            return System.Text.Json.JsonSerializer.Deserialize<LocalPlaylistSortOptions>(serializedText);
+        }
+    }
+
+    public class QueuePlaylist : ReadOnlyObservableCollection<QueuePlaylistItem>, IUserManagedPlaylist
     {
         public static readonly PlaylistId Id = new PlaylistId() { Id = "@view", Origin = PlaylistItemsSourceOrigin.Local };
 
 
         private readonly IMessenger _messenger;
-        private readonly LocalMylistRepository _playlistRepository;
+        private readonly QueuePlaylistRepository _queuePlaylistRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
+        private readonly Dictionary<VideoId, QueuePlaylistItem> _itemEntityMap;
 
-        private readonly Dictionary<VideoId, PlaylistItemEntity> _itemEntityMap;
-
-        int IShufflePlaylistItemsSource.MaxItemsCount => _itemEntityMap.Count;
-
-        int IPlaylistItemsSource.OneTimeItemsCount => 500;
+        int IUserManagedPlaylist.TotalCount => _itemEntityMap.Count;
 
         string IPlaylist.Name { get; } = Id.Id.Translate();
 
         PlaylistId IPlaylist.PlaylistId => Id;
 
+        LocalPlaylistSortOptions _SortOptions;
+        LocalPlaylistSortOptions SortOptions 
+        {
+            get => _SortOptions ??= new LocalPlaylistSortOptions();
+            set => _SortOptions = value; 
+        }
+        
+        IPlaylistSortOptions IPlaylist.SortOptions
+        {
+            get => SortOptions;
+            set => SortOptions = (LocalPlaylistSortOptions)value;
+        }
+
         public QueuePlaylist(
             IMessenger messenger,
-            LocalMylistRepository playlistRepository)
-            : base(new ObservableCollection<PlaylistItem>(GetQueuePlaylistItems(playlistRepository, out var itemEntityMap)))
+            QueuePlaylistRepository queuePlaylistRepository
+            )
+            : base(new ObservableCollection<QueuePlaylistItem>(GetQueuePlaylistItems(queuePlaylistRepository, out var itemEntityMap)))
         {
             _itemEntityMap = itemEntityMap;
             _messenger = messenger;
-            _playlistRepository = playlistRepository;
+            _queuePlaylistRepository = queuePlaylistRepository;
         }
 
-        static IEnumerable<PlaylistItem> GetQueuePlaylistItems(LocalMylistRepository localMylistRepository, out Dictionary<VideoId, PlaylistItemEntity> eneityMap)
+        static IEnumerable<QueuePlaylistItem> GetQueuePlaylistItems(QueuePlaylistRepository queuePlaylistRepository, out Dictionary<VideoId, QueuePlaylistItem> eneityMap)
         {
-            var items = localMylistRepository.GetItems(Id.Id);
-            eneityMap = items.ToDictionary(x => (VideoId)x.ContentId);
-            return items.Select((x, i) => new PlaylistItem(Id, i, x.ContentId));
+            var items = queuePlaylistRepository.ReadAllItems();
+            eneityMap = items.ToDictionary(x => x.VideoId);
+            items.Sort((a, b) => a.Index - b.Index);
+            return items;
         }
 
 
-        private void SendAddedMessage(in int index, in VideoId videoId)
+        private void SendAddedMessage(QueuePlaylistItem item)
         {
 #if DEBUG
-            Guard.IsNotEqualTo(videoId, default(VideoId), "invalid videoId");
+            Guard.IsNotEqualTo(item.VideoId, default(VideoId), "invalid videoId");
 #endif
-            var message = new PlaylistItemAddedMessage(new() { AddedItem = videoId, Index = index, PlaylistId = Id });
+            var message = new PlaylistItemAddedMessage(new() { AddedItem = item.VideoId, Index = item.Index, PlaylistId = Id });
             _messenger.Send(message);
-            _messenger.Send(message, videoId);
+            _messenger.Send(message, item.VideoId);
             _messenger.Send(message, Id);
         }
 
@@ -129,13 +203,13 @@ namespace Hohoema.Models.Domain.Playlist
             _messenger.Send(message, Id);
         }
 
-        private void AddEntity(int index, VideoId videoId)
+        private void AddEntity(QueuePlaylistItem video)
         {
 #if DEBUG
-            Guard.IsNotEqualTo(videoId, default(VideoId), "invalid videoId");
+            Guard.IsNotEqualTo(video.VideoId, default(VideoId), "invalid videoId");
 #endif
-            var entityAddedItem = _playlistRepository.AddItem(Id.Id, videoId, index);
-            _itemEntityMap.Add(videoId, entityAddedItem);
+            var entityAddedItem = _queuePlaylistRepository.CreateItem(video);
+            _itemEntityMap.Add(video.VideoId, entityAddedItem);
         }
 
         private void RemoveEntity(VideoId videoId)
@@ -143,7 +217,7 @@ namespace Hohoema.Models.Domain.Playlist
 #if DEBUG
             Guard.IsNotEqualTo(videoId, default(VideoId), "invalid videoId");
 #endif
-            _playlistRepository.DeleteItem(Id.Id, videoId);
+            _queuePlaylistRepository.DeleteItem(videoId.ToString());
             _itemEntityMap.Remove(videoId);
         }
 
@@ -154,38 +228,38 @@ namespace Hohoema.Models.Domain.Playlist
 #endif
             var entityItem = _itemEntityMap[videoId];
             entityItem.Index = index;
-            _playlistRepository.UpdateItem(entityItem);
+            _queuePlaylistRepository.UpdateItem(entityItem);
         }        
 
-        public PlaylistItem Add(VideoId videoId)
+        public QueuePlaylistItem Add(IVideoContent video)
         {
-            Guard.IsFalse(Contains(videoId), "already contain videoId");
+            Guard.IsFalse(Contains(video.VideoId), "already contain videoId");
 
-            var addedItem = new PlaylistItem(Id, base.Items.Count, videoId);
+            var addedItem = new QueuePlaylistItem(video);
             base.Items.Add(addedItem);
-            SendAddedMessage(addedItem.ItemIndex, addedItem.ItemId);
-            AddEntity(addedItem.ItemIndex, addedItem.ItemId);
-            OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(IShufflePlaylistItemsSource.MaxItemsCount)));
+            SendAddedMessage(addedItem);
+            AddEntity(addedItem);
+            OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(IUserManagedPlaylist.TotalCount)));
 
             return addedItem;
         }
 
-        public PlaylistItem Insert(int index, VideoId videoId)
+        public QueuePlaylistItem Insert(int index, IVideoContent video)
         {
-            Guard.IsFalse(Contains(videoId), "already contain videoId");
+            Guard.IsFalse(Contains(video.VideoId), "already contain videoId");
 
-            var addedItem = new PlaylistItem(Id, index, videoId);
+            var addedItem = new QueuePlaylistItem(video);
             base.Items.Insert(index, addedItem);
-            SendAddedMessage(addedItem.ItemIndex, addedItem.ItemId);
-            AddEntity(addedItem.ItemIndex, addedItem.ItemId);
-            OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(IShufflePlaylistItemsSource.MaxItemsCount)));
+            SendAddedMessage(addedItem);
+            AddEntity(addedItem);
+            OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(IUserManagedPlaylist.TotalCount)));
 
             index++;
             foreach (var item in base.Items.Skip(index))
             {
-                item.ItemIndex = index++;
-                SendIndexUpdatedMessage(item.ItemIndex, videoId);
-                UpdateEntity(item.ItemIndex, item.ItemId);
+                item.Index = index++;
+                SendIndexUpdatedMessage(item.Index, item.VideoId);
+                UpdateEntity(item.Index, item.VideoId);
             }
 
             return addedItem;
@@ -193,30 +267,22 @@ namespace Hohoema.Models.Domain.Playlist
 
         public void Remove(VideoId videoId)
         {
-            var item = base.Items.FirstOrDefault(x => x.ItemId == videoId);
+            var item = base.Items.FirstOrDefault(x => x.VideoId == videoId);
             if (item == null) { return; }
             Remove(item);
         }
-        public void Remove(PlaylistItem removeItem)
+        public void Remove(IVideoContent removeItem)
         {
-            Guard.IsTrue(Contains(removeItem.ItemId), "no contain videoId");
+            Guard.IsTrue(Contains(removeItem.VideoId), "no contain videoId");
 
-            var index = removeItem.ItemIndex;
-#if DEBUG
-            var realIndex = base.Items.IndexOf(removeItem);
-            Guard.IsEqualTo(realIndex, index, "not same index");
-#endif
-            base.Items.RemoveAt(index);
-            SendRemovedMessage(index, removeItem.ItemId);
-            RemoveEntity(removeItem.ItemId);
-            OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(IShufflePlaylistItemsSource.MaxItemsCount)));
+            var item = base.Items.FirstOrDefault(x => x.Equals(removeItem));
+            base.Items.Remove(item);
+            SendRemovedMessage(item.Index, removeItem.VideoId);
+            RemoveEntity(removeItem.VideoId);
+            OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(IUserManagedPlaylist.TotalCount)));
 
-            foreach (var item in base.Items.Skip(index))
-            {
-                item.ItemIndex = index++;
-                SendIndexUpdatedMessage(item.ItemIndex, item.ItemId);
-                UpdateEntity(item.ItemIndex, item.ItemId);
-            }
+            // 他アイテムのIndex更新は必要ない
+            // アプリ復帰時に順序が保たれていれば十分
         }
 
 
@@ -225,14 +291,26 @@ namespace Hohoema.Models.Domain.Playlist
             return _itemEntityMap.ContainsKey(id);
         }
 
-        public int IndexOf(in VideoId id)
+        public int IndexOf(VideoId id)
         {
-            return _itemEntityMap[id].Index;
+            var item = base.Items.FirstOrDefault(x => x.VideoId == id);
+            return base.Items.IndexOf(item);
         }
 
-        ValueTask<IEnumerable<PlaylistItem>> IPlaylistItemsSource.GetRangeAsync(int start, int count, CancellationToken ct)
+        public int IndexOf(IVideoContent video)
         {
-            return new(this.Skip(start).Take(count));
+            return IndexOf(video.VideoId);
+        }
+
+        public bool Contains(IVideoContent video)
+        {
+            return Contains(video.VideoId);
+        }
+
+        public Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
+        {
+            var start = pageIndex * pageSize;
+            return Task.FromResult(this.Skip(start).Take(pageSize).Cast<IVideoContent>());
         }
     }
 }

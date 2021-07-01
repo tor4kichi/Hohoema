@@ -52,7 +52,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
             DialogService dialogService,
             NotificationService notificationService,
             SelectionModeToggleCommand selectionModeToggleCommand,
-            VideoPlayCommand videoPlayCommand
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand
             )
         {
             _scheduler = scheduler;
@@ -66,7 +66,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
             HohoemaDialogService = dialogService;
             NotificationService = notificationService;
             SelectionModeToggleCommand = selectionModeToggleCommand;
-            VideoPlayCommand = videoPlayCommand;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             Groups = new (new[] 
             {
                 VideoCacheStatus.Failed,
@@ -124,7 +124,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
         public NicoVideoProvider NicoVideoProvider { get; }
         public NotificationService NotificationService { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
-        public VideoPlayCommand VideoPlayCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
         public DelegateCommand OpenCurrentCacheFolderCommand { get; }
         public DialogService HohoemaDialogService { get; }
 

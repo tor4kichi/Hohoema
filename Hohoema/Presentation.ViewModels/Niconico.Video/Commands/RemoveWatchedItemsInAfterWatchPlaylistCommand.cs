@@ -37,7 +37,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             int count = 0;
             foreach (var item in _queuePlaylist.ToArray())
             {
-                if (_videoPlayedHistoryRepository.IsVideoPlayed(item.ItemId))
+                if (_videoPlayedHistoryRepository.IsVideoPlayed(item.VideoId))
                 {
                     _queuePlaylist.Remove(item);
                     count++;
