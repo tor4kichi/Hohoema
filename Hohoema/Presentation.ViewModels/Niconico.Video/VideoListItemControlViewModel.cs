@@ -339,6 +339,12 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             _messenger = App.Current.Container.Resolve<IMessenger>();
         }
 
+        public VideoListItemControlViewModel(IVideoContent video)
+            : this(video.VideoId, video.Title, video.ThumbnailUrl, video.Length, video.PostedAt)
+        {
+
+        }
+
         public VideoListItemControlViewModel(
             VideoId videoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt
             )

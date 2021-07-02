@@ -42,7 +42,8 @@ namespace Hohoema.Presentation.ViewModels
 
         public virtual void OnNavigatingTo(INavigationParameters parameters) 
         {
-            _NavigatingCompositeDisposable = new CompositeDisposable();
+            _NavigatingCompositeDisposable?.Dispose();
+            _NavigatingCompositeDisposable = new();
             Views.Pages.PrimaryWindowCoreLayout.SetCurrentNavigationParameters(parameters);
             _navigationCancellationTokenSource = new CancellationTokenSource()
                 .AddTo(_NavigatingCompositeDisposable);
@@ -57,7 +58,8 @@ namespace Hohoema.Presentation.ViewModels
         {
             _navigationCancellationTokenSource?.Cancel();
             _navigationCancellationTokenSource?.Dispose();
-            _NavigatingCompositeDisposable.Dispose();
+            _NavigatingCompositeDisposable?.Dispose();
+            _NavigatingCompositeDisposable = new();
         }
 
     }

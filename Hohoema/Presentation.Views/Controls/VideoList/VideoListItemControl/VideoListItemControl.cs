@@ -172,7 +172,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
         // Using a DependencyProperty as the backing store for ViewCount.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ViewCountProperty =
-            DependencyProperty.Register("ViewCount", typeof(string), typeof(VideoListItemControl), new PropertyMetadata(null, OnViewCountPropertyChanged));
+            DependencyProperty.Register("ViewCount", typeof(string), typeof(VideoListItemControl), new PropertyMetadata("0", OnViewCountPropertyChanged));
 
         private static void OnViewCountPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {

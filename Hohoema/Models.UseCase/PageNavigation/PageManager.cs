@@ -190,7 +190,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         OpenPageWithId(HohoemaPageType.ChannelVideo, channel.ChannelId);
                         break;
                     case IPlaylist playlist:
-                        OpenPageWithId(HohoemaPageType.LocalPlaylist, playlist.PlaylistId.Id);
+                        OpenPlaylistPage(playlist);
                         break;
                 }
             }));
@@ -381,6 +381,38 @@ namespace Hohoema.Models.UseCase.PageNavigation
             catch (Exception e)
             {
                 ErrorTrackingManager.TrackError(e);
+            }
+        }
+
+        public void OpenPlaylistPage(IPlaylist playlist, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
+        {
+            if (playlist.PlaylistId == QueuePlaylist.Id)
+            {
+                OpenPage(HohoemaPageType.VideoQueue);
+            }
+            else if (playlist.PlaylistId.Origin is PlaylistItemsSourceOrigin.SearchWithKeyword)
+            {
+                this.Search(SearchTarget.Keyword, playlist.PlaylistId.Id);
+            }
+            else if (playlist.PlaylistId.Origin is PlaylistItemsSourceOrigin.SearchWithTag)
+            {
+                this.Search(SearchTarget.Tag, playlist.PlaylistId.Id);
+            }
+            else
+            {
+                var pageType = playlist.PlaylistId.Origin switch
+                {
+                    PlaylistItemsSourceOrigin.Mylist => HohoemaPageType.Mylist,
+                    PlaylistItemsSourceOrigin.Local => HohoemaPageType.LocalPlaylist,
+                    PlaylistItemsSourceOrigin.ChannelVideos => HohoemaPageType.ChannelVideo,
+                    PlaylistItemsSourceOrigin.UserVideos => HohoemaPageType.UserVideo,
+                    PlaylistItemsSourceOrigin.Series => HohoemaPageType.Series,
+                    PlaylistItemsSourceOrigin.CommunityVideos => HohoemaPageType.CommunityVideo,
+                    _ => throw new NotSupportedException(playlist.PlaylistId.Origin.ToString()),
+                };
+
+                INavigationParameters parameter = new NavigationParameters(("id", playlist.PlaylistId.Id));
+                OpenPage(pageType, parameter, stackBehavior);
             }
         }
 

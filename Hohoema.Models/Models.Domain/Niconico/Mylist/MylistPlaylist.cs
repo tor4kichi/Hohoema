@@ -24,6 +24,8 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
         public static MylistPlaylistSortOptions Deserialize(string serializedText)
         {
+            if (string.IsNullOrEmpty(serializedText)) { return new MylistPlaylistSortOptions(MylistSortKey.RegisteredAt, MylistSortOrder.Desc); }
+
             return JsonSerializer.Deserialize<MylistPlaylistSortOptions>(serializedText);
         }
     }

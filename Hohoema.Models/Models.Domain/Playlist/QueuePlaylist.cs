@@ -131,14 +131,14 @@ namespace Hohoema.Models.Domain.Playlist
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly Dictionary<VideoId, QueuePlaylistItem> _itemEntityMap;
 
-        int IUserManagedPlaylist.TotalCount => _itemEntityMap.Count;
+        public int TotalCount => _itemEntityMap.Count;
 
-        string IPlaylist.Name { get; } = Id.Id.Translate();
+        public string Name { get; } = Id.Id.Translate();
 
-        PlaylistId IPlaylist.PlaylistId => Id;
+        public PlaylistId PlaylistId => Id;
 
         LocalPlaylistSortOptions _SortOptions;
-        LocalPlaylistSortOptions SortOptions 
+        public LocalPlaylistSortOptions SortOptions 
         {
             get => _SortOptions ??= new LocalPlaylistSortOptions();
             set => _SortOptions = value; 

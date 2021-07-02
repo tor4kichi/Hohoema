@@ -381,6 +381,11 @@ namespace Hohoema.Presentation.ViewModels.Player
                             return;
                         }
 
+                        if (VideoInfo != null && VideoInfo.VideoId == x.VideoId)
+                        {
+                            return;
+                        }
+
                         // 削除状態をチェック（再生準備より先に行う）
                         var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(x.VideoId);
                         VideoInfo = video;
