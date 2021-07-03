@@ -34,7 +34,7 @@ using static Hohoema.Models.Domain.Niconico.Player.VideoStreamingOriginOrchestra
 
 namespace Hohoema.Models.Domain.Playlist
 {
-    public record PlaybackStartedMessageData(PlaylistId PlaylistId, VideoId VideoId, NicoVideoQuality VideoQuality, MediaPlaybackSession Session);
+    public record PlaybackStartedMessageData(HohoemaPlaylistPlayer Player, PlaylistId PlaylistId, VideoId VideoId, NicoVideoQuality VideoQuality, MediaPlaybackSession Session);
 
     public sealed class PlaybackStartedMessage : ValueChangedMessage<PlaybackStartedMessageData>
     {
@@ -44,7 +44,7 @@ namespace Hohoema.Models.Domain.Playlist
     }
 
 
-    public record PlaybackFailedMessageData(PlaylistId PlaylistId, VideoId VideoId, Exception Exception);
+    public record PlaybackFailedMessageData(HohoemaPlaylistPlayer Player, PlaylistId PlaylistId, VideoId VideoId, PlayingOrchestrateFailedReason FailedReason);
 
     public sealed class PlaybackFailedMessage : ValueChangedMessage<PlaybackFailedMessageData>
     {
@@ -57,7 +57,7 @@ namespace Hohoema.Models.Domain.Playlist
         FromUser,
     }
 
-    public record PlaybackStopedMessageData(PlaylistId PlaylistId, VideoId VideoId, TimeSpan EndPosition, PlaybackStopReason StopReason);
+    public record PlaybackStopedMessageData(HohoemaPlaylistPlayer Player, PlaylistId PlaylistId, VideoId VideoId, TimeSpan EndPosition, PlaybackStopReason StopReason);
 
     public sealed class PlaybackStopedMessage : ValueChangedMessage<PlaybackStopedMessageData>
     {
@@ -66,7 +66,7 @@ namespace Hohoema.Models.Domain.Playlist
         }
     }
 
-    public record PlayingPlaylistChangedMessageData(IPlaylist? PlaylistItemsSource);
+    public record PlayingPlaylistChangedMessageData(HohoemaPlaylistPlayer Player, IPlaylist? PlaylistItemsSource);
 
     public sealed class PlayingPlaylistChangedMessage : ValueChangedMessage<PlayingPlaylistChangedMessageData>
     {
@@ -75,7 +75,7 @@ namespace Hohoema.Models.Domain.Playlist
         }
     }
 
-    public record ResolvePlaylistFailedMessageData(PlaylistId PlaylistId);
+    public record ResolvePlaylistFailedMessageData(HohoemaPlaylistPlayer Player, PlaylistId PlaylistId);
 
     public sealed class ResolvePlaylistFailedMessage : ValueChangedMessage<ResolvePlaylistFailedMessageData>
     {
@@ -598,7 +598,7 @@ namespace Hohoema.Models.Domain.Playlist
             if (prevSource != null && videoId.HasValue)
             {
                 // メディア停止メッセージを飛ばす
-                _messenger.Send(new PlaybackStopedMessage(new(CurrentPlaylistId, videoId.Value, endPosition, PlaybackStopReason.FromUser)));
+                _messenger.Send(new PlaybackStopedMessage(new(this, CurrentPlaylistId, videoId.Value, endPosition, PlaybackStopReason.FromUser)));
             }
 
             _soundVolumeManager.LoudnessCorrectionValue = 1.0;
@@ -625,7 +625,10 @@ namespace Hohoema.Models.Domain.Playlist
                     position = _mediaPlayer.PlaybackSession?.Position;
                 }
 
-                await UpdatePlayingMediaAsync(CurrentPlaylistItem, position);
+                if (false == await UpdatePlayingMediaAsync(CurrentPlaylistItem, position))
+                {
+                    return;
+                }
             }
         }
 
@@ -637,7 +640,10 @@ namespace Hohoema.Models.Domain.Playlist
 
             var firstItem = await bufferItemsSource.GetAsync(0);
 
-            await UpdatePlayingMediaAsync(firstItem, null);
+            if (false == await UpdatePlayingMediaAsync(firstItem, null))
+            {
+                return;
+            }
 
             await _dispatcherQueue.EnqueueAsync(() => SetCurrentContent(firstItem, 0));
         }
@@ -657,7 +663,10 @@ namespace Hohoema.Models.Domain.Playlist
 
             await UpdatePlaylistItemsSourceAsync(playlist);
 
-            await UpdatePlayingMediaAsync(item, startPosition);
+            if (false == await UpdatePlayingMediaAsync(item, startPosition))
+            {
+                return;
+            }
 
             var index = playlist.IndexOf(item);
             Guard.IsBetweenOrEqualTo(index, 0, 5000, nameof(index));
@@ -679,10 +688,13 @@ namespace Hohoema.Models.Domain.Playlist
 
             StopPlaybackMedia();
 
-            await UpdatePlayingMediaAsync(item, startPosition);
+            if (false == await UpdatePlayingMediaAsync(item, startPosition))
+            {
+                return;
+            }
         }
 
-        private async Task UpdatePlayingMediaAsync(IVideoContent item, TimeSpan? startPosition)
+        private async Task<bool> UpdatePlayingMediaAsync(IVideoContent item, TimeSpan? startPosition)
         {
             Guard.IsNotNull(item, nameof(item));
 
@@ -692,7 +704,8 @@ namespace Hohoema.Models.Domain.Playlist
                 CurrentPlayingSession = result;
                 if (!result.IsSuccess)
                 {
-                    throw new HohoemaExpception("failed playing start.", result.Exception);
+                    _messenger.Send(new PlaybackFailedMessage(new(this, CurrentPlaylistId, item.VideoId, result.PlayingOrchestrateFailedReason)));
+                    return false;
                 }
 
                 var qualityEntity = AvailableQualities.FirstOrDefault(x => x.Quality == _playerSettings.DefaultVideoQuality);
@@ -716,7 +729,7 @@ namespace Hohoema.Models.Domain.Playlist
                 _soundVolumeManager.LoudnessCorrectionValue = CurrentPlayingSession.VideoDetails.LoudnessCorrectionValue;
 
                 // メディア再生成功時のメッセージを飛ばす
-                _messenger.Send(new PlaybackStartedMessage(new(CurrentPlaylistId, item.VideoId, videoSession.Quality, _mediaPlayer.PlaybackSession)));
+                _messenger.Send(new PlaybackStartedMessage(new(this, CurrentPlaylistId, item.VideoId, videoSession.Quality, _mediaPlayer.PlaybackSession)));
 
                 _mediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
 
@@ -743,13 +756,15 @@ namespace Hohoema.Models.Domain.Playlist
                 _smtc.ButtonPressed += _smtc_ButtonPressed;
 
                 StartStateSavingTimer();
+
+                return true;
             }
             catch (Exception ex)
             {
                 StopPlaybackMedia();
-                _messenger.Send(new PlaybackFailedMessage(new(CurrentPlaylistId, item.VideoId, ex)));
+                _messenger.Send(new PlaybackFailedMessage(new(this, CurrentPlaylistId, item.VideoId, PlayingOrchestrateFailedReason.Unknown)));
                 throw;
-            }
+            }            
         }
 
         private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
@@ -813,7 +828,7 @@ namespace Hohoema.Models.Domain.Playlist
             CurrentPlaylist = null;
             if (isCleared)
             {
-                _messenger.Send(new PlayingPlaylistChangedMessage(new(null)));
+                _messenger.Send(new PlayingPlaylistChangedMessage(new(this, null)));
             }
         }
 
@@ -848,14 +863,14 @@ namespace Hohoema.Models.Domain.Playlist
                 var source = Reset(playlist);                
 
                 // プレイリスト更新メッセージを飛ばす
-                _messenger.Send(new PlayingPlaylistChangedMessage(new(CurrentPlaylist)));
+                _messenger.Send(new PlayingPlaylistChangedMessage(new(this, CurrentPlaylist)));
 
                 return source;
             }
             catch
             {
                 CurrentPlaylist = null;
-                _messenger.Send(new ResolvePlaylistFailedMessage(new(playlist.PlaylistId)));
+                _messenger.Send(new ResolvePlaylistFailedMessage(new(this, playlist.PlaylistId)));
                 throw;
             }
         }

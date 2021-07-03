@@ -147,6 +147,7 @@
     <Compile Include="Models.UseCase\Niconico.Player\IPlayerView.cs" />
     <Compile Include="Models.UseCase\PageNavigation\NavigationTriggerFromExternal.cs" />
     <Compile Include="Models.UseCase\Hohoema.LocalMylist\LocalMylistManager.cs" />
+    <Compile Include="Models.UseCase\Playlist\AutoSkipToPlaylistNextVideoWhenPlayFailed.cs" />
     <Compile Include="Models.UseCase\Playlist\PlaylistItemsSource\LocalMylistPlaylistItemsSource.cs" />
     <Compile Include="Models.UseCase\Playlist\PlaylistItemsSourceResolver.cs" />
     <Compile Include="Models.UseCase\Playlist\PlaylistItemsSource\MylistPlaylistItemsSource.cs" />

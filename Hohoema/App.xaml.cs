@@ -552,7 +552,8 @@ namespace Hohoema
 
                 unityContainer.RegisterInstance(unityContainer.Resolve<VideoPlayRequestBridgeToPlayer>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<CloseToastNotificationWhenPlayStarted>());
-
+                unityContainer.RegisterInstance(unityContainer.Resolve<AutoSkipToPlaylistNextVideoWhenPlayFailed>());
+                
                 unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheDownloadOperationManager>());
             }
 
