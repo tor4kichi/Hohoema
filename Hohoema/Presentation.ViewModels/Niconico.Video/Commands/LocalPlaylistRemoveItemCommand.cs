@@ -24,7 +24,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            _playlist.RemovePlaylistItem(content.VideoId);
+            _playlist.RemovePlaylistItem(content);
         }
 
         protected override void Execute(IEnumerable<IVideoContent> items)
@@ -32,7 +32,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            _playlist.RemovePlaylistItems(items.Select(x => x.VideoId));
+            _playlist.RemovePlaylistItems(items.Select(x => x));
         }
     }
 }

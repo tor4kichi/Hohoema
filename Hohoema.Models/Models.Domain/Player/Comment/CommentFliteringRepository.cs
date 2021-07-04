@@ -171,7 +171,9 @@ namespace Hohoema.Models.Domain.Player.Comment
                 Description = description
             };
 
-            return _commentTextTransformConditionDBService.CreateItem(condition);
+            _commentTextTransformConditionDBService.CreateItem(condition);
+
+            return condition;
         }
 
         public void UpdateCommentTextTransformCondition(CommentTextTransformCondition commentTextTransformCondition)
@@ -323,7 +325,9 @@ namespace Hohoema.Models.Domain.Player.Comment
                 Condition = condition,
             };
 
-            return _filteringCommentTextDBService.CreateItem(filteringCommentText);
+            _filteringCommentTextDBService.CreateItem(filteringCommentText);
+
+            return filteringCommentText;
         }
 
         public void UpdateFilteringCommentText(FilteringCommentTextKeyword filteringCommentText)

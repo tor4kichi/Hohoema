@@ -21,8 +21,7 @@ namespace Hohoema.Models.Domain.Playlist
     public readonly struct PlaylistItemAddedMessageData
     {
         public PlaylistId PlaylistId { get; init; }
-        public VideoId AddedItem { get; init; }
-        public int Index { get; init; }
+        public IEnumerable<VideoId> AddedItems { get; init; }
     }
 
     public sealed class PlaylistItemAddedMessage : ValueChangedMessage<PlaylistItemAddedMessageData>
@@ -36,8 +35,7 @@ namespace Hohoema.Models.Domain.Playlist
     public readonly struct PlaylistItemRemovedMessageData
     {
         public PlaylistId PlaylistId { get; init; }
-        public VideoId RemovedItem { get; init; }
-        public int Index { get; init; }
+        public IEnumerable<VideoId> RemovedItems { get; init; }
     }
 
     public sealed class PlaylistItemRemovedMessage : ValueChangedMessage<PlaylistItemRemovedMessageData>
@@ -110,6 +108,11 @@ namespace Hohoema.Models.Domain.Playlist
 
     public record LocalPlaylistSortOptions : IPlaylistSortOptions
     {
+        public LocalMylistSortKey SortKey { get; init; }
+
+        public LocalMylistSortOrder SortOrder { get; init; }
+
+
         public string Serialize()
         {
             return System.Text.Json.JsonSerializer.Serialize(this);
@@ -175,7 +178,7 @@ namespace Hohoema.Models.Domain.Playlist
 #if DEBUG
             Guard.IsNotEqualTo(item.VideoId, default(VideoId), "invalid videoId");
 #endif
-            var message = new PlaylistItemAddedMessage(new() { AddedItem = item.VideoId, Index = item.Index, PlaylistId = Id });
+            var message = new PlaylistItemAddedMessage(new() { AddedItems = new[] { item.VideoId }, PlaylistId = Id });
             _messenger.Send(message);
             _messenger.Send(message, item.VideoId);
             _messenger.Send(message, Id);
@@ -186,7 +189,7 @@ namespace Hohoema.Models.Domain.Playlist
 #if DEBUG
             Guard.IsNotEqualTo(videoId, default(VideoId), "invalid videoId");
 #endif
-            var message = new PlaylistItemRemovedMessage(new() { RemovedItem = videoId, Index = index, PlaylistId = Id });
+            var message = new PlaylistItemRemovedMessage(new() { RemovedItems = new[] { videoId }, PlaylistId = Id });
             _messenger.Send(message);
             _messenger.Send(message, videoId);
             _messenger.Send(message, Id);
@@ -209,7 +212,7 @@ namespace Hohoema.Models.Domain.Playlist
             Guard.IsNotEqualTo(video.VideoId, default(VideoId), "invalid videoId");
 #endif
             var entityAddedItem = _queuePlaylistRepository.CreateItem(video);
-            _itemEntityMap.Add(video.VideoId, entityAddedItem);
+            _itemEntityMap.Add(video.VideoId, video);
         }
 
         private void RemoveEntity(VideoId videoId)

@@ -328,7 +328,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     {
                         if (playlist is LocalPlaylist localPlaylist)
                         {
-                            localPlaylist.AddPlaylistItem(VideoInfo.VideoId);
+                            localPlaylist.AddPlaylistItem(VideoInfo);
                         }
                         else if (playlist is LoginUserMylistPlaylist loginUserMylist)
                         {

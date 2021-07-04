@@ -51,7 +51,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
                 if (parameter is IVideoContent content)
                 {
-                    localPlaylist.AddPlaylistItem(content.VideoId);
+                    localPlaylist.AddPlaylistItem(content);
                 }
                 else if (parameter is string itemId)
                 {

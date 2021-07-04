@@ -34,13 +34,16 @@ namespace Hohoema.Models.Domain.Pins
         {
             var sortIndex = _collection.Max(x => x.SortIndex) ?? 0;
 
-            return CreateItem(new HohoemaPin()
+            var pin = new HohoemaPin()
             {
                 Label = label,
                 Parameter = parameter,
                 PageType = pageType,
                 SortIndex = sortIndex + 1
-            });
+            };
+            CreateItem(pin);
+
+            return pin;
         }
     }
 }

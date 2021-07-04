@@ -56,7 +56,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
             if (playlist != null)
             {
-                playlist.AddPlaylistItem(items.Select(x => x.VideoId));
+                playlist.AddPlaylistItem(items);
             }
         }
 

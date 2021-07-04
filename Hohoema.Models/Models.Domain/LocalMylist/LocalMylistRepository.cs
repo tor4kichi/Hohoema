@@ -24,10 +24,18 @@ namespace Hohoema.Models.Domain.LocalMylist
         public string Label { get; set; }
 
         [BsonField]
-        public int Count { get; set; }
+        public Uri ThumbnailImage { get; set; }
+
 
         [BsonField]
-        public Uri ThumbnailImage { get; set; }
+        public int PlaylistSortIndex { get; set; }
+
+        [BsonField]
+        public LocalMylistSortKey ItemsSortKey { get; set; }
+        
+        [BsonField]
+        public LocalMylistSortOrder ItemsSortOrder { get; set; }
+
     }
 
 
@@ -38,12 +46,8 @@ namespace Hohoema.Models.Domain.LocalMylist
 
         [BsonField]
         public string PlaylistId { get; set; }
-
         [BsonField]
         public string ContentId { get; set; }
-
-        [BsonField]
-        public int Index { get; set; }
     }
 
 
@@ -80,7 +84,6 @@ namespace Hohoema.Models.Domain.LocalMylist
                 _collection.EnsureIndex(nameof(PlaylistItemEntity.PlaylistId));
                 _collection.EnsureIndex(nameof(PlaylistItemEntity.ContentId));
             }
-
             public List<PlaylistItemEntity> GetItems(string playlistId, int start, int count)
             {
                 return _collection.Find(x => x.PlaylistId == playlistId).Skip(start).Take(count).ToList();
@@ -106,6 +109,13 @@ namespace Hohoema.Models.Domain.LocalMylist
             public int CountPlaylisItems(string playlistId)
             {
                 return _collection.Count(x => x.PlaylistId == playlistId);
+            }
+
+
+            public bool ExistPlaylistItem(string playlistId, VideoId videoId)
+            {
+                var videoIdStr = videoId.ToString();
+                return _collection.Exists(x => x.PlaylistId == playlistId && x.ContentId == videoIdStr);
             }
         }
 
@@ -169,18 +179,12 @@ namespace Hohoema.Models.Domain.LocalMylist
                 return null;
             }
 
-            if (index == -1)
-            {
-                index = GetCount(playlistId);
-            }
-
             var item = new PlaylistItemEntity()
             {
                 PlaylistId = playlistId,
                 ContentId = contentId,
-                Index = index
             };
-            _itemsDbService.UpdateItem(item);
+            _itemsDbService.CreateItem(item);
             return item;
         }
 
@@ -210,5 +214,9 @@ namespace Hohoema.Models.Domain.LocalMylist
             return _itemsDbService.DeletePlaylistItem(playlistId, contentIdList);
         }
 
+        public bool ExistItem(string playlistId, VideoId videoId)
+        {
+            return _itemsDbService.ExistPlaylistItem(playlistId, videoId);
+        }
     }
 }

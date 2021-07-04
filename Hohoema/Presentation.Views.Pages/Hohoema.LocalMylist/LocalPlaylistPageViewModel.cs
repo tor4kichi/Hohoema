@@ -27,9 +27,12 @@ using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Video;
 using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using I18NPortable;
+using Reactive.Bindings;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 {
+    public record LocalMylistSortOptionItem(LocalMylistSortKey Key, LocalMylistSortOrder Order, string Label);
     public sealed class LocalPlaylistPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
@@ -89,6 +92,25 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
             set { SetProperty(ref _Playlist, value); }
         }
 
+
+        private LocalMylistSortOptionItem _selectedSearchOptionItem;
+        public LocalMylistSortOptionItem SelectedSearchOptionItem
+        {
+            get { return _selectedSearchOptionItem; }
+            set { SetProperty(ref _selectedSearchOptionItem, value); }
+        }
+
+        public LocalMylistSortOptionItem[] SortOptionItems { get; } = new LocalMylistSortOptionItem[] 
+        {
+            new(LocalMylistSortKey.AddedAt, LocalMylistSortOrder.Desc, "LocalMylistSortKey.AddedAt_Desc".Translate()),
+            new(LocalMylistSortKey.AddedAt, LocalMylistSortOrder.Asc, "LocalMylistSortKey.AddedAt_Asc".Translate()),
+            new(LocalMylistSortKey.Title, LocalMylistSortOrder.Desc, "LocalMylistSortKey.Title_Desc".Translate()),
+            new(LocalMylistSortKey.Title, LocalMylistSortOrder.Asc, "LocalMylistSortKey.Title_Asc".Translate()),
+            new(LocalMylistSortKey.PostedAt, LocalMylistSortOrder.Desc, "LocalMylistSortKey.PostedAt_Desc".Translate()),
+            new(LocalMylistSortKey.PostedAt, LocalMylistSortOrder.Asc, "LocalMylistSortKey.PostedAt_Asc".Translate()),
+        };
+
+
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             string id = null;
@@ -108,7 +130,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 
             Playlist = playlist;
 
+            SelectedSearchOptionItem = SortOptionItems.First(x => x.Key == Playlist.ItemsSortKey && x.Order == Playlist.ItemsSortOrder);
+
             RefreshItems();
+
+            this.ObserveProperty(x => x.SelectedSearchOptionItem, isPushCurrentValueAtFirst: false)
+                .Subscribe(x => ResetList())
+                .AddTo(_NavigatingCompositeDisposable);
 
             await base.OnNavigatedToAsync(parameters);
         }
@@ -117,7 +145,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         {
             if (Playlist != null)
             {
-                WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemRemovedMessage, string>(this, Playlist.PlaylistId.Id);
+                WeakReferenceMessenger.Default.Unregister<PlaylistItemRemovedMessage, PlaylistId>(this, Playlist.PlaylistId);
+                WeakReferenceMessenger.Default.Unregister<PlaylistItemAddedMessage, PlaylistId>(this, Playlist.PlaylistId);
             }
             base.OnNavigatedFrom(parameters);
         }
@@ -125,6 +154,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 
         protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
         {
+            Playlist.SetSortOptions(SelectedSearchOptionItem.Key, SelectedSearchOptionItem.Order);
             return (LocalPlaylistIncrementalLoadingSource.OneTimeLoadingCount, new LocalPlaylistIncrementalLoadingSource(Playlist, _nicoVideoProvider));
         }
 
@@ -133,7 +163,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         {
             if (Playlist != null)
             {
-                WeakReferenceMessenger.Default.Register<LocalPlaylistItemRemovedMessage, string>(this, Playlist.PlaylistId.Id, (r, m) => 
+                WeakReferenceMessenger.Default.Register<PlaylistItemRemovedMessage, PlaylistId>(this, Playlist.PlaylistId, (r, m) => 
                 {
                     var args = m.Value;
                     foreach (var itemId in args.RemovedItems)
@@ -144,6 +174,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
                             ItemsView.Remove(removedItem);
                         }
                     }
+
+                    PlaylistPlayAllCommand.RaiseCanExecuteChanged();
+                });
+
+                WeakReferenceMessenger.Default.Register<PlaylistItemAddedMessage, PlaylistId>(this, Playlist.PlaylistId, (r, m) =>
+                {
+                    var args = m.Value;
+                    foreach (var itemId in args.AddedItems)
+                    {
+                        var video = _nicoVideoProvider.GetCachedVideoInfo(itemId);
+                        ItemsView.Add(new VideoListItemControlViewModel(video) { PlaylistItemToken = new PlaylistItemToken(Playlist.PlaylistId, Playlist.SortOptions, itemId) });
+                    }
+
+                    PlaylistPlayAllCommand.RaiseCanExecuteChanged();
                 });
 
                 _localMylistManager.LocalPlaylists.ObserveRemoveChanged()

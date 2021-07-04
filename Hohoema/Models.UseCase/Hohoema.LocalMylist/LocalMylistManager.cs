@@ -108,7 +108,6 @@ namespace Hohoema.Models.UseCase.Hohoema.LocalMylist
             var entity = new PlaylistEntity()
             {
                 Id = LiteDB.ObjectId.NewObjectId().ToString(),
-                Count = 0,
                 Label = label,
                 PlaylistOrigin = PlaylistItemsSourceOrigin.Local
             };
@@ -129,27 +128,27 @@ namespace Hohoema.Models.UseCase.Hohoema.LocalMylist
             WeakReferenceMessenger.Default.Register<LocalPlaylist, PlaylistItemAddedMessage, PlaylistId>(playlist, playlist.PlaylistId, (r, m) => 
             {
                 var sender = r;
-                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistAddedItems".Translate(sender.Name, m.Value.AddedItem));
+                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistAddedItems".Translate(sender.Name, m.Value.AddedItems.Count()));
             });
 
             WeakReferenceMessenger.Default.Register<LocalPlaylist, PlaylistItemRemovedMessage, PlaylistId>(playlist, playlist.PlaylistId, (r, m) =>
             {
                 var sender = r;
-                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistRemovedItems".Translate(sender.Name, m.Value.RemovedItem));
+                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistRemovedItems".Translate(sender.Name, m.Value.RemovedItems.Count()));
             });
         }
 
         void RemoveHandleItemsChanged(LocalPlaylist playlist)
         {
-            WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemAddedMessage, PlaylistId>(playlist, playlist.PlaylistId);
-            WeakReferenceMessenger.Default.Unregister<LocalPlaylistItemRemovedMessage, PlaylistId>(playlist, playlist.PlaylistId);
+            WeakReferenceMessenger.Default.Unregister<PlaylistItemAddedMessage, PlaylistId>(playlist, playlist.PlaylistId);
+            WeakReferenceMessenger.Default.Unregister<PlaylistItemRemovedMessage, PlaylistId>(playlist, playlist.PlaylistId);
         }
 
 
         public LocalPlaylist CreatePlaylist(string label, IEnumerable<IVideoContent> firstItems)
         {
             var playlist = CreatePlaylist(label);
-            playlist.AddPlaylistItem(firstItems.Select(x => x.VideoId));
+            playlist.AddPlaylistItem(firstItems);
 
             return playlist;
         }

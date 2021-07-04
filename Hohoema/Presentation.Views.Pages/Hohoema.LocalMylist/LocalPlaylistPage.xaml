@@ -55,6 +55,18 @@
                 <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
                 <!-- 非選択中 -->
+                <AppBarElementContainer>
+                  <ComboBox ItemsSource="{Binding SortOptionItems}"
+                            SelectedItem="{Binding SelectedSearchOptionItem, Mode=TwoWay}"
+                            >
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding Label}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </AppBarElementContainer>
+                
                 <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"

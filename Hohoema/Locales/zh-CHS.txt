@@ -602,9 +602,9 @@ FollowItemType.Tag = 标签
 FollowItemType.Community = 社区
 FollowItemType.Channel = 频道
 
-FollowAddedNotification_WithItemName = 跟随“{0}”
-FollowRemovedNotification_WithItemName = 未关注的“{0}”
-ConfirmRemoveFollow_DialogDescWithItemName = 取消关注“{0}”
+FollowAddedNotification_WithItemName = 跟随 “{0}”
+FollowRemovedNotification_WithItemName = 未关注的 “{0}”
+ConfirmRemoveFollow_DialogDescWithItemName = 取消关注 “{0}”
 ConfirmRemoveFollow_DialogTitle = 确认取消关注
 RemoveFollow = 取消关注
 
@@ -628,20 +628,20 @@ NicoRepoDisplayTarget.Channel = 渠道
 NicoRepoDisplayTarget.Community = 社区
 NicoRepoDisplayTarget.Mylist = 我的列表
 
-NicoRepoMuteContextTrigger.Unknown = 不明
-NicoRepoMuteContextTrigger.Live_Channel_Program_Onairs = 直播开始（频道）
-NicoRepoMuteContextTrigger.Live_Channel_Program_Reserve = 直播预定（频道）
-NicoRepoMuteContextTrigger.Live_User_Program_OnAirs = 直播开始（用户）
-NicoRepoMuteContextTrigger.Live_User_Program_Reserve = 直播预定（用户）
-NicoRepoMuteContextTrigger.NicoVideo_Channel_Blomaga_Upload = Blomaga邮政
-NicoRepoMuteContextTrigger.NicoVideo_Channel_Video_Upload = 频道视频发布
-NicoRepoMuteContextTrigger.NicoVideo_Community_Level_Raise = 社区水平上升
-NicoRepoMuteContextTrigger.NicoVideo_User_Community_Video_Add = 视频的社区注册
-NicoRepoMuteContextTrigger.NicoVideo_User_Mylist_Add_Video = 在我的列表中注册视频
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_Advertise = 用户视频已发布
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_Kiriban_Play = 播放编号
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_UpdateHighestRankings = 排名最新
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_Upload = 用户视频发布
+NicoRepoItemTopic.Unknown = 不明
+NicoRepoItemTopic.Live_Channel_Program_Onairs = 直播开始（频道）
+NicoRepoItemTopic.Live_Channel_Program_Reserve = 直播预定（频道）
+NicoRepoItemTopic.Live_User_Program_OnAirs = 直播开始（用户）
+NicoRepoItemTopic.Live_User_Program_Reserve = 直播预定（用户）
+NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload = Blomaga邮政
+NicoRepoItemTopic.NicoVideo_Channel_Video_Upload = 频道视频发布
+NicoRepoItemTopic.NicoVideo_Community_Level_Raise = 社区水平上升
+NicoRepoItemTopic.NicoVideo_User_Community_Video_Add = 视频的社区注册
+NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video = 在我的列表中注册视频
+NicoRepoItemTopic.NicoVideo_User_Video_Advertise = 用户视频已发布
+NicoRepoItemTopic.NicoVideo_User_Video_Kiriban_Play = 播放编号
+NicoRepoItemTopic.NicoVideo_User_Video_UpdateHighestRankings = 排名最新
+NicoRepoItemTopic.NicoVideo_User_Video_Upload = 用户视频发布
 
 NicorepoNoItems = 没有可显示的Nirekopo
 
@@ -820,6 +820,14 @@ InAppNotification_LocalPlaylistAddedItems = 已将{1}个视频添加到{0}
 InAppNotification_LocalPlaylistRemovedItems = {1}个视频已从{0}中删除
 LocalPlaylistOpenVideoList = 打开视频列表
 LocalPlaylistChangeThumbnail = 更改缩略图
+
+LocalMylistSortKey.AddedAt_Desc = 添加是最新的
+LocalMylistSortKey.AddedAt_Asc = 补充是按时间顺序
+LocalMylistSortKey.Title_Desc = 标题降序
+LocalMylistSortKey.Title_Asc = 标题升序
+LocalMylistSortKey.PostedAt_Desc = 发布日期是最新的
+LocalMylistSortKey.PostedAt_Asc = 发布日期最早
+
 
 
 #### Queue ####

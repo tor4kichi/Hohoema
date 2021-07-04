@@ -628,20 +628,20 @@ NicoRepoDisplayTarget.Channel = チャンネル
 NicoRepoDisplayTarget.Community = コミュニティ
 NicoRepoDisplayTarget.Mylist = マイリスト
 
-NicoRepoMuteContextTrigger.Unknown = 不明
-NicoRepoMuteContextTrigger.Live_Channel_Program_Onairs = 生放送開始（チャンネル）
-NicoRepoMuteContextTrigger.Live_Channel_Program_Reserve = 生放送の予約（チャンネル）
-NicoRepoMuteContextTrigger.Live_User_Program_OnAirs = 生放送開始（ユーザー）
-NicoRepoMuteContextTrigger.Live_User_Program_Reserve = 生放送の予約（ユーザー）
-NicoRepoMuteContextTrigger.NicoVideo_Channel_Blomaga_Upload = ブロマガ投稿
-NicoRepoMuteContextTrigger.NicoVideo_Channel_Video_Upload = チャンネルの動画投稿
-NicoRepoMuteContextTrigger.NicoVideo_Community_Level_Raise = コミュニティレベルの上昇
-NicoRepoMuteContextTrigger.NicoVideo_User_Community_Video_Add = 動画をコミュニティ登録
-NicoRepoMuteContextTrigger.NicoVideo_User_Mylist_Add_Video = 動画をマイリスト登録
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_Advertise = ユーザー動画が広告された
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_Kiriban_Play = 再生数キリ番
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_UpdateHighestRankings = ランキング最高順位更新
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_Upload = ユーザーの動画投稿
+NicoRepoItemTopic.Unknown = 不明
+NicoRepoItemTopic.Live_Channel_Program_Onairs = 生放送開始（チャンネル）
+NicoRepoItemTopic.Live_Channel_Program_Reserve = 生放送の予約（チャンネル）
+NicoRepoItemTopic.Live_User_Program_OnAirs = 生放送開始（ユーザー）
+NicoRepoItemTopic.Live_User_Program_Reserve = 生放送の予約（ユーザー）
+NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload = ブロマガ投稿
+NicoRepoItemTopic.NicoVideo_Channel_Video_Upload = チャンネルの動画投稿
+NicoRepoItemTopic.NicoVideo_Community_Level_Raise = コミュニティレベルの上昇
+NicoRepoItemTopic.NicoVideo_User_Community_Video_Add = 動画をコミュニティ登録
+NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video = 動画をマイリスト登録
+NicoRepoItemTopic.NicoVideo_User_Video_Advertise = ユーザー動画が広告された
+NicoRepoItemTopic.NicoVideo_User_Video_Kiriban_Play = 再生数キリ番
+NicoRepoItemTopic.NicoVideo_User_Video_UpdateHighestRankings = ランキング最高順位更新
+NicoRepoItemTopic.NicoVideo_User_Video_Upload = ユーザーの動画投稿
 
 NicorepoNoItems = 表示可能なニレコポがありません
 
@@ -820,6 +820,14 @@ InAppNotification_LocalPlaylistAddedItems = {0} に {1} 個の動画を追加し
 InAppNotification_LocalPlaylistRemovedItems = {0} から {1} 個の動画を削除しました
 LocalPlaylistOpenVideoList = 動画一覧を開く
 LocalPlaylistChangeThumbnail = サムネイル画像を変更
+
+LocalMylistSortKey.AddedAt_Desc = 追加が新しい順
+LocalMylistSortKey.AddedAt_Asc = 追加が古い順
+LocalMylistSortKey.Title_Desc = タイトル降順
+LocalMylistSortKey.Title_Asc = タイトル昇順
+LocalMylistSortKey.PostedAt_Desc = 投稿日が新しい順
+LocalMylistSortKey.PostedAt_Asc = 投稿日が古い順
+
 
 
 #### Queue ####

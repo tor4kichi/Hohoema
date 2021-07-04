@@ -111,11 +111,11 @@ namespace Hohoema.Models.Domain.Subscriptions
 
         SubscriptionSourceEntity AddSubscription_Internal(SubscriptionSourceEntity newEntity)
         {
-            var entity = _subscriptionRegistrationRepository.CreateItem(newEntity);
+            _subscriptionRegistrationRepository.CreateItem(newEntity);
 
-            Added?.Invoke(this, entity);
+            Added?.Invoke(this, newEntity);
 
-            return entity;
+            return newEntity;
         }
 
         public void UpdateSubscription(SubscriptionSourceEntity entity)

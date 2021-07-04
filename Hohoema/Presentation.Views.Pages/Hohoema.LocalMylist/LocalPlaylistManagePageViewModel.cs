@@ -71,7 +71,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 
                 if (result is not null)
                 {
-                    playlist.UpdateLabel(result);
+                    playlist.Name = result;
                 }
             });
         }

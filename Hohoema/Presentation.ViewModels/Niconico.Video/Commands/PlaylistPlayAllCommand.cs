@@ -21,6 +21,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
         protected override bool CanExecute(object parameter)
         {
+            if (parameter is IUserManagedPlaylist userManagedPlaylist)
+            {
+                return userManagedPlaylist.TotalCount > 0;
+            }
+
             return parameter is IPlaylist;
         }
 
