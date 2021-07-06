@@ -11,14 +11,17 @@ namespace Hohoema.Models.UseCase.Playlist
     {
         private readonly Lazy<LocalMylistPlaylistItemsSourceFactory> _localMylistPlaylistItemsSourceFactory;
         private readonly Lazy<MylistPlaylistItemsSourceFactory> _mylistPlaylistItemsSourceFactory;
+        private readonly Lazy<SeriesVideoPlaylistItemsSourceFactory> _seriesVideoPlaylistItemsSourceFactory;
 
         public PlaylistItemsSourceResolver(
             Lazy<LocalMylistPlaylistItemsSourceFactory> localMylistPlaylistItemsSourceFactory,
-            Lazy<MylistPlaylistItemsSourceFactory> mylistPlaylistItemsSourceFactory
+            Lazy<MylistPlaylistItemsSourceFactory> mylistPlaylistItemsSourceFactory,
+            Lazy<SeriesVideoPlaylistItemsSourceFactory> seriesVideoPlaylistItemsSourceFactory
             )
         {
             _localMylistPlaylistItemsSourceFactory = localMylistPlaylistItemsSourceFactory;
             _mylistPlaylistItemsSourceFactory = mylistPlaylistItemsSourceFactory;
+            _seriesVideoPlaylistItemsSourceFactory = seriesVideoPlaylistItemsSourceFactory;
         }
 
         public IPlaylistItemsSourceFactory Resolve(PlaylistItemsSourceOrigin origin)
@@ -29,7 +32,7 @@ namespace Hohoema.Models.UseCase.Playlist
                 PlaylistItemsSourceOrigin.Mylist => _mylistPlaylistItemsSourceFactory.Value,
                 PlaylistItemsSourceOrigin.ChannelVideos => null,
                 PlaylistItemsSourceOrigin.UserVideos => null,
-                PlaylistItemsSourceOrigin.Series => null,
+                PlaylistItemsSourceOrigin.Series => _seriesVideoPlaylistItemsSourceFactory.Value,
                 PlaylistItemsSourceOrigin.CommunityVideos => null,
                 PlaylistItemsSourceOrigin.SearchWithKeyword => null,
                 PlaylistItemsSourceOrigin.SearchWithTag => null,

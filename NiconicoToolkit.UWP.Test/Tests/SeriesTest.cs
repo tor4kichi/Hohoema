@@ -44,6 +44,7 @@ namespace NiconicoToolkit.UWP.Test.Tests
 
         [TestMethod]
         [DataRow(53842185)] // ユーザー
+        [DataRow(225544)] // chのシリーズ
         public async Task GetUserSeriesAsync(int userId)
         {
             var res = await _context.Series.GetUserSeriesAsync(userId);

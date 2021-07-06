@@ -627,7 +627,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         public int ItemsCount => throw new NotSupportedException();
 
-        public string ProviderType => throw new NotSupportedException();
+        public OwnerType ProviderType => throw new NotSupportedException();
 
         public string ProviderId => throw new NotSupportedException();
     }

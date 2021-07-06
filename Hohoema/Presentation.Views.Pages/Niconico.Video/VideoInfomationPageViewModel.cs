@@ -787,7 +787,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         public int ItemsCount => throw new NotSupportedException();
 
-        public string ProviderType => throw new NotSupportedException();
+        public OwnerType ProviderType => throw new NotSupportedException();
 
         public string ProviderId => throw new NotSupportedException();
     }

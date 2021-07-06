@@ -162,7 +162,7 @@ namespace NiconicoToolkit.Series
         }
 
 
-        public Task<SeriesListResponse> GetUserSeriesAsync(UserId userId, int page = 0, int pageSize = 100)
+        public Task<SeriesListResponse> GetUserSeriesAsync(NiconicoId userId, int page = 0, int pageSize = 100)
         {
             return _context.GetJsonAsAsync<SeriesListResponse>(
                 $"{NiconicoUrls.NvApiV1Url}users/{userId}/series?page={page+1}&pageSize={pageSize}",

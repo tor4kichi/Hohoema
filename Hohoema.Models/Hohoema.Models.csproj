@@ -170,6 +170,7 @@
     <Compile Include="Models.Domain\Niconico\Recommend\RecommendProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Search\SearchHistory.cs" />
     <Compile Include="Models.Domain\Niconico\Search\SearchProvider.cs" />
+    <Compile Include="Models.Domain\Niconico\Series\SeriesVideoPlaylist.cs" />
     <Compile Include="Models.Domain\Niconico\User\IUser.cs" />
     <Compile Include="Models.Domain\Niconico\User\UserNameProvider.cs" />
     <Compile Include="Models.Domain\Niconico\User\UserProvider.cs" />
@@ -356,6 +357,7 @@
       <Name>NiconicoToolkit.UWP</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
