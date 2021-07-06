@@ -323,7 +323,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
                     else if (origin == PlaylistItemsSourceOrigin.Local && PlaylistPassToFlyout is LocalPlaylist localPlaylist)
                     {
                         SelectActions_RemoveLocalMylist.Visibility = Visibility.Visible;
-                        SelectActions_RemoveMylist.Command = new LocalPlaylistRemoveItemCommand(localPlaylist);
+                        SelectActions_RemoveLocalMylist.Command = new LocalPlaylistRemoveItemCommand(localPlaylist);
                         SelectActions_RemoveButtonSeparator.Visibility = Visibility.Visible;
                     }
                 }

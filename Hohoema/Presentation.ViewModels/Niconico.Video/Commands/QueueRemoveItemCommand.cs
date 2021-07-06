@@ -38,7 +38,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
             foreach (var content in items)
             {
-                _queuePlaylist.Remove(content.VideoId);
+                _queuePlaylist.Remove(content);
             }
 
             _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistRemovedItems_Success".Translate("HohoemaPageType.VideoQueue".Translate(), items.Count()));

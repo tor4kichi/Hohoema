@@ -21,7 +21,7 @@ namespace Hohoema.Models.Domain.Playlist
     public readonly struct PlaylistItemAddedMessageData
     {
         public PlaylistId PlaylistId { get; init; }
-        public IEnumerable<VideoId> AddedItems { get; init; }
+        public IEnumerable<IVideoContent> AddedItems { get; init; }
     }
 
     public sealed class PlaylistItemAddedMessage : ValueChangedMessage<PlaylistItemAddedMessageData>
@@ -35,7 +35,7 @@ namespace Hohoema.Models.Domain.Playlist
     public readonly struct PlaylistItemRemovedMessageData
     {
         public PlaylistId PlaylistId { get; init; }
-        public IEnumerable<VideoId> RemovedItems { get; init; }
+        public IEnumerable<IVideoContent> RemovedItems { get; init; }
     }
 
     public sealed class PlaylistItemRemovedMessage : ValueChangedMessage<PlaylistItemRemovedMessageData>
@@ -196,20 +196,20 @@ namespace Hohoema.Models.Domain.Playlist
 #if DEBUG
             Guard.IsNotEqualTo(item.VideoId, default(VideoId), "invalid videoId");
 #endif
-            var message = new PlaylistItemAddedMessage(new() { AddedItems = new[] { item.VideoId }, PlaylistId = Id });
+            var message = new PlaylistItemAddedMessage(new() { AddedItems = new[] { item }, PlaylistId = Id });
             _messenger.Send(message);
             _messenger.Send(message, item.VideoId);
             _messenger.Send(message, Id);
         }
 
-        private void SendRemovedMessage(in int index, in VideoId videoId)
+        private void SendRemovedMessage(in int index, QueuePlaylistItem item)
         {
 #if DEBUG
-            Guard.IsNotEqualTo(videoId, default(VideoId), "invalid videoId");
+            Guard.IsNotEqualTo(item.VideoId, default(VideoId), "invalid videoId");
 #endif
-            var message = new PlaylistItemRemovedMessage(new() { RemovedItems = new[] { videoId }, PlaylistId = Id });
+            var message = new PlaylistItemRemovedMessage(new() { RemovedItems = new[] { item }, PlaylistId = Id });
             _messenger.Send(message);
-            _messenger.Send(message, videoId);
+            _messenger.Send(message, item.VideoId);
             _messenger.Send(message, Id);
         }
 
@@ -300,7 +300,7 @@ namespace Hohoema.Models.Domain.Playlist
 
             var item = base.Items.FirstOrDefault(x => x.Equals(removeItem));
             base.Items.Remove(item);
-            SendRemovedMessage(item.Index, removeItem.VideoId);
+            SendRemovedMessage(item.Index, item);
             RemoveEntity(removeItem.VideoId);
             OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(IUserManagedPlaylist.TotalCount)));
 

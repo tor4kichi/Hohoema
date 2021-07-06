@@ -5,6 +5,7 @@ using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Collections;
+using Microsoft.Toolkit.Mvvm.Messaging;
 using Prism.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -22,6 +23,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
     public sealed class VideoQueuePageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigationAware
     {
         public QueuePlaylist QueuePlaylist { get; }
+
+        private readonly IMessenger _messenger;
         private readonly NicoVideoProvider _nicoVideoProvider;
         
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -31,6 +34,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
         public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
         public VideoQueuePageViewModel(
+            IMessenger messenger,
             QueuePlaylist queuePlaylist,
             ApplicationLayoutManager applicationLayoutManager,
             RemoveWatchedItemsInAfterWatchPlaylistCommand removeWatchedItemsInAfterWatchPlaylistCommand,
@@ -40,6 +44,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
             NicoVideoProvider nicoVideoProvider
             )
         {
+            _messenger = messenger;
             QueuePlaylist = queuePlaylist;
             ApplicationLayoutManager = applicationLayoutManager;
             RemoveWatchedItemsInAfterWatchPlaylistCommand = removeWatchedItemsInAfterWatchPlaylistCommand;
@@ -77,11 +82,30 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
             this.ObserveProperty(x => x.SelectedSortOptionItem)
                 .Subscribe(sort => ResetList())
                 .AddTo(_NavigatingCompositeDisposable);
+
+
+            _messenger.Register<PlaylistItemRemovedMessage, PlaylistId>(this, QueuePlaylist.Id, (r, m) => 
+            {
+                foreach (var item in m.Value.RemovedItems)
+                {
+                    var remove = ItemsView.Cast<IVideoContent>().FirstOrDefault(x => x.VideoId == item.VideoId);
+                    ItemsView.Remove(remove);
+                }
+            });
+
+            _messenger.Register<PlaylistItemAddedMessage, PlaylistId>(this, QueuePlaylist.Id, (r, m) =>
+            {
+                ItemsView.Clear();
+                ItemsView.Refresh();
+            });
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
             base.OnNavigatedFrom(parameters);
+
+            _messenger.Unregister<PlaylistItemRemovedMessage, PlaylistId>(this, QueuePlaylist.Id);
+            _messenger.Unregister<PlaylistItemAddedMessage, PlaylistId>(this, QueuePlaylist.Id);
         }
 
         protected override (int PageSize, IIncrementalSource<VideoListItemControlViewModel> IncrementalSource) GenerateIncrementalSource()

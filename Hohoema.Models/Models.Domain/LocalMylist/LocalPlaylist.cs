@@ -173,7 +173,7 @@ namespace Hohoema.Models.Domain.LocalMylist
             var message = new PlaylistItemAddedMessage(new()
             {
                 PlaylistId = PlaylistId,
-                AddedItems = new[] { video.VideoId }
+                AddedItems = new[] { video }
             });
 
             _messenger.Send(message);
@@ -214,7 +214,7 @@ namespace Hohoema.Models.Domain.LocalMylist
                 var message = new PlaylistItemAddedMessage(new()
                 {
                     PlaylistId = PlaylistId,
-                    AddedItems = new[] { video.VideoId }
+                    AddedItems = new[] { video }
                 });
 
                 _messenger.Send(message);
@@ -224,7 +224,7 @@ namespace Hohoema.Models.Domain.LocalMylist
             _messenger.Send(new PlaylistItemAddedMessage(new()
             {
                 PlaylistId = PlaylistId,
-                AddedItems = added.Select(x => x.Video.VideoId),
+                AddedItems = added.Select(x => x.Video),
             }), PlaylistId);
 
             Count = _playlistRepository.GetCount(PlaylistId.Id);
@@ -248,12 +248,16 @@ namespace Hohoema.Models.Domain.LocalMylist
             var message = new PlaylistItemRemovedMessage(new()
             {
                 PlaylistId = PlaylistId,
-                RemovedItems = new[] { video.VideoId },
+                RemovedItems = new[] { video },
             });
 
             _messenger.Send(message);
             _messenger.Send(message, video.VideoId);
-            _messenger.Send(message, PlaylistId);
+            _messenger.Send(new PlaylistItemRemovedMessage(new()
+            {
+                PlaylistId = PlaylistId,
+                RemovedItems = new[] { video },
+            }), PlaylistId);
 
             CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, video, index));
 
@@ -274,7 +278,7 @@ namespace Hohoema.Models.Domain.LocalMylist
                 var message = new PlaylistItemRemovedMessage(new()
                 {
                     PlaylistId = PlaylistId,
-                    RemovedItems = new[] { video.VideoId },
+                    RemovedItems = new[] { video },
                 });
 
                 _messenger.Send(message);
@@ -284,7 +288,7 @@ namespace Hohoema.Models.Domain.LocalMylist
             _messenger.Send(new PlaylistItemRemovedMessage(new()
             {
                 PlaylistId = PlaylistId,
-                RemovedItems = deletedItems.Select(x => x.Video.VideoId),
+                RemovedItems = deletedItems.Select(x => x.Video),
             }), PlaylistId);
 
             // 追加するときとは逆に最後尾からアイテムを消していくことで不整合を発生させないようにする

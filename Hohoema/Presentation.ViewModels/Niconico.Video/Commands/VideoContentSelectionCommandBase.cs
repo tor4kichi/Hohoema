@@ -31,7 +31,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             }
             else if (parameter is IEnumerable<IVideoContent> items)
             {
-                Execute(items);
+                Execute(items.ToArray());
             }
         }
 

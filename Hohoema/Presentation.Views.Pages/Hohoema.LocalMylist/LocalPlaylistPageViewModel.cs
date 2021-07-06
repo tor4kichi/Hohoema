@@ -167,9 +167,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
                 WeakReferenceMessenger.Default.Register<PlaylistItemRemovedMessage, PlaylistId>(this, Playlist.PlaylistId, (r, m) => 
                 {
                     var args = m.Value;
-                    foreach (var itemId in args.RemovedItems)
+                    foreach (var video in args.RemovedItems)
                     {
-                        var removedItem = ItemsView.Cast<VideoListItemControlViewModel>().FirstOrDefault(x => x.VideoId == itemId);
+                        var removedItem = ItemsView.Cast<VideoListItemControlViewModel>().FirstOrDefault(x => x.VideoId == video.VideoId);
                         if (removedItem != null)
                         {
                             ItemsView.Remove(removedItem);
@@ -183,10 +183,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
                 {
                     var args = m.Value;
                     int index = ItemsView.Count;
-                    foreach (var itemId in args.AddedItems)
+                    foreach (var video in args.AddedItems)
                     {
-                        var video = _nicoVideoProvider.GetCachedVideoInfo(itemId);
-                        ItemsView.Add(new VideoListItemControlViewModel(video) { PlaylistItemToken = new PlaylistItemToken(Playlist, SelectedSortOptionItem, video, index++) });
+                        var nicoVideo = _nicoVideoProvider.GetCachedVideoInfo(video.VideoId);
+                        ItemsView.Add(new VideoListItemControlViewModel(nicoVideo) { PlaylistItemToken = new PlaylistItemToken(Playlist, SelectedSortOptionItem, video, index++) });
                     }
 
                     PlaylistPlayAllCommand.RaiseCanExecuteChanged();
