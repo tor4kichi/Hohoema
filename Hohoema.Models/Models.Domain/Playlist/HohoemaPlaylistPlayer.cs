@@ -27,6 +27,7 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Uno.Extensions;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -94,23 +95,27 @@ namespace Hohoema.Models.Domain.Playlist
         int IndexOf(IVideoContent item);
 
         ValueTask<IVideoContent> GetAsync(int index, CancellationToken ct = default);
+
+        IPlaylistSortOption SortOption { get; }
     }
 
 
     public sealed class BufferedPlaylistItemsSource : ReadOnlyObservableCollection<IVideoContent>, IBufferedPlaylistItemsSource
     {
         public const int MaxBufferSize = 2000;
-        private readonly IPlaylist _playlistItemsSource;
+        private readonly IUnlimitedPlaylist _playlistItemsSource;
+        public IPlaylistSortOption SortOption { get; }
 
         public ReadOnlyObservableCollection<IVideoContent> BufferedItems { get; }
 
         public int BufferLength => this.Count;
 
 
-        public BufferedPlaylistItemsSource(IPlaylist playlistItemsSource)
+        public BufferedPlaylistItemsSource(IUnlimitedPlaylist playlistItemsSource, IPlaylistSortOption sortOption)
             : base(new ObservableCollection<IVideoContent>())
         {
             _playlistItemsSource = playlistItemsSource;
+            SortOption = sortOption;
         }
 
         public int OneTimeLoadingItemsCount = 30;
@@ -139,7 +144,7 @@ namespace Hohoema.Models.Domain.Playlist
                 return this.Items.Skip(head).Take(pageSize);
             }
 
-            var items = await _playlistItemsSource.GetPagedItemsAsync(pageIndex, pageSize, ct);
+            var items = await _playlistItemsSource.GetPagedItemsAsync(pageIndex, pageSize, SortOption, ct);
             foreach (var item in items)
             {
                 this.Items.Add(item);
@@ -149,79 +154,55 @@ namespace Hohoema.Models.Domain.Playlist
         }
     }
 
-    public sealed class BufferedShufflePlaylistItemsSource : ReadOnlyObservableCollection<IVideoContent>, IBufferedPlaylistItemsSource, IDisposable
+    public sealed class BufferedShufflePlaylistItemsSource : ReadOnlyObservableCollection<IVideoContent>, IBufferedPlaylistItemsSource
     {
         public const int MaxBufferSize = 2000;
         public const int DefaultBufferSize = 500;
 
-        private readonly IUserManagedPlaylist _playlistItemsSource;
+        private readonly ISortablePlaylist _playlistItemsSource;
+        public IPlaylistSortOption SortOption { get; }
         private readonly IScheduler _scheduler;
 
         public int BufferLength => this.Count;
 
-        IDisposable _CollectionChangedDisposable;
-
         BehaviorSubject<Unit> _IndexUpdateTimingSubject = new BehaviorSubject<Unit>(Unit.Default);
         public IObservable<Unit> IndexUpdateTiming => _IndexUpdateTimingSubject;
 
-        public BufferedShufflePlaylistItemsSource(IUserManagedPlaylist shufflePlaylist, IScheduler scheduler)
-            : base(new ObservableCollection<IVideoContent>(new IVideoContent[shufflePlaylist.TotalCount]))
+        public BufferedShufflePlaylistItemsSource(ISortablePlaylist shufflePlaylist, IPlaylistSortOption sortOption, IScheduler scheduler)
+            : base(new ObservableCollection<IVideoContent>())
         {
             _playlistItemsSource = shufflePlaylist;
+            SortOption = sortOption;
             _scheduler = scheduler;
 
-            // shufflePlaylist.AddedItem 等をハンドルする
-            // 可変配列として対応したいのでListを使用したほうが良さそう
-            // 
-            _CollectionChangedDisposable = shufflePlaylist.CollectionChangedAsObservable()
-                .Subscribe(args => 
-                {
-                    _scheduler.Schedule(() =>
+            if (shufflePlaylist is IUserManagedPlaylist userManagedPlaylist)
+            {
+                userManagedPlaylist.ObserveAddChangedItems<IVideoContent>()
+                    .Subscribe(args => 
                     {
-                        if (args.Action == NotifyCollectionChangedAction.Add)
+                        scheduler.Schedule(() => 
                         {
-                            var startIndex = args.NewStartingIndex;
-                            var items = args.NewItems.Cast<IVideoContent>();
-                            foreach (var item in items.Reverse())
-                            {
-                                this.Items.Insert(startIndex, item);
-                            }
-                        }
-                        else if (args.Action == NotifyCollectionChangedAction.Remove)
-                        {
-                            var startIndex = args.OldStartingIndex;
-                            var items = args.OldItems.Cast<IVideoContent>();
-                            foreach (var item in items)
-                            {
-                                this.Items.RemoveAt(startIndex);
-                            }
-
+                            Items.Clear();
+                            isItemsFilled = false;
+                            _ = GetAsync(0);
                             _IndexUpdateTimingSubject.OnNext(Unit.Default);
-                        }
-                        else if (args.Action == NotifyCollectionChangedAction.Replace)
-                        {
-                            var newitem = args.NewItems[0] as IVideoContent;
-                            this.Items[args.NewStartingIndex] = newitem;
-                        }
-                        else if (args.Action == NotifyCollectionChangedAction.Move)
-                        {
-                            this.Items.RemoveAt(args.OldStartingIndex);
-                            this.Items.Insert(args.NewStartingIndex, args.NewItems[0] as IVideoContent);
-
-                            _IndexUpdateTimingSubject.OnNext(Unit.Default);
-                        }
-                        else if (args.Action == NotifyCollectionChangedAction.Reset)
-                        {
-                            this.Items.Clear();
-                            foreach (var item in args.NewItems.Cast<IVideoContent>())
-                            {
-                                this.Items.Add(item);
-                            }
-
-                            _IndexUpdateTimingSubject.OnNext(Unit.Default);
-                        }
+                        });
                     });
-                });
+
+                userManagedPlaylist.ObserveRemoveChangedItems<IVideoContent>()
+                    .Subscribe(args => 
+                    {
+                        scheduler.Schedule(() =>
+                        {
+                            foreach (var remove in args)
+                            {
+                                Items.Remove(remove);
+                            }
+
+                            _IndexUpdateTimingSubject.OnNext(Unit.Default);
+                        });
+                    });
+            }
         }
 
 
@@ -232,7 +213,7 @@ namespace Hohoema.Models.Domain.Playlist
         public async ValueTask<IVideoContent> GetAsync(int index, CancellationToken ct = default)
         {
             if (index < 0) { return null; }
-            if (index >= this.Items.Count) { return null; }
+            if (index >= _playlistItemsSource.TotalCount) { return null; }
 
             var indexInsidePage = index / OneTimeLoadingItemsCount;
             await GetPagedItemsAsync(indexInsidePage, OneTimeLoadingItemsCount, ct);
@@ -240,28 +221,20 @@ namespace Hohoema.Models.Domain.Playlist
             return this.Items[index];
         }
 
+        bool isItemsFilled = false;
+
         public async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct = default)
         {
+            if (isItemsFilled is false)
+            {
+                isItemsFilled = true;
+                var items = await _playlistItemsSource.GetAllItemsAsync(SortOption, ct);
+
+                Items.AddRange(items);
+            }
+
             var start = pageIndex * OneTimeLoadingItemsCount;
-            int current = pageIndex * OneTimeLoadingItemsCount;
-            if (this.Items.Any() && this.Items.Skip(start).Take(OneTimeLoadingItemsCount).All(x => x is not null))
-            {
-                current += OneTimeLoadingItemsCount;
-                return this.Items.Skip(start).Take(OneTimeLoadingItemsCount);
-            }
-
-            var items = await _playlistItemsSource.GetPagedItemsAsync(pageIndex, OneTimeLoadingItemsCount, ct);
-            foreach (var item in items)
-            {
-                this.Items[current++] = item;
-            }
-
             return this.Items.Skip(start).Take(OneTimeLoadingItemsCount);
-        }
-
-        public void Dispose()
-        {
-            _CollectionChangedDisposable.Dispose();
         }
     }
 
@@ -292,8 +265,16 @@ namespace Hohoema.Models.Domain.Playlist
         public IPlaylist CurrentPlaylist
         {
             get { return _currentPlaylist; }
-            protected set { SetProperty(ref _currentPlaylist, value); }
+            protected set 
+            {
+                if (SetProperty(ref _currentPlaylist, value))
+                {
+                    RaisePropertyChanged(nameof(CurrentPlaylistSortOptions));
+                }
+            }
         }
+
+        public IPlaylistSortOption[] CurrentPlaylistSortOptions => (CurrentPlaylist as IUserManagedPlaylist)?.SortOptions;
 
         private bool _isUnlimitedPlaylistSource;
         public bool IsUnlimitedPlaylistSource
@@ -338,9 +319,9 @@ namespace Hohoema.Models.Domain.Playlist
                 .Select(x => BufferedPlaylistItemsSource as ReadOnlyObservableCollection<IVideoContent>);
         }
 
-        protected IBufferedPlaylistItemsSource Reset(IPlaylist playlist)
+        protected async ValueTask<IBufferedPlaylistItemsSource> Reset(IPlaylist playlist, IPlaylistSortOption sortOption)
         {
-            if (CurrentPlaylist == playlist)
+            if (CurrentPlaylist == playlist && sortOption.SafeEquals(BufferedPlaylistItemsSource?.SortOption))
             {
                 return BufferedPlaylistItemsSource;
             }
@@ -350,9 +331,9 @@ namespace Hohoema.Models.Domain.Playlist
 
             ClearCurrentContent();
 
-            if (playlist is IUserManagedPlaylist shufflePlaylist)
+            if (playlist is ISortablePlaylist shufflePlaylist)
             {
-                BufferedShufflePlaylistItemsSource source = new BufferedShufflePlaylistItemsSource(shufflePlaylist, _scheduler);
+                BufferedShufflePlaylistItemsSource source = new BufferedShufflePlaylistItemsSource(shufflePlaylist, sortOption, _scheduler);
                 BufferedPlaylistItemsSource = source;
                 _maxItemsCount = shufflePlaylist.TotalCount;
                 _shuffledIndexies = Enumerable.Range(0, shufflePlaylist.TotalCount).Shuffle().ToArray();
@@ -365,10 +346,12 @@ namespace Hohoema.Models.Domain.Playlist
                         CurrentPlayingIndex = BufferedPlaylistItemsSource.IndexOf(CurrentPlaylistItem);
                     });
                 });
+
+                await source.GetAsync(0);
             }
-            else
+            else if (playlist is IUnlimitedPlaylist unlimitedPlaylist)
             {
-                BufferedPlaylistItemsSource = new BufferedPlaylistItemsSource(playlist);
+                BufferedPlaylistItemsSource = new BufferedPlaylistItemsSource(unlimitedPlaylist, sortOption);
                 _maxItemsCount = null;
                 _shuffledIndexies = null;
                 IsUnlimitedPlaylistSource = true;
@@ -708,12 +691,15 @@ namespace Hohoema.Models.Domain.Playlist
             }
         }
 
-        public async Task PlayAsync(IPlaylist playlist)
+        public async Task PlayAsync(IPlaylist playlist, IPlaylistSortOption sortOption)
         {
+            Guard.IsNotNull(playlist, nameof(playlist));
+            Guard.IsNotNull(sortOption, nameof(sortOption));
+
             await _dispatcherQueue.EnqueueAsync(async () =>
             {
                 StopPlaybackMedia();
-                var bufferItemsSource = await UpdatePlaylistItemsSourceAsync(playlist);
+                var bufferItemsSource = await UpdatePlaylistItemsSourceAsync(playlist, sortOption);
                 var firstItem = await bufferItemsSource.GetAsync(0);
                 if (firstItem == null || false == await UpdatePlayingMediaAsync(firstItem, null))
                 {
@@ -724,8 +710,10 @@ namespace Hohoema.Models.Domain.Playlist
             });
         }
 
-        public async Task PlayAsync(IPlaylist playlist, IVideoContent item, TimeSpan? startPosition = null)
+        public async Task PlayAsync(IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent item, int? index, TimeSpan? startPosition = null)
         {
+            Guard.IsNotNull(playlist, nameof(playlist));
+            Guard.IsNotNull(sortOption, nameof(sortOption));
             Guard.IsNotNull(item, nameof(item));
             Guard.IsFalse(item.VideoId == default(VideoId), "Not contain playable VideoId or PlaylistId");
 
@@ -739,16 +727,21 @@ namespace Hohoema.Models.Domain.Playlist
             {
                 StopPlaybackMedia();
 
-                await UpdatePlaylistItemsSourceAsync(playlist);
+                var bufferedItems = await UpdatePlaylistItemsSourceAsync(playlist, sortOption);
 
                 if (false == await UpdatePlayingMediaAsync(item, startPosition))
                 {
                     return;
                 }
 
-                var index = playlist.IndexOf(item);
-                Guard.IsBetweenOrEqualTo(index, 0, 5000, nameof(index));
-                SetCurrentContent(item, index);
+                if (index == null && bufferedItems is IBufferedPlaylistItemsSource)
+                {
+                    index = bufferedItems.IndexOf(item);
+                }
+
+                Guard.IsNotNull(index, nameof(index));
+                Guard.IsBetweenOrEqualTo(index.Value, 0, 5000, nameof(index));
+                SetCurrentContent(item, index.Value);
             });
             
         }
@@ -935,11 +928,11 @@ namespace Hohoema.Models.Domain.Playlist
         }
         */
 
-        private async ValueTask<IBufferedPlaylistItemsSource> UpdatePlaylistItemsSourceAsync(IPlaylist playlist)
+        private async ValueTask<IBufferedPlaylistItemsSource> UpdatePlaylistItemsSourceAsync(IPlaylist playlist, IPlaylistSortOption sortOption)
         {
             try
             {
-                var source = Reset(playlist);                
+                var source = await Reset(playlist, sortOption);                
 
                 // プレイリスト更新メッセージを飛ばす
                 _messenger.Send(new PlayingPlaylistChangedMessage(new(this, CurrentPlaylist)));

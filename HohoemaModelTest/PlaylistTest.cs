@@ -24,7 +24,7 @@ namespace HohoemaModelTest
         public async Task BufferedShufflePlaylistItemsSource()
         {
             var mockSource = new MockShufflePlaylistItemsSource();
-            BufferedShufflePlaylistItemsSource source = new BufferedShufflePlaylistItemsSource(mockSource);
+            BufferedShufflePlaylistItemsSource source = new BufferedShufflePlaylistItemsSource(mockSource, null, null);
             using (source.CollectionChangedAsObservable().Subscribe(ProcessItemsChanged))
             {
                 var allItems = await source.GetPagedItemsAsync(0, 30);
@@ -62,9 +62,11 @@ namespace HohoemaModelTest
 
         public PlaylistId PlaylistId => new PlaylistId();
 
-        public IPlaylistSortOptions SortOptions { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public IPlaylistSortOption SortOption { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+        public IPlaylistSortOption[] SortOptions => throw new NotImplementedException();
 
+        public IPlaylistSortOption DefaultSortOption => throw new NotImplementedException();
 
         public void Replace(IVideoContent item)
         {
@@ -89,9 +91,9 @@ namespace HohoemaModelTest
             return Task.FromResult(items);
         }
 
-        Task<IEnumerable<IVideoContent>> IIncrementalSource<IVideoContent>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
+        public Task<IEnumerable<IVideoContent>> GetAllItemsAsync(IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(Enumerable.Range(0, OneTimeItemsCount).Select((x, i) => new QueuePlaylistItem() { Id = "sm" + i } as IVideoContent));
         }
     }
 }

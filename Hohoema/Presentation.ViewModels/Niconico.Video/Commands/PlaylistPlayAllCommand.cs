@@ -26,6 +26,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
                 return userManagedPlaylist.TotalCount > 0;
             }
 
+            if (parameter is PlaylistToken playlistToken)
+            {
+                return true;
+            }
+
             return parameter is IPlaylist;
         }
 
@@ -34,6 +39,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             if (parameter is IPlaylist playlist)
             {
                 _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(playlist));
+            }
+            else if (parameter is PlaylistToken playlistToken)
+            {
+                _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(playlistToken));
             }
         }
     }

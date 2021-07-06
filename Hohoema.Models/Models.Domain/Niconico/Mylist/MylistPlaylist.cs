@@ -9,29 +9,69 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
+using I18NPortable;
 using Microsoft.Toolkit.Diagnostics;
 using NiconicoToolkit;
 using NiconicoToolkit.Mylist;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist
 {
-    public record MylistPlaylistSortOptions(MylistSortKey SortKey, MylistSortOrder SortOrder) : IPlaylistSortOptions
+    public record MylistPlaylistSortOption(MylistSortKey SortKey, MylistSortOrder SortOrder) : IPlaylistSortOption
     {
+        string _label;
+        public string Label => _label ??= $"MylistSort.{SortKey}{SortOrder}".Translate();
+
         public string Serialize()
         {
             return JsonSerializer.Serialize(this);
         }
 
-        public static MylistPlaylistSortOptions Deserialize(string serializedText)
+        public static MylistPlaylistSortOption Deserialize(string serializedText)
         {
-            if (string.IsNullOrEmpty(serializedText)) { return new MylistPlaylistSortOptions(MylistSortKey.RegisteredAt, MylistSortOrder.Desc); }
+            if (string.IsNullOrEmpty(serializedText)) { return new MylistPlaylistSortOption(MylistSortKey.RegisteredAt, MylistSortOrder.Desc); }
 
-            return JsonSerializer.Deserialize<MylistPlaylistSortOptions>(serializedText);
+            return JsonSerializer.Deserialize<MylistPlaylistSortOption>(serializedText);
+        }
+
+        public bool Equals(IPlaylistSortOption other)
+        {
+            return other is MylistPlaylistSortOption sortOption ? this == sortOption : false;
         }
     }
 
-    public class MylistPlaylist : IMylist, IPlaylist
+    public class MylistPlaylist : IMylist, ISortablePlaylist
     {
+
+        public static MylistPlaylistSortOption[] SortOptions { get; } = new MylistPlaylistSortOption[]
+        {
+            new (MylistSortKey.AddedAt, MylistSortOrder.Desc),
+            new (MylistSortKey.AddedAt, MylistSortOrder.Asc),
+            new (MylistSortKey.Title, MylistSortOrder.Asc),
+            new (MylistSortKey.Title, MylistSortOrder.Desc),
+            new (MylistSortKey.MylistComment, MylistSortOrder.Asc),
+            new (MylistSortKey.MylistComment, MylistSortOrder.Desc),
+            new (MylistSortKey.RegisteredAt, MylistSortOrder.Desc),
+            new (MylistSortKey.RegisteredAt, MylistSortOrder.Asc),
+            new (MylistSortKey.ViewCount, MylistSortOrder.Desc),
+            new (MylistSortKey.ViewCount, MylistSortOrder.Asc),
+            new (MylistSortKey.LastCommentTime, MylistSortOrder.Desc),
+            new (MylistSortKey.LastCommentTime, MylistSortOrder.Asc),
+            new (MylistSortKey.CommentCount, MylistSortOrder.Desc),
+            new (MylistSortKey.CommentCount, MylistSortOrder.Asc),
+            new (MylistSortKey.MylistCount, MylistSortOrder.Desc),
+            new (MylistSortKey.MylistCount, MylistSortOrder.Asc),
+            new (MylistSortKey.Duration, MylistSortOrder.Desc),
+            new (MylistSortKey.Duration, MylistSortOrder.Asc),
+
+        };
+        public static MylistPlaylistSortOption DefaultSortOption => SortOptions[0];
+
+        IPlaylistSortOption[] IPlaylist.SortOptions => SortOptions;
+
+        IPlaylistSortOption IPlaylist.DefaultSortOption => DefaultSortOption;
+
+        int ISortablePlaylist.TotalCount => Count;
+
         private readonly MylistProvider _mylistProvider;
 
         public MylistPlaylist(MylistId id)
@@ -62,20 +102,6 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
         public MylistSortKey DefaultSortKey { get; internal set; }
         public MylistSortOrder DefaultSortOrder { get; internal set; }
-
-        // TODO: 
-        MylistPlaylistSortOptions _SortOptions;
-        public MylistPlaylistSortOptions SortOptions 
-        {
-            get => _SortOptions ??= new MylistPlaylistSortOptions(DefaultSortKey, DefaultSortOrder);
-            set => _SortOptions = value;
-        }
-
-        IPlaylistSortOptions IPlaylist.SortOptions
-        {
-            get => SortOptions;
-            set => SortOptions = (MylistPlaylistSortOptions)value;
-        }
         
 
         public Uri[] ThumbnailImages { get; internal set; }
@@ -149,35 +175,11 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
 
         public int OneTimeItemsCount => _pageSize;
 
-        List<NicoVideo> _MylistItems;        
-
-        public int IndexOf(IVideoContent video)
+        public virtual async Task<IEnumerable<IVideoContent>> GetAllItemsAsync(IPlaylistSortOption sortOption, CancellationToken ct = default)
         {
-            Guard.IsNotNull(_MylistItems, nameof(_MylistItems));
-            return _MylistItems.FindIndex(x => x.VideoId == video.VideoId);
-        }
-
-        public bool Contains(IVideoContent video)
-        {
-            return IndexOf(video) >= 0;
-        }
-
-        async Task PreparePagenation(CancellationToken ct = default)
-        {
-            if (_MylistItems == null)
-            {
-                var sortOptions = SortOptions;
-                var result = await GetAllItemsAsync(sortOptions.SortKey, sortOptions.SortOrder);
-                _MylistItems = result.NicoVideoItems.ToList();
-            }
-        }
-
-        public virtual async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct = default)
-        {
-            await PreparePagenation();
-
-            var start = pageIndex * pageSize;
-            return _MylistItems.Skip(start).Take(pageSize);
+            var sort = sortOption as MylistPlaylistSortOption;
+            var result = await GetAllItemsAsync(sort.SortKey, sort.SortOrder);
+            return result.NicoVideoItems;
         }
     }
 }

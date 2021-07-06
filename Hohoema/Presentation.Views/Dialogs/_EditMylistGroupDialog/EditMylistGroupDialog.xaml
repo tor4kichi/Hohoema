@@ -21,9 +21,6 @@
                IsPrimaryButtonEnabled="{Binding CanEditCompletion.Value}"
                Width="400">
 
-  <ContentDialog.Resources>
-    <myConv:MylistSortLocalizeConverter x:Key="MylistSortLocalizeConverter" />
-  </ContentDialog.Resources>
   <StackPanel HorizontalAlignment="Stretch">
     <toolkit:DockPanel Margin="8 8 8 4">
       <TextBlock Text="{i18nExt:Localize Key=MylistName}"
@@ -86,7 +83,7 @@
                 SelectedItem="{Binding SelectedSort.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
         <ComboBox.ItemTemplate>
           <DataTemplate>
-            <TextBlock Text="{Binding Converter={StaticResource MylistSortLocalizeConverter}}" />
+            <TextBlock Text="{Binding Label}" />
           </DataTemplate>
         </ComboBox.ItemTemplate>
       </ComboBox>

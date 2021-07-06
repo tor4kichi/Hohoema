@@ -57,7 +57,7 @@
                 <!-- 非選択中 -->
                 <AppBarElementContainer>
                   <ComboBox ItemsSource="{Binding SortOptionItems}"
-                            SelectedItem="{Binding SelectedSearchOptionItem, Mode=TwoWay}"
+                            SelectedItem="{Binding SelectedSortOptionItem, Mode=TwoWay}"
                             >
                     <ComboBox.ItemTemplate>
                       <DataTemplate>
@@ -71,7 +71,7 @@
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"
                                 Command="{Binding PlaylistPlayAllCommand}"
-                                CommandParameter="{Binding Playlist}"></AppBarButton>
+                                CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
 
                 <AppBarButton x:Name="ScrollToTopButton"
                                 Icon="Up"

@@ -59,7 +59,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
             if (targetMylist != null)
             {
-                var addedResult = await targetMylist.AddItem(items.Select(x => x.VideoId));
+                var addedResult = await targetMylist.AddItem(items);
                 if (addedResult.SuccessedItems.Any() && addedResult.FailedItems.Empty())
                 {
 //                    NotificationService.ShowLiteInAppNotification("InAppNotification_MylistAddedItems_Success".Translate(targetMylist.Label, addedResult.SuccessedItems.Count));

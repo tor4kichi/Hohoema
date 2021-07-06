@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Playlist;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            _playlist.RemoveItem(content.VideoId);
+            if (content is IPlaylistItemPlayable playlistItemPlayable && playlistItemPlayable.PlaylistItemToken != null)
+            {
+                _playlist.RemoveItem(playlistItemPlayable.PlaylistItemToken);
+            }
         }
     }
 }

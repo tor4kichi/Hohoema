@@ -32,7 +32,6 @@ using Reactive.Bindings;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 {
-    public record LocalMylistSortOptionItem(LocalMylistSortKey Key, LocalMylistSortOrder Order, string Label);
     public sealed class LocalPlaylistPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
@@ -76,6 +75,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
             PlaylistPlayAllCommand = playlistPlayAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             _messenger = messenger;
+
+            CurrentPlaylistToken = Observable.CombineLatest(
+                this.ObserveProperty(x => x.Playlist),
+                this.ObserveProperty(x => x.SelectedSortOptionItem),
+                (x, y) => new PlaylistToken(x, y)
+                )
+                .ToReadOnlyReactivePropertySlim()
+                .AddTo(_CompositeDisposable);
+                
         }
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -93,23 +101,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         }
 
 
-        private LocalMylistSortOptionItem _selectedSearchOptionItem;
-        public LocalMylistSortOptionItem SelectedSearchOptionItem
+        private LocalPlaylistSortOption _selectedSearchOptionItem;
+        public LocalPlaylistSortOption SelectedSortOptionItem
         {
             get { return _selectedSearchOptionItem; }
             set { SetProperty(ref _selectedSearchOptionItem, value); }
         }
 
-        public LocalMylistSortOptionItem[] SortOptionItems { get; } = new LocalMylistSortOptionItem[] 
-        {
-            new(LocalMylistSortKey.AddedAt, LocalMylistSortOrder.Desc, "LocalMylistSortKey.AddedAt_Desc".Translate()),
-            new(LocalMylistSortKey.AddedAt, LocalMylistSortOrder.Asc, "LocalMylistSortKey.AddedAt_Asc".Translate()),
-            new(LocalMylistSortKey.Title, LocalMylistSortOrder.Desc, "LocalMylistSortKey.Title_Desc".Translate()),
-            new(LocalMylistSortKey.Title, LocalMylistSortOrder.Asc, "LocalMylistSortKey.Title_Asc".Translate()),
-            new(LocalMylistSortKey.PostedAt, LocalMylistSortOrder.Desc, "LocalMylistSortKey.PostedAt_Desc".Translate()),
-            new(LocalMylistSortKey.PostedAt, LocalMylistSortOrder.Asc, "LocalMylistSortKey.PostedAt_Asc".Translate()),
-        };
+        public LocalPlaylistSortOption[] SortOptionItems { get; } = LocalPlaylist.SortOptions;
 
+        public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
@@ -130,13 +131,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 
             Playlist = playlist;
 
-            SelectedSearchOptionItem = SortOptionItems.First(x => x.Key == Playlist.ItemsSortKey && x.Order == Playlist.ItemsSortOrder);
+            SelectedSortOptionItem = SortOptionItems.First(x => x.SortKey == Playlist.ItemsSortKey && x.SortOrder == Playlist.ItemsSortOrder);
 
             RefreshItems();
 
-            this.ObserveProperty(x => x.SelectedSearchOptionItem, isPushCurrentValueAtFirst: false)
+            this.ObserveProperty(x => x.SelectedSortOptionItem, isPushCurrentValueAtFirst: false)
                 .Subscribe(x => ResetList())
                 .AddTo(_NavigatingCompositeDisposable);
+
 
             await base.OnNavigatedToAsync(parameters);
         }
@@ -154,8 +156,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 
         protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
         {
-            Playlist.SetSortOptions(SelectedSearchOptionItem.Key, SelectedSearchOptionItem.Order);
-            return (LocalPlaylistIncrementalLoadingSource.OneTimeLoadingCount, new LocalPlaylistIncrementalLoadingSource(Playlist, _nicoVideoProvider));
+            return (LocalPlaylistIncrementalLoadingSource.OneTimeLoadingCount, new LocalPlaylistIncrementalLoadingSource(Playlist, SelectedSortOptionItem, _nicoVideoProvider));
         }
 
 
@@ -181,10 +182,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
                 WeakReferenceMessenger.Default.Register<PlaylistItemAddedMessage, PlaylistId>(this, Playlist.PlaylistId, (r, m) =>
                 {
                     var args = m.Value;
+                    int index = ItemsView.Count;
                     foreach (var itemId in args.AddedItems)
                     {
                         var video = _nicoVideoProvider.GetCachedVideoInfo(itemId);
-                        ItemsView.Add(new VideoListItemControlViewModel(video) { PlaylistItemToken = new PlaylistItemToken(Playlist.PlaylistId, Playlist.SortOptions, itemId) });
+                        ItemsView.Add(new VideoListItemControlViewModel(video) { PlaylistItemToken = new PlaylistItemToken(Playlist, SelectedSortOptionItem, video, index++) });
                     }
 
                     PlaylistPlayAllCommand.RaiseCanExecuteChanged();
@@ -207,26 +209,35 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
     public class LocalPlaylistIncrementalLoadingSource : IIncrementalSource<VideoListItemControlViewModel>
     {
         private readonly LocalPlaylist _playlist;
+        private readonly LocalPlaylistSortOption _sortOption;
         private readonly NicoVideoProvider _nicoVideoProvider;
 
         public LocalPlaylistIncrementalLoadingSource(
             LocalPlaylist playlist,
+            LocalPlaylistSortOption sortOption,
             NicoVideoProvider nicoVideoProvider
             )
         {
             _playlist = playlist;
+            _sortOption = sortOption;
             _nicoVideoProvider = nicoVideoProvider;
         }
 
         public const int OneTimeLoadingCount = 10;
 
+        List<NicoVideo> _items;
         async Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
+            if (pageIndex == 0)
+            {
+                var items = await _playlist.GetAllItemsAsync(_sortOption, ct);
+                _items = items.Cast<NicoVideo>().ToList();
+            }
             var head = pageIndex * pageSize;
-            var targetItems = await _playlist.GetPagedItemsAsync(pageIndex, pageSize, ct);
+            
 
             ct.ThrowIfCancellationRequested();
-            return targetItems.Select(item => new VideoListItemControlViewModel(item as NicoVideo) { PlaylistItemToken = new PlaylistItemToken(_playlist.PlaylistId, _playlist.SortOptions, item.VideoId) });
+            return _items.Skip(head).Take(pageSize).Select((item, i) => new VideoListItemControlViewModel(item as NicoVideo) { PlaylistItemToken = new PlaylistItemToken(_playlist, _sortOption, item, head + i) });
         }
     }
 }

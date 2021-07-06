@@ -17,16 +17,16 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
     public sealed class MylistItemRemovedEventArgs
     {
         public MylistId MylistId { get; internal set; }
-        public IReadOnlyCollection<VideoId> SuccessedItems { get; internal set; }
-        public IReadOnlyCollection<VideoId> FailedItems { get; internal set; }
+        public IReadOnlyCollection<IVideoContent> SuccessedItems { get; internal set; }
+        public IReadOnlyCollection<IVideoContent> FailedItems { get; internal set; }
     }
 
 
     public sealed class MylistItemAddedEventArgs
     {
         public MylistId MylistId { get; internal set; }
-        public IReadOnlyCollection<VideoId> SuccessedItems { get; internal set; }
-        public IReadOnlyCollection<VideoId> FailedItems { get; internal set; }
+        public IReadOnlyCollection<IVideoContent> SuccessedItems { get; internal set; }
+        public IReadOnlyCollection<IVideoContent> FailedItems { get; internal set; }
     }
 
     public sealed class MylistItemCopyEventArgs
@@ -92,26 +92,26 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
 
 
-        public Task<MylistItemAddedEventArgs> AddItem(VideoId videoId, string mylistComment = "")
+        public Task<MylistItemAddedEventArgs> AddItem(IVideoContent video, string mylistComment = "")
         {
-            return AddItem(new[] { videoId }, mylistComment);
+            return AddItem(new[] { video }, mylistComment);
         }
 
-        public async Task<MylistItemAddedEventArgs> AddItem(IEnumerable<VideoId> items, string mylistComment = "")
+        public async Task<MylistItemAddedEventArgs> AddItem(IEnumerable<IVideoContent> items, string mylistComment = "")
         {
-            List<VideoId> successed = new();
-            List<VideoId> failed = new();
+            List<IVideoContent> successed = new();
+            List<IVideoContent> failed = new();
 
-            foreach (var videoId in items)
+            foreach (var video in items)
             {
-                var result = await _loginUserMylistProvider.AddMylistItem(MylistId, videoId, mylistComment);
+                var result = await _loginUserMylistProvider.AddMylistItem(MylistId, video.VideoId, mylistComment);
                 if (result != ContentManageResult.Failed)
                 {
-                    successed.Add(videoId);
+                    successed.Add(video);
                 }
                 else
                 {
-                    failed.Add(videoId);
+                    failed.Add(video);
                 }
             }
 
@@ -121,32 +121,35 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                 SuccessedItems = successed,
                 FailedItems = failed
             };
+            
             MylistItemAdded?.Invoke(this, args);
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, successed));
 
             return args;
         }
 
 
-        public Task<MylistItemRemovedEventArgs> RemoveItem(VideoId videoId)
+        public Task<MylistItemRemovedEventArgs> RemoveItem(PlaylistItemToken itemToken)
         {
-            return RemoveItem(new[] { videoId });
+            return RemoveItem(new[] { itemToken });
         }
 
-        public async Task<MylistItemRemovedEventArgs> RemoveItem(IEnumerable<VideoId> items)
+        public async Task<MylistItemRemovedEventArgs> RemoveItem(IEnumerable<PlaylistItemToken> items)
         {
-            List<VideoId> successed = new();
-            List<VideoId> failed = new();
+            List<IVideoContent> successed = new();
+            List<IVideoContent> failed = new();
 
-            foreach (var videoId in items)
+            foreach (var item in items)
             {
-                var result = await _loginUserMylistProvider.RemoveMylistItem(MylistId, videoId);
+                var (_, _, video, index) = item;
+                var result = await _loginUserMylistProvider.RemoveMylistItem(MylistId, video.VideoId);
                 if (result == ContentManageResult.Success)
                 {
-                    successed.Add(videoId);
+                    successed.Add(video);
                 }
                 else
                 {
-                    failed.Add(videoId);
+                    failed.Add(video);
                 }
             }
 
@@ -159,7 +162,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
             MylistItemRemoved?.Invoke(this, args);
 
-            ClearAllWhenMylistChanged();
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, successed));
 
             return args;
         }
@@ -193,7 +196,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                     SuccessedItems = result.Data.ProcessedIds.Select(x => (VideoId)x).ToArray()
                 });
 
-                ClearAllWhenMylistChanged();
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
             }
 
             return result.Meta.IsSuccess ? ContentManageResult.Success : ContentManageResult.Failed;
@@ -206,15 +209,6 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
         public event EventHandler<MylistItemCopyEventArgs> MylistCopied;
         public event EventHandler<MylistItemMovedEventArgs> MylistMoved;
 
-        // IShufflePlaylistItemsSource 
-        private void ClearAllWhenMylistChanged()
-        {
-            foreach (var i in Enumerable.Range(0, Count))
-            {
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, null, i));
-            }
-
-        }
         public event NotifyCollectionChangedEventHandler CollectionChanged;
     }
 }

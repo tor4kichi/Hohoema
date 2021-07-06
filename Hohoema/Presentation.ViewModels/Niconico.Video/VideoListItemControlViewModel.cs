@@ -31,7 +31,7 @@ using Hohoema.Models.Domain.Playlist;
 
 namespace Hohoema.Presentation.ViewModels.VideoListPage
 {
-    public class VideoItemViewModel : FixPrism.BindableBase, IVideoContent, IPlaylistPlayableItem, IDisposable,
+    public class VideoItemViewModel : FixPrism.BindableBase, IVideoContent, IPlaylistItemPlayable, IDisposable,
         IRecipient<VideoPlayedMessage>,
         IRecipient<PlaylistItemAddedMessage>,
         IRecipient<PlaylistItemRemovedMessage>,

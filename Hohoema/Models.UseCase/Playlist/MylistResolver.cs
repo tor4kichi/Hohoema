@@ -38,6 +38,7 @@ namespace Hohoema.Models.UseCase.Playlist
 
         public async Task<MylistPlaylist> GetMylistAsync(MylistId mylistId)
         {
+            using var _ = await _niconicoSession.SigninLock.LockAsync();
             await _userMylistManager.WaitUpdate();
 
             if (_userMylistManager.HasMylistGroup(mylistId))

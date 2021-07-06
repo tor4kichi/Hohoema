@@ -273,7 +273,6 @@
     <Compile Include="Presentation.Views.Pages\Niconico.Search\SearchHistoryListItemViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Search\VideoSearchIncrementalSource.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Channel\ChannelVideoPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Mylist\MylistSortViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityVideoPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Live\NicoLiveUserIdAddToNGCommand.cs" />
@@ -315,7 +314,6 @@
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\MylistRemoveItemCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\OpenVideoOwnerPageCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\PlaylistPlayAllCommand.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\PlayWithPlaylistCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\RemoveWatchedItemsInAfterWatchPlaylistCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\SelectionAllSelectCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\SelectionExitCommand.cs" />
@@ -506,7 +504,6 @@
     <Compile Include="Presentation.Views\Converters\ExpiredDateTimeToStringConverter.cs" />
     <Compile Include="Presentation.Views\Converters\InvertVisibilityConverter.cs" />
     <Compile Include="Presentation.Views\Converters\ItemClickEventArgsConverter.cs" />
-    <Compile Include="Presentation.Views\Converters\MylistSortLocalizeConverter.cs" />
     <Compile Include="Presentation.Views\Converters\PageTypeToIconConverter.cs" />
     <Compile Include="Presentation.Views\Converters\RelationalDateTimeConverter.cs" />
     <Compile Include="Presentation.Views\Converters\SoundVolumeConveter.cs" />
@@ -865,6 +862,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Models.UseCase\Niconico.Player\Playlist\" />
+    <Folder Include="Presentation.ViewModels\Niconico.Mylist\" />
     <Folder Include="Presentation.ViewModels\Player\PlayerSidePaneContent\" />
     <Folder Include="Presentation.ViewModels\Playlist\Commands\" />
   </ItemGroup>

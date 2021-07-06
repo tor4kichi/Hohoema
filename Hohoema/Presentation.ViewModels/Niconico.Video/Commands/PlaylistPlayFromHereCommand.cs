@@ -23,14 +23,14 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
         protected override bool CanExecute(object parameter)
         {
-            return parameter is IVideoContent;
+            return parameter is IPlaylistItemPlayable;
         }
 
         protected override void Execute(object parameter)
         {
-            if (parameter is IVideoContent video)
+            if (parameter is IPlaylistItemPlayable playable && playable.PlaylistItemToken is not null and var token)
             {
-                _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(_playlist, video));
+                _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(token));
             }
         }
     }

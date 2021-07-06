@@ -68,7 +68,7 @@ namespace Hohoema.Presentation.ViewModels.Player.Video
             {
                 var state = _restoreNavigationManager.GetCurrentPlayerEntry();
                 TimeSpan prevPosition = TimeSpan.Zero;
-                if (state.ContentId == _playlistPlayer.CurrentPlaylistItem?.VideoId)
+                if (state != null && state.ContentId == _playlistPlayer.CurrentPlaylistItem?.VideoId)
                 {
                     prevPosition = state.Position;
                 }

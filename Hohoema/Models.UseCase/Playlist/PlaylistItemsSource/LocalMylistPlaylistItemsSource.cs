@@ -44,14 +44,14 @@ namespace Hohoema.Models.UseCase.Playlist.PlaylistItemsSource
             }
         }
 
-        public IPlaylistSortOptions DeserializeSortOptions(string serializedSortOptions)
+        public IPlaylistSortOption DeserializeSortOptions(string serializedSortOptions)
         {
             if (string.IsNullOrEmpty(serializedSortOptions))
             {
-                return new LocalPlaylistSortOptions();
+                return new LocalPlaylistSortOption();
             }
 
-            return LocalPlaylistSortOptions.Deserialize(serializedSortOptions);
+            return LocalPlaylistSortOption.Deserialize(serializedSortOptions);
         }
     }
 

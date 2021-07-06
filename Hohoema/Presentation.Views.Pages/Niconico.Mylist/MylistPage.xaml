@@ -18,9 +18,6 @@
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
-  <Page.Resources>
-    <myConv:MylistSortLocalizeConverter x:Key="MylistSortLocalizeConverter" />
-  </Page.Resources>
   
   <Grid>
     <videolistPage:VideoItemsListView ItemsSource="{Binding MylistItems}" 
@@ -62,11 +59,11 @@
               </AppBarElementContainer>
               <AppBarElementContainer>
                 <ComboBox ItemsSource="{Binding SortItems}"
-                                SelectedItem="{Binding SelectedSortItem.Value, Mode=TwoWay}"
+                                SelectedItem="{Binding SelectedSortOptionItem.Value, Mode=TwoWay}"
                                 >
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
-                      <TextBlock Text="{Binding Converter={StaticResource MylistSortLocalizeConverter}}" />
+                      <TextBlock Text="{Binding Label}" />
 
                     </DataTemplate>
                   </ComboBox.ItemTemplate>
@@ -76,7 +73,7 @@
               <!-- 非選択中 -->
               <AppBarToggleButton x:Name="ToggleMylistFavoriteButton" IsChecked="{Binding FollowContext.IsFollowing, Mode=TwoWay}" IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" Icon="Favorite" Label="{i18nExt:Localize Key=Follow}" />
               <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
-              <AppBarButton x:Name="PlayAllButton" Icon="Play" Label="{i18nExt:Localize Key=PlayAll}" Command="{Binding PlaylistPlayAllCommand}" CommandParameter="{Binding Mylist.Value}"></AppBarButton>
+              <AppBarButton x:Name="PlayAllButton" Icon="Play" Label="{i18nExt:Localize Key=PlayAll}" Command="{Binding PlaylistPlayAllCommand}" CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Click">

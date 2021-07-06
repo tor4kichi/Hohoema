@@ -332,7 +332,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                         }
                         else if (playlist is LoginUserMylistPlaylist loginUserMylist)
                         {
-                            _ = loginUserMylist.AddItem(VideoInfo.Id);
+                            _ = loginUserMylist.AddItem(VideoInfo);
                         }
                     }));
             }

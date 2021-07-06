@@ -182,7 +182,8 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                             return;
                         }
 
-                        _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(_hohoemaPlaylistPlayer.CurrentPlaylist, video));
+                        var index = CurrentItems.IndexOf(video);
+                        _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(_hohoemaPlaylistPlayer.CurrentPlaylist, video, index));
                     }
                     ));
             }

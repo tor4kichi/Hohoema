@@ -32,6 +32,22 @@ namespace Hohoema.Models.Domain.LocalMylist
 
     public sealed class LocalPlaylist : FixPrism.BindableBase, IUserManagedPlaylist
     {
+        public static LocalPlaylistSortOption[] SortOptions { get; } = new LocalPlaylistSortOption[]
+{
+            new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.AddedAt, SortOrder = LocalMylistSortOrder.Desc },
+            new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.AddedAt, SortOrder = LocalMylistSortOrder.Asc },
+            new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.Title, SortOrder = LocalMylistSortOrder.Desc },
+            new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.Title, SortOrder = LocalMylistSortOrder.Asc },
+            new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.PostedAt, SortOrder = LocalMylistSortOrder.Desc },
+            new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.PostedAt, SortOrder = LocalMylistSortOrder.Asc },
+        };
+        public static LocalPlaylistSortOption DefaultSortOption => SortOptions[0];
+
+        IPlaylistSortOption[] IPlaylist.SortOptions => SortOptions;
+
+        IPlaylistSortOption IPlaylist.DefaultSortOption => DefaultSortOption;
+
+
         private readonly LocalMylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly IMessenger _messenger;
@@ -129,21 +145,6 @@ namespace Hohoema.Models.Domain.LocalMylist
             private set { SetProperty(ref _ItemsSortOrder, value); }
         }
 
-
-        public void SetSortOptions(LocalMylistSortKey sortKey, LocalMylistSortOrder sortOrder)
-        {
-            ItemsSortKey = sortKey;
-            ItemsSortOrder = sortOrder;
-            SortOptions = new LocalPlaylistSortOptions() { SortKey = sortKey, SortOrder = sortOrder };
-            UpdatePlaylistInfo();
-            SortOnCurrentOptions();
-
-            var sortedItems = Items.Select(x => x.Video).ToList();
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, sortedItems, 0));
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, sortedItems, 0));
-        }
-
-
         PlaylistEntity _playlistEntity;
         private void UpdatePlaylistInfo()
         {
@@ -164,81 +165,66 @@ namespace Hohoema.Models.Domain.LocalMylist
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        public void AddPlaylistItem(IVideoContent item)
+        public void AddPlaylistItem(IVideoContent video)
         {
-            var entity = _playlistRepository.AddItem(PlaylistId.Id, item.VideoId);
+            var entity = _playlistRepository.AddItem(PlaylistId.Id, video.VideoId);
             if (entity is null) { return; }
 
             var message = new PlaylistItemAddedMessage(new()
             {
                 PlaylistId = PlaylistId,
-                AddedItems = new[] { item.VideoId }
+                AddedItems = new[] { video.VideoId }
             });
 
-            if (item is NicoVideo nicovideo)
-            {
-                Items.Add((entity, nicovideo));
-            }
-            else
-            {
-                Items.Add((entity, _nicoVideoProvider.GetCachedVideoInfo(item.VideoId)));
-            }
-
             _messenger.Send(message);
-            _messenger.Send(message, item.VideoId);
+            _messenger.Send(message, video.VideoId);
             _messenger.Send(message, PlaylistId);
 
             Count = _playlistRepository.GetCount(PlaylistId.Id);
 
-            SortOnCurrentOptions();
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, IndexOf(item)));
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, video, _playlistRepository.GetCount(PlaylistId.Id)));
         }
 
-        private void SortOnCurrentOptions()
+        private static Comparison<(PlaylistItemEntity Entity, NicoVideo Video)> GetSortComparison(LocalMylistSortKey sortKey, LocalMylistSortOrder sortOrder)
         {
-            Comparison<(PlaylistItemEntity Entity, NicoVideo Video)> comparison = ItemsSortKey switch
+            return sortKey switch
             {
-                LocalMylistSortKey.AddedAt => ItemsSortOrder == LocalMylistSortOrder.Asc ? ((PlaylistItemEntity Entity, NicoVideo Video) x, (PlaylistItemEntity Entity, NicoVideo Video) y) => x.Entity.Id - y.Entity.Id : ((PlaylistItemEntity Entity, NicoVideo Video) x, (PlaylistItemEntity Entity, NicoVideo Video) y) => y.Entity.Id - x.Entity.Id,
-                LocalMylistSortKey.Title => ItemsSortOrder == LocalMylistSortOrder.Asc ? ((PlaylistItemEntity Entity, NicoVideo Video) x, (PlaylistItemEntity Entity, NicoVideo Video) y) => String.Compare(x.Video.Title, y.Video.Title) : ((PlaylistItemEntity Entity, NicoVideo Video) x, (PlaylistItemEntity Entity, NicoVideo Video) y) => String.Compare(y.Video.Title, x.Video.Title),
-                LocalMylistSortKey.PostedAt => ItemsSortOrder == LocalMylistSortOrder.Asc ? ((PlaylistItemEntity Entity, NicoVideo Video) x, (PlaylistItemEntity Entity, NicoVideo Video) y) => DateTime.Compare(x.Video.PostedAt, y.Video.PostedAt) : ((PlaylistItemEntity Entity, NicoVideo Video) x, (PlaylistItemEntity Entity, NicoVideo Video) y) => DateTime.Compare(y.Video.PostedAt, x.Video.PostedAt),
+                LocalMylistSortKey.AddedAt => sortOrder == LocalMylistSortOrder.Asc ? ((PlaylistItemEntity Entity, NicoVideo Video) x, (PlaylistItemEntity Entity, NicoVideo Video) y) => x.Entity.Id - y.Entity.Id : ((PlaylistItemEntity Entity, NicoVideo Video) x, (PlaylistItemEntity Entity, NicoVideo Video) y) => y.Entity.Id - x.Entity.Id,
+                LocalMylistSortKey.Title => sortOrder == LocalMylistSortOrder.Asc ? ((PlaylistItemEntity Entity, NicoVideo Video) x, (PlaylistItemEntity Entity, NicoVideo Video) y) => String.Compare(x.Video.Title, y.Video.Title) : ((PlaylistItemEntity Entity, NicoVideo Video) x, (PlaylistItemEntity Entity, NicoVideo Video) y) => String.Compare(y.Video.Title, x.Video.Title),
+                LocalMylistSortKey.PostedAt => sortOrder == LocalMylistSortOrder.Asc ? ((PlaylistItemEntity Entity, NicoVideo Video) x, (PlaylistItemEntity Entity, NicoVideo Video) y) => DateTime.Compare(x.Video.PostedAt, y.Video.PostedAt) : ((PlaylistItemEntity Entity, NicoVideo Video) x, (PlaylistItemEntity Entity, NicoVideo Video) y) => DateTime.Compare(y.Video.PostedAt, x.Video.PostedAt),
                 _ => throw new NotSupportedException(),
             };
-            Items.Sort(comparison);
         }
+
+        
 
         public void AddPlaylistItem(IEnumerable<IVideoContent> items)
         {
-            List<IVideoContent> added = new List<IVideoContent>();
-            foreach (var item in items)
+            List<(IVideoContent Video, int Index)> added = new ();
+            var tail = _playlistRepository.GetCount(PlaylistId.Id);
+            foreach (var video in items)
             {
-                var entity = _playlistRepository.AddItem(PlaylistId.Id, item.VideoId);
+                var entity = _playlistRepository.AddItem(PlaylistId.Id, video.VideoId);
 
                 if (entity is null) { continue; }
 
-                added.Add(item);
-                if (item is NicoVideo nicovideo)
-                {
-                    Items.Add((entity, nicovideo));
-                }
-                else
-                {
-                    Items.Add((entity, _nicoVideoProvider.GetCachedVideoInfo(item.VideoId)));
-                }
+
+                added.Add((video, tail++));
 
                 var message = new PlaylistItemAddedMessage(new()
                 {
                     PlaylistId = PlaylistId,
-                    AddedItems = new[] { item.VideoId }
+                    AddedItems = new[] { video.VideoId }
                 });
 
                 _messenger.Send(message);
-                _messenger.Send(message, item.VideoId);
+                _messenger.Send(message, video.VideoId);
             }
 
             _messenger.Send(new PlaylistItemAddedMessage(new()
             {
                 PlaylistId = PlaylistId,
-                AddedItems = added.Select(x => x.VideoId),
+                AddedItems = added.Select(x => x.Video.VideoId),
             }), PlaylistId);
 
             Count = _playlistRepository.GetCount(PlaylistId.Id);
@@ -246,59 +232,53 @@ namespace Hohoema.Models.Domain.LocalMylist
             // 一旦全部破棄してソートし直した状態で全エンティティを取得する
             // ソート後の順番がitemsとは違う順序になりうるから
             // ソート後の若い順から追加を伝えることで、順序の不整合が起きないようにする
-            SortOnCurrentOptions();
-            foreach (var item in added.Select(x => (Index: IndexOf(x), Item: x)).OrderBy(x => x.Index))
+            foreach (var item in added.OrderBy(x => x.Index))
             {
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item.Item, item.Index));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item.Video, item.Index));
             }
         }
 
-        public bool RemovePlaylistItem(IVideoContent item)
+        public bool RemovePlaylistItem(PlaylistItemToken item)
         {
-            var result = _playlistRepository.DeleteItem(PlaylistId.Id, item.VideoId);
+            var (_, _, video, index) = item;
+            var result = _playlistRepository.DeleteItem(PlaylistId.Id, video.VideoId);
 
             if (!result) { return false; }
-
-            var deleted = Items.FirstOrDefault(x => x.Video.VideoId == item.VideoId);
-            var index = IndexOf(item);
-            Items.Remove(deleted);
 
             var message = new PlaylistItemRemovedMessage(new()
             {
                 PlaylistId = PlaylistId,
-                RemovedItems = new[] { item.VideoId },
+                RemovedItems = new[] { video.VideoId },
             });
 
             _messenger.Send(message);
-            _messenger.Send(message, item.VideoId);
+            _messenger.Send(message, video.VideoId);
             _messenger.Send(message, PlaylistId);
 
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, video, index));
 
             Count = _playlistRepository.GetCount(PlaylistId.Id);
             return result;
         }
 
-        public void RemovePlaylistItems(IEnumerable<IVideoContent> items)
+        public void RemovePlaylistItems(IEnumerable<PlaylistItemToken> items)
         {
             List<(int Index, IVideoContent Video)> deletedItems = new();
             foreach (var item in items)
             {
-                var result = _playlistRepository.DeleteItem(PlaylistId.Id, item.VideoId);
+                var (playlist, sortOption, video, index) = item;
+                var result = _playlistRepository.DeleteItem(PlaylistId.Id, video.VideoId);
                 if (!result) { continue; }
 
-                var deleted = Items.FirstOrDefault(x => x.Video.VideoId == item.VideoId);
-                int index = IndexOf(item);
-
-                deletedItems.Add((index, item));
+                deletedItems.Add((index, video));
                 var message = new PlaylistItemRemovedMessage(new()
                 {
                     PlaylistId = PlaylistId,
-                    RemovedItems = new[] { item.VideoId },
+                    RemovedItems = new[] { video.VideoId },
                 });
 
                 _messenger.Send(message);
-                _messenger.Send(message, item.VideoId);
+                _messenger.Send(message, video.VideoId);
             }
 
             _messenger.Send(new PlaylistItemRemovedMessage(new()
@@ -310,87 +290,30 @@ namespace Hohoema.Models.Domain.LocalMylist
             // 追加するときとは逆に最後尾からアイテムを消していくことで不整合を発生させないようにする
             foreach (var item in deletedItems.OrderByDescending(x => x.Index))
             {
-                Items.RemoveAt(item.Index);
                 CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item.Video, item.Index));
             }
 
             Count = _playlistRepository.GetCount(PlaylistId.Id);
         }
 
-
-
-        int IUserManagedPlaylist.TotalCount => Count;
+        int ISortablePlaylist.TotalCount => Count;
 
         public int OneTimeItemsCount => 500;
 
-        LocalPlaylistSortOptions _SortOptions;
-        public LocalPlaylistSortOptions SortOptions
+        public async Task<IEnumerable<IVideoContent>> GetAllItemsAsync(IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
         {
-            get => _SortOptions ??= new LocalPlaylistSortOptions();
-            set => _SortOptions = value;
-        }
-
-        IPlaylistSortOptions IPlaylist.SortOptions
-        {
-            get => SortOptions;
-            set => SortOptions = (LocalPlaylistSortOptions)value;
-        }
-
-
-        List<(PlaylistItemEntity Entity, NicoVideo Video)> _Items;
-        List<(PlaylistItemEntity Entity, NicoVideo Video)> Items
-        {
-            get
+            var items = _playlistRepository.GetItems(PlaylistId.Id);
+            var videos = _nicoVideoProvider.GetCachedVideoInfoItems(items.Select(x => (VideoId)x.ContentId));
+            var resultItems = new List<(PlaylistItemEntity Entity, NicoVideo Video)>();
+            foreach (var i in Enumerable.Range(0, items.Count))
             {
-                if (_Items == null)
-                {
-                    var items = _playlistRepository.GetItems(PlaylistId.Id);
-                    var videos = _nicoVideoProvider.GetCachedVideoInfoItems(items.Select(x => (VideoId)x.ContentId));
-                    _Items = new List<(PlaylistItemEntity Entity, NicoVideo Video)>(items.Count);
-                    foreach (var i in Enumerable.Range(0, items.Count))
-                    {
-                        _Items.Add((items.ElementAt(i), videos.ElementAt(i)));
-                    }
-
-                    SortOnCurrentOptions();
-                }
-
-                return _Items;
+                resultItems.Add((items.ElementAt(i), videos.ElementAt(i)));
             }
-        }
 
-        void ClearCachedItems()
-        {
-            _Items = null;
-        }
+            LocalPlaylistSortOption sortOptionImpl = sortOption as LocalPlaylistSortOption;
+            resultItems.Sort(GetSortComparison(sortOptionImpl.SortKey, sortOptionImpl.SortOrder));
 
-        public int IndexOf(IVideoContent video)
-        {
-            var videoId = video.VideoId.ToString();
-            return Items.FindIndex(x => x.Entity.ContentId == videoId);
-        }
-
-        public bool Contains(IVideoContent video)
-        {
-            var videoId = video.VideoId.ToString();
-            return Items.Any(x => x.Entity.ContentId == videoId);
-        }
-
-
-        public async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
-        {
-            var start = pageIndex * pageSize;
-
-            // バックアップからローカルマイリストを復帰させた場合にTitleとPostedAtをフィルするための処理
-            foreach (var item in Items.Skip(start).Take(pageSize))
-            {
-                if (string.IsNullOrEmpty(item.Video.Title))
-                {
-                    Items[Items.IndexOf(item)] = (item.Entity, await _nicoVideoProvider.GetCachedVideoInfoAsync(item.Video.VideoId));
-                }
-            }
-            
-            return Items.Skip(start).Take(pageSize).Select(x => x.Video);
+            return resultItems.Select(x => x.Video);
         }
     }
     

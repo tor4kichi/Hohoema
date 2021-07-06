@@ -21,9 +21,10 @@
   >
 
   <Grid>
-    <videolistPage:VideoItemsListView ItemsSource="{Binding PlaylistItems}"
+    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
                                       ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
+                                      RefreshCommand="{Binding RefreshCommand}"
                                       PlaylistPassToFlyout="{Binding QueuePlaylist}"
                                       x:Name="VideoItemsListView"
                                       >
@@ -45,11 +46,23 @@
 
               <CommandBar.PrimaryCommands>
 
+                <AppBarElementContainer>
+                  <ComboBox ItemsSource="{Binding SortOptionItems}"
+                            SelectedItem="{Binding SelectedSortOptionItem, Mode=TwoWay}"
+                            >
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding Label}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </AppBarElementContainer>
+                
                 <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"
                                 Command="{Binding PlaylistPlayAllCommand}"
-                                CommandParameter="{Binding QueuePlaylist}"></AppBarButton>
+                                CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
 
 
                 <!-- 非選択中 -->

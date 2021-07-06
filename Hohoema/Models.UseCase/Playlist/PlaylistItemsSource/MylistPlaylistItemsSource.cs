@@ -28,9 +28,9 @@ namespace Hohoema.Models.UseCase.Playlist.PlaylistItemsSource
             return await _mylistResolver.GetMylistAsync(playlistId.Id);
         }
 
-        public IPlaylistSortOptions DeserializeSortOptions(string serializedSortOptions)
+        public IPlaylistSortOption DeserializeSortOptions(string serializedSortOptions)
         {
-            return MylistPlaylistSortOptions.Deserialize(serializedSortOptions);
+            return MylistPlaylistSortOption.Deserialize(serializedSortOptions);
         }
     }
 }

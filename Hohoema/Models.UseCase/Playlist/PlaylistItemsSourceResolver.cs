@@ -6,14 +6,8 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.UseCase.Playlist
 {
-    public interface IPlaylistItemsSourceFactory
-    {
-        ValueTask<IPlaylist> Create(PlaylistId playlistId);
-        IPlaylistSortOptions DeserializeSortOptions(string serializedSortOptions);
-    }
 
-
-    public sealed class PlaylistItemsSourceResolver : IPlaylistItemsSourceResolver
+    public sealed class PlaylistItemsSourceResolver : IPlaylistItemsSourceFactoryResolver
     {
         private readonly Lazy<LocalMylistPlaylistItemsSourceFactory> _localMylistPlaylistItemsSourceFactory;
         private readonly Lazy<MylistPlaylistItemsSourceFactory> _mylistPlaylistItemsSourceFactory;
@@ -27,9 +21,9 @@ namespace Hohoema.Models.UseCase.Playlist
             _mylistPlaylistItemsSourceFactory = mylistPlaylistItemsSourceFactory;
         }
 
-        public async ValueTask<IPlaylist> ResolveItemsSource(PlaylistId playlistId, string serializedSortOptions)
+        public IPlaylistItemsSourceFactory Resolve(PlaylistItemsSourceOrigin origin)
         {
-            IPlaylistItemsSourceFactory factory = playlistId.Origin switch
+            return origin switch
             {
                 PlaylistItemsSourceOrigin.Local => _localMylistPlaylistItemsSourceFactory.Value,
                 PlaylistItemsSourceOrigin.Mylist => _mylistPlaylistItemsSourceFactory.Value,
@@ -39,18 +33,8 @@ namespace Hohoema.Models.UseCase.Playlist
                 PlaylistItemsSourceOrigin.CommunityVideos => null,
                 PlaylistItemsSourceOrigin.SearchWithKeyword => null,
                 PlaylistItemsSourceOrigin.SearchWithTag => null,
-                _ => throw new NotSupportedException(playlistId.Origin.ToString()),
+                _ => throw new NotSupportedException(origin.ToString()),
             };
-
-
-            if (factory == null)
-            {
-                throw new InvalidOperationException();
-            }
-
-            var playlist = await factory.Create(playlistId);
-            playlist.SortOptions = factory.DeserializeSortOptions(serializedSortOptions);
-            return playlist;
         }
     }
 
