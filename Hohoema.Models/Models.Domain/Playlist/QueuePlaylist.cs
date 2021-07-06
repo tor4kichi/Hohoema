@@ -343,7 +343,7 @@ namespace Hohoema.Models.Domain.Playlist
         {
             return sortKey switch
             {
-                LocalMylistSortKey.AddedAt => sortOrder == LocalMylistSortOrder.Asc ? (QueuePlaylistItem x, QueuePlaylistItem y) => x.Index - y.Index : (QueuePlaylistItem x, QueuePlaylistItem y) => y.Index - x.Index,
+                LocalMylistSortKey.AddedAt => sortOrder == LocalMylistSortOrder.Asc ? (QueuePlaylistItem x, QueuePlaylistItem y) => y.Index - x.Index: (QueuePlaylistItem x, QueuePlaylistItem y) => x.Index - y.Index,
                 LocalMylistSortKey.Title => sortOrder == LocalMylistSortOrder.Asc ? (QueuePlaylistItem x, QueuePlaylistItem y) => String.Compare(x.Title, y.Title) : (QueuePlaylistItem x, QueuePlaylistItem y) => String.Compare(y.Title, x.Title),
                 LocalMylistSortKey.PostedAt => sortOrder == LocalMylistSortOrder.Asc ? (QueuePlaylistItem x, QueuePlaylistItem y) => DateTime.Compare(x.PostedAt, y.PostedAt) : (QueuePlaylistItem x, QueuePlaylistItem y) => DateTime.Compare(y.PostedAt, x.PostedAt),
                 _ => throw new NotSupportedException(),
