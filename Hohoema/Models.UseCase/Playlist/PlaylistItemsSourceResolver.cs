@@ -7,32 +7,32 @@ using System.Threading.Tasks;
 namespace Hohoema.Models.UseCase.Playlist
 {
 
-    public sealed class PlaylistItemsSourceResolver : IPlaylistItemsSourceFactoryResolver
+    public sealed class PlaylistItemsSourceResolver : IPlaylistFactoryResolver
     {
-        private readonly Lazy<LocalMylistPlaylistItemsSourceFactory> _localMylistPlaylistItemsSourceFactory;
-        private readonly Lazy<MylistPlaylistItemsSourceFactory> _mylistPlaylistItemsSourceFactory;
-        private readonly Lazy<SeriesVideoPlaylistItemsSourceFactory> _seriesVideoPlaylistItemsSourceFactory;
+        private readonly Lazy<LocalMylistPlaylistFactory> _localMylistPlaylistFactory;
+        private readonly Lazy<MylistPlaylistFactory> _mylistPlaylistFactory;
+        private readonly Lazy<SeriesVideoPlaylistFactory> _seriesVideoPlaylistFactory;
 
         public PlaylistItemsSourceResolver(
-            Lazy<LocalMylistPlaylistItemsSourceFactory> localMylistPlaylistItemsSourceFactory,
-            Lazy<MylistPlaylistItemsSourceFactory> mylistPlaylistItemsSourceFactory,
-            Lazy<SeriesVideoPlaylistItemsSourceFactory> seriesVideoPlaylistItemsSourceFactory
+            Lazy<LocalMylistPlaylistFactory> localMylistPlaylistFactory,
+            Lazy<MylistPlaylistFactory> mylistPlaylistFactory,
+            Lazy<SeriesVideoPlaylistFactory> seriesVideoPlaylistFactory
             )
         {
-            _localMylistPlaylistItemsSourceFactory = localMylistPlaylistItemsSourceFactory;
-            _mylistPlaylistItemsSourceFactory = mylistPlaylistItemsSourceFactory;
-            _seriesVideoPlaylistItemsSourceFactory = seriesVideoPlaylistItemsSourceFactory;
+            _localMylistPlaylistFactory = localMylistPlaylistFactory;
+            _mylistPlaylistFactory = mylistPlaylistFactory;
+            _seriesVideoPlaylistFactory = seriesVideoPlaylistFactory;
         }
 
-        public IPlaylistItemsSourceFactory Resolve(PlaylistItemsSourceOrigin origin)
+        public IPlaylistFactory Resolve(PlaylistItemsSourceOrigin origin)
         {
             return origin switch
             {
-                PlaylistItemsSourceOrigin.Local => _localMylistPlaylistItemsSourceFactory.Value,
-                PlaylistItemsSourceOrigin.Mylist => _mylistPlaylistItemsSourceFactory.Value,
+                PlaylistItemsSourceOrigin.Local => _localMylistPlaylistFactory.Value,
+                PlaylistItemsSourceOrigin.Mylist => _mylistPlaylistFactory.Value,
                 PlaylistItemsSourceOrigin.ChannelVideos => null,
                 PlaylistItemsSourceOrigin.UserVideos => null,
-                PlaylistItemsSourceOrigin.Series => _seriesVideoPlaylistItemsSourceFactory.Value,
+                PlaylistItemsSourceOrigin.Series => _seriesVideoPlaylistFactory.Value,
                 PlaylistItemsSourceOrigin.CommunityVideos => null,
                 PlaylistItemsSourceOrigin.SearchWithKeyword => null,
                 PlaylistItemsSourceOrigin.SearchWithTag => null,

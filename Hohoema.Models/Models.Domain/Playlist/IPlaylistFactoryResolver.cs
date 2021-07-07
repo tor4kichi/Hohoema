@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.Domain.Playlist
 {
-    public interface IPlaylistItemsSourceFactoryResolver
+    public interface IPlaylistFactoryResolver
     {
-        IPlaylistItemsSourceFactory Resolve(PlaylistItemsSourceOrigin origin);
+        IPlaylistFactory Resolve(PlaylistItemsSourceOrigin origin);
     }
 
-    public interface IPlaylistItemsSourceFactory
+    public interface IPlaylistFactory
     {
         ValueTask<IPlaylist> Create(PlaylistId playlistId);
         IPlaylistSortOption DeserializeSortOptions(string serializedSortOptions);

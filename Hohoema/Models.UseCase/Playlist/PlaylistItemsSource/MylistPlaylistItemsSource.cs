@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.UseCase.Playlist.PlaylistItemsSource
 {
-    public sealed class MylistPlaylistItemsSourceFactory : IPlaylistItemsSourceFactory
+    public sealed class MylistPlaylistFactory : IPlaylistFactory
     {
         private readonly LoginUserOwnedMylistManager _loginUserOwnedMylistManager;
         private readonly MylistResolver _mylistResolver;
 
-        public MylistPlaylistItemsSourceFactory(LoginUserOwnedMylistManager loginUserOwnedMylistManager,
+        public MylistPlaylistFactory(LoginUserOwnedMylistManager loginUserOwnedMylistManager,
             MylistResolver mylistResolver
             )
         {

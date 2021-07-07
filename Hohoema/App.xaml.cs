@@ -274,7 +274,7 @@ namespace Hohoema
 
             unityContainer.RegisterSingleton<VideoCacheFolderManager>();
 
-            unityContainer.RegisterSingleton<IPlaylistItemsSourceFactoryResolver, PlaylistItemsSourceResolver>();
+            unityContainer.RegisterSingleton<IPlaylistFactoryResolver, PlaylistItemsSourceResolver>();
 
 
 

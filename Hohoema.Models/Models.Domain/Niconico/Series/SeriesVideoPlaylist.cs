@@ -6,25 +6,46 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Hohoema.Models.Domain.Niconico.Series
 {
 
-    public record SeriesPlaylistSortOption : IPlaylistSortOption
+    public record SeriesPlaylistSortOption(SeriesVideoSortKey SortKey, PlaylistItemSortOrder SortOrder) : IPlaylistSortOption
     {
         public string Label => string.Empty;
 
         public bool Equals(IPlaylistSortOption other)
         {
+            if (other is SeriesPlaylistSortOption seriesPlaylistSortOption)
+            {
+                return this == seriesPlaylistSortOption;
+            }
+
             return false;
         }
 
         public string Serialize()
         {
-            return string.Empty;
+            return JsonSerializer.Serialize(this);
         }
+
+        public static SeriesPlaylistSortOption Deserialize(string json)
+        {
+            return JsonSerializer.Deserialize<SeriesPlaylistSortOption>(json);
+        }
+    }
+
+    public enum SeriesVideoSortKey
+    {
+        AddedAt,
+        PostedAt,
+        Title,
+        WatchCount,
+        MylistCount,
+        CommentCount,
     }
 
     public sealed class SeriesVideoPlaylist : ISortablePlaylist
@@ -42,10 +63,29 @@ namespace Hohoema.Models.Domain.Niconico.Series
 
         public PlaylistId PlaylistId { get; }
 
-        public IPlaylistSortOption[] SortOptions => new IPlaylistSortOption[0];
+        public static IPlaylistSortOption[] SortOptions { get; } = new []
+        {
+            SeriesVideoSortKey.AddedAt,
+            SeriesVideoSortKey.PostedAt,
+            SeriesVideoSortKey.Title,
+            SeriesVideoSortKey.WatchCount,
+            SeriesVideoSortKey.MylistCount,
+            SeriesVideoSortKey.CommentCount,
+        }
+        .SelectMany(x => 
+        {
+            return new[] { 
+                    new SeriesPlaylistSortOption(x, PlaylistItemSortOrder.Desc) as IPlaylistSortOption,
+                    new SeriesPlaylistSortOption(x, PlaylistItemSortOrder.Asc) as IPlaylistSortOption,
+                };
+        }).ToArray();
 
-        public IPlaylistSortOption DefaultSortOption => null;
 
+        IPlaylistSortOption[] IPlaylist.SortOptions => SortOptions;
+
+        public static SeriesPlaylistSortOption DefaultSortOption { get; } = new SeriesPlaylistSortOption(SeriesVideoSortKey.AddedAt, PlaylistItemSortOrder.Asc);
+
+        IPlaylistSortOption IPlaylist.DefaultSortOption => DefaultSortOption;
 
         public List<SeriesDetails.SeriesVideo> Videos => SeriesDetails.Videos;
 

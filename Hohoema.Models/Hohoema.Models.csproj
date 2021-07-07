@@ -170,6 +170,7 @@
     <Compile Include="Models.Domain\Niconico\Recommend\RecommendProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Search\SearchHistory.cs" />
     <Compile Include="Models.Domain\Niconico\Search\SearchProvider.cs" />
+    <Compile Include="Models.Domain\Playlist\PlaylistItemSortOrder.cs" />
     <Compile Include="Models.Domain\Niconico\Series\SeriesVideoPlaylist.cs" />
     <Compile Include="Models.Domain\Niconico\User\IUser.cs" />
     <Compile Include="Models.Domain\Niconico\User\UserNameProvider.cs" />
@@ -239,10 +240,10 @@
     <Compile Include="Models.Domain\Playlist\HohoemaPlaylistPlayer.cs" />
     <Compile Include="Models.Domain\LocalMylist\LocalPlaylist.cs" />
     <Compile Include="Models.Domain\Playlist\IPlaylist.cs" />
+    <Compile Include="Models.Domain\Playlist\IPlaylistFactoryResolver.cs" />
     <Compile Include="Models.Domain\Playlist\PlaylistExtension.cs" />
     <Compile Include="Models.Domain\Playlist\PlaylistItemsSourceOrigin.cs" />
     <Compile Include="Models.Domain\LocalMylist\LocalMylistRepository.cs" />
-    <Compile Include="Models.Domain\Playlist\IPlaylistItemsSourceFactoryResolver.cs" />
     <Compile Include="Models.Domain\Player\VideoStreamingOriginOrchestrator.cs" />
     <Compile Include="Models.Domain\Playlist\QueuePlaylist.cs" />
     <Compile Include="Models.Domain\Playlist\VideoPlayRequestMessage.cs" />

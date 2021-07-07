@@ -13,11 +13,11 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.UseCase.Playlist.PlaylistItemsSource
 {
-    public sealed class SeriesVideoPlaylistItemsSourceFactory : IPlaylistItemsSourceFactory
+    public sealed class SeriesVideoPlaylistFactory : IPlaylistFactory
     {
         private readonly SeriesProvider _seriesProvider;
 
-        public SeriesVideoPlaylistItemsSourceFactory(SeriesProvider seriesProvider)
+        public SeriesVideoPlaylistFactory(SeriesProvider seriesProvider)
         {
             _seriesProvider = seriesProvider;
         }
@@ -30,11 +30,8 @@ namespace Hohoema.Models.UseCase.Playlist.PlaylistItemsSource
 
         public IPlaylistSortOption DeserializeSortOptions(string serializedSortOptions)
         {
-            return new SeriesPlaylistSortOption();
+            return SeriesPlaylistSortOption.Deserialize(serializedSortOptions);
         }
     }
-
-
-    
 }
 
