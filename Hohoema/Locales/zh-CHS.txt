@@ -1029,3 +1029,16 @@ CommunityVidoes = 社区视频
 #### Channel ####
 ChannelVideoNoItems = 无频道影片
 InAppNotification_CanNotCacheChannelVideos_ForContentProtection = 频道视频无法缓存以进行内容保护
+
+ChannelVideoSortKey.FirstRetrieve_Asc = 按时间顺序发帖
+ChannelVideoSortKey.FirstRetrieve_Desc = 按最新顺序发布的帖子
+ChannelVideoSortKey.ViewCount_Asc = 按视图升序
+ChannelVideoSortKey.ViewCount_Desc = 按观看次数降序排列
+ChannelVideoSortKey.CommentCount_Asc = 按评论升序
+ChannelVideoSortKey.CommentCount_Desc = 按评论数量降序排列
+ChannelVideoSortKey.MylistCount_Asc = 按 mylist 数量升序排列
+ChannelVideoSortKey.MylistCount_Desc = 按 mylist 数量降序排列
+ChannelVideoSortKey.NewComment_Asc = 从最旧到最新的评论
+ChannelVideoSortKey.NewComment_Desc = 评论是最新的
+ChannelVideoSortKey.Length_Asc = 视频时间升序
+ChannelVideoSortKey.Length_Desc = 视频时间最长

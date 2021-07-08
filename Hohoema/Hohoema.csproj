@@ -148,10 +148,11 @@
     <Compile Include="Models.UseCase\PageNavigation\NavigationTriggerFromExternal.cs" />
     <Compile Include="Models.UseCase\Hohoema.LocalMylist\LocalMylistManager.cs" />
     <Compile Include="Models.UseCase\Playlist\AutoSkipToPlaylistNextVideoWhenPlayFailed.cs" />
-    <Compile Include="Models.UseCase\Playlist\PlaylistItemsSource\LocalMylistPlaylistItemsSource.cs" />
+    <Compile Include="Models.UseCase\Playlist\_PlaylistItemsSource\ChannelVideoPlaylistFactory.cs" />
+    <Compile Include="Models.UseCase\Playlist\_PlaylistItemsSource\LocalMylistPlaylistFactory.cs" />
     <Compile Include="Models.UseCase\Playlist\PlaylistItemsSourceResolver.cs" />
-    <Compile Include="Models.UseCase\Playlist\PlaylistItemsSource\MylistPlaylistItemsSource.cs" />
-    <Compile Include="Models.UseCase\Playlist\PlaylistItemsSource\SeriesVideoPlaylistFactory.cs" />
+    <Compile Include="Models.UseCase\Playlist\_PlaylistItemsSource\MylistPlaylistFactory.cs" />
+    <Compile Include="Models.UseCase\Playlist\_PlaylistItemsSource\SeriesVideoPlaylistFactory.cs" />
     <Compile Include="Models.UseCase\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
     <Compile Include="Models.UseCase\VideoCache\Events\EndCacheSaveFolderChangingMessage.cs" />
     <Compile Include="Models.UseCase\VideoCache\Events\StartCacheSaveFolderChangingAsyncRequestMessage.cs" />

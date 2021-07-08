@@ -35,9 +35,9 @@ namespace Hohoema.Models.Domain.Niconico.Channel
         }
 
 
-        public Task<ChannelVideoResponse> GetChannelVideo(string channelIdOrScreenName, int page)
+        public Task<ChannelVideoResponse> GetChannelVideo(string channelIdOrScreenName, int page, ChannelVideoSortKey? sortKey = null, ChannelVideoSortOrder? sortOrder = null)
         {
-            return _niconicoSession.ToolkitContext.Channel.GetChannelVideoAsync(channelIdOrScreenName, page);
+            return _niconicoSession.ToolkitContext.Channel.GetChannelVideoAsync(channelIdOrScreenName, page, sortKey, sortOrder);
         }
 
         public Task<ChannelInfo> GetChannelInfo(ChannelId channelId)

@@ -11,7 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.UseCase.Playlist.PlaylistItemsSource
+namespace Hohoema.Models.UseCase.Playlist.PlaylistFactory
 {
     public sealed class SeriesVideoPlaylistFactory : IPlaylistFactory
     {

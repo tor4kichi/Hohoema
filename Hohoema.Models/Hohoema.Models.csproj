@@ -137,6 +137,9 @@
     <Compile Include="Models.Domain\Niconico\AccountManager.cs" />
     <Compile Include="Models.Domain\Niconico\Channel\ChannelNameCacheRepository.cs" />
     <Compile Include="Models.Domain\Niconico\Channel\ChannelProvider.cs" />
+    <Compile Include="Models.Domain\Niconico\Channel\ChannelVideoContent.cs" />
+    <Compile Include="Models.Domain\Niconico\Channel\ChannelVideoPlaylist.cs" />
+    <Compile Include="Models.Domain\Niconico\Channel\ChannelVideoPlaylistSortOption.cs" />
     <Compile Include="Models.Domain\Niconico\Channel\IChannel.cs" />
     <Compile Include="Models.Domain\Niconico\Community\CommunityProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Community\ICommunity.cs" />

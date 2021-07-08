@@ -44,7 +44,7 @@ namespace Hohoema.Presentation.ViewModels
             {
             }
 
-            /*
+            
             int _timing = 0;
             List<ITEM_VM> _dividedPresentItemsSource;
             int _firstItemsCount = 0;
@@ -88,7 +88,6 @@ namespace Hohoema.Presentation.ViewModels
                     return await base.LoadDataAsync(cancellationToken);
                 }
             }
-            */
         }
 
 

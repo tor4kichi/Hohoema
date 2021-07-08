@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.UseCase.Playlist.PlaylistItemsSource
+namespace Hohoema.Models.UseCase.Playlist.PlaylistFactory
 {
     public sealed class MylistPlaylistFactory : IPlaylistFactory
     {
