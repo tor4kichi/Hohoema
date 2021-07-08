@@ -142,6 +142,7 @@
     <Compile Include="Models.Domain\Niconico\Channel\ChannelVideoPlaylistSortOption.cs" />
     <Compile Include="Models.Domain\Niconico\Channel\IChannel.cs" />
     <Compile Include="Models.Domain\Niconico\Community\CommunityProvider.cs" />
+    <Compile Include="Models.Domain\Niconico\Community\CommunityVideoPlaylist.cs" />
     <Compile Include="Models.Domain\Niconico\Community\ICommunity.cs" />
     <Compile Include="Models.Domain\Niconico\FollowableExtension.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\FollowItemInfo.cs" />

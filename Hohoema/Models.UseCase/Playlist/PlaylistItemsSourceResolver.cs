@@ -14,13 +14,15 @@ namespace Hohoema.Models.UseCase.Playlist
         private readonly Lazy<SeriesVideoPlaylistFactory> _seriesVideoPlaylistFactory;
         private readonly Lazy<ChannelVideoPlaylistFactory> _channelVideoPlaylistFactory;
         private readonly Lazy<UserVideoPlaylistFactory> _userVideoPlaylistFactory;
+        private readonly Lazy<CommunityVideoPlaylistFactory> _communityVideoPlaylistFactory;
 
         public PlaylistItemsSourceResolver(
             Lazy<LocalMylistPlaylistFactory> localMylistPlaylistFactory,
             Lazy<MylistPlaylistFactory> mylistPlaylistFactory,
             Lazy<SeriesVideoPlaylistFactory> seriesVideoPlaylistFactory,
             Lazy<ChannelVideoPlaylistFactory> channelVideoPlaylistFactory,
-            Lazy<UserVideoPlaylistFactory> userVideoPlaylistFactory
+            Lazy<UserVideoPlaylistFactory> userVideoPlaylistFactory,
+            Lazy<CommunityVideoPlaylistFactory> communityVideoPlaylistFactory
             )
         {
             _localMylistPlaylistFactory = localMylistPlaylistFactory;
@@ -28,6 +30,7 @@ namespace Hohoema.Models.UseCase.Playlist
             _seriesVideoPlaylistFactory = seriesVideoPlaylistFactory;
             _channelVideoPlaylistFactory = channelVideoPlaylistFactory;
             _userVideoPlaylistFactory = userVideoPlaylistFactory;
+            _communityVideoPlaylistFactory = communityVideoPlaylistFactory;
         }
 
         public IPlaylistFactory Resolve(PlaylistItemsSourceOrigin origin)
@@ -39,7 +42,7 @@ namespace Hohoema.Models.UseCase.Playlist
                 PlaylistItemsSourceOrigin.Series => _seriesVideoPlaylistFactory.Value,
                 PlaylistItemsSourceOrigin.ChannelVideos => _channelVideoPlaylistFactory.Value,
                 PlaylistItemsSourceOrigin.UserVideos => _userVideoPlaylistFactory.Value,
-                PlaylistItemsSourceOrigin.CommunityVideos => null,
+                PlaylistItemsSourceOrigin.CommunityVideos => _communityVideoPlaylistFactory.Value,
                 PlaylistItemsSourceOrigin.SearchWithKeyword => null,
                 PlaylistItemsSourceOrigin.SearchWithTag => null,
                 _ => throw new NotSupportedException(origin.ToString()),
