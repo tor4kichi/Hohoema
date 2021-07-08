@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Hohoema.Models.Domain.Playlist;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
@@ -46,9 +47,34 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         public SubscriptionManager SubscriptionManager1 { get; }
         public PageManager PageManager { get; }
         public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
+        public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
         public AddKeywordSearchSubscriptionCommand AddKeywordSearchSubscriptionCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public SubscriptionManager SubscriptionManager { get; }
+
+
+
+        private CeApiSearchVideoPlaylist _SearchVideoPlaylist;
+        public CeApiSearchVideoPlaylist SearchVideoPlaylist
+        {
+            get { return _SearchVideoPlaylist; }
+            private set { SetProperty(ref _SearchVideoPlaylist, value); }
+        }
+
+
+        public CeApiSearchVideoPlaylistSortOption[] SortOptions => CeApiSearchVideoPlaylist.SortOptions;
+
+
+        private CeApiSearchVideoPlaylistSortOption _selectedSortOption;
+        public CeApiSearchVideoPlaylistSortOption SelectedSortOption
+        {
+            get { return _selectedSortOption; }
+            set { SetProperty(ref _selectedSortOption, value); }
+        }
+
+
+        public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
+
 
         public SearchResultKeywordPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
@@ -57,6 +83,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             PageManager pageManager,
             SearchHistoryRepository searchHistoryRepository,
             VideoPlayWithQueueCommand videoPlayWithQueueCommand,
+            PlaylistPlayAllCommand playlistPlayAllCommand,
             AddKeywordSearchSubscriptionCommand addKeywordSearchSubscriptionCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
@@ -67,127 +94,28 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             LoadedPage = new ReactiveProperty<int>(1)
                 .AddTo(_CompositeDisposable);
 
-            SelectedSearchSort = new ReactiveProperty<SearchSortOptionListItem>(
-                VideoSearchOptionListItems.First(),
-                mode: ReactivePropertyMode.DistinctUntilChanged
-                );
-
             SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
 
-            SelectedSearchSort
-               .Subscribe(async _ =>
-               {
-                   var selected = SelectedSearchSort.Value;
-                   if (SearchOption.Order == selected.Order
-                       && SearchOption.Sort == selected.Sort
-                   )
-                   {
-                       //                       return;
-                   }
-
-                   SearchOption.Sort = SelectedSearchSort.Value.Sort;
-                   SearchOption.Order = SelectedSearchSort.Value.Order;
-
-                   ResetList();
-               })
-                .AddTo(_CompositeDisposable);
 
             ApplicationLayoutManager = applicationLayoutManager;
             SearchProvider = searchProvider;
             PageManager = pageManager;
             _searchHistoryRepository = searchHistoryRepository;
             VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
+            PlaylistPlayAllCommand = playlistPlayAllCommand;
             AddKeywordSearchSubscriptionCommand = addKeywordSearchSubscriptionCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             SubscriptionManager = subscriptionManager;
+
+            CurrentPlaylistToken = Observable.CombineLatest(
+                this.ObserveProperty(x => x.SearchVideoPlaylist),
+                this.ObserveProperty(x => x.SelectedSortOption),
+                (x, y) => new PlaylistToken(x, y)
+                )
+                .ToReadOnlyReactivePropertySlim()
+                .AddTo(_CompositeDisposable);
         }
 
-
-        static private List<SearchSortOptionListItem> _VideoSearchOptionListItems = new List<SearchSortOptionListItem>()
-        {
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(VideoSortKey.FirstRetrieve, VideoSortOrder.Desc),
-                Order = VideoSortOrder.Desc,
-                Sort = VideoSortKey.FirstRetrieve,
-            },
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(VideoSortKey.FirstRetrieve, VideoSortOrder.Asc),
-                Order = VideoSortOrder.Asc,
-                Sort = VideoSortKey.FirstRetrieve,
-            },
-
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(VideoSortKey.NewComment, VideoSortOrder.Desc),
-                Order = VideoSortOrder.Desc,
-                Sort = VideoSortKey.NewComment,
-            },
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(VideoSortKey.NewComment, VideoSortOrder.Asc),
-                Order = VideoSortOrder.Asc,
-                Sort = VideoSortKey.NewComment,
-            },
-
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(VideoSortKey.ViewCount, VideoSortOrder.Desc),
-                Order = VideoSortOrder.Desc,
-                Sort = VideoSortKey.ViewCount,
-            },
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(VideoSortKey.ViewCount, VideoSortOrder.Asc),
-                Order = VideoSortOrder.Asc,
-                Sort = VideoSortKey.ViewCount,
-            },
-
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(VideoSortKey.CommentCount, VideoSortOrder.Desc),
-                Order = VideoSortOrder.Desc,
-                Sort = VideoSortKey.CommentCount,
-            },
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(VideoSortKey.CommentCount, VideoSortOrder.Asc),
-                Order = VideoSortOrder.Asc,
-                Sort = VideoSortKey.CommentCount,
-            },
-
-
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(VideoSortKey.Length, VideoSortOrder.Desc),
-                Order = VideoSortOrder.Desc,
-                Sort = VideoSortKey.Length,
-            },
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(VideoSortKey.Length, VideoSortOrder.Asc),
-                Order = VideoSortOrder.Asc,
-                Sort = VideoSortKey.Length,
-            },
-
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(VideoSortKey.MylistCount, VideoSortOrder.Desc),
-                Order = VideoSortOrder.Desc,
-                Sort = VideoSortKey.MylistCount,
-            },
-            new SearchSortOptionListItem()
-            {
-                Label = SortHelper.ToCulturizedText(VideoSortKey.MylistCount, VideoSortOrder.Asc),
-                Order = VideoSortOrder.Asc,
-                Sort = VideoSortKey.MylistCount,
-            },
-		};
-
-        public IReadOnlyList<SearchSortOptionListItem> VideoSearchOptionListItems => _VideoSearchOptionListItems;
-
-        public ReactiveProperty<SearchSortOptionListItem> SelectedSearchSort { get; private set; }
 
 
         static public List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
@@ -222,14 +150,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             set { SetProperty(ref _keyword, value); }
         }
 
-
-        private string _SearchOptionText;
-        public string SearchOptionText
-        {
-            get { return _SearchOptionText; }
-            set { SetProperty(ref _SearchOptionText, value); }
-        }
-
         #region Commands
 
 
@@ -261,12 +181,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                 {
                     Keyword = Keyword
                 };
+
+                SearchVideoPlaylist = new CeApiSearchVideoPlaylist(new PlaylistId() { Id = Keyword, Origin = PlaylistItemsSourceOrigin.SearchWithKeyword }, SearchProvider);
+                SelectedSortOption = CeApiSearchVideoPlaylist.DefaultSortOption;
+
+                this.ObserveProperty(x => x.SelectedSortOption)
+                    .Subscribe(_ => ResetList())
+                    .AddTo(_NavigatingCompositeDisposable);
             }
 
 
             SelectedSearchTarget.Value = SearchTarget.Keyword;
-
-            SelectedSearchSort.Value = VideoSearchOptionListItems.First(x => x.Sort == SearchOption.Sort && x.Order == SearchOption.Order);
 
 
             _searchHistoryRepository.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
@@ -278,13 +203,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
 		{
-            return (VideoSearchIncrementalSource.OneTimeLoadingCount, new VideoSearchIncrementalSource(SearchOption.Keyword, false, SearchOption.Sort, SearchOption.Order, SearchProvider));
+            return (VideoSearchIncrementalSource.OneTimeLoadingCount, new VideoSearchIncrementalSource(SearchVideoPlaylist, SelectedSortOption, SearchProvider));
 		}
-
-		protected override void PostResetList()
-		{
-            SearchOptionText = SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
-        }
 		
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)

@@ -172,6 +172,9 @@
     <Compile Include="Models.Domain\Niconico\NicoRepo\LoginUser\LoginUserNicoRepoProvider.cs" />
     <Compile Include="Models.Domain\Niconico\NicoRepo\NicoRepoSettings.cs" />
     <Compile Include="Models.Domain\Niconico\Recommend\RecommendProvider.cs" />
+    <Compile Include="Models.Domain\Niconico\Search\CeApiSearchVideoContent.cs" />
+    <Compile Include="Models.Domain\Niconico\Search\CeApiSearchVideoPlaylist.cs" />
+    <Compile Include="Models.Domain\Niconico\Search\CeApiSearchVideoPlaylistSortOption.cs" />
     <Compile Include="Models.Domain\Niconico\Search\SearchHistory.cs" />
     <Compile Include="Models.Domain\Niconico\Search\SearchProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Video\NvapiVideoContent.cs" />
@@ -304,7 +307,6 @@
     <Compile Include="Models.Helpers\ListExtention.cs" />
     <Compile Include="Models.Helpers\ObservableHashSet.cs" />
     <Compile Include="Models.Helpers\ShareHelper.cs" />
-    <Compile Include="Models.Helpers\SortMethodHelper.cs" />
     <Compile Include="Models.Helpers\StorageFolderExtention.cs" />
     <Compile Include="Models.Helpers\StringHelper.cs" />
     <Compile Include="Models.Infrastructure\FlagsRepositoryBase.cs" />

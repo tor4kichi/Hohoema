@@ -151,6 +151,7 @@
     <Compile Include="Models.UseCase\Playlist\PlaylistFactory\ChannelVideoPlaylistFactory.cs" />
     <Compile Include="Models.UseCase\Playlist\PlaylistFactory\CommunityVideoPlaylistFactory.cs" />
     <Compile Include="Models.UseCase\Playlist\PlaylistFactory\LocalMylistPlaylistFactory.cs" />
+    <Compile Include="Models.UseCase\Playlist\PlaylistFactory\SearchWithKeywordPlaylistFactory.cs" />
     <Compile Include="Models.UseCase\Playlist\PlaylistItemsSourceResolver.cs" />
     <Compile Include="Models.UseCase\Playlist\PlaylistFactory\MylistPlaylistFactory.cs" />
     <Compile Include="Models.UseCase\Playlist\PlaylistFactory\SeriesVideoPlaylistFactory.cs" />

@@ -66,7 +66,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
                 )
                 .ToReadOnlyReactivePropertySlim()
                 .AddTo(_CompositeDisposable);
-
         }
 
         private readonly SeriesProvider _seriesProvider;
