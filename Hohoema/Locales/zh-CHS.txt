@@ -980,6 +980,21 @@ MylistOpenVideoList = 打开视频列表
 UserSeriesListWithOwnerName = {0}系列列表
 NoItems_UserSeries = 没有系列
 
+SeriesVideoSortKey.AddedAt_Asc = 最新注册
+SeriesVideoSortKey.AddedAt_Desc = 注册时间最长
+SeriesVideoSortKey.PostedAt_Asc = 按最新顺序发布的帖子
+SeriesVideoSortKey.PostedAt_Desc = 按时间顺序发帖
+SeriesVideoSortKey.Title_Asc = 标题升序
+SeriesVideoSortKey.Title_Desc = 标题降序
+SeriesVideoSortKey.WatchCount_Asc = 按视图升序
+SeriesVideoSortKey.WatchCount_Desc = 按观看次数降序排列
+SeriesVideoSortKey.MylistCount_Asc = 按我的列表注册数量的升序排列
+SeriesVideoSortKey.MylistCount_Desc = 按我的列表注册数量降序排列
+SeriesVideoSortKey.CommentCount_Asc = 按评论升序
+SeriesVideoSortKey.CommentCount_Desc = 按评论数量降序排列
+
+
+
 
 
 

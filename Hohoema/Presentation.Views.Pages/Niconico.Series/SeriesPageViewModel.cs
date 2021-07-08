@@ -15,6 +15,7 @@ using NiconicoToolkit.Series;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
 using Prism.Navigation;
+using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -49,13 +50,23 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
             SeriesProvider seriesRepository,
             VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             AddSubscriptionCommand addSubscriptionCommand,
-            SelectionModeToggleCommand selectionModeToggleCommand
+            SelectionModeToggleCommand selectionModeToggleCommand,
+            PlaylistPlayAllCommand playlistPlayAllCommand
             )
         {
             _seriesProvider = seriesRepository;
             VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             AddSubscriptionCommand = addSubscriptionCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
+            PlaylistPlayAllCommand = playlistPlayAllCommand;
+            CurrentPlaylistToken = Observable.CombineLatest(
+                this.ObserveProperty(x => x.SeriesVideoPlaylist),
+                this.ObserveProperty(x => x.SelectedSortOption),
+                (x, y) => new PlaylistToken(x, y)
+                )
+                .ToReadOnlyReactivePropertySlim()
+                .AddTo(_CompositeDisposable);
+
         }
 
         private readonly SeriesProvider _seriesProvider;
@@ -63,6 +74,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
         public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
+        public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
 
         private UserSeriesItemViewModel _series;
         public UserSeriesItemViewModel Series
@@ -89,7 +101,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
         }
 
 
-        public SeriesPlaylistSortOption[] SortOptions => new SeriesPlaylistSortOption[0];
+        public SeriesPlaylistSortOption[] SortOptions => SeriesVideoPlaylist.SortOptions;
 
 
         private SeriesPlaylistSortOption _selectedSortOption;
@@ -98,6 +110,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
             get { return _selectedSortOption; }
             set { SetProperty(ref _selectedSortOption, value); }
         }
+
+
+        public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
 
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
@@ -114,8 +129,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
                     IconUrl = _seriesDetails.Owner.IconUrl,
                 };
 
-                SeriesVideoPlaylist = new SeriesVideoPlaylist(new Models.Domain.Playlist.PlaylistId() { Id = seriesId, Origin = Models.Domain.Playlist.PlaylistItemsSourceOrigin.Series }, _seriesDetails);
-                SelectedSortOption = new SeriesPlaylistSortOption();
+                SeriesVideoPlaylist = new SeriesVideoPlaylist(new PlaylistId() { Id = seriesId, Origin = PlaylistItemsSourceOrigin.Series }, _seriesDetails);
+                SelectedSortOption = SeriesVideoPlaylist.DefaultSortOption;
+
+                this.ObserveProperty(x => x.SelectedSortOption).Subscribe(_ =>
+                {
+                    ResetList();
+                })
+                    .AddTo(_NavigatingCompositeDisposable);
             }
 
             await base.OnNavigatedToAsync(parameters);
@@ -163,6 +184,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
         private SeriesDetails.SeriesOwner _owner => _seriesVideoPlaylist.SeriesDetails.Owner;
         private readonly SeriesVideoPlaylist _seriesVideoPlaylist;
         private readonly SeriesPlaylistSortOption _selectedSortOption;
+        private List<SeriesDetails.SeriesVideo> _SortedItems;
 
         public SeriesVideosIncrementalSource(SeriesVideoPlaylist seriesVideoPlaylist, SeriesPlaylistSortOption selectedSortOption)
         {
@@ -174,8 +196,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 
         Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
         {
+            if (pageIndex == 0)
+            {
+                _SortedItems = _seriesVideoPlaylist.GetSortedItems(_selectedSortOption);
+            }
             var head = pageIndex * pageSize;
-            return Task.FromResult(_seriesVideoPlaylist.Videos.Skip(head).Take(pageSize).Select((item, i) =>
+            return Task.FromResult(_SortedItems.Skip(head).Take(pageSize).Select((item, i) =>
             {
                 var itemVM = new VideoListItemControlViewModel(item.Id, item.Title, item.ThumbnailUrl.OriginalString, item.Duration, item.PostAt)
                 {

@@ -1,5 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
+using I18NPortable;
+using Microsoft.Toolkit.Diagnostics;
 using NiconicoToolkit.Series;
 using NiconicoToolkit.Video;
 using System;
@@ -15,7 +17,7 @@ namespace Hohoema.Models.Domain.Niconico.Series
 
     public record SeriesPlaylistSortOption(SeriesVideoSortKey SortKey, PlaylistItemSortOrder SortOrder) : IPlaylistSortOption
     {
-        public string Label => string.Empty;
+        public string Label { get; } = $"SeriesVideoSortKey.{SortKey}_{SortOrder}".Translate();
 
         public bool Equals(IPlaylistSortOption other)
         {
@@ -63,7 +65,7 @@ namespace Hohoema.Models.Domain.Niconico.Series
 
         public PlaylistId PlaylistId { get; }
 
-        public static IPlaylistSortOption[] SortOptions { get; } = new []
+        public static SeriesPlaylistSortOption[] SortOptions { get; } = new []
         {
             SeriesVideoSortKey.AddedAt,
             SeriesVideoSortKey.PostedAt,
@@ -75,8 +77,8 @@ namespace Hohoema.Models.Domain.Niconico.Series
         .SelectMany(x => 
         {
             return new[] { 
-                    new SeriesPlaylistSortOption(x, PlaylistItemSortOrder.Desc) as IPlaylistSortOption,
-                    new SeriesPlaylistSortOption(x, PlaylistItemSortOrder.Asc) as IPlaylistSortOption,
+                    new SeriesPlaylistSortOption(x, PlaylistItemSortOrder.Desc),
+                    new SeriesPlaylistSortOption(x, PlaylistItemSortOrder.Asc),
                 };
         }).ToArray();
 
@@ -89,10 +91,45 @@ namespace Hohoema.Models.Domain.Niconico.Series
 
         public List<SeriesDetails.SeriesVideo> Videos => SeriesDetails.Videos;
 
+        static Comparison<SeriesDetails.SeriesVideo> GetComparision(SeriesVideoSortKey sortKey, PlaylistItemSortOrder sortOrder)
+        {
+            var isAsc = sortOrder == PlaylistItemSortOrder.Asc;
+            return sortKey switch
+            {
+                SeriesVideoSortKey.AddedAt => null,
+                SeriesVideoSortKey.PostedAt => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => DateTime.Compare(x.PostAt, y.PostAt) : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => DateTime.Compare(y.PostAt, x.PostAt),
+                SeriesVideoSortKey.Title => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => string.Compare(x.Title, y.Title) : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => string.Compare(y.Title, x.Title),
+                SeriesVideoSortKey.WatchCount => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => y.WatchCount - x.WatchCount : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => x.WatchCount - y.WatchCount,
+                SeriesVideoSortKey.MylistCount => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => y.MylistCount - x.MylistCount : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => x.MylistCount - y.MylistCount,
+                SeriesVideoSortKey.CommentCount => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => y.CommentCount - x.CommentCount : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => x.CommentCount - y.CommentCount,
+                _ => throw new NotSupportedException(sortKey.ToString()),
+            };
+        }
+
+        public List<SeriesDetails.SeriesVideo> GetSortedItems(SeriesPlaylistSortOption sortOption)
+        {
+            var list = SeriesDetails.Videos.ToList();
+            if (GetComparision(sortOption.SortKey, sortOption.SortOrder) is not null and var sortComparision)
+            {
+                list.Sort(sortComparision);
+            }
+            else if (sortOption.SortKey == SeriesVideoSortKey.AddedAt)
+            {
+                if (sortOption.SortOrder == PlaylistItemSortOrder.Desc)
+                {
+                    list.Reverse();
+                }
+            }
+
+            return list;
+        }
 
         public Task<IEnumerable<IVideoContent>> GetAllItemsAsync(IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(SeriesDetails.Videos.Select(x => new SeriesVideoItem(x, SeriesDetails.Owner) as IVideoContent));
+            Guard.IsOfType<SeriesPlaylistSortOption>(sortOption, nameof(sortOption));
+
+            var list = GetSortedItems(sortOption as SeriesPlaylistSortOption);
+            return Task.FromResult(list.Select(x => new SeriesVideoItem(x, SeriesDetails.Owner) as IVideoContent));
         }
     }
 

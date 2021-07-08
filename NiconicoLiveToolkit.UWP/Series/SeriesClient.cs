@@ -47,6 +47,7 @@ namespace NiconicoToolkit.Series
 
                     seriesDetails.Series = new SeriesDetails.SeriesItem()
                     {
+                        Id = seriesId,
                         ThumbnailUrl = thumbNode.GetAttribute("data-background-image").ToUri(),
                         Title = titleNode.TextContent,
                         Count = countNode.TextContent.Where(x => char.IsDigit(x)).ToInt()

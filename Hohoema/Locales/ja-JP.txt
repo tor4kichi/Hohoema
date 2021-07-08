@@ -980,6 +980,21 @@ MylistOpenVideoList = 動画一覧を開く
 UserSeriesListWithOwnerName = {0} のシリーズ一覧
 NoItems_UserSeries = シリーズはありません
 
+SeriesVideoSortKey.AddedAt_Asc = シリーズへの登録が古い順
+SeriesVideoSortKey.AddedAt_Desc = シリーズへの登録が新しい順
+SeriesVideoSortKey.PostedAt_Asc = 投稿が古い順
+SeriesVideoSortKey.PostedAt_Desc = 投稿が新しい順
+SeriesVideoSortKey.Title_Asc = タイトル昇順
+SeriesVideoSortKey.Title_Desc = タイトル降順
+SeriesVideoSortKey.WatchCount_Asc = 再生数が少ない順
+SeriesVideoSortKey.WatchCount_Desc = 再生数が多い順
+SeriesVideoSortKey.MylistCount_Asc = マイリスト登録数が少ない順
+SeriesVideoSortKey.MylistCount_Desc = マイリスト登録数が多い順
+SeriesVideoSortKey.CommentCount_Asc = コメント数が少ない順
+SeriesVideoSortKey.CommentCount_Desc = コメント数が多い順
+
+
+
 
 
 

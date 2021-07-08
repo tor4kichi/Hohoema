@@ -30,9 +30,9 @@ namespace Hohoema.Models.UseCase.Playlist
             {
                 PlaylistItemsSourceOrigin.Local => _localMylistPlaylistFactory.Value,
                 PlaylistItemsSourceOrigin.Mylist => _mylistPlaylistFactory.Value,
+                PlaylistItemsSourceOrigin.Series => _seriesVideoPlaylistFactory.Value,
                 PlaylistItemsSourceOrigin.ChannelVideos => null,
                 PlaylistItemsSourceOrigin.UserVideos => null,
-                PlaylistItemsSourceOrigin.Series => _seriesVideoPlaylistFactory.Value,
                 PlaylistItemsSourceOrigin.CommunityVideos => null,
                 PlaylistItemsSourceOrigin.SearchWithKeyword => null,
                 PlaylistItemsSourceOrigin.SearchWithTag => null,
