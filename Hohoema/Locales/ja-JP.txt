@@ -937,6 +937,19 @@ AllPlaySeriesVideos = シリーズのはじめから連続再生する
 UserVideosNoItems = 投稿動画はありません
 UserVideosIsPrivate = 投稿動画は非公開です
 
+UserVideoSortKey.RegisteredAt_Asc = 投稿が古い順
+UserVideoSortKey.RegisteredAt_Desc = 投稿が新しい順
+UserVideoSortKey.ViewCount_Asc = 再生数が少ない順
+UserVideoSortKey.ViewCount_Desc = 再生数が多い順
+UserVideoSortKey.LastCommentTime_Asc = コメント数が少ない順
+UserVideoSortKey.LastCommentTime_Desc = コメント数が多い順
+UserVideoSortKey.CommentCount_Asc = コメントが古い順
+UserVideoSortKey.CommentCount_Desc = コメントが新しい順
+UserVideoSortKey.MylistCount_Asc = マイリスト数が少ない順
+UserVideoSortKey.MylistCount_Desc = マイリスト数が多い順
+UserVideoSortKey.Duration_Asc = 動画時間が短い順
+UserVideoSortKey.Duration_Desc = 動画時間が長い順
+
 
 #### UserInfo ####
 UserFollower = フォロワー

@@ -173,6 +173,9 @@
     <Compile Include="Models.Domain\Niconico\Recommend\RecommendProvider.cs" />
     <Compile Include="Models.Domain\Niconico\Search\SearchHistory.cs" />
     <Compile Include="Models.Domain\Niconico\Search\SearchProvider.cs" />
+    <Compile Include="Models.Domain\Niconico\Video\NvapiVideoContent.cs" />
+    <Compile Include="Models.Domain\Niconico\User\UserVideoPlaylist.cs" />
+    <Compile Include="Models.Domain\Niconico\User\UserVideoPlaylistSortOption.cs" />
     <Compile Include="Models.Domain\Playlist\PlaylistItemSortOrder.cs" />
     <Compile Include="Models.Domain\Niconico\Series\SeriesVideoPlaylist.cs" />
     <Compile Include="Models.Domain\Niconico\User\IUser.cs" />

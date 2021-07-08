@@ -937,6 +937,19 @@ AllPlaySeriesVideos = 从系列赛开始连续播放
 UserVideosNoItems = 没有发布视频
 UserVideosIsPrivate = 发布的视频是私人的
 
+UserVideoSortKey.RegisteredAt_Asc = 按时间顺序发帖
+UserVideoSortKey.RegisteredAt_Desc = 按最新顺序发布的帖子
+UserVideoSortKey.ViewCount_Asc = 按视图升序
+UserVideoSortKey.ViewCount_Desc = 按观看次数降序排列
+UserVideoSortKey.LastCommentTime_Asc = 按评论升序
+UserVideoSortKey.LastCommentTime_Desc = 按评论数量降序排列
+UserVideoSortKey.CommentCount_Asc = 从最旧到最新的评论
+UserVideoSortKey.CommentCount_Desc = 评论是最新的
+UserVideoSortKey.MylistCount_Asc = 按 mylist 数量升序排列
+UserVideoSortKey.MylistCount_Desc = 按 mylist 数量降序排列
+UserVideoSortKey.Duration_Asc = 视频时间升序
+UserVideoSortKey.Duration_Desc = 视频时间最长
+
 
 #### UserInfo ####
 UserFollower = 追随者
