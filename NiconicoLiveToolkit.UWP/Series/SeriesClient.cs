@@ -134,7 +134,7 @@ namespace NiconicoToolkit.Series
                             {
                                 // ex) 19分前 投稿 
                                 // があるか知らないけど念の為
-                                var time = int.Parse(new string(videoRegisteredAtText.TakeWhile(c => char.IsDigit(c)).ToArray()));
+                                var time = int.Parse(new string(videoRegisteredAtText.Trim().TakeWhile(c => char.IsDigit(c)).ToArray()));
                                 postedAt = DateTime.Now - TimeSpan.FromMinutes(time);
                             }
                             else
