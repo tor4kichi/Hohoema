@@ -22,6 +22,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
@@ -154,11 +155,13 @@ namespace Hohoema.Models.Domain.Playlist
         }
     }
 
-    public sealed class BufferedShufflePlaylistItemsSource : ReadOnlyObservableCollection<IVideoContent>, IBufferedPlaylistItemsSource
+    public sealed class BufferedShufflePlaylistItemsSource : ReadOnlyObservableCollection<IVideoContent>, IBufferedPlaylistItemsSource, IDisposable
     {
         public const int MaxBufferSize = 2000;
         public const int DefaultBufferSize = 500;
 
+
+        CompositeDisposable _disposables;
         private readonly ISortablePlaylist _playlistItemsSource;
         public IPlaylistSortOption SortOption { get; }
         private readonly IScheduler _scheduler;
@@ -174,20 +177,22 @@ namespace Hohoema.Models.Domain.Playlist
             _playlistItemsSource = shufflePlaylist;
             SortOption = sortOption;
             _scheduler = scheduler;
+            _disposables = new CompositeDisposable();
 
             if (shufflePlaylist is IUserManagedPlaylist userManagedPlaylist)
             {
                 userManagedPlaylist.ObserveAddChangedItems<IVideoContent>()
-                    .Subscribe(args => 
+                    .Subscribe(args =>
                     {
-                        scheduler.Schedule(() => 
+                        scheduler.Schedule(() =>
                         {
                             Items.Clear();
                             isItemsFilled = false;
                             _ = GetAsync(0);
                             _IndexUpdateTimingSubject.OnNext(Unit.Default);
                         });
-                    });
+                    })
+                    .AddTo(_disposables);
 
                 userManagedPlaylist.ObserveRemoveChangedItems<IVideoContent>()
                     .Subscribe(args => 
@@ -201,7 +206,8 @@ namespace Hohoema.Models.Domain.Playlist
 
                             _IndexUpdateTimingSubject.OnNext(Unit.Default);
                         });
-                    });
+                    })
+                    .AddTo(_disposables);
             }
         }
 
@@ -236,11 +242,17 @@ namespace Hohoema.Models.Domain.Playlist
             var start = pageIndex * OneTimeLoadingItemsCount;
             return this.Items.Skip(start).Take(OneTimeLoadingItemsCount);
         }
+
+        public void Dispose()
+        {
+            _disposables.Dispose();
+        }
     }
 
-    public abstract class PlaylistPlayer : BindableBase
+    public abstract class PlaylistPlayer : BindableBase, IDisposable
     {
         private const int InvalidIndex = -1;
+        private readonly PlayerSettings _playerSettings;
         private readonly IScheduler _scheduler;
 
 
@@ -252,10 +264,17 @@ namespace Hohoema.Models.Domain.Playlist
         }
 
         IDisposable _IndexUpdateTimingSubscriber;
-
-        public PlaylistPlayer(IScheduler scheduler)
+        IDisposable _IsShuffleEnableSubscriber;
+        public PlaylistPlayer(PlayerSettings playerSettings, IScheduler scheduler)
         {
+            _playerSettings = playerSettings;
             _scheduler = scheduler;
+
+            _IsShuffleEnableSubscriber = _playerSettings.ObserveProperty(x => x.IsShuffleEnable)
+                .Subscribe(enabled =>
+                {
+                    _scheduler.Schedule(() => RaisePropertyChanged(nameof(IsShuffleModeRequested)));
+                });
         }
 
         private int[] _shuffledIndexies;
@@ -284,7 +303,7 @@ namespace Hohoema.Models.Domain.Playlist
             {
                 if (SetProperty(ref _isUnlimitedPlaylistSource, value))
                 {
-                    RaisePropertyChanged(nameof(IsShuffleAndRepeatAvairable));
+                    RaisePropertyChanged(nameof(IsShuffleAndRepeatAvailable));
                     RaisePropertyChanged(nameof(IsShuffleModeEnabled));
                 }
             }
@@ -296,22 +315,13 @@ namespace Hohoema.Models.Domain.Playlist
             get { return _currentPlayingIndex; }
             protected set { SetProperty(ref _currentPlayingIndex, value); }
         }
-        public bool IsShuffleAndRepeatAvairable => !IsUnlimitedPlaylistSource;
 
-        private bool _isShuffleModeRequested;
-        public bool IsShuffleModeRequested
-        {
-            get { return _isShuffleModeRequested; }
-            set 
-            {
-                if (SetProperty(ref _isShuffleModeRequested, value))
-                {
-                    RaisePropertyChanged(nameof(IsShuffleModeEnabled));
-                }
-            }
-        }
+        public bool IsShuffleAndRepeatAvailable => !IsUnlimitedPlaylistSource;
 
-        public bool IsShuffleModeEnabled => IsShuffleAndRepeatAvairable && IsShuffleModeRequested;
+        public bool IsShuffleModeRequested => _playerSettings.IsShuffleEnable;
+
+
+        public bool IsShuffleModeEnabled => IsShuffleAndRepeatAvailable && IsShuffleModeRequested;
 
         public IObservable<ReadOnlyObservableCollection<IVideoContent>> GetBufferedItems()
         {
@@ -402,7 +412,13 @@ namespace Hohoema.Models.Domain.Playlist
             if (CurrentPlayingIndex == InvalidIndex) { return null; }
             if (BufferedPlaylistItemsSource == null) { return null; }
 
-            int index = IndexTranformWithCurrentPlaylistMode(CurrentPlayingIndex + 1);
+            int candidateIndex = CurrentPlayingIndex + 1;
+            if (candidateIndex >= BufferedPlaylistItemsSource.BufferLength)
+            {
+                return null;
+            }
+
+            int index = IndexTranformWithCurrentPlaylistMode(candidateIndex);
             return await BufferedPlaylistItemsSource.GetAsync(index, ct);
         }
 
@@ -411,7 +427,13 @@ namespace Hohoema.Models.Domain.Playlist
             if (CurrentPlayingIndex == InvalidIndex) { return null; }
             if (BufferedPlaylistItemsSource == null) { return null; }
 
-            int index = IndexTranformWithCurrentPlaylistMode(CurrentPlayingIndex - 1);
+            int candidateIndex = CurrentPlayingIndex - 1;
+            if (candidateIndex <= -1)
+            {
+                return null;
+            }
+
+            int index = IndexTranformWithCurrentPlaylistMode(candidateIndex);
             return await BufferedPlaylistItemsSource.GetAsync(index, ct);
         }
 
@@ -425,6 +447,16 @@ namespace Hohoema.Models.Domain.Playlist
             }
             
             return IsShuffleModeEnabled ? ToShuffledIndex(index) : index;
+        }        
+
+        public IObservable<bool> GetCanGoNextOrPreviewObservable()
+        {
+            return Observable.CombineLatest(
+                this.ObserveProperty(x => x.IsShuffleModeRequested),
+                this.ObserveProperty(x => x.IsUnlimitedPlaylistSource),
+                this.ObserveProperty(x => x.CurrentPlayingIndex).Select(x => x >= 0)
+                )
+                .Select(x => x[1] == false && x[2]);
         }
 
         public async ValueTask<bool> CanGoNextAsync(CancellationToken ct = default)
@@ -443,14 +475,15 @@ namespace Hohoema.Models.Domain.Playlist
             if (CurrentPlayingIndex == InvalidIndex) { return false; }
             if (BufferedPlaylistItemsSource == null) { return false; }
 
-            int index = IndexTranformWithCurrentPlaylistMode(CurrentPlayingIndex + 1);
-            if (index >= (_maxItemsCount ?? 5000)) { return false; }
-            Guard.IsBetweenOrEqualTo(index, 0, _maxItemsCount ?? 5000, nameof(index));
-            var item = await BufferedPlaylistItemsSource.GetAsync(index, ct);
+            var realIndex = CurrentPlayingIndex + 1;
+            int transformedIndex = IndexTranformWithCurrentPlaylistMode(realIndex);
+            if (transformedIndex >= (_maxItemsCount ?? 5000)) { return false; }
+            Guard.IsBetweenOrEqualTo(transformedIndex, 0, _maxItemsCount ?? 5000, nameof(transformedIndex));
+            var item = await BufferedPlaylistItemsSource.GetAsync(transformedIndex, ct);
             if (item != null)
             {
                 await PlayVideoOnSamePlaylistAsync_Internal(item);
-                SetCurrentContent(item, index);
+                SetCurrentContent(item, realIndex);
                 return true;
             }
             else
@@ -464,14 +497,15 @@ namespace Hohoema.Models.Domain.Playlist
             if (CurrentPlayingIndex == InvalidIndex) { return false; }
             if (BufferedPlaylistItemsSource == null) { return false; }
 
-            int index = IndexTranformWithCurrentPlaylistMode(CurrentPlayingIndex - 1);
-            if (index < 0) { return false; }
-            Guard.IsBetweenOrEqualTo(index, 0, _maxItemsCount ?? 5000, nameof(index));
-            var item = await BufferedPlaylistItemsSource.GetAsync(index, ct);
+            var realIndex = CurrentPlayingIndex - 1;
+            if (realIndex < 0) { return false; }
+            int transformedIndex = IndexTranformWithCurrentPlaylistMode(realIndex);
+            Guard.IsBetweenOrEqualTo(realIndex, 0, _maxItemsCount ?? 5000, nameof(transformedIndex));
+            var item = await BufferedPlaylistItemsSource.GetAsync(transformedIndex, ct);
             if (item != null)
             {
                 await PlayVideoOnSamePlaylistAsync_Internal(item);
-                SetCurrentContent(item, index);
+                SetCurrentContent(item, realIndex);
                 return true;
             }
             else
@@ -482,6 +516,11 @@ namespace Hohoema.Models.Domain.Playlist
 
         protected abstract Task PlayVideoOnSamePlaylistAsync_Internal(IVideoContent item, TimeSpan? startPosition = null);
 
+        public virtual void Dispose()
+        {
+            _IndexUpdateTimingSubscriber?.Dispose();
+            _IsShuffleEnableSubscriber?.Dispose();
+        }
     }
 
 
@@ -506,7 +545,7 @@ namespace Hohoema.Models.Domain.Playlist
             MediaPlayerSoundVolumeManager soundVolumeManager,
             RestoreNavigationManager restoreNavigationManager
             )
-            : base(scheduler)
+            : base(playerSettings, scheduler)
         {
             _messenger = messenger;
             _mediaPlayer = mediaPlayer;
@@ -544,6 +583,12 @@ namespace Hohoema.Models.Domain.Playlist
 
         }
 
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            _videoSessionDisposable?.Dispose();
+        }
 
         private readonly DispatcherQueueTimer _saveTimer;
 

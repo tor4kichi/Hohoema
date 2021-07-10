@@ -27,7 +27,9 @@
 
       <toolkit:DockPanel x:Name="HeaderLayout" toolkit:DockPanel.Dock="Top">
         <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
-          <ToggleButton IsChecked="{Binding IsShuffleEnabled.Value, Mode=TwoWay}" UseSystemFocusVisuals="True" Margin="8 0 0 0" x:Name="ShuffleSwitchingButton" Background="Transparent">
+          <ToggleButton IsChecked="{Binding IsShuffleEnabled.Value, Mode=TwoWay}" UseSystemFocusVisuals="True" Margin="8 0 0 0" x:Name="ShuffleSwitchingButton" Background="Transparent"
+                        IsEnabled="{Binding IsShuffleAvailable.Value}"
+                        >
             <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon" Kind="Shuffle" RenderTransformOrigin="0.5, 0.5">
               <iconPack:PackIconMaterial.RenderTransform>
                 <CompositeTransform ScaleX="1.1" ScaleY="1.1" />

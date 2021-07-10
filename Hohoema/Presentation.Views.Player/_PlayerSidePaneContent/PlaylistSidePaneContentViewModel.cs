@@ -56,18 +56,19 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             IsShuffleEnabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnable, _scheduler)
                 .AddTo(_CompositeDisposable);
 
+            IsShuffleAvailable = _hohoemaPlaylistPlayer.ObserveProperty(x => x.IsShuffleAndRepeatAvailable)
+                .ToReadOnlyReactiveProperty(eventScheduler: _scheduler)
+                .AddTo(_CompositeDisposable);
+
             IsListRepeatModeEnable = _playerSettings.ObserveProperty(x => x.IsPlaylistLoopingEnabled)
                 .ToReactiveProperty(_scheduler)
                 .AddTo(_CompositeDisposable);
 
-            IsReverseEnabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsReverseModeEnable, _scheduler)
-                .AddTo(_CompositeDisposable);
-
-            PlaylistCanGoBack = _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlayingIndex)
+            PlaylistCanGoBack = _hohoemaPlaylistPlayer.GetCanGoNextOrPreviewObservable()
                 .SelectMany(async _ => await _hohoemaPlaylistPlayer.CanGoPreviewAsync())
                 .ToReactiveProperty(_scheduler)
                 .AddTo(_CompositeDisposable);
-            PlaylistCanGoNext = _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlayingIndex)
+            PlaylistCanGoNext = _hohoemaPlaylistPlayer.GetCanGoNextOrPreviewObservable()
                 .SelectMany(async _ => await _hohoemaPlaylistPlayer.CanGoNextAsync())
                 .ToReactiveProperty(_scheduler)
                 .AddTo(_CompositeDisposable);
@@ -81,6 +82,9 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                     });
                 })
                 .AddTo(_CompositeDisposable);
+
+
+            
         }
 
         public override void Dispose()
@@ -115,6 +119,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         public PageManager PageManager { get; }
 
         public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
+        public ReadOnlyReactiveProperty<bool> IsShuffleAvailable { get; }
         public ReactiveProperty<bool> IsTrackRepeatModeEnable { get; private set; }
         public ReactiveProperty<bool> IsListRepeatModeEnable { get; private set; }
         public ReactiveProperty<bool> IsReverseEnabled { get; private set; }

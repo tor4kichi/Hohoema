@@ -175,10 +175,10 @@ namespace Hohoema.Presentation.ViewModels.Player
             IsLoopingEnabled.Subscribe(x => mediaPlayer.IsLoopingEnabled = x)
                 .AddTo(_CompositeDisposable);
 
-            IsPlaylistShuffleRequeted = _hohoemaPlaylistPlayer.ToReactivePropertyAsSynchronized(x => x.IsShuffleModeRequested, _scheduler)
+            IsPlaylistShuffleRequeted = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnable, _scheduler)
                 .AddTo(_CompositeDisposable);
 
-            IsAvailablePlaylistRepeatOrShuffle = _hohoemaPlaylistPlayer.ObserveProperty(x => x.IsShuffleAndRepeatAvairable)
+            IsAvailablePlaylistRepeatOrShuffle = _hohoemaPlaylistPlayer.ObserveProperty(x => x.IsShuffleAndRepeatAvailable)
                 .ToReadOnlyReactiveProperty();
 
         }
