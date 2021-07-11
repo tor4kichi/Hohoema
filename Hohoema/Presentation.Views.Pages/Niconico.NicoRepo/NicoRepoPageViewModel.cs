@@ -5,7 +5,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Presentation.ViewModels.VideoListPage;
@@ -30,6 +30,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Uno.Extensions;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
 {
@@ -38,24 +39,23 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
         public NicoRepoPageViewModel(
             IScheduler scheduler,
             ApplicationLayoutManager applicationLayoutManager,
-            HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             PageManager pageManager,
             NicoRepoSettings activityFeedSettings,
             LoginUserNicoRepoProvider loginUserNicoRepoProvider,
             SubscriptionManager subscriptionManager,
-            OpenLiveContentCommand openLiveContentCommand
+            OpenLiveContentCommand openLiveContentCommand,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand
             )
         {
             _scheduler = scheduler;
             ApplicationLayoutManager = applicationLayoutManager;
-            HohoemaPlaylist = hohoemaPlaylist;
             _nicoVideoProvider = nicoVideoProvider;
             ActivityFeedSettings = activityFeedSettings;
             LoginUserNicoRepoProvider = loginUserNicoRepoProvider;
             SubscriptionManager = subscriptionManager;
             _openLiveContentCommand = openLiveContentCommand;
-            
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             NicoRepoType = new ReactiveProperty<NicoRepoType>(NiconicoToolkit.NicoRepo.NicoRepoType.Video, mode:ReactivePropertyMode.DistinctUntilChanged);
             NicoRepoDisplayTarget = new ReactiveProperty<NicoRepoDisplayTarget>(mode: ReactivePropertyMode.DistinctUntilChanged);
 
@@ -87,12 +87,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
         public ReactiveProperty<NicoRepoDisplayTarget> NicoRepoDisplayTarget { get; }
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoRepoSettings ActivityFeedSettings { get; }
         public LoginUserNicoRepoProvider LoginUserNicoRepoProvider { get; }
         public SubscriptionManager SubscriptionManager { get; }
-
-
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
@@ -134,7 +132,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             {
                 if (item is NicoRepoVideoTimeline videoItem)
                 {
-                    HohoemaPlaylist.Play(videoItem);
+                    var command = VideoPlayWithQueueCommand as ICommand;
+                    if (command.CanExecute(videoItem))
+                    {
+                        command.Execute(videoItem);
+                    }
                 }
                 else if (item is NicoRepoLiveTimeline liveItem)
                 {

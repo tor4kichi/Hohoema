@@ -30,6 +30,7 @@ namespace NiconicoToolkit.Channels
         }
 
 
+
         public enum ChannelAdmissionAdditinals
         {
             [Description("channelMemberProduct")]
@@ -64,10 +65,13 @@ namespace NiconicoToolkit.Channels
             return _context.GetJsonAsAsync<ChannelInfo>($"{NiconicoUrls.ChannelApiUrl}ch.info/{channelId.ToStringWithoutPrefix()}", _options);
         }
 
+        public const int OneTimeItemsCountOnGetChannelVideoAsync = 20;
+
         public Task<ChannelVideoResponse> GetChannelVideoAsync(ChannelId channelId, int page, ChannelVideoSortKey? sortKey = null, ChannelVideoSortOrder? sortOrder = null)
         {
             return GetChannelVideoAsync_Internal(NiconicoUrls.MakeChannelPageUrl(channelId), page, sortKey, sortOrder);
         }
+
 
         public Task<ChannelVideoResponse> GetChannelVideoAsync(string channelIdOrScreenName, int page, ChannelVideoSortKey? sortKey = null, ChannelVideoSortOrder? sortOrder = null)
         {

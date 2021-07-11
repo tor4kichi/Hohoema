@@ -26,9 +26,10 @@
 
   <Grid>
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
-                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                      ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
+                                      PlaylistPassToFlyout="{Binding ChannelVideoPlaylist}"
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
@@ -39,24 +40,6 @@
             </CommandBar.Content>
 
             <CommandBar.PrimaryCommands>
-              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
-
-              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
-                <i:Interaction.Behaviors>
-                  <core:EventTriggerBehavior EventName="Click">
-                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                  </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-              </AppBarButton>
-
-              <AppBarButton x:Name="RefreshButton"
-                              Label="{i18nExt:Localize Key=Refresh}" 
-                              Icon="Refresh"
-                              Command="{Binding RefreshCommand}"
-                              IsEnabled="{Binding CanChangeSort.Value}"
-                              VerticalAlignment="Center"
-                          >
-              </AppBarButton>
 
               <AppBarToggleButton x:Name="ChannelFollowButton"
                                     Background="Transparent"
@@ -66,8 +49,48 @@
                                     Label="{i18nExt:Localize Key=Follow}"
                                     Visibility="Collapsed"
                                     />
+
+              <AppBarElementContainer>
+                <ComboBox ItemsSource="{Binding SortOptions}"
+                          SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
+                          IsEnabled="{Binding NowLoading.Value, Converter={StaticResource BoolNegation}}"
+                          >
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Label}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </AppBarElementContainer>
+
+              <AppBarButton x:Name="PlayAllButton"
+                                Icon="Play"
+                                Label="{i18nExt:Localize Key=PlayAll}"
+                                Command="{Binding PlaylistPlayAllCommand}"
+                                CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
+
+              
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Click">
+                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
+              <AppBarButton x:Name="RefreshButton"
+                              Label="{i18nExt:Localize Key=Refresh}" 
+                              Icon="Refresh"
+                              Command="{Binding RefreshCommand}"
+                              IsEnabled="{Binding CanChangeSort.Value}"
+                              VerticalAlignment="Center"
+                          >
+              </AppBarButton>
+
               <AppBarButton Label="{i18nExt:Localize Key=OpenWithBrowser}"
                                             Command="{Binding OpenLinkCommand}"
                                               CommandParameter="{Binding ChannelInfo}"

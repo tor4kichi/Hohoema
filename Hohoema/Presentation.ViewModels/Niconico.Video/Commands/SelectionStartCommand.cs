@@ -6,7 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Prism.Ioc;
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.Niconico.Video;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {

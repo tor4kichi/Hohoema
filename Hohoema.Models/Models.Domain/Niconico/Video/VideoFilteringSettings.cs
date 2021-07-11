@@ -244,7 +244,8 @@ namespace Hohoema.Models.Domain.Niconico.Video
         public VideoTitleFilteringEntry CreateVideoTitleFiltering()
         {
             _cacheTitleFilteringEntry ??= _videoTitleFilteringRepository.ReadAllItems();
-            var entry = _videoTitleFilteringRepository.CreateItem(new VideoTitleFilteringEntry());
+            var entry = new VideoTitleFilteringEntry();
+            _videoTitleFilteringRepository.CreateItem(entry);
             _cacheTitleFilteringEntry.Add(entry);
             return entry;
         }

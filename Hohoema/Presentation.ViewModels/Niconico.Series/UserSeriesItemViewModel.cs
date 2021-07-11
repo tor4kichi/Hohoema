@@ -1,6 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Video.Series;
 using NiconicoToolkit.Series;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Series
 {
@@ -25,7 +26,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Series
 
         public int ItemsCount => (int)_userSeries.ItemsCount;
 
-        public string ProviderType => _userSeries.Owner.Type;
+        public OwnerType ProviderType => _userSeries.Owner.Type;
 
         public string ProviderId => _userSeries.Owner.Id;        
     }

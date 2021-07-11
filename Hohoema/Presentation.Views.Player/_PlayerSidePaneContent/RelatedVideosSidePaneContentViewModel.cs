@@ -2,8 +2,7 @@
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Helpers;
-using Hohoema.Models.UseCase.NicoVideos;
-using Hohoema.Models.UseCase.NicoVideos.Player;
+using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using NiconicoToolkit;
@@ -16,6 +15,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
+using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {
@@ -23,22 +24,24 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
     {
         public RelatedVideosSidePaneContentViewModel(
             NiconicoSession niconicoSession,
-            HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            RelatedVideoContentsAggregator relatedVideoContentsAggregator
+            RelatedVideoContentsAggregator relatedVideoContentsAggregator,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand
            )
         {
             _niconicoSession = niconicoSession;
-            _hohoemaPlaylist = hohoemaPlaylist;
             _pageManager = pageManager;
             _relatedVideoContentsAggregator = relatedVideoContentsAggregator;
-            PlayCommand = _hohoemaPlaylist.PlayCommand;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             OpenMylistCommand = _pageManager.OpenPageCommand;
         }
 
+        private readonly NiconicoSession _niconicoSession;
+        private readonly PageManager _pageManager;
+        private readonly RelatedVideoContentsAggregator _relatedVideoContentsAggregator;
 
-        public DelegateCommand<object> PlayCommand { get; }
         public DelegateCommand<object> OpenMylistCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
         public List<VideoListItemControlViewModel> Videos { get; private set; }
 
@@ -51,10 +54,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         public Models.Helpers.AsyncLock _InitializeLock = new Models.Helpers.AsyncLock();
 
         private bool _IsInitialized = false;
-        private readonly NiconicoSession _niconicoSession;
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
-        private readonly PageManager _pageManager;
-        private readonly RelatedVideoContentsAggregator _relatedVideoContentsAggregator;
 
         public bool NowLoading { get; private set; }
 

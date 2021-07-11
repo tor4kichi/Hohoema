@@ -5,13 +5,13 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.Services;
 using Prism.Commands;
-using Hohoema.Models.UseCase.NicoVideos;
 using System.Linq;
 using System.Collections.Generic;
 using Hohoema.Dialogs;
 using Uno.Extensions;
 using System;
 using System.Threading.Tasks;
+using Hohoema.Models.UseCase.Playlist;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
@@ -59,7 +59,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
             if (targetMylist != null)
             {
-                var addedResult = await targetMylist.AddItem(items.Select(x => x.VideoId));
+                var addedResult = await targetMylist.AddItem(items);
                 if (addedResult.SuccessedItems.Any() && addedResult.FailedItems.Empty())
                 {
 //                    NotificationService.ShowLiteInAppNotification("InAppNotification_MylistAddedItems_Success".Translate(targetMylist.Label, addedResult.SuccessedItems.Count));

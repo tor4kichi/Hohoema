@@ -9,6 +9,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 {
     public interface IVideoContent : INiconicoContent, IEquatable<IVideoContent>
     {
+        //string Title { get; }
         VideoId VideoId { get; }
         TimeSpan Length { get; }
         string ThumbnailUrl { get; }

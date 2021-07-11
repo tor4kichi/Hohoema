@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Microsoft.Toolkit.Uwp.UI;
@@ -15,6 +15,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Hohoema.Models.Domain.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 {
@@ -54,7 +56,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 
             OpenMylistCommand.Subscribe(listItem =>
             {
-                _pageManager.OpenPageWithId(HohoemaPageType.LocalPlaylist, listItem.Id);
+                _pageManager.OpenPageWithId(HohoemaPageType.LocalPlaylist, listItem.PlaylistId.Id);
             });
 
 
@@ -69,7 +71,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 
                 if (result is not null)
                 {
-                    playlist.UpdateLabel(result);
+                    playlist.Name = result;
                 }
             });
         }

@@ -169,7 +169,7 @@ namespace Hohoema.Models.Domain.PageNavigation
         
         public TimeSpan Position { get; set; }
 
-        public PlaylistOrigin? PlaylistOrigin { get; set; }
+        public PlaylistItemsSourceOrigin? PlaylistOrigin { get; set; }
         public string PlaylistId { get; set; }
     }
 

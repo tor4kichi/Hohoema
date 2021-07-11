@@ -26,8 +26,8 @@ namespace NiconicoToolkit.Mylist.LoginUser
         [JsonPropertyName("items")]
         public MylistItem[] Items { get; set; }
 
-        [JsonPropertyName("totalItemCount")]
-        public long TotalItemCount { get; set; }
+        [JsonPropertyName("totalCount")]
+        public long TotalCount { get; set; }
 
         [JsonPropertyName("hasNext")]
         public bool HasNext { get; set; }

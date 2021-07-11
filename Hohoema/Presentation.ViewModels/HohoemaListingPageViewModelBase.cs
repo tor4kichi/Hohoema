@@ -44,6 +44,7 @@ namespace Hohoema.Presentation.ViewModels
             {
             }
 
+            
             int _timing = 0;
             List<ITEM_VM> _dividedPresentItemsSource;
             int _firstItemsCount = 0;
@@ -58,6 +59,11 @@ namespace Hohoema.Presentation.ViewModels
                     if (!listedItems.Any())
                     {
                         return Enumerable.Empty<ITEM_VM>();
+                    }
+
+                    if (listedItems.Count == 1)
+                    {
+                        return listedItems;
                     }
 
                     _dividedPresentItemsSource = listedItems;

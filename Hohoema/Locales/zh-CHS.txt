@@ -602,9 +602,9 @@ FollowItemType.Tag = 标签
 FollowItemType.Community = 社区
 FollowItemType.Channel = 频道
 
-FollowAddedNotification_WithItemName = 跟随“{0}”
-FollowRemovedNotification_WithItemName = 未关注的“{0}”
-ConfirmRemoveFollow_DialogDescWithItemName = 取消关注“{0}”
+FollowAddedNotification_WithItemName = 跟随 “{0}”
+FollowRemovedNotification_WithItemName = 未关注的 “{0}”
+ConfirmRemoveFollow_DialogDescWithItemName = 取消关注 “{0}”
 ConfirmRemoveFollow_DialogTitle = 确认取消关注
 RemoveFollow = 取消关注
 
@@ -628,20 +628,20 @@ NicoRepoDisplayTarget.Channel = 渠道
 NicoRepoDisplayTarget.Community = 社区
 NicoRepoDisplayTarget.Mylist = 我的列表
 
-NicoRepoMuteContextTrigger.Unknown = 不明
-NicoRepoMuteContextTrigger.Live_Channel_Program_Onairs = 直播开始（频道）
-NicoRepoMuteContextTrigger.Live_Channel_Program_Reserve = 直播预定（频道）
-NicoRepoMuteContextTrigger.Live_User_Program_OnAirs = 直播开始（用户）
-NicoRepoMuteContextTrigger.Live_User_Program_Reserve = 直播预定（用户）
-NicoRepoMuteContextTrigger.NicoVideo_Channel_Blomaga_Upload = Blomaga邮政
-NicoRepoMuteContextTrigger.NicoVideo_Channel_Video_Upload = 频道视频发布
-NicoRepoMuteContextTrigger.NicoVideo_Community_Level_Raise = 社区水平上升
-NicoRepoMuteContextTrigger.NicoVideo_User_Community_Video_Add = 视频的社区注册
-NicoRepoMuteContextTrigger.NicoVideo_User_Mylist_Add_Video = 在我的列表中注册视频
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_Advertise = 用户视频已发布
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_Kiriban_Play = 播放编号
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_UpdateHighestRankings = 排名最新
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_Upload = 用户视频发布
+NicoRepoItemTopic.Unknown = 不明
+NicoRepoItemTopic.Live_Channel_Program_Onairs = 直播开始（频道）
+NicoRepoItemTopic.Live_Channel_Program_Reserve = 直播预定（频道）
+NicoRepoItemTopic.Live_User_Program_OnAirs = 直播开始（用户）
+NicoRepoItemTopic.Live_User_Program_Reserve = 直播预定（用户）
+NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload = Blomaga邮政
+NicoRepoItemTopic.NicoVideo_Channel_Video_Upload = 频道视频发布
+NicoRepoItemTopic.NicoVideo_Community_Level_Raise = 社区水平上升
+NicoRepoItemTopic.NicoVideo_User_Community_Video_Add = 视频的社区注册
+NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video = 在我的列表中注册视频
+NicoRepoItemTopic.NicoVideo_User_Video_Advertise = 用户视频已发布
+NicoRepoItemTopic.NicoVideo_User_Video_Kiriban_Play = 播放编号
+NicoRepoItemTopic.NicoVideo_User_Video_UpdateHighestRankings = 排名最新
+NicoRepoItemTopic.NicoVideo_User_Video_Upload = 用户视频发布
 
 NicorepoNoItems = 没有可显示的Nirekopo
 
@@ -717,28 +717,28 @@ CommunitySearchNoItems = 没有与关键字匹配的社区
 SearchHistory = 搜索记录
 RemoveSearchHistory = 从搜索记录中删除
 
-Sort.NewComment_Ascending = 最早的评论
-Sort.NewComment_Descending = 最新评论
-Sort.ViewCount_Ascending = 观看次数最少的顺序
-Sort.ViewCount_Descending = 最多玩
-Sort.MylistCount_Ascending = 我列表中数量最少的订单
-Sort.MylistCount_Descending = 最我的清单
-Sort.CommentCount_Ascending = 评论最少的顺序
-Sort.CommentCount_Descending = 评论最多的顺序
-Sort.FirstRetrieve_Ascending = 最早的发布日期
-Sort.FirstRetrieve_Descending = 最新发布日期
-Sort.Length_Ascending = 视频时间最短
-Sort.Length_Descending = 最长的录像时间
-Sort.Popurarity_Ascending = 人气下降
-Sort.Popurarity_Descending = 最受欢迎的
-Sort.MylistPopurarity_Ascending = 人气下降
-Sort.MylistPopurarity_Descending = 最受欢迎的
-Sort.VideoCount_Ascending = 视频最少的顺序
-Sort.VideoCount_Descending = 多数视频优先
-Sort.UpdateTime_Ascending = 最旧的更新优先
-Sort.UpdateTime_Descending = 更新是最新的
-Sort.Relation_Ascending = 精度降序
-Sort.Relation_Descending = 精度降序
+VideoSortKey.NewComment_Asc = 最早的评论
+VideoSortKey.NewComment_Desc = 最新评论
+VideoSortKey.ViewCount_Asc = 观看次数最少的顺序
+VideoSortKey.ViewCount_Desc = 最多玩
+VideoSortKey.MylistCount_Asc = 我列表中数量最少的订单
+VideoSortKey.MylistCount_Desc = 最我的清单
+VideoSortKey.CommentCount_Asc = 评论最少的顺序
+VideoSortKey.CommentCount_Desc = 评论最多的顺序
+VideoSortKey.FirstRetrieve_Asc = 最早的发布日期
+VideoSortKey.FirstRetrieve_Desc = 最新发布日期
+VideoSortKey.Length_Asc = 视频时间最短
+VideoSortKey.Length_Desc = 最长的录像时间
+VideoSortKey.Popurarity_Asc = 人气下降
+VideoSortKey.Popurarity_Desc = 最受欢迎的
+VideoSortKey.MylistPopurarity_Asc = 人气下降
+VideoSortKey.MylistPopurarity_Desc = 最受欢迎的
+VideoSortKey.VideoCount_Asc = 视频最少的顺序
+VideoSortKey.VideoCount_Desc = 多数视频优先
+VideoSortKey.UpdateTime_Asc = 最旧的更新优先
+VideoSortKey.UpdateTime_Desc = 更新是最新的
+VideoSortKey.Relation_Asc = 精度降序
+VideoSortKey.Relation_Desc = 精度降序
 
 MylistSort.TitleAsc = 标题升序
 MylistSort.TitleDesc = 标题降序
@@ -820,6 +820,14 @@ InAppNotification_LocalPlaylistAddedItems = 已将{1}个视频添加到{0}
 InAppNotification_LocalPlaylistRemovedItems = {1}个视频已从{0}中删除
 LocalPlaylistOpenVideoList = 打开视频列表
 LocalPlaylistChangeThumbnail = 更改缩略图
+
+LocalMylistSortKey.AddedAt_Desc = 添加是最新的
+LocalMylistSortKey.AddedAt_Asc = 补充是按时间顺序
+LocalMylistSortKey.Title_Desc = 标题降序
+LocalMylistSortKey.Title_Asc = 标题升序
+LocalMylistSortKey.PostedAt_Desc = 发布日期是最新的
+LocalMylistSortKey.PostedAt_Asc = 发布日期最早
+
 
 
 #### Queue ####
@@ -929,6 +937,19 @@ AllPlaySeriesVideos = 从系列赛开始连续播放
 UserVideosNoItems = 没有发布视频
 UserVideosIsPrivate = 发布的视频是私人的
 
+UserVideoSortKey.RegisteredAt_Asc = 按时间顺序发帖
+UserVideoSortKey.RegisteredAt_Desc = 按最新顺序发布的帖子
+UserVideoSortKey.ViewCount_Asc = 按视图升序
+UserVideoSortKey.ViewCount_Desc = 按观看次数降序排列
+UserVideoSortKey.LastCommentTime_Asc = 从最旧到最新的评论
+UserVideoSortKey.LastCommentTime_Desc = 评论是最新的
+UserVideoSortKey.CommentCount_Asc = 从最旧到最新的评论
+UserVideoSortKey.CommentCount_Desc = 按评论数量降序排列
+UserVideoSortKey.MylistCount_Asc = 按 mylist 数量升序排列
+UserVideoSortKey.MylistCount_Desc = 按 mylist 数量降序排列
+UserVideoSortKey.Duration_Asc = 视频时间升序
+UserVideoSortKey.Duration_Desc = 视频时间最长
+
 
 #### UserInfo ####
 UserFollower = 追随者
@@ -972,6 +993,21 @@ MylistOpenVideoList = 打开视频列表
 UserSeriesListWithOwnerName = {0}系列列表
 NoItems_UserSeries = 没有系列
 
+SeriesVideoSortKey.AddedAt_Asc = 最新注册
+SeriesVideoSortKey.AddedAt_Desc = 注册时间最长
+SeriesVideoSortKey.PostedAt_Asc = 按最新顺序发布的帖子
+SeriesVideoSortKey.PostedAt_Desc = 按时间顺序发帖
+SeriesVideoSortKey.Title_Asc = 标题升序
+SeriesVideoSortKey.Title_Desc = 标题降序
+SeriesVideoSortKey.WatchCount_Asc = 按视图升序
+SeriesVideoSortKey.WatchCount_Desc = 按观看次数降序排列
+SeriesVideoSortKey.MylistCount_Asc = 按我的列表注册数量的升序排列
+SeriesVideoSortKey.MylistCount_Desc = 按我的列表注册数量降序排列
+SeriesVideoSortKey.CommentCount_Asc = 按评论升序
+SeriesVideoSortKey.CommentCount_Desc = 按评论数量降序排列
+
+
+
 
 
 
@@ -1006,3 +1042,16 @@ CommunityVidoes = 社区视频
 #### Channel ####
 ChannelVideoNoItems = 无频道影片
 InAppNotification_CanNotCacheChannelVideos_ForContentProtection = 频道视频无法缓存以进行内容保护
+
+ChannelVideoSortKey.FirstRetrieve_Asc = 按时间顺序发帖
+ChannelVideoSortKey.FirstRetrieve_Desc = 按最新顺序发布的帖子
+ChannelVideoSortKey.ViewCount_Asc = 按视图升序
+ChannelVideoSortKey.ViewCount_Desc = 按观看次数降序排列
+ChannelVideoSortKey.CommentCount_Asc = 按评论升序
+ChannelVideoSortKey.CommentCount_Desc = 按评论数量降序排列
+ChannelVideoSortKey.MylistCount_Asc = 按 mylist 数量升序排列
+ChannelVideoSortKey.MylistCount_Desc = 按 mylist 数量降序排列
+ChannelVideoSortKey.NewComment_Asc = 从最旧到最新的评论
+ChannelVideoSortKey.NewComment_Desc = 评论是最新的
+ChannelVideoSortKey.Length_Asc = 视频时间升序
+ChannelVideoSortKey.Length_Desc = 视频时间最长

@@ -15,11 +15,12 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
         public FollowMylistViewModel(NvapiMylistItem followMylist)
         {
             _followMylist = followMylist;
+            PlaylistId = new PlaylistId() { Id = followMylist.Id, Origin = PlaylistItemsSourceOrigin.Mylist };
         }
 
         public string Name => _followMylist.Name;
 
-        string IPlaylist.Id => _followMylist.Id.ToString();
+        public PlaylistId PlaylistId { get; }
 
         public MylistId MylistId => _followMylist.Id;
 

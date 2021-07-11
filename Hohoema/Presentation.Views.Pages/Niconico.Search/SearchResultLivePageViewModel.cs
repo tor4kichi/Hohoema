@@ -3,7 +3,7 @@ using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
 using Prism.Commands;
@@ -52,7 +52,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             NiconicoSession niconicoSession,
             SearchProvider searchProvider,
             PageManager pageManager,
-            HohoemaPlaylist hohoemaPlaylist,
             SearchHistoryRepository searchHistoryRepository,
             NicoLiveCacheRepository nicoLiveCacheRepository,
             OpenLiveContentCommand openLiveContentCommand
@@ -62,7 +61,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             NiconicoSession = niconicoSession;
             SearchProvider = searchProvider;
             PageManager = pageManager;
-            HohoemaPlaylist = hohoemaPlaylist;
             _searchHistoryRepository = searchHistoryRepository;
             _nicoLiveCacheRepository = nicoLiveCacheRepository;
             OpenLiveContentCommand = openLiveContentCommand;
@@ -146,7 +144,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         public NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
         public PageManager PageManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public OpenLiveContentCommand OpenLiveContentCommand { get; }
 
         #endregion

@@ -29,7 +29,7 @@
                   Visibility="Collapsed"
                   />
 
-  <MenuFlyoutItem x:Name="AllPlayFromHereWithWatchAfter"
+  <MenuFlyoutItem x:Name="PlaylistPlayFromHere"
                   Text="{i18nExt:Localize Key=AllPlayFromHere}" 
                   Visibility="Collapsed"
                   />

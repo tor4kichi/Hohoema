@@ -1,4 +1,6 @@
-﻿namespace Hohoema.Models.Domain.Niconico.Video.Series
+﻿using NiconicoToolkit.Video;
+
+namespace Hohoema.Models.Domain.Niconico.Video.Series
 {
     public interface ISeries
     {
@@ -9,7 +11,7 @@
         string ThumbnailUrl { get; }
         int ItemsCount { get; }
 
-        string ProviderType { get; }
+        OwnerType ProviderType { get; }
         string ProviderId { get; }
     }
 }

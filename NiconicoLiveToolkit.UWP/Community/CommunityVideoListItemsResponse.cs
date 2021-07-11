@@ -1,4 +1,5 @@
 ﻿using NiconicoToolkit.User;
+using NiconicoToolkit.Video;
 using System;
 using System.Text.Json.Serialization;
 
@@ -18,7 +19,7 @@ namespace NiconicoToolkit.Community
         public sealed class CommunityVideoListItem
         {
             [JsonPropertyName("id")]
-            public string Id { get; set; }
+            public VideoId Id { get; set; }
 
             [JsonPropertyName("member_only")]
             public bool MemberOnly { get; set; }
@@ -46,6 +47,12 @@ namespace NiconicoToolkit.Community
 
             [JsonPropertyName("deleted_reason")]
             public string DeletedReason { get; set; }
+
+
+            public DateTime GetCreateTime()
+            {
+                return DateTimeOffset.Parse(CreateTime).DateTime;
+            }
         }
     }
 

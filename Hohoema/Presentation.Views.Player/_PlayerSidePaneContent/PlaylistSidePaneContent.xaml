@@ -12,7 +12,7 @@
   xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" 
   xmlns:videoList="using:Hohoema.Presentation.Views.Controls.VideoList" 
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:videoModel="using:Hohoema.Models.Domain.Niconico.Video"
   mc:Ignorable="d"
   d:DesignHeight="300"
   d:DesignWidth="400"
@@ -27,7 +27,9 @@
 
       <toolkit:DockPanel x:Name="HeaderLayout" toolkit:DockPanel.Dock="Top">
         <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
-          <ToggleButton IsChecked="{Binding IsShuffleEnabled.Value, Mode=TwoWay}" UseSystemFocusVisuals="True" Margin="8 0 0 0" x:Name="ShuffleSwitchingButton" Background="Transparent">
+          <ToggleButton IsChecked="{Binding IsShuffleEnabled.Value, Mode=TwoWay}" UseSystemFocusVisuals="True" Margin="8 0 0 0" x:Name="ShuffleSwitchingButton" Background="Transparent"
+                        IsEnabled="{Binding IsShuffleAvailable.Value}"
+                        >
             <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon" Kind="Shuffle" RenderTransformOrigin="0.5, 0.5">
               <iconPack:PackIconMaterial.RenderTransform>
                 <CompositeTransform ScaleX="1.1" ScaleY="1.1" />
@@ -51,43 +53,39 @@
           <Border />
         </StackPanel>
 
-        <Button HorizontalAlignment="Stretch" Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding HohoemaPlaylist.CurrentPlaylist, Mode=OneWay}" HorizontalContentAlignment="Left">
+        <Button HorizontalAlignment="Stretch" Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding CurrentPlaylist.Value, Mode=OneWay}" HorizontalContentAlignment="Left">
           <StackPanel>
             <TextBlock toolkit:DockPanel.Dock="Top" Text="{i18nExt:Localize Key=CurrentPlaylist}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0" Opacity="0.7"></TextBlock>
-            <TextBlock Text="{Binding HohoemaPlaylist.CurrentPlaylist.Label, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" Margin="0" VerticalAlignment="Top" />
+            <TextBlock Text="{Binding CurrentPlaylist.Value.Name, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" Margin="0" VerticalAlignment="Top" />
           </StackPanel>
         </Button>
       </toolkit:DockPanel>
 
       <ListView x:Name="ItemsListView"
-                ItemsSource="{Binding CollectionViewSource.View}" 
-                ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
-                SelectionMode="None" 
+                ItemsSource="{Binding CurrentItems}" 
+                SelectionMode="Single" 
                 SingleSelectionFollowsFocus="False"
                 IsItemClickEnabled="True"
                 IsFocusEngagementEnabled="True" 
-                uwpext:ListViewExtensions.AlternateColor="{ThemeResource ToggleSwitchTrackDisabledBackgroundThemeBrush}"
                 uwpext:ListViewExtensions.ItemContainerStretchDirection="Horizontal"
+                SelectedItem="{Binding CurrentPlaylistItem.Value, Mode=OneWay}"
+                ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+                IncrementalLoadingTrigger="Edge"
                 >
         <i:Interaction.Behaviors>
           <core:EventTriggerBehavior EventName="ItemClick">
             <core:InvokeCommandAction Command="{Binding PlayWithCurrentPlaylistCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
           </core:EventTriggerBehavior>
         </i:Interaction.Behaviors>
-        <ListView.GroupStyle>
-          <GroupStyle HidesIfEmpty="True">
-            <GroupStyle.HeaderTemplate>
-              <DataTemplate>
-                <TextBlock Text="{Binding Label}" Style="{StaticResource SubtitleTextBlockStyle}" />
-              </DataTemplate>
-            </GroupStyle.HeaderTemplate>
-          </GroupStyle>
-        </ListView.GroupStyle>
-        <ListView.ItemContainerStyle>
-          <Style TargetType="ListViewItem">
-            <Setter Property="Padding" Value="0 8" />
-          </Style>
-        </ListView.ItemContainerStyle>
+        <ListView.ItemTemplate>
+          <DataTemplate x:DataType="videoModel:IVideoContent">
+            <videoList:VideoListItemControl Title="{x:Bind Title}"
+                                            PostedAt="{x:Bind PostedAt}"
+                                            ThumbnailUrl="{x:Bind ThumbnailUrl}"
+                                            Length="{x:Bind Length}"
+                                            />
+          </DataTemplate>
+        </ListView.ItemTemplate>
       </ListView>
 
     </toolkit:DockPanel>

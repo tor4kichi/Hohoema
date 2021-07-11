@@ -628,20 +628,20 @@ NicoRepoDisplayTarget.Channel = チャンネル
 NicoRepoDisplayTarget.Community = コミュニティ
 NicoRepoDisplayTarget.Mylist = マイリスト
 
-NicoRepoMuteContextTrigger.Unknown = 不明
-NicoRepoMuteContextTrigger.Live_Channel_Program_Onairs = 生放送開始（チャンネル）
-NicoRepoMuteContextTrigger.Live_Channel_Program_Reserve = 生放送の予約（チャンネル）
-NicoRepoMuteContextTrigger.Live_User_Program_OnAirs = 生放送開始（ユーザー）
-NicoRepoMuteContextTrigger.Live_User_Program_Reserve = 生放送の予約（ユーザー）
-NicoRepoMuteContextTrigger.NicoVideo_Channel_Blomaga_Upload = ブロマガ投稿
-NicoRepoMuteContextTrigger.NicoVideo_Channel_Video_Upload = チャンネルの動画投稿
-NicoRepoMuteContextTrigger.NicoVideo_Community_Level_Raise = コミュニティレベルの上昇
-NicoRepoMuteContextTrigger.NicoVideo_User_Community_Video_Add = 動画をコミュニティ登録
-NicoRepoMuteContextTrigger.NicoVideo_User_Mylist_Add_Video = 動画をマイリスト登録
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_Advertise = ユーザー動画が広告された
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_Kiriban_Play = 再生数キリ番
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_UpdateHighestRankings = ランキング最高順位更新
-NicoRepoMuteContextTrigger.NicoVideo_User_Video_Upload = ユーザーの動画投稿
+NicoRepoItemTopic.Unknown = 不明
+NicoRepoItemTopic.Live_Channel_Program_Onairs = 生放送開始（チャンネル）
+NicoRepoItemTopic.Live_Channel_Program_Reserve = 生放送の予約（チャンネル）
+NicoRepoItemTopic.Live_User_Program_OnAirs = 生放送開始（ユーザー）
+NicoRepoItemTopic.Live_User_Program_Reserve = 生放送の予約（ユーザー）
+NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload = ブロマガ投稿
+NicoRepoItemTopic.NicoVideo_Channel_Video_Upload = チャンネルの動画投稿
+NicoRepoItemTopic.NicoVideo_Community_Level_Raise = コミュニティレベルの上昇
+NicoRepoItemTopic.NicoVideo_User_Community_Video_Add = 動画をコミュニティ登録
+NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video = 動画をマイリスト登録
+NicoRepoItemTopic.NicoVideo_User_Video_Advertise = ユーザー動画が広告された
+NicoRepoItemTopic.NicoVideo_User_Video_Kiriban_Play = 再生数キリ番
+NicoRepoItemTopic.NicoVideo_User_Video_UpdateHighestRankings = ランキング最高順位更新
+NicoRepoItemTopic.NicoVideo_User_Video_Upload = ユーザーの動画投稿
 
 NicorepoNoItems = 表示可能なニレコポがありません
 
@@ -717,28 +717,28 @@ CommunitySearchNoItems = キーワードに一致するコミュニティはあ�
 SearchHistory = 検索履歴
 RemoveSearchHistory = 検索履歴から削除
 
-Sort.NewComment_Ascending = コメントが古い順
-Sort.NewComment_Descending = コメントが新しい順
-Sort.ViewCount_Ascending = 再生数が少ない順
-Sort.ViewCount_Descending = 再生数が多い順
-Sort.MylistCount_Ascending = マイリスト数が少ない順
-Sort.MylistCount_Descending = マイリスト数が多い順
-Sort.CommentCount_Ascending = コメント数が少ない順
-Sort.CommentCount_Descending = コメント数が多い順
-Sort.FirstRetrieve_Ascending = 投稿日時が古い順
-Sort.FirstRetrieve_Descending = 投稿日時が新しい順
-Sort.Length_Ascending = 動画時間が短い順
-Sort.Length_Descending = 動画時間が長い順
-Sort.Popurarity_Ascending = 人気が低い順
-Sort.Popurarity_Descending = 人気が高い順
-Sort.MylistPopurarity_Ascending = 人気が低い順
-Sort.MylistPopurarity_Descending = 人気が高い順
-Sort.VideoCount_Ascending = 動画数が少ない順
-Sort.VideoCount_Descending = 動画数が多い順
-Sort.UpdateTime_Ascending = 更新が古い順
-Sort.UpdateTime_Descending = 更新が新しい順
-Sort.Relation_Ascending = 適合率が低い順
-Sort.Relation_Descending = 適合率が高い順
+VideoSortKey.NewComment_Asc = コメントが古い順
+VideoSortKey.NewComment_Desc = コメントが新しい順
+VideoSortKey.ViewCount_Asc = 再生数が少ない順
+VideoSortKey.ViewCount_Desc = 再生数が多い順
+VideoSortKey.MylistCount_Asc = マイリスト数が少ない順
+VideoSortKey.MylistCount_Desc = マイリスト数が多い順
+VideoSortKey.CommentCount_Asc = コメント数が少ない順
+VideoSortKey.CommentCount_Desc = コメント数が多い順
+VideoSortKey.FirstRetrieve_Asc = 投稿日時が古い順
+VideoSortKey.FirstRetrieve_Desc = 投稿日時が新しい順
+VideoSortKey.Length_Asc = 動画時間が短い順
+VideoSortKey.Length_Desc = 動画時間が長い順
+VideoSortKey.Popurarity_Asc = 人気が低い順
+VideoSortKey.Popurarity_Desc = 人気が高い順
+VideoSortKey.MylistPopurarity_Asc = 人気が低い順
+VideoSortKey.MylistPopurarity_Desc = 人気が高い順
+VideoSortKey.VideoCount_Asc = 動画数が少ない順
+VideoSortKey.VideoCount_Desc = 動画数が多い順
+VideoSortKey.UpdateTime_Asc = 更新が古い順
+VideoSortKey.UpdateTime_Desc = 更新が新しい順
+VideoSortKey.Relation_Asc = 適合率が低い順
+VideoSortKey.Relation_Desc = 適合率が高い順
 
 MylistSort.TitleAsc = タイトル昇順
 MylistSort.TitleDesc = タイトル降順
@@ -820,6 +820,14 @@ InAppNotification_LocalPlaylistAddedItems = {0} に {1} 個の動画を追加し
 InAppNotification_LocalPlaylistRemovedItems = {0} から {1} 個の動画を削除しました
 LocalPlaylistOpenVideoList = 動画一覧を開く
 LocalPlaylistChangeThumbnail = サムネイル画像を変更
+
+LocalMylistSortKey.AddedAt_Desc = 追加が新しい順
+LocalMylistSortKey.AddedAt_Asc = 追加が古い順
+LocalMylistSortKey.Title_Desc = タイトル降順
+LocalMylistSortKey.Title_Asc = タイトル昇順
+LocalMylistSortKey.PostedAt_Desc = 投稿日が新しい順
+LocalMylistSortKey.PostedAt_Asc = 投稿日が古い順
+
 
 
 #### Queue ####
@@ -929,6 +937,19 @@ AllPlaySeriesVideos = シリーズのはじめから連続再生する
 UserVideosNoItems = 投稿動画はありません
 UserVideosIsPrivate = 投稿動画は非公開です
 
+UserVideoSortKey.RegisteredAt_Asc = 投稿が古い順
+UserVideoSortKey.RegisteredAt_Desc = 投稿が新しい順
+UserVideoSortKey.ViewCount_Asc = 再生数が少ない順
+UserVideoSortKey.ViewCount_Desc = 再生数が多い順
+UserVideoSortKey.LastCommentTime_Asc = コメントが古い順
+UserVideoSortKey.LastCommentTime_Desc = コメントが新しい順
+UserVideoSortKey.CommentCount_Asc = コメント数が少ない順
+UserVideoSortKey.CommentCount_Desc = コメント数が多い順
+UserVideoSortKey.MylistCount_Asc = マイリスト数が少ない順
+UserVideoSortKey.MylistCount_Desc = マイリスト数が多い順
+UserVideoSortKey.Duration_Asc = 動画時間が短い順
+UserVideoSortKey.Duration_Desc = 動画時間が長い順
+
 
 #### UserInfo ####
 UserFollower = フォロワー
@@ -972,6 +993,21 @@ MylistOpenVideoList = 動画一覧を開く
 UserSeriesListWithOwnerName = {0} のシリーズ一覧
 NoItems_UserSeries = シリーズはありません
 
+SeriesVideoSortKey.AddedAt_Asc = シリーズへの登録が古い順
+SeriesVideoSortKey.AddedAt_Desc = シリーズへの登録が新しい順
+SeriesVideoSortKey.PostedAt_Asc = 投稿が古い順
+SeriesVideoSortKey.PostedAt_Desc = 投稿が新しい順
+SeriesVideoSortKey.Title_Asc = タイトル昇順
+SeriesVideoSortKey.Title_Desc = タイトル降順
+SeriesVideoSortKey.WatchCount_Asc = 再生数が少ない順
+SeriesVideoSortKey.WatchCount_Desc = 再生数が多い順
+SeriesVideoSortKey.MylistCount_Asc = マイリスト登録数が少ない順
+SeriesVideoSortKey.MylistCount_Desc = マイリスト登録数が多い順
+SeriesVideoSortKey.CommentCount_Asc = コメント数が少ない順
+SeriesVideoSortKey.CommentCount_Desc = コメント数が多い順
+
+
+
 
 
 
@@ -1006,3 +1042,16 @@ CommunityVidoes = コミュニティ動画
 #### Channel ####
 ChannelVideoNoItems = チャンネル動画はありません
 InAppNotification_CanNotCacheChannelVideos_ForContentProtection = チャンネル動画はコンテンツ保護のためキャッシュできません
+
+ChannelVideoSortKey.FirstRetrieve_Asc = 投稿が古い順
+ChannelVideoSortKey.FirstRetrieve_Desc = 投稿が新しい順
+ChannelVideoSortKey.ViewCount_Asc = 再生数が少ない順
+ChannelVideoSortKey.ViewCount_Desc = 再生数が多い順
+ChannelVideoSortKey.CommentCount_Asc = コメント数が少ない順
+ChannelVideoSortKey.CommentCount_Desc = コメント数が多い順
+ChannelVideoSortKey.MylistCount_Asc = マイリスト数が少ない順
+ChannelVideoSortKey.MylistCount_Desc = マイリスト数が多い順
+ChannelVideoSortKey.NewComment_Asc = コメントが古い順
+ChannelVideoSortKey.NewComment_Desc = コメントが新しい順
+ChannelVideoSortKey.Length_Asc = 動画時間が短い順
+ChannelVideoSortKey.Length_Desc = 動画時間が長い順

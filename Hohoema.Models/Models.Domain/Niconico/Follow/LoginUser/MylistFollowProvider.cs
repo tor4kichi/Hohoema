@@ -65,7 +65,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Failed;
             }
 
-            var result = await _niconicoSession.ToolkitContext.Follow.Mylist.AddFollowMylistAsync(mylist.Id);
+            var result = await _niconicoSession.ToolkitContext.Follow.Mylist.AddFollowMylistAsync(mylist.PlaylistId.Id);
 
             if (result is ContentManageResult.Success or ContentManageResult.Exist)
             {
@@ -87,7 +87,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
                 return ContentManageResult.Exist; 
             }
 
-            var result = await _niconicoSession.ToolkitContext.Follow.Mylist.RemoveFollowMylistAsync(mylist.Id);
+            var result = await _niconicoSession.ToolkitContext.Follow.Mylist.RemoveFollowMylistAsync(mylist.PlaylistId.Id);
 
             if (result is ContentManageResult.Success)
             {
@@ -108,7 +108,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
 
         //Task<ContentManageResult> IFollowProvider<IMylist>.RemoveFollowAsync(IMylist followable) => RemoveFollowAsync(followable.Id);
 
-        Task<bool> IFollowProvider<IMylist>.IsFollowingAsync(IMylist followable) => IsFollowingAsync(followable.Id);
+        Task<bool> IFollowProvider<IMylist>.IsFollowingAsync(IMylist followable) => IsFollowingAsync(followable.PlaylistId.Id);
     }
 
 }

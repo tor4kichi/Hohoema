@@ -47,6 +47,7 @@ namespace NiconicoToolkit.Series
 
                     seriesDetails.Series = new SeriesDetails.SeriesItem()
                     {
+                        Id = seriesId,
                         ThumbnailUrl = thumbNode.GetAttribute("data-background-image").ToUri(),
                         Title = titleNode.TextContent,
                         Count = countNode.TextContent.Where(x => char.IsDigit(x)).ToInt()
@@ -55,7 +56,7 @@ namespace NiconicoToolkit.Series
 
                 // 動画一覧
                 {
-                    var videoListContainerNode = document.QuerySelector("body > div.BaseLayout-main > div.Series > div.BaseLayout-block.Series-2column > div.Series-columnMain > div > div.SeriesVideoListContainer");
+                    var videoListContainerNode = document.QuerySelector("div.SeriesVideoListContainer");
                     if (videoListContainerNode == null)
                     {
                         throw new WebException("series not contain video list");
@@ -64,33 +65,52 @@ namespace NiconicoToolkit.Series
                     List<SeriesDetails.SeriesVideo> videos = new List<SeriesDetails.SeriesVideo>(); ;
                     foreach (var videoNode in videoListContainerNode.ChildNodes.Where(x => x is IHtmlDivElement).Cast<IHtmlDivElement>())
                     {
-                        var videoId = videoNode.GetAttribute("data-video-itemdata-video-id");
-                        var thumbNode = videoNode.QuerySelector("div.MediaObject-content > div.MediaObject-image > a > div > div.Thumbnail-image");
-                        var videoLengthNode = videoNode.QuerySelector("div.MediaObject-content > div.MediaObject-image > a > div > div.VideoLength");
+                        var anchorNode = videoNode.QuerySelector("div > a");
+                        var videoId = anchorNode.GetAttribute("href").Split('/').Last();
+                        var thumbNode = anchorNode.QuerySelector("div.NC-MediaObject-media > div > div > div > div.NC-Thumbnail-image");
+                        var videoLengthNode = anchorNode.QuerySelector("div.NC-MediaObject-media > div > div > div > div.NC-VideoLength");
 
-                        var bodyNode = videoNode.QuerySelector("div.MediaObject-content > div.MediaObject-body");
-                        var registeredAtNode = bodyNode.QuerySelector("div.SeriesVideoListContainer-videoRegisteredAt");
-                        var titleNode = bodyNode.QuerySelector("div.VideoMediaObject-title > a");
-                        var descNode = bodyNode.QuerySelector("div.VideoMediaObject-title > div.VideoMediaObject-description");
+                        var bodyNode = anchorNode.QuerySelector("div.NC-MediaObject-body");
+                        var registeredAtNode = bodyNode.QuerySelector("div.NC-MediaObject-bodySecondary > div.NC-VideoMediaObject-meta > div.NC-VideoMediaObject-metaAdditional > span");
+                        var titleNode = bodyNode.QuerySelector("div.NC-MediaObject-bodyTitle > h2");
+                        var descNode = bodyNode.QuerySelector("div.NC-MediaObject-bodySecondary > div.NC-VideoMediaObject-description");
 
-                        var countMetaNodes = bodyNode.QuerySelectorAll("div.SeriesVideoListContainer-videoMetaCount > span.VideoMetaCount");
+                        var countMetaNodes = bodyNode.QuerySelectorAll("div.NC-MediaObject-bodySecondary > div.NC-VideoMediaObject-meta > div.NC-VideoMediaObject-metaCount > div.NC-VideoMetaCount");
                         int? viewCount = null;
                         int? commentCount = null;
                         int? mylistCount = null;
+                        int? likeCount = null;
                         foreach (var countNode in countMetaNodes)
                         {
-                            if (countNode.ClassList.Contains("VideoMetaCount-view"))
+                            static int ReadableNumberToInt(string str)
                             {
-                                viewCount = countNode.TextContent.ToInt();
+                                // 10.6万
+                                // 1,544
+                                // 183
+                                bool isTenThauthand = str.Last() == '万';
+                                double number = double.Parse(isTenThauthand ? new string(str.SkipLast(1).ToArray()) : str, System.Globalization.NumberStyles.AllowThousands | System.Globalization.NumberStyles.AllowDecimalPoint);
+                                return (int)(isTenThauthand ? number * 10000 : number);
                             }
-                            else if (countNode.ClassList.Contains("VideoMetaCount-comment"))
+                            if (countNode.ClassList.Contains("NC-VideoMetaCount_view"))
                             {
-                                commentCount = countNode.TextContent.ToInt();
+                                viewCount = ReadableNumberToInt(countNode.TextContent.Trim());
                             }
-                            else if (countNode.ClassList.Contains("VideoMetaCount-mylist"))
+                            else if (countNode.ClassList.Contains("NC-VideoMetaCount_comment"))
                             {
-                                mylistCount = countNode.TextContent.ToInt();
+                                commentCount = ReadableNumberToInt(countNode.TextContent.Trim());
                             }
+                            else if (countNode.ClassList.Contains("NC-VideoMetaCount_mylist"))
+                            {
+                                mylistCount = ReadableNumberToInt(countNode.TextContent.Trim());
+                            }
+                            else if (countNode.ClassList.Contains("NC-VideoMetaCount_like"))
+                            {
+                                likeCount = ReadableNumberToInt(countNode.TextContent.Trim());
+                            }
+                            //else if (countNode.ClassList.Contains("NC-VideoMetaCount_nicoad"))
+                            //{
+                            //
+                            //}
                         }
 
                         // 投稿日時
@@ -114,7 +134,7 @@ namespace NiconicoToolkit.Series
                             {
                                 // ex) 19分前 投稿 
                                 // があるか知らないけど念の為
-                                var time = int.Parse(new string(videoRegisteredAtText.TakeWhile(c => char.IsDigit(c)).ToArray()));
+                                var time = int.Parse(new string(videoRegisteredAtText.Trim().TakeWhile(c => char.IsDigit(c)).ToArray()));
                                 postedAt = DateTime.Now - TimeSpan.FromMinutes(time);
                             }
                             else
@@ -127,7 +147,7 @@ namespace NiconicoToolkit.Series
                         {
                             Id = videoId,
                             ThumbnailUrl = thumbNode.GetAttribute("data-background-image").ToUri(),
-                            Title = titleNode.TextContent,
+                            Title = titleNode.TextContent.Trim(),
                             Duration = videoLengthNode.TextContent.ToTimeSpan(),
                             PostAt = postedAt,
                             WatchCount = viewCount ?? 0,
@@ -162,7 +182,7 @@ namespace NiconicoToolkit.Series
         }
 
 
-        public Task<SeriesListResponse> GetUserSeriesAsync(UserId userId, int page = 0, int pageSize = 100)
+        public Task<SeriesListResponse> GetUserSeriesAsync(NiconicoId userId, int page = 0, int pageSize = 100)
         {
             return _context.GetJsonAsAsync<SeriesListResponse>(
                 $"{NiconicoUrls.NvApiV1Url}users/{userId}/series?page={page+1}&pageSize={pageSize}",

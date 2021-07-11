@@ -17,7 +17,7 @@
   <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                         >
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
-                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                      ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
                                       x:Name="VideoItemsListView"
@@ -52,8 +52,6 @@
                   </ComboBox.ItemTemplate>
                 </ComboBox>
               </AppBarElementContainer>
-              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
-
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Click">
@@ -62,6 +60,11 @@
                 </i:Interaction.Behaviors>
               </AppBarButton>
 
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+
+            </CommandBar.PrimaryCommands>
+
+            <CommandBar.SecondaryCommands>
               <AppBarButton x:Name="RefreshButton"
                               Label="{i18nExt:Localize Key=Refresh}" 
                               Icon="Refresh"
@@ -70,7 +73,8 @@
                               VerticalAlignment="Center"
                           >
               </AppBarButton>
-            </CommandBar.PrimaryCommands>
+
+            </CommandBar.SecondaryCommands>
           </CommandBar>
         </Grid>
       </videolistPage:VideoItemsListView.Header>

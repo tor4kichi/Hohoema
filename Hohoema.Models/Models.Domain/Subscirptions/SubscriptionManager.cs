@@ -91,7 +91,7 @@ namespace Hohoema.Models.Domain.Subscriptions
 
         public SubscriptionSourceEntity AddSubscription(IMylist mylist)
         {
-            return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = mylist.Name, SourceParameter = mylist.Id, SourceType = SubscriptionSourceType.Mylist });
+            return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = mylist.Name, SourceParameter = mylist.PlaylistId.Id, SourceType = SubscriptionSourceType.Mylist });
         }
 
         public SubscriptionSourceEntity AddKeywordSearchSubscription(string keyword)
@@ -111,11 +111,11 @@ namespace Hohoema.Models.Domain.Subscriptions
 
         SubscriptionSourceEntity AddSubscription_Internal(SubscriptionSourceEntity newEntity)
         {
-            var entity = _subscriptionRegistrationRepository.CreateItem(newEntity);
+            _subscriptionRegistrationRepository.CreateItem(newEntity);
 
-            Added?.Invoke(this, entity);
+            Added?.Invoke(this, newEntity);
 
-            return entity;
+            return newEntity;
         }
 
         public void UpdateSubscription(SubscriptionSourceEntity entity)

@@ -21,10 +21,11 @@
   >
 
   <Grid>
-    <videolistPage:VideoItemsListView ItemsSource="{Binding PlaylistItems}"
-                                      ItemCommand="{Binding PlayCommand}"
+    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
+                                      ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
-                                      PlaylistPassToFlyout="{Binding Playlist}"
+                                      RefreshCommand="{Binding RefreshCommand}"
+                                      PlaylistPassToFlyout="{Binding QueuePlaylist}"
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
@@ -45,15 +46,24 @@
 
               <CommandBar.PrimaryCommands>
 
+                <AppBarElementContainer>
+                  <ComboBox ItemsSource="{Binding SortOptionItems}"
+                            SelectedItem="{Binding SelectedSortOptionItem, Mode=TwoWay}"
+                            >
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding Label}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </AppBarElementContainer>
+                
                 <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"
                                 Command="{Binding PlaylistPlayAllCommand}"
-                                CommandParameter="{Binding Playlist}"></AppBarButton>
+                                CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
 
-
-                <!-- 非選択中 -->
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
                 <AppBarButton x:Name="ScrollToTopButton"
                                 Icon="Up"
@@ -65,6 +75,8 @@
                     </core:EventTriggerBehavior>
                   </i:Interaction.Behaviors>
                 </AppBarButton>
+
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
                 <AppBarButton x:Name="RemoveWatchedItemsButton"

@@ -1,4 +1,6 @@
-﻿using Hohoema.Models.UseCase.NicoVideos;
+﻿using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
+using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.UseCase.Playlist;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -10,11 +12,16 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
     public sealed class RemoveWatchedItemsInAfterWatchPlaylistCommand : DelegateCommandBase
     {
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
+        private readonly QueuePlaylist _queuePlaylist;
+        private readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
 
-        public RemoveWatchedItemsInAfterWatchPlaylistCommand(HohoemaPlaylist hohoemaPlaylist)
+        public RemoveWatchedItemsInAfterWatchPlaylistCommand(
+            QueuePlaylist queuePlaylist,
+            VideoPlayedHistoryRepository videoPlayedHistoryRepository
+            )
         {
-            _hohoemaPlaylist = hohoemaPlaylist;
+            _queuePlaylist = queuePlaylist;
+            _videoPlayedHistoryRepository = videoPlayedHistoryRepository;
         }
 
         protected override bool CanExecute(object parameter)
@@ -27,9 +34,17 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
             Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
-            var removed = _hohoemaPlaylist.RemoveQueueIfWatched();
+            int count = 0;
+            foreach (var item in _queuePlaylist.ToArray())
+            {
+                if (_videoPlayedHistoryRepository.IsVideoPlayed(item.VideoId))
+                {
+                    _queuePlaylist.Remove(item);
+                    count++;
+                }
+            }
 
-            System.Diagnostics.Debug.WriteLine("あとで見るから視聴済みを削除： " + removed);
+            System.Diagnostics.Debug.WriteLine($"あとで見るから視聴済みを削除 （件数：{count}）");
         }
     }
 }

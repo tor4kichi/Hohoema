@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Player.Comment;
 using Hohoema.Models.Domain.Player.Video.Comment;
 using NiconicoToolkit;
 using NiconicoToolkit.Video;

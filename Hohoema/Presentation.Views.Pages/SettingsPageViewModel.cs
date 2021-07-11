@@ -6,7 +6,7 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos.Player;
+using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
@@ -41,6 +41,7 @@ using Windows.UI.Xaml;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.VideoCache;
 using Hohoema.Models.UseCase.VideoCache;
+using Hohoema.Models.UseCase.Niconico.Player.Comment;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 {

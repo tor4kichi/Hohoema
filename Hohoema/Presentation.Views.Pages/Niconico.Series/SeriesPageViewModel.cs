@@ -1,17 +1,21 @@
 ﻿using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Domain.Niconico.Series;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Video.Series;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Helpers;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Series;
 using NiconicoToolkit.User;
+using NiconicoToolkit.Video;
 using Prism.Navigation;
+using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -43,23 +47,33 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 
 
         public SeriesPageViewModel(
-            HohoemaPlaylist hohoemaPlaylist,
             SeriesProvider seriesRepository,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             AddSubscriptionCommand addSubscriptionCommand,
-            SelectionModeToggleCommand selectionModeToggleCommand
+            SelectionModeToggleCommand selectionModeToggleCommand,
+            PlaylistPlayAllCommand playlistPlayAllCommand
             )
         {
-            HohoemaPlaylist = hohoemaPlaylist;
-            _seriesRepository = seriesRepository;
+            _seriesProvider = seriesRepository;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             AddSubscriptionCommand = addSubscriptionCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
+            PlaylistPlayAllCommand = playlistPlayAllCommand;
+            CurrentPlaylistToken = Observable.CombineLatest(
+                this.ObserveProperty(x => x.SeriesVideoPlaylist),
+                this.ObserveProperty(x => x.SelectedSortOption),
+                (x, y) => new PlaylistToken(x, y)
+                )
+                .ToReadOnlyReactivePropertySlim()
+                .AddTo(_CompositeDisposable);
         }
 
-        private readonly SeriesProvider _seriesRepository;
+        private readonly SeriesProvider _seriesProvider;
 
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
+        public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
 
         private UserSeriesItemViewModel _series;
         public UserSeriesItemViewModel Series
@@ -78,11 +92,33 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
         SeriesDetails _seriesDetails;
 
 
+        private SeriesVideoPlaylist _SeriesVideoPlaylist;
+        public SeriesVideoPlaylist SeriesVideoPlaylist
+        {
+            get { return _SeriesVideoPlaylist; }
+            private set { SetProperty(ref _SeriesVideoPlaylist, value); }
+        }
+
+
+        public SeriesPlaylistSortOption[] SortOptions => SeriesVideoPlaylist.SortOptions;
+
+
+        private SeriesPlaylistSortOption _selectedSortOption;
+        public SeriesPlaylistSortOption SelectedSortOption
+        {
+            get { return _selectedSortOption; }
+            set { SetProperty(ref _selectedSortOption, value); }
+        }
+
+
+        public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
+
+
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             if (parameters.TryGetValue("id", out string seriesId))
             {
-                _seriesDetails = await _seriesRepository.GetSeriesVideosAsync(seriesId);
+                _seriesDetails = await _seriesProvider.GetSeriesVideosAsync(seriesId);
                 Series = new UserSeriesItemViewModel(_seriesDetails);
                 User = new NicoVideoOwner()
                 {
@@ -91,6 +127,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
                     ScreenName = _seriesDetails.Owner.Nickname,
                     IconUrl = _seriesDetails.Owner.IconUrl,
                 };
+
+                SeriesVideoPlaylist = new SeriesVideoPlaylist(new PlaylistId() { Id = seriesId, Origin = PlaylistItemsSourceOrigin.Series }, _seriesDetails);
+                SelectedSortOption = SeriesVideoPlaylist.DefaultSortOption;
+
+                this.ObserveProperty(x => x.SelectedSortOption).Subscribe(_ =>
+                {
+                    ResetList();
+                })
+                    .AddTo(_NavigatingCompositeDisposable);
             }
 
             await base.OnNavigatedToAsync(parameters);
@@ -98,7 +143,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 
         protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
         {
-            return (SeriesVideosIncrementalSource.OneTimeLoadingCount, new SeriesVideosIncrementalSource(_seriesDetails));
+            return (SeriesVideosIncrementalSource.OneTimeLoadingCount, new SeriesVideosIncrementalSource(SeriesVideoPlaylist, SelectedSortOption));
         }
 
         
@@ -126,7 +171,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 
             public int ItemsCount => _userSeries.Videos.Count;
 
-            public string ProviderType => "user";
+            public OwnerType ProviderType => _userSeries.Owner.OwnerType;
 
             public string ProviderId => _userSeries.Owner.Id;
         }
@@ -135,29 +180,39 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 
     public class SeriesVideosIncrementalSource : IIncrementalSource<VideoListItemControlViewModel>
     {
-        private List<SeriesDetails.SeriesVideo> _videos => _seriesDetails.Videos;
-        private SeriesDetails.SeriesOwner _owner => _seriesDetails.Owner;
-        private readonly SeriesDetails _seriesDetails;
+        private SeriesDetails.SeriesOwner _owner => _seriesVideoPlaylist.SeriesDetails.Owner;
+        private readonly SeriesVideoPlaylist _seriesVideoPlaylist;
+        private readonly SeriesPlaylistSortOption _selectedSortOption;
+        private List<SeriesDetails.SeriesVideo> _SortedItems;
 
-        public SeriesVideosIncrementalSource(SeriesDetails seriesDetails)
+        public SeriesVideosIncrementalSource(SeriesVideoPlaylist seriesVideoPlaylist, SeriesPlaylistSortOption selectedSortOption)
         {
-            _seriesDetails = seriesDetails;
+            _seriesVideoPlaylist = seriesVideoPlaylist;
+            _selectedSortOption = selectedSortOption;
         }
 
         public const int OneTimeLoadingCount = 25;
 
         Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
         {
-            var head = pageIndex * pageSize;
-            return Task.FromResult(_videos.Skip(head).Take(pageSize).Select(item =>
+            if (pageIndex == 0)
             {
-                var itemVM = new VideoListItemControlViewModel(item.Id, item.Title, item.ThumbnailUrl.OriginalString, item.Duration, item.PostAt);
+                _SortedItems = _seriesVideoPlaylist.GetSortedItems(_selectedSortOption);
+            }
+            var head = pageIndex * pageSize;
+            return Task.FromResult(_SortedItems.Skip(head).Take(pageSize).Select((item, i) =>
+            {
+                var itemVM = new VideoListItemControlViewModel(item.Id, item.Title, item.ThumbnailUrl.OriginalString, item.Duration, item.PostAt)
+                {
+                    PlaylistItemToken = new PlaylistItemToken(_seriesVideoPlaylist, _selectedSortOption, new SeriesVideoItem(item, _seriesVideoPlaylist.SeriesDetails.Owner), head + i)
+                };
+
                 itemVM.ViewCount = item.WatchCount;
                 itemVM.CommentCount = item.CommentCount;
                 itemVM.MylistCount = item.MylistCount;
 
                 itemVM.ProviderId = _owner.Id;
-                itemVM.ProviderType = NiconicoToolkit.Video.OwnerType.User;
+                itemVM.ProviderType = _owner.OwnerType;
                 itemVM.ProviderName = _owner.Nickname;
 
                 return itemVM;

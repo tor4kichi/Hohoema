@@ -10,7 +10,7 @@ using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
@@ -47,6 +47,8 @@ using NiconicoToolkit.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Likes;
 using NiconicoToolkit.Ichiba;
 using AngleSharp.Html.Parser;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Hohoema.Models.Domain.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
@@ -73,7 +75,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             VideoFilteringSettings ngSettings,
             NiconicoSession niconicoSession,
             LoginUserOwnedMylistManager userMylistManager,
-            HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             LoginUserMylistProvider loginUserMylistProvider,
             SubscriptionManager subscriptionManager,
@@ -81,6 +82,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             PageManager pageManager,
             Services.NotificationService notificationService,
             Services.DialogService dialogService,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             MylistAddItemCommand addMylistCommand,
             LocalPlaylistAddItemCommand localPlaylistAddItemCommand,
             AddSubscriptionCommand addSubscriptionCommand,
@@ -99,7 +101,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             NgSettings = ngSettings;
             NiconicoSession = niconicoSession;
             UserMylistManager = userMylistManager;
-            HohoemaPlaylist = hohoemaPlaylist;
             NicoVideoProvider = nicoVideoProvider;
             LoginUserMylistProvider = loginUserMylistProvider;
             SubscriptionManager = subscriptionManager;
@@ -107,6 +108,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             PageManager = pageManager;
             NotificationService = notificationService;
             DialogService = dialogService;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             AddMylistCommand = addMylistCommand;
             LocalPlaylistAddItemCommand = localPlaylistAddItemCommand;
             AddSubscriptionCommand = addSubscriptionCommand;
@@ -330,7 +332,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                         }
                         else if (playlist is LoginUserMylistPlaylist loginUserMylist)
                         {
-                            _ = loginUserMylist.AddItem(VideoInfo.Id);
+                            _ = loginUserMylist.AddItem(VideoInfo);
                         }
                     }));
             }
@@ -408,13 +410,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         public VideoFilteringSettings NgSettings { get; }
         public NiconicoSession NiconicoSession { get; }
         public LoginUserOwnedMylistManager UserMylistManager { get; }
-        public LocalMylistManager LocalMylistManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public LocalMylistManager LocalMylistManager { get; }        
         public NicoVideoProvider NicoVideoProvider { get; }
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
         public MylistAddItemCommand AddMylistCommand { get; }
         public LocalPlaylistAddItemCommand LocalPlaylistAddItemCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
@@ -785,7 +787,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
         public int ItemsCount => throw new NotSupportedException();
 
-        public string ProviderType => throw new NotSupportedException();
+        public OwnerType ProviderType => throw new NotSupportedException();
 
         public string ProviderId => throw new NotSupportedException();
     }

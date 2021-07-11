@@ -1,5 +1,4 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.UseCase.NicoVideos.Player;
+﻿using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using Prism.Commands;
 using Unity;
 

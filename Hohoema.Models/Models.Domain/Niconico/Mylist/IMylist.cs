@@ -8,8 +8,10 @@ using NiconicoToolkit;
 
 namespace Hohoema.Models.Domain.Niconico.Mylist
 {
-    public interface IMylist : IPlaylist, IFollowable, INiconicoObject
+    public interface IMylist : IFollowable, INiconicoObject
     {
+        PlaylistId PlaylistId { get; }
+        string Name { get; }
         MylistId MylistId { get; }
         string Description { get; }
         string UserId { get; }

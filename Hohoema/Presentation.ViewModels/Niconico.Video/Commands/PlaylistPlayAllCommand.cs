@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
+using Microsoft.Toolkit.Mvvm.Messaging;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -11,15 +12,25 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
     public sealed class PlaylistPlayAllCommand : DelegateCommandBase
     {
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
+        private readonly IMessenger _messenger;
 
-        public PlaylistPlayAllCommand(HohoemaPlaylist hohoemaPlaylist)
+        public PlaylistPlayAllCommand(IMessenger messenger)
         {
-            _hohoemaPlaylist = hohoemaPlaylist;
+            _messenger = messenger;
         }
 
         protected override bool CanExecute(object parameter)
         {
+            if (parameter is IUserManagedPlaylist userManagedPlaylist)
+            {
+                return userManagedPlaylist.TotalCount > 0;
+            }
+
+            if (parameter is PlaylistToken playlistToken)
+            {
+                return true;
+            }
+
             return parameter is IPlaylist;
         }
 
@@ -27,7 +38,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
         {
             if (parameter is IPlaylist playlist)
             {
-                _hohoemaPlaylist.Play(playlist);
+                _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(playlist));
+            }
+            else if (parameter is PlaylistToken playlistToken)
+            {
+                _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(playlistToken));
             }
         }
     }

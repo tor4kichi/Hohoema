@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Models.Domain.Player.Comment;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {

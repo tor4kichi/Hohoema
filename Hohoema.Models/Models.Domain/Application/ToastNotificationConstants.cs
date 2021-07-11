@@ -45,7 +45,7 @@ namespace Hohoema.Models.Domain.Application
             return args;
         }
 
-        public static ToastArguments MakePlayPlaylistToastArguments(PlaylistOrigin origin, string playlistId)
+        public static ToastArguments MakePlayPlaylistToastArguments(PlaylistItemsSourceOrigin origin, string playlistId)
         {
             var args = new ToastArguments();
             args.Add(ToastArgumentKey_Action, ToastArgumentValue_Action_PlayPlaylist);
