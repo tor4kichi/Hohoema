@@ -811,6 +811,14 @@ CurrentPlaylist = 当前播放列表
 DeleteLocalPlaylistDescription = 此操作无法撤消。
 DeleteLocalPlaylistTitle = 删除{0}
 
+Shuffle = 洗牌
+RepeatAll = 整个重复
+OpenPlaylistSourcePage = 打开视频列表
+
+
+
+
+
 
 #### Local Playlist ####
 LocalPlaylist = 本地我的清单

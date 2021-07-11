@@ -96,6 +96,15 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     return;
                 }
 
+
+                if (_playerSettings.IsPlaylistLoopingEnabled)
+                {
+                    if (await _hohoemaPlaylistPlayer.PlayAsync(_hohoemaPlaylistPlayer.CurrentPlaylist, _hohoemaPlaylistPlayer.CurrentPlaylistSortOption))
+                    {
+                        return;
+                    }
+                }
+
                 if (_playerSettings.AutoMoveNextVideoOnPlaylistEmpty)
                 {
                     /*

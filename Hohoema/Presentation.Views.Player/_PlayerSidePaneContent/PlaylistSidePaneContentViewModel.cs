@@ -62,8 +62,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 .ToReadOnlyReactiveProperty(eventScheduler: _scheduler)
                 .AddTo(_CompositeDisposable);
 
-            IsListRepeatModeEnable = _playerSettings.ObserveProperty(x => x.IsPlaylistLoopingEnabled)
-                .ToReactiveProperty(_scheduler)
+            IsListRepeatModeEnable = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsPlaylistLoopingEnabled)
                 .AddTo(_CompositeDisposable);
 
             PlaylistCanGoBack = _hohoemaPlaylistPlayer.GetCanGoNextOrPreviewObservable()
@@ -104,7 +103,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         {
             IsShuffleEnabled?.Dispose();
             IsListRepeatModeEnable?.Dispose();
-            IsReverseEnabled?.Dispose();
             PlaylistCanGoBack?.Dispose();
             PlaylistCanGoNext?.Dispose();
             base.Dispose();
@@ -133,9 +131,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
         public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
         public ReadOnlyReactiveProperty<bool> IsShuffleAvailable { get; }
-        public ReactiveProperty<bool> IsTrackRepeatModeEnable { get; private set; }
-        public ReactiveProperty<bool> IsListRepeatModeEnable { get; private set; }
-        public ReactiveProperty<bool> IsReverseEnabled { get; private set; }
+        public ReactiveProperty<bool> IsListRepeatModeEnable { get; private set; }      
         public ReactiveProperty<bool> PlaylistCanGoBack { get; private set; }
         public ReactiveProperty<bool> PlaylistCanGoNext { get; private set; }
 

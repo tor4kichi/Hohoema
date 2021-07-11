@@ -811,6 +811,14 @@ CurrentPlaylist = 現在のプレイリスト
 DeleteLocalPlaylistDescription = この操作は元に戻せません。
 DeleteLocalPlaylistTitle = {0} を削除します
 
+Shuffle = シャッフル
+RepeatAll = 全体リピート
+OpenPlaylistSourcePage = 動画一覧を開く
+
+
+
+
+
 
 #### Local Playlist ####
 LocalPlaylist = ローカルマイリスト
@@ -818,7 +826,7 @@ LocalPlaylistDelete = プレイリストを削除
 LocalPlaylistNoItems = プレイリストは空です
 InAppNotification_LocalPlaylistAddedItems = {0} に {1} 個の動画を追加しました
 InAppNotification_LocalPlaylistRemovedItems = {0} から {1} 個の動画を削除しました
-LocalPlaylistOpenVideoList = 動画一覧を開く
+LocalPlaylistOpenVideoList = Playlist
 LocalPlaylistChangeThumbnail = サムネイル画像を変更
 
 LocalMylistSortKey.AddedAt_Desc = 追加が新しい順

@@ -29,6 +29,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Uno.Extensions;
+using Uno.Threading;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -251,8 +252,15 @@ namespace Hohoema.Models.Domain.Playlist
             CurrentPlayingIndex = InvalidIndex;
         }
 
+        public async Task<IVideoContent> GetNextItemAsync(CancellationToken ct = default)
+        {
+            using var _ = await _lock.LockAsync(ct);
 
-        public async ValueTask<IVideoContent?> GetNextItemAsync(CancellationToken ct = default)
+            return await GetNextItemAsync_Internal(ct);
+        }
+
+
+        async ValueTask<IVideoContent?> GetNextItemAsync_Internal(CancellationToken ct)
         {
             if (CurrentPlayingIndex == InvalidIndex) { return null; }
             if (BufferedPlaylistItemsSource == null) { return null; }
@@ -275,7 +283,14 @@ namespace Hohoema.Models.Domain.Playlist
             }
         }
 
-        public async ValueTask<IVideoContent?> GetPreviewItemAsync(CancellationToken ct = default)
+
+        public async Task<IVideoContent?> GetPreviewItemAsync(CancellationToken ct = default)
+        {
+            using var _ = await _lock.LockAsync(ct);
+
+            return await GetPreviewItemAsync_Internal(ct);
+        }
+        async ValueTask<IVideoContent?> GetPreviewItemAsync_Internal(CancellationToken ct)
         {
             if (CurrentPlayingIndex == InvalidIndex) { return null; }
             if (BufferedPlaylistItemsSource == null) { return null; }
@@ -314,27 +329,42 @@ namespace Hohoema.Models.Domain.Playlist
                 .Select(x => x[1] == false && x[2]);
         }
 
-        public async ValueTask<bool> CanGoNextAsync(CancellationToken ct = default)
+        public async Task<bool> CanGoNextAsync(CancellationToken ct = default)
         {
-            return await GetNextItemAsync(ct) != null;
+            using var _ = await _lock.LockAsync(ct);
+            return await CanGoNextAsync_Internal(ct);
         }
 
-        public async ValueTask<bool> CanGoPreviewAsync(CancellationToken ct = default)
+        protected async ValueTask<bool> CanGoNextAsync_Internal(CancellationToken ct)
         {
-            return await GetPreviewItemAsync(ct) != null;
+            return await GetNextItemAsync_Internal(ct) != null;
+        }
+
+        public async Task<bool> CanGoPreviewAsync(CancellationToken ct = default)
+        {
+            using var _ = await _lock.LockAsync(ct);
+            return await CanGoPreviewAsync_Internal(ct);
+        }
+
+        protected  async ValueTask<bool> CanGoPreviewAsync_Internal(CancellationToken ct = default)
+        {
+            return await GetPreviewItemAsync_Internal(ct) != null;
         }
 
 
-        public async ValueTask<bool> GoNextAsync(CancellationToken ct = default)
+        FastAsyncLock _lock = new FastAsyncLock();
+        public async Task<bool> GoNextAsync(CancellationToken ct = default)
         {
+            using var _ = await _lock.LockAsync(ct);
+
             if (CurrentPlayingIndex == InvalidIndex) { return false; }
             if (BufferedPlaylistItemsSource == null) { return false; }
 
-            var nextItem = await GetNextItemAsync(ct);
+            var nextItem = await GetNextItemAsync_Internal(ct);
             if (nextItem != null)
             {
                 await PlayVideoOnSamePlaylistAsync_Internal(nextItem);
-                SetCurrentContent(nextItem, CurrentPlayingIndex + 1);
+                SetCurrentContent(nextItem, BufferedPlaylistItemsSource.IndexOf(nextItem));
                 return true;
             }
             else
@@ -343,16 +373,18 @@ namespace Hohoema.Models.Domain.Playlist
             }
         }
 
-        public async ValueTask<bool> GoPreviewAsync(CancellationToken ct = default)
+        public async Task<bool> GoPreviewAsync(CancellationToken ct = default)
         {
+            using var _ = await _lock.LockAsync(ct);
+
             if (CurrentPlayingIndex == InvalidIndex) { return false; }
             if (BufferedPlaylistItemsSource == null) { return false; }
 
-            var prevItem = await GetPreviewItemAsync(ct);
+            var prevItem = await GetPreviewItemAsync_Internal(ct);
             if (prevItem != null)
             {
                 await PlayVideoOnSamePlaylistAsync_Internal(prevItem);
-                SetCurrentContent(prevItem, CurrentPlayingIndex - 1);
+                SetCurrentContent(prevItem, BufferedPlaylistItemsSource.IndexOf(prevItem));
                 return true;
             }
             else
@@ -730,8 +762,8 @@ namespace Hohoema.Models.Domain.Playlist
                     _smtc.IsPlayEnabled = true;
                     _smtc.IsStopEnabled = true;
                     _smtc.IsFastForwardEnabled = true;
-                    _smtc.IsNextEnabled = await CanGoNextAsync();
-                    _smtc.IsPreviousEnabled = await CanGoPreviewAsync();
+                    _smtc.IsNextEnabled = await CanGoNextAsync_Internal(default);
+                    _smtc.IsPreviousEnabled = await CanGoPreviewAsync_Internal(default);
                     _smtc.DisplayUpdater.ClearAll();
                     _smtc.DisplayUpdater.Type = MediaPlaybackType.Video;
                     _smtc.DisplayUpdater.VideoProperties.Title = CurrentPlayingSession.VideoDetails.Title;
