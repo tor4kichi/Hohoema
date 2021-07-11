@@ -78,8 +78,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         private IPlaylist _lastPlaylist;
         private IPlaylistSortOption _lastPlaylistSortOption;
         private IVideoContent? _lastPlayedItem;
-        private int? _lastPlayedItemIndex;
-
+        
 
         public void Dispose()
         {
@@ -108,7 +107,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
             if (_lastPlayedItem != null)
             {
-                await VideoPlayAsync(_lastPlaylist, _lastPlaylistSortOption, _lastPlayedItem, _lastPlayedItemIndex, mode, nowViewChanging);
+                await VideoPlayAsync(_lastPlaylist, _lastPlaylistSortOption, _lastPlayedItem, mode, nowViewChanging);
             }
             else if (_lastPlayedLive != null)
             {
@@ -124,7 +123,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             {
                 IPlaylist playlist = null;
                 IPlaylistSortOption sortOption = message.SortOptions;
-                int? index = message.Index;
                 if (message.PlayWithQueue ?? false)
                 {
                     playlist = _queuePlaylist;
@@ -172,13 +170,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                         {
                             videoResolved = _nicoVideoProvider.GetCachedVideoInfo(message.VideoId.Value);
                             _queuePlaylist.Insert(0, videoResolved);
-                            index = 0;
                         }
                         else
                         {
                             var queueItem = _queuePlaylist.First(x => x.VideoId == message.VideoId.Value);
                             videoResolved = queueItem;
-                            index = _queuePlaylist.IndexOf(queueItem);
                         }
                     }
                 }
@@ -189,7 +185,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
                 Guard.IsTrue(videoResolved != null || playlist != null, "Video and Playlist empty both of values. require not null each value or not null both.");
 
-                return await VideoPlayAsync(playlist, sortOption, videoResolved, index, DisplayMode);
+                return await VideoPlayAsync(playlist, sortOption, videoResolved, DisplayMode);
             }
 
             message.Reply(ResolvePlay(message));
@@ -219,9 +215,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         // 動画はHohoemaPlaylistPlayerのモデルによって動画コンテンツの読み込み管理を行っているため
         // ViewModelの動画ページへのナビゲーションは一回だけでいい
 
-        private async Task<VideoPlayRequestMessageData> VideoPlayAsync(IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent playlistItem, int? index, PlayerDisplayView displayMode, bool nowViewChanging = false)
+        private async Task<VideoPlayRequestMessageData> VideoPlayAsync(IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent playlistItem, PlayerDisplayView displayMode, bool nowViewChanging = false)
         {
-            static Task<bool> Play(HohoemaPlaylistPlayer player, IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent playlistItem, int? index, TimeSpan? initialPosition)
+            static Task<bool> Play(HohoemaPlaylistPlayer player, IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent playlistItem, TimeSpan? initialPosition)
             {
                 if (playlistItem == null)
                 {
@@ -229,7 +225,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 }
                 else
                 {
-                    return player.PlayAsync(playlist, sortOption, playlistItem, index, initialPosition);
+                    Guard.IsAssignableToType<ISortablePlaylist>(playlist, nameof(playlist));
+                    return player.PlayAsync(playlist as ISortablePlaylist, sortOption, playlistItem, initialPosition);
                 }
             }
             
@@ -268,7 +265,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
             await sourcePlayerView.ShowAsync();
 
-            if (await Play(sourcePlayerView.PlaylistPlayer, playlist, sortOption, playlistItem, index, initialPosition))
+            if (await Play(sourcePlayerView.PlaylistPlayer, playlist, sortOption, playlistItem, initialPosition))
             {
                 // プレイリストから再生した場合playlistItemがnullのケースがありうる
                 sourcePlayerView.SetTitle(await ResolveVideoContentNameAsync(sourcePlayerView.PlaylistPlayer.CurrentPlaylistItem.VideoId));
@@ -276,7 +273,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 _lastPlaylist = playlist;
                 _lastPlaylistSortOption = sortOption;
                 _lastPlayedItem = playlistItem;
-                _lastPlayedItemIndex = index;
                 return new VideoPlayRequestMessageData() { IsSuccess = true };
             }
             else
@@ -285,8 +281,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 _lastPlaylist = null;
                 _lastPlaylistSortOption = null;
                 _lastPlayedItem = null;
-                _lastPlayedItemIndex = -1;
-
+                
                 return new VideoPlayRequestMessageData() { IsSuccess = false };
             }
         }

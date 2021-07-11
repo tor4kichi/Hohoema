@@ -204,7 +204,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
             {
                 var itemVM = new VideoListItemControlViewModel(item.Id, item.Title, item.ThumbnailUrl.OriginalString, item.Duration, item.PostAt)
                 {
-                    PlaylistItemToken = new PlaylistItemToken(_seriesVideoPlaylist, _selectedSortOption, new SeriesVideoItem(item, _seriesVideoPlaylist.SeriesDetails.Owner), head + i)
+                    PlaylistItemToken = new PlaylistItemToken(_seriesVideoPlaylist, _selectedSortOption, new SeriesVideoItem(item, _seriesVideoPlaylist.SeriesDetails.Owner))
                 };
 
                 itemVM.ViewCount = item.WatchCount;

@@ -15,7 +15,6 @@ namespace Hohoema.Models.Domain.Playlist
                 Playlist= token.Playlist,
                 SortOptions = token.SortOptions,
                 PlaylistItem = token.Video,
-                Index = token.Index,
             };
         }
 
@@ -66,25 +65,23 @@ namespace Hohoema.Models.Domain.Playlist
             };
         }
 
-        public static VideoPlayRequestMessage PlayPlaylist(IPlaylist playlist, IVideoContent playlistItem, int? index, TimeSpan? initialPosition = null)
+        public static VideoPlayRequestMessage PlayPlaylist(IPlaylist playlist, IVideoContent playlistItem, TimeSpan? initialPosition = null)
         {
             return new VideoPlayRequestMessage()
             {
                 Playlist = playlist,
                 PlaylistItem = playlistItem,
-                Index = index,
                 Potision = initialPosition,
             };
         }
 
-        public static VideoPlayRequestMessage PlayPlaylist(IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent playlistItem, int? index, TimeSpan? initialPosition = null)
+        public static VideoPlayRequestMessage PlayPlaylist(IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent playlistItem, TimeSpan? initialPosition = null)
         {
             return new VideoPlayRequestMessage()
             {
                 Playlist = playlist,
                 SortOptions = sortOption,
                 PlaylistItem = playlistItem,
-                Index = index,
                 Potision = initialPosition,
             };
         }
@@ -117,7 +114,6 @@ namespace Hohoema.Models.Domain.Playlist
         public IPlaylistSortOption SortOptions { get; init; }
         public VideoId? VideoId { get; init; }
         public TimeSpan? Potision { get; init; }
-        public int? Index { get; init; }
     }
 
     public record VideoPlayRequestMessageData

@@ -242,7 +242,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 					return Enumerable.Empty<CommunityVideoInfoViewModel>();
 				}
 
-				return itemsRes.Data.Videos.Select((x, i) => new CommunityVideoInfoViewModel(x) { PlaylistItemToken = new PlaylistItemToken(_communityVideoPlaylist, _sortOption, new CommunityVideoContent(x), head + i)});
+				return itemsRes.Data.Videos.Select((x, i) => new CommunityVideoInfoViewModel(x) { PlaylistItemToken = new PlaylistItemToken(_communityVideoPlaylist, _sortOption, new CommunityVideoContent(x))});
 			}
             catch (Exception e)
             {

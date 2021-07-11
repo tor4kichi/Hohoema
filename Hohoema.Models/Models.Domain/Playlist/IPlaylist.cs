@@ -30,7 +30,7 @@ namespace Hohoema.Models.Domain.Playlist
         PlaylistItemToken? PlaylistItemToken { get; }
     }
 
-    public record PlaylistItemToken(IPlaylist Playlist, IPlaylistSortOption SortOptions, IVideoContent Video, int Index);
+    public record PlaylistItemToken(IPlaylist Playlist, IPlaylistSortOption SortOptions, IVideoContent Video);
 
 
     public interface IPlaylistPlayable

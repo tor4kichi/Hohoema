@@ -186,7 +186,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
                     foreach (var video in args.AddedItems)
                     {
                         var nicoVideo = _nicoVideoProvider.GetCachedVideoInfo(video.VideoId);
-                        ItemsView.Add(new VideoListItemControlViewModel(nicoVideo) { PlaylistItemToken = new PlaylistItemToken(Playlist, SelectedSortOptionItem, video, index++) });
+                        ItemsView.Add(new VideoListItemControlViewModel(nicoVideo) { PlaylistItemToken = new PlaylistItemToken(Playlist, SelectedSortOptionItem, video) });
                     }
 
                     PlaylistPlayAllCommand.RaiseCanExecuteChanged();
@@ -237,7 +237,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
             
 
             ct.ThrowIfCancellationRequested();
-            return _items.Skip(head).Take(pageSize).Select((item, i) => new VideoListItemControlViewModel(item as NicoVideo) { PlaylistItemToken = new PlaylistItemToken(_playlist, _sortOption, item, head + i) });
+            return _items.Skip(head).Take(pageSize).Select((item, i) => new VideoListItemControlViewModel(item as NicoVideo) { PlaylistItemToken = new PlaylistItemToken(_playlist, _sortOption, item) });
         }
     }
 }

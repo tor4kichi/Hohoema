@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
+using I18NPortable;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
@@ -29,6 +30,31 @@ namespace Hohoema.Models.Domain.LocalMylist
     }
 
 
+    public record LocalPlaylistSortOption : IPlaylistSortOption
+    {
+        public LocalMylistSortKey SortKey { get; init; }
+
+        public LocalMylistSortOrder SortOrder { get; init; }
+
+
+        string? _label;
+        public string Label => _label ??= $"LocalMylistSortKey.{SortKey}_{SortOrder}".Translate();
+
+        public string Serialize()
+        {
+            return System.Text.Json.JsonSerializer.Serialize(this);
+        }
+
+        public static LocalPlaylistSortOption Deserialize(string serializedText)
+        {
+            return System.Text.Json.JsonSerializer.Deserialize<LocalPlaylistSortOption>(serializedText);
+        }
+
+        public bool Equals(IPlaylistSortOption other)
+        {
+            return other is LocalPlaylistSortOption sortOption ? this == sortOption : false;
+        }
+    }
 
     public sealed class LocalPlaylist : FixPrism.BindableBase, IUserManagedPlaylist
     {
@@ -240,7 +266,7 @@ namespace Hohoema.Models.Domain.LocalMylist
 
         public bool RemovePlaylistItem(PlaylistItemToken item)
         {
-            var (_, _, video, index) = item;
+            var (_, _, video) = item;
             var result = _playlistRepository.DeleteItem(PlaylistId.Id, video.VideoId);
 
             if (!result) { return false; }
@@ -259,7 +285,7 @@ namespace Hohoema.Models.Domain.LocalMylist
                 RemovedItems = new[] { video },
             }), PlaylistId);
 
-            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, video, index));
+            CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, video));
 
             Count = _playlistRepository.GetCount(PlaylistId.Id);
             return result;
@@ -267,14 +293,14 @@ namespace Hohoema.Models.Domain.LocalMylist
 
         public void RemovePlaylistItems(IEnumerable<PlaylistItemToken> items)
         {
-            List<(int Index, IVideoContent Video)> deletedItems = new();
+            List<IVideoContent> deletedItems = new();
             foreach (var item in items)
             {
-                var (playlist, sortOption, video, index) = item;
+                var (playlist, sortOption, video) = item;
                 var result = _playlistRepository.DeleteItem(PlaylistId.Id, video.VideoId);
                 if (!result) { continue; }
 
-                deletedItems.Add((index, video));
+                deletedItems.Add(video);
                 var message = new PlaylistItemRemovedMessage(new()
                 {
                     PlaylistId = PlaylistId,
@@ -288,13 +314,13 @@ namespace Hohoema.Models.Domain.LocalMylist
             _messenger.Send(new PlaylistItemRemovedMessage(new()
             {
                 PlaylistId = PlaylistId,
-                RemovedItems = deletedItems.Select(x => x.Video),
+                RemovedItems = deletedItems,
             }), PlaylistId);
 
             // 追加するときとは逆に最後尾からアイテムを消していくことで不整合を発生させないようにする
-            foreach (var item in deletedItems.OrderByDescending(x => x.Index))
+            foreach (var item in deletedItems)
             {
-                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item.Video, item.Index));
+                CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item));
             }
 
             Count = _playlistRepository.GetCount(PlaylistId.Id);

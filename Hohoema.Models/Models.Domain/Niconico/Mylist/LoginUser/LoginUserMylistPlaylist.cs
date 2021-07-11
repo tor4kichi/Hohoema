@@ -141,7 +141,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
             foreach (var item in items)
             {
-                var (_, _, video, index) = item;
+                var (_, _, video) = item;
                 var result = await _loginUserMylistProvider.RemoveMylistItem(MylistId, video.VideoId);
                 if (result == ContentManageResult.Success)
                 {

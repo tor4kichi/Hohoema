@@ -336,7 +336,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
                 var channelVideo = new ChannelVideoListItemViewModel(video.ItemId, video.Title, video.ThumbnailUrl, video.Length, video.PostedAt)
                 {
-                    PlaylistItemToken = new PlaylistItemToken(_channelVideoPlaylist, _sortOption, new ChannelVideoContent(video, ChannelId), head + i)
+                    PlaylistItemToken = new PlaylistItemToken(_channelVideoPlaylist, _sortOption, new ChannelVideoContent(video, ChannelId))
                 };
 
                 if (video.IsRequirePayment)

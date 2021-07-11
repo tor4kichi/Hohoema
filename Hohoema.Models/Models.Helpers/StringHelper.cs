@@ -67,7 +67,7 @@ namespace Hohoema.Models.Helpers
             if (source == target) return 1.0;
 
             int stepsToSame = ComputeLevenshteinDistance(source, target);
-            return (1.0 - ((double)stepsToSame / (double)Math.Max(source.Length, target.Length)));
+            return 1.0 - stepsToSame / (double)Math.Max(source.Length, target.Length);
         }
 
     }

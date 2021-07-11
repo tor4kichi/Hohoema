@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.Infrastructure;
 using I18NPortable;
 using LiteDB;
@@ -112,14 +113,13 @@ namespace Hohoema.Models.Domain.Playlist
     }
 
 
-    public record LocalPlaylistSortOption : IPlaylistSortOption
+    public record QueuePlaylistSortOption : IPlaylistSortOption
     {
         public LocalMylistSortKey SortKey { get; init; }
 
         public LocalMylistSortOrder SortOrder { get; init; }
 
-
-        string _label;
+        string? _label;
         public string Label => _label ??= $"LocalMylistSortKey.{SortKey}_{SortOrder}".Translate();
 
         public string Serialize()
@@ -127,30 +127,30 @@ namespace Hohoema.Models.Domain.Playlist
             return System.Text.Json.JsonSerializer.Serialize(this);
         }
 
-        public static LocalPlaylistSortOption Deserialize(string serializedText)
+        public static QueuePlaylistSortOption Deserialize(string serializedText)
         {
-            return System.Text.Json.JsonSerializer.Deserialize<LocalPlaylistSortOption>(serializedText);
+            return System.Text.Json.JsonSerializer.Deserialize<QueuePlaylistSortOption>(serializedText);
         }
 
         public bool Equals(IPlaylistSortOption other)
         {
-            return other is LocalPlaylistSortOption sortOption ? this == sortOption : false;
+            return other is QueuePlaylistSortOption sortOption ? this == sortOption : false;
         }
     }
 
     public class QueuePlaylist : ReadOnlyObservableCollection<QueuePlaylistItem>, IUserManagedPlaylist
     {
-        public static LocalPlaylistSortOption[] SortOptions { get; } = new LocalPlaylistSortOption[]
+        public static QueuePlaylistSortOption[] SortOptions { get; } = new QueuePlaylistSortOption[]
 {
-            new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.AddedAt, SortOrder = LocalMylistSortOrder.Desc },
-            new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.AddedAt, SortOrder = LocalMylistSortOrder.Asc },
-            new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.Title, SortOrder = LocalMylistSortOrder.Desc },
-            new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.Title, SortOrder = LocalMylistSortOrder.Asc },
-            new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.PostedAt, SortOrder = LocalMylistSortOrder.Desc },
-            new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.PostedAt, SortOrder = LocalMylistSortOrder.Asc },
+            new QueuePlaylistSortOption() { SortKey = LocalMylistSortKey.AddedAt, SortOrder = LocalMylistSortOrder.Desc },
+            new QueuePlaylistSortOption() { SortKey = LocalMylistSortKey.AddedAt, SortOrder = LocalMylistSortOrder.Asc },
+            new QueuePlaylistSortOption() { SortKey = LocalMylistSortKey.Title, SortOrder = LocalMylistSortOrder.Desc },
+            new QueuePlaylistSortOption() { SortKey = LocalMylistSortKey.Title, SortOrder = LocalMylistSortOrder.Asc },
+            new QueuePlaylistSortOption() { SortKey = LocalMylistSortKey.PostedAt, SortOrder = LocalMylistSortOrder.Desc },
+            new QueuePlaylistSortOption() { SortKey = LocalMylistSortKey.PostedAt, SortOrder = LocalMylistSortOrder.Asc },
         };
 
-        public static LocalPlaylistSortOption DefaultSortOption => SortOptions[1];
+        public static QueuePlaylistSortOption DefaultSortOption => SortOptions[0];
 
         IPlaylistSortOption[] IPlaylist.SortOptions => SortOptions;
 
@@ -161,6 +161,7 @@ namespace Hohoema.Models.Domain.Playlist
 
         private readonly IMessenger _messenger;
         private readonly QueuePlaylistRepository _queuePlaylistRepository;
+        private readonly QueuePlaylistSetting _queuePlaylistSetting;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly Dictionary<VideoId, QueuePlaylistItem> _itemEntityMap;
 
@@ -173,13 +174,15 @@ namespace Hohoema.Models.Domain.Playlist
 
         public QueuePlaylist(
             IMessenger messenger,
-            QueuePlaylistRepository queuePlaylistRepository
+            QueuePlaylistRepository queuePlaylistRepository,
+            QueuePlaylistSetting queuePlaylistSetting
             )
             : base(new ObservableCollection<QueuePlaylistItem>(GetQueuePlaylistItems(queuePlaylistRepository, out var itemEntityMap)))
         {
             _itemEntityMap = itemEntityMap;
             _messenger = messenger;
             _queuePlaylistRepository = queuePlaylistRepository;
+            _queuePlaylistSetting = queuePlaylistSetting;
         }
 
         static IEnumerable<QueuePlaylistItem> GetQueuePlaylistItems(QueuePlaylistRepository queuePlaylistRepository, out Dictionary<VideoId, QueuePlaylistItem> eneityMap)
@@ -333,8 +336,60 @@ namespace Hohoema.Models.Domain.Playlist
         public Task<IEnumerable<IVideoContent>> GetAllItemsAsync(IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
         {
             var items = this.ToList();
-            var sort = sortOption as LocalPlaylistSortOption;
-            items.Sort(GetSortComparison(sort.SortKey, sort.SortOrder));
+            var sort = sortOption as QueuePlaylistSortOption;
+
+            if (_queuePlaylistSetting.IsGroupingNearByTitleThenByTitleAscending)
+            {
+                var titleSimulalityThreshold = _queuePlaylistSetting.TitleSimulalityThreshold;
+                // タイトルの類似度ごとにグループ化し
+                Dictionary<QueuePlaylistItem, List<QueuePlaylistItem>> groupedByTitleSimulality = new();
+
+                items.Sort(GetSortComparison(sort.SortKey, sort.SortOrder));
+
+                foreach (var item in items)
+                {
+                    QueuePlaylistItem groupKey = null;
+                    foreach (var key in groupedByTitleSimulality.Keys)
+                    {
+                        if (StringHelper.CalculateSimilarity(item.Title, key.Title) > titleSimulalityThreshold)
+                        {
+                            groupKey = key;
+                            break;
+                        }
+                    }
+
+                    if (groupKey is not null)
+                    {
+                        groupedByTitleSimulality[groupKey].Add(item);
+                    }
+                    else
+                    {
+                        groupedByTitleSimulality.Add(item, new List<QueuePlaylistItem>() { item });
+                    }
+                }
+
+                // グループ内においてタイトル昇順でソート
+                {
+                    var titleAscComparision = GetSortComparison(LocalMylistSortKey.Title, LocalMylistSortOrder.Asc);
+                    foreach (var groupList in groupedByTitleSimulality.Values)
+                    {
+                        groupList.Sort(titleAscComparision);
+                    }
+                }
+
+                // 各グループの一番新しく投稿されたっぽいアイテムを代表値としてソート
+                List<QueuePlaylistItem> keyList = groupedByTitleSimulality.Keys.ToList();
+                keyList.Sort(GetSortComparison(sort.SortKey, sort.SortOrder));
+
+                // グループを全て連結してリスト化
+                items = keyList.SelectMany(key => groupedByTitleSimulality[key]).ToList();
+            }
+            else
+            {
+                items.Sort(GetSortComparison(sort.SortKey, sort.SortOrder));
+            }
+
+
             return Task.FromResult(items.Cast<IVideoContent>());
         }
 

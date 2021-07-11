@@ -46,6 +46,11 @@
 
               <CommandBar.PrimaryCommands>
 
+                <AppBarToggleButton IsChecked="{Binding IsEnableGroupingByTitleSimulality.Value, Mode=TwoWay}" 
+                                    Label="グループ化"
+                                    Icon="Sort"
+                                    />
+
                 <AppBarElementContainer>
                   <ComboBox ItemsSource="{Binding SortOptionItems}"
                             SelectedItem="{Binding SelectedSortOptionItem, Mode=TwoWay}"

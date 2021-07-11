@@ -25,6 +25,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
         public QueuePlaylist QueuePlaylist { get; }
 
         private readonly IMessenger _messenger;
+        private readonly QueuePlaylistSetting _queuePlaylistSetting;
         private readonly NicoVideoProvider _nicoVideoProvider;
         
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -36,6 +37,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
         public VideoQueuePageViewModel(
             IMessenger messenger,
             QueuePlaylist queuePlaylist,
+            QueuePlaylistSetting queuePlaylistSetting,
             ApplicationLayoutManager applicationLayoutManager,
             RemoveWatchedItemsInAfterWatchPlaylistCommand removeWatchedItemsInAfterWatchPlaylistCommand,
             PlaylistPlayAllCommand playlistPlayAllCommand,
@@ -46,12 +48,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
         {
             _messenger = messenger;
             QueuePlaylist = queuePlaylist;
+            _queuePlaylistSetting = queuePlaylistSetting;
             ApplicationLayoutManager = applicationLayoutManager;
             RemoveWatchedItemsInAfterWatchPlaylistCommand = removeWatchedItemsInAfterWatchPlaylistCommand;
             PlaylistPlayAllCommand = playlistPlayAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             _nicoVideoProvider = nicoVideoProvider;
+
+            IsEnableGroupingByTitleSimulality = _queuePlaylistSetting.ToReactivePropertyAsSynchronized(x => x.IsGroupingNearByTitleThenByTitleAscending, mode: ReactivePropertyMode.DistinctUntilChanged)
+                .AddTo(_CompositeDisposable);
 
             CurrentPlaylistToken = this.ObserveProperty(x => x.SelectedSortOptionItem)
                 .Select(x => new PlaylistToken(QueuePlaylist, x))
@@ -60,17 +66,19 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
 
         }
 
+        public ReactiveProperty<bool> IsEnableGroupingByTitleSimulality { get; }
+
         public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
 
 
-        private LocalPlaylistSortOption _selectedSearchOptionItem;
-        public LocalPlaylistSortOption SelectedSortOptionItem
+        private QueuePlaylistSortOption _selectedSearchOptionItem;
+        public QueuePlaylistSortOption SelectedSortOptionItem
         {
             get { return _selectedSearchOptionItem; }
             set { SetProperty(ref _selectedSearchOptionItem, value); }
         }
 
-        public LocalPlaylistSortOption[] SortOptionItems { get; } = QueuePlaylist.SortOptions;
+        public QueuePlaylistSortOption[] SortOptionItems { get; } = QueuePlaylist.SortOptions;
 
 
         public override void OnNavigatedTo(INavigationParameters parameters)
@@ -79,7 +87,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
 
             SelectedSortOptionItem = QueuePlaylist.DefaultSortOption;
 
-            this.ObserveProperty(x => x.SelectedSortOptionItem)
+            Observable.Merge(
+                IsEnableGroupingByTitleSimulality.ToUnit(),
+                this.ObserveProperty(x => x.SelectedSortOptionItem, isPushCurrentValueAtFirst: false).ToUnit()
+                )
                 .Subscribe(sort => ResetList())
                 .AddTo(_NavigatingCompositeDisposable);
 
@@ -118,12 +129,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
     public class QueuePlaylistIncrementalLoadingSource : IIncrementalSource<VideoListItemControlViewModel>
     {
         private readonly QueuePlaylist _playlist;
-        private readonly LocalPlaylistSortOption _sortOption;
+        private readonly QueuePlaylistSortOption _sortOption;
         private readonly NicoVideoProvider _nicoVideoProvider;
 
         public QueuePlaylistIncrementalLoadingSource(
             QueuePlaylist playlist,
-            LocalPlaylistSortOption sortOption,
+            QueuePlaylistSortOption sortOption,
             NicoVideoProvider nicoVideoProvider
             )
         {
@@ -146,7 +157,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
 
 
             ct.ThrowIfCancellationRequested();
-            return _items.Skip(head).Take(pageSize).Select((item, i) => new VideoListItemControlViewModel(item) { PlaylistItemToken = new PlaylistItemToken(_playlist, _sortOption, item, head + i) });
+            return _items.Skip(head).Take(pageSize).Select((item, i) => new VideoListItemControlViewModel(item) { PlaylistItemToken = new PlaylistItemToken(_playlist, _sortOption, item) });
         }
     }
 }
