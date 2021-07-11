@@ -221,15 +221,15 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         private async Task<VideoPlayRequestMessageData> VideoPlayAsync(IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent playlistItem, int? index, PlayerDisplayView displayMode, bool nowViewChanging = false)
         {
-            static async Task Play(HohoemaPlaylistPlayer player, IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent playlistItem, int? index, TimeSpan? initialPosition)
+            static Task<bool> Play(HohoemaPlaylistPlayer player, IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent playlistItem, int? index, TimeSpan? initialPosition)
             {
                 if (playlistItem == null)
                 {
-                    await player.PlayAsync(playlist, sortOption);
+                    return player.PlayAsync(playlist, sortOption);
                 }
                 else
                 {
-                    await player.PlayAsync(playlist, sortOption, playlistItem, index, initialPosition);
+                    return player.PlayAsync(playlist, sortOption, playlistItem, index, initialPosition);
                 }
             }
             
@@ -268,16 +268,27 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
             await sourcePlayerView.ShowAsync();
 
-            await Play(sourcePlayerView.PlaylistPlayer, playlist, sortOption, playlistItem, index, initialPosition);
+            if (await Play(sourcePlayerView.PlaylistPlayer, playlist, sortOption, playlistItem, index, initialPosition))
+            {
+                // プレイリストから再生した場合playlistItemがnullのケースがありうる
+                sourcePlayerView.SetTitle(await ResolveVideoContentNameAsync(sourcePlayerView.PlaylistPlayer.CurrentPlaylistItem.VideoId));
 
-            // プレイリストから再生した場合playlistItemがnullのケースがありうる
-            sourcePlayerView.SetTitle(await ResolveVideoContentNameAsync(sourcePlayerView.PlaylistPlayer.CurrentPlaylistItem.VideoId));
+                _lastPlaylist = playlist;
+                _lastPlaylistSortOption = sortOption;
+                _lastPlayedItem = playlistItem;
+                _lastPlayedItemIndex = index;
+                return new VideoPlayRequestMessageData() { IsSuccess = true };
+            }
+            else
+            {
+                sourcePlayerView.SetTitle(string.Empty);
+                _lastPlaylist = null;
+                _lastPlaylistSortOption = null;
+                _lastPlayedItem = null;
+                _lastPlayedItemIndex = -1;
 
-            _lastPlaylist = playlist;
-            _lastPlaylistSortOption = sortOption;
-            _lastPlayedItem = playlistItem;
-            _lastPlayedItemIndex = index;
-            return new VideoPlayRequestMessageData() { IsSuccess = true };
+                return new VideoPlayRequestMessageData() { IsSuccess = false };
+            }
         }
 
 

@@ -43,6 +43,9 @@ namespace Hohoema.Models.Domain.Niconico.Search
 
         IPlaylistSortOption IPlaylist.DefaultSortOption => DefaultSortOption;
 
+
+        public int OneTimeLoadItemsCount => 50;
+
         public async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
         {
             var sort = sortOption as CeApiSearchVideoPlaylistSortOption;

@@ -49,6 +49,9 @@ namespace Hohoema.Models.Domain.User
 
         IPlaylistSortOption IPlaylist.DefaultSortOption => DefaultSortOption;
 
+
+        public int OneTimeLoadItemsCount => 30;
+
         public async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
         {
             var sort = sortOption as UserVideoPlaylistSortOption;

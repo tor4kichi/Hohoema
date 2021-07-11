@@ -51,6 +51,7 @@ namespace Hohoema.Models.Domain.Playlist
 
     public interface IUnlimitedPlaylist : IPlaylist
     {
+        int OneTimeLoadItemsCount { get; }
         Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, IPlaylistSortOption sortOption, CancellationToken cancellationToken = default);
     }
 

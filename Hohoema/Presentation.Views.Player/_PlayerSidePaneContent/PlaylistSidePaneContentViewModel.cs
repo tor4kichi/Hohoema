@@ -24,6 +24,8 @@ using Microsoft.Toolkit.Diagnostics;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Uno;
 using Uno.Disposables;
+using Microsoft.Toolkit.Uwp;
+using System.Collections.Generic;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {
@@ -76,16 +78,27 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             _hohoemaPlaylistPlayer.GetBufferedItems()
                 .Subscribe(items => 
                 {
-                    _scheduler.Schedule(() => 
+                    _scheduler.Schedule(async () => 
                     {
-                        CurrentItems = items;
+                        if (items is BufferedPlaylistItemsSource bufferedPlaylistItemsSource)
+                        {
+                            //                            var items = new HohoemaListingPageViewModelBase<IVideoContent>.HohoemaIncrementalLoadingCollection(bufferedPlaylistItemsSource);
+                            var items = new IncrementalLoadingCollection<BufferedPlaylistItemsSource, IVideoContent>(bufferedPlaylistItemsSource, bufferedPlaylistItemsSource.OneTimeLoadingItemsCount);
+                            //await items.LoadMoreItemsAsync((uint)BufferedPlaylistItemsSource.OneTimeLoadingItemsCount);
+                            CurrentItems = items;
+                        }
+                        else
+                        {
+                            CurrentItems = items;
+                        }
                     });
                 })
                 .AddTo(_CompositeDisposable);
-
-
-            
         }
+
+
+        
+
 
         public override void Dispose()
         {
@@ -109,8 +122,8 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         public IReadOnlyReactiveProperty<IPlaylist> CurrentPlaylist { get; }
         public IReadOnlyReactiveProperty<IVideoContent> CurrentPlaylistItem{ get; }
 
-        private ReadOnlyObservableCollection<IVideoContent> _currentItems;
-        public ReadOnlyObservableCollection<IVideoContent> CurrentItems
+        private IList<IVideoContent> _currentItems;
+        public IList<IVideoContent> CurrentItems
         {
             get { return _currentItems; }
             set { SetProperty(ref _currentItems, value); }

@@ -48,6 +48,8 @@ namespace Hohoema.Models.Domain.Niconico.Channel
 
         public static ChannelVideoPlaylistSortOption DefaultSortOption => SortOptions[0];
 
+        public int OneTimeLoadItemsCount => ChannelClient.OneTimeItemsCountOnGetChannelVideoAsync;
+
         public async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
         {
             var sort = sortOption as ChannelVideoPlaylistSortOption;
