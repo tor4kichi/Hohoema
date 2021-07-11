@@ -31,6 +31,8 @@
             <CommandBar>
               <CommandBar.PrimaryCommands>
 
+                <AppBarToggleButton x:Name="TagFollowButton" Label="{i18nExt:Localize Key=Follow}" Icon="Favorite" IsChecked="{Binding FollowContext.IsFollowing, Mode=TwoWay}" IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
+                
                 <AppBarElementContainer>
                   <ComboBox ItemsSource="{Binding SortOptions}"
                           SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
@@ -52,8 +54,6 @@
 
 
 
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
-
                 <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                   <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Click">
@@ -61,10 +61,12 @@
                     </core:EventTriggerBehavior>
                   </i:Interaction.Behaviors>
                 </AppBarButton>
-                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
-                <AppBarToggleButton x:Name="TagFollowButton" Label="{i18nExt:Localize Key=Follow}" Icon="Favorite" IsChecked="{Binding FollowContext.IsFollowing, Mode=TwoWay}" IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
+                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
+                
                 <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{i18nExt:Localize Key=SubscriptionAddTag}"
                                 Command="{Binding AddTagSearchSubscriptionCommand}"
                                 CommandParameter="{Binding Keyword}"

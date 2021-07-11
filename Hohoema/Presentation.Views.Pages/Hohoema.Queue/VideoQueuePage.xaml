@@ -65,9 +65,6 @@
                                 CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
 
 
-                <!-- 非選択中 -->
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
-
                 <AppBarButton x:Name="ScrollToTopButton"
                                 Icon="Up"
                                 Label="{i18nExt:Localize Key=ReturnToPageTop}">
@@ -78,6 +75,8 @@
                     </core:EventTriggerBehavior>
                   </i:Interaction.Behaviors>
                 </AppBarButton>
+
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
                 <AppBarButton x:Name="RemoveWatchedItemsButton"

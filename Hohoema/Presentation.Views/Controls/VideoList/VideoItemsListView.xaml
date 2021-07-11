@@ -57,25 +57,25 @@
             <uwpcontrol:DockPanel x:Name="SelectActionsContainer" Visibility="Collapsed"
                             uwpcontrol:DockPanel.Dock="Top" 
                             >
-              <CommandBar OverflowButtonVisibility="Collapsed" DefaultLabelPosition="Right" uwpcontrol:DockPanel.Dock="Left"
+              <CommandBar OverflowButtonVisibility="Collapsed" DefaultLabelPosition="Right" uwpcontrol:DockPanel.Dock="Right"
                     IsDynamicOverflowEnabled="False"
-                          
+                          Margin="0 0 48 0"
                     >
-                <AppBarButton x:Name="SelectActions_Exit" Label="{i18nExt:Localize Key=SelectEnd}"
-                          Icon="Clear"
-                          >
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <core:CallMethodAction TargetObject="{x:Bind _selectionContext}" MethodName="EndSelectioin" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
                 <AppBarButton x:Name="SelectActions_SwitchAll" Label="{i18nExt:Localize Key=SelectAll}"
                           Icon="List"
                           >
                   <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Click">
                       <core:CallMethodAction TargetObject="{x:Bind _selectionContext}" MethodName="ToggleSelectAll" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+                <AppBarButton x:Name="SelectActions_Exit" Label="{i18nExt:Localize Key=SelectEnd}"
+                          Icon="Clear"
+                          >
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <core:CallMethodAction TargetObject="{x:Bind _selectionContext}" MethodName="EndSelectioin" />
                     </core:EventTriggerBehavior>
                   </i:Interaction.Behaviors>
                 </AppBarButton>
@@ -88,6 +88,8 @@
                   Margin="0 0 0 0"
                           IsDynamicOverflowEnabled="True"
                           OverflowButtonVisibility="Visible"
+                          HorizontalAlignment="Left"
+                          HorizontalContentAlignment="Stretch"
                   >
 
 

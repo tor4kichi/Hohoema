@@ -40,6 +40,9 @@
               <controls:AppTitleBar Title="{Binding Title}" />
             </CommandBar.Content>
             <CommandBar.PrimaryCommands>
+
+              <AppBarToggleButton x:Name="ToggleMylistFavoriteButton" IsChecked="{Binding FollowContext.IsFollowing, Mode=TwoWay}" IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" Icon="Favorite" Label="{i18nExt:Localize Key=Follow}" />
+
               <AppBarElementContainer IsEnabled="False">
                 <StackPanel Orientation="Horizontal">
 
@@ -71,8 +74,6 @@
 
               </AppBarElementContainer>
               <!-- 非選択中 -->
-              <AppBarToggleButton x:Name="ToggleMylistFavoriteButton" IsChecked="{Binding FollowContext.IsFollowing, Mode=TwoWay}" IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" Icon="Favorite" Label="{i18nExt:Localize Key=Follow}" />
-              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
               <AppBarButton x:Name="PlayAllButton" Icon="Play" Label="{i18nExt:Localize Key=PlayAll}" Command="{Binding PlaylistPlayAllCommand}" CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                 <i:Interaction.Behaviors>
@@ -81,6 +82,8 @@
                   </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
               </AppBarButton>
+
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
               <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" VerticalAlignment="Center"></AppBarButton>

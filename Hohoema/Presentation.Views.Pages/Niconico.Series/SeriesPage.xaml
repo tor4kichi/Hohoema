@@ -51,11 +51,6 @@
                                 Command="{Binding PlaylistPlayAllCommand}"
                                 CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
 
-              <AppBarButton Label="{i18nExt:Localize Key=SubscriptionAdd}"
-                              Command="{Binding AddSubscriptionCommand}"
-                              CommandParameter="{Binding Series}"
-                              />
-              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Click">
@@ -63,8 +58,14 @@
                   </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
               </AppBarButton>
+
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
+              <AppBarButton Label="{i18nExt:Localize Key=SubscriptionAdd}"
+                              Command="{Binding AddSubscriptionCommand}"
+                              CommandParameter="{Binding Series}"
+                              />
             </CommandBar.SecondaryCommands>
           </CommandBar>
         </Grid>

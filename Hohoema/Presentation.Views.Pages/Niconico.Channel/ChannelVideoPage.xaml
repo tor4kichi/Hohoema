@@ -41,6 +41,15 @@
 
             <CommandBar.PrimaryCommands>
 
+              <AppBarToggleButton x:Name="ChannelFollowButton"
+                                    Background="Transparent"
+                                    IsChecked="{Binding FollowContext.IsFollowing, Mode=TwoWay}"
+                                    IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" 
+                                    Icon="Favorite"
+                                    Label="{i18nExt:Localize Key=Follow}"
+                                    Visibility="Collapsed"
+                                    />
+
               <AppBarElementContainer>
                 <ComboBox ItemsSource="{Binding SortOptions}"
                           SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
@@ -61,8 +70,6 @@
                                 CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
 
               
-              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
-
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Click">
@@ -71,6 +78,10 @@
                 </i:Interaction.Behaviors>
               </AppBarButton>
 
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
               <AppBarButton x:Name="RefreshButton"
                               Label="{i18nExt:Localize Key=Refresh}" 
                               Icon="Refresh"
@@ -80,16 +91,6 @@
                           >
               </AppBarButton>
 
-              <AppBarToggleButton x:Name="ChannelFollowButton"
-                                    Background="Transparent"
-                                    IsChecked="{Binding FollowContext.IsFollowing, Mode=TwoWay}"
-                                    IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" 
-                                    Icon="Favorite"
-                                    Label="{i18nExt:Localize Key=Follow}"
-                                    Visibility="Collapsed"
-                                    />
-            </CommandBar.PrimaryCommands>
-            <CommandBar.SecondaryCommands>
               <AppBarButton Label="{i18nExt:Localize Key=OpenWithBrowser}"
                                             Command="{Binding OpenLinkCommand}"
                                               CommandParameter="{Binding ChannelInfo}"

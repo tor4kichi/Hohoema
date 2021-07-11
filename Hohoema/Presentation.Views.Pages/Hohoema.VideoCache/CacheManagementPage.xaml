@@ -94,6 +94,18 @@
                 </uwpcontrols:DockPanel>
               </AppBarElementContainer>
 
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Click">
+                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+            </CommandBar.PrimaryCommands>
+
+            <CommandBar.SecondaryCommands>
               <AppBarButton Icon="Help">
                 <AppBarButton.Flyout>
                   <Flyout>
@@ -110,16 +122,9 @@
                   </Flyout>
                 </AppBarButton.Flyout>
               </AppBarButton>
-              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
-              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
-                <i:Interaction.Behaviors>
-                  <core:EventTriggerBehavior EventName="Click">
-                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                  </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-              </AppBarButton>
-            </CommandBar.PrimaryCommands>
+
+            </CommandBar.SecondaryCommands>
           </CommandBar>
         </Grid>
       </videolistPage:VideoItemsListView.Header>

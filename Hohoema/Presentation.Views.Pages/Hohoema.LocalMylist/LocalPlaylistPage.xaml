@@ -52,8 +52,6 @@
                                 Visibility="Collapsed"
                                 />
 
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
-
                 <!-- 非選択中 -->
                 <AppBarElementContainer>
                   <ComboBox ItemsSource="{Binding SortOptionItems}"
@@ -66,7 +64,6 @@
                     </ComboBox.ItemTemplate>
                   </ComboBox>
                 </AppBarElementContainer>
-                
                 <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"
@@ -83,8 +80,11 @@
                     </core:EventTriggerBehavior>
                   </i:Interaction.Behaviors>
                 </AppBarButton>
+
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
+
                 <AppBarButton x:Name="DeletePlaylistButton"
                                 Command="{Binding LocalPlaylistDeleteCommand}"
                                 CommandParameter="{Binding Playlist}"

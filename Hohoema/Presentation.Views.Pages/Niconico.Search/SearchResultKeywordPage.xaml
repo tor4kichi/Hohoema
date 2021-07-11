@@ -52,9 +52,6 @@
                                 Command="{Binding PlaylistPlayAllCommand}"
                                 CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
 
-
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
-
                 <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                   <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Click">
@@ -62,9 +59,12 @@
                     </core:EventTriggerBehavior>
                   </i:Interaction.Behaviors>
                 </AppBarButton>
-                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
+
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
+                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
+
                 <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{i18nExt:Localize Key=SubscriptionAddKeyword}"
                                 Command="{Binding AddKeywordSearchSubscriptionCommand}"
                                 CommandParameter="{Binding Keyword}"
