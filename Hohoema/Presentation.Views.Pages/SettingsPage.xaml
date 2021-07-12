@@ -139,12 +139,8 @@
         </CommandBar>
       </StackPanel>
 
-      <uwpcontrols:ListDetailsView>
-        
-      </uwpcontrols:ListDetailsView>
-      
-      <ScrollViewer Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <StackPanel x:Name="ContentPanel" Spacing="16" Padding="0 0 0 32" MaxWidth="480" >
+      <ScrollViewer>
+        <StackPanel x:Name="ContentPanel" Spacing="16" Padding="0 0 0 32" MinWidth="400" MaxWidth="640" HorizontalAlignment="Left">
           <!-- アプリの表示設定 -->
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">

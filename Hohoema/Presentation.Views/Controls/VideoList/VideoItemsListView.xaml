@@ -35,7 +35,7 @@
               SelectionMode="None"
               HorizontalContentAlignment="Stretch"
               ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
-              uwpExtension:ScrollViewerExtensions.VerticalScrollBarMargin="0 48 0 0"
+              uwpExtension:ScrollViewerExtensions.VerticalScrollBarMargin="0 0 0 0"
               xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
               IsItemClickEnabled="True"
               Padding="{x:Bind ItemsPanelPadding, Mode=OneWay}"

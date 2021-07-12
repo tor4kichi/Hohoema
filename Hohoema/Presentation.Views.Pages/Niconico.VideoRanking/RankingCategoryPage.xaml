@@ -10,12 +10,12 @@
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
   NavigationCacheMode="Enabled"
   mc:Ignorable="d"
   >
 
-  <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                                        >
+  <Grid>
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
                                       ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"

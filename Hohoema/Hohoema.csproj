@@ -835,7 +835,7 @@
       <Version>7.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.4.3</Version>
+      <Version>2.6.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>4.2.1</Version>
