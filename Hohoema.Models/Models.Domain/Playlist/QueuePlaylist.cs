@@ -368,9 +368,9 @@ namespace Hohoema.Models.Domain.Playlist
                     }
                 }
 
-                // グループ内においてタイトル昇順でソート
+                // グループ内アイテムを投稿日時 昇順でソート
                 {
-                    var titleAscComparision = GetSortComparison(LocalMylistSortKey.Title, LocalMylistSortOrder.Asc);
+                    var titleAscComparision = GetSortComparison(LocalMylistSortKey.PostedAt, LocalMylistSortOrder.Asc);
                     foreach (var groupList in groupedByTitleSimulality.Values)
                     {
                         groupList.Sort(titleAscComparision);
