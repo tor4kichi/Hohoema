@@ -223,7 +223,7 @@
                 <ToggleSwitch IsOn="{Binding NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
               <StackPanel Margin="0 8">
-                <uwpcontrols:Expander Header="{i18nExt:Localize Key=ShowFilteredVideoOwnerNames}" HorizontalContentAlignment="Left" Foreground="DimGray">
+                <uwpcontrols:Expander Header="{i18nExt:Localize Key=ShowFilteredVideoOwnerNames}" HorizontalContentAlignment="Left" >
                   <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
                             Margin="16 8"
                             IsTabStop="False"
