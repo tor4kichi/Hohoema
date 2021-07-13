@@ -355,8 +355,6 @@ namespace Hohoema.Presentation.ViewModels.Player
         {
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
 
-            VideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem?.VideoId;
-
             _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentQuality)
                 .Subscribe(quality => _scheduler.Schedule(() => CurrentQuality = quality))
                 .AddTo(_NavigatingCompositeDisposable);
@@ -369,6 +367,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                         if (x == null)
                         {
                             VideoInfo = null;
+                            VideoId = null;
                             VideoSeries = null;
                             RaisePropertyChanged(nameof(VideoContent));
                             RaisePropertyChanged(nameof(VideoSeries));
@@ -390,6 +389,8 @@ namespace Hohoema.Presentation.ViewModels.Player
                         var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(x.VideoId);
                         VideoInfo = video;
                         CheckDeleted(res);
+
+                        VideoId = VideoInfo.VideoId;
 
                         MediaPlayer.AutoPlay = true;
 
@@ -426,6 +427,10 @@ namespace Hohoema.Presentation.ViewModels.Player
                         if (NiconicoSession.IsLoggedIn)
                         {
                             LikesContext = new VideoLikesContext(VideoDetails, NiconicoSession.ToolkitContext.Likes, _NotificationService);
+                        }
+                        else
+                        {
+                            LikesContext = VideoLikesContext.Default;
                         }
                     });
                 })
