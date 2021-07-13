@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Legacy;
-using Hohoema.Models.UseCase.NicoVideos.Player;
+using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using System;
 using System.Collections.Generic;
 using System.Linq;

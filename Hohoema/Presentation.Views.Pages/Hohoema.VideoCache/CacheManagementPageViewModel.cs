@@ -11,7 +11,7 @@ using System.Threading;
 using Prism.Commands;
 using Windows.System;
 using Prism.Navigation;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase;
 using I18NPortable;
 using System.Runtime.CompilerServices;
@@ -51,8 +51,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
             PageManager pageManager,
             DialogService dialogService,
             NotificationService notificationService,
-            HohoemaPlaylist hohoemaPlaylist,
-            SelectionModeToggleCommand selectionModeToggleCommand
+            SelectionModeToggleCommand selectionModeToggleCommand,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand
             )
         {
             _scheduler = scheduler;
@@ -65,11 +65,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
             NicoVideoProvider = nicoVideoProvider;
             HohoemaDialogService = dialogService;
             NotificationService = notificationService;
-            HohoemaPlaylist = hohoemaPlaylist;
             SelectionModeToggleCommand = selectionModeToggleCommand;
-
-            
-
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             Groups = new (new[] 
             {
                 VideoCacheStatus.Failed,
@@ -126,8 +123,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public NotificationService NotificationService { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
         public DelegateCommand OpenCurrentCacheFolderCommand { get; }
         public DialogService HohoemaDialogService { get; }
 

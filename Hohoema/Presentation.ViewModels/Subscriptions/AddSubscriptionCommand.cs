@@ -60,7 +60,7 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions
                     OwnerType.Channel => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.Channel, default(string)),
                     _ => throw new NotSupportedException()
                 },
-                IMylist mylist => (id: mylist.Id, sourceType: SubscriptionSourceType.Mylist, mylist.Name),
+                IMylist mylist => (id: mylist.PlaylistId.Id, sourceType: SubscriptionSourceType.Mylist, mylist.Name),
                 IUser user => (id: user.UserId, sourceType: SubscriptionSourceType.User, user.Nickname),
                 ISeries series => (id: series.Id.ToString(), sourceType: SubscriptionSourceType.Series, series.Title),
                 _ => throw new NotSupportedException(),

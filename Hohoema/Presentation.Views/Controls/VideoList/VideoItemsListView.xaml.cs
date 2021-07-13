@@ -1,10 +1,14 @@
 ﻿using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Hohoema.Models.UseCase.Niconico.Video;
+using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Presentation.ViewModels.Niconico.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.Views.Flyouts;
 using Prism.Ioc;
@@ -174,11 +178,11 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
             }
         }
 
+        private readonly QueuePlaylist _queuePlaylist;
         private readonly VideoItemsSelectionContext _selectionContext;
         private readonly NiconicoSession _niconicoSession;
         private readonly LocalMylistManager _localPlaylistManager;
         private readonly LoginUserOwnedMylistManager _mylistManager;
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly MylistAddItemCommand _addMylistCommand;
         private readonly MylistRemoveItemCommand _removeMylistCommand;
         private readonly LocalPlaylistAddItemCommand _localMylistAddCommand;
@@ -198,7 +202,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
             _niconicoSession = App.Current.Container.Resolve<NiconicoSession>();
             _localPlaylistManager = App.Current.Container.Resolve<LocalMylistManager>();
             _mylistManager = App.Current.Container.Resolve<LoginUserOwnedMylistManager>();
-            _hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
+            _queuePlaylist = App.Current.Container.Resolve<QueuePlaylist>();
 
             _addQueueCommand = App.Current.Container.Resolve<QueueAddItemCommand>();
             _removeQueueCommand = App.Current.Container.Resolve<QueueRemoveItemCommand>();
@@ -291,7 +295,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
                 SelectActions_AddLocalMylist.Visibility = Visibility.Visible;
 
                 if (PlaylistPassToFlyout?.IsQueuePlaylist() ?? false
-                    || _selectionContext.SelectionItems.Any(x => _hohoemaPlaylist.QueuePlaylist.Any(y => x == y))
+                    || _selectionContext.SelectionItems.Any(x => _queuePlaylist.Contains(x.VideoId))
                     )
                 {
                     SelectActions_RemoveWatchAfter.Visibility = Visibility.Visible;
@@ -300,7 +304,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
                 else
                 {
                     var origin = PlaylistPassToFlyout?.GetOrigin();
-                    if (origin == PlaylistOrigin.Mylist && PlaylistPassToFlyout is LoginUserMylistPlaylist loginUserMylist)
+                    if (origin == PlaylistItemsSourceOrigin.Mylist && PlaylistPassToFlyout is LoginUserMylistPlaylist loginUserMylist)
                     {
                         if (_niconicoSession.IsLoggedIn)
                         {
@@ -316,10 +320,10 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
                             SelectActions_EditButtonSeparator.Visibility = Visibility.Visible;
                         }
                     }
-                    else if (origin == PlaylistOrigin.Local && PlaylistPassToFlyout is LocalPlaylist localPlaylist)
+                    else if (origin == PlaylistItemsSourceOrigin.Local && PlaylistPassToFlyout is LocalPlaylist localPlaylist)
                     {
                         SelectActions_RemoveLocalMylist.Visibility = Visibility.Visible;
-                        SelectActions_RemoveMylist.Command = new LocalPlaylistRemoveItemCommand(localPlaylist);
+                        SelectActions_RemoveLocalMylist.Command = new LocalPlaylistRemoveItemCommand(localPlaylist);
                         SelectActions_RemoveButtonSeparator.Visibility = Visibility.Visible;
                     }
                 }

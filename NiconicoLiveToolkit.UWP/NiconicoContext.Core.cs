@@ -322,7 +322,7 @@ namespace NiconicoToolkit
 		internal Task<T> SendJsonAsAsync<T>(HttpMethod httpMethod, string url, Dictionary<string, string> pairs, JsonSerializerOptions options = null, Action<System.Net.Http.Headers.HttpRequestHeaders> headerModifier = null)
 #endif
         {
-            return SendJsonAsAsync<T>(httpMethod, url, pairs, options, headerModifier);
+            return SendJsonAsAsync<T>(httpMethod, new Uri(url), pairs, options, headerModifier);
         }
 
 #if WINDOWS_UWP

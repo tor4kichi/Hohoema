@@ -14,24 +14,21 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Search
 {
     public class VideoSearchIncrementalSource : IIncrementalSource<VideoListItemControlViewModel>
 	{
-        public VideoSearchIncrementalSource(string keyword, bool isTagSearch, VideoSortKey sortKey, VideoSortOrder sortOrder, SearchProvider searchProvider)
+        public VideoSearchIncrementalSource(CeApiSearchVideoPlaylist searchVideoPlaylist, CeApiSearchVideoPlaylistSortOption sortOption, SearchProvider searchProvider)
         {
-            Keyword = keyword;
-            IsTagSearch = isTagSearch;
-			SortKey = sortKey;
-			SortOrder = sortOrder;
+            _searchVideoPlaylist = searchVideoPlaylist;
+            _sortOption = sortOption;
             SearchProvider = searchProvider;
         }
 
         // Note: 50以上じゃないと２回目の取得が失敗する
-        public const int OneTimeLoadingCount = 50;  
+        public const int OneTimeLoadingCount = 50;
+        private readonly CeApiSearchVideoPlaylist _searchVideoPlaylist;
+        private readonly CeApiSearchVideoPlaylistSortOption _sortOption;
 
-        public string Keyword { get; }
+        public string Keyword => _searchVideoPlaylist.PlaylistId.Id;
 
-		public bool IsTagSearch { get;  }
-
-		public VideoSortKey SortKey { get;  }
-		public VideoSortOrder SortOrder { get; }
+        public bool IsTagSearch => _searchVideoPlaylist.PlaylistId.Origin == Models.Domain.Playlist.PlaylistItemsSourceOrigin.SearchWithTag;
 
 		public SearchProvider SearchProvider { get; }
 
@@ -41,11 +38,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Search
             var head = pageIndex * pageSize;
             if (!IsTagSearch)
             {
-                res = await SearchProvider.GetKeywordSearch(Keyword, head, pageSize, SortKey, SortOrder);
+                res = await SearchProvider.GetKeywordSearch(Keyword, head, pageSize, _sortOption.SortKey, _sortOption.SortOrder);
             }
             else
             {
-                res = await SearchProvider.GetTagSearch(Keyword, head, pageSize, SortKey, SortOrder);
+                res = await SearchProvider.GetTagSearch(Keyword, head, pageSize, _sortOption.SortKey, _sortOption.SortOrder);
             }
 
             ct.ThrowIfCancellationRequested();
@@ -55,7 +52,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Search
                 return Enumerable.Empty<VideoListItemControlViewModel>();
             }
 
-            return res.Videos.Select(x => new VideoListItemControlViewModel(x.Video, x.Thread));
+            return res.Videos.Select((x, i) => new VideoListItemControlViewModel(x.Video, x.Thread) { PlaylistItemToken = new Models.Domain.Playlist.PlaylistItemToken(_searchVideoPlaylist, _sortOption, new CeApiSearchVideoContent(x.Video))});
         }
     }
 }

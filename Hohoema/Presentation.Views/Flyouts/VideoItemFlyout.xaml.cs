@@ -6,7 +6,7 @@ using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using Windows.UI.Xaml.Controls.Primitives;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using System.Collections.Generic;
 using System.Linq;
 using Hohoema.Presentation.Views.Helpers;
@@ -29,6 +29,10 @@ using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Presentation.ViewModels.VideoCache.Commands;
 using Hohoema.Models.Domain.VideoCache;
 using NiconicoToolkit.Video;
+using Hohoema.Presentation.ViewModels.Niconico.Video;
+using Hohoema.Models.Domain.LocalMylist;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.Views.Flyouts
 {
@@ -74,14 +78,16 @@ namespace Hohoema.Presentation.Views.Flyouts
         public bool AllowSelection { get; set; } = true;
 
 
-
-        public static HohoemaPlaylist HohoemaPlaylist { get; }
+        public static QueuePlaylist QueuePlaylist { get; }
         public static PageManager PageManager { get; }
         public static LoginUserOwnedMylistManager UserMylistManager { get; }
         public static LocalMylistManager LocalMylistManager { get; }
         public static SubscriptionManager SubscriptionManager { get; }
         public static VideoCacheManager VideoCacheManager { get; }
         public static VideoItemsSelectionContext VideoItemsSelectionContext { get; }
+
+        private static readonly IMessenger _messenger;
+
         public static MylistCreateCommand CreateMylistCommand { get; }
         public static LocalPlaylistCreateCommand CreateLocalMylistCommand { get; }
         public static AddSubscriptionCommand AddSubscriptionCommand { get; }
@@ -95,9 +101,10 @@ namespace Hohoema.Presentation.Views.Flyouts
 
         static VideoItemFlyout()
         {
+            QueuePlaylist = App.Current.Container.Resolve<QueuePlaylist>();
+            _messenger = App.Current.Container.Resolve<IMessenger>();
             CreateMylistCommand = App.Current.Container.Resolve<MylistCreateCommand>();
             CreateLocalMylistCommand = App.Current.Container.Resolve<LocalPlaylistCreateCommand>();
-            HohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
             PageManager = App.Current.Container.Resolve<PageManager>();
             UserMylistManager = App.Current.Container.Resolve<LoginUserOwnedMylistManager>();
             LocalMylistManager = App.Current.Container.Resolve<LocalMylistManager>();
@@ -194,10 +201,10 @@ namespace Hohoema.Presentation.Views.Flyouts
             RemoveWatchAfter.CommandParameter = dataContext;
             if (isMultipleSelection)
             {
-                AddWatchAfter.Visibility = SelectedVideoItems.All(x => HohoemaPlaylist.QueuePlaylist.Contains(x)).ToInvisibility();
-                RemoveWatchAfter.Visibility = SelectedVideoItems.Any(x => HohoemaPlaylist.QueuePlaylist.Contains(x)).ToVisibility();
+                AddWatchAfter.Visibility = SelectedVideoItems.All(x => QueuePlaylist.Contains(x.VideoId)).ToInvisibility();
+                RemoveWatchAfter.Visibility = SelectedVideoItems.Any(x => QueuePlaylist.Contains(x.VideoId)).ToVisibility();
             }
-            else if (HohoemaPlaylist.QueuePlaylist.Contains(content))
+            else if (QueuePlaylist.Contains(content.VideoId))
             {
                 AddWatchAfter.Visibility = Visibility.Collapsed;
                 RemoveWatchAfter.Visibility = Visibility.Visible;
@@ -210,39 +217,19 @@ namespace Hohoema.Presentation.Views.Flyouts
 
 
             // ここから連続再生
-            if ((SourceVideoItems?.Any() ?? false)
-                && !isMultipleSelection 
-                && Playlist?.Id == HohoemaPlaylist.QueuePlaylistId
+            if (!isMultipleSelection 
+                && content is not null
+                && playlist is not null
                 )
             {
-                AllPlayFromHereWithWatchAfter.Visibility = Visibility.Visible;
-                AllPlayFromHereWithWatchAfter.Command = new DelegateCommand<IVideoContent>((param) =>
-                {
-                    var index = SourceVideoItems.IndexOf(param);
-                    if (index < 0) { return; }
-                    var items = SourceVideoItems.Take(index + 1).ToList();
-                    if (items.Count >= 2)
-                    {
-                        foreach (var videoItem in items)
-                        {
-                            HohoemaPlaylist.AddQueuePlaylist(videoItem, ContentInsertPosition.Head);
-                        }
-                    }
-
-                    if (items.Count >= 1)
-                    {
-                        HohoemaPlaylist.Play(items.Last(), HohoemaPlaylist.QueuePlaylist);
-                    }
-                });
-                AllPlayFromHereWithWatchAfter.CommandParameter = dataContext;
-
+                PlaylistPlayFromHere.Visibility = Visibility.Visible;
+                PlaylistPlayFromHere.Command = new PlaylistPlayFromHereCommand(playlist, _messenger);
+                PlaylistPlayFromHere.CommandParameter = content;
             }
             else
             {
-                AllPlayFromHereWithWatchAfter.Visibility = Visibility.Collapsed;
+                PlaylistPlayFromHere.Visibility = Visibility.Collapsed;
             }
-
-
 
             // マイリスト
             AddToMylistItem.Visibility = UserMylistManager.IsLoginUserMylistReady ? Visibility.Visible : Visibility.Collapsed;

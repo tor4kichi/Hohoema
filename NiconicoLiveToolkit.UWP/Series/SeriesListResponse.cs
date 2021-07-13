@@ -50,7 +50,7 @@ namespace NiconicoToolkit.Series
     public sealed class Owner
     {
         [JsonPropertyName("type")]
-        public string Type { get; set; }
+        public OwnerType Type { get; set; }
 
         [JsonPropertyName("id")]
         public string Id { get; set; }

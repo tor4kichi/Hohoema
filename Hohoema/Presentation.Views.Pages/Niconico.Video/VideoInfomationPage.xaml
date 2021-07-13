@@ -83,7 +83,7 @@
                   <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
 
-                <Button Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoInfo}" 
+                <Button Command="{Binding VideoPlayWithQueueCommand}" CommandParameter="{Binding VideoInfo}" 
                         Grid.Column="0" HorizontalAlignment="Stretch" Style="{ThemeResource AccentButtonStyle}" Height="40">
                   <SymbolIcon Symbol="Play"  />
 
@@ -262,7 +262,7 @@
               </TextBlock>
 
               <local1:VideoItemsListView ItemsSource="{Binding PrevSeriesVideo}"
-                                         ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                         ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                          ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                                          >
               </local1:VideoItemsListView>
@@ -280,7 +280,7 @@
               </TextBlock>
 
               <local1:VideoItemsListView ItemsSource="{Binding NextSeriesVideo}"
-                                         ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                         ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                          ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                                          >
               </local1:VideoItemsListView>
@@ -395,7 +395,7 @@
             </ListView.Header>
             <i:Interaction.Behaviors>
               <core:EventTriggerBehavior EventName="ItemClick">
-                <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+                <core:InvokeCommandAction Command="{Binding VideoPlayWithQueueCommand}"
                                                 InputConverter="{StaticResource ItemClickEventArgsConverter}" />
               </core:EventTriggerBehavior>
             </i:Interaction.Behaviors>

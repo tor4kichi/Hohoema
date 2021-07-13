@@ -51,6 +51,7 @@ namespace NiconicoToolkit.UWP.Test.Tests
         [TestMethod]
         [DataRow("https://ch.nicovideo.jp/channel/ch2646373")]
         [DataRow("https://ch.nicovideo.jp/higurashianime_202010")]
+        [DataRow("https://ch.nicovideo.jp/ch2642363")]
         [DataRow("ch2646373")]
         public void ExtractChannelContentId(string urlOrId)
         {

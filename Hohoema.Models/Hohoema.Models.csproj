@@ -7,7 +7,7 @@
     <ProjectGuid>{5877A9CA-2D3A-4B8B-86CA-D77E6D68CF98}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Hohoema.Models</RootNamespace>
+    <RootNamespace>Hohoema</RootNamespace>
     <AssemblyName>Hohoema.Models</AssemblyName>
     <DefaultLanguage>ja-JP</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
@@ -137,8 +137,12 @@
     <Compile Include="Models.Domain\Niconico\AccountManager.cs" />
     <Compile Include="Models.Domain\Niconico\Channel\ChannelNameCacheRepository.cs" />
     <Compile Include="Models.Domain\Niconico\Channel\ChannelProvider.cs" />
+    <Compile Include="Models.Domain\Niconico\Channel\ChannelVideoContent.cs" />
+    <Compile Include="Models.Domain\Niconico\Channel\ChannelVideoPlaylist.cs" />
+    <Compile Include="Models.Domain\Niconico\Channel\ChannelVideoPlaylistSortOption.cs" />
     <Compile Include="Models.Domain\Niconico\Channel\IChannel.cs" />
     <Compile Include="Models.Domain\Niconico\Community\CommunityProvider.cs" />
+    <Compile Include="Models.Domain\Niconico\Community\CommunityVideoPlaylist.cs" />
     <Compile Include="Models.Domain\Niconico\Community\ICommunity.cs" />
     <Compile Include="Models.Domain\Niconico\FollowableExtension.cs" />
     <Compile Include="Models.Domain\Niconico\Follow\FollowItemInfo.cs" />
@@ -168,8 +172,17 @@
     <Compile Include="Models.Domain\Niconico\NicoRepo\LoginUser\LoginUserNicoRepoProvider.cs" />
     <Compile Include="Models.Domain\Niconico\NicoRepo\NicoRepoSettings.cs" />
     <Compile Include="Models.Domain\Niconico\Recommend\RecommendProvider.cs" />
+    <Compile Include="Models.Domain\Niconico\Search\CeApiSearchVideoContent.cs" />
+    <Compile Include="Models.Domain\Niconico\Search\CeApiSearchVideoPlaylist.cs" />
+    <Compile Include="Models.Domain\Niconico\Search\CeApiSearchVideoPlaylistSortOption.cs" />
     <Compile Include="Models.Domain\Niconico\Search\SearchHistory.cs" />
     <Compile Include="Models.Domain\Niconico\Search\SearchProvider.cs" />
+    <Compile Include="Models.Domain\Niconico\Video\NvapiVideoContent.cs" />
+    <Compile Include="Models.Domain\Niconico\User\UserVideoPlaylist.cs" />
+    <Compile Include="Models.Domain\Niconico\User\UserVideoPlaylistSortOption.cs" />
+    <Compile Include="Models.Domain\Playlist\BufferedPlaylistItemsSource.cs" />
+    <Compile Include="Models.Domain\Playlist\PlaylistItemSortOrder.cs" />
+    <Compile Include="Models.Domain\Niconico\Series\SeriesVideoPlaylist.cs" />
     <Compile Include="Models.Domain\Niconico\User\IUser.cs" />
     <Compile Include="Models.Domain\Niconico\User\UserNameProvider.cs" />
     <Compile Include="Models.Domain\Niconico\User\UserProvider.cs" />
@@ -201,17 +214,18 @@
     <Compile Include="Models.Domain\PageNavigation\SearchTarget.cs" />
     <Compile Include="Models.Domain\Pins\HohoemaPin.cs" />
     <Compile Include="Models.Domain\Pins\PinSettings.cs" />
-    <Compile Include="Models.Domain\Player\CommentDisplayMode.cs" />
-    <Compile Include="Models.Domain\Player\CommentFliteringRepository.cs" />
-    <Compile Include="Models.Domain\Player\CommentSizeMode.cs" />
-    <Compile Include="Models.Domain\Player\IComment.cs" />
-    <Compile Include="Models.Domain\Player\ICommentFilter.cs" />
-    <Compile Include="Models.Domain\Player\ICommentService.cs" />
+    <Compile Include="Models.Domain\Player\Comment\CommentDisplayMode.cs" />
+    <Compile Include="Models.Domain\Player\Comment\CommentFliteringRepository.cs" />
+    <Compile Include="Models.Domain\Player\Comment\CommentSizeMode.cs" />
+    <Compile Include="Models.Domain\Player\Comment\IComment.cs" />
+    <Compile Include="Models.Domain\Player\Comment\ICommentFilter.cs" />
+    <Compile Include="Models.Domain\Player\Comment\ICommentService.cs" />
     <Compile Include="Models.Domain\Player\INiconicoVideoSessionProvider.cs" />
     <Compile Include="Models.Domain\Player\IStreamingSession.cs" />
     <Compile Include="Models.Domain\Player\Live\LiveSuggestion.cs" />
     <Compile Include="Models.Domain\Player\Live\LiveVidePagePayload.cs" />
     <Compile Include="Models.Domain\Player\Live\NicoLiveInfoType.cs" />
+    <Compile Include="Models.Domain\Player\MediaPlayerSoundVolumeManager.cs" />
     <Compile Include="Models.Domain\Player\PlayerSettings.cs" />
     <Compile Include="Models.Domain\Player\Video\Cache\CachefolderAccessState.cs" />
     <Compile Include="Models.Domain\Player\Video\Cache\CacheRequestRepository.cs" />
@@ -232,14 +246,19 @@
     <Compile Include="Models.Domain\Player\Video\NicoVideoTag.cs" />
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\CachedVideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\DmcVideoStreamingSession.cs" />
-    <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\DownloadProgressVideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\IVideoStreamingSession.cs" />
     <Compile Include="Models.Domain\Player\Video\VideoStreamingSession\VideoStreamingSession.cs" />
+    <Compile Include="Models.Domain\Playlist\HohoemaPlaylistPlayer.cs" />
+    <Compile Include="Models.Domain\LocalMylist\LocalPlaylist.cs" />
     <Compile Include="Models.Domain\Playlist\IPlaylist.cs" />
-    <Compile Include="Models.Domain\Playlist\IPlaylistItem.cs" />
-    <Compile Include="Models.Domain\Playlist\LocalPlaylist.cs" />
-    <Compile Include="Models.Domain\Playlist\PlaylistOrigin.cs" />
-    <Compile Include="Models.Domain\Playlist\PlaylistRepository.cs" />
+    <Compile Include="Models.Domain\Playlist\IPlaylistFactoryResolver.cs" />
+    <Compile Include="Models.Domain\Playlist\PlaylistExtension.cs" />
+    <Compile Include="Models.Domain\Playlist\PlaylistItemsSourceOrigin.cs" />
+    <Compile Include="Models.Domain\LocalMylist\LocalMylistRepository.cs" />
+    <Compile Include="Models.Domain\Player\VideoStreamingOriginOrchestrator.cs" />
+    <Compile Include="Models.Domain\Playlist\QueuePlaylist.cs" />
+    <Compile Include="Models.Domain\Playlist\QueuePlaylistSetting.cs" />
+    <Compile Include="Models.Domain\Playlist\VideoPlayRequestMessage.cs" />
     <Compile Include="Models.Domain\Purchase\HohoemaPurchase.cs" />
     <Compile Include="Models.Domain\Subscirptions\SubscriptionFeedResult.cs" />
     <Compile Include="Models.Domain\Subscirptions\SubscriptionFeedResultRepository.cs" />
@@ -290,7 +309,6 @@
     <Compile Include="Models.Helpers\ListExtention.cs" />
     <Compile Include="Models.Helpers\ObservableHashSet.cs" />
     <Compile Include="Models.Helpers\ShareHelper.cs" />
-    <Compile Include="Models.Helpers\SortMethodHelper.cs" />
     <Compile Include="Models.Helpers\StorageFolderExtention.cs" />
     <Compile Include="Models.Helpers\StringHelper.cs" />
     <Compile Include="Models.Infrastructure\FlagsRepositoryBase.cs" />
@@ -317,6 +335,9 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.12</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Diagnostics">
+      <Version>7.0.2</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Mvvm">
       <Version>7.0.1</Version>
     </PackageReference>
@@ -327,7 +348,10 @@
       <Version>7.0.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.4.3</Version>
+      <Version>2.6.1</Version>
+    </PackageReference>
+    <PackageReference Include="ReactiveProperty">
+      <Version>4.2.1</Version>
     </PackageReference>
     <PackageReference Include="System.Threading.Tasks.Extensions">
       <Version>4.5.4</Version>
@@ -345,6 +369,7 @@
       <Name>NiconicoToolkit.UWP</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

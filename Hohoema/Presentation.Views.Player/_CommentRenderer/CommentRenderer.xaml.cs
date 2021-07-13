@@ -39,6 +39,7 @@ using Microsoft.Extensions.ObjectPool;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using Windows.System;
+using Hohoema.Models.Domain.Player.Comment;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 

@@ -12,10 +12,9 @@ using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
-using Hohoema.Presentation.ViewModels.Niconico.Mylist;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
@@ -37,6 +36,10 @@ using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Microsoft.AppCenter.Crashes;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using Hohoema.Models.Domain.LocalMylist;
+using NiconicoToolkit.Video;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 {
@@ -60,6 +63,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         }
 
         public MylistPageViewModel(
+            IMessenger messenger,
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             NiconicoSession niconicoSession,
@@ -69,15 +73,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             LoginUserMylistProvider loginUserMylistProvider,
             LoginUserOwnedMylistManager userMylistManager,
             LocalMylistManager localMylistManager,
-            MylistRepository mylistRepository,
-            HohoemaPlaylist hohoemaPlaylist,
+            MylistResolver mylistRepository,
             SubscriptionManager subscriptionManager,
             MylistUserSelectedSortRepository mylistUserSelectedSortRepository,
             Services.DialogService dialogService,
             AddSubscriptionCommand addSubscriptionCommand,
-            SelectionModeToggleCommand selectionModeToggleCommand
+            SelectionModeToggleCommand selectionModeToggleCommand,
+            PlaylistPlayAllCommand playlistPlayAllCommand,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand
             )
         {
+            _messenger = messenger;
             ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
@@ -88,15 +94,25 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             UserMylistManager = userMylistManager;
             LocalMylistManager = localMylistManager;
             _mylistRepository = mylistRepository;
-            HohoemaPlaylist = hohoemaPlaylist;
             SubscriptionManager = subscriptionManager;
             _mylistUserSelectedSortRepository = mylistUserSelectedSortRepository;
             DialogService = dialogService;
             AddSubscriptionCommand = addSubscriptionCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
+            PlaylistPlayAllCommand = playlistPlayAllCommand;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             Mylist = new ReactiveProperty<MylistPlaylist>();
 
-            SelectedSortItem = new ReactiveProperty<MylistSortViewModel>(mode: ReactivePropertyMode.DistinctUntilChanged);
+            SelectedSortOptionItem = new ReactiveProperty<MylistPlaylistSortOption>(mode: ReactivePropertyMode.DistinctUntilChanged);
+
+            CurrentPlaylistToken = Observable.CombineLatest(
+                Mylist,
+                SelectedSortOptionItem,
+                (x, y) => new PlaylistToken(x, y)
+                )
+                .ToReadOnlyReactivePropertySlim()
+                .AddTo(_CompositeDisposable);
+
 
             /*
             IsFavoriteMylist = new ReactiveProperty<bool>(mode: ReactivePropertyMode.DistinctUntilChanged)
@@ -245,32 +261,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             */
         }
 
-        static public MylistSortViewModel[] SortItems { get; } = new MylistSortViewModel[]
-        {
-            new MylistSortViewModel() { Key = MylistSortKey.AddedAt, Order = MylistSortOrder.Desc },
-            new MylistSortViewModel() { Key = MylistSortKey.AddedAt, Order = MylistSortOrder.Asc },
-            new MylistSortViewModel() { Key = MylistSortKey.Title, Order = MylistSortOrder.Asc },
-            new MylistSortViewModel() { Key = MylistSortKey.Title, Order = MylistSortOrder.Desc },
-            new MylistSortViewModel() { Key = MylistSortKey.MylistComment, Order = MylistSortOrder.Asc },
-            new MylistSortViewModel() { Key = MylistSortKey.MylistComment, Order = MylistSortOrder.Desc },
-            new MylistSortViewModel() { Key = MylistSortKey.RegisteredAt, Order = MylistSortOrder.Desc },
-            new MylistSortViewModel() { Key = MylistSortKey.RegisteredAt, Order = MylistSortOrder.Asc },
-            new MylistSortViewModel() { Key = MylistSortKey.ViewCount, Order = MylistSortOrder.Desc },
-            new MylistSortViewModel() { Key = MylistSortKey.ViewCount, Order = MylistSortOrder.Asc },
-            new MylistSortViewModel() { Key = MylistSortKey.LastCommentTime, Order = MylistSortOrder.Desc },
-            new MylistSortViewModel() { Key = MylistSortKey.LastCommentTime, Order = MylistSortOrder.Asc },
-            new MylistSortViewModel() { Key = MylistSortKey.CommentCount, Order = MylistSortOrder.Desc },
-            new MylistSortViewModel() { Key = MylistSortKey.CommentCount, Order = MylistSortOrder.Asc },
-            new MylistSortViewModel() { Key = MylistSortKey.MylistCount, Order = MylistSortOrder.Desc },
-            new MylistSortViewModel() { Key = MylistSortKey.MylistCount, Order = MylistSortOrder.Asc },
-            new MylistSortViewModel() { Key = MylistSortKey.Duration, Order = MylistSortOrder.Desc },
-            new MylistSortViewModel() { Key = MylistSortKey.Duration, Order = MylistSortOrder.Asc },
-        };
+        public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
 
-        public ReactiveProperty<MylistSortViewModel> SelectedSortItem { get; }
+        public MylistPlaylistSortOption[] SortItems => MylistPlaylist.SortOptions;
 
+        public ReactiveProperty<MylistPlaylistSortOption> SelectedSortOptionItem { get; }
+
+        private readonly IMessenger _messenger;
         private readonly MylistFollowProvider _mylistFollowProvider;
-        private readonly MylistRepository _mylistRepository;
+        private readonly MylistResolver _mylistRepository;
         private readonly MylistUserSelectedSortRepository _mylistUserSelectedSortRepository;
         
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -283,12 +282,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
         public LoginUserOwnedMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public DialogService DialogService { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
-
+        public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
         public ReactiveProperty<MylistPlaylist> Mylist { get; private set; }
 
         private ICollection<VideoListItemControlViewModel> _mylistItems;
@@ -440,16 +439,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                         var mylistOrigin = mylist.GetOrigin();
                         var contentMessage = "ConfirmDeleteX_ImpossibleReDo".Translate(mylist.Name);
 
-                        var dialog = new MessageDialog(contentMessage, $"ConfirmDeleteX".Translate(PlaylistOrigin.Mylist.Translate()));
+                        var dialog = new MessageDialog(contentMessage, $"ConfirmDeleteX".Translate(PlaylistItemsSourceOrigin.Mylist.Translate()));
                         dialog.Commands.Add(new UICommand("Delete".Translate(), async (i) =>
                         {
-                            if (mylistOrigin == PlaylistOrigin.Local)
+                            if (mylistOrigin == PlaylistItemsSourceOrigin.Local)
                             {
                                 LocalMylistManager.RemovePlaylist(mylist as LocalPlaylist);
                             }
-                            else if (mylistOrigin == PlaylistOrigin.Mylist)
+                            else if (mylistOrigin == PlaylistItemsSourceOrigin.Mylist)
                             {
-                                await UserMylistManager.RemoveMylist(mylist.Id);
+                                await UserMylistManager.RemoveMylist(mylist.PlaylistId.Id);
                             }
 
 
@@ -484,22 +483,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         }
 
 
-        private DelegateCommand _PlayAllVideosFromHeadCommand;
-        public DelegateCommand PlayAllVideosFromHeadCommand
-        {
-            get
-            {
-                return _PlayAllVideosFromHeadCommand
-                    ?? (_PlayAllVideosFromHeadCommand = new DelegateCommand(() =>
-                    {
-                        var firstItem = MylistItems.FirstOrDefault();
-                        if (firstItem != null)
-                        {
-                            HohoemaPlaylist.Play(firstItem, Mylist.Value);
-                        }
-                    }));
-            }
-        }
 
         private DelegateCommand _RefreshCommand;
         public DelegateCommand RefreshCommand
@@ -572,7 +555,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             }
 
             var mylistId = maybeMylistId.Value;
-            var mylist = await _mylistRepository.GetMylist(mylistId);
+            var mylist = await _mylistRepository.GetMylistAsync(mylistId);
 
             if (mylist == null) { return; }
 
@@ -610,7 +593,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                         {
                             foreach (var removed in args.SuccessedItems)
                             {
-                                var removedItem = MylistItems.FirstOrDefault(x => x.VideoId == removed);
+                                var removedItem = MylistItems.FirstOrDefault(x => x.VideoId == removed.VideoId);
                                 if (removedItem != null)
                                 {
                                     MylistItems.Remove(removedItem);
@@ -642,11 +625,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             var lastSort = _mylistUserSelectedSortRepository.GetMylistSort(mylistId);
             if (!IsLoginUserDeflist)
             {
-                SelectedSortItem.Value = SortItems.First(x => x.Key == (lastSort.SortKey ?? Mylist.Value.DefaultSortKey) && x.Order == (lastSort.SortOrder ?? Mylist.Value.DefaultSortOrder));
+                SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? Mylist.Value.DefaultSortKey) && x.SortOrder == (lastSort.SortOrder ?? Mylist.Value.DefaultSortOrder));
             }
             else
             {
-                SelectedSortItem.Value = SortItems.First(x => x.Key == (lastSort.SortKey ?? MylistSortKey.AddedAt) && x.Order == (lastSort.SortOrder ?? MylistSortOrder.Desc));
+                SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? MylistSortKey.AddedAt) && x.SortOrder == (lastSort.SortOrder ?? MylistSortOrder.Desc));
             }
 
 
@@ -670,36 +653,34 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 FollowContext = MylistFollowContext.Default;
             }
 
-            SelectedSortItem.Subscribe(x =>
+            SelectedSortOptionItem.Subscribe(x =>
             {
                 RefreshCommand.Execute();
 
-                _mylistUserSelectedSortRepository.SetMylistSort(Mylist.Value.MylistId, x.Key, x.Order);
+                _mylistUserSelectedSortRepository.SetMylistSort(Mylist.Value.MylistId, x.SortKey, x.SortOrder);
             })
                 .AddTo(_NavigatingCompositeDisposable);
 
             EditMylistGroupCommand.RaiseCanExecuteChanged();
             DeleteMylistCommand.RaiseCanExecuteChanged();
-
-            
         }
        
 
         private ICollection<VideoListItemControlViewModel> CreateItemsSource(MylistPlaylist mylist)
         {
-            var sortItem = SelectedSortItem.Value;
-            if (sortItem == null) { return null; }
+            var sortOption = SelectedSortOptionItem.Value;
+            if (sortOption == null) { return null; }
 
             if (mylist is LoginUserMylistPlaylist loginUserMylist)
             {
                 return new HohoemaListingPageViewModelBase<VideoListItemControlViewModel>.HohoemaIncrementalLoadingCollection(
-                    new LoginUserMylistIncrementalSource(loginUserMylist, sortItem.Key, sortItem.Order)
+                    new LoginUserMylistIncrementalSource(loginUserMylist, sortOption)
                     );
             }
             else
             {
                 return new HohoemaListingPageViewModelBase<VideoListItemControlViewModel>.HohoemaIncrementalLoadingCollection(
-                    new MylistIncrementalSource(mylist, sortItem.Key, sortItem.Order)
+                    new MylistIncrementalSource(mylist, sortOption)
                     );
             }
         }
@@ -712,7 +693,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 return _PlayWithCurrentPlaylistCommand
                     ?? (_PlayWithCurrentPlaylistCommand = new DelegateCommand<IVideoContent>((video) =>
                     {
-                        HohoemaPlaylist.PlayContinueWithPlaylist(video, Mylist.Value);
+                        _messenger.Send(new VideoPlayRequestMessage() { VideoId = video.VideoId, PlaylistId = Mylist.Value.MylistId, PlaylistOrigin = Mylist.Value.GetOrigin() });
                     }
                     ));
             }
@@ -722,34 +703,25 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 	public class MylistIncrementalSource : IIncrementalSource<VideoListItemControlViewModel>
 	{
         private readonly MylistPlaylist _mylist;
+        private readonly MylistPlaylistSortOption _sortOption;
 
         public MylistIncrementalSource(
-            MylistPlaylist mylist,
-            MylistSortKey defaultSortKey,
-            MylistSortOrder defaultSortOrder
+            MylistPlaylist mylist, 
+            MylistPlaylistSortOption sortOption
             )
             : base()
         {
             _mylist = mylist;
-            DefaultSortKey = defaultSortKey;
-            DefaultSortOrder = defaultSortOrder;
+            _sortOption = sortOption;
         }
-
-        public MylistSortKey DefaultSortKey { get; }
-        public MylistSortOrder DefaultSortOrder { get; }
 
         async Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
         {
             try
             {
-                var result = await _mylist.GetItemsAsync(pageIndex, pageSize, DefaultSortKey, DefaultSortOrder);
-
-                if (!result.IsSuccess || result.Items == null || !result.Items.Any())
-                {
-                    return Enumerable.Empty<VideoListItemControlViewModel>();
-                }
-
-                return result.Items.Select(x => new VideoListItemControlViewModel(x.Video));
+                var result = await _mylist.GetItemsAsync(pageIndex, pageSize, _sortOption.SortKey, _sortOption.SortOrder);
+                var start = pageIndex * pageSize;
+                return result.Items.Select((x, i) => new VideoListItemControlViewModel(x.Video) { PlaylistItemToken = new(_mylist, _sortOption, new NvapiVideoItemWrapped(x.Video)) });
             }
             catch (Exception e)
             {
@@ -757,26 +729,21 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 return Enumerable.Empty<VideoListItemControlViewModel>();
             }
         }
-
     }
 
     public class LoginUserMylistIncrementalSource : IIncrementalSource<VideoListItemControlViewModel>
     {
         private readonly LoginUserMylistPlaylist _mylist;
-        
-        public MylistSortKey DefaultSortKey { get; }
-        public MylistSortOrder DefaultSortOrder { get; }
+        private readonly MylistPlaylistSortOption _sortOption;
 
         public LoginUserMylistIncrementalSource(
             LoginUserMylistPlaylist mylist,
-            MylistSortKey defaultSortKey,
-            MylistSortOrder defaultSortOrder
+            MylistPlaylistSortOption sortOption
             )
             : base()
         {
             _mylist = mylist;
-            DefaultSortKey = defaultSortKey;
-            DefaultSortOrder = defaultSortOrder;
+            _sortOption = sortOption;
         }
 
         bool isEndReached;
@@ -788,12 +755,38 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 return Enumerable.Empty<VideoListItemControlViewModel>();
             }
 
-            var items = await _mylist.GetLoginUserMylistItemsAsync(pageIndex, pageSize, DefaultSortKey, DefaultSortOrder);
-            isEndReached = items.Count != pageSize;
+            var items = await _mylist.GetItemsAsync(pageIndex, pageSize, _sortOption.SortKey, _sortOption.SortOrder);
+            isEndReached = items.NicoVideoItems.Count != pageSize;
 
             ct.ThrowIfCancellationRequested();
 
-            return items.Select(x => new VideoListItemControlViewModel(x.MylistItem.Video));
+            var start = pageIndex * pageSize;
+            return items.Items.Select((x, i) => new VideoListItemControlViewModel(x.Video) { PlaylistItemToken = new(_mylist, _sortOption, new NvapiVideoItemWrapped(x.Video)) });
+        }
+    }
+
+    public class NvapiVideoItemWrapped : IVideoContent
+    {
+        private readonly NvapiVideoItem _video;
+
+        public NvapiVideoItemWrapped(NvapiVideoItem video)
+        {
+            _video = video;
+        }
+
+        public VideoId VideoId => _video.Id;
+
+        public TimeSpan Length => TimeSpan.FromSeconds(_video.Duration);
+
+        public string ThumbnailUrl => _video.Thumbnail.Url.OriginalString;
+
+        public DateTime PostedAt => _video.RegisteredAt.DateTime;
+
+        public string Title => _video.Title;
+
+        public bool Equals(IVideoContent other)
+        {
+            return _video.Id == other.VideoId;
         }
     }
 }

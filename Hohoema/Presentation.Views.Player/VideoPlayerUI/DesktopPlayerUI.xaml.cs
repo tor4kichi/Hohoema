@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.UseCase.NicoVideos.Player;
+﻿using Hohoema.Models.UseCase.Niconico.Player;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +21,7 @@ using System.Reactive.Disposables;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Hohoema.Models.Domain.Application;
 using Reactive.Bindings.Extensions;
+using Hohoema.Models.Domain.Player;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 

@@ -3,7 +3,7 @@ using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.Niconico.Live.LoginUser;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using I18NPortable;
@@ -30,7 +30,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             ApplicationLayoutManager applicationLayoutManager,
             LoginUserLiveReservationProvider loginUserLiveReservationProvider,
             NicoLiveProvider nicoLiveProvider,
-            HohoemaPlaylist hohoemaPlaylist,
             NoUIProcessScreenContext noUIProcessScreenContext, 
             Services.DialogService dialogService,
             OpenLiveContentCommand openLiveContentCommand
@@ -39,7 +38,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             ApplicationLayoutManager = applicationLayoutManager;
             LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
             NicoLiveProvider = nicoLiveProvider;
-            HohoemaPlaylist = hohoemaPlaylist;
             _noUIProcessScreenContext = noUIProcessScreenContext;
             DialogService = dialogService;
             OpenLiveContentCommand = openLiveContentCommand;
@@ -48,7 +46,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.DialogService DialogService { get; }
         public OpenLiveContentCommand OpenLiveContentCommand { get; }
 

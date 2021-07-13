@@ -17,10 +17,11 @@
 
   <Grid>
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
-                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                      ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
+                                      PlaylistPassToFlyout="{Binding SeriesVideoPlaylist}"
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
@@ -31,11 +32,25 @@
             </CommandBar.Content>
 
             <CommandBar.PrimaryCommands>
-              <AppBarButton Label="{i18nExt:Localize Key=SubscriptionAdd}"
-                              Command="{Binding AddSubscriptionCommand}"
-                              CommandParameter="{Binding Series}"
-                              />
-              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+              <AppBarElementContainer>
+                <ComboBox ItemsSource="{Binding SortOptions}"
+                          SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
+                          IsEnabled="{Binding NowLoading.Value, Converter={StaticResource BoolNegation}}"
+                          >
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Label}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </AppBarElementContainer>
+
+              <AppBarButton x:Name="PlayAllButton"
+                                Icon="Play"
+                                Label="{i18nExt:Localize Key=PlayAll}"
+                                Command="{Binding PlaylistPlayAllCommand}"
+                                CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
+
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Click">
@@ -43,8 +58,14 @@
                   </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
               </AppBarButton>
+
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
+              <AppBarButton Label="{i18nExt:Localize Key=SubscriptionAdd}"
+                              Command="{Binding AddSubscriptionCommand}"
+                              CommandParameter="{Binding Series}"
+                              />
             </CommandBar.SecondaryCommands>
           </CommandBar>
         </Grid>

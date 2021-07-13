@@ -4,9 +4,6 @@ using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.User;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Helpers;
-using Hohoema.Models.UseCase.NicoVideos;
-using Hohoema.Models.UseCase.Player;
 using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
@@ -25,6 +22,9 @@ using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
 using Hohoema.Models.Domain.Niconico;
 using NiconicoToolkit;
+using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.Niconico.Player.Events;
+using Hohoema.Models.Domain.Playlist;
 
 namespace Hohoema.Presentation.Services
 {
@@ -33,7 +33,6 @@ namespace Hohoema.Presentation.Services
         private static readonly TimeSpan DefaultNotificationShowDuration = TimeSpan.FromSeconds(20);
 
         public PageManager PageManager { get; }
-        public HohoemaPlaylist Playlist { get; }
         public NotificationService NotificationService { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public MylistProvider MylistProvider { get; }
@@ -42,11 +41,14 @@ namespace Hohoema.Presentation.Services
         public UserProvider UserProvider { get; }
 
         private readonly IMessenger _messenger;
+        private readonly QueuePlaylist _queuePlaylist;
+        private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;
         private readonly NiconicoSession _niconicoSession;
 
         public HohoemaNotificationService(
             PageManager pageManager,
-            HohoemaPlaylist playlist,
+            QueuePlaylist queuePlaylist,
+            HohoemaPlaylistPlayer hohoemaPlaylistPlayer,
             NiconicoSession niconicoSession,
             NotificationService notificationService,
             NicoVideoProvider nicoVideoProvider,
@@ -58,7 +60,7 @@ namespace Hohoema.Presentation.Services
             )
         {
             PageManager = pageManager;
-            Playlist = playlist;
+            _queuePlaylist = queuePlaylist;
             _niconicoSession = niconicoSession;
             NotificationService = notificationService;
             NicoVideoProvider = nicoVideoProvider;
@@ -126,7 +128,7 @@ namespace Hohoema.Presentation.Services
                             Label = "Play".Translate(),
                             Command = new DelegateCommand(() =>
                             {
-                                Playlist.Play(nicoVideo);
+                                _messenger.Send(VideoPlayRequestMessage.PlayVideoWithQueue(videoId));
 
                                 NotificationService.DismissInAppNotification();
                             })
@@ -136,7 +138,7 @@ namespace Hohoema.Presentation.Services
                             Label = "@view".Translate(),
                             Command = new DelegateCommand(() =>
                             {
-                                Playlist.AddQueuePlaylist(nicoVideo);
+                                _queuePlaylist.Add(nicoVideo);
 
                                 NotificationService.DismissInAppNotification();
                             })
@@ -344,56 +346,56 @@ namespace Hohoema.Presentation.Services
         }
     }
 
-    public sealed class NotificationService
-	{
+    public sealed class NotificationService : INotificationService
+    {
         private readonly ToastNotifier _notifier;
         private ToastNotification _prevToastNotification;
         private readonly IMessenger _messenger;
 
         public NotificationService(IMessenger messenger)
-		{
+        {
             _messenger = messenger;
             _notifier = ToastNotificationManager.CreateToastNotifier();
             ToastNotificationManager.History.Clear();
         }
 
 
-		public void ShowToast(string title, string content, ToastDuration duration = ToastDuration.Short, bool isSuppress = false, string luanchContent = null, Action toastActivatedAction = null)
-		{
+        public void ShowToast(string title, string content, ToastDuration duration = ToastDuration.Short, bool isSuppress = false, string luanchContent = null, Action toastActivatedAction = null)
+        {
             var toust = new ToastContent();
-			toust.Visual = new ToastVisual()
-			{
-				BindingGeneric = new ToastBindingGeneric()
-				{
-					Children =
-					{
-						new AdaptiveText()
-						{
-							Text = title
-						},
+            toust.Visual = new ToastVisual()
+            {
+                BindingGeneric = new ToastBindingGeneric()
+                {
+                    Children =
+                    {
+                        new AdaptiveText()
+                        {
+                            Text = title
+                        },
 
-						new AdaptiveText()
-						{
-							Text = content,
-							
-						},
+                        new AdaptiveText()
+                        {
+                            Text = content,
 
-						
-					}
-				}
-			};
+                        },
 
-			toust.Launch = luanchContent;
-			toust.Duration = duration;
-			
 
-			var toast = new ToastNotification(toust.GetXml());
-			toast.SuppressPopup = isSuppress;
+                    }
+                }
+            };
 
-			if (toastActivatedAction != null)
-			{
-				toast.Activated += (ToastNotification sender, object args) => toastActivatedAction();
-			}
+            toust.Launch = luanchContent;
+            toust.Duration = duration;
+
+
+            var toast = new ToastNotification(toust.GetXml());
+            toast.SuppressPopup = isSuppress;
+
+            if (toastActivatedAction != null)
+            {
+                toast.Activated += (ToastNotification sender, object args) => toastActivatedAction();
+            }
 
             _notifier.Show(toast);
             _prevToastNotification = toast;
@@ -424,7 +426,7 @@ namespace Hohoema.Presentation.Services
 
             toust.Launch = luanchContent;
             toust.Duration = duration;
-            
+
             if (toastButtons.Any())
             {
                 var actions = new ToastActionsCustom();
@@ -433,7 +435,7 @@ namespace Hohoema.Presentation.Services
                     actions.Buttons.Add(button);
                 }
                 toust.Actions = actions;
-                
+
             }
             var toast = new ToastNotification(toust.GetXml());
             toast.SuppressPopup = isSuppress;
@@ -455,7 +457,7 @@ namespace Hohoema.Presentation.Services
             _messenger.Send(new InAppNotificationMessage(payload));
         }
 
-        
+
 
         public void DismissInAppNotification()
         {
@@ -491,7 +493,7 @@ namespace Hohoema.Presentation.Services
 
         public void ShowLiteInAppNotification(string content, DisplayDuration? displayDuration = null, Symbol? symbol = null)
         {
-            _messenger.Send(new LiteNotificationMessage(new ()
+            _messenger.Send(new LiteNotificationMessage(new()
             {
                 Content = content,
                 Symbol = symbol ?? default,

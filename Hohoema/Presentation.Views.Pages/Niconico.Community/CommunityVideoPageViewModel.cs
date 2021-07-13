@@ -22,6 +22,9 @@ using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Community;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Models.Domain.Playlist;
+using Reactive.Bindings;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 {
@@ -60,13 +63,23 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 			ApplicationLayoutManager applicationLayoutManager,
 			CommunityProvider communityProvider,
 			CommunityFollowProvider communityFollowProvider,
-            PageManager pageManager
+            PageManager pageManager,
+			VideoPlayWithQueueCommand videoPlayWithQueueCommand
 			)
         {
 			ApplicationLayoutManager = applicationLayoutManager;
 			CommunityProvider = communityProvider;
             _communityFollowProvider = communityFollowProvider;
             PageManager = pageManager;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
+
+			CurrentPlaylistToken = Observable.CombineLatest(
+				this.ObserveProperty(x => x.CommunityVideoPlaylist),
+				this.ObserveProperty(x => x.SelectedSortOption),
+				(x, y) => new PlaylistToken(x, y)
+				)
+				.ToReadOnlyReactivePropertySlim()
+				.AddTo(_CompositeDisposable);
 		}
 
 
@@ -86,8 +99,32 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
             get { return _CanDownload; }
             set { SetProperty(ref _CanDownload, value); }
         }
-		
-        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
+
+
+		private CommunityVideoPlaylist _CommunityVideoPlaylist;
+		public CommunityVideoPlaylist CommunityVideoPlaylist
+		{
+			get { return _CommunityVideoPlaylist; }
+			private set { SetProperty(ref _CommunityVideoPlaylist, value); }
+		}
+
+
+		public CommunityVideoPlaylistSortOption[] SortOptions => CommunityVideoPlaylist.SortOptions;
+
+
+		private CommunityVideoPlaylistSortOption _selectedSortOption;
+		public CommunityVideoPlaylistSortOption SelectedSortOption
+		{
+			get { return _selectedSortOption; }
+			set { SetProperty(ref _selectedSortOption, value); }
+		}
+
+
+		public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
+
+
+
+		public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
 			CommunityId? communityId = null;
 			if (parameters.TryGetValue("id", out string strCommunityId))
@@ -115,12 +152,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 				var res = await CommunityProvider.GetCommunityInfo(CommunityId.Value);
 
 				CommunityName = res.Community.Name;
+
+				CommunityVideoPlaylist = new CommunityVideoPlaylist(CommunityId.Value, new PlaylistId() { Id = communityId, Origin = PlaylistItemsSourceOrigin.CommunityVideos }, res.Community.Name, CommunityProvider);
+				SelectedSortOption = CommunityVideoPlaylist.DefaultSortOption;
+
+				this.ObserveProperty(x => x.SelectedSortOption)
+					.Subscribe(_ => ResetList())
+					.AddTo(_NavigatingCompositeDisposable);
 			}
 			catch
 			{
 				Debug.WriteLine("コミュ情報取得に失敗");
 			}
-
 
 			try
 			{
@@ -143,7 +186,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 
 		protected override (int, IIncrementalSource<CommunityVideoInfoViewModel>) GenerateIncrementalSource()
 		{
-			return (CommunityVideoIncrementalSource.OneTimeLoadCount, new CommunityVideoIncrementalSource(CommunityId, 1, CommunityProvider));
+			return (CommunityVideoIncrementalSource.OneTimeLoadCount, new CommunityVideoIncrementalSource(CommunityId, 1, CommunityVideoPlaylist, SelectedSortOption, CommunityProvider));
 		}
 
         private DelegateCommand _OpenCommunityPageCommand;
@@ -164,7 +207,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 		public ApplicationLayoutManager ApplicationLayoutManager { get; }
 		public CommunityProvider CommunityProvider { get; }
         public PageManager PageManager { get; }
-	}
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
+    }
 
 
 	public class CommunityVideoIncrementalSource : IIncrementalSource<CommunityVideoInfoViewModel>
@@ -174,14 +218,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 		public string CommunityId { get; private set; }
 		public int VideoCount { get; private set; }
 
-		public CommunityVideoIncrementalSource(string communityId, int videoCount, CommunityProvider communityProvider)
+		public CommunityVideoIncrementalSource(string communityId, int videoCount, CommunityVideoPlaylist communityVideoPlaylist, CommunityVideoPlaylistSortOption sortOption, CommunityProvider communityProvider)
 		{
             CommunityProvider = communityProvider;
 			CommunityId = communityId;
 			VideoCount = videoCount;
-		}
+            _communityVideoPlaylist = communityVideoPlaylist;
+            _sortOption = sortOption;
+        }
 
-		public const int OneTimeLoadCount = 20; 
+		public const int OneTimeLoadCount = 20;
+        private readonly CommunityVideoPlaylist _communityVideoPlaylist;
+        private readonly CommunityVideoPlaylistSortOption _sortOption;
 
         async Task<IEnumerable<CommunityVideoInfoViewModel>> IIncrementalSource<CommunityVideoInfoViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
@@ -194,7 +242,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 					return Enumerable.Empty<CommunityVideoInfoViewModel>();
 				}
 
-				return itemsRes.Data.Videos.Select(x => new CommunityVideoInfoViewModel(x));
+				return itemsRes.Data.Videos.Select((x, i) => new CommunityVideoInfoViewModel(x) { PlaylistItemToken = new PlaylistItemToken(_communityVideoPlaylist, _sortOption, new CommunityVideoContent(x))});
 			}
             catch (Exception e)
             {

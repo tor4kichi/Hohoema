@@ -2,7 +2,7 @@
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
@@ -18,6 +18,7 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Hohoema.Models.UseCase.Niconico.Video;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
 {
@@ -27,8 +28,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
             ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
             WatchHistoryManager watchHistoryManager,
-            HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             WatchHistoryRemoveAllCommand watchHistoryRemoveAllCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
@@ -36,8 +37,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
             ApplicationLayoutManager = applicationLayoutManager;
             _niconicoSession = niconicoSession;
             _watchHistoryManager = watchHistoryManager;
-            HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             WatchHistoryRemoveAllCommand = watchHistoryRemoveAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             Histories = new ObservableCollection<HistoryVideoListItemControlViewModel>();
@@ -47,8 +48,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
         private readonly WatchHistoryManager _watchHistoryManager;
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
         public WatchHistoryRemoveAllCommand WatchHistoryRemoveAllCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public ObservableCollection<HistoryVideoListItemControlViewModel> Histories { get; }

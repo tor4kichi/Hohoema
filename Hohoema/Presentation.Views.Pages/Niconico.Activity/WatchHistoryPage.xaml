@@ -16,7 +16,7 @@
     mc:Ignorable="d"
     >
   <Grid>
-    <videolistPage:VideoItemsListView x:Name="VideoItemsListView" ItemsSource="{Binding Histories}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}" >
+    <videolistPage:VideoItemsListView x:Name="VideoItemsListView" ItemsSource="{Binding Histories}" ItemCommand="{Binding VideoPlayWithQueueCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}" >
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <Grid>
@@ -26,8 +26,6 @@
               </CommandBar.Content>
               <CommandBar.PrimaryCommands>
 
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
-
                 <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                   <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Click">
@@ -35,9 +33,11 @@
                     </core:EventTriggerBehavior>
                   </i:Interaction.Behaviors>
                 </AppBarButton>
-                <AppBarButton Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" x:Name="RefreshButton" VerticalAlignment="Center"></AppBarButton>
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
+                <AppBarButton Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" x:Name="RefreshButton" VerticalAlignment="Center"></AppBarButton>
+
                 <AppBarButton Label="{i18nExt:Localize Key=WatchHistoryRemoveAll}" IsEnabled="{Binding HasItem.Value}" Icon="Delete" AllowFocusOnInteraction="True">
                   <AppBarButton.Flyout>
                     <Flyout>

@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.UseCase.NicoVideos.Player;
+﻿using Hohoema.Models.Domain.Player;
+using Hohoema.Models.UseCase.Niconico.Player;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;

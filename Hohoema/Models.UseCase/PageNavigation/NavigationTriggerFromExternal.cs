@@ -3,8 +3,8 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.VideoCache;
-using Hohoema.Models.UseCase.NicoVideos;
-using Hohoema.Models.UseCase.Player;
+using Hohoema.Models.UseCase.Niconico.Player.Events;
+using Hohoema.Models.UseCase.Playlist;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Notifications;
 using NiconicoToolkit.Live;
@@ -19,24 +19,21 @@ namespace Hohoema.Models.UseCase.PageNavigation
 {
     public sealed class NavigationTriggerFromExternal
     {
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
-        private readonly PlaylistResolver _playlistResolver;
+        private readonly MylistResolver _mylistResolver;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly VideoCacheManager _videoCacheManager;
         private readonly PageManager _pageManager;
         private readonly IMessenger _messenger;
 
         public NavigationTriggerFromExternal(
-            HohoemaPlaylist hohoemaPlaylist,
-            PlaylistResolver playlistResolver,
+            MylistResolver mylistResolver,
             NicoVideoProvider nicoVideoProvider, 
             VideoCacheManager videoCacheManager,
             PageManager pageManager,
             IMessenger messenger
             )
         {
-            _hohoemaPlaylist = hohoemaPlaylist;
-            _playlistResolver = playlistResolver;
+            _mylistResolver = mylistResolver;
             _nicoVideoProvider = nicoVideoProvider;
             _videoCacheManager = videoCacheManager;
             _pageManager = pageManager;
@@ -81,7 +78,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                         }
 
                         if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PlaylistOrigin, out string playlistOrigin)
-                            || !Enum.TryParse<PlaylistOrigin>(playlistOrigin, out var origin)
+                            || !Enum.TryParse<PlaylistItemsSourceOrigin>(playlistOrigin, out var origin)
                             )
                         {
                             throw new Models.Infrastructure.HohoemaExpception("no id");
@@ -117,36 +114,19 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
 
 
-        public async Task PlayVideoFromExternal(VideoId videoId, string playlistId = null)
+        public async Task PlayVideoFromExternal(VideoId videoId)
         {
-            var (res, videoInfo) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
-
-            if (videoInfo == null || res.Video.IsDeleted) { return; }
-
-            if (playlistId == null)
-            {
-                _hohoemaPlaylist.Play(videoInfo);
-            }
-            else 
-            {
-                var playlist = await _playlistResolver.ResolvePlaylistAsync(Models.Domain.Playlist.PlaylistOrigin.Mylist, playlistId);
-                if (playlist != null)
-                {
-                    _hohoemaPlaylist.Play(videoInfo, playlist);
-                }
-                else 
-                {
-                    _hohoemaPlaylist.Play(videoInfo);
-
-                    // TODO: 指定したプレイリストが見つからなかった旨を通知
-                }
-            }
+            var result = await _messenger.Send(new VideoPlayRequestMessage() { VideoId = videoId });
         }
 
-        public async Task PlayPlaylistFromExternal(PlaylistOrigin origin, string playlistId)
+        public async Task PlayPlaylistFromExternal(PlaylistItemsSourceOrigin origin, string playlistId)
         {
-            var playlist = await _playlistResolver.ResolvePlaylistAsync(origin, playlistId);
-            _hohoemaPlaylist.Play(playlist);
+            var result = await _messenger.Send(new VideoPlayRequestMessage() { PlaylistId = playlistId, PlaylistOrigin = origin });
+        }
+
+        public async Task PlayPlaylistFromExternal(VideoId videoId, PlaylistItemsSourceOrigin origin, string playlistId)
+        {
+            var result = await _messenger.Send(new VideoPlayRequestMessage() { PlaylistId = playlistId, PlaylistOrigin = origin });
         }
 
         public void PlayLiveVideoFromExternal(LiveId liveId)

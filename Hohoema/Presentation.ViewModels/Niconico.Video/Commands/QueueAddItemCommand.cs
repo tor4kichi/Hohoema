@@ -1,6 +1,7 @@
 ﻿
 using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.Services;
 using I18NPortable;
 using System;
@@ -13,15 +14,15 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
     public sealed class QueueAddItemCommand : VideoContentSelectionCommandBase
     {
-        private readonly HohoemaPlaylist _hohoemaPlaylist;
+        private readonly QueuePlaylist _queuePlaylist;
         private readonly NotificationService _notificationService;
 
         public QueueAddItemCommand(
-            HohoemaPlaylist hohoemaPlaylist,
+            QueuePlaylist queuePlaylist,
             NotificationService notificationService
             )
         {
-            _hohoemaPlaylist = hohoemaPlaylist;
+            _queuePlaylist = queuePlaylist;
             _notificationService = notificationService;
         }
 
@@ -37,7 +38,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
             foreach (var content in items)
             {
-                _hohoemaPlaylist.AddQueuePlaylist(content);
+                _queuePlaylist.Add(content);
             }
 
             _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistAddedItems_Success".Translate("HohoemaPageType.VideoQueue".Translate(), items.Count()));

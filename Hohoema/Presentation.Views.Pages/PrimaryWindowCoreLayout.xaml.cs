@@ -21,7 +21,6 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
-using Hohoema.Models.UseCase.Player;
 using Hohoema.Models.Domain.Application;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
@@ -38,6 +37,7 @@ using Hohoema.Models.Infrastructure;
 using Hohoema.Models.UseCase;
 using Hohoema.Presentation.Views.Pages.Niconico.VideoRanking;
 using Hohoema.Presentation.Views.Pages.Niconico.Follow;
+using Hohoema.Models.UseCase.Niconico.Player;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 

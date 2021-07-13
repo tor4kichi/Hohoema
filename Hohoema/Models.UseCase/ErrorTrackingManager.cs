@@ -1,29 +1,23 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico;
+﻿using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Helpers;
-using Hohoema.Presentation.Services;
+using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Models.UseCase.PageNavigation;
-using Hohoema.Models.UseCase.Player;
 using Microsoft.AppCenter.Crashes;
+using Prism.Ioc;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
-using System.Threading;
+using System.Text.Json;
 using System.Threading.Tasks;
-using Uno.Threading;
 using Windows.Graphics.Display;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
-using Prism.Ioc;
-using System.Text.Json;
 
 namespace Hohoema.Models.UseCase
-{    
+{
     public static class ErrorTrackingManager
     {
         private static readonly PageManager _pageManager;

@@ -31,7 +31,9 @@
               ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
               uwpExtension:ScrollViewerExtensions.VerticalScrollBarMargin="0 48 0 0"
               xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
-              myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}">
+              myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
+              >
+      
       <ListView.ItemContainerTransitions>
         <TransitionCollection></TransitionCollection>
       </ListView.ItemContainerTransitions>
@@ -48,7 +50,7 @@
           <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" VerticalOffset="{Binding ScrollPosition.Value}" WithAnimation="False" Delay="0:0:0.001" />
         </core:DataTriggerBehavior>
         <core:EventTriggerBehavior EventName="ItemClick">
-          <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+          <core:InvokeCommandAction Command="{Binding VideoPlayWithQueueCommand}"
                                     InputConverter="{StaticResource ItemClickEventArgsConverter}" />
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
@@ -63,6 +65,26 @@
                 </CommandBar.Content>
 
                 <CommandBar.PrimaryCommands>
+                  <AppBarElementContainer>
+                    <ComboBox ItemsSource="{Binding SortOptions}"
+                          SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
+                          IsEnabled="{Binding NowLoading.Value, Converter={StaticResource BoolNegation}}"
+                          >
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <TextBlock Text="{Binding Label}" />
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                  </AppBarElementContainer>
+
+                  <AppBarButton x:Name="PlayAllButton"
+                                Icon="Play"
+                                Label="{i18nExt:Localize Key=PlayAll}"
+                                Command="{Binding PlaylistPlayAllCommand}"
+                                CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
+
+                  
                   <AppBarButton x:Name="ScrollToTopButton" Label="{i18nExt:Localize Key=ReturnToPageTop}" Icon="Up">
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Click">

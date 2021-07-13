@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Unity;
 using System.Diagnostics;
-using Hohoema.Models.UseCase.NicoVideos;
 using I18NPortable;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Presentation.Services;
+using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {

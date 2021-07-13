@@ -8,7 +8,7 @@ using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain;
 using Prism.Commands;
 using Prism.Navigation;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.UseCase;
 using System.Runtime.CompilerServices;
@@ -27,6 +27,9 @@ using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Channels;
 using NiconicoToolkit;
+using Hohoema.Models.Domain.Playlist;
+using Reactive.Bindings;
+using System.Reactive.Linq;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 {
@@ -64,7 +67,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
             ChannelProvider channelProvider,
             ChannelFollowProvider channelFollowProvider,
             PageManager pageManager,
-            HohoemaPlaylist hohoemaPlaylist,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand,
+            PlaylistPlayAllCommand playlistPlayAllCommand,
             OpenLinkCommand openLinkCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
@@ -74,9 +78,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
             ChannelProvider = channelProvider;
             _channelFollowProvider = channelFollowProvider;
             PageManager = pageManager;
-            HohoemaPlaylist = hohoemaPlaylist;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
+            PlaylistPlayAllCommand = playlistPlayAllCommand;
             OpenLinkCommand = openLinkCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
+
+            CurrentPlaylistToken = Observable.CombineLatest(
+                this.ObserveProperty(x => x.ChannelVideoPlaylist),
+                this.ObserveProperty(x => x.SelectedSortOption),
+                (x, y) => new PlaylistToken(x, y)
+                )
+                .ToReadOnlyReactivePropertySlim()
+                .AddTo(_CompositeDisposable);
         }
 
         private ChannelId? _ChannelId;
@@ -137,6 +150,27 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
             set => SetProperty(ref _FollowContext, value);
         }
 
+
+        private ChannelVideoPlaylist _ChannelVideoPlaylist;
+        public ChannelVideoPlaylist ChannelVideoPlaylist
+        {
+            get { return _ChannelVideoPlaylist; }
+            set { SetProperty(ref _ChannelVideoPlaylist, value); }
+        }
+
+        public ChannelVideoPlaylistSortOption[] SortOptions => ChannelVideoPlaylist.SortOptions;
+
+
+        private ChannelVideoPlaylistSortOption _selectedSortOption;
+        public ChannelVideoPlaylistSortOption SelectedSortOption
+        {
+            get { return _selectedSortOption; }
+            set { SetProperty(ref _selectedSortOption, value); }
+        }
+
+        public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
+
+
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             ChannelId = null;
@@ -178,6 +212,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
                 ChannelInfo = new ChannelInfo() { ChannelId = channelInfo.ChannelId, Name = ChannelName };
 
                 await UpdateFollowChannelAsync(ChannelInfo);
+
+                ChannelVideoPlaylist = new ChannelVideoPlaylist(channelInfo.ChannelId, new PlaylistId() { Id = channelInfo.ChannelId, Origin = PlaylistItemsSourceOrigin.ChannelVideos }, channelInfo.Name, ChannelProvider);
+                SelectedSortOption = ChannelVideoPlaylist.DefaultSortOption;
+
+                this.ObserveProperty(x => x.SelectedSortOption)
+                    .Subscribe(_ => ResetList())
+                    .AddTo(_NavigatingCompositeDisposable);
             }
             catch
             {
@@ -206,7 +247,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
         protected override (int, IIncrementalSource<ChannelVideoListItemViewModel>) GenerateIncrementalSource()
         {
-            return (ChannelVideoLoadingSource.OneTimeLoadCount, new ChannelVideoLoadingSource(ChannelId.Value, ChannelProvider));
+            return (ChannelVideoLoadingSource.OneTimeLoadCount, new ChannelVideoLoadingSource(ChannelId.Value, ChannelProvider, ChannelVideoPlaylist, SelectedSortOption));
         }
 
 
@@ -229,7 +270,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
         public NiconicoSession NiconicoSession { get; }
         public ChannelProvider ChannelProvider { get; }
         public PageManager PageManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
+        public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
         public OpenLinkCommand OpenLinkCommand { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
     }
@@ -255,22 +297,25 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
         public ChannelId ChannelId { get; }
         public ChannelProvider ChannelProvider { get; }
 
-        public ChannelVideoLoadingSource(ChannelId channelId, ChannelProvider channelProvider)
+        public ChannelVideoLoadingSource(ChannelId channelId,  ChannelProvider channelProvider, ChannelVideoPlaylist channelVideoPlaylist, ChannelVideoPlaylistSortOption sortOption)
         {
             ChannelId = channelId;
             ChannelProvider = channelProvider;
+            _channelVideoPlaylist = channelVideoPlaylist;
+            _sortOption = sortOption;
         }
 
 
         public const int OneTimeLoadCount = 20;
-
+        private readonly ChannelVideoPlaylist _channelVideoPlaylist;
+        private readonly ChannelVideoPlaylistSortOption _sortOption;
         bool _IsEndPage = false;
 
         async Task<IEnumerable<ChannelVideoListItemViewModel>> IIncrementalSource<ChannelVideoListItemViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
             if (_IsEndPage) { return Enumerable.Empty<ChannelVideoListItemViewModel>(); }
 
-            var res = await ChannelProvider.GetChannelVideo(ChannelId, pageIndex);
+            var res = await ChannelProvider.GetChannelVideo(ChannelId, pageIndex, _sortOption.SortKey, _sortOption.SortOrder);
 
             ct.ThrowIfCancellationRequested();
 
@@ -278,17 +323,22 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
             if (!res.IsSuccess) { return Enumerable.Empty<ChannelVideoListItemViewModel>(); }
 
-            return ToChannelVideoVMItems(res.Data.Videos);
+            return ToChannelVideoVMItems(res.Data.Videos, head: pageIndex * pageSize);
         }
 
-        IEnumerable<ChannelVideoListItemViewModel> ToChannelVideoVMItems(ChannelVideoItem[] items)
+        IEnumerable<ChannelVideoListItemViewModel> ToChannelVideoVMItems(ChannelVideoItem[] items, int head)
         {
+            int i = 0;
             foreach (var video in items)
             {
                 // so0123456のフォーマットの動画ID
                 // var videoId = video.PurchasePreviewUrl.Split('/').Last();
 
-                var channelVideo = new ChannelVideoListItemViewModel(video.ItemId, video.Title, video.ThumbnailUrl, video.Length, video.PostedAt);
+                var channelVideo = new ChannelVideoListItemViewModel(video.ItemId, video.Title, video.ThumbnailUrl, video.Length, video.PostedAt)
+                {
+                    PlaylistItemToken = new PlaylistItemToken(_channelVideoPlaylist, _sortOption, new ChannelVideoContent(video, ChannelId))
+                };
+
                 if (video.IsRequirePayment)
                 {
                     channelVideo.Permission = NiconicoToolkit.Video.VideoPermission.RequirePay;

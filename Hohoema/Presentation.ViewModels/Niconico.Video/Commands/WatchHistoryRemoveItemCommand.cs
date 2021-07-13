@@ -1,7 +1,8 @@
 ﻿using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Niconico.Video;
+using Hohoema.Models.UseCase.Playlist;
 using Prism.Commands;
 using System;
 using System.Collections;

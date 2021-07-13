@@ -59,7 +59,8 @@
       <SolidColorBrush x:Key="HohoemaPlayerBackgroundBrush"
                     Color="{ThemeResource SystemAltMediumColor}" 
                          />
-      <SolidColorBrush x:Key="MenuBackgroundBrush" Color="{ThemeResource SystemChromeMediumColor}" Opacity="1.0" />
+
+      <StaticResource x:Key="MenuBackgroundBrush" ResourceKey="ApplicationPageBackgroundThemeBrush" />
       
       <x:Double x:Key="WidthBreakPoint_WideToMiddle">800</x:Double>
       <x:Double x:Key="WidthBreakPoint_MiddleToNallow">520</x:Double>

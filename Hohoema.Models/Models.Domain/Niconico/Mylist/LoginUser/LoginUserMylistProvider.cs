@@ -81,7 +81,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             return new LoginUserMylistPlaylist(MylistId.WatchAfterMylistId, this) 
             {
                 Name = "WatchAfterMylist".Translate(),
-                Count = (int)defMylist.Data.Mylist.TotalItemCount,
+                Count = (int)defMylist.Data.Mylist.TotalCount,
                 UserId = _niconicoSession.UserId,
                 ThumbnailImages = defMylist.Data.Mylist.Items.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
             };
@@ -131,7 +131,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
             return mylistGroups;
         }
 
-        public async Task<List<(MylistItem MylistItem, NicoVideo NicoVideo)>> GetLoginUserMylistItemsAsync(IMylist mylist, int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
+        public async Task<MylistItemsGetResult> GetLoginUserMylistItemsAsync(IMylist mylist, int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
             if (mylist.UserId != _niconicoSession.UserId)
             {
@@ -148,12 +148,19 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                     _loginUserMylistItemIdRepository.AddItem(item.ItemId, mylist.MylistId, item.WatchId);
                 }
 
-                return items.Select(x => (x, MylistDataToNicoVideoData(x))).ToList();
-
+                return new MylistItemsGetResult() 
+                {
+                    MylistId = mylist.MylistId,
+                    IsSuccess = true,
+                    Items = items,
+                    NicoVideoItems = items.Select(MylistDataToNicoVideoData).ToArray(),
+                    TotalCount = (int)mylistItemsRes.Data.Mylist.TotalCount,
+                    HeadPosition = page * pageSize,
+                }; 
             }
             else
             {
-                var mylistItemsRes = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylist.Id, (int)page, (int)pageSize, sortKey, sortOrder);
+                var mylistItemsRes = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylist.PlaylistId.Id, (int)page, (int)pageSize, sortKey, sortOrder);
                 var res = mylistItemsRes.Data.Mylist;
                 var items = res.Items;
                 foreach (var item in items)
@@ -161,7 +168,15 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                     _loginUserMylistItemIdRepository.AddItem(item.ItemId, mylist.MylistId, item.WatchId);
                 }
 
-                return items.Select(x => (x, MylistDataToNicoVideoData(x))).ToList();
+                return new MylistItemsGetResult()
+                {
+                    MylistId = mylist.MylistId,
+                    IsSuccess = true,
+                    Items = items,
+                    NicoVideoItems = items.Select(MylistDataToNicoVideoData).ToArray(),
+                    TotalCount = (int)mylistItemsRes.Data.Mylist.TotalItemCount,
+                    HeadPosition = page * pageSize,
+                };
             }
         }
 

@@ -1,7 +1,7 @@
 ﻿using I18NPortable;
 using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
-using Hohoema.Models.UseCase.NicoVideos;
+using Hohoema.Models.UseCase.Playlist;
 using Prism.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -16,6 +16,7 @@ using Prism.Ioc;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 {
@@ -38,7 +39,7 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 
             LocalMylists = LocalMylistManager.LocalPlaylists
                 .ToReadOnlyReactiveCollection(x =>
-                new MenuItemViewModel(x.Name, HohoemaPageType.LocalPlaylist, new NavigationParameters { { "id", x.Id } }) as HohoemaListingPageItemBase
+                new MenuItemViewModel(x.Name, HohoemaPageType.LocalPlaylist, new NavigationParameters { { "id", x.PlaylistId.Id } }) as HohoemaListingPageItemBase
                 )
                 .AddTo(_CompositeDisposable);
             Mylists = MylistManager.Mylists

@@ -83,6 +83,8 @@ namespace NiconicoToolkit.UWP.Test.Tests
                 Assert.IsNotNull(item.Id);
                 Assert.IsNotNull(item.Title);
                 Assert.IsNotNull(item.Description);
+
+                item.GetCreateTime();
             }
         }
 

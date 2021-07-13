@@ -23,16 +23,14 @@ namespace Hohoema.Models.Infrastructure
 
         
 
-        public virtual T CreateItem(T item)
+        public virtual BsonValue CreateItem(T item)
         {
-            var val = _collection.Insert(item);
-            return item;
+            return _collection.Insert(item);
         }
 
-        public virtual T UpdateItem(T item)
+        public virtual bool UpdateItem(T item)
         {
-            _collection.Upsert(item);
-            return item;
+            return _collection.Upsert(item);
         }
 
         public virtual int UpdateItem(IEnumerable<T> items)
