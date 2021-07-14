@@ -146,6 +146,7 @@
     <Compile Include="Community\CommunityVideoSortKey.cs" />
     <Compile Include="Community\CommunityVideoSortOrder.cs" />
     <Compile Include="ContentIdHelper.cs" />
+    <Compile Include="EnumExtensions.cs" />
     <Compile Include="Follow\ChannelAuthorityResponse.cs" />
     <Compile Include="Follow\ChannelFollowResult.cs" />
     <Compile Include="Follow\FollowChannelResponse.cs" />
@@ -170,6 +171,25 @@
     <Compile Include="Recommend\RecommendContentType.cs" />
     <Compile Include="Recommend\RecommendType.cs" />
     <Compile Include="Recommend\VideoRecommendResponse.cs" />
+    <Compile Include="SnapshotSearch\Filters\CompareSearchFilter.cs" />
+    <Compile Include="SnapshotSearch\Filters\CompositionSearchFilter.cs" />
+    <Compile Include="SnapshotSearch\ExpressionSearchFilter.cs" />
+    <Compile Include="SnapshotSearch\ISearchFilter.cs" />
+    <Compile Include="SnapshotSearch\Filters\CompositeSearchFilter.cs" />
+    <Compile Include="SnapshotSearch\Filters\SearchFilterCompareCondition.cs" />
+    <Compile Include="SnapshotSearch\JsonFilters\AndJsonFilter.cs" />
+    <Compile Include="SnapshotSearch\JsonFilters\EqaulJsonFilter.cs" />
+    <Compile Include="SnapshotSearch\FilterValueHelper.cs" />
+    <Compile Include="SnapshotSearch\JsonFilters\IJsonSearchFilter.cs" />
+    <Compile Include="SnapshotSearch\JsonFilters\IJsonSearchFilterData.cs" />
+    <Compile Include="SnapshotSearch\JsonFilters\NotJsonFilter.cs" />
+    <Compile Include="SnapshotSearch\JsonFilters\OrJsonFilter.cs" />
+    <Compile Include="SnapshotSearch\JsonFilters\RangeJsonFilter.cs" />
+    <Compile Include="SnapshotSearch\SnapshotResponse.cs" />
+    <Compile Include="SnapshotSearch\Filters\ValueContainsSearchFilter.cs" />
+    <Compile Include="SnapshotSearch\VideoSnapshotSearchClient.cs" />
+    <Compile Include="SnapshotSearch\JsonFilters\JsonFilterSerializeHelper.cs" />
+    <Compile Include="SnapshotSearch\SearchFieldType.cs" />
     <Compile Include="System.Text.Json.Serialization\ChannelIdJsonConverter.cs" />
     <Compile Include="System.Text.Json.Serialization\CommunityIdJsonConverter.cs" />
     <Compile Include="System.Text.Json.Serialization\LiveIdJsonConverter.cs" />
@@ -325,6 +345,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.12</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Diagnostics">
+      <Version>7.0.2</Version>
     </PackageReference>
     <PackageReference Include="NeoSmart.AsyncLock">
       <Version>0.3.0.2</Version>
