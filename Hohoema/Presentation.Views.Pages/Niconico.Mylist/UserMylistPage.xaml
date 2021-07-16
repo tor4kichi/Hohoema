@@ -42,7 +42,7 @@
           </DataTemplate>
         </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
         <GridView.Header>
-          <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+          <Grid x:Name="HeaderLayout">
             <CommandBar toolkit:DockPanel.Dock="Right" Background="Transparent">
               <CommandBar.Content>
                 <mycontrols:AppTitleBar Title="{Binding Title}" />

@@ -51,7 +51,7 @@
           </TransitionCollection>
         </ListView.Transitions>
         <ListView.Header>
-          <Grid Background="{StaticResource MenuBackgroundBrush}">
+          <Grid>
             <ContentControl Content="{x:Bind Header}" x:Name="HeaderContent" HorizontalContentAlignment="Stretch" IsTabStop="False" />
 
             <uwpcontrol:DockPanel x:Name="SelectActionsContainer" Visibility="Collapsed"

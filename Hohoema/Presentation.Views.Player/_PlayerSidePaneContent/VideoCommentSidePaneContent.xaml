@@ -34,7 +34,7 @@
   <Grid>
     <uwpControls:DockPanel>
 
-      <Grid uwpControls:DockPanel.Dock="Top" Padding="16 8" Background="{StaticResource MenuBackgroundBrush}"
+      <Grid uwpControls:DockPanel.Dock="Top" Padding="16 8"
             BorderThickness="0 0 0 1"
             BorderBrush="{ThemeResource ButtonDisabledBorderThemeBrush}"
             >

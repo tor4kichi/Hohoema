@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,11 +26,15 @@ namespace Hohoema.Presentation.Views.StateTrigger
         private void Ui_GotFocus(object sender, RoutedEventArgs e)
         {
             SetActiveInvertible(true);
+
+            Debug.WriteLine("GotFocus");
         }
 
         private void Ui_LostFocus(object sender, RoutedEventArgs e)
         {
             SetActiveInvertible(false);
+
+            Debug.WriteLine("LostFocus");
         }
 
 

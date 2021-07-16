@@ -32,7 +32,6 @@
       xmlns:players="using:Hohoema.Presentation.Views.Player"
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       xmlns:myExt="using:Hohoema.Presentation.Views.Extensions"
-      DataContext="{x:Null}"
       x:Name="RootLayout"
       NavigationCacheMode="Required"
       d:DesignHeight="300"
@@ -147,7 +146,9 @@
       <toolkit:LayoutTransformControl.Transform>
         <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
       </toolkit:LayoutTransformControl.Transform>
-      <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" IsPaneOpen="{Binding PlayerSplitViewIsPaneOpen, Mode=TwoWay}">
+      <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" IsPaneOpen="{Binding PlayerSplitViewIsPaneOpen, Mode=TwoWay}"
+                 PaneBackground="{ThemeResource SystemControlAltHighAcrylicElementBrush}"
+                 >
         <i:Interaction.Behaviors>
           <!-- サイドペインが閉じられたら コンテンツVMをリセット -->
           <core:EventTriggerBehavior EventName="PaneClosed">
@@ -602,7 +603,7 @@
                       <ColumnDefinition Width="1*" />
                       <ColumnDefinition Width="1*" />
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" PlaceholderText="{i18nExt:Localize Key=CommentTextBoxPlacefolder}" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding CommentPlayer.NowCommentSubmitDisabledFromNicoScript, Converter={StaticResource BoolNegation}}"></TextBox>
+                    <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" PlaceholderText="{i18nExt:Localize Key=CommentTextBoxPlacefolder}" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding CommentPlayer.NowCommentSubmitDisabledFromNicoScript, Converter={StaticResource BoolNegation}}"></TextBox>
                     <Button x:Name="CommentCommandEditButton"
                             Content="{Binding CommentCommandEditerViewModel.CommandsText.Value, Mode=OneWay}"                            
                             Margin="8 0 8 0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
@@ -1105,13 +1106,14 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
+            <!-- Target="{x:Bind CommentTextBox}" と指定すると動作しない -->
+            <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{Binding ElementName=CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
             <StateTrigger IsActive="{x:Bind ActionsCommandBar.IsOpen, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind NowVideoPositionChanging, Mode=OneWay}" />
             <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
             <StateTrigger IsActive="{Binding PlayerSettings.IsAutoHidePlayerControlUI, Converter={StaticResource BoolNegation}}" />
             <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
-            <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
-            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
             <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="Controller" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1123,10 +1125,11 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
+            <!-- Target="{x:Bind CommentTextBox}" と指定すると動作しない -->
+            <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" />
             <StateTrigger IsActive="{Binding ElementName=PlayerSplitView, Path=IsPaneOpen}" />
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
-            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{Binding ElementName=CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentWriteBeginKeyboardTrigger.IsEnabled" Value="False" />
@@ -1140,7 +1143,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
+            <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentWriteExitKeyboardTrigger.IsEnabled" Value="True" />

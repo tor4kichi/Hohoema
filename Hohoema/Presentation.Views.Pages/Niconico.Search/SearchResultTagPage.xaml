@@ -26,7 +26,7 @@
       RefreshCommand="{Binding RefreshCommand}" 
       x:Name="VideoItemsListView">
       <videolistPage:VideoItemsListView.Header>
-        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+        <Grid x:Name="HeaderLayout">
           <StackPanel >
             <CommandBar>
               <CommandBar.PrimaryCommands>

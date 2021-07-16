@@ -11,11 +11,9 @@
   xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
-  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
-  
+  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"  
   mc:Ignorable="d"
   NavigationCacheMode="Enabled"
-  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   >
 
   <Grid x:Name="ContentLayout">
@@ -46,7 +44,7 @@
         </DataTemplate>
       </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
       <GridView.Header>
-        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+        <Grid x:Name="HeaderLayout">
           <CommandBar uwpControls:DockPanel.Dock="Right" Background="Transparent">
             <CommandBar.Content>
               <mycontrols:AppTitleBar Title="{Binding Title}" />

@@ -142,7 +142,7 @@
         </Border>
       </StackPanel>
     </ScrollViewer>
-    <Grid x:Name="HeaderLayout" VerticalAlignment="Top" HorizontalAlignment="Stretch" Background="{StaticResource MenuBackgroundBrush}">
+    <Grid x:Name="HeaderLayout" VerticalAlignment="Top" HorizontalAlignment="Stretch">
       <Border Height="48" />
       <CommandBar HorizontalAlignment="Right">
         <CommandBar.Content>

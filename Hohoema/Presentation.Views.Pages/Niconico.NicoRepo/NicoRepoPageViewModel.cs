@@ -371,10 +371,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
                 }
                 else if (IsVideoTopic(topicType))
                 {
-                    var id = item.Item.GetContentId();
-                    var nicoVideo = videoDict[id];
-                    var vm = new NicoRepoVideoTimeline(nicoVideo, item.Item, topicType);
-                    return vm as INicoRepoItem;
+                    try
+                    {
+                        var id = item.Item.GetContentId();
+                        var nicoVideo = videoDict[id];
+                        var vm = new NicoRepoVideoTimeline(nicoVideo, item.Item, topicType);
+                        return vm as INicoRepoItem;
+                    }
+                    catch
+                    {
+                        return null;
+                    }
                 }
                 else
                 {

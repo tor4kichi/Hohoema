@@ -19,7 +19,7 @@
     <PackageCertificateKeyFile>NicoPlayerHohoema_StoreKey.pfx</PackageCertificateKeyFile>
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>preview</LangVersion>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
@@ -776,7 +776,7 @@
       <Version>1.2.2</Version>
     </PackageReference>
     <PackageReference Include="AngleSharp">
-      <Version>0.14.0</Version>
+      <Version>0.16.0</Version>
     </PackageReference>
     <PackageReference Include="I18NPortable">
       <Version>1.0.1</Version>
@@ -790,7 +790,7 @@
       <Version>4.1.4</Version>
     </PackageReference>
     <PackageReference Include="Macross.Json.Extensions">
-      <Version>1.5.0</Version>
+      <Version>2.0.0</Version>
     </PackageReference>
     <PackageReference Include="MahApps.Metro.IconPacks.Material">
       <Version>4.2.0</Version>
@@ -1270,13 +1270,13 @@
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\NiconicoToolkit\NiconicoToolkit.UWP\NiconicoToolkit.UWP.csproj">
+      <Project>{9ec6b1ba-1896-4516-b0f4-1c3701566d16}</Project>
+      <Name>NiconicoToolkit.UWP</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Hohoema.Models\Hohoema.Models.csproj">
       <Project>{5877a9ca-2d3a-4b8b-86ca-d77e6d68cf98}</Project>
       <Name>Hohoema.Models</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NiconicoLiveToolkit.UWP\NiconicoToolkit.UWP.csproj">
-      <Project>{311b8388-57d0-4724-ad17-be76a2abf0a9}</Project>
-      <Name>NiconicoToolkit.UWP</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

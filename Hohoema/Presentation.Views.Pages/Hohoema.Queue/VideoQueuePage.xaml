@@ -16,7 +16,6 @@
   xmlns:windowsTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:videoListPageVM="using:Hohoema.Presentation.ViewModels.VideoListPage"
   mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   NavigationCacheMode="Enabled"
   >
 
@@ -35,7 +34,7 @@
       </videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
 
       <videolistPage:VideoItemsListView.Header>
-        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+        <Grid x:Name="HeaderLayout">
           <StackPanel>
             <CommandBar x:Name="VideoListCommandBar"
                           Background="Transparent"

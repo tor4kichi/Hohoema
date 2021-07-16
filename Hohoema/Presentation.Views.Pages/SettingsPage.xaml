@@ -117,7 +117,7 @@
   </Page.Resources>
   <Grid>
     <uwptoolkitControl:DockPanel>
-      <StackPanel x:Name="HeaderPanel" uwptoolkitControl:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}" HorizontalAlignment="Stretch">
+      <StackPanel x:Name="HeaderPanel" uwptoolkitControl:DockPanel.Dock="Top" HorizontalAlignment="Stretch">
         <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
           <CommandBar.Content>
             <controls:AppTitleBar Title="{Binding Title}" />

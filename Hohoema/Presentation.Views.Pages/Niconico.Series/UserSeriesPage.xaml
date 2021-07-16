@@ -13,7 +13,6 @@
   xmlns:controls="using:Hohoema.Presentation.Views.Controls"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   NavigationCacheMode="Enabled"
   >
   <Page.Resources>

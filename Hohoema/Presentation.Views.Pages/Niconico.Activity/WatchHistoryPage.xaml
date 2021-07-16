@@ -18,7 +18,7 @@
   <Grid>
     <videolistPage:VideoItemsListView x:Name="VideoItemsListView" ItemsSource="{Binding Histories}" ItemCommand="{Binding VideoPlayWithQueueCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}" >
       <videolistPage:VideoItemsListView.Header>
-        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+        <Grid x:Name="HeaderLayout">
           <Grid>
             <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
               <CommandBar.Content>

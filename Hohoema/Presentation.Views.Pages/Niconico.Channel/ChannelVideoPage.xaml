@@ -33,7 +33,7 @@
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
-        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+        <Grid x:Name="HeaderLayout">
           <CommandBar x:Name="VideoListCommandBar">
             <CommandBar.Content>
               <controls:AppTitleBar Title="{Binding Title}" />

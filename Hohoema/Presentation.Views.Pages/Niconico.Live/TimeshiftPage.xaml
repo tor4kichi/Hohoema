@@ -106,7 +106,7 @@
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
       <ListView.Header>
-        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+        <Grid x:Name="HeaderLayout">
           <Grid>
             <CommandBar x:Name="TopCommandBar" toolkit:DockPanel.Dock="Right" >
               <CommandBar.Content>
