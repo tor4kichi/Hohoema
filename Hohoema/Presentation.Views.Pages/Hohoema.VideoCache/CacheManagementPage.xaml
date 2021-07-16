@@ -47,7 +47,7 @@
                                       >
       <videolistPage:VideoItemsListView.Header>
 
-        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+        <Grid x:Name="HeaderLayout">
           <CommandBar >
             <CommandBar.Content>
               <StackPanel>

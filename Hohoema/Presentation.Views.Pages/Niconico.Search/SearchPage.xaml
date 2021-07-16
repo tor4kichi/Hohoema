@@ -41,7 +41,7 @@
         </CommandBar.Content>
       </CommandBar>      
       
-      <uwpControls:DockPanel Margin="0" uwpControls:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}">
+      <uwpControls:DockPanel Margin="0" uwpControls:DockPanel.Dock="Top">
 
         <ComboBox x:Name="SearchTargetListView" ItemsSource="{Binding TargetListItems}" SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}" 
                         HorizontalAlignment="Stretch" TabIndex="1" IsTabStop="True" UseSystemFocusVisuals="True" 

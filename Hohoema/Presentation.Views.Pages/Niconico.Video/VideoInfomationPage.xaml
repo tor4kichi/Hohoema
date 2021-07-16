@@ -419,7 +419,6 @@
 
     <!-- 動画タイトル -->
     <Border x:Name="TitleLayoutOnNallow" Visibility="Collapsed"
-                  Background="{ThemeResource MenuBackgroundBrush}"
             VerticalAlignment="Top"
                   >
       <controls:AppTitleBar Title="{Binding VideoInfo.Title}" Height="40" />

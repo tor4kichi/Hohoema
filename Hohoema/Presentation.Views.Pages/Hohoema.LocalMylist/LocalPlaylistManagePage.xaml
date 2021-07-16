@@ -13,7 +13,6 @@
   xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors" 
   xmlns:local="using:Hohoema.Presentation.Views.Pages.Niconico.Mylist" 
   mc:Ignorable="d"
-  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   >
 
   <Grid x:Name="ContentLayout">
@@ -45,7 +44,7 @@
         </DataTemplate>
       </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
       <GridView.Header>
-        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+        <Grid x:Name="HeaderLayout">
           <CommandBar uwpControls:DockPanel.Dock="Right" Background="Transparent">
             <CommandBar.Content>
               <mycontrols:AppTitleBar Title="{Binding Title}" />

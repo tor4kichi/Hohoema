@@ -99,7 +99,9 @@
       <toolkit:LayoutTransformControl.Transform>
         <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
       </toolkit:LayoutTransformControl.Transform>
-      <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" DisplayMode="Overlay" OpenPaneLength="400">
+      <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" DisplayMode="Overlay" OpenPaneLength="400"
+                 PaneBackground="{ThemeResource SystemControlAltHighAcrylicElementBrush}"
+                 >
         <i:Interaction.Behaviors>
           <!-- サイドペインのコンテンツVMが指定されたらサイドペインを開く -->
           <!-- 条件に{x:Null}ではなく PlayerSidePaneContentType.None を指定しているのは

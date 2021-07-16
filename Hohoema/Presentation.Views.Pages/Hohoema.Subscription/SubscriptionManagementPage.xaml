@@ -14,7 +14,6 @@
   xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
   xmlns:subscriptionVM="using:Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription"
   mc:Ignorable="d"
-  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   NavigationCacheMode="Enabled"
   >
 
@@ -63,7 +62,7 @@
       
       <ListView.Header>
 
-        <Grid Margin="0 0 0 0" Background="{ThemeResource MenuBackgroundBrush}">
+        <Grid Margin="0 0 0 0" >
           <CommandBar DefaultLabelPosition="Right" Margin="0 0 16 0" 
                       XYFocusDownNavigationStrategy="NavigationDirectionDistance"
                       XYFocusLeftNavigationStrategy="RectilinearDistance"

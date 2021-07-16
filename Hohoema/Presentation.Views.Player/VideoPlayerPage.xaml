@@ -146,7 +146,9 @@
       <toolkit:LayoutTransformControl.Transform>
         <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
       </toolkit:LayoutTransformControl.Transform>
-      <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" IsPaneOpen="{Binding PlayerSplitViewIsPaneOpen, Mode=TwoWay}">
+      <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" IsPaneOpen="{Binding PlayerSplitViewIsPaneOpen, Mode=TwoWay}"
+                 PaneBackground="{ThemeResource SystemControlAltHighAcrylicElementBrush}"
+                 >
         <i:Interaction.Behaviors>
           <!-- サイドペインが閉じられたら コンテンツVMをリセット -->
           <core:EventTriggerBehavior EventName="PaneClosed">

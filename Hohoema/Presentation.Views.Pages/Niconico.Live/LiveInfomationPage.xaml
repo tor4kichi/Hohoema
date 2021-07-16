@@ -26,7 +26,7 @@
       <StackPanel x:Name="ContentLayout" Spacing="16">
 
         <!-- サムネ、タイトル、視聴開始、タイムシフト予約 -->
-        <Border Background="{StaticResource MenuBackgroundBrush}">
+        <Border>
           <uwptoolkit:DockPanel x:Name="HeaderLayout"
                             >
 

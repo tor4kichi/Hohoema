@@ -149,7 +149,7 @@
 
     <uwpControls:DockPanel>
 
-      <Border x:Name="HeaderLayout" Background="{ThemeResource MenuBackgroundBrush}" uwpControls:DockPanel.Dock="Top" VerticalAlignment="Top">
+      <Border x:Name="HeaderLayout" uwpControls:DockPanel.Dock="Top" VerticalAlignment="Top">
         <CommandBar x:Name="TopCommandBar" Background="Transparent">
           <CommandBar.Content>
             <controls:AppTitleBar Title="{Binding Title}" />

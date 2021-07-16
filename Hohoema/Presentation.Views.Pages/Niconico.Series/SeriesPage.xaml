@@ -11,7 +11,6 @@
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   mc:Ignorable="d"
-  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   NavigationCacheMode="Enabled"
   >
 
@@ -25,7 +24,7 @@
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
-        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+        <Grid x:Name="HeaderLayout">
           <CommandBar >
             <CommandBar.Content>
               <controls:AppTitleBar Title="{Binding Title}" />

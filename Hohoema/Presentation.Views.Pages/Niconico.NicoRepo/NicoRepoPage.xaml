@@ -122,7 +122,7 @@
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
       <ListView.Header>
-        <Grid Background="{StaticResource MenuBackgroundBrush}">
+        <Grid>
           <StackPanel x:Name="HeaderLayout">
             <CommandBar x:Name="TopCommandBar">
               <CommandBar.Content>
