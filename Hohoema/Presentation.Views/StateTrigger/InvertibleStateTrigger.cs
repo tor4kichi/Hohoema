@@ -9,29 +9,33 @@ using WindowsStateTriggers;
 
 namespace Hohoema.Presentation.Views.StateTrigger
 {
+    
     abstract public class InvertibleStateTrigger : StateTriggerBase, ITriggerValue
     {
         public bool Inverted { get; set; } = false;
 
-        bool _isActive;
-        public bool IsActive 
+        public bool IsActive
         {
-            get => _isActive;
-            set
-            {
-                if (_isActive != value)
-                {
-                    _isActive = value;
-                    IsActiveChanged?.Invoke(this, EventArgs.Empty);
-                }
-            }
+            get { return (bool)GetValue(IsActiveProperty); }
+            private set { SetValue(IsActiveProperty, value); }
         }
+
+        // Using a DependencyProperty as the backing store for IsActive.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsActiveProperty =
+            DependencyProperty.Register("IsActive", typeof(bool), typeof(InvertibleStateTrigger), new PropertyMetadata(true));
 
         public event EventHandler IsActiveChanged;
 
         protected void SetActiveInvertible(bool isActive)
         {
-            SetActive(IsActive = Inverted ? !isActive : isActive);
+            var oldVal = IsActive;
+
+            var valInvertApplied = Inverted ? !isActive : isActive;
+            if (oldVal == valInvertApplied) { return; }
+
+            IsActive = valInvertApplied;
+            SetActive(valInvertApplied);
+            IsActiveChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }
