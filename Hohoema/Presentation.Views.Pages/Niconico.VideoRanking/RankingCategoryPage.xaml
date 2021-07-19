@@ -23,7 +23,7 @@
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
-        <Grid>
+        <Grid >
           <CommandBar x:Name="VideoListCommandBar" HorizontalAlignment="Stretch" >
             <CommandBar.Content>
               <controls:AppTitleBar Title="{Binding Title}" />
