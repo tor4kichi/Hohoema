@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -160,6 +161,7 @@ namespace Hohoema.Models.Domain.Playlist
 
 
         private readonly IMessenger _messenger;
+        private readonly IScheduler _scheduler;
         private readonly QueuePlaylistRepository _queuePlaylistRepository;
         private readonly QueuePlaylistSetting _queuePlaylistSetting;
         private readonly NicoVideoProvider _nicoVideoProvider;
@@ -174,6 +176,7 @@ namespace Hohoema.Models.Domain.Playlist
 
         public QueuePlaylist(
             IMessenger messenger,
+            IScheduler scheduler,
             QueuePlaylistRepository queuePlaylistRepository,
             QueuePlaylistSetting queuePlaylistSetting
             )
@@ -181,6 +184,7 @@ namespace Hohoema.Models.Domain.Playlist
         {
             _itemEntityMap = itemEntityMap;
             _messenger = messenger;
+            _scheduler = scheduler;
             _queuePlaylistRepository = queuePlaylistRepository;
             _queuePlaylistSetting = queuePlaylistSetting;
         }
@@ -301,11 +305,14 @@ namespace Hohoema.Models.Domain.Playlist
         {
             Guard.IsTrue(Contains(removeItem.VideoId), "no contain videoId");
 
-            var item = base.Items.FirstOrDefault(x => x.Equals(removeItem));
-            base.Items.Remove(item);
-            SendRemovedMessage(item.Index, item);
-            RemoveEntity(removeItem.VideoId);
-            OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(IUserManagedPlaylist.TotalCount)));
+            _scheduler.Schedule(() => 
+            {
+                var item = base.Items.FirstOrDefault(x => x.Equals(removeItem));
+                base.Items.Remove(item);
+                SendRemovedMessage(item.Index, item);
+                RemoveEntity(removeItem.VideoId);
+                OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(IUserManagedPlaylist.TotalCount)));
+            });
 
             // 他アイテムのIndex更新は必要ない
             // アプリ復帰時に順序が保たれていれば十分
