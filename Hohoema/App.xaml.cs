@@ -694,7 +694,7 @@ namespace Hohoema
             navigationService.OpenPage(settings.FirstAppearPageType);
 #endif
 
-#if DEBUG
+#if false
             try
             {
                 if (!_isNavigationStackRestored)

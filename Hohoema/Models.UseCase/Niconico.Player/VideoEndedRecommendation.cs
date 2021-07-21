@@ -96,6 +96,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     return;
                 }
 
+                // _queuePlaylistのアイテム削除後の更新がScheduler上で行われるため、アイテム更新操作が同期的にではなく
+                // sortablePlaylist.TotalCountが実際とズレる可能性があるため、処理完了を待つ
+                await Task.Delay(10);
 
                 if (_playerSettings.IsPlaylistLoopingEnabled && _hohoemaPlaylistPlayer.CurrentPlaylist is ISortablePlaylist sortablePlaylist && sortablePlaylist.TotalCount > 0)
                 {
