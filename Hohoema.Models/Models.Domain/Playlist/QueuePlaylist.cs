@@ -327,6 +327,8 @@ namespace Hohoema.Models.Domain.Playlist
             _scheduler.Schedule(() => 
             {
                 var item = Items.FirstOrDefault(x => x.Equals(removeItem));
+                if (item == null) { return; }
+
                 Items.Remove(item);
                 SendRemovedMessage(item.Index, item);
                 RemoveEntity(removeItem.VideoId);
