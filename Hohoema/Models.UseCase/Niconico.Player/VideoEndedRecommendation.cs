@@ -97,7 +97,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 }
 
 
-                if (_playerSettings.IsPlaylistLoopingEnabled)
+                if (_playerSettings.IsPlaylistLoopingEnabled && _hohoemaPlaylistPlayer.CurrentPlaylist is IUserManagedPlaylist managedPlaylist && managedPlaylist.TotalCount > 0)
                 {
                     if (await _hohoemaPlaylistPlayer.PlayAsync(_hohoemaPlaylistPlayer.CurrentPlaylist, _hohoemaPlaylistPlayer.CurrentPlaylistSortOption))
                     {
@@ -105,7 +105,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     }
                 }
 
-                if (_playerSettings.AutoMoveNextVideoOnPlaylistEmpty)
+                //if (_playerSettings.AutoMoveNextVideoOnPlaylistEmpty)
                 {
                     /*
                     if (_videoPlayer.PlayingVideoId == null)
@@ -125,9 +125,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     {
                         _scheduler.Schedule(() =>
                         {
-                            HasNextVideo = true;
                             NextVideoTitle = nextVideo.Title;
                             HasRecomend.Value = true;
+                            HasNextVideo = true;
 
                             Debug.WriteLine("シリーズ情報から次の動画を提示: " + nextVideo.Title);
                         });
@@ -173,6 +173,15 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         {
             using var _ = await _lock.LockAsync(default);
 
+            _series = null;
+            _videoRelatedContents = null;
+            HasNextVideo = false;
+            NextVideoTitle = null;
+            _playNext = false;
+            _endedProcessed = false;
+            HasRecomend.Value = false;
+            _currentVideoDetail = null;
+
             _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
         }
@@ -186,15 +195,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             var data = message.Value;
             _queuePlaylist.Remove(data.VideoId);
             _videoPlayedHistoryRepository.VideoPlayed(data.VideoId, data.EndPosition);
-
-            _series = null;
-            _videoRelatedContents = null;
-            HasNextVideo = false;
-            NextVideoTitle = null;
-            _playNext = false;
-            _endedProcessed = false;
-            HasRecomend.Value = false;
-            _currentVideoDetail = null;
         }
 
 
@@ -272,11 +272,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 if (_videoRelatedContents?.NextVideo != null)
                 {
                     var nextVideo = _videoRelatedContents.NextVideo;
-                    _messenger.Send(new VideoPlayRequestMessage() { VideoId = nextVideo.VideoId });
+                    _messenger.Send(VideoPlayRequestMessage.PlayVideoWithQueue(nextVideo.VideoId));
                 }
                 else if (_series.Video.Next is not null and var nextVideo)
                 {
-                    _messenger.Send(new VideoPlayRequestMessage() { VideoId = nextVideo.Id });
+                    _messenger.Send(VideoPlayRequestMessage.PlayVideoWithQueue(nextVideo.Id));
                 }
 
                 IsEnded.Value = false;

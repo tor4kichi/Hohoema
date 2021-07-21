@@ -168,10 +168,9 @@ namespace Hohoema.Models.Domain.Playlist
 
         public bool IsShuffleModeEnabled => IsShuffleAndRepeatAvailable && IsShuffleModeRequested;
 
-        public IObservable<ReadOnlyObservableCollection<IVideoContent>> GetBufferedItems()
+        public IObservable<IBufferedPlaylistItemsSource> GetBufferedItems()
         {
-            return this.ObserveProperty(x => x.BufferedPlaylistItemsSource)
-                .Select(x => BufferedPlaylistItemsSource as ReadOnlyObservableCollection<IVideoContent>);
+            return this.ObserveProperty(x => x.BufferedPlaylistItemsSource);
         }
 
         protected async ValueTask<IBufferedPlaylistItemsSource> Reset(IPlaylist playlist, IPlaylistSortOption sortOption)
@@ -321,12 +320,13 @@ namespace Hohoema.Models.Domain.Playlist
 
         public IObservable<bool> GetCanGoNextOrPreviewObservable()
         {
-            return Observable.CombineLatest(
-                this.ObserveProperty(x => x.IsShuffleModeRequested),
-                this.ObserveProperty(x => x.IsUnlimitedPlaylistSource),
-                this.ObserveProperty(x => x.CurrentPlayingIndex).Select(x => x >= 0)
+            return Observable.Merge(
+                this.ObserveProperty(x => x.IsShuffleModeRequested).ToUnit(),
+                this.ObserveProperty(x => x.IsUnlimitedPlaylistSource).ToUnit(),
+                this.ObserveProperty(x => x.CurrentPlayingIndex).ToUnit(),
+                this.ObserveProperty(x => x.CurrentPlaylist).SelectMany(x => x is INotifyCollectionChanged ncc ? ncc.CollectionChangedAsObservable().ToUnit() : Observable.Empty<Unit>())
                 )
-                .Select(x => x[1] == false && x[2]);
+                .Select(x => IsUnlimitedPlaylistSource && CurrentPlayingIndex >= 0);
         }
 
         public async Task<bool> CanGoNextAsync(CancellationToken ct = default)

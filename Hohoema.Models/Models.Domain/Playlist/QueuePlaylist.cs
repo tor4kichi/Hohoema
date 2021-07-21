@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Domain.LocalMylist;
+﻿using Hohoema.FixPrism;
+using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Infrastructure;
@@ -9,13 +10,16 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using NiconicoToolkit.Video;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.System;
 
 namespace Hohoema.Models.Domain.Playlist
 {
@@ -139,7 +143,7 @@ namespace Hohoema.Models.Domain.Playlist
         }
     }
 
-    public class QueuePlaylist : ReadOnlyObservableCollection<QueuePlaylistItem>, IUserManagedPlaylist
+    public class QueuePlaylist : BindableBase, IReadOnlyCollection<QueuePlaylistItem>, INotifyCollectionChanged, IUserManagedPlaylist
     {
         public static QueuePlaylistSortOption[] SortOptions { get; } = new QueuePlaylistSortOption[]
 {
@@ -173,20 +177,35 @@ namespace Hohoema.Models.Domain.Playlist
 
         public PlaylistId PlaylistId => Id;
 
+        public int Count => ((IReadOnlyCollection<QueuePlaylistItem>)Items).Count;
 
+        DispatchObservableCollection<QueuePlaylistItem> Items;
         public QueuePlaylist(
             IMessenger messenger,
             IScheduler scheduler,
             QueuePlaylistRepository queuePlaylistRepository,
             QueuePlaylistSetting queuePlaylistSetting
             )
-            : base(new ObservableCollection<QueuePlaylistItem>(GetQueuePlaylistItems(queuePlaylistRepository, out var itemEntityMap)))
         {
+            Items = new (GetQueuePlaylistItems(queuePlaylistRepository, out var itemEntityMap));
             _itemEntityMap = itemEntityMap;
             _messenger = messenger;
             _scheduler = scheduler;
             _queuePlaylistRepository = queuePlaylistRepository;
             _queuePlaylistSetting = queuePlaylistSetting;
+        }
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged
+        {
+            add
+            {
+                ((INotifyCollectionChanged)Items).CollectionChanged += value;
+            }
+
+            remove
+            {
+                ((INotifyCollectionChanged)Items).CollectionChanged -= value;
+            }
         }
 
         static IEnumerable<QueuePlaylistItem> GetQueuePlaylistItems(QueuePlaylistRepository queuePlaylistRepository, out Dictionary<VideoId, QueuePlaylistItem> eneityMap)
@@ -265,10 +284,10 @@ namespace Hohoema.Models.Domain.Playlist
             Guard.IsFalse(Contains(video.VideoId), "already contain videoId");
 
             var addedItem = new QueuePlaylistItem(video, video as IVideoContentProvider);
-            base.Items.Add(addedItem);
+            Items.Add(addedItem);
             SendAddedMessage(addedItem);
             AddEntity(addedItem);
-            OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(IUserManagedPlaylist.TotalCount)));
+            RaisePropertyChanged(nameof(IUserManagedPlaylist.TotalCount));
 
             return addedItem;
         }
@@ -279,13 +298,13 @@ namespace Hohoema.Models.Domain.Playlist
             Guard.IsFalse(Contains(video.VideoId), "already contain videoId");
 
             var addedItem = new QueuePlaylistItem(video, video as IVideoContentProvider);
-            base.Items.Insert(index, addedItem);
+            Items.Insert(index, addedItem);
             SendAddedMessage(addedItem);
             AddEntity(addedItem);
-            OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(IUserManagedPlaylist.TotalCount)));
+            RaisePropertyChanged(nameof(IUserManagedPlaylist.TotalCount));
 
             index++;
-            foreach (var item in base.Items.Skip(index))
+            foreach (var item in Items.Skip(index))
             {
                 item.Index = index++;
                 SendIndexUpdatedMessage(item.Index, item.VideoId);
@@ -297,7 +316,7 @@ namespace Hohoema.Models.Domain.Playlist
 
         public void Remove(VideoId videoId)
         {
-            var item = base.Items.FirstOrDefault(x => x.VideoId == videoId);
+            var item = Items.FirstOrDefault(x => x.VideoId == videoId);
             if (item == null) { return; }
             Remove(item);
         }
@@ -307,11 +326,11 @@ namespace Hohoema.Models.Domain.Playlist
 
             _scheduler.Schedule(() => 
             {
-                var item = base.Items.FirstOrDefault(x => x.Equals(removeItem));
-                base.Items.Remove(item);
+                var item = Items.FirstOrDefault(x => x.Equals(removeItem));
+                Items.Remove(item);
                 SendRemovedMessage(item.Index, item);
                 RemoveEntity(removeItem.VideoId);
-                OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(nameof(IUserManagedPlaylist.TotalCount)));
+                RaisePropertyChanged(nameof(IUserManagedPlaylist.TotalCount));
             });
 
             // 他アイテムのIndex更新は必要ない
@@ -326,8 +345,8 @@ namespace Hohoema.Models.Domain.Playlist
 
         public int IndexOf(VideoId id)
         {
-            var item = base.Items.FirstOrDefault(x => x.VideoId == id);
-            return base.Items.IndexOf(item);
+            var item = Items.FirstOrDefault(x => x.VideoId == id);
+            return Items.IndexOf(item);
         }
 
         public int IndexOf(IVideoContent video)
@@ -410,6 +429,16 @@ namespace Hohoema.Models.Domain.Playlist
                 LocalMylistSortKey.PostedAt => sortOrder == LocalMylistSortOrder.Asc ? (QueuePlaylistItem x, QueuePlaylistItem y) => DateTime.Compare(x.PostedAt, y.PostedAt) : (QueuePlaylistItem x, QueuePlaylistItem y) => DateTime.Compare(y.PostedAt, x.PostedAt),
                 _ => throw new NotSupportedException(),
             };
+        }
+
+        public IEnumerator<QueuePlaylistItem> GetEnumerator()
+        {
+            return ((IEnumerable<QueuePlaylistItem>)Items).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)Items).GetEnumerator();
         }
     }
 }

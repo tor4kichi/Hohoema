@@ -123,6 +123,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="FixPrism\BindableBaseWithFix.cs" />
+    <Compile Include="FixPrism\DispatchObservableCollection{T}.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="Models.Domain\Application\AppearanceSettings.cs" />
     <Compile Include="Models.Domain\Application\AppFlagsRepository.cs" />

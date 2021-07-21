@@ -154,7 +154,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             VolumeUpCommand = new MediaPlayerVolumeUpCommand(SoundVolumeManager);
             VolumeDownCommand = new MediaPlayerVolumeDownCommand(SoundVolumeManager);
 
-            PlayNextCommand = _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
+            PlayNextCommand = _hohoemaPlaylistPlayer.GetCanGoNextOrPreviewObservable()
                 .SelectMany(async x => await _hohoemaPlaylistPlayer.CanGoNextAsync())
                 .ToAsyncReactiveCommand()
                 .AddTo(_CompositeDisposable);
@@ -162,7 +162,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             PlayNextCommand.Subscribe(async () => await _hohoemaPlaylistPlayer.GoNextAsync(NavigationCancellationToken))
                 .AddTo(_CompositeDisposable);
 
-            PlayPreviousCommand = _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
+            PlayPreviousCommand = _hohoemaPlaylistPlayer.GetCanGoNextOrPreviewObservable()
                 .SelectMany(async x => await _hohoemaPlaylistPlayer.CanGoPreviewAsync())
                 .ToAsyncReactiveCommand()
                 .AddTo(_CompositeDisposable);
