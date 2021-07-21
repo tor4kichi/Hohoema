@@ -24,7 +24,7 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
             _queuePlaylist = queuePlaylist;
             _messenger = messenger;
             QueuePlaylistCount = _queuePlaylist
-                .ObserveProperty(x => x.Count)
+                .ObserveProperty(x => x.TotalCount)
                 .Do(_ => PlayQueuePlaylistCommand.RaiseCanExecuteChanged())
                 .ToReactiveProperty()
                 ;

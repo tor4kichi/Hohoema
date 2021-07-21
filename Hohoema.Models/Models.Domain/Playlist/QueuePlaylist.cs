@@ -332,11 +332,13 @@ namespace Hohoema.Models.Domain.Playlist
                 Items.Remove(item);
                 SendRemovedMessage(item.Index, item);
                 RemoveEntity(removeItem.VideoId);
-                RaisePropertyChanged(nameof(IUserManagedPlaylist.TotalCount));
+                RaisePropertyChanged(nameof(IUserManagedPlaylist.TotalCount));               
             });
 
             // 他アイテムのIndex更新は必要ない
             // アプリ復帰時に順序が保たれていれば十分
+
+            RaisePropertyChanged(nameof(TotalCount));
         }
 
 
