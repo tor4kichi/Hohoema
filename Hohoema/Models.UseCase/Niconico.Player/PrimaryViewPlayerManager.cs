@@ -77,7 +77,10 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public async Task ShowAsync()
         {
-            await ApplicationViewSwitcher.TryShowAsStandaloneAsync(_view.Id);
+            _scheduler.Schedule(async () => 
+            {
+                await ApplicationViewSwitcher.TryShowAsStandaloneAsync(_view.Id);
+            });
         }
 
         public async Task NavigationAsync(string pageName, INavigationParameters parameters)

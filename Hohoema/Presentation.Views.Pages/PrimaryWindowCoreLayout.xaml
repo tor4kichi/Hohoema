@@ -200,15 +200,15 @@
       </DataTemplate>
 
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.LogginUserLiveSummaryItemViewModel, Converter={StaticResource StringToType}}" >
-        <muxc:NavigationViewItem x:Name="LiveSummaryNVI" MenuItemsSource="{Binding Items}">
+        <muxc:NavigationViewItem x:Name="LiveSummaryNVI" MenuItemsSource="{Binding Items}" IsExpanded="True">
           <muxc:NavigationViewItem.Icon>
             <winui:SymbolIcon Symbol="Video" />
           </muxc:NavigationViewItem.Icon>
           
           <i:Interaction.Behaviors>
-            <core:DataTriggerBehavior Binding="{Binding ElementName=LiveSummaryNVI, Path=IsExpanded}" Value="True" ComparisonCondition="Equal" >
+            <core:EventTriggerBehavior EventName="Tapped">
               <core:CallMethodAction TargetObject="{Binding}" MethodName="RefreshItems" />
-            </core:DataTriggerBehavior>
+            </core:EventTriggerBehavior>
           </i:Interaction.Behaviors>
           
           <muxc:NavigationViewItem.ContextFlyout>

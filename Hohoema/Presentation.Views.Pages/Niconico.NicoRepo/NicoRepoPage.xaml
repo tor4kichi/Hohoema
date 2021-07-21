@@ -96,9 +96,11 @@
               SelectionMode="None"
               HorizontalContentAlignment="Stretch"
               ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
-              uwpExtensions:ScrollViewerExtensions.VerticalScrollBarMargin="0 48 0 0"
+              uwpExtensions:ScrollViewerExtensions.VerticalScrollBarMargin="0 0 0 0"
               xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
-              myExtensions:ListViewBase.DeferInitialize="True">
+              myExtensions:ListViewBase.DeferInitialize="True"
+              Style="{StaticResource FixedHeaderListViewStyle}"
+              >
 
       <myExtensions:ListViewBase.ItemContextFlyoutTemplateSelector>
         <templateSelector:HohoemaFlyoutTemplateSelector>
@@ -115,8 +117,6 @@
         </templateSelector:HohoemaFlyoutTemplateSelector>
       </myExtensions:ListViewBase.ItemContextFlyoutTemplateSelector>
       <i:Interaction.Behaviors>
-        <behaviors:StickyHeaderBehavior />
-        
         <core:EventTriggerBehavior EventName="ItemClick">
           <core:InvokeCommandAction Command="{Binding OpenNicoRepoItemCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
         </core:EventTriggerBehavior>

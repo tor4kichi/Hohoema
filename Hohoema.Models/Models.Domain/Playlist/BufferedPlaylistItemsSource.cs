@@ -1,9 +1,12 @@
-﻿using Hohoema.Models.Domain.Niconico.Video;
+﻿using Hohoema.FixPrism;
+using Hohoema.Models.Domain.Niconico.Video;
 using Microsoft.Toolkit.Collections;
+using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Concurrency;
@@ -19,7 +22,7 @@ namespace Hohoema.Models.Domain.Playlist
 {
     public interface IBufferedPlaylistItemsSource : IIncrementalSource<IVideoContent>
     {
-        int BufferLength { get; }
+        int Count { get; }
 
         int IndexOf(IVideoContent item);
 
@@ -35,7 +38,7 @@ namespace Hohoema.Models.Domain.Playlist
 
         public ReadOnlyObservableCollection<IVideoContent> BufferedItems { get; }
 
-        public int BufferLength => this.Count;
+        public int Count => this.Count;
 
 
         public bool CanLoadMoreItems { get; private set; } = true;
@@ -109,7 +112,7 @@ namespace Hohoema.Models.Domain.Playlist
 
 
 
-    public sealed class BufferedShufflePlaylistItemsSource : ReadOnlyObservableCollection<IVideoContent>, IBufferedPlaylistItemsSource, IDisposable
+    public sealed class BufferedShufflePlaylistItemsSource : IBufferedPlaylistItemsSource, INotifyCollectionChanged, IDisposable
     {
         public const int MaxBufferSize = 2000;
         public const int DefaultBufferSize = 500;
@@ -120,14 +123,32 @@ namespace Hohoema.Models.Domain.Playlist
         public IPlaylistSortOption SortOption { get; }
         private readonly IScheduler _scheduler;
 
-        public int BufferLength => this.Count;
+        public int Count => Items.Count;
 
         BehaviorSubject<Unit> _IndexUpdateTimingSubject = new BehaviorSubject<Unit>(Unit.Default);
         public IObservable<Unit> IndexUpdateTiming => _IndexUpdateTimingSubject;
 
-        public BufferedShufflePlaylistItemsSource(ISortablePlaylist shufflePlaylist, IPlaylistSortOption sortOption, IScheduler scheduler)
-            : base(new ObservableCollection<IVideoContent>())
+        DispatchObservableCollection<IVideoContent> Items;
+
+        public ReadOnlyReactiveCollection<IVideoContent> CreateItemsReadOnlyReactiveCollection(IScheduler scheduler)
         {
+            return Items.ToReadOnlyReactiveCollection(scheduler);
+        }
+
+        public int IndexOf(IVideoContent video)
+        {
+            return Items.IndexOf(video);
+        }
+
+        public IVideoContent this[int index]
+        {
+            get => Items[index];
+            set => Items[index] = value;
+        }
+
+        public BufferedShufflePlaylistItemsSource(ISortablePlaylist shufflePlaylist, IPlaylistSortOption sortOption, IScheduler scheduler)
+        {
+            Items = new ();
             _playlistItemsSource = shufflePlaylist;
             SortOption = sortOption;
             _scheduler = scheduler;
@@ -165,6 +186,18 @@ namespace Hohoema.Models.Domain.Playlist
             }
         }
 
+        public event NotifyCollectionChangedEventHandler CollectionChanged
+        {
+            add
+            {
+                ((INotifyCollectionChanged)Items).CollectionChanged += value;
+            }
+
+            remove
+            {
+                ((INotifyCollectionChanged)Items).CollectionChanged -= value;
+            }
+        }
 
         public int OneTimeLoadingItemsCount = 30;
 
@@ -178,7 +211,7 @@ namespace Hohoema.Models.Domain.Playlist
             var indexInsidePage = index / OneTimeLoadingItemsCount;
             await GetPagedItemsAsync(indexInsidePage, OneTimeLoadingItemsCount, ct);
 
-            return this.Items[index];
+            return Items.ElementAt(index);
         }
 
         bool isItemsFilled = false;

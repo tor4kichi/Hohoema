@@ -79,16 +79,25 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 {
                     _scheduler.Schedule(async () => 
                     {
-                        if (items is BufferedPlaylistItemsSource bufferedPlaylistItemsSource)
+                        if (CurrentItems is IDisposable disposeItems)
+                        {
+                            disposeItems.Dispose();
+                        }
+
+                        if (items == null)
+                        {
+                            CurrentItems = null;
+                        }
+                        else if (items is BufferedPlaylistItemsSource bufferedPlaylistItemsSource)
                         {
                             //                            var items = new HohoemaListingPageViewModelBase<IVideoContent>.HohoemaIncrementalLoadingCollection(bufferedPlaylistItemsSource);
                             var items = new IncrementalLoadingCollection<BufferedPlaylistItemsSource, IVideoContent>(bufferedPlaylistItemsSource, bufferedPlaylistItemsSource.OneTimeLoadingItemsCount);
                             //await items.LoadMoreItemsAsync((uint)BufferedPlaylistItemsSource.OneTimeLoadingItemsCount);
                             CurrentItems = items;
                         }
-                        else
+                        else if (items is BufferedShufflePlaylistItemsSource bufferedShufflePlaylistItemsSource)
                         {
-                            CurrentItems = items;
+                            CurrentItems = bufferedShufflePlaylistItemsSource.CreateItemsReadOnlyReactiveCollection(_scheduler);
                         }
                     });
                 })

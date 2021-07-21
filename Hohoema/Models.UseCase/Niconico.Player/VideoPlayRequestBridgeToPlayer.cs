@@ -17,6 +17,7 @@ using Hohoema.Models.Domain.Niconico.Live;
 using NiconicoToolkit.Live;
 using Hohoema.Models.UseCase.Playlist;
 using Microsoft.Toolkit.Diagnostics;
+using Reactive.Bindings.Extensions;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -78,7 +79,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         private IPlaylist _lastPlaylist;
         private IPlaylistSortOption _lastPlaylistSortOption;
         private IVideoContent? _lastPlayedItem;
-        
+
+        private IDisposable _titleUpdater;
 
         public void Dispose()
         {
@@ -232,6 +234,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             
             using var _ = await _asyncLock.LockAsync(default);
 
+            _titleUpdater?.Dispose();
+            _titleUpdater = null;
+
             IPlayerView sourcePlayerView = displayMode == PlayerDisplayView.PrimaryView ? _primaryViewPlayerManager : _secondaryPlayerManager;
             IPlayerView destPlayerView = displayMode == PlayerDisplayView.PrimaryView ? _secondaryPlayerManager : _primaryViewPlayerManager;
 
@@ -265,11 +270,22 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
             await sourcePlayerView.ShowAsync();
 
+            _titleUpdater = sourcePlayerView.PlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
+                .Subscribe(async playlistItem =>
+                {
+                    if (playlistItem != null)
+                    {
+                        sourcePlayerView.SetTitle(await ResolveVideoContentNameAsync(sourcePlayerView.PlaylistPlayer.CurrentPlaylistItem.VideoId));
+                    }
+                    else
+                    {
+                        sourcePlayerView.SetTitle(string.Empty);
+                    }
+                });
+
+
             if (await Play(sourcePlayerView.PlaylistPlayer, playlist, sortOption, playlistItem, initialPosition))
             {
-                // プレイリストから再生した場合playlistItemがnullのケースがありうる
-                sourcePlayerView.SetTitle(await ResolveVideoContentNameAsync(sourcePlayerView.PlaylistPlayer.CurrentPlaylistItem.VideoId));
-
                 _lastPlaylist = playlist;
                 _lastPlaylistSortOption = sortOption;
                 _lastPlayedItem = playlistItem;
@@ -277,7 +293,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             }
             else
             {
-                sourcePlayerView.SetTitle(string.Empty);
                 _lastPlaylist = null;
                 _lastPlaylistSortOption = null;
                 _lastPlayedItem = null;
@@ -285,7 +300,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 return new VideoPlayRequestMessageData() { IsSuccess = false };
             }
         }
-
 
         // 生放送はViewModelのナビゲーションベースでコンテンツ読み込みを管理しているため
         // 新しいコンテンツごとにページをナビゲーションし直す必要がある

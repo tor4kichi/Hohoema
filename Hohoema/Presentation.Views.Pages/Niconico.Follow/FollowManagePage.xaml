@@ -161,7 +161,7 @@
       </Border>
 
       
-      <uwpControls:ListDetailsView x:Name="ListDetailsView" ItemsSource="{Binding FollowGroups}">
+      <uwpControls:ListDetailsView x:Name="ListDetailsView" ItemsSource="{Binding FollowGroups}" Background="Transparent">
         
         <uwpControls:ListDetailsView.ItemTemplate>
           <DataTemplate>
