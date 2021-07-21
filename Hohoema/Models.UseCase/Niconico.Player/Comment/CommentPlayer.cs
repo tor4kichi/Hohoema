@@ -7,6 +7,7 @@ using Hohoema.Models.Infrastructure;
 using Hohoema.Presentation.Services;
 using Microsoft.AppCenter.Analytics;
 using MvvmHelpers;
+using NiconicoToolkit;
 using NiconicoToolkit.Video.Watch.NMSG_Comment;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -358,10 +359,23 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                     if (comment.UserId == null)
                     {
                         if (comment.DeletedFlag > 0) { continue; }
-                        if (TryAddNicoScript(comment))
+                        try
                         {
-                            // 投コメのニコスクリプトをスキップして
-                            continue;
+                            if (TryAddNicoScript(comment))
+                            {
+                                // 投コメのニコスクリプトをスキップして
+                                continue;
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Analytics.TrackEvent("CommentScript_ParseError", new Dictionary<string, string>() 
+                            {
+                                { "VideoId", commentSession.ContentId },
+                                { "CommentText", comment.CommentText },
+                                { "Command", comment.Mail },
+                                { "VideoPosition", comment.VideoPosition.ToString() },
+                            });
                         }
                     }
 
@@ -670,12 +684,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                         }
                         else if (NiconicoToolkit.ContentIdHelper.IsVideoId(condition))
                         {
+                            // see@ https://qa.nicovideo.jp/faq/show/7386?site_domain=default#f
+
                             var message = nicoScriptContents.ElementAtOrDefault(2);
 
                             TimeSpan endTime = _mediaPlayer.PlaybackSession.NaturalDuration;
                             var commands = chat.Mail?.Split(' ') ?? new string[0];
                             var timeCommand = commands.FirstOrDefault(x => x.StartsWith("@"));
-                            if (timeCommand != null)
+                            if (timeCommand != null && timeCommand.Skip(1).IsAllDigit())
                             {
                                 endTime = beginTime + TimeSpan.FromSeconds(int.Parse(timeCommand.Remove(0, 1)));
                             }
