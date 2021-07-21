@@ -364,6 +364,9 @@ namespace Hohoema.Presentation.ViewModels.Player
                 {
                     _scheduler.ScheduleAsync(async (s, ct) => 
                     {
+                        _relatedVideosSidePaneContentViewModel.Clear();
+                        PlayerSplitViewIsPaneOpen = false;
+
                         if (x == null)
                         {
                             VideoInfo = null;
