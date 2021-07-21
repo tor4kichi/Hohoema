@@ -91,9 +91,12 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 _queuePlaylist.Remove(currentVideoId);
                 _videoPlayedHistoryRepository.VideoPlayed(currentVideoId, sender.Position);
 
-                if (await _hohoemaPlaylistPlayer.GoNextAsync())
+                if (await _hohoemaPlaylistPlayer.CanGoNextAsync())
                 {
-                    return;
+                    if (await _hohoemaPlaylistPlayer.GoNextAsync())
+                    {
+                        return;
+                    }
                 }
 
                 // _queuePlaylistのアイテム削除後の更新がScheduler上で行われるため、アイテム更新操作が同期的にではなく
