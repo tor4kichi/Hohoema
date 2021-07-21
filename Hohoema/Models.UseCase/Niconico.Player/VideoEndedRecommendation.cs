@@ -97,7 +97,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 }
 
 
-                if (_playerSettings.IsPlaylistLoopingEnabled && _hohoemaPlaylistPlayer.CurrentPlaylist is IUserManagedPlaylist managedPlaylist && managedPlaylist.TotalCount > 0)
+                if (_playerSettings.IsPlaylistLoopingEnabled && _hohoemaPlaylistPlayer.CurrentPlaylist is ISortablePlaylist sortablePlaylist && sortablePlaylist.TotalCount > 0)
                 {
                     if (await _hohoemaPlaylistPlayer.PlayAsync(_hohoemaPlaylistPlayer.CurrentPlaylist, _hohoemaPlaylistPlayer.CurrentPlaylistSortOption))
                     {
