@@ -436,6 +436,14 @@
                            XYFocusLeftNavigationStrategy="Projection"
                            XYFocusRightNavigationStrategy="Projection"
                       >
+        <muxc:NavigationView.Resources>
+          <!-- 
+            work around "Unable to Interact with WebView in WinUI 2.6" 
+          
+            see@ https://github.com/microsoft/microsoft-ui-xaml/issues/5299
+          -->
+          <x:Double x:Key="NavigationViewContentGridCornerRadius">0.0</x:Double>
+        </muxc:NavigationView.Resources>
         
         <muxc:NavigationView.PaneHeader>
           <Grid >
