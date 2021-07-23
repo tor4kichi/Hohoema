@@ -616,6 +616,14 @@ namespace Hohoema.Models.Domain.Playlist
             }
         }
 
+        public async Task<bool> PlayOnCurrentPlaylistAsync(IVideoContent video)
+        {
+            await PlayVideoOnSamePlaylistAsync_Internal(video);
+            SetCurrentContent(video, BufferedPlaylistItemsSource.IndexOf(video));
+            return true;
+        }
+
+
         public async Task<bool> PlayAsync(IPlaylist playlist, IPlaylistSortOption sortOption)
         {
             Guard.IsNotNull(playlist, nameof(playlist));

@@ -198,15 +198,9 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             get
             {
                 return _PlayWithCurrentPlaylistCommand
-                    ?? (_PlayWithCurrentPlaylistCommand = new DelegateCommand<IVideoContent>((video) =>
+                    ?? (_PlayWithCurrentPlaylistCommand = new DelegateCommand<IVideoContent>(async (video) =>
                     {
-                        if (_hohoemaPlaylistPlayer.CurrentPlaylist == null)
-                        {
-                            return;
-                        }
-
-                        var index = CurrentItems.IndexOf(video);
-                        _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(_hohoemaPlaylistPlayer.CurrentPlaylist, video));
+                        await _hohoemaPlaylistPlayer.PlayOnCurrentPlaylistAsync(video);
                     }
                     ));
             }
