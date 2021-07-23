@@ -90,7 +90,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 UserId = justUserId;
             }
 
-            if ((UserId == null && NiconicoSession.IsLoggedIn) || NiconicoSession.IsLoginUserId(UserId.Value))
+
+            if ((!UserId.HasValue && NiconicoSession.IsLoggedIn) || UserId.HasValue && (NiconicoSession.IsLoginUserId(UserId.Value)))
             {
                 // ログインユーザー用のマイリスト一覧ページにリダイレクト
                 PageManager.ForgetLastPage();

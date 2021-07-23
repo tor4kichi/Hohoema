@@ -863,6 +863,10 @@ InAppNotification_MylistAddedItems_Fail = {0} への追加に失敗
 InAppNotification_MylistRemovedItems_Success = {0} から {1} 個の動画を削除しました
 InAppNotification_MylistRemovedItems_Fail = {0} からの削除に失敗
 
+ContentStatus.Deleted = 削除済み
+ContentStatus.Hidden = 非表示
+ContentStatus.Public = 公開
+ContentStatus.Private = 非公開
 
 ## Edit Mylist
 MylistName = マイリスト名

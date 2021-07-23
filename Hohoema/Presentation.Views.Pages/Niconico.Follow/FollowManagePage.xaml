@@ -89,7 +89,7 @@
             </Grid>
 
             <StackPanel Margin="12 8" VerticalAlignment="Center" Spacing="4">
-              <TextBlock Text="{Binding Name}" FontSize="16" />
+              <TextBlock Text="{Binding Name, FallbackValue={Binding Status, Converter={StaticResource LocalizeConverter}}}" FontSize="16" />
               <TextBlock Text="{Binding Description}" Style="{StaticResource FollowItemDescriptionTextStyle}">
                 <ToolTipService.ToolTip>
                   <StackPanel>

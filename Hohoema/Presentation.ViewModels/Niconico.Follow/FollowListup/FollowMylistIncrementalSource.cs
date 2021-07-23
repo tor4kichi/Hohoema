@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
 using Hohoema.Models.Domain.Niconico.Mylist;
+using NiconicoToolkit.Mylist;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
@@ -30,7 +31,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
             TotalCount = res.Data.Mylists.Count;
             MaxCount = res.Data.FollowLimit;
-            return res.Data.Mylists.Select(x => new FollowMylistViewModel(x.Detail));
+            return res.Data.Mylists.Select(x => new FollowMylistViewModel(new MylistId((int)x.Id), x.Detail, x.Status));
         }
     }
 }
