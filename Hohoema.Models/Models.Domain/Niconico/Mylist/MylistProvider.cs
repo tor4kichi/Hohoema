@@ -50,7 +50,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             }
         }
 
-        public async Task<MylistPlaylist> GetMylist(MylistId mylistId)
+        public async Task<MylistPlaylist?> GetMylist(MylistId mylistId)
         {
             if (mylistId.IsWatchAfterMylist)
             {
@@ -68,6 +68,8 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             else
             {
                 var detail = await GetMylistGroupDetail(mylistId);
+
+                if (detail == null) { return null; }
 
                 var mylist = new MylistPlaylist(detail.Id.ToString(), this)
                 {

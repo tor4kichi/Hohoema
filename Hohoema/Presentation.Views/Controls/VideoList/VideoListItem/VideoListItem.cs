@@ -54,7 +54,14 @@ namespace Hohoema.Presentation.Views.Controls.VideoList.VideoListItem
         {
             if (((VideoListItem)d)._templateChildImage is not null and var templatedChildImage)
             {
-                templatedChildImage.Source = e.NewValue is string strUrl ? new BitmapImage(new Uri(strUrl)) : null;
+                if (e.NewValue is string strUrl && !string.IsNullOrEmpty(strUrl))
+                {
+                    templatedChildImage.Source = new BitmapImage(new Uri(strUrl));
+                }
+                else
+                {
+                    templatedChildImage.Source = null;
+                }
             }
         }
 

@@ -265,7 +265,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         public async ValueTask<NicoVideo> GetCachedVideoInfoAsync(VideoId videoId, CancellationToken ct = default)
         {
             var video = GetCachedVideoInfo(videoId);
-            if (video == null)
+            if (video == null || string.IsNullOrEmpty(video.Title))
             {
                 (_, video) = await GetVideoInfoAsync(videoId, ct);
             }

@@ -101,6 +101,7 @@
         </Grid>
       </videolistPage:VideoItemsListView.Header>
     </videolistPage:VideoItemsListView>
+    
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>
         <VisualState>

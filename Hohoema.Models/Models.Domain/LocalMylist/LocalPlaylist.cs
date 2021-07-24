@@ -333,11 +333,13 @@ namespace Hohoema.Models.Domain.LocalMylist
         public async Task<IEnumerable<IVideoContent>> GetAllItemsAsync(IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
         {
             var items = _playlistRepository.GetItems(PlaylistId.Id);
-            var videos = _nicoVideoProvider.GetCachedVideoInfoItems(items.Select(x => (VideoId)x.ContentId));
             var resultItems = new List<(PlaylistItemEntity Entity, NicoVideo Video)>();
-            foreach (var i in Enumerable.Range(0, items.Count))
+            int index = 0;
+            foreach(var item in items)
             {
-                resultItems.Add((items.ElementAt(i), videos.ElementAt(i)));
+                var video = await _nicoVideoProvider.GetCachedVideoInfoAsync(item.ContentId, cancellationToken);
+                resultItems.Add((items.ElementAt(index), video));
+                index++;
             }
 
             LocalPlaylistSortOption sortOptionImpl = sortOption as LocalPlaylistSortOption;

@@ -342,6 +342,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         public int MylistRegistrationCount { get; private set; }
 
 
+        private bool _IsMylistNotFound;
+        public bool IsMylistNotFound
+        {
+            get { return _IsMylistNotFound; }
+            set { SetProperty(ref _IsMylistNotFound, value); }
+        }
+
         // Follow
         private MylistFollowContext _FollowContext = MylistFollowContext.Default;
         public MylistFollowContext FollowContext
@@ -534,6 +541,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            IsMylistNotFound = false;
             MylistId? maybeMylistId = null;
 
             if (parameters.TryGetValue<string>("id", out var idString))
@@ -557,7 +565,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             var mylistId = maybeMylistId.Value;
             var mylist = await _mylistRepository.GetMylistAsync(mylistId);
 
-            if (mylist == null) { return; }
+            if (mylist == null) 
+            {
+                return; 
+            }
 
             Mylist.Value = mylist;
             

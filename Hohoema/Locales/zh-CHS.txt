@@ -863,6 +863,10 @@ InAppNotification_MylistAddedItems_Fail = 无法添加到{0}
 InAppNotification_MylistRemovedItems_Success = {1}个视频已从{0}中删除
 InAppNotification_MylistRemovedItems_Fail = 无法从{0}中删除
 
+ContentStatus.Deleted = 已删除
+ContentStatus.Hidden = 隐藏
+ContentStatus.Public = 发布
+ContentStatus.Private = 私人的
 
 ## Edit Mylist
 MylistName = 我的清单名称
