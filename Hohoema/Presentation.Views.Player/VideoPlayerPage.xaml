@@ -246,7 +246,7 @@
             <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->
             <Border x:Name="WindowDeactiveMouseMoveDetectWall" Background="Transparent" Visibility="Collapsed"></Border>
             <!-- UI非表示時の再生位置バー -->
-            <Slider Value="{Binding ElementName=SeekBarSlider, Path=Value, Mode=TwoWay}" Maximum="{Binding VideoInfo.Length, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" IsEnabled="False" Opacity="0.6" x:Name="ReadOnlySeekBarSlider">
+            <Slider Value="{Binding ElementName=SeekBarSlider, Path=Value, Mode=OneWay}" Maximum="{Binding VideoInfo.Length, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" IsEnabled="False" Opacity="0.6" x:Name="ReadOnlySeekBarSlider">
               <Slider.RenderTransform>
                 <TranslateTransform Y="8" />
               </Slider.RenderTransform>
