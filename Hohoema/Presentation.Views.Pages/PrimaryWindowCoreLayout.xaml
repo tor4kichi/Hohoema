@@ -604,6 +604,10 @@
                           AutoMaximizeSuggestionArea="True"
                           MinWidth="120"
                               >
+            <AutoSuggestBox.TextBoxStyle>
+              <Style TargetType="TextBox">
+              </Style>
+            </AutoSuggestBox.TextBoxStyle>
             <i:Interaction.Behaviors>
               <core:EventTriggerBehavior EventName="GotFocus">
                 <core:CallMethodAction MethodName="SelectAll" />

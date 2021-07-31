@@ -246,7 +246,7 @@
             <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->
             <Border x:Name="WindowDeactiveMouseMoveDetectWall" Background="Transparent" Visibility="Collapsed"></Border>
             <!-- UI非表示時の再生位置バー -->
-            <Slider Value="{Binding ElementName=SeekBarSlider, Path=Value, Mode=TwoWay}" Maximum="{Binding VideoInfo.Length, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" IsEnabled="False" Opacity="0.6" x:Name="ReadOnlySeekBarSlider">
+            <Slider Value="{Binding ElementName=SeekBarSlider, Path=Value, Mode=OneWay}" Maximum="{Binding VideoInfo.Length, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" IsEnabled="False" Opacity="0.6" x:Name="ReadOnlySeekBarSlider">
               <Slider.RenderTransform>
                 <TranslateTransform Y="8" />
               </Slider.RenderTransform>
@@ -603,7 +603,12 @@
                       <ColumnDefinition Width="1*" />
                       <ColumnDefinition Width="1*" />
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" PlaceholderText="{i18nExt:Localize Key=CommentTextBoxPlacefolder}" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding CommentPlayer.NowCommentSubmitDisabledFromNicoScript, Converter={StaticResource BoolNegation}}"></TextBox>
+                    <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" PlaceholderText="{i18nExt:Localize Key=CommentTextBoxPlacefolder}" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding CommentPlayer.NowCommentSubmitDisabledFromNicoScript, Converter={StaticResource BoolNegation}}">
+                      <TextBox.Style>
+                        <Style TargetType="TextBox">
+                        </Style>
+                      </TextBox.Style>
+                    </TextBox>
                     <Button x:Name="CommentCommandEditButton"
                             Content="{Binding CommentCommandEditerViewModel.CommandsText.Value, Mode=OneWay}"                            
                             Margin="8 0 8 0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">

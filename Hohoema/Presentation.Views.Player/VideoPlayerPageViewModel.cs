@@ -170,7 +170,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             PlayPreviousCommand.Subscribe(async () => await _hohoemaPlaylistPlayer.GoPreviewAsync(NavigationCancellationToken))
                 .AddTo(_CompositeDisposable);
 
-            IsLoopingEnabled = new ReactiveProperty<bool>(initialValue: mediaPlayer.IsLoopingEnabled, raiseEventScheduler: scheduler)
+            IsLoopingEnabled = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsCurrentVideoLoopingEnabled, raiseEventScheduler: scheduler)
                 .AddTo(_CompositeDisposable);
             IsLoopingEnabled.Subscribe(x => mediaPlayer.IsLoopingEnabled = x)
                 .AddTo(_CompositeDisposable);
