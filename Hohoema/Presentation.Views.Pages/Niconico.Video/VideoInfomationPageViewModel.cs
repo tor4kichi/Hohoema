@@ -453,7 +453,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 videoId = justVideoId;
             }
 
-            if (videoId == null)
+            if (!videoId.HasValue)
             {
                 IsLoadFailed.Value = true;
                 NowLoading.Value = false;
