@@ -35,9 +35,10 @@ namespace Hohoema.Presentation.Views.Pages
         IDisposable _liteNotificationEventSubscriber;
         private void SecondaryViewCoreLayout_Unloaded(object sender, RoutedEventArgs e)
         {
-            _liteNotificationEventSubscriber.Dispose();
+            _liteNotificationEventSubscriber?.Dispose();
             _liteNotificationEventSubscriber = null;
 
+            NavigationService.Instances.Remove(ContentFrame);
             WeakReferenceMessenger.Default.Unregister<LiteNotificationMessage>(this);
         }
 
@@ -105,7 +106,7 @@ namespace Hohoema.Presentation.Views.Pages
                 appView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
             }
         }
-
+        
 
         public INavigationService CreateNavigationService()
         {

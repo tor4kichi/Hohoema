@@ -38,6 +38,8 @@ using Hohoema.Models.UseCase;
 using Hohoema.Presentation.Views.Pages.Niconico.VideoRanking;
 using Hohoema.Presentation.Views.Pages.Niconico.Follow;
 using Hohoema.Models.UseCase.Niconico.Player;
+using Windows.UI.WindowManagement;
+using Prism.Ioc;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -194,6 +196,14 @@ namespace Hohoema.Presentation.Views.Pages
 
                 LiteInAppNotification.Show(payload, duration);
             });
+
+            Window.Current.Activated += Current_Activated;
+        }
+
+        private void Current_Activated(object sender, WindowActivatedEventArgs e)
+        {
+            var uiContextService = App.Current.Container.Resolve<Services.CurrentActiveWindowUIContextService>();
+            Services.CurrentActiveWindowUIContextService.SetUIContext(uiContextService, UIContext, XamlRoot);
         }
 
 

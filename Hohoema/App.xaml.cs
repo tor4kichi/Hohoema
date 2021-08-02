@@ -227,15 +227,14 @@ namespace Hohoema
 
             unityContainer.RegisterType<IPlayerView>(new InjectionFactory(c => 
             {
-                var mainWindowsScheduler = c.Resolve<IScheduler>("MainWindowsScheduler");
-                var scheduler =  c.Resolve<IScheduler>();
-                if (scheduler == mainWindowsScheduler)
+                var brigde = c.Resolve<VideoPlayRequestBridgeToPlayer>();
+                if (brigde.DisplayMode == PlayerDisplayView.PrimaryView)
                 {
                     return c.Resolve<PrimaryViewPlayerManager>();
                 }
                 else
                 {
-                    return c.Resolve<SecondaryViewPlayerManager>();
+                    return c.Resolve<AppWindowSecondaryViewPlayerManager>();
                 }
             }));
 
@@ -249,10 +248,12 @@ namespace Hohoema
             unityContainer.RegisterSingleton<PageManager>();
             unityContainer.RegisterSingleton<PrimaryViewPlayerManager>();
             unityContainer.RegisterSingleton<SecondaryViewPlayerManager>();
+            unityContainer.RegisterSingleton<AppWindowSecondaryViewPlayerManager>();
             unityContainer.RegisterSingleton<NiconicoLoginService>();
             unityContainer.RegisterSingleton<DialogService>();
             unityContainer.RegisterSingleton<INotificationService, NotificationService>();
             unityContainer.RegisterSingleton<NoUIProcessScreenContext>();
+            unityContainer.RegisterSingleton<CurrentActiveWindowUIContextService>();
 
             // Models
             unityContainer.RegisterSingleton<AppearanceSettings>();

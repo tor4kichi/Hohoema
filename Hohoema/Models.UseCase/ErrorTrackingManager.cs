@@ -22,17 +22,17 @@ namespace Hohoema.Models.UseCase
     {
         private static readonly PageManager _pageManager;
         private static readonly NiconicoSession _niconicoSession;
+        private static readonly VideoPlayRequestBridgeToPlayer _videoPlayRequestBridgeToPlayer;
         private static readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
-        private static readonly SecondaryViewPlayerManager _scondaryViewPlayerManager;
 
         public const int MAX_REPORT_COUNT = 10;
 
         static ErrorTrackingManager()
         {
             _pageManager = App.Current.Container.Resolve<PageManager>();
-            _niconicoSession = App.Current.Container.Resolve<NiconicoSession>(); 
+            _niconicoSession = App.Current.Container.Resolve<NiconicoSession>();
+            _videoPlayRequestBridgeToPlayer = App.Current.Container.Resolve<VideoPlayRequestBridgeToPlayer>();
             _primaryViewPlayerManager = App.Current.Container.Resolve<PrimaryViewPlayerManager>();
-            _scondaryViewPlayerManager = App.Current.Container.Resolve<SecondaryViewPlayerManager>();
         }
 
         public static Dictionary<string, string> MakeReportParameters()
@@ -48,7 +48,7 @@ namespace Hohoema.Models.UseCase
                 { "RecentOpenPageName", pageName },
                 { "RecentOpenPageParameters", pageParameter },
                 { "PrimaryWindowPlayerDisplayMode", _primaryViewPlayerManager.DisplayMode.ToString() },
-                { "IsShowSecondaryView", _scondaryViewPlayerManager.IsShowSecondaryView.ToString() },
+                { "IsShowSecondaryView", (_videoPlayRequestBridgeToPlayer.DisplayMode == PlayerDisplayView.SecondaryView).ToString() },
             };
         }
 
