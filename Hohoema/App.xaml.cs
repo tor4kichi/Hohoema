@@ -225,6 +225,20 @@ namespace Hohoema
             unityContainer.RegisterType<IScheduler>(new PerThreadLifetimeManager(), new InjectionFactory(c => SynchronizationContext.Current != null ? new SynchronizationContextScheduler(SynchronizationContext.Current) : mainWindowsScheduler));
             unityContainer.RegisterInstance<IScheduler>("MainWindowsScheduler", mainWindowsScheduler);
 
+            unityContainer.RegisterType<IPlayerView>(new InjectionFactory(c => 
+            {
+                var mainWindowsScheduler = c.Resolve<IScheduler>("MainWindowsScheduler");
+                var scheduler =  c.Resolve<IScheduler>();
+                if (scheduler == mainWindowsScheduler)
+                {
+                    return c.Resolve<PrimaryViewPlayerManager>();
+                }
+                else
+                {
+                    return c.Resolve<SecondaryViewPlayerManager>();
+                }
+            }));
+
             // MediaPlayerを各ウィンドウごとに一つずつ作るように
             unityContainer.RegisterType<MediaPlayer>(new PerThreadLifetimeManager());
 
@@ -234,7 +248,7 @@ namespace Hohoema
             // Service
             unityContainer.RegisterSingleton<PageManager>();
             unityContainer.RegisterSingleton<PrimaryViewPlayerManager>();
-            unityContainer.RegisterSingleton<ScondaryViewPlayerManager>();
+            unityContainer.RegisterSingleton<SecondaryViewPlayerManager>();
             unityContainer.RegisterSingleton<NiconicoLoginService>();
             unityContainer.RegisterSingleton<DialogService>();
             unityContainer.RegisterSingleton<INotificationService, NotificationService>();
@@ -493,11 +507,11 @@ namespace Hohoema
             if (DeviceTypeHelper.IsDesktop)
             {
                 var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
-                if (localObjectStorageHelper.KeyExists(ScondaryViewPlayerManager.primary_view_size))
+                if (localObjectStorageHelper.KeyExists(SecondaryViewPlayerManager.primary_view_size))
                 {
                     var view = ApplicationView.GetForCurrentView();
                     MainViewId = view.Id;
-                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(ScondaryViewPlayerManager.primary_view_size);
+                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(SecondaryViewPlayerManager.primary_view_size);
                     view.TryResizeView(_PrevWindowSize);
                     ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
                 }
@@ -857,8 +871,8 @@ namespace Hohoema
                 if (MainViewId == sender.Id)
                 {
                     var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
-                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(ScondaryViewPlayerManager.primary_view_size);
-                    localObjectStorageHelper.Save(ScondaryViewPlayerManager.primary_view_size, new Size(sender.VisibleBounds.Width, sender.VisibleBounds.Height));
+                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(SecondaryViewPlayerManager.primary_view_size);
+                    localObjectStorageHelper.Save(SecondaryViewPlayerManager.primary_view_size, new Size(sender.VisibleBounds.Width, sender.VisibleBounds.Height));
 
                     Debug.WriteLine("MainView VisibleBoundsChanged : " + sender.VisibleBounds.ToString());
                 }
@@ -870,7 +884,7 @@ namespace Hohoema
                     var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                     if (_PrevWindowSize != default(Size))
                     {
-                        localObjectStorageHelper.Save(ScondaryViewPlayerManager.primary_view_size, _PrevWindowSize);
+                        localObjectStorageHelper.Save(SecondaryViewPlayerManager.primary_view_size, _PrevWindowSize);
                     }
                     MainViewId = -1;
                 }

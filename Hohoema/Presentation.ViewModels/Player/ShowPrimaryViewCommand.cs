@@ -10,9 +10,9 @@ namespace Hohoema.Presentation.ViewModels.Player
 {
     public sealed class ShowPrimaryViewCommand : DelegateCommandBase
     {
-        private readonly ScondaryViewPlayerManager _scondaryViewPlayerManager;
+        private readonly SecondaryViewPlayerManager _scondaryViewPlayerManager;
 
-        public ShowPrimaryViewCommand(ScondaryViewPlayerManager scondaryViewPlayerManager)
+        public ShowPrimaryViewCommand(SecondaryViewPlayerManager scondaryViewPlayerManager)
         {
             _scondaryViewPlayerManager = scondaryViewPlayerManager;
         }

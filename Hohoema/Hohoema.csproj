@@ -215,7 +215,7 @@
     <Compile Include="Models.UseCase\Niconico.Player\Events\ChangePlayerDisplayViewRequestMessage.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\Events\PlayerEvents.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\PrimaryViewPlayerManager.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\ScondaryViewPlayerManager.cs" />
+    <Compile Include="Models.UseCase\Niconico.Player\SecondaryViewPlayerManager.cs" />
     <Compile Include="Presentation.ViewModels\Player\ShowPrimaryViewCommand.cs" />
     <Compile Include="Presentation.ViewModels\Player\TogglePlayerDisplayViewCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowListup\FollowMylistGroupViewModel.cs" />

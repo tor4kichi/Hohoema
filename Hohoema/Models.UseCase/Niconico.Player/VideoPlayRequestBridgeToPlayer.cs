@@ -34,7 +34,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         IRecipient<ChangePlayerDisplayViewRequestMessage>
     {
         private readonly IMessenger _messenger;
-        private readonly ScondaryViewPlayerManager _secondaryPlayerManager;
+        private readonly SecondaryViewPlayerManager _secondaryPlayerManager;
         private readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
 
         private readonly LocalObjectStorageHelper _localObjectStorage;
@@ -46,7 +46,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public VideoPlayRequestBridgeToPlayer(
             IMessenger messenger,
-            ScondaryViewPlayerManager playerViewManager,
+            SecondaryViewPlayerManager playerViewManager,
             PrimaryViewPlayerManager primaryViewPlayerManager,
             LocalObjectStorageHelper localObjectStorageHelper,
             QueuePlaylist queuePlaylist,

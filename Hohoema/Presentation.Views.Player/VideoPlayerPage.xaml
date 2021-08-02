@@ -107,8 +107,8 @@
         </MenuFlyoutItem>
       </MenuFlyoutSubItem>
       <MenuFlyoutSeparator />
-      <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=CompactOverlay}"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{Binding PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{Binding PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=CompactOverlay}"></MenuFlyoutItem>
       <MenuFlyoutItem x:Name="SmallWindowButton_Menu" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=WindowInWindow}"></MenuFlyoutItem>
       <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=PlayWithSecondaryView}"></MenuFlyoutItem>
       <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></ToggleMenuFlyoutItem>
@@ -381,8 +381,8 @@
                     </CommandBar.PrimaryCommands>
 
                     <CommandBar.SecondaryCommands>
-                      <AppBarButton x:Name="FullscreenButton" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></AppBarButton>
-                      <AppBarButton x:Name="CompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=CompactOverlay}"></AppBarButton>
+                      <AppBarButton x:Name="FullscreenButton" Command="{Binding PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></AppBarButton>
+                      <AppBarButton x:Name="CompactOverlayButton" Command="{Binding PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=CompactOverlay}"></AppBarButton>
                       <AppBarButton x:Name="SmallWindowButton" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=WindowInWindow}"></AppBarButton>
                       <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=PlayWithSecondaryView}"></AppBarButton>
                       <AppBarToggleButton x:Name="ForceRotateToggleButton" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></AppBarToggleButton>
@@ -392,7 +392,7 @@
                   <Button x:Name="ExitWindonwInWindowViewButton" Command="{Binding PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0">
                     <SymbolIcon Symbol="FullScreen" />
                   </Button>
-                  <Button x:Name="ExitCompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0">
+                  <Button x:Name="ExitCompactOverlayButton" Command="{Binding PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0">
                     <SymbolIcon Symbol="FullScreen" />
                   </Button>
 
@@ -955,7 +955,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding WindowService.IsFullScreen.Value, Mode=OneWay}" />
+            <windowsTriggers:FullScreenModeTrigger />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />

@@ -22,6 +22,7 @@ using Hohoema.Presentation.Views.Pages;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Live;
 using Hohoema.Models.Domain.Playlist;
+using System.Windows.Input;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -145,6 +146,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public async Task CloseAsync()
         {
+            if (DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
+
             await PlaylistPlayer.ClearAsync();
             LastNavigatedPageName = null;
             _lastPlayedDisplayMode = DisplayMode == PrimaryPlayerDisplayMode.Close ? _lastPlayedDisplayMode : DisplayMode;
@@ -295,6 +298,47 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     ShowWithFill();
                 }
             }));
+
+        ICommand IPlayerView.ToggleFullScreenCommand => ToggleFullScreenCommand;
+
+        private DelegateCommand _ToggleFullScreenCommand;
+        public DelegateCommand ToggleFullScreenCommand =>
+            _ToggleFullScreenCommand ?? (_ToggleFullScreenCommand = new DelegateCommand(ExecuteToggleFullScreenCommand));
+
+        void ExecuteToggleFullScreenCommand()
+        {
+            if (DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
+
+            if (DisplayMode == PrimaryPlayerDisplayMode.FullScreen)
+            {                
+                ShowWithFill();
+            }
+            else
+            {
+                ShowWithFullScreen();
+            }
+        }
+
+        ICommand IPlayerView.ToggleCompactOverlayCommand => ToggleCompactOverlayCommand;
+
+        private DelegateCommand _ToggleCompactOverlayCommand;
+        public DelegateCommand ToggleCompactOverlayCommand =>
+            _ToggleCompactOverlayCommand ??= new DelegateCommand(ExecuteToggleCompactOverlayCommand);
+
+        void ExecuteToggleCompactOverlayCommand()
+        {
+            if (DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
+
+            if (DisplayMode == PrimaryPlayerDisplayMode.CompactOverlay)
+            {
+                ShowWithFill();
+            }
+            else
+            {
+                ShowWithCompactOverlay();
+            }
+        }
+
 
         public HohoemaPlaylistPlayer PlaylistPlayer { get; }
     }

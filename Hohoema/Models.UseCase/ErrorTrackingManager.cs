@@ -23,7 +23,7 @@ namespace Hohoema.Models.UseCase
         private static readonly PageManager _pageManager;
         private static readonly NiconicoSession _niconicoSession;
         private static readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
-        private static readonly ScondaryViewPlayerManager _scondaryViewPlayerManager;
+        private static readonly SecondaryViewPlayerManager _scondaryViewPlayerManager;
 
         public const int MAX_REPORT_COUNT = 10;
 
@@ -32,7 +32,7 @@ namespace Hohoema.Models.UseCase
             _pageManager = App.Current.Container.Resolve<PageManager>();
             _niconicoSession = App.Current.Container.Resolve<NiconicoSession>(); 
             _primaryViewPlayerManager = App.Current.Container.Resolve<PrimaryViewPlayerManager>();
-            _scondaryViewPlayerManager = App.Current.Container.Resolve<ScondaryViewPlayerManager>();
+            _scondaryViewPlayerManager = App.Current.Container.Resolve<SecondaryViewPlayerManager>();
         }
 
         public static Dictionary<string, string> MakeReportParameters()
