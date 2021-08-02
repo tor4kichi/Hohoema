@@ -3,6 +3,8 @@ using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Views.Pages;
 using Microsoft.AppCenter.Analytics;
 using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Uwp;
+using Prism.Mvvm;
 using Prism.Navigation;
 using System;
 using System.Collections.Generic;
@@ -13,8 +15,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Uno.Threading;
+using Windows.ApplicationModel.Core;
+using Windows.System;
+using Windows.UI;
 using Windows.UI.Input;
 using Windows.UI.Input.Preview;
+using Windows.UI.ViewManagement;
 using Windows.UI.WindowManagement;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
@@ -22,7 +28,7 @@ using Windows.UI.Xaml.Media.Animation;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
-    public sealed class AppWindowSecondaryViewPlayerManager : IPlayerView
+    public sealed class AppWindowSecondaryViewPlayerManager : BindableBase, IPlayerView
     {
         private readonly HohoemaPlaylistPlayer _playlistPlayer;
         private readonly CurrentActiveWindowUIContextService _currentActiveWindowUIContextService;
@@ -31,7 +37,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         private INavigationService _navigationService;
         private readonly DrillInNavigationTransitionInfo _PlayerPageNavgationTransitionInfo;
         private readonly SuppressNavigationTransitionInfo _BlankPageNavgationTransitionInfo;
-
+        private readonly DispatcherQueue _dispatcherQueue;
         FastAsyncLock _appWindowUpdateLock = new FastAsyncLock();
 
         CancellationTokenSource _appWindowCloseCts;
@@ -45,6 +51,29 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _currentActiveWindowUIContextService = currentActiveWindowUIContextService;
             _PlayerPageNavgationTransitionInfo = new DrillInNavigationTransitionInfo();
             _BlankPageNavgationTransitionInfo = new SuppressNavigationTransitionInfo();
+
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+
+            ApplicationView.GetForCurrentView().Consolidated += AppWindowSecondaryViewPlayerManager_Consolidated; ;
+        }
+
+        private void AppWindowSecondaryViewPlayerManager_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
+        {
+            _ = CloseAsync();
+        }
+
+        private bool _IsFullScreen;
+        public bool IsFullScreen
+        {
+            get { return _IsFullScreen; }
+            private set { SetProperty(ref _IsFullScreen, value); }
+        }
+
+        private bool _IsCompactOverlay;
+        public bool IsCompactOverlay
+        {
+            get { return _IsCompactOverlay; }
+            private set { SetProperty(ref _IsCompactOverlay, value); }
         }
 
         public string LastNavigatedPageName { get; private set; }
@@ -62,10 +91,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             if (currentConfig.Kind is AppWindowPresentationKind.FullScreen)
             {
                 _appWindow.Presenter.RequestPresentation(AppWindowPresentationKind.Default);
+                IsCompactOverlay = false;
+                IsFullScreen = false;
             }
             else
             {
                 _appWindow.Presenter.RequestPresentation(AppWindowPresentationKind.FullScreen);
+                IsCompactOverlay = false;
+                IsFullScreen = true;
             }
         }
 
@@ -83,10 +116,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             if (currentConfig.Kind is AppWindowPresentationKind.CompactOverlay)
             {
                 _appWindow.Presenter.RequestPresentation(AppWindowPresentationKind.Default);
+                IsCompactOverlay = false;
+                IsFullScreen = false;
             }
             else
             {
                 _appWindow.Presenter.RequestPresentation(AppWindowPresentationKind.CompactOverlay);
+                IsCompactOverlay = true;
+                IsFullScreen = false;
             }
         }
 
@@ -102,43 +139,60 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             using var _ = await _appWindowUpdateLock.LockAsync(default);
 
             if (_appWindow == null) { return; }
+            _closingTaskCompletionSource = new TaskCompletionSource<int>();
             await _appWindow.CloseAsync();
+            await _closingTaskCompletionSource.Task;
+            _closingTaskCompletionSource = null;
         }
 
+        TaskCompletionSource<int> _closingTaskCompletionSource;
 
         private async Task EnsureCreateSecondaryView()
         {
-            using (await _appWindowUpdateLock.LockAsync(_appWindowCloseCts?.Token ?? default))
+            await _dispatcherQueue.EnqueueAsync(async () => 
             {
-                _appWindowCloseCts = new CancellationTokenSource();
-                _appWindow = await AppWindow.TryCreateAsync();
-                SecondaryWindowCoreLayout secondaryWindowCoreLayout = new();
-                _rootBorder = new Border();
-                _rootBorder.Child = secondaryWindowCoreLayout;
-                _navigationService = secondaryWindowCoreLayout.CreateNavigationService();
-                ElementCompositionPreview.SetAppWindowContent(_appWindow, _rootBorder);
-                _appWindow.Closed += async (s, e) =>
+                using (await _appWindowUpdateLock.LockAsync(_appWindowCloseCts?.Token ?? default))
                 {
-                    _appWindowCloseCts.Cancel();
-                    _appWindowCloseCts.Dispose();
-                    _appWindowCloseCts = null;
+                    _appWindowCloseCts = new CancellationTokenSource();
+                    _appWindow = await AppWindow.TryCreateAsync();
+                    _appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+                    _appWindow.TitleBar.BackgroundColor = Colors.Transparent;
+                    _appWindow.TitleBar.ButtonHoverBackgroundColor = Colors.Transparent;
+                    _appWindow.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                    _appWindow.TitleBar.ButtonPressedBackgroundColor = Colors.Transparent;
+                    _appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
 
-                    _activationListener.InputActivationChanged -= ActivationListener_InputActivationChanged;
-                    _activationListener.Dispose();
-                    _rootBorder.Child = null;
-                    _rootBorder = null;
-                    _appWindow = null;
-                    LastNavigatedPageName = null;
 
-                    await PlaylistPlayer.ClearAsync();
-                    await _navigationService.NavigateAsync(nameof(BlankPage));
-                };
+                    SecondaryWindowCoreLayout secondaryWindowCoreLayout = new();
+                    _rootBorder = new Border();
+                    _rootBorder.Child = secondaryWindowCoreLayout;
+                    _navigationService = secondaryWindowCoreLayout.CreateNavigationService();
+                    ElementCompositionPreview.SetAppWindowContent(_appWindow, _rootBorder);
+                    _appWindow.Closed += async (s, e) =>
+                    {
+                        _appWindowCloseCts.Cancel();
+                        _appWindowCloseCts.Dispose();
+                        _appWindowCloseCts = null;
 
-                SetupListenersForWindow(_appWindow);
+                        _activationListener.InputActivationChanged -= ActivationListener_InputActivationChanged;
+                        _activationListener.Dispose();
+                        _rootBorder.Child = null;
+                        _rootBorder = null;
+                        _appWindow = null;
+                        LastNavigatedPageName = null;
 
-                _appWindow.Title = "Secondary Window!";
-                await _appWindow.TryShowAsync();
-            }
+                        await PlaylistPlayer.ClearAsync();
+                        await _navigationService.NavigateAsync(nameof(BlankPage));
+
+                        _closingTaskCompletionSource?.SetResult(0);
+                    };
+
+                    SetupListenersForWindow(_appWindow);
+
+                    _appWindow.Title = "Secondary Window!";
+                    await _appWindow.TryShowAsync();
+                }
+            });
         }
 
         void SetupListenersForWindow(AppWindow window)
@@ -170,17 +224,22 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         {
             await EnsureCreateSecondaryView();
 
+
+            
             try
             {
-                using (var _ = await _appWindowUpdateLock.LockAsync(_appWindowCloseCts?.Token ?? default))
+                await _dispatcherQueue.EnqueueAsync(async () =>
                 {
-                    var result = await _navigationService.NavigateAsync(pageName, parameters, _PlayerPageNavgationTransitionInfo);
-                    if (!result.Success)
+                    using (var _ = await _appWindowUpdateLock.LockAsync(_appWindowCloseCts?.Token ?? default))
                     {
-                        Debug.WriteLine(result.Exception?.ToString());
-                        throw result.Exception;
+                        var result = await _navigationService.NavigateAsync(pageName, parameters, _PlayerPageNavgationTransitionInfo);
+                        if (!result.Success)
+                        {
+                            Debug.WriteLine(result.Exception?.ToString());
+                            throw result.Exception;
+                        }
                     }
-                }
+                });
 
                 LastNavigatedPageName = pageName;
 
@@ -192,13 +251,16 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             }
             finally
             {
-                var presenterConfig = _appWindow.Presenter.GetConfiguration();
-                Analytics.TrackEvent("PlayerNavigation", new Dictionary<string, string>
+                _dispatcherQueue.TryEnqueue(() => 
                 {
-                    { "PageType",  pageName },
-                    { "ViewType", "Secondary" },
-                    { "CompactOverlay", (presenterConfig.Kind == AppWindowPresentationKind.CompactOverlay).ToString() },
-                    { "FullScreen", (presenterConfig.Kind == AppWindowPresentationKind.FullScreen).ToString()},
+                    var presenterConfig = _appWindow.Presenter.GetConfiguration();
+                    Analytics.TrackEvent("PlayerNavigation", new Dictionary<string, string>
+                    {
+                        { "PageType",  pageName },
+                        { "ViewType", "Secondary" },
+                        { "CompactOverlay", (presenterConfig.Kind == AppWindowPresentationKind.CompactOverlay).ToString() },
+                        { "FullScreen", (presenterConfig.Kind == AppWindowPresentationKind.FullScreen).ToString()},
+                    });
                 });
             }
         }
@@ -217,7 +279,10 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             {
                 if (_appWindow == null) { return; }
 
-                await _appWindow.TryShowAsync();
+                await _dispatcherQueue.EnqueueAsync(async () =>
+                {
+                    await _appWindow.TryShowAsync();
+                });
             }        
         }
     }

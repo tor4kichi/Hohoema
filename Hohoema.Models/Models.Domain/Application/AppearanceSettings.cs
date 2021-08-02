@@ -35,6 +35,8 @@ namespace Hohoema.Models.Domain.Application
                 Internal_PaneDisplayMode.LeftMinimal => NavigationViewPaneDisplayMode.LeftMinimal,
                 _ => throw new NotSupportedException()
             };
+
+            _PlayerDisplayView = Read(PlayerDisplayView.PrimaryView, nameof(PlayerDisplayView));
         }
 
         private string _locale;
@@ -138,6 +140,15 @@ namespace Hohoema.Models.Domain.Application
             //     The pane is shown on the left side of the control. Only the pane menu button
             //     is shown by default.
             LeftMinimal = 4
+        }
+
+
+
+        private PlayerDisplayView _PlayerDisplayView;
+        public PlayerDisplayView PlayerDisplayView
+        {
+            get { return _PlayerDisplayView; }
+            set { SetProperty(ref _PlayerDisplayView, value); }
         }
     }
 

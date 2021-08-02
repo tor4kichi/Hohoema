@@ -750,7 +750,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:IsShowWithSecondaryViewTrigger />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding CurrentPlayerDisplayView.Value}" EqualTo="SecondaryView" />
           </VisualState.StateTriggers>
         </VisualState>
         <VisualState>
@@ -879,7 +879,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ExitCompactOverlayButton.Visibility" Value="Visible" />
@@ -944,7 +944,6 @@
       </VisualStateGroup>
       <!-- フルスクリーン -->
       <VisualStateGroup>
-
         <VisualState>
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{x:Bind IsDisplayControlUI, Mode=OneWay}" />
@@ -955,7 +954,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:FullScreenModeTrigger />
+            <StateTrigger IsActive="{Binding PlayerView.IsFullScreen}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />
@@ -986,7 +985,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:IsShowWithSecondaryViewTrigger />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding CurrentPlayerDisplayView.Value}" EqualTo="SecondaryView" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ShowPrimaryViewButton.Visibility" Value="Visible" />
@@ -1019,7 +1018,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1116,7 +1115,7 @@
             <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{Binding ElementName=CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
             <StateTrigger IsActive="{x:Bind ActionsCommandBar.IsOpen, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind NowVideoPositionChanging, Mode=OneWay}" />
-            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
             <StateTrigger IsActive="{Binding PlayerSettings.IsAutoHidePlayerControlUI, Converter={StaticResource BoolNegation}}" />
             <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
             <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="Controller" />
@@ -1285,7 +1284,7 @@
             <windowsTriggers:CompositeStateTrigger Operator="And">
               <StateTrigger IsActive="{Binding VideoEndedRecommendation.HasRecomend.Value}" />
               <windowsTriggers:CompositeStateTrigger Operator="Or">
-                <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+                <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
                 <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
               </windowsTriggers:CompositeStateTrigger>
             </windowsTriggers:CompositeStateTrigger>

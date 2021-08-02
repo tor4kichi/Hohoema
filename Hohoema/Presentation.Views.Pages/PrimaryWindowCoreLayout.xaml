@@ -844,6 +844,8 @@
         <!-- プレイヤーを画面全体表示 -->
         <VisualState x:Name="VS_PlayerFill">
           <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PrimaryPlayerDisplayMode.CompactOverlay}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PrimaryPlayerDisplayMode.FullScreen}" />
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PrimaryPlayerDisplayMode.Fill}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>

@@ -3,18 +3,22 @@ using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.Attributes;
+using Windows.UI.ViewManagement;
+using Windows.UI.Xaml;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
     public sealed class ShowPrimaryViewCommand : DelegateCommandBase
     {
-        private readonly SecondaryViewPlayerManager _scondaryViewPlayerManager;
+        private readonly IScheduler _scheduler;
 
-        public ShowPrimaryViewCommand(SecondaryViewPlayerManager scondaryViewPlayerManager)
+        public ShowPrimaryViewCommand([Dependency("MainWindowsScheduler")]IScheduler scheduler)
         {
-            _scondaryViewPlayerManager = scondaryViewPlayerManager;
+            _scheduler = scheduler;
         }
 
         protected override bool CanExecute(object parameter)
@@ -24,7 +28,11 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         protected override void Execute(object parameter)
         {
-            _ = _scondaryViewPlayerManager.ShowMainViewAsync();
+            _scheduler.Schedule(async () => 
+            {
+                var mainViewId = ApplicationView.GetApplicationViewIdForWindow(Window.Current.CoreWindow);
+                await ApplicationViewSwitcher.TryShowAsStandaloneAsync(mainViewId);
+            });
         }
     }
 }

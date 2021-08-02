@@ -65,8 +65,8 @@
                                  x:Name="LeoLiveQualityMenuFlyoutSeparator"
                                  />
             -->
-      <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=CompactOverlay}"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{Binding PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{Binding PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=CompactOverlay}"></MenuFlyoutItem>
       <MenuFlyoutItem x:Name="SmallWindowButton_Menu" Command="{Binding PrimaryViewPlayerManager.WindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=WindowInWindow}"></MenuFlyoutItem>
       <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=PlayWithSecondaryView}"></MenuFlyoutItem>
       <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></ToggleMenuFlyoutItem>
@@ -329,8 +329,8 @@
                       </AppBarButton>
                       
                       <CommandBar.SecondaryCommands>
-                        <AppBarButton x:Name="FullscreenButton" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></AppBarButton>
-                        <AppBarButton x:Name="CompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=CompactOverlay}"></AppBarButton>
+                        <AppBarButton x:Name="FullscreenButton" Command="{Binding PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></AppBarButton>
+                        <AppBarButton x:Name="CompactOverlayButton" Command="{Binding PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=CompactOverlay}"></AppBarButton>
                         <AppBarButton x:Name="SmallWindowButton" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=WindowInWindow}"></AppBarButton>
                         <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=PlayWithSecondaryView}"></AppBarButton>
                         <AppBarToggleButton x:Name="ForceRotateToggleButton" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></AppBarToggleButton>
@@ -342,8 +342,8 @@
                     <Button x:Name="ExitWindowInWindowButton" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" HorizontalAlignment="Right" Visibility="Collapsed" Margin="0 8 0 0">
                       <SymbolIcon Symbol="FullScreen" />
                     </Button>
-                    
-                    <Button x:Name="ExitCompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" HorizontalAlignment="Right"  Visibility="Collapsed" Margin="0 8 0 0">
+
+                    <Button x:Name="ExitCompactOverlayButton" Command="{Binding PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" HorizontalAlignment="Right"  Visibility="Collapsed" Margin="0 8 0 0">
                       <SymbolIcon Symbol="FullScreen" />
                     </Button>
                     
@@ -634,7 +634,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:IsShowWithSecondaryViewTrigger />
+            <windowsTrigger:EqualsStateTrigger Value="{Binding CurrentPlayerDisplayView.Value}" EqualTo="SecondaryView" />
           </VisualState.StateTriggers>
         </VisualState>
         <VisualState>
@@ -730,7 +730,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             
@@ -778,7 +778,7 @@
             <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" />
             <StateTrigger IsActive="{x:Bind ActionsCommandBar.IsOpen, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind NowVideoPositionChanging, Mode=OneWay}" />
-            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
             <StateTrigger IsActive="{Binding PlayerSettings.IsAutoHidePlayerControlUI, Converter={StaticResource BoolNegation}}" />
             <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
             <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{Binding ElementName=CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
@@ -886,7 +886,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>
@@ -992,7 +992,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}"/>
-            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerSplitView.OpenPaneLength" Value="80" />
@@ -1062,7 +1062,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:IsShowWithSecondaryViewTrigger />
+            <windowsTrigger:EqualsStateTrigger Value="{Binding CurrentPlayerDisplayView.Value}" EqualTo="SecondaryView" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ShowPrimaryViewButton.Visibility" Value="Visible" />
@@ -1101,7 +1101,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding WindowService.IsFullScreen.Value, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsFullScreen}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />
@@ -1124,7 +1124,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="BroadcasterPermanentCommentLayout.Padding" Value="2" />

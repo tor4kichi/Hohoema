@@ -18,15 +18,10 @@ using NiconicoToolkit.Live;
 using Hohoema.Models.UseCase.Playlist;
 using Microsoft.Toolkit.Diagnostics;
 using Reactive.Bindings.Extensions;
+using Hohoema.Models.Domain.Application;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
-    public enum PlayerDisplayView
-    {
-        PrimaryView,
-        SecondaryView,
-    }
-
     public sealed class VideoPlayRequestBridgeToPlayer 
         : IDisposable,
         IRecipient<VideoPlayRequestMessage>,
@@ -34,8 +29,12 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         IRecipient<ChangePlayerDisplayViewRequestMessage>
     {
         private readonly IMessenger _messenger;
-        private readonly AppWindowSecondaryViewPlayerManager _secondaryPlayerManager;
-        private readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
+        private readonly AppearanceSettings _appearanceSettings;
+        private readonly Lazy<AppWindowSecondaryViewPlayerManager> __secondaryPlayerManager;
+        private readonly Lazy<PrimaryViewPlayerManager> __primaryViewPlayerManager;
+
+        private AppWindowSecondaryViewPlayerManager _secondaryPlayerManager => __secondaryPlayerManager.Value;
+        private PrimaryViewPlayerManager _primaryViewPlayerManager => __primaryViewPlayerManager.Value;
 
         private readonly LocalObjectStorageHelper _localObjectStorage;
         private readonly QueuePlaylist _queuePlaylist;
@@ -46,8 +45,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public VideoPlayRequestBridgeToPlayer(
             IMessenger messenger,
-            AppWindowSecondaryViewPlayerManager secondaryPlayerViewManager,
-            PrimaryViewPlayerManager primaryViewPlayerManager,
+            AppearanceSettings appearanceSettings,
+            Lazy<AppWindowSecondaryViewPlayerManager> secondaryPlayerViewManager,
+            Lazy<PrimaryViewPlayerManager> primaryViewPlayerManager,
             LocalObjectStorageHelper localObjectStorageHelper,
             QueuePlaylist queuePlaylist,
             NicoVideoProvider nicoVideoProvider,
@@ -56,23 +56,21 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             )
         {
             _messenger = messenger;
-            _secondaryPlayerManager = secondaryPlayerViewManager;
-            _primaryViewPlayerManager = primaryViewPlayerManager;
+            _appearanceSettings = appearanceSettings;
+            __secondaryPlayerManager = secondaryPlayerViewManager;
+            __primaryViewPlayerManager = primaryViewPlayerManager;
             _localObjectStorage = localObjectStorageHelper;
             _queuePlaylist = queuePlaylist;
             _nicoVideoProvider = nicoVideoProvider;
             _nicoLiveProvider = nicoLiveProvider;
             _playlistItemsSourceResolver = playlistItemsSourceResolver;
-            DisplayMode = ReadDisplayMode();
-
+            
             _messenger.Register<VideoPlayRequestMessage>(this);
             _messenger.Register<PlayerPlayLiveRequestMessage>(this);
             _messenger.Register<ChangePlayerDisplayViewRequestMessage>(this);
         }
 
 
-
-        public PlayerDisplayView DisplayMode { get; private set; }
         
         private LiveId? _lastPlayedLive;
 
@@ -84,29 +82,15 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public void Dispose()
         {
-            SaveDisplayMode();
+            
         }
-
-
-
-        void SaveDisplayMode()
-        {
-            _localObjectStorage.Save(nameof(PlayerDisplayView), DisplayMode);
-        }
-
-        public PlayerDisplayView ReadDisplayMode()
-        {
-            return _localObjectStorage.Read<PlayerDisplayView>(nameof(PlayerDisplayView));
-        }
-
 
         public async void Receive(ChangePlayerDisplayViewRequestMessage message)
         {
-            var mode = DisplayMode == PlayerDisplayView.PrimaryView ? PlayerDisplayView.SecondaryView : PlayerDisplayView.PrimaryView;
-            var nowViewChanging = DisplayMode != mode;
-            DisplayMode = mode;
-            SaveDisplayMode();
-
+            var mode = _appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView ? PlayerDisplayView.SecondaryView : PlayerDisplayView.PrimaryView;
+            var nowViewChanging = _appearanceSettings.PlayerDisplayView != mode;
+            _appearanceSettings.PlayerDisplayView = mode;
+            
             if (_lastPlayedItem != null)
             {
                 await VideoPlayAsync(_lastPlaylist, _lastPlaylistSortOption, _lastPlayedItem, mode, nowViewChanging);
@@ -187,7 +171,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
                 Guard.IsTrue(videoResolved != null || playlist != null, "Video and Playlist empty both of values. require not null each value or not null both.");
 
-                return await VideoPlayAsync(playlist, sortOption, videoResolved, DisplayMode);
+                return await VideoPlayAsync(playlist, sortOption, videoResolved, _appearanceSettings.PlayerDisplayView);
             }
 
             message.Reply(ResolvePlay(message));
@@ -199,7 +183,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _lastPlayedItem = null;
 
             // 生放送再生開始前に動画の再生を中止
-            if (DisplayMode == PlayerDisplayView.PrimaryView)
+            if (_appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView)
             {
                 await _primaryViewPlayerManager.ClearVideoPlayerAsync();
             }
@@ -208,7 +192,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 await _secondaryPlayerManager.ClearVideoPlayerAsync();
             }
 
-            await PlayLiveAsync(message.Value.LiveId, DisplayMode, false);
+            await PlayLiveAsync(message.Value.LiveId, _appearanceSettings.PlayerDisplayView, false);
         }
 
 
@@ -333,7 +317,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             }
             else
             {
-                if (DisplayMode == displayMode
+                if (_appearanceSettings.PlayerDisplayView == displayMode
                     && _secondaryPlayerManager.LastNavigatedPageName == pageName
                     && _lastPlayedLive == liveId)
                 {

@@ -1,12 +1,13 @@
 ﻿using Hohoema.Models.Domain.Playlist;
 using Prism.Navigation;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.System;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
-    public interface IPlayerView
+    public interface IPlayerView : INotifyPropertyChanged
     {
         string LastNavigatedPageName { get; }
         HohoemaPlaylistPlayer PlaylistPlayer { get; }
@@ -21,6 +22,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         ICommand ToggleCompactOverlayCommand { get; }
 
+        bool IsFullScreen { get; }
 
+        bool IsCompactOverlay { get; }
     }
 }

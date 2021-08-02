@@ -227,8 +227,8 @@ namespace Hohoema
 
             unityContainer.RegisterType<IPlayerView>(new InjectionFactory(c => 
             {
-                var brigde = c.Resolve<VideoPlayRequestBridgeToPlayer>();
-                if (brigde.DisplayMode == PlayerDisplayView.PrimaryView)
+                var appearanceSettings = c.Resolve<AppearanceSettings>();
+                if (appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView)
                 {
                     return c.Resolve<PrimaryViewPlayerManager>();
                 }
@@ -297,8 +297,8 @@ namespace Hohoema
             // ViewModels
             unityContainer.RegisterSingleton<Presentation.ViewModels.Pages.Niconico.VideoRanking.RankingCategoryListPageViewModel>();
 
-            unityContainer.RegisterType<Presentation.ViewModels.Player.VideoPlayerPageViewModel>(new PerThreadLifetimeManager());
-            unityContainer.RegisterType<Presentation.ViewModels.Player.LivePlayerPageViewModel>(new PerThreadLifetimeManager());
+            //unityContainer.RegisterType<Presentation.ViewModels.Player.VideoPlayerPageViewModel>(new PerThreadLifetimeManager());
+            //unityContainer.RegisterType<Presentation.ViewModels.Player.LivePlayerPageViewModel>(new PerThreadLifetimeManager());
 
 #if DEBUG
             //			BackgroundUpdater.MaxTaskSlotCount = 1;
