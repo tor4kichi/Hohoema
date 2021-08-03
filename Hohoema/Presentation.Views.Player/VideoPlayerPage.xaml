@@ -1299,7 +1299,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>

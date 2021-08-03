@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Views.Pages;
 using Microsoft.AppCenter.Analytics;
@@ -16,6 +17,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Uno.Threading;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.Input;
@@ -30,6 +32,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 {
     public sealed class AppWindowSecondaryViewPlayerManager : BindableBase, IPlayerView
     {
+        private readonly AppearanceSettings _appearanceSettings;
         private readonly HohoemaPlaylistPlayer _playlistPlayer;
         private readonly CurrentActiveWindowUIContextService _currentActiveWindowUIContextService;
         AppWindow _appWindow;
@@ -43,10 +46,12 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         CancellationTokenSource _appWindowCloseCts;
 
         public AppWindowSecondaryViewPlayerManager(
+            AppearanceSettings appearanceSettings,
             HohoemaPlaylistPlayer playlistPlayer,
             Presentation.Services.CurrentActiveWindowUIContextService currentActiveWindowUIContextService
             )
         {
+            _appearanceSettings = appearanceSettings;
             _playlistPlayer = playlistPlayer;
             _currentActiveWindowUIContextService = currentActiveWindowUIContextService;
             _PlayerPageNavgationTransitionInfo = new DrillInNavigationTransitionInfo();
@@ -115,13 +120,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             var currentConfig = _appWindow.Presenter.GetConfiguration();
             if (currentConfig.Kind is AppWindowPresentationKind.CompactOverlay)
             {
-                _appWindow.Presenter.RequestPresentation(AppWindowPresentationKind.Default);
+                _appWindow.Presenter.RequestPresentation(AppWindowPresentationKind.Default);                
                 IsCompactOverlay = false;
                 IsFullScreen = false;
             }
             else
             {
                 _appWindow.Presenter.RequestPresentation(AppWindowPresentationKind.CompactOverlay);
+                _appWindow.RequestSize(new Size(500, 282));
                 IsCompactOverlay = true;
                 IsFullScreen = false;
             }
@@ -146,6 +152,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         }
 
         TaskCompletionSource<int> _closingTaskCompletionSource;
+        private DispatcherQueueTimer _displaySettingSaveTimer;
 
         private async Task EnsureCreateSecondaryView()
         {
@@ -168,8 +175,37 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     _rootBorder.Child = secondaryWindowCoreLayout;
                     _navigationService = secondaryWindowCoreLayout.CreateNavigationService();
                     ElementCompositionPreview.SetAppWindowContent(_appWindow, _rootBorder);
+
+                    _displaySettingSaveTimer = _dispatcherQueue.CreateTimer();
+                    _displaySettingSaveTimer.Interval = TimeSpan.FromSeconds(1);
+                    _displaySettingSaveTimer.Tick += (s, e) => 
+                    {
+                        if (!_appWindow.IsVisible) { return; }
+
+                        var config = _appWindow.Presenter.GetConfiguration();
+                        _appearanceSettings.IsSecondaryViewPrefferedCompactOverlay = config.Kind == AppWindowPresentationKind.CompactOverlay;
+
+                        var windowPlacement = _appWindow.GetPlacement();
+
+                        var regions = _appWindow.GetDisplayRegions();
+                        _appearanceSettings.SecondaryViewDisplayRegionMonitorDeviceId = windowPlacement.DisplayRegion.DisplayMonitorDeviceId;
+                        
+                        if (windowPlacement.DisplayRegion.WorkAreaSize.Width > windowPlacement.Offset.X)
+                        {
+
+                        }
+
+                        _appearanceSettings.SecondaryViewLastWindowPosition = windowPlacement.Offset;
+                        _appearanceSettings.SecondaryViewLastWindowSize = windowPlacement.Size;
+
+                        Debug.WriteLine($"{windowPlacement.Offset.X}, {windowPlacement.Offset.Y}");
+                    };
+                    
                     _appWindow.Closed += async (s, e) =>
                     {
+                        _displaySettingSaveTimer.Stop();
+                        _displaySettingSaveTimer = null;
+
                         _appWindowCloseCts.Cancel();
                         _appWindowCloseCts.Dispose();
                         _appWindowCloseCts = null;
@@ -190,7 +226,42 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     SetupListenersForWindow(_appWindow);
 
                     _appWindow.Title = "Secondary Window!";
+                    if (_appearanceSettings.SecondaryViewLastWindowPosition is not null and Point lastPos
+                    && _appearanceSettings.SecondaryViewLastWindowSize is not null and Size lastSize
+                    )
+                    {
+
+                        //_appWindow.RequestMoveToDisplayRegion(lastRegion);
+//                        _appWindow.RequestSize(lastSize);
+                    }
+
+                    _displaySettingSaveTimer.Start();
+
                     await _appWindow.TryShowAsync();
+
+                    await Task.Delay(1000);
+
+                    var regions = _appWindow.GetDisplayRegions();
+                    foreach (var regionDeviceId in regions)
+                    {
+                        Debug.WriteLine($"{regionDeviceId.DisplayMonitorDeviceId}");
+                        Debug.WriteLine($"{regionDeviceId.WorkAreaOffset}");
+                        Debug.WriteLine($"{regionDeviceId.WorkAreaSize}");
+                    }
+
+                    DisplayRegion lastRegion = regions.FirstOrDefault(x => x.DisplayMonitorDeviceId == _appearanceSettings.SecondaryViewDisplayRegionMonitorDeviceId)
+                        ?? regions.First();
+
+                    Debug.WriteLine("target monitorId: " + lastRegion.DisplayMonitorDeviceId);
+
+                    if (_appearanceSettings.IsSecondaryViewPrefferedCompactOverlay)
+                    {
+                        _appWindow.Presenter.RequestPresentation(AppWindowPresentationKind.CompactOverlay);
+                        _appWindow.RequestSize(new Size(500, 282));
+                        IsCompactOverlay = true;
+                    }
+
+                    _appWindow.RequestMoveRelativeToDisplayRegion(lastRegion, lastPos);
                 }
             });
         }
@@ -267,10 +338,16 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public void SetTitle(string title)
         {
-            if (_appWindow != null)
+            _dispatcherQueue.TryEnqueue(async () => 
             {
-                _appWindow.Title = title;
-            }
+                using (var _ = await _appWindowUpdateLock.LockAsync(_appWindowCloseCts?.Token ?? default))
+                {
+                    if (_appWindow != null)
+                    {
+                        _appWindow.Title = title;
+                    }
+                }
+            });
         }
 
         public async Task ShowAsync()
