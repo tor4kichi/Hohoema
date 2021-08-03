@@ -18,11 +18,15 @@ namespace Hohoema.Presentation.Services
 {
     public class DialogService
     {
+        private readonly CurrentActiveWindowUIContextService _currentActiveWindowUIContextService;
+
         public LoginUserOwnedMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
         public DialogService(
+            CurrentActiveWindowUIContextService currentActiveWindowUIContextService
             )
         {
+            _currentActiveWindowUIContextService = currentActiveWindowUIContextService;
         }
 
         #region Update Notice Dialog
@@ -284,7 +288,10 @@ namespace Hohoema.Presentation.Services
             Func<Task<T>> SecondaryButtonAction = null
             )
         {
-            var advancedSelectDialog = new AdvancedSelectDialog();
+            var advancedSelectDialog = new AdvancedSelectDialog()
+            {
+                XamlRoot = _currentActiveWindowUIContextService.XamlRoot,
+            };
             advancedSelectDialog.Title = dialogTitle;
             advancedSelectDialog.PrimaryButtonText = dialogPrimaryButtonText;
             advancedSelectDialog.CloseButtonText = "Cancel".Translate();
@@ -319,7 +326,10 @@ namespace Hohoema.Presentation.Services
             string dialogPrimaryButtonText
             )
         {
-            var advancedSelectDialog = new AdvancedSelectDialog();
+            var advancedSelectDialog = new AdvancedSelectDialog()
+            {
+                XamlRoot = _currentActiveWindowUIContextService.XamlRoot,
+            };
             advancedSelectDialog.Title = dialogTitle;
             advancedSelectDialog.PrimaryButtonText = dialogPrimaryButtonText;
             advancedSelectDialog.SecondaryButtonText = "Cancel".Translate();

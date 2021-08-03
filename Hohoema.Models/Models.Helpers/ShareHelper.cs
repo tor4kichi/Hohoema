@@ -171,7 +171,7 @@ namespace Hohoema.Models.Helpers
                 _ShareTitleText = title;
                 var dataTransferManager = DataTransferManager.GetForCurrentView();
                 dataTransferManager.DataRequested += DataTransferManager_DataRequested;
-
+                
                 DataTransferManager.ShowShareUI();
             }
         }
@@ -186,7 +186,7 @@ namespace Hohoema.Models.Helpers
         private static void DataTransferManager_DataRequested(DataTransferManager sender, DataRequestedEventArgs args)
         {
             var request = args.Request;
-
+            
             request.Data.SetText(_ShareText);
 
             request.Data.Properties.Title = _ShareTitleText;
@@ -194,9 +194,5 @@ namespace Hohoema.Models.Helpers
 
             sender.DataRequested -= DataTransferManager_DataRequested;
         }
-
-
-
-        
     }
 }

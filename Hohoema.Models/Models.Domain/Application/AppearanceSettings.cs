@@ -8,6 +8,7 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Infrastructure;
 using Microsoft.UI.Xaml.Controls;
 using Hohoema.Models.Helpers;
+using Windows.Foundation;
 
 namespace Hohoema.Models.Domain.Application
 {
@@ -35,6 +36,14 @@ namespace Hohoema.Models.Domain.Application
                 Internal_PaneDisplayMode.LeftMinimal => NavigationViewPaneDisplayMode.LeftMinimal,
                 _ => throw new NotSupportedException()
             };
+
+            _PlayerDisplayView = Read(PlayerDisplayView.PrimaryView, nameof(PlayerDisplayView));
+            _IsSecondaryViewPrefferedCompactOverlay = Read(false, nameof(IsSecondaryViewPrefferedCompactOverlay));
+            _SecondaryViewDisplayRegionMonitorDeviceId = Read(default(string), nameof(SecondaryViewDisplayRegionMonitorDeviceId));
+            _SecondaryViewLastWindowPosition = Read(default(Point?), nameof(SecondaryViewLastWindowPosition));
+            _SecondaryViewLastWindowSize = Read(default(Size?), nameof(SecondaryViewLastWindowSize));
+
+
         }
 
         private string _locale;
@@ -139,7 +148,49 @@ namespace Hohoema.Models.Domain.Application
             //     is shown by default.
             LeftMinimal = 4
         }
+
+
+
+        private PlayerDisplayView _PlayerDisplayView;
+        public PlayerDisplayView PlayerDisplayView
+        {
+            get { return _PlayerDisplayView; }
+            set { SetProperty(ref _PlayerDisplayView, value); }
+        }
+
+        private bool _IsSecondaryViewPrefferedCompactOverlay;
+        public bool IsSecondaryViewPrefferedCompactOverlay
+        {
+            get { return _IsSecondaryViewPrefferedCompactOverlay; }
+            set { SetProperty(ref _IsSecondaryViewPrefferedCompactOverlay, value); }
+        }
+
+        private string _SecondaryViewDisplayRegionMonitorDeviceId;
+        public string SecondaryViewDisplayRegionMonitorDeviceId
+        {
+            get { return _SecondaryViewDisplayRegionMonitorDeviceId; }
+            set { SetProperty(ref _SecondaryViewDisplayRegionMonitorDeviceId, value); }
+        }
+
+        private Point? _SecondaryViewLastWindowPosition;
+        public Point? SecondaryViewLastWindowPosition
+        {
+            get { return _SecondaryViewLastWindowPosition; }
+            set { SetProperty(ref _SecondaryViewLastWindowPosition, value); }
+        }
+
+        private Size? _SecondaryViewLastWindowSize;
+        public Size? SecondaryViewLastWindowSize
+        {
+            get { return _SecondaryViewLastWindowSize; }
+            set { SetProperty(ref _SecondaryViewLastWindowSize, value); }
+        }
     }
 
-    
+    public enum PlayerSizeMode
+    {
+        Default,
+        FullScreen,
+        CompactOverlay,
+    }
 }

@@ -63,6 +63,20 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         Models.Helpers.AsyncLock _playerNavigationLock = new Models.Helpers.AsyncLock();
 
+        private bool _IsFullScreen;
+        public bool IsFullScreen
+        {
+            get { return _IsFullScreen; }
+            private set { SetProperty(ref _IsFullScreen, value); }
+        }
+
+        private bool _IsCompactOverlay;
+        public bool IsCompactOverlay
+        {
+            get { return _IsCompactOverlay; }
+            private set { SetProperty(ref _IsCompactOverlay, value); }
+        }
+
         public int MainViewId { get; }
 
         public CoreApplicationView SecondaryCoreAppView { get; private set; }
@@ -360,10 +374,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 if (SecondaryAppView.ViewMode == ApplicationViewMode.Default)
                 {
                     await SecondaryAppView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay);
+                    IsCompactOverlay = true;
+                    IsFullScreen = false;
                 }
                 else
                 {
                     await SecondaryAppView.TryEnterViewModeAsync(ApplicationViewMode.Default);
+                    IsCompactOverlay = false;
+                    IsFullScreen = false;
                 }
             });
         }
@@ -377,10 +395,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 if (SecondaryAppView.IsFullScreenMode)
                 {
                     SecondaryAppView.ExitFullScreenMode();
+                    IsCompactOverlay = false;
+                    IsFullScreen = false;
                 }
                 else
                 {
                     SecondaryAppView.TryEnterFullScreenMode();
+                    IsCompactOverlay = false;
+                    IsFullScreen = true;
                 }
             });
         }

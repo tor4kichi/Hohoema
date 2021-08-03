@@ -9,6 +9,7 @@ using Windows.UI.Core;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Windows.System;
 using Hohoema.Models.Domain.Notification;
+using Hohoema.Presentation.Services;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -29,6 +30,7 @@ namespace Hohoema.Presentation.Views.Controls
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
             _messenger = App.Current.Container.Resolve<IMessenger>();
+            _CurrentActiveWindowUIContextService = App.Current.Container.Resolve<CurrentActiveWindowUIContextService>();
         }
 
         private void HohoemaInAppNotification_Loaded(object sender, RoutedEventArgs e)
@@ -49,6 +51,7 @@ namespace Hohoema.Presentation.Views.Controls
 
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly IMessenger _messenger;
+        private readonly CurrentActiveWindowUIContextService _CurrentActiveWindowUIContextService;
         static readonly TimeSpan DefaultShowDuration = TimeSpan.FromSeconds(7);
 
         private InAppNotificationPayload _CurrentNotication;
@@ -84,7 +87,7 @@ namespace Hohoema.Presentation.Views.Controls
         private void TryNextDisplayNotication()
         {
             // only show Active Window
-            if (_lastActivationState == Windows.UI.Core.CoreWindowActivationState.Deactivated)
+            if (_CurrentActiveWindowUIContextService.UIContext != UIContext)
             {
                 NoticationRequestQueue.Clear();
                 return;

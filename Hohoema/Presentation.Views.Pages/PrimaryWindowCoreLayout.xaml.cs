@@ -38,6 +38,8 @@ using Hohoema.Models.UseCase;
 using Hohoema.Presentation.Views.Pages.Niconico.VideoRanking;
 using Hohoema.Presentation.Views.Pages.Niconico.Follow;
 using Hohoema.Models.UseCase.Niconico.Player;
+using Windows.UI.WindowManagement;
+using Prism.Ioc;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -49,7 +51,10 @@ namespace Hohoema.Presentation.Views.Pages
         
 
         private readonly DispatcherQueue _dispatcherQueue;
-        public PrimaryWindowCoreLayout(PrimaryWindowCoreLayoutViewModel viewModel)
+        public PrimaryWindowCoreLayout(
+            PrimaryWindowCoreLayoutViewModel viewModel,
+            Services.CurrentActiveWindowUIContextService currentActiveWindowUIContextService
+            )
         {
             DataContext = _viewModel = viewModel;
 
@@ -176,11 +181,10 @@ namespace Hohoema.Presentation.Views.Pages
 
                 });
 
-            var currentContext = SynchronizationContext.Current;
             WeakReferenceMessenger.Default.Register<LiteNotificationMessage>(this, (r, m) => 
             {
                 var payload = m.Value;
-                if (currentContext != SynchronizationContext.Current)
+                if (_currentActiveWindowUIContextService.UIContext != UIContext)
                 {
                     return;
                 }
@@ -194,6 +198,14 @@ namespace Hohoema.Presentation.Views.Pages
 
                 LiteInAppNotification.Show(payload, duration);
             });
+
+            Window.Current.Activated += Current_Activated;
+            _currentActiveWindowUIContextService = currentActiveWindowUIContextService;
+        }
+
+        private void Current_Activated(object sender, WindowActivatedEventArgs e)
+        {
+            Services.CurrentActiveWindowUIContextService.SetUIContext(_currentActiveWindowUIContextService, UIContext, XamlRoot);
         }
 
 
@@ -916,6 +928,7 @@ namespace Hohoema.Presentation.Views.Pages
         // Using a DependencyProperty as the backing store for IsDebugModeEnabled.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsDebugModeEnabledProperty =
             DependencyProperty.Register("IsDebugModeEnabled", typeof(bool), typeof(PrimaryWindowCoreLayout), new PropertyMetadata(false));
+        private readonly Services.CurrentActiveWindowUIContextService _currentActiveWindowUIContextService;
 
         public void OpenErrorTeachingTip(ICommand sentErrorCommand, Action onClosing)
         {

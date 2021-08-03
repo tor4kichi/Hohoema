@@ -227,15 +227,14 @@ namespace Hohoema
 
             unityContainer.RegisterType<IPlayerView>(new InjectionFactory(c => 
             {
-                var mainWindowsScheduler = c.Resolve<IScheduler>("MainWindowsScheduler");
-                var scheduler =  c.Resolve<IScheduler>();
-                if (scheduler == mainWindowsScheduler)
+                var appearanceSettings = c.Resolve<AppearanceSettings>();
+                if (appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView)
                 {
                     return c.Resolve<PrimaryViewPlayerManager>();
                 }
                 else
                 {
-                    return c.Resolve<SecondaryViewPlayerManager>();
+                    return c.Resolve<AppWindowSecondaryViewPlayerManager>();
                 }
             }));
 
@@ -249,10 +248,12 @@ namespace Hohoema
             unityContainer.RegisterSingleton<PageManager>();
             unityContainer.RegisterSingleton<PrimaryViewPlayerManager>();
             unityContainer.RegisterSingleton<SecondaryViewPlayerManager>();
+            unityContainer.RegisterSingleton<AppWindowSecondaryViewPlayerManager>();
             unityContainer.RegisterSingleton<NiconicoLoginService>();
             unityContainer.RegisterSingleton<DialogService>();
             unityContainer.RegisterSingleton<INotificationService, NotificationService>();
             unityContainer.RegisterSingleton<NoUIProcessScreenContext>();
+            unityContainer.RegisterSingleton<CurrentActiveWindowUIContextService>();
 
             // Models
             unityContainer.RegisterSingleton<AppearanceSettings>();
@@ -296,8 +297,8 @@ namespace Hohoema
             // ViewModels
             unityContainer.RegisterSingleton<Presentation.ViewModels.Pages.Niconico.VideoRanking.RankingCategoryListPageViewModel>();
 
-            unityContainer.RegisterType<Presentation.ViewModels.Player.VideoPlayerPageViewModel>(new PerThreadLifetimeManager());
-            unityContainer.RegisterType<Presentation.ViewModels.Player.LivePlayerPageViewModel>(new PerThreadLifetimeManager());
+            //unityContainer.RegisterType<Presentation.ViewModels.Player.VideoPlayerPageViewModel>(new PerThreadLifetimeManager());
+            //unityContainer.RegisterType<Presentation.ViewModels.Player.LivePlayerPageViewModel>(new PerThreadLifetimeManager());
 
 #if DEBUG
             //			BackgroundUpdater.MaxTaskSlotCount = 1;

@@ -24,6 +24,7 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using NiconicoToolkit.Video;
 using Uno.Threading;
+using Hohoema.Models.Domain.Application;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -42,7 +43,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             RelatedVideoContentsAggregator relatedVideoContentsAggregator,
             PrimaryViewPlayerManager primaryViewPlayerManager,
             PlayerSettings playerSettings,
-            VideoPlayRequestBridgeToPlayer videoPlayRequestBridgeToPlayer,
+            AppearanceSettings appearanceSettings,
             HohoemaPlaylistPlayer hohoemaPlaylistPlayer,
             VideoPlayedHistoryRepository videoPlayedHistoryRepository
             )
@@ -54,7 +55,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _relatedVideoContentsAggregator = relatedVideoContentsAggregator;
             _primaryViewPlayerManager = primaryViewPlayerManager;
             _playerSettings = playerSettings;
-            _videoPlayRequestBridgeToPlayer = videoPlayRequestBridgeToPlayer;
+            _appearanceSettings = appearanceSettings;
             _hohoemaPlaylistPlayer = hohoemaPlaylistPlayer;
             _videoPlayedHistoryRepository = videoPlayedHistoryRepository;
             IsEnded = new ReactiveProperty<bool>(_scheduler);
@@ -216,7 +217,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         bool TryPlaylistEndActionPlayerClosed()
         {
-            if (_videoPlayRequestBridgeToPlayer.DisplayMode == PlayerDisplayView.PrimaryView)
+            if (_appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView)
             {
                 switch (_playerSettings.PlaylistEndAction)
                 {
@@ -246,7 +247,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         private readonly RelatedVideoContentsAggregator _relatedVideoContentsAggregator;
         private readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
         private readonly PlayerSettings _playerSettings;
-        private readonly VideoPlayRequestBridgeToPlayer _videoPlayRequestBridgeToPlayer;
+        private readonly AppearanceSettings _appearanceSettings;
         private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;
         private readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
 

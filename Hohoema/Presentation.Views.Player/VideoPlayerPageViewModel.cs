@@ -44,6 +44,7 @@ using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Presentation.ViewModels.Player.Video;
 using Reactive.Bindings;
+using Hohoema.Models.Domain.Application;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -63,6 +64,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             NicoVideoProvider nicoVideoProvider,
             ChannelProvider channelProvider,
             MylistProvider mylistProvider,
+            AppearanceSettings appearanceSettings,
             PlayerSettings playerSettings,
             VideoCacheSettings_Legacy cacheSettings,
             ApplicationLayoutManager applicationLayoutManager,
@@ -101,6 +103,11 @@ namespace Hohoema.Presentation.ViewModels.Player
             RelatedVideosSidePaneContentViewModel relatedVideosSidePaneContentViewModel
             )
         {
+            CurrentPlayerDisplayView = appearanceSettings
+                .ObserveProperty(x => x.PlayerDisplayView)
+                .ToReadOnlyReactivePropertySlim()
+                .AddTo(_CompositeDisposable);
+
             _scheduler = scheduler;
             PlayerView = playerView;
             NiconicoSession = niconicoSession;
@@ -183,6 +190,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         }
 
 
+        public ReadOnlyReactivePropertySlim<PlayerDisplayView> CurrentPlayerDisplayView { get; }
 
         public SubscriptionManager SubscriptionManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }

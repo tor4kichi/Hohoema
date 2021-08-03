@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Notification;
+using Hohoema.Presentation.Services;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Prism.Ioc;
 using Prism.Navigation;
@@ -28,38 +29,42 @@ namespace Hohoema.Presentation.Views.Pages
                     ThemeChanged(theme);
                 });
 
+            _CurrentActiveWindowUIContextService = App.Current.Container.Resolve<Services.CurrentActiveWindowUIContextService>();
+
             Loaded += SecondaryViewCoreLayout_Loaded;
             Unloaded += SecondaryViewCoreLayout_Unloaded;
         }
 
         IDisposable _liteNotificationEventSubscriber;
+        private readonly CurrentActiveWindowUIContextService _CurrentActiveWindowUIContextService;
+
         private void SecondaryViewCoreLayout_Unloaded(object sender, RoutedEventArgs e)
         {
-            _liteNotificationEventSubscriber.Dispose();
+            _liteNotificationEventSubscriber?.Dispose();
             _liteNotificationEventSubscriber = null;
 
+            NavigationService.Instances.Remove(ContentFrame);
             WeakReferenceMessenger.Default.Unregister<LiteNotificationMessage>(this);
         }
 
         private void SecondaryViewCoreLayout_Loaded(object sender, RoutedEventArgs e)
         {
-            var currentContext = SynchronizationContext.Current;
             WeakReferenceMessenger.Default.Register<LiteNotificationMessage>(this, (r, m) => 
+            {
+                if (_CurrentActiveWindowUIContextService.UIContext != UIContext)
                 {
-                    if (currentContext != SynchronizationContext.Current)
-                    {
-                        return;
-                    }
+                    return;
+                }
 
-                    TimeSpan duration = m.Value.Duration ?? m.Value.DisplayDuration switch
-                    {
-                        DisplayDuration.Default => TimeSpan.FromSeconds(0.75),
-                        DisplayDuration.MoreAttention => TimeSpan.FromSeconds(3),
-                        _ => TimeSpan.FromSeconds(0.75),
-                    };
+                TimeSpan duration = m.Value.Duration ?? m.Value.DisplayDuration switch
+                {
+                    DisplayDuration.Default => TimeSpan.FromSeconds(0.75),
+                    DisplayDuration.MoreAttention => TimeSpan.FromSeconds(3),
+                    _ => TimeSpan.FromSeconds(0.75),
+                };
 
-                    LiteInAppNotification.Show(m.Value, duration);
-                });
+                LiteInAppNotification.Show(m.Value, duration);
+            });
         }
 
 
@@ -105,7 +110,7 @@ namespace Hohoema.Presentation.Views.Pages
                 appView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
             }
         }
-
+        
 
         public INavigationService CreateNavigationService()
         {
