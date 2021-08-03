@@ -28,10 +28,12 @@ using Hohoema.Presentation.Views.Player;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Live;
 using Hohoema.Models.Domain.Playlist;
+using Prism.Commands;
+using System.Windows.Input;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
-    public sealed class ScondaryViewPlayerManager : FixPrism.BindableBase, IPlayerView
+    public sealed class SecondaryViewPlayerManager : FixPrism.BindableBase, IPlayerView
     {
         /* 複数ウィンドウでプレイヤーを一つだけ表示するための管理をしています
          * 
@@ -49,7 +51,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         // プレイヤーの表示状態を管理する
         // これまでHohoemaPlaylist、MenuNavigationViewModelBaseなどに散らばっていた
 
-        public ScondaryViewPlayerManager(
+        public SecondaryViewPlayerManager(
             IScheduler scheduler,
             RestoreNavigationManager restoreNavigationManager
             )
@@ -60,6 +62,20 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         }
 
         Models.Helpers.AsyncLock _playerNavigationLock = new Models.Helpers.AsyncLock();
+
+        private bool _IsFullScreen;
+        public bool IsFullScreen
+        {
+            get { return _IsFullScreen; }
+            private set { SetProperty(ref _IsFullScreen, value); }
+        }
+
+        private bool _IsCompactOverlay;
+        public bool IsCompactOverlay
+        {
+            get { return _IsCompactOverlay; }
+            private set { SetProperty(ref _IsCompactOverlay, value); }
+        }
 
         public int MainViewId { get; }
 
@@ -256,11 +272,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                         throw result.Exception;
                     }
 
-                    if (SecondaryAppView.ViewMode != ApplicationViewMode.CompactOverlay)
-                    {
-                        await ApplicationViewSwitcher.TryShowAsStandaloneAsync(this.SecondaryAppView.Id, ViewSizePreference.Default, MainViewId, ViewSizePreference.UseNone);
-                    }
-
                     Analytics.TrackEvent("PlayerNavigation", new Dictionary<string, string>
                     {
                         { "PageType",  pageName },
@@ -281,7 +292,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         /// <summary>
         /// SecondaryViewを閉じます。
-        /// MainViewから呼び出すと別スレッドアクセスでエラーになるはず
         /// </summary>
         public async Task CloseAsync()
         {
@@ -293,12 +303,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
                 SecondaryAppView.Title = "Hohoema";
 
-                await ShowMainViewAsync();
-
                 await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(BlankPage), _BlankPageNavgationTransitionInfo);
+
+                await Task.Delay(250);
 
                 await SecondaryAppView.TryConsolidateAsync();
             });
+
+            await ShowMainViewAsync();
         }
 
 
@@ -314,17 +326,16 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             });
         }
 
-        public Task ShowMainViewAsync()
+        public async Task ShowMainViewAsync()
         {
             var currentView = ApplicationView.GetForCurrentView();
-            if (SecondaryAppView != null && currentView.Id == SecondaryAppView.Id)
+            _scheduler.Schedule(async () => 
             {
-                return ApplicationViewSwitcher.TryShowAsStandaloneAsync(MainViewId).AsTask();
-            }
-            else
-            {
-                return Task.CompletedTask;
-            }
+                if (SecondaryAppView != null && currentView.Id == SecondaryAppView.Id)
+                {
+                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(MainViewId).AsTask();
+                }
+            });
         }
 
         public Task ShowAsync()
@@ -343,10 +354,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 return Task.CompletedTask;
             }
 
-            return this.SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(() =>
+            return this.SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(async () =>
             {
+                Window.Current.Activate();
                 var currentView = ApplicationView.GetForCurrentView();
-                return ApplicationViewSwitcher.TryShowAsStandaloneAsync(SecondaryAppView.Id).AsTask();
+                await ApplicationViewSwitcher.TryShowAsStandaloneAsync(SecondaryAppView.Id).AsTask();
             });
         }
 
@@ -362,10 +374,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 if (SecondaryAppView.ViewMode == ApplicationViewMode.Default)
                 {
                     await SecondaryAppView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay);
+                    IsCompactOverlay = true;
+                    IsFullScreen = false;
                 }
                 else
                 {
                     await SecondaryAppView.TryEnterViewModeAsync(ApplicationViewMode.Default);
+                    IsCompactOverlay = false;
+                    IsFullScreen = false;
                 }
             });
         }
@@ -379,12 +395,39 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 if (SecondaryAppView.IsFullScreenMode)
                 {
                     SecondaryAppView.ExitFullScreenMode();
+                    IsCompactOverlay = false;
+                    IsFullScreen = false;
                 }
                 else
                 {
                     SecondaryAppView.TryEnterFullScreenMode();
+                    IsCompactOverlay = false;
+                    IsFullScreen = true;
                 }
             });
+        }
+
+
+        ICommand IPlayerView.ToggleFullScreenCommand => ToggleFullScreenCommand;
+
+        private DelegateCommand _ToggleFullScreenCommand;
+        public DelegateCommand ToggleFullScreenCommand =>
+            _ToggleFullScreenCommand ?? (_ToggleFullScreenCommand = new DelegateCommand(ExecuteToggleFullScreenCommand));
+
+        void ExecuteToggleFullScreenCommand()
+        {
+            _ = ToggleFullScreenAsync();
+        }
+
+        ICommand IPlayerView.ToggleCompactOverlayCommand => ToggleCompactOverlayCommand;
+
+        private DelegateCommand _ToggleCompactOverlayCommand;
+        public DelegateCommand ToggleCompactOverlayCommand =>
+            _ToggleCompactOverlayCommand ??= new DelegateCommand(ExecuteToggleCompactOverlayCommand);
+
+        void ExecuteToggleCompactOverlayCommand()
+        {
+            _ = ToggleCompactOverlayAsync();
         }
     }
 }

@@ -22,6 +22,7 @@ using Hohoema.Presentation.Views.Pages;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Live;
 using Hohoema.Models.Domain.Playlist;
+using System.Windows.Input;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -65,7 +66,23 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 {
                     SetDisplayMode(_prevDisplayMode, x);
                     _prevDisplayMode = x;
+                    IsFullScreen = x == PrimaryPlayerDisplayMode.FullScreen;
+                    IsCompactOverlay = x == PrimaryPlayerDisplayMode.CompactOverlay;
                 });
+        }
+
+        private bool _IsFullScreen;
+        public bool IsFullScreen
+        {
+            get { return _IsFullScreen; }
+            private set { SetProperty(ref _IsFullScreen, value); }
+        }
+
+        private bool _IsCompactOverlay;
+        public bool IsCompactOverlay
+        {
+            get { return _IsCompactOverlay; }
+            private set { SetProperty(ref _IsCompactOverlay, value); }
         }
 
         public void SetTitle(string title)
@@ -145,6 +162,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public async Task CloseAsync()
         {
+            if (DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
+
             await PlaylistPlayer.ClearAsync();
             LastNavigatedPageName = null;
             _lastPlayedDisplayMode = DisplayMode == PrimaryPlayerDisplayMode.Close ? _lastPlayedDisplayMode : DisplayMode;
@@ -263,6 +282,10 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             {
                 if (_view.ViewMode == ApplicationViewMode.Default)
                 {
+                    _ = _view.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay);
+                }
+                else
+                {
                     _ = _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
                 }
             }
@@ -295,6 +318,47 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     ShowWithFill();
                 }
             }));
+
+        ICommand IPlayerView.ToggleFullScreenCommand => ToggleFullScreenCommand;
+
+        private DelegateCommand _ToggleFullScreenCommand;
+        public DelegateCommand ToggleFullScreenCommand =>
+            _ToggleFullScreenCommand ?? (_ToggleFullScreenCommand = new DelegateCommand(ExecuteToggleFullScreenCommand));
+
+        void ExecuteToggleFullScreenCommand()
+        {
+            if (DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
+
+            if (DisplayMode == PrimaryPlayerDisplayMode.FullScreen)
+            {                
+                ShowWithFill();
+            }
+            else
+            {
+                ShowWithFullScreen();
+            }
+        }
+
+        ICommand IPlayerView.ToggleCompactOverlayCommand => ToggleCompactOverlayCommand;
+
+        private DelegateCommand _ToggleCompactOverlayCommand;
+        public DelegateCommand ToggleCompactOverlayCommand =>
+            _ToggleCompactOverlayCommand ??= new DelegateCommand(ExecuteToggleCompactOverlayCommand);
+
+        void ExecuteToggleCompactOverlayCommand()
+        {
+            if (DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
+
+            if (DisplayMode == PrimaryPlayerDisplayMode.CompactOverlay)
+            {
+                ShowWithFill();
+            }
+            else
+            {
+                ShowWithCompactOverlay();
+            }
+        }
+
 
         public HohoemaPlaylistPlayer PlaylistPlayer { get; }
     }

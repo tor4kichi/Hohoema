@@ -225,6 +225,19 @@ namespace Hohoema
             unityContainer.RegisterType<IScheduler>(new PerThreadLifetimeManager(), new InjectionFactory(c => SynchronizationContext.Current != null ? new SynchronizationContextScheduler(SynchronizationContext.Current) : mainWindowsScheduler));
             unityContainer.RegisterInstance<IScheduler>("MainWindowsScheduler", mainWindowsScheduler);
 
+            unityContainer.RegisterType<IPlayerView>(new InjectionFactory(c => 
+            {
+                var appearanceSettings = c.Resolve<AppearanceSettings>();
+                if (appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView)
+                {
+                    return c.Resolve<PrimaryViewPlayerManager>();
+                }
+                else
+                {
+                    return c.Resolve<AppWindowSecondaryViewPlayerManager>();
+                }
+            }));
+
             // MediaPlayerを各ウィンドウごとに一つずつ作るように
             unityContainer.RegisterType<MediaPlayer>(new PerThreadLifetimeManager());
 
@@ -234,11 +247,13 @@ namespace Hohoema
             // Service
             unityContainer.RegisterSingleton<PageManager>();
             unityContainer.RegisterSingleton<PrimaryViewPlayerManager>();
-            unityContainer.RegisterSingleton<ScondaryViewPlayerManager>();
+            unityContainer.RegisterSingleton<SecondaryViewPlayerManager>();
+            unityContainer.RegisterSingleton<AppWindowSecondaryViewPlayerManager>();
             unityContainer.RegisterSingleton<NiconicoLoginService>();
             unityContainer.RegisterSingleton<DialogService>();
             unityContainer.RegisterSingleton<INotificationService, NotificationService>();
             unityContainer.RegisterSingleton<NoUIProcessScreenContext>();
+            unityContainer.RegisterSingleton<CurrentActiveWindowUIContextService>();
 
             // Models
             unityContainer.RegisterSingleton<AppearanceSettings>();
@@ -282,8 +297,8 @@ namespace Hohoema
             // ViewModels
             unityContainer.RegisterSingleton<Presentation.ViewModels.Pages.Niconico.VideoRanking.RankingCategoryListPageViewModel>();
 
-            unityContainer.RegisterType<Presentation.ViewModels.Player.VideoPlayerPageViewModel>(new PerThreadLifetimeManager());
-            unityContainer.RegisterType<Presentation.ViewModels.Player.LivePlayerPageViewModel>(new PerThreadLifetimeManager());
+            //unityContainer.RegisterType<Presentation.ViewModels.Player.VideoPlayerPageViewModel>(new PerThreadLifetimeManager());
+            //unityContainer.RegisterType<Presentation.ViewModels.Player.LivePlayerPageViewModel>(new PerThreadLifetimeManager());
 
 #if DEBUG
             //			BackgroundUpdater.MaxTaskSlotCount = 1;
@@ -493,11 +508,11 @@ namespace Hohoema
             if (DeviceTypeHelper.IsDesktop)
             {
                 var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
-                if (localObjectStorageHelper.KeyExists(ScondaryViewPlayerManager.primary_view_size))
+                if (localObjectStorageHelper.KeyExists(SecondaryViewPlayerManager.primary_view_size))
                 {
                     var view = ApplicationView.GetForCurrentView();
                     MainViewId = view.Id;
-                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(ScondaryViewPlayerManager.primary_view_size);
+                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(SecondaryViewPlayerManager.primary_view_size);
                     view.TryResizeView(_PrevWindowSize);
                     ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
                 }
@@ -857,8 +872,8 @@ namespace Hohoema
                 if (MainViewId == sender.Id)
                 {
                     var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
-                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(ScondaryViewPlayerManager.primary_view_size);
-                    localObjectStorageHelper.Save(ScondaryViewPlayerManager.primary_view_size, new Size(sender.VisibleBounds.Width, sender.VisibleBounds.Height));
+                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(SecondaryViewPlayerManager.primary_view_size);
+                    localObjectStorageHelper.Save(SecondaryViewPlayerManager.primary_view_size, new Size(sender.VisibleBounds.Width, sender.VisibleBounds.Height));
 
                     Debug.WriteLine("MainView VisibleBoundsChanged : " + sender.VisibleBounds.ToString());
                 }
@@ -870,7 +885,7 @@ namespace Hohoema
                     var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                     if (_PrevWindowSize != default(Size))
                     {
-                        localObjectStorageHelper.Save(ScondaryViewPlayerManager.primary_view_size, _PrevWindowSize);
+                        localObjectStorageHelper.Save(SecondaryViewPlayerManager.primary_view_size, _PrevWindowSize);
                     }
                     MainViewId = -1;
                 }

@@ -134,6 +134,7 @@
     <Compile Include="Models.Domain\Application\FeatureFlags.cs" />
     <Compile Include="Models.Domain\Application\HohoemaAppServiceLevel.cs" />
     <Compile Include="Models.Domain\Application\LisenceSummary.cs" />
+    <Compile Include="Models.Domain\Application\PlayerDisplayView.cs" />
     <Compile Include="Models.Domain\Application\ToastNotificationConstants.cs" />
     <Compile Include="Models.Domain\Niconico\AccountManager.cs" />
     <Compile Include="Models.Domain\Niconico\Channel\ChannelNameCacheRepository.cs" />

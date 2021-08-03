@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico;
+﻿using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Helpers;
 using Microsoft.AppCenter.Analytics;
 using Prism.Commands;
@@ -12,6 +13,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Share
 {
     public sealed class OpenShareUICommand : DelegateCommandBase
     {
+        public OpenShareUICommand(AppearanceSettings appearanceSettings)
+        {
+
+        }
+
         protected override bool CanExecute(object content)
         {
             return Windows.ApplicationModel.DataTransfer.DataTransferManager.IsSupported()

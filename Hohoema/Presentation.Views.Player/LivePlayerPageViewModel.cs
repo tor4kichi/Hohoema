@@ -94,9 +94,9 @@ namespace Hohoema.Presentation.ViewModels.Player
 
     public class LivePlayerPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync
 	{
-
+        public ReadOnlyReactivePropertySlim<PlayerDisplayView> CurrentPlayerDisplayView { get; }
         public IScheduler _scheduler { get; }
-
+        public IPlayerView PlayerView { get; }
         public PlayerSettings PlayerSettings { get; }
         public AppearanceSettings AppearanceSettings { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
@@ -382,6 +382,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         public LivePlayerPageViewModel(
             IScheduler scheduler,
+            IPlayerView playerView,
             PlayerSettings playerSettings,
             AppearanceSettings appearanceSettings,
             NicoLiveProvider nicoLiveProvider,
@@ -409,7 +410,13 @@ namespace Hohoema.Presentation.ViewModels.Player
             OpenShareUICommand openShareUICommand
             )
         {
+            CurrentPlayerDisplayView = appearanceSettings
+                .ObserveProperty(x => x.PlayerDisplayView)
+                .ToReadOnlyReactivePropertySlim()
+                .AddTo(_CompositeDisposable);
+
             _scheduler = scheduler;
+            PlayerView = playerView;
             PlayerSettings = playerSettings;
             AppearanceSettings = appearanceSettings;
             NicoLiveProvider = nicoLiveProvider;
