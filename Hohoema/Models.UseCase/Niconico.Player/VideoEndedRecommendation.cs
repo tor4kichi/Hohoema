@@ -30,7 +30,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 {
     public sealed class VideoEndedRecommendation : BindableBase, IDisposable,
         IRecipient<PlaybackStopedMessage>,
-        IRecipient<PlaybackStartedMessage>
+        IRecipient<PlaybackStartedMessage>,
+        IRecipient<PlaybackFailedMessage>
     {
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
         private readonly FastAsyncLock _lock = new FastAsyncLock();
@@ -180,6 +181,12 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         {
             using var _ = await _lock.LockAsync(default);
 
+            if (_failedVideoId != null)
+            {
+                _queuePlaylist.Remove(_failedVideoId.Value);
+                _failedVideoId = null;
+            }
+
             _series = null;
             _videoRelatedContents = null;
             HasNextVideo = false;
@@ -204,6 +211,18 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _videoPlayedHistoryRepository.VideoPlayed(data.VideoId, data.EndPosition);
         }
 
+
+        public async void Receive(PlaybackFailedMessage message)
+        {
+            using var _ = await _lock.LockAsync(default);
+
+            _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+
+            var data = message.Value;
+            _failedVideoId = data.VideoId;
+        }
+
+        VideoId? _failedVideoId;
 
         public async void Dispose()
         {

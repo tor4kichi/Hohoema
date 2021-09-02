@@ -376,6 +376,11 @@ namespace Hohoema.Presentation.ViewModels.Player
                             _relatedVideosSidePaneContentViewModel.Clear();
                             PlayerSplitViewIsPaneOpen = false;
 
+                            if (VideoInfo != null)
+                            {
+                                
+                            }
+
                             if (x == null)
                             {
                                 VideoInfo = null;
