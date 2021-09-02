@@ -44,9 +44,10 @@ namespace Hohoema.Presentation.Views.Player
             VolumeSlider.Value = _soundVolumeManager.Volume;
 
 
-            SeekBarSlider.ManipulationMode = ManipulationModes.TranslateX;
-            SeekBarSlider.ManipulationStarting += SeekBarSlider_ManipulationStarting;
-            SeekBarSlider.ManipulationStarted += SeekBarSlider_ManipulationStarted;
+
+            //SeekBarSlider.ManipulationMode = ManipulationModes.TranslateX;
+            //SeekBarSlider.ManipulationStarting += SeekBarSlider_ManipulationStarting;
+            //SeekBarSlider.ManipulationStarted += SeekBarSlider_ManipulationStarted;
 
             SeekBarSlider.FocusEngaged += SeekBarSlider_FocusEngaged;
             SeekBarSlider.FocusDisengaged += SeekBarSlider_FocusDisengaged;
@@ -69,6 +70,8 @@ namespace Hohoema.Presentation.Views.Player
             _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
 
+            SeekBarSlider.ValueChanged += SeekBarSlider_ValueChanged;
+
             _compositeDisposable = new CompositeDisposable();
             var appearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();
             appearanceSettings.ObserveProperty(x => x.ApplicationTheme)
@@ -83,6 +86,8 @@ namespace Hohoema.Presentation.Views.Player
             _compositeDisposable.Dispose();
             _mediaPlayer.VolumeChanged -= OnMediaPlayerVolumeChanged;
             _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+
+            SeekBarSlider.ValueChanged -= SeekBarSlider_ValueChanged;
         }
 
 
@@ -269,22 +274,44 @@ namespace Hohoema.Presentation.Views.Player
         {
             _mediaPlayer.PlaybackSession.Position = TimeSpan.FromSeconds(SeekBarSlider.Value);
         }
+        
+        //private void SeekBarSlider_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+        //{
+        //    e.Complete();
+        //}
 
-        private void SeekBarSlider_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
+        //private void SeekBarSlider_ManipulationStarting(object sender, ManipulationStartingRoutedEventArgs e)
+        //{
+        //    NowVideoPositionChanging = true;
+        //    SeekSwipe.IsEnabled = false;
+
+        //    Window.Current.CoreWindow.PointerReleased += CoreWindow_PointerReleased;
+
+        //    SeekBarSlider.ManipulationCompleted += SeekBarSlider_ManipulationCompleted;
+        //    SeekBarSlider.ManipulationCompleted -= SeekBarSlider_ManipulationCompleted;
+        //}
+        
+
+        double _prevPosition;
+        private void SeekBarSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
         {
-            e.Complete();
+            if (Math.Abs(_prevPosition - e.NewValue) > 1.0)
+            {
+                RefrectSliderPositionToPlaybackPosition();
+            }
+
+            _prevPosition = e.NewValue;
         }
 
-        private void SeekBarSlider_ManipulationStarting(object sender, ManipulationStartingRoutedEventArgs e)
+        private void SeekBarSlider_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
-            NowVideoPositionChanging = true;
-            SeekSwipe.IsEnabled = false;
-
-            Window.Current.CoreWindow.PointerReleased += CoreWindow_PointerReleased;
+            SeekBarSlider.ManipulationCompleted -= SeekBarSlider_ManipulationCompleted;
         }
+
 
         private void CoreWindow_PointerReleased(CoreWindow sender, PointerEventArgs args)
         {
+            SeekBarSlider.ManipulationCompleted -= SeekBarSlider_ManipulationCompleted;
             Window.Current.CoreWindow.PointerReleased -= CoreWindow_PointerReleased;
 
             NowVideoPositionChanging = false;
