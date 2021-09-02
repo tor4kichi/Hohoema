@@ -674,21 +674,16 @@ namespace Hohoema.Models.Domain.Playlist
 
                 try
                 {
-
-
                     var bufferedItems = await UpdatePlaylistItemsSourceAsync(playlist, sortOption);
 
-                    if (false == await UpdatePlayingMediaAsync(item, startPosition))
-                    {
-                        return false;
-                    }
+                    bool result = await UpdatePlayingMediaAsync(item, startPosition);
 
                     var index = bufferedItems.IndexOf(item);
 
                     Guard.IsBetweenOrEqualTo(index, 0, 5000, nameof(index));
                     SetCurrentContent(item, index);
 
-                    return true;
+                    return result;
                 }
                 catch
                 {
