@@ -26,6 +26,7 @@ using Hohoema.Models.Domain.Application;
 using System.Diagnostics;
 using Uno.Disposables;
 using Hohoema.Models.Domain.Player;
+using Windows.System;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -43,14 +44,15 @@ namespace Hohoema.Presentation.Views.Player
             _soundVolumeManager = App.Current.Container.Resolve<MediaPlayerSoundVolumeManager>();
             VolumeSlider.Value = _soundVolumeManager.Volume;
 
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
 
             //SeekBarSlider.ManipulationMode = ManipulationModes.TranslateX;
             //SeekBarSlider.ManipulationStarting += SeekBarSlider_ManipulationStarting;
             //SeekBarSlider.ManipulationStarted += SeekBarSlider_ManipulationStarted;
 
-            SeekBarSlider.FocusEngaged += SeekBarSlider_FocusEngaged;
-            SeekBarSlider.FocusDisengaged += SeekBarSlider_FocusDisengaged;
+            //SeekBarSlider.FocusEngaged += SeekBarSlider_FocusEngaged;
+            //SeekBarSlider.FocusDisengaged += SeekBarSlider_FocusDisengaged;
 
             CommentTextBox.GotFocus += CommentTextBox_GotFocus;
             CommentTextBox.LostFocus += CommentTextBox_LostFocus;
@@ -79,6 +81,8 @@ namespace Hohoema.Presentation.Views.Player
                 {
                     ThemeChanged(theme);
                 }).AddTo(_compositeDisposable);
+
+            _prevPosition = 0.0;
         }
 
         private void VideoPlayerPage_Unloaded(object sender, RoutedEventArgs e)
@@ -266,13 +270,16 @@ namespace Hohoema.Presentation.Views.Player
         // Using a DependencyProperty as the backing store for NowVideoPositionChanging.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty NowVideoPositionChangingProperty =
             DependencyProperty.Register("NowVideoPositionChanging", typeof(bool), typeof(VideoPlayerPage), new PropertyMetadata(false));
-
-
-
+        private readonly DispatcherQueue _dispatcherQueue;
 
         void RefrectSliderPositionToPlaybackPosition()
         {
-            _mediaPlayer.PlaybackSession.Position = TimeSpan.FromSeconds(SeekBarSlider.Value);
+            this.NowVideoPositionChanging = true;
+            if (_mediaPlayer.PlaybackSession.PlaybackState is MediaPlaybackState.Playing or MediaPlaybackState.Paused)
+            {
+                _mediaPlayer.PlaybackSession.Position = TimeSpan.FromSeconds(SeekBarSlider.Value);
+            }
+            this.NowVideoPositionChanging = false;
         }
         
         //private void SeekBarSlider_ManipulationStarted(object sender, ManipulationStartedRoutedEventArgs e)
@@ -322,16 +329,17 @@ namespace Hohoema.Presentation.Views.Player
 
         private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
         {
-            _ = _UIdispatcher.RunAsync(CoreDispatcherPriority.Normal, (DispatchedHandler)(() =>
+            _dispatcherQueue.TryEnqueue(() => 
             {
                 VideoPosition = sender.Position;
-                if (!this.NowVideoPositionChanging)
+                if (this.NowVideoPositionChanging is false)
                 {
                     SeekBarSlider.Value = VideoPosition.TotalSeconds;
                 }
-            }));
+            });
         }
 
+        /*
 
         private void SeekBarSlider_FocusEngaged(Control sender, FocusEngagedEventArgs args)
         {
@@ -345,7 +353,7 @@ namespace Hohoema.Presentation.Views.Player
             NowVideoPositionChanging = false;
         }
 
-
+        */
 
 
 
