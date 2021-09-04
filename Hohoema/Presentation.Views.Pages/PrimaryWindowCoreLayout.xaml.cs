@@ -309,7 +309,8 @@ namespace Hohoema.Presentation.Views.Pages
                             // TODO: NavigationStackBehavior.NotRemember
                         }
 
-                        Window.Current.Activate();
+                        await _viewModel.PrimaryViewPlayerManager.ShowAsync();
+                        //Window.Current.Activate();
 
                         GoBackCommand.RaiseCanExecuteChanged();
                     }
