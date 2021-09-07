@@ -212,7 +212,7 @@ namespace Hohoema.Presentation.Views.Player
 
         // Using a DependencyProperty as the backing store for IsDisplayControlUI.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsDisplayControlUIProperty =
-            DependencyProperty.Register("IsDisplayControlUI", typeof(bool), typeof(VideoPlayerPage), new PropertyMetadata(true));
+            DependencyProperty.Register("IsDisplayControlUI", typeof(bool), typeof(VideoPlayerPage), new PropertyMetadata(false));
 
 
         private readonly MediaPlayerSoundVolumeManager _soundVolumeManager;
