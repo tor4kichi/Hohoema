@@ -356,9 +356,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
             return this.SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(async () =>
             {
-                Window.Current.Activate();
-                var currentView = ApplicationView.GetForCurrentView();
-                await ApplicationViewSwitcher.TryShowAsStandaloneAsync(SecondaryAppView.Id).AsTask();
+                //Window.Current.Activate();
+                await ApplicationViewSwitcher.TryShowAsStandaloneAsync(SecondaryAppView.Id, ViewSizePreference.Default).AsTask();
             });
         }
 
