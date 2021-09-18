@@ -123,6 +123,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
 
         private static RankingGenre? _previousRankingGenre;
+        private static RankingGenreTag _prevRankingGenreTag;
         bool _IsNavigateCompleted = false;
         bool _isRequireUpdate;
         bool _nowInitializeRankingTerm = false;
@@ -297,6 +298,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                     SelectedRankingTag.Value = PickedTags.FirstOrDefault();
                 }
 
+                if (_isRequireUpdate is false)
+                {
+                    _isRequireUpdate = SelectedRankingTag.Value != _prevRankingGenreTag;
+                }
 
                 _IsNavigateCompleted = true;
 
@@ -365,6 +370,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         {
             _IsNavigateCompleted = false;
             _previousRankingGenre = RankingGenre;
+            _prevRankingGenreTag = SelectedRankingTag.Value;
 
             base.OnNavigatedFrom(parameters);
         }
@@ -428,7 +434,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             _options = new RankingOptions(genre, term, tag);
         }
 
-        public const int OneTimeLoadCount = 20;
+        public const int OneTimeLoadCount = 100;
 
 
         private async ValueTask<RssVideoResponse> GetCachedRankingRssAsync()

@@ -626,9 +626,12 @@
         </muxc:NavigationView.AutoSuggestBox>
         
         <muxc:NavigationView.Content>
+          <!-- CacheSize="0" はキャッシュを使用した場合にページコンテンツのメモリ解放が正常に行われないからか
+               使用メモリ量が数MBずつ際限なく増えていく問題があるため。
+               see@ https://github.com/tor4kichi/Hohoema/issues/836
+          -->
           <Frame x:Name="ContentFrame" VerticalContentAlignment="Stretch" DataContext="{x:Null}" Margin="0 0 0 0"
-
-                 CacheSize="5"
+                 CacheSize="0"
                        >
             <Frame.ContentTransitions>
               <TransitionCollection>
@@ -1130,7 +1133,6 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
     </VisualStateManager.VisualStateGroups>
   </Grid>
 </UserControl>

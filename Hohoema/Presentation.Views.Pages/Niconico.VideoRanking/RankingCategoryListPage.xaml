@@ -13,7 +13,7 @@
   xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
-  NavigationCacheMode="Required"
+  NavigationCacheMode="Enabled"
   mc:Ignorable="d"
   >
 
