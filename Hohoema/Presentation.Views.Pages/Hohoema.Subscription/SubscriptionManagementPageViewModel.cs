@@ -48,7 +48,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
 
         public IReadOnlyReactiveProperty<bool> IsAutoUpdateRunning { get; }
-        public IReadOnlyReactiveProperty<DateTime> NextUpdateTime { get; }
         public IReactiveProperty<TimeSpan> AutoUpdateFrequency { get; }
         public IReactiveProperty<bool> IsAutoUpdateEnabled { get; }
 
@@ -94,9 +93,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
             IsAutoUpdateRunning = _subscriptionUpdateManager.ObserveProperty(x => x.IsRunning)
                 .ToReadOnlyReactiveProperty(false)
-                .AddTo(_CompositeDisposable);
-            NextUpdateTime = _subscriptionUpdateManager.ObserveProperty(x => x.NextUpdateTime)
-                .ToReadOnlyReactiveProperty()
                 .AddTo(_CompositeDisposable);
             AutoUpdateFrequency = _subscriptionUpdateManager.ToReactivePropertyAsSynchronized(x => x.UpdateFrequency)
                 .AddTo(_CompositeDisposable);

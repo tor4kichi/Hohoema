@@ -75,9 +75,6 @@
               <AppBarElementContainer IsEnabled="False" Visibility="{Binding IsAutoUpdateEnabled.Value, Converter={StaticResource BooleanToVisibility}}" VerticalContentAlignment="Center">
                 <Grid Margin="8 0" HorizontalAlignment="Right">
                   <StackPanel Orientation="Horizontal" x:Name="AutoUpdateRunningStatusLayout" Spacing="8" Opacity="0.0">
-                    <TextBlock VerticalAlignment="Center">
-                    <Run Text="{i18nExt:Localize Key=SubscriptionsNextUpdateTime}" />:<Run Text="{Binding NextUpdateTime.Value, Converter={StaticResource DateTimeToString}, ConverterParameter=t}" />
-                    </TextBlock>
                   </StackPanel>
                   <StackPanel Orientation="Horizontal" x:Name="AutoUpdateNotRunningStatusLayout" Spacing="8" Opacity="0.0">
                     <TextBlock Text="{i18nExt:Localize Key=SubscriptionsAutoNotUpdateRunning}" VerticalAlignment="Center" />

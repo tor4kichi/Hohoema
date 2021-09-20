@@ -62,13 +62,6 @@ namespace Hohoema.Models.UseCase.Subscriptions
             private set { SetProperty(ref _isRunning, value); }
         }
 
-        private DateTime _nextUpdateTime;
-        public DateTime NextUpdateTime
-        {
-            get { return _nextUpdateTime; }
-            private set { SetProperty(ref _nextUpdateTime, value); }
-        }
-
         private TimeSpan _updateFrequency;
         public TimeSpan UpdateFrequency
         {
@@ -83,7 +76,6 @@ namespace Hohoema.Models.UseCase.Subscriptions
                 if (SetProperty(ref _updateFrequency, value))
                 {
                     _subscriptionSettings.SubscriptionsUpdateFrequency = value;
-                    NextUpdateTime = _subscriptionSettings.SubscriptionsLastUpdatedAt += _subscriptionSettings.SubscriptionsUpdateFrequency;
                     StartOrResetTimer();
                 }
             }
@@ -99,7 +91,6 @@ namespace Hohoema.Models.UseCase.Subscriptions
             _subscriptionSettings = subscriptionSettingsRepository;
             _subscriptionManager.Added += _subscriptionManager_Added;
 
-            _nextUpdateTime = _subscriptionSettings.SubscriptionsLastUpdatedAt + _subscriptionSettings.SubscriptionsUpdateFrequency;
             _updateFrequency = _subscriptionSettings.SubscriptionsUpdateFrequency;
             _IsAutoUpdateEnabled = _subscriptionSettings.IsSubscriptionAutoUpdateEnabled;
 
@@ -163,17 +154,15 @@ namespace Hohoema.Models.UseCase.Subscriptions
         {
             using (await _timerLock.LockAsync())
             {
-                // ロック中にタイマーが止まっていた場合は更新しない
                 if (_timerDisposer == null) { return; }
-
-                // 次の自動更新周期を延長して設定
-                _subscriptionSettings.SubscriptionsLastUpdatedAt = DateTime.Now;
-                
-                NextUpdateTime = _subscriptionSettings.SubscriptionsLastUpdatedAt + _subscriptionSettings.SubscriptionsUpdateFrequency;
+                if (Helpers.InternetConnection.IsInternet() is false) { return; }
 
                 Debug.WriteLine($"[{nameof(SubscriptionUpdateManager)}] start update ------------------- ");
                 await _subscriptionManager.RefreshAllFeedUpdateResultAsync(cancellationToken);
                 Debug.WriteLine($"[{nameof(SubscriptionUpdateManager)}] end update ------------------- ");
+
+                // 次の自動更新周期を延長して設定
+                _subscriptionSettings.SubscriptionsLastUpdatedAt = DateTime.Now;
             }
         }
 
@@ -195,31 +184,33 @@ namespace Hohoema.Models.UseCase.Subscriptions
                 if (_isDisposed) { return; }
 
                 _timerDisposer?.Dispose();
-                _timerUpdateCancellationTokenSource?.Cancel();
-                _timerUpdateCancellationTokenSource = null;
 
                 if (!_IsAutoUpdateEnabled) { return; }
 
                 IsRunning = true;
                 var updateFrequency = _subscriptionSettings.SubscriptionsUpdateFrequency;
-                _timerDisposer = Observable.Timer(_subscriptionSettings.SubscriptionsLastUpdatedAt + updateFrequency, updateFrequency)
+                _timerDisposer = Observable.Timer(_subscriptionSettings.SubscriptionsLastUpdatedAt + updateFrequency, TimeSpan.FromMinutes(5))
                     .Subscribe(async _ =>
                     {
                         try
                         {
-                            using (_timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(180)))
-                            {
-                                await UpdateAsync(_timerUpdateCancellationTokenSource.Token);
-                            }
+                            _timerUpdateCancellationTokenSource?.Cancel();
+                            _timerUpdateCancellationTokenSource?.Dispose();
+                            _timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(180));
+                            await UpdateAsync(_timerUpdateCancellationTokenSource.Token);
                         }
                         catch (OperationCanceledException)
                         {
-                            var __ = StopTimerAsync();
+                            await StopTimerAsync();
 
                             Debug.WriteLine("購読の更新にあまりに時間が掛かったため処理を中断し、また定期自動更新も停止しました");
                         }
+                        finally
+                        {
+                            _timerUpdateCancellationTokenSource.Dispose();
+                            _timerUpdateCancellationTokenSource = null;
+                        }
 
-                        _timerUpdateCancellationTokenSource = null;
                     });
             }
         }
