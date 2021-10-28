@@ -13,11 +13,21 @@
   xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  xmlns:rankingViewModel="using:Hohoema.Presentation.ViewModels.Niconico.Ranking"
   NavigationCacheMode="Enabled"
   mc:Ignorable="d"
   >
 
   <Page.Resources>
+
+    <CollectionViewSource x:Key="RankingGenreItemsViewSource"
+                          Source="{x:Bind _vm.RankingGenreItems}"
+                          ItemsPath="Items"
+                          IsSourceGrouped="True"
+                          >
+      
+    </CollectionViewSource>
+    
     <flyouts:RankingGenreItemGroupFlyout x:Key="RankingGenreItemGroupFlyout" />
 
     <DataTemplate x:Key="RankingGenreItemFlyoutTemplate">
@@ -34,7 +44,7 @@
           <CommandBar Background="Transparent"
                       Margin="0 0 0 0">
             <CommandBar.Content>
-              <controls:AppTitleBar Title="{Binding Title}" />
+              <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
             </CommandBar.Content>
             <CommandBar.PrimaryCommands>
               <AppBarButton Label="{i18nExt:Localize Key=Settings}"
@@ -55,7 +65,7 @@
                 ScrollViewer.HorizontalScrollMode="Auto"
                 ScrollViewer.VerticalScrollBarVisibility="Hidden"
                 ScrollViewer.VerticalScrollMode="Disabled"
-                ItemsSource="{Binding RankingGenreItems.View}"
+                ItemsSource="{Binding Source={StaticResource RankingGenreItemsViewSource}, Mode=OneTime}"
                 myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource RankingGenreItemFlyoutTemplate}"
                 SelectionMode="None"
                 SingleSelectionFollowsFocus="False">
@@ -70,20 +80,20 @@
           </ItemsPanelTemplate>
         </GridView.ItemsPanel>
         <i:Interaction.Behaviors>
-          <mybehavior:ListViewItemTappedCommandBehavior Command="{Binding OpenRankingPageCommand}" />
+          <mybehavior:ListViewItemTappedCommandBehavior Command="{x:Bind _vm.OpenRankingPageCommand}" />
         </i:Interaction.Behaviors>
         <GridView.GroupStyle>
           <GroupStyle>
             <GroupStyle.HeaderTemplate>
-              <DataTemplate>
+              <DataTemplate x:DataType="rankingViewModel:RankingGenreItem">
                 <Border>
                   <HyperlinkButton FontSize="18"
                                    Foreground="{ThemeResource ApplicationHeaderForegroundThemeBrush}"
                                    Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenRankingPageCommand}"
-                                   CommandParameter="{Binding}"
+                                   CommandParameter="{x:Bind}"
                                    Width="128"
-                                   IsEnabled="{Binding Genre, Converter={StaticResource NotNullToBoolean}}">
-                    <TextBlock Text="{Binding Label}" />
+                                   IsEnabled="{x:Bind Genre, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}">
+                    <TextBlock Text="{x:Bind Label}" />
                   </HyperlinkButton>
                 </Border>
               </DataTemplate>
@@ -99,8 +109,8 @@
           </GroupStyle>
         </GridView.GroupStyle>
         <GridView.ItemTemplate>
-          <DataTemplate>
-            <TextBlock Text="{Binding Label}"
+          <DataTemplate x:DataType="rankingViewModel:RankingItem">
+            <TextBlock Text="{x:Bind Label}"
                        TextWrapping="Wrap" />
           </DataTemplate>
         </GridView.ItemTemplate>
@@ -125,7 +135,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="TV" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
@@ -134,7 +144,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Desktop" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
@@ -143,8 +153,8 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
-            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Tablet" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Mobile" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />

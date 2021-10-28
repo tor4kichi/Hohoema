@@ -424,9 +424,9 @@
               Height="{Binding ElementName=PlayerFrame, Path=ActualHeight, Mode=OneWay}"
               Visibility="Collapsed" />
       <muxc:NavigationView x:Name="CoreNavigationView"
-                      MenuItemsSource="{Binding MenuItems_Offline}"
+                      MenuItemsSource="{x:Bind _viewModel.MenuItems_Offline}"
                       MenuItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
-                          PaneDisplayMode="{Binding AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}"
+                          PaneDisplayMode="{x:Bind _viewModel.AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}"
                            ItemInvoked="CoreNavigationView_ItemInvoked"
                            BackRequested="CoreNavigationView_BackRequested"
                            IsSettingsVisible="True"
@@ -447,7 +447,7 @@
         
         <muxc:NavigationView.PaneHeader>
           <Grid >
-            <TextBlock Text="{Binding NiconicoSession.ServiceStatus}"
+            <TextBlock Text="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}"
                        x:Name="ServiceStateText" 
                        Margin="8 0"
                        Visibility="Collapsed"
@@ -527,34 +527,34 @@
 
                 <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenSettings"
                                       Text="{i18nExt:Localize Key=HohoemaPageType.Settings}"
-                                      Command="{Binding PageManager.OpenPageCommand}"
+                                      Command="{x:Bind _viewModel.PageManager.OpenPageCommand}"
                                     CommandParameter="{x:Bind pageNavigation:HohoemaPageType.Settings}"
                                 Visibility="Collapsed"
                                     />
 
                 <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
                                       Visibility="Collapsed" Text="Open Debug Page"
-                                      Command="{Binding OpenDebugPageCommand}" />
+                                      Command="{x:Bind _viewModel.OpenDebugPageCommand}" />
 
 
                 <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=LogInUserInfo}"
-                                      Command="{Binding OpenAccountInfoCommand}" />
+                                      Command="{x:Bind _viewModel.OpenAccountInfoCommand}" />
 
                 <MenuFlyoutSeparator />
 
                 <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=LogOut}"
-                                      Command="{Binding LogoutFromNiconicoCommand}" />
+                                      Command="{x:Bind _viewModel.LogoutFromNiconicoCommand}" />
 
                 <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=LogIn}"
-                                      Command="{Binding NiconicoLoginService.LoginCommand}" />
+                                      Command="{x:Bind _viewModel.NiconicoLoginService.LoginCommand}" />
 
 
               </MenuFlyout>
             </Button.Flyout>
-            <uwpToolkitControls:SwitchPresenter Value="{Binding NiconicoSession.IsLoggedIn}">
+            <uwpToolkitControls:SwitchPresenter Value="{x:Bind _viewModel.NiconicoSession.IsLoggedIn, Mode=OneWay}">
               <uwpToolkitControls:Case IsDefault="True">
                 <uwpToolkitControls:Case.Value>
                   <x:Boolean>False</x:Boolean>
@@ -574,7 +574,7 @@
                 <uwpToolkitControls:DockPanel Margin="0 0"
                                                   x:Name="AccountInfoLayout"
                                                       >
-                  <uwpToolkitControls:ImageEx Source="{Binding NiconicoSession.UserIconUrl,Mode=OneWay}"
+                  <uwpToolkitControls:ImageEx Source="{x:Bind _viewModel.NiconicoSession.UserIconUrl,Mode=OneWay}"
                              uwpToolkitControls:DockPanel.Dock="Left"
                              Height="24"
                              Width="24"
@@ -582,7 +582,7 @@
                                  CornerRadius="60"
                                  />
                   <StackPanel Margin="11 0 0 0">
-                    <TextBlock Text="{Binding NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" TextLineBounds="TrimToBaseline" />
+                    <TextBlock Text="{x:Bind _viewModel.NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" TextLineBounds="TrimToBaseline" />
                   </StackPanel>
                 </uwpToolkitControls:DockPanel>
               </uwpToolkitControls:Case>
@@ -596,7 +596,7 @@
                           TabIndex="103" Margin="0" 
                           UseSystemFocusVisuals="True"
                           IsFocusEngagementEnabled="True" 
-                              ItemsSource="{Binding SearchAutoSuggestItems}"
+                              ItemsSource="{x:Bind _viewModel.SearchAutoSuggestItems}"
                               QuerySubmitted="SearchTextBox_QuerySubmitted"
                               TextChanged="SearchTextBox_TextChanged"
                               UpdateTextOnSelect="False"
@@ -613,7 +613,7 @@
                 <core:CallMethodAction MethodName="SelectAll" />
               </core:EventTriggerBehavior>
               <mybehavior:KeyboardTrigger Key="Enter" x:Name="SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
-                <core:InvokeCommandAction Command="{Binding SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
+                <core:InvokeCommandAction Command="{x:Bind _viewModel.SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
               </mybehavior:KeyboardTrigger>
             </i:Interaction.Behaviors>
 
@@ -702,7 +702,7 @@
 
           <Button.Flyout>
             <MenuFlyout Placement="Bottom">
-              <MenuFlyoutItem Text="アプリを再起動" Command="{Binding RequestApplicationRestartCommand}" />
+              <MenuFlyoutItem Text="アプリを再起動" Command="{x:Bind _viewModel.RequestApplicationRestartCommand}" />
               <MenuFlyoutItem Visibility="Collapsed" Text="軽量通知をテスト（短）" Click="AddShortLiteInAppNotification_Click" />
               <MenuFlyoutItem Visibility="Collapsed" Text="軽量通知をテスト（長）" Click="AddLongLiteInAppNotification_Click" />
             </MenuFlyout>
@@ -1087,7 +1087,7 @@
       <VisualStateGroup>
         <VisualState x:Name="OfflineState">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.Offline}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.Offline}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
@@ -1095,7 +1095,7 @@
         </VisualState>
         <VisualState x:Name="ServiceUnavailableState">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.ServiceUnavailable}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.ServiceUnavailable}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
@@ -1103,7 +1103,7 @@
         </VisualState>
         <VisualState x:Name="WithoutLoggedInState">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.WithoutLoggedIn}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.WithoutLoggedIn}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
@@ -1112,13 +1112,13 @@
         </VisualState>
         <VisualState x:Name="LoggedInState">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.LoggedIn}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.LoggedIn}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
             <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
-            <Setter Target="CoreNavigationView.MenuItemsSource" Value="{Binding MenuItems_LoggedIn}" />
+            <Setter Target="CoreNavigationView.MenuItemsSource" Value="{x:Bind _viewModel.MenuItems_LoggedIn}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

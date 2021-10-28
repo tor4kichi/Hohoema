@@ -20,12 +20,12 @@
     >
   <Grid>
     <videolistPage:VideoItemsListView 
-      ItemsSource="{Binding ItemsView}" 
-      ItemCommand="{Binding VideoPlayWithQueueCommand}" 
+      ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}" 
+      ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}" 
       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" 
-      RefreshCommand="{Binding RefreshCommand}" 
-      PlaylistPassToFlyout="{Binding SearchVideoPlaylist}"
+      RefreshCommand="{x:Bind _vm.RefreshCommand}" 
+      PlaylistPassToFlyout="{x:Bind _vm.SearchVideoPlaylist, Mode=OneWay}"
       x:Name="VideoItemsListView">
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout">
@@ -34,9 +34,9 @@
               <CommandBar.PrimaryCommands>
 
                 <AppBarElementContainer>
-                  <ComboBox ItemsSource="{Binding SortOptions}"
-                          SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
-                          IsEnabled="{Binding NowLoading.Value, Converter={StaticResource BoolNegation}}"
+                  <ComboBox ItemsSource="{x:Bind _vm.SortOptions}"
+                          SelectedItem="{x:Bind _vm.SelectedSortOption, Mode=TwoWay}"
+                          IsEnabled="{x:Bind _vm.NowLoading.Value, Mode=OneWay, Converter={StaticResource BoolNegation}}"
                           >
                     <ComboBox.ItemTemplate>
                       <DataTemplate>
@@ -49,8 +49,8 @@
                 <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"
-                                Command="{Binding PlaylistPlayAllCommand}"
-                                CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
+                                Command="{x:Bind _vm.PlaylistPlayAllCommand}"
+                                CommandParameter="{x:Bind _vm.CurrentPlaylistToken.Value, Mode=OneWay}" />
 
                 <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                   <i:Interaction.Behaviors>
@@ -60,14 +60,14 @@
                   </i:Interaction.Behaviors>
                 </AppBarButton>
 
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
-                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
+                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.RefreshCommand}" IsEnabled="{x:Bind _vm.CanChangeSort.Value, Mode=OneWay}" VerticalAlignment="Center"></AppBarButton>
 
                 <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{i18nExt:Localize Key=SubscriptionAddKeyword}"
-                                Command="{Binding AddKeywordSearchSubscriptionCommand}"
-                                CommandParameter="{Binding Keyword}"
+                                Command="{x:Bind _vm.AddKeywordSearchSubscriptionCommand}"
+                                CommandParameter="{x:Bind _vm.Keyword, Mode=OneWay}"
                                 >
                 </AppBarButton>
               </CommandBar.SecondaryCommands>
@@ -125,7 +125,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding NowLoading.Value}" />
+            <StateTrigger IsActive="{x:Bind _vm.NowLoading.Value, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ScrollToTopButton.IsEnabled" Value="False" />
@@ -134,7 +134,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ItemsView.Count}" EqualTo="0" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ItemsView.Count, Mode=OneWay}" EqualTo="0" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />

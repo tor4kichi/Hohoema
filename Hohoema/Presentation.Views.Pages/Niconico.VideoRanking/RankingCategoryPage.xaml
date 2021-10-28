@@ -16,25 +16,25 @@
   >
 
   <Grid>
-    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
-                                      ItemCommand="{Binding VideoPlayWithQueueCommand}"
+    <videolistPage:VideoItemsListView ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
+                                      ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
-                                      RefreshCommand="{Binding RefreshCommand}"
+                                      RefreshCommand="{x:Bind _vm.RefreshCommand}"
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
         <Grid >
           <CommandBar x:Name="VideoListCommandBar" HorizontalAlignment="Stretch" >
             <CommandBar.Content>
-              <controls:AppTitleBar Title="{Binding Title}" />
+              <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
             </CommandBar.Content>
 
             <CommandBar.PrimaryCommands>
 
               <AppBarElementContainer>
                 <ComboBox x:Name="GenreTagSelector"
-                            ItemsSource="{Binding PickedTags}"
-                            SelectedItem="{Binding SelectedRankingTag.Value, Mode=TwoWay}"
+                            ItemsSource="{x:Bind _vm.PickedTags}"
+                            SelectedItem="{x:Bind _vm.SelectedRankingTag.Value, Mode=TwoWay}"
                             DisplayMemberPath="Label"
                             >
                 </ComboBox>
@@ -42,14 +42,10 @@
 
               <AppBarElementContainer>
                 <ComboBox x:Name="RankingTermSelector"
-                            ItemsSource="{Binding CurrentSelectableRankingTerms.Value}"
+                            ItemsSource="{x:Bind _vm.CurrentSelectableRankingTerms.Value, Mode=OneWay}"
                             SelectedItem="{Binding SelectedRankingTerm.Value, Mode=TwoWay}"
+                          ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
                             >
-                  <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                    </DataTemplate>
-                  </ComboBox.ItemTemplate>
                 </ComboBox>
               </AppBarElementContainer>
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
@@ -60,7 +56,7 @@
                 </i:Interaction.Behaviors>
               </AppBarButton>
 
-              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
 
             </CommandBar.PrimaryCommands>
 
@@ -68,8 +64,8 @@
               <AppBarButton x:Name="RefreshButton"
                               Label="{i18nExt:Localize Key=Refresh}" 
                               Icon="Refresh"
-                              Command="{Binding RefreshCommand}"
-                              IsEnabled="{Binding CanChangeSort.Value}"
+                              Command="{x:Bind _vm.RefreshCommand}"
+                              IsEnabled="{x:Bind _vm.CanChangeSort.Value, Mode=OneWay}"
                               VerticalAlignment="Center"
                           >
               </AppBarButton>
@@ -127,7 +123,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="TV" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
@@ -136,7 +132,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Desktop" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
@@ -145,8 +141,8 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Tablet" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Mobile" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
@@ -162,7 +158,7 @@
 
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding NowLoading.Value}"/>
+            <StateTrigger IsActive="{x:Bind _vm.NowLoading.Value, Mode=OneWay}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>
@@ -170,7 +166,7 @@
         
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{Binding ItemsView.Count}" CompareTo="0" Comparison="Equal" />
+            <windowsTriggers:CompareStateTrigger Value="{x:Bind _vm.ItemsView.Count, Mode=OneWay}" CompareTo="0" Comparison="Equal" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />

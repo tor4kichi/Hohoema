@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Presentation.ViewModels.Pages.Niconico.Activity;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,19 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Activity
 		public WatchHistoryPage()
 		{
 			this.InitializeComponent();
-		}
-	}
+            DataContextChanged += OnDataContextChanged;
+        }
+
+        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+        {
+            var oldViewModel = _vm;
+            _vm = args.NewValue as WatchHistoryPageViewModel;
+            if (args.NewValue != null && args.NewValue != oldViewModel)
+            {
+                this.Bindings.Update();
+            }
+        }
+
+        private WatchHistoryPageViewModel _vm { get; set; }
+    }
 }

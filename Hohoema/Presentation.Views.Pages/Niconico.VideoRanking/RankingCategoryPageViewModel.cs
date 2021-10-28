@@ -434,7 +434,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             _options = new RankingOptions(genre, term, tag);
         }
 
-        public const int OneTimeLoadCount = 100;
+        public const int OneTimeLoadCount = 20;
 
 
         private async ValueTask<RssVideoResponse> GetCachedRankingRssAsync()
@@ -462,6 +462,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
             int head = pageIndex * pageSize;
             var targetItems = _rankingRssResponse.Items.Skip(head).Take(pageSize);
+
+            // Note: 1件あたり8ms 100件800ms 程度の時間が掛かる
             var owners = await _nicoVideoProvider.ResolveVideoOwnersAsync(targetItems.Select(x => x.GetVideoId()));
 
             ct.ThrowIfCancellationRequested();

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Presentation.ViewModels.Pages.Niconico.Search;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -22,6 +23,19 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Search
 		public SearchResultKeywordPage()
 		{
 			this.InitializeComponent();
-		}
-	}
+            DataContextChanged += OnDataContextChanged;
+        }
+
+        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+        {
+            var oldViewModel = _vm;
+            _vm = args.NewValue as SearchResultKeywordPageViewModel;
+            if (args.NewValue != null && args.NewValue != oldViewModel)
+            {
+                this.Bindings.Update();
+            }
+        }
+
+        private SearchResultKeywordPageViewModel _vm { get; set; }
+    }
 }

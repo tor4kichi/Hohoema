@@ -468,6 +468,8 @@ namespace Hohoema
 
             }
 
+            Resources["IsDebug_XboxLayout"] = _DEBUG_XBOX_RESOURCE;
+
 #if DEBUG
             Resources["IsDebug"] = true;
 #else

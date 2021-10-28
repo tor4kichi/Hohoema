@@ -49,6 +49,8 @@
         <styles:VideoListItemControlDefaultTemplate />
       </ResourceDictionary.MergedDictionaries>
 
+      <x:Boolean x:Key="IsDebug_XboxLayout">False</x:Boolean>
+      
       <appModels:FeatureFlags x:Key="FeatureFlags" />
       
       <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
@@ -159,9 +161,17 @@
           <Visibility>Collapsed</Visibility>
         </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
       </uwpconv:EmptyCollectionToObjectConverter>
-      <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionToBooleanConverter"
-                                                      
-                                                      >
+
+      <uwpconv:EmptyCollectionToObjectConverter x:Key="NotEmptyCollectionToBooleanConverter">
+        <uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
+          <x:Boolean>False</x:Boolean>
+        </uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
+        <uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
+          <x:Boolean>True</x:Boolean>
+        </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
+      </uwpconv:EmptyCollectionToObjectConverter>
+
+      <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionToBooleanConverter">
         <uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
           <x:Boolean>True</x:Boolean>
         </uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
@@ -169,6 +179,7 @@
           <x:Boolean>False</x:Boolean>
         </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
       </uwpconv:EmptyCollectionToObjectConverter>
+      
       <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
 
       <conv:ColorToBrushConverter x:Key="ColorToBrush" />

@@ -67,7 +67,7 @@ namespace Hohoema.Presentation.ViewModels
         private readonly DialogService _dialogService;
         private readonly NotificationService _notificationService;
 
-        public ObservableCollection<SearchAutoSuggestItemViewModel> SearchAutoSuggestItems { get; set; }
+        public ObservableCollection<SearchAutoSuggestItemViewModel> SearchAutoSuggestItems { get; }
 
         public ObservableCollection<HohoemaListingPageItemBase> MenuItems_Offline { get; private set; }
         public ObservableCollection<HohoemaListingPageItemBase> MenuItems_LoggedIn { get; private set; }

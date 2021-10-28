@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NiconicoToolkit.Ichiba;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,5 +24,19 @@ namespace Hohoema.Presentation.Views.Controls
         {
             this.InitializeComponent();
         }
+
+
+
+        public IchibaItem Item
+        {
+            get { return (IchibaItem)GetValue(ItemProperty); }
+            set { SetValue(ItemProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Item.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ItemProperty =
+            DependencyProperty.Register("Item", typeof(IchibaItem), typeof(IchibaItemCard), new PropertyMetadata(0));
+
+
     }
 }

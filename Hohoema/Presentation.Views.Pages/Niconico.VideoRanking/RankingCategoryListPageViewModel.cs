@@ -102,19 +102,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             {
                 if (item.Genre == null || !RankingSettings.IsHiddenGenre(item.Genre.Value))
                 {
-                    _RankingGenreItems.Add(item);
+                    RankingGenreItems.Add(item);
                 }
             }
-
-            {
-                RankingGenreItems = new CollectionViewSource()
-                {
-                    Source = _RankingGenreItems,
-                    ItemsPath = new Windows.UI.Xaml.PropertyPath(nameof(RankingGenreItem.Items)),
-                    IsSourceGrouped = true,
-                };
-            }
-
         }
 
         void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
@@ -138,16 +128,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             {
                 RankingSettings.RemoveHiddenGenre(args.RankingGenre);
 
-                _RankingGenreItems.Clear();
+                RankingGenreItems.Clear();
                 foreach (var item in _RankingGenreItemsSource)
                 {
                     if (item.Genre == null)
                     {
-                        _RankingGenreItems.Add(item);
+                        RankingGenreItems.Add(item);
                     }
                     else if (!RankingSettings.IsHiddenGenre(item.Genre.Value))
                     {
-                        _RankingGenreItems.Add(item);
+                        RankingGenreItems.Add(item);
                     }
                 }
 
@@ -177,16 +167,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             {
                 RankingSettings.AddHiddenGenre(args.RankingGenre);
 
-                _RankingGenreItems.Clear();
+                RankingGenreItems.Clear();
                 foreach (var item in _RankingGenreItemsSource)
                 {
                     if (item.Genre == null)
                     {
-                        _RankingGenreItems.Add(item);
+                        RankingGenreItems.Add(item);
                     }
                     else if (!RankingSettings.IsHiddenGenre(item.Genre.Value))
                     {
-                        _RankingGenreItems.Add(item);
+                        RankingGenreItems.Add(item);
                     }
                 }
 
@@ -223,7 +213,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                 FavoriteItems.Add(addedItem);
                 RankingSettings.AddFavoriteTag(addedItem.Genre.Value, addedItem.Tag, addedItem.Label);
 
-                var genreGroup = _RankingGenreItems.FirstOrDefault(x => x.Genre == args.RankingGenre);
+                var genreGroup = RankingGenreItems.FirstOrDefault(x => x.Genre == args.RankingGenre);
                 if (genreGroup != null)
                 {
                     var favItem = genreGroup.Items.Cast<RankingItem>().FirstOrDefault(x => x.Tag == args.Tag);
@@ -251,7 +241,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                 System.Diagnostics.Debug.WriteLine($"Favorite removed: {args.RankingGenre} {args.Tag}");
             }
 
-            var genreGroup = _RankingGenreItems.FirstOrDefault(x => x.Genre == args.RankingGenre);
+            var genreGroup = RankingGenreItems.FirstOrDefault(x => x.Genre == args.RankingGenre);
             if (genreGroup != null)
             {
                 var favItem = genreGroup.Items.Cast<RankingItem>().FirstOrDefault(x => x.Tag == args.Tag);
@@ -292,9 +282,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         public Services.DialogService HohoemaDialogService { get; }
         public VideoRankingSettings RankingSettings { get; }
 
-
-        public CollectionViewSource RankingGenreItems { get; }
-        ObservableCollection<RankingGenreItem> _RankingGenreItems = new ObservableCollection<RankingGenreItem>();
+        public ObservableCollection<RankingGenreItem> RankingGenreItems { get; } = new ObservableCollection<RankingGenreItem>();
         List<RankingGenreItem> _RankingGenreItemsSource = new List<RankingGenreItem>();
 
         private DelegateCommand<RankingItem> _OpenRankingPageCommand;
@@ -345,7 +333,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
                 try
                 {
-                    foreach (var genreItem in _RankingGenreItems.Cast<RankingGenreItem>())
+                    foreach (var genreItem in RankingGenreItems.Cast<RankingGenreItem>())
                     {
                         if (genreItem.Genre == null) { continue; }
                         if (genreItem.Items.Any()) { continue; }
@@ -386,7 +374,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             {
                 if (_prevSelectedGenre != null)
                 {
-                    var updateTargetGenre = _RankingGenreItems.Cast<RankingGenreItem>().FirstOrDefault(x => x.Genre == _prevSelectedGenre);
+                    var updateTargetGenre = RankingGenreItems.Cast<RankingGenreItem>().FirstOrDefault(x => x.Genre == _prevSelectedGenre);
                     if (updateTargetGenre != null)
                     {
                         var items = await _rankingProvider.GetRankingGenreTagsAsync(updateTargetGenre.Genre.Value, true);
@@ -412,16 +400,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
         void RefreshFilter()
         {
-            _RankingGenreItems.Clear();
+            RankingGenreItems.Clear();
             foreach (var item in _RankingGenreItemsSource)
             {
                 if (item.Genre == null || !RankingSettings.IsHiddenGenre(item.Genre.Value))
                 {
-                    _RankingGenreItems.Add(item);
+                    RankingGenreItems.Add(item);
                 }
             }
 
-            foreach (var genreGroup in _RankingGenreItems.Cast<RankingGenreItem>())
+            foreach (var genreGroup in RankingGenreItems.Cast<RankingGenreItem>())
             {
                 genreGroup.Items.RefreshFilter();
             }

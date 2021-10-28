@@ -15,21 +15,21 @@
         Background="{ThemeResource SystemAltLowColor}"
         >
     <toolkit:DockPanel>
-      <HyperlinkButton NavigateUri="{Binding AmazonItemLink}" toolkit:DockPanel.Dock="Left"  >
-        <Image Source="{Binding ThumbnailUrl}" Height="100" toolkit:DockPanel.Dock="Top" />
+      <HyperlinkButton NavigateUri="{x:Bind Item.AmazonItemLink}" toolkit:DockPanel.Dock="Left"  >
+        <Image Source="{x:Bind Item.ThumbnailUrl.OriginalString}" Height="100" toolkit:DockPanel.Dock="Top" />
       </HyperlinkButton>
 
       <StackPanel Margin="8 0" >
-        <HyperlinkButton NavigateUri="{Binding AmazonItemLink}"  >
-          <TextBlock Text="{Binding Title}" TextWrapping="Wrap" FontSize="12">
+        <HyperlinkButton NavigateUri="{x:Bind Item.AmazonItemLink}"  >
+          <TextBlock Text="{x:Bind Item.Title}" TextWrapping="Wrap" FontSize="12">
             <TextBlock.Foreground>
               <SolidColorBrush Color="{StaticResource SystemBaseMediumHighColor}" />
             </TextBlock.Foreground>
           </TextBlock>
         </HyperlinkButton>
-        <TextBlock Text="{Binding Maker}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
+        <TextBlock Text="{x:Bind Item.Maker}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
         <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" >
-          <Run Text="{Binding Price, Converter={StaticResource ToUserFriendlyNumber}}" />
+          <Run Text="{x:Bind Item.Price, Converter={StaticResource ToUserFriendlyNumber}}" />
         </TextBlock>
       </StackPanel>
 
