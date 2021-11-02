@@ -26,7 +26,7 @@
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout">
           <Grid>
-            <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+            <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
               <CommandBar.Content>
                 <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
               </CommandBar.Content>
@@ -69,7 +69,7 @@
                 ThumbnailUrl="{x:Bind ThumbnailUrl}"
                 Length="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"  
                 IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
-                IsWatched="{x:Bind IsWatched, Mode=OneWay}"
+                IsWatched="False"
                 IsDeleted="{x:Bind IsDeleted}"
                 IsHidden="{x:Bind VideoHiddenInfo, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}"
                 CacheStatus="{x:Bind CacheStatus, Mode=OneWay}"

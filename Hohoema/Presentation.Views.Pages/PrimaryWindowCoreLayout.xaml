@@ -27,7 +27,8 @@
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:liteInAppNotification="using:Hohoema.Presentation.Views.Controls.LiteInAppNotification" 
   xmlns:service1="using:Hohoema.Models.Domain.Notification" 
-  xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
+  xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations" 
+  xmlns:uwpBehaviour="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
   x:Name="UserControlRoot"
   mc:Ignorable="d"
   d:DesignHeight="300"
@@ -402,22 +403,23 @@
 
     <Thickness x:Key="NavigationViewHeaderMargin">0</Thickness>
 
-    <AcrylicBrush x:Key="NavigationViewExpandedPaneBackground"
-                  BackgroundSource="HostBackdrop"
-                  TintColor="{ThemeResource SystemAltMediumHighColor}"
-                  FallbackColor="{ThemeResource SystemAltMediumHighColor}"
-                  Opacity="0.3"
-                  TintOpacity="0.8"
-                  TintLuminosityOpacity="0.8"
-                  >
-      
-    </AcrylicBrush>
+    <Thickness x:Key="NavigationViewBorderThickness">0</Thickness>
 
+    
+    <StaticResource x:Key="NavigationViewExpandedPaneBackground" ResourceKey="ApplicationHeaderBackgroundBrush" />
+
+    <StaticResource x:Key="NavigationViewDefaultPaneBackground" ResourceKey="ApplicationHeaderBackgroundBrush" />
+    <StaticResource x:Key="NavigationViewTopPaneBackground" ResourceKey="ApplicationHeaderBackgroundBrush" />
+
+    <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
   </UserControl.Resources>
   <Grid x:Name="RootLayout" 
+        Background="{ThemeResource ApplicationContentBackgroundBrush}"    
         >
-    
-    <!-- Player -->
+
+    <Grid x:Name="PaneBackgroundForTVLayout" HorizontalAlignment="Left" Background="{ThemeResource ApplicationHeaderBackgroundBrush}" Width="27" Opacity="0">
+      
+    </Grid>
     <uwpToolkitControls:DockPanel>
       <Border uwpToolkitControls:DockPanel.Dock="Top"
               x:Name="MobilePlayerTopMargin"
@@ -521,6 +523,9 @@
                         HorizontalContentAlignment="Left"
                         VerticalContentAlignment="Center"
                         TabIndex="100"
+                  CornerRadius="4"
+                  Margin="4 0"
+                  BorderThickness="0"
                       >
             <Button.Flyout>
               <MenuFlyout x:Name="AccountMenuFlyout" Placement="RightEdgeAlignedTop">
@@ -554,7 +559,7 @@
 
               </MenuFlyout>
             </Button.Flyout>
-            <uwpToolkitControls:SwitchPresenter Value="{x:Bind _viewModel.NiconicoSession.IsLoggedIn, Mode=OneWay}">
+            <uwpToolkitControls:SwitchPresenter x:Name="AccountButtonSwitchPresenter" Value="{x:Bind _viewModel.NiconicoSession.IsLoggedIn, Mode=OneWay}" >
               <uwpToolkitControls:Case IsDefault="True">
                 <uwpToolkitControls:Case.Value>
                   <x:Boolean>False</x:Boolean>
@@ -571,13 +576,13 @@
                 <uwpToolkitControls:Case.Value>
                   <x:Boolean>True</x:Boolean>
                 </uwpToolkitControls:Case.Value>
-                <uwpToolkitControls:DockPanel Margin="0 0"
+                <uwpToolkitControls:DockPanel Margin="2 0 0 0"
                                                   x:Name="AccountInfoLayout"
                                                       >
                   <uwpToolkitControls:ImageEx Source="{x:Bind _viewModel.NiconicoSession.UserIconUrl,Mode=OneWay}"
                              uwpToolkitControls:DockPanel.Dock="Left"
-                             Height="24"
-                             Width="24"
+                             Height="22"
+                             Width="22"
                              Margin="0 0 0 0"
                                  CornerRadius="60"
                                  />
@@ -602,7 +607,7 @@
                               UpdateTextOnSelect="False"
                               GotFocus="SearchTextBox_GotFocus"
                           AutoMaximizeSuggestionArea="True"
-                          MinWidth="120"
+                          
                               >
             <AutoSuggestBox.TextBoxStyle>
               <Style TargetType="TextBox">
@@ -632,6 +637,7 @@
           -->
           <Frame x:Name="ContentFrame" VerticalContentAlignment="Stretch" DataContext="{x:Null}" Margin="0 0 0 0"
                  CacheSize="0"
+                 
                        >
             <Frame.ContentTransitions>
               <TransitionCollection>
@@ -684,13 +690,18 @@
              XYFocusKeyboardNavigation="Disabled"
              Transitions="{StaticResource SuppressNavigationTransitionCollection}"
              ContentTransitions="{StaticResource SuppressNavigationTransitionCollection}"
+             Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
              >
       </Frame>
      
     </Grid>
-    <Grid Height="32" VerticalAlignment="Top" >
+    <Grid Height="32" VerticalAlignment="Top">
       <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent">
-        <TextBlock x:Name="TitleBarTextBlock" Text="Hohoema" Margin="12 0 0 0" VerticalAlignment="Center" Opacity="0.9" FontSize="13" HorizontalAlignment="Left" ></TextBlock>
+        <TextBlock x:Name="TitleBarTextBlock" Text="Hohoema" Margin="12 0 0 0" VerticalAlignment="Center" Opacity="0.9" FontSize="13" HorizontalAlignment="Left" >
+          <TextBlock.RenderTransform>
+            <TranslateTransform x:Name="TitleBarTextBlockTransform"></TranslateTransform>
+          </TextBlock.RenderTransform>
+        </TextBlock>
       </Border>
 
       <StackPanel x:Name="ErrorTrackingUI" Orientation="Horizontal" Visibility="Collapsed" HorizontalAlignment="Right" Margin="0 0 200 0" Spacing="8">
@@ -799,9 +810,10 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Top}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="OpenAccountButton.Width" Value="32" />
-            <Setter Target="OpenAccountButton.Padding" Value="12 0 0 0" />
+            <Setter Target="OpenAccountButton.Width" Value="40" />
+            <Setter Target="OpenAccountButton.Padding" Value="7 0 0 0" />
             <Setter Target="AccountMenuFlyout.Placement" Value="BottomEdgeAlignedRight" />
+            <Setter Target="OpenAccountButton.Margin" Value="8 0" />
           </VisualState.Setters>
         </VisualState>
 
@@ -816,8 +828,41 @@
         </VisualState>
         -->
       </VisualStateGroup>
-        
-      
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Top}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.LeftMinimal}" />
+          </VisualState.StateTriggers>
+          <VisualState.Storyboard>
+            <Storyboard>
+              <DoubleAnimation Storyboard.TargetName="TitleBarTextBlockTransform" Storyboard.TargetProperty="X" From="0" To="0" Duration="0:0:0.125" />
+            </Storyboard>
+          </VisualState.Storyboard>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.IsPaneOpen, Mode=OneWay}" EqualTo="False" />
+          </VisualState.StateTriggers>
+          <VisualState.Storyboard>
+            <Storyboard>
+              <DoubleAnimation Storyboard.TargetName="TitleBarTextBlockTransform" Storyboard.TargetProperty="X" From="0" To="44" Duration="0:0:0.125" />
+            </Storyboard>
+          </VisualState.Storyboard>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="True" />
+          </VisualState.StateTriggers>
+          <VisualState.Storyboard>
+            <Storyboard>
+              <DoubleAnimation Storyboard.TargetName="TitleBarTextBlockTransform" Storyboard.TargetProperty="X" From="0" To="0" Duration="0:0:0.125" />
+            </Storyboard>
+          </VisualState.Storyboard>
+        </VisualState>
+      </VisualStateGroup>
+
       <!-- Win10タブレットの場合 -->
       <VisualStateGroup>
         <VisualState>
@@ -836,8 +881,9 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CoreNavigationView.IsBackButtonVisible" Value="Collapsed" />
-            <Setter Target="CoreNavigationView.Margin" Value="27 48 0 48" />
-            <Setter Target="DraggableContent.Height" Value="0" />
+            <Setter Target="CoreNavigationView.Margin" Value="27 0 0 0" />
+            <Setter Target="TitleBarTextBlock.Opacity" Value="0" />
+            <Setter Target="PaneBackgroundForTVLayout.Opacity" Value="1" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -855,6 +901,7 @@
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
             <Setter Target="CoreNavigationView.Visibility" Value="Collapsed" />
             <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
+            <Setter Target="DraggableContent.Background" Value="Transparent" />
 
             <Setter Target="LiteInAppNotification.HorizontalAlignment" Value="Right" />
             <Setter Target="LiteInAppNotification.VerticalAlignment" Value="Top" />
@@ -906,11 +953,13 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
+            <Setter Target="DraggableContent.Background" Value="Transparent" />
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="PlayerLayout.Height" Value="280" />
+            <Setter Target="PlayerLayout.Height" Value="282" />
             <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
-            <Setter Target="MobilePlayerTopMargin.Height" Value="280" />
+            <Setter Target="MobilePlayerTopMargin.Height" Value="268" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
+
           </VisualState.Setters>
         </VisualState>
         <!-- プレイヤーを小窓表示（Mobile） -->
@@ -923,10 +972,11 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
+            <Setter Target="DraggableContent.Background" Value="Transparent" />
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="PlayerLayout.Height" Value="180" />
+            <Setter Target="PlayerLayout.Height" Value="282" />
             <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
-            <Setter Target="MobilePlayerTopMargin.Height" Value="180" />
+            <Setter Target="MobilePlayerTopMargin.Height" Value="268" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
           </VisualState.Setters>
         </VisualState>

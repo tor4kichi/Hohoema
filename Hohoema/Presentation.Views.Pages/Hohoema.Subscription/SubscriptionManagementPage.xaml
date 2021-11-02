@@ -62,8 +62,8 @@
       
       <ListView.Header>
 
-        <Grid Margin="0 0 0 0" >
-          <CommandBar DefaultLabelPosition="Right" Margin="0 0 16 0" 
+        <Grid Padding="8 0">
+          <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center"
                       XYFocusDownNavigationStrategy="NavigationDirectionDistance"
                       XYFocusLeftNavigationStrategy="RectilinearDistance"
                       >

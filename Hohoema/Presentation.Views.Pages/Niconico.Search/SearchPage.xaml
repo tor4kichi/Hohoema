@@ -35,13 +35,13 @@
 
     <uwpControls:DockPanel Margin="0 0 0 0" x:Name="ContentLayout">
 
-      <CommandBar uwpControls:DockPanel.Dock="Top">
+      <CommandBar uwpControls:DockPanel.Dock="Top" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
         <CommandBar.Content>
           <controls:AppTitleBar Title="{Binding Title}" />
         </CommandBar.Content>
       </CommandBar>      
       
-      <uwpControls:DockPanel Margin="0" uwpControls:DockPanel.Dock="Top">
+      <uwpControls:DockPanel Margin="0" uwpControls:DockPanel.Dock="Top" >
 
         <ComboBox x:Name="SearchTargetListView" ItemsSource="{Binding TargetListItems}" SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}" 
                         HorizontalAlignment="Stretch" TabIndex="1" IsTabStop="True" UseSystemFocusVisuals="True" 
@@ -66,7 +66,7 @@
           <DropDownButton uwpControls:DockPanel.Dock="Right"
                               Margin="0 0 8 0"
                               Height="40"
-                              Width="64"
+                              Width="64"                          
                               >
             <DropDownButton.Content>
               <SymbolIcon Symbol="Clock" />
@@ -110,6 +110,7 @@
       <Frame x:Name="SearchResultFrame" CacheSize="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" DataContext="{x:Null}"
              Transitions="{StaticResource SuppressNavigationTransitionCollection}"
              ContentTransitions="{StaticResource SuppressNavigationTransitionCollection}"
+             Background="{ThemeResource ApplicationContentBackgroundBrush}"
              >
       </Frame>
 

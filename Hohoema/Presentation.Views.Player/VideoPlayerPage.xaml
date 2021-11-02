@@ -32,25 +32,12 @@
       xmlns:players="using:Hohoema.Presentation.Views.Player"
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       xmlns:myExt="using:Hohoema.Presentation.Views.Extensions"
+      xmlns:muxc="using:Microsoft.UI.Xaml"
       x:Name="RootLayout"
       NavigationCacheMode="Required"
       d:DesignHeight="300"
       d:DesignWidth="400">
   <UserControl.Resources>
-
-    <Style TargetType="Button">
-      <Setter Property="MinWidth" Value="48" />
-      <Setter Property="MinHeight" Value="48" />
-    </Style>
-    <Style TargetType="ToggleButton">
-      <Setter Property="MinWidth" Value="48" />
-      <Setter Property="MinHeight" Value="48" />
-    </Style>
-
-    <Style TargetType="CommandBar">
-      <Setter Property="Background" Value="Transparent" />
-      <Setter Property="DefaultLabelPosition" Value="Right" />
-    </Style>
 
     <MenuFlyout x:Key="VideoOptionsFlyout">
       <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayPauseToggleButtonTitle}" Command="{Binding VideoTogglePlayPauseCommand}" />
@@ -141,7 +128,7 @@
       </local:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
     </local:PlayerSidePaneContentTemplateSelecter>
   </UserControl.Resources>
-  <Grid x:Name="LayoutRoot" Background="{ThemeResource AppBarBorderThemeBrush}">
+  <Grid x:Name="LayoutRoot">
     <toolkit:LayoutTransformControl x:Name="LayoutTransform">
       <toolkit:LayoutTransformControl.Transform>
         <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
@@ -328,14 +315,14 @@
                   <!-- 左上 -->
                   <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
                     <!-- 閉じる -->
-                    <Button x:Name="CloseButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" Background="Transparent" UseSystemFocusVisuals="True" Width="48" Height="48"
+                    <Button x:Name="CloseButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" UseSystemFocusVisuals="True" MinWidth="48" MinHeight="48"
                             XYFocusRight="{x:Bind ActionsCommandBar}"
                             >
                       <iconPack:PackIconMaterial Kind="Close" />
                     </Button>
 
                     <!-- メインウィンドウ表示 -->
-                    <Button x:Name="ShowPrimaryViewButton" Command="{x:Bind _vm.ShowPrimaryViewCommand}" Background="Transparent" Visibility="Collapsed">
+                    <Button x:Name="ShowPrimaryViewButton" Command="{x:Bind _vm.ShowPrimaryViewCommand}" Visibility="Collapsed" MinWidth="48" MinHeight="48">
                       <StackPanel Orientation="Vertical">
                         <TextBlock Text="{i18nExt:Localize Key=SwitchToMainWindow}" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
                       </StackPanel>
@@ -344,6 +331,7 @@
                   <!-- 右上 -->
                   <CommandBar x:Name="ActionsCommandBar" toolkit:DockPanel.Dock="Right" 
                               XYFocusLeft="{x:Bind CloseButton}"
+                              DefaultLabelPosition="Right"
                               >
 
                     <CommandBar.PrimaryCommands>
@@ -398,10 +386,10 @@
                     </CommandBar.SecondaryCommands>
                   </CommandBar>
 
-                  <Button x:Name="ExitWindonwInWindowViewButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0">
+                  <Button x:Name="ExitWindonwInWindowViewButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
                     <SymbolIcon Symbol="FullScreen" />
                   </Button>
-                  <Button x:Name="ExitCompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0">
+                  <Button x:Name="ExitCompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
                     <SymbolIcon Symbol="FullScreen" />
                   </Button>
 
@@ -514,9 +502,9 @@
                       <ColumnDefinition Width="Auto" />
                       <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
                       <!-- 音量 -->
-                      <Button x:Name="VolumeControlLayout" Background="Transparent">
+                      <Button x:Name="VolumeControlLayout" MinWidth="48" MinHeight="48">
                         <SymbolIcon x:Name="VolumeButton" Symbol="Mute" />
                         <Button.Flyout>
                           <Flyout>
@@ -544,7 +532,7 @@
                         </Button.Flyout>
                       </Button>
                       <!-- コメント表示切替 -->
-                      <Button x:Name="CommentDisplayControlLayout" Background="Transparent">
+                      <Button x:Name="CommentDisplayControlLayout" MinWidth="48" MinHeight="48">
                         <Grid>
                           <iconPack:PackIconMaterial Kind="Comment" x:Name="CommentIcon" Width="20" Height="20" />
                           <Canvas>
@@ -559,7 +547,7 @@
                       </Button>
 
                       <!-- 単品リピート -->
-                      <ToggleButton IsChecked="{x:Bind _vm.IsLoopingEnabled.Value, Mode=TwoWay}" Background="Transparent" UseSystemFocusVisuals="True"
+                      <ToggleButton IsChecked="{x:Bind _vm.IsLoopingEnabled.Value, Mode=TwoWay}" UseSystemFocusVisuals="True" MinWidth="48" MinHeight="48"
                                     >
                         <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon" Kind="Repeat" RenderTransformOrigin="0.5, 0.5">
                           <iconPack:PackIconMaterial.RenderTransform>
@@ -570,33 +558,33 @@
                       </ToggleButton>
                     </StackPanel>
                     <!-- 再生切り替え・シーク -->
-                    <StackPanel Orientation="Horizontal" Grid.Column="1">
-                      <Button x:Name="PreviewVideoPositionButon" Background="Transparent" Command="{x:Bind _vm.SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}"  Margin="0 0 24 0">
+                    <StackPanel Orientation="Horizontal" Grid.Column="1" Spacing="16">
+                      <Button x:Name="PreviewVideoPositionButon" Command="{x:Bind _vm.SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" MinWidth="48" MinHeight="48">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" FontSize="24" />
                       </Button>
-                      <Button x:Name="PlayPauseButton" Command="{x:Bind _vm.VideoTogglePlayPauseCommand}" Background="Transparent" Margin="0 0 0 0">
+                      <Button x:Name="PlayPauseButton" Command="{x:Bind _vm.VideoTogglePlayPauseCommand}" Margin="0 0 0 0" MinWidth="48" MinHeight="48">
                         <iconPack:PackIconMaterial Kind="Play" x:Name="PlayPauseButtonIcon" RenderTransformOrigin="0.5, 0.5">
                           <iconPack:PackIconMaterial.RenderTransform>
                             <CompositeTransform ScaleX="1.35" ScaleY="1.35" />
                           </iconPack:PackIconMaterial.RenderTransform>
                         </iconPack:PackIconMaterial>
                       </Button>
-                      <Button x:Name="ForwardVideoPositionButon" Background="Transparent" Command="{x:Bind _vm.SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" Margin="24 0 0 0">
+                      <Button x:Name="ForwardVideoPositionButon" Command="{x:Bind _vm.SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" MinWidth="48" MinHeight="48">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;" FontSize="24" />
                       </Button>
                     </StackPanel>
                     <!-- Settings etc -->
-                    <toolkit:WrapPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
-                      <Button x:Name="OpenCommentListButton" Background="Transparent" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Comment">
+                    <StackPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                      <Button x:Name="OpenCommentListButton" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Comment" MinWidth="48" MinHeight="48">
                         <iconPack:PackIconMaterial Kind="Comment" Width="24" Height="24"></iconPack:PackIconMaterial>
                       </Button>
-                      <Button x:Name="OpenPlaylistButton" Background="Transparent" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Playlist">
+                      <Button x:Name="OpenPlaylistButton" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Playlist" MinWidth="48" MinHeight="48">
                         <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="24" Height="24"></iconPack:PackIconMaterial>
                       </Button>
-                      <Button x:Name="OpenSettingsPaneButton" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Setting" Background="Transparent">
+                      <Button x:Name="OpenSettingsPaneButton" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Setting" MinWidth="48" MinHeight="48">
                         <SymbolIcon Symbol="Setting" />
                       </Button>
-                    </toolkit:WrapPanel>
+                    </StackPanel>
                   </Grid>
                   <!-- コメントを書く -->
                   <Grid x:Name="CommentLayout" Padding="0 8 0 0" Visibility="Collapsed">

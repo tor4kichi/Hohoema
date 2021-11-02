@@ -308,6 +308,7 @@
         <!-- 右上 -->
         <CommandBar x:Name="ActionsCommandBar" toolkit:DockPanel.Dock="Right" 
                               XYFocusLeft="{x:Bind CloseButton}"
+                    DefaultLabelPosition="Right"
                               >
 
           <CommandBar.PrimaryCommands>

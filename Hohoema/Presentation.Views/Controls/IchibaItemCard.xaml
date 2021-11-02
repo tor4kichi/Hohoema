@@ -11,8 +11,10 @@
     d:DesignWidth="400"
     >
 
-  <Grid BorderBrush="{ThemeResource SystemAccentColorDark2}" BorderThickness="1" Padding="8" MaxWidth="320"
-        Background="{ThemeResource SystemAltLowColor}"
+  <Grid BorderBrush="{ThemeResource ApplicationContentBorderBrush}" 
+        BorderThickness="0.5" Padding="8" MaxWidth="320"
+        CornerRadius="4"
+        Background="{ThemeResource ApplicationContentBackgroundBrush}"
         >
     <toolkit:DockPanel>
       <HyperlinkButton NavigateUri="{x:Bind Item.AmazonItemLink}" toolkit:DockPanel.Dock="Left"  >

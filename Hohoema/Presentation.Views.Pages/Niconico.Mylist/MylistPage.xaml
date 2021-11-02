@@ -34,7 +34,7 @@
       </videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout">
-          <CommandBar x:Name="VideoListCommandBar" Background="Transparent" toolkit:DockPanel.Dock="Right">
+          <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
 
             <CommandBar.Content>
               <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
@@ -60,9 +60,11 @@
                   </StackPanel>
                 </StackPanel>
               </AppBarElementContainer>
-              <AppBarElementContainer>
+              <AppBarElementContainer  VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
                 <ComboBox ItemsSource="{x:Bind _vm.SortItems}"
-                                SelectedItem="{x:Bind _vm.SelectedSortOptionItem.Value, Mode=TwoWay}"
+                          SelectedItem="{x:Bind _vm.SelectedSortOptionItem.Value, Mode=TwoWay}"
+                          VerticalAlignment="Stretch"
+                          Margin="0 6"
                                 >
                   <ComboBox.ItemTemplate>
                     <DataTemplate>

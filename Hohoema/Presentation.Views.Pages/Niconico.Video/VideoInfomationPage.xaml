@@ -108,9 +108,10 @@
           </Grid>
           
           <!-- キャッシュ取得、いいね、共有、他 -->
-          <CommandBar x:Name="HeaderCommandBar" Background="{ThemeResource SystemBaseLowColor}" 
+          <CommandBar x:Name="HeaderCommandBar" 
                       uwpControls:DockPanel.Dock="Bottom"
                       HorizontalAlignment="Left"
+                      DefaultLabelPosition="Right" VerticalContentAlignment="Center"
                       >
             <CommandBar.PrimaryCommands>
               <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{x:Bind _vm.LikesContext.IsLikes, Mode=TwoWay}" IsEnabled="{x:Bind _vm.LikesContext.NowLikeProcessing, Mode=OneWay, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />

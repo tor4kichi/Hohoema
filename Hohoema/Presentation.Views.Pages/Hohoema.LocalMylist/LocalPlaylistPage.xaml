@@ -38,7 +38,7 @@
         <Grid x:Name="HeaderLayout">
           <StackPanel>
             <CommandBar x:Name="VideoListCommandBar"
-                          Background="Transparent"
+                          DefaultLabelPosition="Right" VerticalContentAlignment="Center"
                           OverflowButtonVisibility="Auto">
               <CommandBar.Content>
                 <controls:AppTitleBar Title="{Binding Title}" />

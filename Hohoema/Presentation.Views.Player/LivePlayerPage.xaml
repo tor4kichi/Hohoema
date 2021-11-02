@@ -298,12 +298,13 @@
                       <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
                     </Grid.Background>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                      <Button x:Name="CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" Background="Transparent" toolkit:DockPanel.Dock="Left" UseSystemFocusVisuals="True"
+                      <Button x:Name="CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" toolkit:DockPanel.Dock="Left" UseSystemFocusVisuals="True"
+                              MinWidth="48" MinHeight="48"
                               XYFocusRight="{x:Bind ActionsCommandBar}"
                               >
                         <iconPack:PackIconMaterial Kind="Close" />
                       </Button>
-                      <Button x:Name="ShowPrimaryViewButton" Command="{Binding ShowPrimaryViewCommand}" Background="Transparent" Visibility="Collapsed">
+                      <Button x:Name="ShowPrimaryViewButton" Command="{Binding ShowPrimaryViewCommand}" Visibility="Collapsed" MinWidth="48" MinHeight="48">
                         <StackPanel Orientation="Vertical">
                           <TextBlock Text="{i18nExt:Localize Key=SwitchToMainWindow}" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
                         </StackPanel>
@@ -313,6 +314,7 @@
                     
                     <CommandBar x:Name="ActionsCommandBar" HorizontalAlignment="Right"
                                 XYFocusLeft="{x:Bind CloseButton}"
+                                DefaultLabelPosition="Right" 
                                 >
 
                       <AppBarButton Label="{i18nExt:Localize Key=LiveInfomation}" Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding LiveInfo}" />
@@ -337,13 +339,13 @@
                       </CommandBar.SecondaryCommands>
                       
                     </CommandBar>
-                    
-                    
-                    <Button x:Name="ExitWindowInWindowButton" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" HorizontalAlignment="Right" Visibility="Collapsed" Margin="0 8 0 0">
+
+
+                    <Button x:Name="ExitWindowInWindowButton" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" HorizontalAlignment="Right" Visibility="Collapsed" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
                       <SymbolIcon Symbol="FullScreen" />
                     </Button>
 
-                    <Button x:Name="ExitCompactOverlayButton" Command="{Binding PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" HorizontalAlignment="Right"  Visibility="Collapsed" Margin="0 8 0 0">
+                    <Button x:Name="ExitCompactOverlayButton" Command="{Binding PlayerView.ToggleCompactOverlayCommand}" HorizontalAlignment="Right"  Visibility="Collapsed" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
                       <SymbolIcon Symbol="FullScreen" />
                     </Button>
                     
@@ -456,9 +458,9 @@
                       <ColumnDefinition Width="Auto" />
                       <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
                       <!-- 音量 -->
-                      <Button Background="Transparent" UseSystemFocusVisuals="True">
+                      <Button UseSystemFocusVisuals="True" MinWidth="48" MinHeight="48">
                         <SymbolIcon Symbol="Mute" x:Name="VolumeButtonIcon" />
                         <Button.Flyout>
                           <Flyout>
@@ -474,7 +476,7 @@
                           </Flyout>
                         </Button.Flyout>
                       </Button>
-                      <Button Background="Transparent">
+                      <Button MinWidth="48" MinHeight="48">
                         <Grid>
                           <iconPack:PackIconMaterial Kind="Comment" x:Name="CommentIcon" Width="18" Height="18" />
                           <Canvas>
@@ -488,28 +490,28 @@
                         </i:Interaction.Behaviors>
                       </Button>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" x:Name="MiddleUIControlLayout" Grid.Column="1">
-                      <Button x:Name="PreviewVideoPositionButon" Background="Transparent" Command="{Binding SeekVideoCommand}" CommandParameter="{x:Bind PreviewSeekTime}" Margin="0 0 24 0" Visibility="Collapsed">
+                    <StackPanel Orientation="Horizontal" x:Name="MiddleUIControlLayout" Grid.Column="1" Spacing="16">
+                      <Button x:Name="PreviewVideoPositionButon" Command="{Binding SeekVideoCommand}" CommandParameter="{x:Bind PreviewSeekTime}" Visibility="Collapsed" MinWidth="48" MinHeight="48">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" FontSize="24" />
                       </Button>
-                      <Button x:Name="PlayPauseToggleButton" Command="{Binding TogglePlayPauseCommand}" VerticalAlignment="Stretch" Background="Transparent" Visibility="Collapsed" Opacity="1.0">
+                      <Button x:Name="PlayPauseToggleButton" Command="{Binding TogglePlayPauseCommand}" VerticalAlignment="Stretch" Visibility="Collapsed" Opacity="1.0" MinWidth="48" MinHeight="48">
                         <iconPack:PackIconMaterial x:Name="PlayPauseButtonIcon" Kind="Play" Width="24" Height="24" Opacity="1.0" />
                       </Button>
                       <!-- 更新 -->
-                      <Button x:Name="RefreshButton" Command="{Binding RefreshCommand}" VerticalAlignment="Stretch" Background="Transparent" Visibility="Collapsed">
+                      <Button x:Name="RefreshButton" Command="{Binding RefreshCommand}" VerticalAlignment="Stretch" Visibility="Collapsed" MinWidth="48" MinHeight="48">
                         <SymbolIcon Symbol="Refresh" />
                       </Button>
-                      <Button x:Name="ForwardVideoPositionButon" Background="Transparent" Command="{Binding SeekVideoCommand}" CommandParameter="{x:Bind ForwardSeekTime}" Margin="24 0 0 0" Visibility="Collapsed">
+                      <Button x:Name="ForwardVideoPositionButon" Command="{Binding SeekVideoCommand}" CommandParameter="{x:Bind ForwardSeekTime}" Visibility="Collapsed" MinWidth="48" MinHeight="48">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;" FontSize="24" />
                       </Button>
                     </StackPanel>
                     
-                    <StackPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" Spacing="8">
                       <!-- コメントリスト表示切替 -->
-                      <Button x:Name="OpenCommentListButton" Command="{Binding ToggleCommentListSidePaneContentCommand}" Background="Transparent">
+                      <Button x:Name="OpenCommentListButton" Command="{Binding ToggleCommentListSidePaneContentCommand}" MinWidth="48" MinHeight="48">
                         <iconPack:PackIconMaterial Kind="CommentMultipleOutline" Width="24" Height="24" />
                       </Button>
-                      <Button x:Name="OpenSettingsButton" Command="{Binding SelectSidePaneContentCommand}" CommandParameter="Setting" Background="Transparent">
+                      <Button x:Name="OpenSettingsButton" Command="{Binding SelectSidePaneContentCommand}" CommandParameter="Setting" MinWidth="48" MinHeight="48">
                         <SymbolIcon Symbol="Setting" />
                       </Button>
                     </StackPanel>

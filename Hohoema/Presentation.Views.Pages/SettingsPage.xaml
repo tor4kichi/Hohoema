@@ -118,7 +118,7 @@
   <Grid>
     <uwptoolkitControl:DockPanel>
       <StackPanel x:Name="HeaderPanel" uwptoolkitControl:DockPanel.Dock="Top" HorizontalAlignment="Stretch">
-        <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+        <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
           <CommandBar.Content>
             <controls:AppTitleBar Title="{Binding Title}" />
           </CommandBar.Content>

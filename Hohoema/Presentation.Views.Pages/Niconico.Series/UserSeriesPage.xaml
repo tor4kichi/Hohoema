@@ -40,11 +40,14 @@
       </i:Interaction.Behaviors>
 
       <GridView.Header>
-        <CommandBar>
-          <CommandBar.Content>
-            <controls:AppTitleBar Title="{Binding Title}" />
-          </CommandBar.Content>
-        </CommandBar>
+        <Border Padding="16 0 0 0"
+                >
+          <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{Binding Title}" />
+            </CommandBar.Content>
+          </CommandBar>
+        </Border>
       </GridView.Header>
 
       <GridView.ItemTemplate>

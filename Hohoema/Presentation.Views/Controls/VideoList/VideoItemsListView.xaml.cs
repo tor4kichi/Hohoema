@@ -403,11 +403,11 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
             // コントローラ操作時にSelectorItem.DataContext == null になる
             // MenuFlyoutItemのCommand等が解決できるようにDataContextを予め埋める
-            /*if (args.OriginalSource is SelectorItem selectorItem)
+            if (args.OriginalSource is SelectorItem selectorItem)
             {
                 selectorItem.DataContext = selectorItem.Content;
             }
-            */
+            
 
             var fe = args.OriginalSource as FrameworkElement;
             var container = list.ContainerFromItem(fe.DataContext) as ListViewItem;

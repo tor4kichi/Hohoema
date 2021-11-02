@@ -23,32 +23,44 @@
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
-        <Grid >
-          <CommandBar x:Name="VideoListCommandBar" HorizontalAlignment="Stretch" >
+        <Grid>
+          <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center"
+                      XYFocusRightNavigationStrategy="Projection"
+                      XYFocusLeftNavigationStrategy="Projection"
+                      >
             <CommandBar.Content>
               <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
             </CommandBar.Content>
 
             <CommandBar.PrimaryCommands>
 
-              <AppBarElementContainer>
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
                 <ComboBox x:Name="GenreTagSelector"
                             ItemsSource="{x:Bind _vm.PickedTags}"
                             SelectedItem="{x:Bind _vm.SelectedRankingTag.Value, Mode=TwoWay}"
                             DisplayMemberPath="Label"
+                          XYFocusRight="{x:Bind RankingTermSelector}"
+                          VerticalAlignment="Stretch"
+                          Margin="0 6"
                             >
                 </ComboBox>
               </AppBarElementContainer>
 
-              <AppBarElementContainer>
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
                 <ComboBox x:Name="RankingTermSelector"
                             ItemsSource="{x:Bind _vm.CurrentSelectableRankingTerms.Value, Mode=OneWay}"
                             SelectedItem="{Binding SelectedRankingTerm.Value, Mode=TwoWay}"
                           ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                          XYFocusRight="{x:Bind ScrollToTopButton}"
+                          XYFocusLeft="{x:Bind GenreTagSelector}"
+                          VerticalAlignment="Stretch"
+                          Margin="0 6"
                             >
                 </ComboBox>
               </AppBarElementContainer>
-              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}"
+                            XYFocusLeft="{x:Bind RankingTermSelector}"
+                           >
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Click">
                     <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
@@ -127,7 +139,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
-            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -136,7 +148,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
-            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Desktop}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -146,7 +158,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
-            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

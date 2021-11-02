@@ -144,7 +144,7 @@
     </ScrollViewer>
     <Grid x:Name="HeaderLayout" VerticalAlignment="Top" HorizontalAlignment="Stretch">
       <Border Height="48" />
-      <CommandBar HorizontalAlignment="Right">
+      <CommandBar HorizontalAlignment="Right" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
         <CommandBar.Content>
           <controls:AppTitleBar Title="{Binding Title}" />
         </CommandBar.Content>

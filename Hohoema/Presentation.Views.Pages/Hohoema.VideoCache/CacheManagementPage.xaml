@@ -48,7 +48,7 @@
       <videolistPage:VideoItemsListView.Header>
 
         <Grid x:Name="HeaderLayout">
-          <CommandBar >
+          <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
             <CommandBar.Content>
               <StackPanel>
                 <controls:AppTitleBar Title="{Binding Title}" />

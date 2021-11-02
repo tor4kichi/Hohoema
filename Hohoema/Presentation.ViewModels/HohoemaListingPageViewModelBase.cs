@@ -290,7 +290,7 @@ namespace Hohoema.Presentation.ViewModels
 		{
             NowLoading.Value = false;
             LoadedItemsCount.Value = ItemsView?.Count ?? 0;
-            HasItem.Value = LoadedItemsCount.Value > 0 || ItemsView.HasMoreItems;
+            HasItem.Value = LoadedItemsCount.Value > 0 || (ItemsView?.HasMoreItems ?? false);
 
             // ページのキャッシュ非使用かつViewModelをキャッシュしている場合に
             // ２回目の読み込み時だけ LoadedItemsCount.Value == 0 となり読み込みが発生しないため

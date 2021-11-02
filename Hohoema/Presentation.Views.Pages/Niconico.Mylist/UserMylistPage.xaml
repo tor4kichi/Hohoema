@@ -23,8 +23,7 @@
       <GridView x:Name="ContentItemsView"
                 ItemsSource="{Binding ItemsView}"
                 IsItemClickEnabled="True"
-                SelectionMode="None"
-                Padding="8 0 8 24"
+                SelectionMode="None"                
                 IncrementalLoadingTrigger="Edge"
                 IncrementalLoadingThreshold="80"
                 xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions">
@@ -42,8 +41,8 @@
           </DataTemplate>
         </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
         <GridView.Header>
-          <Grid x:Name="HeaderLayout">
-            <CommandBar toolkit:DockPanel.Dock="Right" Background="Transparent">
+          <Grid x:Name="HeaderLayout" Padding="8 0">
+            <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
               <CommandBar.Content>
                 <mycontrols:AppTitleBar Title="{Binding Title}" />
               </CommandBar.Content>
@@ -74,7 +73,7 @@
         </GridView.Header>
         <GridView.ItemsPanel>
           <ItemsPanelTemplate>
-            <ItemsWrapGrid x:Name="ItemsPanel" Orientation="Horizontal" ItemWidth="200" />
+            <ItemsWrapGrid x:Name="ItemsPanel" Orientation="Horizontal" ItemWidth="200" Margin="8 0 8 24" />
           </ItemsPanelTemplate>
         </GridView.ItemsPanel>
         <GridView.ItemTemplate>
