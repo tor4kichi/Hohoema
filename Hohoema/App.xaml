@@ -28,7 +28,7 @@
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="Styles/NiconicoStyles.xaml"/>
-        
+
         <ResourceDictionary Source="Styles/VideoProgressBarStyle.xaml"/>
         <ResourceDictionary Source="Styles/HohoemaListItemStyle.xaml"/>
         <ResourceDictionary Source="Styles/UWPUIControlsDefaultStyles.xaml"/>
@@ -49,6 +49,51 @@
         <styles:VideoListItemControlDefaultTemplate />
       </ResourceDictionary.MergedDictionaries>
 
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <StaticResource x:Key="ApplicationHeaderBackgroundColor" ResourceKey="SystemChromeMediumColor" />
+          <SolidColorBrush x:Key="ApplicationHeaderBackgroundBrush" Color="{ThemeResource ApplicationHeaderBackgroundColor}" />
+          <StaticResource x:Key="ApplicationContentBackgroundColor" ResourceKey="SystemChromeMediumLowColor" />
+          <SolidColorBrush x:Key="ApplicationContentBackgroundBrush" Color="{ThemeResource ApplicationContentBackgroundColor}" />
+          <StaticResource x:Key="ApplicationContentBorderBrush" ResourceKey="SystemControlForegroundBaseMediumLowBrush" />
+
+          <LinearGradientBrush x:Key="TvHeaderBackgroundBrush"
+                                 StartPoint="0, 0"
+                                 EndPoint="0, 1"
+                                 >
+
+            <GradientStop Color="{StaticResource SystemAltMediumHighColor}" Offset="0.0" />
+            <GradientStop Color="#00FFFFFF" Offset="1.0" />
+          </LinearGradientBrush>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+
+          <StaticResource x:Key="ApplicationHeaderBackgroundColor" ResourceKey="SystemChromeMediumColor" />
+          <SolidColorBrush x:Key="ApplicationHeaderBackgroundBrush" Color="{ThemeResource ApplicationHeaderBackgroundColor}" />
+          <StaticResource x:Key="ApplicationContentBackgroundColor" ResourceKey="SystemChromeMediumLowColor" />
+          <SolidColorBrush x:Key="ApplicationContentBackgroundBrush" Color="{ThemeResource ApplicationContentBackgroundColor}" />
+          <StaticResource x:Key="ApplicationContentBorderBrush" ResourceKey="SystemControlForegroundBaseMediumLowBrush" />
+
+
+          <Color x:Key="SystemBaseHighColor">#CEFFFFFF</Color>
+          <Color x:Key="ApplicationPageBackgroundThemeBrush">#FF191919</Color>
+
+          <LinearGradientBrush x:Key="TvHeaderBackgroundBrush"
+                                 StartPoint="0, 0"
+                                 EndPoint="0, 1"
+                                 >
+
+            <GradientStop Color="{StaticResource SystemAltMediumHighColor}" Offset="0.0" />
+            <GradientStop Color="#00000000" Offset="1.0" />
+          </LinearGradientBrush>
+
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+
+    
+
+    <x:Boolean x:Key="IsDebug_XboxLayout">False</x:Boolean>
+      
       <appModels:FeatureFlags x:Key="FeatureFlags" />
       
       <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
@@ -159,9 +204,17 @@
           <Visibility>Collapsed</Visibility>
         </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
       </uwpconv:EmptyCollectionToObjectConverter>
-      <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionToBooleanConverter"
-                                                      
-                                                      >
+
+      <uwpconv:EmptyCollectionToObjectConverter x:Key="NotEmptyCollectionToBooleanConverter">
+        <uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
+          <x:Boolean>False</x:Boolean>
+        </uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
+        <uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
+          <x:Boolean>True</x:Boolean>
+        </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
+      </uwpconv:EmptyCollectionToObjectConverter>
+
+      <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionToBooleanConverter">
         <uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
           <x:Boolean>True</x:Boolean>
         </uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
@@ -169,6 +222,7 @@
           <x:Boolean>False</x:Boolean>
         </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
       </uwpconv:EmptyCollectionToObjectConverter>
+      
       <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
 
       <conv:ColorToBrushConverter x:Key="ColorToBrush" />
@@ -291,33 +345,6 @@
       <DataTemplate x:Key="VideoListItemFlyoutTemplate">
         <flyouts:VideoItemFlyout />
       </DataTemplate>
-
-      <ResourceDictionary.ThemeDictionaries>
-        <ResourceDictionary x:Key="Light">
-          <LinearGradientBrush x:Key="TvHeaderBackgroundBrush"
-                                 StartPoint="0, 0"
-                                 EndPoint="0, 1"
-                                 >
-
-            <GradientStop Color="{StaticResource SystemAltMediumHighColor}" Offset="0.0" />
-            <GradientStop Color="#00FFFFFF" Offset="1.0" />
-          </LinearGradientBrush>
-        </ResourceDictionary>
-        <ResourceDictionary x:Key="Dark">
-          <Color x:Key="SystemBaseHighColor">#CEFFFFFF</Color>
-          <Color x:Key="ApplicationPageBackgroundThemeBrush">#FF191919</Color>
-
-          <LinearGradientBrush x:Key="TvHeaderBackgroundBrush"
-                                 StartPoint="0, 0"
-                                 EndPoint="0, 1"
-                                 >
-
-            <GradientStop Color="{StaticResource SystemAltMediumHighColor}" Offset="0.0" />
-            <GradientStop Color="#00000000" Offset="1.0" />
-          </LinearGradientBrush>
-
-        </ResourceDictionary>
-      </ResourceDictionary.ThemeDictionaries>
 
     </ResourceDictionary>
   </prism:PrismApplication.Resources>

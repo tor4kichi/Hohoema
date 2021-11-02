@@ -44,6 +44,7 @@ namespace Hohoema.Presentation.ViewModels
             {
             }
 
+            public new int ItemsPerPage => base.ItemsPerPage;
             
             int _timing = 0;
             List<ITEM_VM> _dividedPresentItemsSource;
@@ -87,6 +88,7 @@ namespace Hohoema.Presentation.ViewModels
                 {
                     return await base.LoadDataAsync(cancellationToken);
                 }
+
             }
         }
 
@@ -109,9 +111,7 @@ namespace Hohoema.Presentation.ViewModels
         public ReactiveProperty<bool> HasError { get; private set; }
 
         DispatcherQueue _dispatcherQueue;
-
-        private FastAsyncLock _ItemsUpdateLock = new FastAsyncLock();
-
+                
         public DateTime LatestUpdateTime = DateTime.Now;
 
         public HohoemaListingPageViewModelBase()
@@ -166,6 +166,7 @@ namespace Hohoema.Presentation.ViewModels
             {
                 ItemsView = _cachedItemsView;
                 RaisePropertyChanged(nameof(ItemsView));
+                HasItem.Value = true;
             }
             else
             {
@@ -191,16 +192,13 @@ namespace Hohoema.Presentation.ViewModels
             return Task.CompletedTask;
         }
 
-        public override async void OnNavigatedFrom(INavigationParameters parameters)
+        public override void OnNavigatedFrom(INavigationParameters parameters)
         {
-            using (var releaser = await _ItemsUpdateLock.LockAsync(NavigationCancellationToken))
-            {
-                _cachedItemsView = ItemsView;
+            _cachedItemsView = ItemsView;
 
-                // Note: ListViewのItemTemplae内でUserControlを利用した場合のメモリリークバグを回避するListView.ItemsSourceにnullを与える
-                ItemsView = null;
-                RaisePropertyChanged(nameof(ItemsView));
-            }
+            // Note: ListViewのItemTemplae内でUserControlを利用した場合のメモリリークバグを回避するListView.ItemsSourceにnullを与える
+            ItemsView = null;
+            RaisePropertyChanged(nameof(ItemsView));
 
             base.OnNavigatedFrom(parameters);
         }
@@ -218,45 +216,43 @@ namespace Hohoema.Presentation.ViewModels
             acv.TryDispose();
         }
 
-        private async Task ResetList_Internal(CancellationToken ct)
+        private void ResetList_Internal(CancellationToken ct)
         {
-            using (var releaser = await _ItemsUpdateLock.LockAsync(ct))
+            var prevItemsView = ItemsView;
+            ItemsView = null;
+            RaisePropertyChanged(nameof(ItemsView));
+
+            NowLoading.Value = true;
+            HasItem.Value = true;
+            LoadedItemsCount.Value = 0;
+
+            DisposeItemsView(prevItemsView);
+
+            try
             {
-                var prevItemsView = ItemsView;
-                ItemsView = null;
+                var (pageSize, source) = GenerateIncrementalSource();
+
+                if (source == null)
+                {
+                    HasItem.Value = false;
+                    return;
+                }
+
+                var items = new HohoemaIncrementalLoadingCollection(source, pageSize, BeginLoadingItems, onEndLoading: CompleteLoadingItems, OnLodingItemError);
+
+                ItemsView = new AdvancedCollectionView(items);
                 RaisePropertyChanged(nameof(ItemsView));
 
-                NowLoading.Value = true;
-                HasItem.Value = true;
-                LoadedItemsCount.Value = 0;
-
-                DisposeItemsView(prevItemsView);
-
-                try
-                {
-                    var (pageSize, source) = GenerateIncrementalSource();
-
-                    if (source == null)
-                    {
-                        HasItem.Value = false;
-                        return;
-                    }
-
-                    var items = new HohoemaIncrementalLoadingCollection(source, pageSize, BeginLoadingItems, onEndLoading: CompleteLoadingItems, OnLodingItemError);
-
-                    ItemsView = new AdvancedCollectionView(items);
-                    RaisePropertyChanged(nameof(ItemsView));
-
-                    PostResetList();
-                }
-                catch
-                {
-                    NowLoading.Value = false;
-                    HasError.Value = true;
-                    Debug.WriteLine("failed GenerateIncrementalSource.");
-                    throw;
-                }
+                PostResetList();
             }
+            catch
+            {
+                NowLoading.Value = false;
+                HasError.Value = true;
+                Debug.WriteLine("failed GenerateIncrementalSource.");
+                throw;
+            }
+            
         }
 
         private void OnLodingItemError(Exception e)
@@ -266,11 +262,15 @@ namespace Hohoema.Presentation.ViewModels
 
         protected void ResetList()
         {
-            _dispatcherQueue.TryEnqueue(async () => 
+            _dispatcherQueue.TryEnqueue(() => 
             {
                 try
                 {
-                    await ResetList_Internal(NavigationCancellationToken);
+                    ResetList_Internal(NavigationCancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+
                 }
                 catch (Exception e)
                 {
@@ -288,10 +288,16 @@ namespace Hohoema.Presentation.ViewModels
 
 		private void CompleteLoadingItems()
 		{
-			NowLoading.Value = false;
+            NowLoading.Value = false;
+            LoadedItemsCount.Value = ItemsView?.Count ?? 0;
+            HasItem.Value = LoadedItemsCount.Value > 0 || (ItemsView?.HasMoreItems ?? false);
 
-			LoadedItemsCount.Value = ItemsView?.Count ?? 0;
-			HasItem.Value = LoadedItemsCount.Value > 0;
+            // ページのキャッシュ非使用かつViewModelをキャッシュしている場合に
+            // ２回目の読み込み時だけ LoadedItemsCount.Value == 0 となり読み込みが発生しないため
+            if (HasItem.Value is false)
+            {
+                //_ = ItemsView.LoadMoreItemsAsync((uint)(ItemsView.Source as HohoemaIncrementalLoadingCollection).ItemsPerPage);
+            }
         }
 
 		protected virtual void PostResetList()

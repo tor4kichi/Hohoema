@@ -59,16 +59,18 @@
 
           <toolkit:DockPanel>
             <StackPanel>
-              <CommandBar x:Name="TopCommandBar">
+              <CommandBar x:Name="TopCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
                 <CommandBar.Content>
                   <controls:AppTitleBar Title="{Binding Title}" />
                 </CommandBar.Content>
 
                 <CommandBar.PrimaryCommands>
-                  <AppBarElementContainer>
+                  <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
                     <ComboBox ItemsSource="{Binding SortOptions}"
                           SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
                           IsEnabled="{Binding NowLoading.Value, Converter={StaticResource BoolNegation}}"
+                              VerticalAlignment="Stretch"
+                          Margin="0 6"
                           >
                       <ComboBox.ItemTemplate>
                         <DataTemplate>

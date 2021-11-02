@@ -27,7 +27,7 @@
 
       <toolkit:DockPanel x:Name="HeaderLayout" toolkit:DockPanel.Dock="Top">
 
-        <CommandBar>
+        <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
           <CommandBar.Content>
             <StackPanel Margin="8 0">
               <TextBlock toolkit:DockPanel.Dock="Top" Text="{i18nExt:Localize Key=CurrentPlaylist}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0" Opacity="0.7"></TextBlock>

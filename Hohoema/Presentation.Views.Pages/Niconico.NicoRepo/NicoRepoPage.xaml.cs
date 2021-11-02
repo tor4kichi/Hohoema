@@ -46,7 +46,20 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.NicoRepo
         public NicoRepoPage()
         {
             this.InitializeComponent();
+            DataContextChanged += OnDataContextChanged;
         }
+
+        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+        {
+            var oldViewModel = _vm;
+            _vm = args.NewValue as NicoRepoPageViewModel;
+            if (args.NewValue != null && args.NewValue != oldViewModel)
+            {
+                this.Bindings.Update();
+            }
+        }
+
+        private NicoRepoPageViewModel _vm { get; set; }
     }
 
 

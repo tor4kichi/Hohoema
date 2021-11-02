@@ -34,7 +34,7 @@
                                       >
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout">
-          <CommandBar x:Name="VideoListCommandBar">
+          <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
             <CommandBar.Content>
               <controls:AppTitleBar Title="{Binding Title}" />
             </CommandBar.Content>
@@ -50,10 +50,12 @@
                                     Visibility="Collapsed"
                                     />
 
-              <AppBarElementContainer>
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
                 <ComboBox ItemsSource="{Binding SortOptions}"
                           SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
                           IsEnabled="{Binding NowLoading.Value, Converter={StaticResource BoolNegation}}"
+                          VerticalAlignment="Stretch"
+                          Margin="0 6"
                           >
                   <ComboBox.ItemTemplate>
                     <DataTemplate>

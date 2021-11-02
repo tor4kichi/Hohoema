@@ -27,6 +27,7 @@ using System.Diagnostics;
 using Uno.Disposables;
 using Hohoema.Models.Domain.Player;
 using Windows.System;
+using Hohoema.Presentation.ViewModels.Player;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -61,7 +62,21 @@ namespace Hohoema.Presentation.Views.Player
 
             Loaded += VideoPlayerPage_Loaded;
             Unloaded += VideoPlayerPage_Unloaded;
+
+            DataContextChanged += OnDataContextChanged;
         }
+
+        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+        {
+            var oldViewModel = _vm;
+            _vm = args.NewValue as VideoPlayerPageViewModel;
+            if (args.NewValue != null && args.NewValue != oldViewModel)
+            {
+                this.Bindings.Update();
+            }
+        }
+
+        private VideoPlayerPageViewModel _vm { get; set; }
 
         CompositeDisposable _compositeDisposable;
 

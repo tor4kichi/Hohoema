@@ -123,6 +123,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
 
         private static RankingGenre? _previousRankingGenre;
+        private static RankingGenreTag _prevRankingGenreTag;
         bool _IsNavigateCompleted = false;
         bool _isRequireUpdate;
         bool _nowInitializeRankingTerm = false;
@@ -297,6 +298,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                     SelectedRankingTag.Value = PickedTags.FirstOrDefault();
                 }
 
+                if (_isRequireUpdate is false)
+                {
+                    _isRequireUpdate = SelectedRankingTag.Value != _prevRankingGenreTag;
+                }
 
                 _IsNavigateCompleted = true;
 
@@ -365,6 +370,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         {
             _IsNavigateCompleted = false;
             _previousRankingGenre = RankingGenre;
+            _prevRankingGenreTag = SelectedRankingTag.Value;
 
             base.OnNavigatedFrom(parameters);
         }
@@ -456,6 +462,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
             int head = pageIndex * pageSize;
             var targetItems = _rankingRssResponse.Items.Skip(head).Take(pageSize);
+
+            // Note: 1件あたり8ms 100件800ms 程度の時間が掛かる
             var owners = await _nicoVideoProvider.ResolveVideoOwnersAsync(targetItems.Select(x => x.GetVideoId()));
 
             ct.ThrowIfCancellationRequested();

@@ -28,7 +28,20 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Video
             this.InitializeComponent();
 
             Loaded += VideoInfomationPage_Loaded;
+            DataContextChanged += OnDataContextChanged;
         }
+
+        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+        {
+            var oldViewModel = _vm;
+            _vm = args.NewValue as VideoInfomationPageViewModel;
+            if (args.NewValue != null && args.NewValue != oldViewModel)
+            {
+                this.Bindings.Update();
+            }
+        }
+
+        private VideoInfomationPageViewModel _vm { get; set; }
 
         private void VideoInfomationPage_Loaded(object sender, RoutedEventArgs e)
         {

@@ -1,134 +1,22 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     >
 
     <SolidColorBrush x:Key="HohoemaControlAccentBrush"
                      Color="#ffF8B500"
                      />
 
-    <SolidColorBrush x:Key="HohoemaControlBackgroundBrush"
+  <SolidColorBrush x:Key="HohoemaControlBackgroundBrush"
                      Color="#99F8B500"
                      />
-
-
-    <Style TargetType="CommandBar">
-        <Setter Property="DefaultLabelPosition" Value="Right" />
-        <Setter Property="IsSticky" Value="True" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="Background" Value="Transparent" />
-    </Style>
-     
-    <!-- Button
+  
+  <!-- Button
     
     https://msdn.microsoft.com/ja-jp/library/windows/apps/mt299109.aspx
     -->
-  <Style TargetType="Button">
-    <Setter Property="MinHeight" Value="48" />
-    <Setter Property="MinWidth" Value="48" />
-    <Setter Property="Background" Value="{ThemeResource SystemControlBackgroundBaseLowBrush}" />
-    <Setter Property="Foreground" Value="{ThemeResource SystemControlForegroundBaseHighBrush}" />
-    <Setter Property="BorderBrush" Value="Transparent" />
-    <Setter Property="BorderThickness" Value="0" />
-    <Setter Property="Padding" Value="8,4,8,4" />
-    <Setter Property="HorizontalAlignment" Value="Left" />
-    <Setter Property="VerticalAlignment" Value="Center" />
-    <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}" />
-    <Setter Property="FontWeight" Value="Normal" />
-    <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}" />
-    <Setter Property="UseSystemFocusVisuals" Value="True" />
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="Button">
-          <Grid x:Name="RootGrid" Background="{TemplateBinding Background}">
-            <VisualStateManager.VisualStateGroups>
-              <VisualStateGroup x:Name="CommonStates">
-                <VisualState x:Name="Normal">
-                  <Storyboard>
-                    <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
-                  </Storyboard>
-                </VisualState>
-                <VisualState x:Name="PointerOver">
-                  <Storyboard>
-                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter"
-                                                   Storyboard.TargetProperty="BorderBrush">
-                      <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightBaseMediumLowBrush}" />
-                    </ObjectAnimationUsingKeyFrames>
-                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter"
-                                                   Storyboard.TargetProperty="Background">
-                      <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource ButtonPointerOverBackgroundThemeBrush}" />
-                    </ObjectAnimationUsingKeyFrames>
-                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter"
-                                                   Storyboard.TargetProperty="Foreground">
-                      <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightBaseHighBrush}" />
-                    </ObjectAnimationUsingKeyFrames>
-                    <PointerUpThemeAnimation Storyboard.TargetName="RootGrid" />
-                  </Storyboard>
-                </VisualState>
-                <VisualState x:Name="Pressed">
-                  <Storyboard>
-                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid"
-                                                   Storyboard.TargetProperty="Background">
-                      <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlBackgroundBaseMediumLowBrush}" />
-                    </ObjectAnimationUsingKeyFrames>
-                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter"
-                                                   Storyboard.TargetProperty="BorderBrush">
-                      <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightTransparentBrush}" />
-                    </ObjectAnimationUsingKeyFrames>
-                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter"
-                                                   Storyboard.TargetProperty="Foreground">
-                      <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightBaseHighBrush}" />
-                    </ObjectAnimationUsingKeyFrames>
-                    <PointerDownThemeAnimation Storyboard.TargetName="RootGrid" />
-                  </Storyboard>
-                </VisualState>
-                <VisualState x:Name="Disabled">
-                  <Storyboard>
-                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid"
-                                                   Storyboard.TargetProperty="Background">
-                      <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlBackgroundBaseLowBrush}" />
-                    </ObjectAnimationUsingKeyFrames>
-                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter"
-                                                   Storyboard.TargetProperty="Foreground">
-                      <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlDisabledBaseMediumLowBrush}" />
-                    </ObjectAnimationUsingKeyFrames>
-                    <ObjectAnimationUsingKeyFrames Storyboard.TargetName="ContentPresenter"
-                                                   Storyboard.TargetProperty="BorderBrush">
-                      <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlDisabledTransparentBrush}" />
-                    </ObjectAnimationUsingKeyFrames>
-                  </Storyboard>
-                </VisualState>
-              </VisualStateGroup>
 
-            </VisualStateManager.VisualStateGroups>
-            <ContentPresenter x:Name="ContentPresenter"
-                          BorderBrush="{TemplateBinding BorderBrush}"
-                          BorderThickness="{TemplateBinding BorderThickness}"
-                          Content="{TemplateBinding Content}"
-                          ContentTransitions="{TemplateBinding ContentTransitions}"
-                          ContentTemplate="{TemplateBinding ContentTemplate}"
-                          Padding="{TemplateBinding Padding}"
-                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                          AutomationProperties.AccessibilityView="Raw"/>
-
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style TargetType="ToggleButton" >
-    <Setter Property="MinHeight" Value="48" />
-    <Setter Property="MinWidth" Value="48" />
-    <Setter Property="BorderThickness" Value="0" />
-  </Style>
-  <Style TargetType="ComboBox" >
-    <Setter Property="MinHeight" Value="40" />
-    <Setter Property="MinWidth" Value="80" />
-    <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}" />
-  </Style>
   <!--    TextBox
     
     https://msdn.microsoft.com/ja-jp/library/windows/apps/mt299154.aspx
@@ -480,8 +368,10 @@
     </Setter>
   </Style>
 
-  <Style TargetType="AppBarElementContainer">
-    <Setter Property="IsTabStop" Value="False" />
-  </Style>
+ 
 
+  <Style TargetType="uwpControls:Expander">
+    <Setter Property="Background" Value="{ThemeResource SystemChromeMediumColor}" />
+  </Style>
+  
 </ResourceDictionary>

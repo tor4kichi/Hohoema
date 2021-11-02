@@ -107,8 +107,8 @@
       </i:Interaction.Behaviors>
       <ListView.Header>
         <Grid x:Name="HeaderLayout">
-          <Grid>
-            <CommandBar x:Name="TopCommandBar" toolkit:DockPanel.Dock="Right" >
+          <Grid Padding="8 0">
+            <CommandBar x:Name="TopCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
               <CommandBar.Content>
                 <controls1:AppTitleBar Title="{Binding Title}" />
               </CommandBar.Content>

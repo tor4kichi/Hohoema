@@ -165,7 +165,7 @@ namespace Hohoema.Models.Domain.Subscriptions
         }
 
 
-        private static readonly TimeSpan _FeedResultUpdateInterval = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan _FeedResultUpdateInterval = TimeSpan.FromMinutes(60);
 
         static bool IsExpiredFeedResultUpdatedTime(DateTime lastUpdatedAt)
         {

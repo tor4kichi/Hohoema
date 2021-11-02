@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,6 +26,20 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.VideoRanking
         public RankingCategoryPage()
         {
             this.InitializeComponent();
+
+            DataContextChanged += OnDataContextChanged;
         }
+
+        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+        {
+            var oldViewModel = _vm;
+            _vm = args.NewValue as RankingCategoryPageViewModel;
+            if (args.NewValue != null && args.NewValue != oldViewModel)
+            {
+                this.Bindings.Update();
+            }
+        }
+
+        private RankingCategoryPageViewModel _vm { get; set; }
     }
 }

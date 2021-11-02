@@ -97,7 +97,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
-            _appearanceSettings = appearanceSettings;
+            AppearanceSettings = appearanceSettings;
             NgSettings = ngSettings;
             NiconicoSession = niconicoSession;
             UserMylistManager = userMylistManager;
@@ -558,7 +558,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
 
         bool _IsInitializedRelatedVideos = false;
-        private readonly AppearanceSettings _appearanceSettings;
+        public AppearanceSettings AppearanceSettings { get; }
         private readonly RecommendProvider _recommendProvider;
         private readonly UserFollowProvider _userFollowProvider;
         private readonly ChannelFollowProvider _channelFollowProvider;
@@ -724,11 +724,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         private ApplicationTheme GetCurrentApplicationTheme()
         {
             ApplicationTheme appTheme;
-            if (_appearanceSettings.ApplicationTheme == ElementTheme.Dark)
+            if (AppearanceSettings.ApplicationTheme == ElementTheme.Dark)
             {
                 appTheme = ApplicationTheme.Dark;
             }
-            else if (_appearanceSettings.ApplicationTheme == ElementTheme.Light)
+            else if (AppearanceSettings.ApplicationTheme == ElementTheme.Light)
             {
                 appTheme = ApplicationTheme.Light;
             }

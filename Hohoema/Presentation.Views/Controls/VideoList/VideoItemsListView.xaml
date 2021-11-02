@@ -11,11 +11,10 @@
   xmlns:wst="using:WindowsStateTriggers" 
   xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
-  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
+  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors" 
   mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"
-  
   >
 
   <Grid>
@@ -27,6 +26,68 @@
     </i:Interaction.Behaviors>
 
     <uwpcontrol:DockPanel >
+      <Grid uwpcontrol:DockPanel.Dock="Top">
+        <ContentControl Content="{x:Bind Header}" x:Name="HeaderContent" HorizontalContentAlignment="Stretch" IsTabStop="False" />
+
+        <uwpcontrol:DockPanel x:Name="SelectActionsContainer" Visibility="Collapsed"
+                            uwpcontrol:DockPanel.Dock="Top" 
+                            >
+          <CommandBar OverflowButtonVisibility="Collapsed" DefaultLabelPosition="Right" uwpcontrol:DockPanel.Dock="Right"
+                    IsDynamicOverflowEnabled="False"
+                          Margin="0 0 48 0"
+                    >
+            <AppBarButton x:Name="SelectActions_SwitchAll" Label="{i18nExt:Localize Key=SelectAll}"
+                          Icon="List"
+                          >
+              <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="Click">
+                  <core:CallMethodAction TargetObject="{x:Bind _selectionContext}" MethodName="ToggleSelectAll" />
+                </core:EventTriggerBehavior>
+              </i:Interaction.Behaviors>
+            </AppBarButton>
+            <AppBarButton x:Name="SelectActions_Exit" Label="{i18nExt:Localize Key=SelectEnd}"
+                          Icon="Clear"
+                          >
+              <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="Click">
+                  <core:CallMethodAction TargetObject="{x:Bind _selectionContext}" MethodName="EndSelectioin" />
+                </core:EventTriggerBehavior>
+              </i:Interaction.Behaviors>
+            </AppBarButton>
+          </CommandBar>
+
+          <!-- 単品選択時のアクションはコンテキストメニューで実装するため、複数選択時は考慮しない -->
+          <CommandBar x:Name="SelectActions_Default"
+                  DefaultLabelPosition="Right"
+                  UseSystemFocusVisuals="True"        
+                  Margin="0 0 0 0"
+                          IsDynamicOverflowEnabled="True"
+                          OverflowButtonVisibility="Visible"
+                          HorizontalAlignment="Left"
+                          HorizontalContentAlignment="Stretch"
+                  >
+
+
+            <AppBarButton x:Name="SelectActions_CopyMylist" Label="{i18nExt:Localize Key=MylistCopyItem}" Command="{x:Bind _copyMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarButton x:Name="SelectActions_MoveMylist" Label="{i18nExt:Localize Key=MylistMoveItem}" Command="{x:Bind _moveMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+
+            <AppBarSeparator x:Name="SelectActions_EditButtonSeparator" />
+
+            <AppBarButton x:Name="SelectActions_RemoveMylist" Label="{i18nExt:Localize Key=MylistRemoveItem}" Command="{x:Bind _removeMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarButton x:Name="SelectActions_RemoveWatchAfter" Label="{i18nExt:Localize Key=WatchAfterRemoveItem}" Command="{x:Bind _removeQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarButton x:Name="SelectActions_RemoveLocalMylist" Label="{i18nExt:Localize Key=LocalMylistRemoveItem}" Command="{x:Bind _localMylistRemoveCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarButton x:Name="SelectActions_RemoveWatchHistory" Label="{i18nExt:Localize Key=RemoveWatchHisotryItem}" Command="{x:Bind _removeWatchHistoryCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarSeparator x:Name="SelectActions_RemoveButtonSeparator" />
+
+            <AppBarButton x:Name="SelectActions_AddWatchAfter" Label="{i18nExt:Localize Key=QueueAddItem}" Command="{x:Bind _addQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarButton x:Name="SelectActions_AddMylist" Label="{i18nExt:Localize Key=MylistAddItem}" Command="{x:Bind _addMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarButton x:Name="SelectActions_AddLocalMylist" Label="{i18nExt:Localize Key=LocalMylistAddItem}" Command="{x:Bind _localMylistAddCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+          </CommandBar>
+
+        </uwpcontrol:DockPanel>
+
+      </Grid>
+
       <ListView x:Name="ItemsList"
               ItemsSource="{x:Bind ItemsSource, Mode=OneWay}"
               ItemTemplate="{x:Bind ItemTemplate, Mode=OneWay}"
@@ -50,70 +111,6 @@
             </NavigationThemeTransition>
           </TransitionCollection>
         </ListView.Transitions>
-        <ListView.Header>
-          <Grid>
-            <ContentControl Content="{x:Bind Header}" x:Name="HeaderContent" HorizontalContentAlignment="Stretch" IsTabStop="False" />
-
-            <uwpcontrol:DockPanel x:Name="SelectActionsContainer" Visibility="Collapsed"
-                            uwpcontrol:DockPanel.Dock="Top" 
-                            >
-              <CommandBar OverflowButtonVisibility="Collapsed" DefaultLabelPosition="Right" uwpcontrol:DockPanel.Dock="Right"
-                    IsDynamicOverflowEnabled="False"
-                          Margin="0 0 48 0"
-                    >
-                <AppBarButton x:Name="SelectActions_SwitchAll" Label="{i18nExt:Localize Key=SelectAll}"
-                          Icon="List"
-                          >
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <core:CallMethodAction TargetObject="{x:Bind _selectionContext}" MethodName="ToggleSelectAll" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
-                <AppBarButton x:Name="SelectActions_Exit" Label="{i18nExt:Localize Key=SelectEnd}"
-                          Icon="Clear"
-                          >
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <core:CallMethodAction TargetObject="{x:Bind _selectionContext}" MethodName="EndSelectioin" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
-              </CommandBar>
-
-              <!-- 単品選択時のアクションはコンテキストメニューで実装するため、複数選択時は考慮しない -->
-              <CommandBar x:Name="SelectActions_Default"
-                  DefaultLabelPosition="Right"
-                  UseSystemFocusVisuals="True"        
-                  Margin="0 0 0 0"
-                          IsDynamicOverflowEnabled="True"
-                          OverflowButtonVisibility="Visible"
-                          HorizontalAlignment="Left"
-                          HorizontalContentAlignment="Stretch"
-                  >
-
-
-                <AppBarButton x:Name="SelectActions_CopyMylist" Label="{i18nExt:Localize Key=MylistCopyItem}" Command="{x:Bind _copyMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarButton x:Name="SelectActions_MoveMylist" Label="{i18nExt:Localize Key=MylistMoveItem}" Command="{x:Bind _moveMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-
-                <AppBarSeparator x:Name="SelectActions_EditButtonSeparator" />
-
-                <AppBarButton x:Name="SelectActions_RemoveMylist" Label="{i18nExt:Localize Key=MylistRemoveItem}" Command="{x:Bind _removeMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarButton x:Name="SelectActions_RemoveWatchAfter" Label="{i18nExt:Localize Key=WatchAfterRemoveItem}" Command="{x:Bind _removeQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarButton x:Name="SelectActions_RemoveLocalMylist" Label="{i18nExt:Localize Key=LocalMylistRemoveItem}" Command="{x:Bind _localMylistRemoveCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarButton x:Name="SelectActions_RemoveWatchHistory" Label="{i18nExt:Localize Key=RemoveWatchHisotryItem}" Command="{x:Bind _removeWatchHistoryCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarSeparator x:Name="SelectActions_RemoveButtonSeparator" />
-
-                <AppBarButton x:Name="SelectActions_AddWatchAfter" Label="{i18nExt:Localize Key=QueueAddItem}" Command="{x:Bind _addQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarButton x:Name="SelectActions_AddMylist" Label="{i18nExt:Localize Key=MylistAddItem}" Command="{x:Bind _addMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-                <AppBarButton x:Name="SelectActions_AddLocalMylist" Label="{i18nExt:Localize Key=LocalMylistAddItem}" Command="{x:Bind _localMylistAddCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-              </CommandBar>
-
-            </uwpcontrol:DockPanel>
-
-          </Grid>
-        </ListView.Header>
-
         <i:Interaction.Behaviors>
           <!--
           <behaviors:StickyHeaderBehavior />

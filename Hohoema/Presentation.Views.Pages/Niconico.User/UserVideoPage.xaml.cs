@@ -1,4 +1,4 @@
-﻿using Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist;
+﻿using Hohoema.Presentation.ViewModels.Pages.Niconico.User;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,14 +16,14 @@ using Windows.UI.Xaml.Navigation;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
-namespace Hohoema.Presentation.Views.Pages.Niconico.Mylist
+namespace Hohoema.Presentation.Views.Pages.Niconico.User
 {
 	/// <summary>
 	/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
 	/// </summary>
-	public sealed partial class MylistPage : Page
+	public sealed partial class UserVideoPage : Page
 	{
-		public MylistPage()
+		public UserVideoPage()
 		{
 			this.InitializeComponent();
             DataContextChanged += OnDataContextChanged;
@@ -32,13 +32,13 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Mylist
         private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
         {
             var oldViewModel = _vm;
-            _vm = args.NewValue as MylistPageViewModel;
+            _vm = args.NewValue as UserVideoPageViewModel;
             if (args.NewValue != null && args.NewValue != oldViewModel)
             {
                 this.Bindings.Update();
             }
         }
 
-        private MylistPageViewModel _vm { get; set; }
+        private UserVideoPageViewModel _vm { get; set; }
     }
 }

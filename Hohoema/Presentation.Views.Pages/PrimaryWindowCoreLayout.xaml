@@ -27,7 +27,8 @@
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:liteInAppNotification="using:Hohoema.Presentation.Views.Controls.LiteInAppNotification" 
   xmlns:service1="using:Hohoema.Models.Domain.Notification" 
-  xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations"
+  xmlns:animations="using:Microsoft.Toolkit.Uwp.UI.Animations" 
+  xmlns:uwpBehaviour="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
   x:Name="UserControlRoot"
   mc:Ignorable="d"
   d:DesignHeight="300"
@@ -402,31 +403,32 @@
 
     <Thickness x:Key="NavigationViewHeaderMargin">0</Thickness>
 
-    <AcrylicBrush x:Key="NavigationViewExpandedPaneBackground"
-                  BackgroundSource="HostBackdrop"
-                  TintColor="{ThemeResource SystemAltMediumHighColor}"
-                  FallbackColor="{ThemeResource SystemAltMediumHighColor}"
-                  Opacity="0.3"
-                  TintOpacity="0.8"
-                  TintLuminosityOpacity="0.8"
-                  >
-      
-    </AcrylicBrush>
+    <Thickness x:Key="NavigationViewBorderThickness">0</Thickness>
 
+    
+    <StaticResource x:Key="NavigationViewExpandedPaneBackground" ResourceKey="ApplicationHeaderBackgroundBrush" />
+
+    <StaticResource x:Key="NavigationViewDefaultPaneBackground" ResourceKey="ApplicationHeaderBackgroundBrush" />
+    <StaticResource x:Key="NavigationViewTopPaneBackground" ResourceKey="ApplicationHeaderBackgroundBrush" />
+
+    <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
   </UserControl.Resources>
   <Grid x:Name="RootLayout" 
+        Background="{ThemeResource ApplicationContentBackgroundBrush}"    
         >
-    
-    <!-- Player -->
+
+    <Grid x:Name="PaneBackgroundForTVLayout" HorizontalAlignment="Left" Background="{ThemeResource ApplicationHeaderBackgroundBrush}" Width="27" Opacity="0">
+      
+    </Grid>
     <uwpToolkitControls:DockPanel>
       <Border uwpToolkitControls:DockPanel.Dock="Top"
               x:Name="MobilePlayerTopMargin"
               Height="{Binding ElementName=PlayerFrame, Path=ActualHeight, Mode=OneWay}"
               Visibility="Collapsed" />
       <muxc:NavigationView x:Name="CoreNavigationView"
-                      MenuItemsSource="{Binding MenuItems_Offline}"
+                      MenuItemsSource="{x:Bind _viewModel.MenuItems_Offline}"
                       MenuItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
-                          PaneDisplayMode="{Binding AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}"
+                          PaneDisplayMode="{x:Bind _viewModel.AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}"
                            ItemInvoked="CoreNavigationView_ItemInvoked"
                            BackRequested="CoreNavigationView_BackRequested"
                            IsSettingsVisible="True"
@@ -447,7 +449,7 @@
         
         <muxc:NavigationView.PaneHeader>
           <Grid >
-            <TextBlock Text="{Binding NiconicoSession.ServiceStatus}"
+            <TextBlock Text="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}"
                        x:Name="ServiceStateText" 
                        Margin="8 0"
                        Visibility="Collapsed"
@@ -521,40 +523,43 @@
                         HorizontalContentAlignment="Left"
                         VerticalContentAlignment="Center"
                         TabIndex="100"
+                  CornerRadius="4"
+                  Margin="4 0"
+                  BorderThickness="0"
                       >
             <Button.Flyout>
               <MenuFlyout x:Name="AccountMenuFlyout" Placement="RightEdgeAlignedTop">
 
                 <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenSettings"
                                       Text="{i18nExt:Localize Key=HohoemaPageType.Settings}"
-                                      Command="{Binding PageManager.OpenPageCommand}"
+                                      Command="{x:Bind _viewModel.PageManager.OpenPageCommand}"
                                     CommandParameter="{x:Bind pageNavigation:HohoemaPageType.Settings}"
                                 Visibility="Collapsed"
                                     />
 
                 <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
                                       Visibility="Collapsed" Text="Open Debug Page"
-                                      Command="{Binding OpenDebugPageCommand}" />
+                                      Command="{x:Bind _viewModel.OpenDebugPageCommand}" />
 
 
                 <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=LogInUserInfo}"
-                                      Command="{Binding OpenAccountInfoCommand}" />
+                                      Command="{x:Bind _viewModel.OpenAccountInfoCommand}" />
 
                 <MenuFlyoutSeparator />
 
                 <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=LogOut}"
-                                      Command="{Binding LogoutFromNiconicoCommand}" />
+                                      Command="{x:Bind _viewModel.LogoutFromNiconicoCommand}" />
 
                 <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=LogIn}"
-                                      Command="{Binding NiconicoLoginService.LoginCommand}" />
+                                      Command="{x:Bind _viewModel.NiconicoLoginService.LoginCommand}" />
 
 
               </MenuFlyout>
             </Button.Flyout>
-            <uwpToolkitControls:SwitchPresenter Value="{Binding NiconicoSession.IsLoggedIn}">
+            <uwpToolkitControls:SwitchPresenter x:Name="AccountButtonSwitchPresenter" Value="{x:Bind _viewModel.NiconicoSession.IsLoggedIn, Mode=OneWay}" >
               <uwpToolkitControls:Case IsDefault="True">
                 <uwpToolkitControls:Case.Value>
                   <x:Boolean>False</x:Boolean>
@@ -571,18 +576,18 @@
                 <uwpToolkitControls:Case.Value>
                   <x:Boolean>True</x:Boolean>
                 </uwpToolkitControls:Case.Value>
-                <uwpToolkitControls:DockPanel Margin="0 0"
+                <uwpToolkitControls:DockPanel Margin="2 0 0 0"
                                                   x:Name="AccountInfoLayout"
                                                       >
-                  <uwpToolkitControls:ImageEx Source="{Binding NiconicoSession.UserIconUrl,Mode=OneWay}"
+                  <uwpToolkitControls:ImageEx Source="{x:Bind _viewModel.NiconicoSession.UserIconUrl,Mode=OneWay}"
                              uwpToolkitControls:DockPanel.Dock="Left"
-                             Height="24"
-                             Width="24"
+                             Height="22"
+                             Width="22"
                              Margin="0 0 0 0"
                                  CornerRadius="60"
                                  />
                   <StackPanel Margin="11 0 0 0">
-                    <TextBlock Text="{Binding NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" TextLineBounds="TrimToBaseline" />
+                    <TextBlock Text="{x:Bind _viewModel.NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" TextLineBounds="TrimToBaseline" />
                   </StackPanel>
                 </uwpToolkitControls:DockPanel>
               </uwpToolkitControls:Case>
@@ -596,13 +601,13 @@
                           TabIndex="103" Margin="0" 
                           UseSystemFocusVisuals="True"
                           IsFocusEngagementEnabled="True" 
-                              ItemsSource="{Binding SearchAutoSuggestItems}"
+                              ItemsSource="{x:Bind _viewModel.SearchAutoSuggestItems}"
                               QuerySubmitted="SearchTextBox_QuerySubmitted"
                               TextChanged="SearchTextBox_TextChanged"
                               UpdateTextOnSelect="False"
                               GotFocus="SearchTextBox_GotFocus"
                           AutoMaximizeSuggestionArea="True"
-                          MinWidth="120"
+                          
                               >
             <AutoSuggestBox.TextBoxStyle>
               <Style TargetType="TextBox">
@@ -613,7 +618,7 @@
                 <core:CallMethodAction MethodName="SelectAll" />
               </core:EventTriggerBehavior>
               <mybehavior:KeyboardTrigger Key="Enter" x:Name="SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
-                <core:InvokeCommandAction Command="{Binding SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
+                <core:InvokeCommandAction Command="{x:Bind _viewModel.SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
               </mybehavior:KeyboardTrigger>
             </i:Interaction.Behaviors>
 
@@ -626,9 +631,13 @@
         </muxc:NavigationView.AutoSuggestBox>
         
         <muxc:NavigationView.Content>
+          <!-- CacheSize="0" はキャッシュを使用した場合にページコンテンツのメモリ解放が正常に行われないからか
+               使用メモリ量が数MBずつ際限なく増えていく問題があるため。
+               see@ https://github.com/tor4kichi/Hohoema/issues/836
+          -->
           <Frame x:Name="ContentFrame" VerticalContentAlignment="Stretch" DataContext="{x:Null}" Margin="0 0 0 0"
-
-                 CacheSize="5"
+                 CacheSize="0"
+                 
                        >
             <Frame.ContentTransitions>
               <TransitionCollection>
@@ -681,13 +690,18 @@
              XYFocusKeyboardNavigation="Disabled"
              Transitions="{StaticResource SuppressNavigationTransitionCollection}"
              ContentTransitions="{StaticResource SuppressNavigationTransitionCollection}"
+             Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
              >
       </Frame>
      
     </Grid>
-    <Grid Height="32" VerticalAlignment="Top" >
+    <Grid Height="32" VerticalAlignment="Top">
       <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent">
-        <TextBlock x:Name="TitleBarTextBlock" Text="Hohoema" Margin="12 0 0 0" VerticalAlignment="Center" Opacity="0.9" FontSize="13" HorizontalAlignment="Left" ></TextBlock>
+        <TextBlock x:Name="TitleBarTextBlock" Text="Hohoema" Margin="12 0 0 0" VerticalAlignment="Center" Opacity="0.9" FontSize="13" HorizontalAlignment="Left" >
+          <TextBlock.RenderTransform>
+            <TranslateTransform x:Name="TitleBarTextBlockTransform"></TranslateTransform>
+          </TextBlock.RenderTransform>
+        </TextBlock>
       </Border>
 
       <StackPanel x:Name="ErrorTrackingUI" Orientation="Horizontal" Visibility="Collapsed" HorizontalAlignment="Right" Margin="0 0 200 0" Spacing="8">
@@ -699,7 +713,7 @@
 
           <Button.Flyout>
             <MenuFlyout Placement="Bottom">
-              <MenuFlyoutItem Text="アプリを再起動" Command="{Binding RequestApplicationRestartCommand}" />
+              <MenuFlyoutItem Text="アプリを再起動" Command="{x:Bind _viewModel.RequestApplicationRestartCommand}" />
               <MenuFlyoutItem Visibility="Collapsed" Text="軽量通知をテスト（短）" Click="AddShortLiteInAppNotification_Click" />
               <MenuFlyoutItem Visibility="Collapsed" Text="軽量通知をテスト（長）" Click="AddLongLiteInAppNotification_Click" />
             </MenuFlyout>
@@ -796,9 +810,10 @@
             <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Top}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="OpenAccountButton.Width" Value="32" />
-            <Setter Target="OpenAccountButton.Padding" Value="12 0 0 0" />
+            <Setter Target="OpenAccountButton.Width" Value="40" />
+            <Setter Target="OpenAccountButton.Padding" Value="7 0 0 0" />
             <Setter Target="AccountMenuFlyout.Placement" Value="BottomEdgeAlignedRight" />
+            <Setter Target="OpenAccountButton.Margin" Value="8 0" />
           </VisualState.Setters>
         </VisualState>
 
@@ -813,8 +828,41 @@
         </VisualState>
         -->
       </VisualStateGroup>
-        
-      
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Top}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.LeftMinimal}" />
+          </VisualState.StateTriggers>
+          <VisualState.Storyboard>
+            <Storyboard>
+              <DoubleAnimation Storyboard.TargetName="TitleBarTextBlockTransform" Storyboard.TargetProperty="X" From="0" To="0" Duration="0:0:0.125" />
+            </Storyboard>
+          </VisualState.Storyboard>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.IsPaneOpen, Mode=OneWay}" EqualTo="False" />
+          </VisualState.StateTriggers>
+          <VisualState.Storyboard>
+            <Storyboard>
+              <DoubleAnimation Storyboard.TargetName="TitleBarTextBlockTransform" Storyboard.TargetProperty="X" From="0" To="44" Duration="0:0:0.125" />
+            </Storyboard>
+          </VisualState.Storyboard>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="True" />
+          </VisualState.StateTriggers>
+          <VisualState.Storyboard>
+            <Storyboard>
+              <DoubleAnimation Storyboard.TargetName="TitleBarTextBlockTransform" Storyboard.TargetProperty="X" From="0" To="0" Duration="0:0:0.125" />
+            </Storyboard>
+          </VisualState.Storyboard>
+        </VisualState>
+      </VisualStateGroup>
+
       <!-- Win10タブレットの場合 -->
       <VisualStateGroup>
         <VisualState>
@@ -833,8 +881,9 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CoreNavigationView.IsBackButtonVisible" Value="Collapsed" />
-            <Setter Target="CoreNavigationView.Margin" Value="27 48 0 48" />
-            <Setter Target="DraggableContent.Height" Value="0" />
+            <Setter Target="CoreNavigationView.Margin" Value="27 0 0 0" />
+            <Setter Target="TitleBarTextBlock.Opacity" Value="0" />
+            <Setter Target="PaneBackgroundForTVLayout.Opacity" Value="1" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -852,6 +901,7 @@
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
             <Setter Target="CoreNavigationView.Visibility" Value="Collapsed" />
             <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
+            <Setter Target="DraggableContent.Background" Value="Transparent" />
 
             <Setter Target="LiteInAppNotification.HorizontalAlignment" Value="Right" />
             <Setter Target="LiteInAppNotification.VerticalAlignment" Value="Top" />
@@ -903,11 +953,13 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
+            <Setter Target="DraggableContent.Background" Value="Transparent" />
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="PlayerLayout.Height" Value="280" />
+            <Setter Target="PlayerLayout.Height" Value="282" />
             <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
-            <Setter Target="MobilePlayerTopMargin.Height" Value="280" />
+            <Setter Target="MobilePlayerTopMargin.Height" Value="268" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
+
           </VisualState.Setters>
         </VisualState>
         <!-- プレイヤーを小窓表示（Mobile） -->
@@ -920,10 +972,11 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
+            <Setter Target="DraggableContent.Background" Value="Transparent" />
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="PlayerLayout.Height" Value="180" />
+            <Setter Target="PlayerLayout.Height" Value="282" />
             <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
-            <Setter Target="MobilePlayerTopMargin.Height" Value="180" />
+            <Setter Target="MobilePlayerTopMargin.Height" Value="268" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
           </VisualState.Setters>
         </VisualState>
@@ -1084,7 +1137,7 @@
       <VisualStateGroup>
         <VisualState x:Name="OfflineState">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.Offline}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.Offline}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
@@ -1092,7 +1145,7 @@
         </VisualState>
         <VisualState x:Name="ServiceUnavailableState">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.ServiceUnavailable}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.ServiceUnavailable}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
@@ -1100,7 +1153,7 @@
         </VisualState>
         <VisualState x:Name="WithoutLoggedInState">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.WithoutLoggedIn}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.WithoutLoggedIn}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
@@ -1109,13 +1162,13 @@
         </VisualState>
         <VisualState x:Name="LoggedInState">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.LoggedIn}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.LoggedIn}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
             <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
-            <Setter Target="CoreNavigationView.MenuItemsSource" Value="{Binding MenuItems_LoggedIn}" />
+            <Setter Target="CoreNavigationView.MenuItemsSource" Value="{x:Bind _viewModel.MenuItems_LoggedIn}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -1130,7 +1183,6 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
     </VisualStateManager.VisualStateGroups>
   </Grid>
 </UserControl>

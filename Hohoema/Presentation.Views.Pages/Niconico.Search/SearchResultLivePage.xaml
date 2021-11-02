@@ -54,7 +54,7 @@
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
       <ListView.Header>
-        <Grid x:Name="HeaderLayout">
+        <Grid x:Name="HeaderLayout" Background="{ThemeResource ApplicationHeaderBackgroundBrush}">
           <StackPanel Spacing="8">
 
             <uwpcontrols:WrapPanel Orientation="Horizontal">

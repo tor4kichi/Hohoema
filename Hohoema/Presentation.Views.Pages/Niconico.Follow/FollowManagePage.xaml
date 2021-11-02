@@ -149,8 +149,9 @@
 
     <uwpControls:DockPanel>
 
-      <Border x:Name="HeaderLayout" uwpControls:DockPanel.Dock="Top" VerticalAlignment="Top">
-        <CommandBar x:Name="TopCommandBar" Background="Transparent">
+      <Border x:Name="HeaderLayout" uwpControls:DockPanel.Dock="Top" VerticalAlignment="Top"
+              >
+        <CommandBar x:Name="TopCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
           <CommandBar.Content>
             <controls:AppTitleBar Title="{Binding Title}" />
           </CommandBar.Content>
@@ -161,7 +162,10 @@
       </Border>
 
       
-      <uwpControls:ListDetailsView x:Name="ListDetailsView" ItemsSource="{Binding FollowGroups}" Background="Transparent">
+      <uwpControls:ListDetailsView x:Name="ListDetailsView" ItemsSource="{Binding FollowGroups}"
+                                   DetailsPaneBackground="{ThemeResource ApplicationContentBackgroundBrush}"
+                                   ListPaneWidth="200"
+                                   >
         
         <uwpControls:ListDetailsView.ItemTemplate>
           <DataTemplate>

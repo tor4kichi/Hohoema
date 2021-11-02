@@ -21,7 +21,7 @@ namespace Hohoema.Presentation.Views.Extensions
         private static void OnHtmlStringChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var wv = d as Windows.UI.Xaml.Controls.WebView;
-            if (wv != null)
+            if (wv != null && e.NewValue != null)
             {
                 wv.NavigateToString((string)e.NewValue);
             }

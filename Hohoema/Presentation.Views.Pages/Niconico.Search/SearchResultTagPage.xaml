@@ -19,24 +19,26 @@
   >
   <Grid>
     <videolistPage:VideoItemsListView 
-      ItemsSource="{Binding ItemsView}" 
-      ItemCommand="{Binding VideoPlayWithQueueCommand}" 
+      ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}" 
+      ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}" 
       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" 
-      RefreshCommand="{Binding RefreshCommand}" 
+      RefreshCommand="{x:Bind _vm.RefreshCommand}" 
       x:Name="VideoItemsListView">
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout">
           <StackPanel >
-            <CommandBar>
+            <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
               <CommandBar.PrimaryCommands>
 
-                <AppBarToggleButton x:Name="TagFollowButton" Label="{i18nExt:Localize Key=Follow}" Icon="Favorite" IsChecked="{Binding FollowContext.IsFollowing, Mode=TwoWay}" IsEnabled="{Binding FollowContext.NowChanging, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
-                
-                <AppBarElementContainer>
-                  <ComboBox ItemsSource="{Binding SortOptions}"
-                          SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
-                          IsEnabled="{Binding NowLoading.Value, Converter={StaticResource BoolNegation}}"
+                <AppBarToggleButton x:Name="TagFollowButton" Label="{i18nExt:Localize Key=Follow}" Icon="Favorite" IsChecked="{x:Bind _vm.FollowContext.IsFollowing, Mode=TwoWay}" IsEnabled="{x:Bind _vm.FollowContext.NowChanging, Mode=OneWay, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
+
+                <AppBarElementContainer  VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+                  <ComboBox ItemsSource="{x:Bind _vm.SortOptions}"
+                          SelectedItem="{x:Bind _vm.SelectedSortOption, Mode=TwoWay}"
+                          IsEnabled="{x:Bind _vm.NowLoading.Value, Mode=OneWay, Converter={StaticResource BoolNegation}}"
+                          VerticalAlignment="Stretch"
+                          Margin="0 6"
                           >
                     <ComboBox.ItemTemplate>
                       <DataTemplate>
@@ -49,8 +51,8 @@
                 <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"
-                                Command="{Binding PlaylistPlayAllCommand}"
-                                CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
+                                Command="{x:Bind _vm.PlaylistPlayAllCommand}"
+                                CommandParameter="{x:Bind _vm.CurrentPlaylistToken.Value}"></AppBarButton>
 
 
 
@@ -61,15 +63,15 @@
                     </core:EventTriggerBehavior>
                   </i:Interaction.Behaviors>
                 </AppBarButton>
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
 
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
-                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
-                
+                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.RefreshCommand}" IsEnabled="{x:Bind _vm.CanChangeSort.Value, Mode=OneWay}" VerticalAlignment="Center" />
+
                 <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{i18nExt:Localize Key=SubscriptionAddTag}"
-                                Command="{Binding AddTagSearchSubscriptionCommand}"
-                                CommandParameter="{Binding Keyword}"
+                                Command="{x:Bind _vm.AddTagSearchSubscriptionCommand}"
+                                CommandParameter="{x:Bind _vm.Keyword, Mode=OneWay}"
                                 >
                 </AppBarButton>
               </CommandBar.SecondaryCommands>
@@ -86,7 +88,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn}" />
+            <StateTrigger IsActive="{x:Bind _vm.NiconicoSession.IsLoggedIn, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="TagFollowButton.Visibility" Value="Visible" />
@@ -138,7 +140,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding NowLoading.Value}" />
+            <StateTrigger IsActive="{x:Bind _vm.NowLoading.Value, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ScrollToTopButton.IsEnabled" Value="False" />
@@ -147,7 +149,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ItemsView.Count}" EqualTo="0" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ItemsView.Count, Mode=OneWay}" EqualTo="0" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />

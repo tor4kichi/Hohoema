@@ -15,8 +15,7 @@ using Hohoema.Presentation.Services;
 
 namespace Hohoema.Presentation.Views.Controls
 {
-    public sealed partial class HohoemaInAppNotification : UserControl,
-        IRecipient<InAppNotificationMessage>
+    public sealed partial class HohoemaInAppNotification : UserControl
     {
         public HohoemaInAppNotification()
         {
@@ -35,7 +34,7 @@ namespace Hohoema.Presentation.Views.Controls
 
         private void HohoemaInAppNotification_Loaded(object sender, RoutedEventArgs e)
         {
-            _messenger.Register<InAppNotificationMessage>(this);
+            _messenger.Register<InAppNotificationMessage>(this, (r, m) => PushNextNotication(m.Value));
             _messenger.Register<InAppNotificationDismissMessage>(this, (r, m) =>
             {
                 LiteNotification.Dismiss();

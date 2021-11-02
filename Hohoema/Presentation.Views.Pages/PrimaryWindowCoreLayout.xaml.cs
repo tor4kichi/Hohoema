@@ -201,6 +201,12 @@ namespace Hohoema.Presentation.Views.Pages
 
             Window.Current.Activated += Current_Activated;
             _currentActiveWindowUIContextService = currentActiveWindowUIContextService;
+
+            // Xbox向けのメニュー表示、下部のマージンを追加する
+            if (_viewModel.ApplicationLayoutManager.AppLayout == ApplicationLayout.TV)
+            {
+                Resources["NavigationViewPaneContentGridMargin"] = new Thickness(0, 27, 0, 27);
+            }
         }
 
         private void Current_Activated(object sender, WindowActivatedEventArgs e)

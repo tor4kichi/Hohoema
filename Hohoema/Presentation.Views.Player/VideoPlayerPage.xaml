@@ -32,33 +32,20 @@
       xmlns:players="using:Hohoema.Presentation.Views.Player"
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       xmlns:myExt="using:Hohoema.Presentation.Views.Extensions"
+      xmlns:muxc="using:Microsoft.UI.Xaml"
       x:Name="RootLayout"
       NavigationCacheMode="Required"
       d:DesignHeight="300"
       d:DesignWidth="400">
   <UserControl.Resources>
 
-    <Style TargetType="Button">
-      <Setter Property="MinWidth" Value="48" />
-      <Setter Property="MinHeight" Value="48" />
-    </Style>
-    <Style TargetType="ToggleButton">
-      <Setter Property="MinWidth" Value="48" />
-      <Setter Property="MinHeight" Value="48" />
-    </Style>
-
-    <Style TargetType="CommandBar">
-      <Setter Property="Background" Value="Transparent" />
-      <Setter Property="DefaultLabelPosition" Value="Right" />
-    </Style>
-
     <MenuFlyout x:Key="VideoOptionsFlyout">
       <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayPauseToggleButtonTitle}" Command="{Binding VideoTogglePlayPauseCommand}" />
       <ToggleMenuFlyoutItem IsChecked="{Binding ObservableMediaPlayer.IsMuted.Value, Mode=TwoWay}" Text="{i18nExt:Localize Key=Mute}" />
-      <ToggleMenuFlyoutItem IsChecked="{Binding PlayerSettings.IsCommentDisplay_Video, Mode=TwoWay, Converter={StaticResource BoolNegation}}" Text="{i18nExt:Localize Key=ToggleHideComment}" />
+      <ToggleMenuFlyoutItem IsChecked="{x:Bind _vm.PlayerSettings.IsCommentDisplay_Video, Mode=TwoWay, Converter={StaticResource BoolNegation}}" Text="{i18nExt:Localize Key=ToggleHideComment}" />
       <MenuFlyoutSubItem Text="{Binding Source=Quality, Converter={StaticResource LocalizeConverter}}" Visibility="{Binding AvailableQualities, Converter={StaticResource CollectionVisibilityConverter}}" x:Name="VideoQualityMenuFlyoutSubImte">
         <i:Interaction.Behaviors>
-          <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding AvailableQualities}" CustomObjectToTag="{Binding}">
+          <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{x:Bind _vm.AvailableQualities, Mode=OneWay}" CustomObjectToTag="{x:Bind _vm, Mode=OneWay}">
             <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
               <DataTemplate>
                 <MenuFlyoutItem IsEnabled="{Binding IsAvailable}" Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.ChangeVideoQualityCommand}" CommandParameter="{Binding}"></MenuFlyoutItem>
@@ -69,49 +56,49 @@
       </MenuFlyoutSubItem>
       <MenuFlyoutSubItem Text="{i18nExt:Localize Key=PlaybackRate}">
         <MenuFlyoutSeparator />
-        <MenuFlyoutItem Text="200%" Command="{Binding SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="200%" Command="{x:Bind _vm.SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>2.0</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="175%" Command="{Binding SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="175%" Command="{x:Bind _vm.SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>1.75</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="150%" Command="{Binding SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="150%" Command="{x:Bind _vm.SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>1.5</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="125%" Command="{Binding SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="125%" Command="{x:Bind _vm.SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>1.25</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
         <MenuFlyoutSeparator />
-        <MenuFlyoutItem Text="75%" Command="{Binding SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="75%" Command="{x:Bind _vm.SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>0.75</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="50%" Command="{Binding SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="50%" Command="{x:Bind _vm.SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>0.5</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="25%" Command="{Binding SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="25%" Command="{x:Bind _vm.SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>0.25</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
       </MenuFlyoutSubItem>
       <MenuFlyoutSeparator />
-      <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{Binding PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{Binding PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=CompactOverlay}"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="SmallWindowButton_Menu" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=WindowInWindow}"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=PlayWithSecondaryView}"></MenuFlyoutItem>
-      <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></ToggleMenuFlyoutItem>
+      <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{x:Bind _vm.PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=CompactOverlay}"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="SmallWindowButton_Menu" Command="{x:Bind _vm.PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=WindowInWindow}"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{x:Bind _vm.TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=PlayWithSecondaryView}"></MenuFlyoutItem>
+      <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" IsChecked="{x:Bind _vm.PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></ToggleMenuFlyoutItem>
     </MenuFlyout>
     <local:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
       <local:PlayerSidePaneContentTemplateSelecter.Empty>
@@ -141,23 +128,23 @@
       </local:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
     </local:PlayerSidePaneContentTemplateSelecter>
   </UserControl.Resources>
-  <Grid x:Name="LayoutRoot" Background="{ThemeResource AppBarBorderThemeBrush}">
+  <Grid x:Name="LayoutRoot">
     <toolkit:LayoutTransformControl x:Name="LayoutTransform">
       <toolkit:LayoutTransformControl.Transform>
         <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
       </toolkit:LayoutTransformControl.Transform>
-      <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" IsPaneOpen="{Binding PlayerSplitViewIsPaneOpen, Mode=TwoWay}"
+      <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" IsPaneOpen="{x:Bind _vm.PlayerSplitViewIsPaneOpen, Mode=TwoWay}"
                  PaneBackground="{ThemeResource SystemControlAltHighAcrylicElementBrush}"
                  >
         <i:Interaction.Behaviors>
           <!-- サイドペインが閉じられたら コンテンツVMをリセット -->
           <core:EventTriggerBehavior EventName="PaneClosed">
-            <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="SidePaneType" Value="{x:Bind players:PlayerSidePaneContentType.None}" />
+            <core:ChangePropertyAction TargetObject="{x:Bind _vm}" PropertyName="SidePaneType" Value="{x:Bind players:PlayerSidePaneContentType.None}" />
           </core:EventTriggerBehavior>
         </i:Interaction.Behaviors>
         <SplitView.Pane>
           <Grid x:Name="PlayerSidePaneLayout">
-            <ContentControl Content="{Binding SidePaneViewModel, Mode=OneWay}" ContentTemplateSelector="{StaticResource PlayerSidePaneContentTemplateSelecter}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+            <ContentControl Content="{x:Bind _vm.SidePaneViewModel, Mode=OneWay}" ContentTemplateSelector="{StaticResource PlayerSidePaneContentTemplateSelecter}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
           </Grid>
         </SplitView.Pane>
         <SplitView.Content>
@@ -165,14 +152,14 @@
           <Grid x:Name="MediaControl" ContextFlyout="{StaticResource VideoOptionsFlyout}" ManipulationMode="TranslateX">
             <i:Interaction.Behaviors>
               <!-- 再生停止時にUIを表示 -->
-              <core:DataTriggerBehavior Binding="{Binding ObservableMediaPlayer.NowPlaying.Value}" Value="False" ComparisonCondition="Equal">
+              <core:DataTriggerBehavior Binding="{Binding ObservableMediaPlayer.NowPlaying.Value, Mode=OneWay}" Value="False" ComparisonCondition="Equal">
                 <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="True" />
               </core:DataTriggerBehavior>
-              <core:DataTriggerBehavior Binding="{Binding ObservableMediaPlayer.NowPlaying.Value}" Value="True" ComparisonCondition="Equal">
+              <core:DataTriggerBehavior Binding="{Binding ObservableMediaPlayer.NowPlaying.Value, Mode=OneWay}" Value="True" ComparisonCondition="Equal">
                 <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
               </core:DataTriggerBehavior>
               <!-- 左右スワイプでシーク -->
-              <mybehavior:Swipe x:Name="SeekSwipe" SwipeCommand="{Binding SeekCommand}" SwipeAmountConverter="{StaticResource SwipeSeekValueToTimeSpan}" SwipeAmountScale="0.15" SwipeEdgeOfPlay="48" />
+              <mybehavior:Swipe x:Name="SeekSwipe" SwipeCommand="{x:Bind _vm.SeekCommand}" SwipeAmountConverter="{StaticResource SwipeSeekValueToTimeSpan}" SwipeAmountScale="0.15" SwipeEdgeOfPlay="48" />
               <!-- マウスの非表示 -->
               <mybehavior:PointerCursolAutoHideBehavior x:Name="AutoHideCursor" IsAutoHideEnabled="False" AutoHideDelay="0:0:1" />
               <core:EventTriggerBehavior EventName="Loaded">
@@ -180,11 +167,11 @@
               </core:EventTriggerBehavior>
               <!-- スペースキー入力で再生停止の切り替え-->
               <mybehavior:KeyboardTrigger Key="Space" x:Name="PlayPauseToggleKeyboardTrigger">
-                <core:InvokeCommandAction Command="{Binding VideoTogglePlayPauseCommand}" />
+                <core:InvokeCommandAction Command="{x:Bind _vm.VideoTogglePlayPauseCommand}" />
               </mybehavior:KeyboardTrigger>
               <mybehavior:KeyboardTrigger Key="Enter" x:Name="CommentSubmitKeyboardTrigger">
                 <mybehavior:KeyboardTrigger.Actions>
-                  <core:InvokeCommandAction Command="{Binding CommentPlayer.CommentSubmitCommand}" />
+                  <core:InvokeCommandAction Command="{x:Bind _vm.CommentPlayer.CommentSubmitCommand}" />
                 </mybehavior:KeyboardTrigger.Actions>
               </mybehavior:KeyboardTrigger>
               <mybehavior:KeyboardTrigger Key="Escape" x:Name="CommentWriteExitKeyboardTrigger" IsEnabled="False">
@@ -195,12 +182,12 @@
               </mybehavior:KeyboardTrigger>
               <mybehavior:KeyboardTrigger Key="Right" x:Name="VideoForwardKeyboardTrigger">
                 <mybehavior:KeyboardTrigger.Actions>
-                  <core:InvokeCommandAction Command="{Binding SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" />
+                  <core:InvokeCommandAction Command="{x:Bind _vm.SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" />
                 </mybehavior:KeyboardTrigger.Actions>
               </mybehavior:KeyboardTrigger>
               <mybehavior:KeyboardTrigger Key="Left" x:Name="VideoPreviewKeyboardTrigger">
                 <mybehavior:KeyboardTrigger.Actions>
-                  <core:InvokeCommandAction Command="{Binding SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" />
+                  <core:InvokeCommandAction Command="{x:Bind _vm.SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" />
                 </mybehavior:KeyboardTrigger.Actions>
               </mybehavior:KeyboardTrigger>
               <mybehavior:KeyboardTrigger x:Name="CommentWriteBeginKeyboardTrigger">
@@ -210,43 +197,52 @@
               </mybehavior:KeyboardTrigger>
               <mybehavior:MouseWheelTrigger>
                 <mybehavior:MouseWheelTrigger.UpActions>
-                  <core:InvokeCommandAction Command="{Binding VolumeUpCommand}" CommandParameter="{Binding PlayerSettings.SoundVolumeChangeFrequency}" />
+                  <core:InvokeCommandAction Command="{x:Bind _vm.VolumeUpCommand}" CommandParameter="{Binding PlayerSettings.SoundVolumeChangeFrequency}" />
                 </mybehavior:MouseWheelTrigger.UpActions>
                 <mybehavior:MouseWheelTrigger.DownActions>
-                  <core:InvokeCommandAction Command="{Binding VolumeDownCommand}" CommandParameter="{Binding PlayerSettings.SoundVolumeChangeFrequency}" />
+                  <core:InvokeCommandAction Command="{x:Bind _vm.VolumeDownCommand}" CommandParameter="{Binding PlayerSettings.SoundVolumeChangeFrequency}" />
                 </mybehavior:MouseWheelTrigger.DownActions>
               </mybehavior:MouseWheelTrigger>
               <mybehavior:UINavigationTrigger Kind="Cancel" x:Name="ControllerToggleDisplayUITrigger" IsEnabled="True">
                 <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="{x:Bind IsDisplayControlUI, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
               </mybehavior:UINavigationTrigger>
               <mybehavior:UINavigationTrigger x:Name="ConrollerHidePlayerTrigger" Kind="Cancel" Hold="True" IsEnabled="True">
-                <core:InvokeCommandAction Command="{Binding PrimaryViewPlayerManager.CloseCommand}" />
+                <core:InvokeCommandAction Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" />
               </mybehavior:UINavigationTrigger>
               <mybehavior:UINavigationTrigger x:Name="ControllerSeekPreviewTrigger" Kind="PageLeft" IsEnabled="True">
-                <core:InvokeCommandAction Command="{Binding SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" />
+                <core:InvokeCommandAction Command="{x:Bind _vm.SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" />
               </mybehavior:UINavigationTrigger>
               <mybehavior:UINavigationTrigger x:Name="ControllerSeekForwardTrigger" Kind="PageRight" IsEnabled="True">
-                <core:InvokeCommandAction Command="{Binding SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" />
+                <core:InvokeCommandAction Command="{x:Bind _vm.SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" />
               </mybehavior:UINavigationTrigger>
               <mybehavior:UINavigationTrigger x:Name="ControllerTogglePlayPauseTrigger" Kind="Context1" IsEnabled="True">
-                <core:InvokeCommandAction Command="{Binding VideoTogglePlayPauseCommand}" />
+                <core:InvokeCommandAction Command="{x:Bind _vm.VideoTogglePlayPauseCommand}" />
               </mybehavior:UINavigationTrigger>
             </i:Interaction.Behaviors>
             <!-- 映像表示 -->
             <MediaPlayerElement x:Name="MediaPlayerElement" AutoPlay="True">
               <i:Interaction.Behaviors>
-                <mybehavior:MediaPlayerSetter MediaPlayer="{Binding MediaPlayer}" />
+                <mybehavior:MediaPlayerSetter MediaPlayer="{x:Bind _vm.MediaPlayer}" />
                 <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{x:Bind CommentRederer.Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
               </i:Interaction.Behaviors>
             </MediaPlayerElement>
             <!-- コメント表示 -->
-            <local:CommentRenderer x:Name="CommentRederer" MediaPlayer="{Binding MediaPlayer}" Comments="{Binding CommentPlayer.DisplayingComments}" Visibility="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BooleanToVisibility}}" CommentSizeScale="{Binding PlayerSettings.DefaultCommentFontScale}" CommentDefaultColor="{Binding PlayerSettings.CommentColor}" DefaultDisplayDuration="{Binding PlayerSettings.CommentDisplayDuration}" Opacity="{Binding PlayerSettings.CommentOpacity, Mode=OneWay}" />
+            <local:CommentRenderer 
+              x:Name="CommentRederer" 
+              MediaPlayer="{x:Bind _vm.MediaPlayer}" 
+              Comments="{x:Bind _vm.CommentPlayer.DisplayingComments, Mode=OneWay}" 
+              Visibility="{x:Bind _vm.PlayerSettings.IsCommentDisplay_Video, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" 
+              CommentSizeScale="{x:Bind _vm.PlayerSettings.DefaultCommentFontScale, Mode=OneWay}" 
+              CommentDefaultColor="{x:Bind _vm.PlayerSettings.CommentColor, Mode=OneWay}"
+              DefaultDisplayDuration="{x:Bind _vm.PlayerSettings.CommentDisplayDuration, Mode=OneWay}" 
+              Opacity="{x:Bind _vm.PlayerSettings.CommentOpacity, Mode=OneWay}"
+              />
             <!-- 読み込み中表示 -->
-            <ProgressRing Visibility="{Binding ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" IsActive="{Binding ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay}" Width="48" Height="48" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 88 24 0" />
+            <ProgressRing Visibility="{x:Bind _vm. ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" IsActive="{Binding ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay}" Width="48" Height="48" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 88 24 0" />
             <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->
             <Border x:Name="WindowDeactiveMouseMoveDetectWall" Background="Transparent" Visibility="Collapsed"></Border>
             <!-- UI非表示時の再生位置バー -->
-            <Slider Value="{Binding ElementName=SeekBarSlider, Path=Value, Mode=OneWay}" Maximum="{Binding VideoInfo.Length, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" IsEnabled="False" Opacity="0.6" x:Name="ReadOnlySeekBarSlider">
+            <Slider Value="{x:Bind SeekBarSlider.Value, Mode=OneWay}" Maximum="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" IsEnabled="False" Opacity="0.6" x:Name="ReadOnlySeekBarSlider">
               <Slider.RenderTransform>
                 <TranslateTransform Y="8" />
               </Slider.RenderTransform>
@@ -264,7 +260,7 @@
             <!-- プレイヤー内の通知表示 -->
             <StackPanel>
               <!-- 音量表示 -->
-              <controls:TransientContainer Content="{Binding SoundVolumeManager.Volume}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16">
+              <controls:TransientContainer Content="{x:Bind _vm.SoundVolumeManager.Volume, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16">
                 <controls:TransientContainer.Background>
                   <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
                 </controls:TransientContainer.Background>
@@ -303,7 +299,7 @@
             <!-- コントロールUIの本体 -->
             <Grid x:Name="UIControlLayout">
               <i:Interaction.Behaviors>
-                <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" Delay="{Binding PlayerSettings.AutoHidePlayerControlUIPreventTime}" IsVisible="{x:Bind IsDisplayControlUI, Mode=TwoWay}" />
+                <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" Delay="{x:Bind _vm.PlayerSettings.AutoHidePlayerControlUIPreventTime, Mode=OneWay}" IsVisible="{x:Bind IsDisplayControlUI, Mode=TwoWay}" />
                 <core:DataTriggerBehavior Binding="{x:Bind IsDisplayControlUI, Mode=OneWay}" Value="True">
                   <mybehavior:SetFocus x:Name="FocusWhenShowingControlUIAction" TargetObject="{Binding ElementName=PlayPauseButton}" Delay="00:00:00" IsEnabled="False" />
                 </core:DataTriggerBehavior>
@@ -314,19 +310,19 @@
 
                   <!-- Title Bar Margin -->
                   <Grid x:Name="TitleBarMarginLayout" Height="32" toolkit:DockPanel.Dock="Top" Visibility="Collapsed">
-                    <TextBlock x:Name="TitleTextBlock_Nallow" Text="{Binding VideoInfo.Title}" Style="{ThemeResource CaptionTextBlockStyle}" Visibility="Collapsed" Margin="8" />
+                    <TextBlock x:Name="TitleTextBlock_Nallow" Text="{x:Bind _vm.VideoInfo.Title, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Visibility="Collapsed" Margin="8" />
                   </Grid>
                   <!-- 左上 -->
                   <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
                     <!-- 閉じる -->
-                    <Button x:Name="CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" Background="Transparent" UseSystemFocusVisuals="True" Width="48" Height="48"
+                    <Button x:Name="CloseButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" UseSystemFocusVisuals="True" MinWidth="48" MinHeight="48"
                             XYFocusRight="{x:Bind ActionsCommandBar}"
                             >
                       <iconPack:PackIconMaterial Kind="Close" />
                     </Button>
 
                     <!-- メインウィンドウ表示 -->
-                    <Button x:Name="ShowPrimaryViewButton" Command="{Binding ShowPrimaryViewCommand}" Background="Transparent" Visibility="Collapsed">
+                    <Button x:Name="ShowPrimaryViewButton" Command="{x:Bind _vm.ShowPrimaryViewCommand}" Visibility="Collapsed" MinWidth="48" MinHeight="48">
                       <StackPanel Orientation="Vertical">
                         <TextBlock Text="{i18nExt:Localize Key=SwitchToMainWindow}" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
                       </StackPanel>
@@ -335,19 +331,20 @@
                   <!-- 右上 -->
                   <CommandBar x:Name="ActionsCommandBar" toolkit:DockPanel.Dock="Right" 
                               XYFocusLeft="{x:Bind CloseButton}"
+                              DefaultLabelPosition="Right"
                               >
 
                     <CommandBar.PrimaryCommands>
-                      <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{Binding LikesContext.IsLikes, Mode=TwoWay}" IsEnabled="{Binding LikesContext.NowLikeProcessing, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
-                      <AppBarButton x:Name="ShowVideoInfoButon" Label="{i18nExt:Localize Key=VideoInfomation}" Command="{Binding OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
-                      <AppBarButton Command="{Binding SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="{i18nExt:Localize Key=RelatedInfomation}" />
-                      <AppBarButton x:Name="ShareButton" Label="{i18nExt:Localize Key=Share}" Icon="Link" Visibility="Collapsed" Command="{Binding OpenShareUICommand}" CommandParameter="{Binding VideoInfo}"></AppBarButton>
+                      <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{x:Bind _vm.LikesContext.IsLikes, Mode=TwoWay}" IsEnabled="{x:Bind _vm.LikesContext.NowLikeProcessing, Mode=OneWay, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
+                      <AppBarButton x:Name="ShowVideoInfoButon" Label="{i18nExt:Localize Key=VideoInfomation}" Command="{x:Bind _vm.OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
+                      <AppBarButton Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="{i18nExt:Localize Key=RelatedInfomation}" />
+                      <AppBarButton x:Name="ShareButton" Label="{i18nExt:Localize Key=Share}" Icon="Link" Visibility="Collapsed" Command="{x:Bind _vm.OpenShareUICommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"></AppBarButton>
                       <AppBarButton x:Name="CopyActionsAppBarButton" Label="{i18nExt:Localize Key=Copy}" Visibility="Visible">
                         <AppBarButton.Flyout>
                           <MenuFlyout>
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoId}" Command="{Binding CopyToClipboardCommand}" CommandParameter="{Binding VideoId}" />
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoLink}" Command="{Binding CopyToClipboardCommand}" CommandParameter="{Binding VideoInfo}" />
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyShareText}" Command="{Binding CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding VideoInfo}" />
+                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoId}" Command="{x:Bind _vm.CopyToClipboardCommand}" CommandParameter="{x:Bind _vm.VideoId, Mode=OneWay}" />
+                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoLink}" Command="{x:Bind _vm.CopyToClipboardCommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}" />
+                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyShareText}" Command="{x:Bind _vm.CopyToClipboardWithShareTextCommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}" />
                           </MenuFlyout>
                         </AppBarButton.Flyout>
                       </AppBarButton>
@@ -355,23 +352,23 @@
                         <AppBarButton.Flyout>
                           <MenuFlyout x:Name="AddToMenuFlyout">
                             <MenuFlyoutItem Text="{i18nExt:Localize Key=MylistAddItem}"
-                                            Command="{Binding AddMylistCommand}"
-                                            CommandParameter="{Binding VideoInfo}"
+                                            Command="{x:Bind _vm.AddMylistCommand}"
+                                            CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"
                                             />
 
                             <MenuFlyoutItem Text="{i18nExt:Localize Key=LocalMylistAddItem}"
-                                            Command="{Binding LocalPlaylistAddItemCommand}"
-                                            CommandParameter="{Binding VideoInfo}"
+                                            Command="{x:Bind _vm.LocalPlaylistAddItemCommand}"
+                                            CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"
                                             />
 
                             <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddUser}"
-                                            Command="{Binding AddSubscriptionCommand}"
-                                            CommandParameter="{Binding VideoInfo}"
+                                            Command="{x:Bind _vm.AddSubscriptionCommand}"
+                                            CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"
                                             />
                             <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddSeries}"
-                                            Command="{Binding AddSubscriptionCommand}"
-                                            CommandParameter="{Binding VideoSeries}"
-                                            Visibility="{Binding VideoSeries, Converter={StaticResource NotNullToBoolean}}"
+                                            Command="{x:Bind _vm.AddSubscriptionCommand}"
+                                            CommandParameter="{x:Bind _vm.VideoSeries, Mode=OneWay}"
+                                            Visibility="{x:Bind _vm.VideoSeries, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}"
                                             />
 
 
@@ -381,18 +378,18 @@
                     </CommandBar.PrimaryCommands>
 
                     <CommandBar.SecondaryCommands>
-                      <AppBarButton x:Name="FullscreenButton" Command="{Binding PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></AppBarButton>
-                      <AppBarButton x:Name="CompactOverlayButton" Command="{Binding PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=CompactOverlay}"></AppBarButton>
-                      <AppBarButton x:Name="SmallWindowButton" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=WindowInWindow}"></AppBarButton>
-                      <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=PlayWithSecondaryView}"></AppBarButton>
-                      <AppBarToggleButton x:Name="ForceRotateToggleButton" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></AppBarToggleButton>
+                      <AppBarButton x:Name="FullscreenButton" Command="{x:Bind _vm.PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></AppBarButton>
+                      <AppBarButton x:Name="CompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=CompactOverlay}"></AppBarButton>
+                      <AppBarButton x:Name="SmallWindowButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=WindowInWindow}"></AppBarButton>
+                      <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{x:Bind _vm.TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=PlayWithSecondaryView}"></AppBarButton>
+                      <AppBarToggleButton x:Name="ForceRotateToggleButton" IsChecked="{x:Bind _vm.PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></AppBarToggleButton>
                     </CommandBar.SecondaryCommands>
                   </CommandBar>
 
-                  <Button x:Name="ExitWindonwInWindowViewButton" Command="{Binding PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0">
+                  <Button x:Name="ExitWindonwInWindowViewButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
                     <SymbolIcon Symbol="FullScreen" />
                   </Button>
-                  <Button x:Name="ExitCompactOverlayButton" Command="{Binding PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0">
+                  <Button x:Name="ExitCompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
                     <SymbolIcon Symbol="FullScreen" />
                   </Button>
 
@@ -402,7 +399,7 @@
                 <StackPanel x:Name="UIControlContentLayout" toolkit:DockPanel.Dock="Bottom" Background="{StaticResource HohoemaPlayerBackgroundBrush}" Padding="0 0 0 8">
                   <!-- Title -->
                   <StackPanel Margin="8 0">
-                    <TextBlock x:Name="TitleTextBlock" Text="{Binding VideoInfo.Title}" FontSize="24" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                    <TextBlock x:Name="TitleTextBlock" Text="{x:Bind _vm.VideoInfo.Title, Mode=OneWay}" FontSize="24" HorizontalAlignment="Center" TextWrapping="Wrap" />
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Tapped">
                         <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
@@ -412,17 +409,17 @@
                   <!-- シークバー -->
                   <Grid Margin="0 0 0 12">
                     <TextBlock x:Name="SeekDisabledFromNicoScriptText" Text="{i18nExt:Localize Key=DisableSeekFromNicoScript}" Visibility="Collapsed" VerticalAlignment="Bottom" HorizontalAlignment="Center" Opacity="0.6" />
-                    <Slider x:Name="SeekBarSlider" Minimum="0.0" Maximum="{Binding VideoInfo.Length, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" Padding="0 16 0 8" StepFrequency="0.1" LargeChange="30" SmallChange="5" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" Opacity="0.75"></Slider>
+                    <Slider x:Name="SeekBarSlider" Minimum="0.0" Maximum="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" Padding="0 16 0 8" StepFrequency="0.1" LargeChange="30" SmallChange="5" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" Opacity="0.75"></Slider>
                   </Grid>
                   <!-- 動画画質 -->
                   <Grid x:Name="VideoProps" Margin="0 0 0 8">
                     <!-- 画質と動画プロバイダーオリジン -->
                     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="8 0 16 0" Spacing="8">
                       <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibility}}">
-                            <Run Text="{Binding CurrentQuality.Quality, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
+                            <Run Text="{x:Bind _vm.CurrentQuality.Quality, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                       <HyperlinkButton Padding="0" Opacity="0.7">
                         <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibilityInverted}}">
-                              <Run Text="{Binding CurrentQuality.Quality, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
+                              <Run Text="{x:Bind _vm.CurrentQuality.Quality, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                         <i:Interaction.Behaviors>
                           <core:EventTriggerBehavior EventName="Click">
                             <mybehavior:OpenFlyout />
@@ -430,14 +427,14 @@
                         </i:Interaction.Behaviors>
                         <FlyoutBase.AttachedFlyout>
                           <Flyout>
-                            <ListView ItemsSource="{Binding AvailableQualities, Mode=OneWay}"
-                                      SelectedItem="{Binding CurrentQuality, Mode=OneWay}"
+                            <ListView ItemsSource="{x:Bind _vm.AvailableQualities, Mode=OneWay}"
+                                      SelectedItem="{x:Bind _vm.CurrentQuality, Mode=OneWay}"
                                       SelectionMode="Single"
                                       IsItemClickEnabled="True"
                                       >
                               <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="ItemClick">
-                                  <core:InvokeCommandAction Command="{Binding ChangeVideoQualityCommand}"
+                                  <core:InvokeCommandAction Command="{x:Bind _vm.ChangeVideoQualityCommand}"
                                                             InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                                 </core:EventTriggerBehavior>
                               </i:Interaction.Behaviors>
@@ -454,9 +451,9 @@
                           </Flyout>
                         </FlyoutBase.AttachedFlyout>
                       </HyperlinkButton>
-                      <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibility}}">
+                      <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{x:Bind _vm.NowPlayingWithCache, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}">
                                                         (<Run Text="{i18nExt:Localize Key=VideoPlayWithCached}" />)</TextBlock>
-                      <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibilityInverted}}">
+                      <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{x:Bind _vm.NowPlayingWithCache, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}">
                                                         (<Run Text="{i18nExt:Localize Key=VideoPlayWithOnline}" />)</TextBlock>
                     </StackPanel>
 
@@ -466,7 +463,7 @@
                                         
                                                     <Run Text="{x:Bind VideoPosition, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" />
                                                     <Run Text="/" />
-                                                    <Run Text="{Binding VideoInfo.Length, Converter={StaticResource TimeToMovieLengthConverter}}" /></TextBlock>
+                                                    <Run Text="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" /></TextBlock>
                       <HyperlinkButton Margin="0 0 16 0" VerticalAlignment="Bottom" Opacity="0.7" MinWidth="36" HorizontalAlignment="Right" Padding="0">
                         <i:Interaction.Behaviors>
                           <core:EventTriggerBehavior EventName="Click">
@@ -482,7 +479,7 @@
                                       >
                               <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="ItemClick">
-                                  <core:InvokeCommandAction Command="{Binding SetPlaybackRateCommand}"
+                                  <core:InvokeCommandAction Command="{x:Bind _vm.SetPlaybackRateCommand}"
                                                             InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                                 </core:EventTriggerBehavior>
                               </i:Interaction.Behaviors>
@@ -505,9 +502,9 @@
                       <ColumnDefinition Width="Auto" />
                       <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
                       <!-- 音量 -->
-                      <Button x:Name="VolumeControlLayout" Background="Transparent">
+                      <Button x:Name="VolumeControlLayout" MinWidth="48" MinHeight="48">
                         <SymbolIcon x:Name="VolumeButton" Symbol="Mute" />
                         <Button.Flyout>
                           <Flyout>
@@ -515,16 +512,16 @@
                               <Grid>
                                 <TextBlock Text="{i18nExt:Localize Key=LoudnessCorrectionValueTitle}" uwpControls:DockPanel.Dock="Left" />
                                 <TextBlock HorizontalAlignment="Right">
-                                  <Run Text="{Binding SoundVolumeManager.LoudnessCorrectionValue, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
+                                  <Run Text="{x:Bind _vm.SoundVolumeManager.LoudnessCorrectionValue, Mode=OneWay, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
                                 </TextBlock>
                               </Grid>
                               <Grid>
                                 <TextBlock Text="{i18nExt:Localize Key=UseLoudnessCorrection}" uwpControls:DockPanel.Dock="Left" />
-                                <ToggleSwitch IsOn="{Binding SoundVolumeManager.IsLoudnessCorrectionEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" Style="{StaticResource ToggleSwitchNoHeader}" MinWidth="0" />
+                                <ToggleSwitch IsOn="{x:Bind _vm.SoundVolumeManager.IsLoudnessCorrectionEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" Style="{StaticResource ToggleSwitchNoHeader}" MinWidth="0" />
                               </Grid>
                               <Grid>
                                 <TextBlock Text="{i18nExt:Localize Key=Mute}" uwpControls:DockPanel.Dock="Left" VerticalAlignment="Center" />
-                                <AppBarButton Icon="Volume" Label="{i18nExt:Localize Key=Mute}" VerticalAlignment="Stretch" x:Name="MuteToggleButton" Command="{Binding ToggleMuteCommand}" HorizontalAlignment="Right" />
+                                <AppBarButton Icon="Volume" Label="{i18nExt:Localize Key=Mute}" VerticalAlignment="Stretch" x:Name="MuteToggleButton" Command="{x:Bind _vm.ToggleMuteCommand}" HorizontalAlignment="Right" />
                               </Grid>
                               <Grid>
                                 <TextBlock Text="{i18nExt:Localize Key=SoundVolume}"  uwpControls:DockPanel.Dock="Left" VerticalAlignment="Center" />
@@ -535,22 +532,22 @@
                         </Button.Flyout>
                       </Button>
                       <!-- コメント表示切替 -->
-                      <Button x:Name="CommentDisplayControlLayout" Background="Transparent">
+                      <Button x:Name="CommentDisplayControlLayout" MinWidth="48" MinHeight="48">
                         <Grid>
                           <iconPack:PackIconMaterial Kind="Comment" x:Name="CommentIcon" Width="20" Height="20" />
                           <Canvas>
-                            <Line X1="{Binding ElementName=CommentIcon, Path=ActualWidth}" Y1="0" X2="0" Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}" Stroke="Red" StrokeThickness="4" Visibility="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BooleanToVisibilityInverted}}" Opacity="0.7" />
+                            <Line X1="{Binding ElementName=CommentIcon, Path=ActualWidth}" Y1="0" X2="0" Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}" Stroke="Red" StrokeThickness="4" Visibility="{x:Bind _vm.PlayerSettings.IsCommentDisplay_Video, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}" Opacity="0.7" />
                           </Canvas>
                         </Grid>
                         <i:Interaction.Behaviors>
                           <core:EventTriggerBehavior EventName="Tapped">
-                            <core:ChangePropertyAction TargetObject="{Binding PlayerSettings}" PropertyName="IsCommentDisplay_Video" Value="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BoolNegation}}" />
+                            <core:ChangePropertyAction TargetObject="{x:Bind _vm.PlayerSettings}" PropertyName="IsCommentDisplay_Video" Value="{x:Bind _vm.PlayerSettings.IsCommentDisplay_Video, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
                           </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
                       </Button>
 
                       <!-- 単品リピート -->
-                      <ToggleButton IsChecked="{Binding IsLoopingEnabled.Value, Mode=TwoWay}" Background="Transparent" UseSystemFocusVisuals="True"
+                      <ToggleButton IsChecked="{x:Bind _vm.IsLoopingEnabled.Value, Mode=TwoWay}" UseSystemFocusVisuals="True" MinWidth="48" MinHeight="48"
                                     >
                         <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon" Kind="Repeat" RenderTransformOrigin="0.5, 0.5">
                           <iconPack:PackIconMaterial.RenderTransform>
@@ -561,33 +558,33 @@
                       </ToggleButton>
                     </StackPanel>
                     <!-- 再生切り替え・シーク -->
-                    <StackPanel Orientation="Horizontal" Grid.Column="1">
-                      <Button x:Name="PreviewVideoPositionButon" Background="Transparent" Command="{Binding SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}"  Margin="0 0 24 0">
+                    <StackPanel Orientation="Horizontal" Grid.Column="1" Spacing="16">
+                      <Button x:Name="PreviewVideoPositionButon" Command="{x:Bind _vm.SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" MinWidth="48" MinHeight="48">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" FontSize="24" />
                       </Button>
-                      <Button x:Name="PlayPauseButton" Command="{Binding VideoTogglePlayPauseCommand}" Background="Transparent" Margin="0 0 0 0">
+                      <Button x:Name="PlayPauseButton" Command="{x:Bind _vm.VideoTogglePlayPauseCommand}" Margin="0 0 0 0" MinWidth="48" MinHeight="48">
                         <iconPack:PackIconMaterial Kind="Play" x:Name="PlayPauseButtonIcon" RenderTransformOrigin="0.5, 0.5">
                           <iconPack:PackIconMaterial.RenderTransform>
                             <CompositeTransform ScaleX="1.35" ScaleY="1.35" />
                           </iconPack:PackIconMaterial.RenderTransform>
                         </iconPack:PackIconMaterial>
                       </Button>
-                      <Button x:Name="ForwardVideoPositionButon" Background="Transparent" Command="{Binding SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" Margin="24 0 0 0">
+                      <Button x:Name="ForwardVideoPositionButon" Command="{x:Bind _vm.SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" MinWidth="48" MinHeight="48">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;" FontSize="24" />
                       </Button>
                     </StackPanel>
                     <!-- Settings etc -->
-                    <toolkit:WrapPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
-                      <Button x:Name="OpenCommentListButton" Background="Transparent" Command="{Binding SelectSidePaneCommand}" CommandParameter="Comment">
+                    <StackPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" Spacing="8">
+                      <Button x:Name="OpenCommentListButton" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Comment" MinWidth="48" MinHeight="48">
                         <iconPack:PackIconMaterial Kind="Comment" Width="24" Height="24"></iconPack:PackIconMaterial>
                       </Button>
-                      <Button x:Name="OpenPlaylistButton" Background="Transparent" Command="{Binding SelectSidePaneCommand}" CommandParameter="Playlist">
+                      <Button x:Name="OpenPlaylistButton" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Playlist" MinWidth="48" MinHeight="48">
                         <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="24" Height="24"></iconPack:PackIconMaterial>
                       </Button>
-                      <Button x:Name="OpenSettingsPaneButton" Command="{Binding SelectSidePaneCommand}" CommandParameter="Setting" Background="Transparent">
+                      <Button x:Name="OpenSettingsPaneButton" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Setting" MinWidth="48" MinHeight="48">
                         <SymbolIcon Symbol="Setting" />
                       </Button>
-                    </toolkit:WrapPanel>
+                    </StackPanel>
                   </Grid>
                   <!-- コメントを書く -->
                   <Grid x:Name="CommentLayout" Padding="0 8 0 0" Visibility="Collapsed">
@@ -611,10 +608,10 @@
                     </TextBox>
                     <Button x:Name="CommentCommandEditButton"
                             Content="{Binding CommentCommandEditerViewModel.CommandsText.Value, Mode=OneWay}"                            
-                            Margin="8 0 8 0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
+                            Margin="8 0 8 0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{x:Bind _vm}" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
                       <Button.Flyout>
                         <Flyout x:Name="CommandEditerFlyout">
-                          <local:CommentCommandEditer x:Name="CommandEditer" DataContext="{Binding CommentCommandEditerViewModel}" />
+                          <local:CommentCommandEditer x:Name="CommandEditer" DataContext="{x:Bind _vm.CommentCommandEditerViewModel, Mode=OneWay}" />
                         </Flyout>
                       </Button.Flyout>
 
@@ -624,7 +621,7 @@
                         </core:DataTriggerBehavior>
                       </i:Interaction.Behaviors>
                     </Button>
-                    <Button x:Name="CommentSubmitButton" Margin="8 0 8 0" Height="40" Command="{Binding CommentPlayer.CommentSubmitCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="5" Grid.ColumnSpan="1">
+                    <Button x:Name="CommentSubmitButton" Margin="8 0 8 0" Height="40" Command="{x:Bind _vm.CommentPlayer.CommentSubmitCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="5" Grid.ColumnSpan="1">
                       <Grid>
                         <TextBlock Text="{i18nExt:Localize Key=SubmitComment}" />
                         <ProgressRing x:Name="CommentSubmittingProgressRing" IsActive="False" Height="24" Width="24" VerticalAlignment="Center" />
@@ -642,11 +639,11 @@
                     </i:Interaction.Behaviors>
                   </Border>
                   <Border x:Name="PlayEndedRecommendContainer" Visibility="Collapsed">
-                    <controls:DelayedAutoTriggerButton x:Name="PlayEndedRecommend" Command="{Binding VideoEndedRecommendation.PlayNextVideoCommand}" CancelCommand="{Binding VideoEndedRecommendation.CanceledNextPartMoveCommand}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="40 0" IsAutoTriggerEnabled="{Binding PlayerSettings.AutoMoveNextVideoOnPlaylistEmpty}">
+                    <controls:DelayedAutoTriggerButton x:Name="PlayEndedRecommend" Command="{x:Bind _vm.VideoEndedRecommendation.PlayNextVideoCommand}" CancelCommand="{Binding VideoEndedRecommendation.CanceledNextPartMoveCommand}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="40 0" IsAutoTriggerEnabled="{Binding PlayerSettings.AutoMoveNextVideoOnPlaylistEmpty}">
                       <controls:DelayedAutoTriggerButton.CenterContent>
                         <StackPanel Spacing="4">
                           <TextBlock Text="{i18nExt:Localize Key=RecommendedNextVideo}" Opacity="0.7" />
-                          <TextBlock x:Name="RecommendVideoTitle" Text="{Binding VideoEndedRecommendation.NextVideoTitle}" Style="{StaticResource BaseTextBlockStyle}"  />
+                          <TextBlock x:Name="RecommendVideoTitle" Text="{x:Bind _vm.VideoEndedRecommendation.NextVideoTitle, Mode=OneWay}" Style="{StaticResource BaseTextBlockStyle}"  />
                         </StackPanel>
                       </controls:DelayedAutoTriggerButton.CenterContent>
                       <i:Interaction.Behaviors>
@@ -685,12 +682,12 @@
                     </i:Interaction.Behaviors>
                   </Border>
                   <Border VerticalAlignment="Center" HorizontalAlignment="Left">
-                    <Button MinWidth="24" Height="120" Command="{Binding PlayPreviousCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="0 1 1 1">
+                    <Button MinWidth="24" Height="120" Command="{x:Bind _vm.PlayPreviousCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="0 1 1 1">
                       <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE016;" FontSize="20" Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"></TextBlock>
                     </Button>
                   </Border>
                   <Border VerticalAlignment="Center" HorizontalAlignment="Right">
-                    <Button MinWidth="24" Height="120" Command="{Binding PlayNextCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="1 1 0 1">
+                    <Button MinWidth="24" Height="120" Command="{x:Bind _vm.PlayNextCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="1 1 0 1">
                       <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE017;" FontSize="20" Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"></TextBlock>
                     </Button>
                   </Border>
@@ -709,17 +706,17 @@
             </Grid>
             <Grid>
               <!-- 有料動画・サポートされていないプロトコル・動画形式・チャンネル会員限定動画・プレミアム会員限定動画 -->
-              <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="32 64" Visibility="{Binding IsNotSupportVideoType, Converter={StaticResource BooleanToVisibility}}" Background="{StaticResource AppBarItemPointerOverBackgroundThemeBrush}" Padding="16">
+              <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="32 64" Visibility="{x:Bind _vm.IsNotSupportVideoType, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" Background="{StaticResource AppBarItemPointerOverBackgroundThemeBrush}" Padding="16">
                 <Grid MinWidth="300">
                   <iconPack:PackIconMaterial Kind="VideoOff" Margin="16 8 32 8" Width="32" Height="32" toolkit:DockPanel.Dock="Left" VerticalAlignment="Center" />
                   <StackPanel Spacing="16" HorizontalAlignment="Right">
                     <TextBlock Text="{i18nExt:Localize Key=CanNotPlay}" VerticalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 0 0 0" />
                     <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" HorizontalAlignment="Right" >
-                        <Run Text="{Binding CannotPlayReason}" />
+                        <Run Text="{x:Bind _vm.CannotPlayReason, Mode=OneWay}" />
                     </TextBlock>
                     <Button Content="{i18nExt:Localize Key=OpenWithBrowser}"
-                            Command="{Binding OpenLinkCommand}" 
-                            CommandParameter="{Binding VideoInfo}"
+                            Command="{x:Bind _vm.OpenLinkCommand}" 
+                            CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"
                             Style="{ThemeResource AccentButtonStyle}" 
                             Height="48"
                             HorizontalAlignment="Right"
@@ -750,12 +747,12 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding CurrentPlayerDisplayView.Value}" EqualTo="SecondaryView" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.CurrentPlayerDisplayView.Value, Mode=OneWay}" EqualTo="SecondaryView" />
           </VisualState.StateTriggers>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="TV" />
             <windowsTriggers:DeviceFamilyStateTrigger DeviceFamily="Xbox" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -854,7 +851,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn}" />
+            <StateTrigger IsActive="{x:Bind _vm.NiconicoSession.IsLoggedIn, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentLayout.Visibility" Value="Visible" />
@@ -879,7 +876,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
+            <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ExitCompactOverlayButton.Visibility" Value="Visible" />
@@ -898,7 +895,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="WindowInWindow" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="WindowInWindow" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ExitWindonwInWindowViewButton.Visibility" Value="Visible" />
@@ -954,7 +951,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding PlayerView.IsFullScreen}" />
+            <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsFullScreen, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />
@@ -985,7 +982,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding CurrentPlayerDisplayView.Value}" EqualTo="SecondaryView" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.CurrentPlayerDisplayView.Value, Mode=OneWay}" EqualTo="SecondaryView" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ShowPrimaryViewButton.Visibility" Value="Visible" />
@@ -1018,7 +1015,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
+            <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1115,10 +1112,10 @@
             <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{Binding ElementName=CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
             <StateTrigger IsActive="{x:Bind ActionsCommandBar.IsOpen, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind NowVideoPositionChanging, Mode=OneWay}" />
-            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
-            <StateTrigger IsActive="{Binding PlayerSettings.IsAutoHidePlayerControlUI, Converter={StaticResource BoolNegation}}" />
+            <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
+            <StateTrigger IsActive="{x:Bind _vm.PlayerSettings.IsAutoHidePlayerControlUI, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
             <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="Controller" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.InteractionMode, Mode=OneWay}" EqualTo="Controller" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerControlAutoHide.IsAutoHideEnabled" Value="False" />
@@ -1210,7 +1207,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding PlayerSettings.IsForceLandscape, Converter={StaticResource BoolNegation}}" />
+            <StateTrigger IsActive="{x:Bind _vm.PlayerSettings.IsForceLandscape, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="LayoutRotateTranform.Angle" Value="0" />
@@ -1246,7 +1243,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding CommentPlayer.NowSeekDisabledFromNicoScript}" />
+            <StateTrigger IsActive="{x:Bind _vm.CommentPlayer.NowSeekDisabledFromNicoScript, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="SeekBarSlider.IsEnabled" Value="False" />
@@ -1258,7 +1255,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding CommentPlayer.NowCommentSubmitDisabledFromNicoScript}" />
+            <StateTrigger IsActive="{x:Bind _vm.CommentPlayer.NowCommentSubmitDisabledFromNicoScript, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentTextBox.IsEnabled" Value="False" />
@@ -1284,7 +1281,7 @@
             <windowsTriggers:CompositeStateTrigger Operator="And">
               <StateTrigger IsActive="{Binding VideoEndedRecommendation.HasRecomend.Value}" />
               <windowsTriggers:CompositeStateTrigger Operator="Or">
-                <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
+                <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
                 <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
               </windowsTriggers:CompositeStateTrigger>
             </windowsTriggers:CompositeStateTrigger>
@@ -1299,7 +1296,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
+            <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1332,7 +1329,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding SidePaneType, Mode=OneWay}" EqualTo="Comment" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.SidePaneType, Mode=OneWay}" EqualTo="Comment" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerSplitView.DisplayMode" Value="Inline" />

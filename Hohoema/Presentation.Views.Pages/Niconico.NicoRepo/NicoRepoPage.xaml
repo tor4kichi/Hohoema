@@ -88,7 +88,7 @@
   <Grid>
 
     <ListView x:Name="ItemsList"
-              ItemsSource="{Binding ItemsView, Mode=OneWay}"
+              ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
               ItemTemplateSelector="{StaticResource NicoRepoItemTemplateSelector}"
               IsItemClickEnabled="True"
               IncrementalLoadingTrigger="Edge"
@@ -118,31 +118,28 @@
       </myExtensions:ListViewBase.ItemContextFlyoutTemplateSelector>
       <i:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="ItemClick">
-          <core:InvokeCommandAction Command="{Binding OpenNicoRepoItemCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+          <core:InvokeCommandAction Command="{x:Bind _vm.OpenNicoRepoItemCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
       <ListView.Header>
         <Grid>
           <StackPanel x:Name="HeaderLayout">
-            <CommandBar x:Name="TopCommandBar">
+            <CommandBar x:Name="TopCommandBar" Padding="8 0" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
               <CommandBar.Content>
-                <controls:AppTitleBar Title="{Binding Title}" />
+                <controls:AppTitleBar Title="{x:Bind _vm.Title}" />
               </CommandBar.Content>
 
               <CommandBar.PrimaryCommands>
                 <AppBarElementContainer VerticalContentAlignment="Stretch">
-                  <DropDownButton Background="Transparent" VerticalAlignment="Stretch">
+                  <DropDownButton Background="Transparent" VerticalAlignment="Stretch" CornerRadius="4">
                     <TextBlock>
-                      <Run Text="{i18nExt:Localize Key=NicoRepoDisplayOptions}" /> : <Run Text="{Binding NicoRepoType.Value, Converter={StaticResource LocalizeConverter}}" />
+                      <Run Text="{i18nExt:Localize Key=NicoRepoDisplayOptions}" /> : <Run Text="{x:Bind _vm.NicoRepoType.Value, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" />
                     </TextBlock>
                     <DropDownButton.Flyout>
                       <Flyout x:Name="TopicsEditFlyout" >
-                        <ListView ItemsSource="{Binding NicoRepoTypeList, Mode=OneTime}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="False" SelectedItem="{Binding NicoRepoType.Value, Mode=TwoWay}">
-                          <ListView.ItemTemplate>
-                            <DataTemplate>
-                              <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                            </DataTemplate>
-                          </ListView.ItemTemplate>
+                        <ListView ItemsSource="{x:Bind _vm.NicoRepoTypeList}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="False" SelectedItem="{Binding NicoRepoType.Value, Mode=TwoWay}"
+                                  ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                                  >
                         </ListView>
                       </Flyout>
                     </DropDownButton.Flyout>
@@ -181,7 +178,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="TV" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
@@ -190,7 +187,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Desktop" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
@@ -199,7 +196,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Tablet" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
@@ -208,7 +205,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Mobile" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
@@ -220,7 +217,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding HasItem.Value, Converter={StaticResource BoolNegation}}" />
+            <StateTrigger IsActive="{x:Bind _vm.HasItem.Value, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="NoTimelineItemsLayout.Visibility"
