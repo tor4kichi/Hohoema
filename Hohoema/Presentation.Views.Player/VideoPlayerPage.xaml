@@ -982,7 +982,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.CurrentPlayerDisplayView.Value, Mode=OneWay}" EqualTo="SecondaryView" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding CurrentPlayerDisplayView.Value, Mode=OneWay}" EqualTo="SecondaryView" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ShowPrimaryViewButton.Visibility" Value="Visible" />
@@ -1110,7 +1110,7 @@
             <!-- Target="{x:Bind CommentTextBox}" と指定すると動作しない -->
             <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
             <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{Binding ElementName=CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
-            <StateTrigger IsActive="{x:Bind ActionsCommandBar.IsOpen, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding ElementName=ActionsCommandBar, Path=IsOpen, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind NowVideoPositionChanging, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind _vm.PlayerSettings.IsAutoHidePlayerControlUI, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
