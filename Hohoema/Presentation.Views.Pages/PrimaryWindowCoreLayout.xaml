@@ -957,7 +957,7 @@
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
             <Setter Target="PlayerLayout.Height" Value="282" />
             <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
-            <Setter Target="MobilePlayerTopMargin.Height" Value="268" />
+            <Setter Target="MobilePlayerTopMargin.Height" Value="282" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
 
           </VisualState.Setters>
@@ -976,7 +976,7 @@
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
             <Setter Target="PlayerLayout.Height" Value="282" />
             <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
-            <Setter Target="MobilePlayerTopMargin.Height" Value="268" />
+            <Setter Target="MobilePlayerTopMargin.Height" Value="282" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
           </VisualState.Setters>
         </VisualState>
