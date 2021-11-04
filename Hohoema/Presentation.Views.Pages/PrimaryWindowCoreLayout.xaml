@@ -853,6 +853,16 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
+          </VisualState.StateTriggers>
+          <VisualState.Storyboard>
+            <Storyboard>
+              <DoubleAnimation Storyboard.TargetName="TitleBarTextBlockTransform" Storyboard.TargetProperty="X" From="0" To="0" Duration="0:0:0.125" />
+            </Storyboard>
+          </VisualState.Storyboard>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
             <StateTrigger IsActive="True" />
           </VisualState.StateTriggers>
           <VisualState.Storyboard>
@@ -883,11 +893,47 @@
             <Setter Target="CoreNavigationView.IsBackButtonVisible" Value="Collapsed" />
             <Setter Target="CoreNavigationView.Margin" Value="27 0 0 0" />
             <Setter Target="TitleBarTextBlock.Opacity" Value="0" />
-            <Setter Target="PaneBackgroundForTVLayout.Opacity" Value="1" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-            
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Top}" />
+            <windowsTriggers:NotEqualStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" NotEqualTo="{x:Bind models:ApplicationLayout.TV}" />
+          </VisualState.StateTriggers>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <mytrigger:CompositeStateTrigger Operator="And">
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.LeftMinimal}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.IsPaneOpen, Mode=OneWay}" EqualTo="True" />
+            </mytrigger:CompositeStateTrigger>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PaneBackgroundForTVLayout.Opacity" Value="1" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Auto}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Left}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.LeftCompact}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PaneBackgroundForTVLayout.Opacity" Value="1" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="True" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
       <!-- プレイヤーとページレイアウトの表示状態 -->
       <VisualStateGroup x:Name="VSG_PlayerAndMenu" xmlns:vsmEx="using:Hohoema.Presentation.Views.Extensions.VIsualStateManager" vsmEx:VisualStateManagerExtensions.DebugCurrentState="True">
         <!-- プレイヤーを画面全体表示 -->
