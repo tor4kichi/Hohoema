@@ -239,7 +239,7 @@
               Opacity="{x:Bind _vm.PlayerSettings.CommentOpacity, Mode=OneWay}"
               />
             <!-- 読み込み中表示 -->
-            <ProgressRing Visibility="{x:Bind _vm. ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" IsActive="{Binding ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay}" Width="48" Height="48" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 88 24 0" />
+            <winui:ProgressRing Visibility="{x:Bind _vm. ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" IsActive="{Binding ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay}" Width="64" Height="64" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9" />
             <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->
             <Border x:Name="WindowDeactiveMouseMoveDetectWall" Background="Transparent" Visibility="Collapsed"></Border>
             <!-- UI非表示時の再生位置バー -->
