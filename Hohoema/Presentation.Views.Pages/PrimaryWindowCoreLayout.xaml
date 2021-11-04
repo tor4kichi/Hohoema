@@ -601,18 +601,11 @@
                           TabIndex="103" Margin="0" 
                           UseSystemFocusVisuals="True"
                           IsFocusEngagementEnabled="True" 
-                              ItemsSource="{x:Bind _viewModel.SearchAutoSuggestItems}"
-                              QuerySubmitted="SearchTextBox_QuerySubmitted"
-                              TextChanged="SearchTextBox_TextChanged"
-                              UpdateTextOnSelect="False"
-                              GotFocus="SearchTextBox_GotFocus"
-                          AutoMaximizeSuggestionArea="True"
-                          
-                              >
-            <AutoSuggestBox.TextBoxStyle>
-              <Style TargetType="TextBox">
-              </Style>
-            </AutoSuggestBox.TextBoxStyle>
+                          QuerySubmitted="SearchTextBox_QuerySubmitted"
+                          TextChanged="SearchTextBox_TextChanged"
+                          UpdateTextOnSelect="False"
+                          GotFocus="SearchTextBox_GotFocus"
+                          >
             <i:Interaction.Behaviors>
               <core:EventTriggerBehavior EventName="GotFocus">
                 <core:CallMethodAction MethodName="SelectAll" />
