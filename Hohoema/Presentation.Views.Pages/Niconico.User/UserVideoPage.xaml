@@ -8,6 +8,7 @@
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:controls="using:Hohoema.Presentation.Views.Controls"
   xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList"
+  xmlns:models="using:Hohoema.Models.Domain.Application"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   DataContext="{x:Null}"
@@ -93,7 +94,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="TV" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
@@ -102,7 +103,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Desktop" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
@@ -111,7 +112,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Tablet" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Tablet}" />
@@ -120,7 +121,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Mobile" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />

@@ -144,7 +144,7 @@ namespace Hohoema.Presentation.Views.Pages
             }
 
             ContentFrame.Navigated += TVModeContentFrame_Navigated;
-            UINavigationManager.Pressed += UINavigationManager_Pressed;
+            //UINavigationManager.Pressed += UINavigationManager_Pressed;
             this.GettingFocus += PrimaryWindowCoreLayout_GettingFocus;
 
 

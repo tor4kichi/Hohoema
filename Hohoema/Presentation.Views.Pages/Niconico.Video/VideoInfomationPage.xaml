@@ -18,7 +18,10 @@
       xmlns:ui="using:Microsoft.Toolkit.Uwp.UI" 
       xmlns:local1="using:Hohoema.Presentation.Views.Controls.VideoList" 
       xmlns:behavior="using:Microsoft.Toolkit.Uwp.UI.Behaviors" 
-      xmlns:videoModels="using:Hohoema.Models.Domain.Niconico.Video" xmlns:viewModels="using:Hohoema.Presentation.ViewModels.Pages.Niconico.Video" xmlns:nicoIchiba="using:NiconicoToolkit.Ichiba"
+      xmlns:videoModels="using:Hohoema.Models.Domain.Niconico.Video" 
+      xmlns:viewModels="using:Hohoema.Presentation.ViewModels.Pages.Niconico.Video"
+      xmlns:nicoIchiba="using:NiconicoToolkit.Ichiba"
+      xmlns:models="using:Hohoema.Models.Domain.Application"
       DataContext="{x:Null}"
       NavigationCacheMode="Enabled"
       mc:Ignorable="d">
@@ -431,7 +434,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="TV" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ContentLayout.Margin" Value="{StaticResource ContentPageMargin_TV}" />
@@ -441,7 +444,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Desktop" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ContentLayout.Margin" Value="{StaticResource ContentPageMargin_Desktop}" />
@@ -450,7 +453,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Tablet" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ContentLayout.Margin" Value="{StaticResource ContentPageMargin_Tablet}" />
@@ -466,7 +469,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Mobile" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ContentLayout.Margin" Value="{StaticResource ContentPageMargin_Mobile}" />

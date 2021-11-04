@@ -758,6 +758,7 @@
                                                  Interval="0:0:5"
                                                  IsTapEnabled="True"           
                                                  DataContext="{x:Null}"
+                                                 IsTabStop="False"
                                  >
       <i:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Tapped">

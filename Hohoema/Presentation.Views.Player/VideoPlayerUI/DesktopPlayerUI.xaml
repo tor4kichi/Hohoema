@@ -23,6 +23,7 @@
     xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:model="using:Hohoema.Models.Domain"
+    xmlns:models="using:Hohoema.Models.Domain.Application"
     xmlns:mvvm="using:Prism.Mvvm"
     xmlns:winui="using:Microsoft.UI.Xaml.Controls"
     xmlns:controls="using:Hohoema.Presentation.Views.Controls"
@@ -1034,7 +1035,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
             <windowsTriggers:DeviceFamilyStateTrigger DeviceFamily="Xbox" />
           </VisualState.StateTriggers>
           <VisualState.Setters>

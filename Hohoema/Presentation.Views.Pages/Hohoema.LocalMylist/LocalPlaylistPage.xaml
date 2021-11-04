@@ -13,6 +13,7 @@
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
   xmlns:controls="using:Hohoema.Presentation.Views.Controls"
+  xmlns:models="using:Hohoema.Models.Domain.Application"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   mc:Ignorable="d"
@@ -111,7 +112,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}"
-                                                    EqualTo="TV" />
+                                                    EqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding"
@@ -123,7 +124,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}"
-                                                    EqualTo="Desktop" />
+                                                    EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding"
@@ -135,7 +136,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}"
-                                                    EqualTo="Tablet" />
+                                                    EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding"
@@ -147,7 +148,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}"
-                                                    EqualTo="Mobile" />
+                                                    EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding"

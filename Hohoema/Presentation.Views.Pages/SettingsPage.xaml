@@ -8,6 +8,7 @@
       xmlns:view="using:Hohoema.Presentation.Views"
       xmlns:i="using:Microsoft.Xaml.Interactivity"
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:models="using:Hohoema.Models.Domain.Application"
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
       xmlns:toolkit="using:WinRTXamlToolkit.Controls"
       xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
@@ -553,7 +554,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
@@ -562,7 +563,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
@@ -571,7 +572,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Tablet}" />
@@ -580,7 +581,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />

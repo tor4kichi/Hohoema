@@ -7,6 +7,7 @@
       mc:Ignorable="d"
       xmlns:i="using:Microsoft.Xaml.Interactivity"
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:models="using:Hohoema.Models.Domain.Application"
       xmlns:toolkit="using:WinRTXamlToolkit.Controls"
       xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
@@ -332,6 +333,7 @@
                   <CommandBar x:Name="ActionsCommandBar" toolkit:DockPanel.Dock="Right" 
                               XYFocusLeft="{x:Bind CloseButton}"
                               DefaultLabelPosition="Right"
+                              IsTabStop="False"
                               >
 
                     <CommandBar.PrimaryCommands>
@@ -747,12 +749,12 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.CurrentPlayerDisplayView.Value, Mode=OneWay}" EqualTo="SecondaryView" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding CurrentPlayerDisplayView.Value, Mode=OneWay}" EqualTo="SecondaryView" />
           </VisualState.StateTriggers>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="TV" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
             <windowsTriggers:DeviceFamilyStateTrigger DeviceFamily="Xbox" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -895,7 +897,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="WindowInWindow" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="WindowInWindow" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ExitWindonwInWindowViewButton.Visibility" Value="Visible" />
@@ -951,7 +953,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsFullScreen, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsFullScreen, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />
@@ -1015,7 +1017,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1112,10 +1114,10 @@
             <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{Binding ElementName=CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
             <StateTrigger IsActive="{Binding ElementName=ActionsCommandBar, Path=IsOpen, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind NowVideoPositionChanging, Mode=OneWay}" />
-            <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
-            <StateTrigger IsActive="{x:Bind _vm.PlayerSettings.IsAutoHidePlayerControlUI, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding PlayerSettings.IsAutoHidePlayerControlUI, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
             <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.InteractionMode, Mode=OneWay}" EqualTo="Controller" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode, Mode=OneWay}" EqualTo="Controller" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerControlAutoHide.IsAutoHideEnabled" Value="False" />
@@ -1281,7 +1283,7 @@
             <windowsTriggers:CompositeStateTrigger Operator="And">
               <StateTrigger IsActive="{Binding VideoEndedRecommendation.HasRecomend.Value}" />
               <windowsTriggers:CompositeStateTrigger Operator="Or">
-                <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
+                <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
                 <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
               </windowsTriggers:CompositeStateTrigger>
             </windowsTriggers:CompositeStateTrigger>
@@ -1296,7 +1298,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1329,7 +1331,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.SidePaneType, Mode=OneWay}" EqualTo="Comment" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.SidePaneType, Mode=OneWay}" EqualTo="{x:Bind players:PlayerSidePaneContentType.Comment}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerSplitView.DisplayMode" Value="Inline" />
