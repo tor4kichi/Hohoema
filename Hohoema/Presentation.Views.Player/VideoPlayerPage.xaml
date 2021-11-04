@@ -135,7 +135,7 @@
         <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
       </toolkit:LayoutTransformControl.Transform>
       <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" IsPaneOpen="{x:Bind _vm.PlayerSplitViewIsPaneOpen, Mode=TwoWay}"
-                 PaneBackground="{ThemeResource SystemControlAltHighAcrylicElementBrush}"
+                 PaneBackground="{ThemeResource ApplicationContentBackgroundBrush}"
                  >
         <i:Interaction.Behaviors>
           <!-- サイドペインが閉じられたら コンテンツVMをリセット -->
