@@ -417,7 +417,7 @@
         Background="{ThemeResource ApplicationContentBackgroundBrush}"    
         >
 
-    <Grid x:Name="PaneBackgroundForTVLayout" HorizontalAlignment="Left" Background="{ThemeResource ApplicationHeaderBackgroundBrush}" Width="27" Opacity="0">
+    <Grid x:Name="PaneBackgroundForTVLayout" HorizontalAlignment="Left" Background="{ThemeResource ApplicationHeaderBackgroundBrush}" Width="48" Opacity="0">
       
     </Grid>
     <uwpToolkitControls:DockPanel>
@@ -885,12 +885,13 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CoreNavigationView.IsBackButtonVisible" Value="Collapsed" />
-            <Setter Target="CoreNavigationView.Margin" Value="27 0 0 0" />
+            <Setter Target="CoreNavigationView.Margin" Value="48 0 0 0" />
             <Setter Target="TitleBarTextBlock.Opacity" Value="0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
 
+      <!-- TV表示時に左端に -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>

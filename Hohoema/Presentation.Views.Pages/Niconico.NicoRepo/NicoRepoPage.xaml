@@ -161,7 +161,7 @@
       </ListView.Header>
       <ListView.ItemsPanel>
         <ItemsPanelTemplate>
-          <ItemsStackPanel x:Name="ItemsPanel"  />
+          <ItemsStackPanel x:Name="ItemsPanel" Margin="0 0 0 0"  />
         </ItemsPanelTemplate>
       </ListView.ItemsPanel>
     </ListView>
@@ -183,7 +183,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
-            <Setter Target="ItemsPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_TV}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -192,7 +192,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
-            <Setter Target="ItemsPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -200,8 +200,8 @@
             <windowsStateTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
-            <Setter Target="ItemsPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Tablet}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -210,7 +210,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
-            <Setter Target="ItemsPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

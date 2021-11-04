@@ -44,7 +44,6 @@
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
                                       x:Name="VideoItemsListView"
-                                      Padding="0 48 0 0"
                                       >
       <videolistPage:VideoItemsListView.Header>
 
