@@ -37,7 +37,7 @@
 
               <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
                 <ComboBox x:Name="GenreTagSelector"
-                            ItemsSource="{x:Bind _vm.PickedTags}"
+                            ItemsSource="{x:Bind _vm.PickedTags, Mode=OneWay}"
                             SelectedItem="{x:Bind _vm.SelectedRankingTag.Value, Mode=TwoWay}"
                             DisplayMemberPath="Label"
                           XYFocusRight="{x:Bind RankingTermSelector}"
