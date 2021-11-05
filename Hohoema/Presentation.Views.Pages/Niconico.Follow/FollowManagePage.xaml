@@ -165,7 +165,6 @@
       
       <uwpControls:ListDetailsView x:Name="ListDetailsView" ItemsSource="{Binding FollowGroups}"
                                    DetailsPaneBackground="{ThemeResource ApplicationContentBackgroundBrush}"
-                                   ListPaneWidth="200"
                                    >
         
         <uwpControls:ListDetailsView.ItemTemplate>
