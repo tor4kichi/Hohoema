@@ -75,7 +75,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
                 )
                 .ToReadOnlyReactivePropertySlim()
                 .AddTo(_CompositeDisposable);
-
+            
+            SelectedSortOption = UserVideoPlaylist.DefaultSortOption;
         }
 
 
@@ -119,7 +120,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
             {
                 userId = id;
             }
-            if (parameters.TryGetValue("id", out UserId justUserId))
+            else if (parameters.TryGetValue("id", out UserId justUserId))
             {
                 userId = justUserId;
             }
@@ -147,6 +148,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
                 SelectedSortOption = UserVideoPlaylist.DefaultSortOption;
 
                 this.ObserveProperty(x => x.SelectedSortOption)
+                    .Where(x => x is not null)
                     .Subscribe(_ => ResetList())
                     .AddTo(_NavigatingCompositeDisposable);
             }
@@ -158,6 +160,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
 
 		protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
 		{
+            if (_selectedSortOption is null)
+            {
+                SelectedSortOption = UserVideoPlaylist.DefaultSortOption;
+            }
+
             return (UserVideoIncrementalSource.OneTimeLoadCount, new UserVideoIncrementalSource(UserId, User, UserProvider, UserVideoPlaylist, SelectedSortOption));
 		}
 

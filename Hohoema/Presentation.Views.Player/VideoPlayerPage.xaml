@@ -7,6 +7,7 @@
       mc:Ignorable="d"
       xmlns:i="using:Microsoft.Xaml.Interactivity"
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:models="using:Hohoema.Models.Domain.Application"
       xmlns:toolkit="using:WinRTXamlToolkit.Controls"
       xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
@@ -134,7 +135,7 @@
         <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
       </toolkit:LayoutTransformControl.Transform>
       <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" IsPaneOpen="{x:Bind _vm.PlayerSplitViewIsPaneOpen, Mode=TwoWay}"
-                 PaneBackground="{ThemeResource SystemControlAltHighAcrylicElementBrush}"
+                 PaneBackground="{ThemeResource ApplicationContentBackgroundBrush}"
                  >
         <i:Interaction.Behaviors>
           <!-- サイドペインが閉じられたら コンテンツVMをリセット -->
@@ -238,7 +239,7 @@
               Opacity="{x:Bind _vm.PlayerSettings.CommentOpacity, Mode=OneWay}"
               />
             <!-- 読み込み中表示 -->
-            <ProgressRing Visibility="{x:Bind _vm. ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" IsActive="{Binding ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay}" Width="48" Height="48" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 88 24 0" />
+            <winui:ProgressRing Visibility="{x:Bind _vm. ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" IsActive="{Binding ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay}" Width="64" Height="64" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.9" />
             <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->
             <Border x:Name="WindowDeactiveMouseMoveDetectWall" Background="Transparent" Visibility="Collapsed"></Border>
             <!-- UI非表示時の再生位置バー -->
@@ -306,95 +307,100 @@
               </i:Interaction.Behaviors>
               <toolkit:DockPanel x:Name="DefaultUIControl">
                 <!-- 上側 プレイリスト 操作 -->
-                <toolkit:DockPanel x:Name="UIControlHeaderLayout" toolkit:DockPanel.Dock="Top" Background="{StaticResource HohoemaPlayerBackgroundBrush}">
+                <Border toolkit:DockPanel.Dock="Top" Background="{StaticResource HohoemaPlayerBackgroundBrush}">
 
-                  <!-- Title Bar Margin -->
-                  <Grid x:Name="TitleBarMarginLayout" Height="32" toolkit:DockPanel.Dock="Top" Visibility="Collapsed">
-                    <TextBlock x:Name="TitleTextBlock_Nallow" Text="{x:Bind _vm.VideoInfo.Title, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Visibility="Collapsed" Margin="8" />
-                  </Grid>
-                  <!-- 左上 -->
-                  <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
-                    <!-- 閉じる -->
-                    <Button x:Name="CloseButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" UseSystemFocusVisuals="True" MinWidth="48" MinHeight="48"
+                  <toolkit:DockPanel x:Name="UIControlHeaderLayout" >
+
+                    <!-- Title Bar Margin -->
+                    <Grid x:Name="TitleBarMarginLayout" Height="32" toolkit:DockPanel.Dock="Top" Visibility="Collapsed">
+                      <TextBlock x:Name="TitleTextBlock_Nallow" Text="{x:Bind _vm.VideoInfo.Title, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Visibility="Collapsed" Margin="8" />
+                    </Grid>
+                    <!-- 左上 -->
+                    <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
+                      <!-- 閉じる -->
+                      <Button x:Name="CloseButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" UseSystemFocusVisuals="True" MinWidth="48" MinHeight="48"
                             XYFocusRight="{x:Bind ActionsCommandBar}"
                             >
-                      <iconPack:PackIconMaterial Kind="Close" />
-                    </Button>
+                        <iconPack:PackIconMaterial Kind="Close" />
+                      </Button>
 
-                    <!-- メインウィンドウ表示 -->
-                    <Button x:Name="ShowPrimaryViewButton" Command="{x:Bind _vm.ShowPrimaryViewCommand}" Visibility="Collapsed" MinWidth="48" MinHeight="48">
-                      <StackPanel Orientation="Vertical">
-                        <TextBlock Text="{i18nExt:Localize Key=SwitchToMainWindow}" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
-                      </StackPanel>
-                    </Button>
-                  </StackPanel>
-                  <!-- 右上 -->
-                  <CommandBar x:Name="ActionsCommandBar" toolkit:DockPanel.Dock="Right" 
+                      <!-- メインウィンドウ表示 -->
+                      <Button x:Name="ShowPrimaryViewButton" Command="{x:Bind _vm.ShowPrimaryViewCommand}" Visibility="Collapsed" MinWidth="48" MinHeight="48">
+                        <StackPanel Orientation="Vertical">
+                          <TextBlock Text="{i18nExt:Localize Key=SwitchToMainWindow}" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
+                        </StackPanel>
+                      </Button>
+                    </StackPanel>
+                    <!-- 右上 -->
+                    <CommandBar x:Name="ActionsCommandBar" toolkit:DockPanel.Dock="Right" 
                               XYFocusLeft="{x:Bind CloseButton}"
                               DefaultLabelPosition="Right"
+                              IsTabStop="False"
                               >
 
-                    <CommandBar.PrimaryCommands>
-                      <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{x:Bind _vm.LikesContext.IsLikes, Mode=TwoWay}" IsEnabled="{x:Bind _vm.LikesContext.NowLikeProcessing, Mode=OneWay, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
-                      <AppBarButton x:Name="ShowVideoInfoButon" Label="{i18nExt:Localize Key=VideoInfomation}" Command="{x:Bind _vm.OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
-                      <AppBarButton Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="{i18nExt:Localize Key=RelatedInfomation}" />
-                      <AppBarButton x:Name="ShareButton" Label="{i18nExt:Localize Key=Share}" Icon="Link" Visibility="Collapsed" Command="{x:Bind _vm.OpenShareUICommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"></AppBarButton>
-                      <AppBarButton x:Name="CopyActionsAppBarButton" Label="{i18nExt:Localize Key=Copy}" Visibility="Visible">
-                        <AppBarButton.Flyout>
-                          <MenuFlyout>
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoId}" Command="{x:Bind _vm.CopyToClipboardCommand}" CommandParameter="{x:Bind _vm.VideoId, Mode=OneWay}" />
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoLink}" Command="{x:Bind _vm.CopyToClipboardCommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}" />
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyShareText}" Command="{x:Bind _vm.CopyToClipboardWithShareTextCommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}" />
-                          </MenuFlyout>
-                        </AppBarButton.Flyout>
-                      </AppBarButton>
-                      <AppBarButton x:Name="AddContentButton" Label="{i18nExt:Localize Key=Add}" Icon="Add">
-                        <AppBarButton.Flyout>
-                          <MenuFlyout x:Name="AddToMenuFlyout">
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=MylistAddItem}"
+                      <CommandBar.PrimaryCommands>
+                        <AppBarToggleButton x:Name="LikeToggleButton" Label="{i18nExt:Localize Key=NicoLike}" IsChecked="{x:Bind _vm.LikesContext.IsLikes, Mode=TwoWay}" IsEnabled="{x:Bind _vm.LikesContext.NowLikeProcessing, Mode=OneWay, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />
+                        <AppBarButton x:Name="ShowVideoInfoButon" Label="{i18nExt:Localize Key=VideoInfomation}" Command="{x:Bind _vm.OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
+                        <AppBarButton Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="{i18nExt:Localize Key=RelatedInfomation}" />
+                        <AppBarButton x:Name="ShareButton" Label="{i18nExt:Localize Key=Share}" Icon="Link" Visibility="Collapsed" Command="{x:Bind _vm.OpenShareUICommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"></AppBarButton>
+                        <AppBarButton x:Name="CopyActionsAppBarButton" Label="{i18nExt:Localize Key=Copy}" Visibility="Visible">
+                          <AppBarButton.Flyout>
+                            <MenuFlyout>
+                              <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoId}" Command="{x:Bind _vm.CopyToClipboardCommand}" CommandParameter="{x:Bind _vm.VideoId, Mode=OneWay}" />
+                              <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyVideoLink}" Command="{x:Bind _vm.CopyToClipboardCommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}" />
+                              <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyShareText}" Command="{x:Bind _vm.CopyToClipboardWithShareTextCommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}" />
+                            </MenuFlyout>
+                          </AppBarButton.Flyout>
+                        </AppBarButton>
+                        <AppBarButton x:Name="AddContentButton" Label="{i18nExt:Localize Key=Add}" Icon="Add">
+                          <AppBarButton.Flyout>
+                            <MenuFlyout x:Name="AddToMenuFlyout">
+                              <MenuFlyoutItem Text="{i18nExt:Localize Key=MylistAddItem}"
                                             Command="{x:Bind _vm.AddMylistCommand}"
                                             CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"
                                             />
 
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=LocalMylistAddItem}"
+                              <MenuFlyoutItem Text="{i18nExt:Localize Key=LocalMylistAddItem}"
                                             Command="{x:Bind _vm.LocalPlaylistAddItemCommand}"
                                             CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"
                                             />
 
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddUser}"
+                              <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddUser}"
                                             Command="{x:Bind _vm.AddSubscriptionCommand}"
                                             CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"
                                             />
-                            <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddSeries}"
+                              <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddSeries}"
                                             Command="{x:Bind _vm.AddSubscriptionCommand}"
                                             CommandParameter="{x:Bind _vm.VideoSeries, Mode=OneWay}"
                                             Visibility="{x:Bind _vm.VideoSeries, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}"
                                             />
 
 
-                          </MenuFlyout>
-                        </AppBarButton.Flyout>
-                      </AppBarButton>
-                    </CommandBar.PrimaryCommands>
+                            </MenuFlyout>
+                          </AppBarButton.Flyout>
+                        </AppBarButton>
+                      </CommandBar.PrimaryCommands>
 
-                    <CommandBar.SecondaryCommands>
-                      <AppBarButton x:Name="FullscreenButton" Command="{x:Bind _vm.PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></AppBarButton>
-                      <AppBarButton x:Name="CompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=CompactOverlay}"></AppBarButton>
-                      <AppBarButton x:Name="SmallWindowButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=WindowInWindow}"></AppBarButton>
-                      <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{x:Bind _vm.TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=PlayWithSecondaryView}"></AppBarButton>
-                      <AppBarToggleButton x:Name="ForceRotateToggleButton" IsChecked="{x:Bind _vm.PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></AppBarToggleButton>
-                    </CommandBar.SecondaryCommands>
-                  </CommandBar>
+                      <CommandBar.SecondaryCommands>
+                        <AppBarButton x:Name="FullscreenButton" Command="{x:Bind _vm.PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></AppBarButton>
+                        <AppBarButton x:Name="CompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=CompactOverlay}"></AppBarButton>
+                        <AppBarButton x:Name="SmallWindowButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=WindowInWindow}"></AppBarButton>
+                        <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{x:Bind _vm.TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=PlayWithSecondaryView}"></AppBarButton>
+                        <AppBarToggleButton x:Name="ForceRotateToggleButton" IsChecked="{x:Bind _vm.PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FixToLandscape}" Icon="Orientation"></AppBarToggleButton>
+                      </CommandBar.SecondaryCommands>
+                    </CommandBar>
 
-                  <Button x:Name="ExitWindonwInWindowViewButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
-                    <SymbolIcon Symbol="FullScreen" />
-                  </Button>
-                  <Button x:Name="ExitCompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
-                    <SymbolIcon Symbol="FullScreen" />
-                  </Button>
+                    <Button x:Name="ExitWindonwInWindowViewButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
+                      <SymbolIcon Symbol="FullScreen" />
+                    </Button>
+                    <Button x:Name="ExitCompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
+                      <SymbolIcon Symbol="FullScreen" />
+                    </Button>
 
-                  <Border />
-                </toolkit:DockPanel>
+                    <Border />
+                  </toolkit:DockPanel>
+                </Border>
+
                 <!-- 下側 動画コンテンツ 操作 -->
                 <StackPanel x:Name="UIControlContentLayout" toolkit:DockPanel.Dock="Bottom" Background="{StaticResource HohoemaPlayerBackgroundBrush}" Padding="0 0 0 8">
                   <!-- Title -->
@@ -681,12 +687,12 @@
                       </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                   </Border>
-                  <Border VerticalAlignment="Center" HorizontalAlignment="Left">
+                  <Border x:Name="GoPrevVideoLayout" VerticalAlignment="Center" HorizontalAlignment="Left">
                     <Button MinWidth="24" Height="120" Command="{x:Bind _vm.PlayPreviousCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="0 1 1 1">
                       <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE016;" FontSize="20" Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"></TextBlock>
                     </Button>
                   </Border>
-                  <Border VerticalAlignment="Center" HorizontalAlignment="Right">
+                  <Border x:Name="GoNextVideoLayout" VerticalAlignment="Center" HorizontalAlignment="Right">
                     <Button MinWidth="24" Height="120" Command="{x:Bind _vm.PlayNextCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="1 1 0 1">
                       <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE017;" FontSize="20" Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"></TextBlock>
                     </Button>
@@ -747,12 +753,12 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.CurrentPlayerDisplayView.Value, Mode=OneWay}" EqualTo="SecondaryView" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding CurrentPlayerDisplayView.Value, Mode=OneWay}" EqualTo="SecondaryView" />
           </VisualState.StateTriggers>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="TV" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
             <windowsTriggers:DeviceFamilyStateTrigger DeviceFamily="Xbox" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -895,7 +901,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="WindowInWindow" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="WindowInWindow" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ExitWindonwInWindowViewButton.Visibility" Value="Visible" />
@@ -929,13 +935,15 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
             <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerSidePaneLayout.Margin" Value="0 27 0 27" />
             <Setter Target="UIControlContentLayout.Padding" Value="48 0 48 27" />
             <Setter Target="UIControlHeaderLayout.Margin" Value="48 27 48 0" />
-            <Setter Target="UIControlCenterLayout.Margin" Value="48 0" />
+            <Setter Target="GoPrevVideoLayout.Margin" Value="48 0 0 0" />
+            <Setter Target="GoNextVideoLayout.Margin" Value="0 0 48 0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -951,7 +959,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsFullScreen, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsFullScreen, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />
@@ -1015,7 +1023,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1112,10 +1120,10 @@
             <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{Binding ElementName=CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
             <StateTrigger IsActive="{Binding ElementName=ActionsCommandBar, Path=IsOpen, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind NowVideoPositionChanging, Mode=OneWay}" />
-            <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
-            <StateTrigger IsActive="{x:Bind _vm.PlayerSettings.IsAutoHidePlayerControlUI, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding PlayerSettings.IsAutoHidePlayerControlUI, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
             <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.InteractionMode, Mode=OneWay}" EqualTo="Controller" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode, Mode=OneWay}" EqualTo="Controller" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerControlAutoHide.IsAutoHideEnabled" Value="False" />
@@ -1281,7 +1289,7 @@
             <windowsTriggers:CompositeStateTrigger Operator="And">
               <StateTrigger IsActive="{Binding VideoEndedRecommendation.HasRecomend.Value}" />
               <windowsTriggers:CompositeStateTrigger Operator="Or">
-                <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
+                <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
                 <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
               </windowsTriggers:CompositeStateTrigger>
             </windowsTriggers:CompositeStateTrigger>
@@ -1296,7 +1304,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind _vm.PlayerView.IsCompactOverlay, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1329,7 +1337,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.SidePaneType, Mode=OneWay}" EqualTo="Comment" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.SidePaneType, Mode=OneWay}" EqualTo="{x:Bind players:PlayerSidePaneContentType.Comment}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerSplitView.DisplayMode" Value="Inline" />

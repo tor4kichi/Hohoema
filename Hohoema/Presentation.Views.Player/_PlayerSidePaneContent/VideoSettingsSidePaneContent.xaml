@@ -319,7 +319,9 @@
                                           />
           </Grid>
 
-          <ItemsControl ItemsSource="{Binding FilteringKeywords}" x:Name="FilteringKeywordItems">
+          <ItemsControl ItemsSource="{Binding FilteringKeywords}" x:Name="FilteringKeywordItems"
+                        IsTabStop="False"
+                        >
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <uwpControls:DockPanel>
@@ -357,7 +359,9 @@
             </ItemsControl.ItemTemplate>
           </ItemsControl>
 
-          <Button Content="NGキーワードを追加" Command="{Binding CommentFiltering.AddFilteringCommentTextConditionCommand}" CommandParameter="" />
+          <Button Content="NGキーワードを追加" Command="{Binding CommentFiltering.AddFilteringCommentTextConditionCommand}" CommandParameter=""
+                  HorizontalAlignment="Right"
+                  />
 
           
           <!-- コメント文字列の置換 -->
@@ -365,7 +369,7 @@
             <TextBlock Text="{i18nExt:Localize Key=CommentReplaceSettings}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
           </Grid>
 
-          <ItemsControl ItemsSource="{Binding VideoCommentTransformConditions}" x:Name="TransformConditionItems">
+          <ItemsControl ItemsSource="{Binding VideoCommentTransformConditions}" x:Name="TransformConditionItems" IsTabStop="False">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <uwpControls:DockPanel Margin="0 0 0 8">
@@ -424,7 +428,9 @@
             </ItemsControl.ItemTemplate>
           </ItemsControl>
 
-          <Button Content="置換を追加" Command="{Binding CommentFiltering.AddTextTransformConditionsCommand}">
+          <Button Content="置換を追加" Command="{Binding CommentFiltering.AddTextTransformConditionsCommand}"
+                  HorizontalAlignment="Right"
+                  >
           </Button>
 
         </StackPanel>

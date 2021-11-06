@@ -115,15 +115,15 @@
       <Thickness x:Key="ContentListViewBodyMargin_TV">16 0 48 27</Thickness>
       <Thickness x:Key="ContentPageMargin_TV">16 27 48 27</Thickness>
       <!-- 32 (TitleBar) + 48 (Page title) = 80 -->
-      <Thickness x:Key="ContentListViewHeaderMargin_Desktop">16 0 16 0</Thickness>
-      <Thickness x:Key="ContentListViewBodyMargin_Desktop">16 0 16 0</Thickness>
-      <Thickness x:Key="ContentPageMargin_Desktop">16 0 0 0</Thickness>
-      <Thickness x:Key="ContentListViewHeaderMargin_Tablet">16 0 16 0</Thickness>
-      <Thickness x:Key="ContentListViewBodyMargin_Tablet">16 0 16 0</Thickness>
-      <Thickness x:Key="ContentPageMargin_Tablet">16 0 0 0</Thickness>
-      <Thickness x:Key="ContentListViewHeaderMargin_Mobile">16 0 16 0</Thickness>
-      <Thickness x:Key="ContentListViewBodyMargin_Mobile">16 0 16 0</Thickness>
-      <Thickness x:Key="ContentPageMargin_Mobile">16 0 16 0</Thickness>
+      <Thickness x:Key="ContentListViewHeaderMargin_Desktop">8 0 8 0</Thickness>
+      <Thickness x:Key="ContentListViewBodyMargin_Desktop">8 0 8 0</Thickness>
+      <Thickness x:Key="ContentPageMargin_Desktop">8 0 0 0</Thickness>
+      <Thickness x:Key="ContentListViewHeaderMargin_Tablet">8 0 8 0</Thickness>
+      <Thickness x:Key="ContentListViewBodyMargin_Tablet">8 0 8 0</Thickness>
+      <Thickness x:Key="ContentPageMargin_Tablet">8 0 0 0</Thickness>
+      <Thickness x:Key="ContentListViewHeaderMargin_Mobile">8 0 8 0</Thickness>
+      <Thickness x:Key="ContentListViewBodyMargin_Mobile">8 0 8 0</Thickness>
+      <Thickness x:Key="ContentPageMargin_Mobile">8 0 8 0</Thickness>
 
 
       <NavigationThemeTransition x:Key="SuppressNavigationTransition">

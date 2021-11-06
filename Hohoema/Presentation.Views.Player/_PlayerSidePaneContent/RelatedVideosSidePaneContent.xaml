@@ -209,7 +209,6 @@
                       SelectedItem="{Binding CurrentVideo, Mode=OneTime}"
                       IsItemClickEnabled="True"
                       x:Name="PlaylistItemsListView"
-                      Background="{StaticResource HohoemaPlayerBackgroundBrush}"
                       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                       IsTabStop="False">
               <i:Interaction.Behaviors>

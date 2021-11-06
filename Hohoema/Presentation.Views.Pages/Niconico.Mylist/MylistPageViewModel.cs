@@ -544,17 +544,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             IsMylistNotFound = false;
             MylistId? maybeMylistId = null;
 
-            if (parameters.TryGetValue<string>("id", out var idString))
+            if (parameters.TryGetValue<MylistId>("id", out var justMylistId))
+            {
+                maybeMylistId = justMylistId;
+            }
+            else if (parameters.TryGetValue<string>("id", out var idString))
             {
                 maybeMylistId = idString;
             }
             else if (parameters.TryGetValue<uint>("id", out var idInt))
             {
                 maybeMylistId = idInt;
-            }
-            if (parameters.TryGetValue<MylistId>("id", out var justMylistId))
-            {
-                maybeMylistId = justMylistId;
             }
 
             if (maybeMylistId == null) 
@@ -664,7 +664,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 FollowContext = MylistFollowContext.Default;
             }
 
-            SelectedSortOptionItem.Subscribe(x =>
+            SelectedSortOptionItem
+                .Where(x => x is not null)
+                .Subscribe(x =>
             {
                 RefreshCommand.Execute();
 
@@ -680,7 +682,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         private ICollection<VideoListItemControlViewModel> CreateItemsSource(MylistPlaylist mylist)
         {
             var sortOption = SelectedSortOptionItem.Value;
-            if (sortOption == null) { return null; }
+            if (sortOption == null) 
+            {
+                var lastSort = _mylistUserSelectedSortRepository.GetMylistSort(Mylist.Value.MylistId);
+                if (!IsLoginUserDeflist)
+                {
+                    SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? Mylist.Value.DefaultSortKey) && x.SortOrder == (lastSort.SortOrder ?? Mylist.Value.DefaultSortOrder));
+                }
+                else
+                {
+                    SelectedSortOptionItem.Value = SortItems.First(x => x.SortKey == (lastSort.SortKey ?? MylistSortKey.AddedAt) && x.SortOrder == (lastSort.SortOrder ?? MylistSortOrder.Desc));
+                }
+            }
 
             if (mylist is LoginUserMylistPlaylist loginUserMylist)
             {

@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mvvm="using:Prism.Mvvm"
     xmlns:view="using:Hohoema.Presentation.Views"
+    xmlns:models="using:Hohoema.Models.Domain.Application"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
@@ -153,68 +154,42 @@
         </VisualState>
       </VisualStateGroup>
 
-      <!-- トップバー表示時のタイトル位置ずらし -->
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <windowsTriggers:DeviceFamilyStateTrigger DeviceFamily="Xbox" /> <StateTrigger IsActive="{Binding AppearanceSettings.IsTVMode_Debug}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="VideoItemsListView.Padding" Value="48 0 48 27" />
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="{StaticResource WidthBreakPoint_WideToMiddle}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="0" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
       <!-- レイアウトモード -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
-            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_TV}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_TV}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
-            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Desktop}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
-            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Tablet}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Tablet}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
-            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Mobile}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

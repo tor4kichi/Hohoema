@@ -203,6 +203,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
 		{
+            if (_selectedSortOption is null)
+            {
+                SelectedSortOption = CeApiSearchVideoPlaylist.DefaultSortOption;
+            }
+
             return (VideoSearchIncrementalSource.OneTimeLoadingCount, new VideoSearchIncrementalSource(SearchVideoPlaylist, SelectedSortOption, SearchProvider));
 		}
 		

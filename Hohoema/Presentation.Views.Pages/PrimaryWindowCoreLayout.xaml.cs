@@ -144,7 +144,7 @@ namespace Hohoema.Presentation.Views.Pages
             }
 
             ContentFrame.Navigated += TVModeContentFrame_Navigated;
-            UINavigationManager.Pressed += UINavigationManager_Pressed;
+            //UINavigationManager.Pressed += UINavigationManager_Pressed;
             this.GettingFocus += PrimaryWindowCoreLayout_GettingFocus;
 
 
@@ -869,7 +869,7 @@ namespace Hohoema.Presentation.Views.Pages
 
         private void SearchTextBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            sender.IsSuggestionListOpen = !string.IsNullOrWhiteSpace(sender.Text);
+            //sender.IsSuggestionListOpen = !string.IsNullOrWhiteSpace(sender.Text);
         }
 
         private void SearchTextBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
@@ -882,12 +882,18 @@ namespace Hohoema.Presentation.Views.Pages
             {
                 (_viewModel.SearchCommand as ICommand).Execute(args.QueryText);
             }
+
+            if (CoreNavigationView.IsPaneOpen && 
+                CoreNavigationView.DisplayMode is Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode.Compact or Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode.Minimal)
+            {
+                CoreNavigationView.IsPaneOpen = false;
+            }
         }
 
         private void SearchTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             var asb = (sender as AutoSuggestBox);
-            asb.IsSuggestionListOpen = !string.IsNullOrWhiteSpace(asb.Text);
+            //asb.IsSuggestionListOpen = !string.IsNullOrWhiteSpace(asb.Text);
         }
 
         private void CoreNavigationView_ItemInvoked(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewItemInvokedEventArgs args)
