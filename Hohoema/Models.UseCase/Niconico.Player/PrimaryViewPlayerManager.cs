@@ -36,7 +36,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
     }
 
 
-    public sealed class PrimaryViewPlayerManager : FixPrism.BindableBase, IPlayerView
+    public sealed class PrimaryViewPlayerManager : Prism.Mvvm.BindableBase, IPlayerView
     {
         INavigationService _navigationService;
 

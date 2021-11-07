@@ -31,7 +31,7 @@ using Hohoema.Models.Domain.Playlist;
 
 namespace Hohoema.Presentation.ViewModels.VideoListPage
 {
-    public class VideoItemViewModel : FixPrism.BindableBase, IVideoContent, IPlaylistItemPlayable, IDisposable,
+    public class VideoItemViewModel : Prism.Mvvm.BindableBase, IVideoContent, IPlaylistItemPlayable, IDisposable,
         IRecipient<VideoPlayedMessage>,
         IRecipient<PlaylistItemAddedMessage>,
         IRecipient<PlaylistItemRemovedMessage>,
@@ -132,10 +132,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             _subsribedVideoId = videoId;
         }
 
-        public override void Dispose()
+        public virtual void Dispose()
         {
-            base.Dispose();
-
             if (_subsribedVideoId is not null and VideoId subscribedVideoId)
             {
                 _messenger.Unregister<VideoPlayedMessage, VideoId>(this, subscribedVideoId);

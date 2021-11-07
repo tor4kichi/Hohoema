@@ -40,6 +40,7 @@ using Hohoema.Presentation.Views.Pages.Niconico.Follow;
 using Hohoema.Models.UseCase.Niconico.Player;
 using Windows.UI.WindowManagement;
 using Prism.Ioc;
+using Hohoema.Models.Domain.Niconico.Video;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 

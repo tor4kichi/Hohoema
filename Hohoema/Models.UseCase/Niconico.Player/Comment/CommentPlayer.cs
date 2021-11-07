@@ -27,7 +27,7 @@ using Windows.System;
 
 namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 {
-    public class CommentPlayer : FixPrism.BindableBase, IDisposable
+    public class CommentPlayer : Prism.Mvvm.BindableBase, IDisposable
     {
         CompositeDisposable _disposables = new CompositeDisposable();
 

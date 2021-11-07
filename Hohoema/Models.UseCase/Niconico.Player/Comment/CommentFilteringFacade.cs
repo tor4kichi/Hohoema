@@ -17,7 +17,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
     
 
-    public sealed class CommentFilteringFacade : FixPrism.BindableBase, ICommentFilter
+    public sealed class CommentFilteringFacade : Prism.Mvvm.BindableBase, ICommentFilter
     {
         public class CommentOwnerIdFilteredEventArgs
         {

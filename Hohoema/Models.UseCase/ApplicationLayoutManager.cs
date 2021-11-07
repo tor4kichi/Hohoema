@@ -1,4 +1,4 @@
-﻿using Hohoema.FixPrism;
+﻿using Prism.Mvvm;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Helpers;

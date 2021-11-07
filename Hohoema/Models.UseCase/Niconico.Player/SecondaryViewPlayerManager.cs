@@ -33,7 +33,7 @@ using System.Windows.Input;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
-    public sealed class SecondaryViewPlayerManager : FixPrism.BindableBase, IPlayerView
+    public sealed class SecondaryViewPlayerManager : Prism.Mvvm.BindableBase, IPlayerView
     {
         /* 複数ウィンドウでプレイヤーを一つだけ表示するための管理をしています
          * 

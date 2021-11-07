@@ -135,16 +135,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             set => SetProperty(ref _RankingGenre, value);
         }
 
-        public ReactivePropertySlim<RankingGenreTag> SelectedRankingTag { get; private set; }
-        public ReactiveProperty<RankingTerm?> SelectedRankingTerm { get; private set; }
+        public ReactivePropertySlim<RankingGenreTag> SelectedRankingTag { get; }
+        public ReactiveProperty<RankingTerm?> SelectedRankingTerm { get; }
 
         public IReadOnlyReactiveProperty<RankingTerm[]> CurrentSelectableRankingTerms { get; }
 
         public ObservableCollection<RankingGenreTag> PickedTags { get; } = new ObservableCollection<RankingGenreTag>();
 
 
-        public ReactivePropertySlim<bool> IsFailedRefreshRanking { get; private set; }
-        public ReactivePropertySlim<bool> CanChangeRankingParameter { get; private set; }
+        public ReactivePropertySlim<bool> IsFailedRefreshRanking { get; }
+        public ReactivePropertySlim<bool> CanChangeRankingParameter { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }

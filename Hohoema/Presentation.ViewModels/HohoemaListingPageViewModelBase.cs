@@ -95,20 +95,20 @@ namespace Hohoema.Presentation.ViewModels
 
 
 
-        public ReactiveProperty<int> MaxItemsCount { get; private set; }
-        public ReactiveProperty<int> LoadedItemsCount { get; private set; }
+        public ReactiveProperty<int> MaxItemsCount { get; }
+        public ReactiveProperty<int> LoadedItemsCount { get; }
 
         public AdvancedCollectionView ItemsView { get; private set; }
         private static AdvancedCollectionView _cachedItemsView;
 
-        public ReactiveProperty<bool> NowLoading { get; private set; }
-        public ReactiveProperty<bool> CanChangeSort { get; private set; }
+        public ReactiveProperty<bool> NowLoading { get; }
+        public ReactiveProperty<bool> CanChangeSort { get; }
 
-        public ReactiveProperty<bool> NowRefreshable { get; private set; }
+        public ReactiveProperty<bool> NowRefreshable { get;}
 
-        public ReactiveProperty<bool> HasItem { get; private set; }
+        public ReactiveProperty<bool> HasItem { get; }
 
-        public ReactiveProperty<bool> HasError { get; private set; }
+        public ReactiveProperty<bool> HasError { get; }
 
         DispatcherQueue _dispatcherQueue;
                 
