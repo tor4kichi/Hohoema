@@ -538,7 +538,7 @@
                         </Button.Flyout>
                       </Button>
                       <!-- コメント表示切替 -->
-                      <Button x:Name="CommentDisplayControlLayout" MinWidth="48" MinHeight="48">
+                      <Button x:Name="CommentDisplayControlLayout" MinWidth="48" MinHeight="48" ClickMode="Release">
                         <Grid>
                           <iconPack:PackIconMaterial Kind="Comment" x:Name="CommentIcon" Width="20" Height="20" />
                           <Canvas>
@@ -546,7 +546,7 @@
                           </Canvas>
                         </Grid>
                         <i:Interaction.Behaviors>
-                          <core:EventTriggerBehavior EventName="Tapped">
+                          <core:EventTriggerBehavior EventName="Click">
                             <core:ChangePropertyAction TargetObject="{x:Bind _vm.PlayerSettings}" PropertyName="IsCommentDisplay_Video" Value="{x:Bind _vm.PlayerSettings.IsCommentDisplay_Video, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
                           </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
