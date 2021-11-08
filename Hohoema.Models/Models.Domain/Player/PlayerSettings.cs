@@ -44,6 +44,7 @@ namespace Hohoema.Models.Domain.Player
 			_IsLoudnessCorrectionEnabled = Read(true, nameof(IsLoudnessCorrectionEnabled));
 
 			_IsCommentDisplay_Video = Read(true, nameof(IsCommentDisplay_Video));
+			_IsShowCommentList_Video = Read(false, nameof(IsShowCommentList_Video));
 			_IsCommentDisplay_Live = Read(true, nameof(IsCommentDisplay_Live));
 			_PauseWithCommentWriting = Read(false, nameof(PauseWithCommentWriting));
 			_CommentDisplayDuration = Read(DefaultCommentDisplayDuration, nameof(CommentDisplayDuration));
@@ -144,9 +145,16 @@ namespace Hohoema.Models.Domain.Player
 		}
 
 
-        #endregion
+		#endregion
 
-        
+
+		private bool _IsShowCommentList_Video;
+		public bool IsShowCommentList_Video
+		{
+			get { return _IsShowCommentList_Video; }
+			set { SetProperty(ref _IsShowCommentList_Video, value); }
+		}
+
 		private bool _IsCommentDisplay_Video;
 		public bool IsCommentDisplay_Video
         {

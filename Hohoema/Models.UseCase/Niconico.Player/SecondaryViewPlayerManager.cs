@@ -33,7 +33,7 @@ using System.Windows.Input;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
-    public sealed class SecondaryViewPlayerManager : FixPrism.BindableBase, IPlayerView
+    public sealed class SecondaryViewPlayerManager : Prism.Mvvm.BindableBase, IPlayerView
     {
         /* 複数ウィンドウでプレイヤーを一つだけ表示するための管理をしています
          * 
@@ -372,7 +372,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             {
                 if (SecondaryAppView.ViewMode == ApplicationViewMode.Default)
                 {
-                    await SecondaryAppView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay);
+                    var opt = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
+                    opt.CustomSize = new Windows.Foundation.Size(500, 280);
+                    await SecondaryAppView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, opt);
                     IsCompactOverlay = true;
                     IsFullScreen = false;
                 }

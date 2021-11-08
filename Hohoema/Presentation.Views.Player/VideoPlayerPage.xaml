@@ -33,7 +33,8 @@
       xmlns:players="using:Hohoema.Presentation.Views.Player"
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       xmlns:myExt="using:Hohoema.Presentation.Views.Extensions"
-      xmlns:muxc="using:Microsoft.UI.Xaml"
+      xmlns:muxc="using:Microsoft.UI.Xaml" 
+      xmlns:playerModels="using:Hohoema.Models.UseCase.Niconico.Player"
       x:Name="RootLayout"
       NavigationCacheMode="Required"
       d:DesignHeight="300"
@@ -157,6 +158,11 @@
                 <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="True" />
               </core:DataTriggerBehavior>
               <core:DataTriggerBehavior Binding="{Binding ObservableMediaPlayer.NowPlaying.Value, Mode=OneWay}" Value="True" ComparisonCondition="Equal">
+                <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
+              </core:DataTriggerBehavior>
+              <!-- WindowInWindow表示に切り替えた時にUIを非表示 -->
+              <!-- Enumは正しくトリガーできないっぽいのでDisplayModeの変更すべてにフックしてUIを消してる -->
+              <core:DataTriggerBehavior Binding="{Binding PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" Value="{x:Null}" ComparisonCondition="NotEqual">
                 <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
               </core:DataTriggerBehavior>
               <!-- 左右スワイプでシーク -->
@@ -538,7 +544,7 @@
                         </Button.Flyout>
                       </Button>
                       <!-- コメント表示切替 -->
-                      <Button x:Name="CommentDisplayControlLayout" MinWidth="48" MinHeight="48">
+                      <Button x:Name="CommentDisplayControlLayout" MinWidth="48" MinHeight="48" ClickMode="Release">
                         <Grid>
                           <iconPack:PackIconMaterial Kind="Comment" x:Name="CommentIcon" Width="20" Height="20" />
                           <Canvas>
@@ -546,7 +552,7 @@
                           </Canvas>
                         </Grid>
                         <i:Interaction.Behaviors>
-                          <core:EventTriggerBehavior EventName="Tapped">
+                          <core:EventTriggerBehavior EventName="Click">
                             <core:ChangePropertyAction TargetObject="{x:Bind _vm.PlayerSettings}" PropertyName="IsCommentDisplay_Video" Value="{x:Bind _vm.PlayerSettings.IsCommentDisplay_Video, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
                           </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
@@ -1337,11 +1343,10 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.SidePaneType, Mode=OneWay}" EqualTo="{x:Bind players:PlayerSidePaneContentType.Comment}" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding SidePaneType, Mode=OneWay}" EqualTo="Comment" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerSplitView.DisplayMode" Value="Inline" />
-            <Setter Target="PlayerSplitView.PaneBackground" Value="{ThemeResource AppBarBackgroundThemeBrush}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

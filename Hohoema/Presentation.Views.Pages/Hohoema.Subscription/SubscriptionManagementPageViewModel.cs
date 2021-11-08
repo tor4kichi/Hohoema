@@ -1,5 +1,5 @@
 ﻿using I18NPortable;
-using Hohoema.FixPrism;
+using Prism.Mvvm;
 
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.Services;

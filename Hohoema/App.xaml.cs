@@ -300,7 +300,7 @@ namespace Hohoema
             // Frameのキャッシュ無効＋IncrementalLoadingリスト系ページのViewModelがシングルトン、という構成の場合に
             // ListViewの読み込み順序が壊れる問題が発生するためVMは都度生成にしている
             // see@ https://github.com/tor4kichi/Hohoema/issues/836
-            //unityContainer.RegisterSingleton<Presentation.ViewModels.Pages.Niconico.VideoRanking.RankingCategoryPageViewModel>();
+            unityContainer.RegisterSingleton<Presentation.ViewModels.Pages.Niconico.VideoRanking.RankingCategoryPageViewModel>();
 
             //unityContainer.RegisterType<Presentation.ViewModels.Player.VideoPlayerPageViewModel>(new PerThreadLifetimeManager());
             //unityContainer.RegisterType<Presentation.ViewModels.Player.LivePlayerPageViewModel>(new PerThreadLifetimeManager());

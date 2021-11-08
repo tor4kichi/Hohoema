@@ -36,7 +36,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
     }
 
 
-    public sealed class PrimaryViewPlayerManager : FixPrism.BindableBase, IPlayerView
+    public sealed class PrimaryViewPlayerManager : Prism.Mvvm.BindableBase, IPlayerView
     {
         INavigationService _navigationService;
 
@@ -249,7 +249,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen
                 )
             {
-                //_view.ExitFullScreenMode();
+                _view.ExitFullScreenMode();
             }
         }
 
@@ -282,7 +282,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             {
                 if (_view.ViewMode == ApplicationViewMode.Default)
                 {
-                    _ = _view.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay);
+                    var opt = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
+                    opt.CustomSize = new Windows.Foundation.Size(500, 280);
+                    _ = _view.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, opt);
                 }
                 else
                 {

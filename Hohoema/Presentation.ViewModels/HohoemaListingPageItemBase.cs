@@ -14,7 +14,7 @@ using Windows.UI;
 
 namespace Hohoema.Presentation.ViewModels
 {
-    public class Selectable : FixPrism.BindableBase
+    public class Selectable : Prism.Mvvm.BindableBase
     {
         private bool _IsSelected;
         public bool IsSelected

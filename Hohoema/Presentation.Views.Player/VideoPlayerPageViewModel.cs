@@ -455,6 +455,11 @@ namespace Hohoema.Presentation.ViewModels.Player
                             {
                                 LikesContext = VideoLikesContext.Default;
                             }
+
+                            if (PlayerSettings.IsShowCommentList_Video)
+                            {
+                                SetSidePaneViewModel(PlayerSidePaneContentType.Comment);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -609,32 +614,40 @@ namespace Hohoema.Presentation.ViewModels.Player
             {
                 if (Enum.TryParse<PlayerSidePaneContentType>(str, out var type))
                 {
-                    if (type == SidePaneType || type == PlayerSidePaneContentType.None)
-                    {
-                        SidePaneType = PlayerSidePaneContentType.None;
-                        SidePaneViewModel = EmptySidePaneContentViewModel.Default;
-                        PlayerSplitViewIsPaneOpen = false;
-                    }
-                    else
-                    {
-                        SidePaneType = type;
-                        SidePaneViewModel = SidePaneType switch
-                        {
-                            PlayerSidePaneContentType.Playlist => _playlistSidePaneContentViewModel,
-                            PlayerSidePaneContentType.Comment => _videoCommentSidePaneContentViewModel,
-                            PlayerSidePaneContentType.Setting => _settingsSidePaneContentViewModel,
-                            PlayerSidePaneContentType.RelatedVideos => _relatedVideosSidePaneContentViewModel,
-                            _ => EmptySidePaneContentViewModel.Default,
-                        };
-
-                        if (SidePaneViewModel is RelatedVideosSidePaneContentViewModel vm)
-                        {
-                            _ = vm.InitializeRelatedVideos(VideoDetails);
-                        }
-                        PlayerSplitViewIsPaneOpen = true;
-                    }
+                    SetSidePaneViewModel(type);
                 }
             }));
+
+        private void SetSidePaneViewModel(PlayerSidePaneContentType sidePaneType)
+        {
+            if (sidePaneType == SidePaneType || sidePaneType == PlayerSidePaneContentType.None)
+            {
+                SidePaneType = PlayerSidePaneContentType.None;
+                SidePaneViewModel = EmptySidePaneContentViewModel.Default;
+                PlayerSplitViewIsPaneOpen = false;
+                PlayerSettings.IsShowCommentList_Video = false;
+            }
+            else
+            {
+                SidePaneType = sidePaneType;
+                SidePaneViewModel = SidePaneType switch
+                {
+                    PlayerSidePaneContentType.Playlist => _playlistSidePaneContentViewModel,
+                    PlayerSidePaneContentType.Comment => _videoCommentSidePaneContentViewModel,
+                    PlayerSidePaneContentType.Setting => _settingsSidePaneContentViewModel,
+                    PlayerSidePaneContentType.RelatedVideos => _relatedVideosSidePaneContentViewModel,
+                    _ => EmptySidePaneContentViewModel.Default,
+                };
+
+                if (SidePaneViewModel is RelatedVideosSidePaneContentViewModel vm)
+                {
+                    _ = vm.InitializeRelatedVideos(VideoDetails);
+                }
+
+                PlayerSettings.IsShowCommentList_Video = SidePaneType is PlayerSidePaneContentType.Comment;
+                PlayerSplitViewIsPaneOpen = true;
+            }
+        }
 
         #endregion
     }
