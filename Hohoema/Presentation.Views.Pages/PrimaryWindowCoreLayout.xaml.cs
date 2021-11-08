@@ -145,7 +145,6 @@ namespace Hohoema.Presentation.Views.Pages
             }
 
             ContentFrame.Navigated += TVModeContentFrame_Navigated;
-            //UINavigationManager.Pressed += UINavigationManager_Pressed;
             this.GettingFocus += PrimaryWindowCoreLayout_GettingFocus;
 
 
@@ -238,20 +237,19 @@ namespace Hohoema.Presentation.Views.Pages
         #region TV Mode
 
 
-        private void UINavigationManager_Pressed(UINavigationManager sender, UINavigationButtons buttons)
+        public void TogglePlayerFillBtwWindowInWindow()
         {
-            if (buttons.HasFlag(UINavigationButtons.View))
+            if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Fill)
             {
-                if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Fill)
-                {
-                    _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
-                }
-                else if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.WindowInWindow)
-                {
-                    _viewModel.PrimaryViewPlayerManager.ShowWithFill();
-                }
+                _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
+            }
+            else if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.WindowInWindow)
+            {
+                _viewModel.PrimaryViewPlayerManager.ShowWithFill();
             }
         }
+        
+
 
         private void PrimaryWindowCoreLayout_GettingFocus(UIElement sender, GettingFocusEventArgs e)
         {

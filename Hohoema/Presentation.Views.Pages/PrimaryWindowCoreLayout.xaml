@@ -685,6 +685,11 @@
              ContentTransitions="{StaticResource SuppressNavigationTransitionCollection}"
              Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
              >
+        <i:Interaction.Behaviors>
+          <mybehavior:UINavigationTrigger Kind="View" Hold="True">
+            <core:CallMethodAction TargetObject="{x:Bind}" MethodName="TogglePlayerFillBtwWindowInWindow" />
+          </mybehavior:UINavigationTrigger>
+        </i:Interaction.Behaviors>
       </Frame>
      
     </Grid>

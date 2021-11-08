@@ -249,7 +249,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen
                 )
             {
-                //_view.ExitFullScreenMode();
+                _view.ExitFullScreenMode();
             }
         }
 

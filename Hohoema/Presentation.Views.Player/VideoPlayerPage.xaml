@@ -33,7 +33,8 @@
       xmlns:players="using:Hohoema.Presentation.Views.Player"
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       xmlns:myExt="using:Hohoema.Presentation.Views.Extensions"
-      xmlns:muxc="using:Microsoft.UI.Xaml"
+      xmlns:muxc="using:Microsoft.UI.Xaml" 
+      xmlns:playerModels="using:Hohoema.Models.UseCase.Niconico.Player"
       x:Name="RootLayout"
       NavigationCacheMode="Required"
       d:DesignHeight="300"
@@ -157,6 +158,10 @@
                 <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="True" />
               </core:DataTriggerBehavior>
               <core:DataTriggerBehavior Binding="{Binding ObservableMediaPlayer.NowPlaying.Value, Mode=OneWay}" Value="True" ComparisonCondition="Equal">
+                <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
+              </core:DataTriggerBehavior>
+              <!-- WindowInWindow表示に切り替えた時にUIを非表示 -->
+              <core:DataTriggerBehavior Binding="{Binding PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" Value="{x:Bind playerModels:PrimaryPlayerDisplayMode.Close}" ComparisonCondition="NotEqual">
                 <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
               </core:DataTriggerBehavior>
               <!-- 左右スワイプでシーク -->
