@@ -1337,11 +1337,10 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.SidePaneType, Mode=OneWay}" EqualTo="{x:Bind players:PlayerSidePaneContentType.Comment}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.SidePaneType, Mode=OneWay}" EqualTo="Comment" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerSplitView.DisplayMode" Value="Inline" />
-            <Setter Target="PlayerSplitView.PaneBackground" Value="{ThemeResource AppBarBackgroundThemeBrush}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
