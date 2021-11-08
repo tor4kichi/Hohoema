@@ -161,7 +161,8 @@
                 <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
               </core:DataTriggerBehavior>
               <!-- WindowInWindow表示に切り替えた時にUIを非表示 -->
-              <core:DataTriggerBehavior Binding="{Binding PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" Value="{x:Bind playerModels:PrimaryPlayerDisplayMode.Close}" ComparisonCondition="NotEqual">
+              <!-- Enumは正しくトリガーできないっぽいのでDisplayModeの変更すべてにフックしてUIを消してる -->
+              <core:DataTriggerBehavior Binding="{Binding PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" Value="{x:Null}" ComparisonCondition="NotEqual">
                 <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
               </core:DataTriggerBehavior>
               <!-- 左右スワイプでシーク -->
@@ -1342,7 +1343,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.SidePaneType, Mode=OneWay}" EqualTo="Comment" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding SidePaneType, Mode=OneWay}" EqualTo="Comment" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerSplitView.DisplayMode" Value="Inline" />
