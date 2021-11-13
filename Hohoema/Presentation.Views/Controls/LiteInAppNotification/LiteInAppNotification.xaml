@@ -27,6 +27,7 @@
     <Setter Property="MinWidth" Value="132" />
     <Setter Property="AnimationDuration" Value="0:0:0.075" />
     <Setter Property="Interval" Value="0:0:0.4" />
+    <Setter Property="IsTabStop" Value="False" />
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="local:LiteInAppNotification">

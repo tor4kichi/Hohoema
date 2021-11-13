@@ -951,7 +951,7 @@
 
             <Setter Target="LiteInAppNotification.HorizontalAlignment" Value="Right" />
             <Setter Target="LiteInAppNotification.VerticalAlignment" Value="Top" />
-            <Setter Target="LiteInAppNotification.Margin" Value="16 80 16 0" />
+            <Setter Target="LiteInAppNotification.Margin" Value="16 120 16 0" />
           </VisualState.Setters>
         </VisualState>
         <!-- プレイヤーを小窓表示（TV） -->
