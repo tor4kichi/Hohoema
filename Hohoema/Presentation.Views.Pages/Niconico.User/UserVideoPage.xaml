@@ -26,60 +26,58 @@
       PlaylistPassToFlyout="{x:Bind _vm.UserVideoPlaylist, Mode=OneWay}"
       >
       <videolistPage:VideoItemsListView.Header>
-        <Grid x:Name="HeaderLayout">
-          <Grid>
-            <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
-              <CommandBar.Content>
-                <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
-              </CommandBar.Content>
+        <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
+          <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
+            </CommandBar.Content>
 
-              <CommandBar.PrimaryCommands>
-                <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
-                  <ComboBox ItemsSource="{x:Bind _vm.SortOptions}"
+            <CommandBar.PrimaryCommands>
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+                <ComboBox ItemsSource="{x:Bind _vm.SortOptions}"
                           SelectedItem="{x:Bind _vm.SelectedSortOption, Mode=TwoWay}"
                           IsEnabled="{x:Bind _vm.NowLoading.Value, Mode=OneWay, Converter={StaticResource BoolNegation}}"
                           VerticalAlignment="Stretch"
                           Margin="0 6"
                           >
-                    <ComboBox.ItemTemplate>
-                      <DataTemplate>
-                        <TextBlock Text="{Binding Label}" />
-                      </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                  </ComboBox>
-                </AppBarElementContainer>
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Label}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </AppBarElementContainer>
 
-                <AppBarButton x:Name="PlayAllButton"
+              <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"
                                 Command="{x:Bind _vm.PlaylistPlayAllCommand}"
                                 CommandParameter="{x:Bind _vm.CurrentPlaylistToken.Value, Mode=OneWay}"></AppBarButton>
 
-                
-                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
-              </CommandBar.PrimaryCommands>
 
-              <CommandBar.SecondaryCommands>
-                <AppBarButton Label="{i18nExt:Localize Key=VideoOwner}" Command="{x:Bind _vm.OpenVideoOwnerUserPageCommand}"
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Click">
+                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
+            </CommandBar.PrimaryCommands>
+
+            <CommandBar.SecondaryCommands>
+              <AppBarButton Label="{i18nExt:Localize Key=VideoOwner}" Command="{x:Bind _vm.OpenVideoOwnerUserPageCommand}"
                                 />
 
-                <AppBarButton x:Name="FeedRegstrationButton" Label="{i18nExt:Localize Key=SubscriptionAddUser}" Icon="Add" Visibility="Visible"
+              <AppBarButton x:Name="FeedRegstrationButton" Label="{i18nExt:Localize Key=SubscriptionAddUser}" Icon="Add" Visibility="Visible"
                                 Command="{x:Bind _vm.AddSubscriptionCommand}"
                                 CommandParameter="{x:Bind _vm.UserInfo.Value, Mode=OneWay}"
                                 >
-                </AppBarButton>
+              </AppBarButton>
 
-                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.RefreshCommand}" VerticalAlignment="Center"></AppBarButton>
-              </CommandBar.SecondaryCommands>
-            </CommandBar>
-          </Grid>
+              <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.RefreshCommand}" VerticalAlignment="Center"></AppBarButton>
+            </CommandBar.SecondaryCommands>
+          </CommandBar>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
     </videolistPage:VideoItemsListView>

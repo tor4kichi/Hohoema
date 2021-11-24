@@ -250,21 +250,28 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         void IRecipient<PlaylistItemAddedMessage>.Receive(PlaylistItemAddedMessage message)
         {
             if (message.Value.PlaylistId != QueuePlaylist.Id) { return; }
-            IsQueueItem = true;
+            _scheduler.Schedule(() => IsQueueItem = true);
+
         }
 
         void IRecipient<PlaylistItemRemovedMessage>.Receive(PlaylistItemRemovedMessage message)
         {
             if (message.Value.PlaylistId != QueuePlaylist.Id) { return; }
-            IsQueueItem = false;
-            QueueItemIndex = -1;
+            _scheduler.Schedule(() =>
+            {
+                IsQueueItem = false;
+                QueueItemIndex = -1;
+            });
         }
 
 
         void IRecipient<ItemIndexUpdatedMessage>.Receive(ItemIndexUpdatedMessage message)
         {
             if (message.Value.PlaylistId != QueuePlaylist.Id) { return; }
-            QueueItemIndex = message.Value.Index;
+            _scheduler.Schedule(() =>
+            {
+                QueueItemIndex = message.Value.Index;
+            });
         }
 
 

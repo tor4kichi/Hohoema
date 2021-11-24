@@ -327,6 +327,9 @@
       </DataTemplate>
 
 
+      <Color x:Key="HohoemaLightBorderColor">#44707070</Color>
+      <SolidColorBrush x:Key="HohoemaLightBorderBrush" Color="{StaticResource HohoemaLightBorderColor}" />
+
       <Style TargetType="ListViewItem" x:Key="VideoListViewItemStyle">
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="Height" Value="92" />
@@ -334,7 +337,7 @@
         <Setter Property="Padding" Value="0 8 16 8" />
         <Setter Property="UseSystemFocusVisuals" Value="True" />
         <Setter Property="BorderThickness" Value="0 0 0 1" />
-        <Setter Property="BorderBrush" Value="#44707070" />
+        <Setter Property="BorderBrush" Value="{StaticResource HohoemaLightBorderColor}" />
         
       </Style>
 

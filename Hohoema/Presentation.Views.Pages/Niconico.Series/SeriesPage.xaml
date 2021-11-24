@@ -26,7 +26,7 @@
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
-        <Grid x:Name="HeaderLayout" Padding="8 0">
+        <Grid x:Name="HeaderLayout" Padding="8 0" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
           <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
             <CommandBar.Content>
               <controls:AppTitleBar Title="{Binding Title}" />

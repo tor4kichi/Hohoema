@@ -752,11 +752,14 @@
                                                  Padding="24 12"
                                                  AnimationDuration="0:0:0.5"
                                                  Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
-                                                 Background="{ThemeResource SystemControlBaseMediumLowAcrylicElementMediumBrush}"
+                                                 Background="{ThemeResource SystemControlBackgroundChromeMediumBrush}"
                                                  Interval="0:0:5"
                                                  IsTapEnabled="True"           
                                                  DataContext="{x:Null}"
                                                  IsTabStop="False"
+                                                 CornerRadius="4"
+                                                 BorderThickness="0.5"
+                                                 BorderBrush="{StaticResource HohoemaLightBorderColor}"
                                  >
       <i:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Tapped">
@@ -951,7 +954,7 @@
 
             <Setter Target="LiteInAppNotification.HorizontalAlignment" Value="Right" />
             <Setter Target="LiteInAppNotification.VerticalAlignment" Value="Top" />
-            <Setter Target="LiteInAppNotification.Margin" Value="16 80 16 0" />
+            <Setter Target="LiteInAppNotification.Margin" Value="16 120 16 0" />
           </VisualState.Setters>
         </VisualState>
         <!-- プレイヤーを小窓表示（TV） -->

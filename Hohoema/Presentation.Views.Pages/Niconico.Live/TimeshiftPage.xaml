@@ -107,7 +107,7 @@
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
       <ListView.Header>
-        <Grid x:Name="HeaderLayout">
+        <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
           <Grid Padding="8 0">
             <CommandBar x:Name="TopCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
               <CommandBar.Content>

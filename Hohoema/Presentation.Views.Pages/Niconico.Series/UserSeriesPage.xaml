@@ -41,6 +41,7 @@
 
       <GridView.Header>
         <Border Padding="16 0 0 0"
+                BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}"
                 >
           <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
             <CommandBar.Content>

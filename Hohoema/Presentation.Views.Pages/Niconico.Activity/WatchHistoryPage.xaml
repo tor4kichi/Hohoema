@@ -25,39 +25,37 @@
       RefreshCommand="{x:Bind _vm.RefreshCommand}" 
       >
       <videolistPage:VideoItemsListView.Header>
-        <Grid x:Name="HeaderLayout">
-          <Grid>
-            <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
-              <CommandBar.Content>
-                <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
-              </CommandBar.Content>
-              <CommandBar.PrimaryCommands>
+        <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
+          <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
+            </CommandBar.Content>
+            <CommandBar.PrimaryCommands>
 
-                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
-              </CommandBar.PrimaryCommands>
-              <CommandBar.SecondaryCommands>
-                <AppBarButton Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.RefreshCommand}" x:Name="RefreshButton" VerticalAlignment="Center" />
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Click">
+                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+              <AppBarButton Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.RefreshCommand}" x:Name="RefreshButton" VerticalAlignment="Center" />
 
-                <AppBarButton x:Name="RemoveAllHistoryButton" Label="{i18nExt:Localize Key=WatchHistoryRemoveAll}" Icon="Delete" AllowFocusOnInteraction="True">
-                  <AppBarButton.Flyout>
-                    <Flyout>
-                      <StackPanel Margin="8" Width="240">
-                        <TextBlock Margin="0 0 0 16" LineHeight="20" TextWrapping="Wrap" Text="{i18nExt:Localize Key=WatchHistoryConfirmRemoveDescription}"></TextBlock>
-                        <Button Content="{i18nExt:Localize Key=WatchHistoryConfirmRemove}" Command="{x:Bind _vm.WatchHistoryRemoveAllCommand}" HorizontalAlignment="Stretch" />
-                      </StackPanel>
-                    </Flyout>
-                  </AppBarButton.Flyout>
-                </AppBarButton>
-              </CommandBar.SecondaryCommands>
-            </CommandBar>
-          </Grid>
+              <AppBarButton x:Name="RemoveAllHistoryButton" Label="{i18nExt:Localize Key=WatchHistoryRemoveAll}" Icon="Delete" AllowFocusOnInteraction="True">
+                <AppBarButton.Flyout>
+                  <Flyout>
+                    <StackPanel Margin="8" Width="240">
+                      <TextBlock Margin="0 0 0 16" LineHeight="20" TextWrapping="Wrap" Text="{i18nExt:Localize Key=WatchHistoryConfirmRemoveDescription}"></TextBlock>
+                      <Button Content="{i18nExt:Localize Key=WatchHistoryConfirmRemove}" Command="{x:Bind _vm.WatchHistoryRemoveAllCommand}" HorizontalAlignment="Stretch" />
+                    </StackPanel>
+                  </Flyout>
+                </AppBarButton.Flyout>
+              </AppBarButton>
+            </CommandBar.SecondaryCommands>
+          </CommandBar>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
       <videolistPage:VideoItemsListView.ItemTemplate>

@@ -423,6 +423,7 @@
     <!-- 動画タイトル -->
     <Border x:Name="TitleLayoutOnNallow" Visibility="Collapsed"
             VerticalAlignment="Top"
+            BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}"
                   >
       <controls:AppTitleBar Title="{x:Bind _vm.VideoInfo.Title, Mode=OneWay}" Height="40" />
     </Border>
