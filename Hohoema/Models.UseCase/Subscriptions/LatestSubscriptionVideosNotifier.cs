@@ -36,6 +36,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
             _subscriptionManager = subscriptionManager;
             _notificationService = notificationService;
 
+            this._disposables.Add(
             Observable.FromEventPattern<SubscriptionFeedUpdateResult>(
                 h => _subscriptionManager.Updated += h,
                 h => _subscriptionManager.Updated -= h
@@ -81,8 +82,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
                         }
 
                         );
-                })
-                .AddTo(_disposables);
+                }));
         }
 
         public void Dispose()
