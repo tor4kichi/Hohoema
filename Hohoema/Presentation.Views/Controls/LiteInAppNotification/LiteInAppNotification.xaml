@@ -41,6 +41,7 @@
                 HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
                 VerticalAlignment="{TemplateBinding VerticalAlignment}"
                 Visibility="{TemplateBinding Visibility}"
+                CornerRadius="{TemplateBinding CornerRadius}"
                 >
             <animations:Explicit.Animations>
               <animations:AnimationSet x:Name="PART_ShowAnimationSet"

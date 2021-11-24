@@ -40,6 +40,7 @@
                        Margin="0 0 0 0">
       <Border toolkit:DockPanel.Dock="Top"
               x:Name="HeaderPanel"
+              BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}"
               >
         <StackPanel>
           <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">

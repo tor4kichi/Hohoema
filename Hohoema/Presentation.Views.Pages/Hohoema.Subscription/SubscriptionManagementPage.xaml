@@ -62,7 +62,7 @@
       
       <ListView.Header>
 
-        <Grid Padding="8 0" Background="{ThemeResource ApplicationContentBackgroundBrush}">
+        <Grid Padding="8 0" Background="{ThemeResource ApplicationContentBackgroundBrush}" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
           <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center"
                       XYFocusDownNavigationStrategy="NavigationDirectionDistance"
                       XYFocusLeftNavigationStrategy="RectilinearDistance"

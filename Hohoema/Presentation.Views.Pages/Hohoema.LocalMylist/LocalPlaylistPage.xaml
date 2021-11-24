@@ -36,7 +36,7 @@
       </videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
 
       <videolistPage:VideoItemsListView.Header>
-        <Grid x:Name="HeaderLayout">
+        <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
           <StackPanel>
             <CommandBar x:Name="VideoListCommandBar"
                           DefaultLabelPosition="Right" VerticalContentAlignment="Center"
@@ -53,7 +53,7 @@
                                 />
 
                 <!-- 非選択中 -->
-                <AppBarElementContainer>
+                <AppBarElementContainer VerticalContentAlignment="Center">
                   <ComboBox ItemsSource="{Binding SortOptionItems}"
                             SelectedItem="{Binding SelectedSortOptionItem, Mode=TwoWay}"
                             >

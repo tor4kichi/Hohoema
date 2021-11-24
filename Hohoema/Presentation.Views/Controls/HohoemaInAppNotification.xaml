@@ -15,10 +15,16 @@
   <Grid>
     <uwpcontrol:InAppNotification
             x:Name="LiteNotification"
+      BorderBrush="{ThemeResource SystemBaseMediumLowColor}"
+      BorderThickness="0.5"
+      CornerRadius="8"
+      Background="{ThemeResource ApplicationContentBackgroundBrush}"
+      MaxWidth="680"
             >
       <uwpcontrol:InAppNotification.Content>
         <toolkit:DockPanel Margin="0 0 8 0" 
                                             MinHeight="48"
+                           
                                             >
           <Image Source="{Binding Icon}"
                  Visibility="{Binding Icon, Converter={StaticResource NotEmptyStringToBoolean}}"
@@ -42,7 +48,6 @@
                         x:Name="CommandsItemsControl"
                         HorizontalAlignment="Right"
                         Margin="0 8 0 0"
-                          
                         >
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
@@ -63,16 +68,20 @@
 
 
 
-          <StackPanel VerticalAlignment="Center">
+          <StackPanel VerticalAlignment="Center" Spacing="0">
             <TextBlock Text="{Binding Title}" 
                        Visibility="{Binding Title, Converter={StaticResource NotEmptyStringToBoolean}}"
-                       FontSize="13"
-                       Opacity="0.7"
+                       FontSize="18"
+                       
                        />
 
             <TextBlock VerticalAlignment="Center"
                       Text="{Binding Content}"
                       TextWrapping="Wrap"
+                       Opacity="0.9"
+                       FontSize="14"
+                       LineHeight="20"
+                       Margin="0 8"
                       />
           </StackPanel>
 

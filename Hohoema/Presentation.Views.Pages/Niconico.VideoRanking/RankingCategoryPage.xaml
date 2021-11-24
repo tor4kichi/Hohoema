@@ -24,7 +24,7 @@
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
-        <Grid>
+        <Grid BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
           <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center"
                       XYFocusRightNavigationStrategy="Projection"
                       XYFocusLeftNavigationStrategy="Projection"

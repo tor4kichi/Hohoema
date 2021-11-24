@@ -19,7 +19,7 @@
     >
   <Grid>
     <toolkit:DockPanel>
-      <Border x:Name="HeaderLayout" toolkit:DockPanel.Dock="Top">
+      <Border x:Name="HeaderLayout" toolkit:DockPanel.Dock="Top" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
         <CommandBar x:Name="HeaderCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
           <CommandBar.Content>
             <controls:AppTitleBar Title="{Binding Title}" />

@@ -35,66 +35,64 @@
       </videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
 
       <videolistPage:VideoItemsListView.Header>
-        <Grid x:Name="HeaderLayout">
-          <StackPanel>
-            <CommandBar x:Name="VideoListCommandBar"
+        <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
+          <CommandBar x:Name="VideoListCommandBar"
                           DefaultLabelPosition="Right" VerticalContentAlignment="Center"
                           OverflowButtonVisibility="Auto">
-              <CommandBar.Content>
-                <controls:AppTitleBar Title="{Binding Title}" />
-              </CommandBar.Content>
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{Binding Title}" />
+            </CommandBar.Content>
 
-              <CommandBar.PrimaryCommands>
+            <CommandBar.PrimaryCommands>
 
-                <AppBarToggleButton IsChecked="{Binding IsEnableGroupingByTitleSimulality.Value, Mode=TwoWay}" 
+              <AppBarToggleButton IsChecked="{Binding IsEnableGroupingByTitleSimulality.Value, Mode=TwoWay}" 
                                     Label="グループ化"
                                     Icon="Sort"
                                     />
 
-                <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
-                  <ComboBox ItemsSource="{Binding SortOptionItems}"
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+                <ComboBox ItemsSource="{Binding SortOptionItems}"
                             SelectedItem="{Binding SelectedSortOptionItem, Mode=TwoWay}"
                             VerticalAlignment="Stretch"
                             Margin="0 6"
                             >
-                    <ComboBox.ItemTemplate>
-                      <DataTemplate>
-                        <TextBlock Text="{Binding Label}" />
-                      </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                  </ComboBox>
-                </AppBarElementContainer>
-                
-                <AppBarButton x:Name="PlayAllButton"
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Label}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </AppBarElementContainer>
+
+              <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"
                                 Command="{Binding PlaylistPlayAllCommand}"
                                 CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
 
 
-                <AppBarButton x:Name="ScrollToTopButton"
+              <AppBarButton x:Name="ScrollToTopButton"
                                 Icon="Up"
                                 Label="{i18nExt:Localize Key=ReturnToPageTop}">
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}"
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Click">
+                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}"
                                                MethodName="ResetScrollPosition" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
 
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
-              </CommandBar.PrimaryCommands>
-              <CommandBar.SecondaryCommands>
-                <AppBarButton x:Name="RemoveWatchedItemsButton"
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+              <AppBarButton x:Name="RemoveWatchedItemsButton"
                                 Label="{i18nExt:Localize Key=RemoveWatchedItems}"
                                 Command="{Binding RemoveWatchedItemsInAfterWatchPlaylistCommand}"
                                 Icon="Delete"
                                 />
-                <AppBarSeparator />
-              </CommandBar.SecondaryCommands>
-            </CommandBar>
-          </StackPanel>
+              <AppBarSeparator />
+            </CommandBar.SecondaryCommands>
+          </CommandBar>
         </Grid>
       </videolistPage:VideoItemsListView.Header>
     </videolistPage:VideoItemsListView>
