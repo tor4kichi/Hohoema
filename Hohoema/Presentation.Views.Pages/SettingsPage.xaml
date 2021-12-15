@@ -85,10 +85,10 @@
     </Style>
     <Style x:Key="SettingsMiddleGroupStackPanelStyle"
            TargetType="StackPanel">
-      <Setter Property="Spacing"
-              Value="32" />
-      <Setter Property="Margin"
-              Value="16 0 0 0" />
+      <Setter Property="Spacing" Value="24" />
+      <Setter Property="Margin" Value="16 0 8 0" />
+      <Setter Property="MinWidth" Value="320" />
+      <Setter Property="MaxWidth" Value="320" />
     </Style>
     
     <Style x:Key="SettingsOptionTitleTextBlock"
@@ -111,7 +111,8 @@
     </Style>
 
     <Style x:Key="SettingsTitleContainerStyle" TargetType="toolkit:DockPanel">
-      <Setter Property="Margin" Value="0 32" />
+      <Setter Property="Margin" Value="8 32 8 16" />
+      <Setter Property="MinWidth" Value="320" />
     </Style>
     
     <locales:LocaleToDisplayNameConverter x:Key="LocaleToDisplayNameConverter" />
@@ -119,29 +120,29 @@
   <Grid>
     <uwptoolkitControl:DockPanel>
       <StackPanel x:Name="HeaderPanel" uwptoolkitControl:DockPanel.Dock="Top" HorizontalAlignment="Stretch">
-        <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
-          <CommandBar.Content>
-            <controls:AppTitleBar Title="{Binding Title}" />
-          </CommandBar.Content>
-          <CommandBar.PrimaryCommands>
-            <AppBarButton Background="Transparent">
-              <AppBarButton.Flyout>
+
+        <uwpcontrols:DockPanel Margin="8 0" >
+
+          <StackPanel Orientation="Horizontal" uwpcontrols:DockPanel.Dock="Right">
+            <TextBlock Opacity="0.7" Style="{StaticResource BodyTextBlockStyle}" VerticalAlignment="Center"
+                       TextAlignment="Right"
+                           Text="{Binding VersionText}"                                                      
+                       IsTextSelectionEnabled="True"
+                           >
+              <TextBlock.ContextFlyout>
                 <MenuFlyout>
                   <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyAppVersionToClipboard}" Command="{Binding CopyVersionTextToClipboardCommand}" />
                   <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=EnableDebugModeToggleSwitchTitle}" IsChecked="{Binding IsDebugModeEnabled.Value,Mode=TwoWay}" />
                 </MenuFlyout>
-              </AppBarButton.Flyout>
-              <StackPanel Orientation="Horizontal">
-                <TextBlock Opacity="0.5" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center">
-                                        v<Run Text="{Binding VersionText}" /></TextBlock>
-              </StackPanel>
-            </AppBarButton>
-          </CommandBar.PrimaryCommands>
-        </CommandBar>
+              </TextBlock.ContextFlyout>
+            </TextBlock>
+          </StackPanel>
+          <controls:AppTitleBar Title="{Binding Title}" />
+        </uwpcontrols:DockPanel>
       </StackPanel>
 
       <ScrollViewer>
-        <StackPanel x:Name="ContentPanel" Spacing="16" Padding="0 0 0 32" MinWidth="400" MaxWidth="640" HorizontalAlignment="Left">
+        <uwpcontrols:WrapPanel x:Name="ContentPanel" Padding="0 0 0 32" MinWidth="400" MaxWidth="960" HorizontalSpacing="8" VerticalSpacing="16">
           <!-- アプリの表示設定 -->
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
@@ -226,7 +227,7 @@
               <StackPanel Margin="0 8">
                 <uwpcontrols:Expander Header="{i18nExt:Localize Key=ShowFilteredVideoOwnerNames}" HorizontalContentAlignment="Left" >
                   <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
-                            Margin="16 8"
+                            Margin="0 0"
                             IsTabStop="False"
                             HorizontalContentAlignment="Stretch"
                             IsItemClickEnabled="True"
@@ -237,16 +238,28 @@
                                                   InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                       </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
+
+                    <ListView.ItemContainerStyle>
+                      <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="2" />
+                        <Setter Property="Margin" Value="0" />
+                        <Setter Property="BorderThickness" Value="1" />
+                        <Setter Property="BorderBrush" Value="{ThemeResource ButtonDisabledBorderThemeBrush}" />
+                        <Setter Property="CornerRadius" Value="8" />
+                      </Style>
+                    </ListView.ItemContainerStyle>
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
-                        <Border Background="Transparent" IsHitTestVisible="True" BorderBrush="{ThemeResource ButtonBorderThemeBrush}" BorderThickness="1" Padding="16 8">
-                          <TextBlock Text="{Binding Description}" VerticalAlignment="Center" />
+                        <Border Background="Transparent" IsHitTestVisible="True" Padding="4 0"
+                                Width="140"
+                                >
+                          <TextBlock Text="{Binding Description}" VerticalAlignment="Center" TextWrapping="Wrap" />
                         </Border>
                       </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ListView.ItemsPanel>
                       <ItemsPanelTemplate>
-                        <ItemsWrapGrid Orientation="Horizontal" />
+                        <uwpcontrols:UniformGrid ColumnSpacing="4" RowSpacing="4" />
                       </ItemsPanelTemplate>
                     </ListView.ItemsPanel>
                   </ListView>
@@ -327,7 +340,7 @@
                 </StackPanel>
               </Grid>
               
-              <StackPanel Orientation="Horizontal" Spacing="32" HorizontalAlignment="Right">
+              <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right">
 
                 <Button Content="{i18nExt:Localize Key=OpenCacheFolder}" Command="{Binding OpenCurrentCacheFolderCommand}" HorizontalAlignment="Right" />
                 <Button Content="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{Binding ChangeCacheVideoFolderCommand}" HorizontalAlignment="Right" />
@@ -371,15 +384,15 @@
               <TextBlock Text="{i18nExt:Localize Key=AboutThisApp}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
-            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
+            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}" Spacing="8">
               <Grid>
                 <TextBlock Text="{i18nExt:Localize Key=ApplicationVersion}" Opacity="0.7" VerticalAlignment="Center" />
-                <TextBlock HorizontalAlignment="Right">
-                                v<Run Text="{Binding VersionText}" /></TextBlock>
+                <TextBlock HorizontalAlignment="Right" TextAlignment="Right" IsTextSelectionEnabled="True">
+                     <Run Text="{Binding VersionText}" /></TextBlock>
               </Grid>
               <HyperlinkButton Content="{i18nExt:Localize Key=ShowUpdateNote}" Command="{Binding ShowUpdateNoticeCommand}" CommandParameter="{Binding CurrentVersion}" HorizontalAlignment="Right" />
-              <HyperlinkButton Content="{i18nExt:Localize Key=DevelopProjectPage_LinkTitle}" Margin="0 0 0 8" NavigateUri="https://github.com/tor4kichi/Hohoema" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
-              <HyperlinkButton Content="{i18nExt:Localize Key=PrivacyPolicy}" Margin="0 0 0 8" NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
+              <HyperlinkButton Content="{i18nExt:Localize Key=DevelopProjectPage_LinkTitle}" NavigateUri="https://github.com/tor4kichi/Hohoema" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
+              <HyperlinkButton Content="{i18nExt:Localize Key=PrivacyPolicy}" NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
             </StackPanel>
           </StackPanel>
           <StackPanel>
@@ -397,7 +410,7 @@
               <TextBlock Text="{i18nExt:Localize Key=ThirdPartyLibraryDependencies}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
-            <ItemsControl ItemsSource="{Binding LisenceItems}" Margin="0 8 8 8" IsTabStop="False">
+            <ItemsControl ItemsSource="{Binding LisenceItems}" Margin="0 0 8 0" IsTabStop="False">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
                   <HyperlinkButton Margin="0 0" NavigateUri="{Binding Site}" Content="{Binding Name}" HorizontalAlignment="Right" />
@@ -508,6 +521,11 @@
                                             InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                 </core:EventTriggerBehavior>
               </i:Interaction.Behaviors>
+              <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                  <Setter Property="Margin" Value="0 0 0 4" />
+                </Style>
+              </ListView.ItemContainerStyle>
               <ListView.ItemTemplate>
                 <DataTemplate>
                   <Grid>
@@ -529,7 +547,7 @@
           </StackPanel>
           
           <!-- 実験的機能 -->
-          <uwptoolkitControl:Expander>
+          <uwptoolkitControl:Expander Visibility="Collapsed">
 
             <uwptoolkitControl:Expander.Header>
               <TextBlock Text="実験的機能" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
@@ -546,7 +564,7 @@
             </StackPanel>
           </uwptoolkitControl:Expander>
           
-        </StackPanel>
+        </uwpcontrols:WrapPanel>
       </ScrollViewer>
     </uwptoolkitControl:DockPanel>
     <VisualStateManager.VisualStateGroups>

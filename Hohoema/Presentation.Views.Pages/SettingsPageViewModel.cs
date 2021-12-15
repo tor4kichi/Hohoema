@@ -42,6 +42,9 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.VideoCache;
 using Hohoema.Models.UseCase.VideoCache;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
+using System.Text;
+using Microsoft.Toolkit.Uwp.Helpers;
+using Xamarin.Essentials;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 {
@@ -206,7 +209,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                 var folder = _videoCacheFolderManager.VideoCacheFolder;
                 if (folder != null)
                 {
-                    await Launcher.LaunchFolderAsync(folder);
+                    await Windows.System.Launcher.LaunchFolderAsync(folder);
                 }
             });
 
@@ -229,19 +232,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                 .AddTo(_CompositeDisposable);
 
 
-
-            // アバウト
-            var version = Windows.ApplicationModel.Package.Current.Id.Version;
-#if DEBUG
-            VersionText = $"{version.Major}.{version.Minor}.{version.Build} DEBUG";
-#else
-            VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
-#endif
-
-
-            var dispatcher = Window.Current.CoreWindow.Dispatcher;
-           
-
+            StringBuilder sb = new StringBuilder();
+            sb.Append(SystemInformation.Instance.ApplicationName)
+                .Append(" v").Append(SystemInformation.Instance.ApplicationVersion.ToFormattedString())
+                .AppendLine();
+            sb.Append(SystemInformation.Instance.OperatingSystem).Append(" ").Append(SystemInformation.Instance.OperatingSystemArchitecture)
+                .Append("(").Append(SystemInformation.Instance.OperatingSystemVersion).Append(")")
+                .Append(" ").Append(DeviceInfo.Idiom)
+                ;
+            VersionText = sb.ToString();
 
             IsDebugModeEnabled = new ReactiveProperty<bool>((App.Current as App).IsDebugModeEnabled, mode: ReactivePropertyMode.DistinctUntilChanged)
                 .AddTo(_CompositeDisposable);
@@ -509,7 +508,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                 return _ShowIssuesWithBrowserCommand
                     ?? (_ShowIssuesWithBrowserCommand = new DelegateCommand(async () =>
                     {
-                        await Launcher.LaunchUriAsync(AppIssuePageUri);
+                        await Windows.System.Launcher.LaunchUriAsync(AppIssuePageUri);
                     }));
             }
         }
