@@ -770,7 +770,7 @@ namespace Hohoema.Models.Domain.Playlist
                     _smtc.DisplayUpdater.ClearAll();
                     _smtc.DisplayUpdater.Type = MediaPlaybackType.Video;
                     _smtc.DisplayUpdater.VideoProperties.Title = CurrentPlayingSession.VideoDetails.Title;
-                    _smtc.DisplayUpdater.VideoProperties.Subtitle = CurrentPlayingSession.VideoDetails.ProviderName;
+                    _smtc.DisplayUpdater.VideoProperties.Subtitle = CurrentPlayingSession.VideoDetails.ProviderName ?? String.Empty; // 投稿者退会済みの場合nullになるのでカバー
                     _smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(CurrentPlayingSession.VideoDetails.ThumbnailUrl));
                     _smtc.DisplayUpdater.Update();
                 });

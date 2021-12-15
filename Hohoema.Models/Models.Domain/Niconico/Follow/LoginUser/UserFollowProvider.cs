@@ -80,7 +80,7 @@ namespace Hohoema.Models.Domain.Niconico.Follow.LoginUser
             return _niconicoSession.ToolkitContext.Follow.User.GetFollowUsersAsync(pageSize, lastRes);
         }
 
-        Task<bool> IFollowProvider<IUser>.IsFollowingAsync(IUser followable) => IsFollowingAsync(followable.UserId);
+        Task<bool> IFollowProvider<IUser>.IsFollowingAsync(IUser followable) => followable is null ? Task.FromResult(false) : IsFollowingAsync(followable.UserId);
 
         public async Task<ContentManageResult> AddFollowAsync(IUser user)
         {

@@ -168,7 +168,7 @@
               <!-- 左右スワイプでシーク -->
               <mybehavior:Swipe x:Name="SeekSwipe" SwipeCommand="{x:Bind _vm.SeekCommand}" SwipeAmountConverter="{StaticResource SwipeSeekValueToTimeSpan}" SwipeAmountScale="0.15" SwipeEdgeOfPlay="48" />
               <!-- マウスの非表示 -->
-              <mybehavior:PointerCursolAutoHideBehavior x:Name="AutoHideCursor" IsAutoHideEnabled="False" AutoHideDelay="0:0:1" />
+              <mybehavior:PointerCursolAutoHideBehavior x:Name="AutoHideCursor" IsAutoHideEnabled="False" AutoHideDelay="0:0:1.25" />
               <core:EventTriggerBehavior EventName="Loaded">
                 <mybehavior:SetFocus TargetObject="{Binding ElementName=RootLayout}" />
               </core:EventTriggerBehavior>
@@ -958,6 +958,8 @@
         <VisualState>
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{x:Bind IsDisplayControlUI, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="False" />
@@ -965,7 +967,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding PlayerView.IsFullScreen, Mode=OneWay}" />
+            <StateTrigger IsActive="True" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />

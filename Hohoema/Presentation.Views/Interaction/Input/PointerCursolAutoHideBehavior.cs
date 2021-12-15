@@ -114,13 +114,12 @@ namespace Hohoema.Presentation.Views.Behaviors
             _AutoHideTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
             _AutoHideTimer.Tick += AutoHideTimer_Tick;
             _AutoHideTimer.IsRepeating = false;
+            _DefaultCursor = Window.Current.CoreWindow.PointerCursor;
         }
 
         protected override void OnAttached()
         {
             base.OnAttached();
-
-            _DefaultCursor = Window.Current.CoreWindow.PointerCursor;
 
             AssociatedObject.Loaded += AssociatedObject_Loaded;
             AssociatedObject.Unloaded += AssociatedObject_Unloaded;
@@ -155,9 +154,14 @@ namespace Hohoema.Presentation.Views.Behaviors
         private void ResetAutoHideTimer()
         {
             _AutoHideTimer.Stop();
+
             if (IsAutoHideEnabled)
             {
                 _AutoHideTimer.Start();
+            }
+            else
+            {
+                CursorVisibilityChanged(true);
             }
         }
 
@@ -172,13 +176,11 @@ namespace Hohoema.Presentation.Views.Behaviors
                 Window.Current.CoreWindow.PointerCursor = _DefaultCursor;
                 var windowBound = Window.Current.CoreWindow.Bounds;
                 Window.Current.CoreWindow.PointerPosition = new Point(windowBound.Left + _LastCursorPosition.X, windowBound.Top + _LastCursorPosition.Y);
-                ResetAutoHideTimer();
             }
             else if ((_prevIsVisible ^ isVisible) && !isVisible)
             {
                 Window.Current.CoreWindow.PointerCursor = null;
-                _LastCursorPosition = GetPointerPosition();
-                _AutoHideTimer.Stop();
+                _LastCursorPosition = GetPointerPosition();                
             }
 
             _prevIsVisible = isVisible;
@@ -198,9 +200,8 @@ namespace Hohoema.Presentation.Views.Behaviors
             // マウスホイールを動かした時等には移動していなくても呼ばれるがその場合は無視する
             if (args.MouseDelta.X == 0 && args.MouseDelta.Y == 0) { return; }
 
-            ResetAutoHideTimer();
-
             CursorVisibilityChanged(true);
+            ResetAutoHideTimer();
         }
 
 
@@ -214,6 +215,7 @@ namespace Hohoema.Presentation.Views.Behaviors
             _IsCursorInsideAssociatedObject = false;
 
             CursorVisibilityChanged(true);
+            ResetAutoHideTimer();
         }
 
         #region this code copy from VLC WinRT

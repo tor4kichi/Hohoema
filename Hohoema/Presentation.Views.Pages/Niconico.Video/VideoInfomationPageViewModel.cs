@@ -433,6 +433,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             set { SetProperty(ref _VideoDetails, value); }
         }
 
+
+        private bool _isVideoProviderDeleted;
+        public bool IsVideoProviderDeleted
+        {
+            get => _isVideoProviderDeleted;
+            private set => SetProperty(ref _isVideoProviderDeleted, value);
+        }
         CancellationTokenSource _navigationCts;
         CancellationToken _navigationCancellationToken;
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
@@ -467,6 +474,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                 (_, VideoInfo) = await NicoVideoProvider.GetVideoInfoAsync(videoId.Value);
 
                 await UpdateVideoDescription();
+
+                IsVideoProviderDeleted = string.IsNullOrEmpty(VideoInfo.ProviderName);
 
                 if (NiconicoSession.IsLoggedIn)
                 {
