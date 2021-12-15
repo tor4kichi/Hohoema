@@ -150,10 +150,11 @@
         <uwpControls:WrapPanel Orientation="Horizontal" HorizontalSpacing="8">
           
           <!-- 投稿者 -->
-          <StackPanel Orientation="Horizontal">
+          <StackPanel Orientation="Horizontal" Visibility="{x:Bind _vm.IsVideoProviderDeleted, Converter={StaticResource BooleanToVisibilityInverted}}">
             <Button Padding="0 0 8 0" BorderThickness="0">
               <StackPanel Orientation="Horizontal">
-                <Image Source="{x:Bind _vm.VideoDetails.OwnerIconUrl, Mode=OneWay}" Height="48" Width="48" />
+                <!-- 投稿者削除に対応するためBindingを利用 -->
+                <Image Source="{Binding VideoDetails.OwnerIconUrl, Mode=OneWay}" Height="48" Width="48" />
                 <TextBlock Text="{x:Bind _vm.VideoDetails.ProviderName, Mode=OneWay}" VerticalAlignment="Center" Margin="8 0 0 0" />
               </StackPanel>
               
@@ -182,6 +183,13 @@
             </ToggleButton>
 
           </StackPanel>
+          
+          <!-- 投稿者退会済み -->
+          <Button Visibility="{x:Bind _vm.IsVideoProviderDeleted, Converter={StaticResource BooleanToVisibility}}" IsEnabled="False">
+            <!-- TODO: 投稿者退会済みの場合の表示 -->
+
+            <TextBlock Text="動画投稿者 退会済み" VerticalAlignment="Bottom" MaxLines="2" MaxWidth="80" TextWrapping="WrapWholeWords" />
+          </Button>
 
           <!-- 動画データ -->
           <TextBlock>
