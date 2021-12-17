@@ -139,14 +139,19 @@
                  PaneBackground="{ThemeResource ApplicationContentBackgroundBrush}"
                  >
         <i:Interaction.Behaviors>
+          <!-- 子要素方向にあるContentControl にフォーカスが移ると KeyboardAccelerator のイベントを吸ってしまうので IsEnabledを変更してフォーカスを剥がす -->
+          <core:EventTriggerBehavior EventName="PaneOpening">
+            <core:ChangePropertyAction TargetObject="{x:Bind SidePaneContentControl}" PropertyName="IsEnabled" Value="True" />
+          </core:EventTriggerBehavior>
           <!-- サイドペインが閉じられたら コンテンツVMをリセット -->
           <core:EventTriggerBehavior EventName="PaneClosed">
             <core:ChangePropertyAction TargetObject="{x:Bind _vm}" PropertyName="SidePaneType" Value="{x:Bind players:PlayerSidePaneContentType.None}" />
+            <core:ChangePropertyAction TargetObject="{x:Bind SidePaneContentControl}" PropertyName="IsEnabled" Value="False" />
           </core:EventTriggerBehavior>
         </i:Interaction.Behaviors>
         <SplitView.Pane>
           <Grid x:Name="PlayerSidePaneLayout">
-            <ContentControl Content="{x:Bind _vm.SidePaneViewModel, Mode=OneWay}" ContentTemplateSelector="{StaticResource PlayerSidePaneContentTemplateSelecter}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+            <ContentControl x:Name="SidePaneContentControl" IsEnabled="False" Content="{x:Bind _vm.SidePaneViewModel, Mode=OneWay}" ContentTemplateSelector="{StaticResource PlayerSidePaneContentTemplateSelecter}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
           </Grid>
         </SplitView.Pane>
         <SplitView.Content>
