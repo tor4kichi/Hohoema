@@ -198,12 +198,6 @@
               <core:DataTriggerBehavior Binding="{Binding ObservableMediaPlayer.NowPlaying.Value, Mode=OneWay}" Value="True" ComparisonCondition="Equal">
                 <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
               </core:DataTriggerBehavior>
-              <!-- WindowInWindow表示に切り替えた時にUIを非表示 -->
-              <!-- Enumは正しくトリガーできないっぽいのでDisplayModeの変更すべてにフックしてUIを消してる -->
-              <core:DataTriggerBehavior Binding="{Binding PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" Value="{x:Null}" ComparisonCondition="NotEqual">
-                <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="True" />
-                <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="True" />
-              </core:DataTriggerBehavior>
               <!-- 左右スワイプでシーク -->
               <mybehavior:Swipe x:Name="SeekSwipe" SwipeCommand="{x:Bind _vm.SeekCommand}" SwipeAmountConverter="{StaticResource SwipeSeekValueToTimeSpan}" SwipeAmountScale="0.15" SwipeEdgeOfPlay="48" />
               <!-- マウスの非表示 -->

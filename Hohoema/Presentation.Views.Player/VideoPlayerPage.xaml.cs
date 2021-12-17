@@ -97,7 +97,14 @@ namespace Hohoema.Presentation.Views.Player
                     ThemeChanged(theme);
                 }).AddTo(_compositeDisposable);
 
+            LayoutRoot.SizeChanged += LayoutRoot_SizeChanged;
+            
             _prevPosition = 0.0;
+        }
+
+        private void LayoutRoot_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            IsDisplayControlUI = false;
         }
 
         private void VideoPlayerPage_Unloaded(object sender, RoutedEventArgs e)
@@ -107,6 +114,8 @@ namespace Hohoema.Presentation.Views.Player
             _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
 
             SeekBarSlider.ValueChanged -= SeekBarSlider_ValueChanged;
+
+            LayoutRoot.SizeChanged -= LayoutRoot_SizeChanged;
         }
 
 
