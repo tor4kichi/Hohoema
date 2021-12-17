@@ -12,6 +12,8 @@ namespace Hohoema.Presentation.Views.StateTrigger
     {
         protected override void OnAttachTargetHandler(UIElement ui)
         {
+            ui.GotFocus -= Ui_GotFocus;
+            ui.LostFocus -= Ui_LostFocus;
             ui.GotFocus += Ui_GotFocus;
             ui.LostFocus += Ui_LostFocus;
         }

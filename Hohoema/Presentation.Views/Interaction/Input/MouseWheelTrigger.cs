@@ -70,11 +70,10 @@ namespace Hohoema.Presentation.Views.Behaviors
 			if (fe == null) { return; }
 			fe.Unloaded += this.Fe_Unloaded;
 
-
 			if (AssociatedObject is UIElement)
 			{
 				var ui = AssociatedObject as UIElement;
-				ui.PointerWheelChanged += Ui_PointerWheelChanged; ;
+				ui.PointerWheelChanged += Ui_PointerWheelChanged;
 			}
 			else
 			{
@@ -128,6 +127,7 @@ namespace Hohoema.Presentation.Views.Behaviors
 			if (fe == null) { return; }
 			fe.Unloaded -= this.Fe_Unloaded;
 
+			fe.PointerWheelChanged -= Ui_PointerWheelChanged;
 			Window.Current.CoreWindow.PointerWheelChanged -= CoreWindow_PointerWheelChanged;
 
 		}
