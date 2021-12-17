@@ -166,30 +166,25 @@ namespace Hohoema.Presentation.Views.Behaviors
 			if (fe == null) { return; }
 			fe.Unloaded += this.Fe_Unloaded;
 			if (!UseKeyUp)
-			{
-				Window.Current.CoreWindow.KeyDown += this.CoreWindow_KeyDown;
+			{                
+                fe.KeyDown += ProcessKeyAction;
 			}
 			else
 			{
-				Window.Current.CoreWindow.KeyUp += this.CoreWindow_KeyDown;
+                fe.KeyUp += ProcessKeyAction;
 			}
 		}
 
-		private void Unregister()
+
+        private void Unregister()
 		{
 			var fe = this.AssociatedObject as FrameworkElement;
 			if (fe == null) { return; }
 			fe.Unloaded -= this.Fe_Unloaded;
 
-			if (!UseKeyUp)
-			{
-				Window.Current.CoreWindow.KeyDown -= this.CoreWindow_KeyDown;
-            }
-			else
-			{
-				Window.Current.CoreWindow.KeyUp -= this.CoreWindow_KeyDown;
-			}
-		}
+            fe.KeyDown -= ProcessKeyAction;
+            fe.KeyUp -= ProcessKeyAction;
+        }
 
         static readonly VirtualKey[] NavigationButtonVirtualKeyList = new[]
         {
@@ -239,32 +234,32 @@ namespace Hohoema.Presentation.Views.Behaviors
             0xB3,  // Play/Pause Media key
         };
 
-        private void CoreWindow_KeyDown(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.KeyEventArgs args)
-		{
+        private void ProcessKeyAction(object sender, Windows.UI.Xaml.Input.KeyRoutedEventArgs args)
+        {
             if (OnlyWhenFocus != null && !_NowFocusing_OnlyWhenFocus) { return; }
-			if (!IsEnabled) { return; }
-			if (args.Handled) { return; }
+            if (!IsEnabled) { return; }
+            if (args.Handled) { return; }
 
-			if (this.ShiftKey && (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift) & CoreVirtualKeyStates.Down) != CoreVirtualKeyStates.Down)
-			{
-				return;
-			}
+            if (this.ShiftKey && (Window.Current.CoreWindow.GetKeyState(VirtualKey.Shift) & CoreVirtualKeyStates.Down) != CoreVirtualKeyStates.Down)
+            {
+                return;
+            }
 
-			if (this.CtrlKey && (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control) & CoreVirtualKeyStates.Down) != CoreVirtualKeyStates.Down)
-			{
-				return;
-			}
+            if (this.CtrlKey && (Window.Current.CoreWindow.GetKeyState(VirtualKey.Control) & CoreVirtualKeyStates.Down) != CoreVirtualKeyStates.Down)
+            {
+                return;
+            }
 
             if (!IsEnableUINavigationButtons)
             {
-                if (NavigationButtonVirtualKeyList.Any(x => x == args.VirtualKey)) { return; }
+                if (NavigationButtonVirtualKeyList.Any(x => x == args.Key)) { return; }
 
-                var keycode = (int)args.VirtualKey;
+                var keycode = (int)args.Key;
                 if (IgnoreVirtualKeyList.Any(x => x == keycode)) { return; }
             }
 
-			if (this.Key == VirtualKey.None || this.Key == args.VirtualKey)
-			{
+            if (this.Key == VirtualKey.None || this.Key == args.Key)
+            {
                 foreach (var action in this.Actions.Cast<IAction>())
                 {
                     var result = action.Execute(this, null);
@@ -282,8 +277,9 @@ namespace Hohoema.Presentation.Views.Behaviors
                         args.Handled = true;
                     }
                 }
-			}
-		}
+            }
+        }
+
 
 		private void Fe_Unloaded(object sender, RoutedEventArgs e)
 		{

@@ -354,6 +354,17 @@ namespace Hohoema.Presentation.Views.Player
             });
         }
 
+        private void PlayPauseToggleKeyboardTrigger_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+        {
+            var currentFocus = FocusManager.GetFocusedElement() as FrameworkElement;
+            if (currentFocus == PlayPauseButton) { return; }
+
+            if (CommentTextBox.FocusState == FocusState.Unfocused && PlayPauseButton.FocusState == FocusState.Unfocused)
+            {
+                (_vm.VideoTogglePlayPauseCommand as ICommand).Execute(null);
+            }
+        }
+
         /*
 
         private void SeekBarSlider_FocusEngaged(Control sender, FocusEngagedEventArgs args)
