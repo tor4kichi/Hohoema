@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
-using Uno.Threading;
 using System.Threading;
 using System.Runtime.CompilerServices;
 using NiconicoToolkit.Video.Watch;
@@ -134,7 +133,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(5);
         
-        FastAsyncLock _ThumbnailAccessLock = new FastAsyncLock();
+        Models.Helpers.AsyncLock _ThumbnailAccessLock = new ();
         private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
 

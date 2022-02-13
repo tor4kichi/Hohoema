@@ -1,6 +1,6 @@
 ﻿using NiconicoToolkit.Ranking.Video;
 using Hohoema.Models.Helpers;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

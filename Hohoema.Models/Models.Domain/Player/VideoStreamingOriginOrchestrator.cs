@@ -5,7 +5,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Domain.Player.Video.Comment;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

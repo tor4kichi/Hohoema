@@ -13,7 +13,7 @@ using Windows.Media.Playback;
 
 namespace Hohoema.Models.Domain.Player
 {
-    public class MediaPlayerSoundVolumeManager : BindableBase
+    public class MediaPlayerSoundVolumeManager : ObservableObject
     {
         public MediaPlayerSoundVolumeManager(
             PlayerSettings playerSettings,

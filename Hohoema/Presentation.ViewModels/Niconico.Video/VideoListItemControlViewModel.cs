@@ -15,7 +15,7 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 using NiconicoToolkit;
 using NiconicoToolkit.Video;
 using Prism.Commands;
-using Prism.Unity;
+using Prism.Ioc;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Diagnostics;
@@ -25,7 +25,6 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Unity;
 using Hohoema.Models.UseCase.Niconico.Player.Events;
 using Hohoema.Models.Domain.Playlist;
 

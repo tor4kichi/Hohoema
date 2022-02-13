@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Helpers;
-using Prism.Commands;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +18,7 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
 {
 
     [DataContract]
-	public class VideoComment : BindableBase, IComment
+	public class VideoComment : ObservableObject, IComment
     {
         // コメントのデータ構造だけで他のことを知っているべきじゃない
         // このデータを解釈して実際に表示するためのオブジェクトにする部分は処理は

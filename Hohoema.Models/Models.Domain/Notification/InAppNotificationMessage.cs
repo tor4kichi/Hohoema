@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
-using Unity;
 using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using NiconicoToolkit.Account;

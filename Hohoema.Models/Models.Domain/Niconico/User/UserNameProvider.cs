@@ -7,7 +7,6 @@
     using System.Collections.Generic;
     using System.Text;
     using System.Threading.Tasks;
-    using Uno.Extensions;
 
     public sealed class UserNameEntity
     {
@@ -51,7 +50,7 @@
         {
             var cachedName = _userNameRepository.GetName(userId);
             if (cachedName != null &&
-                DateTime.Now.IsBefore(cachedName.UpdatedAt + UserNameExpire))
+                DateTime.Now > cachedName.UpdatedAt + UserNameExpire)
             {
                 userName = cachedName.Name;
                 return true;
@@ -69,7 +68,7 @@
         {
             var cachedName = _userNameRepository.GetName(userId);
             if (cachedName != null &&
-                DateTime.Now.IsBefore(cachedName.UpdatedAt + UserNameExpire))
+                DateTime.Now > cachedName.UpdatedAt + UserNameExpire)
             {
                 return cachedName.Name;
             }

@@ -6,17 +6,17 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Uno.Threading;
 using Windows.Storage;
 using System.Runtime.Serialization.Json;
+using Hohoema.Models.Helpers;
 
 namespace Hohoema.Models.Infrastructure
 {
 
-    public class FlagsRepositoryBase : BindableBase
+    public class FlagsRepositoryBase : ObservableObject
     {
         private readonly LocalObjectStorageHelper _LocalStorageHelper;
-        FastAsyncLock _fileUpdateLock = new FastAsyncLock();
+        AsyncLock _fileUpdateLock = new AsyncLock();
         public FlagsRepositoryBase()
         {
             _LocalStorageHelper = new LocalObjectStorageHelper(new SystemTextJsonSerializer());

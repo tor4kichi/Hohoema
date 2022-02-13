@@ -11,9 +11,9 @@ namespace Hohoema.FixPrism
     /// <summary>
     /// Implementation of <see cref="INotifyPropertyChanged"/> to simplify models.
     /// </summary>
-    public abstract class BindableBase : INotifyPropertyChanged, IDisposable
+    public abstract class ObservableObject : INotifyPropertyChanged, IDisposable
     {
-        protected BindableBase()
+        protected ObservableObject()
         {
         }
 

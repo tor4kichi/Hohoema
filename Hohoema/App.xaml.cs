@@ -30,7 +30,7 @@ using Prism.Commands;
 using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Navigation;
-using Prism.Unity;
+using Prism.DryIoc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -43,9 +43,6 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using Unity;
-using Unity.Injection;
-using Unity.Lifetime;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Core;
@@ -74,6 +71,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Video;
 using Hohoema.Models.Domain.Player.Comment;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using DryIoc;
 
 namespace Hohoema
 {
@@ -118,6 +116,11 @@ namespace Hohoema
 
             
             this.InitializeComponent();
+        }
+
+        protected override Rules CreateContainerRules()
+        {
+            return base.CreateContainerRules().WithoutThrowOnRegisteringDisposableTransient();
         }
 
         public override async Task OnStartAsync(StartArgs args)
@@ -192,12 +195,11 @@ namespace Hohoema
             var unityContainer = Container.GetContainer();
 #pragma warning restore IDISP001 // Dispose created.
             var primaryWindowContentNavigationService = _primaryWindowCoreLayout.CreateNavigationService();
-            unityContainer.RegisterInstance(primaryWindowContentNavigationService);
+            unityContainer.UseInstance(primaryWindowContentNavigationService);
 
             var primaryViewPlayerNavigationService = _primaryWindowCoreLayout.CreatePlayerNavigationService();
             var name = "PrimaryPlayerNavigationService";
-            unityContainer.RegisterInstance(name, primaryViewPlayerNavigationService);
-
+            unityContainer.UseInstance(primaryViewPlayerNavigationService, serviceKey: name);
 
 
 #if DEBUG
@@ -213,19 +215,21 @@ namespace Hohoema
         {
             var unityContainer = container.GetContainer();
 
-            unityContainer.RegisterType<LocalObjectStorageHelper>(new InjectionFactory(c => new LocalObjectStorageHelper(new SystemTextJsonSerializer())));
+//            unityContainer.Register<PrimaryViewPlayerManager>(made: Made.Of().Parameters.Name("navigationServiceLazy", x => new Lazy<INavigationService>(() => unityContainer.Resolve<INavigationService>(serviceKey: "PrimaryPlayerNavigationService"))));
 
-            unityContainer.RegisterInstance<IMessenger>(WeakReferenceMessenger.Default);
+            unityContainer.UseInstance<LocalObjectStorageHelper>(new LocalObjectStorageHelper(new SystemTextJsonSerializer()));
+
+            unityContainer.UseInstance<IMessenger>(WeakReferenceMessenger.Default);
 
             LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
-            unityContainer.RegisterInstance<LiteDatabase>(db);
+            unityContainer.UseInstance<LiteDatabase>(db);
 
             var mainWindowsScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
             // 各ウィンドウごとのスケジューラを作るように
-            unityContainer.RegisterType<IScheduler>(new PerThreadLifetimeManager(), new InjectionFactory(c => SynchronizationContext.Current != null ? new SynchronizationContextScheduler(SynchronizationContext.Current) : mainWindowsScheduler));
-            unityContainer.RegisterInstance<IScheduler>("MainWindowsScheduler", mainWindowsScheduler);
+            unityContainer.UseInstance<IScheduler>(mainWindowsScheduler);
+//            unityContainer.RegisterInstance<IScheduler>("MainWindowsScheduler", mainWindowsScheduler);
 
-            unityContainer.RegisterType<IPlayerView>(new InjectionFactory(c => 
+            unityContainer.RegisterDelegate<IPlayerView>(c => 
             {
                 var appearanceSettings = c.Resolve<AppearanceSettings>();
                 if (appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView)
@@ -236,71 +240,71 @@ namespace Hohoema
                 {
                     return c.Resolve<AppWindowSecondaryViewPlayerManager>();
                 }
-            }));
+            });
 
             // MediaPlayerを各ウィンドウごとに一つずつ作るように
-            unityContainer.RegisterType<MediaPlayer>(new PerThreadLifetimeManager());
+            container.RegisterSingleton<MediaPlayer>();
 
             // 再生プレイリスト管理のクラスは各ウィンドウごとに一つずつ作成
-            unityContainer.RegisterType<HohoemaPlaylistPlayer>(new PerThreadLifetimeManager());
+            container.RegisterSingleton<HohoemaPlaylistPlayer>();
 
             // Service
-            unityContainer.RegisterSingleton<PageManager>();
-            unityContainer.RegisterSingleton<PrimaryViewPlayerManager>();
-            unityContainer.RegisterSingleton<SecondaryViewPlayerManager>();
-            unityContainer.RegisterSingleton<AppWindowSecondaryViewPlayerManager>();
-            unityContainer.RegisterSingleton<NiconicoLoginService>();
-            unityContainer.RegisterSingleton<DialogService>();
-            unityContainer.RegisterSingleton<INotificationService, NotificationService>();
-            unityContainer.RegisterSingleton<NoUIProcessScreenContext>();
-            unityContainer.RegisterSingleton<CurrentActiveWindowUIContextService>();
+            container.RegisterSingleton<PageManager>();
+            container.RegisterSingleton<PrimaryViewPlayerManager>();
+            container.RegisterSingleton<SecondaryViewPlayerManager>();
+            container.RegisterSingleton<AppWindowSecondaryViewPlayerManager>();
+            container.RegisterSingleton<NiconicoLoginService>();
+            container.RegisterSingleton<DialogService>();
+            container.RegisterSingleton<INotificationService, NotificationService>();
+            container.RegisterSingleton<NoUIProcessScreenContext>();
+            container.RegisterSingleton<CurrentActiveWindowUIContextService>();
 
             // Models
-            unityContainer.RegisterSingleton<AppearanceSettings>();
-            unityContainer.RegisterSingleton<PinSettings>();
-            unityContainer.RegisterSingleton<PlayerSettings>();
-            unityContainer.RegisterSingleton<VideoFilteringSettings>();
-            unityContainer.RegisterSingleton<VideoRankingSettings>();
-            unityContainer.RegisterSingleton<NicoRepoSettings>();
-            unityContainer.RegisterSingleton<CommentFliteringRepository>();
-            unityContainer.RegisterSingleton<QueuePlaylist>();
+            container.RegisterSingleton<AppearanceSettings>();
+            container.RegisterSingleton<PinSettings>();
+            container.RegisterSingleton<PlayerSettings>();
+            container.RegisterSingleton<VideoFilteringSettings>();
+            container.RegisterSingleton<VideoRankingSettings>();
+            container.RegisterSingleton<NicoRepoSettings>();
+            container.RegisterSingleton<CommentFliteringRepository>();
+            container.RegisterSingleton<QueuePlaylist>();
 
-            unityContainer.RegisterSingleton<NicoVideoProvider>();
+            container.RegisterSingleton<NicoVideoProvider>();
 
 
-            unityContainer.RegisterSingleton<NiconicoSession>();
-            unityContainer.RegisterSingleton<NicoVideoSessionOwnershipManager>();
-            
-            unityContainer.RegisterSingleton<LoginUserOwnedMylistManager>();
+            container.RegisterSingleton<NiconicoSession>();
+            container.RegisterSingleton<NicoVideoSessionOwnershipManager>();
 
-            unityContainer.RegisterSingleton<SubscriptionManager>();
+            container.RegisterSingleton<LoginUserOwnedMylistManager>();
 
-            unityContainer.RegisterSingleton<Models.Domain.VideoCache.VideoCacheManager>();
-            unityContainer.RegisterSingleton<Models.Domain.VideoCache.VideoCacheSettings>();
+            container.RegisterSingleton<SubscriptionManager>();
+
+            container.RegisterSingleton<Models.Domain.VideoCache.VideoCacheManager>();
+            container.RegisterSingleton<Models.Domain.VideoCache.VideoCacheSettings>();
 
             // UseCase
-            unityContainer.RegisterType<CommentPlayer>(new PerThreadLifetimeManager());
-            unityContainer.RegisterType<CommentFilteringFacade>(new PerThreadLifetimeManager());
-            unityContainer.RegisterType<MediaPlayerSoundVolumeManager>(new PerThreadLifetimeManager());
-            unityContainer.RegisterSingleton<LocalMylistManager>();
-            unityContainer.RegisterSingleton<VideoItemsSelectionContext>();
-            unityContainer.RegisterSingleton<WatchHistoryManager>();
-            unityContainer.RegisterSingleton<ApplicationLayoutManager>();
+            unityContainer.Register<CommentPlayer>();
+            container.Register<CommentFilteringFacade>();
+            container.Register<MediaPlayerSoundVolumeManager>();
+            container.RegisterSingleton<LocalMylistManager>();
+            container.RegisterSingleton<VideoItemsSelectionContext>();
+            container.RegisterSingleton<WatchHistoryManager>();
+            container.RegisterSingleton<ApplicationLayoutManager>();
 
-            unityContainer.RegisterSingleton<VideoCacheFolderManager>();
+            container.RegisterSingleton<VideoCacheFolderManager>();
 
-            unityContainer.RegisterSingleton<IPlaylistFactoryResolver, PlaylistItemsSourceResolver>();
+            container.RegisterSingleton<IPlaylistFactoryResolver, PlaylistItemsSourceResolver>();
 
 
 
 
             // ViewModels
-            unityContainer.RegisterSingleton<Presentation.ViewModels.Pages.Niconico.VideoRanking.RankingCategoryListPageViewModel>();
+            container.RegisterSingleton<Presentation.ViewModels.Pages.Niconico.VideoRanking.RankingCategoryListPageViewModel>();
 
             // Frameのキャッシュ無効＋IncrementalLoadingリスト系ページのViewModelがシングルトン、という構成の場合に
             // ListViewの読み込み順序が壊れる問題が発生するためVMは都度生成にしている
             // see@ https://github.com/tor4kichi/Hohoema/issues/836
-            unityContainer.RegisterSingleton<Presentation.ViewModels.Pages.Niconico.VideoRanking.RankingCategoryPageViewModel>();
+            container.RegisterSingleton<Presentation.ViewModels.Pages.Niconico.VideoRanking.RankingCategoryPageViewModel>();
 
             //unityContainer.RegisterType<Presentation.ViewModels.Player.VideoPlayerPageViewModel>(new PerThreadLifetimeManager());
             //unityContainer.RegisterType<Presentation.ViewModels.Player.LivePlayerPageViewModel>(new PerThreadLifetimeManager());
@@ -410,7 +414,7 @@ namespace Hohoema
             // Xaml側で扱いやすくするためApp.xaml上でインスタンス生成させている
             {
                 var unityContainer = Container.GetContainer();
-                unityContainer.RegisterInstance(Resources["FeatureFlags"] as FeatureFlags);
+                unityContainer.UseInstance(Resources["FeatureFlags"] as FeatureFlags);
             }
 
             // ローカリゼーション用のライブラリを初期化

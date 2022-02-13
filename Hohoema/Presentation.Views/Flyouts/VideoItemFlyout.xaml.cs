@@ -1,5 +1,4 @@
 ﻿using Windows.UI.Xaml.Controls;
-using Unity;
 using Windows.UI.Xaml;
 using Prism.Ioc;
 using Hohoema.Models.Domain;

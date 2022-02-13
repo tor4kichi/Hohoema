@@ -8,11 +8,11 @@ using Hohoema.Models.Helpers;
 using Hohoema.Models.Infrastructure;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Diagnostics;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using Microsoft.Toolkit.Uwp;
 using NiconicoToolkit.Video;
-using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -28,8 +28,6 @@ using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Uno.Extensions;
-using Uno.Threading;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -91,7 +89,7 @@ namespace Hohoema.Models.Domain.Playlist
 
 
 
-    public abstract class PlaylistPlayer : BindableBase, IDisposable
+    public abstract class PlaylistPlayer : ObservableObject, IDisposable
     {
         private const int InvalidIndex = -1;
         private readonly PlayerSettings _playerSettings;
@@ -115,7 +113,7 @@ namespace Hohoema.Models.Domain.Playlist
             _IsShuffleEnableSubscriber = _playerSettings.ObserveProperty(x => x.IsShuffleEnable)
                 .Subscribe(enabled =>
                 {
-                    _scheduler.Schedule(() => RaisePropertyChanged(nameof(IsShuffleModeRequested)));
+                    _scheduler.Schedule(() => OnPropertyChanged(nameof(IsShuffleModeRequested)));
                 });
         }
 
@@ -130,7 +128,7 @@ namespace Hohoema.Models.Domain.Playlist
             {
                 if (SetProperty(ref _currentPlaylist, value))
                 {
-                    RaisePropertyChanged(nameof(CurrentPlaylistSortOptions));
+                    OnPropertyChanged(nameof(CurrentPlaylistSortOptions));
                 }
             }
         }
@@ -148,8 +146,8 @@ namespace Hohoema.Models.Domain.Playlist
             {
                 if (SetProperty(ref _isUnlimitedPlaylistSource, value))
                 {
-                    RaisePropertyChanged(nameof(IsShuffleAndRepeatAvailable));
-                    RaisePropertyChanged(nameof(IsShuffleModeEnabled));
+                    OnPropertyChanged(nameof(IsShuffleAndRepeatAvailable));
+                    OnPropertyChanged(nameof(IsShuffleModeEnabled));
                 }
             }
         }
@@ -175,7 +173,7 @@ namespace Hohoema.Models.Domain.Playlist
 
         protected async ValueTask<IBufferedPlaylistItemsSource> Reset(IPlaylist playlist, IPlaylistSortOption sortOption)
         {
-            if (CurrentPlaylist == playlist && sortOption.SafeEquals(BufferedPlaylistItemsSource?.SortOption))
+            if (CurrentPlaylist == playlist && (sortOption?.Equals(BufferedPlaylistItemsSource?.SortOption) ?? false))
             {
                 return BufferedPlaylistItemsSource;
             }
@@ -352,7 +350,7 @@ namespace Hohoema.Models.Domain.Playlist
         }
 
 
-        FastAsyncLock _lock = new FastAsyncLock();
+        Helpers.AsyncLock _lock = new ();
         public async Task<bool> GoNextAsync(CancellationToken ct = default)
         {
             using var _ = await _lock.LockAsync(ct);
@@ -746,7 +744,7 @@ namespace Hohoema.Models.Domain.Playlist
                 Guard.IsNotNull(_mediaPlayer.PlaybackSession, nameof(_mediaPlayer.PlaybackSession));
 
 
-                RaisePropertyChanged(nameof(AvailableQualities));
+                OnPropertyChanged(nameof(AvailableQualities));
 
                 NowPlayingWithCache = videoSession is CachedVideoStreamingSession;
                 _soundVolumeManager.LoudnessCorrectionValue = CurrentPlayingSession.VideoDetails.LoudnessCorrectionValue;

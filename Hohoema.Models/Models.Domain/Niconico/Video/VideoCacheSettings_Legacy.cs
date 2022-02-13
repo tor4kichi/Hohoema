@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models.Infrastructure;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -84,7 +85,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
     }
 
 	[DataContract]
-	public class TagCondition : BindableBase
+	public class TagCondition : ObservableObject
 	{
 		public TagCondition()
 		{

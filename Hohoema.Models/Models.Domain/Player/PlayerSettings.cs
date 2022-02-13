@@ -1,7 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
 using NiconicoToolkit.Live.WatchSession;
 using Hohoema.FixPrism;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

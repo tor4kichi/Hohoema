@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.Collections;
 using Hohoema.Models.Infrastructure;
-using Uno.Extensions;
 using NiconicoToolkit.Ranking.Video;
 
 namespace Hohoema.Models.Domain.Niconico.Video
@@ -76,7 +75,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
         public void ResetHiddenGenre(IEnumerable<RankingGenre> genreList)
         {
             HiddenGenres.Clear();
-            HiddenGenres.AddRange(genreList);
+            foreach (var genre in genreList) { HiddenGenres.Add(genre); }
             Save(HiddenGenres, nameof(HiddenGenres));
         }
 

@@ -22,7 +22,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 	{
 		public LiveCommentsSidePaneContentViewModel(
             CommentFilteringFacade commentFiltering, 
-            Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView comments,
             IScheduler scheduler,
             NicoVideoOwnerCacheRepository nicoVideoOwnerRepository,
             OpenLinkCommand openLinkCommand,
@@ -30,7 +29,6 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             )
 		{
             _playerSettings = commentFiltering;
-            Comments = comments;
             _scheduler = scheduler;
             _nicoVideoOwnerRepository = nicoVideoOwnerRepository;
             OpenLinkCommand = openLinkCommand;

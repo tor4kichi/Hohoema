@@ -148,6 +148,7 @@
     <Compile Include="Models.UseCase\Migration\SettingsMigration_V_0_23_0.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\AppWindowSecondaryViewPlayerManager.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\IPlayerView.cs" />
+    <Compile Include="Models.UseCase\PageNavigation\IPageNavigatable.cs" />
     <Compile Include="Models.UseCase\PageNavigation\NavigationTriggerFromExternal.cs" />
     <Compile Include="Models.UseCase\Hohoema.LocalMylist\LocalMylistManager.cs" />
     <Compile Include="Models.UseCase\Playlist\AutoSkipToPlaylistNextVideoWhenPlayFailed.cs" />
@@ -853,7 +854,7 @@
     <PackageReference Include="System.Text.Json">
       <Version>5.0.2</Version>
     </PackageReference>
-    <PackageReference Include="Uno.Prism.Unity.Uno">
+    <PackageReference Include="Uno.Prism.DryIoc.Uno">
       <Version>7.1.0-pre.4</Version>
     </PackageReference>
     <PackageReference Include="Uno.WindowsStateTriggers">

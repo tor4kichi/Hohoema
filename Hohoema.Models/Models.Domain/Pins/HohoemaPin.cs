@@ -1,14 +1,12 @@
 ﻿using Hohoema.Models.Domain.PageNavigation;
 using LiteDB;
-using Prism.Commands;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Input;
-using Unity;
 
 namespace Hohoema.Models.Domain.Pins
 {
-    public sealed class HohoemaPin : BindableBase
+    public sealed class HohoemaPin : ObservableObject
     {
         [BsonId(autoId:true)]
         public int Id { get; set; }

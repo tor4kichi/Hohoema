@@ -143,7 +143,7 @@ namespace Hohoema.Models.Domain.Playlist
         }
     }
 
-    public class QueuePlaylist : BindableBase, IReadOnlyCollection<QueuePlaylistItem>, INotifyCollectionChanged, IUserManagedPlaylist
+    public class QueuePlaylist : ObservableObject, IReadOnlyCollection<QueuePlaylistItem>, INotifyCollectionChanged, IUserManagedPlaylist
     {
         public static QueuePlaylistSortOption[] SortOptions { get; } = new QueuePlaylistSortOption[]
 {

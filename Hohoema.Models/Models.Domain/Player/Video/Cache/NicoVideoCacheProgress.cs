@@ -15,7 +15,7 @@ using Hohoema.Models.Helpers;
 
 namespace Hohoema.Models.Domain.Player.Video.Cache
 {
-    public class NicoVideoCacheProgress : BindableBase, IDisposable
+    public class NicoVideoCacheProgress : ObservableObject, IDisposable
     {
         public string VideoId { get; set; }
         public string VideoTitle { get; set; }

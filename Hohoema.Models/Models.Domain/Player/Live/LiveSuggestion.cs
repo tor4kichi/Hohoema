@@ -1,4 +1,4 @@
-﻿using Prism.Commands;
+﻿using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,12 +23,12 @@ namespace Hohoema.Models.Domain.Live
 	public class SuggestAction
 	{
 		public string Label { get; private set; }
-		public DelegateCommand SuggestActionCommand { get; private set; }
+		public RelayCommand SuggestActionCommand { get; private set; }
 
 		public SuggestAction(string label, Action action)
 		{
 			Label = label;
-			SuggestActionCommand = new DelegateCommand(action);
+			SuggestActionCommand = new RelayCommand(action);
 		}
 	}
 

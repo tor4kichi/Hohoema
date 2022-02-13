@@ -8,7 +8,6 @@ using Windows.Media.Core;
 using Windows.Media.Streaming.Adaptive;
 using Windows.UI.Xaml;
 using Windows.System;
-using Uno.Threading;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Models.Domain.Niconico.Video;
 using NiconicoToolkit.Video.Watch;

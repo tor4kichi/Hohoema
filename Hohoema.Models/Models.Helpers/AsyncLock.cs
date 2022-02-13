@@ -20,13 +20,13 @@ namespace Hohoema.Models.Helpers
 			m_releaser = Task.FromResult((IDisposable)new Releaser(this));
 		}
 
-		public Task<IDisposable> LockAsync()
+		public Task<IDisposable> LockAsync(CancellationToken ct = default)
 		{
-			var wait = m_semaphore.WaitAsync();
+			var wait = m_semaphore.WaitAsync(ct);
 			return wait.IsCompleted ?
 						m_releaser :
 						wait.ContinueWith((_, state) => (IDisposable)state,
-							m_releaser.Result, CancellationToken.None,
+							m_releaser.Result, ct,
 			TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
 		}
 
