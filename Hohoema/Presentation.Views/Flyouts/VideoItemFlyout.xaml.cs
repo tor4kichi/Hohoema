@@ -84,6 +84,7 @@ namespace Hohoema.Presentation.Views.Flyouts
         public static SubscriptionManager SubscriptionManager { get; }
         public static VideoCacheManager VideoCacheManager { get; }
         public static VideoItemsSelectionContext VideoItemsSelectionContext { get; }
+        public static VideoFilteringSettings VideoFilteringSettings { get; }
 
         private static readonly IMessenger _messenger;
 
@@ -110,6 +111,7 @@ namespace Hohoema.Presentation.Views.Flyouts
             SubscriptionManager = App.Current.Container.Resolve<SubscriptionManager>();
             VideoCacheManager = App.Current.Container.Resolve<VideoCacheManager>();
             VideoItemsSelectionContext = App.Current.Container.Resolve<VideoItemsSelectionContext>();
+            VideoFilteringSettings = App.Current.Container.Resolve<VideoFilteringSettings>();
 
             OpenLinkCommand = App.Current.Container.Resolve<OpenLinkCommand>();
             CopyToClipboardCommand = App.Current.Container.Resolve<CopyToClipboardCommand>();
@@ -235,41 +237,64 @@ namespace Hohoema.Presentation.Views.Flyouts
             AddToMylistItem.CommandParameter = dataContext;
 
 
-            var visibleSingleSelectionItem = isMultipleSelection.ToInvisibility();
-            OpenVideoInfoPage.Visibility = visibleSingleSelectionItem;
-            OpenOwnerVideosPage.Visibility = visibleSingleSelectionItem;
-            AddNgUser.Visibility = visibleSingleSelectionItem;
-            VideoInfoItemSeparator.Visibility = visibleSingleSelectionItem;
-            ExternalActionsSeparator.Visibility = visibleSingleSelectionItem;
-
-            if (!isMultipleSelection && content is IVideoContentProvider provider)
+            if (isMultipleSelection is false)
             {
-                bool isUserProvidedVideo = (provider?.ProviderType == OwnerType.User && provider?.ProviderId != null);
-                OpenOwnerMylistsPage.Visibility = 
-                OpenOwnerSeriesPage.Visibility = isUserProvidedVideo.ToVisibility();
+                OpenVideoInfoPage.Visibility = Visibility.Visible;
+                VideoInfoItemSeparator.Visibility = Visibility.Visible;
+                ExternalActionsSeparator.Visibility = Visibility.Visible;
 
-                OpenOwnerMylistsPage.CommandParameter =
-                OpenOwnerSeriesPage.CommandParameter = provider?.ProviderId;
+                if (content is IVideoContentProvider provider && provider.ProviderId != null)
+                {
+                    OpenOwnerVideosPage.Visibility = Visibility.Visible;
+
+                    bool isUserProvidedVideo = (provider.ProviderType == OwnerType.User && provider.ProviderId != null);
+                    OpenOwnerMylistsPage.Visibility =
+                    OpenOwnerSeriesPage.Visibility = isUserProvidedVideo.ToVisibility();
+
+                    OpenOwnerMylistsPage.CommandParameter =
+                    OpenOwnerSeriesPage.CommandParameter = provider?.ProviderId;
+                    
+                    AddSusbcriptionItem.CommandParameter = provider;
+                    AddSusbcriptionItem.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    OpenOwnerVideosPage.Visibility = Visibility.Collapsed;
+                    OpenOwnerMylistsPage.Visibility = Visibility.Collapsed;
+                    OpenOwnerSeriesPage.Visibility = Visibility.Collapsed;
+                    AddSusbcriptionItem.Visibility = Visibility.Collapsed;
+                }
             }
             else
             {
+                OpenVideoInfoPage.Visibility = Visibility.Collapsed;
+                VideoInfoItemSeparator.Visibility = Visibility.Collapsed;
+                ExternalActionsSeparator.Visibility = Visibility.Collapsed;
+
+                OpenOwnerVideosPage.Visibility = Visibility.Collapsed;
                 OpenOwnerMylistsPage.Visibility = Visibility.Collapsed;
                 OpenOwnerSeriesPage.Visibility = Visibility.Collapsed;
+                AddSusbcriptionItem.Visibility = Visibility.Collapsed;
             }
 
+            var visibleSingleSelectionItem = isMultipleSelection.ToInvisibility();
             Share.Visibility = visibleSingleSelectionItem;
             CopySubItem.Visibility = visibleSingleSelectionItem;
-
-            AddSusbcriptionItem.Visibility = visibleSingleSelectionItem;
-
 
             // プレイリスト
             LocalMylistItem.CommandParameter = dataContext;
             
-
             // NG投稿者
-            AddNgUser.Visibility = AddNgUser.Command.CanExecute(content).ToVisibility();
-            RemoveNgUser.Visibility = RemoveNgUser.Command.CanExecute(content).ToVisibility();
+            if (VideoFilteringSettings.NGVideoOwnerUserIdEnable)
+            {
+                AddNgUser.Visibility = AddNgUser.Command.CanExecute(content).ToVisibility();
+                RemoveNgUser.Visibility = RemoveNgUser.Command.CanExecute(content).ToVisibility();
+            }
+            else
+            {
+                AddNgUser.Visibility = Visibility.Collapsed;
+                RemoveNgUser.Visibility = Visibility.Collapsed;
+            }
 
             // キャッシュ
             var canNewDownloadCache = VideoCacheManager.IsCacheDownloadAuthorized();
@@ -293,7 +318,8 @@ namespace Hohoema.Presentation.Views.Flyouts
                 var cachedToVisible = (anyItemsCached).ToVisibility();
                 DeleteCacheRequest.Visibility = cachedToVisible;
 
-                CacheSeparator.Visibility = (notCachedToVisible is Visibility.Visible || cachedToVisible is Visibility.Visible).ToVisibility();
+                CacheSeparator.Visibility = ((RemoveNgUser.Visibility == Visibility.Visible || AddNgUser.Visibility == Visibility.Visible) && 
+                    notCachedToVisible is Visibility.Visible || cachedToVisible is Visibility.Visible).ToVisibility();
             }
             else
             {
@@ -309,7 +335,8 @@ namespace Hohoema.Presentation.Views.Flyouts
                 var cachedToVisible = (itemCached).ToVisibility();
                 DeleteCacheRequest.Visibility = cachedToVisible;
 
-                CacheSeparator.Visibility = (notCachedToVisible is Visibility.Visible || cachedToVisible is Visibility.Visible).ToVisibility();
+                CacheSeparator.Visibility = ((RemoveNgUser.Visibility == Visibility.Visible || AddNgUser.Visibility == Visibility.Visible) && 
+                    notCachedToVisible is Visibility.Visible || cachedToVisible is Visibility.Visible).ToVisibility();
             }
 
 

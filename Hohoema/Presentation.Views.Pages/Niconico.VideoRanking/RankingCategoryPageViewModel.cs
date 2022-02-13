@@ -154,6 +154,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         public RankingProvider RankingProvider { get; }
 
         private readonly NiconicoSession _niconicoSession;
+        private readonly VideoFilteringSettings _videoFilteringSettings;
         private readonly NotificationService _notificationService;
         private readonly FastAsyncLock _updateLock = new FastAsyncLock();
 
@@ -165,6 +166,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             NicoVideoProvider nicoVideoProvider,
             RankingProvider rankingProvider,
             VideoRankingSettings rankingSettings,
+            VideoFilteringSettings videoFilteringSettings,
             NotificationService notificationService,
             VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
@@ -176,6 +178,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             NicoVideoProvider = nicoVideoProvider;
             RankingProvider = rankingProvider;
             RankingSettings = rankingSettings;
+            _videoFilteringSettings = videoFilteringSettings;
             _notificationService = notificationService;
             VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
@@ -385,7 +388,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             IIncrementalSource<RankedVideoListItemControlViewModel> source = null;
             try
             {
-                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _rankingMemoryCache);
+                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _videoFilteringSettings, _rankingMemoryCache);
 
                 CanChangeRankingParameter.Value = true;
 
@@ -414,6 +417,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
         private readonly NiconicoSession _niconicoSession;
         private readonly NicoVideoProvider _nicoVideoProvider;
+        private readonly VideoFilteringSettings _videoFilteringSettings;
         private readonly MemoryCache _memoryCache;
         RankingOptions _options;
         RssVideoResponse _rankingRssResponse;
@@ -424,12 +428,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             RankingTerm term,
             NiconicoSession niconicoSession,
             NicoVideoProvider nicoVideoProvider,
+            VideoFilteringSettings videoFilteringSettings,
             MemoryCache memoryCache
             )
             : base()
         {
             _niconicoSession = niconicoSession;
             _nicoVideoProvider = nicoVideoProvider;
+            _videoFilteringSettings = videoFilteringSettings;
             _memoryCache = memoryCache;
             _options = new RankingOptions(genre, term, tag);
         }
@@ -463,9 +469,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             int head = pageIndex * pageSize;
             var targetItems = _rankingRssResponse.Items.Skip(head).Take(pageSize);
 
-            // Note: 1件あたり8ms 100件800ms 程度の時間が掛かる
-            var owners = await _nicoVideoProvider.ResolveVideoOwnersAsync(targetItems.Select(x => x.GetVideoId()));
-
             ct.ThrowIfCancellationRequested();
 
             return targetItems.Select((item, offset) =>
@@ -478,10 +481,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                 vm.ViewCount = itemData.WatchCount;
                 vm.MylistCount = itemData.MylistCount;
 
-                var owner = owners[videoId];
-                vm.ProviderId = owner.OwnerId;
-                vm.ProviderName = owner.ScreenName;
-                vm.ProviderType = owner.UserType;
+                // Note: ランキングページにおける投稿者NGは扱わないように変更する
+                // プレ垢であれば追加情報取得してもいいと思うが、長期メンテするには面倒なので対応しない
+                //var owner = owners[videoId];
+                //vm.ProviderId = owner.OwnerId;
+                //vm.ProviderName = owner.ScreenName;
+                //vm.ProviderType = owner.UserType;
 
                 return vm;
             });

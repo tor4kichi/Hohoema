@@ -220,6 +220,9 @@
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
+
+              <TextBlock Text="ランキングページは投稿者NGに対応していません" />
+
               <Grid>
                 <TextBlock Text="{i18nExt:Localize Key=FilterEnableWithVideoOwnerID}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ToggleSwitch IsOn="{Binding NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
