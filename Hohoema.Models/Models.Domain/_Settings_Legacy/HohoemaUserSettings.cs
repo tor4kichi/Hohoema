@@ -1,4 +1,5 @@
-﻿using NiconicoToolkit.NicoRepo;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+using NiconicoToolkit.NicoRepo;
 using System;
 using System.IO;
 using System.Linq;
@@ -133,7 +134,7 @@ namespace Hohoema.Models.Domain.Legacy
     }
 
 	[DataContract]
-	public abstract class SettingsBase : FixPrism.ObservableObject
+	public abstract class SettingsBase : ObservableObject
     {
 		public SettingsBase()
 		{

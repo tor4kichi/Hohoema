@@ -56,7 +56,7 @@ namespace Hohoema.Models.Domain.LocalMylist
         }
     }
 
-    public sealed class LocalPlaylist : FixPrism.ObservableObject, IUserManagedPlaylist
+    public sealed class LocalPlaylist : ObservableObject, IUserManagedPlaylist
     {
         public static LocalPlaylistSortOption[] SortOptions { get; } = new LocalPlaylistSortOption[]
 {
@@ -124,7 +124,7 @@ namespace Hohoema.Models.Domain.LocalMylist
                 if (SetProperty(ref _count, value))
                 {
                     UpdatePlaylistInfo();
-                    RaisePropertyChanged(nameof(IUserManagedPlaylist.TotalCount));
+                    OnPropertyChanged(nameof(IUserManagedPlaylist.TotalCount));
                 }
             }
         }

@@ -1,4 +1,4 @@
-﻿using Hohoema.FixPrism;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Player;
 using Reactive.Bindings.Extensions;

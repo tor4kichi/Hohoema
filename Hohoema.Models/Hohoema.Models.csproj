@@ -122,8 +122,6 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="FixPrism\BindableBaseWithFix.cs" />
-    <Compile Include="FixPrism\DispatchObservableCollection{T}.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="Models.Domain\Application\AppearanceSettings.cs" />
     <Compile Include="Models.Domain\Application\AppFlagsRepository.cs" />
@@ -376,6 +374,7 @@
       <Name>NiconicoToolkit.UWP</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

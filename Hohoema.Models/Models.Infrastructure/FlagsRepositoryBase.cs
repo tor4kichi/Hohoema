@@ -1,5 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
-using Hohoema.FixPrism;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -54,7 +54,7 @@ namespace Hohoema.Models.Infrastructure
             _LocalStorageHelper.Save(propertyName, value);
         }
 
-        protected override bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        protected new bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
             if (base.SetProperty(ref storage, value, propertyName))
             {
@@ -67,7 +67,7 @@ namespace Hohoema.Models.Infrastructure
             }
         }
 
-        protected override bool SetProperty<T>(ref T? storage, T? value, [CallerMemberName] string propertyName = null)
+        protected bool SetProperty<T>(ref T? storage, T? value, [CallerMemberName] string propertyName = null)
             where T : struct
         {
             if (base.SetProperty(ref storage, value, propertyName))

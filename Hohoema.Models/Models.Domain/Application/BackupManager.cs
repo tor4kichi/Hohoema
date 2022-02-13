@@ -1,4 +1,4 @@
-﻿using Hohoema.FixPrism;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Domain.Niconico.NicoRepo;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;

@@ -1,4 +1,4 @@
-﻿using Hohoema.FixPrism;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Domain.Niconico.Video;
 using Microsoft.Toolkit.Collections;
 using Reactive.Bindings;
@@ -126,7 +126,7 @@ namespace Hohoema.Models.Domain.Playlist
         BehaviorSubject<Unit> _IndexUpdateTimingSubject = new BehaviorSubject<Unit>(Unit.Default);
         public IObservable<Unit> IndexUpdateTiming => _IndexUpdateTimingSubject;
 
-        DispatchObservableCollection<IVideoContent> Items;
+        ObservableCollection<IVideoContent> Items;
 
         public ReadOnlyReactiveCollection<IVideoContent> CreateItemsReadOnlyReactiveCollection(IScheduler scheduler)
         {

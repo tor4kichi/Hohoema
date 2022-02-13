@@ -73,7 +73,7 @@ namespace Hohoema.Models.Domain.Niconico
         public Exception Exception { get; set; }
     }
 
-    public sealed class NiconicoSession : FixPrism.ObservableObject, IDisposable
+    public sealed class NiconicoSession : ObservableObject
     {
         public NiconicoSession( 
             IMessenger messenger
@@ -88,11 +88,6 @@ namespace Hohoema.Models.Domain.Niconico
             _messenger = messenger;
         }
 
-
-        public override void Dispose()
-        {
-            base.Dispose();
-        }
 
         private void OnNetworkStatusChanged(object sender)
         {
