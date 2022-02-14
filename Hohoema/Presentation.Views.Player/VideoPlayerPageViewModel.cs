@@ -369,6 +369,8 @@ namespace Hohoema.Presentation.ViewModels.Player
             _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
                 .Subscribe(x =>
                 {
+                    if (x == null) { return; }
+
                     _scheduler.ScheduleAsync(async (s, ct) => 
                     {
                         try

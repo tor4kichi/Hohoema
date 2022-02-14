@@ -68,112 +68,115 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         readonly TimeSpan _endedTime = TimeSpan.FromSeconds(-1);
 
         bool _endedProcessed;
-        private async void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
+        private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
         {
-            using var _ = await _lock.LockAsync(default);
-
-            if (sender.PlaybackState == MediaPlaybackState.None) { return; }
-            if (_playNext) { return; }
-            if (_hohoemaPlaylistPlayer.CurrentPlaylistItem == null) { return; }
-            if (sender.NaturalDuration == TimeSpan.Zero) { return; }
-
-            bool isInsideEndedRange = sender.Position - sender.NaturalDuration > _endedTime;
-            bool isStopped = sender.PlaybackState == MediaPlaybackState.Paused;
-            IsEnded.Value = isInsideEndedRange && isStopped;
-
-            try
+            _scheduler.Schedule(async () => 
             {
-                if (!IsEnded.Value || _endedProcessed)
-                {
-                    HasRecomend.Value = HasNextVideo && IsEnded.Value;
-                    return;
-                }
+                using var _ = await _lock.LockAsync(default);
 
-                var currentVideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem.VideoId;
-                _queuePlaylist.Remove(currentVideoId);
-                _videoPlayedHistoryRepository.VideoPlayed(currentVideoId, sender.Position);
+                if (sender.PlaybackState == MediaPlaybackState.None) { return; }
+                if (_playNext) { return; }
+                if (_hohoemaPlaylistPlayer.CurrentPlaylistItem == null) { return; }
+                if (sender.NaturalDuration == TimeSpan.Zero) { return; }
 
-                if (await _hohoemaPlaylistPlayer.CanGoNextAsync())
+                bool isInsideEndedRange = sender.Position - sender.NaturalDuration > _endedTime;
+                bool isStopped = sender.PlaybackState == MediaPlaybackState.Paused;
+                IsEnded.Value = isInsideEndedRange && isStopped;
+
+                try
                 {
-                    if (await _hohoemaPlaylistPlayer.GoNextAsync())
+                    if (!IsEnded.Value || _endedProcessed)
                     {
+                        HasRecomend.Value = HasNextVideo && IsEnded.Value;
                         return;
                     }
-                }
 
-                // _queuePlaylistのアイテム削除後の更新がScheduler上で行われるため、アイテム更新操作が同期的にではなく
-                // sortablePlaylist.TotalCountが実際とズレる可能性があるため、処理完了を待つ
-                await Task.Delay(10);
+                    var currentVideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem.VideoId;
+                    _queuePlaylist.Remove(currentVideoId);
+                    _videoPlayedHistoryRepository.VideoPlayed(currentVideoId, sender.Position);
 
-                if (_playerSettings.IsPlaylistLoopingEnabled && _hohoemaPlaylistPlayer.CurrentPlaylist is ISortablePlaylist sortablePlaylist && sortablePlaylist.TotalCount > 0)
-                {
-                    if (await _hohoemaPlaylistPlayer.PlayAsync(_hohoemaPlaylistPlayer.CurrentPlaylist, _hohoemaPlaylistPlayer.CurrentPlaylistSortOption))
+                    if (await _hohoemaPlaylistPlayer.CanGoNextAsync())
                     {
-                        return;
-                    }
-                }
-
-                //if (_playerSettings.AutoMoveNextVideoOnPlaylistEmpty)
-                {
-                    /*
-                    if (_videoPlayer.PlayingVideoId == null)
-                    {
-                        _endedProcessed = true;
-                        _scheduler.Schedule(() =>
+                        if (await _hohoemaPlaylistPlayer.GoNextAsync())
                         {
-                            HasNextVideo = _videoRelatedContents?.NextVideo != null;
-                            NextVideoTitle = _videoRelatedContents?.NextVideo?.Label;
-                            HasRecomend.Value = HasNextVideo && IsEnded.Value;
-                        });
-                        return;
+                            return;
+                        }
                     }
-                    */
 
-                    if (_series?.Video.Next is not null and var nextVideo)
+                    // _queuePlaylistのアイテム削除後の更新がScheduler上で行われるため、アイテム更新操作が同期的にではなく
+                    // sortablePlaylist.TotalCountが実際とズレる可能性があるため、処理完了を待つ
+                    await Task.Delay(10);
+
+                    if (_playerSettings.IsPlaylistLoopingEnabled && _hohoemaPlaylistPlayer.CurrentPlaylist is ISortablePlaylist sortablePlaylist && sortablePlaylist.TotalCount > 0)
                     {
-                        _scheduler.Schedule(() =>
+                        if (await _hohoemaPlaylistPlayer.PlayAsync(_hohoemaPlaylistPlayer.CurrentPlaylist, _hohoemaPlaylistPlayer.CurrentPlaylistSortOption))
                         {
-                            NextVideoTitle = nextVideo.Title;
-                            HasRecomend.Value = true;
-                            HasNextVideo = true;
-
-                            Debug.WriteLine("シリーズ情報から次の動画を提示: " + nextVideo.Title);
-                        });
-
-                        return;
+                            return;
+                        }
                     }
-                }
 
-                if (TryPlaylistEndActionPlayerClosed())
-                {
-                    HasRecomend.Value = HasNextVideo && IsEnded.Value;
-                    _endedProcessed = true;
-                    return;
-                }
-
-                if (_currentVideoDetail != null)
-                {
-                    _relatedVideoContentsAggregator.GetRelatedContentsAsync(_currentVideoDetail)
-                        .ContinueWith(async task =>
+                    //if (_playerSettings.AutoMoveNextVideoOnPlaylistEmpty)
+                    {
+                        /*
+                        if (_videoPlayer.PlayingVideoId == null)
                         {
-                            var relatedVideos = await task;
-
+                            _endedProcessed = true;
                             _scheduler.Schedule(() =>
                             {
-                                _videoRelatedContents = relatedVideos;
-                                HasNextVideo = _videoRelatedContents.NextVideo != null;
-                                NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
+                                HasNextVideo = _videoRelatedContents?.NextVideo != null;
+                                NextVideoTitle = _videoRelatedContents?.NextVideo?.Label;
                                 HasRecomend.Value = HasNextVideo && IsEnded.Value;
-
-                                Debug.WriteLine("動画情報から次の動画を提示: " + NextVideoTitle);
                             });
-                        });
+                            return;
+                        }
+                        */
+
+                        if (_series?.Video.Next is not null and var nextVideo)
+                        {
+                            _scheduler.Schedule(() =>
+                            {
+                                NextVideoTitle = nextVideo.Title;
+                                HasRecomend.Value = true;
+                                HasNextVideo = true;
+
+                                Debug.WriteLine("シリーズ情報から次の動画を提示: " + nextVideo.Title);
+                            });
+
+                            return;
+                        }
+                    }
+
+                    if (TryPlaylistEndActionPlayerClosed())
+                    {
+                        HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                        _endedProcessed = true;
+                        return;
+                    }
+
+                    if (_currentVideoDetail != null)
+                    {
+                        _relatedVideoContentsAggregator.GetRelatedContentsAsync(_currentVideoDetail)
+                            .ContinueWith(async task =>
+                            {
+                                var relatedVideos = await task;
+
+                                _scheduler.Schedule(() =>
+                                {
+                                    _videoRelatedContents = relatedVideos;
+                                    HasNextVideo = _videoRelatedContents.NextVideo != null;
+                                    NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
+                                    HasRecomend.Value = HasNextVideo && IsEnded.Value;
+
+                                    Debug.WriteLine("動画情報から次の動画を提示: " + NextVideoTitle);
+                                });
+                            });
+                    }
                 }
-            }
-            finally
-            {
-                
-            }
+                finally
+                {
+
+                }
+            });
         }
 
 
