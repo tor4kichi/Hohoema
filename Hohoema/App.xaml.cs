@@ -284,8 +284,8 @@ namespace Hohoema
 
             // UseCase
             unityContainer.Register<CommentPlayer>();
-            container.Register<CommentFilteringFacade>();
-            container.Register<MediaPlayerSoundVolumeManager>();
+            container.RegisterSingleton<CommentFilteringFacade>();
+            container.RegisterSingleton<MediaPlayerSoundVolumeManager>();
             container.RegisterSingleton<LocalMylistManager>();
             container.RegisterSingleton<VideoItemsSelectionContext>();
             container.RegisterSingleton<WatchHistoryManager>();
