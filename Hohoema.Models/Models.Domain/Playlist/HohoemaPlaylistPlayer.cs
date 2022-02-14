@@ -217,7 +217,7 @@ namespace Hohoema.Models.Domain.Playlist
 
         protected void SetCurrentContent(IVideoContent video, int index)
         {
-            Guard.IsNotNull(BufferedPlaylistItemsSource, nameof(BufferedPlaylistItemsSource));
+            //Guard.IsNotNull(BufferedPlaylistItemsSource, nameof(BufferedPlaylistItemsSource));
 
             
             CurrentPlayingIndex = index;
@@ -613,6 +613,12 @@ namespace Hohoema.Models.Domain.Playlist
                 }
             }
         }
+        public async Task<bool> PlayWithoutPlaylistAsync(IVideoContent video, TimeSpan? initialPosition)
+        {
+            await PlayVideoOnSamePlaylistAsync_Internal(video, initialPosition);
+            SetCurrentContent(video, 0);
+            return true;
+        }
 
         public async Task<bool> PlayOnCurrentPlaylistAsync(IVideoContent video)
         {
@@ -698,7 +704,7 @@ namespace Hohoema.Models.Domain.Playlist
         protected override async Task PlayVideoOnSamePlaylistAsync_Internal(IVideoContent item, TimeSpan? startPosition = null)
         {
             Guard.IsNotNull(item, nameof(item));
-            Guard.IsNotNull(CurrentPlaylistId, nameof(CurrentPlaylistId));
+            //Guard.IsNotNull(CurrentPlaylistId, nameof(CurrentPlaylistId));
             Guard.IsFalse(item.VideoId == default(VideoId), "Not contain playable VideoId or PlaylistId");
 
             if (startPosition == null

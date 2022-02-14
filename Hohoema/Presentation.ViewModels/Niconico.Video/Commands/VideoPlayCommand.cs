@@ -32,15 +32,15 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             {
                 if (item is string contentId)
                 {
-                    _messenger.Send(VideoPlayRequestMessage.PlayVideoWithQueue(contentId));
+                    _messenger.Send(VideoPlayRequestMessage.PlayVideo(contentId));
                 }
                 else if (item is VideoId videoId)
                 {
-                    _messenger.Send(VideoPlayRequestMessage.PlayVideoWithQueue(videoId));
+                    _messenger.Send(VideoPlayRequestMessage.PlayVideo(videoId));
                 }
                 else if (item is IVideoContent videoContent)
                 {
-                    _messenger.Send(VideoPlayRequestMessage.PlayVideoWithQueue(videoContent.VideoId));
+                    _messenger.Send(VideoPlayRequestMessage.PlayVideo(videoContent.VideoId));
                 }
             }
             catch (Exception e)

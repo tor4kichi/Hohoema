@@ -128,7 +128,7 @@ namespace Hohoema.Presentation.Services
                             Label = "Play".Translate(),
                             Command = new DelegateCommand(() =>
                             {
-                                _messenger.Send(VideoPlayRequestMessage.PlayVideoWithQueue(videoId));
+                                _messenger.Send(VideoPlayRequestMessage.PlayVideo(videoId));
 
                                 NotificationService.DismissInAppNotification();
                             })

@@ -301,11 +301,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 if (_videoRelatedContents?.NextVideo != null)
                 {
                     var nextVideo = _videoRelatedContents.NextVideo;
-                    _messenger.Send(VideoPlayRequestMessage.PlayVideoWithQueue(nextVideo.VideoId));
+                    _messenger.Send(VideoPlayRequestMessage.PlayVideo(nextVideo.VideoId));
                 }
                 else if (_series.Video.Next is not null and var nextVideo)
                 {
-                    _messenger.Send(VideoPlayRequestMessage.PlayVideoWithQueue(nextVideo.Id));
+                    _messenger.Send(VideoPlayRequestMessage.PlayVideo(nextVideo.Id));
                 }
 
                 IsEnded.Value = false;
