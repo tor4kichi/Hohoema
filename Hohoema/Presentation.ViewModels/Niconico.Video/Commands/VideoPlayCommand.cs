@@ -1,6 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase;
+using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using NiconicoToolkit.Video;
 using Prism.Commands;
@@ -27,9 +28,14 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
         }
 
         protected override void Execute(object item)
-        {
+        {            
             try
             {
+                if (item is VideoListItemControlViewModel itemVM && itemVM.VideoHiddenInfo != null)
+                {
+                    return;
+                }
+
                 if (item is string contentId)
                 {
                     _messenger.Send(VideoPlayRequestMessage.PlayVideo(contentId));
