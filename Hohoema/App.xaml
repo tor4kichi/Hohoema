@@ -330,7 +330,7 @@
       <Color x:Key="HohoemaLightBorderColor">#44707070</Color>
       <SolidColorBrush x:Key="HohoemaLightBorderBrush" Color="{StaticResource HohoemaLightBorderColor}" />
 
-      <Style TargetType="ListViewItem" x:Key="VideoListViewItemStyle">
+      <Style TargetType="ListViewItem" x:Key="VideoListViewItemStyle" BasedOn="{StaticResource ListViewItemExpanded}">
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="Height" Value="92" />
         <Setter Property="Margin" Value="0 0 0 0" />
