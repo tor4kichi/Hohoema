@@ -1,4 +1,4 @@
-﻿using Prism.Mvvm;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace NicoPlayerHohoema.Models
 {
 	[DataContract]
-	public class AccountSettings : BindableBase
+	public class AccountSettings : ObservableObject
 	{
 		public AccountSettings()
 			: base()

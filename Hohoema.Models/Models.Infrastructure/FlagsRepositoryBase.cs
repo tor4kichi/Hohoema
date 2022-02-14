@@ -1,22 +1,22 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
-using Hohoema.FixPrism;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
-using Uno.Threading;
 using Windows.Storage;
 using System.Runtime.Serialization.Json;
+using Hohoema.Models.Helpers;
 
 namespace Hohoema.Models.Infrastructure
 {
 
-    public class FlagsRepositoryBase : BindableBase
+    public class FlagsRepositoryBase : ObservableObject
     {
         private readonly LocalObjectStorageHelper _LocalStorageHelper;
-        FastAsyncLock _fileUpdateLock = new FastAsyncLock();
+        AsyncLock _fileUpdateLock = new AsyncLock();
         public FlagsRepositoryBase()
         {
             _LocalStorageHelper = new LocalObjectStorageHelper(new SystemTextJsonSerializer());
@@ -54,7 +54,7 @@ namespace Hohoema.Models.Infrastructure
             _LocalStorageHelper.Save(propertyName, value);
         }
 
-        protected override bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
+        protected new bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {
             if (base.SetProperty(ref storage, value, propertyName))
             {
@@ -67,7 +67,7 @@ namespace Hohoema.Models.Infrastructure
             }
         }
 
-        protected override bool SetProperty<T>(ref T? storage, T? value, [CallerMemberName] string propertyName = null)
+        protected bool SetProperty<T>(ref T? storage, T? value, [CallerMemberName] string propertyName = null)
             where T : struct
         {
             if (base.SetProperty(ref storage, value, propertyName))

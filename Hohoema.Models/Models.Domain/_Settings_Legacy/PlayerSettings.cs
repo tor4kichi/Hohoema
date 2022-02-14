@@ -1,7 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
 using NiconicoToolkit.Live.WatchSession;
-using Hohoema.FixPrism;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -357,13 +357,13 @@ namespace Hohoema.Models.Domain.Legacy
         }
 
 
-        private DelegateCommand<double?> _SetPlaybackRateCommand;
-        public DelegateCommand<double?> SetPlaybackRateCommand
+        private RelayCommand<double?> _SetPlaybackRateCommand;
+        public RelayCommand<double?> SetPlaybackRateCommand
         {
             get
             {
                 return _SetPlaybackRateCommand
-                    ?? (_SetPlaybackRateCommand = new DelegateCommand<double?>(
+                    ?? (_SetPlaybackRateCommand = new RelayCommand<double?>(
                         (rate) => PlaybackRate = rate.HasValue ? rate.Value : 1.0
                         , (rate) => rate.HasValue ? rate.Value != PlaybackRate : true)
                         );
@@ -631,13 +631,13 @@ namespace Hohoema.Models.Domain.Legacy
 			set { SetProperty(ref _AutoMoveNextVideoOnPlaylistEmpty, value); }
 		}
 
-		private DelegateCommand _ToggleShuffleCommand;
-		public DelegateCommand ToggleShuffleCommand
+		private RelayCommand _ToggleShuffleCommand;
+		public RelayCommand ToggleShuffleCommand
 		{
 			get
 			{
 				return _ToggleShuffleCommand
-					?? (_ToggleShuffleCommand = new DelegateCommand(() =>
+					?? (_ToggleShuffleCommand = new RelayCommand(() =>
 					{
 						IsShuffleEnable = !IsShuffleEnable;
 					}

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Prism.Ioc;
 using NiconicoToolkit.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using NiconicoToolkit.Account;

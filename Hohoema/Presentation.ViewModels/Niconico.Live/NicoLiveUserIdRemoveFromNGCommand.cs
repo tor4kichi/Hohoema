@@ -1,6 +1,5 @@
 ﻿using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using Prism.Commands;
-using Unity;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {

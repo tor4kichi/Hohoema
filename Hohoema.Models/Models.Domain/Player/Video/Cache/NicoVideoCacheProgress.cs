@@ -1,6 +1,6 @@
 ﻿using I18NPortable;
 using Microsoft.Toolkit.Uwp.Notifications;
-using Hohoema.FixPrism;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,7 +15,7 @@ using Hohoema.Models.Helpers;
 
 namespace Hohoema.Models.Domain.Player.Video.Cache
 {
-    public class NicoVideoCacheProgress : BindableBase, IDisposable
+    public class NicoVideoCacheProgress : ObservableObject, IDisposable
     {
         public string VideoId { get; set; }
         public string VideoTitle { get; set; }

@@ -86,7 +86,7 @@ namespace Hohoema.Models.Domain.Application
                     Save(internal_theme);
 
                     _Theme = value;
-                    RaisePropertyChanged();
+                    OnPropertyChanged();
                 }
             }
         }
@@ -121,7 +121,7 @@ namespace Hohoema.Models.Domain.Application
                     Save(internal_theme);
 
                     _menuPaneDisplayMode = value;
-                    RaisePropertyChanged();
+                    OnPropertyChanged();
                 }
             }
         }

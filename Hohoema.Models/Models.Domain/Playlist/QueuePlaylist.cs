@@ -1,4 +1,4 @@
-﻿using Hohoema.FixPrism;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Helpers;
@@ -143,7 +143,7 @@ namespace Hohoema.Models.Domain.Playlist
         }
     }
 
-    public class QueuePlaylist : BindableBase, IReadOnlyCollection<QueuePlaylistItem>, INotifyCollectionChanged, IUserManagedPlaylist
+    public class QueuePlaylist : ObservableObject, IReadOnlyCollection<QueuePlaylistItem>, INotifyCollectionChanged, IUserManagedPlaylist
     {
         public static QueuePlaylistSortOption[] SortOptions { get; } = new QueuePlaylistSortOption[]
 {
@@ -179,7 +179,7 @@ namespace Hohoema.Models.Domain.Playlist
 
         public int Count => ((IReadOnlyCollection<QueuePlaylistItem>)Items).Count;
 
-        DispatchObservableCollection<QueuePlaylistItem> Items;
+        ObservableCollection<QueuePlaylistItem> Items;
         public QueuePlaylist(
             IMessenger messenger,
             IScheduler scheduler,
@@ -287,7 +287,7 @@ namespace Hohoema.Models.Domain.Playlist
             Items.Add(addedItem);
             SendAddedMessage(addedItem);
             AddEntity(addedItem);
-            RaisePropertyChanged(nameof(IUserManagedPlaylist.TotalCount));
+            OnPropertyChanged(nameof(IUserManagedPlaylist.TotalCount));
 
             return addedItem;
         }
@@ -301,7 +301,7 @@ namespace Hohoema.Models.Domain.Playlist
             Items.Insert(index, addedItem);
             SendAddedMessage(addedItem);
             AddEntity(addedItem);
-            RaisePropertyChanged(nameof(IUserManagedPlaylist.TotalCount));
+            OnPropertyChanged(nameof(IUserManagedPlaylist.TotalCount));
 
             index++;
             foreach (var item in Items.Skip(index))
@@ -332,13 +332,13 @@ namespace Hohoema.Models.Domain.Playlist
                 Items.Remove(item);
                 SendRemovedMessage(item.Index, item);
                 RemoveEntity(removeItem.VideoId);
-                RaisePropertyChanged(nameof(IUserManagedPlaylist.TotalCount));               
+                OnPropertyChanged(nameof(IUserManagedPlaylist.TotalCount));               
             });
 
             // 他アイテムのIndex更新は必要ない
             // アプリ復帰時に順序が保たれていれば十分
 
-            RaisePropertyChanged(nameof(TotalCount));
+            OnPropertyChanged(nameof(TotalCount));
         }
 
 

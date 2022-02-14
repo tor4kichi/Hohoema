@@ -5,7 +5,7 @@ using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using NiconicoToolkit.Video;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -56,7 +56,7 @@ namespace Hohoema.Models.Domain.LocalMylist
         }
     }
 
-    public sealed class LocalPlaylist : FixPrism.BindableBase, IUserManagedPlaylist
+    public sealed class LocalPlaylist : ObservableObject, IUserManagedPlaylist
     {
         public static LocalPlaylistSortOption[] SortOptions { get; } = new LocalPlaylistSortOption[]
 {
@@ -124,7 +124,7 @@ namespace Hohoema.Models.Domain.LocalMylist
                 if (SetProperty(ref _count, value))
                 {
                     UpdatePlaylistInfo();
-                    RaisePropertyChanged(nameof(IUserManagedPlaylist.TotalCount));
+                    OnPropertyChanged(nameof(IUserManagedPlaylist.TotalCount));
                 }
             }
         }

@@ -1,13 +1,13 @@
-﻿using Hohoema.Models.Domain.Niconico.NicoRepo;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using NiconicoToolkit.NicoRepo;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Uno.Disposables;
 using Windows.Storage;
 
 namespace Hohoema.Models.Domain.Legacy
@@ -134,7 +134,7 @@ namespace Hohoema.Models.Domain.Legacy
     }
 
 	[DataContract]
-	public abstract class SettingsBase : FixPrism.BindableBase
+	public abstract class SettingsBase : ObservableObject
     {
 		public SettingsBase()
 		{

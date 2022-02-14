@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain.Player.Video;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -94,7 +94,7 @@ namespace Hohoema.Models.Domain.Legacy
     }
 
 	[DataContract]
-	public class TagCondition : BindableBase
+	public class TagCondition : ObservableObject
 	{
 		public TagCondition()
 		{

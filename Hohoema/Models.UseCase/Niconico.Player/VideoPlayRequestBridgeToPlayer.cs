@@ -138,7 +138,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     var factory = _playlistItemsSourceResolver.Resolve(playlist.PlaylistId.Origin);
                     sortOption = factory.DeserializeSortOptions(message.PlaylistSortOptionsAsString);
                 }
-                else if (sortOption == null)
+                else if (sortOption == null && playlist != null)
                 {
                     sortOption = playlist.DefaultSortOption;
                 }
@@ -148,7 +148,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 {
                     videoResolved = message.PlaylistItem;
                 }
-                else if (playlist.PlaylistId == QueuePlaylist.Id)
+                else if (playlist?.PlaylistId == QueuePlaylist.Id)
                 {
                     if (message.VideoId is not null and VideoId videoId)
                     {
@@ -205,14 +205,22 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         {
             static Task<bool> Play(HohoemaPlaylistPlayer player, IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent playlistItem, TimeSpan? initialPosition)
             {
-                if (playlistItem == null)
+                if (playlistItem != null && playlist != null)
+                {
+                    Guard.IsAssignableToType<ISortablePlaylist>(playlist, nameof(playlist));
+                    return player.PlayAsync(playlist as ISortablePlaylist, sortOption, playlistItem, initialPosition);
+                }
+                else if (playlistItem != null)
+                {
+                    return player.PlayWithoutPlaylistAsync(playlistItem, initialPosition);
+                }
+                else if (playlist != null)
                 {
                     return player.PlayAsync(playlist, sortOption);
                 }
                 else
                 {
-                    Guard.IsAssignableToType<ISortablePlaylist>(playlist, nameof(playlist));
-                    return player.PlayAsync(playlist as ISortablePlaylist, sortOption, playlistItem, initialPosition);
+                    throw new InvalidOperationException();
                 }
             }
             

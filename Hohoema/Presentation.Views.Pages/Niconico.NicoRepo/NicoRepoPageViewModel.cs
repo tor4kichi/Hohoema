@@ -200,13 +200,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
     {
         private readonly NicoRepoEntry _nicoRepoEntry;
 
-        public NicoRepoVideoTimeline(NicoVideo nicoVideo, NicoRepoEntry nicoRepoEntry, NicoRepoMuteContextTrigger itemType) 
+        public NicoRepoVideoTimeline(NicoRepoEntry nicoRepoEntry, NicoRepoMuteContextTrigger itemType) 
             : base(nicoRepoEntry.GetContentId(), nicoRepoEntry.Object.Name, nicoRepoEntry.Object.Image.OriginalString, TimeSpan.Zero, nicoRepoEntry.Updated.DateTime)
         {
             _nicoRepoEntry = nicoRepoEntry;
             ItemTopic = itemType;
 
-            VideoId = nicoVideo.VideoId;
+            //VideoId = nicoRepoEntry.GetContentId();
             if (VideoId != VideoId)
             {
                 SubscribeAll(VideoId);
@@ -228,8 +228,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
                     ProviderType = OwnerType.User;
                 }
             }
-
-            SetLength(nicoVideo.Length);
+            
+            //SetLength(nicoVideo.Length);
             ItempTopicDescription = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, _nicoRepoEntry);
         }        
 
@@ -356,8 +356,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             var topicTypeMapedEntries = nicoRepoResponse.Data.Select(x => (TopicType: x.GetMuteContextTrigger(), Item: x)).ToList();
             var numberIdVideoTopics = topicTypeMapedEntries
                 .Where(x => IsVideoTopic(x.TopicType));
-            var videoNicoVideoItems = await _nicoVideoProvider.GetCachedVideoInfoItemsAsync(numberIdVideoTopics.Select(x => (VideoId)x.Item.GetContentId()));
-            var videoDict = videoNicoVideoItems.ToDictionary(x => x.Id);
 
             return topicTypeMapedEntries.Select(item =>
             {
@@ -374,8 +372,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
                     try
                     {
                         var id = item.Item.GetContentId();
-                        var nicoVideo = videoDict[id];
-                        var vm = new NicoRepoVideoTimeline(nicoVideo, item.Item, topicType);
+                        var vm = new NicoRepoVideoTimeline(item.Item, topicType);
                         return vm as INicoRepoItem;
                     }
                     catch

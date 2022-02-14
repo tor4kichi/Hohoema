@@ -6,7 +6,6 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading.Tasks;
-using Unity.Attributes;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 
@@ -16,7 +15,7 @@ namespace Hohoema.Presentation.ViewModels.Player
     {
         private readonly IScheduler _scheduler;
 
-        public ShowPrimaryViewCommand([Dependency("MainWindowsScheduler")]IScheduler scheduler)
+        public ShowPrimaryViewCommand(IScheduler scheduler)
         {
             _scheduler = scheduler;
         }

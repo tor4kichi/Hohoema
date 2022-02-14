@@ -13,13 +13,13 @@ using Windows.Storage;
 using Windows.Storage.Search;
 using XTSSharp;
 using Hohoema.Models.Domain.Niconico;
-using Uno.Disposables;
 using System.Security.Cryptography;
 using System.Collections;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Infrastructure;
 using NiconicoToolkit.Video;
+using System.Reactive.Disposables;
 
 namespace Hohoema.Models.Domain.VideoCache
 {
@@ -660,7 +660,7 @@ namespace Hohoema.Models.Domain.VideoCache
                         }
                         catch
                         {
-                            opCreationResult.DownloadOperation.TryDispose();
+                            (opCreationResult.DownloadOperation as IDisposable)?.Dispose();
                             throw;
                         }
 

@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Helpers;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,7 +20,7 @@ using Windows.Storage.Streams;
 using System.Collections.Concurrent;
 using Windows.UI.Notifications;
 using Microsoft.Toolkit.Uwp.Notifications;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System.Collections.Immutable;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Application;

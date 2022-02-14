@@ -42,21 +42,21 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         private ApplicationView _view;
         IScheduler _scheduler;
-        private readonly Lazy<INavigationService> _navigationServiceLazy;
+ //       private readonly Lazy<INavigationService> _navigationServiceLazy;
         private readonly RestoreNavigationManager _restoreNavigationManager;
         PrimaryPlayerDisplayMode _prevDisplayMode;
 
         Models.Helpers.AsyncLock _navigationLock = new Models.Helpers.AsyncLock();
 
         public PrimaryViewPlayerManager(IScheduler scheduler,
-            [Unity.Attributes.Dependency("PrimaryPlayerNavigationService")] Lazy<INavigationService> navigationServiceLazy,
+            Lazy<INavigationService> navigationServiceLazy,
             RestoreNavigationManager restoreNavigationManager,
             HohoemaPlaylistPlayer hohoemaPlaylistPlayer
             )
         {
             _view = ApplicationView.GetForCurrentView();
             _scheduler = scheduler;
-            _navigationServiceLazy = navigationServiceLazy;
+            //_navigationServiceLazy = navigationServiceLazy;
             _restoreNavigationManager = restoreNavigationManager;
             PlaylistPlayer = hohoemaPlaylistPlayer;
             _navigationService = null;
@@ -108,7 +108,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 {
                     if (_navigationService == null)
                     {
-                        _navigationService = _navigationServiceLazy.Value;
+                        _navigationService = App.Current.Container.Resolve<INavigationService>("PrimaryPlayerNavigationService");
                     }
 
                     if (DisplayMode == PrimaryPlayerDisplayMode.Close)

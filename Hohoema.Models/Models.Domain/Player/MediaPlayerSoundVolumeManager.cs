@@ -1,4 +1,4 @@
-﻿using Hohoema.FixPrism;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Player;
 using Reactive.Bindings.Extensions;
@@ -13,7 +13,7 @@ using Windows.Media.Playback;
 
 namespace Hohoema.Models.Domain.Player
 {
-    public class MediaPlayerSoundVolumeManager : BindableBase
+    public class MediaPlayerSoundVolumeManager : ObservableObject
     {
         public MediaPlayerSoundVolumeManager(
             PlayerSettings playerSettings,

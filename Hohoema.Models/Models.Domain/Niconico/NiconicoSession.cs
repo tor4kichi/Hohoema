@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Helpers;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -73,7 +73,7 @@ namespace Hohoema.Models.Domain.Niconico
         public Exception Exception { get; set; }
     }
 
-    public sealed class NiconicoSession : FixPrism.BindableBase, IDisposable
+    public sealed class NiconicoSession : ObservableObject
     {
         public NiconicoSession( 
             IMessenger messenger
@@ -88,11 +88,6 @@ namespace Hohoema.Models.Domain.Niconico
             _messenger = messenger;
         }
 
-
-        public override void Dispose()
-        {
-            base.Dispose();
-        }
 
         private void OnNetworkStatusChanged(object sender)
         {

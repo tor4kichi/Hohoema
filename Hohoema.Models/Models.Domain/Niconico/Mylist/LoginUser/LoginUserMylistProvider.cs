@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NiconicoToolkit.Mylist;
-using Uno.Extensions;
 using NiconicoToolkit.Account;
 using NiconicoToolkit.Mylist.LoginUser;
 using NiconicoToolkit.Video;
@@ -121,7 +120,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
                     //IconType = mylistGroup.co,
                     DefaultSortKey = mylistGroup.DefaultSortKey,
                     DefaultSortOrder = mylistGroup.DefaultSortOrder,
-                    SortIndex = res.Data.Mylists.IndexOf(mylistGroup),
+                    SortIndex = Array.IndexOf(res.Data.Mylists, mylistGroup),
                     ThumbnailImages = mylistGroup.SampleItems.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
                 };
 

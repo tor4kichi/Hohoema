@@ -122,8 +122,6 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="FixPrism\BindableBaseWithFix.cs" />
-    <Compile Include="FixPrism\DispatchObservableCollection{T}.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="Models.Domain\Application\AppearanceSettings.cs" />
     <Compile Include="Models.Domain\Application\AppFlagsRepository.cs" />
@@ -207,7 +205,6 @@
     <Compile Include="Models.Domain\Notification\InAppNotificationMessage.cs" />
     <Compile Include="Models.Domain\Notification\LiteNotificationMessage.cs" />
     <Compile Include="Models.Domain\PageNavigation\HohoemaPageType.cs" />
-    <Compile Include="Models.Domain\PageNavigation\IPageNavigatable.cs" />
     <Compile Include="Models.Domain\PageNavigation\IPinablePage.cs" />
     <Compile Include="Models.Domain\PageNavigation\ISearchHistory.cs" />
     <Compile Include="Models.Domain\PageNavigation\ITitleUpdatablePage.cs" />
@@ -364,9 +361,6 @@
     <PackageReference Include="System.Threading.Tasks.Extensions">
       <Version>4.5.4</Version>
     </PackageReference>
-    <PackageReference Include="Uno.Prism.Unity.Uno">
-      <Version>7.1.0-pre.4</Version>
-    </PackageReference>
     <PackageReference Include="XTSSharp.NetStandard">
       <Version>1.0.0</Version>
     </PackageReference>
@@ -380,6 +374,7 @@
       <Name>NiconicoToolkit.UWP</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

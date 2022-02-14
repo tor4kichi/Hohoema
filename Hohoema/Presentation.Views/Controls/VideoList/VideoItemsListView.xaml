@@ -74,7 +74,7 @@
             <AppBarSeparator x:Name="SelectActions_EditButtonSeparator" />
 
             <AppBarButton x:Name="SelectActions_RemoveMylist" Label="{i18nExt:Localize Key=MylistRemoveItem}" Command="{x:Bind _removeMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
-            <AppBarButton x:Name="SelectActions_RemoveWatchAfter" Label="{i18nExt:Localize Key=WatchAfterRemoveItem}" Command="{x:Bind _removeQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarButton x:Name="SelectActions_RemoveWatchAfter" Label="{i18nExt:Localize Key=QueueRemoveItem}" Command="{x:Bind _removeQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
             <AppBarButton x:Name="SelectActions_RemoveLocalMylist" Label="{i18nExt:Localize Key=LocalMylistRemoveItem}" Command="{x:Bind _localMylistRemoveCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
             <AppBarButton x:Name="SelectActions_RemoveWatchHistory" Label="{i18nExt:Localize Key=RemoveWatchHisotryItem}" Command="{x:Bind _removeWatchHistoryCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
             <AppBarSeparator x:Name="SelectActions_RemoveButtonSeparator" />

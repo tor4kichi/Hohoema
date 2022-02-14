@@ -1,7 +1,6 @@
 ﻿using NiconicoToolkit.Video;
 using System;
 using System.Threading.Tasks;
-using Uno.Disposables;
 
 namespace Hohoema.Models.Domain.VideoCache
 {

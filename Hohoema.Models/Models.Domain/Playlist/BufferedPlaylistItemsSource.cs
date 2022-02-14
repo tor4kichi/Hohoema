@@ -1,4 +1,4 @@
-﻿using Hohoema.FixPrism;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Domain.Niconico.Video;
 using Microsoft.Toolkit.Collections;
 using Reactive.Bindings;
@@ -15,8 +15,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using Uno.Extensions;
-using Uno.Threading;
 
 namespace Hohoema.Models.Domain.Playlist
 {
@@ -69,7 +67,7 @@ namespace Hohoema.Models.Domain.Playlist
             return this.Items[index];
         }
 
-        FastAsyncLock _loadingLock = new FastAsyncLock();
+        Models.Helpers.AsyncLock _loadingLock = new ();
 
         public async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct = default)
         {
@@ -128,7 +126,7 @@ namespace Hohoema.Models.Domain.Playlist
         BehaviorSubject<Unit> _IndexUpdateTimingSubject = new BehaviorSubject<Unit>(Unit.Default);
         public IObservable<Unit> IndexUpdateTiming => _IndexUpdateTimingSubject;
 
-        DispatchObservableCollection<IVideoContent> Items;
+        ObservableCollection<IVideoContent> Items;
 
         public ReadOnlyReactiveCollection<IVideoContent> CreateItemsReadOnlyReactiveCollection(IScheduler scheduler)
         {
@@ -223,7 +221,10 @@ namespace Hohoema.Models.Domain.Playlist
                 isItemsFilled = true;
                 var items = await _playlistItemsSource.GetAllItemsAsync(SortOption, ct);
 
-                Items.AddRange(items);
+                foreach (var item in items)
+                {
+                    Items.Add(item);
+                }
             }
 
             var start = pageIndex * OneTimeLoadingItemsCount;

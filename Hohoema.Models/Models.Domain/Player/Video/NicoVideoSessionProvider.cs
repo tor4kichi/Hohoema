@@ -11,7 +11,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Uno.Extensions;
 using Windows.Foundation;
 
 namespace Hohoema.Models.Domain.Player.Video
@@ -675,9 +674,8 @@ namespace Hohoema.Models.Domain.Player.Video
             var dmcVideoContent = dmcWatchData?.Media.Delivery.Movie.Videos.FirstOrDefault(x => x.Id == qualityId);
             if (dmcVideoContent != null)
             {
-                var qualities = dmcWatchData.Media.Delivery.Movie.Videos;
-
-                var index = qualities.IndexOf(dmcVideoContent);
+                var qualities = dmcWatchData.Media.Delivery.Movie.Videos;                
+                var index = Array.IndexOf(qualities, dmcVideoContent);
 
                 // DmcInfo.Quality の要素数は動画によって1～5個まで様々である
                 // また並びは常に先頭が最高画質、最後尾は最低画質（Mobile）となっている

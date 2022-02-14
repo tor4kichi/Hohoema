@@ -6,14 +6,10 @@ using Hohoema.Models.Domain;
 using System.Collections.ObjectModel;
 using Reactive.Bindings;
 using Prism.Commands;
-using Prism.Mvvm;
 using System.Reactive.Linq;
 using System.Diagnostics;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.UseCase.PageNavigation;
-
-using Unity;
-using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Models.Domain.Niconico.Search;

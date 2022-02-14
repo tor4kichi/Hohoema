@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Uno.Threading;
 using System.Threading;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
+
 namespace Hohoema.Models.Infrastructure
 {
     public abstract class ProviderBase
@@ -18,9 +18,9 @@ namespace Hohoema.Models.Infrastructure
 
         protected NiconicoSession _niconicoSession { get; }
         
-        protected static FastAsyncLock _contextLock { get; } = new FastAsyncLock();      
+        protected static AsyncLock _contextLock { get; } = new AsyncLock();      
 
-        static FastAsyncLock _pageAccessLock = new FastAsyncLock();
+        static AsyncLock _pageAccessLock = new AsyncLock();
         static DateTime LastPageApiAccessTime = DateTime.MinValue;
         static readonly TimeSpan PageAccessMinimumInterval = TimeSpan.FromSeconds(0.5);
 

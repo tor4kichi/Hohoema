@@ -105,6 +105,16 @@ namespace Hohoema.Models.Domain.Playlist
             };
         }
 
+        public static VideoPlayRequestMessage PlayVideo(VideoId videoId, TimeSpan? initialPosition = null)
+        {
+            return new VideoPlayRequestMessage()
+            {
+                VideoId = videoId,
+                Potision = initialPosition,
+                PlayWithQueue = false,
+            };
+        }
+
         public IVideoContent? PlaylistItem { get; init; }
         public IPlaylist Playlist { get; init; }
         public bool? PlayWithQueue { get; init; }

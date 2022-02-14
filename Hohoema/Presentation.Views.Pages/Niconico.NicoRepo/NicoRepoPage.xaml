@@ -103,6 +103,9 @@
               Style="{StaticResource FixedHeaderListViewStyle}"
               >
 
+      <ListView.ItemContainerTransitions>
+        <TransitionCollection />
+      </ListView.ItemContainerTransitions>
       <myExtensions:ListViewBase.ItemContextFlyoutTemplateSelector>
         <templateSelector:HohoemaFlyoutTemplateSelector>
           <templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>

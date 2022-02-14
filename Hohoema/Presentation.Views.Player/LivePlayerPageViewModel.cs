@@ -23,7 +23,7 @@ using NiconicoToolkit.Live.WatchSession;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
-using Prism.Unity;
+using Prism.Ioc;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -37,8 +37,6 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using Unity;
-using Unity.Resolution;
 using Uno.Extensions;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -53,6 +51,7 @@ using AngleSharp.Html.Parser;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using Hohoema.Models.Domain.Player.Comment;
+using Prism.Ioc;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -1608,8 +1607,12 @@ namespace Hohoema.Presentation.ViewModels.Player
                     case PlayerSidePaneContentType.Playlist:
                         sidePaneContent = App.Current.Container.Resolve<PlaylistSidePaneContentViewModel>();
                         break;
-                    case PlayerSidePaneContentType.Comment:                        
-                        sidePaneContent = App.Current.Container.GetContainer().Resolve<LiveCommentsSidePaneContentViewModel>(new ParameterOverride("comments", FilterdComments));
+                    case PlayerSidePaneContentType.Comment:
+                        {
+                            var commentContentVM = App.Current.Container.Resolve<LiveCommentsSidePaneContentViewModel>();
+                            commentContentVM.Comments = FilterdComments;
+                            sidePaneContent = commentContentVM;
+                        }                        
                         break;
                     case PlayerSidePaneContentType.Setting:
                         sidePaneContent = App.Current.Container.Resolve<SettingsSidePaneContentViewModel>();

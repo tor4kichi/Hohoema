@@ -1,8 +1,7 @@
 ﻿using System;
 using Windows.UI.Xaml.Controls;
-using Unity;
 using System.Collections.Concurrent;
-using Prism.Unity;
+using Prism.Ioc;
 using Windows.UI.Xaml;
 using Windows.UI.ViewManagement;
 using Windows.UI.Core;

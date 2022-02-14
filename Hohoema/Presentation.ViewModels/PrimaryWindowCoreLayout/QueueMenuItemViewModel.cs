@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Hohoema.Models.Domain.PageNavigation;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.UseCase.PageNavigation;
 
 namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 {

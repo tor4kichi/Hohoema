@@ -1,4 +1,4 @@
-﻿using Prism.Mvvm;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,7 +20,7 @@ namespace Hohoema.Models.Helpers
     }
 
 
-    public abstract class AsyncInitialize : BindableBase, IAsyncInitialize
+    public abstract class AsyncInitialize : ObservableObject, IAsyncInitialize
     {
         public bool IsInitialized { get; private set; } = false;
 
