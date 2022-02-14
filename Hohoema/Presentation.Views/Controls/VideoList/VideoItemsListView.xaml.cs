@@ -11,6 +11,7 @@ using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.ViewModels.Niconico.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.Views.Flyouts;
+using Hohoema.Presentation.Views.Helpers;
 using Prism.Ioc;
 using System.Linq;
 using System.Threading.Tasks;
@@ -291,7 +292,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
             if (_selectionContext.SelectionItems.Any())
             {
-                SelectActions_AddWatchAfter.Visibility = Visibility.Visible;
+                SelectActions_AddWatchAfter.Visibility = (PlaylistPassToFlyout?.IsQueuePlaylist() is false or null).ToVisibility();
                 SelectActions_AddLocalMylist.Visibility = Visibility.Visible;
 
                 if (PlaylistPassToFlyout?.IsQueuePlaylist() ?? false
