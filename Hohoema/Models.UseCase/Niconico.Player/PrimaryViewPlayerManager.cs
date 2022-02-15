@@ -16,13 +16,15 @@ using System.Diagnostics;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Live;
-using Microsoft.AppCenter.Analytics;
 using Hohoema.Presentation.Views.Player;
 using Hohoema.Presentation.Views.Pages;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Live;
 using Hohoema.Models.Domain.Playlist;
 using System.Windows.Input;
+using Microsoft.Extensions.Logging;
+using ZLogger;
+using System.Text.Json;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -41,6 +43,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         INavigationService _navigationService;
 
         private ApplicationView _view;
+        private readonly ILogger _logger;
         IScheduler _scheduler;
  //       private readonly Lazy<INavigationService> _navigationServiceLazy;
         private readonly RestoreNavigationManager _restoreNavigationManager;
@@ -48,13 +51,16 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         Models.Helpers.AsyncLock _navigationLock = new Models.Helpers.AsyncLock();
 
-        public PrimaryViewPlayerManager(IScheduler scheduler,
+        public PrimaryViewPlayerManager(
+            ILoggerFactory loggerFactory,
+            IScheduler scheduler,
             Lazy<INavigationService> navigationServiceLazy,
             RestoreNavigationManager restoreNavigationManager,
             HohoemaPlaylistPlayer hohoemaPlaylistPlayer
             )
         {
             _view = ApplicationView.GetForCurrentView();
+            _logger = loggerFactory.CreateLogger<PrimaryViewPlayerManager>();
             _scheduler = scheduler;
             //_navigationServiceLazy = navigationServiceLazy;
             _restoreNavigationManager = restoreNavigationManager;
@@ -100,49 +106,55 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             });
         }
 
+        private readonly DrillInNavigationTransitionInfo _playerTransisionAnimation = new DrillInNavigationTransitionInfo();
         public async Task NavigationAsync(string pageName, INavigationParameters parameters)
         {
             _scheduler.Schedule(async () =>
             {
-                using (await _navigationLock.LockAsync())
+                using var _ = await _navigationLock.LockAsync();
+                
+                if (_navigationService == null)
                 {
-                    if (_navigationService == null)
-                    {
-                        _navigationService = App.Current.Container.Resolve<INavigationService>("PrimaryPlayerNavigationService");
-                    }
-
-                    if (DisplayMode == PrimaryPlayerDisplayMode.Close)
-                    {
-                        DisplayMode = _lastPlayedDisplayMode;
-                    }
-
-                    try
-                    {
-                        var result = await _navigationService.NavigateAsync(pageName, parameters, new DrillInNavigationTransitionInfo());
-                        if (!result.Success)
-                        {
-                            Debug.WriteLine(result.Exception?.ToString());
-                            DisplayMode = PrimaryPlayerDisplayMode.Close;
-                            _view.Title = string.Empty;
-                            throw result.Exception ?? new Models.Infrastructure.HohoemaExpception("unknown navigation error.");
-                        }
-
-                        LastNavigatedPageName = pageName;
-
-                        Analytics.TrackEvent("PlayerNavigation", new Dictionary<string, string>
-                        {
-                            { "PageType",  pageName },
-                            { "DisplayMode", DisplayMode.ToString() },
-                            { "ViewType", "Primary" },
-                            { "CompactOverlay", (_view.ViewMode == ApplicationViewMode.CompactOverlay).ToString() },
-                            { "FullScreen", _view.IsFullScreenMode.ToString() }
-                        });
-                    }
-                    catch (Exception e)
-                    {
-                        ErrorTrackingManager.TrackError(e);
-                    }
+                    _navigationService = App.Current.Container.Resolve<INavigationService>("PrimaryPlayerNavigationService");
                 }
+
+                if (DisplayMode == PrimaryPlayerDisplayMode.Close)
+                {
+                    DisplayMode = _lastPlayedDisplayMode;
+                }
+
+                try
+                {
+                    var result = await _navigationService.NavigateAsync(pageName, parameters, _playerTransisionAnimation);
+                    if (!result.Success)
+                    {
+                        DisplayMode = PrimaryPlayerDisplayMode.Close;
+                        _view.Title = string.Empty;
+                        throw result.Exception ?? new Models.Infrastructure.HohoemaExpception("unknown navigation error.");
+                    }
+
+                    LastNavigatedPageName = pageName;
+
+                    _logger.ZLogInformationWithPayload(new Dictionary<string, string>
+                    {
+                        { "PageType",  pageName },
+                        { "DisplayMode", DisplayMode.ToString() },
+                        { "ViewType", "Primary" },
+                        { "CompactOverlay", (_view.ViewMode == ApplicationViewMode.CompactOverlay).ToString() },
+                        { "FullScreen", _view.IsFullScreenMode.ToString() }
+                    }, "PlayerNavigation");
+                }
+                catch (Exception e)
+                {
+                    _logger.ZLogErrorWithPayload(e, new Dictionary<string, string>()
+                    {
+                        { "PageName", pageName },
+                        { "Parameters", JsonSerializer.Serialize(parameters) },
+                    }
+                    , "PrimaryViewPlayer navigation failed."
+                    );
+                }
+                
             });
 
             await Task.Delay(50);

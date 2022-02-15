@@ -142,7 +142,7 @@
       </StackPanel>
 
       <ScrollViewer>
-        <uwpcontrols:WrapPanel x:Name="ContentPanel" Padding="0 0 0 32" MinWidth="400" MaxWidth="960" HorizontalSpacing="8" VerticalSpacing="16">
+        <StackPanel x:Name="ContentPanel" Padding="0 0 0 32" MinWidth="400" MaxWidth="960" Spacing="16">
           <!-- アプリの表示設定 -->
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
@@ -567,7 +567,7 @@
             </StackPanel>
           </uwptoolkitControl:Expander>
           
-        </uwpcontrols:WrapPanel>
+        </StackPanel>
       </ScrollViewer>
     </uwptoolkitControl:DockPanel>
     <VisualStateManager.VisualStateGroups>

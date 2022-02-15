@@ -21,6 +21,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 {
@@ -42,6 +44,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         }
 
         public UserMylistPageViewModel(
+            ILoggerFactory loggerFactory,
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             Services.DialogService dialogService,
@@ -50,6 +53,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             MylistResolver mylistRepository,
             LocalMylistManager localMylistManager
             )
+            : base(loggerFactory.CreateLogger<UserMylistPageViewModel>())
         {
             ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
@@ -123,7 +127,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
         protected override (int, IIncrementalSource<MylistPlaylist>) GenerateIncrementalSource()
         {
-            return (25 /* 全件取得するため指定不要 */, new OtherUserMylistIncrementalLoadingSource(UserId, _mylistRepository));
+            return (25 /* 全件取得するため指定不要 */, new OtherUserMylistIncrementalLoadingSource(UserId, _mylistRepository, _logger));
         }
     }
 
@@ -134,11 +138,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         public string UserId { get; }
 
         private readonly MylistResolver _mylistRepository;
+        private readonly ILogger _logger;
 
-        public OtherUserMylistIncrementalLoadingSource(string userId, MylistResolver mylistRepository)
+        public OtherUserMylistIncrementalLoadingSource(
+            string userId, 
+            MylistResolver mylistRepository,
+            ILogger logger
+            )
         {
             UserId = userId;
             _mylistRepository = mylistRepository;
+            _logger = logger;
         }
 
         async Task<IEnumerable<MylistPlaylist>> IIncrementalSource<MylistPlaylist>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
@@ -152,7 +162,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             }
             catch (Exception ex)
             {
-                ErrorTrackingManager.TrackError(ex);
+                _logger.ZLogErrorWithPayload(exception: ex, UserId, "UserMylists loading failed");
                 return Enumerable.Empty<MylistPlaylist>();
             }
 

@@ -20,9 +20,6 @@ using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels;
 using LiteDB;
-using Microsoft.AppCenter;
-using Microsoft.AppCenter.Analytics;
-using Microsoft.AppCenter.Crashes;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Prism;
@@ -61,7 +58,6 @@ using Hohoema.Models.Domain.Notification;
 using Hohoema.Models.Domain.VideoCache;
 using Windows.Storage.AccessCache;
 using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.AppCenter.Utils;
 using Microsoft.Extensions.Logging;
 using Hohoema.Models.Infrastructure;
 using Hohoema.Models.UseCase.Playlist;
@@ -72,6 +68,10 @@ using Hohoema.Models.Domain.Player.Comment;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using DryIoc;
+using Prism.Logging;
+using ZLogger;
+using Cysharp.Text;
+using Windows.UI.Core;
 
 namespace Hohoema
 {
@@ -113,10 +113,9 @@ namespace Hohoema
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromDays(7);
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 0;
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.RetryCount = 3;
-
-            
+                       
             this.InitializeComponent();
-        }
+        }        
 
         protected override Rules CreateContainerRules()
         {
@@ -140,19 +139,7 @@ namespace Hohoema
 
             if (args.StartKind == StartKinds.Launch)
             {
-                // see@ https://www.typea.info/blog/index.php/2017/08/06/uwp_1/
-                try
-                {
-                    var appcenter_settings = new Windows.ApplicationModel.Resources.ResourceLoader(".appcenter");
-                    var appcenterSecrets = appcenter_settings.GetString("AppCenter_Secrets");
-
-                    Crashes.SendingErrorReport += (sender, args) => { Debug.WriteLine(args.Report.ToString()); };
-                    Crashes.SentErrorReport += (sender, args) => { Debug.WriteLine(args.Report.ToString()); };
-                    AppCenter.SetUserId(Guid.NewGuid().ToString());
-                    AppCenter.Start(appcenterSecrets, typeof(Analytics), typeof(Crashes));
-                    Crashes.NotifyUserConfirmation(UserConfirmation.AlwaysSend);
-                }
-                catch { }
+                
             }
             else if (args.StartKind == StartKinds.Activate)
             {
@@ -224,10 +211,6 @@ namespace Hohoema
             LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
             unityContainer.UseInstance<LiteDatabase>(db);
 
-            var mainWindowsScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
-            // 各ウィンドウごとのスケジューラを作るように
-            unityContainer.UseInstance<IScheduler>(mainWindowsScheduler);
-//            unityContainer.RegisterInstance<IScheduler>("MainWindowsScheduler", mainWindowsScheduler);
 
             unityContainer.RegisterDelegate<IPlayerView>(c => 
             {
@@ -318,10 +301,169 @@ namespace Hohoema
 
         }
 
+        public class ZDebugLoggerFacade : ILoggerFacade
+        {
+            public ZDebugLoggerFacade(ILogger<App> logger)
+            {
+                _logger = logger;
+            }
 
+
+            public void Log(string message, Category category, Priority priority)
+            {
+                _logger.ZLog(ToLogLevel(category, priority), "{0}: {1}. Priority:{2}. Timestamp:{3}.", CategoryText[(int)category], message, priority, DateTime.Now);
+            }
+
+            private LogLevel ToLogLevel(Category category, Priority priority)
+            {
+                return (category, priority) switch
+                {
+                    (Category.Exception, Priority.High) => LogLevel.Critical,
+                    (Category.Debug, _) => LogLevel.Debug,
+                    (Category.Exception, _) => LogLevel.Error,
+                    (Category.Info, _) => LogLevel.Information,
+                    (Category.Warn, _) => LogLevel.Warning,                    
+                    _ => LogLevel.None,
+                };
+            }
+
+            private readonly string[] CategoryText = new[]
+            {
+                Category.Debug.ToString().ToUpper(),
+                Category.Exception.ToString().ToUpper(),
+                Category.Info.ToString().ToUpper(),
+                Category.Warn.ToString().ToUpper()
+            };
+            private readonly ILogger _logger;
+        }
+
+
+        public class ZFileLoggerFacade : ILoggerFacade
+        {
+            private readonly ILogger _logger;
+
+            public ZFileLoggerFacade(ILogger logger)
+            {
+                _logger = logger;
+            }
+
+            public void Log(string message, Category category, Priority priority)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public class EmptyLoggerFacade : ILoggerFacade
+        {
+            public void Log(string message, Category category, Priority priority)
+            {
+                
+            }
+        }
+
+        public class DebugOutputStream : Stream
+        {
+            public DebugOutputStream(IScheduler scheduler)
+            {
+                _scheduler = scheduler;
+            }
+
+            public override bool CanRead => false;
+
+            public override bool CanSeek => false;
+
+            public override bool CanWrite => true;
+
+            long _length;
+            private readonly IScheduler _scheduler;
+
+            public override long Length => _length;
+
+            public override long Position { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+            public override void Flush()
+            {
+                
+            }
+
+            public override int Read(byte[] buffer, int offset, int count)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override long Seek(long offset, SeekOrigin origin)
+            {
+                throw new NotImplementedException();
+            }
+
+            public override void SetLength(long value)
+            {
+                
+            }
+
+            public override void Write(byte[] buffer, int offset, int count)
+            {                
+                _length = count;
+                Debug.Write(System.Text.Encoding.UTF8.GetString(buffer, offset, count));
+            }
+        }
+       
+        private ILoggerFactory _loggerFactory;
 
         protected override void RegisterRequiredTypes(IContainerRegistry containerRegistry)
         {
+            base.RegisterRequiredTypes(containerRegistry);
+
+            var mainWindowsScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
+            containerRegistry.RegisterInstance<IScheduler>(mainWindowsScheduler);
+
+            _loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder
+                    .AddFilter("Microsoft", LogLevel.Warning)
+                    .AddFilter("System", LogLevel.Warning)
+                    .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)    
+#if DEBUG
+                    .AddZLoggerStream(new DebugOutputStream(mainWindowsScheduler), "debug-plain", opt => { })
+#endif                    
+                    ;  
+                
+                if (IsDebugModeEnabled)
+                {
+                    FileStream _logFileStream = new FileStream(ApplicationData.Current.TemporaryFolder.CreateSafeFileHandle("_log.txt", System.IO.FileMode.OpenOrCreate, FileAccess.Write), FileAccess.Write, 2 ^ 20);
+                    _logFileStream.SetLength(0);
+                    builder.AddFilter("Hohoema.App", DebugLogLevel)
+                        .AddZLoggerStream(_logFileStream, "file-plain", opt => { opt.EnableStructuredLogging = false; })                        
+                        ;
+                }
+                else
+                {
+#if DEBUG
+                    builder.AddFilter("Hohoema.App", LogLevel.Debug);
+#else
+                    if (Debugger.IsAttached)
+                    {
+                        builder.AddFilter("Hohoema.App", LogLevel.Debug);
+                    }
+                    else 
+                    {
+                        builder.AddFilter("Hohoema.App", LogLevel.Error);
+                    }
+                    
+#endif
+                }
+            });
+
+            var logger = _loggerFactory.CreateLogger<App>();
+            containerRegistry.RegisterInstance<ILoggerFactory>(_loggerFactory);
+            containerRegistry.RegisterInstance<ILogger>(logger);
+            containerRegistry.RegisterInstance<ILogger<App>>(logger);
+#if DEBUG
+            containerRegistry.RegisterSingleton<ILoggerFacade, ZDebugLoggerFacade>();
+#else
+            containerRegistry.RegisterSingleton<ILoggerFacade, EmptyLoggerFacade>();
+#endif
+
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.BlankPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.DebugPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.SettingsPage>();
@@ -355,8 +497,6 @@ namespace Hohoema
             
             containerRegistry.RegisterForNavigation<Presentation.Views.Player.LivePlayerPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Player.VideoPlayerPage>();
-
-            base.RegisterRequiredTypes(containerRegistry);
         }
 
         public bool IsTitleBarCustomized { get; } = DeviceTypeHelper.IsDesktop && InputCapabilityHelper.IsMouseCapable;
@@ -370,6 +510,7 @@ namespace Hohoema
             if (isInitialized) { return; }
             isInitialized = true;
 
+            var logger = Container.Resolve<ILogger>();
 
             async Task TryMigrationAsync(Type[] migrateTypes)
             {
@@ -377,7 +518,7 @@ namespace Hohoema
                 {
                     try
                     {
-                        Debug.WriteLine($"Try migrate: {migrateType.Name}");
+                        logger.ZLogInformation("Try migrate: {0}", migrateType.Name);
                         var migrater = Container.Resolve(migrateType);
                         if (migrater is IMigrateSync migrateSycn)
                         {
@@ -388,12 +529,12 @@ namespace Hohoema
                             await migrateAsync.MigrateAsync();
                         }
 
-                        Debug.WriteLine("Migration complete : " + migrateType.Name);
+                        logger.ZLogInformation("Migration complete : {0}", migrateType.Name);                        
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine(e.ToString());
-                        Debug.WriteLine("Migration failed : " + migrateType.Name);
+                        logger.ZLogError(e.ToString());
+                        logger.ZLogError("Migration failed : {0}",migrateType.Name);
                     }
                 }
             }
@@ -596,7 +737,7 @@ namespace Hohoema
                     var notificationService = Container.Resolve<NotificationService>();
                     notificationService.ShowInAppNotification(new InAppNotificationPayload()
                     {
-                        Content = $"Hohoema v{version.Major}.{version.Minor}.{version.Build} に更新しました",
+                        Content = ZString.Format("Hohoema v{0}.{1}.{2} に更新しました", version.Major, version.Minor, version.Build),
                         ShowDuration = TimeSpan.FromSeconds(7),
                         IsShowDismissButton = true,
                         Commands =
@@ -711,7 +852,7 @@ namespace Hohoema
             }
             catch
             {
-                Debug.WriteLine("ログイン処理に失敗");
+                Container.Resolve<ILogger>().ZLogError("ログイン処理に失敗");
             }
 
 #if !DEBUG
@@ -965,6 +1106,28 @@ namespace Hohoema
                 _primaryWindowCoreLayout.IsDebugModeEnabled = value;
             }
         }
+        
+        const string DEBUG_LOG_LEVEL_KEY = "Hohoema_LogLevel";
+        public LogLevel DebugLogLevel
+        {
+            get
+            {
+                var enabled = ApplicationData.Current.LocalSettings.Values[DEBUG_LOG_LEVEL_KEY];
+                if (enabled != null)
+                {
+                    return (LogLevel)enabled;
+                }
+                else
+                {
+                    return LogLevel.Debug;
+                }
+            }
+
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values[DEBUG_LOG_LEVEL_KEY] = value;
+            }
+        }
 
         bool isFirstCrashe = true;
 
@@ -992,68 +1155,8 @@ namespace Hohoema
             isFirstCrashe = false;
             e.Handled = true;
 
-            if (IsDebugModeEnabled)
-            {
-                bool isSentError = false;
-                var scheduler = Container.Resolve<IScheduler>("MainWindowsScheduler");
-                scheduler.Schedule(() =>
-                {
-                    var sentErrorCommand = new DelegateCommand(async () =>
-                    {
-                        try
-                        {
-                            var dialogService = Container.Resolve<DialogService>();
-                            var rtb = await GetApplicationContentImage();
-                            var result = await Presentation.Views.Dialogs.HohoemaErrorReportDialog.ShowAsync(e.Exception, sendScreenshot: false, rtb);
-
-                            if (result.IsSendRequested is false) { return; }
-
-                            var attachmentLogs = new List<ErrorAttachmentLog>();
-                            if (!string.IsNullOrEmpty(result.Data.InputText))
-                            {
-                                attachmentLogs.Add(ErrorTrackingManager.CreateTextAttachmentLog(result.Data.InputText));
-
-                                Debug.WriteLine("ReportLatestError: Add UserInputText Attachment");
-                            }
-
-                            if (result.Data.UseScreenshot)
-                            {
-                                try
-                                {
-                                    attachmentLogs.Add(await ErrorTrackingManager.CreateScreenshotAttachmentLog(rtb));
-                                    Debug.WriteLine("ReportLatestError: Add Screenshot Attachment");
-                                }
-                                catch
-                                {
-                                    Debug.WriteLine("エラー報告用のスクショ生成に失敗");
-                                }
-                            }
-
-                            ErrorTrackingManager.TrackError(e.Exception, null, attachmentLogs.ToArray());
-
-                            // isSentError を変更した後にErrorTeachingTipを閉じることでClose時の判定が走る
-                            isSentError = true;
-                        }
-                        catch { }
-                        finally
-                        {
-                            _primaryWindowCoreLayout.CloseErrorTeachingTip();
-                        }
-                    });
-
-                    _primaryWindowCoreLayout.OpenErrorTeachingTip(sentErrorCommand, () => 
-                    {
-                        if (isSentError is false)
-                        {
-                            ErrorTrackingManager.TrackError(e.Exception);
-                        }
-                    });                    
-                });
-            }
-            else
-            {
-                ErrorTrackingManager.TrackError(e.Exception);
-            }
+            var logger = Container.Resolve<ILogger>();
+            logger.ZLogError(e.Exception.ToString());
         }
 
         // エラー報告用に画面のスクショを取れるように

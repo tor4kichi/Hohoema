@@ -10,7 +10,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Uno;
-using Microsoft.AppCenter.Crashes;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Models.UseCase.Subscriptions
 {
@@ -25,6 +26,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
     public sealed class SubscriptionUpdateManager : BindableBase, IDisposable
     {
+        private readonly ILogger<SubscriptionUpdateManager> _logger;
         private readonly SubscriptionManager _subscriptionManager;
         private readonly SubscriptionSettings _subscriptionSettings;
         AsyncLock _timerLock = new AsyncLock();
@@ -83,10 +85,12 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
 
         public SubscriptionUpdateManager(
+            ILoggerFactory loggerFactory,
             SubscriptionManager subscriptionManager,
             SubscriptionSettings subscriptionSettingsRepository
             )
         {
+            _logger = loggerFactory.CreateLogger<SubscriptionUpdateManager>();
             _subscriptionManager = subscriptionManager;
             _subscriptionSettings = subscriptionSettingsRepository;
             _subscriptionManager.Added += _subscriptionManager_Added;
@@ -122,14 +126,20 @@ namespace Hohoema.Models.UseCase.Subscriptions
                 _timerUpdateCancellationTokenSource?.Cancel();
                 _timerUpdateCancellationTokenSource = null;
             }
-            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
+            catch (Exception ex) 
+            {
+                _logger.ZLogError(ex, "subscription timer cancel faield.");
+            }
 
 
             try
             {
                 await StopTimerAsync();
             }
-            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
+            catch (Exception ex) 
+            {
+                _logger.ZLogError(ex, "subscription timer stop faield.");
+            }
             finally
             {
                 deferral.Complete();
@@ -145,7 +155,10 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
                 StartOrResetTimer();
             }
-            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
+            catch (Exception ex) 
+            {
+                _logger.ZLogError(ex, "購読の定期更新の開始に失敗");
+            }
         }
 
 
@@ -157,9 +170,9 @@ namespace Hohoema.Models.UseCase.Subscriptions
                 if (_timerDisposer == null) { return; }
                 if (Helpers.InternetConnection.IsInternet() is false) { return; }
 
-                Debug.WriteLine($"[{nameof(SubscriptionUpdateManager)}] start update ------------------- ");
+                _logger.ZLogDebug("start update");
                 await _subscriptionManager.RefreshAllFeedUpdateResultAsync(cancellationToken);
-                Debug.WriteLine($"[{nameof(SubscriptionUpdateManager)}] end update ------------------- ");
+                _logger.ZLogDebug("end update");
 
                 // 次の自動更新周期を延長して設定
                 _subscriptionSettings.SubscriptionsLastUpdatedAt = DateTime.Now;
@@ -203,7 +216,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
                         {
                             await StopTimerAsync();
 
-                            Debug.WriteLine("購読の更新にあまりに時間が掛かったため処理を中断し、また定期自動更新も停止しました");
+                            _logger.ZLogInformation("購読の更新にあまりに時間が掛かったため処理を中断し、また定期自動更新も停止しました");
                         }
                         finally
                         {

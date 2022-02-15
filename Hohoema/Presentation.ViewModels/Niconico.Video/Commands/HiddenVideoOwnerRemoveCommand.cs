@@ -34,7 +34,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
         protected override void Execute(object parameter)
         {
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+            //Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
             if (parameter is IVideoContentProvider provider)
             {

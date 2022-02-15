@@ -21,6 +21,8 @@ using Hohoema.Models.UseCase;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
 using Uno.Disposables;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -110,12 +112,16 @@ namespace Hohoema.Presentation.ViewModels
 
         public ReactiveProperty<bool> HasError { get; }
 
-        DispatcherQueue _dispatcherQueue;
                 
         public DateTime LatestUpdateTime = DateTime.Now;
 
-        public HohoemaListingPageViewModelBase()
-        {
+
+        private readonly DispatcherQueue _dispatcherQueue;
+        protected readonly ILogger _logger;
+
+
+        public HohoemaListingPageViewModelBase(ILogger logger)
+        {            
             NowLoading = new ReactiveProperty<bool>(true)
                 .AddTo(_CompositeDisposable);
 
@@ -142,6 +148,7 @@ namespace Hohoema.Presentation.ViewModels
                 .AddTo(_CompositeDisposable);
 
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            _logger = logger;
         }
 
 
@@ -249,7 +256,6 @@ namespace Hohoema.Presentation.ViewModels
             {
                 NowLoading.Value = false;
                 HasError.Value = true;
-                Debug.WriteLine("failed GenerateIncrementalSource.");
                 throw;
             }
             
@@ -257,7 +263,7 @@ namespace Hohoema.Presentation.ViewModels
 
         private void OnLodingItemError(Exception e)
         {
-            ErrorTrackingManager.TrackError(e);
+            //ErrorTrackingManager.TrackError(e);
         }
 
         protected void ResetList()
@@ -274,7 +280,7 @@ namespace Hohoema.Presentation.ViewModels
                 }
                 catch (Exception e)
                 {
-                    ErrorTrackingManager.TrackError(e);
+                    _logger.ZLogError(e, "failed GenerateIncrementalSource.");
                 }
             });
         }
@@ -407,7 +413,7 @@ namespace Hohoema.Presentation.ViewModels
 
         
         private DelegateCommand _RefreshCommand;
-		public DelegateCommand RefreshCommand
+        public DelegateCommand RefreshCommand
 		{
 			get
 			{

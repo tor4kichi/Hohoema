@@ -1,7 +1,6 @@
 ﻿using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Helpers;
-using Microsoft.AppCenter.Analytics;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -30,10 +29,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Share
             {
                 ShareHelper.Share(nicoContent);
 
-                Analytics.TrackEvent("OpenShareUICommand", new Dictionary<string, string>
-                {
-                    { "ContentType", content.GetType().Name }
-                });
+                //Analytics.TrackEvent("OpenShareUICommand", new Dictionary<string, string>
+                //{
+                //    { "ContentType", content.GetType().Name }
+                //});
             }
         }
     }

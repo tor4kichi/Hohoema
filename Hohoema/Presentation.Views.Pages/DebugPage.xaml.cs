@@ -1,5 +1,4 @@
 ﻿using Hohoema.Presentation.Services;
-using Microsoft.AppCenter.Crashes;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,7 +37,7 @@ namespace Hohoema.Presentation.Views.Pages.Hohoema
 
         private void TestCrashReport_Click(object sender, RoutedEventArgs e)
         {
-            Crashes.GenerateTestCrash();
+            
         }
 
         private void TestInAppNotification(object sender, RoutedEventArgs e)

@@ -9,6 +9,9 @@ using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Prism.Commands;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase;
+using Prism.Ioc;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
@@ -37,12 +40,15 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         public IncrementalLoadingCollection<IIncrementalSource<ItemType>, ItemType> Items { get; }
 
+        private readonly ILogger<FollowGroupViewModel<ItemType>> _logger;
+
         public FollowGroupViewModel(FollowItemType followItemType, IFollowProvider<ItemType> followProvider, FollowIncrementalSourceBase<ItemType> loadingSource, PageManager pageManager)
         {
             FollowItemType = followItemType;
             _followProvider = followProvider;
             _pageManager = pageManager;
             Items = new IncrementalLoadingCollection<IIncrementalSource<ItemType>, ItemType>(source: loadingSource);
+            _logger = App.Current.Container.Resolve<ILoggerFactory>().CreateLogger<FollowGroupViewModel<ItemType>>();
 
             loadingSource.ObserveProperty(x => x.MaxCount).Subscribe(x => MaxCount = x).AddTo(_disposables);
             loadingSource.ObserveProperty(x => x.TotalCount).Subscribe(x => TotalCount = x).AddTo(_disposables);
@@ -64,7 +70,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
                 }
                 catch (Exception e)
                 {
-                    ErrorTrackingManager.TrackError(e);
+                    _logger.ZLogError(e, e.Message);
                 }
             }
             , (item) => FollowItemType is not FollowItemType.Community and not FollowItemType.Channel

@@ -3,6 +3,7 @@ using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Presentation.Services;
 using I18NPortable;
+using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Mylist;
 using Prism.Mvvm;
 using System;
@@ -12,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Uno.Extensions;
 using Uno.Threading;
+using ZLogger;
 using static Hohoema.Models.Domain.Niconico.Mylist.LoginUser.LoginUserMylistProvider;
 
 namespace Hohoema.Models.UseCase.Playlist
@@ -25,12 +27,14 @@ namespace Hohoema.Models.UseCase.Playlist
     public class LoginUserOwnedMylistManager : BindableBase
     {
         public LoginUserOwnedMylistManager(
+            ILoggerFactory loggerFactory,
             NiconicoSession niconicoSession,
             LoginUserMylistProvider loginUserMylistProvider,
             NotificationService notificationService,
             LoginUserMylistItemIdRepository loginUserMylistItemIdRepository
             )
         {
+            _logger = loggerFactory.CreateLogger<LoginUserOwnedMylistManager>();
             _niconicoSession = niconicoSession;
             _loginUserMylistProvider = loginUserMylistProvider;
             _notificationService = notificationService;
@@ -55,7 +59,7 @@ namespace Hohoema.Models.UseCase.Playlist
                 }
                 catch (Exception ex)
                 {
-                    ErrorTrackingManager.TrackError(ex);
+                    _logger.ZLogError(ex, "Login user mylist update failed.");
                 }
             };
 
@@ -72,7 +76,7 @@ namespace Hohoema.Models.UseCase.Playlist
                 }
                 catch (Exception ex)
                 {
-                    ErrorTrackingManager.TrackError(ex);
+                    _logger.ZLogError(ex, "Logout user mylist update failed.");
                 }
             };
         }
@@ -89,7 +93,7 @@ namespace Hohoema.Models.UseCase.Playlist
             set { SetProperty(ref _IsLoginUserMylistReady, value); }
         }
 
-
+        private readonly ILogger<LoginUserOwnedMylistManager> _logger;
         readonly private NiconicoSession _niconicoSession;
         readonly private LoginUserMylistProvider _loginUserMylistProvider;
         private readonly NotificationService _notificationService;

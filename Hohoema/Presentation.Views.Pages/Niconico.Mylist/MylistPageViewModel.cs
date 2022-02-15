@@ -33,13 +33,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Popups;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
-using Microsoft.AppCenter.Crashes;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.LocalMylist;
 using NiconicoToolkit.Video;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 {
@@ -63,6 +64,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         }
 
         public MylistPageViewModel(
+            ILoggerFactory loggerFactory,
             IMessenger messenger,
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
@@ -83,6 +85,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             VideoPlayWithQueueCommand videoPlayWithQueueCommand
             )
         {
+            _logger = loggerFactory.CreateLogger<MylistPageViewModel>();
             _messenger = messenger;
             ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
@@ -267,6 +270,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
         public ReactiveProperty<MylistPlaylistSortOption> SelectedSortOptionItem { get; }
 
+        private readonly ILogger<MylistPageViewModel> _logger;
         private readonly IMessenger _messenger;
         private readonly MylistFollowProvider _mylistFollowProvider;
         private readonly MylistResolver _mylistRepository;
@@ -414,7 +418,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                                     {
                                         Mylist.ForceNotify();
 
-                                        Microsoft.AppCenter.Analytics.Analytics.TrackEvent("Mylist_Edit");
+                                        //Microsoft.AppCenter.Analytics.Analytics.TrackEvent("Mylist_Edit");
 
                                         break;
                                     }
@@ -461,7 +465,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
                             PageManager.OpenPage(HohoemaPageType.UserMylist, OwnerUserId);
 
-                            Microsoft.AppCenter.Analytics.Analytics.TrackEvent("Mylist_Removed");
+                            //Microsoft.AppCenter.Analytics.Analytics.TrackEvent("Mylist_Removed");
                         }));
 
                         dialog.Commands.Add(new UICommand("Cancel".Translate()));
@@ -698,13 +702,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             if (mylist is LoginUserMylistPlaylist loginUserMylist)
             {
                 return new HohoemaListingPageViewModelBase<VideoListItemControlViewModel>.HohoemaIncrementalLoadingCollection(
-                    new LoginUserMylistIncrementalSource(loginUserMylist, sortOption)
+                    new LoginUserMylistIncrementalSource(loginUserMylist, sortOption, _logger)
                     );
             }
             else
             {
                 return new HohoemaListingPageViewModelBase<VideoListItemControlViewModel>.HohoemaIncrementalLoadingCollection(
-                    new MylistIncrementalSource(mylist, sortOption)
+                    new MylistIncrementalSource(mylist, sortOption, _logger)
                     );
             }
         }
@@ -728,15 +732,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 	{
         private readonly MylistPlaylist _mylist;
         private readonly MylistPlaylistSortOption _sortOption;
+        private readonly ILogger _logger;
 
         public MylistIncrementalSource(
             MylistPlaylist mylist, 
-            MylistPlaylistSortOption sortOption
+            MylistPlaylistSortOption sortOption,
+            ILogger logger
             )
             : base()
         {
             _mylist = mylist;
             _sortOption = sortOption;
+            _logger = logger;
         }
 
         async Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
@@ -749,7 +756,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             }
             catch (Exception e)
             {
-                ErrorTrackingManager.TrackError(e);
+                _logger.ZLogErrorWithPayload(exception:e, (MylistId: _mylist.MylistId, SortOption: _sortOption), "Mylist items loading error");
                 return Enumerable.Empty<VideoListItemControlViewModel>();
             }
         }
@@ -759,33 +766,44 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
     {
         private readonly LoginUserMylistPlaylist _mylist;
         private readonly MylistPlaylistSortOption _sortOption;
+        private readonly ILogger _logger;
 
         public LoginUserMylistIncrementalSource(
             LoginUserMylistPlaylist mylist,
-            MylistPlaylistSortOption sortOption
+            MylistPlaylistSortOption sortOption,
+            ILogger logger
             )
             : base()
         {
             _mylist = mylist;
             _sortOption = sortOption;
+            _logger = logger;
         }
 
         bool isEndReached;
 
         async Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
-            if (isEndReached)
+            try
             {
+                if (isEndReached)
+                {
+                    return Enumerable.Empty<VideoListItemControlViewModel>();
+                }
+
+                var items = await _mylist.GetItemsAsync(pageIndex, pageSize, _sortOption.SortKey, _sortOption.SortOrder);
+                isEndReached = items.NicoVideoItems.Count != pageSize;
+
+                ct.ThrowIfCancellationRequested();
+
+                var start = pageIndex * pageSize;
+                return items.Items.Select((x, i) => new VideoListItemControlViewModel(x.Video) { PlaylistItemToken = new(_mylist, _sortOption, new NvapiVideoItemWrapped(x.Video)) });
+            }
+            catch (Exception e)
+            {
+                _logger.ZLogErrorWithPayload(exception: e, (MylistId: _mylist.MylistId, SortOption: _sortOption), "LoginUserMylist items loading failed");
                 return Enumerable.Empty<VideoListItemControlViewModel>();
             }
-
-            var items = await _mylist.GetItemsAsync(pageIndex, pageSize, _sortOption.SortKey, _sortOption.SortOrder);
-            isEndReached = items.NicoVideoItems.Count != pageSize;
-
-            ct.ThrowIfCancellationRequested();
-
-            var start = pageIndex * pageSize;
-            return items.Items.Select((x, i) => new VideoListItemControlViewModel(x.Video) { PlaylistItemToken = new(_mylist, _sortOption, new NvapiVideoItemWrapped(x.Video)) });
         }
     }
 

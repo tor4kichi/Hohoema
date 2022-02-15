@@ -7,6 +7,7 @@ using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using I18NPortable;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Live.Timeshift;
 using Prism.Commands;
@@ -21,19 +22,22 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 {
     public sealed class TimeshiftPageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, INavigatedAwareAsync
     {
         public TimeshiftPageViewModel(
+            ILoggerFactory loggerFactory,
             ApplicationLayoutManager applicationLayoutManager,
             LoginUserLiveReservationProvider loginUserLiveReservationProvider,
             NicoLiveProvider nicoLiveProvider,
             NoUIProcessScreenContext noUIProcessScreenContext, 
             Services.DialogService dialogService,
             OpenLiveContentCommand openLiveContentCommand
-            ) 
+            )
+            : base(loggerFactory.CreateLogger<TimeshiftPageViewModel>())
         {
             ApplicationLayoutManager = applicationLayoutManager;
             LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
@@ -100,7 +104,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                         }
                         catch (Exception e)
                         {
-                            ErrorTrackingManager.TrackError(e);
+                            _logger.ZLogError(e, "DeleteOutdatedReservations failed");
+                            //ErrorTrackingManager.TrackError(e);
                         }
                     }));
             }

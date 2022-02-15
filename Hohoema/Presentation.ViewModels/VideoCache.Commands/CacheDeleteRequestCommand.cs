@@ -54,7 +54,7 @@ namespace Hohoema.Presentation.ViewModels.VideoCache.Commands
         protected override async void Execute(IEnumerable<IVideoContent> items)
         {
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+           // Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
             var anyCached = items.Any(x => _videoCacheManager.GetVideoCacheStatus(x.VideoId) is VideoCacheStatus.Completed);
             if (anyCached)

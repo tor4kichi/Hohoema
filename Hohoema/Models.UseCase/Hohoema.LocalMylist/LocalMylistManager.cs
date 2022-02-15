@@ -20,6 +20,8 @@ using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.LocalMylist;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Models.UseCase.Hohoema.LocalMylist
 {
@@ -32,11 +34,13 @@ namespace Hohoema.Models.UseCase.Hohoema.LocalMylist
 
 
         public LocalMylistManager(
+            ILogger logger,
             LocalMylistRepository playlistRepository,
             NicoVideoProvider nicoVideoProvider,
             INotificationService notificationService
             )
         {
+            _logger = logger;
             _playlistRepository = playlistRepository;
             _nicoVideoProvider = nicoVideoProvider;
             _notificationService = notificationService;
@@ -79,7 +83,7 @@ namespace Hohoema.Models.UseCase.Hohoema.LocalMylist
             }
         }
 
-
+        private readonly ILogger _logger;
         private readonly LocalMylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly INotificationService _notificationService;
@@ -183,7 +187,7 @@ namespace Hohoema.Models.UseCase.Hohoema.LocalMylist
                 }
                 catch (Exception e)
                 {
-                    ErrorTrackingManager.TrackError(e);
+                    _logger.ZLogError(e.ToString());
                 }
             }
             , (p) => p != null && LocalPlaylists.Contains(p)

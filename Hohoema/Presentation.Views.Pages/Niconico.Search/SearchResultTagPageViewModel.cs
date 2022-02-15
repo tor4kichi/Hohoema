@@ -27,6 +27,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using NiconicoToolkit.SearchWithCeApi.Video;
 using Microsoft.Toolkit.Collections;
 using Hohoema.Models.Domain.Playlist;
+using Microsoft.Extensions.Logging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
@@ -50,6 +51,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         }
 
         public SearchResultTagPageViewModel(
+            ILoggerFactory loggerFactory,
             ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
             SearchProvider searchProvider,
@@ -63,6 +65,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             AddTagSearchSubscriptionCommand addTagSearchSubscriptionCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
+            : base(loggerFactory.CreateLogger<SearchResultTagPageViewModel>())
         {
             SearchProvider = searchProvider;
             _tagFollowProvider = tagFollowProvider;

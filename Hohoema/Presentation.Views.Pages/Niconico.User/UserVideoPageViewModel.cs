@@ -27,6 +27,8 @@ using Hohoema.Models.Domain.User;
 using Hohoema.Models.Domain.Playlist;
 using System.Reactive.Linq;
 using Hohoema.Models.Domain.Video;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
 {
@@ -48,6 +50,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
         }
 
         public UserVideoPageViewModel(
+            ILoggerFactory loggerFactory,
             ApplicationLayoutManager applicationLayoutManager,
             UserProvider userProvider,
             SubscriptionManager subscriptionManager,
@@ -57,6 +60,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
             AddSubscriptionCommand addSubscriptionCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
+            : base(loggerFactory.CreateLogger<UserVideoPageViewModel>())
         {
             SubscriptionManager = subscriptionManager;
             ApplicationLayoutManager = applicationLayoutManager;
@@ -165,7 +169,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
                 SelectedSortOption = UserVideoPlaylist.DefaultSortOption;
             }
 
-            return (UserVideoIncrementalSource.OneTimeLoadCount, new UserVideoIncrementalSource(UserId, User, UserProvider, UserVideoPlaylist, SelectedSortOption));
+            return (UserVideoIncrementalSource.OneTimeLoadCount, new UserVideoIncrementalSource(UserId, User, UserProvider, UserVideoPlaylist, SelectedSortOption, _logger));
 		}
 
 
@@ -210,18 +214,27 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
         public const int OneTimeLoadCount = 25;
         private readonly UserVideoPlaylist _userVideoPlaylist;
         private readonly UserVideoPlaylistSortOption _selectedSortOption;
+        private readonly ILogger _logger;
 
         public uint UserId { get; }
 		public UserProvider UserProvider { get; }
         public UserDetail User { get; private set;}
 
-		public UserVideoIncrementalSource(string userId, UserDetail userDetail, UserProvider userProvider, UserVideoPlaylist userVideoPlaylist, UserVideoPlaylistSortOption selectedSortOption)
+		public UserVideoIncrementalSource(
+            string userId, 
+            UserDetail userDetail,
+            UserProvider userProvider, 
+            UserVideoPlaylist userVideoPlaylist, 
+            UserVideoPlaylistSortOption selectedSortOption,
+            ILogger logger
+            )
 		{
 			UserId = uint.Parse(userId);
 			User = userDetail;
             UserProvider = userProvider;
             _userVideoPlaylist = userVideoPlaylist;
             _selectedSortOption = selectedSortOption;
+            _logger = logger;
         }
 
         bool _isEnd = false;
@@ -251,7 +264,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
             }
             catch (Exception e)
             {
-                ErrorTrackingManager.TrackError(e);
+                _logger.ZLogErrorWithPayload(exception: e, UserId, "User videos loading failed");
                 return Enumerable.Empty<VideoListItemControlViewModel>();
             }
         }

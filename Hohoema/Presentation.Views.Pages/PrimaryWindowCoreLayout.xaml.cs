@@ -22,8 +22,6 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 using Hohoema.Models.Domain.Application;
-using Microsoft.AppCenter.Analytics;
-using Microsoft.AppCenter.Crashes;
 using System.Windows.Input;
 using Hohoema.Models.Domain.Notification;
 using Windows.UI;
@@ -41,6 +39,9 @@ using Hohoema.Models.UseCase.Niconico.Player;
 using Windows.UI.WindowManagement;
 using Prism.Ioc;
 using Hohoema.Models.Domain.Niconico.Video;
+using Prism.Logging;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -49,26 +50,27 @@ namespace Hohoema.Presentation.Views.Pages
     public sealed partial class PrimaryWindowCoreLayout : UserControl
     {
         private readonly PrimaryWindowCoreLayoutViewModel _viewModel;
-        
-
+        private readonly Services.CurrentActiveWindowUIContextService _currentActiveWindowUIContextService;
+        private readonly ILogger<PrimaryWindowCoreLayout> _logger;
         private readonly DispatcherQueue _dispatcherQueue;
+
         public PrimaryWindowCoreLayout(
             PrimaryWindowCoreLayoutViewModel viewModel,
-            Services.CurrentActiveWindowUIContextService currentActiveWindowUIContextService
+            Services.CurrentActiveWindowUIContextService currentActiveWindowUIContextService,
+            ILoggerFactory loggerFactory
             )
         {
             DataContext = _viewModel = viewModel;
 
             this.InitializeComponent();
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            _currentActiveWindowUIContextService = currentActiveWindowUIContextService;
+            _logger = loggerFactory.CreateLogger<PrimaryWindowCoreLayout>();
+
 
             ContentFrame.NavigationFailed += (_, e) =>
             {
-                Debug.WriteLine("Page navigation failed!!");
-                Debug.WriteLine(e.SourcePageType.AssemblyQualifiedName);
-                Debug.WriteLine(e.Exception.ToString());
-
-                ErrorTrackingManager.TrackError(e.Exception);
+                _logger.ZLogError(e.Exception, "Page navigation failed!!");
             };
             
             // Resolve Page Title 
@@ -200,8 +202,7 @@ namespace Hohoema.Presentation.Views.Pages
             });
 
             Window.Current.Activated += Current_Activated;
-            _currentActiveWindowUIContextService = currentActiveWindowUIContextService;
-
+            
             // Xbox向けのメニュー表示、下部のマージンを追加する
             if (_viewModel.ApplicationLayoutManager.AppLayout == ApplicationLayout.TV)
             {
@@ -331,12 +332,6 @@ namespace Hohoema.Presentation.Views.Pages
                         throw result.Exception ?? new HohoemaExpception("navigation error");
                     }
 
-
-                    Analytics.TrackEvent("PageNavigation", new Dictionary<string, string>
-                    {
-                        { "PageType",  pageName },
-                    });
-
                     Debug.WriteLineIf(!result.Success, result.Exception?.ToString());
 
 
@@ -349,9 +344,7 @@ namespace Hohoema.Presentation.Views.Pages
                 }
                 catch (Exception e)
                 {
-                    var errorPageParam = parameter.Select(x => (x.Key, x.Value.ToString())).ToDictionary(x => x.Key, x => x.Item2);
-                    errorPageParam.Add("PageType", pageName);
-                    ErrorTrackingManager.TrackError(e, errorPageParam);
+                    _logger.ZLogError(e, "ContentFrame Navigation failed: {0}", pageName);
                 }
             });
         }
@@ -947,8 +940,7 @@ namespace Hohoema.Presentation.Views.Pages
         // Using a DependencyProperty as the backing store for IsDebugModeEnabled.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsDebugModeEnabledProperty =
             DependencyProperty.Register("IsDebugModeEnabled", typeof(bool), typeof(PrimaryWindowCoreLayout), new PropertyMetadata(false));
-        private readonly Services.CurrentActiveWindowUIContextService _currentActiveWindowUIContextService;
-
+        
         public void OpenErrorTeachingTip(ICommand sentErrorCommand, Action onClosing)
         {
             AppErrorTeachingTip.ActionButtonCommand = sentErrorCommand;

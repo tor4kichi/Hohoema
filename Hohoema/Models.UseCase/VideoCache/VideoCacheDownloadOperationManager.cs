@@ -18,8 +18,10 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using Windows.UI.Notifications;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Application;
-using Microsoft.AppCenter.Crashes;
 using NiconicoToolkit.Video;
+using Microsoft.Extensions.Logging;
+using ZLogger;
+using Cysharp.Text;
 
 namespace Hohoema.Models.UseCase.VideoCache
 {
@@ -31,8 +33,7 @@ namespace Hohoema.Models.UseCase.VideoCache
         public const int MAX_DOWNLOAD_LINE_ = 1;
 
         private static readonly ToastNotifierCompat _notifier = ToastNotificationManagerCompat.CreateToastNotifier();
-
-
+        private readonly ILogger<VideoCacheDownloadOperationManager> _logger;
         private readonly VideoCacheManager _videoCacheManager;
         private readonly NicoVideoSessionOwnershipManager _nicoVideoSessionOwnershipManager;
         private readonly VideoCacheSettings _videoCacheSettings;
@@ -58,6 +59,7 @@ namespace Hohoema.Models.UseCase.VideoCache
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
 
         public VideoCacheDownloadOperationManager(
+            ILoggerFactory loggerFactory,
             VideoCacheManager videoCacheManager,
             NicoVideoSessionOwnershipManager nicoVideoSessionOwnershipManager,
             VideoCacheSettings videoCacheSettings,
@@ -65,6 +67,7 @@ namespace Hohoema.Models.UseCase.VideoCache
             NicoVideoProvider nicoVideoProvider
             )
         {
+            _logger = loggerFactory.CreateLogger<VideoCacheDownloadOperationManager>();
             _videoCacheManager = videoCacheManager;
             _nicoVideoSessionOwnershipManager = nicoVideoSessionOwnershipManager;
             _videoCacheSettings = videoCacheSettings;
@@ -75,7 +78,7 @@ namespace Hohoema.Models.UseCase.VideoCache
 
             _videoCacheManager.Requested += (s, e) => 
             {
-                Debug.WriteLine($"[VideoCache] Requested: Id= {e.VideoId}, RequestQuality= {e.RequestedQuality}");
+                _logger.ZLogDebug("Requested: Id= {0}, RequestQuality= {1}", e.VideoId, e.RequestedQuality);
                 LaunchDownaloadOperationLoop();
                 TriggerVideoCacheStatusChanged(e.VideoId);
 
@@ -84,10 +87,11 @@ namespace Hohoema.Models.UseCase.VideoCache
 
             _videoCacheManager.Started += (s, e) => 
             {
-                Debug.WriteLine($"[VideoCache] Started: Id= {e.Item.VideoId}, RequestQuality= {e.Item.RequestedVideoQuality}, DownloadQuality= {e.Item.DownloadedVideoQuality}");
+
+                _logger.ZLogDebug("Started: Id= {0}, RequestQuality= {1}, DownloadQuality= {2}", e.Item.VideoId, e.Item.RequestedVideoQuality, e.Item.DownloadedVideoQuality);
                 TriggerVideoCacheStatusChanged(e.Item.VideoId);
 
-                _notificationService.ShowLiteInAppNotification($"{"CacheVideo_Notification_DownloadStarted".Translate()}\n{e.Item.Title}", symbol: Windows.UI.Xaml.Controls.Symbol.Download);
+                _notificationService.ShowLiteInAppNotification(ZString.Format("{0}\n{1}", "CacheVideo_Notification_DownloadStarted".Translate(), e.Item.Title), symbol: Windows.UI.Xaml.Controls.Symbol.Download);
 
                 StartBackgroundCacheProgressToast(e.Item);
             };
@@ -96,7 +100,7 @@ namespace Hohoema.Models.UseCase.VideoCache
             {
                 if (_nextProgressShowTime < DateTime.Now)
                 {
-                    Debug.WriteLine($"[VideoCache] Progress: Id= {e.Item.VideoId}, Progress= {e.Item.GetProgressNormalized():P}");
+                    _logger.ZLogDebug("Progress: Id= {0}, Progress= {1:P}", e.Item.VideoId, e.Item.GetProgressNormalized());
                     _nextProgressShowTime = DateTime.Now + PROGRESS_UPDATE_INTERVAL;
 
                     TriggerVideoCacheProgressChanged(e.Item);
@@ -107,12 +111,12 @@ namespace Hohoema.Models.UseCase.VideoCache
 
             _videoCacheManager.Completed += (s, e) => 
             {
-                Debug.WriteLine($"[VideoCache] Completed: Id= {e.Item.VideoId}");
+                _logger.ZLogDebug("Completed: Id= {0}", e.Item.VideoId);
                 TriggerVideoCacheStatusChanged(e.Item.VideoId);
 
                 if (e.Item.Status == VideoCacheStatus.Completed)
                 { 
-                    _notificationService.ShowLiteInAppNotification_Success($"{"CacheVideo_Notification_Completed".Translate()}\n{e.Item.Title}");
+                    _notificationService.ShowLiteInAppNotification_Success(ZString.Format("{0}\n{1}", "CacheVideo_Notification_Completed".Translate(), e.Item.Title));
 
                     // 完了をトースト通知で知らせる
                     PopCacheCompletedToast(e.Item);
@@ -122,18 +126,18 @@ namespace Hohoema.Models.UseCase.VideoCache
 
             _videoCacheManager.Canceled += (s, e) => 
             {
-                Debug.WriteLine($"[VideoCache] Canceled: Id= {e.VideoId}");
+                _logger.ZLogDebug("Canceled: Id= {0}", e.VideoId);
                 TriggerVideoCacheStatusChanged(e.VideoId);
 
-                _notificationService.ShowLiteInAppNotification_Success($"{"CacheVideo_Notification_RequestRemoved".Translate()}\n{e.VideoId}");
+                _notificationService.ShowLiteInAppNotification_Success(ZString.Format("{0}\n{1}", "CacheVideo_Notification_RequestRemoved".Translate(), e.VideoId));
             };
 
             _videoCacheManager.Failed += (s, e) => 
             {
-                Debug.WriteLine($"[VideoCache] Failed: Id= {e.Item.VideoId}, FailedReason= {e.VideoCacheDownloadOperationCreationFailedReason}");
+                _logger.ZLogDebug("Failed: Id= {0}, FailedReason= {1}", e.Item.VideoId, e.VideoCacheDownloadOperationCreationFailedReason);
                 TriggerVideoCacheStatusChanged(e.Item.VideoId);
 
-                _notificationService.ShowLiteInAppNotification_Success($"{"CacheVideo_Notification_Failed".Translate()}\n{e.Item.Title}");
+                _notificationService.ShowLiteInAppNotification_Success(ZString.Format("{0}\n{1}", "CacheVideo_Notification_Failed".Translate(), e.Item.Title));
 
                 PopCacheFailedToast(e.Item);
                 StopBackgroundCacheProgressToast();
@@ -153,10 +157,10 @@ namespace Hohoema.Models.UseCase.VideoCache
 
             _videoCacheManager.Paused += (s, e) =>
             {
-                Debug.WriteLine($"[VideoCache] Paused: Id= {e.Item.VideoId}");
+                _logger.ZLogDebug("Paused: Id= {0}", e.Item.VideoId);
                 TriggerVideoCacheStatusChanged(e.Item.VideoId);
 
-                _notificationService.ShowLiteInAppNotification($"{"CacheVideo_Notification_Paused".Translate()}\n{e.Item.Title}", symbol: Windows.UI.Xaml.Controls.Symbol.Pause);
+                _notificationService.ShowLiteInAppNotification(ZString.Format("{0}\n{1}", "CacheVideo_Notification_Paused".Translate(), e.Item.Title), symbol: Windows.UI.Xaml.Controls.Symbol.Pause);
 
                 UpdateBackgroundCacheProgressToast(e.Item, isPause: true);
             };
@@ -164,7 +168,6 @@ namespace Hohoema.Models.UseCase.VideoCache
 
             App.Current.Suspending += async (s, e) => 
             {
-                Debug.WriteLine($"[VideoCache] App Suspending.");
                 var defferl = e.SuspendingOperation.GetDeferral();
                 try
                 {
@@ -177,7 +180,10 @@ namespace Hohoema.Models.UseCase.VideoCache
 
                     await _videoCacheManager.PauseAllDownloadOperationAsync();
                 }
-                catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
+                catch (Exception ex) 
+                {
+                    _logger.ZLogError(ex, "Cache operation suspending failed.");
+                }
                 finally
                 {
                     defferl.Complete();
@@ -186,18 +192,18 @@ namespace Hohoema.Models.UseCase.VideoCache
 
             App.Current.Resuming += (s, e) =>
             {
-                Debug.WriteLine($"[VideoCache] App Resuming.");
                 try
                 {
                     LaunchDownaloadOperationLoop();
                 }
-                catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
+                catch (Exception ex) 
+                {
+                    _logger.ZLogError(ex, "Cache operation resuming failed.");
+                }
             };
 
             _nicoVideoSessionOwnershipManager.AvairableOwnership += (s, e) => 
             {
-                Debug.WriteLine($"[VideoCache] AvairableOwnership");
-
                 LaunchDownaloadOperationLoop();
             };
 
@@ -262,17 +268,17 @@ namespace Hohoema.Models.UseCase.VideoCache
             }
             if (_stopDownloadTaskWithDisallowMeteredNetworkDownload)
             {
-                Debug.WriteLine("CacheDL Looping: disallow download with metered network, loop exit.");
+                _logger.ZLogDebug("CacheDL Looping: disallow download with metered network, loop exit.");
                 return false;
             }
             else if (_stopDownloadTaskWithChangingSaveFolder)
             {
-                Debug.WriteLine("CacheDL Looping: stopping download from save folder changing, loop exit.");
+                _logger.ZLogDebug("CacheDL Looping: stopping download from save folder changing, loop exit.");
                 return false;
             }
             else if (IsAllowDownload is false)
             {
-                Debug.WriteLine("CacheDL Looping: stopping download from user action, loop exit.");
+                _logger.ZLogDebug("CacheDL Looping: stopping download from user action, loop exit.");
                 return false;
             }
 
@@ -285,14 +291,14 @@ namespace Hohoema.Models.UseCase.VideoCache
             {
                 if (_isRunning) 
                 {
-                    Debug.WriteLine("CacheDL Looping: already running, loop skiped.");
+                    _logger.ZLogDebug("CacheDL Looping: already running, loop skiped.");
                     return; 
                 }
 
                 _isRunning = true;
             }
 
-            Debug.WriteLine("CacheDL Looping: loop started.");
+            _logger.ZLogDebug("CacheDL Looping: loop started.");
 
             try
             {
@@ -300,8 +306,7 @@ namespace Hohoema.Models.UseCase.VideoCache
             }
             catch (Exception e)
             {
-                Debug.WriteLine("CacheDL Looping: exit with Exception.");
-                Debug.WriteLine(e.ToString());
+                _logger.ZLogError(e,"CacheDL Looping: exit with Exception.");
             }
 
             using (await _runningFlagUpdateLock.LockAsync())
@@ -309,7 +314,7 @@ namespace Hohoema.Models.UseCase.VideoCache
                 _isRunning = false;
             }
 
-            Debug.WriteLine("CacheDL Looping: loop completed.");
+            _logger.ZLogDebug("CacheDL Looping: loop completed.");
         }
 
         private async Task DownloadLoopAsync()
@@ -327,7 +332,7 @@ namespace Hohoema.Models.UseCase.VideoCache
                 {
                     _downloadTasks.Add(DownloadNextAsync());
 
-                    Debug.WriteLine("CacheDL Looping: add task");
+                    _logger.ZLogDebug("CacheDL Looping: add task");
                 }
 
                 while (_downloadTasks.Count > 0)
@@ -337,7 +342,7 @@ namespace Hohoema.Models.UseCase.VideoCache
                     var doneTask = _downloadTasks[index];
                     _downloadTasks.Remove(doneTask);
 
-                    Debug.WriteLine("CacheDL Looping: remove task");
+                    _logger.ZLogDebug("CacheDL Looping: remove task");
 
                     if (result
                         && CanLaunchDownloadOperationLoop()
@@ -346,7 +351,7 @@ namespace Hohoema.Models.UseCase.VideoCache
                     {
                         _downloadTasks.Add(DownloadNextAsync());
 
-                        Debug.WriteLine("CacheDL Looping: add task");
+                        _logger.ZLogDebug("CacheDL Looping: add task");
                     }
                 }
             }
@@ -368,8 +373,7 @@ namespace Hohoema.Models.UseCase.VideoCache
             }
             catch (Exception e)
             {
-                Debug.WriteLine("CacheDL Looping: has exception.");
-                Debug.WriteLine(e.ToString());
+                _logger.ZLogError(e, e.Message);
                 return false;
             }
 

@@ -32,6 +32,7 @@ using NiconicoToolkit.Video;
 using NiconicoToolkit.Rss.Video;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 {
@@ -160,6 +161,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
         MemoryCache _rankingMemoryCache;
         public RankingCategoryPageViewModel(
+            ILoggerFactory loggerFactory,
             ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
             PageManager pageManager,
@@ -171,6 +173,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
+            : base(loggerFactory.CreateLogger<RankingCategoryPageViewModel>())
         {
             ApplicationLayoutManager = applicationLayoutManager;
             _niconicoSession = niconicoSession;

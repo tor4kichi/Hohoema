@@ -26,6 +26,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Models.Domain.Pins;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Live.Timeshift;
+using Microsoft.Extensions.Logging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
@@ -48,6 +49,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         }
 
         public SearchResultLivePageViewModel(
+            ILoggerFactory loggerFactory,
             ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
             SearchProvider searchProvider,
@@ -56,6 +58,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             NicoLiveCacheRepository nicoLiveCacheRepository,
             OpenLiveContentCommand openLiveContentCommand
             )
+            : base(loggerFactory.CreateLogger<SearchResultLivePageViewModel>())
         {
             ApplicationLayoutManager = applicationLayoutManager;
             NiconicoSession = niconicoSession;

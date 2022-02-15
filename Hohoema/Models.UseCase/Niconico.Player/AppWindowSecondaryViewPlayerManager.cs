@@ -2,7 +2,6 @@
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Views.Pages;
-using Microsoft.AppCenter.Analytics;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Toolkit.Uwp;
 using Prism.Mvvm;
@@ -319,21 +318,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             catch
             {
                 await CloseAsync();
-            }
-            finally
-            {
-                _dispatcherQueue.TryEnqueue(() => 
-                {
-                    var presenterConfig = _appWindow.Presenter.GetConfiguration();
-                    Analytics.TrackEvent("PlayerNavigation", new Dictionary<string, string>
-                    {
-                        { "PageType",  pageName },
-                        { "ViewType", "Secondary" },
-                        { "CompactOverlay", (presenterConfig.Kind == AppWindowPresentationKind.CompactOverlay).ToString() },
-                        { "FullScreen", (presenterConfig.Kind == AppWindowPresentationKind.FullScreen).ToString()},
-                    });
-                });
-            }
+            }            
         }
 
         public void SetTitle(string title)

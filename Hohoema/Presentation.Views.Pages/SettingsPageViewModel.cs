@@ -10,8 +10,6 @@ using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
-using Microsoft.AppCenter.Analytics;
-using Microsoft.AppCenter.Crashes;
 using Microsoft.Services.Store.Engagement;
 using Microsoft.UI.Xaml.Controls;
 using Prism.Commands;
@@ -45,6 +43,8 @@ using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using System.Text;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Xamarin.Essentials;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 {
@@ -64,7 +64,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
             VideoCacheFolderManager videoCacheFolderManager,
             ApplicationLayoutManager applicationLayoutManager,
             VideoFilteringSettings videoFilteringRepository,
-            BackupManager backupManager
+            BackupManager backupManager,
+            ILoggerFactory loggerFactory
             )
         {
             _notificationService = toastService;
@@ -78,6 +79,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
             ApplicationLayoutManager = applicationLayoutManager;
             _videoFilteringRepository = videoFilteringRepository;
             _backupManager = backupManager;
+            _logger = loggerFactory.CreateLogger<SettingsPageViewModel>();
 
             // NG Video Owner User Id
             NGVideoOwnerUserIdEnable = _videoFilteringRepository.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable)
@@ -221,15 +223,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 
 
             // アプリの使用状況
-            this.ObserveProperty(x => x.IsEnableCrashReport, isPushCurrentValueAtFirst: false)
-                .Where(x => !_NowNavigateProccess)
-                .Subscribe(async x => { await Crashes.SetEnabledAsync(x); })
-                .AddTo(_CompositeDisposable);
+            //this.ObserveProperty(x => x.IsEnableCrashReport, isPushCurrentValueAtFirst: false)
+            //    .Where(x => !_NowNavigateProccess)
+            //    .Subscribe(async x => { await Crashes.SetEnabledAsync(x); })
+            //    .AddTo(_CompositeDisposable);
 
-            this.ObserveProperty(x => x.IsEnableAnalyticsReport, isPushCurrentValueAtFirst: false)
-                .Where(x => !_NowNavigateProccess)
-                .Subscribe(async x => { await Analytics.SetEnabledAsync(x); })
-                .AddTo(_CompositeDisposable);
+            //this.ObserveProperty(x => x.IsEnableAnalyticsReport, isPushCurrentValueAtFirst: false)
+            //    .Where(x => !_NowNavigateProccess)
+            //    .Subscribe(async x => { await Analytics.SetEnabledAsync(x); })
+            //    .AddTo(_CompositeDisposable);
 
 
             StringBuilder sb = new StringBuilder();
@@ -255,6 +257,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         private readonly VideoCacheFolderManager _videoCacheFolderManager;
         private readonly VideoFilteringSettings _videoFilteringRepository;
         private readonly BackupManager _backupManager;
+        private readonly ILogger _logger;
         private readonly CommentFilteringFacade _commentFiltering;
 
         public NotificationService _notificationService { get; private set; }
@@ -264,7 +267,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         public AppearanceSettings AppearanceSettings { get; }
         public VideoCacheSettings VideoCacheSettings { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
-
+        
 
         // フィルタ
         public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
@@ -562,9 +565,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                         secondaryTile.VisualElements.ShowNameOnSquare310x310Logo = true;
                         secondaryTile.VisualElements.ShowNameOnWide310x150Logo = true;
 
+
+                        
                         if (false == await secondaryTile.RequestCreateAsync())
                         {
-                            throw new Models.Infrastructure.HohoemaExpception("Failed secondary tile creation.");
+                            _logger.ZLogError("Failed secondary tile creation.");
                         }
                     }
                     ));
@@ -585,8 +590,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                     new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText))
                     );
 
-                IsEnableCrashReport = await Crashes.IsEnabledAsync();
-                IsEnableAnalyticsReport = await Analytics.IsEnabledAsync();
+                //IsEnableCrashReport = await Crashes.IsEnabledAsync();
+                //IsEnableAnalyticsReport = await Analytics.IsEnabledAsync();
 
                 try
                 {
@@ -662,7 +667,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
             }
             catch (Exception e)
             {
-                ErrorTrackingManager.TrackError(e);
+                _logger.ZLogError(e, "Backup export failed");
             }
         }
 
@@ -737,7 +742,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
             }
             catch (Exception e)
             {
-                ErrorTrackingManager.TrackError(e);
+                _logger.ZLogError(e, "Backup import failed");
             }
         }
 

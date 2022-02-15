@@ -2,6 +2,7 @@
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.VideoCache;
 using Hohoema.Models.Helpers;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Helpers;
 using System;
@@ -12,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
+using ZLogger;
 
 namespace Hohoema.Models.UseCase.VideoCache
 {
@@ -19,14 +21,17 @@ namespace Hohoema.Models.UseCase.VideoCache
     {
         public const string CACHE_FOLDER_NAME = "Hohoema_Videos";
 
+        private readonly ILogger<VideoCacheFolderManager> _logger;
         private readonly VideoCacheManager _videoCacheManager;
         private readonly NicoVideoProvider _nicoVideoProvider;
 
         public VideoCacheFolderManager(
+            ILoggerFactory loggerFactory,
             VideoCacheManager vIdeoCacheManager,
             NicoVideoProvider nicoVideoProvider
             )
         {
+            _logger = loggerFactory.CreateLogger<VideoCacheFolderManager>();
             _videoCacheManager = vIdeoCacheManager;
             _nicoVideoProvider = nicoVideoProvider;
 
@@ -69,7 +74,7 @@ namespace Hohoema.Models.UseCase.VideoCache
             }
             catch (Exception e)
             {
-                ErrorTrackingManager.TrackError(e);
+                _logger.ZLogError(e, e.Message);
             }
 
             _isInitialized = true;
@@ -112,6 +117,10 @@ namespace Hohoema.Models.UseCase.VideoCache
                 // 新しい指定フォルダをFutureAccessListへ登録
                 StorageApplicationPermissions.FutureAccessList.AddOrReplace(CACHE_FOLDER_NAME, newFolder);
             }
+            catch (Exception e)
+            {
+                _logger.ZLogError(e, e.Message);
+            }
             finally
             {
                 _messenger.Send<Events.EndCacheSaveFolderChangingMessage>();
@@ -144,6 +153,11 @@ namespace Hohoema.Models.UseCase.VideoCache
                 }
 
                 progressCount += files.Count;
+            }
+
+            if (exceptions.Any())
+            {
+                _logger.ZLogError(new AggregateException(exceptions), "Import cache contains error");
             }
         }
 
@@ -207,6 +221,11 @@ namespace Hohoema.Models.UseCase.VideoCache
                 }
 
                 progressCount += files.Count;
+            }
+
+            if (exceptions.Any())
+            {
+                _logger.ZLogError(new AggregateException(exceptions), "Folder move action contains some error.");
             }
         }
     }
