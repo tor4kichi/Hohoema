@@ -207,6 +207,13 @@ namespace Hohoema.Presentation.Views.Pages
             {
                 Resources["NavigationViewPaneContentGridMargin"] = new Thickness(0, 27, 0, 27);
             }
+
+            PlayerFrame.Navigated += PlayerFrame_Navigated;
+        }
+
+        private void PlayerFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            PlayerFrame.BackStack.Clear();
         }
 
         private void Current_Activated(object sender, WindowActivatedEventArgs e)

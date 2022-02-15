@@ -6,6 +6,7 @@ using Prism.Ioc;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
 using System;
+using System.Reactive.Disposables;
 using System.Threading;
 using Windows.UI;
 using Windows.UI.ViewManagement;
@@ -22,26 +23,27 @@ namespace Hohoema.Presentation.Views.Pages
         {
             this.InitializeComponent();
 
-            var appearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();
-            appearanceSettings.ObserveProperty(x => x.ApplicationTheme)
-                .Subscribe(theme =>
-                {
-                    ThemeChanged(theme);
-                });
-
+           
             _CurrentActiveWindowUIContextService = App.Current.Container.Resolve<Services.CurrentActiveWindowUIContextService>();
 
             Loaded += SecondaryViewCoreLayout_Loaded;
             Unloaded += SecondaryViewCoreLayout_Unloaded;
+
+            ContentFrame.Navigated += ContentFrame_Navigated;
         }
 
-        IDisposable _liteNotificationEventSubscriber;
+        private void ContentFrame_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
+        {
+            ContentFrame.BackStack.Clear();
+        }
+
+        CompositeDisposable _disposables;
+
         private readonly CurrentActiveWindowUIContextService _CurrentActiveWindowUIContextService;
 
         private void SecondaryViewCoreLayout_Unloaded(object sender, RoutedEventArgs e)
         {
-            _liteNotificationEventSubscriber?.Dispose();
-            _liteNotificationEventSubscriber = null;
+            _disposables.Dispose();
 
             NavigationService.Instances.Remove(ContentFrame);
             WeakReferenceMessenger.Default.Unregister<LiteNotificationMessage>(this);
@@ -49,6 +51,16 @@ namespace Hohoema.Presentation.Views.Pages
 
         private void SecondaryViewCoreLayout_Loaded(object sender, RoutedEventArgs e)
         {
+            var appearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();           
+            _disposables = new CompositeDisposable(new[] 
+            {
+                appearanceSettings.ObserveProperty(x => x.ApplicationTheme)
+                .Subscribe(theme =>
+                {
+                    ThemeChanged(theme);
+                })
+            });
+
             WeakReferenceMessenger.Default.Register<LiteNotificationMessage>(this, (r, m) => 
             {
                 if (_CurrentActiveWindowUIContextService.UIContext != UIContext)
