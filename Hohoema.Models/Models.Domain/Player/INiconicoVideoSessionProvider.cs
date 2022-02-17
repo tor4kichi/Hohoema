@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.Domain.Player
 {
-    public interface INiconicoCommentSessionProvider
+    public interface INiconicoCommentSessionProvider<TComment> where TComment : IComment
     {
         VideoId ContentId { get; }
-        Task<ICommentSession> CreateCommentSessionAsync();
+        Task<ICommentSession<TComment>> CreateCommentSessionAsync();
     }
 
     public interface INiconicoVideoSessionProvider

@@ -29,7 +29,7 @@ using ZLogger;
 
 namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 {
-    public class CommentPlayer : Prism.Mvvm.BindableBase, IDisposable
+    public class VideoCommentPlayer : Prism.Mvvm.BindableBase, IDisposable
     {
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -38,7 +38,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         private readonly CommentFilteringFacade _commentFiltering;
         private readonly NotificationService _notificationService;
         private readonly PlayerSettings _playerSettings;
-        private INiconicoCommentSessionProvider _niconicoCommentSessionProvider;
+        private INiconicoCommentSessionProvider<VideoComment> _niconicoCommentSessionProvider;
         private readonly ILogger _logger;
         private readonly MediaPlayer _mediaPlayer;
 
@@ -49,7 +49,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         public ReactiveProperty<bool> NowSubmittingComment { get; private set; }
 
         public AsyncReactiveCommand CommentSubmitCommand { get; }
-        ICommentSession _commentSession;
+        ICommentSession<VideoComment> _commentSession;
 
         FastAsyncLock _commentUpdateLock = new FastAsyncLock();
 
@@ -72,7 +72,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         event EventHandler<TimeSpan> NicoScriptJumpTimeRequested;
         event EventHandler CommentSubmitFailed;
 
-        public CommentPlayer(
+        public VideoCommentPlayer(
             ILoggerFactory loggerFactory,
             MediaPlayer mediaPlayer, 
             IScheduler scheduler,
@@ -82,7 +82,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             PlayerSettings playerSettings
             )
         {
-            _logger = loggerFactory.CreateLogger<CommentPlayer>();
+            _logger = loggerFactory.CreateLogger<VideoCommentPlayer>();
             _mediaPlayer = mediaPlayer;
             _scheduler = scheduler;
             _commentDisplayingRangeExtractor = commentDisplayingRangeExtractor;
@@ -215,7 +215,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         }
 
 
-        public async Task UpdatePlayingCommentAsync(INiconicoCommentSessionProvider niconicoCommentSessionProvider, CancellationToken ct = default)
+        public async Task UpdatePlayingCommentAsync(INiconicoCommentSessionProvider<VideoComment> niconicoCommentSessionProvider, CancellationToken ct = default)
         {
             using (await _commentUpdateLock.LockAsync(ct))
             {
@@ -346,7 +346,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
 
 
-        private async Task UpdateComments_Internal(ICommentSession commentSession)
+        private async Task UpdateComments_Internal(ICommentSession<VideoComment> commentSession)
         {
             // ニコスクリプトの状態を初期化
             ClearNicoScriptState();
@@ -354,8 +354,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             Comments.Clear();
             DisplayingComments.Clear();
             HiddenCommentIds.Clear();
-
-            var comments =  await commentSession.GetInitialComments();
 
             IEnumerable<VideoComment> commentsAction(IEnumerable<VideoComment> comments)
             {
@@ -387,8 +385,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                     yield return comment;
                 }
             }
+            var comments = await commentSession.GetInitialComments();
 
-            Comments.AddRange(commentsAction(comments.Cast<VideoComment>().OrderBy(x => x.VideoPosition)));
+            Comments.AddRange(commentsAction(comments.OrderBy(x => x.VideoPosition)));
 
             ResetDisplayingComments(Comments);
 

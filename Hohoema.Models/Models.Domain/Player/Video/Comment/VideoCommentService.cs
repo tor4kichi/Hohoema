@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.Domain.Player.Video.Comment
 {
-    public class VideoCommentService : ICommentSession
+    public class VideoCommentService : ICommentSession<VideoComment>
     {
         CommentClient CommentClient;
 
@@ -19,14 +19,14 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
         }
 
 
-        public event EventHandler<IComment> RecieveComment;
+        public event EventHandler<VideoComment> RecieveComment;
 
         void IDisposable.Dispose()
         {
 
         }
 
-        public async Task<IReadOnlyCollection<IComment>> GetInitialComments()
+        public async Task<IEnumerable<VideoComment>> GetInitialComments()
         {
             return await CommentClient.GetCommentsAsync();
         }

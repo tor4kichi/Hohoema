@@ -86,7 +86,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             LocalPlaylistAddItemCommand localPlaylistAddItemCommand,
             MylistCreateCommand createMylistCommand,
             VideoStreamingOriginOrchestrator videoStreamingOriginOrchestrator,
-            CommentPlayer commentPlayer,
+            VideoCommentPlayer commentPlayer,
             CommentCommandEditerViewModel commentCommandEditerViewModel,
             KeepActiveDisplayWhenPlaying keepActiveDisplayWhenPlaying,
             ObservableMediaPlayer observableMediaPlayer,
@@ -220,7 +220,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         public VideoTogglePlayPauseCommand VideoTogglePlayPauseCommand { get; }
         public IPlayerView PlayerView { get; }
         public NiconicoSession NiconicoSession { get; }        
-        public CommentPlayer CommentPlayer { get; }
+        public VideoCommentPlayer CommentPlayer { get; }
         public CommentCommandEditerViewModel CommentCommandEditerViewModel { get; }
         public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
         public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }

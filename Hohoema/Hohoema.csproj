@@ -171,7 +171,7 @@
     <Compile Include="Models.UseCase\Playlist\MylistResolver.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\Comment\CommentDisplayingRangeExtractor.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\Comment\CommentFilteringFacade.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\Comment\CommentPlayer.cs" />
+    <Compile Include="Models.UseCase\Niconico.Player\Comment\VideoCommentPlayer.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\KeepActiveDisplayWhenPlaying.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\ObservableMediaPlayer.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\RelatedVideoContentsAggregator.cs" />

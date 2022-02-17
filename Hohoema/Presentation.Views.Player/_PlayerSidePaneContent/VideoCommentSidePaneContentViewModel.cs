@@ -21,7 +21,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         public CommentFilteringFacade CommentFiltering { get; }
 
         public VideoCommentSidePaneContentViewModel(
-            CommentPlayer commentPlayer,
+            VideoCommentPlayer commentPlayer,
             CommentFilteringFacade  commentFiltering,
             Services.DialogService dialogService
             )
@@ -74,7 +74,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         }
 
 
-        public CommentPlayer CommentPlayer { get; }
+        public VideoCommentPlayer CommentPlayer { get; }
         public AdvancedCollectionView Comments { get; }
         private CompositeDisposable _disposables = new CompositeDisposable();
         private readonly DialogService _dialogService;

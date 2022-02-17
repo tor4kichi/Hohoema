@@ -20,14 +20,14 @@ namespace Hohoema.Models.Domain.Player.Comment
         public ChatResultCode Status => StatusCode;
     }
 
-    public interface ICommentSession : IDisposable
+    public interface ICommentSession<TComment> : IDisposable where TComment : IComment
     {
         string ContentId { get; }
         string UserId { get; }
 
-        event EventHandler<IComment> RecieveComment;
+        event EventHandler<TComment> RecieveComment;
 
-        Task<IReadOnlyCollection<IComment>> GetInitialComments();
+        Task<IEnumerable<TComment>> GetInitialComments();
 
         bool CanPostComment { get; }
 
