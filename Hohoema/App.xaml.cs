@@ -72,6 +72,8 @@ using Prism.Logging;
 using ZLogger;
 using Cysharp.Text;
 using Windows.UI.Core;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using DryIoc.Microsoft.DependencyInjection;
 
 namespace Hohoema
 {
@@ -87,13 +89,13 @@ namespace Hohoema
 
         private bool _IsPreLaunch;
 
-		public const string ACTIVATION_WITH_ERROR = "error";
+        public const string ACTIVATION_WITH_ERROR = "error";
         public const string ACTIVATION_WITH_ERROR_OPEN_LOG = "error_open_log";
         public const string ACTIVATION_WITH_ERROR_COPY_LOG = "error_copy_log";
 
         internal const string IS_COMPLETE_INTRODUCTION = "is_first_launch";
 
-        
+
         /// <summary>
         /// 単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの
         ///最初の行であるため、main() または WinMain() と論理的に等価です。
@@ -109,17 +111,14 @@ namespace Hohoema
             // テーマ設定
             // ThemeResourceの切り替えはアプリの再起動が必要
             RequestedTheme = GetTheme();
-            
-            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromDays(7);
-            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 0;
-            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.RetryCount = 3;
-                       
+
             this.InitializeComponent();
-        }        
+        }
 
         protected override Rules CreateContainerRules()
         {
-            return base.CreateContainerRules().WithoutThrowOnRegisteringDisposableTransient();
+            return base.CreateContainerRules()
+                .WithoutThrowOnRegisteringDisposableTransient();
         }
 
         public override async Task OnStartAsync(StartArgs args)
@@ -139,7 +138,7 @@ namespace Hohoema
 
             if (args.StartKind == StartKinds.Launch)
             {
-                
+
             }
             else if (args.StartKind == StartKinds.Activate)
             {
@@ -155,7 +154,7 @@ namespace Hohoema
 
         UIElement CreateShell()
         {
-            
+
             // Grid
             //   |- HohoemaInAppNotification
             //   |- PlayerWithPageContainerViewModel
@@ -202,7 +201,7 @@ namespace Hohoema
         {
             var unityContainer = container.GetContainer();
 
-//            unityContainer.Register<PrimaryViewPlayerManager>(made: Made.Of().Parameters.Name("navigationServiceLazy", x => new Lazy<INavigationService>(() => unityContainer.Resolve<INavigationService>(serviceKey: "PrimaryPlayerNavigationService"))));
+            //            unityContainer.Register<PrimaryViewPlayerManager>(made: Made.Of().Parameters.Name("navigationServiceLazy", x => new Lazy<INavigationService>(() => unityContainer.Resolve<INavigationService>(serviceKey: "PrimaryPlayerNavigationService"))));
 
             unityContainer.UseInstance<LocalObjectStorageHelper>(new LocalObjectStorageHelper(new SystemTextJsonSerializer()));
 
@@ -211,8 +210,11 @@ namespace Hohoema
             LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
             unityContainer.UseInstance<LiteDatabase>(db);
 
+            LiteDatabase thumbDb = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.TemporaryFolder.Path, "thumbnail_cache.db")};");
+            unityContainer.Register<ThumbnailCacheManager>(reuse: new SingletonReuse(), made: Made.Of(() => new ThumbnailCacheManager(thumbDb)));
 
-            unityContainer.RegisterDelegate<IPlayerView>(c => 
+
+            unityContainer.RegisterDelegate<IPlayerView>(c =>
             {
                 var appearanceSettings = c.Resolve<AppearanceSettings>();
                 if (appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView)
@@ -322,7 +324,7 @@ namespace Hohoema
                     (Category.Debug, _) => LogLevel.Debug,
                     (Category.Exception, _) => LogLevel.Error,
                     (Category.Info, _) => LogLevel.Information,
-                    (Category.Warn, _) => LogLevel.Warning,                    
+                    (Category.Warn, _) => LogLevel.Warning,
                     _ => LogLevel.None,
                 };
             }
@@ -357,7 +359,7 @@ namespace Hohoema
         {
             public void Log(string message, Category category, Priority priority)
             {
-                
+
             }
         }
 
@@ -383,7 +385,7 @@ namespace Hohoema
 
             public override void Flush()
             {
-                
+
             }
 
             public override int Read(byte[] buffer, int offset, int count)
@@ -398,16 +400,16 @@ namespace Hohoema
 
             public override void SetLength(long value)
             {
-                
+
             }
 
             public override void Write(byte[] buffer, int offset, int count)
-            {                
+            {
                 _length = count;
                 Debug.Write(System.Text.Encoding.UTF8.GetString(buffer, offset, count));
             }
         }
-       
+
         private ILoggerFactory _loggerFactory;
 
         protected override void RegisterRequiredTypes(IContainerRegistry containerRegistry)
@@ -422,18 +424,18 @@ namespace Hohoema
                 builder
                     .AddFilter("Microsoft", LogLevel.Warning)
                     .AddFilter("System", LogLevel.Warning)
-                    .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)    
+                    .AddFilter("LoggingConsoleApp.Program", LogLevel.Debug)
 #if DEBUG
                     .AddZLoggerStream(new DebugOutputStream(mainWindowsScheduler), "debug-plain", opt => { })
 #endif                    
-                    ;  
-                
+                    ;
+
                 if (IsDebugModeEnabled)
                 {
-                    FileStream _logFileStream = new FileStream(ApplicationData.Current.TemporaryFolder.CreateSafeFileHandle("_log.txt", System.IO.FileMode.OpenOrCreate, FileAccess.Write), FileAccess.Write, 2 ^ 20);
+                    FileStream _logFileStream = new FileStream(ApplicationData.Current.TemporaryFolder.CreateSafeFileHandle("_log.txt", System.IO.FileMode.OpenOrCreate, FileAccess.Write), FileAccess.Write, 65536);
                     _logFileStream.SetLength(0);
                     builder.AddFilter("Hohoema.App", DebugLogLevel)
-                        .AddZLoggerStream(_logFileStream, "file-plain", opt => { opt.EnableStructuredLogging = false; })                        
+                        .AddZLoggerStream(_logFileStream, "file-plain", opt => { opt.EnableStructuredLogging = false; })
                         ;
                 }
                 else
@@ -476,7 +478,7 @@ namespace Hohoema
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Channel.ChannelVideoPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Community.CommunityPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Community.CommunityVideoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Follow.FollowManagePage>(); 
+            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Follow.FollowManagePage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Live.LiveInfomationPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Live.TimeshiftPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Mylist.MylistPage>();
@@ -494,54 +496,21 @@ namespace Hohoema
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.VideoInfomationPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoRanking.RankingCategoryListPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoRanking.RankingCategoryPage>();
-            
+
             containerRegistry.RegisterForNavigation<Presentation.Views.Player.LivePlayerPage>();
             containerRegistry.RegisterForNavigation<Presentation.Views.Player.VideoPlayerPage>();
+
+            Ioc.Default.ConfigureServices(new DryIocServiceProvider(Container.GetContainer(), (type) => false));
         }
 
         public bool IsTitleBarCustomized { get; } = DeviceTypeHelper.IsDesktop && InputCapabilityHelper.IsMouseCapable;
 
         Models.Helpers.AsyncLock InitializeLock = new Models.Helpers.AsyncLock();
         bool isInitialized = false;
-        private async Task EnsureInitializeAsync()
+
+        async Task MigrationProcessAsync()
         {
-            using var initializeLock = await InitializeLock.LockAsync();
-
-            if (isInitialized) { return; }
-            isInitialized = true;
-
-            var logger = Container.Resolve<ILogger>();
-
-            async Task TryMigrationAsync(Type[] migrateTypes)
-            {
-                foreach (var migrateType in migrateTypes)
-                {
-                    try
-                    {
-                        logger.ZLogInformation("Try migrate: {0}", migrateType.Name);
-                        var migrater = Container.Resolve(migrateType);
-                        if (migrater is IMigrateSync migrateSycn)
-                        {
-                            migrateSycn.Migrate();
-                        }
-                        else if (migrater is IMigrateAsync migrateAsync)
-                        {
-                            await migrateAsync.MigrateAsync();
-                        }
-
-                        logger.ZLogInformation("Migration complete : {0}", migrateType.Name);                        
-                    }
-                    catch (Exception e)
-                    {
-                        logger.ZLogError(e.ToString());
-                        logger.ZLogError("Migration failed : {0}",migrateType.Name);
-                    }
-                }
-            }
-
-            if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.IsAppUpdated)
-            {
-                await TryMigrationAsync(new Type[]
+            Type[] migrateTypes = new Type[]
                 {
                     //typeof(MigrationCommentFilteringSettings),
                     //typeof(CommentFilteringNGScoreZeroFixture),
@@ -549,8 +518,86 @@ namespace Hohoema
                     //typeof(SearchPageQueryMigrate_0_26_0),
                     typeof(VideoCacheDatabaseMigration_V_0_29_0),
                     typeof(SearchTargetMigration_V_1_1_0),
-                });
+                };
+
+            async Task TryMigrationAsync(Type migrateType)
+            {
+                var logger = _loggerFactory.CreateLogger(migrateType);
+                try
+                {
+                    logger.ZLogInformation("Try migrate: {0}", migrateType.Name);
+                    var migrater = Container.Resolve(migrateType);
+                    if (migrater is IMigrateSync migrateSycn)
+                    {
+                        migrateSycn.Migrate();
+                    }
+                    else if (migrater is IMigrateAsync migrateAsync)
+                    {
+                        await migrateAsync.MigrateAsync();
+                    }
+
+                    logger.ZLogInformation("Migration complete : {0}", migrateType.Name);
+                }
+                catch (Exception e)
+                {
+                    logger.ZLogError(e.ToString());
+                    logger.ZLogError("Migration failed : {0}", migrateType.Name);
+                }
             }
+
+            foreach (var migrateType in migrateTypes)
+            {
+                await TryMigrationAsync(migrateType);
+            }
+        }
+
+        async Task MaintenanceProcessAsync()
+        {
+            Type[] maintenanceTypes = new Type[]
+            {
+                typeof(Models.UseCase.Maintenance.VideoThumbnailImageCacheMaintenance),
+            };
+
+            async Task TryMaintenanceAsync(Type maintenanceType)
+            {
+                var logger = _loggerFactory.CreateLogger(maintenanceType);
+
+                try
+                {
+                    logger.ZLogInformation("Try maintenance: {0}", maintenanceType.Name);
+                    var migrater = Container.Resolve(maintenanceType);
+                    if (migrater is Models.UseCase.Maintenance.IMaintenance maintenance)
+                    {
+                        maintenance.Maitenance();
+                    }
+
+                    logger.ZLogInformation("Maintenance complete : {0}", maintenanceType.Name);
+                }
+                catch (Exception e)
+                {
+                    logger.ZLogError(e, "Maintenance failed : {0}", maintenanceType.Name);
+                }
+            }
+
+            foreach (var maintenanceType in maintenanceTypes)
+            {
+                await TryMaintenanceAsync(maintenanceType);
+            }
+        }
+
+        private async Task EnsureInitializeAsync()
+        {
+            using var initializeLock = await InitializeLock.LockAsync();
+
+            if (isInitialized) { return; }
+            isInitialized = true;
+
+            if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.IsAppUpdated)
+            {
+                await MigrationProcessAsync();
+            }
+
+            await MaintenanceProcessAsync();
             // 機能切り替え管理クラスをDIコンテナに登録
             // Xaml側で扱いやすくするためApp.xaml上でインスタンス生成させている
             {

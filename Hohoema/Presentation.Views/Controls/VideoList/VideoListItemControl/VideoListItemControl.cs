@@ -95,15 +95,15 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
 
 
-        public string ThumbnailUrl
+        public object ImageSource
         {
-            get { return (string)GetValue(ThumbnailUrlProperty); }
-            set { SetValue(ThumbnailUrlProperty, value); }
+            get { return GetValue(ImageSourceProperty); }
+            set { SetValue(ImageSourceProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for ThumbnailUrl.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ThumbnailUrlProperty =
-            DependencyProperty.Register("ThumbnailUrl", typeof(string), typeof(VideoListItemControl), new PropertyMetadata(null));
+        public static readonly DependencyProperty ImageSourceProperty =
+            DependencyProperty.Register("ImageSource", typeof(object), typeof(VideoListItemControl), new PropertyMetadata(null));
 
 
 

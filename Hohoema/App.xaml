@@ -92,8 +92,10 @@
 
     
 
-    <x:Boolean x:Key="IsDebug_XboxLayout">False</x:Boolean>
-      
+      <x:Boolean x:Key="IsDebug_XboxLayout">False</x:Boolean>
+
+      <appModels:UrlToCachedImageConverter x:Key="UrlToCachedImageConverter" />
+
       <appModels:FeatureFlags x:Key="FeatureFlags" />
       
       <Color x:Key="HohoemaThemeColor" >#F8B400</Color>

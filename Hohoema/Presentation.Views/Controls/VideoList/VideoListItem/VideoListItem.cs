@@ -1,5 +1,4 @@
-﻿using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.VideoCache;
+﻿using Hohoema.Models.Domain.VideoCache;
 using Hohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
@@ -40,23 +39,28 @@ namespace Hohoema.Presentation.Views.Controls.VideoList.VideoListItem
             _templateChildImage = GetTemplateChild("ImagePart") as Image;
         }
 
-        public string ImageUrl
+        public object ImageSource
         {
-            get { return (string)GetValue(ImageUrlProperty); }
-            set { SetValue(ImageUrlProperty, value); }
+            get { return GetValue(ImageSourceProperty); }
+            set { SetValue(ImageSourceProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for ThumbnailUrl.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ImageUrlProperty =
-            DependencyProperty.Register("ImageUrl", typeof(string), typeof(VideoListItem), new PropertyMetadata(null, OnImageUrlChanged));
+        public static readonly DependencyProperty ImageSourceProperty =
+            DependencyProperty.Register("ImageSource", typeof(object), typeof(VideoListItem), new PropertyMetadata(null, OnImageSourceChanged));
 
-        private static void OnImageUrlChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnImageSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (((VideoListItem)d)._templateChildImage is not null and var templatedChildImage)
             {
                 if (e.NewValue is string strUrl && !string.IsNullOrEmpty(strUrl))
                 {
+                    
                     templatedChildImage.Source = new BitmapImage(new Uri(strUrl));
+                }
+                else if (e.NewValue is BitmapImage image)
+                {
+                    templatedChildImage.Source = image;
                 }
                 else
                 {
@@ -64,6 +68,8 @@ namespace Hohoema.Presentation.Views.Controls.VideoList.VideoListItem
                 }
             }
         }
+
+        
 
         public string ImageSubText
         {
