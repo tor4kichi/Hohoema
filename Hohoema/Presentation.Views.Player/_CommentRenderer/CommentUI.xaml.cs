@@ -187,12 +187,7 @@ namespace Hohoema.Presentation.Views.Player
 
         public double? GetPosition(int canvasWidth, TimeSpan currentVPos)
         {
-            if (VideoPosition > currentVPos) { return null; }
-            if (EndPosition < currentVPos) { return null; }
-
-            var speed = MoveSpeedPer1MilliSeconds(canvasWidth);
-            var delta = currentVPos - VideoPosition;
-            return (canvasWidth) - (double)(speed * delta.TotalMilliseconds);
+            return (canvasWidth + TextWidth) * (EndPosition - currentVPos) / CommentDisplayDuration;
         }
 
         public TimeSpan CalcTextShowRightEdgeTime(int canvasWidth)

@@ -257,7 +257,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                 CurrentComment = null;
             }
 
-            TickNextDisplayingComments(currentPosition);
+            //TickNextDisplayingComments(currentPosition);
             UpdateNicoScriptComment(currentPosition);
             RefreshCurrentPlaybackPositionComment(currentPosition);
 
@@ -401,8 +401,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             DisplayingComments.Clear();
             _logger.ZLogDebug("CommentReset");
 
-            var displayingComments = _commentDisplayingRangeExtractor.ResetComments(comments, _mediaPlayer.PlaybackSession.Position);
-            DisplayingComments.AddRange(EnumerateFilteredDisplayComment(displayingComments.ToArray()));
+            //var displayingComments = _commentDisplayingRangeExtractor.ResetComments(comments, _mediaPlayer.PlaybackSession.Position);
+            DisplayingComments.AddRange(EnumerateFilteredDisplayComment(comments));
         }
 
 
