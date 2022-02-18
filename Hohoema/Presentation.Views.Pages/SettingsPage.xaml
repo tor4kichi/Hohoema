@@ -142,7 +142,7 @@
       </StackPanel>
 
       <ScrollViewer>
-        <StackPanel x:Name="ContentPanel" Padding="0 0 0 32" MinWidth="400" MaxWidth="960" Spacing="16">
+        <StackPanel x:Name="ContentPanel" Padding="0 0 0 32" MinWidth="400" MaxWidth="960" Spacing="16" HorizontalAlignment="Left">
           <!-- アプリの表示設定 -->
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
@@ -360,24 +360,6 @@
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}" Orientation="Horizontal" HorizontalAlignment="Right">
               <Button Content="{i18nExt:Localize Key=BackupUserData}" Command="{Binding ExportBackupCommand}" />
               <Button Content="{i18nExt:Localize Key=RestoreUserData}" Command="{Binding ImportBackupCommand}" />
-            </StackPanel>
-          </StackPanel>
-
-          <!-- アプリの使用状況 -->
-          <StackPanel>
-            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{i18nExt:Localize Key=ApplicationDiagnosticsReport}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
-              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-            </toolkit:DockPanel>
-            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
-              <Grid>
-                <TextBlock Text="{i18nExt:Localize Key=EnableCrashReport}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ToggleSwitch x:Name="EnableCrashToggleSwitch" IsOn="{Binding IsEnableCrashReport, Mode=TwoWay}" HorizontalAlignment="Right" />
-              </Grid>
-              <Grid>
-                <TextBlock Text="{i18nExt:Localize Key=EnableAnalyticsReport}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ToggleSwitch x:Name="EnableAnalyticsToggleSwitch" IsOn="{Binding IsEnableAnalyticsReport, Mode=TwoWay}" HorizontalAlignment="Right" />
-              </Grid>
             </StackPanel>
           </StackPanel>
           

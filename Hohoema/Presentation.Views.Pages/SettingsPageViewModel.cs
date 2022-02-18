@@ -222,18 +222,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                 .AddTo(_CompositeDisposable);
 
 
-            // アプリの使用状況
-            //this.ObserveProperty(x => x.IsEnableCrashReport, isPushCurrentValueAtFirst: false)
-            //    .Where(x => !_NowNavigateProccess)
-            //    .Subscribe(async x => { await Crashes.SetEnabledAsync(x); })
-            //    .AddTo(_CompositeDisposable);
-
-            //this.ObserveProperty(x => x.IsEnableAnalyticsReport, isPushCurrentValueAtFirst: false)
-            //    .Where(x => !_NowNavigateProccess)
-            //    .Subscribe(async x => { await Analytics.SetEnabledAsync(x); })
-            //    .AddTo(_CompositeDisposable);
-
-
             StringBuilder sb = new StringBuilder();
             sb.Append(SystemInformation.Instance.ApplicationName)
                 .Append(" v").Append(SystemInformation.Instance.ApplicationVersion.ToFormattedString())
@@ -406,24 +394,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
             }
         }
 
-        // レポート
-        private bool _IsEnableCrashReport;
-        public bool IsEnableCrashReport
-        {
-            get { return _IsEnableCrashReport; }
-            set { SetProperty(ref _IsEnableCrashReport, value); }
-        }
-
-        private bool _IsEnableAnalyticsReport;
-        public bool IsEnableAnalyticsReport
-        {
-            get { return _IsEnableAnalyticsReport; }
-            set { SetProperty(ref _IsEnableAnalyticsReport, value); }
-        }
-
-
-
-
         // アバウト
         public string VersionText { get; private set; }
 
@@ -589,9 +559,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                 VideoTitleFilteringItems.AddRange(_videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
                     new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText))
                     );
-
-                //IsEnableCrashReport = await Crashes.IsEnabledAsync();
-                //IsEnableAnalyticsReport = await Analytics.IsEnabledAsync();
 
                 try
                 {
