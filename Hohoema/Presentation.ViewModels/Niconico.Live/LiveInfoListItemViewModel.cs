@@ -18,11 +18,14 @@ using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.UseCase;
 using NiconicoToolkit.Live.Cas;
 using NiconicoToolkit.Live.Timeshift;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {
     public class LiveInfoListItemViewModel : BindableBase, ILiveContent, ILiveContentProvider
     {
+        private static readonly ILogger<LiveInfoListItemViewModel> _logger;
 
         public static PageManager PageManager { get; }
         public static OpenLiveContentCommand OpenLiveContentCommand { get; }
@@ -33,6 +36,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
 
         static LiveInfoListItemViewModel()
         {
+            _logger = App.Current.Container.Resolve<ILoggerFactory>().CreateLogger<LiveInfoListItemViewModel>();
             PageManager = App.Current.Container.Resolve<PageManager>();
             OpenLiveContentCommand = App.Current.Container.Resolve<OpenLiveContentCommand>();
             OpenShareUICommand = App.Current.Container.Resolve<OpenShareUICommand>();
@@ -298,10 +302,12 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
 
                                 AddReservationCommand.RaiseCanExecuteChanged();
                             }
+
+                            _logger.ZLogInformation("Reservation deletion result: {0}", isDeleted);
                         }
                         catch (Exception e)
                         {
-                            ErrorTrackingManager.TrackError(e);
+                            _logger.ZLogError(e, "DeleteReservation failed");
                         }
                     }
                     , () => Reservation != null
@@ -348,7 +354,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
                     var notificationService = App.Current.Container.Resolve<Services.NotificationService>();
                     notificationService.ShowLiteInAppNotification_Fail("InAppNotification_FailedDeleteTimeshift".Translate());
 
-                    Debug.Fail("タイムシフト削除に失敗しました: " + liveId);
+                    _logger.ZLogWarning("タイムシフト削除に失敗しました: {0}", liveId);
                 }
             }
 
@@ -381,10 +387,12 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
                                 RaisePropertyChanged(nameof(Reservation));
                                 RaisePropertyChanged(nameof(ReservationStatus));
                             }
+
+                            _logger.ZLogInformation("Reservation registration result: {0}", result);
                         }
                         catch (Exception e)
                         {
-                            ErrorTrackingManager.TrackError(e);
+                            _logger.ZLogError(e, "Reservation registration failed.");
                         }
                     }
                     , () => IsTimeshiftEnabled && (StartTime - TimeSpan.FromMinutes(30) > DateTime.Now || _niconicoSession.IsPremiumAccount) &&  Reservation == null

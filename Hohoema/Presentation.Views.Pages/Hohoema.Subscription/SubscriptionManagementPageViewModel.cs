@@ -25,12 +25,13 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Application;
-using Microsoft.AppCenter.Analytics;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.UseCase;
 using NiconicoToolkit.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 {
@@ -45,7 +46,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly VideoPlayWithQueueCommand _VideoPlayWithQueueCommand;
         private readonly IScheduler _scheduler;
-
+        private readonly IMessenger _messenger;
 
         public IReadOnlyReactiveProperty<bool> IsAutoUpdateRunning { get; }
         public IReactiveProperty<TimeSpan> AutoUpdateFrequency { get; }
@@ -57,7 +58,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         }
 
         public SubscriptionManagementPageViewModel(
+            ILoggerFactory loggerFactory,
             IScheduler scheduler, 
+            IMessenger messenger,
             SubscriptionManager subscriptionManager,
             SubscriptionUpdateManager subscriptionUpdateManager,
             DialogService dialogService,
@@ -66,10 +69,19 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             VideoPlayWithQueueCommand videoPlayWithQueueCommand
             )
         {
-            WeakReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
+            _logger = loggerFactory.CreateLogger<SubscriptionManagementPageViewModel>();
+            _scheduler = scheduler;
+            _messenger = messenger;
+            _subscriptionManager = subscriptionManager;
+            _subscriptionUpdateManager = subscriptionUpdateManager;
+            _dialogService = dialogService;
+            _pageManager = pageManager;
+            _nicoVideoProvider = nicoVideoProvider;
+            _VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
+
+            _messenger.Register<SettingsRestoredMessage>(this);
 
             Subscriptions = new ObservableCollection<SubscriptionViewModel>();
-
             Subscriptions.CollectionChangedAsObservable()
                 .Throttle(TimeSpan.FromSeconds(0.25))
                 .Subscribe(_ =>
@@ -83,14 +95,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
                 })
                 .AddTo(_CompositeDisposable);
 
-            _subscriptionManager = subscriptionManager;
-            _subscriptionUpdateManager = subscriptionUpdateManager;
-            _dialogService = dialogService;
-            _pageManager = pageManager;
-            _nicoVideoProvider = nicoVideoProvider;
-            _VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
-            _scheduler = scheduler;
-
             IsAutoUpdateRunning = _subscriptionUpdateManager.ObserveProperty(x => x.IsRunning)
                 .ToReadOnlyReactiveProperty(false)
                 .AddTo(_CompositeDisposable);
@@ -102,7 +106,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             _subscriptionManager.Added += _subscriptionManager_Added;
             _subscriptionManager.Removed += _subscriptionManager_Removed;
             _subscriptionManager.Updated += _subscriptionManager_Updated;
-
         }
 
         
@@ -124,7 +127,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             {
                 foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo().OrderBy(x => x.entity.SortIndex))
                 {
-                    var vm = new SubscriptionViewModel(subscInfo.entity, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
+                    var vm = new SubscriptionViewModel(_logger, subscInfo.entity, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
                     var items = _nicoVideoProvider.GetCachedVideoInfoItems(subscInfo.feedResult.Videos.Select(x => (VideoId)x.VideoId));
                     vm.UpdateFeedResult(items, subscInfo.feedResult.LastUpdatedAt);
                     Subscriptions.Add(vm);
@@ -175,7 +178,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         {
             _scheduler.Schedule(() =>
             {
-                var vm = new SubscriptionViewModel(e, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
+                var vm = new SubscriptionViewModel(_logger, e, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
                 Subscriptions.Insert(0, vm);
             });
         }
@@ -242,11 +245,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
                 _subscriptionUpdateManager.RestartIfTimerNotRunning();
             });
 
-            Analytics.TrackEvent("Subscription_Update");
+            //Analytics.TrackEvent("Subscription_Update");
         }
 
 
         private DelegateCommand _CancelUpdateCommand;
+        private ILogger<SubscriptionManagementPageViewModel> _logger;
+
         public DelegateCommand CancelUpdateCommand =>
             _CancelUpdateCommand ?? (_CancelUpdateCommand = new DelegateCommand(ExecuteCancelUpdateCommand));
 
@@ -261,6 +266,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
     public sealed class SubscriptionViewModel : BindableBase, IDisposable
     {
         public SubscriptionViewModel(
+            ILogger logger,
             SubscriptionSourceEntity source,
             SubscriptionManagementPageViewModel pageViewModel,
             SubscriptionManager subscriptionManager,
@@ -269,6 +275,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             VideoPlayWithQueueCommand videoPlayWithQueueCommand
             )
         {
+            _logger = logger;
             _source = source;
             _pageViewModel = pageViewModel;
             _subscriptionManager = subscriptionManager;
@@ -286,6 +293,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         }
 
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
+        private readonly ILogger _logger;
         internal readonly SubscriptionSourceEntity _source;
         private readonly SubscriptionManagementPageViewModel _pageViewModel;
         private readonly SubscriptionManager _subscriptionManager;
@@ -346,17 +354,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             }
             catch (Exception e)
             {
-                ErrorTrackingManager.TrackError(e);
+                _logger.ZLogErrorWithPayload(e, _source, "Subscription update failed");
             }
             finally
             {
                 NowUpdating = false;
             }
-
-            Analytics.TrackEvent("Subscription_Update", new Dictionary<string, string>
-                {
-                });
-            }
+        }
 
         private DelegateCommand _PlayUnwatchVideosCommand;
         public DelegateCommand PlayUnwatchVideosCommand =>
@@ -403,11 +407,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             if (result)
             {
                 _subscriptionManager.RemoveSubscription(_source);
-
-                Analytics.TrackEvent("Subscription_Removed", new Dictionary<string, string>
-                    {
-                        { "SourceType", _source.SourceType.ToString() }
-                    });
             }
         }
 

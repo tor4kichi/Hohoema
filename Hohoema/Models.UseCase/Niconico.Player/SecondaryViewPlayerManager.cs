@@ -15,7 +15,6 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media.Animation;
 using Hohoema.Models.Domain.Niconico.Live;
-using Microsoft.AppCenter.Analytics;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
@@ -271,13 +270,13 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                         throw result.Exception;
                     }
 
-                    Analytics.TrackEvent("PlayerNavigation", new Dictionary<string, string>
-                    {
-                        { "PageType",  pageName },
-                        { "ViewType", "Secondary" },
-                        { "CompactOverlay", (SecondaryAppView.ViewMode == ApplicationViewMode.CompactOverlay).ToString() },
-                        { "FullScreen", SecondaryAppView.IsFullScreenMode.ToString() },
-                    });
+                    //Analytics.TrackEvent("PlayerNavigation", new Dictionary<string, string>
+                    //{
+                    //    { "PageType",  pageName },
+                    //    { "ViewType", "Secondary" },
+                    //    { "CompactOverlay", (SecondaryAppView.ViewMode == ApplicationViewMode.CompactOverlay).ToString() },
+                    //    { "FullScreen", SecondaryAppView.IsFullScreenMode.ToString() },
+                    //});
                 });
 
                 await ShowAsync();

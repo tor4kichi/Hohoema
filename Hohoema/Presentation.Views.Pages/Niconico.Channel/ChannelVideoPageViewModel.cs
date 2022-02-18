@@ -30,6 +30,7 @@ using NiconicoToolkit;
 using Hohoema.Models.Domain.Playlist;
 using Reactive.Bindings;
 using System.Reactive.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 {
@@ -62,6 +63,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
         }
 
         public ChannelVideoPageViewModel(
+            ILoggerFactory loggerFactory,
             ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
             ChannelProvider channelProvider,
@@ -72,6 +74,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
             OpenLinkCommand openLinkCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
+            : base(loggerFactory.CreateLogger<ChannelVideoPageViewModel>())
         {
             ApplicationLayoutManager = applicationLayoutManager;
             NiconicoSession = niconicoSession;

@@ -93,36 +93,22 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
         }
 
 
-        public async Task<List<IComment>> GetCommentsAsync()
+        public async Task<IEnumerable<VideoComment>> GetCommentsAsync()
         {
-            List<IComment> comments = null;
-
             if (CanGetCommentsFromNMSG)
             {
-                try
-                {
-                    var res = await GetCommentsFromNMSG();
-
-                    var rawComments = res.Comments;
-
-                    comments = rawComments.Select(x => ChatToComment(x)).ToList();
-                }
-                catch
-                {
-                }
+                var res = await GetCommentsFromNMSG();
+                return res.Comments.Select(x => ChatToComment(x));
             }
-
-            if (comments == null)
+            else
             {
-                throw new HohoemaExpception("コメント取得に失敗");
+                throw new NotSupportedException();
             }
-
-            return comments;
         }
 
         public string VideoOwnerId { get; set; }
 
-        private IComment ChatToComment(NMSG_Chat rawComment)
+        private VideoComment ChatToComment(NMSG_Chat rawComment)
         {
             return new VideoComment()
             {

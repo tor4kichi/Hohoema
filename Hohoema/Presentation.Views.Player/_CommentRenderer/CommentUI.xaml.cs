@@ -158,7 +158,8 @@ namespace Hohoema.Presentation.Views.Player
 		}
 
 		
-        public TimeSpan CommentDisplayDuration => EndPosition - VideoPosition;
+        public TimeSpan CommentDisplayDuration { get; set; }
+        public float InverseCommentDisplayDurationInMs { get; set; }
 
 
         private TimeSpan? _MoveCommentWidthTimeInVPos = null;
@@ -172,7 +173,8 @@ namespace Hohoema.Presentation.Views.Player
             var speed = MoveSpeedPer1MilliSeconds(canvasWidth);
 
             // 時間 = 距離 ÷ 速さ
-            var timeToSecondCommentWidthMove = TimeSpan.FromMilliseconds((int)(TextWidth / speed));
+            var time = (TextWidth / speed);
+            var timeToSecondCommentWidthMove = TimeSpan.FromMilliseconds(time);
             
             _MoveCommentWidthTimeInVPos = timeToSecondCommentWidthMove;
             return timeToSecondCommentWidthMove;
@@ -181,18 +183,13 @@ namespace Hohoema.Presentation.Views.Player
         private float MoveSpeedPer1MilliSeconds(int canvasWidth)
         {
             // 1 Vposあたりのコメントの移動量
-            return (canvasWidth + TextWidth) / (float)CommentDisplayDuration.TotalMilliseconds;
+            return (canvasWidth + TextWidth) * InverseCommentDisplayDurationInMs;
         }
 
 
-        public double? GetPosition(int canvasWidth, TimeSpan currentVPos)
+        public float GetPosition(int canvasWidth, TimeSpan currentVPos)
         {
-            if (VideoPosition > currentVPos) { return null; }
-            if (EndPosition < currentVPos) { return null; }
-
-            var speed = MoveSpeedPer1MilliSeconds(canvasWidth);
-            var delta = currentVPos - VideoPosition;
-            return (canvasWidth) - (double)(speed * delta.TotalMilliseconds);
+            return (canvasWidth + TextWidth) * (float)(((float)EndPosition.TotalMilliseconds - (float)currentVPos.TotalMilliseconds) * InverseCommentDisplayDurationInMs) - TextWidth;
         }
 
         public TimeSpan CalcTextShowRightEdgeTime(int canvasWidth)

@@ -142,7 +142,7 @@
       </StackPanel>
 
       <ScrollViewer>
-        <uwpcontrols:WrapPanel x:Name="ContentPanel" Padding="0 0 0 32" MinWidth="400" MaxWidth="960" HorizontalSpacing="8" VerticalSpacing="16">
+        <StackPanel x:Name="ContentPanel" Padding="0 0 0 32" MinWidth="400" MaxWidth="960" Spacing="16" HorizontalAlignment="Left">
           <!-- アプリの表示設定 -->
           <StackPanel>
             <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
@@ -362,24 +362,6 @@
               <Button Content="{i18nExt:Localize Key=RestoreUserData}" Command="{Binding ImportBackupCommand}" />
             </StackPanel>
           </StackPanel>
-
-          <!-- アプリの使用状況 -->
-          <StackPanel>
-            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{i18nExt:Localize Key=ApplicationDiagnosticsReport}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
-              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-            </toolkit:DockPanel>
-            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
-              <Grid>
-                <TextBlock Text="{i18nExt:Localize Key=EnableCrashReport}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ToggleSwitch x:Name="EnableCrashToggleSwitch" IsOn="{Binding IsEnableCrashReport, Mode=TwoWay}" HorizontalAlignment="Right" />
-              </Grid>
-              <Grid>
-                <TextBlock Text="{i18nExt:Localize Key=EnableAnalyticsReport}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ToggleSwitch x:Name="EnableAnalyticsToggleSwitch" IsOn="{Binding IsEnableAnalyticsReport, Mode=TwoWay}" HorizontalAlignment="Right" />
-              </Grid>
-            </StackPanel>
-          </StackPanel>
           
           <!-- このアプリについて -->
           <StackPanel>
@@ -567,7 +549,7 @@
             </StackPanel>
           </uwptoolkitControl:Expander>
           
-        </uwpcontrols:WrapPanel>
+        </StackPanel>
       </ScrollViewer>
     </uwptoolkitControl:DockPanel>
     <VisualStateManager.VisualStateGroups>

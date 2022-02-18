@@ -23,7 +23,7 @@
           <Grid x:Name="UserControlRoot">
 
             <videoListItem:VideoListItem x:Name="ContentLayout"
-              ImageUrl="{TemplateBinding ThumbnailUrl}"
+              ImageSource="{TemplateBinding ImageSource}"
               ImageSubText="{TemplateBinding Length}"
               IsQueueItem="{TemplateBinding IsQueueItem}"
               CacheStatus="{TemplateBinding CacheStatus}"

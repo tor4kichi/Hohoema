@@ -412,6 +412,8 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
             var fe = args.OriginalSource as FrameworkElement;
             var container = list.ContainerFromItem(fe.DataContext) as ListViewItem;
+            if (container == null) { return; }
+
             container.DataContext = fe.DataContext;
 
             if (args.TryGetPosition(container, out var pt))

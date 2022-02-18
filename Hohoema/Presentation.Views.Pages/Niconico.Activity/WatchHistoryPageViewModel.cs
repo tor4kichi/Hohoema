@@ -19,12 +19,15 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Hohoema.Models.UseCase.Niconico.Video;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
 {
     public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
 	{
 		public WatchHistoryPageViewModel(
+            ILoggerFactory loggerFactory,
             ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
             WatchHistoryManager watchHistoryManager,
@@ -34,6 +37,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
             SelectionModeToggleCommand selectionModeToggleCommand
             )
 		{
+            _logger = loggerFactory.CreateLogger<WatchHistoryPageViewModel>();
             ApplicationLayoutManager = applicationLayoutManager;
             _niconicoSession = niconicoSession;
             _watchHistoryManager = watchHistoryManager;
@@ -46,6 +50,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
 
         private readonly NiconicoSession _niconicoSession;
         private readonly WatchHistoryManager _watchHistoryManager;
+        private readonly ILogger<WatchHistoryPageViewModel> _logger;
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
@@ -100,7 +105,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
                     ?? (_RefreshCommand = new DelegateCommand(async () =>
                     {
                         Histories.Clear();
-
+                        
                         try
                         {
                             var items = await _watchHistoryManager.GetWatchHistoryItemsAsync();
@@ -136,13 +141,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
                                 }
                                 catch (Exception e)
                                 {
-                                    ErrorTrackingManager.TrackError(e);
+                                    _logger.ZLogErrorWithPayload(e, x, "History item process error.");
                                 }
                             }
                         }
                         catch (Exception e)
                         {
-                            ErrorTrackingManager.TrackError(e);
+                            _logger.ZLogError(e, "History refresh failed.");
                         }
                     }
                     , () => _niconicoSession.IsLoggedIn

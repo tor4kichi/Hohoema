@@ -3,7 +3,6 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Services;
 using I18NPortable;
-using Microsoft.AppCenter.Analytics;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -55,10 +54,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Share
 
             _notificationService.ShowLiteInAppNotification_Success("Copy".Translate());
 
-            Analytics.TrackEvent("CopyToClipboardWithShareTextCommand", new Dictionary<string, string>
-            {
+            //Analytics.TrackEvent("CopyToClipboardWithShareTextCommand", new Dictionary<string, string>
+            //{
 
-            });
+            //});
         }
     }
 }

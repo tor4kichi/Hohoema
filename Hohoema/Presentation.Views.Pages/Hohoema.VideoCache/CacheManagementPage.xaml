@@ -133,7 +133,7 @@
         <DataTemplate>
           <Grid>
             <videoList:VideoListItem   
-              ImageUrl="{Binding ThumbnailUrl}"
+              ImageSource="{Binding ThumbnailUrl}"
               ImageSubText="{Binding Length, Converter={StaticResource TimeToMovieLengthConverter}}"
               IsQueueItem="{Binding IsQueueItem}"
               CacheStatus="{Binding CacheStatus}"

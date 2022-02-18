@@ -701,7 +701,7 @@
                       </LinearGradientBrush>
                     </Border.Background>
                     <Border.RenderTransform>
-                      <TranslateTransform Y="0" />
+                      <TranslateTransform Y="0.20" />
                     </Border.RenderTransform>
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Tapped">

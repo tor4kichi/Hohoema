@@ -39,7 +39,7 @@
 
             <videoListPage:VideoListItemControl 
                 Title="{x:Bind Label}"                 
-                ThumbnailUrl="{x:Bind ThumbnailUrl}"
+                ImageSource="{x:Bind ThumbnailUrl, Converter={StaticResource UrlToCachedImageConverter}}"
                 Length="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"  
                 IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
                 IsWatched="{x:Bind IsWatched, Mode=OneWay}"

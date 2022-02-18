@@ -18,6 +18,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Presentation.ViewModels.Niconico.Video;
 using Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout;
 using I18NPortable;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using NiconicoToolkit;
 using NiconicoToolkit.Live;
@@ -34,7 +35,9 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Uno.Extensions;
+using Windows.Storage;
 using Windows.System;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -64,6 +67,7 @@ namespace Hohoema.Presentation.ViewModels
         private readonly LocalMylistManager _localMylistManager;
         public OpenLiveContentCommand OpenLiveContentCommand { get; }
 
+        private readonly ILogger _logger;
         private readonly DialogService _dialogService;
         private readonly NotificationService _notificationService;
 
@@ -78,6 +82,7 @@ namespace Hohoema.Presentation.ViewModels
         public LocalMylistSubMenuItemViewModel _localMylistMenuSubItemViewModel { get; }
 
         public PrimaryWindowCoreLayoutViewModel(
+            ILoggerFactory loggerFactory,
             NiconicoSession niconicoSession,
             PageManager pageManager,
             PinSettings pinSettings,
@@ -99,6 +104,7 @@ namespace Hohoema.Presentation.ViewModels
             OpenLiveContentCommand openLiveContentCommand
             )
         {
+            _logger = loggerFactory.CreateLogger<PrimaryWindowCoreLayoutViewModel>();
             NiconicoSession = niconicoSession;
             PageManager = pageManager;
             PinSettings = pinSettings;
@@ -148,7 +154,7 @@ namespace Hohoema.Presentation.ViewModels
             {
                 _pinsMenuSubItemViewModel,
                 _queueMenuItemViewModel,
-                new LogginUserLiveSummaryItemViewModel(NiconicoSession, OpenLiveContentCommand),
+                new LogginUserLiveSummaryItemViewModel(NiconicoSession, _logger, OpenLiveContentCommand),
                 new SeparatorMenuItemViewModel(),
                 new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
                 new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo),
@@ -226,12 +232,24 @@ namespace Hohoema.Presentation.ViewModels
 
         }
 
-        
+
         #endregion
 
         #region
 
-
+        private DelegateCommand _OpenDebugLogFileCommand;
+        public DelegateCommand OpenDebugLogFileCommand
+        {
+            get
+            {
+                return _OpenDebugLogFileCommand
+                    ?? (_OpenDebugLogFileCommand = new DelegateCommand(async () =>
+                    {
+                        var file = await ApplicationData.Current.TemporaryFolder.GetFileAsync("_log.txt");
+                        await Launcher.LaunchFolderAsync(ApplicationData.Current.TemporaryFolder, new FolderLauncherOptions() { ItemsToSelect = { file } });
+                    }));
+            }
+        }
 
         private DelegateCommand _RequestApplicationRestartCommand;
         public DelegateCommand RequestApplicationRestartCommand
@@ -317,7 +335,7 @@ namespace Hohoema.Presentation.ViewModels
         void ExecuteDeletePinCommand(PinMenuItemViewModel pinVM)
         {
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+            //Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
             Items.Remove(pinVM);
             _pinSettings.DeleteItem(pinVM.Pin.Id);
@@ -335,7 +353,7 @@ namespace Hohoema.Presentation.ViewModels
         async void ExecuteOverridePinCommand(PinMenuItemViewModel item)
         {
             var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+            //Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
 
             var pin = item.Pin;
 
@@ -600,6 +618,7 @@ namespace Hohoema.Presentation.ViewModels
     public sealed class LogginUserLiveSummaryItemViewModel : HohoemaListingPageItemBase
     {
         private readonly NiconicoSession _niconicoSession;
+        private readonly ILogger _logger;
         private readonly DispatcherQueueTimer _timer;
 
         private long _NotifyCount;
@@ -620,9 +639,10 @@ namespace Hohoema.Presentation.ViewModels
         public ObservableCollection<LiveContentMenuItemViewModel> Items { get; }
         public OpenLiveContentCommand OpenLiveContentCommand { get; }
 
-        public LogginUserLiveSummaryItemViewModel(NiconicoSession niconicoSession, OpenLiveContentCommand openLiveContentCommand)
+        public LogginUserLiveSummaryItemViewModel(NiconicoSession niconicoSession, ILogger logger, OpenLiveContentCommand openLiveContentCommand)
         {
             _niconicoSession = niconicoSession;
+            _logger = logger;
             OpenLiveContentCommand = openLiveContentCommand;
             Items = new ObservableCollection<LiveContentMenuItemViewModel>();
 
@@ -661,7 +681,7 @@ namespace Hohoema.Presentation.ViewModels
                     _timer.Stop();
                 }
             }
-            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }            
+            catch (Exception ex) { _logger.ZLogError(ex.ToString()); }            
         }
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
@@ -670,7 +690,7 @@ namespace Hohoema.Presentation.ViewModels
             {
                 _timer.Stop();
             }
-            catch (Exception ex) { Microsoft.AppCenter.Crashes.Crashes.TrackError(ex); }
+            catch (Exception ex) { _logger.ZLogError(ex.ToString()); }
         }
 
         
@@ -690,7 +710,7 @@ namespace Hohoema.Presentation.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorTrackingManager.TrackError(ex);
+                _logger.ZLogError(ex.ToString());
             }
         }
 
@@ -730,7 +750,7 @@ namespace Hohoema.Presentation.ViewModels
             }
             catch (Exception ex)
             {
-                ErrorTrackingManager.TrackError(ex);
+                _logger.ZLogError(ex.ToString());
             }
         }
     }

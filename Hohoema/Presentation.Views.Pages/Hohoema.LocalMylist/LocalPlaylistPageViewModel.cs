@@ -29,6 +29,7 @@ using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using I18NPortable;
 using Reactive.Bindings;
+using Microsoft.Extensions.Logging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 {
@@ -55,6 +56,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         private readonly IMessenger _messenger;
 
         public LocalPlaylistPageViewModel(
+            ILoggerFactory loggerFactory,
             IMessenger messenger, 
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
@@ -65,6 +67,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
             LocalPlaylistDeleteCommand localPlaylistDeleteCommand,
             SelectionModeToggleCommand selectionModeToggleCommand            
             )
+            : base(loggerFactory.CreateLogger<LocalPlaylistPageViewModel>())
         {
             ApplicationLayoutManager = applicationLayoutManager;
             _pageManager = pageManager;

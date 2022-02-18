@@ -45,6 +45,8 @@ using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Presentation.ViewModels.Player.Video;
 using Reactive.Bindings;
 using Hohoema.Models.Domain.Application;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -57,6 +59,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;        
 
         public VideoPlayerPageViewModel(
+            ILoggerFactory loggerFactory,
             IScheduler scheduler,
             IPlayerView playerView,
             NiconicoSession niconicoSession,
@@ -83,7 +86,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             LocalPlaylistAddItemCommand localPlaylistAddItemCommand,
             MylistCreateCommand createMylistCommand,
             VideoStreamingOriginOrchestrator videoStreamingOriginOrchestrator,
-            CommentPlayer commentPlayer,
+            VideoCommentPlayer commentPlayer,
             CommentCommandEditerViewModel commentCommandEditerViewModel,
             KeepActiveDisplayWhenPlaying keepActiveDisplayWhenPlaying,
             ObservableMediaPlayer observableMediaPlayer,
@@ -103,6 +106,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             RelatedVideosSidePaneContentViewModel relatedVideosSidePaneContentViewModel
             )
         {
+            _logger = loggerFactory.CreateLogger<VideoPlayerPageViewModel>();
             CurrentPlayerDisplayView = appearanceSettings
                 .ObserveProperty(x => x.PlayerDisplayView)
                 .ToReadOnlyReactivePropertySlim()
@@ -189,6 +193,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         }
 
+        private readonly ILogger<VideoPlayerPageViewModel> _logger;
 
         public ReadOnlyReactivePropertySlim<PlayerDisplayView> CurrentPlayerDisplayView { get; }
 
@@ -215,7 +220,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         public VideoTogglePlayPauseCommand VideoTogglePlayPauseCommand { get; }
         public IPlayerView PlayerView { get; }
         public NiconicoSession NiconicoSession { get; }        
-        public CommentPlayer CommentPlayer { get; }
+        public VideoCommentPlayer CommentPlayer { get; }
         public CommentCommandEditerViewModel CommentCommandEditerViewModel { get; }
         public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
         public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }
@@ -360,16 +365,14 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
-
             _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentQuality)
                 .Subscribe(quality => _scheduler.Schedule(() => CurrentQuality = quality))
                 .AddTo(_NavigatingCompositeDisposable);
 
             _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
-                .Subscribe(x =>
+                .Subscribe(item =>
                 {
-                    if (x == null) { return; }
+                    if (item == null) { return; }
 
                     _scheduler.ScheduleAsync(async (s, ct) => 
                     {
@@ -383,7 +386,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                                 
                             }
 
-                            if (x == null)
+                            if (item == null)
                             {
                                 VideoInfo = null;
                                 VideoId = null;
@@ -399,7 +402,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                                 return;
                             }
 
-                            if (VideoInfo != null && VideoInfo.VideoId == x.VideoId)
+                            if (VideoInfo != null && VideoInfo.VideoId == item.VideoId)
                             {
                                 return;
                             }
@@ -411,7 +414,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                             CommentPlayer.ClearCurrentSession();
 
                             // 削除状態をチェック（再生準備より先に行う）
-                            var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(x.VideoId);
+                            var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(item.VideoId);
                             VideoInfo = video;
                             CheckDeleted(res);
 
@@ -443,8 +446,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                             RaisePropertyChanged(nameof(VideoContent));
 
                             VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails);
-                            Debug.WriteLine("次シリーズ動画: " + VideoDetails.Series?.Video.Next?.Title);
-
+                            
                             VideoSeries = VideoDetails.Series is not null and var series ? new VideoSeriesViewModel(series) : null;
                             RaisePropertyChanged(nameof(VideoSeries));
 
@@ -465,13 +467,11 @@ namespace Hohoema.Presentation.ViewModels.Player
                         }
                         catch (Exception ex)
                         {
-                            ErrorTrackingManager.TrackError(ex, new Dictionary<string, string>() { { "VideoId", x?.VideoId.ToString() } } );
+                            _logger.ZLogErrorWithPayload(exception: ex, item.VideoId, "Video playing item display content update failed");
                         }
                     });
                 })
                 .AddTo(_NavigatingCompositeDisposable);
-
-            Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
             App.Current.Resuming += Current_Resuming;
             App.Current.Suspending += Current_Suspending;
@@ -486,7 +486,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 // 動画が削除されていた場合
                 if (res.Video.IsDeleted)
                 {
-                    Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
+                    _logger.ZLogInformation("Video deleted : {0}", VideoId);
 
                     _scheduler.ScheduleAsync(async (scheduler, cancelToken) =>
                     {
@@ -514,10 +514,9 @@ namespace Hohoema.Presentation.ViewModels.Player
                     }
                 }
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                // 動画情報の取得に失敗
-                System.Diagnostics.Debug.Write(exception.Message);
+                _logger.ZLogErrorWithPayload(exception: ex, res.Video.Id, "Video deleted process failed");
                 return;
             }
         }
@@ -525,8 +524,6 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
-            Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
-
             //MediaPlayer.Source = null;
 
             CommentPlayer.ClearCurrentSession();
@@ -545,8 +542,6 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             App.Current.Resuming -= Current_Resuming;
             App.Current.Suspending -= Current_Suspending;
-
-            Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
 
             IsNotSupportVideoType = false;
             CannotPlayReason = null;
@@ -571,7 +566,10 @@ namespace Hohoema.Presentation.ViewModels.Player
                     MediaPlayer.Source = null;
                 }
             }
-            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
+            catch (Exception ex) 
+            {
+                _logger.ZLogError(ex, "Video player suspending failed");
+            }
             finally
             {
                 defferal.Complete();
@@ -583,7 +581,10 @@ namespace Hohoema.Presentation.ViewModels.Player
             try
             {
             }
-            catch (Exception ex) { ErrorTrackingManager.TrackError(ex); }
+            catch (Exception ex) 
+            {
+                _logger.ZLogError(ex, "Video player resuming failed");
+            }
         }
 
         #region SidePaneContent

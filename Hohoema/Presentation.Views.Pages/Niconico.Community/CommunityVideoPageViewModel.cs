@@ -25,6 +25,8 @@ using NiconicoToolkit.Community;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Models.Domain.Playlist;
 using Reactive.Bindings;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 {
@@ -60,13 +62,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 
 
 		public CommunityVideoPageViewModel(
+			ILoggerFactory loggerFactory,
 			ApplicationLayoutManager applicationLayoutManager,
 			CommunityProvider communityProvider,
 			CommunityFollowProvider communityFollowProvider,
             PageManager pageManager,
 			VideoPlayWithQueueCommand videoPlayWithQueueCommand
 			)
-        {
+			: base(loggerFactory.CreateLogger<CommunityVideoPageViewModel>())
+		{
 			ApplicationLayoutManager = applicationLayoutManager;
 			CommunityProvider = communityProvider;
             _communityFollowProvider = communityFollowProvider;
@@ -186,7 +190,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 
 		protected override (int, IIncrementalSource<CommunityVideoInfoViewModel>) GenerateIncrementalSource()
 		{
-			return (CommunityVideoIncrementalSource.OneTimeLoadCount, new CommunityVideoIncrementalSource(CommunityId, 1, CommunityVideoPlaylist, SelectedSortOption, CommunityProvider));
+			return (CommunityVideoIncrementalSource.OneTimeLoadCount, new CommunityVideoIncrementalSource(CommunityId, 1, CommunityVideoPlaylist, SelectedSortOption, CommunityProvider, _logger));
 		}
 
         private DelegateCommand _OpenCommunityPageCommand;
@@ -218,10 +222,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 		public string CommunityId { get; private set; }
 		public int VideoCount { get; private set; }
 
-		public CommunityVideoIncrementalSource(string communityId, int videoCount, CommunityVideoPlaylist communityVideoPlaylist, CommunityVideoPlaylistSortOption sortOption, CommunityProvider communityProvider)
+		public CommunityVideoIncrementalSource(
+			string communityId, 
+			int videoCount, 
+			CommunityVideoPlaylist communityVideoPlaylist, 
+			CommunityVideoPlaylistSortOption sortOption, 
+			CommunityProvider communityProvider,
+			ILogger logger
+			)
 		{
             CommunityProvider = communityProvider;
-			CommunityId = communityId;
+            _logger = logger;
+            CommunityId = communityId;
 			VideoCount = videoCount;
             _communityVideoPlaylist = communityVideoPlaylist;
             _sortOption = sortOption;
@@ -230,6 +242,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 		public const int OneTimeLoadCount = 20;
         private readonly CommunityVideoPlaylist _communityVideoPlaylist;
         private readonly CommunityVideoPlaylistSortOption _sortOption;
+        private readonly ILogger _logger;
 
         async Task<IEnumerable<CommunityVideoInfoViewModel>> IIncrementalSource<CommunityVideoInfoViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
@@ -246,7 +259,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 			}
             catch (Exception e)
             {
-				ErrorTrackingManager.TrackError(e);
+				_logger.ZLogErrorWithPayload(exception:e, CommunityId, "Community video loading error");
 				return Enumerable.Empty<CommunityVideoInfoViewModel>();
 			}
 		}

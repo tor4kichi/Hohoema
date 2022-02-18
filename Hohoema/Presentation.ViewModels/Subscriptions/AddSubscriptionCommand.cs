@@ -7,7 +7,6 @@ using Hohoema.Models.Domain.Niconico.Video.Series;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.Services;
 using I18NPortable;
-using Microsoft.AppCenter.Analytics;
 using NiconicoToolkit.Video;
 using Prism.Commands;
 using System;
@@ -87,10 +86,10 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions
                 Debug.WriteLine($"subscription added: {subscription.Id} {subscription.Label} {subscription.Id}" );
                 _notificationService.ShowLiteInAppNotification_Success("Notification_SuccessAddSubscriptionSourceWithLabel".Translate(subscription.Label));
 
-                Analytics.TrackEvent("Subscription_Added", new Dictionary<string, string>
-                    {
-                        { "SourceType", result.sourceType.ToString() }
-                    });
+                //Analytics.TrackEvent("Subscription_Added", new Dictionary<string, string>
+                //    {
+                //        { "SourceType", result.sourceType.ToString() }
+                //    });
             }
         }
 

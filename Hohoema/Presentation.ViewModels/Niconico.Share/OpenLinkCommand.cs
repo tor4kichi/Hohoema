@@ -1,6 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Helpers;
-using Microsoft.AppCenter.Analytics;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -42,10 +41,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Share
             {
                 _ = Windows.System.Launcher.LaunchUriAsync(uri);
 
-                Analytics.TrackEvent("OpenLinkCommand", new Dictionary<string, string>
-                {
+                //Analytics.TrackEvent("OpenLinkCommand", new Dictionary<string, string>
+                //{
 
-                });
+                //});
             }
         }
     }

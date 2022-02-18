@@ -10,6 +10,7 @@ using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Series;
 using NiconicoToolkit.User;
@@ -47,12 +48,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 
 
         public SeriesPageViewModel(
+            ILoggerFactory loggerFactory,
             SeriesProvider seriesRepository,
             VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             AddSubscriptionCommand addSubscriptionCommand,
             SelectionModeToggleCommand selectionModeToggleCommand,
             PlaylistPlayAllCommand playlistPlayAllCommand
             )
+            : base(loggerFactory.CreateLogger<SeriesPageViewModel>())
         {
             _seriesProvider = seriesRepository;
             VideoPlayWithQueueCommand = videoPlayWithQueueCommand;

@@ -1,14 +1,17 @@
 ﻿using Hohoema.Models.Domain.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.UseCase;
+using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Account;
 using Prism.Commands;
+using Prism.Ioc;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
@@ -31,7 +34,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         private readonly IFollowProvider<ItemType> _provider;
         private readonly ItemType _followable;
-
+        private readonly ILogger<FollowContext<ItemType>> _logger;
         private bool _IsFollowing;
         public bool IsFollowing
         {
@@ -61,10 +64,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         private FollowContext()
         {
-
+            _logger = App.Current.Container.Resolve<ILoggerFactory>().CreateLogger<FollowContext<ItemType>>();
         }
 
-        private FollowContext(IFollowProvider<ItemType> provider, ItemType followable, bool isFollowing)
+        private FollowContext(IFollowProvider<ItemType> provider, ItemType followable, bool isFollowing) : this()
         {
             _provider = provider;
             _followable = followable;
@@ -109,7 +112,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             }
             catch (Exception e)
             {
-                ErrorTrackingManager.TrackError(e);
+                _logger.ZLogError(e, e.Message);
             }
             finally
             {
@@ -143,7 +146,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             }
             catch (Exception e)
             {
-                ErrorTrackingManager.TrackError(e);
+                _logger.ZLogError(e, e.Message);
             }
             finally
             {

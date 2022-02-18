@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Playlist;
+using Microsoft.Extensions.Logging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
@@ -77,6 +78,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
 
         public SearchResultKeywordPageViewModel(
+            ILoggerFactory loggerFactory,
             ApplicationLayoutManager applicationLayoutManager,
             SearchProvider searchProvider,
             SubscriptionManager subscriptionManager,
@@ -87,6 +89,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             AddKeywordSearchSubscriptionCommand addKeywordSearchSubscriptionCommand,
             SelectionModeToggleCommand selectionModeToggleCommand
             )
+            : base(loggerFactory.CreateLogger<SearchResultKeywordPageViewModel>())
         {
             FailLoading = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);

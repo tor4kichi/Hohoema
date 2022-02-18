@@ -1,5 +1,4 @@
 ﻿using Hohoema.Models.Domain.Subscriptions;
-using Microsoft.AppCenter.Analytics;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -29,10 +28,10 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions
                 var subscription = _subscriptionManager.AddKeywordSearchSubscription(keyword);
                 if (subscription != null)
                 {
-                    Analytics.TrackEvent("Subscription_Added", new Dictionary<string, string>
-                    {
-                        { "SourceType", SubscriptionSourceType.SearchWithKeyword.ToString() }
-                    });
+                    //Analytics.TrackEvent("Subscription_Added", new Dictionary<string, string>
+                    //{
+                    //    { "SourceType", SubscriptionSourceType.SearchWithKeyword.ToString() }
+                    //});
                 }
             }
         }

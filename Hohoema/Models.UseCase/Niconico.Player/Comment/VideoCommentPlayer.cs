@@ -1,11 +1,12 @@
-﻿using Hohoema.Models.Domain.Niconico.Video;
+﻿using Cysharp.Text;
+using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Player.Comment;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Models.Domain.Player.Video.Comment;
 using Hohoema.Models.Infrastructure;
 using Hohoema.Presentation.Services;
-using Microsoft.AppCenter.Analytics;
+using Microsoft.Extensions.Logging;
 using MvvmHelpers;
 using NiconicoToolkit;
 using NiconicoToolkit.Video.Watch.NMSG_Comment;
@@ -24,10 +25,11 @@ using Uno.Extensions;
 using Uno.Threading;
 using Windows.Media.Playback;
 using Windows.System;
+using ZLogger;
 
 namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 {
-    public class CommentPlayer : Prism.Mvvm.BindableBase, IDisposable
+    public class VideoCommentPlayer : Prism.Mvvm.BindableBase, IDisposable
     {
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -36,7 +38,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         private readonly CommentFilteringFacade _commentFiltering;
         private readonly NotificationService _notificationService;
         private readonly PlayerSettings _playerSettings;
-        private INiconicoCommentSessionProvider _niconicoCommentSessionProvider;
+        private INiconicoCommentSessionProvider<VideoComment> _niconicoCommentSessionProvider;
+        private readonly ILogger _logger;
         private readonly MediaPlayer _mediaPlayer;
 
         public ObservableRangeCollection<VideoComment> Comments { get; private set; }
@@ -46,7 +49,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         public ReactiveProperty<bool> NowSubmittingComment { get; private set; }
 
         public AsyncReactiveCommand CommentSubmitCommand { get; }
-        ICommentSession _commentSession;
+        ICommentSession<VideoComment> _commentSession;
 
         FastAsyncLock _commentUpdateLock = new FastAsyncLock();
 
@@ -69,7 +72,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         event EventHandler<TimeSpan> NicoScriptJumpTimeRequested;
         event EventHandler CommentSubmitFailed;
 
-        public CommentPlayer(
+        public VideoCommentPlayer(
+            ILoggerFactory loggerFactory,
             MediaPlayer mediaPlayer, 
             IScheduler scheduler,
             CommentDisplayingRangeExtractor commentDisplayingRangeExtractor,
@@ -78,6 +82,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             PlayerSettings playerSettings
             )
         {
+            _logger = loggerFactory.CreateLogger<VideoCommentPlayer>();
             _mediaPlayer = mediaPlayer;
             _scheduler = scheduler;
             _commentDisplayingRangeExtractor = commentDisplayingRangeExtractor;
@@ -210,7 +215,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         }
 
 
-        public async Task UpdatePlayingCommentAsync(INiconicoCommentSessionProvider niconicoCommentSessionProvider, CancellationToken ct = default)
+        public async Task UpdatePlayingCommentAsync(INiconicoCommentSessionProvider<VideoComment> niconicoCommentSessionProvider, CancellationToken ct = default)
         {
             using (await _commentUpdateLock.LockAsync(ct))
             {
@@ -232,9 +237,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
                     _CommentUpdateTimer.Start();
                 }
-                catch
+                catch (Exception e)
                 {
-
+                    _logger.ZLogError(e, "コメント一覧の更新に失敗");
                 }
             }
         }
@@ -252,7 +257,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                 CurrentComment = null;
             }
 
-            TickNextDisplayingComments(currentPosition);
+            //TickNextDisplayingComments(currentPosition);
             UpdateNicoScriptComment(currentPosition);
             RefreshCurrentPlaybackPositionComment(currentPosition);
 
@@ -279,7 +284,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
             NowSubmittingComment.Value = true;
 
-            Debug.WriteLine($"try comment submit:{WritingComment.Value}");
+            _logger.ZLogDebug("try comment submit: {0}", WritingComment.Value);
 
             var postComment = WritingComment.Value;
             var posision = _mediaPlayer.PlaybackSession.Position;
@@ -291,7 +296,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
                 if (res.Status == ChatResultCode.Success)
                 {
-                    Debug.WriteLine("コメントの投稿に成功: " + res.CommentNo);
+                    _logger.ZLogDebug("コメントの投稿に成功: {0}", WritingComment.Value);
 
                     VideoComment videoComment = new()
                     {
@@ -318,18 +323,18 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
                     _notificationService.ShowLiteInAppNotification_Fail($"{_commentSession.ContentId} へのコメント投稿に失敗\n ステータスコード：{res.StatusCode}");
 
-                    ErrorTrackingManager.TrackError(new HohoemaExpception("SubmitComment Failed"), new Dictionary<string, string>()
+                    _logger.ZLogWarningWithPayload(new Dictionary<string, string>()
                     {
                         { "ContentId",  _commentSession.ContentId },
                         { "Command", command },
                         { "CommentLength", postComment?.Length.ToString() },
                         { "StatusCode", res.StatusCode.ToString() },
-                    });
+                    }, "SubmitComment Failed");
                 }
             }
             catch (NotSupportedException ex)
             {
-                Debug.WriteLine(ex.ToString());
+                _logger.ZLogError(ex, "Submit comment failed.");
             }
             finally
             {
@@ -341,7 +346,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
 
 
-        private async Task UpdateComments_Internal(ICommentSession commentSession)
+        private async Task UpdateComments_Internal(ICommentSession<VideoComment> commentSession)
         {
             // ニコスクリプトの状態を初期化
             ClearNicoScriptState();
@@ -349,8 +354,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             Comments.Clear();
             DisplayingComments.Clear();
             HiddenCommentIds.Clear();
-
-            var comments =  await commentSession.GetInitialComments();
 
             IEnumerable<VideoComment> commentsAction(IEnumerable<VideoComment> comments)
             {
@@ -369,36 +372,37 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                         }
                         catch (Exception e)
                         {
-                            Analytics.TrackEvent("CommentScript_ParseError", new Dictionary<string, string>() 
+                            _logger.ZLogWarningWithPayload(e, new Dictionary<string, string>()
                             {
-                                { "VideoId", commentSession.ContentId },
+                                 { "VideoId", commentSession.ContentId },
                                 { "CommentText", comment.CommentText },
                                 { "Command", comment.Mail },
                                 { "VideoPosition", comment.VideoPosition.ToString() },
-                            });
+                            }, "CommentScript_ParseError Failed");
                         }
                     }
 
                     yield return comment;
                 }
             }
+            var comments = await commentSession.GetInitialComments();
 
-            Comments.AddRange(commentsAction(comments.Cast<VideoComment>().OrderBy(x => x.VideoPosition)));
+            Comments.AddRange(commentsAction(comments.OrderBy(x => x.VideoPosition)));
 
             ResetDisplayingComments(Comments);
 
             _NicoScriptList.Sort((x, y) => (int)(x.BeginTime.Ticks - y.BeginTime.Ticks));
-            System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
+            _logger.ZLogDebug("コメント数:{0}", Comments.Count);
         }
 
 
         void ResetDisplayingComments(IReadOnlyCollection<VideoComment> comments)
         {
             DisplayingComments.Clear();
-            Debug.WriteLine($"CommentReset");
+            _logger.ZLogDebug("CommentReset");
 
-            var displayingComments = _commentDisplayingRangeExtractor.ResetComments(comments, _mediaPlayer.PlaybackSession.Position);
-            DisplayingComments.AddRange(EnumerateFilteredDisplayComment(displayingComments.ToArray()));
+            //var displayingComments = _commentDisplayingRangeExtractor.ResetComments(comments, _mediaPlayer.PlaybackSession.Position);
+            DisplayingComments.AddRange(EnumerateFilteredDisplayComment(comments));
         }
 
 
@@ -486,24 +490,24 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                 {
                     if (script.EndTime < position)
                     {
-                        Debug.WriteLine("nicoscript Enabling Skiped :" + script.Type);
+                        _logger.ZLogDebug("nicoscript Enabling Skiped : {0}", script.Type);
                         continue;
                     }
 
-                    Debug.WriteLine("nicoscript Enabling :" + script.Type);
+                    _logger.ZLogDebug("nicoscript Enabling : {0}", script.Type);
                     script.ScriptEnabling?.Invoke();
                 }
                 else if (script.EndTime.HasValue)
                 {
                     if (_PrevPlaybackPosition <= script.BeginTime)
                     {
-                        Debug.WriteLine("nicoscript Disabling Skiped :" + script.Type);
+                        _logger.ZLogDebug("nicoscript Disabling Skiped :{0}", script.Type);
                         continue;
                     }
 
                     if (_PrevPlaybackPosition < script.EndTime && position > script.EndTime)
                     {
-                        Debug.WriteLine("nicoscript Disabling :" + script.Type);
+                        _logger.ZLogDebug("nicoscript Disabling : {0}", script.Type);
                         script.ScriptDisabling?.Invoke();
                     }
                 }
@@ -630,13 +634,13 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
                         _ReplaceNicoScirptList.Add(new ReplaceNicoScript(nicoScriptType)
                         {
-                            Commands = string.Join(" ", commandItems),
+                            Commands = ZString.Join(" ", commandItems),
                             BeginTime = beginTime,
                             EndTime = beginTime + duration,
 
                         });
 
-                        Debug.WriteLine($"置換を設定");
+                        _logger.ZLogDebug("置換を設定");
                     }
                     break;
                 case "ジャンプ":
@@ -680,7 +684,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                                 }
                             });
 
-                            Debug.WriteLine($"{beginTime.ToString()} に {condition} へのジャンプを設定");
+                            _logger.ZLogDebug("{0} に {1} へのジャンプを設定", beginTime, condition);
                         }
                         else if (NiconicoToolkit.ContentIdHelper.IsVideoId(condition))
                         {
@@ -701,7 +705,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                                 EndTime = endTime,
                                 ScriptEnabling = () =>
                                 {
-                                    Debug.WriteLine($"{beginTime.ToString()} に {condition} へのジャンプを設定");
+                                    _logger.ZLogDebug("{0} に {1} へのジャンプを設定", beginTime, condition);                                    
                                     NicoScriptJumpVideoRequested?.Invoke(this, condition);
                                 }
                             });
@@ -726,11 +730,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
                         if (endTime.HasValue)
                         {
-                            Debug.WriteLine($"{beginTime.ToString()} ～ {endTime.ToString()} までシーク禁止を設定");
+                            _logger.ZLogDebug("{0} ～ {1} までシーク禁止を設定", beginTime, endTime);
                         }
                         else
                         {
-                            Debug.WriteLine($"{beginTime.ToString()} から動画終了までシーク禁止を設定");
+                            _logger.ZLogDebug("{0} から動画終了までシーク禁止を設定", beginTime);
                         }
                     }
                     break;
@@ -752,17 +756,17 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 #if DEBUG
                         if (endTime.HasValue)
                         {
-                            Debug.WriteLine($"{beginTime.ToString()} ～ {endTime.ToString()} までコメント禁止を設定");
+                            _logger.ZLogDebug("{0} ～ {1} までコメント禁止を設定", beginTime, endTime);
                         }
                         else
                         {
-                            Debug.WriteLine($"{beginTime.ToString()} から動画終了までコメント禁止を設定");
+                            _logger.ZLogDebug("{0} から動画終了までコメント禁止を設定", beginTime);
                         }
 #endif
                     }
                     break;
                 default:
-                    Debug.WriteLine($"Not support nico script type : {nicoScriptType}");
+                    _logger.ZLogDebug("Not support nico script type : {0}", nicoScriptType);
                     break;
             }
 

@@ -4,6 +4,7 @@ using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Prism.Navigation;
@@ -35,6 +36,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
         public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
         public VideoQueuePageViewModel(
+            ILoggerFactory loggerFactory,
             IMessenger messenger,
             QueuePlaylist queuePlaylist,
             QueuePlaylistSetting queuePlaylistSetting,
@@ -45,6 +47,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
             VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             NicoVideoProvider nicoVideoProvider
             )
+            : base(loggerFactory.CreateLogger<VideoQueuePageViewModel>())
         {
             _messenger = messenger;
             QueuePlaylist = queuePlaylist;

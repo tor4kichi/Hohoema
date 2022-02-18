@@ -49,6 +49,8 @@ using NiconicoToolkit.Ichiba;
 using AngleSharp.Html.Parser;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using Hohoema.Models.Domain.LocalMylist;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
@@ -70,6 +72,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         }
 
         public VideoInfomationPageViewModel(
+            ILoggerFactory loggerFactory, 
             ApplicationLayoutManager applicationLayoutManager,
             AppearanceSettings appearanceSettings,
             VideoFilteringSettings ngSettings,
@@ -96,6 +99,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             ChannelFollowProvider channelFollowProvider
             )
         {
+            _logger = loggerFactory.CreateLogger<VideoInfomationPageViewModel>();
             ApplicationLayoutManager = applicationLayoutManager;
             AppearanceSettings = appearanceSettings;
             NgSettings = ngSettings;
@@ -406,6 +410,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
 
         public Services.NotificationService NotificationService { get; }
+
+        private readonly ILogger<VideoInfomationPageViewModel> _logger;
+
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public VideoFilteringSettings NgSettings { get; }
         public NiconicoSession NiconicoSession { get; }
@@ -501,7 +508,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex.ToString());
                 FollowContext = FollowContext<IUser>.Default;
                 throw;
             }
@@ -556,7 +562,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             }
             catch (Exception e)
             {
-                ErrorTrackingManager.TrackError(e);
+                _logger.ZLogErrorWithPayload(exception: e, VideoInfo.Id, "Video ichiba items loading failed");
             }
             finally
             {
@@ -609,7 +615,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             }
             catch (Exception ex)
             {
-                ErrorTrackingManager.TrackError(ex);
+                _logger.ZLogErrorWithPayload(exception: ex, VideoInfo.Id, "Video recommand video items loading failed");
             }
             finally
             {
@@ -661,10 +667,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
                     }
                 }
             }
-            catch
+            catch (Exception e)
             {
                 IsLoadFailed.Value = true;
-                return;
+                throw;
             }
             
 
@@ -674,10 +680,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
                 DescriptionHtml = await HtmlFileHelper.ToCompletlyHtmlAsync(VideoDetails.DescriptionHtml, appTheme);
             }
-            catch
+            catch (Exception e)
             {
+                _logger.ZLogErrorWithPayload(exception: e, VideoInfo.Id, "Video info next/prev videos detection failed");
                 IsLoadFailed.Value = true;
-                return;
+                throw;
             }
 
 
@@ -724,7 +731,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             }
             catch
             {
-                Debug.WriteLine("動画説明からリンクを抜き出す処理に失敗");
                 throw;
             }
         }

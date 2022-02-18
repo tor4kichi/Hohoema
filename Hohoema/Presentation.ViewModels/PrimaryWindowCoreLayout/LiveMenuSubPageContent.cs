@@ -32,28 +32,18 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
             ResetItems();
         }
 
-        private async void ResetItems()
+        private void ResetItems()
         {
-            try
-            {
-                using (await NiconicoSession.SigninLock.LockAsync())
-                {
-                    MenuItems.Clear();
+            MenuItems.Clear();
 
-                    if (NiconicoSession.IsLoggedIn)
-                    {
-                        MenuItems.Add(new MenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift));
-                        MenuItems.Add(new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo));
-                        MenuItems.Add(new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage));
-                    }
-
-                    RaisePropertyChanged(nameof(MenuItems));
-                }
-            }
-            catch (Exception ex)
+            if (NiconicoSession.IsLoggedIn)
             {
-                ErrorTrackingManager.TrackError(ex);
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift));
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo));
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage));
             }
+
+            RaisePropertyChanged(nameof(MenuItems));
         }
 
 

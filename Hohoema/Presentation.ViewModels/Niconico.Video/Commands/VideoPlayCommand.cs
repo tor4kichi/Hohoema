@@ -2,6 +2,7 @@
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase;
 using Hohoema.Presentation.ViewModels.VideoListPage;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using NiconicoToolkit.Video;
 using Prism.Commands;
@@ -10,15 +11,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
     public sealed class VideoPlayWithQueueCommand : DelegateCommandBase
     {
+        private readonly ILogger<VideoPlayWithQueueCommand> _logger;
         private readonly IMessenger _messenger;
 
-        public VideoPlayWithQueueCommand(IMessenger messenger)
+        public VideoPlayWithQueueCommand(ILoggerFactory loggerFactory, IMessenger messenger)
         {
+            _logger = loggerFactory.CreateLogger<VideoPlayWithQueueCommand>();
             _messenger = messenger;
         }
 
@@ -51,7 +55,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             }
             catch (Exception e)
             {
-                ErrorTrackingManager.TrackError(e);
+                _logger.ZLogError(e, "video play faield");
             }
         }
     }

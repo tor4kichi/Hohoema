@@ -77,7 +77,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Likes
                 return;
             }
 
-            Microsoft.AppCenter.Analytics.Analytics.TrackEvent("VideoLikesContext#ProcessLikeAsync");
+            //Microsoft.AppCenter.Analytics.Analytics.TrackEvent("VideoLikesContext#ProcessLikeAsync");
             
             NowLikeProcessing = true;
 

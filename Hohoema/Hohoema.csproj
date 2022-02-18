@@ -138,7 +138,7 @@
     <Compile Include="Locales\LocalizeConverter.cs" />
     <Compile Include="Locales\LocalizeWithParameterConverter.cs" />
     <Compile Include="Models.UseCase\ApplicationLayoutManager.cs" />
-    <Compile Include="Models.UseCase\ErrorTrackingManager.cs" />
+    <Compile Include="Models.UseCase\Maintenance\VideoThumbnailImageCacheMaintenance.cs" />
     <Compile Include="Models.UseCase\Migration\CommentFilteringNGScoreZeroFixture.cs" />
     <Compile Include="Models.UseCase\Migration\DatabaseMigrate_0_25_0.cs" />
     <Compile Include="Models.UseCase\Migration\IMigateAsync.cs" />
@@ -171,7 +171,7 @@
     <Compile Include="Models.UseCase\Playlist\MylistResolver.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\Comment\CommentDisplayingRangeExtractor.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\Comment\CommentFilteringFacade.cs" />
-    <Compile Include="Models.UseCase\Niconico.Player\Comment\CommentPlayer.cs" />
+    <Compile Include="Models.UseCase\Niconico.Player\Comment\VideoCommentPlayer.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\KeepActiveDisplayWhenPlaying.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\ObservableMediaPlayer.cs" />
     <Compile Include="Models.UseCase\Niconico.Player\RelatedVideoContentsAggregator.cs" />
@@ -783,13 +783,11 @@
     <PackageReference Include="AngleSharp">
       <Version>0.16.0</Version>
     </PackageReference>
+    <PackageReference Include="DryIoc.Microsoft.DependencyInjection">
+      <Version>2.1.0</Version>
+    </PackageReference>
     <PackageReference Include="I18NPortable">
       <Version>1.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="IDisposableAnalyzers">
-      <Version>3.4.13</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="LiteDB">
       <Version>4.1.4</Version>
@@ -800,14 +798,11 @@
     <PackageReference Include="MahApps.Metro.IconPacks.Material">
       <Version>4.2.0</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.AppCenter.Analytics">
-      <Version>4.2.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.AppCenter.Crashes">
-      <Version>4.2.0</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging">
-      <Version>5.0.0</Version>
+      <Version>6.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Filter">
+      <Version>1.1.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.ObjectPool">
       <Version>5.0.5</Version>
@@ -871,6 +866,12 @@
     </PackageReference>
     <PackageReference Include="XTSSharp.NetStandard">
       <Version>1.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="ZLogger">
+      <Version>1.6.1</Version>
+    </PackageReference>
+    <PackageReference Include="ZString">
+      <Version>2.4.4</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -1260,9 +1261,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <PRIResource Include=".appcenter.resw" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />

@@ -69,7 +69,7 @@
           <DataTemplate x:DataType="videoModel:IVideoContent">
             <videoList:VideoListItemControl Title="{x:Bind Title}"
                                             PostedAt="{x:Bind PostedAt}"
-                                            ThumbnailUrl="{x:Bind ThumbnailUrl}"
+                                            ImageSource="{x:Bind ThumbnailUrl, Converter={StaticResource UrlToCachedImageConverter}}"
                                             Length="{x:Bind Length}"
                                             />
           </DataTemplate>

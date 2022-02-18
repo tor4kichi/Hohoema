@@ -34,6 +34,8 @@ using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Channels;
 using NiconicoToolkit.Community;
 using Hohoema.Models.UseCase.Playlist;
+using Microsoft.Extensions.Logging;
+using ZLogger;
 
 namespace Hohoema.Models.UseCase.PageNavigation
 {
@@ -63,7 +65,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
     public class PageManager : BindableBase
     {
         private readonly IMessenger _messenger;
-
+        private readonly ILogger<PageManager> _logger;
 
         public AppearanceSettings AppearanceSettings { get; }
         public VideoCacheSettings_Legacy CacheSettings { get; }
@@ -89,12 +91,14 @@ namespace Hohoema.Models.UseCase.PageNavigation
         public PageManager(
             IScheduler scheduler,
             IMessenger messenger,
+            ILoggerFactory loggerFactory,
             AppearanceSettings appearanceSettings,
             VideoCacheSettings_Legacy cacheSettings
             )
         {
             Scheduler = scheduler;
             _messenger = messenger;
+            _logger = loggerFactory.CreateLogger<PageManager>();
             AppearanceSettings = appearanceSettings;
             CacheSettings = cacheSettings;
         }
@@ -298,9 +302,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
 			// is mylist url?
 			if (path.StartsWith("http://www.nicovideo.jp/mylist/") || path.StartsWith("https://www.nicovideo.jp/mylist/"))
 			{
-				var mylistId = uri.AbsolutePath.Split('/').Last();
-				System.Diagnostics.Debug.WriteLine($"open Mylist: {mylistId}");
-
+				var mylistId = uri.AbsolutePath.Split('/').Last();				
                 OpenPageWithId(HohoemaPageType.Mylist, mylistId);
 				return true;
 			}
@@ -310,9 +312,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
 			{
 				// is nico video url?
 				var videoId = uri.AbsolutePath.Split('/').Last();
-				System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
                 _messenger.Send(new VideoPlayRequestMessage() { VideoId = videoId });
-
                 return true;
             }
 
@@ -348,7 +348,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                 return true;
             }
 
-            Debug.WriteLine($"Urlを処理できませんでした : " + uri.OriginalString);
+            _logger.ZLogWarning("Urlを処理できませんでした : {0}", uri.OriginalString);
 
             return false;
         }
@@ -380,7 +380,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
             }
             catch (Exception e)
             {
-                ErrorTrackingManager.TrackError(e);
+                _logger.ZLogError(e, "OpenPage failed.");
             }
         }
 

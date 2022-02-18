@@ -31,12 +31,14 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Uno.Extensions;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Microsoft.Extensions.Logging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
 {
     public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<INicoRepoItem>, INavigatedAwareAsync
     {
         public NicoRepoPageViewModel(
+            ILoggerFactory loggerFactory,
             IScheduler scheduler,
             ApplicationLayoutManager applicationLayoutManager,
             NicoVideoProvider nicoVideoProvider,
@@ -47,6 +49,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             OpenLiveContentCommand openLiveContentCommand,
             VideoPlayWithQueueCommand videoPlayWithQueueCommand
             )
+            : base(loggerFactory.CreateLogger<NicoRepoPageViewModel>())
         {
             _scheduler = scheduler;
             ApplicationLayoutManager = applicationLayoutManager;
