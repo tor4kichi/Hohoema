@@ -599,8 +599,7 @@ namespace Hohoema.Models.Domain.Playlist
 
         public async Task ReopenAsync(TimeSpan? position = null)
         {
-            if (CurrentPlaylist != null 
-                && CurrentPlaylistItem != null)
+            if (CurrentPlaylistItem != null)
             {
                 if (position == null)
                 {
