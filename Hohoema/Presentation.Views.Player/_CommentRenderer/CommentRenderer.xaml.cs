@@ -256,9 +256,9 @@ namespace Hohoema.Presentation.Views.Player
                 var prev = PlaybackState;
                 PlaybackState = sender?.PlaybackState ?? null;
 
-                Debug.WriteLine("state changed " + PlaybackState);
                 if (prev != PlaybackState)
                 {
+                    Debug.WriteLine("state changed " + PlaybackState);
                     ResetScrollCommentsAnimation(GetRenderFrameData());
                 }
             });
@@ -273,7 +273,8 @@ namespace Hohoema.Presentation.Views.Player
             }
             else
             {
-                if (PlaybackState == MediaPlaybackState.Playing)
+                StopScrollCommentAnimation();
+                if (frame.PlaybackState == MediaPlaybackState.Playing)
                 {
                     var ct = GetScrollCommentAnimationCancellationToken();
                     foreach (var renderComment in CommentCanvas.Children.Cast<CommentUI>())
@@ -313,8 +314,6 @@ namespace Hohoema.Presentation.Views.Player
                 }
                 else
                 {
-                    StopScrollCommentAnimation();
-
                     foreach (var renderComment in CommentCanvas.Children.Cast<CommentUI>())
                     {
                         if (renderComment.DisplayMode == CommentDisplayMode.Scrolling)
@@ -326,10 +325,15 @@ namespace Hohoema.Presentation.Views.Player
                             //{
                             //    renderComment.Translation((float)val.Value, duration: 0).Start();
                             //}
+                            var posX = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
                             var ab = AnimationBuilder.Create()
                                     .Translation(Axis.Y)
                                     .NormalizedKeyFrames(b => b
                                         .KeyFrame(0.0, renderComment.VerticalPosition))
+                                    .Translation(Axis.X)
+                                    .NormalizedKeyFrames(b => b
+                                        .KeyFrame(0.0, posX))
+
                                     ;
                             ab.Start(renderComment);
 
@@ -452,6 +456,7 @@ namespace Hohoema.Presentation.Views.Player
             public Color CommentDefaultColor { get; set; } //= CommentDefaultColor;
             public Visibility Visibility { get; set; }
             public TimeSpan CommentDisplayDuration { get; internal set; }
+            public float InverseCommentDisplayDurationInMs { get; internal set; }
             public MediaPlaybackState PlaybackState { get; set; }
             public float PlaybackRate { get; set; }
             public float PlaybackRateInverse { get; set; }
@@ -527,12 +532,11 @@ namespace Hohoema.Presentation.Views.Player
             _ = Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
             {
                 if (_nowWindowSizeChanging) { return; }
-
                 if (_pendingRenderComments.Any() is false) { return; }
 
-                var frame = GetRenderFrameData(true);
 
-                if (Math.Abs((float)(frame.CurrentVpos - _prevPosition).TotalSeconds) > 0.5f)
+                TimeSpan currentVpos = VideoPosition + VideoPositionOffset;                
+                if (Math.Abs((float)(currentVpos - _prevPosition).TotalSeconds) > 0.5f)
                 {
                     Debug.WriteLine("seeked!");
                     ResetComments();
@@ -543,7 +547,7 @@ namespace Hohoema.Presentation.Views.Player
                     for (int i = 0; i < CommentCanvas.Children.Count; i++)
                     {
                         var comment = CommentCanvas.Children[i] as CommentUI;
-                        if (comment.EndPosition <= frame.CurrentVpos)
+                        if (comment.EndPosition <= currentVpos)
                         {
                             RemoveCommentFromCanvas(comment.Comment);
                             --i;
@@ -555,18 +559,25 @@ namespace Hohoema.Presentation.Views.Player
                     }
 
                     // 追加待機中のコメントをチェック
-                    for (int i = _pendingRenderComments.Count - 1; i >= 0; i--)
+                    CommentRenderFrameData frame = null;
+                    for (int i = 0; i < _pendingRenderComments.Count; i++)
                     {
                         var comment = _pendingRenderComments[i];
-                        if (comment.VideoPosition <= (frame.CurrentVpos + TimeSpan.FromSeconds(1)))
+                        if (comment.VideoPosition <= (currentVpos + TimeSpan.FromSeconds(1)))
                         {
+                            frame ??= GetRenderFrameData();
                             _pendingRenderComments.RemoveAt(i);
+                            --i;
                             AddCommentToCanvas(comment, in frame);
+                        }
+                        else
+                        {
+                            break;
                         }
                     }
                 }
 
-                _prevPosition = frame.CurrentVpos;
+                _prevPosition = currentVpos;
             });
         }
 
@@ -634,9 +645,10 @@ namespace Hohoema.Presentation.Views.Player
 
 
         static CommentRenderFrameData _frameData = new CommentRenderFrameData();
-        private CommentRenderFrameData GetRenderFrameData(bool isRefresh = false)
+        private CommentRenderFrameData GetRenderFrameData()
         {
             _frameData.CommentDisplayDuration = DefaultDisplayDuration;
+            _frameData.InverseCommentDisplayDurationInMs = 1.0f / (float)DefaultDisplayDuration.TotalMilliseconds;
             _frameData.PlaybackState = MediaPlayer.PlaybackSession.PlaybackState;
             _frameData.CommentDefaultColor = CommentDefaultColor;
             _frameData.CurrentVpos = VideoPosition + VideoPositionOffset;
@@ -648,7 +660,7 @@ namespace Hohoema.Presentation.Views.Player
             _frameData.PlaybackRate = (float)MediaPlayer.PlaybackSession.PlaybackRate;
             _frameData.PlaybackRateInverse = 1f / (float)MediaPlayer.PlaybackSession.PlaybackRate;
             _frameData.ScrollCommentAnimationCancelToken = GetScrollCommentAnimationCancellationToken();
-
+            
             return _frameData;
         }
 
@@ -717,6 +729,7 @@ namespace Hohoema.Presentation.Views.Player
             return baseSize * frame.FontScale * commentFontScale;
         }
 
+        
         private void AddCommentToCanvas(IComment comment, in CommentRenderFrameData frame)
         {
             CommentUI MakeCommentUI(IComment comment, in CommentRenderFrameData frame)
@@ -749,6 +762,8 @@ namespace Hohoema.Presentation.Views.Player
                     commentUI.CommentFontSize = commentFontSize;
                     commentUI.IsVisible = !comment.IsInvisible;
                     commentUI.DisplayMode = comment.DisplayMode;
+                    commentUI.CommentDisplayDuration = frame.CommentDisplayDuration;
+                    commentUI.InverseCommentDisplayDurationInMs= frame.InverseCommentDisplayDurationInMs;
                 }
 
                 return commentUI;
@@ -803,9 +818,9 @@ namespace Hohoema.Presentation.Views.Player
                     }
                     else
                     {
-                        var leftEdge = prevComment.EndPosition < currentCommentReachLeftEdgeTime;
-                        var rightEdge = prevComment.CalcTextShowRightEdgeTime(frame.CanvasWidth) < frame.CurrentVpos;
-                        if (leftEdge && rightEdge)
+                        bool isCollisionLeftEdge = prevComment.EndPosition > currentCommentReachLeftEdgeTime;
+                        bool isCollisionRightEdge = prevComment.CalcTextShowRightEdgeTime(frame.CanvasWidth) > comment.VideoPosition;
+                        if (isCollisionLeftEdge is false && isCollisionRightEdge is false)
                         {
                             // コリジョンしない
                             // 追加可能
@@ -826,11 +841,12 @@ namespace Hohoema.Presentation.Views.Player
                 if (isOutBoundComment is false)
                 {
                     // 最初は右端に配置
-                    double initialCanvasLeft = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos) ?? frame.CanvasWidth;
+                    float initialCanvasLeft = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
 
                     renderComment.Opacity = 1.0;
                     renderComment.VerticalPosition = verticalPos;
 
+                    float posToMovingRatio = initialCanvasLeft / (frame.CanvasWidth + renderComment.TextWidth);
                     TimeSpan displayDuration = (renderComment.EndPosition - frame.CurrentVpos) * frame.PlaybackRateInverse;
                     if (frame.PlaybackState == MediaPlaybackState.Playing)
                     {                        
@@ -990,7 +1006,7 @@ namespace Hohoema.Presentation.Views.Player
             }
         }
 
-        List<IComment> _pendingRenderComments = new List<IComment>();
+        List<IComment> _pendingRenderComments = new ();
 
 
         private void AddOrPushPending(IComment comment, in CommentRenderFrameData frame)
@@ -1016,6 +1032,7 @@ namespace Hohoema.Presentation.Views.Player
         private void AddCommentToCanvas(IEnumerable<IComment> comments)
         {
             if (Visibility ==Visibility.Collapsed) { return; }
+            if (comments.Any() is false) { return; }
 
             var frame = GetRenderFrameData();
             foreach (var comment in comments)
@@ -1042,6 +1059,14 @@ namespace Hohoema.Presentation.Views.Player
             {
                 CommentCanvas.Children.Remove(renderComment);
                 _commentUIObjectPool.Return(renderComment);
+
+                for (int i = 0; i < PrevRenderCommentEachLine_Stream.Count; i++)
+                {
+                    if (PrevRenderCommentEachLine_Stream[i] == renderComment)
+                    {
+                        PrevRenderCommentEachLine_Stream[i] = null;
+                    }
+                }
             }
 
             _pendingRenderComments.Remove(comment);
