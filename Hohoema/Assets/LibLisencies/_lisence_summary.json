@@ -64,13 +64,6 @@
       "lisence_page_url": "https://github.com/Macross-Software/core/blob/develop/LICENSE.txt"
     },
     {
-      "name": "Microsoft.AppCenter",
-      "site": "https://github.com/microsoft/appcenter",
-      "author": [ "Microsoft Corporation" ],
-      "lisence_type": "Creative Commons Attribution 4.0 International Public License",
-      "lisence_page_url": "https://github.com/microsoft/appcenter/blob/master/LICENSE"
-    },
-    {
       "name": "Windows UI Library(WinUI)",
       "site": "https://github.com/microsoft/microsoft-ui-xaml",
       "author": [ "Microsoft Corporation" ],
@@ -155,11 +148,25 @@
       "lisence_page_url": "https://github.com/ikorin24/U8XmlParser/blob/master/LICENSE"
     },
     {
-      "name": "IDisposableAnalyzers",
-      "site": "https://github.com/DotNetAnalyzers/IDisposableAnalyzers",
-      "author": [ ".NET Analyzers" ],
+      "name": "DryIoc",
+      "site": "https://github.com/dadhi/DryIoc",
+      "author": [ "Maksim Volkau" ],
       "lisence_type": "MIT",
-      "lisence_page_url": "https://github.com/DotNetAnalyzers/IDisposableAnalyzers/blob/master/LICENSE"
+      "lisence_page_url": "https://github.com/dadhi/DryIoc/blob/master/LICENSE.txt"
+    },
+    {
+      "name": "ZString",
+      "site": "https://github.com/Cysharp/ZString",
+      "author": [ "Cysharp, Inc." ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/Cysharp/ZString/blob/master/LICENSE"
+    },
+    {
+      "name": "ZLogger",
+      "site": "https://github.com/Cysharp/ZLogger",
+      "author": [ "Cysharp, Inc." ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/Cysharp/ZLogger/blob/master/LICENSEE"
     }
   ]
 }
