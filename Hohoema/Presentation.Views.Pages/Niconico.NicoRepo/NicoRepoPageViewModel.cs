@@ -103,7 +103,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             base.OnNavigatedFrom(parameters);
         }
 
-        protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
+        protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode, INavigationParameters parameters)
         {
             /*
             if (!ActivityFeedSettings.DisplayNicoRepoMuteContextTriggers.All(x => DisplayNicoRepoMuteContextTriggers.Any(y => x == y)))
@@ -116,7 +116,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             }
             */
             
-            return base.CheckNeedUpdateOnNavigateTo(mode);
+            return base.CheckNeedUpdateOnNavigateTo(mode, parameters);
         }
 
         protected override (int, IIncrementalSource<INicoRepoItem>) GenerateIncrementalSource()

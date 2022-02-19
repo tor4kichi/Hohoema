@@ -280,27 +280,6 @@ namespace Hohoema
 
             container.RegisterSingleton<IPlaylistFactoryResolver, PlaylistItemsSourceResolver>();
 
-
-
-
-            // ViewModels
-            container.RegisterSingleton<Presentation.ViewModels.Pages.Niconico.VideoRanking.RankingCategoryListPageViewModel>();
-
-            // Frameのキャッシュ無効＋IncrementalLoadingリスト系ページのViewModelがシングルトン、という構成の場合に
-            // ListViewの読み込み順序が壊れる問題が発生するためVMは都度生成にしている
-            // see@ https://github.com/tor4kichi/Hohoema/issues/836
-            container.RegisterSingleton<Presentation.ViewModels.Pages.Niconico.VideoRanking.RankingCategoryPageViewModel>();
-
-            //unityContainer.RegisterType<Presentation.ViewModels.Player.VideoPlayerPageViewModel>(new PerThreadLifetimeManager());
-            //unityContainer.RegisterType<Presentation.ViewModels.Player.LivePlayerPageViewModel>(new PerThreadLifetimeManager());
-
-#if DEBUG
-            //			BackgroundUpdater.MaxTaskSlotCount = 1;
-#endif
-            // TODO: プレイヤーウィンドウ上で管理する
-            //			var backgroundTask = MediaBackgroundTask.Create();
-            //			Container.RegisterInstance(backgroundTask);
-
         }
 
         public class ZDebugLoggerFacade : ILoggerFacade

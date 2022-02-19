@@ -221,7 +221,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
                 this.ObserveProperty(x => x.SelectedSortOption)
                     .Subscribe(_ => ResetList())
-                    .AddTo(_NavigatingCompositeDisposable);
+                    .AddTo(_navigationDisposables);
             }
             catch
             {

@@ -21,9 +21,9 @@ namespace Hohoema.Presentation.ViewModels
         }
         
         protected CompositeDisposable _CompositeDisposable { get; private set; }
-        protected CompositeDisposable _NavigatingCompositeDisposable { get; private set; }
+        protected CompositeDisposable _navigationDisposables { get; private set; }
 
-        private CancellationTokenSource _navigationCancellationTokenSource;
+        private CancellationTokenSource _navigationCts;
 
         protected CancellationToken NavigationCancellationToken { get; private set; }
 
@@ -42,12 +42,12 @@ namespace Hohoema.Presentation.ViewModels
 
         public virtual void OnNavigatingTo(INavigationParameters parameters) 
         {
-            _NavigatingCompositeDisposable?.Dispose();
-            _NavigatingCompositeDisposable = new();
+            _navigationDisposables?.Dispose();
+            _navigationDisposables = new();
             Views.Pages.PrimaryWindowCoreLayout.SetCurrentNavigationParameters(parameters);
-            _navigationCancellationTokenSource = new CancellationTokenSource()
-                .AddTo(_NavigatingCompositeDisposable);
-            NavigationCancellationToken = _navigationCancellationTokenSource.Token;
+            _navigationCts = new CancellationTokenSource()
+                .AddTo(_navigationDisposables);
+            NavigationCancellationToken = _navigationCts.Token;
         }
 
         public virtual void OnNavigatedTo(INavigationParameters parameters)
@@ -56,10 +56,10 @@ namespace Hohoema.Presentation.ViewModels
 
         public virtual void OnNavigatedFrom(INavigationParameters parameters)
         {
-            _navigationCancellationTokenSource?.Cancel();
-            _navigationCancellationTokenSource?.Dispose();
-            _NavigatingCompositeDisposable?.Dispose();
-            _NavigatingCompositeDisposable = new();
+            _navigationCts?.Cancel();
+            _navigationCts?.Dispose();
+            _navigationDisposables?.Dispose();
+            _navigationDisposables = new();
         }
 
     }

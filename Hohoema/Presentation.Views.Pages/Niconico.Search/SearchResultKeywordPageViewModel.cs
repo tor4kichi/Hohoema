@@ -190,7 +190,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
                 this.ObserveProperty(x => x.SelectedSortOption)
                     .Subscribe(_ => ResetList())
-                    .AddTo(_NavigatingCompositeDisposable);
+                    .AddTo(_navigationDisposables);
             }
 
 
@@ -215,11 +215,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 		}
 		
 
-		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
+		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode, INavigationParameters parameters)
 		{
 			if (ItemsView?.Source == null) { return true; }
 
-            return base.CheckNeedUpdateOnNavigateTo(mode);
+            return base.CheckNeedUpdateOnNavigateTo(mode, parameters);
         }
         #endregion
 

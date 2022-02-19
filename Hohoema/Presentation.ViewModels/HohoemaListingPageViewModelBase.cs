@@ -101,7 +101,6 @@ namespace Hohoema.Presentation.ViewModels
         public ReactiveProperty<int> LoadedItemsCount { get; }
 
         public AdvancedCollectionView ItemsView { get; private set; }
-        private static AdvancedCollectionView _cachedItemsView;
 
         public ReactiveProperty<bool> NowLoading { get; }
         public ReactiveProperty<bool> CanChangeSort { get; }
@@ -137,7 +136,8 @@ namespace Hohoema.Presentation.ViewModels
             LoadedItemsCount = new ReactiveProperty<int>(0)
                 .AddTo(_CompositeDisposable);
 
-            NowRefreshable = new ReactiveProperty<bool>(false);
+            NowRefreshable = new ReactiveProperty<bool>(false)
+                .AddTo(_CompositeDisposable);
 
             // 読み込み中または選択中はソートを変更できない
             CanChangeSort = Observable.CombineLatest(
@@ -156,6 +156,7 @@ namespace Hohoema.Presentation.ViewModels
         {
             if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
             {
+                DisposeItemsView(ItemsView);
                 ItemsView.Source = new List<ITEM_VM>();
                 ItemsView.Clear();
                 ItemsView = null;
@@ -169,16 +170,10 @@ namespace Hohoema.Presentation.ViewModels
         public override void OnNavigatingTo(INavigationParameters parameters)
         {
             var navigationMode = parameters.GetNavigationMode();
-            if (_cachedItemsView != null && !CheckNeedUpdateOnNavigateTo(navigationMode))
+            if (CheckNeedUpdateOnNavigateTo(navigationMode, parameters))
             {
-                ItemsView = _cachedItemsView;
-                RaisePropertyChanged(nameof(ItemsView));
-                HasItem.Value = true;
-            }
-            else
-            {
-                DisposeItemsView(_cachedItemsView);
-                _cachedItemsView = null;
+                DisposeItemsView(ItemsView);
+                ItemsView = null;
             }
 
             base.OnNavigatingTo(parameters);
@@ -193,20 +188,14 @@ namespace Hohoema.Presentation.ViewModels
 
             base.OnNavigatedTo(parameters);
         }
-
+        
         public virtual Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             return Task.CompletedTask;
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
-        {
-            _cachedItemsView = ItemsView;
-
-            // Note: ListViewのItemTemplae内でUserControlを利用した場合のメモリリークバグを回避するListView.ItemsSourceにnullを与える
-            ItemsView = null;
-            RaisePropertyChanged(nameof(ItemsView));
-
+        {            
             base.OnNavigatedFrom(parameters);
         }
 
@@ -313,7 +302,7 @@ namespace Hohoema.Presentation.ViewModels
 
 		protected abstract (int PageSize, IIncrementalSource<ITEM_VM> IncrementalSource) GenerateIncrementalSource();
 
-		protected virtual bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
+		protected virtual bool CheckNeedUpdateOnNavigateTo(NavigationMode mode, INavigationParameters parameters)
         {
             if (mode == NavigationMode.New || mode == NavigationMode.Refresh)
             {
