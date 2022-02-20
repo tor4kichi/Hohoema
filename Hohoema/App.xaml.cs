@@ -268,7 +268,7 @@ namespace Hohoema
             container.RegisterSingleton<Models.Domain.VideoCache.VideoCacheSettings>();
 
             // UseCase
-            unityContainer.Register<VideoCommentPlayer>();
+            container.RegisterSingleton<VideoCommentPlayer>();
             container.RegisterSingleton<CommentFilteringFacade>();
             container.RegisterSingleton<MediaPlayerSoundVolumeManager>();
             container.RegisterSingleton<LocalMylistManager>();
