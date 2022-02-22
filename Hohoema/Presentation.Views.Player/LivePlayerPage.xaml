@@ -556,7 +556,7 @@
                         </Flyout>
                       </Button.Flyout>
                     </Button>
-                    <Button x:Name="CommentSubmitButton" Content="{i18nExt:Localize Key=SubmitComment}" Margin="8 0 0 8" Height="40" Command="{Binding CommentSubmitCommand}" CommandParameter="{x:Bind CommentTextBox.Text, Mode=OneWay}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="5" Grid.ColumnSpan="1" />
+                    <Button x:Name="CommentSubmitButton" Content="{i18nExt:Localize Key=SubmitComment}" Margin="8 0 0 8" Height="40" Command="{Binding CommentSubmitCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="5" Grid.ColumnSpan="1" />
                     <Border Grid.ColumnSpan="6" Grid.RowSpan="2" x:Name="WhenTimeshiftIgnoreCommentLayout" Visibility="Collapsed">
                       <Border.Background>
                         <SolidColorBrush Color="{ThemeResource SystemAltLowColor}" />
@@ -907,6 +907,7 @@
         </VisualState>
       </VisualStateGroup>
       <!-- コメント送信中のテキスト入力防止 -->
+      <!--
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -917,6 +918,7 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      -->
       <!-- ミュートの有効・無効 -->
       <VisualStateGroup>
         <VisualState>

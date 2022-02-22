@@ -302,7 +302,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         public ReactiveProperty<bool> NowCommentSubmitting { get; private set; }
 
 
-        public AsyncReactiveCommand<string> CommentSubmitCommand { get; private set; }
+        public AsyncReactiveCommand CommentSubmitCommand { get; private set; }
 
         public Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView FilterdComments { get; } = new Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView();
 
@@ -464,6 +464,8 @@ namespace Hohoema.Presentation.ViewModels.Player
             QualityLimit = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.LiveQualityLimit, _scheduler)
                 .AddTo(_CompositeDisposable);
 
+
+
             IsCommentDisplayEnable = PlayerSettings
                 .ToReactivePropertyAsSynchronized(x => x.IsCommentDisplay_Live, _scheduler)
                 .AddTo(_CompositeDisposable);
@@ -477,8 +479,14 @@ namespace Hohoema.Presentation.ViewModels.Player
             FilterdComments.Source = _ListLiveComments;
             FilterdComments.SortDescriptions.Add(new Microsoft.Toolkit.Uwp.UI.SortDescription(nameof(IComment.VideoPosition), Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending));
             FilterdComments.Filter = (x) => !_commentFiltering.IsHiddenComment(x as IComment);
-            
 
+            NowCommentSubmitting = new ReactiveProperty<bool>(_scheduler, false)
+                .AddTo(_CompositeDisposable);
+            CommentSubmitText = new ReactiveProperty<string>(_scheduler, null)
+                .AddTo(_CompositeDisposable);
+            CommentSubmitCommand = CommentSubmitText.Select(x => string.IsNullOrWhiteSpace(x) is false)
+                .ToAsyncReactiveCommand()
+                .AddTo(_CompositeDisposable);
 
 
             SeekVideoCommand = this.ObserveProperty(x => x.IsTimeshift).ToReactiveCommand<TimeSpan?>(scheduler: _scheduler)
@@ -871,7 +879,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
-        {
+        {            
             LiveId = parameters.GetValue<string>("id")
                 ?? parameters.GetValue<LiveId>("id")
                 ;
@@ -940,24 +948,12 @@ namespace Hohoema.Presentation.ViewModels.Player
                 CommunityName = _PlayerProp.SocialGroup.Name;
 
                 // post comment 
-                NowCommentSubmitting = new ReactiveProperty<bool>(_scheduler, false)
-                    .AddTo(_CompositeDisposable);
-                CommentSubmitText = new ReactiveProperty<string>(_scheduler, null, mode: ReactivePropertyMode.DistinctUntilChanged)
-                    .AddTo(_CompositeDisposable);
 
-                CommentSubmitCommand = Observable.CombineLatest(
-                    //NicoLiveVideo.ObserveProperty(x => x.CanPostComment),
-                    CommentSubmitText.Select(x => x != null && x.Length > 0),
-                    NowCommentSubmitting.Select(x => !x)
-                    )
-                    .Select(x => x.All(y => y))
-                    .ToAsyncReactiveCommand<string>()
-                    .AddTo(_CompositeDisposable);
-
-                CommentSubmitCommand.Subscribe(async _ =>
+                CommentSubmitCommand.Subscribe(async () =>
                 {
                     var text = CommentSubmitText.Value;
                     if (string.IsNullOrWhiteSpace(text)) { return; }
+                    CommentSubmitText.Value = string.Empty;
 
                     NowCommentSubmitting.Value = true;
                     
@@ -979,9 +975,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                         NowCommentSubmitting.Value = false;
                     }
                 })
-                .AddTo(_CompositeDisposable);
-                RaisePropertyChanged(nameof(CommentSubmitCommand));
-
+                .AddTo(_navigationDisposables);
 
                 // 生放送ではラウドネス正規化は対応してない
                 SoundVolumeManager.LoudnessCorrectionValue = 1.0;
@@ -1131,6 +1125,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 _CommentSession.Connected += _CommentSession_Connected;
                 _CommentSession.Disconnected += _CommentSession_Disconnected;
 
+                /*
                 try
                 {
                     await Task.Delay(3000, ct);
@@ -1139,10 +1134,11 @@ namespace Hohoema.Presentation.ViewModels.Player
                 {
                     return;
                 }
+                */
 
                 if (_CommentSession != null)
                 {
-                    await _CommentSession.OpenAsync();
+                    await _CommentSession.OpenAsync(ct);
                 }
             });
         }
