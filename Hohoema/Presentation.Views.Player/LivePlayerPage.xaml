@@ -357,6 +357,10 @@
                     <StackPanel.Background>
                       <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
                     </StackPanel.Background>
+                    <UIElement.RenderTransform>
+                      <TranslateTransform Y="0.2" />
+                    </UIElement.RenderTransform>
+                    
                     <TextBlock Text="{Binding LiveTitle}" x:Name="TitleTextBlock" FontSize="24" Margin="8 0" HorizontalAlignment="Center" TextWrapping="Wrap" />
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Tapped">
@@ -588,6 +592,9 @@
                         <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
                       </LinearGradientBrush>
                     </Border.Background>
+                    <UIElement.RenderTransform>
+                      <TranslateTransform Y="0.38" />
+                    </UIElement.RenderTransform>
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Tapped">
                         <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
