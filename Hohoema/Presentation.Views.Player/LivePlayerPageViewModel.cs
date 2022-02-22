@@ -260,7 +260,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         public ReactiveProperty<LiveStatus?> LiveStatusType { get; private set; }
 
-        public ReadOnlyReactiveProperty<bool> CanRefresh { get; private set; }
+        public ReactivePropertySlim<bool> NowRefreshing { get; private set; }
 
         public ReactiveProperty<bool> CanChangeQuality { get; private set; }
         public ReactiveProperty<LiveQualityType> RequestQuality { get; private set; }
@@ -312,11 +312,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
 
         // Side Pane Content
-
-
-        public ReactiveCommand RefreshCommand { get; private set; }
-
-        public ReactiveCommand TogglePlayPauseCommand { get; private set; }
+        public AsyncReactiveCommand TogglePlayPauseCommand { get; private set; }
 
 
         public MediaPlayerSeekCommand SeekCommand { get; }
@@ -643,56 +639,57 @@ namespace Hohoema.Presentation.ViewModels.Player
             // Noneの時
             // OnAirかCommingSoonの時
 
-            CanRefresh = Observable.CombineLatest(
-                this.LiveStatusType.Select(x => x == LiveStatus.Onair || x == LiveStatus.Reserved)
-                )
-                .Select(x => x.All(y => y))
-                .ToReadOnlyReactiveProperty(eventScheduler: _scheduler);
+            NowRefreshing = new ReactivePropertySlim<bool>();
 
-            RefreshCommand = CanRefresh
-                .ToReactiveCommand(scheduler: _scheduler)
+            TogglePlayPauseCommand = new AsyncReactiveCommand()
                 .AddTo(_CompositeDisposable);
 
-            RefreshCommand.Subscribe(async _ =>
+            TogglePlayPauseCommand.Subscribe(async _ =>
             {
-                if (IsTimeshift)
+                NowRefreshing.Value = true;
+                try
                 {
-                    MediaPlayer.Play();
-                }
-                else
-                {
-                    if (await TryUpdateLiveStatus())
+                    if (IsTimeshift)
                     {
-                        var limit = GetQualityLimitType();
-                        Debug.WriteLine($"Change Quality: {PlayerSettings.DefaultLiveQuality} - Low Latency: {PlayerSettings.LiveWatchWithLowLatency} - Limit: {limit}");
-
-                        await _watchSession.ChangeStreamAsync(PlayerSettings.DefaultLiveQuality, PlayerSettings.LiveWatchWithLowLatency, limit);
-                        // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
-                        // ソース更新後のコメント表示再生位置のズレを補正する
-                    }
-                }
-            })
-            .AddTo(_CompositeDisposable);
-
-            TogglePlayPauseCommand = new ReactiveCommand(_scheduler)
-                .AddTo(_CompositeDisposable);
-
-            TogglePlayPauseCommand.Subscribe(_ =>
-            {
-                if (IsTimeshift)
-                {
-                    if (MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Playing)
-                    {
-                        MediaPlayer.Pause();
+                        if (MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Playing)
+                        {
+                            MediaPlayer.Pause();
+                        }
+                        else
+                        {
+                            MediaPlayer.Play();
+                        }
                     }
                     else
                     {
-                        MediaPlayer.Play();
+                        if (MediaPlayer.Source == null || MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.None)
+                        {
+                            if (await TryUpdateLiveStatus())
+                            {
+                                var limit = GetQualityLimitType();
+                                Debug.WriteLine($"Change Quality: {PlayerSettings.DefaultLiveQuality} - Low Latency: {PlayerSettings.LiveWatchWithLowLatency} - Limit: {limit}");
+
+                                await _watchSession.ChangeStreamAsync(PlayerSettings.DefaultLiveQuality, PlayerSettings.LiveWatchWithLowLatency, limit);
+                                // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
+                                // ソース更新後のコメント表示再生位置のズレを補正する
+                            }
+                        }
+                        else
+                        {
+                            if (MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Playing)
+                            {
+                                MediaPlayer.Pause();
+                            }
+                            else
+                            {
+                                MediaPlayer.Play();
+                            }
+                        }
                     }
                 }
-                else
+                finally
                 {
-                    MediaPlayer.Source = null;
+                    NowRefreshing.Value = false;
                 }
             })
             .AddTo(_CompositeDisposable);
@@ -879,108 +876,119 @@ namespace Hohoema.Presentation.ViewModels.Player
 
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
-        {            
-            LiveId = parameters.GetValue<string>("id")
+        {
+            NowRefreshing.Value = true;
+            try
+            {
+                LiveId = parameters.GetValue<string>("id")
                 ?? parameters.GetValue<LiveId>("id")
                 ;
 
-            if (parameters.TryGetValue<string>("title", out var title))
-            {
-                LiveTitle = title;
-            }
-
-            if (LiveId != null)
-            {
-                _PlayerProp = await LiveContext.Live.GetLiveWatchPageDataPropAsync(LiveId);
-
-
-                await ResolveTimeshiftTicketAsync();
-
-
-                LiveInfo = new LiveContent() 
+                if (parameters.TryGetValue<string>("title", out var title))
                 {
-                    Title = _PlayerProp.Program.Title,
-                    LiveId = LiveId,
-                };
-
-                if (_PlayerProp.UserProgramWatch.RejectedReasons.Any())
-                {
-                    Suggestion.Value = new LiveSuggestion(_PlayerProp.UserProgramWatch.RejectedReasons.First());
-                    return;
+                    LiveTitle = title;
                 }
 
-                _watchSession = NiconicoToolkit.Live.LiveClient.CreateWatchSession(_PlayerProp);
-
-                _watchSession.RecieveStream += _watchSession_RecieveStream;
-                _watchSession.RecieveRoom += _watchSession_RecieveRoom;
-                _watchSession.RecieveSchedule += _watchSession_RecieveSchedule;
-                _watchSession.RecieveStatistics += _watchSession_RecieveStatistics;
-                _watchSession.ReceiveDisconnect += _watchSession_ReceiveDisconnect;
-                _watchSession.RecieveReconnect += _watchSession_RecieveReconnect;
-
-                _watchSessionTimer = !_watchSession.IsWatchWithTimeshift
-                    ? WatchSessionTimer.CreateForLiveStreaming(_PlayerProp.Program, chasePlay: false)
-                    : WatchSessionTimer.CreateForTimeshift(_PlayerProp.Program)
-                    ;
-
-                IsTimeshift = _watchSession.IsWatchWithTimeshift;
-                LiveTitle = _PlayerProp.Program.Title;
-                _MaxSeekablePosition.Value = (EndTime - OpenTime).TotalSeconds;
-
-
-                var elapsedTimeResult = _watchSessionTimer.UpdatePlaybackTime(TimeSpan.Zero);
-                LiveElapsedTime = elapsedTimeResult.LiveElapsedTime;
-                LiveElapsedTimeFromOpen = elapsedTimeResult.LiveElapsedTimeFromOpen;
-
-
-                _updateTimer.Start();
-
-                var limit = GetQualityLimitType();
-                Debug.WriteLine($"Start Watch: Quality: {PlayerSettings.DefaultLiveQuality} - Low Latency: {PlayerSettings.LiveWatchWithLowLatency} - Limit: {limit}");
-
-
-                
-                await _watchSession.StartWachingAsync(PlayerSettings.DefaultLiveQuality, PlayerSettings.LiveWatchWithLowLatency, limit);
-
-              
-                CommunityId = _PlayerProp.SocialGroup.Id;
-                
-                CommunityName = _PlayerProp.SocialGroup.Name;
-
-                // post comment 
-
-                CommentSubmitCommand.Subscribe(async () =>
+                if (LiveId != null)
                 {
-                    var text = CommentSubmitText.Value;
-                    if (string.IsNullOrWhiteSpace(text)) { return; }
-                    CommentSubmitText.Value = string.Empty;
+                    _PlayerProp = await LiveContext.Live.GetLiveWatchPageDataPropAsync(LiveId);
 
-                    NowCommentSubmitting.Value = true;
-                    
-                    try
+
+                    await ResolveTimeshiftTicketAsync();
+
+
+                    LiveInfo = new LiveContent()
                     {
-                        var result = await _watchSession.PostCommentAsync(
-                            text,
-                            LiveElapsedTime + TimeSpan.FromSeconds(1),
-                            this.CommentCommandEditerViewModel.IsAnonymousCommenting.Value,
-                            this.CommentCommandEditerViewModel.SelectedCommentSize.Value?.ToString().ToLower(),
-                            this.CommentCommandEditerViewModel.SelectedAlingment.Value?.ToString().ToLower(),
-                            this.CommentCommandEditerViewModel.SelectedColor.Value?.ToString().ToLower()
-                            );
+                        Title = _PlayerProp.Program.Title,
+                        LiveId = LiveId,
+                    };
 
+                    if (_PlayerProp.UserProgramWatch.RejectedReasons.Any())
+                    {
+                        Suggestion.Value = new LiveSuggestion(_PlayerProp.UserProgramWatch.RejectedReasons.First());
+                        return;
+                    }
+
+                    _watchSession = NiconicoToolkit.Live.LiveClient.CreateWatchSession(_PlayerProp);
+
+                    _watchSession.RecieveStream += _watchSession_RecieveStream;
+                    _watchSession.RecieveRoom += _watchSession_RecieveRoom;
+                    _watchSession.RecieveSchedule += _watchSession_RecieveSchedule;
+                    _watchSession.RecieveStatistics += _watchSession_RecieveStatistics;
+                    _watchSession.ReceiveDisconnect += _watchSession_ReceiveDisconnect;
+                    _watchSession.RecieveReconnect += _watchSession_RecieveReconnect;
+
+                    _watchSessionTimer = !_watchSession.IsWatchWithTimeshift
+                        ? WatchSessionTimer.CreateForLiveStreaming(_PlayerProp.Program, chasePlay: false)
+                        : WatchSessionTimer.CreateForTimeshift(_PlayerProp.Program)
+                        ;
+
+                    IsTimeshift = _watchSession.IsWatchWithTimeshift;
+                    LiveTitle = _PlayerProp.Program.Title;
+                    _MaxSeekablePosition.Value = (EndTime - OpenTime).TotalSeconds;
+
+
+                    var elapsedTimeResult = _watchSessionTimer.UpdatePlaybackTime(TimeSpan.Zero);
+                    LiveElapsedTime = elapsedTimeResult.LiveElapsedTime;
+                    LiveElapsedTimeFromOpen = elapsedTimeResult.LiveElapsedTimeFromOpen;
+
+
+                    _updateTimer.Start();
+
+                    var limit = GetQualityLimitType();
+                    Debug.WriteLine($"Start Watch: Quality: {PlayerSettings.DefaultLiveQuality} - Low Latency: {PlayerSettings.LiveWatchWithLowLatency} - Limit: {limit}");
+
+                    await _watchSession.StartWachingAsync(PlayerSettings.DefaultLiveQuality, PlayerSettings.LiveWatchWithLowLatency, limit);
+
+                    await TryUpdateLiveStatus();
+
+                    CommunityId = _PlayerProp.SocialGroup.Id;
+
+                    CommunityName = _PlayerProp.SocialGroup.Name;
+
+                    // post comment 
+
+                    CommentSubmitCommand.Subscribe(async () =>
+                    {
+                        var text = CommentSubmitText.Value;
+                        if (string.IsNullOrWhiteSpace(text)) { return; }
                         CommentSubmitText.Value = string.Empty;
-                    }
-                    finally
-                    {
-                        NowCommentSubmitting.Value = false;
-                    }
-                })
-                .AddTo(_navigationDisposables);
 
-                // 生放送ではラウドネス正規化は対応してない
-                SoundVolumeManager.LoudnessCorrectionValue = 1.0;
+                        NowCommentSubmitting.Value = true;
+
+                        try
+                        {
+                            var result = await _watchSession.PostCommentAsync(
+                                text,
+                                LiveElapsedTime + TimeSpan.FromSeconds(1),
+                                this.CommentCommandEditerViewModel.IsAnonymousCommenting.Value,
+                                this.CommentCommandEditerViewModel.SelectedCommentSize.Value?.ToString().ToLower(),
+                                this.CommentCommandEditerViewModel.SelectedAlingment.Value?.ToString().ToLower(),
+                                this.CommentCommandEditerViewModel.SelectedColor.Value?.ToString().ToLower()
+                                );
+
+                            CommentSubmitText.Value = string.Empty;
+                        }
+                        finally
+                        {
+                            NowCommentSubmitting.Value = false;
+                        }
+                    })
+                    .AddTo(_navigationDisposables);
+
+                    // 生放送ではラウドネス正規化は対応してない
+                    SoundVolumeManager.LoudnessCorrectionValue = 1.0;
+                }
             }
-
+            catch
+            {
+                _updateTimer.Stop();
+                await _watchSession.CloseAsync();
+            }
+            finally
+            {
+                NowRefreshing.Value = false;
+            }
         }
 
 
@@ -1297,7 +1305,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             ResetSuggestion(LiveStatusType.Value);
 
-            return LiveStatusType.Value == null;
+            return LiveStatusType.Value != null;
         }
         /// <summary>
         /// 生放送終了後などに表示するユーザーアクションの候補を再設定します。

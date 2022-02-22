@@ -25,7 +25,7 @@
       xmlns:models="using:Hohoema.Models.Domain.Application" 
       xmlns:liveToolkitWatchSession="using:NiconicoToolkit.Live.WatchSession" 
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
-      xmlns:myExt="using:Hohoema.Presentation.Views.Extensions"
+      xmlns:myExt="using:Hohoema.Presentation.Views.Extensions" xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
       NavigationCacheMode="Enabled" 
       DataContext="{x:Null}" 
       mc:Ignorable="d"
@@ -243,7 +243,6 @@
               <TextBlock Text="{Binding PermanentDisplayText.Value}" TextWrapping="Wrap" />
             </Border>
           </Grid>
-          <ProgressRing x:Name="BufferingProgressRing" Visibility="Collapsed" IsActive="False" Width="48" Height="48" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="24 88" />
           <!-- 音量表示 -->
           <controls:TransientContainer Content="{Binding ObservableMediaPlayer.SoundVolume.Value, Mode=OneWay}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16">
             <controls:TransientContainer.Background>
@@ -283,7 +282,7 @@
             <i:Interaction.Behaviors>
               <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" Delay="{Binding PlayerSettings.AutoHidePlayerControlUIPreventTime}" IsVisible="{x:Bind IsDisplayControlUI, Mode=TwoWay}" />
               <core:DataTriggerBehavior Binding="{x:Bind IsDisplayControlUI, Mode=OneWay}" Value="True">
-                <mybehavior:SetFocus TargetObject="{Binding ElementName=RefreshButton}" Delay="00:00:00.00" />
+                <mybehavior:SetFocus TargetObject="{Binding ElementName=PlayPauseToggleButton}" Delay="00:00:00.00" />
               </core:DataTriggerBehavior>
             </i:Interaction.Behaviors>
             <Grid x:Name="DefaultUIControl">
@@ -497,10 +496,6 @@
                       <Button x:Name="PlayPauseToggleButton" Command="{Binding TogglePlayPauseCommand}" VerticalAlignment="Stretch" Visibility="Collapsed" Opacity="1.0" MinWidth="48" MinHeight="48">
                         <iconPack:PackIconMaterial x:Name="PlayPauseButtonIcon" Kind="Play" Width="24" Height="24" Opacity="1.0" />
                       </Button>
-                      <!-- 更新 -->
-                      <Button x:Name="RefreshButton" Command="{Binding RefreshCommand}" VerticalAlignment="Stretch" Visibility="Collapsed" MinWidth="48" MinHeight="48">
-                        <SymbolIcon Symbol="Refresh" />
-                      </Button>
                       <Button x:Name="ForwardVideoPositionButon" Command="{Binding SeekVideoCommand}" CommandParameter="{x:Bind ForwardSeekTime}" Visibility="Collapsed" MinWidth="48" MinHeight="48">
                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;" FontSize="24" />
                       </Button>
@@ -629,6 +624,8 @@
               </ItemsControl>
             </StackPanel>
           </Border>
+
+          <muxc:ProgressRing x:Name="BufferingProgressRing" Visibility="Collapsed" IsActive="False" Width="64" Height="64" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
       </SplitView>
     </toolkit:LayoutTransformControl>
@@ -796,12 +793,8 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTrigger:CompositeStateTrigger Operator="And">
-              <windowsTrigger:EqualsStateTrigger Value="{Binding ObservableMediaPlayer.CurrentState}"
-                                                 EqualTo="Opening" />
-              <windowsTrigger:EqualsStateTrigger Value="{Binding ObservableMediaPlayer.CurrentState}"
-                                                 EqualTo="Buffering" />
-            </windowsTrigger:CompositeStateTrigger>
+            <windowsTrigger:EqualsStateTrigger Value="{Binding ObservableMediaPlayer.NowBuffering.Value}" />
+            <StateTrigger IsActive="{Binding NowRefreshing.Value}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="BufferingProgressRing.IsActive"
@@ -831,13 +824,14 @@
             <Setter Target="PlayPauseToggleButton.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
-        <!-- ストリームの再開 -->
+        <!-- 再生中 -->
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding CanRefresh.Value}" />
+            <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="RefreshButton.Visibility" Value="Visible" />
+            <Setter Target="PlayPauseToggleButton.Visibility" Value="Visible" />
+            <Setter Target="PlayPauseButtonIcon.Kind" Value="Play" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
