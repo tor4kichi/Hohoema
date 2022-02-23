@@ -54,6 +54,9 @@ namespace Hohoema.Presentation.Views.Pages
         private readonly ILogger<PrimaryWindowCoreLayout> _logger;
         private readonly DispatcherQueue _dispatcherQueue;
 
+
+        private static readonly int MaxBackStackCount = 5;
+
         public PrimaryWindowCoreLayout(
             PrimaryWindowCoreLayoutViewModel viewModel,
             Services.CurrentActiveWindowUIContextService currentActiveWindowUIContextService,
@@ -370,17 +373,20 @@ namespace Hohoema.Presentation.Views.Pages
 
         public static bool IsPreventSystemBackNavigation { get; set; }
 
-        private Type[] PreventGoBackPageTypes = new Type[]
+        private readonly ImmutableHashSet<Type> PreventGoBackPageTypes = new Type[]
         {
             typeof(RankingCategoryListPage),
             typeof(FollowManagePage),
-        };
+        }.ToImmutableHashSet();
 
-        private Type[] ForgetOwnNavigationPageTypes = new Type[]
+        private readonly ImmutableHashSet<Type> ForgetOwnNavigationPageTypes = new Type[]
         {
             typeof(Views.Player.LivePlayerPage),
             typeof(Views.Player.VideoPlayerPage),
-        };
+        }.ToImmutableHashSet();
+
+        
+
 
         static readonly Type FallbackPageType = typeof(RankingCategoryListPage);
 
@@ -445,12 +451,7 @@ namespace Hohoema.Presentation.Views.Pages
             // 戻れない設定のページではバックナビゲーションボタンを非表示に切り替え
 
             var isCanGoBackPage = !PreventGoBackPageTypes.Contains(e.SourcePageType);
-            /*SystemNavigationManager.GetForCurrentView().AppViewBackButtonVisibility =
-                isCanGoBackPage
-                ? AppViewBackButtonVisibility.Visible
-                : AppViewBackButtonVisibility.Collapsed
-                ;
-            */
+
             // 戻れない設定のページに到達したら Frame.BackStack から不要なPageEntryを削除する
             if (!isCanGoBackPage)
             {
@@ -506,6 +507,12 @@ namespace Hohoema.Presentation.Views.Pages
                         }
                     }
                     BackParametersStack.Add(parameters);
+                }
+
+                if (ContentFrame.BackStack.Count >= MaxBackStackCount)
+                {
+                    BackParametersStack.RemoveAt(0);
+                    ContentFrame.BackStack.RemoveAt(0);
                 }
 
                 _ = StoreNaviagtionParameterDelayed();

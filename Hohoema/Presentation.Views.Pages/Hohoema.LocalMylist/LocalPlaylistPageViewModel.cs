@@ -140,7 +140,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 
             this.ObserveProperty(x => x.SelectedSortOptionItem, isPushCurrentValueAtFirst: false)
                 .Subscribe(x => ResetList())
-                .AddTo(_NavigatingCompositeDisposable);
+                .AddTo(_navigationDisposables);
 
 
             await base.OnNavigatedToAsync(parameters);
@@ -204,7 +204,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
                             _pageManager.OpenPage(HohoemaPageType.UserMylist);
                         }
                     })
-                    .AddTo(_NavigatingCompositeDisposable);
+                    .AddTo(_navigationDisposables);
             }
         }
     }

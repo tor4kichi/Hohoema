@@ -138,7 +138,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
                 {
                     ResetList();
                 })
-                    .AddTo(_NavigatingCompositeDisposable);
+                    .AddTo(_navigationDisposables);
             }
 
             await base.OnNavigatedToAsync(parameters);

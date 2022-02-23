@@ -367,7 +367,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         {
             _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentQuality)
                 .Subscribe(quality => _scheduler.Schedule(() => CurrentQuality = quality))
-                .AddTo(_NavigatingCompositeDisposable);
+                .AddTo(_navigationDisposables);
 
             _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
                 .Subscribe(item =>
@@ -471,7 +471,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                         }
                     });
                 })
-                .AddTo(_NavigatingCompositeDisposable);
+                .AddTo(_navigationDisposables);
 
             App.Current.Resuming += Current_Resuming;
             App.Current.Suspending += Current_Suspending;

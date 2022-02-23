@@ -595,7 +595,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                         RefreshCommand.Execute();
                     }
                 })
-                .AddTo(_NavigatingCompositeDisposable);
+                .AddTo(_navigationDisposables);
 
                 Observable.FromEventPattern<MylistItemRemovedEventArgs>(
                     h => loginMylist.MylistItemRemoved += h,
@@ -616,7 +616,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                             }
                         }
                     })
-                    .AddTo(_NavigatingCompositeDisposable);
+                    .AddTo(_navigationDisposables);
                 
                 Observable.FromEventPattern<MylistItemMovedEventArgs>(
                 h => loginMylist.MylistMoved += h,
@@ -634,7 +634,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                         }
                     }
                 })
-                .AddTo(_NavigatingCompositeDisposable);
+                .AddTo(_navigationDisposables);
             }
 
             var lastSort = _mylistUserSelectedSortRepository.GetMylistSort(mylistId);
@@ -676,7 +676,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
                 _mylistUserSelectedSortRepository.SetMylistSort(Mylist.Value.MylistId, x.SortKey, x.SortOrder);
             })
-                .AddTo(_NavigatingCompositeDisposable);
+                .AddTo(_navigationDisposables);
 
             EditMylistGroupCommand.RaiseCanExecuteChanged();
             DeleteMylistCommand.RaiseCanExecuteChanged();

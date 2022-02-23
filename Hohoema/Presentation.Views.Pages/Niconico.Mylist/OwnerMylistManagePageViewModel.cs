@@ -188,7 +188,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             {
                 await RefreshPlaylistItems();
             })
-            .AddTo(_NavigatingCompositeDisposable);
+            .AddTo(_navigationDisposables);
 
             /*
             new[]

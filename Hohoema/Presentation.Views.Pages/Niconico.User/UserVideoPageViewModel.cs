@@ -154,7 +154,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
                 this.ObserveProperty(x => x.SelectedSortOption)
                     .Where(x => x is not null)
                     .Subscribe(_ => ResetList())
-                    .AddTo(_NavigatingCompositeDisposable);
+                    .AddTo(_navigationDisposables);
             }
 
             await base.OnNavigatedToAsync(parameters);

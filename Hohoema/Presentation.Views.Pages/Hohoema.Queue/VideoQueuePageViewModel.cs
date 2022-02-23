@@ -95,7 +95,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
                 this.ObserveProperty(x => x.SelectedSortOptionItem, isPushCurrentValueAtFirst: false).ToUnit()
                 )
                 .Subscribe(sort => ResetList())
-                .AddTo(_NavigatingCompositeDisposable);
+                .AddTo(_navigationDisposables);
 
 
             _messenger.Register<PlaylistItemRemovedMessage, PlaylistId>(this, QueuePlaylist.Id, (r, m) => 

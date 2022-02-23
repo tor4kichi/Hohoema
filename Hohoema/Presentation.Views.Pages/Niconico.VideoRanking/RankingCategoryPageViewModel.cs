@@ -251,125 +251,129 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                 .AddTo(_CompositeDisposable);
         }
 
+        private (RankingGenre? genre, string ?tag) GetRankingParameters(INavigationParameters parameters)
+        {
+            return (parameters.TryGetRankingGenre(out var rankingGenre) ? rankingGenre : null, parameters.TryGetRankingGenreTag(out var queryTag) ? queryTag : null);
+        }
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            using (await _updateLock.LockAsync(NavigationCancellationToken))
-            {
-                _IsNavigateCompleted = false;
+            using var _ = await _updateLock.LockAsync(NavigationCancellationToken);
+            
+            _IsNavigateCompleted = false;
 
-                var mode = parameters.GetNavigationMode();
+            var mode = parameters.GetNavigationMode();
                 
-                SelectedRankingTag.Value = null;
+            SelectedRankingTag.Value = null;
                 
-                if (parameters.TryGetRankingGenre(out var rankingGenre))
+            var (rankingGenre, rankingGenreTag) = GetRankingParameters(parameters);
+
+            if (rankingGenre == null)
+            {
+                throw new Models.Infrastructure.HohoemaExpception("ランキングページの表示に失敗");
+            }
+
+            RankingGenre = rankingGenre.Value;
+
+            _isRequireUpdate = RankingGenre != _previousRankingGenre;
+
+            // TODO: 人気のタグ、いつ再更新を掛ける
+            try
+            {
+                PickedTags.Clear();
+                var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre);
+                foreach (var tag in tags)
                 {
-                    RankingGenre = rankingGenre;
+                    PickedTags.Add(tag);
+                }
+            }
+            catch { }
+
+            if (rankingGenreTag is not null)
+            {
+                var tag = PickedTags.FirstOrDefault(x => x.Tag == rankingGenreTag);
+                if (tag != null)
+                {
+                    SelectedRankingTag.Value = tag;
                 }
                 else
                 {
-                    throw new Models.Infrastructure.HohoemaExpception("ランキングページの表示に失敗");
-                }
-
-                _isRequireUpdate = RankingGenre != _previousRankingGenre;
-
-                // TODO: 人気のタグ、いつ再更新を掛ける
-                try
-                {
-                    PickedTags.Clear();
-                    var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre);
-                    foreach (var tag in tags)
-                    {
-                        PickedTags.Add(tag);
-                    }
-                }
-                catch { }
-
-                if (parameters.TryGetRankingGenreTag(out var queryTag))
-                {
-                    var tag = PickedTags.FirstOrDefault(x => x.Tag == queryTag);
-                    if (tag != null)
-                    {
-                        SelectedRankingTag.Value = tag;
-                    }
-                    else
-                    {
-                        Debug.WriteLine("無効なタグです: " + queryTag);
-                        SelectedRankingTag.Value = PickedTags.FirstOrDefault();
-                    }
-                }
-
-                if (SelectedRankingTag.Value == null)
-                {
+                    Debug.WriteLine("無効なタグです: " + rankingGenreTag);
                     SelectedRankingTag.Value = PickedTags.FirstOrDefault();
                 }
+            }
 
-                if (_isRequireUpdate is false)
-                {
-                    _isRequireUpdate = SelectedRankingTag.Value != _prevRankingGenreTag;
-                }
+            if (SelectedRankingTag.Value == null)
+            {
+                SelectedRankingTag.Value = PickedTags.FirstOrDefault();
+            }
 
-                _IsNavigateCompleted = true;
+            _IsNavigateCompleted = true;
 
-                HasError
-                    .Where(x => x)
-                    .Subscribe(async _ =>
+            HasError
+                .Where(x => x)
+                .Subscribe(async _ =>
+            {
+                try
                 {
                     try
                     {
-                        try
+                        var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre, isForceUpdate: true);
+                        PickedTags.Clear();
+                        foreach (var tag in tags)
                         {
-                            var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre, isForceUpdate: true);
-                            PickedTags.Clear();
-                            foreach (var tag in tags)
-                            {
-                                PickedTags.Add(tag);
-                            }
-                        }
-                        catch
-                        {
-                            return;
-                        }
-
-
-
-                        var sameGenreFavTags = RankingSettings.FavoriteTags.Where(x => x.Genre == RankingGenre).ToArray();
-                        foreach (var oldFavTag in sameGenreFavTags)
-                        {
-                            if (false == PickedTags.Any(x => x.Tag == oldFavTag.Tag))
-                            {
-                                RankingSettings.RemoveFavoriteTag(RankingGenre, oldFavTag.Tag);
-                            }
-                        }
-
-                        var selectedTag = SelectedRankingTag.Value;
-                        if (selectedTag.Tag != null)
-                        {
-                            if (false == PickedTags.Any(x => x.Tag == selectedTag.Tag))
-                            {
-                                SelectedRankingTag.Value = PickedTags.ElementAtOrDefault(0);
-
-
-                                // TODO: i18n：人気タグがオンライン側で外れた場合の通知
-                                _notificationService.ShowLiteInAppNotification($"「{selectedTag.Label}」は人気のタグの一覧から外れたようです", DisplayDuration.MoreAttention);
-                            }
+                            PickedTags.Add(tag);
                         }
                     }
                     catch
                     {
-
+                        return;
                     }
-                })
-                    .AddTo(_NavigatingCompositeDisposable);
 
-                await base.OnNavigatedToAsync(parameters);
-            }
+
+
+                    var sameGenreFavTags = RankingSettings.FavoriteTags.Where(x => x.Genre == RankingGenre).ToArray();
+                    foreach (var oldFavTag in sameGenreFavTags)
+                    {
+                        if (false == PickedTags.Any(x => x.Tag == oldFavTag.Tag))
+                        {
+                            RankingSettings.RemoveFavoriteTag(RankingGenre, oldFavTag.Tag);
+                        }
+                    }
+
+                    var selectedTag = SelectedRankingTag.Value;
+                    if (selectedTag.Tag != null)
+                    {
+                        if (false == PickedTags.Any(x => x.Tag == selectedTag.Tag))
+                        {
+                            SelectedRankingTag.Value = PickedTags.ElementAtOrDefault(0);
+
+
+                            // TODO: i18n：人気タグがオンライン側で外れた場合の通知
+                            _notificationService.ShowLiteInAppNotification($"「{selectedTag.Label}」は人気のタグの一覧から外れたようです", DisplayDuration.MoreAttention);
+                        }
+                    }
+                }
+                catch
+                {
+
+                }
+            })
+                .AddTo(_navigationDisposables);
+
+            await base.OnNavigatedToAsync(parameters);
+            
         }
 
-        protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
+        protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode, INavigationParameters parameters)
         {
-            if (_isRequireUpdate) { return true; }
-            return base.CheckNeedUpdateOnNavigateTo(mode);
+            var (rankingGenre, rankingGenreTag) = GetRankingParameters(parameters);
+            if (rankingGenre == RankingGenre && rankingGenreTag == SelectedRankingTag.Value?.Tag)
+            {
+                return false;
+            }
+
+            return base.CheckNeedUpdateOnNavigateTo(mode, parameters);
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
