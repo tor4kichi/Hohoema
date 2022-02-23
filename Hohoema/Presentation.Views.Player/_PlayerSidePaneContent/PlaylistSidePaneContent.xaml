@@ -7,7 +7,7 @@
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-  xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+  xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:iconPack="using:MahApps.Metro.IconPacks"
   xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" 
@@ -18,19 +18,19 @@
   d:DesignWidth="400"
   >
   <Grid>
-    <toolkit:DockPanel x:Name="RootLayout">
+    <uwpControls:DockPanel x:Name="RootLayout">
       <i:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Loaded">
           <mybehavior:SetFocus TargetObject="{Binding ElementName=ShuffleSwitchingButton}" />
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
 
-      <toolkit:DockPanel x:Name="HeaderLayout" toolkit:DockPanel.Dock="Top">
+      <uwpControls:DockPanel x:Name="HeaderLayout" uwpControls:DockPanel.Dock="Top">
 
         <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
           <CommandBar.Content>
             <StackPanel Margin="8 0">
-              <TextBlock toolkit:DockPanel.Dock="Top" Text="{i18nExt:Localize Key=CurrentPlaylist}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0" Opacity="0.7"></TextBlock>
+              <TextBlock uwpControls:DockPanel.Dock="Top" Text="{i18nExt:Localize Key=CurrentPlaylist}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0" Opacity="0.7"></TextBlock>
               <TextBlock Text="{Binding CurrentPlaylist.Value.Name, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" Margin="0" VerticalAlignment="Top" />
             </StackPanel>
           </CommandBar.Content>
@@ -47,7 +47,7 @@
             <AppBarButton Label="{i18nExt:Localize Key=OpenPlaylistSourcePage}"  Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding CurrentPlaylist.Value, Mode=OneWay}" />
           </CommandBar.SecondaryCommands>
         </CommandBar>
-      </toolkit:DockPanel>
+      </uwpControls:DockPanel>
 
       <ListView x:Name="ItemsListView"
                 ItemsSource="{Binding CurrentItems}" 
@@ -76,7 +76,7 @@
         </ListView.ItemTemplate>
       </ListView>
 
-    </toolkit:DockPanel>
+    </uwpControls:DockPanel>
     <VisualStateManager.VisualStateGroups>
       <!-- Xbox -->
       <VisualStateGroup>

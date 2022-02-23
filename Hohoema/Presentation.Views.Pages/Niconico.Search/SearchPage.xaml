@@ -7,11 +7,9 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:mvvm="using:Prism.Mvvm"
     xmlns:view="using:Hohoema.Presentation.Views"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:Hohoema.Presentation.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
@@ -94,7 +92,7 @@
             </StackPanel>
           </Button>
 
-          <TextBox Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" ext:TextBoxFocusExtensions.AutoSelectOnFocus="True" VerticalAlignment="Stretch" InputScope="Search" x:Name="SearchTextBox" Margin="0 0 0 0" Height="40" FontSize="16" Style="{StaticResource BGTransparentTextBoxStyle}">
+          <TextBox x:Name="SearchTextBox" Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" InputScope="Search" Margin="0 0 0 0" Height="40" FontSize="16" Style="{StaticResource BGTransparentTextBoxStyle}">
             <i:Interaction.Behaviors>
               <mybehavior:KeyboardTrigger Key="Enter">
                 <mybehavior:KeyboardTrigger.Actions>
@@ -102,6 +100,9 @@
                   <mybehavior:HideInputPaneAction />
                 </mybehavior:KeyboardTrigger.Actions>
               </mybehavior:KeyboardTrigger>
+              <core:EventTriggerBehavior EventName="GotFocus">
+                <core:CallMethodAction TargetObject="{x:Bind SearchTextBox}" MethodName="SelectAll" />
+              </core:EventTriggerBehavior>
             </i:Interaction.Behaviors>
           </TextBox>
         </uwpControls:DockPanel>

@@ -6,8 +6,7 @@
              xmlns:i="using:Microsoft.Xaml.Interactivity"
              xmlns:core="using:Microsoft.Xaml.Interactions.Core"
              xmlns:mvvm="using:Prism.Mvvm"
-             xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-             xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+             xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
              xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
              xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
              xmlns:myconverter="using:Hohoema.Presentation.Views.Converters"
@@ -15,7 +14,7 @@
              xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
              xmlns:models="using:Hohoema.Models.Domain.Application" 
              xmlns:local="using:Hohoema.Presentation.Views.Player"
-             xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+             xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="400">
@@ -41,9 +40,6 @@
       <Setter Property="VerticalAlignment" Value="Center" />
       <Setter Property="Margin" Value="8 0 0 0" />
     </Style>
-    <Style TargetType="toolkit:NumericUpDown">
-      <Setter Property="BorderThickness" Value="1" />
-    </Style>
   </UserControl.Resources>
   <Grid>
     <ScrollViewer>
@@ -51,26 +47,26 @@
                       Spacing="16"
                       >
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}" Visibility="Collapsed">
-          <toolkit:DockPanel x:Name="LivePlayerSettingsPanel"
+          <uwpControls:DockPanel x:Name="LivePlayerSettingsPanel"
                          Visibility="Collapsed">
             <TextBlock Text="{i18nExt:Localize Key=LivePlayerSettings}"
                    FontSize="18"
                    VerticalAlignment="Center"
                    FontWeight="SemiBold"
-                   toolkit:DockPanel.Dock="Left" />
+                   uwpControls:DockPanel.Dock="Left" />
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}"/>
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
         </StackPanel>
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
-          <toolkit:DockPanel>
+          <uwpControls:DockPanel>
             <TextBlock Text="{i18nExt:Localize Key=CommentSubmitSettings}"
                             FontSize="18"
                             VerticalAlignment="Center"
                         FontWeight="SemiBold"
-                            toolkit:DockPanel.Dock="Left"
+                            uwpControls:DockPanel.Dock="Left"
                         />
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
           <Grid>
             <TextBlock Text="{i18nExt:Localize Key=EnableAnonimityCommentCommandAsDefault}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
@@ -81,20 +77,20 @@
           </Grid>
         </StackPanel>
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
-          <toolkit:DockPanel>
+          <uwpControls:DockPanel>
             <TextBlock Text="{i18nExt:Localize Key=CommentDisplaySettings}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
-                            toolkit:DockPanel.Dock="Left"
+                            uwpControls:DockPanel.Dock="Left"
                         />
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
           <Grid>
             <TextBlock Text="{i18nExt:Localize Key=CommentDisplayDuration}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.CommentDisplayDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToDoubleConverter}}"
+            <muxc:NumberBox x:Name="CommentDisplayDurationNumberBox" Value="{x:Bind _viewModel.PlayerSettings.CommentDisplayDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToDoubleConverter}}"
                             Maximum="10"
                             Minimum="1"
                             SmallChange="0.5"
@@ -104,25 +100,45 @@
                             IsTabStop="False"
                             UseSystemFocusVisuals="True"
                             HorizontalAlignment="Right"
-                          />
+                            SpinButtonPlacementMode="Inline"
+                          >
+              <i:Interaction.Behaviors>
+                <mybehavior:UINavigationTrigger Kind="Right" IsRequireFocus="True">
+                  <core:CallMethodAction TargetObject="{x:Bind}" MethodName="IncreaseCommentDisplayTime" />
+                </mybehavior:UINavigationTrigger>
+                <mybehavior:UINavigationTrigger Kind="Left" IsRequireFocus="True">
+                  <core:CallMethodAction TargetObject="{x:Bind}" MethodName="DecreaseCommentDisplayTime" />
+                </mybehavior:UINavigationTrigger>
+              </i:Interaction.Behaviors>
+            </muxc:NumberBox>
           </Grid>
           <Grid>
             <TextBlock Text="{i18nExt:Localize Key=CommentDisplaySize}"
-                           toolkit:DockPanel.Dock="Left"
+                           uwpControls:DockPanel.Dock="Left"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.DefaultCommentFontScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                       SmallChange="0.05"
-                                       LargeChange="1.0"
-                                       Minimum="0.1"
-                                       Maximum="2.0"
-                                        Margin="0 4"
-                                        IsTabStop="False"
-                                        IsFocusEngagementEnabled="True"
-                                        UseSystemFocusVisuals="True"
-                                 Width="200"
-                                 HorizontalAlignment="Right"
-                                       />
+            <muxc:NumberBox x:Name="CommentFontScaleNumberBox" Value="{x:Bind _viewModel.PlayerSettings.DefaultCommentFontScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            SmallChange="0.05"
+                            LargeChange="1.0"
+                            Minimum="0.1"
+                            Maximum="2.0"
+                            Margin="0 4"
+                            IsTabStop="False"
+                            IsFocusEngagementEnabled="True"
+                            UseSystemFocusVisuals="True"
+                            Width="200"
+                            HorizontalAlignment="Right"
+                            SpinButtonPlacementMode="Inline"
+                            >
+              <i:Interaction.Behaviors>
+                <mybehavior:UINavigationTrigger Kind="Right" IsRequireFocus="True">
+                  <core:CallMethodAction TargetObject="{x:Bind}" MethodName="IncreaseCommentFontScale" />
+                </mybehavior:UINavigationTrigger>
+                <mybehavior:UINavigationTrigger Kind="Left" IsRequireFocus="True">
+                  <core:CallMethodAction TargetObject="{x:Bind}" MethodName="DecreaseCommentFontScale" />
+                </mybehavior:UINavigationTrigger>
+              </i:Interaction.Behaviors>
+            </muxc:NumberBox>
           </Grid>
           <Grid>
             <TextBlock Text="{i18nExt:Localize Key=CommentOpacity}"
@@ -164,15 +180,15 @@
         </StackPanel>
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
           <!--NGコメント-->
-          <toolkit:DockPanel>
+          <uwpControls:DockPanel>
             <TextBlock Text="{i18nExt:Localize Key=CommentFilteringSettings}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
-                            toolkit:DockPanel.Dock="Left"
+                            uwpControls:DockPanel.Dock="Left"
                         />
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
           <!-- NGコメント -->
           <!-- NG共有スコア -->
           <Grid Visibility="Visible">
@@ -192,9 +208,9 @@
           </Grid>
           <!-- NG ユーザーID -->
           <!--
-                    <toolkit:DockPanel Margin="8">
+                    <uwpControls:DockPanel Margin="8">
                         <TextBlock Text="ユーザーIDによるNGコメント機能を有効にする"
-                           toolkit:DockPanel.Dock="Left"
+                           uwpControls:DockPanel.Dock="Left"
                            VerticalAlignment="Center"
                            />
                         <ToggleButton Width="32" Height="32" 
@@ -202,7 +218,7 @@
                                   IsChecked="{Binding NGCommentUserIdEnable.Value, Mode=TwoWay}"
                                   HorizontalAlignment="Right"
                                           />
-                    </toolkit:DockPanel>
+                    </uwpControls:DockPanel>
 
 
                     <ListView ItemsSource="{Binding NGCommentUserIds}"
@@ -238,31 +254,31 @@
         </StackPanel>
        
         <StackPanel x:Name="DesktopPlayerSettingsLayout" Style="{StaticResource SettingsGroupStackPanel}">
-          <toolkit:DockPanel>
+          <uwpControls:DockPanel>
             <TextBlock Text="{i18nExt:Localize Key=DesktopSettings}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
-                            toolkit:DockPanel.Dock="Left"
+                            uwpControls:DockPanel.Dock="Left"
                         />
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
           <Grid>
             <TextBlock Text="{i18nExt:Localize Key=SoundVolumeChangeValueWithMouseScroll}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.SoundVolumeChangeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
-                                                SmallChange="1"
-                                                LargeChange="5"
-                                                Minimum="1"
-                                                Maximum="10"
-                                                ValueFormat="F0"
-                                       Width="180"
-                                               IsFocusEngagementEnabled="True"
-                                               IsTabStop="False"
-                                               UseSystemFocusVisuals="True"
-                                       HorizontalAlignment="Right"
-                                    />
+            <muxc:NumberBox Value="{x:Bind _viewModel.PlayerSettings.SoundVolumeChangeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
+                            SmallChange="1"
+                            LargeChange="5"
+                            Minimum="1"
+                            Maximum="10"
+                            Width="180"
+                            IsFocusEngagementEnabled="True"
+                            IsTabStop="False"
+                            UseSystemFocusVisuals="True"
+                            HorizontalAlignment="Right"
+                            SpinButtonPlacementMode="Inline"
+                          />
           </Grid>
         </StackPanel>
       </StackPanel>

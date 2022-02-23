@@ -135,10 +135,17 @@ namespace Hohoema.Models.Domain.Application
 
         private bool SetCacheImage(string id, string imageUrl, IInputStream stream)
         {
-            id = $"$/{id}";
-            var file = _fileStorage.Upload(id, imageUrl, stream.AsStreamForRead());
-            _fileStorage.SetMetadata(id, new BsonDocument(new Dictionary<string, BsonValue>() { { "updateAt", DateTime.Now } }));
-            return true;
+            try
+            {
+                id = $"$/{id}";
+                var file = _fileStorage.Upload(id, imageUrl, stream.AsStreamForRead());
+                _fileStorage.SetMetadata(id, new BsonDocument(new Dictionary<string, BsonValue>() { { "updateAt", DateTime.Now } }));
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

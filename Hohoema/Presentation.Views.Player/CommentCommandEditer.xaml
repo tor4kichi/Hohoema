@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:view="using:Hohoema.Presentation.Views"
-             xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+             xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
              xmlns:i="using:Microsoft.Xaml.Interactivity"
              xmlns:core="using:Microsoft.Xaml.Interactions.Core"
              xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
@@ -365,13 +365,13 @@
                       IsOn="{Binding IsUseCustomCommandText.Value, Mode=TwoWay}"
                       HorizontalAlignment="Right" />
       </Grid>
-      <toolkit:DockPanel>
+      <uwpControls:DockPanel>
         <TextBox x:Name="UserInputCommand"
                  Text="{Binding CustomCommandText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                  PlaceholderText="{i18nExt:Localize Key=FreeInputCommandTextBoxPlacefolderText}"
                  Visibility="Collapsed"
                  />
-      </toolkit:DockPanel>
+      </uwpControls:DockPanel>
     </StackPanel>
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>

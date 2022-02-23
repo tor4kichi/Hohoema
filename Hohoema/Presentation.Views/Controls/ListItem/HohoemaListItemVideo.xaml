@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:myTrigger="using:Hohoema.Presentation.Views.StateTrigger"
     mc:Ignorable="d"
@@ -40,18 +40,18 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-    <toolkit:DockPanel Margin="4 0 0 0"
+    <uwpControls:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
                            >
 
       <Border Width="2"
                     Margin="0 0 2 0"
-                    toolkit:DockPanel.Dock="Left"
+                    uwpControls:DockPanel.Dock="Left"
                     Background="{Binding ThemeColor, Converter={StaticResource ColorToBrush}}"
                     />
 
       <Grid Margin="0 0 8 0"
-                  toolkit:DockPanel.Dock="Left"
+                  uwpControls:DockPanel.Dock="Left"
                   Width="114"
                   Height="62"
                   >
@@ -84,7 +84,7 @@
         </Border>
       </Grid>
 
-      <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+      <uwpControls:DockPanel uwpControls:DockPanel.Dock="Top">
 
         <TextBlock Text="{Binding OptionText, Mode=OneWay}" 
                            Opacity="0.7"
@@ -94,17 +94,17 @@
 
         <Border />
 
-      </toolkit:DockPanel>
+      </uwpControls:DockPanel>
 
 
-      <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" >
+      <uwpControls:DockPanel uwpControls:DockPanel.Dock="Bottom" >
 
         <TextBlock Text="{Binding Description, Mode=OneWay}" 
                            Opacity="0.7"
                            FontSize="13"
                            TextLineBounds="Tight"
                        />
-      </toolkit:DockPanel>
+      </uwpControls:DockPanel>
 
       <TextBlock Text="{Binding Label, Mode=OneWay}" 
                        FontSize="16"
@@ -114,6 +114,6 @@
                        />
 
 
-    </toolkit:DockPanel>
+    </uwpControls:DockPanel>
   </Grid>
 </UserControl>

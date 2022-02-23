@@ -4,7 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+  xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
@@ -36,9 +36,9 @@
     </DataTemplate>
   </Page.Resources>
   <Grid x:Name="ContentLayoutRoot">
-    <toolkit:DockPanel x:Name="ContentLayout"
+    <uwpControls:DockPanel x:Name="ContentLayout"
                        Margin="0 0 0 0">
-      <Border toolkit:DockPanel.Dock="Top"
+      <Border uwpControls:DockPanel.Dock="Top"
               x:Name="HeaderPanel"
               BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}"
               >
@@ -130,7 +130,7 @@
           </Style>
         </GridView.ItemContainerStyle>
       </GridView>
-    </toolkit:DockPanel>
+    </uwpControls:DockPanel>
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
       <VisualStateGroup>

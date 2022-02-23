@@ -9,7 +9,7 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mycontrols="using:Hohoema.Presentation.Views.Controls"
     xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI"
@@ -22,11 +22,11 @@
   <UserControl.Resources>
     
     <DataTemplate x:Key="MiniListItemTemplate">
-      <toolkit:DockPanel Margin="4 0 0 0"
+      <uwpControls:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
                            >
         <Grid Margin="0 0 8 0"
-                  toolkit:DockPanel.Dock="Left"
+                  uwpControls:DockPanel.Dock="Left"
                   MaxHeight="60"
                   Width="80"
                   >
@@ -60,7 +60,7 @@
           </Border>
         </Grid>
 
-        <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+        <uwpControls:DockPanel uwpControls:DockPanel.Dock="Top">
 
           <TextBlock Text="{Binding OptionText, Mode=OneWay}" 
                            Opacity="0.7"
@@ -70,16 +70,16 @@
 
           <Border />
 
-        </toolkit:DockPanel>
+        </uwpControls:DockPanel>
 
-        <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" >
+        <uwpControls:DockPanel uwpControls:DockPanel.Dock="Bottom" >
 
           <TextBlock Text="{Binding Description, Mode=OneWay}" 
                            Opacity="0.7"
                            FontSize="13"
                            TextLineBounds="Tight"
                        />
-        </toolkit:DockPanel>
+        </uwpControls:DockPanel>
 
         <TextBlock Text="{Binding Label, Mode=OneWay}" 
                        FontSize="16"
@@ -88,7 +88,7 @@
                        />
 
 
-      </toolkit:DockPanel>
+      </uwpControls:DockPanel>
     </DataTemplate>
   </UserControl.Resources>
   <Grid>
@@ -125,20 +125,20 @@
                   Margin="0 48 0 0"
                   />
 
-    <toolkit:DockPanel x:Name="RootLayout">
+    <uwpControls:DockPanel x:Name="RootLayout">
 
-      <StackPanel toolkit:DockPanel.Dock="Top"
+      <StackPanel uwpControls:DockPanel.Dock="Top"
                   Margin="0 0 0 0"
                   x:Name="HeaderLayout">
-        <toolkit:DockPanel>
+        <uwpControls:DockPanel>
           <StackPanel Orientation="Horizontal"
-                      toolkit:DockPanel.Dock="Left">
+                      uwpControls:DockPanel.Dock="Left">
 
             <Border />
           </StackPanel>
-        </toolkit:DockPanel>
+        </uwpControls:DockPanel>
       </StackPanel>
-      <StackPanel toolkit:DockPanel.Dock="Bottom"
+      <StackPanel uwpControls:DockPanel.Dock="Bottom"
                   x:Name="FooterLayout">
 
       </StackPanel>
@@ -146,7 +146,7 @@
       <ScrollViewer>
         <StackPanel>
 
-          <StackPanel toolkit:DockPanel.Dock="Top"
+          <StackPanel uwpControls:DockPanel.Dock="Top"
                       Visibility="{Binding NextVideo, Converter={StaticResource NotNullToVisibility}}">
             <!-- 次動画 -->
             <TextBlock Text="次パート動画"
@@ -231,6 +231,6 @@
           </StackPanel>
         </StackPanel>
       </ScrollViewer>
-    </toolkit:DockPanel>
+    </uwpControls:DockPanel>
   </Grid>
 </UserControl>

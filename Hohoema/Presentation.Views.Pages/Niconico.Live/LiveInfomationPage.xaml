@@ -6,8 +6,7 @@
       mc:Ignorable="d"
       xmlns:i="using:Microsoft.Xaml.Interactivity"
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-      xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-      xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:iconPack="using:MahApps.Metro.IconPacks"
       xmlns:models="using:Hohoema.Models.Domain.Application"
       xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
@@ -28,24 +27,24 @@
 
         <!-- サムネ、タイトル、視聴開始、タイムシフト予約 -->
         <Border>
-          <uwptoolkit:DockPanel x:Name="HeaderLayout"
+          <uwpControls:DockPanel x:Name="HeaderLayout"
                             >
 
-            <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+            <uwpControls:DockPanel uwpControls:DockPanel.Dock="Top">
               <Image Source="{Binding LiveProgram.ThumbnailUrl}"
                    Height="80"
                    Margin="0 8 16 16"
-                   toolkit:DockPanel.Dock="Left"
+                   uwpControls:DockPanel.Dock="Left"
                     />
 
               <controls:AppTitleBar Title="{Binding Title}" />
-            </toolkit:DockPanel>
+            </uwpControls:DockPanel>
 
           
-          </uwptoolkit:DockPanel>
+          </uwpControls:DockPanel>
         </Border>
 
-        <uwptoolkit:WrapPanel Orientation="Horizontal"
+        <uwpControls:WrapPanel Orientation="Horizontal"
                             VerticalAlignment="Center"
                             x:Name="ViewActionButtonsLayout"
                             Margin="0 0 0 0"
@@ -106,12 +105,12 @@
               </MenuFlyout>
             </Button.Flyout>
           </Button>
-        </uwptoolkit:WrapPanel>
+        </uwpControls:WrapPanel>
 
 
         <!-- 放送日時 -->
         <StackPanel Orientation="Horizontal">
-          <StackPanel toolkit:DockPanel.Dock="Bottom"
+          <StackPanel uwpControls:DockPanel.Dock="Bottom"
                           Margin="16 8"
                           >
             <TextBlock Text="{i18nExt:Localize Key=LiveStreamingStartAt}" />
@@ -121,7 +120,7 @@
             </TextBlock>
           </StackPanel>
 
-          <StackPanel toolkit:DockPanel.Dock="Bottom"
+          <StackPanel uwpControls:DockPanel.Dock="Bottom"
                           Margin="16 8"
                           >
             <TextBlock Text="{i18nExt:Localize Key=LiveStreamingEndAt}">
@@ -148,7 +147,7 @@
           <ItemsControl ItemsSource="{Binding LiveTags}">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
-                <uwptoolkit:WrapPanel Orientation="Horizontal" />
+                <uwpControls:WrapPanel Orientation="Horizontal" />
               </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemContainerStyle>
@@ -226,15 +225,15 @@
         </StackPanel>
         
         <!-- 説明文内のリンク -->
-        <uwptoolkit:Expander IsExpanded="False"
+        <uwpControls:Expander IsExpanded="False"
                                    Visibility="Collapsed"
                                    x:Name="DescriptionHyperlinkItems">
-          <uwptoolkit:Expander.HeaderTemplate>
+          <uwpControls:Expander.HeaderTemplate>
             <DataTemplate>
               <TextBlock Text="{i18nExt:Localize Key=LinkItemsInLiveStreamingDescription}"
                                Style="{StaticResource SubtitleTextBlockStyle}" />
             </DataTemplate>
-          </uwptoolkit:Expander.HeaderTemplate>
+          </uwpControls:Expander.HeaderTemplate>
           <GridView ItemsSource="{Binding DescriptionHyperlinkItems, Mode=OneWay}"
                           IsItemClickEnabled="True"
                           HorizontalContentAlignment="Stretch"
@@ -259,37 +258,37 @@
               </Style>
             </GridView.ItemContainerStyle>
           </GridView>
-        </uwptoolkit:Expander>
+        </uwpControls:Expander>
 
 
         <!-- 放送者情報（Community） -->
         <Grid Visibility="{Binding Community, Converter={StaticResource NotNullToVisibility}}">
-          <toolkit:DockPanel x:Name="BroadcasterDesc_Other">
-            <StackPanel toolkit:DockPanel.Dock="Top">
-              <toolkit:DockPanel Margin="0 0 0 0">
+          <uwpControls:DockPanel x:Name="BroadcasterDesc_Other">
+            <StackPanel uwpControls:DockPanel.Dock="Top">
+              <uwpControls:DockPanel Margin="0 0 0 0">
                 <Image Source="{Binding Community.Thumbnail}"
                            Height="60"
                            Margin="0 0 8 0"
-                           toolkit:DockPanel.Dock="Left" />
+                           uwpControls:DockPanel.Dock="Left" />
                 <TextBlock Text="{Binding Community.Name}"
                                Style="{StaticResource TitleTextBlockStyle}"
                                VerticalAlignment="Center"
                                Margin="16 0 0 0"
                                />
-              </toolkit:DockPanel>
+              </uwpControls:DockPanel>
             </StackPanel>
             <Border Height="16"
-                        toolkit:DockPanel.Dock="Top" />
+                        uwpControls:DockPanel.Dock="Top" />
             <StackPanel Orientation="Horizontal"
-                            toolkit:DockPanel.Dock="Top">
+                            uwpControls:DockPanel.Dock="Top">
               <Button Content="{i18nExt:Localize Key=CommunityDetail}"
                           Command="{Binding PageManager.OpenPageCommand}"
                           CommandParameter="{Binding Community}"
                           Visibility="{Binding Community, Converter={StaticResource NotNullToVisibility}}" />
             </StackPanel>
             <Border Height="16"
-                        toolkit:DockPanel.Dock="Top" />
-          </toolkit:DockPanel>
+                        uwpControls:DockPanel.Dock="Top" />
+          </uwpControls:DockPanel>
           <Grid x:Name="BroadcasterDesc_Official"
                     Visibility="Collapsed">
             <TextBlock Text="{i18nExt:Localize Key=ThisStreamingIsPresentedByOfficial}" />
@@ -321,7 +320,7 @@
             </ItemsControl.ItemContainerStyle>
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
-                <uwptoolkit:WrapPanel Orientation="Horizontal" />
+                <uwpControls:WrapPanel Orientation="Horizontal" />
               </ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
           </ItemsControl>

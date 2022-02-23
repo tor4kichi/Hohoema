@@ -7,8 +7,6 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-  xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-  xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
   xmlns:models="using:Hohoema.Models.Domain.Application"
   xmlns:viewmodel="using:Hohoema.Presentation.ViewModels"
@@ -289,17 +287,17 @@
         </i:Interaction.Behaviors>
       </Grid>
       
-      <toolkit:DockPanel>
+      <uwpControls:DockPanel>
 
         <!-- 上側 プレイリスト 操作 -->
-        <toolkit:DockPanel x:Name="UIControlHeaderLayout" toolkit:DockPanel.Dock="Top">
+        <uwpControls:DockPanel x:Name="UIControlHeaderLayout" uwpControls:DockPanel.Dock="Top">
 
           <!-- Title Bar Margin -->
-          <Grid x:Name="TitleBarMarginLayout" Height="32" toolkit:DockPanel.Dock="Top" Visibility="Collapsed">
+          <Grid x:Name="TitleBarMarginLayout" Height="32" uwpControls:DockPanel.Dock="Top" Visibility="Collapsed">
             <TextBlock x:Name="TitleTextBlock" Text="{Binding VideoInfo.Title}" Style="{ThemeResource CaptionTextBlockStyle}" Visibility="Collapsed" Margin="8" />
           </Grid>
           <!-- 左上 -->
-          <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
+          <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Left">
             <!-- 閉じる -->
             <Button x:Name="CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" Background="Transparent" UseSystemFocusVisuals="True" Width="48" Height="48">
               <iconPack:PackIconMaterial Kind="Close" />
@@ -313,17 +311,17 @@
             </Button>
           </StackPanel>
           <!-- 右上 -->
-          <Button x:Name="ExitWindonwInWindowViewButton" Command="{Binding PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0">
+          <Button x:Name="ExitWindonwInWindowViewButton" Command="{Binding PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" uwpControls:DockPanel.Dock="Right" Margin="0 8 0 0">
             <SymbolIcon Symbol="FullScreen" />
           </Button>
-          <Button x:Name="ExitCompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0">
+          <Button x:Name="ExitCompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" uwpControls:DockPanel.Dock="Right" Margin="0 8 0 0">
             <SymbolIcon Symbol="FullScreen" />
           </Button>
 
           <Border />
-        </toolkit:DockPanel>
+        </uwpControls:DockPanel>
         <!-- 下側 動画コンテンツ 操作 -->
-        <StackPanel x:Name="UIControlContentLayout" toolkit:DockPanel.Dock="Bottom" Padding="0 0 0 8">
+        <StackPanel x:Name="UIControlContentLayout" uwpControls:DockPanel.Dock="Bottom" Padding="0 0 0 8">
           <!-- シークバー -->
           <Grid Margin="0 0 0 12">
             <TextBlock x:Name="SeekDisabledFromNicoScriptText" Text="{i18nExt:Localize Key=DisableSeekFromNicoScript}" Visibility="Collapsed" VerticalAlignment="Bottom" HorizontalAlignment="Center" Opacity="0.6" />
@@ -359,7 +357,7 @@
                         <DataTemplate>
                           <StackPanel Orientation="Horizontal" Spacing="8">
                             <TextBlock Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />
-                            <TextBlock toolkitext:ListViewItemExtensions.IsEnabled="{Binding IsAvailable}">
+                            <TextBlock >
                                            <Run Text="{Binding Bitrate, Converter={StaticResource ToKMGTPEZY}}" />bps</TextBlock>
                           </StackPanel>
                         </DataTemplate>
@@ -492,8 +490,8 @@
               </Button>
             </StackPanel>
             <!-- Settings etc -->
-            <toolkit:WrapPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
-            </toolkit:WrapPanel>
+            <uwpControls:WrapPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+            </uwpControls:WrapPanel>
           </Grid>
           <!-- コメントを書く -->
           <Grid x:Name="CommentLayout" Padding="0 8 0 0" Visibility="Collapsed">
@@ -509,7 +507,7 @@
               <ColumnDefinition Width="1*" />
               <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
-            <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" PlaceholderText="{i18nExt:Localize Key=CommentTextBoxPlacefolder}" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding CommentPlayer.NowCommentSubmitDisabledFromNicoScript, Converter={StaticResource BoolNegation}}"></TextBox>
+            <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" PlaceholderText="{i18nExt:Localize Key=CommentTextBoxPlacefolder}" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding CommentPlayer.NowCommentSubmitDisabledFromNicoScript, Converter={StaticResource BoolNegation}}"></TextBox>
             <Button x:Name="CommentCommandEditButton"
                             Content="{Binding CommentCommandEditerViewModel.CommandsText.Value, Mode=OneWay}"                            
                             Margin="8 0 8 0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
@@ -565,7 +563,7 @@
             </Button>
           </Border>
         </Grid>
-      </toolkit:DockPanel>
+      </uwpControls:DockPanel>
     </Grid>
     
 

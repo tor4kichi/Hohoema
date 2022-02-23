@@ -7,7 +7,7 @@
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:models="using:Hohoema.Models.Domain.Application"
-  xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+  xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:listitem="using:Hohoema.Presentation.Views.HohoemaListItem"
   xmlns:mycontrols="using:Hohoema.Presentation.Views.Controls"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
@@ -18,8 +18,8 @@
   mc:Ignorable="d"
     >
   <Grid>
-    <toolkit:DockPanel>
-      <Border x:Name="HeaderLayout" toolkit:DockPanel.Dock="Top" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
+    <uwpControls:DockPanel>
+      <Border x:Name="HeaderLayout" uwpControls:DockPanel.Dock="Top" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
         <CommandBar x:Name="HeaderCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
           <CommandBar.Content>
             <controls:AppTitleBar Title="{Binding Title}" />
@@ -41,9 +41,9 @@
       </Border>
       <ScrollViewer>
         <StackPanel x:Name="ContentLayout">
-          <toolkit:DockPanel x:Name="AccountSummaryLayout" >
-            <Image Width="80" Height="80" Source="{Binding IconUrl, Mode=OneWay}" Margin="0 0 16 0" toolkit:DockPanel.Dock="Left" />
-            <TextBlock Text="{Binding UserName}" VerticalAlignment="Center" Style="{StaticResource SubheaderTextBlockStyle}" toolkit:DockPanel.Dock="Top" TextWrapping="Wrap" />
+          <uwpControls:DockPanel x:Name="AccountSummaryLayout" >
+            <Image Width="80" Height="80" Source="{Binding IconUrl, Mode=OneWay}" Margin="0 0 16 0" uwpControls:DockPanel.Dock="Left" />
+            <TextBlock Text="{Binding UserName}" VerticalAlignment="Center" Style="{StaticResource SubheaderTextBlockStyle}" uwpControls:DockPanel.Dock="Top" TextWrapping="Wrap" />
             <Border Background="Transparent" IsHitTestVisible="True" VerticalAlignment="Bottom" Margin="0 0 0 0">
               <StackPanel Orientation="Horizontal" Margin="0 8">
                 <TextBlock Margin="0 0 8 0">
@@ -54,15 +54,15 @@
                                 <Run Text="{Binding StampCount}" /></TextBlock>
               </StackPanel>
             </Border>
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
           <Grid>
             <StackPanel Margin="0 0">
               <Border Height="16" Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}" />
-              <toolkit:DockPanel x:Name="UserVideoTitleLayout">
+              <uwpControls:DockPanel x:Name="UserVideoTitleLayout">
                 <HyperlinkButton Command="{Binding PageManager.OpenVideoListPageCommand}" CommandParameter="{Binding User}" IsEnabled="{Binding HasOwnerVideo}" Foreground="{ThemeResource ApplicationForegroundThemeBrush}" Margin="0 8">
                   <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{i18nExt:Localize Key=UserOwnedVideos}" />
                 </HyperlinkButton>
-              </toolkit:DockPanel>
+              </uwpControls:DockPanel>
 
               <ListView ItemsSource="{Binding VideoInfoItems}"
                         ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
@@ -137,7 +137,7 @@
           </Grid>
         </StackPanel>
       </ScrollViewer>
-    </toolkit:DockPanel>
+    </uwpControls:DockPanel>
     <VisualStateManager.VisualStateGroups>
       <!-- ログインしている場合に有効になるサービスを表示する -->
       <VisualStateGroup>

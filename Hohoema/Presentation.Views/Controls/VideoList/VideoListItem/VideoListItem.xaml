@@ -7,7 +7,6 @@
   xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-  xmlns:conv="using:WinRTXamlToolkit.Converters"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:nicoLToolkitVideo="using:NiconicoToolkit.Video" 
   xmlns:winUI="using:Microsoft.UI.Xaml.Controls"

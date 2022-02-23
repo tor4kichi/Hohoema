@@ -63,6 +63,27 @@ namespace Hohoema.Presentation.Views.Player
 			CommentNGScoreShareLevel.VeryStrong,
 			CommentNGScoreShareLevel.UltraVeryStrong,
 		}.ToList();
+
+
+		public void IncreaseCommentDisplayTime()
+        {
+			CommentDisplayDurationNumberBox.Value += CommentDisplayDurationNumberBox.SmallChange;
+		}
+
+		public void DecreaseCommentDisplayTime()
+		{
+			CommentDisplayDurationNumberBox.Value -= CommentDisplayDurationNumberBox.SmallChange;
+		}
+
+		public void IncreaseCommentFontScale()
+		{
+			CommentFontScaleNumberBox.Value += CommentFontScaleNumberBox.SmallChange;
+		}
+
+		public void DecreaseCommentFontScale()
+		{
+			CommentFontScaleNumberBox.Value -= CommentFontScaleNumberBox.SmallChange;
+		}
 	}
 
 	public enum CommentNGScoreShareLevel

@@ -8,8 +8,6 @@
       xmlns:i="using:Microsoft.Xaml.Interactivity"
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
       xmlns:models="using:Hohoema.Models.Domain.Application"
-      xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-      xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
       xmlns:viewmodel="using:Hohoema.Presentation.ViewModels"
       xmlns:sidepaneVM="using:Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent"
@@ -129,12 +127,25 @@
         </DataTemplate>
       </local:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
     </local:PlayerSidePaneContentTemplateSelecter>
+
+    <local:VideoQualityListItemContainerStyleSelector x:Key="VideoQualityListItemContainerStyleSelector">
+      <local:VideoQualityListItemContainerStyleSelector.AvairableQuality>
+        <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemExpanded}">
+
+        </Style>
+      </local:VideoQualityListItemContainerStyleSelector.AvairableQuality>
+      <local:VideoQualityListItemContainerStyleSelector.UnavairableQuality>
+        <Style TargetType="ListViewItem" BasedOn="{StaticResource ListViewItemExpanded}">
+          <Setter Property="IsEnabled" Value="False" />
+        </Style>
+      </local:VideoQualityListItemContainerStyleSelector.UnavairableQuality>
+    </local:VideoQualityListItemContainerStyleSelector>
   </UserControl.Resources>
   <Grid x:Name="LayoutRoot">
-    <toolkit:LayoutTransformControl x:Name="LayoutTransform">
-      <toolkit:LayoutTransformControl.Transform>
+    <uwpControls:LayoutTransformControl x:Name="LayoutTransform">
+      <uwpControls:LayoutTransformControl.Transform>
         <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
-      </toolkit:LayoutTransformControl.Transform>
+      </uwpControls:LayoutTransformControl.Transform>
       <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" IsPaneOpen="{x:Bind _vm.PlayerSplitViewIsPaneOpen, Mode=TwoWay}"
                  PaneBackground="{ThemeResource ApplicationContentBackgroundBrush}"
                  >
@@ -320,18 +331,18 @@
                   <mybehavior:SetFocus x:Name="FocusWhenShowingControlUIAction" TargetObject="{Binding ElementName=PlayPauseButton}" Delay="00:00:00" IsEnabled="False" />
                 </core:DataTriggerBehavior>
               </i:Interaction.Behaviors>
-              <toolkit:DockPanel x:Name="DefaultUIControl">
+              <uwpControls:DockPanel x:Name="DefaultUIControl">
                 <!-- 上側 プレイリスト 操作 -->
-                <Border toolkit:DockPanel.Dock="Top" Background="{StaticResource HohoemaPlayerBackgroundBrush}">
+                <Border uwpControls:DockPanel.Dock="Top" Background="{StaticResource HohoemaPlayerBackgroundBrush}">
 
-                  <toolkit:DockPanel x:Name="UIControlHeaderLayout" >
+                  <uwpControls:DockPanel x:Name="UIControlHeaderLayout" >
 
                     <!-- Title Bar Margin -->
-                    <Grid x:Name="TitleBarMarginLayout" Height="32" toolkit:DockPanel.Dock="Top" Visibility="Collapsed">
+                    <Grid x:Name="TitleBarMarginLayout" Height="32" uwpControls:DockPanel.Dock="Top" Visibility="Collapsed">
                       <TextBlock x:Name="TitleTextBlock_Nallow" Text="{x:Bind _vm.VideoInfo.Title, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Visibility="Collapsed" Margin="8" />
                     </Grid>
                     <!-- 左上 -->
-                    <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
+                    <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Left">
                       <!-- 閉じる -->
                       <Button x:Name="CloseButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" UseSystemFocusVisuals="True" MinWidth="48" MinHeight="48"
                             XYFocusRight="{x:Bind ActionsCommandBar}"
@@ -347,7 +358,7 @@
                       </Button>
                     </StackPanel>
                     <!-- 右上 -->
-                    <CommandBar x:Name="ActionsCommandBar" toolkit:DockPanel.Dock="Right" 
+                    <CommandBar x:Name="ActionsCommandBar" uwpControls:DockPanel.Dock="Right" 
                               XYFocusLeft="{x:Bind CloseButton}"
                               DefaultLabelPosition="Right"
                               IsTabStop="False"
@@ -405,19 +416,19 @@
                       </CommandBar.SecondaryCommands>
                     </CommandBar>
 
-                    <Button x:Name="ExitWindonwInWindowViewButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
+                    <Button x:Name="ExitWindonwInWindowViewButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" uwpControls:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
                       <SymbolIcon Symbol="FullScreen" />
                     </Button>
-                    <Button x:Name="ExitCompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
+                    <Button x:Name="ExitCompactOverlayButton" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" uwpControls:DockPanel.Dock="Right" Margin="0 8 0 0" MinWidth="48" MinHeight="48">
                       <SymbolIcon Symbol="FullScreen" />
                     </Button>
 
                     <Border />
-                  </toolkit:DockPanel>
+                  </uwpControls:DockPanel>
                 </Border>
 
                 <!-- 下側 動画コンテンツ 操作 -->
-                <StackPanel x:Name="UIControlContentLayout" toolkit:DockPanel.Dock="Bottom" Background="{StaticResource HohoemaPlayerBackgroundBrush}" Padding="0 0 0 8">
+                <StackPanel x:Name="UIControlContentLayout" uwpControls:DockPanel.Dock="Bottom" Background="{StaticResource HohoemaPlayerBackgroundBrush}" Padding="0 0 0 8">
                   <!-- Title -->
                   <StackPanel Margin="8 0">
                     <TextBlock x:Name="TitleTextBlock" Text="{x:Bind _vm.VideoInfo.Title, Mode=OneWay}" FontSize="24" HorizontalAlignment="Center" TextWrapping="Wrap" />
@@ -452,6 +463,7 @@
                                       SelectedItem="{x:Bind _vm.CurrentQuality, Mode=OneWay}"
                                       SelectionMode="Single"
                                       IsItemClickEnabled="True"
+                                      ItemContainerStyleSelector="{StaticResource VideoQualityListItemContainerStyleSelector}"
                                       >
                               <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="ItemClick">
@@ -463,7 +475,7 @@
                                 <DataTemplate>
                                   <StackPanel Orientation="Horizontal" Spacing="8">
                                     <TextBlock Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />
-                                    <TextBlock toolkitext:ListViewItemExtensions.IsEnabled="{Binding IsAvailable}">
+                                    <TextBlock >
                                            <Run Text="{Binding Bitrate, Converter={StaticResource ToKMGTPEZY}}" />bps</TextBlock>
                                   </StackPanel>
                                 </DataTemplate>
@@ -496,7 +508,7 @@
                             <ListView ItemsSource="{x:Bind PlaybackRateList}"
                                       SelectedItem="{Binding ObservableMediaPlayer.PlaybackRate.Value, Mode=OneWay}"
                                       SelectionMode="Single"
-                                      IsItemClickEnabled="True"
+                                      IsItemClickEnabled="True"                                                                            
                                       >
                               <i:Interaction.Behaviors>
                                 <core:EventTriggerBehavior EventName="ItemClick">
@@ -506,7 +518,7 @@
                               </i:Interaction.Behaviors>
                               <ListView.ItemTemplate>
                                 <DataTemplate>
-                                  <TextBlock>x<Run Text="{Binding}" /></TextBlock>
+                                  <TextBlock >x<Run Text="{Binding}" /></TextBlock>
                                 </DataTemplate>
                               </ListView.ItemTemplate>
                             </ListView>
@@ -632,6 +644,9 @@
                             <mybehavior:SetFocus TargetObject="{x:Bind PlayPauseButton}" />
                           </mybehavior:KeyboardTrigger.Actions>
                         </mybehavior:KeyboardTrigger>
+                        <core:EventTriggerBehavior EventName="GotFocus">
+                          <core:CallMethodAction TargetObject="{x:Bind CommentTextBox}" MethodName="SelectAll" />
+                        </core:EventTriggerBehavior>
                       </i:Interaction.Behaviors>
                     </TextBox>
                     <Button x:Name="CommentCommandEditButton"
@@ -720,7 +735,7 @@
                     </Button>
                   </Border>
                 </Grid>
-              </toolkit:DockPanel>
+              </uwpControls:DockPanel>
 
             </Grid>
             <Grid Visibility="{x:Bind IsDisplayControlUI, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}">
@@ -736,7 +751,7 @@
               <!-- 有料動画・サポートされていないプロトコル・動画形式・チャンネル会員限定動画・プレミアム会員限定動画 -->
               <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="32 64" Visibility="{x:Bind _vm.IsNotSupportVideoType, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" Background="{StaticResource AppBarItemPointerOverBackgroundThemeBrush}" Padding="16">
                 <Grid MinWidth="300">
-                  <iconPack:PackIconMaterial Kind="VideoOff" Margin="16 8 32 8" Width="32" Height="32" toolkit:DockPanel.Dock="Left" VerticalAlignment="Center" />
+                  <iconPack:PackIconMaterial Kind="VideoOff" Margin="16 8 32 8" Width="32" Height="32" uwpControls:DockPanel.Dock="Left" VerticalAlignment="Center" />
                   <StackPanel Spacing="16" HorizontalAlignment="Right">
                     <TextBlock Text="{i18nExt:Localize Key=CanNotPlay}" VerticalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 0 0 0" />
                     <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" HorizontalAlignment="Right" >
@@ -756,7 +771,7 @@
           </Grid>
         </SplitView.Content>
       </SplitView>
-    </toolkit:LayoutTransformControl>
+    </uwpControls:LayoutTransformControl>
 
 
     <VisualStateManager.VisualStateGroups>

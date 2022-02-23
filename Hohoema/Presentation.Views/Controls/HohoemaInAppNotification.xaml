@@ -5,7 +5,6 @@
     xmlns:local="using:Hohoema.Presentation.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI"
     mc:Ignorable="d"
@@ -22,7 +21,7 @@
       MaxWidth="680"
             >
       <uwpcontrol:InAppNotification.Content>
-        <toolkit:DockPanel Margin="0 0 8 0" 
+        <uwpcontrol:DockPanel Margin="0 0 8 0" 
                                             MinHeight="48"
                            
                                             >
@@ -30,7 +29,7 @@
                  Visibility="{Binding Icon, Converter={StaticResource NotEmptyStringToBoolean}}"
                                            Height="49" Width="48" 
                                            Margin="0 0 16 0" 
-                                           toolkit:DockPanel.Dock="Left"
+                                           uwpcontrol:DockPanel.Dock="Left"
                                            VerticalAlignment="Center"
                                            />
 
@@ -38,13 +37,13 @@
                  Visibility="{Binding Icon, Converter={StaticResource EmptyStringToBoolean}}"
                                            Height="49" Width="48" 
                                            Margin="0 0 16 0" 
-                                           toolkit:DockPanel.Dock="Left"
+                                           uwpcontrol:DockPanel.Dock="Left"
                                            VerticalAlignment="Center"
                                            />
 
 
           <ItemsControl ItemsSource="{Binding Commands}"
-                        toolkit:DockPanel.Dock="Bottom"
+                        uwpcontrol:DockPanel.Dock="Bottom"
                         x:Name="CommandsItemsControl"
                         HorizontalAlignment="Right"
                         Margin="0 8 0 0"
@@ -86,7 +85,7 @@
           </StackPanel>
 
 
-        </toolkit:DockPanel>
+        </uwpcontrol:DockPanel>
 
       </uwpcontrol:InAppNotification.Content>
     </uwpcontrol:InAppNotification>
@@ -98,7 +97,7 @@
             <AdaptiveTrigger MinWindowWidth="520" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="CommandsItemsControl.(toolkit:DockPanel.Dock)" Value="Right" />
+            <Setter Target="CommandsItemsControl.(uwpControls:DockPanel.Dock)" Value="Right" />
             <Setter Target="CommandsItemsControl.HorizontalAlignment" Value="Stretch" />
             <Setter Target="CommandsItemsControl.Margin" Value="0 0 0 0" />
           </VisualState.Setters>

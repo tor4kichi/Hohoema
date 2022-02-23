@@ -6,7 +6,7 @@
                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                xmlns:i="using:Microsoft.Xaml.Interactivity"
                xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-               xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+               xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
                xmlns:mvvm="using:Prism.Mvvm"
                mc:Ignorable="d"
                Title="{Binding Title}"

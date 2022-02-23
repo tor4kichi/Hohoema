@@ -8,13 +8,6 @@
       "lisence_page_url": "https://github.com/runceel/ReactiveProperty/blob/master/LICENSE.txt"
     },
     {
-      "name": "WinRTXamlToolkit.UWP",
-      "site": "https://github.com/xyzzer/WinRTXamlToolkit",
-      "author": [ "Filip Skakun", "Thomas Martinsen", "Mahmoud Moussa", "Joost van Schaik" ],
-      "lisence_type": "MIT",
-      "lisence_page_url": "https://github.com/xyzzer/WinRTXamlToolkit/blob/master/License.md"
-    },
-    {
       "name": "Prism",
       "site": "https://github.com/PrismLibrary/Prism",
       "author": [ ".NET Foundation" ],

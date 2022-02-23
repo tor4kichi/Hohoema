@@ -7,8 +7,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:i="using:Microsoft.Xaml.Interactivity" 
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-      xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-      xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+      xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
       xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
       xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers" 
@@ -95,10 +94,10 @@
     </local:PlayerSidePaneContentTemplateSelecter>
   </Page.Resources>
   <Border x:Name="LayoutRoot" Background="{ThemeResource AppBarBorderThemeBrush}" SizeChanged="LayoutRoot_SizeChanged">
-    <toolkit:LayoutTransformControl x:Name="LayoutTransform">
-      <toolkit:LayoutTransformControl.Transform>
+    <uwpControls:LayoutTransformControl x:Name="LayoutTransform">
+      <uwpControls:LayoutTransformControl.Transform>
         <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
-      </toolkit:LayoutTransformControl.Transform>
+      </uwpControls:LayoutTransformControl.Transform>
       <SplitView PanePlacement="Right" x:Name="PlayerSplitView" IsTabStop="False" DisplayMode="Overlay" OpenPaneLength="400"
                  PaneBackground="{ThemeResource SystemControlAltHighAcrylicElementBrush}"
                  >
@@ -120,9 +119,9 @@
           </core:EventTriggerBehavior>
         </i:Interaction.Behaviors>
         <SplitView.Pane>
-          <toolkit:DockPanel x:Name="PlayerSidePaneLayout">
+          <uwpControls:DockPanel x:Name="PlayerSidePaneLayout">
             <ContentControl Content="{Binding CurrentSidePaneContent.Value}" ContentTemplateSelector="{StaticResource PlayerSidePaneContentTemplateSelecter}" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False" />
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
         </SplitView.Pane>
         <Grid x:Name="MediaControl" ContextFlyout="{StaticResource LivePlayerFlyout}" ManipulationMode="TranslateX">
           <i:Interaction.Behaviors>
@@ -165,8 +164,8 @@
               <core:InvokeCommandAction Command="{Binding PrimaryViewPlayerManager.CloseCommand}" />
             </mybehavior:UINavigationTrigger>
           </i:Interaction.Behaviors>
-          <toolkit:DockPanel>
-            <Grid toolkit:DockPanel.Dock="Top">
+          <uwpControls:DockPanel>
+            <Grid uwpControls:DockPanel.Dock="Top">
               <!-- 放送者コメント -->
               <controls:TransientContainer x:Name="BroadcasterPermanentCommentLayout" Content="{Binding BroadcasterLiveOperationCommand.Value, Mode=OneWay}" DisplayDuration="23:59:59" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="16">
                 <controls:TransientContainer.ContentTemplate>
@@ -181,7 +180,7 @@
                 </controls:TransientContainer.ContentTemplate>
               </controls:TransientContainer>
             </Grid>
-            <Grid toolkit:DockPanel.Dock="Bottom">
+            <Grid uwpControls:DockPanel.Dock="Bottom">
               <!-- 運営コメント -->
               <controls:TransientContainer x:Name="OperaterAnnounceCommentLayout" Content="{Binding OperaterLiveOperationCommand.Value, Mode=OneWay}" DisplayDuration="0:0:15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="16">
                 <controls:TransientContainer.ContentTemplate>
@@ -203,20 +202,20 @@
                   <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}" />
                 </i:Interaction.Behaviors>
               </MediaPlayerElement>
-              <Grid toolkit:DockPanel.Dock="Bottom">
+              <Grid uwpControls:DockPanel.Dock="Bottom">
                 <!-- 記者席コメント -->
                 <controls:TransientContainer x:Name="OperationPressCommentLayout" Content="{Binding PressLiveOperationCommand.Value, Mode=OneWay}" DisplayDuration="0:0:10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                   <controls:TransientContainer.ContentTemplate>
                     <DataTemplate>
-                      <toolkit:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="16">
-                        <TextBlock Text="{Binding Header}" toolkit:DockPanel.Dock="Top" Margin="0 0 0 8" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.8" />
+                      <uwpControls:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="16">
+                        <TextBlock Text="{Binding Header}" uwpControls:DockPanel.Dock="Top" Margin="0 0 0 8" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.8" />
                         <Grid>
                           <TextBlock Text="{Binding Content}" VerticalAlignment="Center" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="600" FontWeight="Bold" Visibility="{Binding Hyperlink, Converter={StaticResource NullToVisibility}}"></TextBlock>
                           <HyperlinkButton NavigateUri="{Binding Hyperlink}" Visibility="{Binding Hyperlink, Converter={StaticResource NotNullToVisibility}}" VerticalAlignment="Center" HorizontalAlignment="Center" BorderBrush="{ThemeResource SystemControlForegroundAccentBrush}" BorderThickness="0 0 0 1" Margin="16" Padding="0">
                             <TextBlock Text="{Binding Content}" VerticalAlignment="Center" HorizontalAlignment="Center" TextWrapping="Wrap" MaxWidth="600" FontWeight="Bold"></TextBlock>
                           </HyperlinkButton>
                         </Grid>
-                      </toolkit:DockPanel>
+                      </uwpControls:DockPanel>
                     </DataTemplate>
                   </controls:TransientContainer.ContentTemplate>
                 </controls:TransientContainer>
@@ -233,7 +232,7 @@
                 </Border>
               </Grid>
             </Grid>
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
           <Grid Height="{Binding CommentCanvasHeight.Value}">
             <local:CommentRenderer x:Name="CommentRederer" Comments="{Binding DisplayingLiveComments}" MediaPlayer="{Binding MediaPlayer, Mode=OneWay}" Visibility="{Binding PlayerSettings.IsCommentDisplay_Live, Converter={StaticResource BooleanToVisibility}}" CommentSizeScale="{Binding CommentFontScale.Value}" CommentDefaultColor="{Binding CommentDefaultColor.Value}" DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}" Opacity="{Binding CommentOpacity.Value, Mode=OneWay}" VideoPositionOffset="{Binding WatchStartLiveElapsedTime}" />
             <Border VerticalAlignment="Bottom" HorizontalAlignment="Left">
@@ -286,9 +285,9 @@
               </core:DataTriggerBehavior>
             </i:Interaction.Behaviors>
             <Grid x:Name="DefaultUIControl">
-              <toolkit:DockPanel>
-                <StackPanel toolkit:DockPanel.Dock="Top">
-                  <Grid x:Name="TitleBarMarginLayout" Height="32" toolkit:DockPanel.Dock="Top" Visibility="Collapsed" Background="{ThemeResource SystemAltMediumColor}">
+              <uwpControls:DockPanel>
+                <StackPanel uwpControls:DockPanel.Dock="Top">
+                  <Grid x:Name="TitleBarMarginLayout" Height="32" uwpControls:DockPanel.Dock="Top" Visibility="Collapsed" Background="{ThemeResource SystemAltMediumColor}">
                     <TextBlock x:Name="TitleTextBlock_Nallow" Text="{Binding LiveTitle}" Style="{ThemeResource CaptionTextBlockStyle}" Visibility="Collapsed" Margin="8" />
                   </Grid>
                   <Grid x:Name="TopBarLayout">
@@ -297,7 +296,7 @@
                       <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
                     </Grid.Background>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                      <Button x:Name="CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" toolkit:DockPanel.Dock="Left" UseSystemFocusVisuals="True"
+                      <Button x:Name="CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" uwpControls:DockPanel.Dock="Left" UseSystemFocusVisuals="True"
                               MinWidth="48" MinHeight="48"
                               XYFocusRight="{x:Bind ActionsCommandBar}"
                               >
@@ -351,7 +350,7 @@
                   </Grid>
                   
                 </StackPanel>
-                <StackPanel toolkit:DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
+                <StackPanel uwpControls:DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
                   
                   <StackPanel x:Name="TitleLayout" Padding="8">
                     <StackPanel.Background>
@@ -373,7 +372,7 @@
                     <Slider x:Name="SeekBarSlider" Minimum="0.0" Maximum="{Binding MaxSeekablePosition.Value}" Value="{Binding SeekBarTimeshiftPosition.Value, Mode=TwoWay}" Style="{StaticResource VideoProgressBarStyle}" Padding="0 0 0 16" StepFrequency="0.1" LargeChange="30" SmallChange="5" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" Opacity="0.75" Visibility="Collapsed" />
                   </Border>
                   <!-- 生放送情報 -->
-                  <Border toolkit:DockPanel.Dock="Top" x:Name="LiveInfoLayout" IsHitTestVisible="True">
+                  <Border uwpControls:DockPanel.Dock="Top" x:Name="LiveInfoLayout" IsHitTestVisible="True">
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Tapped">
                         <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
@@ -382,8 +381,8 @@
                     <Border.Background>
                       <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
                     </Border.Background>
-                    <toolkit:DockPanel>
-                      <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right" Margin="16 0">
+                    <uwpControls:DockPanel>
+                      <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Right" Margin="16 0">
                         <!-- 来場者数・コメント数 -->
                         <StackPanel Orientation="Horizontal">
                           <SymbolIcon Symbol="View" Margin="8 0" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
@@ -400,7 +399,7 @@
                                                         <Run Text="{Binding LiveElapsedTime, Converter={StaticResource TimeToMovieLengthConverter}}" /></TextBlock>
                         </StackPanel>
                       </StackPanel>
-                      <StackPanel Orientation="Vertical" toolkit:DockPanel.Dock="Left" Margin="16 0 16 0" VerticalAlignment="Center" HorizontalAlignment="Right">
+                      <StackPanel Orientation="Vertical" uwpControls:DockPanel.Dock="Left" Margin="16 0 16 0" VerticalAlignment="Center" HorizontalAlignment="Right">
                         <!-- 画質 -->
                         <HyperlinkButton IsEnabled="{Binding CanChangeQuality.Value}">
                           <StackPanel Orientation="Horizontal" Margin="0 0 0 8" HorizontalAlignment="Right" Visibility="{Binding CurrentQuality.Value, Converter={StaticResource NotNullToVisibility}}">
@@ -449,7 +448,7 @@
                         </HyperlinkButton>
                       </StackPanel>
                       <Border />
-                    </toolkit:DockPanel>
+                    </uwpControls:DockPanel>
                   </Border>
                   <!-- 再生コントロール -->
                   <Grid Padding="8" x:Name="PlaybackControlLayout">
@@ -467,15 +466,15 @@
                         <SymbolIcon Symbol="Mute" x:Name="VolumeButtonIcon" />
                         <Button.Flyout>
                           <Flyout>
-                            <toolkit:DockPanel toolkit:DockPanel.Dock="Right" Margin="0 0 16 0" Height="66">
-                              <StackPanel Background="#AA777777" toolkit:DockPanel.Dock="Left">
+                            <uwpControls:DockPanel uwpControls:DockPanel.Dock="Right" Margin="0 0 16 0" Height="66">
+                              <StackPanel Background="#AA777777" uwpControls:DockPanel.Dock="Left">
                                 <AppBarButton Icon="Volume" Label="{i18nExt:Localize Key=Mute}" VerticalAlignment="Stretch" x:Name="MuteToggleButton" Command="{Binding ToggleMuteCommand}"></AppBarButton>
                               </StackPanel>
                               <StackPanel Margin="8 0" Orientation="Vertical">
                                 <Slider x:Name="VolumeSlider" Orientation="Horizontal" VerticalAlignment="Top" Margin="8 4" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}" Maximum="1.0" Minimum="0.0" StepFrequency="0.01" SmallChange="0.01" LargeChange="0.1" Height="32" Width="160" Background="Transparent"></Slider>
                                 <TextBlock Text="{i18nExt:Localize Key=SoundVolume}" VerticalAlignment="Center" Margin="8 0 0 0" HorizontalAlignment="Center" FontSize="12" />
                               </StackPanel>
-                            </toolkit:DockPanel>
+                            </uwpControls:DockPanel>
                           </Flyout>
                         </Button.Flyout>
                       </Button>
@@ -533,7 +532,7 @@
                       <ColumnDefinition Width="1*" />
                       <ColumnDefinition Width="1*" />
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="CommentTextBox" Text="{Binding CommentSubmitText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" PlaceholderText="コメント" HorizontalAlignment="Stretch" Margin="8 0 8 8" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4">
+                    <TextBox x:Name="CommentTextBox" Text="{Binding CommentSubmitText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" PlaceholderText="コメント" HorizontalAlignment="Stretch" Margin="8 0 8 8" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4">
                       <i:Interaction.Behaviors>
                         <!-- コメントの書き込み-->
                         <mybehavior:KeyboardTrigger Key="Enter" OnlyWhenFocus="{x:Bind CommentTextBox}">
@@ -546,6 +545,9 @@
                             <mybehavior:SetFocus TargetObject="{x:Bind PlayPauseToggleButton}" />
                           </mybehavior:KeyboardTrigger.Actions>
                         </mybehavior:KeyboardTrigger>
+                        <core:EventTriggerBehavior EventName="GotFocus">
+                          <core:CallMethodAction TargetObject="{x:Bind CommentTextBox}" MethodName="SelectAll" />
+                        </core:EventTriggerBehavior>
                       </i:Interaction.Behaviors>
                     </TextBox>
                     <Button Content="{Binding CommentCommandEditerViewModel.CommandsText.Value, Mode=OneWay}" Margin="0 0 8 8" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" x:Name="CommentCommandEditButton" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
@@ -602,7 +604,7 @@
                     </i:Interaction.Behaviors>
                   </Border>
                 </Grid>
-              </toolkit:DockPanel>
+              </uwpControls:DockPanel>
             </Grid>
           </Grid>
           <Grid Visibility="{x:Bind IsDisplayControlUI, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}">
@@ -621,10 +623,10 @@
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
                     <Button Command="{Binding SuggestActionCommand}" Margin="0 0 0 8" Padding="16 8">
-                      <toolkit:DockPanel>
+                      <uwpControls:DockPanel>
                         <TextBlock Text="{Binding Label}" MaxWidth="240" MinWidth="120" TextWrapping="Wrap" FontSize="18" />
                         <SymbolIcon Symbol="Forward" Margin="16 0 0 0" />
-                      </toolkit:DockPanel>
+                      </uwpControls:DockPanel>
                     </Button>
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
@@ -635,7 +637,7 @@
           <muxc:ProgressRing x:Name="BufferingProgressRing" Visibility="Collapsed" IsActive="False" Width="64" Height="64" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         </Grid>
       </SplitView>
-    </toolkit:LayoutTransformControl>
+    </uwpControls:LayoutTransformControl>
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>
         <VisualState>

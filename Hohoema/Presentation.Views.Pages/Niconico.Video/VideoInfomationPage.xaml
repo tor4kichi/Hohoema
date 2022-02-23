@@ -7,7 +7,6 @@
       xmlns:controls="using:Hohoema.Presentation.Views.Controls"
       xmlns:i="using:Microsoft.Xaml.Interactivity"
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-      xmlns:toolkit="using:WinRTXamlToolkit.Controls"
       xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:iconPack="using:MahApps.Metro.IconPacks"
       xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
@@ -44,7 +43,7 @@
         
         <!-- NG投稿者指定された動画の情報 -->
         <Border uwpControls:DockPanel.Dock="Top" Visibility="{x:Bind _vm.IsSelfZoningContent, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" Padding="16" BorderBrush="DarkRed" BorderThickness="2">
-          <toolkit:WrapPanel Orientation="Horizontal">
+          <uwpControls:WrapPanel Orientation="Horizontal">
             <StackPanel Orientation="Horizontal">
               <iconPack:PackIconMaterial Kind="Information" Margin="0 0 16 0" Width="32" Height="32" VerticalAlignment="Center" />
               <TextBlock FontSize="20" Margin="0 0 0 8">
@@ -56,7 +55,7 @@
               </TextBlock>
             </StackPanel>
             <Button Content="{i18nExt:Localize Key=OpenFilterSettings}" Command="{x:Bind _vm.OpenFilterSettingPageCommand}" Margin="0 0 0 0" />
-          </toolkit:WrapPanel>
+          </uwpControls:WrapPanel>
         </Border>
 
         <uwpControls:DockPanel>
