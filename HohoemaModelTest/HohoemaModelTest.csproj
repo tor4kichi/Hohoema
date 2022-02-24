@@ -161,10 +161,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NiconicoToolkit\NiconicoToolkit.UWP\NiconicoToolkit.UWP.csproj">
-      <Project>{9ec6b1ba-1896-4516-b0f4-1c3701566d16}</Project>
-      <Name>NiconicoToolkit.UWP</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Hohoema.Models\Hohoema.Models.csproj">
       <Project>{5877a9ca-2d3a-4b8b-86ca-d77e6d68cf98}</Project>
       <Name>Hohoema.Models</Name>

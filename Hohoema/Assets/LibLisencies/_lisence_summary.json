@@ -160,6 +160,13 @@
       "author": [ "Cysharp, Inc." ],
       "lisence_type": "MIT",
       "lisence_page_url": "https://github.com/Cysharp/ZLogger/blob/master/LICENSEE"
+    },
+    {
+      "name": "NiconicoToolkit",
+      "site": "https://github.com/tor4kichi/NiconicoToolkit",
+      "author": [ "tor4kichi" ],
+      "lisence_type": "MIT",
+      "lisence_page_url": "https://github.com/tor4kichi/NiconicoToolkit/blob/master/LICENSE"
     }
   ]
 }

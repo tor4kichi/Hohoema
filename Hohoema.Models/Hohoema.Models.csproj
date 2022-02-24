@@ -350,6 +350,9 @@
     <PackageReference Include="Microsoft.UI.Xaml">
       <Version>2.7.1-prerelease.211026002</Version>
     </PackageReference>
+    <PackageReference Include="NiconicoToolkit">
+      <Version>0.1.0</Version>
+    </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>7.12.0</Version>
     </PackageReference>
@@ -368,12 +371,6 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\NiconicoToolkit\NiconicoToolkit.UWP\NiconicoToolkit.UWP.csproj">
-      <Project>{9ec6b1ba-1896-4516-b0f4-1c3701566d16}</Project>
-      <Name>NiconicoToolkit.UWP</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
