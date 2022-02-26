@@ -243,8 +243,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         DateTimeOffset? _StartTime;
         public DateTimeOffset StartTime => _StartTime ??= DateTimeOffset.FromUnixTimeSeconds(_PlayerProp.Program.BeginTime);
         DateTimeOffset? _EndTime;
-        public DateTimeOffset EndTime => _EndTime ??= DateTimeOffset.FromUnixTimeSeconds(_PlayerProp.Program.EndTime);
-
+        public DateTimeOffset EndTime => _EndTime ??= DateTimeOffset.FromUnixTimeSeconds(_PlayerProp.Program.EndTime);        
 
         private bool _IsTimeshift;
         public bool IsTimeshift
@@ -503,6 +502,11 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             SeekBarTimeshiftPosition
                 .Where(_ => !_NowSeekBarPositionChanging)
+                .Do(_ =>
+                {
+                    _dispatcherQueue.TryEnqueue(() => MediaPlayer.Pause());
+                    _updateTimer.Stop();
+                })
                 .Throttle(TimeSpan.FromSeconds(0.25))
                 .Subscribe(x =>
                 {
@@ -510,8 +514,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                     {
                         var time = TimeSpan.FromSeconds(x);
 
-                        var session = MediaPlayer.PlaybackSession;
-
+                        var session = MediaPlayer.PlaybackSession;                        
                         MediaPlayer.Source = null;
                         _MediaSource?.Dispose();
                         _AdaptiveMediaSource?.Dispose();
@@ -540,6 +543,8 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                             _AdaptiveMediaSource.DesiredMaxBitrate = _AdaptiveMediaSource.AvailableBitrates.Max();
                         }
+
+                        _updateTimer.Start();
 
 #elif __IOS__ || __ANDROID__
                 var mediaSource = MediaSource.CreateFromUri(new Uri(hlsUri));
@@ -706,6 +711,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             _updateTimer = _dispatcherQueue.CreateTimer();
             _updateTimer.Interval = TimeSpan.FromSeconds(0.1);
             _updateTimer.IsRepeating = true;
+            _updateTimer.Stop();
             _updateTimer.Tick += (s, _) =>
             {
                 var elaplsedUpdateResult = _watchSessionTimer.UpdatePlaybackTime(MediaPlayer.PlaybackSession.Position);
@@ -715,7 +721,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 if (IsTimeshift)
                 {
                     _NowSeekBarPositionChanging = true;
-                    SeekBarTimeshiftPosition.Value = LiveElapsedTimeFromOpen.TotalSeconds;
+                    SeekBarTimeshiftPosition.Value = LiveElapsedTime.TotalSeconds;
                     _NowSeekBarPositionChanging = false;
                 }
 
@@ -908,6 +914,10 @@ namespace Hohoema.Presentation.ViewModels.Player
                         Suggestion.Value = new LiveSuggestion(_PlayerProp.UserProgramWatch.RejectedReasons.First());
                         return;
                     }
+
+                    _OpenTime = null;
+                    _StartTime = null;
+                    _EndTime = null;
 
                     _watchSession = NiconicoToolkit.Live.LiveClient.CreateWatchSession(_PlayerProp, LiveContext.UserAgent);
 
@@ -1134,17 +1144,6 @@ namespace Hohoema.Presentation.ViewModels.Player
                 _CommentSession.CommentPosted += _CommentSession_CommentPosted;
                 _CommentSession.Connected += _CommentSession_Connected;
                 _CommentSession.Disconnected += _CommentSession_Disconnected;
-
-                /*
-                try
-                {
-                    await Task.Delay(3000, ct);
-                }
-                catch (OperationCanceledException)
-                {
-                    return;
-                }
-                */
 
                 if (_CommentSession != null)
                 {
