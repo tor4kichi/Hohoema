@@ -23,5 +23,19 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Live
 		{
 			this.InitializeComponent();
 		}
-	}
+
+
+
+        public double ImageWidth
+        {
+            get { return (double)GetValue(ImageWidthProperty); }
+            set { SetValue(ImageWidthProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ImageWidth.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ImageWidthProperty =
+            DependencyProperty.Register("ImageWidth", typeof(double), typeof(LiveVideoListItem), new PropertyMetadata(160.0));
+
+
+    }
 }

@@ -22,6 +22,7 @@ using Reactive.Bindings.Extensions;
 using NiconicoToolkit.Live.WatchSession;
 using Hohoema.Models.Domain.Application;
 using Uno.Disposables;
+using Hohoema.Presentation.ViewModels.Player;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -49,9 +50,23 @@ namespace Hohoema.Presentation.Views.Player
             
             Loaded += LivePlayerPage_Loaded;
             Unloaded += LivePlayerPage_Unloaded;
+
+            DataContextChanged += OnDataContextChanged;
         }
 
- 
+        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+        {
+            var oldViewModel = _vm;
+            _vm = args.NewValue as LivePlayerPageViewModel;
+            if (args.NewValue != null && args.NewValue != oldViewModel)
+            {
+                this.Bindings.Update();
+            }
+        }
+
+        private LivePlayerPageViewModel _vm { get; set; }
+
+
         private void LivePlayerPage_Loaded(object sender, RoutedEventArgs e)
         {
             _compositeDisposable = new CompositeDisposable();

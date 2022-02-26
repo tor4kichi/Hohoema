@@ -149,7 +149,7 @@
           <Setter Property="Padding" Value="0 8 16 8" />
           <Setter Property="UseSystemFocusVisuals" Value="True" />
           <Setter Property="BorderThickness" Value="0 0 0 1" />
-          <Setter Property="BorderBrush" Value="#44707070" />
+          <Setter Property="BorderBrush" Value="{StaticResource HohoemaLightBorderBrush}" />
         </Style>
       </ListView.ItemContainerStyle>
     </ListView>
