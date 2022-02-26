@@ -44,6 +44,9 @@
               myExtensions:ListViewBase.DeferInitialize="True"
               Style="{StaticResource FixedHeaderListViewStyle}"
               >
+      <ListView.ItemContainerTransitions>
+        <TransitionCollection />
+      </ListView.ItemContainerTransitions>
       <i:Interaction.Behaviors>
         <mybehavior:KeyboardTrigger Key="F5">
           <mybehavior:KeyboardTrigger.Actions>

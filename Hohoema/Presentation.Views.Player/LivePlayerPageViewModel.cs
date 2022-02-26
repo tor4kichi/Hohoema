@@ -500,12 +500,19 @@ namespace Hohoema.Presentation.ViewModels.Player
             _MaxSeekablePosition = new ReactiveProperty<double>(_scheduler, 0.0)
                 .AddTo(_CompositeDisposable);
 
+            bool _seelBarChangingFirst = false;
+            bool _lastPlaybackPaused = false;
             SeekBarTimeshiftPosition
                 .Where(_ => !_NowSeekBarPositionChanging)
                 .Do(_ =>
                 {
-                    _dispatcherQueue.TryEnqueue(() => MediaPlayer.Pause());
-                    _updateTimer.Stop();
+                    if (_seelBarChangingFirst)
+                    {
+                        _seelBarChangingFirst = false;
+                        _lastPlaybackPaused = MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Paused;
+                        MediaPlayer.Pause();
+                        _updateTimer.Stop();
+                    }
                 })
                 .Throttle(TimeSpan.FromSeconds(0.25))
                 .Subscribe(x =>
@@ -532,7 +539,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                         // https://platform.uno/docs/articles/implemented/windows-ui-xaml-controls-mediaplayerelement.html
                         // MediaPlayer is supported on UWP/Android/iOS.
                         // not support to MacOS and WASM.
-#if WINDOWS_UWP
+#if WINDOWS_UWP                        
                         var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(hlsUri), LiveContext.HttpClient);
                         if (amsCreateResult.Status == AdaptiveMediaSourceCreationStatus.Success)
                         {
@@ -540,10 +547,10 @@ namespace Hohoema.Presentation.ViewModels.Player
                             _MediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
                             _AdaptiveMediaSource = ams;
                             MediaPlayer.Source = _MediaSource;
-
                             _AdaptiveMediaSource.DesiredMaxBitrate = _AdaptiveMediaSource.AvailableBitrates.Max();
                         }
 
+                        
                         _updateTimer.Start();
 
 #elif __IOS__ || __ANDROID__
@@ -563,6 +570,29 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                         WatchStartLiveElapsedTime = LiveElapsedTimeFromOpen;
 
+                        _seelBarChangingFirst = true;
+
+                        if (_lastPlaybackPaused)
+                        {
+                            async void MediaPlayer_MediaPlaybackSession(MediaPlaybackSession sender, object args)
+                            {
+                                if (sender.PlaybackState == MediaPlaybackState.Playing)
+                                {
+                                    sender.PlaybackStateChanged -= MediaPlayer_MediaPlaybackSession;
+
+                                    var ct = NavigationCancellationToken;
+                                    while (sender.PlaybackState != MediaPlaybackState.Paused)
+                                    {
+                                        await Task.Delay(100, ct);
+                                        sender.MediaPlayer.Pause();
+                                    }
+                                }
+                            }
+
+                            MediaPlayer.PlaybackSession.PlaybackStateChanged += MediaPlayer_MediaPlaybackSession;
+                            await Task.Delay(3000);
+                            MediaPlayer.PlaybackSession.PlaybackStateChanged -= MediaPlayer_MediaPlaybackSession;
+                        }
                     });
                 })
                 .AddTo(_CompositeDisposable);
@@ -751,7 +781,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             };
         }
 
-
+        
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
@@ -1061,7 +1091,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                     _MediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
                     _AdaptiveMediaSource = ams;
                     MediaPlayer.Source = _MediaSource;
-
+                    MediaPlayer.Play();
                     _AdaptiveMediaSource.DesiredMaxBitrate = _AdaptiveMediaSource.AvailableBitrates.Max();
                 }
 
