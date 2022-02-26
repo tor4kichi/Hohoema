@@ -167,7 +167,7 @@
           <uwpControls:DockPanel>
             <Grid uwpControls:DockPanel.Dock="Top">
               <!-- 放送者コメント -->
-              <controls:TransientContainer x:Name="BroadcasterPermanentCommentLayout" Content="{Binding BroadcasterLiveOperationCommand.Value, Mode=OneWay}" DisplayDuration="23:59:59" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="16">
+              <controls:TransientContainer x:Name="BroadcasterPermanentCommentLayout" Content="{Binding BroadcasterLiveOperationCommand.Value, Mode=OneWay}" DisplayDuration="23:59:59" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="16" Visibility="Collapsed">
                 <controls:TransientContainer.ContentTemplate>
                   <DataTemplate>
                     <Grid>
@@ -182,7 +182,7 @@
             </Grid>
             <Grid uwpControls:DockPanel.Dock="Bottom">
               <!-- 運営コメント -->
-              <controls:TransientContainer x:Name="OperaterAnnounceCommentLayout" Content="{Binding OperaterLiveOperationCommand.Value, Mode=OneWay}" DisplayDuration="0:0:15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="16">
+              <controls:TransientContainer x:Name="OperaterAnnounceCommentLayout" Content="{Binding OperaterLiveOperationCommand.Value, Mode=OneWay}" DisplayDuration="0:0:15" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="16" Visibility="Collapsed">
                 <controls:TransientContainer.ContentTemplate>
                   <DataTemplate>
                     <Grid>
@@ -351,14 +351,10 @@
                   
                 </StackPanel>
                 <StackPanel uwpControls:DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
-                  
+                  <StackPanel.Background>
+                    <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
+                  </StackPanel.Background>
                   <StackPanel x:Name="TitleLayout" Padding="8">
-                    <StackPanel.Background>
-                      <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
-                    </StackPanel.Background>
-                    <UIElement.RenderTransform>
-                      <TranslateTransform Y="0.2" />
-                    </UIElement.RenderTransform>
                     
                     <TextBlock Text="{Binding LiveTitle}" x:Name="TitleTextBlock" FontSize="24" Margin="8 0" HorizontalAlignment="Center" TextWrapping="Wrap" />
                     <i:Interaction.Behaviors>
@@ -368,7 +364,7 @@
                     </i:Interaction.Behaviors>
                   </StackPanel>
                   <!-- タイムシフト時のシークバー -->
-                  <Border Background="{StaticResource HohoemaPlayerBackgroundBrush}">
+                  <Border>
                     <Slider x:Name="SeekBarSlider" Minimum="0.0" Maximum="{Binding MaxSeekablePosition.Value}" Value="{Binding SeekBarTimeshiftPosition.Value, Mode=TwoWay}" Style="{StaticResource VideoProgressBarStyle}" Padding="0 0 0 16" StepFrequency="0.1" LargeChange="30" SmallChange="5" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" Opacity="0.75" Visibility="Collapsed" />
                   </Border>
                   <!-- 生放送情報 -->
@@ -378,9 +374,6 @@
                         <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
                       </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
-                    <Border.Background>
-                      <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
-                    </Border.Background>
                     <uwpControls:DockPanel>
                       <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Right" Margin="16 0">
                         <!-- 来場者数・コメント数 -->
@@ -452,9 +445,6 @@
                   </Border>
                   <!-- 再生コントロール -->
                   <Grid Padding="8" x:Name="PlaybackControlLayout">
-                    <Grid.Background>
-                      <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
-                    </Grid.Background>
                     <Grid.ColumnDefinitions>
                       <ColumnDefinition Width="*" />
                       <ColumnDefinition Width="Auto" />
@@ -517,9 +507,6 @@
                   <!-- Comment関連 -->
                   <!-- コメントを書く -->
                   <Grid x:Name="CommentLayout">
-                    <Grid.Background>
-                      <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
-                    </Grid.Background>
                     <Grid.RowDefinitions>
                       <RowDefinition Height="*" />
                       <RowDefinition Height="*" />
@@ -588,15 +575,15 @@
                   </Border>
 
                   <Border x:Name="CenterBottomGradient" Height="32" VerticalAlignment="Bottom">
+                    <Border.RenderTransform>
+                      <TranslateTransform Y="0.2" />
+                    </Border.RenderTransform>
                     <Border.Background>
                       <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
                         <GradientStop x:Name="CenterBottomGradientStop_End" Color="Transparent" Offset="0.0" />
                         <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
                       </LinearGradientBrush>
                     </Border.Background>
-                    <UIElement.RenderTransform>
-                      <TranslateTransform Y="0.38" />
-                    </UIElement.RenderTransform>
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Tapped">
                         <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
@@ -1127,24 +1114,39 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTrigger:NotEqualStateTrigger Value="{Binding BroadcasterLiveOperationCommand.Value}" NotEqualTo="{x:Null}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="BroadcasterPermanentCommentLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTrigger:NotEqualStateTrigger Value="{Binding OperaterLiveOperationCommand.Value}" NotEqualTo="{x:Null}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="OperaterAnnounceCommentLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
       <!-- コメントリスト サイドペイン -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
+            <windowsTrigger:EqualsStateTrigger Value="{Binding PrimaryViewPlayerManager.DisplayMode}" EqualTo="{x:Bind playerService:PrimaryPlayerDisplayMode.WindowInWindow}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="BroadcasterPermanentCommentLayout.Padding" Value="2" />
             <Setter Target="OperaterAnnounceCommentLayout.Padding" Value="2" />
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <windowsTrigger:EqualsStateTrigger Value="{Binding PrimaryViewPlayerManager.DisplayMode}" EqualTo="{x:Bind playerService:PrimaryPlayerDisplayMode.WindowInWindow}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="BroadcasterPermanentCommentLayout.Visibility" Value="Collapsed" />
-            <Setter Target="OperaterAnnounceCommentLayout.Visibility" Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
         <!-- ウィンドウサイズが520pxより小さい場合は

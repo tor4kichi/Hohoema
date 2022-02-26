@@ -24,7 +24,7 @@ namespace Hohoema.Models.Domain.Niconico.Live.LoginUser
         {
             var res = await _niconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsAsync();
 
-            _token = res?.Data?.ReservationToken;
+            //_token = res?.Data?.ReservationToken;
 
             return res;
         }

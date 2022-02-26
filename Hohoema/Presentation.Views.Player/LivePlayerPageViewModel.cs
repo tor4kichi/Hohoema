@@ -631,7 +631,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                     var limit = GetQualityLimitType();
                     Debug.WriteLine($"Change Quality: {PlayerSettings.DefaultLiveQuality} - Low Latency: {PlayerSettings.LiveWatchWithLowLatency} - Limit: {limit}");
-
+                    _updateTimer.Stop();
                     await _watchSession.ChangeStreamAsync(PlayerSettings.DefaultLiveQuality, PlayerSettings.LiveWatchWithLowLatency, limit);
                 })
                 .AddTo(_CompositeDisposable);
@@ -909,7 +909,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                         return;
                     }
 
-                    _watchSession = NiconicoToolkit.Live.LiveClient.CreateWatchSession(_PlayerProp);
+                    _watchSession = NiconicoToolkit.Live.LiveClient.CreateWatchSession(_PlayerProp, LiveContext.UserAgent);
 
                     _watchSession.RecieveStream += _watchSession_RecieveStream;
                     _watchSession.RecieveRoom += _watchSession_RecieveRoom;
@@ -1092,6 +1092,8 @@ namespace Hohoema.Presentation.ViewModels.Player
                 }
 
                 CanChangeQuality.Value = true;
+                
+                _updateTimer.Start();
             });
         }
 

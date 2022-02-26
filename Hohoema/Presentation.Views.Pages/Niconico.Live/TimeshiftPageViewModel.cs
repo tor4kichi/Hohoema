@@ -168,7 +168,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
         async Task<IEnumerable<LiveInfoListItemViewModel>> IIncrementalSource<LiveInfoListItemViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
         {
             _Reservations ??= await LiveReservationProvider.GetReservtionsDetailAsync();
-            //_TimeshiftList ??= await LiveReservationProvider.GetReservtionsAsync();
 
             ct.ThrowIfCancellationRequested();
 
