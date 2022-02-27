@@ -1224,7 +1224,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 // 表示範囲にある場合は頭から流れるように
                 if (!IsTimeshift)
                 {
-                    commentVM.VideoPosition = DateTimeOffset.FromUnixTimeSeconds(comment.Date) - OpenTime + TimeSpan.FromSeconds(1);
+                    commentVM.VideoPosition = DateTimeOffset.FromUnixTimeSeconds(comment.Date) + TimeSpan.FromMilliseconds(comment.DateUsec / 1000) - OpenTime + TimeSpan.FromSeconds(1);
                 }
 
                 if (!commentVM.IsAnonymity)
