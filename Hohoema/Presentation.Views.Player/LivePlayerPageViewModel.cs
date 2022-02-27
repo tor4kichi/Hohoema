@@ -561,14 +561,16 @@ namespace Hohoema.Presentation.ViewModels.Player
                 throw new NotSupportedException();
 #endif
 
-                        _CommentSession.Seek(time);
+                        _DisplayingLiveComments.Clear();
+                        _ListLiveComments.Clear();
+                        _CommentSession.Seek(NavigationCancellationToken, time);
 
                         // Note: MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
                         var elapsedTimeResult = _watchSessionTimer.UpdatePlaybackTime(TimeSpan.Zero);
                         LiveElapsedTime = elapsedTimeResult.LiveElapsedTime;
                         LiveElapsedTimeFromOpen = elapsedTimeResult.LiveElapsedTimeFromOpen;
 
-                        WatchStartLiveElapsedTime = LiveElapsedTimeFromOpen;
+                        WatchStartLiveElapsedTime = LiveElapsedTime;
 
                         _seelBarChangingFirst = true;
 
@@ -756,6 +758,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 }
 
                 // 表示完了したコメントの削除
+                /*
                 for (int i = _DisplayingLiveComments.Count - 1; i >= 0; i--)
                 {
                     var c = _DisplayingLiveComments[i];
@@ -766,18 +769,19 @@ namespace Hohoema.Presentation.ViewModels.Player
                         _DisplayingLiveComments.RemoveAt(i);
                     }
                 }
+                */
 
-                _ = _dispatcherQueue.EnqueueAsync(async () =>
+                if (UnresolvedUserId.TryPop(out var id))
                 {
-                    if (UnresolvedUserId.TryPop(out var id))
+                    _ = _dispatcherQueue.EnqueueAsync(async () =>
                     {
                         var owner = await _userNameRepository.ResolveUserNameAsync(id);
                         if (owner != null)
                         {
                             UpdateCommentUserName(id, owner);
                         }
-                    }
-                });
+                    });
+                }
             };
         }
 
@@ -1108,7 +1112,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 LiveElapsedTime = elapsedTimeResult.LiveElapsedTime;
                 LiveElapsedTimeFromOpen = elapsedTimeResult.LiveElapsedTimeFromOpen;
 
-                WatchStartLiveElapsedTime = LiveElapsedTimeFromOpen;
+                WatchStartLiveElapsedTime = IsTimeshift ? LiveElapsedTime : LiveElapsedTimeFromOpen;
 
 
                 var requestQuality = RequestQuality.Value;
@@ -1167,7 +1171,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 }
                 else
                 {
-                    _CommentSession = e.CreateCommentClientForTimeshift(NiconicoSession.HohoemaUserAgent, _PlayerProp.User.Id.ToString(), StartTime);
+                    _CommentSession = e.CreateCommentClientForTimeshift(NiconicoSession.HohoemaUserAgent, _PlayerProp.User.Id.ToString(), OpenTime, EndTime);
                 }
 
                 _CommentSession.CommentReceived += _CommentSession_CommentReceived;
@@ -1176,8 +1180,8 @@ namespace Hohoema.Presentation.ViewModels.Player
                 _CommentSession.Disconnected += _CommentSession_Disconnected;
 
                 if (_CommentSession != null)
-                {
-                    await _CommentSession.OpenAsync(ct);
+                {                    
+                    await _CommentSession.OpenAsync(ct, IsTimeshift ? _watchSessionTimer.PlaybackHeadPosition : TimeSpan.Zero);
                 }
             });
         }
@@ -1206,18 +1210,23 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             var comment = e.Chat;
 
-            LiveComment commentVM = ChatToComment(e.Chat);
+            LiveComment commentVM = ChatToComment(comment);
 
-            if (!comment.IsOperater && !comment.Content.StartsWith('/'))
+           
+            if (comment.IsOperater && comment.Content.StartsWith('/'))
             {
+                Debug.WriteLine($"Operator command: {comment.Content}");
+            }
+            else 
+            {
+ //               Debug.WriteLine($"comment: {comment.Content}");
+
                 // 表示範囲にある場合は頭から流れるように
-                var relatedPosition = LiveElapsedTimeFromOpen - commentVM.VideoPosition;
-                if (relatedPosition > TimeSpan.Zero 
-                    && relatedPosition < PlayerSettings.CommentDisplayDuration)
+                if (!IsTimeshift)
                 {
-                    commentVM.VideoPosition = LiveElapsedTimeFromOpen - TimeSpan.FromSeconds(0.25);
+                    commentVM.VideoPosition = DateTimeOffset.FromUnixTimeSeconds(comment.Date) - OpenTime + TimeSpan.FromSeconds(1);
                 }
-                
+
                 if (!commentVM.IsAnonymity)
                 {
                     var commentUserId = uint.Parse(comment.UserId);
@@ -1242,25 +1251,32 @@ namespace Hohoema.Presentation.ViewModels.Player
                     }
                 }
 
-                _dispatcherQueue.TryEnqueue(() =>
+                if (IsTimeshift)
                 {
-                    if (!_commentFiltering.IsHiddenCommentOwnerUserId(comment.UserId)
-                    || (LiveElapsedTime - e.Chat.VideoPosition).Duration() < TimeSpan.FromSeconds(3)
-                    )
+                    _dispatcherQueue.TryEnqueue(() =>
                     {
                         _DisplayingLiveComments.Add(commentVM);
-                    }
-                    else
+                        _ListLiveComments.Add(commentVM);
+                    });
+                }
+                else
+                {
+                    _dispatcherQueue.TryEnqueue(() =>
                     {
-                        Debug.WriteLine("表示スキップ：" + commentVM.CommentText);
-                    }
+                        if (!_commentFiltering.IsHiddenCommentOwnerUserId(comment.UserId)
+                        || (LiveElapsedTime - e.Chat.VideoPosition).Duration() < TimeSpan.FromSeconds(3)
+                        )
+                        {
+                            _DisplayingLiveComments.Add(commentVM);
+                        }
+                        else
+                        {
+                            Debug.WriteLine("表示スキップ：" + commentVM.CommentText);
+                        }
 
-                    _ListLiveComments.Add(commentVM);
-                });
-            }
-            else
-            {
-                Debug.WriteLine("Operator command: " + comment.Content);
+                        _ListLiveComments.Add(commentVM);
+                    });
+                }
             }
         }
 
