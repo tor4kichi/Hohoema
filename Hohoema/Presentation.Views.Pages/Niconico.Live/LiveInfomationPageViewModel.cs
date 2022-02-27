@@ -713,7 +713,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             if (thisLiveReservation != null)
             {
                 var timeshiftList = await NiconicoSession.ToolkitContext.Timeshift.GetTimeshiftReservationsAsync();
-                TimeshiftStatus = timeshiftList.Data.Items.FirstOrDefault(x => x.Id == liveId)?.StatusText ?? thisLiveReservation.ExpiredAt?.ToString();
+                TimeshiftStatus = timeshiftList.Reservations.Items.FirstOrDefault(x => x.ProgramId == liveId).TimeshiftSetting.Status.ToString();
             }
 
             _IsTsPreserved.Value = thisLiveReservation != null;

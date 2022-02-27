@@ -1006,7 +1006,30 @@ namespace Hohoema.Presentation.Views.Player
         {
             if (_nowWindowSizeChanging || comment.VideoPosition > VideoPosition + VideoPositionOffset)
             {
-                _pendingRenderComments.Add(comment);
+                if (_pendingRenderComments.Any())
+                {
+                    int i = 0;
+                    bool isAdded = false;
+                    foreach (var item in _pendingRenderComments)
+                    {
+                        if (item.VideoPosition >= comment.VideoPosition)
+                        {
+                            _pendingRenderComments.Insert(i, comment);
+                            isAdded = true;
+                            break;
+                        }
+                        i++;
+                    }
+
+                    if (isAdded is false)
+                    {
+                        _pendingRenderComments.Add(comment);
+                    }
+                }
+                else
+                {
+                    _pendingRenderComments.Add(comment);
+                }
             }
             else
             {

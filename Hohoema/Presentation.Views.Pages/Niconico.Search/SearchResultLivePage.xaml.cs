@@ -1,4 +1,5 @@
 ﻿using Hohoema.Presentation.ViewModels.Pages.Niconico.Search;
+using NiconicoToolkit.Live;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,6 +29,20 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Search
         private void Flyout_Closed(object sender, object e)
         {
 			(DataContext as SearchResultLivePageViewModel).SearchOptionsUpdatedCommand.Execute();
+        }
+
+        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var pageVM = DataContext as SearchResultLivePageViewModel;
+            foreach (var added in e.AddedItems.Cast<ProviderType>())
+            {
+                pageVM.SelectedProviders.Add(added);
+            }
+
+            foreach (var removed in e.RemovedItems.Cast<ProviderType>())
+            {
+                pageVM.SelectedProviders.Remove(removed);
+            }
         }
     }
 }

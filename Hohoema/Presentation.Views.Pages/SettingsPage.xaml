@@ -10,10 +10,8 @@
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
       xmlns:models="using:Hohoema.Models.Domain.Application"
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-      xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-      xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:iconPack="using:MahApps.Metro.IconPacks"
-      xmlns:uwptoolkitControl="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
       xmlns:myconverters="using:Hohoema.Presentation.Views.Converters"
       xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
@@ -39,21 +37,21 @@
                             Command="{Binding RemoveCommand}" />
           </MenuFlyout>
         </Button.Flyout>
-        <toolkit:DockPanel Background="Transparent"
+        <uwpControls:DockPanel Background="Transparent"
                            Margin="16 0">
           <TextBlock Text="{Binding Label}"
                      VerticalAlignment="Center"></TextBlock>
-        </toolkit:DockPanel>
+        </uwpControls:DockPanel>
       </Button>
     </DataTemplate>
     <DataTemplate x:Key="TextWithRemoveButtonTemplate">
-      <toolkit:DockPanel>
+      <uwpControls:DockPanel>
         <TextBlock Text="{Binding Content}"
-                   toolkit:DockPanel.Dock="Left"
+                   uwpControls:DockPanel.Dock="Left"
                    VerticalAlignment="Center" />
         <AppBarButton Icon="Remove"
                       Command="{Binding RemoveCommand}" />
-      </toolkit:DockPanel>
+      </uwpControls:DockPanel>
     </DataTemplate>
     <Style x:Key="SubTitleStyle"
            TargetType="TextBlock">
@@ -110,7 +108,7 @@
               Value="8 0 0 0" />
     </Style>
 
-    <Style x:Key="SettingsTitleContainerStyle" TargetType="toolkit:DockPanel">
+    <Style x:Key="SettingsTitleContainerStyle" TargetType="uwpControls:DockPanel">
       <Setter Property="Margin" Value="8 32 8 16" />
       <Setter Property="MinWidth" Value="320" />
     </Style>
@@ -118,12 +116,12 @@
     <locales:LocaleToDisplayNameConverter x:Key="LocaleToDisplayNameConverter" />
   </Page.Resources>
   <Grid>
-    <uwptoolkitControl:DockPanel>
-      <StackPanel x:Name="HeaderPanel" uwptoolkitControl:DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+    <uwpControls:DockPanel>
+      <StackPanel x:Name="HeaderPanel" uwpControls:DockPanel.Dock="Top" HorizontalAlignment="Stretch">
 
-        <uwpcontrols:DockPanel Margin="8 0" >
+        <uwpControls:DockPanel Margin="8 0" >
 
-          <StackPanel Orientation="Horizontal" uwpcontrols:DockPanel.Dock="Right">
+          <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Right">
             <TextBlock Opacity="0.7" Style="{StaticResource BodyTextBlockStyle}" VerticalAlignment="Center"
                        TextAlignment="Right"
                            Text="{Binding VersionText}"                                                      
@@ -138,17 +136,17 @@
             </TextBlock>
           </StackPanel>
           <controls:AppTitleBar Title="{Binding Title}" />
-        </uwpcontrols:DockPanel>
+        </uwpControls:DockPanel>
       </StackPanel>
 
       <ScrollViewer>
         <StackPanel x:Name="ContentPanel" Padding="0 0 0 32" MinWidth="400" MaxWidth="960" Spacing="16" HorizontalAlignment="Left">
           <!-- アプリの表示設定 -->
           <StackPanel>
-            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{i18nExt:Localize Key=AppearanceSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=AppearanceSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-            </toolkit:DockPanel>
+            </uwpControls:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               <Grid x:Name="MenuPaneDisplayModeLayout">
                 <TextBlock Text="{i18nExt:Localize Key=MenuPaneDisplayMode}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
@@ -215,10 +213,10 @@
           </StackPanel>
           <!-- NG設定 -->
           <StackPanel>
-            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{i18nExt:Localize Key=FilterSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=FilterSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-            </toolkit:DockPanel>
+            </uwpControls:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
 
               <TextBlock Text="ランキングページは投稿者NGに対応していません" />
@@ -228,7 +226,7 @@
                 <ToggleSwitch IsOn="{Binding NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
               <StackPanel Margin="0 8">
-                <uwpcontrols:Expander Header="{i18nExt:Localize Key=ShowFilteredVideoOwnerNames}" HorizontalContentAlignment="Left" >
+                <uwpControls:Expander Header="{i18nExt:Localize Key=ShowFilteredVideoOwnerNames}" HorizontalContentAlignment="Left" >
                   <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
                             Margin="0 0"
                             IsTabStop="False"
@@ -262,14 +260,14 @@
                     </ItemsControl.ItemTemplate>
                     <ListView.ItemsPanel>
                       <ItemsPanelTemplate>
-                        <uwpcontrols:UniformGrid ColumnSpacing="4" RowSpacing="4" />
+                        <uwpControls:UniformGrid ColumnSpacing="4" RowSpacing="4" />
                       </ItemsPanelTemplate>
                     </ListView.ItemsPanel>
                   </ListView>
-                </uwpcontrols:Expander>
+                </uwpControls:Expander>
               </StackPanel>
               <Grid>
-                <TextBlock Text="{i18nExt:Localize Key=FilterEnableWithVideoTitle}" toolkit:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <TextBlock Text="{i18nExt:Localize Key=FilterEnableWithVideoTitle}" uwpControls:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ToggleSwitch IsOn="{Binding NGVideoTitleKeywordEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
               <StackPanel Visibility="{Binding NGVideoTitleKeywordEnable.Value, Converter={StaticResource BooleanToVisibility}}" Spacing="8">
@@ -282,8 +280,8 @@
                 <ItemsControl ItemsSource="{Binding VideoTitleFilteringItems}">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                      <uwpcontrols:DockPanel>
-                        <Button uwpcontrols:DockPanel.Dock="Right" Background="Transparent" Height="32" Width="32">
+                      <uwpControls:DockPanel>
+                        <Button uwpControls:DockPanel.Dock="Right" Background="Transparent" Height="32" Width="32">
                           <Button.Flyout>
                             <MenuFlyout>
                               <MenuFlyoutItem Text="{i18nExt:Localize Key=Delete}" Command="{Binding RemoveCommand}" />
@@ -293,7 +291,7 @@
                           <SymbolIcon Symbol="More" />
                         </Button>
                         <TextBox Text="{Binding Keyword.Value, Mode=TwoWay}" Margin="0 0 0 8" />
-                      </uwpcontrols:DockPanel>
+                      </uwpControls:DockPanel>
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -306,10 +304,10 @@
           </StackPanel>
           <!-- キャッシュ設定 -->
           <StackPanel>
-            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{i18nExt:Localize Key=CacheSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=CacheSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-            </toolkit:DockPanel>
+            </uwpControls:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               <Grid>
                 <TextBlock Text="{i18nExt:Localize Key=DefaultCacheVideoQuality}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
@@ -353,10 +351,10 @@
           </StackPanel>
           <!-- バックアップ -->
           <StackPanel>
-            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{i18nExt:Localize Key=UserDataSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=UserDataSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-            </toolkit:DockPanel>
+            </uwpControls:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}" Orientation="Horizontal" HorizontalAlignment="Right">
               <Button Content="{i18nExt:Localize Key=BackupUserData}" Command="{Binding ExportBackupCommand}" />
               <Button Content="{i18nExt:Localize Key=RestoreUserData}" Command="{Binding ImportBackupCommand}" />
@@ -365,10 +363,10 @@
           
           <!-- このアプリについて -->
           <StackPanel>
-            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{i18nExt:Localize Key=AboutThisApp}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=AboutThisApp}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-            </toolkit:DockPanel>
+            </uwpControls:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}" Spacing="8">
               <Grid>
                 <TextBlock Text="{i18nExt:Localize Key=ApplicationVersion}" Opacity="0.7" VerticalAlignment="Center" />
@@ -381,20 +379,20 @@
             </StackPanel>
           </StackPanel>
           <StackPanel>
-            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{i18nExt:Localize Key=Feedback}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=Feedback}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-            </toolkit:DockPanel>
+            </uwpControls:DockPanel>
             <HyperlinkButton Content="{i18nExt:Localize Key=SendMessageToDeveloperWith_Marshmallow-QA}" Margin="0 0 0 8" NavigateUri="https://marshmallow-qa.com/tor4kichi" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
 
             <HyperlinkButton Content="{i18nExt:Localize Key=ReviewInMicrosoftStore}" Margin="0 0 0 8" Command="{Binding LaunchAppReviewCommand}" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
           </StackPanel>
           <!--  -->
           <StackPanel>
-            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{i18nExt:Localize Key=ThirdPartyLibraryDependencies}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=ThirdPartyLibraryDependencies}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-            </toolkit:DockPanel>
+            </uwpControls:DockPanel>
             <ItemsControl ItemsSource="{Binding LisenceItems}" Margin="0 0 8 0" IsTabStop="False">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
@@ -493,10 +491,10 @@
           </StackPanel>
           <!-- その他 -->
           <StackPanel>
-            <toolkit:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
-              <TextBlock Text="{i18nExt:Localize Key=Others}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=Others}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-            </toolkit:DockPanel>
+            </uwpControls:DockPanel>
             <ListView ItemsSource="{Binding PurchaseItems}"
                       IsItemClickEnabled="True"
                       SelectionMode="None">
@@ -514,9 +512,9 @@
               <ListView.ItemTemplate>
                 <DataTemplate>
                   <Grid>
-                    <toolkit:DockPanel>
-                      <Image Source="{Binding ProductListing.ImageUri}" Height="48" Width="48" toolkit:DockPanel.Dock="Left" />
-                      <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Bottom" Margin="0 0 0 8">
+                    <uwpControls:DockPanel>
+                      <Image Source="{Binding ProductListing.ImageUri}" Height="48" Width="48" uwpControls:DockPanel.Dock="Left" />
+                      <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Bottom" Margin="0 0 0 8">
                         <TextBlock Margin="8 0" VerticalAlignment="Center">
                                                 <Run Text="{Binding ProductListing.FormattedPrice}" /></TextBlock>
                         <Border Visibility="{Binding IsActive, Converter={StaticResource BooleanToVisibility}}" Margin="8 0">
@@ -524,7 +522,7 @@
                         </Border>
                       </StackPanel>
                       <TextBlock Text="{Binding ProductListing.Name}" Margin="8 0" VerticalAlignment="Center" />
-                    </toolkit:DockPanel>
+                    </uwpControls:DockPanel>
                   </Grid>
                 </DataTemplate>
               </ListView.ItemTemplate>
@@ -532,11 +530,11 @@
           </StackPanel>
           
           <!-- 実験的機能 -->
-          <uwptoolkitControl:Expander Visibility="Collapsed">
+          <uwpControls:Expander Visibility="Collapsed">
 
-            <uwptoolkitControl:Expander.Header>
-              <TextBlock Text="実験的機能" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
-            </uwptoolkitControl:Expander.Header>
+            <uwpControls:Expander.Header>
+              <TextBlock Text="実験的機能" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
+            </uwpControls:Expander.Header>
             <StackPanel Spacing="8" Margin="0 16">
 
               <TextBlock Text="有効にする前にユーザーデータのバックアップを推奨" Foreground="Red" FontWeight="Bold" />
@@ -547,11 +545,11 @@
                             />
 
             </StackPanel>
-          </uwptoolkitControl:Expander>
+          </uwpControls:Expander>
           
         </StackPanel>
       </ScrollViewer>
-    </uwptoolkitControl:DockPanel>
+    </uwpControls:DockPanel>
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
       <VisualStateGroup>

@@ -8,7 +8,6 @@
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:models="using:Hohoema.Models.Domain.Application"
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-  xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
   xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:actions="using:Hohoema.Presentation.Views.Actions"
@@ -55,7 +54,7 @@
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
       <ListView.Header>
-        <Grid x:Name="HeaderLayout" Background="{ThemeResource ApplicationHeaderBackgroundBrush}">
+        <Grid x:Name="HeaderLayout" Background="{StaticResource ApplicationContentBackgroundBrush}" BorderBrush="{StaticResource HohoemaLightBorderBrush}"  BorderThickness="0 0 0 1">
           <StackPanel Spacing="8">
 
             <uwpcontrols:WrapPanel Orientation="Horizontal">
@@ -74,10 +73,10 @@
             </uwpcontrols:WrapPanel>
 
 
-            <CommandBar Margin="0">
+            <CommandBar Margin="0" VerticalContentAlignment="Center">
               <CommandBar.PrimaryCommands>
-                <AppBarElementContainer VerticalAlignment="Center">
-                  <DropDownButton Content="絞り込み">
+                <AppBarElementContainer VerticalAlignment="Center" VerticalContentAlignment="Center">
+                  <DropDownButton Content="絞り込み" VerticalAlignment="Center">
                     <DropDownButton.Flyout>
                       <Flyout Closed="Flyout_Closed">
                         <StackPanel Spacing="8">
@@ -116,21 +115,16 @@
                   <ComboBox ItemsSource="{Binding SortOptionItems}" 
                               SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" 
                               ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                            VerticalAlignment="Center"
                               >
                   </ComboBox>
 
                   <ListView ItemsSource="{Binding ProvidersItems}" 
-                              ext:ListViewExtensions.BindableSelection="{Binding SelectedProviders, Mode=TwoWay}"
-                              SelectionMode="Multiple"
-                              IsMultiSelectCheckBoxEnabled="False"
-                              ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
-                              >
-                    <ListView.ItemContainerStyle>
-                      <Style TargetType="ListViewItem">
-                        <Setter Property="BorderBrush" Value="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
-                        <Setter Property="BorderThickness" Value="1" />
-                      </Style>
-                    </ListView.ItemContainerStyle>
+                            SelectionMode="Multiple"
+                            IsMultiSelectCheckBoxEnabled="False"
+                            ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                            SelectionChanged="ListView_SelectionChanged"
+                            >
                     <ListView.ItemsPanel>
                       <ItemsPanelTemplate>
                         <ItemsStackPanel Orientation="Horizontal" />
@@ -155,7 +149,7 @@
           <Setter Property="Padding" Value="0 8 16 8" />
           <Setter Property="UseSystemFocusVisuals" Value="True" />
           <Setter Property="BorderThickness" Value="0 0 0 1" />
-          <Setter Property="BorderBrush" Value="#44707070" />
+          <Setter Property="BorderBrush" Value="{StaticResource HohoemaLightBorderBrush}" />
         </Style>
       </ListView.ItemContainerStyle>
     </ListView>

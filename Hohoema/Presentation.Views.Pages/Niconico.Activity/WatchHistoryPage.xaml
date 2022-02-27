@@ -65,7 +65,7 @@
           <Grid>
             <videolistPage:VideoListItemControl 
                 Title="{x:Bind Label}"                 
-                ImageSource="{x:Bind ThumbnailUrl, Converter={StaticResource UrlToCachedImageConverter}}"
+                ImageSource="{x:Bind ThumbnailUrl}"
                 Length="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"  
                 IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
                 IsWatched="False"

@@ -4,7 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+  xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
   xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
   xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
@@ -22,7 +22,7 @@
 
   <Grid>
 
-    <toolkit:DockPanel x:Name="LayoutRoot">
+    <uwpControls:DockPanel x:Name="LayoutRoot">
 
       <Pivot>
         <Pivot.ItemContainerStyle>
@@ -151,7 +151,7 @@
         </PivotItem>
       </Pivot>
 
-    </toolkit:DockPanel>
+    </uwpControls:DockPanel>
 
     <VisualStateManager.VisualStateGroups>
       <!-- Xbox -->

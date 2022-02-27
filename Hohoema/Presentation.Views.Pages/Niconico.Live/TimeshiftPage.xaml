@@ -8,10 +8,8 @@
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:models="using:Hohoema.Models.Domain.Application"
-  xmlns:toolkit="using:WinRTXamlToolkit.Controls"
   xmlns:mvvm="using:Prism.Mvvm"
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-  xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
   xmlns:controls="using:Hohoema.Presentation.Views.Pages.Niconico.Live"
   xmlns:iconPack="using:MahApps.Metro.IconPacks"
   xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
@@ -23,59 +21,13 @@
   xmlns:controls1="using:Hohoema.Presentation.Views.Controls" 
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors" 
-  xmlns:liveDetail="using:NiconicoToolkit.Live.Timeshift"
+  xmlns:liveDetail="using:NiconicoToolkit.Live.Timeshift" xmlns:liveVM="using:Hohoema.Presentation.ViewModels.Niconico.Live"
   DataContext="{x:Null}"
   NavigationCacheMode="Enabled"
   mc:Ignorable="d"
     >
   <Page.Resources>
-    <DataTemplate x:Key="TimeshiftItem_Reserved">
-      <Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Spacing="8">
-          <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource LocalizeConverter}}" FontSize="13" Opacity="0.6" />
-          <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}" FontSize="13" Opacity="0.6" />
-        </StackPanel>
-        <controls:LiveVideoListItem />
-      </Grid>
-    </DataTemplate>
-    <DataTemplate x:Key="TimeshiftItem_Watch">
-      <Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Spacing="8">
-          <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource LocalizeConverter}}" FontSize="13" Opacity="0.6" />
-          <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}" FontSize="13" Opacity="0.6" />
-        </StackPanel>
-        <controls:LiveVideoListItem />
-      </Grid>
-    </DataTemplate>
-    <DataTemplate x:Key="TimeshiftItem_TimeOut">
-      <Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Spacing="8">
-          <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource LocalizeConverter}}" FontSize="13" Opacity="0.6" />
-          <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}" FontSize="13" Opacity="0.6" />
-        </StackPanel>
-        <controls:LiveVideoListItem />
-      </Grid>
-    </DataTemplate>
-    <DataTemplate x:Key="TimeshiftItem_UnknownStatus">
-      <Grid>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom" Spacing="8">
-          <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource LocalizeConverter}}" FontSize="13" Opacity="0.6" />
-          <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}" FontSize="13" Opacity="0.6" />
-        </StackPanel>
-        <controls:LiveVideoListItem />
-      </Grid>
-    </DataTemplate>
-    <templateselector:ValueDataTemplateSelector x:Key="TimeshiftItemTemplateSelector" PropertyName="ReservationStatus" Default="{StaticResource TimeshiftItem_Watch}">
-      <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.RESERVED}" Template="{StaticResource TimeshiftItem_Reserved}" />
-      <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.WATCH}" Template="{StaticResource TimeshiftItem_Watch}" />
-      <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.FIRST_WATCH}" Template="{StaticResource TimeshiftItem_Watch}" />
-      <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.TSARCHIVE}" Template="{StaticResource TimeshiftItem_Watch}" />
-      <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.PRODUCT_ARCHIVE_WATCH}" Template="{StaticResource TimeshiftItem_Watch}" />
-      <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.USER_TIMESHIFT_DATE_OUT}" Template="{StaticResource TimeshiftItem_TimeOut}" />
-      <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.PRODUCT_ARCHIVE_TIMEOUT}" Template="{StaticResource TimeshiftItem_TimeOut}" />
-      <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.USE_LIMIT_DATE_OUT}" Template="{StaticResource TimeshiftItem_TimeOut}" />
-      <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.LIMIT_DATE_OUT}" Template="{StaticResource TimeshiftItem_TimeOut}" />
-    </templateselector:ValueDataTemplateSelector>
+    
   </Page.Resources>
   <Grid>
 
@@ -86,14 +38,15 @@
               UseSystemFocusVisuals="True"
               SelectionMode="None"
               HorizontalContentAlignment="Stretch"
-              ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
               uwpExtensions:ScrollViewerExtensions.VerticalScrollBarMargin="0 0 0 0"
-              ScrollViewer.BringIntoViewOnFocusChange="False"
-              ItemTemplateSelector="{StaticResource TimeshiftItemTemplateSelector}"
+              ScrollViewer.BringIntoViewOnFocusChange="False"              
               xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
               myExtensions:ListViewBase.DeferInitialize="True"
               Style="{StaticResource FixedHeaderListViewStyle}"
               >
+      <ListView.ItemContainerTransitions>
+        <TransitionCollection />
+      </ListView.ItemContainerTransitions>
       <i:Interaction.Behaviors>
         <mybehavior:KeyboardTrigger Key="F5">
           <mybehavior:KeyboardTrigger.Actions>
@@ -135,6 +88,21 @@
           </Grid>
         </Grid>
       </ListView.Header>
+      <ListView.ItemContainerStyle>
+        <Style TargetType="ListViewItem">
+          <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+          <Setter Property="Margin" Value="0 0 0 0" />
+          <Setter Property="Padding" Value="0 8 16 8" />
+          <Setter Property="UseSystemFocusVisuals" Value="True" />
+          <Setter Property="BorderThickness" Value="0 0 0 1" />
+          <Setter Property="BorderBrush" Value="{StaticResource HohoemaLightBorderBrush}" />
+        </Style>
+      </ListView.ItemContainerStyle>
+      <ListView.ItemTemplate>
+        <DataTemplate>
+          <controls:LiveVideoListItem ImageWidth="80" />
+        </DataTemplate>
+      </ListView.ItemTemplate>
       <ListView.ItemsPanel>
         <ItemsPanelTemplate>
           <ItemsStackPanel x:Name="ItemsPanel" />

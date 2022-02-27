@@ -93,6 +93,8 @@ namespace Hohoema.Presentation.Views.Controls
 
             if (NoticationRequestQueue.TryDequeue(out var payload))
             {
+                if (payload == null) { return; }
+
                 _CurrentNotication = payload;
                 
                 LiteNotification.DataContext = payload;

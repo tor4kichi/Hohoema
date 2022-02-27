@@ -7,7 +7,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="using:Hohoema"
     xmlns:model="using:Hohoema.Models.Domain"
-    xmlns:conv="using:WinRTXamlToolkit.Converters"
     xmlns:myconv="using:Hohoema.Presentation.Views.Converters"
     xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
     xmlns:view="using:Hohoema.Presentation.Views"
@@ -144,8 +143,15 @@
 
 
       <uwpconv:BoolNegationConverter x:Key="BoolNegation" />
-      <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-      <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted" IsInversed="True" />
+      <uwpconv:BoolToVisibilityConverter x:Key="BooleanToVisibility" />
+      <uwpconv:BoolToObjectConverter x:Key="BooleanToVisibilityInverted">
+        <uwpconv:BoolToObjectConverter.TrueValue>
+          <Visibility>Collapsed</Visibility>
+        </uwpconv:BoolToObjectConverter.TrueValue>
+        <uwpconv:BoolToObjectConverter.FalseValue>
+          <Visibility>Visible</Visibility>
+        </uwpconv:BoolToObjectConverter.FalseValue>
+      </uwpconv:BoolToObjectConverter>
       <myconv:InvertVisibilityConverter x:Key="InvertVisibility" />
       <uwpconv:EmptyStringToObjectConverter x:Key="EmptyStringToBoolean">
         <uwpconv:EmptyStringToObjectConverter.NotEmptyValue>
@@ -226,8 +232,8 @@
       </uwpconv:EmptyCollectionToObjectConverter>
       
       <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
-
-      <conv:ColorToBrushConverter x:Key="ColorToBrush" />
+    
+      <myconv:ColorToBrushConverter x:Key="ColorToBrush" />
 
       <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
       <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />

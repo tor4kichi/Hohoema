@@ -5,20 +5,19 @@
     xmlns:local="using:Hohoema.Presentation.Views.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:Hohoema.Presentation.Views.Controls"
     xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <toolkit:DockPanel Margin="12 0 0 0">
+    <uwpControls:DockPanel Margin="12 0 0 0">
 
-        <Grid Height="80" Width="80" toolkit:DockPanel.Dock="Left">
+        <Grid Height="80" Width="80" uwpControls:DockPanel.Dock="Left">
 
             <uwpUI:ImageEx  Source="{Binding IconUrl}"       
                             HorizontalAlignment="Center"
@@ -29,16 +28,16 @@
                    />
         </Grid>
         
-        <toolkit:DockPanel Margin="8 0 0 0"  >
+        <uwpControls:DockPanel Margin="8 0 0 0"  >
 
             <!-- post at -->
-            <Border toolkit:DockPanel.Dock="Top" Margin="0 0 0 0">
+            <Border uwpControls:DockPanel.Dock="Top" Margin="0 0 0 0">
                 <TextBlock Foreground="Gray" FontSize="12">
                         <Run Text="{Binding UpdateDate}" />
                 </TextBlock>
             </Border>
 
-            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Bottom">
+            <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Bottom">
                 <TextBlock Foreground="Gray" VerticalAlignment="Center"
                            Margin="0 0 8 0" FontSize="12"
                            >
@@ -77,9 +76,9 @@
                 </TextBlock>
             </StackPanel>
 
-        </toolkit:DockPanel>
+        </uwpControls:DockPanel>
         
     
 
-    </toolkit:DockPanel>
+    </uwpControls:DockPanel>
 </UserControl>

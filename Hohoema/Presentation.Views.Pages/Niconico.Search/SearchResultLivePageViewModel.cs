@@ -86,16 +86,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                 {
                     if (_NowNavigatingTo) { return; }
 
-                    var query = _query;
-
-                    if (query != null
-                        && query.Keyword == Keyword
-                            && query.SortOrder == SelectedSearchSort.Value
-                            && query.ProviderTypes?.Empty() == false && SelectedProviders.All(x => query.ProviderTypes.Contains(x))
-                            && query.LiveStatus == SelectedLiveStatus.Value
-                    )
+                    if (_query is not null)
                     {
-                        return;
+                        if (_query.Keyword == Keyword
+                            && _query.SortOrder == SelectedSearchSort.Value
+                            && _query.LiveStatus == SelectedLiveStatus.Value
+                            && (_query.ProviderTypes?.Any() ?? false)
+                            && SelectedProviders.Count == _query.ProviderTypes.Length
+                            && SelectedProviders.All(x => _query.ProviderTypes.Contains(x))
+                            )
+                        {
+                            return;
+                        }
                     }
 
                     ResetList();

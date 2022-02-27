@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
-using WinRTXamlToolkit.Controls.Extensions;
-
+using Hohoema.Presentation.Views.Helpers;
 // this code is copy from  http://stackoverflow.com/questions/24066687/windows-phone-8-1-flyout-hide-with-behaviour-issue
 
 namespace Hohoema.Presentation.Views.Behaviors
@@ -17,8 +16,8 @@ namespace Hohoema.Presentation.Views.Behaviors
 	{
 		public object Execute(object sender, object parameter)
 		{
-			var element = sender as DependencyObject;
-			var flyout = element.GetFirstAncestorOfType<FlyoutPresenter>();
+			var element = sender as FrameworkElement;
+			var flyout = element.FindFirstChild<FlyoutPresenter>();
 			if (flyout == null) { return null; }
 			var popup = flyout.Parent as Popup;
 			if (popup != null)

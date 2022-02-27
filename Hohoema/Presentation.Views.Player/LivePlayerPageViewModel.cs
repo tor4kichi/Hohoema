@@ -243,8 +243,7 @@ namespace Hohoema.Presentation.ViewModels.Player
         DateTimeOffset? _StartTime;
         public DateTimeOffset StartTime => _StartTime ??= DateTimeOffset.FromUnixTimeSeconds(_PlayerProp.Program.BeginTime);
         DateTimeOffset? _EndTime;
-        public DateTimeOffset EndTime => _EndTime ??= DateTimeOffset.FromUnixTimeSeconds(_PlayerProp.Program.EndTime);
-
+        public DateTimeOffset EndTime => _EndTime ??= DateTimeOffset.FromUnixTimeSeconds(_PlayerProp.Program.EndTime);        
 
         private bool _IsTimeshift;
         public bool IsTimeshift
@@ -501,8 +500,20 @@ namespace Hohoema.Presentation.ViewModels.Player
             _MaxSeekablePosition = new ReactiveProperty<double>(_scheduler, 0.0)
                 .AddTo(_CompositeDisposable);
 
+            bool _seelBarChangingFirst = false;
+            bool _lastPlaybackPaused = false;
             SeekBarTimeshiftPosition
                 .Where(_ => !_NowSeekBarPositionChanging)
+                .Do(_ =>
+                {
+                    if (_seelBarChangingFirst)
+                    {
+                        _seelBarChangingFirst = false;
+                        _lastPlaybackPaused = MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Paused;
+                        MediaPlayer.Pause();
+                        _updateTimer.Stop();
+                    }
+                })
                 .Throttle(TimeSpan.FromSeconds(0.25))
                 .Subscribe(x =>
                 {
@@ -510,8 +521,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                     {
                         var time = TimeSpan.FromSeconds(x);
 
-                        var session = MediaPlayer.PlaybackSession;
-
+                        var session = MediaPlayer.PlaybackSession;                        
                         MediaPlayer.Source = null;
                         _MediaSource?.Dispose();
                         _AdaptiveMediaSource?.Dispose();
@@ -529,7 +539,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                         // https://platform.uno/docs/articles/implemented/windows-ui-xaml-controls-mediaplayerelement.html
                         // MediaPlayer is supported on UWP/Android/iOS.
                         // not support to MacOS and WASM.
-#if WINDOWS_UWP
+#if WINDOWS_UWP                        
                         var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(hlsUri), LiveContext.HttpClient);
                         if (amsCreateResult.Status == AdaptiveMediaSourceCreationStatus.Success)
                         {
@@ -537,9 +547,11 @@ namespace Hohoema.Presentation.ViewModels.Player
                             _MediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
                             _AdaptiveMediaSource = ams;
                             MediaPlayer.Source = _MediaSource;
-
                             _AdaptiveMediaSource.DesiredMaxBitrate = _AdaptiveMediaSource.AvailableBitrates.Max();
                         }
+
+                        
+                        _updateTimer.Start();
 
 #elif __IOS__ || __ANDROID__
                 var mediaSource = MediaSource.CreateFromUri(new Uri(hlsUri));
@@ -549,15 +561,40 @@ namespace Hohoema.Presentation.ViewModels.Player
                 throw new NotSupportedException();
 #endif
 
-                        _CommentSession.Seek(time);
+                        _DisplayingLiveComments.Clear();
+                        _ListLiveComments.Clear();
+                        _CommentSession.Seek(NavigationCancellationToken, time);
 
                         // Note: MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
                         var elapsedTimeResult = _watchSessionTimer.UpdatePlaybackTime(TimeSpan.Zero);
                         LiveElapsedTime = elapsedTimeResult.LiveElapsedTime;
                         LiveElapsedTimeFromOpen = elapsedTimeResult.LiveElapsedTimeFromOpen;
 
-                        WatchStartLiveElapsedTime = LiveElapsedTimeFromOpen;
+                        WatchStartLiveElapsedTime = LiveElapsedTime;
 
+                        _seelBarChangingFirst = true;
+
+                        if (_lastPlaybackPaused)
+                        {
+                            async void MediaPlayer_MediaPlaybackSession(MediaPlaybackSession sender, object args)
+                            {
+                                if (sender.PlaybackState == MediaPlaybackState.Playing)
+                                {
+                                    sender.PlaybackStateChanged -= MediaPlayer_MediaPlaybackSession;
+
+                                    var ct = NavigationCancellationToken;
+                                    while (sender.PlaybackState != MediaPlaybackState.Paused)
+                                    {
+                                        await Task.Delay(100, ct);
+                                        sender.MediaPlayer.Pause();
+                                    }
+                                }
+                            }
+
+                            MediaPlayer.PlaybackSession.PlaybackStateChanged += MediaPlayer_MediaPlaybackSession;
+                            await Task.Delay(3000);
+                            MediaPlayer.PlaybackSession.PlaybackStateChanged -= MediaPlayer_MediaPlaybackSession;
+                        }
                     });
                 })
                 .AddTo(_CompositeDisposable);
@@ -631,7 +668,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                     var limit = GetQualityLimitType();
                     Debug.WriteLine($"Change Quality: {PlayerSettings.DefaultLiveQuality} - Low Latency: {PlayerSettings.LiveWatchWithLowLatency} - Limit: {limit}");
-
+                    _updateTimer.Stop();
                     await _watchSession.ChangeStreamAsync(PlayerSettings.DefaultLiveQuality, PlayerSettings.LiveWatchWithLowLatency, limit);
                 })
                 .AddTo(_CompositeDisposable);
@@ -706,6 +743,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             _updateTimer = _dispatcherQueue.CreateTimer();
             _updateTimer.Interval = TimeSpan.FromSeconds(0.1);
             _updateTimer.IsRepeating = true;
+            _updateTimer.Stop();
             _updateTimer.Tick += (s, _) =>
             {
                 var elaplsedUpdateResult = _watchSessionTimer.UpdatePlaybackTime(MediaPlayer.PlaybackSession.Position);
@@ -715,11 +753,12 @@ namespace Hohoema.Presentation.ViewModels.Player
                 if (IsTimeshift)
                 {
                     _NowSeekBarPositionChanging = true;
-                    SeekBarTimeshiftPosition.Value = LiveElapsedTimeFromOpen.TotalSeconds;
+                    SeekBarTimeshiftPosition.Value = LiveElapsedTime.TotalSeconds;
                     _NowSeekBarPositionChanging = false;
                 }
 
                 // 表示完了したコメントの削除
+                /*
                 for (int i = _DisplayingLiveComments.Count - 1; i >= 0; i--)
                 {
                     var c = _DisplayingLiveComments[i];
@@ -730,22 +769,23 @@ namespace Hohoema.Presentation.ViewModels.Player
                         _DisplayingLiveComments.RemoveAt(i);
                     }
                 }
+                */
 
-                _ = _dispatcherQueue.EnqueueAsync(async () =>
+                if (UnresolvedUserId.TryPop(out var id))
                 {
-                    if (UnresolvedUserId.TryPop(out var id))
+                    _ = _dispatcherQueue.EnqueueAsync(async () =>
                     {
                         var owner = await _userNameRepository.ResolveUserNameAsync(id);
                         if (owner != null)
                         {
                             UpdateCommentUserName(id, owner);
                         }
-                    }
-                });
+                    });
+                }
             };
         }
 
-
+        
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
@@ -909,7 +949,11 @@ namespace Hohoema.Presentation.ViewModels.Player
                         return;
                     }
 
-                    _watchSession = NiconicoToolkit.Live.LiveClient.CreateWatchSession(_PlayerProp);
+                    _OpenTime = null;
+                    _StartTime = null;
+                    _EndTime = null;
+
+                    _watchSession = NiconicoToolkit.Live.LiveClient.CreateWatchSession(_PlayerProp, LiveContext.UserAgent);
 
                     _watchSession.RecieveStream += _watchSession_RecieveStream;
                     _watchSession.RecieveRoom += _watchSession_RecieveRoom;
@@ -1051,7 +1095,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                     _MediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
                     _AdaptiveMediaSource = ams;
                     MediaPlayer.Source = _MediaSource;
-
+                    MediaPlayer.Play();
                     _AdaptiveMediaSource.DesiredMaxBitrate = _AdaptiveMediaSource.AvailableBitrates.Max();
                 }
 
@@ -1068,7 +1112,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 LiveElapsedTime = elapsedTimeResult.LiveElapsedTime;
                 LiveElapsedTimeFromOpen = elapsedTimeResult.LiveElapsedTimeFromOpen;
 
-                WatchStartLiveElapsedTime = LiveElapsedTimeFromOpen;
+                WatchStartLiveElapsedTime = IsTimeshift ? LiveElapsedTime : LiveElapsedTimeFromOpen;
 
 
                 var requestQuality = RequestQuality.Value;
@@ -1092,6 +1136,8 @@ namespace Hohoema.Presentation.ViewModels.Player
                 }
 
                 CanChangeQuality.Value = true;
+                
+                _updateTimer.Start();
             });
         }
 
@@ -1125,7 +1171,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 }
                 else
                 {
-                    _CommentSession = e.CreateCommentClientForTimeshift(NiconicoSession.HohoemaUserAgent, _PlayerProp.User.Id.ToString(), StartTime);
+                    _CommentSession = e.CreateCommentClientForTimeshift(NiconicoSession.HohoemaUserAgent, _PlayerProp.User.Id.ToString(), OpenTime, EndTime);
                 }
 
                 _CommentSession.CommentReceived += _CommentSession_CommentReceived;
@@ -1133,20 +1179,9 @@ namespace Hohoema.Presentation.ViewModels.Player
                 _CommentSession.Connected += _CommentSession_Connected;
                 _CommentSession.Disconnected += _CommentSession_Disconnected;
 
-                /*
-                try
-                {
-                    await Task.Delay(3000, ct);
-                }
-                catch (OperationCanceledException)
-                {
-                    return;
-                }
-                */
-
                 if (_CommentSession != null)
-                {
-                    await _CommentSession.OpenAsync(ct);
+                {                    
+                    await _CommentSession.OpenAsync(ct, IsTimeshift ? _watchSessionTimer.PlaybackHeadPosition : TimeSpan.Zero);
                 }
             });
         }
@@ -1175,18 +1210,23 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             var comment = e.Chat;
 
-            LiveComment commentVM = ChatToComment(e.Chat);
+            LiveComment commentVM = ChatToComment(comment);
 
-            if (!comment.IsOperater && !comment.Content.StartsWith('/'))
+           
+            if (comment.IsOperater && comment.Content.StartsWith('/'))
             {
+                Debug.WriteLine($"Operator command: {comment.Content}");
+            }
+            else 
+            {
+ //               Debug.WriteLine($"comment: {comment.Content}");
+
                 // 表示範囲にある場合は頭から流れるように
-                var relatedPosition = LiveElapsedTimeFromOpen - commentVM.VideoPosition;
-                if (relatedPosition > TimeSpan.Zero 
-                    && relatedPosition < PlayerSettings.CommentDisplayDuration)
+                if (!IsTimeshift)
                 {
-                    commentVM.VideoPosition = LiveElapsedTimeFromOpen - TimeSpan.FromSeconds(0.25);
+                    commentVM.VideoPosition = DateTimeOffset.FromUnixTimeSeconds(comment.Date) - OpenTime + TimeSpan.FromSeconds(1);
                 }
-                
+
                 if (!commentVM.IsAnonymity)
                 {
                     var commentUserId = uint.Parse(comment.UserId);
@@ -1211,25 +1251,32 @@ namespace Hohoema.Presentation.ViewModels.Player
                     }
                 }
 
-                _dispatcherQueue.TryEnqueue(() =>
+                if (IsTimeshift)
                 {
-                    if (!_commentFiltering.IsHiddenCommentOwnerUserId(comment.UserId)
-                    || (LiveElapsedTime - e.Chat.VideoPosition).Duration() < TimeSpan.FromSeconds(3)
-                    )
+                    _dispatcherQueue.TryEnqueue(() =>
                     {
                         _DisplayingLiveComments.Add(commentVM);
-                    }
-                    else
+                        _ListLiveComments.Add(commentVM);
+                    });
+                }
+                else
+                {
+                    _dispatcherQueue.TryEnqueue(() =>
                     {
-                        Debug.WriteLine("表示スキップ：" + commentVM.CommentText);
-                    }
+                        if (!_commentFiltering.IsHiddenCommentOwnerUserId(comment.UserId)
+                        || (LiveElapsedTime - e.Chat.VideoPosition).Duration() < TimeSpan.FromSeconds(3)
+                        )
+                        {
+                            _DisplayingLiveComments.Add(commentVM);
+                        }
+                        else
+                        {
+                            Debug.WriteLine("表示スキップ：" + commentVM.CommentText);
+                        }
 
-                    _ListLiveComments.Add(commentVM);
-                });
-            }
-            else
-            {
-                Debug.WriteLine("Operator command: " + comment.Content);
+                        _ListLiveComments.Add(commentVM);
+                    });
+                }
             }
         }
 

@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:view="using:Hohoema.Presentation.Views"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
@@ -14,14 +14,14 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <toolkit:DockPanel Margin="16">
+    <uwpControls:DockPanel Margin="16">
         <TextBlock Text="{Binding Target}" 
-                   toolkit:DockPanel.Dock="Right"
+                   uwpControls:DockPanel.Dock="Right"
                    />
 
         <TextBlock Text="{Binding Keyword}" />
         
         
-    </toolkit:DockPanel>
+    </uwpControls:DockPanel>
     
 </UserControl>

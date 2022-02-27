@@ -7,8 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
    xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
     xmlns:viewmodel="using:Hohoema.Presentation.ViewModels"
     xmlns:sidepaneVM="using:Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent"
@@ -20,7 +19,6 @@
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:media="using:Microsoft.Xaml.Interactions.Media"
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
-    xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:model="using:Hohoema.Models.Domain"
     xmlns:models="using:Hohoema.Models.Domain.Application"
@@ -276,7 +274,7 @@
     </StackPanel>
 
 
-    <toolkit:DockPanel x:Name="DefaultUIControl">
+    <uwpControls:DockPanel x:Name="DefaultUIControl">
       <animation:Implicit.ShowAnimations>
         <animation:OpacityAnimation To="1.0" Duration="0:0:0.5" />
       </animation:Implicit.ShowAnimations>
@@ -285,13 +283,13 @@
       </animation:Implicit.HideAnimations>
 
       <!-- 上側 プレイリスト 操作 -->
-      <toolkit:DockPanel x:Name="UIControlHeaderLayout" toolkit:DockPanel.Dock="Top" Background="{StaticResource HohoemaPlayerBackgroundBrush}">
+      <uwpControls:DockPanel x:Name="UIControlHeaderLayout" uwpControls:DockPanel.Dock="Top" Background="{StaticResource HohoemaPlayerBackgroundBrush}">
 
         <!-- Title Bar Margin -->
-        <Grid x:Name="TitleBarMarginLayout" Height="32" toolkit:DockPanel.Dock="Top" Visibility="Collapsed">
+        <Grid x:Name="TitleBarMarginLayout" Height="32" uwpControls:DockPanel.Dock="Top" Visibility="Collapsed">
         </Grid>
         <!-- 左上 -->
-        <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
+        <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Left">
           <!-- 閉じる -->
           <Button x:Name="CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" Background="Transparent" UseSystemFocusVisuals="True" Width="48" Height="48"
                             XYFocusRight="{x:Bind ActionsCommandBar}"
@@ -307,7 +305,7 @@
           </Button>
         </StackPanel>
         <!-- 右上 -->
-        <CommandBar x:Name="ActionsCommandBar" toolkit:DockPanel.Dock="Right" 
+        <CommandBar x:Name="ActionsCommandBar" uwpControls:DockPanel.Dock="Right" 
                               XYFocusLeft="{x:Bind CloseButton}"
                     DefaultLabelPosition="Right"
                               >
@@ -363,9 +361,9 @@
           </CommandBar.SecondaryCommands>
         </CommandBar>
         <Border />
-      </toolkit:DockPanel>
+      </uwpControls:DockPanel>
       <!-- 下側 動画コンテンツ 操作 -->
-      <StackPanel x:Name="UIControlContentLayout" toolkit:DockPanel.Dock="Bottom" Background="{StaticResource HohoemaPlayerBackgroundBrush}" Padding="0 0 0 8">
+      <StackPanel x:Name="UIControlContentLayout" uwpControls:DockPanel.Dock="Bottom" Background="{StaticResource HohoemaPlayerBackgroundBrush}" Padding="0 0 0 8">
         <!-- Title -->
         <StackPanel Margin="8 0">
           <TextBlock x:Name="TitleTextBlock" Text="{Binding VideoInfo.Title}" FontSize="24" HorizontalAlignment="Center" TextWrapping="Wrap" />
@@ -409,8 +407,9 @@
                       <DataTemplate>
                         <StackPanel Orientation="Horizontal" Spacing="8">
                           <TextBlock Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />
-                          <TextBlock toolkitext:ListViewItemExtensions.IsEnabled="{Binding IsAvailable}">
-                                           <Run Text="{Binding Bitrate, Converter={StaticResource ToKMGTPEZY}}" />bps</TextBlock>
+                          <TextBlock >                                           
+                            <Run Text="{Binding Bitrate, Converter={StaticResource ToKMGTPEZY}}" />bps
+                          </TextBlock>
                         </StackPanel>
                       </DataTemplate>
                     </ListView.ItemTemplate>
@@ -542,7 +541,7 @@
             </Button>
           </StackPanel>
           <!-- Settings etc -->
-          <toolkit:WrapPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+          <uwpControls:WrapPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
             <Button x:Name="OpenCommentListButton" Background="Transparent" Command="{Binding SelectSidePaneCommand}" CommandParameter="Comment">
               <iconPack:PackIconMaterial Kind="Comment" Width="24" Height="24"></iconPack:PackIconMaterial>
             </Button>
@@ -552,7 +551,7 @@
             <Button x:Name="OpenSettingsPaneButton" Command="{Binding SelectSidePaneCommand}" CommandParameter="Setting" Background="Transparent">
               <SymbolIcon Symbol="Setting" />
             </Button>
-          </toolkit:WrapPanel>
+          </uwpControls:WrapPanel>
         </Grid>
         <!-- コメントを書く -->
         <Grid x:Name="CommentLayout" Padding="0 8 0 0" Visibility="Collapsed">
@@ -568,7 +567,7 @@
             <ColumnDefinition Width="1*" />
             <ColumnDefinition Width="1*" />
           </Grid.ColumnDefinitions>
-          <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" PlaceholderText="{i18nExt:Localize Key=CommentTextBoxPlacefolder}" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding CommentPlayer.NowCommentSubmitDisabledFromNicoScript, Converter={StaticResource BoolNegation}}"></TextBox>
+          <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" PlaceholderText="{i18nExt:Localize Key=CommentTextBoxPlacefolder}" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding CommentPlayer.NowCommentSubmitDisabledFromNicoScript, Converter={StaticResource BoolNegation}}"></TextBox>
           <Button x:Name="CommentCommandEditButton"
                             Content="{Binding CommentCommandEditerViewModel.CommandsText.Value, Mode=OneWay}"                            
                             Margin="8 0 8 0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
@@ -650,7 +649,7 @@
           </Button>
         </Border>
       </Grid>
-    </toolkit:DockPanel>
+    </uwpControls:DockPanel>
 
     <!--
     <Grid Visibility="{x:Bind DefaultUIControl.Visibility, Mode=OneWay, Converter={StaticResource InvertVisibility}}">

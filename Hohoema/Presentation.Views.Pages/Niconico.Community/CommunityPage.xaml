@@ -6,7 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:mvvm="using:Prism.Mvvm"
       xmlns:view="using:Hohoema.Presentation.Views"
-      xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+      xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:i="using:Microsoft.Xaml.Interactivity"
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
@@ -26,9 +26,9 @@
     <ScrollViewer>
       <StackPanel x:Name="ContentLayout">
         <Border Height="48" />
-        <toolkit:DockPanel>
-          <Image Width="80" Height="80" Source="{Binding ThumbnailUrl, Mode=OneWay}" Margin="0 0 32 0" toolkit:DockPanel.Dock="Left" />
-          <TextBlock Text="{Binding CommunityName}" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}" toolkit:DockPanel.Dock="Top" />
+        <uwpControls:DockPanel>
+          <Image Width="80" Height="80" Source="{Binding ThumbnailUrl, Mode=OneWay}" Margin="0 0 32 0" uwpControls:DockPanel.Dock="Left" />
+          <TextBlock Text="{Binding CommunityName}" VerticalAlignment="Center" Style="{StaticResource TitleTextBlockStyle}" uwpControls:DockPanel.Dock="Top" />
           <Border Background="Transparent" IsHitTestVisible="True" Margin="0 0 0 0">
             <StackPanel Orientation="Vertical" Margin="0 8">
               <StackPanel Orientation="Horizontal">
@@ -41,7 +41,7 @@
               </StackPanel>
             </StackPanel>
           </Border>
-        </toolkit:DockPanel>
+        </uwpControls:DockPanel>
         <!-- 放送の状態表示 -->
         <Border Margin="0 16 0 8" Visibility="{Binding HasCurrentLiveInfo, Converter={StaticResource BooleanToVisibility}}" MaxWidth="960">
           <StackPanel HorizontalAlignment="Stretch">
@@ -120,11 +120,11 @@
           <ItemsControl ItemsSource="{Binding NewsList}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <toolkit:DockPanel>
-                  <Border toolkit:DockPanel.Dock="Top" Margin="0 8">
+                <uwpControls:DockPanel>
+                  <Border uwpControls:DockPanel.Dock="Top" Margin="0 8">
                     <TextBlock Text="{Binding Title}" Margin="8 0 0 0" FontWeight="SemiBold" />
                   </Border>
-                  <Border toolkit:DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
+                  <Border uwpControls:DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
                     <TextBlock HorizontalAlignment="Right">
                                                     <Run Text="{Binding PostAt}" />
                                                     <Run Text=" | " />
@@ -136,7 +136,7 @@
                       <mybehavior:WebViewAutoResizeToContent />
                     </i:Interaction.Behaviors>
                   </WebView>
-                </toolkit:DockPanel>
+                </uwpControls:DockPanel>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>

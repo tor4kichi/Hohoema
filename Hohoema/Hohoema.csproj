@@ -252,6 +252,7 @@
     <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\DebugPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityViewModel.cs" />
+    <Compile Include="Presentation.Views\Converters\ColorToBrushConverter.cs" />
     <Compile Include="Presentation.Views\Mylist\MylistCardView.cs" />
     <Compile Include="Presentation.Views\Flyouts\ChannelInfoFlyout.xaml.cs">
       <DependentUpon>ChannelInfoFlyout.xaml</DependentUpon>
@@ -858,9 +859,6 @@
     <PackageReference Include="ValueTaskSupplement">
       <Version>1.1.0</Version>
     </PackageReference>
-    <PackageReference Include="WinRTXamlToolkit.UWP">
-      <Version>2.3.0</Version>
-    </PackageReference>
     <PackageReference Include="Xamarin.Essentials">
       <Version>1.3.1</Version>
     </PackageReference>
@@ -1276,10 +1274,6 @@
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\NiconicoToolkit\NiconicoToolkit.UWP\NiconicoToolkit.UWP.csproj">
-      <Project>{9ec6b1ba-1896-4516-b0f4-1c3701566d16}</Project>
-      <Name>NiconicoToolkit.UWP</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Hohoema.Models\Hohoema.Models.csproj">
       <Project>{5877a9ca-2d3a-4b8b-86ca-d77e6d68cf98}</Project>
       <Name>Hohoema.Models</Name>

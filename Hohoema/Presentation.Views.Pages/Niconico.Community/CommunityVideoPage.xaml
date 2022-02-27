@@ -6,7 +6,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:i="using:Microsoft.Xaml.Interactivity" 
       xmlns:core="using:Microsoft.Xaml.Interactions.Core" 
-      xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+      xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
       xmlns:controls="using:Hohoema.Presentation.Views.Controls"
       xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI"
@@ -58,7 +58,7 @@
       <ListView.Header>
         <Grid x:Name="HeaderLayout">
 
-          <toolkit:DockPanel>
+          <uwpControls:DockPanel>
             <StackPanel>
               <CommandBar x:Name="TopCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
                 <CommandBar.Content>
@@ -102,7 +102,7 @@
                 </CommandBar.PrimaryCommands>
               </CommandBar>
             </StackPanel>
-          </toolkit:DockPanel>
+          </uwpControls:DockPanel>
 
         </Grid>
       </ListView.Header>
@@ -114,7 +114,7 @@
           <Grid>
             <videolistPage:VideoListItemControl 
                 Title="{x:Bind Label}"                 
-                ImageSource="{x:Bind ThumbnailUrl, Converter={StaticResource UrlToCachedImageConverter}}"
+                ImageSource="{x:Bind ThumbnailUrl}"
                 Length="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"  
                 IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
                 IsWatched="{x:Bind IsWatched, Mode=OneWay}"
