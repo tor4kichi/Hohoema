@@ -1145,12 +1145,13 @@ namespace Hohoema.Presentation.ViewModels.Player
         {
             if (_CommentSession != null)
             {
-                _CommentSession.CommentReceived -= _CommentSession_CommentReceived;
-                _CommentSession.CommentPosted -= _CommentSession_CommentPosted;
-                _CommentSession.Connected -= _CommentSession_Connected;
-                _CommentSession.Disconnected -= _CommentSession_Disconnected;
-                _CommentSession.Dispose();
+                var cs = _CommentSession;
                 _CommentSession = null;
+                cs.CommentReceived -= _CommentSession_CommentReceived;
+                cs.CommentPosted -= _CommentSession_CommentPosted;
+                cs.Connected -= _CommentSession_Connected;
+                cs.Disconnected -= _CommentSession_Disconnected;
+                cs.Dispose();
             }
         }
 
@@ -1188,6 +1189,14 @@ namespace Hohoema.Presentation.ViewModels.Player
 
         private void _CommentSession_CommentReceived(object sender, CommentReceivedEventArgs e)
         {
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                AddComment(e.Chat);
+            });
+        }
+
+        private void AddComment(LiveChatData comment)
+        {
             LiveComment ChatToComment(LiveChatData x)
             {
                 var comment = new LiveComment();
@@ -1208,18 +1217,16 @@ namespace Hohoema.Presentation.ViewModels.Player
                 return comment;
             }
 
-            var comment = e.Chat;
-
             LiveComment commentVM = ChatToComment(comment);
 
-           
+
             if (comment.IsOperater && comment.Content.StartsWith('/'))
             {
                 Debug.WriteLine($"Operator command: {comment.Content}");
             }
-            else 
+            else
             {
- //               Debug.WriteLine($"comment: {comment.Content}");
+                //               Debug.WriteLine($"comment: {comment.Content}");
 
                 // 表示範囲にある場合は頭から流れるように
                 if (!IsTimeshift)
@@ -1253,29 +1260,23 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                 if (IsTimeshift)
                 {
-                    _dispatcherQueue.TryEnqueue(() =>
-                    {
-                        _DisplayingLiveComments.Add(commentVM);
-                        _ListLiveComments.Add(commentVM);
-                    });
+                    _DisplayingLiveComments.Add(commentVM);
+                    _ListLiveComments.Add(commentVM);
                 }
                 else
                 {
-                    _dispatcherQueue.TryEnqueue(() =>
+                    if (!_commentFiltering.IsHiddenCommentOwnerUserId(comment.UserId)
+                    || (LiveElapsedTime - comment.VideoPosition).Duration() < TimeSpan.FromSeconds(3)
+                    )
                     {
-                        if (!_commentFiltering.IsHiddenCommentOwnerUserId(comment.UserId)
-                        || (LiveElapsedTime - e.Chat.VideoPosition).Duration() < TimeSpan.FromSeconds(3)
-                        )
-                        {
-                            _DisplayingLiveComments.Add(commentVM);
-                        }
-                        else
-                        {
-                            Debug.WriteLine("表示スキップ：" + commentVM.CommentText);
-                        }
+                        _DisplayingLiveComments.Add(commentVM);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("表示スキップ：" + commentVM.CommentText);
+                    }
 
-                        _ListLiveComments.Add(commentVM);
-                    });
+                    _ListLiveComments.Add(commentVM);
                 }
             }
         }
