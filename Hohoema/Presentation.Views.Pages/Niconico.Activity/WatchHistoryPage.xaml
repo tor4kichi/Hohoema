@@ -136,6 +136,11 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _vm.NowUpdating.Value, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
             <windowsTriggers:EqualsStateTrigger Value="{Binding Histories.Count}" EqualTo="0" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
