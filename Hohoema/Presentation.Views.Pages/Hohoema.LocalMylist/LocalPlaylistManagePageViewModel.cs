@@ -5,8 +5,8 @@ using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Microsoft.Toolkit.Uwp.UI;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -31,7 +31,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
         public LocalPlaylistCreateCommand CreateLocalMylistCommand { get; }
         public LocalPlaylistDeleteCommand DeleteLocalPlaylistCommand { get; }
         public ReactiveCommand<IPlaylist> OpenMylistCommand { get; }
-        public DelegateCommand<LocalPlaylist> RenameLocalPlaylistCommand { get; }
+        public RelayCommand<LocalPlaylist> RenameLocalPlaylistCommand { get; }
 
         public LocalPlaylistManagePageViewModel(
             PageManager pageManager,
@@ -60,7 +60,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
             });
 
 
-            RenameLocalPlaylistCommand = new DelegateCommand<LocalPlaylist>(async playlist => 
+            RenameLocalPlaylistCommand = new RelayCommand<LocalPlaylist>(async playlist => 
             {
                 var result = await dialogService.GetTextAsync(
                     "RenameLocalPlaylist",

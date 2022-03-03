@@ -4,11 +4,10 @@ using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.Services;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System.Linq;
 using System.Collections.Generic;
 using Hohoema.Dialogs;
-using Uno.Extensions;
 using System;
 using System.Threading.Tasks;
 using Hohoema.Models.UseCase.Playlist;
@@ -60,7 +59,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             if (targetMylist != null)
             {
                 var addedResult = await targetMylist.AddItem(items);
-                if (addedResult.SuccessedItems.Any() && addedResult.FailedItems.Empty())
+                if (addedResult.SuccessedItems.Any() && addedResult.FailedItems.Any() is false)
                 {
 //                    NotificationService.ShowLiteInAppNotification("InAppNotification_MylistAddedItems_Success".Translate(targetMylist.Label, addedResult.SuccessedItems.Count));
                 }

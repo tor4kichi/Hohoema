@@ -5,16 +5,15 @@ using Hohoema.Presentation.Services;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Mylist;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Uno.Extensions;
-using Uno.Threading;
 using ZLogger;
 using static Hohoema.Models.Domain.Niconico.Mylist.LoginUser.LoginUserMylistProvider;
+using Hohoema.Models.Helpers;
 
 namespace Hohoema.Models.UseCase.Playlist
 {
@@ -24,7 +23,7 @@ namespace Hohoema.Models.UseCase.Playlist
     // TODO: アイテム個数上限による失敗
 
 
-    public class LoginUserOwnedMylistManager : BindableBase
+    public class LoginUserOwnedMylistManager : ObservableObject
     {
         public LoginUserOwnedMylistManager(
             ILoggerFactory loggerFactory,
@@ -84,7 +83,7 @@ namespace Hohoema.Models.UseCase.Playlist
 
 
 
-        FastAsyncLock _mylistSyncLock = new FastAsyncLock();
+        AsyncLock _mylistSyncLock = new AsyncLock();
 
         private bool _IsLoginUserMylistReady;
         public bool IsLoginUserMylistReady
@@ -104,7 +103,7 @@ namespace Hohoema.Models.UseCase.Playlist
 		private ObservableCollection<LoginUserMylistPlaylist> _mylists;
 		public ReadOnlyObservableCollection<LoginUserMylistPlaylist> Mylists { get; private set; }
 
-        private FastAsyncLock _updateLock = new FastAsyncLock();
+        private AsyncLock _updateLock = new AsyncLock();
 
         
 
@@ -201,7 +200,10 @@ namespace Hohoema.Models.UseCase.Playlist
             {
                 Deflist = null;
 
-                _mylists.ForEach(RemoveHandleMylistItemChanged);
+                foreach (var item in _mylists)
+                {
+                    RemoveHandleMylistItemChanged(item);
+                }
                 _mylists.Clear();
 
                 if (_niconicoSession.IsLoggedIn)
@@ -228,7 +230,10 @@ namespace Hohoema.Models.UseCase.Playlist
                     }
                 }
 
-                _mylists.ForEach(HandleMylistItemChanged);
+                foreach (var item in _mylists)
+                {
+                    HandleMylistItemChanged(item);
+                }
             }
 		}
 

@@ -11,7 +11,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI;
-using Prism.Ioc;
 using NiconicoToolkit.Mylist;
 using Hohoema.Models.Domain.Niconico.Mylist;
 
@@ -26,7 +25,7 @@ namespace Hohoema.Dialogs
 
 		public EditMylistGroupDialogContext(MylistGroupEditData data, bool isCreate = false)
 		{
-			_scheduler = App.Current.Container.Resolve<IScheduler>();
+			_scheduler = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IScheduler>();
 			DialogTitle = isCreate ? "MylistCreate".Translate() : "EditMylist".Translate();
 			MylistName = new ReactiveProperty<string>(_scheduler, data.Name)
 				.SetValidateAttribute(() => MylistName);

@@ -13,6 +13,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using Hohoema.Presentation.ViewModels.Pages.Hohoema;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -28,20 +30,10 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Video
             this.InitializeComponent();
 
             Loaded += VideoInfomationPage_Loaded;
-            DataContextChanged += OnDataContextChanged;
+            DataContext = _vm = Ioc.Default.GetRequiredService<VideoInfomationPageViewModel>();
         }
 
-        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
-        {
-            var oldViewModel = _vm;
-            _vm = args.NewValue as VideoInfomationPageViewModel;
-            if (args.NewValue != null && args.NewValue != oldViewModel)
-            {
-                this.Bindings.Update();
-            }
-        }
-
-        private VideoInfomationPageViewModel _vm { get; set; }
+        private readonly VideoInfomationPageViewModel _vm;
 
         private void VideoInfomationPage_Loaded(object sender, RoutedEventArgs e)
         {

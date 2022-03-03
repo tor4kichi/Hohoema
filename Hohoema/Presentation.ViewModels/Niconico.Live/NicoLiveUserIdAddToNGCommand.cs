@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {
-    public sealed class NicoLiveUserIdAddToNGCommand : DelegateCommandBase
+    public sealed class NicoLiveUserIdAddToNGCommand : CommandBase
     {
         private readonly CommentFilteringFacade _commentFiltering;
         private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;

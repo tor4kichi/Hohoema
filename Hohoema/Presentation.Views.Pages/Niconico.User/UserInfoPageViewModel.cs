@@ -4,8 +4,7 @@ using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Playlist;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -32,8 +31,9 @@ using Hohoema.Presentation.ViewModels.Niconico.Share;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.Infrastructure;
 using NiconicoToolkit.User;
-using Uno.Disposables;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Presentation.Navigations;
+using Windows.UI.Xaml.Navigation;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
 {
@@ -48,7 +48,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
         public string IconUrl { get; set; }
     }
 
-    public class UserInfoPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class UserInfoPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {
@@ -140,26 +140,26 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
         public UserProvider UserProvider { get; }
         public VideoFilteringSettings NgSettings { get; }
        
-        private DelegateCommand _OpenUserMylistPageCommand;
-        public DelegateCommand OpenUserMylistPageCommand
+        private RelayCommand _OpenUserMylistPageCommand;
+        public RelayCommand OpenUserMylistPageCommand
         {
             get
             {
                 return _OpenUserMylistPageCommand
-                    ?? (_OpenUserMylistPageCommand = new DelegateCommand(() =>
+                    ?? (_OpenUserMylistPageCommand = new RelayCommand(() =>
                     {
                         PageManager.OpenPageWithId(HohoemaPageType.UserMylist, UserId);
                     }));
             }
         }
 
-        private DelegateCommand _OpenUserSeriesPageCommand;
-        public DelegateCommand OpenUserSeriesPageCommand
+        private RelayCommand _OpenUserSeriesPageCommand;
+        public RelayCommand OpenUserSeriesPageCommand
         {
             get
             {
                 return _OpenUserSeriesPageCommand
-                    ?? (_OpenUserSeriesPageCommand = new DelegateCommand(() =>
+                    ?? (_OpenUserSeriesPageCommand = new RelayCommand(() =>
                     {
                         PageManager.OpenPageWithId(HohoemaPageType.UserSeries, UserId);
                     }));
@@ -301,14 +301,19 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
         {
             if (VideoInfoItems != null)
             {
-                VideoInfoItems.DisposeAll();
+                foreach (var item in VideoInfoItems)
+                {
+                    item.Dispose();
+                }
                 VideoInfoItems.Clear();
             }
             base.OnNavigatedFrom(parameters);
         }
 
-        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            await base.OnNavigatedToAsync(parameters);
+
             var prevUserId = UserId;
             if (parameters.GetNavigationMode() is not NavigationMode.Refresh)
             {
@@ -323,7 +328,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
                 }
                 
                 UserId = userId;
-                RaisePropertyChanged(nameof(UserId));
+                OnPropertyChanged(nameof(UserId));
             }
 
             if (UserId is null)
@@ -410,7 +415,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
                     var vm = new VideoListItemControlViewModel(item.Essential);
                     VideoInfoItems.Add(vm);
                 }
-                RaisePropertyChanged(nameof(VideoInfoItems));
+                OnPropertyChanged(nameof(VideoInfoItems));
 
                 HasOwnerVideo = VideoInfoItems.Count != 0;
             }
@@ -425,14 +430,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
             if (NiconicoSession.IsLoginUserId(UserId.Value))
             {
                 MylistGroups = UserMylistManager.Mylists;
-                RaisePropertyChanged(nameof(MylistGroups));
+                OnPropertyChanged(nameof(MylistGroups));
             }
             else
             {
                 try
                 {
                     MylistGroups = await _mylistRepository.GetUserMylistsAsync(UserId.Value);
-                    RaisePropertyChanged(nameof(MylistGroups));
+                    OnPropertyChanged(nameof(MylistGroups));
                 }
                 catch (Exception ex)
                 {

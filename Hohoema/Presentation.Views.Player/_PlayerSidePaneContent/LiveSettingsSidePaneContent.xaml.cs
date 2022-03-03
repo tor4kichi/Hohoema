@@ -13,7 +13,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Prism.Ioc;
 using Windows.UI;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
@@ -25,7 +24,7 @@ namespace Hohoema.Presentation.Views.Player
         private SettingsSidePaneContentViewModel _viewModel { get; }
         public LiveSettingsSidePaneContent()
         {
-            DataContext = _viewModel = App.Current.Container.Resolve<SettingsSidePaneContentViewModel>();
+            DataContext = _viewModel = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SettingsSidePaneContentViewModel>();
 
             this.InitializeComponent();
         }

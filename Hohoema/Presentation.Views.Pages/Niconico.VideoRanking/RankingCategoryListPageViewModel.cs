@@ -11,8 +11,7 @@ using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.UI;
 using NiconicoToolkit.Ranking.Video;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -20,8 +19,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Uno.Extensions;
 using Windows.UI.Xaml.Data;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 {
@@ -285,9 +284,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         public ObservableCollection<RankingGenreItem> RankingGenreItems { get; } = new ObservableCollection<RankingGenreItem>();
         List<RankingGenreItem> _RankingGenreItemsSource = new List<RankingGenreItem>();
 
-        private DelegateCommand<RankingItem> _OpenRankingPageCommand;
-        public DelegateCommand<RankingItem> OpenRankingPageCommand => _OpenRankingPageCommand
-            ?? (_OpenRankingPageCommand = new DelegateCommand<RankingItem>(OnRankingCategorySelected));
+        private RelayCommand<RankingItem> _OpenRankingPageCommand;
+        public RelayCommand<RankingItem> OpenRankingPageCommand => _OpenRankingPageCommand
+            ?? (_OpenRankingPageCommand = new RelayCommand<RankingItem>(OnRankingCategorySelected));
         
         internal void OnRankingCategorySelected(RankingItem info)
         {
@@ -431,9 +430,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         }
 
 
-        DelegateCommand _ShowDisplayGenreSelectDialogCommand;
-        public DelegateCommand ShowDisplayGenreSelectDialogCommand => _ShowDisplayGenreSelectDialogCommand
-            ?? (_ShowDisplayGenreSelectDialogCommand = new DelegateCommand(async () => 
+        RelayCommand _ShowDisplayGenreSelectDialogCommand;
+        public RelayCommand ShowDisplayGenreSelectDialogCommand => _ShowDisplayGenreSelectDialogCommand
+            ?? (_ShowDisplayGenreSelectDialogCommand = new RelayCommand(async () => 
             {
                 var rankingGenres = Enum.GetValues(typeof(RankingGenre)).Cast<RankingGenre>().Where(x => x != RankingGenre.R18);
                 var allItems = rankingGenres.Select(x => new HiddenGenreItem() { Label = x.Translate(), Genre = x }).ToArray();
@@ -457,9 +456,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                 RefreshFilter();
             }));
 
-        DelegateCommand _ShowDisplayGenreTagSelectDialogCommand;
-        public DelegateCommand ShowDisplayGenreTagSelectDialogCommand => _ShowDisplayGenreTagSelectDialogCommand
-            ?? (_ShowDisplayGenreTagSelectDialogCommand = new DelegateCommand(async () =>
+        RelayCommand _ShowDisplayGenreTagSelectDialogCommand;
+        public RelayCommand ShowDisplayGenreTagSelectDialogCommand => _ShowDisplayGenreTagSelectDialogCommand
+            ?? (_ShowDisplayGenreTagSelectDialogCommand = new RelayCommand(async () =>
             {
                 var result = await HohoemaDialogService.ShowMultiChoiceDialogAsync<RankingGenreTag>(
                     "SelectReDisplayHiddenRankingTags".Translate(),

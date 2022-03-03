@@ -2,7 +2,7 @@
 using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.Playlist;
-using Prism.Navigation;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -12,7 +12,6 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
-using Prism.Ioc;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico;
@@ -90,7 +89,7 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement));
             }
 
-            RaisePropertyChanged(nameof(MenuItems));
+            OnPropertyChanged(nameof(MenuItems));
         }
 
         private void OnLogIn(object sender, NiconicoSessionLoginEventArgs e)

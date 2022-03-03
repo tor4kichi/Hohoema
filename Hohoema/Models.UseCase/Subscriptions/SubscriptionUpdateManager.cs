@@ -1,4 +1,4 @@
-﻿using Prism.Mvvm;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Subscriptions;
 using System;
@@ -9,7 +9,6 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Uno;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 
@@ -24,7 +23,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
         public DateTime NextUpdateTime { get; set; }
     }
 
-    public sealed class SubscriptionUpdateManager : BindableBase, IDisposable
+    public sealed class SubscriptionUpdateManager : ObservableObject, IDisposable
     {
         private readonly ILogger<SubscriptionUpdateManager> _logger;
         private readonly SubscriptionManager _subscriptionManager;

@@ -17,8 +17,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using I18NPortable;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -41,7 +40,6 @@ using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Presentation.ViewModels.VideoCache.Commands;
 using System.Threading;
-using Uno.Disposables;
 using NiconicoToolkit.Video.Watch;
 using NiconicoToolkit.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Likes;
@@ -51,10 +49,11 @@ using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using Hohoema.Models.Domain.LocalMylist;
 using Microsoft.Extensions.Logging;
 using ZLogger;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 {
-    public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class VideoInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -214,13 +213,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         }
 
 
-        private DelegateCommand _OpenFilterSettingPageCommand;
-        public DelegateCommand OpenFilterSettingPageCommand
+        private RelayCommand _OpenFilterSettingPageCommand;
+        public RelayCommand OpenFilterSettingPageCommand
         {
             get
             {
                 return _OpenFilterSettingPageCommand
-                    ?? (_OpenFilterSettingPageCommand = new DelegateCommand(() =>
+                    ?? (_OpenFilterSettingPageCommand = new RelayCommand(() =>
                     {
                         PageManager.OpenPage(HohoemaPageType.Settings);
                     }
@@ -229,13 +228,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         }
 
 
-        private DelegateCommand _OpenOwnerUserPageCommand;
-        public DelegateCommand OpenOwnerUserPageCommand
+        private RelayCommand _OpenOwnerUserPageCommand;
+        public RelayCommand OpenOwnerUserPageCommand
         {
             get
             {
                 return _OpenOwnerUserPageCommand
-                    ?? (_OpenOwnerUserPageCommand = new DelegateCommand(() =>
+                    ?? (_OpenOwnerUserPageCommand = new RelayCommand(() =>
                     {
                         if (VideoInfo.Owner.UserType == OwnerType.User)
                         {
@@ -248,13 +247,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         }
 
 
-        private DelegateCommand _OpenOwnerUserVideoPageCommand;
-        public DelegateCommand OpenOwnerUserVideoPageCommand
+        private RelayCommand _OpenOwnerUserVideoPageCommand;
+        public RelayCommand OpenOwnerUserVideoPageCommand
         {
             get
             {
                 return _OpenOwnerUserVideoPageCommand
-                    ?? (_OpenOwnerUserVideoPageCommand = new DelegateCommand(() =>
+                    ?? (_OpenOwnerUserVideoPageCommand = new RelayCommand(() =>
                     {
                         if (VideoInfo.Owner.UserType == OwnerType.User)
                         {
@@ -270,13 +269,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         }
 
 
-        private DelegateCommand _ShareCommand;
-        public DelegateCommand ShareCommand
+        private RelayCommand _ShareCommand;
+        public RelayCommand ShareCommand
         {
             get
             {
                 return _ShareCommand
-                    ?? (_ShareCommand = new DelegateCommand(() =>
+                    ?? (_ShareCommand = new RelayCommand(() =>
                     {
                         ShareHelper.Share(VideoInfo);
                     }
@@ -285,13 +284,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             }
         }
 
-        private DelegateCommand _VideoInfoCopyToClipboardCommand;
-        public DelegateCommand VideoInfoCopyToClipboardCommand
+        private RelayCommand _VideoInfoCopyToClipboardCommand;
+        public RelayCommand VideoInfoCopyToClipboardCommand
         {
             get
             {
                 return _VideoInfoCopyToClipboardCommand
-                    ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
+                    ?? (_VideoInfoCopyToClipboardCommand = new RelayCommand(() =>
                     {
                         ClipboardHelper.CopyToClipboard(VideoInfo);
                     }
@@ -299,13 +298,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             }
         }
 
-        private DelegateCommand<object> _ScriptNotifyCommand;
-        public DelegateCommand<object> ScriptNotifyCommand
+        private RelayCommand<object> _ScriptNotifyCommand;
+        public RelayCommand<object> ScriptNotifyCommand
         {
             get
             {
                 return _ScriptNotifyCommand
-                    ?? (_ScriptNotifyCommand = new DelegateCommand<object>(async (parameter) =>
+                    ?? (_ScriptNotifyCommand = new RelayCommand<object>(async (parameter) =>
                     {
                         Uri url = parameter as Uri ?? (parameter as HyperlinkItem)?.Url;
                         if (url != null)
@@ -322,13 +321,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         }
 
 
-        private DelegateCommand<IPlaylist> _AddPlaylistCommand;
-        public DelegateCommand<IPlaylist> AddPlaylistCommand
+        private RelayCommand<IPlaylist> _AddPlaylistCommand;
+        public RelayCommand<IPlaylist> AddPlaylistCommand
         {
             get
             {
                 return _AddPlaylistCommand
-                    ?? (_AddPlaylistCommand = new DelegateCommand<IPlaylist>((playlist) =>
+                    ?? (_AddPlaylistCommand = new RelayCommand<IPlaylist>((playlist) =>
                     {
                         if (playlist is LocalPlaylist localPlaylist)
                         {
@@ -343,13 +342,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         }
 
 
-        private DelegateCommand _UpdateCommand;
-        public DelegateCommand UpdateCommand
+        private RelayCommand _UpdateCommand;
+        public RelayCommand UpdateCommand
         {
             get
             {
                 return _UpdateCommand
-                    ?? (_UpdateCommand = new DelegateCommand(async () =>
+                    ?? (_UpdateCommand = new RelayCommand(async () =>
                     {
                         await UpdateVideoDescription();
                     }));
@@ -357,13 +356,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         }
 
 
-        private DelegateCommand _OpenUserSeriesPageCommand;
-        public DelegateCommand OpenUserSeriesPageCommand
+        private RelayCommand _OpenUserSeriesPageCommand;
+        public RelayCommand OpenUserSeriesPageCommand
         {
             get
             {
                 return _OpenUserSeriesPageCommand
-                    ?? (_OpenUserSeriesPageCommand = new DelegateCommand(() =>
+                    ?? (_OpenUserSeriesPageCommand = new RelayCommand(() =>
                     {
                         if (this.VideoInfo?.Owner?.UserType == OwnerType.User)
                         {
@@ -374,13 +373,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         }
 
 
-        private DelegateCommand _OpenVideoBelongSeriesPageCommand;
-        public DelegateCommand OpenVideoBelongSeriesPageCommand
+        private RelayCommand _OpenVideoBelongSeriesPageCommand;
+        public RelayCommand OpenVideoBelongSeriesPageCommand
         {
             get
             {
                 return _OpenVideoBelongSeriesPageCommand
-                    ?? (_OpenVideoBelongSeriesPageCommand = new DelegateCommand(() =>
+                    ?? (_OpenVideoBelongSeriesPageCommand = new RelayCommand(() =>
                     {
                         if (this.VideoDetails.Series != null)
                         {
@@ -449,8 +448,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
         }
         CancellationTokenSource _navigationCts;
         CancellationToken _navigationCancellationToken;
-        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            await base.OnNavigatedToAsync(parameters);
+
             _navigationCts = new CancellationTokenSource();
             _navigationCancellationToken = _navigationCts.Token;
 
@@ -497,8 +498,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
                 UpdateSelfZoning();
 
-                OpenOwnerUserPageCommand.RaiseCanExecuteChanged();
-                OpenOwnerUserVideoPageCommand.RaiseCanExecuteChanged();
+                OpenOwnerUserPageCommand.NotifyCanExecuteChanged();
+                OpenOwnerUserVideoPageCommand.NotifyCanExecuteChanged();
 
                 // 好きの切り替え
                 if (NiconicoSession.IsLoggedIn && VideoDetails != null)
@@ -532,12 +533,19 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             
             FollowContext = FollowContext<IUser>.Default;
 
-            RelatedVideos?.DisposeAll();
+            RelatedVideos?.ForEach(x => x.Dispose());
 
-            NextSeriesVideo?.DisposeAll();
-            NextSeriesVideo = null;
-            PrevSeriesVideo?.DisposeAll();
-            PrevSeriesVideo = null;
+            if (NextSeriesVideo != null)
+            {
+                Array.ForEach(NextSeriesVideo, x => x.Dispose());
+                NextSeriesVideo = null;
+            }
+
+            if (PrevSeriesVideo != null)
+            {
+                Array.ForEach(PrevSeriesVideo, x => x.Dispose());
+                PrevSeriesVideo = null;
+            }
 
             // ListViewのメモリリークを抑えるため関連するバインディングをnull埋め
             VideoInfo = null;
@@ -558,7 +566,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
             {
                 var ichiba = await NiconicoSession.ToolkitContext.Ichiba.GetIchibaItemsAsync(VideoInfo.Id);
                 IchibaItems = ichiba.MainItems;
-                RaisePropertyChanged(nameof(IchibaItems));
+                OnPropertyChanged(nameof(IchibaItems));
             }
             catch (Exception e)
             {
@@ -606,7 +614,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Video
 
                     if (_navigationCancellationToken.IsCancellationRequested)
                     {
-                        items.DisposeAll();
+                        foreach (var item in items)
+                        {
+                            item.Dispose();
+                        }
                         return;
                     }
 

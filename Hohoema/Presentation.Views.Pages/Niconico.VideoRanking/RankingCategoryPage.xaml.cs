@@ -1,5 +1,4 @@
-﻿using Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,6 +12,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -27,19 +28,9 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.VideoRanking
         {
             this.InitializeComponent();
 
-            DataContextChanged += OnDataContextChanged;
+            DataContext = _vm = Ioc.Default.GetRequiredService<RankingCategoryPageViewModel>();
         }
 
-        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
-        {
-            var oldViewModel = _vm;
-            _vm = args.NewValue as RankingCategoryPageViewModel;
-            if (args.NewValue != null && args.NewValue != oldViewModel)
-            {
-                this.Bindings.Update();
-            }
-        }
-
-        private RankingCategoryPageViewModel _vm { get; set; }
+        private readonly RankingCategoryPageViewModel _vm;
     }
 }

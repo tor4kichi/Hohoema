@@ -16,7 +16,7 @@ namespace Hohoema.Presentation.Views.StateTrigger
             DependencyProperty.Register("Condition"
                     , typeof(object)
                     , typeof(EqualConditionStateTrigger)
-                    , new PropertyMetadata(null, OnConditiRaisePropertyChanged)
+                    , new PropertyMetadata(null, OnConditiOnPropertyChanged)
                 );
 
         public object Condition
@@ -26,7 +26,7 @@ namespace Hohoema.Presentation.Views.StateTrigger
         }
 
 
-        public static void OnConditiRaisePropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+        public static void OnConditiOnPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
         {
             var source = sender as EqualConditionStateTrigger;
             source.Evaluation();

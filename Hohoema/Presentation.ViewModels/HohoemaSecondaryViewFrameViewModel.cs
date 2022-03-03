@@ -7,11 +7,11 @@ using Hohoema.Models.Domain;
 using System.Diagnostics;
 using Hohoema.Models.Domain.Live;
 using Hohoema.Models.Helpers;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace Hohoema.Presentation.ViewModels
 {
-    public class HohoemaSecondaryViewFrameViewModel : BindableBase
+    public class HohoemaSecondaryViewFrameViewModel : ObservableObject
     {
         public HohoemaSecondaryViewFrameViewModel()
         {

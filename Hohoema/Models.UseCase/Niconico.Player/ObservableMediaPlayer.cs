@@ -1,4 +1,4 @@
-﻿using Prism.Mvvm;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -13,7 +13,7 @@ using Windows.Media.Playback;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
-    public sealed class ObservableMediaPlayer : BindableBase, IDisposable
+    public sealed class ObservableMediaPlayer : ObservableObject, IDisposable
     {
         private readonly MediaPlayer _mediaPlayer;
         private readonly IScheduler _scheduler;

@@ -14,7 +14,6 @@ using Reactive.Bindings.Binding;
 using Reactive.Bindings.Extensions;
 using System.Threading.Tasks;
 using System.Threading;
-using Uno.Threading;
 using Windows.System;
 using Microsoft.Toolkit.Uwp.UI;
 using Microsoft.Toolkit.Uwp;

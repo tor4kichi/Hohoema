@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain;
-using Prism.Commands;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -20,7 +20,7 @@ using NiconicoToolkit.Comment;
 
 namespace Hohoema.Presentation.ViewModels
 {
-	public class CommentCommandEditerViewModel : BindableBase, IDisposable
+	public class CommentCommandEditerViewModel : ObservableObject, IDisposable
 	{
 		public PlayerSettings PlayerSettings { get; }
 		public NiconicoSession NiconicoSession { get; }

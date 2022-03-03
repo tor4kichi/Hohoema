@@ -15,7 +15,6 @@
       xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" 
       xmlns:myTrigger="using:Hohoema.Presentation.Views.StateTrigger" 
       xmlns:iconPack="using:MahApps.Metro.IconPacks" 
-      xmlns:mvvm="using:Prism.Mvvm"
       xmlns:controls="using:Hohoema.Presentation.Views.Controls" 
       xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector" 
       xmlns:windowsTrigger="using:WindowsStateTriggers" 

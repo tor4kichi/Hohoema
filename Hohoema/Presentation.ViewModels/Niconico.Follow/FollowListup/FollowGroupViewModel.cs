@@ -1,21 +1,20 @@
 ﻿using System;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Domain.Niconico.Follow;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Disposables;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase;
-using Prism.Ioc;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
-    public class FollowGroupViewModel<ItemType> : BindableBase, IDisposable 
+    public class FollowGroupViewModel<ItemType> : ObservableObject, IDisposable 
         where ItemType : IFollowable
     {
         public FollowItemType FollowItemType { get; }
@@ -48,7 +47,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             _followProvider = followProvider;
             _pageManager = pageManager;
             Items = new IncrementalLoadingCollection<IIncrementalSource<ItemType>, ItemType>(source: loadingSource);
-            _logger = App.Current.Container.Resolve<ILoggerFactory>().CreateLogger<FollowGroupViewModel<ItemType>>();
+            _logger = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<ILoggerFactory>().CreateLogger<FollowGroupViewModel<ItemType>>();
 
             loadingSource.ObserveProperty(x => x.MaxCount).Subscribe(x => MaxCount = x).AddTo(_disposables);
             loadingSource.ObserveProperty(x => x.TotalCount).Subscribe(x => TotalCount = x).AddTo(_disposables);
@@ -60,9 +59,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
         }
 
 
-        private DelegateCommand<ItemType> _RemoveFollowCommand;
-        public DelegateCommand<ItemType> RemoveFollowCommand =>
-            _RemoveFollowCommand ??= new DelegateCommand<ItemType>(async item => 
+        private RelayCommand<ItemType> _RemoveFollowCommand;
+        public RelayCommand<ItemType> RemoveFollowCommand =>
+            _RemoveFollowCommand ??= new RelayCommand<ItemType>(async item => 
             {
                 try
                 {
@@ -76,9 +75,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             , (item) => FollowItemType is not FollowItemType.Community and not FollowItemType.Channel
             );
 
-        private DelegateCommand<ItemType> _OpenPageCommand;
-        public virtual DelegateCommand<ItemType> OpenPageCommand =>
-            _OpenPageCommand ??= new DelegateCommand<ItemType>(item =>
+        private RelayCommand<ItemType> _OpenPageCommand;
+        public virtual RelayCommand<ItemType> OpenPageCommand =>
+            _OpenPageCommand ??= new RelayCommand<ItemType>(item =>
             {
                 _pageManager.OpenVideoListPageCommand.Execute(item);
             });

@@ -12,6 +12,9 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Hohoema.Presentation.Navigations;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -25,6 +28,9 @@ namespace Hohoema.Presentation.Views.Pages.Hohoema.LocalMylist
         public LocalPlaylistPage()
         {
             this.InitializeComponent();
+            DataContext = _vm = Ioc.Default.GetRequiredService<LocalPlaylistPageViewModel>();
         }
+
+        private readonly LocalPlaylistPageViewModel _vm;
     }
 }

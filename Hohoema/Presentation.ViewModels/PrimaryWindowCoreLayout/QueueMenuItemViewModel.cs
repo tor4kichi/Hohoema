@@ -1,8 +1,7 @@
 ﻿
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.Playlist;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -15,6 +14,7 @@ using Hohoema.Models.Domain.PageNavigation;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 {
@@ -26,7 +26,7 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
             _messenger = messenger;
             QueuePlaylistCount = _queuePlaylist
                 .ObserveProperty(x => x.TotalCount)
-                .Do(_ => PlayQueuePlaylistCommand.RaiseCanExecuteChanged())
+                .Do(_ => PlayQueuePlaylistCommand.NotifyCanExecuteChanged())
                 .ToReactiveProperty()
                 ;
         }
@@ -34,12 +34,12 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
         public ReactiveProperty<int> QueuePlaylistCount { get; }
 
 
-        private DelegateCommand _PlayQueuePlaylistCommand;
+        private RelayCommand _PlayQueuePlaylistCommand;
         private readonly QueuePlaylist _queuePlaylist;
         private readonly IMessenger _messenger;
 
-        public DelegateCommand PlayQueuePlaylistCommand =>
-            _PlayQueuePlaylistCommand ?? (_PlayQueuePlaylistCommand = new DelegateCommand(ExecutePlayQueuePlaylistCommand, CanExecutePlayQueuePlaylistCommand));
+        public RelayCommand PlayQueuePlaylistCommand =>
+            _PlayQueuePlaylistCommand ?? (_PlayQueuePlaylistCommand = new RelayCommand(ExecutePlayQueuePlaylistCommand, CanExecutePlayQueuePlaylistCommand));
 
         public HohoemaPageType PageType => HohoemaPageType.VideoQueue;
 

@@ -15,7 +15,7 @@ using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Series;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
-using Prism.Navigation;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -28,7 +28,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 {
-    public sealed class SeriesPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigationAware, INavigatedAwareAsync, ITitleUpdatablePage, IPinablePage
+    public sealed class SeriesPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigationAware, ITitleUpdatablePage, IPinablePage
     {
         public HohoemaPin GetPin()
         {

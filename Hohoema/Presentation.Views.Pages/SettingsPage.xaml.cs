@@ -16,6 +16,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using Hohoema.Presentation.ViewModels.Pages.Hohoema;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -31,8 +33,11 @@ namespace Hohoema.Presentation.Views.Pages.Hohoema
 			this.InitializeComponent();
 
 			SetNumberBoxNumberFormatter();
+
+			DataContext = _vm = Ioc.Default.GetRequiredService<SettingsPageViewModel>();
 		}
 
+		private readonly SettingsPageViewModel _vm;
 
 		private void SetNumberBoxNumberFormatter()
 		{

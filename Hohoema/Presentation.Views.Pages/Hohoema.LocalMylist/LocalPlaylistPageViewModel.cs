@@ -1,8 +1,7 @@
 ﻿using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Playlist;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -15,7 +14,6 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
-using Uno.Disposables;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using System.Threading;
@@ -30,10 +28,11 @@ using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using I18NPortable;
 using Reactive.Bindings;
 using Microsoft.Extensions.Logging;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
 {
-    public sealed class LocalPlaylistPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public sealed class LocalPlaylistPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -179,7 +178,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
                         }
                     }
 
-                    PlaylistPlayAllCommand.RaiseCanExecuteChanged();
+                    PlaylistPlayAllCommand.NotifyCanExecuteChanged();
                 });
 
                 WeakReferenceMessenger.Default.Register<PlaylistItemAddedMessage, PlaylistId>(this, Playlist.PlaylistId, (r, m) =>
@@ -192,7 +191,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
                         ItemsView.Add(new VideoListItemControlViewModel(nicoVideo) { PlaylistItemToken = new PlaylistItemToken(Playlist, SelectedSortOptionItem, video) });
                     }
 
-                    PlaylistPlayAllCommand.RaiseCanExecuteChanged();
+                    PlaylistPlayAllCommand.NotifyCanExecuteChanged();
                 });
 
                 _localMylistManager.LocalPlaylists.ObserveRemoveChanged()

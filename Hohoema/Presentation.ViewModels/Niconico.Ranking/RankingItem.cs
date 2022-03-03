@@ -1,10 +1,10 @@
 ﻿
 using NiconicoToolkit.Ranking.Video;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Ranking
 {
-    public class RankingItem : BindableBase
+    public class RankingItem : ObservableObject
     {
         public string Label { get; set; }
 

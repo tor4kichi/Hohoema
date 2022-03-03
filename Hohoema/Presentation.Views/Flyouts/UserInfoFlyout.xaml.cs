@@ -17,7 +17,6 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
-using Prism.Ioc;
 using Hohoema.Presentation.ViewModels.Pages.Niconico.User;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Helpers;
@@ -38,7 +37,7 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.User
     {
         public static async Task<UserInfoFlyout> CreateAsync(UserId userId)
         {
-            var niconicoSession = App.Current.Container.Resolve<NiconicoSession>();
+            var niconicoSession = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NiconicoSession>();
             var info = await niconicoSession.ToolkitContext.User.GetUserDetailAsync(userId);
             if (!info.IsSuccess) { return null; }
             var user = info.Data.User;
@@ -48,7 +47,7 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.User
                 Nickname = user.Nickname,
             };
             flyout.SetIcon(user.Icons.Small);
-            var userFollowProvider = App.Current.Container.Resolve<UserFollowProvider>();
+            var userFollowProvider = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<UserFollowProvider>();
             flyout.UserFollowContext = FollowContext<IUser>.Create(userFollowProvider, new UserViewModel() { UserId = user.Id, Nickname = user.Nickname, IconUrl = user.Icons.Small.OriginalString }, info.Data.FollowStatus.IsFollowing);
             return flyout;
         }        
@@ -107,8 +106,8 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.User
         {
             this.InitializeComponent();
 
-            _pageManager = App.Current.Container.Resolve<PageManager>();
-            _filterSettings = App.Current.Container.Resolve<VideoFilteringSettings>();
+            _pageManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
+            _filterSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
         }
 
 

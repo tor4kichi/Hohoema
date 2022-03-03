@@ -3,9 +3,8 @@ using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.UseCase;
 using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Account;
-using Prism.Commands;
-using Prism.Ioc;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +15,7 @@ using ZLogger;
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
 
-    public sealed class FollowContext<ItemType> : BindableBase, IFollowContext where ItemType : IFollowable
+    public sealed class FollowContext<ItemType> : ObservableObject, IFollowContext where ItemType : IFollowable
     {
         public static async Task<FollowContext<ItemType>> CreateAsync(IFollowProvider<ItemType> provider, ItemType followable, bool? followed = null)
         {
@@ -64,7 +63,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         private FollowContext()
         {
-            _logger = App.Current.Container.Resolve<ILoggerFactory>().CreateLogger<FollowContext<ItemType>>();
+            _logger = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<ILoggerFactory>().CreateLogger<FollowContext<ItemType>>();
         }
 
         private FollowContext(IFollowProvider<ItemType> provider, ItemType followable, bool isFollowing) : this()
@@ -86,9 +85,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             }
         }
 
-        private DelegateCommand _AddFollowCommand;
-        public DelegateCommand AddFollowCommand => _AddFollowCommand
-            ??= new DelegateCommand(async () =>
+        private RelayCommand _AddFollowCommand;
+        public RelayCommand AddFollowCommand => _AddFollowCommand
+            ??= new RelayCommand(async () =>
             {
                 await AddFollowAsync();
             });
@@ -120,9 +119,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             }
         }
 
-        private DelegateCommand _RemoveFollowCommand;
-        public DelegateCommand RemoveFollowCommand => _RemoveFollowCommand
-            ??= new DelegateCommand(async () =>
+        private RelayCommand _RemoveFollowCommand;
+        public RelayCommand RemoveFollowCommand => _RemoveFollowCommand
+            ??= new RelayCommand(async () =>
             {
                 await RemoveFollowAsync();
             });

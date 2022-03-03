@@ -10,7 +10,7 @@ using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.User;
-using Prism.Navigation;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -26,7 +26,7 @@ using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 {
-    public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {

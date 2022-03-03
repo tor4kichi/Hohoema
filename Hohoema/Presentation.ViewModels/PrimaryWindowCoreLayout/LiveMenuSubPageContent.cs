@@ -43,7 +43,7 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage));
             }
 
-            RaisePropertyChanged(nameof(MenuItems));
+            OnPropertyChanged(nameof(MenuItems));
         }
 
 

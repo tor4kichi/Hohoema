@@ -1,7 +1,7 @@
 ﻿using I18NPortable;
 using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Views.Dialogs;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -69,12 +69,12 @@ namespace Hohoema.Models.UseCase.Niconico.Account
         public DialogService DialogService { get; }
         public NotificationService NotificationService { get; }
 
-        private DelegateCommand _LoginCommand;
+        private RelayCommand _LoginCommand;
         private readonly NoUIProcessScreenContext _noProcessUIScreenContext;
         private readonly IMessenger _messenger;
 
-        public DelegateCommand LoginCommand => _LoginCommand
-            ?? (_LoginCommand = new DelegateCommand(async () => 
+        public RelayCommand LoginCommand => _LoginCommand
+            ?? (_LoginCommand = new RelayCommand(async () => 
             {
 
                 try

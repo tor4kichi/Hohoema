@@ -1,7 +1,7 @@
 ﻿using I18NPortable;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Player;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,13 +11,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Player.Comment;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
 
 namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 {
 
     
 
-    public sealed class CommentFilteringFacade : Prism.Mvvm.BindableBase, ICommentFilter
+    public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
     {
         public class CommentOwnerIdFilteredEventArgs
         {
@@ -120,9 +122,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
         #endregion
 
-        DelegateCommand<string> _AddFilteredCommentCommandCommand;
-        public DelegateCommand<string> AddFilteredCommentCommandCommand => _AddFilteredCommentCommandCommand
-            ?? (_AddFilteredCommentCommandCommand = new DelegateCommand<string>((commandText) =>
+        RelayCommand<string> _AddFilteredCommentCommandCommand;
+        public RelayCommand<string> AddFilteredCommentCommandCommand => _AddFilteredCommentCommandCommand
+            ?? (_AddFilteredCommentCommandCommand = new RelayCommand<string>((commandText) =>
             {
                 AddFilteredCommentCommand(commandText);
             }));
@@ -164,9 +166,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             return _commentTextTransformConditions.TransformCommentText(commentText);
         }
 
-        DelegateCommand<CommentFliteringRepository.CommentTextTransformCondition> _AddTextTransformConditionsCommand;
-        public DelegateCommand<CommentFliteringRepository.CommentTextTransformCondition> AddTextTransformConditionsCommand => _AddTextTransformConditionsCommand
-            ?? (_AddTextTransformConditionsCommand = new DelegateCommand<CommentFliteringRepository.CommentTextTransformCondition>((condition) =>
+        RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> _AddTextTransformConditionsCommand;
+        public RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> AddTextTransformConditionsCommand => _AddTextTransformConditionsCommand
+            ?? (_AddTextTransformConditionsCommand = new RelayCommand<CommentFliteringRepository.CommentTextTransformCondition>((condition) =>
             {
                 AddTextTransformConditions(condition ?? new CommentFliteringRepository.CommentTextTransformCondition());
             }));
@@ -178,9 +180,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             TransformConditionAdded?.Invoke(this, new CommentTextTranformConditionChangedArgs() { TransformCondition = added });
         }
 
-        DelegateCommand<CommentFliteringRepository.CommentTextTransformCondition> _UpdateTextTransformConditionsCommand;
-        public DelegateCommand<CommentFliteringRepository.CommentTextTransformCondition> UpdateTextTransformConditionsCommand => _UpdateTextTransformConditionsCommand
-            ?? (_UpdateTextTransformConditionsCommand = new DelegateCommand<CommentFliteringRepository.CommentTextTransformCondition>((condition) =>
+        RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> _UpdateTextTransformConditionsCommand;
+        public RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> UpdateTextTransformConditionsCommand => _UpdateTextTransformConditionsCommand
+            ?? (_UpdateTextTransformConditionsCommand = new RelayCommand<CommentFliteringRepository.CommentTextTransformCondition>((condition) =>
             {
                 UpdateTextTransformConditions(condition);
             }));
@@ -194,9 +196,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         }
 
 
-        DelegateCommand<CommentFliteringRepository.CommentTextTransformCondition> _RemoveTextTransformConditionsCommand;
-        public DelegateCommand<CommentFliteringRepository.CommentTextTransformCondition> RemoveTextTransformConditionsCommand => _RemoveTextTransformConditionsCommand
-            ?? (_RemoveTextTransformConditionsCommand = new DelegateCommand<CommentFliteringRepository.CommentTextTransformCondition>((condition) =>
+        RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> _RemoveTextTransformConditionsCommand;
+        public RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> RemoveTextTransformConditionsCommand => _RemoveTextTransformConditionsCommand
+            ?? (_RemoveTextTransformConditionsCommand = new RelayCommand<CommentFliteringRepository.CommentTextTransformCondition>((condition) =>
             {
                 RemoveTextTransformConditions(condition);
             }));
@@ -264,16 +266,16 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             return _commentFliteringRepository.GetAllFilteringCommenOwnerId();
         }
 
-        DelegateCommand<IComment> _AddFilteringCommentOwnerIdCommand;
-        public DelegateCommand<IComment> AddFilteringCommentOwnerIdCommand => _AddFilteringCommentOwnerIdCommand
-            ?? (_AddFilteringCommentOwnerIdCommand = new DelegateCommand<IComment>((comment) => 
+        RelayCommand<IComment> _AddFilteringCommentOwnerIdCommand;
+        public RelayCommand<IComment> AddFilteringCommentOwnerIdCommand => _AddFilteringCommentOwnerIdCommand
+            ?? (_AddFilteringCommentOwnerIdCommand = new RelayCommand<IComment>((comment) => 
             {
                 AddFilteringCommentOwnerId(comment.UserId, comment.CommentText);
             }));
 
-        DelegateCommand<IComment> _RemoveFilteringCommentOwnerIdCommand;
-        public DelegateCommand<IComment> RemoveFilteringCommentOwnerIdCommand => _RemoveFilteringCommentOwnerIdCommand
-            ?? (_RemoveFilteringCommentOwnerIdCommand = new DelegateCommand<IComment>((comment) =>
+        RelayCommand<IComment> _RemoveFilteringCommentOwnerIdCommand;
+        public RelayCommand<IComment> RemoveFilteringCommentOwnerIdCommand => _RemoveFilteringCommentOwnerIdCommand
+            ?? (_RemoveFilteringCommentOwnerIdCommand = new RelayCommand<IComment>((comment) =>
             {
                 RemoveFilteringCommentOwnerId(comment.UserId);
             }));
@@ -307,9 +309,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             }
             else { return false; }
         }
-        private DelegateCommand _ClearFilteringCommentUserIdCommand;
-        public DelegateCommand ClearFilteringCommentUserIdCommand => _ClearFilteringCommentUserIdCommand
-            ?? (_ClearFilteringCommentUserIdCommand = new DelegateCommand(() =>
+        private RelayCommand _ClearFilteringCommentUserIdCommand;
+        public RelayCommand ClearFilteringCommentUserIdCommand => _ClearFilteringCommentUserIdCommand
+            ?? (_ClearFilteringCommentUserIdCommand = new RelayCommand(() =>
             {
                 foreach (var id in _filteredCommentOwnerIds.ToArray())
                 {
@@ -358,9 +360,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
 
 
-        DelegateCommand<string> _AddFilteringCommentTextConditionCommand;
-        public DelegateCommand<string> AddFilteringCommentTextConditionCommand => _AddFilteringCommentTextConditionCommand
-            ?? (_AddFilteringCommentTextConditionCommand = new DelegateCommand<string>((keyword) =>
+        RelayCommand<string> _AddFilteringCommentTextConditionCommand;
+        public RelayCommand<string> AddFilteringCommentTextConditionCommand => _AddFilteringCommentTextConditionCommand
+            ?? (_AddFilteringCommentTextConditionCommand = new RelayCommand<string>((keyword) =>
             {
                 AddFilteringCommentTextKeyword(keyword);
             }));
@@ -372,9 +374,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             FilterKeywordAdded?.Invoke(this, new FilteringCommentTextKeywordEventArgs() { FilterKeyword = added });
         }
 
-        DelegateCommand<CommentFliteringRepository.FilteringCommentTextKeyword> _UpdateFilteringCommentTextConditionCommand;
-        public DelegateCommand<CommentFliteringRepository.FilteringCommentTextKeyword> UpdateFilteringCommentTextConditionCommand => _UpdateFilteringCommentTextConditionCommand
-            ?? (_UpdateFilteringCommentTextConditionCommand = new DelegateCommand<CommentFliteringRepository.FilteringCommentTextKeyword>((keyword) =>
+        RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword> _UpdateFilteringCommentTextConditionCommand;
+        public RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword> UpdateFilteringCommentTextConditionCommand => _UpdateFilteringCommentTextConditionCommand
+            ?? (_UpdateFilteringCommentTextConditionCommand = new RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword>((keyword) =>
             {
                 UpdateFilteringCommentTextKeyword(keyword);
             }));
@@ -387,9 +389,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         }
 
 
-        DelegateCommand<CommentFliteringRepository.FilteringCommentTextKeyword> _RemoveFilteringCommentTextConditionCommand;
-        public DelegateCommand<CommentFliteringRepository.FilteringCommentTextKeyword> RemoveFilteringCommentTextConditionCommand => _RemoveFilteringCommentTextConditionCommand
-            ?? (_RemoveFilteringCommentTextConditionCommand = new DelegateCommand<CommentFliteringRepository.FilteringCommentTextKeyword>((keyword) =>
+        RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword> _RemoveFilteringCommentTextConditionCommand;
+        public RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword> RemoveFilteringCommentTextConditionCommand => _RemoveFilteringCommentTextConditionCommand
+            ?? (_RemoveFilteringCommentTextConditionCommand = new RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword>((keyword) =>
             {
                 RemoveFilteringCommentTextCondition(keyword);
             }));

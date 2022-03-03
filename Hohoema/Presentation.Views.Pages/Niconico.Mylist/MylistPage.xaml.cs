@@ -13,6 +13,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Hohoema.Presentation.Navigations;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -26,19 +28,9 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Mylist
 		public MylistPage()
 		{
 			this.InitializeComponent();
-            DataContextChanged += OnDataContextChanged;
-        }
+			DataContext = _vm = Ioc.Default.GetRequiredService<MylistPageViewModel>();
+		}
 
-        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
-        {
-            var oldViewModel = _vm;
-            _vm = args.NewValue as MylistPageViewModel;
-            if (args.NewValue != null && args.NewValue != oldViewModel)
-            {
-                this.Bindings.Update();
-            }
-        }
-
-        private MylistPageViewModel _vm { get; set; }
+		private readonly MylistPageViewModel _vm;
     }
 }

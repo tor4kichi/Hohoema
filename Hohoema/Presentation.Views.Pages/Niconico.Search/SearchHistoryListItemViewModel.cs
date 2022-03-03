@@ -1,4 +1,4 @@
-﻿using Prism.Commands;
+﻿using Microsoft.Toolkit.Mvvm.Input;
 using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.PageNavigation;
 
@@ -21,13 +21,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 		}
 
         
-        private DelegateCommand _DeleteSearchHistoryItemCommand;
-        public DelegateCommand DeleteSearchHistoryItemCommand
+        private RelayCommand _DeleteSearchHistoryItemCommand;
+        public RelayCommand DeleteSearchHistoryItemCommand
         {
             get
             {
                 return _DeleteSearchHistoryItemCommand
-                    ?? (_DeleteSearchHistoryItemCommand = new DelegateCommand(() =>
+                    ?? (_DeleteSearchHistoryItemCommand = new RelayCommand(() =>
                     {
                         SearchPageVM.DeleteSearchHistoryItemCommand.Execute(SearchHistory);
                     }

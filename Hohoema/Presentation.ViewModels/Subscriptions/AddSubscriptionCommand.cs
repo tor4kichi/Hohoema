@@ -8,7 +8,7 @@ using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.Services;
 using I18NPortable;
 using NiconicoToolkit.Video;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Subscriptions
 {
-    public sealed class AddSubscriptionCommand : DelegateCommandBase
+    public sealed class AddSubscriptionCommand : CommandBase
     {
         private readonly SubscriptionManager _subscriptionManager;
         private readonly UserProvider _userProvider;

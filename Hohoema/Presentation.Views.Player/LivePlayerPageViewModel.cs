@@ -20,10 +20,8 @@ using Microsoft.Toolkit.Uwp;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Live.WatchPageProp;
 using NiconicoToolkit.Live.WatchSession;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Navigation;
-using Prism.Ioc;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -37,7 +35,6 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
-using Uno.Extensions;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Media.Streaming.Adaptive;
@@ -51,7 +48,7 @@ using AngleSharp.Html.Parser;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using Hohoema.Models.Domain.Player.Comment;
-using Prism.Ioc;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -62,13 +59,13 @@ namespace Hohoema.Presentation.ViewModels.Player
         public string Content { get; set; }
         public Uri Hyperlink { get; set; }
         public Color Color { get; set; }
-        private DelegateCommand _OpenHyperlinkCommand;
-        public DelegateCommand OpenHyperlinkCommand
+        private RelayCommand _OpenHyperlinkCommand;
+        public RelayCommand OpenHyperlinkCommand
         {
             get
             {
                 return _OpenHyperlinkCommand
-                    ?? (_OpenHyperlinkCommand = new DelegateCommand(async () => 
+                    ?? (_OpenHyperlinkCommand = new RelayCommand(async () => 
                     {
                         var result = await Launcher.LaunchUriAsync(Hyperlink);
                     }));
@@ -91,7 +88,7 @@ namespace Hohoema.Presentation.ViewModels.Player
 
 
 
-    public class LivePlayerPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync
+    public class LivePlayerPageViewModel : HohoemaPageViewModelBase
 	{
         public ReadOnlyReactivePropertySlim<PlayerDisplayView> CurrentPlayerDisplayView { get; }
         public IScheduler _scheduler { get; }
@@ -321,13 +318,13 @@ namespace Hohoema.Presentation.ViewModels.Player
         public MediaPlayerVolumeDownCommand VolumeDownCommand { get; }
 
 
-        private DelegateCommand _ShareCommand;
-        public DelegateCommand ShareCommand
+        private RelayCommand _ShareCommand;
+        public RelayCommand ShareCommand
         {
             get
             {
                 return _ShareCommand
-                    ?? (_ShareCommand = new DelegateCommand(() =>
+                    ?? (_ShareCommand = new RelayCommand(() =>
                     {
                         ShareHelper.Share(_PlayerProp.Program.Title, ShareHelper.MakeLiveShareText(LiveId));
                     }
@@ -335,13 +332,13 @@ namespace Hohoema.Presentation.ViewModels.Player
             }
         }
 
-        private DelegateCommand _ShareWithClipboardCommand;
-        public DelegateCommand ShareWithClipboardCommand
+        private RelayCommand _ShareWithClipboardCommand;
+        public RelayCommand ShareWithClipboardCommand
         {
             get
             {
                 return _ShareWithClipboardCommand
-                    ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
+                    ?? (_ShareWithClipboardCommand = new RelayCommand(() =>
                     {
                         ClipboardHelper.CopyToClipboard(ShareHelper.MakeLiveShareTextWithTitle(_PlayerProp.Program.Title, LiveId));
                     }
@@ -351,13 +348,13 @@ namespace Hohoema.Presentation.ViewModels.Player
 
 
 
-        private DelegateCommand _OpenBroadcastCommunityCommand;
-        public DelegateCommand OpenBroadcastCommunityCommand
+        private RelayCommand _OpenBroadcastCommunityCommand;
+        public RelayCommand OpenBroadcastCommunityCommand
         {
             get
             {
                 return _OpenBroadcastCommunityCommand
-                    ?? (_OpenBroadcastCommunityCommand = new DelegateCommand(() =>
+                    ?? (_OpenBroadcastCommunityCommand = new RelayCommand(() =>
                     {
                         PageManager.OpenPageWithId(HohoemaPageType.Community, CommunityId);
                     }
@@ -861,7 +858,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             // 視聴権の使用を確認する
             if (_TimeshiftProgram?.GetReservationStatus() == ReservationStatus.FIRST_WATCH)
             {
-                var dialog = App.Current.Container.Resolve<Services.DialogService>();
+                var dialog = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.DialogService>();
 
                 // 視聴権に関する詳細な情報提示
 
@@ -915,14 +912,19 @@ namespace Hohoema.Presentation.ViewModels.Player
         }
 
 
-        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             NowRefreshing.Value = true;
             try
             {
-                LiveId = parameters.GetValue<string>("id")
-                ?? parameters.GetValue<LiveId>("id")
-                ;
+                if (parameters.TryGetValue<string>("id", out var idString))
+                {
+                    LiveId = idString;
+                }
+                else if (parameters.TryGetValue<LiveId>("id", out LiveId id))
+                {
+                    LiveId = id;
+                } 
 
                 if (parameters.TryGetValue<string>("title", out var title))
                 {
@@ -1027,11 +1029,16 @@ namespace Hohoema.Presentation.ViewModels.Player
             catch
             {
                 _updateTimer.Stop();
-                await _watchSession.CloseAsync();
+                if (_watchSession != null)
+                {
+                    await _watchSession.CloseAsync();
+                }
+                throw;
             }
             finally
             {
                 NowRefreshing.Value = false;
+                await base.OnNavigatedToAsync(parameters);
             }
         }
 
@@ -1117,9 +1124,11 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                 var requestQuality = RequestQuality.Value;
                 LiveAvailableQualities.Clear();
-                LiveAvailableQualities.AddRange(e.AvailableQualities.Where(x => x != LiveQualityType.Abr));
-                // LiveAvailableQualities.AddRange(e.AvailableQualities);
-
+                foreach (var item in e.AvailableQualities.Where(x => x != LiveQualityType.Abr))
+                {
+                    LiveAvailableQualities.Add(item);
+                }
+                
                 RequestQuality.Value = requestQuality;
                 CurrentQuality.Value = e.Quality;
 
@@ -1129,7 +1138,10 @@ namespace Hohoema.Presentation.ViewModels.Player
                 {
                     var limit = QualityLimit.Value;
                     LiveAvailableLimitQualities.Clear();
-                    LiveAvailableLimitQualities.AddRange(LiveAvailableQualities.Select(x => (int)x - 1).Where(x => 0 <= x && x <= (int)LiveQualityLimitType.SuperHigh).Select(x => (LiveQualityLimitType)x));
+                    foreach (var item in LiveAvailableQualities.Select(x => (int)x - 1).Where(x => 0 <= x && x <= (int)LiveQualityLimitType.SuperHigh).Select(x => (LiveQualityLimitType)x))
+                    {
+                        LiveAvailableLimitQualities.Add(item);
+                    }
 
                     QualityLimit.Value = GetQualityLimitType() ?? PlayerSettings.LiveQualityLimit;
                     QualityLimit.ForceNotify();
@@ -1620,13 +1632,13 @@ namespace Hohoema.Presentation.ViewModels.Player
         static PlayerSidePaneContentType? _PrevPrevSidePaneContentType;
         SidePaneContentViewModelBase _PrevSidePaneContent;
 
-        private DelegateCommand<object> _SelectSidePaneContentCommand;
-        public DelegateCommand<object> SelectSidePaneContentCommand
+        private RelayCommand<object> _SelectSidePaneContentCommand;
+        public RelayCommand<object> SelectSidePaneContentCommand
         {
             get
             {
                 return _SelectSidePaneContentCommand
-                    ?? (_SelectSidePaneContentCommand = new DelegateCommand<object>((type) =>
+                    ?? (_SelectSidePaneContentCommand = new RelayCommand<object>((type) =>
                     {
                         if (type is PlayerSidePaneContentType)
                         {
@@ -1657,17 +1669,17 @@ namespace Hohoema.Presentation.ViewModels.Player
                 switch (maybeType.Value)
                 {
                     case PlayerSidePaneContentType.Playlist:
-                        sidePaneContent = App.Current.Container.Resolve<PlaylistSidePaneContentViewModel>();
+                        sidePaneContent = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PlaylistSidePaneContentViewModel>();
                         break;
                     case PlayerSidePaneContentType.Comment:
                         {
-                            var commentContentVM = App.Current.Container.Resolve<LiveCommentsSidePaneContentViewModel>();
+                            var commentContentVM = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LiveCommentsSidePaneContentViewModel>();
                             commentContentVM.Comments = FilterdComments;
                             sidePaneContent = commentContentVM;
                         }                        
                         break;
                     case PlayerSidePaneContentType.Setting:
-                        sidePaneContent = App.Current.Container.Resolve<SettingsSidePaneContentViewModel>();
+                        sidePaneContent = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SettingsSidePaneContentViewModel>();
                         break;
                     default:
                         sidePaneContent = EmptySidePaneContentViewModel.Default;
@@ -1685,13 +1697,13 @@ namespace Hohoema.Presentation.ViewModels.Player
 
 
 
-        private DelegateCommand _ToggleCommentListSidePaneContentCommand;
-        public DelegateCommand ToggleCommentListSidePaneContentCommand
+        private RelayCommand _ToggleCommentListSidePaneContentCommand;
+        public RelayCommand ToggleCommentListSidePaneContentCommand
         {
             get
             {
                 return _ToggleCommentListSidePaneContentCommand
-                    ?? (_ToggleCommentListSidePaneContentCommand = new DelegateCommand(async () =>
+                    ?? (_ToggleCommentListSidePaneContentCommand = new RelayCommand(async () =>
                     {
                         if (CurrentSidePaneContentType.Value == PlayerSidePaneContentType.Comment)
                         {
@@ -1730,7 +1742,7 @@ namespace Hohoema.Presentation.ViewModels.Player
     }
 
 
-    public sealed class LiveComment : BindableBase, IComment
+    public sealed class LiveComment : ObservableObject, IComment
     {
 
         // コメントのデータ構造だけで他のことを知っているべきじゃない

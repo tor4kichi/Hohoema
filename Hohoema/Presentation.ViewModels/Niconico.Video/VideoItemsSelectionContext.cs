@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -21,7 +21,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video
     }
 
 
-    public sealed class VideoItemsSelectionContext : BindableBase
+    public sealed class VideoItemsSelectionContext : ObservableObject
     {
         private bool _isSelectionEnabled;
         public bool IsSelectionEnabled

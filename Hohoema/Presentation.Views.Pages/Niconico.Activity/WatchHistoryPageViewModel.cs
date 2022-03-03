@@ -7,8 +7,8 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using NiconicoToolkit.Video;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -62,9 +62,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
 
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
-            if (RefreshCommand.CanExecute())
+            if (RefreshCommand.CanExecute(null))
             {
-                RefreshCommand.Execute();
+                RefreshCommand.Execute(null);
             }
 
 
@@ -96,13 +96,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
             base.OnNavigatedTo(parameters);
         }
 
-        private DelegateCommand _RefreshCommand;
-        public DelegateCommand RefreshCommand
+        private RelayCommand _RefreshCommand;
+        public RelayCommand RefreshCommand
         {
             get
             {
                 return _RefreshCommand
-                    ?? (_RefreshCommand = new DelegateCommand(async () =>
+                    ?? (_RefreshCommand = new RelayCommand(async () =>
                     {
                         Histories.Clear();
                         

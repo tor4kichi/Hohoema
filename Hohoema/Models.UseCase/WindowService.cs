@@ -1,5 +1,5 @@
-﻿using Prism.Commands;
-using Prism.Mvvm;
+﻿using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -15,7 +15,7 @@ using Windows.UI.ViewManagement;
 
 namespace Hohoema.Presentation.Services
 {
-    public sealed class WindowService : BindableBase, IDisposable
+    public sealed class WindowService : ObservableObject, IDisposable
     {
         private readonly IScheduler _scheduler;
         private readonly ApplicationView _applicationView;
@@ -95,13 +95,13 @@ namespace Hohoema.Presentation.Services
         // TODO
         // CompactOverlay
         // FullScreen
-        private DelegateCommand _ToggleFullScreenCommand;
-        public DelegateCommand ToggleFullScreenCommand
+        private RelayCommand _ToggleFullScreenCommand;
+        public RelayCommand ToggleFullScreenCommand
         {
             get
             {
                 return _ToggleFullScreenCommand
-                    ?? (_ToggleFullScreenCommand = new DelegateCommand(() =>
+                    ?? (_ToggleFullScreenCommand = new RelayCommand(() =>
                     {
                         IsFullScreen.Value = !IsFullScreen.Value;
                     }
@@ -110,13 +110,13 @@ namespace Hohoema.Presentation.Services
         }
 
 
-        private DelegateCommand _ToggleCompactOverlayCommand;
-        public DelegateCommand ToggleCompactOverlayCommand
+        private RelayCommand _ToggleCompactOverlayCommand;
+        public RelayCommand ToggleCompactOverlayCommand
         {
             get
             {
                 return _ToggleCompactOverlayCommand
-                    ?? (_ToggleCompactOverlayCommand = new DelegateCommand(() =>
+                    ?? (_ToggleCompactOverlayCommand = new RelayCommand(() =>
                     {
                         IsCompactOverlay.Value = !IsCompactOverlay.Value;
                     }

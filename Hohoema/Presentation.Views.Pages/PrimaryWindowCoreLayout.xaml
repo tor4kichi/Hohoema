@@ -8,7 +8,6 @@
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
-  xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
   xmlns:uwpToolkitControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:uwpUi="using:Microsoft.Toolkit.Uwp.UI"
@@ -909,10 +908,10 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <mytrigger:CompositeStateTrigger Operator="And">
+            <windowsTriggers:CompositeStateTrigger Operator="And">
               <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.PaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.LeftMinimal}" />
               <windowsTriggers:EqualsStateTrigger Value="{x:Bind CoreNavigationView.IsPaneOpen, Mode=OneWay}" EqualTo="True" />
-            </mytrigger:CompositeStateTrigger>
+            </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PaneBackgroundForTVLayout.Opacity" Value="1" />
@@ -960,10 +959,10 @@
         <!-- プレイヤーを小窓表示（TV） -->
         <VisualState x:Name="VS_PlayerWIW_TV">
           <VisualState.StateTriggers>
-            <mytrigger:CompositeStateTrigger Operator="And">
+            <windowsTriggers:CompositeStateTrigger Operator="And">
               <windowsTriggers:EqualsStateTrigger EqualTo="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" Value="{x:Bind models:ApplicationLayout.TV}" />
               <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PrimaryPlayerDisplayMode.WindowInWindow}" />
-            </mytrigger:CompositeStateTrigger>
+            </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
@@ -978,10 +977,10 @@
         <!-- プレイヤーを小窓表示（Desktop） -->
         <VisualState x:Name="VS_PlayerWIW_Desktop">
           <VisualState.StateTriggers>
-            <mytrigger:CompositeStateTrigger Operator="And">
+            <windowsTriggers:CompositeStateTrigger Operator="And">
               <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
               <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PrimaryPlayerDisplayMode.WindowInWindow}" />
-            </mytrigger:CompositeStateTrigger>
+            </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
@@ -995,10 +994,10 @@
         <!-- プレイヤーを小窓表示（Tablet） -->
         <VisualState x:Name="VS_PlayerWIW_Tablet">
           <VisualState.StateTriggers>
-            <mytrigger:CompositeStateTrigger Operator="And">
+            <windowsTriggers:CompositeStateTrigger Operator="And">
               <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
               <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PrimaryPlayerDisplayMode.WindowInWindow}" />
-            </mytrigger:CompositeStateTrigger>
+            </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
@@ -1014,10 +1013,10 @@
         <!-- プレイヤーを小窓表示（Mobile） -->
         <VisualState x:Name="VS_PlayerWIW_Mobile">
           <VisualState.StateTriggers>
-            <mytrigger:CompositeStateTrigger Operator="And">
+            <windowsTriggers:CompositeStateTrigger Operator="And">
               <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
               <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PrimaryPlayerDisplayMode.WindowInWindow}" />
-            </mytrigger:CompositeStateTrigger>
+            </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
@@ -1070,10 +1069,10 @@
         <!-- TV On Focus -->
         <VisualState x:Name="VS_TVAndOnFocus">
           <VisualState.StateTriggers>
-            <mytrigger:CompositeStateTrigger Operator="And">
+            <windowsTriggers:CompositeStateTrigger Operator="And">
               <StateTrigger IsActive="{x:Bind _isFocusMenu.Value, Mode=OneWay}" />
               <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
-            </mytrigger:CompositeStateTrigger>
+            </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>

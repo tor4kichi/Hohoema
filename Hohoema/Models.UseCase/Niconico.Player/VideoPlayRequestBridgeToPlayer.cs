@@ -1,12 +1,11 @@
 ﻿using Hohoema.Presentation.Services;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Helpers;
-using Prism.Navigation;
 using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Uno.Threading;
+using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase.Niconico.Player.Events;
 using Hohoema.Models.Domain.Playlist;
 using NiconicoToolkit.Video;
@@ -19,6 +18,7 @@ using Hohoema.Models.UseCase.Playlist;
 using Microsoft.Toolkit.Diagnostics;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.Domain.Application;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -41,7 +41,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly NicoLiveProvider _nicoLiveProvider;
         private readonly PlaylistItemsSourceResolver _playlistItemsSourceResolver;
-        FastAsyncLock _asyncLock = new FastAsyncLock();
+        AsyncLock _asyncLock = new AsyncLock();
 
         public VideoPlayRequestBridgeToPlayer(
             IMessenger messenger,
@@ -299,7 +299,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         async Task PlayLiveAsync(LiveId liveId, PlayerDisplayView displayMode, bool nowViewChanging)
         {
             var pageName = nameof(Presentation.Views.Player.LivePlayerPage);
-            var parameters = new NavigationParameters("id=" + liveId);
+            var parameters = new NavigationParameters(("id", liveId));
 
             using var _ = await _asyncLock.LockAsync(default);
             if (displayMode == PlayerDisplayView.PrimaryView)

@@ -1,4 +1,4 @@
-﻿using Prism.Commands;
+﻿using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +13,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Prism.Ioc;
 using Windows.Media.Playback;
 using Windows.UI.Core;
 using System.Windows.Input;
@@ -24,11 +23,13 @@ using Hohoema.Models.Domain;
 using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Models.Domain.Application;
 using System.Diagnostics;
-using Uno.Disposables;
 using Hohoema.Models.Domain.Player;
 using Windows.System;
 using Hohoema.Presentation.ViewModels.Player;
 using Hohoema.Models.Domain.Niconico.Video;
+using System.Reactive.Disposables;
+using Hohoema.Presentation.Navigations;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -42,8 +43,8 @@ namespace Hohoema.Presentation.Views.Player
 
             _UIdispatcher = Dispatcher;
 
-            _mediaPlayer = App.Current.Container.Resolve<MediaPlayer>();
-            _soundVolumeManager = App.Current.Container.Resolve<MediaPlayerSoundVolumeManager>();
+            _mediaPlayer = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MediaPlayer>();
+            _soundVolumeManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MediaPlayerSoundVolumeManager>();
             VolumeSlider.Value = _soundVolumeManager.Volume;
 
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
@@ -64,20 +65,10 @@ namespace Hohoema.Presentation.Views.Player
             Loaded += VideoPlayerPage_Loaded;
             Unloaded += VideoPlayerPage_Unloaded;
 
-            DataContextChanged += OnDataContextChanged;
+            DataContext = _vm = Ioc.Default.GetRequiredService<VideoPlayerPageViewModel>();
         }
 
-        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
-        {
-            var oldViewModel = _vm;
-            _vm = args.NewValue as VideoPlayerPageViewModel;
-            if (args.NewValue != null && args.NewValue != oldViewModel)
-            {
-                this.Bindings.Update();
-            }
-        }
-
-        private VideoPlayerPageViewModel _vm { get; set; }
+        private readonly VideoPlayerPageViewModel _vm;
 
         CompositeDisposable _compositeDisposable;
 
@@ -91,7 +82,7 @@ namespace Hohoema.Presentation.Views.Player
             SeekBarSlider.ValueChanged += SeekBarSlider_ValueChanged;
 
             _compositeDisposable = new CompositeDisposable();
-            var appearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();
+            var appearanceSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
             appearanceSettings.ObserveProperty(x => x.ApplicationTheme)
                 .Subscribe(theme =>
                 {

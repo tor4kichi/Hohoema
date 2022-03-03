@@ -3,7 +3,7 @@
 using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.Playlist;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -22,8 +22,6 @@ using Hohoema.Models.Domain.Playlist;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Diagnostics;
 using Hohoema.Presentation.ViewModels.VideoListPage;
-using Uno;
-using Uno.Disposables;
 using Microsoft.Toolkit.Uwp;
 using System.Collections.Generic;
 
@@ -149,13 +147,13 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly IScheduler _scheduler;
         private readonly IMessenger _messenger;
-        private DelegateCommand _ToggleRepeatModeCommand;
-        public DelegateCommand ToggleRepeatModeCommand
+        private RelayCommand _ToggleRepeatModeCommand;
+        public RelayCommand ToggleRepeatModeCommand
         {
             get
             {
                 return _ToggleRepeatModeCommand
-                    ?? (_ToggleRepeatModeCommand = new DelegateCommand(() =>
+                    ?? (_ToggleRepeatModeCommand = new RelayCommand(() =>
                     {
                         _playerSettings.IsPlaylistLoopingEnabled = !_playerSettings.IsPlaylistLoopingEnabled;
                     }
@@ -163,13 +161,13 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             }
         }
 
-        private DelegateCommand _ToggleShuffleCommand;
-        public DelegateCommand ToggleShuffleCommand
+        private RelayCommand _ToggleShuffleCommand;
+        public RelayCommand ToggleShuffleCommand
         {
             get
             {
                 return _ToggleShuffleCommand
-                    ?? (_ToggleShuffleCommand = new DelegateCommand(() =>
+                    ?? (_ToggleShuffleCommand = new RelayCommand(() =>
                     {
                         _playerSettings.IsShuffleEnable = !_playerSettings.IsShuffleEnable;
                     }
@@ -177,13 +175,13 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             }
         }
 
-        private DelegateCommand _ToggleReverseModeCommand;
-        public DelegateCommand ToggleReverseModeCommand
+        private RelayCommand _ToggleReverseModeCommand;
+        public RelayCommand ToggleReverseModeCommand
         {
             get
             {
                 return _ToggleReverseModeCommand
-                    ?? (_ToggleReverseModeCommand = new DelegateCommand(() =>
+                    ?? (_ToggleReverseModeCommand = new RelayCommand(() =>
                     {
                         _playerSettings.IsReverseModeEnable = !_playerSettings.IsReverseModeEnable;
                     }
@@ -192,13 +190,13 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         }
 
 
-        private DelegateCommand<IVideoContent> _PlayWithCurrentPlaylistCommand;
-        public DelegateCommand<IVideoContent> PlayWithCurrentPlaylistCommand
+        private RelayCommand<IVideoContent> _PlayWithCurrentPlaylistCommand;
+        public RelayCommand<IVideoContent> PlayWithCurrentPlaylistCommand
         {
             get
             {
                 return _PlayWithCurrentPlaylistCommand
-                    ?? (_PlayWithCurrentPlaylistCommand = new DelegateCommand<IVideoContent>(async (video) =>
+                    ?? (_PlayWithCurrentPlaylistCommand = new RelayCommand<IVideoContent>(async (video) =>
                     {
                         await _hohoemaPlaylistPlayer.PlayOnCurrentPlaylistAsync(video);
                     }

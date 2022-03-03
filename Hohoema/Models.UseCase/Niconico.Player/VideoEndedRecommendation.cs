@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
-using Prism.Commands;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -23,18 +23,17 @@ using Hohoema.Models.Domain.Playlist;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using NiconicoToolkit.Video;
-using Uno.Threading;
 using Hohoema.Models.Domain.Application;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
-    public sealed class VideoEndedRecommendation : BindableBase, IDisposable,
+    public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
         IRecipient<PlaybackStopedMessage>,
         IRecipient<PlaybackStartedMessage>,
         IRecipient<PlaybackFailedMessage>
     {
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
-        private readonly FastAsyncLock _lock = new FastAsyncLock();
+        private readonly Models.Helpers.AsyncLock _lock = new Models.Helpers.AsyncLock();
 
         public VideoEndedRecommendation(
             MediaPlayer mediaPlayer,
@@ -294,9 +293,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         bool _playNext;
 
-        private DelegateCommand _playNextVideoCommand;
-        public DelegateCommand PlayNextVideoCommand => _playNextVideoCommand
-            ?? (_playNextVideoCommand = new DelegateCommand(() =>
+        private RelayCommand _playNextVideoCommand;
+        public RelayCommand PlayNextVideoCommand => _playNextVideoCommand
+            ?? (_playNextVideoCommand = new RelayCommand(() =>
             {
                 if (_videoRelatedContents?.NextVideo != null)
                 {
@@ -322,9 +321,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         }
 
 
-        private DelegateCommand _CanceledNextPartMoveCommand;
-        public DelegateCommand CanceledNextPartMoveCommand =>
-            _CanceledNextPartMoveCommand ?? (_CanceledNextPartMoveCommand = new DelegateCommand(ExecuteCanceledNextPartMoveCommand));
+        private RelayCommand _CanceledNextPartMoveCommand;
+        public RelayCommand CanceledNextPartMoveCommand =>
+            _CanceledNextPartMoveCommand ?? (_CanceledNextPartMoveCommand = new RelayCommand(ExecuteCanceledNextPartMoveCommand));
 
         void ExecuteCanceledNextPartMoveCommand()
         {

@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain.Player;
 using Hohoema.Models.UseCase.Niconico.Player;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using Windows.Media.Playback;
 
 namespace Hohoema.Presentation.ViewModels.Player.Commands
 {
-    public sealed class MediaPlayerVolumeUpCommand : DelegateCommandBase
+    public sealed class MediaPlayerVolumeUpCommand : CommandBase
     {
         private readonly MediaPlayerSoundVolumeManager _soundVolumeManager;
 
@@ -33,7 +33,7 @@ namespace Hohoema.Presentation.ViewModels.Player.Commands
         }
     }
 
-    public sealed class MediaPlayerVolumeDownCommand : DelegateCommandBase
+    public sealed class MediaPlayerVolumeDownCommand : CommandBase
     {
         private readonly MediaPlayerSoundVolumeManager _soundVolumeManager;
 

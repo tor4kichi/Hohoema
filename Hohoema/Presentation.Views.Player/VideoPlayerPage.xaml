@@ -1326,13 +1326,13 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompositeStateTrigger Operator="And">
+            <myTrigger:CompositeStateTrigger Operator="And">
               <StateTrigger IsActive="{Binding VideoEndedRecommendation.HasRecomend.Value}" />
-              <windowsTriggers:CompositeStateTrigger Operator="Or">
+              <myTrigger:CompositeStateTrigger Operator="Or">
                 <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
                 <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
-              </windowsTriggers:CompositeStateTrigger>
-            </windowsTriggers:CompositeStateTrigger>
+              </myTrigger:CompositeStateTrigger>
+            </myTrigger:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="UIControlCenterLayout.Background" Value="{ThemeResource SystemAltMediumColor}" />

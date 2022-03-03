@@ -13,6 +13,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Hohoema.Presentation.Navigations;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -23,19 +25,9 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Search
 		public SearchResultKeywordPage()
 		{
 			this.InitializeComponent();
-            DataContextChanged += OnDataContextChanged;
+            DataContext = _vm = Ioc.Default.GetRequiredService<SearchResultKeywordPageViewModel>();
         }
 
-        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
-        {
-            var oldViewModel = _vm;
-            _vm = args.NewValue as SearchResultKeywordPageViewModel;
-            if (args.NewValue != null && args.NewValue != oldViewModel)
-            {
-                this.Bindings.Update();
-            }
-        }
-
-        private SearchResultKeywordPageViewModel _vm { get; set; }
+        private readonly SearchResultKeywordPageViewModel _vm;
     }
 }

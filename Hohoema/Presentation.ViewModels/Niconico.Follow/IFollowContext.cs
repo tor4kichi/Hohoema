@@ -1,12 +1,12 @@
-﻿using Prism.Commands;
+﻿using Microsoft.Toolkit.Mvvm.Input;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
     public interface IFollowContext
     {
-        DelegateCommand AddFollowCommand { get; }
+        RelayCommand AddFollowCommand { get; }
         bool IsFollowing { get; set; }
         bool NowChanging { get; }
-        DelegateCommand RemoveFollowCommand { get; }
+        RelayCommand RemoveFollowCommand { get; }
     }
 }

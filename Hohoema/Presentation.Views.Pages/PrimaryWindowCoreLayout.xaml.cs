@@ -3,8 +3,6 @@ using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels;
-using Prism.Commands;
-using Prism.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -37,11 +35,11 @@ using Hohoema.Presentation.Views.Pages.Niconico.VideoRanking;
 using Hohoema.Presentation.Views.Pages.Niconico.Follow;
 using Hohoema.Models.UseCase.Niconico.Player;
 using Windows.UI.WindowManagement;
-using Prism.Ioc;
 using Hohoema.Models.Domain.Niconico.Video;
-using Prism.Logging;
 using Microsoft.Extensions.Logging;
 using ZLogger;
+using Hohoema.Presentation.Navigations;
+using Microsoft.Toolkit.Mvvm.Input;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -318,7 +316,7 @@ namespace Hohoema.Presentation.Views.Pages
                         ? await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameDefaultTransitionInfo)
                         : await _contentFrameNavigationService.NavigateAsync(pageName, parameter, infoOverride: _contentFrameTransitionInfo)
                         ;
-                    if (result.Success)
+                    if (result.IsSuccess)
                     {
                         if (behavior == NavigationStackBehavior.NotRemember /*|| IsIgnoreRecordPageType(oldPageType)*/)
                         {
@@ -328,14 +326,14 @@ namespace Hohoema.Presentation.Views.Pages
                         await _viewModel.PrimaryViewPlayerManager.ShowAsync();
                         //Window.Current.Activate();
 
-                        GoBackCommand.RaiseCanExecuteChanged();
+                        GoBackCommand.NotifyCanExecuteChanged();
                     }
                     else
                     {
                         throw result.Exception ?? new HohoemaExpception("navigation error");
                     }
 
-                    Debug.WriteLineIf(!result.Success, result.Exception?.ToString());
+                    Debug.WriteLineIf(!result.IsSuccess, result.Exception?.ToString());
 
 
                     if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Fill)
@@ -354,17 +352,17 @@ namespace Hohoema.Presentation.Views.Pages
 
         
 
-        IPlatformNavigationService _contentFrameNavigationService;
+        NavigationService _contentFrameNavigationService;
 
         public INavigationService CreateNavigationService()
         {
-            return _contentFrameNavigationService ??= NavigationService.Create(ContentFrame, new Gestures[] { Gestures.Refresh });
+            return _contentFrameNavigationService ??= NavigationService.Create(ContentFrame);
         }
 
-        IPlatformNavigationService _playerNavigationService;
+        NavigationService _playerNavigationService;
         public INavigationService CreatePlayerNavigationService()
         {
-            return _playerNavigationService ??= NavigationService.Create(PlayerFrame, new Gestures[] { });
+            return _playerNavigationService ??= NavigationService.CreateWithoutHistory(PlayerFrame);
         }
 
 
@@ -391,9 +389,6 @@ namespace Hohoema.Presentation.Views.Pages
         static readonly Type FallbackPageType = typeof(RankingCategoryListPage);
 
 
-        private List<INavigationParameters> BackParametersStack = new List<INavigationParameters>();
-        private List<INavigationParameters> ForwardParametersStack = new List<INavigationParameters>();
-
         static INavigationParameters MakeNavigationParameter(IEnumerable<KeyValuePair<string, string>> parameters)
         {
             var np = new NavigationParameters();
@@ -406,21 +401,6 @@ namespace Hohoema.Presentation.Views.Pages
             return np;
         }
 
-        public static void SetCurrentNavigationParameters(INavigationParameters parameters)
-        {
-            if (parameters.GetNavigationMode() == Prism.Navigation.NavigationMode.Refresh) { return; }
-
-            CurrentNavigationParameters = parameters;
-        }
-
-        public static INavigationParameters CurrentNavigationParameters { get; private set; }
-
-        public static NavigationParameters GetCurrentNavigationParameter()
-        {
-            return CurrentNavigationParameters?.Clone() ?? new NavigationParameters();
-        }
-
-        private INavigationParameters _Prev;
         bool _isFirstNavigation = true;
         private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
         {
@@ -428,7 +408,7 @@ namespace Hohoema.Presentation.Views.Pages
 
             var frame = (Frame)sender;
 
-            GoBackCommand.RaiseCanExecuteChanged();
+            GoBackCommand.NotifyCanExecuteChanged();
 
             /*
             MyNavigtionView.IsPaneVisible = !MenuPaneHiddenPageTypes.Any(x => x == e.SourcePageType);
@@ -456,23 +436,16 @@ namespace Hohoema.Presentation.Views.Pages
             if (!isCanGoBackPage)
             {
                 ContentFrame.BackStack.Clear();
-                BackParametersStack.Clear();
 
                 if (e.NavigationMode == Windows.UI.Xaml.Navigation.NavigationMode.New)
                 {
                     ContentFrame.ForwardStack.Clear();
-                    ForwardParametersStack.Clear();
                 }
 
                 _ = StoreNaviagtionParameterDelayed();
             }
             else if (!_isFirstNavigation)
             {
-                // ここのFrame_Navigatedが呼ばれた後にViewModel側のNavigatingToが呼ばれる
-                // 順序重要
-                _Prev = PrimaryWindowCoreLayout.CurrentNavigationParameters;
-
-
                 // ビューワー系ページはバックスタックに積まれないようにする
                 // ビューワー系ページを開いてる状態でアプリ外部からビューワー系ページを開く操作があり得る
                 bool rememberBackStack = true;
@@ -484,34 +457,11 @@ namespace Hohoema.Presentation.Views.Pages
                         )
                     {
                         frame.BackStack.RemoveAt(frame.BackStackDepth - 1);
-                        rememberBackStack = false;
                     }
-                }
-
-                if (e.NavigationMode != Windows.UI.Xaml.Navigation.NavigationMode.New)
-                {
-                    rememberBackStack = false;
-                }
-
-                if (rememberBackStack)
-                {
-                    ForwardParametersStack.Clear();
-                    var parameters = new NavigationParameters();
-                    if (_Prev != null)
-                    {
-                        foreach (var pair in _Prev)
-                        {
-//                            if (pair.Key == PageNavigationConstants.Restored) { continue; }
-
-                            parameters.Add(pair.Key, pair.Value);
-                        }
-                    }
-                    BackParametersStack.Add(parameters);
                 }
 
                 if (ContentFrame.BackStack.Count >= MaxBackStackCount)
                 {
-                    BackParametersStack.RemoveAt(0);
                     ContentFrame.BackStack.RemoveAt(0);
                 }
 
@@ -544,24 +494,9 @@ namespace Hohoema.Presentation.Views.Pages
             }
             else
             {
-                if (_contentFrameNavigationService.CanGoBack())
-                {
-                    var backNavigationParameters = BackParametersStack.ElementAtOrDefault(BackParametersStack.Count - 1);
-                    {
-                        var last = BackParametersStack.Last();
-                        var parameters = GetCurrentNavigationParameter();    // GoBackAsyncを呼ぶとCurrentNavigationParametersが入れ替わる。呼び出し順に注意。
-                        BackParametersStack.Remove(last);
-                        ForwardParametersStack.Add(parameters);
-                    }
-                    _ = backNavigationParameters == null
-                        ? _contentFrameNavigationService.GoBackAsync()
-                        : _contentFrameNavigationService.GoBackAsync(backNavigationParameters)
-                        ;
-                    return true;
-                }
+                _ = _contentFrameNavigationService.GoBackAsync();
+                return true;
             }
-
-            return false;
         }
 
 
@@ -571,17 +506,7 @@ namespace Hohoema.Presentation.Views.Pages
         {
             if (_contentFrameNavigationService.CanGoForward())
             {
-                var forwardNavigationParameters = ForwardParametersStack.Last();
-                {
-                    var last = ForwardParametersStack.Last();
-                    var parameters = GetCurrentNavigationParameter(); // GoForwardAsyncを呼ぶとCurrentNavigationParametersが入れ替わる。呼び出し順に注意。
-                    ForwardParametersStack.Remove(last);
-                    BackParametersStack.Add(parameters);
-                }
-                _ = forwardNavigationParameters == null
-                   ? _contentFrameNavigationService.GoForwardAsync()
-                   : _contentFrameNavigationService.GoForwardAsync(forwardNavigationParameters)
-                   ;
+                _ = _contentFrameNavigationService.GoForwardAsync();
 
                 return true;
             }
@@ -656,20 +581,13 @@ namespace Hohoema.Presentation.Views.Pages
             await Task.Delay(50);
 
             // ナビゲーション状態の保存
-            
-            Debug.WriteLine("[NavvigationRestore] Save CurrentPage: " + ContentFrame.CurrentSourcePageType.Name);
-            _viewModel.RestoreNavigationManager.SetCurrentNavigationEntry(MakePageEnetry(ContentFrame.CurrentSourcePageType, CurrentNavigationParameters));
-            {
-                PageEntry[] backNavigationPageEntries = new PageEntry[BackParametersStack.Count];
-                for (var backStackIndex = 0; backStackIndex < BackParametersStack.Count; backStackIndex++)
-                {
-                    var parameters = BackParametersStack[backStackIndex];
-                    var stackEntry = ContentFrame.BackStack[backStackIndex];
-                    backNavigationPageEntries[backStackIndex] = MakePageEnetry(stackEntry.SourcePageType, parameters);
-                    Debug.WriteLine("[NavvigationRestore] Save BackStackPage: " + backNavigationPageEntries[backStackIndex].PageName);
-                }
-                await _viewModel.RestoreNavigationManager.SetBackNavigationEntriesAsync(backNavigationPageEntries);
-            }
+            var (currentPage, currentPageParameters) = _contentFrameNavigationService.GetCurrentPage();
+            Debug.WriteLine($"[NavvigationRestore] Save CurrentPage: {currentPage.Name}");
+            _viewModel.RestoreNavigationManager.SetCurrentNavigationEntry(MakePageEnetry(currentPage, currentPageParameters));
+
+            await _viewModel.RestoreNavigationManager.SetBackNavigationEntriesAsync(
+                _contentFrameNavigationService.GetBackStackPages().Select(x => MakePageEnetry(x.PageType, x.Parameters))
+            );
             
             /*
             {
@@ -712,7 +630,7 @@ namespace Hohoema.Presentation.Views.Pages
                 }
                 */
                 var result = await _contentFrameNavigationService.NavigateAsync(currentEntry.PageName, parameters, new SuppressNavigationTransitionInfo());
-                if (!result.Success)
+                if (!result.IsSuccess)
                 {
                     await Task.Delay(50);
                     Debug.WriteLine("[NavvigationRestore] Failed restore CurrentPage: " + currentEntry.PageName);
@@ -731,8 +649,6 @@ namespace Hohoema.Presentation.Views.Pages
             {
                 Debug.WriteLine("[NavvigationRestore] failed restore current page. ");
 
-                BackParametersStack.Clear();
-                ForwardParametersStack.Clear();
                 ContentFrame.BackStack.Clear();
                 ContentFrame.ForwardStack.Clear();
 
@@ -750,7 +666,6 @@ namespace Hohoema.Presentation.Views.Pages
                     var parameters = MakeNavigationParameter(backNavItem.Parameters);
                     
                     ContentFrame.BackStack.Add(new PageStackEntry(pageType, parameters, new SuppressNavigationTransitionInfo()));
-                    BackParametersStack.Add(parameters);
                     Debug.WriteLine("[NavvigationRestore] Restored BackStackPage: " + backNavItem.PageName);
                 }
             }
@@ -758,7 +673,6 @@ namespace Hohoema.Presentation.Views.Pages
             {
                 _ = navigationManager.SetBackNavigationEntriesAsync(Enumerable.Empty<PageEntry>());
                 ContentFrame.BackStack.Clear();
-                BackParametersStack.Clear();
                 Debug.WriteLine("[NavvigationRestore] failed restore BackStack");
             }
             /*
@@ -807,9 +721,9 @@ namespace Hohoema.Presentation.Views.Pages
 
 
 
-        DelegateCommand _togglePageOpenCommand;
-        DelegateCommand TogglePageOpenCommand => _togglePageOpenCommand
-            ?? (_togglePageOpenCommand = new DelegateCommand(ToggelPaneOpen));
+        RelayCommand _togglePageOpenCommand;
+        RelayCommand TogglePageOpenCommand => _togglePageOpenCommand
+            ?? (_togglePageOpenCommand = new RelayCommand(ToggelPaneOpen));
 
         void ToggelPaneOpen()
         {
@@ -817,9 +731,9 @@ namespace Hohoema.Presentation.Views.Pages
         }
 
 
-        DelegateCommand _AddPinCurrentPageCommand;
-        DelegateCommand AddPinCurrentPageCommand => _AddPinCurrentPageCommand
-            ?? (_AddPinCurrentPageCommand = new DelegateCommand(TryAddPinWithCurrentFrameContent));
+        RelayCommand _AddPinCurrentPageCommand;
+        RelayCommand AddPinCurrentPageCommand => _AddPinCurrentPageCommand
+            ?? (_AddPinCurrentPageCommand = new RelayCommand(TryAddPinWithCurrentFrameContent));
 
         void TryAddPinWithCurrentFrameContent()
         {
@@ -832,9 +746,9 @@ namespace Hohoema.Presentation.Views.Pages
 
 
 
-        private DelegateCommand _GoBackCommand;
-        public DelegateCommand GoBackCommand =>
-            _GoBackCommand ?? (_GoBackCommand = new DelegateCommand(ExecuteGoBackCommand, CanExecuteGoBackCommand));
+        private RelayCommand _GoBackCommand;
+        public RelayCommand GoBackCommand =>
+            _GoBackCommand ?? (_GoBackCommand = new RelayCommand(ExecuteGoBackCommand, CanExecuteGoBackCommand));
 
         private bool CanExecuteGoBackCommand()
         {
@@ -928,9 +842,9 @@ namespace Hohoema.Presentation.Views.Pages
 
         private void CoreNavigationView_BackRequested(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewBackRequestedEventArgs args)
         {
-            if (_GoBackCommand.CanExecute())
+            if (_GoBackCommand.CanExecute(null))
             {
-                _GoBackCommand.Execute();
+                _GoBackCommand.Execute(null);
             }
         }
 

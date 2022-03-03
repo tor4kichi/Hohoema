@@ -7,9 +7,8 @@ using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.SearchWithPage.Live;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Ioc;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -23,7 +22,7 @@ using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {
-    public class LiveInfoListItemViewModel : BindableBase, ILiveContent, ILiveContentProvider
+    public class LiveInfoListItemViewModel : ObservableObject, ILiveContent, ILiveContentProvider
     {
         private static readonly ILogger<LiveInfoListItemViewModel> _logger;
 
@@ -36,12 +35,12 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
 
         static LiveInfoListItemViewModel()
         {
-            _logger = App.Current.Container.Resolve<ILoggerFactory>().CreateLogger<LiveInfoListItemViewModel>();
-            PageManager = App.Current.Container.Resolve<PageManager>();
-            OpenLiveContentCommand = App.Current.Container.Resolve<OpenLiveContentCommand>();
-            OpenShareUICommand = App.Current.Container.Resolve<OpenShareUICommand>();
-            CopyToClipboardCommand = App.Current.Container.Resolve<CopyToClipboardCommand>();
-            CopyToClipboardWithShareTextCommand = App.Current.Container.Resolve<CopyToClipboardWithShareTextCommand>();
+            _logger = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<ILoggerFactory>().CreateLogger<LiveInfoListItemViewModel>();
+            PageManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
+            OpenLiveContentCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenLiveContentCommand>();
+            OpenShareUICommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenShareUICommand>();
+            CopyToClipboardCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CopyToClipboardCommand>();
+            CopyToClipboardWithShareTextCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CopyToClipboardWithShareTextCommand>();
         }
 
 
@@ -52,7 +51,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
         public LiveInfoListItemViewModel(string liveId)
         {
             LiveId = liveId;
-            _niconicoSession = App.Current.Container.Resolve<NiconicoSession>();
+            _niconicoSession = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NiconicoSession>();
         }
 
         private readonly NiconicoSession _niconicoSession;
@@ -109,8 +108,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
         {
             Reservation = reservationInfo;
             ReservationStatus = LiveStatus is LiveStatus.Onair ? null : reservationInfo?.GetReservationStatus();
-            DeleteReservationCommand.RaiseCanExecuteChanged();
-            AddReservationCommand.RaiseCanExecuteChanged();
+            DeleteReservationCommand.NotifyCanExecuteChanged();
+            AddReservationCommand.NotifyCanExecuteChanged();
         }
         /*
         public void Setup(Mntone.Nico2.Live.Recommend.LiveRecommendData liveVideoInfo)
@@ -280,13 +279,13 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
 
 
 
-        private DelegateCommand _DeleteReservationCommand;
-        public DelegateCommand DeleteReservationCommand
+        private RelayCommand _DeleteReservationCommand;
+        public RelayCommand DeleteReservationCommand
         {
             get
             {
                 return _DeleteReservationCommand
-                    ?? (_DeleteReservationCommand = new DelegateCommand(async () =>
+                    ?? (_DeleteReservationCommand = new RelayCommand(async () =>
                     {
                         try
                         {
@@ -296,11 +295,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
                             {
                                 // 予約状態が削除になったことを通知
                                 Reservation = null;
-                                RaisePropertyChanged(nameof(Reservation));
+                                OnPropertyChanged(nameof(Reservation));
                                 ReservationStatus = null;
-                                RaisePropertyChanged(nameof(ReservationStatus));
+                                OnPropertyChanged(nameof(ReservationStatus));
 
-                                AddReservationCommand.RaiseCanExecuteChanged();
+                                AddReservationCommand.NotifyCanExecuteChanged();
                             }
 
                             _logger.ZLogInformation("Reservation deletion result: {0}", isDeleted);
@@ -320,8 +319,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
         {
             if (string.IsNullOrEmpty(liveId)) { throw new ArgumentException(nameof(liveId)); }
 
-            var niconicoSession = App.Current.Container.Resolve<NiconicoSession>();
-            var hohoemaDialogService = App.Current.Container.Resolve<DialogService>();
+            var niconicoSession = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NiconicoSession>();
+            var hohoemaDialogService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<DialogService>();
 
             bool isDeleted = false;
 
@@ -345,13 +344,13 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
                 if (isDeleted)
                 {
                     // 削除成功
-                    var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                    var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                     notificationService.ShowLiteInAppNotification_Success("InAppNotification_DeletedTimeshift".Translate());
                 }
                 else
                 {
                     // まだ存在するゾイ
-                    var notificationService = App.Current.Container.Resolve<Services.NotificationService>();
+                    var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                     notificationService.ShowLiteInAppNotification_Fail("InAppNotification_FailedDeleteTimeshift".Translate());
 
                     _logger.ZLogWarning("タイムシフト削除に失敗しました: {0}", liveId);
@@ -363,20 +362,20 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
         }
 
 
-        private DelegateCommand _AddReservationCommand;
-        public DelegateCommand AddReservationCommand
+        private RelayCommand _AddReservationCommand;
+        public RelayCommand AddReservationCommand
         {
             get
             {
                 return _AddReservationCommand
-                    ?? (_AddReservationCommand = new DelegateCommand(async () =>
+                    ?? (_AddReservationCommand = new RelayCommand(async () =>
                     {
                         try
                         {
                             var result = await AddReservationAsync(LiveId, LiveTitle);
                             if (result)
                             {
-                                var reservationProvider = App.Current.Container.Resolve<LoginUserLiveReservationProvider>();
+                                var reservationProvider = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LoginUserLiveReservationProvider>();
                                 var reservations = await reservationProvider.GetReservtionsDetailAsync();
                                 var reservation = reservations.Data.Items.FirstOrDefault(x => LiveId == x.LiveId);
                                 if (reservation != null)
@@ -384,8 +383,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
                                     SetReservation(reservation);
                                 }
 
-                                RaisePropertyChanged(nameof(Reservation));
-                                RaisePropertyChanged(nameof(ReservationStatus));
+                                OnPropertyChanged(nameof(Reservation));
+                                OnPropertyChanged(nameof(ReservationStatus));
                             }
 
                             _logger.ZLogInformation("Reservation registration result: {0}", result);
@@ -402,8 +401,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
 
         private async Task<bool> AddReservationAsync(LiveId liveId, string liveTitle)
         {
-            var niconicoSession = App.Current.Container.Resolve<NiconicoSession>();
-            var hohoemaDialogService = App.Current.Container.Resolve<DialogService>();
+            var niconicoSession = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NiconicoSession>();
+            var hohoemaDialogService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<DialogService>();
             var result = await niconicoSession.ToolkitContext.Timeshift.ReserveTimeshiftAsync(liveId, overwrite: false);
 
             bool isAdded = false;
@@ -426,7 +425,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
             {
                 // 予約できてるはず
                 // LiveInfoのタイムシフト周りの情報と共に通知
-                var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                 notificationService.ShowLiteInAppNotification_Success("InAppNotification_AddedTimeshiftWithTitle".Translate(liveTitle), TimeSpan.FromSeconds(3));
 
                 isAdded = true;
@@ -437,12 +436,12 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Live
             }
             else if (result.IsReservationDeuplicated)
             {
-                var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                 notificationService.ShowLiteInAppNotification_Success("InAppNotification_ExistTimeshift".Translate());
             }
             else if (result.IsReservationExpired)
             {
-                var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                 notificationService.ShowLiteInAppNotification_Fail("InAppNotification_TimeshiftExpired".Translate());
             }
 

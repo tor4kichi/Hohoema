@@ -14,8 +14,8 @@ using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Player.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using I18NPortable;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Diagnostics;
@@ -51,7 +51,7 @@ using ZLogger;
 namespace Hohoema.Presentation.ViewModels.Player
 {
 
-    public class VideoPlayerPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync
+    public class VideoPlayerPageViewModel : HohoemaPageViewModelBase
 	{
         // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
         private readonly IScheduler _scheduler;
@@ -311,13 +311,13 @@ namespace Hohoema.Presentation.ViewModels.Player
             set => SetProperty(ref _videoInfo, value);
         }
 
-        private DelegateCommand _OpenVideoInfoCommand;
-        public DelegateCommand OpenVideoInfoCommand
+        private RelayCommand _OpenVideoInfoCommand;
+        public RelayCommand OpenVideoInfoCommand
         {
             get
             {
                 return _OpenVideoInfoCommand
-                    ?? (_OpenVideoInfoCommand = new DelegateCommand(() =>
+                    ?? (_OpenVideoInfoCommand = new RelayCommand(() =>
                     {
                         PageManager.OpenPageWithId(HohoemaPageType.VideoInfomation, VideoId);
                     }
@@ -363,8 +363,10 @@ namespace Hohoema.Presentation.ViewModels.Player
 
 
 
-        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override void OnNavigatedTo(INavigationParameters parameters)
         {
+            base.OnNavigatedTo(parameters);
+
             _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentQuality)
                 .Subscribe(quality => _scheduler.Schedule(() => CurrentQuality = quality))
                 .AddTo(_navigationDisposables);
@@ -391,8 +393,8 @@ namespace Hohoema.Presentation.ViewModels.Player
                                 VideoInfo = null;
                                 VideoId = null;
                                 VideoSeries = null;
-                                RaisePropertyChanged(nameof(VideoContent));
-                                RaisePropertyChanged(nameof(VideoSeries));
+                                OnPropertyChanged(nameof(VideoContent));
+                                OnPropertyChanged(nameof(VideoSeries));
                                 VideoContent = null;
                                 Title = string.Empty;
                                 IsNotSupportVideoType = false;
@@ -443,12 +445,12 @@ namespace Hohoema.Presentation.ViewModels.Player
                             await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);
 
                             VideoContent = VideoInfo;
-                            RaisePropertyChanged(nameof(VideoContent));
+                            OnPropertyChanged(nameof(VideoContent));
 
                             VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails);
                             
                             VideoSeries = VideoDetails.Series is not null and var series ? new VideoSeriesViewModel(series) : null;
-                            RaisePropertyChanged(nameof(VideoSeries));
+                            OnPropertyChanged(nameof(VideoSeries));
 
                             // 好きの切り替え
                             if (NiconicoSession.IsLoggedIn)
@@ -611,9 +613,9 @@ namespace Hohoema.Presentation.ViewModels.Player
         }
 
 
-        private DelegateCommand<string> _selectSidePaneCommand;
-        public DelegateCommand<string> SelectSidePaneCommand => _selectSidePaneCommand
-            ?? (_selectSidePaneCommand = new DelegateCommand<string>(str =>
+        private RelayCommand<string> _selectSidePaneCommand;
+        public RelayCommand<string> SelectSidePaneCommand => _selectSidePaneCommand
+            ?? (_selectSidePaneCommand = new RelayCommand<string>(str =>
             {
                 if (Enum.TryParse<PlayerSidePaneContentType>(str, out var type))
                 {

@@ -7,8 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Diagnostics;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using Hohoema.Models.UseCase;
@@ -193,15 +193,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 			return (CommunityVideoIncrementalSource.OneTimeLoadCount, new CommunityVideoIncrementalSource(CommunityId, 1, CommunityVideoPlaylist, SelectedSortOption, CommunityProvider, _logger));
 		}
 
-        private DelegateCommand _OpenCommunityPageCommand;
+        private RelayCommand _OpenCommunityPageCommand;
         private readonly CommunityFollowProvider _communityFollowProvider;
 
-        public DelegateCommand OpenCommunityPageCommand
+        public RelayCommand OpenCommunityPageCommand
 		{
 			get
 			{
 				return _OpenCommunityPageCommand
-					?? (_OpenCommunityPageCommand = new DelegateCommand(() => 
+					?? (_OpenCommunityPageCommand = new RelayCommand(() => 
 					{
 						PageManager.OpenPageWithId(HohoemaPageType.Community, CommunityId);
 					}));

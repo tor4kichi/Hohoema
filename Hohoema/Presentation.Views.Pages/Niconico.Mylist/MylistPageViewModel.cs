@@ -20,8 +20,8 @@ using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using I18NPortable;
 using NiconicoToolkit.Mylist;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -46,7 +46,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 {
     using MylistFollowContext = FollowContext<IMylist>;
 
-    public class MylistPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class MylistPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {
@@ -231,7 +231,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
                         // ユーザーに結果を通知
                         var titleText = $"「{mylistGroup.Label}」から {successCount}件 の動画が登録解除されました";
-                        var toastService = App.Current.Container.Resolve<NotificationService>();
+                        var toastService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NotificationService>();
                         var resultText = $"";
                         if (failedCount > 0)
                         {
@@ -366,13 +366,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         #region Commands
 
 
-        private DelegateCommand _OpenMylistOwnerCommand;
-        public DelegateCommand OpenMylistOwnerCommand
+        private RelayCommand _OpenMylistOwnerCommand;
+        public RelayCommand OpenMylistOwnerCommand
         {
             get
             {
                 return _OpenMylistOwnerCommand
-                    ?? (_OpenMylistOwnerCommand = new DelegateCommand(() =>
+                    ?? (_OpenMylistOwnerCommand = new RelayCommand(() =>
                     {
                         PageManager.OpenPageWithId(HohoemaPageType.UserInfo, Mylist.Value.UserId);
                     }));
@@ -388,13 +388,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
 
 
-        private DelegateCommand<IPlaylist> _EditMylistGroupCommand;
-        public DelegateCommand<IPlaylist> EditMylistGroupCommand
+        private RelayCommand<IPlaylist> _EditMylistGroupCommand;
+        public RelayCommand<IPlaylist> EditMylistGroupCommand
         {
             get
             {
                 return _EditMylistGroupCommand
-                    ?? (_EditMylistGroupCommand = new DelegateCommand<IPlaylist>(async playlist =>
+                    ?? (_EditMylistGroupCommand = new RelayCommand<IPlaylist>(async playlist =>
                     {
                         if (Mylist.Value is LoginUserMylistPlaylist mylist)
                         {
@@ -438,13 +438,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
 
 
-        private DelegateCommand<IPlaylist> _DeleteMylistCommand;
-        public DelegateCommand<IPlaylist> DeleteMylistCommand
+        private RelayCommand<IPlaylist> _DeleteMylistCommand;
+        public RelayCommand<IPlaylist> DeleteMylistCommand
         {
             get
             {
                 return _DeleteMylistCommand
-                    ?? (_DeleteMylistCommand = new DelegateCommand<IPlaylist>(async mylist =>
+                    ?? (_DeleteMylistCommand = new RelayCommand<IPlaylist>(async mylist =>
                     {
                         // 確認ダイアログ
                         var mylistOrigin = mylist.GetOrigin();
@@ -495,13 +495,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
 
 
-        private DelegateCommand _RefreshCommand;
-        public DelegateCommand RefreshCommand
+        private RelayCommand _RefreshCommand;
+        public RelayCommand RefreshCommand
         {
             get
             {
                 return _RefreshCommand
-                    ?? (_RefreshCommand = new DelegateCommand(async () =>
+                    ?? (_RefreshCommand = new RelayCommand(async () =>
                     {
                         if (Mylist.Value != null)
                         {
@@ -543,8 +543,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
     */
 
-        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            await base.OnNavigatedToAsync(parameters);
+
             IsMylistNotFound = false;
             MylistId? maybeMylistId = null;
 
@@ -592,7 +594,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                     var args = e.EventArgs;
                     if (args.MylistId == Mylist.Value.MylistId)
                     {
-                        RefreshCommand.Execute();
+                        RefreshCommand.Execute(null);
                     }
                 })
                 .AddTo(_navigationDisposables);
@@ -672,14 +674,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 .Where(x => x is not null)
                 .Subscribe(x =>
             {
-                RefreshCommand.Execute();
+                RefreshCommand.Execute(null);
 
                 _mylistUserSelectedSortRepository.SetMylistSort(Mylist.Value.MylistId, x.SortKey, x.SortOrder);
             })
                 .AddTo(_navigationDisposables);
 
-            EditMylistGroupCommand.RaiseCanExecuteChanged();
-            DeleteMylistCommand.RaiseCanExecuteChanged();
+            EditMylistGroupCommand.NotifyCanExecuteChanged();
+            DeleteMylistCommand.NotifyCanExecuteChanged();
         }
        
 
@@ -713,13 +715,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             }
         }
 
-        private DelegateCommand<IVideoContent> _PlayWithCurrentPlaylistCommand;
-        public DelegateCommand<IVideoContent> PlayWithCurrentPlaylistCommand
+        private RelayCommand<IVideoContent> _PlayWithCurrentPlaylistCommand;
+        public RelayCommand<IVideoContent> PlayWithCurrentPlaylistCommand
         {
             get
             {
                 return _PlayWithCurrentPlaylistCommand
-                    ?? (_PlayWithCurrentPlaylistCommand = new DelegateCommand<IVideoContent>((video) =>
+                    ?? (_PlayWithCurrentPlaylistCommand = new RelayCommand<IVideoContent>((video) =>
                     {
                         _messenger.Send(new VideoPlayRequestMessage() { VideoId = video.VideoId, PlaylistId = Mylist.Value.MylistId, PlaylistOrigin = Mylist.Value.GetOrigin() });
                     }

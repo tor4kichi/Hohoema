@@ -7,8 +7,7 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -26,13 +25,14 @@ using Hohoema.Models.Domain.Pins;
 using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using NiconicoToolkit.Community;
 using NiconicoToolkit;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 {
     using CommunityFollowContext = FollowContext<ICommunity>;
 
 
-    public class CommunityPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class CommunityPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {
@@ -168,8 +168,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
             set => SetProperty(ref _followContext, value);
         }
 
-        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            await base.OnNavigatedToAsync(parameters);
+
             CommunityId? communityId = null;
             if (parameters.TryGetValue("id", out string strCommunityId))
             {
@@ -200,11 +202,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 
                 CommunityInfo = res.Community;
 
-                RaisePropertyChanged(nameof(CommunityName));
-                RaisePropertyChanged(nameof(IsPublic));
-                RaisePropertyChanged(nameof(CommunityDescription));
-                RaisePropertyChanged(nameof(CommunityLevel));
-                RaisePropertyChanged(nameof(ThumbnailUrl));
+                OnPropertyChanged(nameof(CommunityName));
+                OnPropertyChanged(nameof(IsPublic));
+                OnPropertyChanged(nameof(CommunityDescription));
+                OnPropertyChanged(nameof(CommunityLevel));
+                OnPropertyChanged(nameof(ThumbnailUrl));
 
                 ApplicationTheme appTheme;
                 if (_appearanceSettings.ApplicationTheme == ElementTheme.Dark)
@@ -267,24 +269,24 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
                 //*/
 
 
-                //RaisePropertyChanged(nameof(CommunityOwnerName));
-                //RaisePropertyChanged(nameof(VideoCount));
-                //RaisePropertyChanged(nameof(PrivilegeDescription));
-                //					RaisePropertyChanged(nameof(IsJoinAutoAccept));
-                //					RaisePropertyChanged(nameof(IsJoinWithoutPrivacyInfo));
-                //					RaisePropertyChanged(nameof(IsCanLiveOnlyPrivilege));
-                //					RaisePropertyChanged(nameof(IsCanAcceptJoinOnlyPrivilege));
-                //					RaisePropertyChanged(nameof(IsCanSubmitVideoOnlyPrivilege));
+                //OnPropertyChanged(nameof(CommunityOwnerName));
+                //OnPropertyChanged(nameof(VideoCount));
+                //OnPropertyChanged(nameof(PrivilegeDescription));
+                //					OnPropertyChanged(nameof(IsJoinAutoAccept));
+                //					OnPropertyChanged(nameof(IsJoinWithoutPrivacyInfo));
+                //					OnPropertyChanged(nameof(IsCanLiveOnlyPrivilege));
+                //					OnPropertyChanged(nameof(IsCanAcceptJoinOnlyPrivilege));
+                //					OnPropertyChanged(nameof(IsCanSubmitVideoOnlyPrivilege));
 
-                //RaisePropertyChanged(nameof(ProfileHtmlFileUri));
-                //RaisePropertyChanged(nameof(OwnerUserInfo));
-                //RaisePropertyChanged(nameof(Tags));
-                //RaisePropertyChanged(nameof(FutureLiveList));
-                //RaisePropertyChanged(nameof(NewsList));
-                //RaisePropertyChanged(nameof(HasNews));
-                //RaisePropertyChanged(nameof(CurrentLiveInfoList));
-                //RaisePropertyChanged(nameof(HasCurrentLiveInfo));
-                //RaisePropertyChanged(nameof(CommunityVideoSamples));
+                //OnPropertyChanged(nameof(ProfileHtmlFileUri));
+                //OnPropertyChanged(nameof(OwnerUserInfo));
+                //OnPropertyChanged(nameof(Tags));
+                //OnPropertyChanged(nameof(FutureLiveList));
+                //OnPropertyChanged(nameof(NewsList));
+                //OnPropertyChanged(nameof(HasNews));
+                //OnPropertyChanged(nameof(CurrentLiveInfoList));
+                //OnPropertyChanged(nameof(HasCurrentLiveInfo));
+                //OnPropertyChanged(nameof(CommunityVideoSamples));
 
 
                 Community = new CommunityViewModel() { CommunityId = CommunityId.Value, Name = CommunityName };
@@ -321,13 +323,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
         }
 
 
-        private DelegateCommand _OpenCommunityWebPagePageCommand;
-        public DelegateCommand OpenCommunityWebPagePageCommand
+        private RelayCommand _OpenCommunityWebPagePageCommand;
+        public RelayCommand OpenCommunityWebPagePageCommand
         {
             get
             {
                 return _OpenCommunityWebPagePageCommand
-                    ?? (_OpenCommunityWebPagePageCommand = new DelegateCommand(async () =>
+                    ?? (_OpenCommunityWebPagePageCommand = new RelayCommand(async () =>
                     {
                         if (ContentIdHelper.IsCommunityId(CommunityId))
                         {
@@ -337,26 +339,26 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
             }
         }
 
-        private DelegateCommand _OpenCommunityVideoListPageCommand;
-		public DelegateCommand OpenCommunityVideoListPageCommand
+        private RelayCommand _OpenCommunityVideoListPageCommand;
+		public RelayCommand OpenCommunityVideoListPageCommand
 		{
 			get
 			{
 				return _OpenCommunityVideoListPageCommand
-					?? (_OpenCommunityVideoListPageCommand = new DelegateCommand(() =>
+					?? (_OpenCommunityVideoListPageCommand = new RelayCommand(() =>
 					{
 						PageManager.OpenPageWithId(HohoemaPageType.CommunityVideo, CommunityId);
 					}));
 			}
 		}
 
-		private DelegateCommand<Uri> _ScriptNotifyCommand;
-        public DelegateCommand<Uri> ScriptNotifyCommand
+		private RelayCommand<Uri> _ScriptNotifyCommand;
+        public RelayCommand<Uri> ScriptNotifyCommand
 		{
 			get
 			{
 				return _ScriptNotifyCommand
-					?? (_ScriptNotifyCommand = new DelegateCommand<Uri>((parameter) =>
+					?? (_ScriptNotifyCommand = new RelayCommand<Uri>((parameter) =>
 					{
 						System.Diagnostics.Debug.WriteLine($"script notified: {parameter}");
 
@@ -387,7 +389,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 				}
 			}
 
-			RaisePropertyChanged(nameof(CanNotFollowReason));
+			OnPropertyChanged(nameof(CanNotFollowReason));
 		}
     }
 }

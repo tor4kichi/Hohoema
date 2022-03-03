@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Hohoema.LocalMylist
 {
-    public sealed class LocalMylistCreateCommand : DelegateCommandBase
+    public sealed class LocalMylistCreateCommand : CommandBase
     {
         private readonly LocalMylistManager _localMylistManager;
 

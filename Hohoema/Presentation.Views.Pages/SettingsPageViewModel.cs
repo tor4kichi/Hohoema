@@ -12,9 +12,8 @@ using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
 using Microsoft.Services.Store.Engagement;
 using Microsoft.UI.Xaml.Controls;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -27,11 +26,9 @@ using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Uno.Extensions;
 using Windows.ApplicationModel.Store;
 using Windows.Storage;
 using Windows.Storage.Pickers;
-using Windows.System;
 using Windows.UI;
 using Windows.UI.StartScreen;
 using Windows.UI.ViewManagement;
@@ -45,10 +42,11 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using Xamarin.Essentials;
 using Microsoft.Extensions.Logging;
 using ZLogger;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 {
-    public class SettingsPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync
+    public class SettingsPageViewModel : HohoemaPageViewModelBase
 	{
         private static Uri AppIssuePageUri = new Uri("https://github.com/tor4kichi/Hohoema/issues");
 
@@ -86,7 +84,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                 .AddTo(_CompositeDisposable);
             NGVideoOwnerUserIds = _videoFilteringRepository.GetVideoOwnerIdFilteringEntries();
 
-            OpenUserPageCommand = new DelegateCommand<VideoOwnerIdFilteringEntry>(userIdInfo =>
+            OpenUserPageCommand = new RelayCommand<VideoOwnerIdFilteringEntry>(userIdInfo =>
             {
                 pageManager.OpenPageWithId(HohoemaPageType.UserInfo, userIdInfo.UserId);
             });
@@ -206,7 +204,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                 .AddTo(_CompositeDisposable);
             MaxVideoCacheStorageSize = VideoCacheSettings.ToReactivePropertyAsSynchronized(x => x.MaxVideoCacheStorageSize)
                 .AddTo(_CompositeDisposable);
-            OpenCurrentCacheFolderCommand = new DelegateCommand(async () =>
+            OpenCurrentCacheFolderCommand = new RelayCommand(async () =>
             {
                 var folder = _videoCacheFolderManager.VideoCacheFolder;
                 if (folder != null)
@@ -260,7 +258,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         // フィルタ
         public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
         public List<VideoOwnerIdFilteringEntry> NGVideoOwnerUserIds { get; private set; }
-        public DelegateCommand<VideoOwnerIdFilteringEntry> OpenUserPageCommand { get; }
+        public RelayCommand<VideoOwnerIdFilteringEntry> OpenUserPageCommand { get; }
 
 
         public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
@@ -268,9 +266,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         public ObservableCollection<VideoFilteringTitleViewModel> VideoTitleFilteringItems { get; private set; }
         public ReadOnlyReactiveProperty<string> NGVideoTitleKeywordError { get; private set; }
 
-        private DelegateCommand _AddVideoTitleFilterEntryCommand;
-        public DelegateCommand AddVideoTitleFilterEntryCommand =>
-            _AddVideoTitleFilterEntryCommand ?? (_AddVideoTitleFilterEntryCommand = new DelegateCommand(ExecuteAddVideoTitleFilterEntryCommand));
+        private RelayCommand _AddVideoTitleFilterEntryCommand;
+        public RelayCommand AddVideoTitleFilterEntryCommand =>
+            _AddVideoTitleFilterEntryCommand ?? (_AddVideoTitleFilterEntryCommand = new RelayCommand(ExecuteAddVideoTitleFilterEntryCommand));
 
         void ExecuteAddVideoTitleFilterEntryCommand()
         {
@@ -302,13 +300,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
             HohoemaPageType.Timeshift,
         };
 
-        private DelegateCommand _ToggleFullScreenCommand;
-        public DelegateCommand ToggleFullScreenCommand
+        private RelayCommand _ToggleFullScreenCommand;
+        public RelayCommand ToggleFullScreenCommand
         {
             get
             {
                 return _ToggleFullScreenCommand
-                    ?? (_ToggleFullScreenCommand = new DelegateCommand(() =>
+                    ?? (_ToggleFullScreenCommand = new RelayCommand(() =>
                     {
                         var appView = ApplicationView.GetForCurrentView();
 
@@ -339,11 +337,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 
         public ReactiveProperty<bool> IsAllowDownloadOnMeteredNetwork { get; private set; }
         public ReactiveProperty<long?> MaxVideoCacheStorageSize { get; private set; }
-        public DelegateCommand OpenCurrentCacheFolderCommand { get; }
+        public RelayCommand OpenCurrentCacheFolderCommand { get; }
 
-        private DelegateCommand _ChangeCacheVideoFolderCommand;
-        public DelegateCommand ChangeCacheVideoFolderCommand =>
-            _ChangeCacheVideoFolderCommand ??= new DelegateCommand(async () =>
+        private RelayCommand _ChangeCacheVideoFolderCommand;
+        public RelayCommand ChangeCacheVideoFolderCommand =>
+            _ChangeCacheVideoFolderCommand ??= new RelayCommand(async () =>
             {
                 await _videoCacheFolderManager.ChangeVideoCacheFolder();
             });
@@ -355,13 +353,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         // シェア
         public ReactiveProperty<bool> IsLoginTwitter { get; private set; }
         public ReactiveProperty<string> TwitterAccountScreenName { get; private set; }
-        private DelegateCommand _LogInToTwitterCommand;
-        public DelegateCommand LogInToTwitterCommand
+        private RelayCommand _LogInToTwitterCommand;
+        public RelayCommand LogInToTwitterCommand
         {
             get
             {
                 return _LogInToTwitterCommand
-                    ?? (_LogInToTwitterCommand = new DelegateCommand(async () =>
+                    ?? (_LogInToTwitterCommand = new RelayCommand(async () =>
                     {
                         /*
                         if (await TwitterHelper.LoginOrRefreshToken())
@@ -377,13 +375,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
             }
         }
 
-        private DelegateCommand _LogoutTwitterCommand;
-        public DelegateCommand LogoutTwitterCommand
+        private RelayCommand _LogoutTwitterCommand;
+        public RelayCommand LogoutTwitterCommand
         {
             get
             {
                 return _LogoutTwitterCommand
-                    ?? (_LogoutTwitterCommand = new DelegateCommand(() =>
+                    ?? (_LogoutTwitterCommand = new RelayCommand(() =>
                     {
 //                        TwitterHelper.Logout();
 
@@ -412,26 +410,26 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
             }
         }
 
-        private DelegateCommand _ShowUpdateNoticeCommand;
-        public DelegateCommand ShowUpdateNoticeCommand
+        private RelayCommand _ShowUpdateNoticeCommand;
+        public RelayCommand ShowUpdateNoticeCommand
         {
             get
             {
                 return _ShowUpdateNoticeCommand
-                    ?? (_ShowUpdateNoticeCommand = new DelegateCommand(async () =>
+                    ?? (_ShowUpdateNoticeCommand = new RelayCommand(async () =>
                     {
                         await AppUpdateNotice.ShowReleaseNotePageOnBrowserAsync();
                     }));
             }
         }
 
-        private DelegateCommand<ProductViewModel> _ShowCheerPurchaseCommand;
-        public DelegateCommand<ProductViewModel> ShowCheerPurchaseCommand
+        private RelayCommand<ProductViewModel> _ShowCheerPurchaseCommand;
+        public RelayCommand<ProductViewModel> ShowCheerPurchaseCommand
         {
             get
             {
                 return _ShowCheerPurchaseCommand
-                    ?? (_ShowCheerPurchaseCommand = new DelegateCommand<ProductViewModel>(async (product) =>
+                    ?? (_ShowCheerPurchaseCommand = new RelayCommand<ProductViewModel>(async (product) =>
                     {
                         var result = await Models.Domain.Purchase.HohoemaPurchase.RequestPurchase(product.ProductListing);
 
@@ -443,13 +441,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         }
 
 
-        private DelegateCommand _LaunchAppReviewCommand;
-        public DelegateCommand LaunchAppReviewCommand
+        private RelayCommand _LaunchAppReviewCommand;
+        public RelayCommand LaunchAppReviewCommand
         {
             get
             {
                 return _LaunchAppReviewCommand
-                    ?? (_LaunchAppReviewCommand = new DelegateCommand(async () =>
+                    ?? (_LaunchAppReviewCommand = new RelayCommand(async () =>
                     {
                         await Microsoft.Toolkit.Uwp.Helpers.SystemInformation.LaunchStoreForReviewAsync();
                         //await Launcher.LaunchUriAsync(AppReviewUri);
@@ -457,13 +455,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
             }
         }
 
-        private DelegateCommand _LaunchFeedbackHubCommand;
-        public DelegateCommand LaunchFeedbackHubCommand
+        private RelayCommand _LaunchFeedbackHubCommand;
+        public RelayCommand LaunchFeedbackHubCommand
         {
             get
             {
                 return _LaunchFeedbackHubCommand
-                    ?? (_LaunchFeedbackHubCommand = new DelegateCommand(async () =>
+                    ?? (_LaunchFeedbackHubCommand = new RelayCommand(async () =>
                     {
                         if (IsSupportedFeedbackHub)
                         {
@@ -473,13 +471,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
             }
         }
 
-        private DelegateCommand _ShowIssuesWithBrowserCommand;
-        public DelegateCommand ShowIssuesWithBrowserCommand
+        private RelayCommand _ShowIssuesWithBrowserCommand;
+        public RelayCommand ShowIssuesWithBrowserCommand
         {
             get
             {
                 return _ShowIssuesWithBrowserCommand
-                    ?? (_ShowIssuesWithBrowserCommand = new DelegateCommand(async () =>
+                    ?? (_ShowIssuesWithBrowserCommand = new RelayCommand(async () =>
                     {
                         await Windows.System.Launcher.LaunchUriAsync(AppIssuePageUri);
                     }));
@@ -490,13 +488,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         public ReactiveProperty<bool> IsDebugModeEnabled { get; }
 
 
-        private DelegateCommand _CopyVersionTextToClipboardCommand;
-        public DelegateCommand CopyVersionTextToClipboardCommand
+        private RelayCommand _CopyVersionTextToClipboardCommand;
+        public RelayCommand CopyVersionTextToClipboardCommand
         {
             get
             {
                 return _CopyVersionTextToClipboardCommand
-                    ?? (_CopyVersionTextToClipboardCommand = new DelegateCommand(() =>
+                    ?? (_CopyVersionTextToClipboardCommand = new RelayCommand(() =>
                     {
                         ClipboardHelper.CopyToClipboard(CurrentVersion.ToString());
                     }));
@@ -510,13 +508,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 
         // セカンダリタイル関連
 
-        private DelegateCommand _AddTransparencySecondaryTile;
-        public DelegateCommand AddTransparencySecondaryTile
+        private RelayCommand _AddTransparencySecondaryTile;
+        public RelayCommand AddTransparencySecondaryTile
         {
             get
             {
                 return _AddTransparencySecondaryTile
-                    ?? (_AddTransparencySecondaryTile = new DelegateCommand(async () =>
+                    ?? (_AddTransparencySecondaryTile = new RelayCommand(async () =>
                     {
                         Uri square150x150Logo = new Uri("ms-appx:///Assets/Square150x150Logo.scale-100.png");
                         SecondaryTile secondaryTile = new SecondaryTile(@"Hohoema",
@@ -549,22 +547,28 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         bool _NowNavigateProccess = false;
 
 
-        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            await base.OnNavigatedToAsync(parameters);
+
             _NowNavigateProccess = true;
 
             try
             {
                 VideoTitleFilteringItems.Clear();
-                VideoTitleFilteringItems.AddRange(_videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
+                foreach (var item in _videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
                     new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText))
-                    );
+                    )
+                {
+                    VideoTitleFilteringItems.Add(item);
+                }
+                
 
                 try
                 {
                     var listing = await Models.Domain.Purchase.HohoemaPurchase.GetAvailableCheersAddOn();
                     PurchaseItems = listing.ProductListings.Select(x => new ProductViewModel(x.Value)).ToList();
-                    RaisePropertyChanged(nameof(PurchaseItems));
+                    OnPropertyChanged(nameof(PurchaseItems));
                 }
                 catch { }
 
@@ -575,7 +579,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                     .OrderBy(x => x.Name)
                     .Select(x => new LisenceItemViewModel(x))
                     .ToList();
-                RaisePropertyChanged(nameof(LisenceItems));
+                OnPropertyChanged(nameof(LisenceItems));
             }
             finally
             {
@@ -612,9 +616,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 
         #region Backup
 
-        private DelegateCommand _ExportBackupCommand;
-        public DelegateCommand ExportBackupCommand =>
-            _ExportBackupCommand ?? (_ExportBackupCommand = new DelegateCommand(ExecuteExportBackupCommand));
+        private RelayCommand _ExportBackupCommand;
+        public RelayCommand ExportBackupCommand =>
+            _ExportBackupCommand ?? (_ExportBackupCommand = new RelayCommand(ExecuteExportBackupCommand));
 
         async void ExecuteExportBackupCommand()
         {
@@ -639,9 +643,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
         }
 
 
-        private DelegateCommand _ImportBackupCommand;
-        public DelegateCommand ImportBackupCommand =>
-            _ImportBackupCommand ?? (_ImportBackupCommand = new DelegateCommand(ExecuteImportBackupCommand));
+        private RelayCommand _ImportBackupCommand;
+        public RelayCommand ImportBackupCommand =>
+            _ImportBackupCommand ?? (_ImportBackupCommand = new RelayCommand(ExecuteImportBackupCommand));
 
         async void ExecuteImportBackupCommand()
         {
@@ -688,12 +692,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                         _notificationService.ShowLiteInAppNotification_Success("BackupRestoreComplete".Translate());
 
                         NGVideoOwnerUserIds = _videoFilteringRepository.GetVideoOwnerIdFilteringEntries();
-                        RaisePropertyChanged(nameof(NGVideoOwnerUserIds));
+                        OnPropertyChanged(nameof(NGVideoOwnerUserIds));
 
                         VideoTitleFilteringItems.Clear();
-                        VideoTitleFilteringItems.AddRange(_videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
-                            new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText))
-                            );
+                        foreach (var item in _videoFilteringRepository.GetVideoTitleFilteringEntries().Select(x =>
+                            new VideoFilteringTitleViewModel(x, OnRemoveVideoTitleFilterEntry, _videoFilteringRepository, TestText)))
+                        {
+                            VideoTitleFilteringItems.Add(item);
+                        }
 
                         if (exceptions.Any())
                         {
@@ -732,7 +738,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 			Label = content;
 			OnRemove = onRemovedAction;
 
-			RemoveCommand = new DelegateCommand(() => 
+			RemoveCommand = new RelayCommand(() => 
 			{
 				onRemovedAction(Source);
 			});
@@ -801,7 +807,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
                 })
                 .ToReadOnlyReactivePropertySlim();
 
-            RemoveCommand = new DelegateCommand(() => 
+            RemoveCommand = new RelayCommand(() => 
 			{
 				_OnRemoveAction(this.NGKeywordInfo);
 			});
@@ -858,7 +864,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema
 
 #region About 
 
-    public class ProductViewModel : BindableBase
+    public class ProductViewModel : ObservableObject
     {
         private bool _IsActive;
         public bool IsActive

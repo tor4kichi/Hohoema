@@ -16,7 +16,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Prism.Ioc;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using NiconicoToolkit.Channels;
 using System.Threading.Tasks;
@@ -39,7 +38,7 @@ namespace Hohoema.Presentation.Views.Flyouts
         
         public static async Task<ChannelInfoFlyout?> CreateAsync(ChannelId channelId)
         {
-            var userFollowProvider = App.Current.Container.Resolve<ChannelFollowProvider>();
+            var userFollowProvider = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<ChannelFollowProvider>();
             var info = await userFollowProvider.GetChannelAuthorityAsync(channelId);
 
             if (!info.IsSuccess) { return null; }
@@ -112,8 +111,8 @@ namespace Hohoema.Presentation.Views.Flyouts
         {
             this.InitializeComponent();
 
-            _pageManager = App.Current.Container.Resolve<PageManager>();
-            _filterSettings = App.Current.Container.Resolve<VideoFilteringSettings>();
+            _pageManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
+            _filterSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
         }
 
 

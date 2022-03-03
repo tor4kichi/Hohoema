@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Hohoema.Presentation.ViewModels.Pages;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -25,6 +27,8 @@ namespace Hohoema.Presentation.Views.Pages
         public BlankPage()
         {
             this.InitializeComponent();
+
+            DataContext = Ioc.Default.GetRequiredService<BlankPageViewModel>();
         }
     }
 }

@@ -13,6 +13,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Hohoema.Presentation.Navigations;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -26,19 +28,9 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Activity
 		public WatchHistoryPage()
 		{
 			this.InitializeComponent();
-            DataContextChanged += OnDataContextChanged;
-        }
+			DataContext = _vm = Ioc.Default.GetRequiredService<WatchHistoryPageViewModel>();
+		}
 
-        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
-        {
-            var oldViewModel = _vm;
-            _vm = args.NewValue as WatchHistoryPageViewModel;
-            if (args.NewValue != null && args.NewValue != oldViewModel)
-            {
-                this.Bindings.Update();
-            }
-        }
-
-        private WatchHistoryPageViewModel _vm { get; set; }
+		private readonly WatchHistoryPageViewModel _vm;
     }
 }

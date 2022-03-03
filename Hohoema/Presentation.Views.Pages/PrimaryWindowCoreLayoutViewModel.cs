@@ -24,9 +24,8 @@ using NiconicoToolkit;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Live.Notify;
 using NiconicoToolkit.Mylist;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.ObjectModel;
@@ -34,14 +33,14 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Uno.Extensions;
 using Windows.Storage;
 using Windows.System;
 using ZLogger;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Presentation.ViewModels
 {
-    public sealed class PrimaryWindowCoreLayoutViewModel : BindableBase, IRecipient<SettingsRestoredMessage>
+    public sealed class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecipient<SettingsRestoredMessage>
     {
         void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
         {
@@ -159,7 +158,7 @@ namespace Hohoema.Presentation.ViewModels
                 new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
                 new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo),
                 new MenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory),
-                new MenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters($"id={MylistId.WatchAfterMylistId}")),
+                new MenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters(("id", MylistId.WatchAfterMylistId.ToString()))),
                 new MylistSubMenuMenu(_userMylistManager, PageManager.OpenPageCommand),
                 _localMylistMenuSubItemViewModel,
                 new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage),
@@ -183,13 +182,13 @@ namespace Hohoema.Presentation.ViewModels
         }
 
 
-        private DelegateCommand _OpenAccountInfoCommand;
-        public DelegateCommand OpenAccountInfoCommand
+        private RelayCommand _OpenAccountInfoCommand;
+        public RelayCommand OpenAccountInfoCommand
         {
             get
             {
                 return _OpenAccountInfoCommand
-                    ?? (_OpenAccountInfoCommand = new DelegateCommand(async () =>
+                    ?? (_OpenAccountInfoCommand = new RelayCommand(async () =>
                     {
                         await NiconicoSession.CheckSignedInStatus();
 
@@ -201,11 +200,11 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        public DelegateCommand OpenDebugPageCommand
+        public RelayCommand OpenDebugPageCommand
         {
             get
             {
-                return new DelegateCommand(() =>
+                return new RelayCommand(() =>
                 {
                     PageManager.OpenDebugPage();
                 });
@@ -223,9 +222,9 @@ namespace Hohoema.Presentation.ViewModels
 
         #region Search
 
-        private DelegateCommand<SearchAutoSuggestItemViewModel> _SuggestSelectedCommand;
-        public DelegateCommand<SearchAutoSuggestItemViewModel> SuggestSelectedCommand =>
-            _SuggestSelectedCommand ?? (_SuggestSelectedCommand = new DelegateCommand<SearchAutoSuggestItemViewModel>(ExecuteSuggestSelectedCommand));
+        private RelayCommand<SearchAutoSuggestItemViewModel> _SuggestSelectedCommand;
+        public RelayCommand<SearchAutoSuggestItemViewModel> SuggestSelectedCommand =>
+            _SuggestSelectedCommand ?? (_SuggestSelectedCommand = new RelayCommand<SearchAutoSuggestItemViewModel>(ExecuteSuggestSelectedCommand));
 
         void ExecuteSuggestSelectedCommand(SearchAutoSuggestItemViewModel parameter)
         {
@@ -237,13 +236,13 @@ namespace Hohoema.Presentation.ViewModels
 
         #region
 
-        private DelegateCommand _OpenDebugLogFileCommand;
-        public DelegateCommand OpenDebugLogFileCommand
+        private RelayCommand _OpenDebugLogFileCommand;
+        public RelayCommand OpenDebugLogFileCommand
         {
             get
             {
                 return _OpenDebugLogFileCommand
-                    ?? (_OpenDebugLogFileCommand = new DelegateCommand(async () =>
+                    ?? (_OpenDebugLogFileCommand = new RelayCommand(async () =>
                     {
                         var file = await ApplicationData.Current.TemporaryFolder.GetFileAsync("_log.txt");
                         await Launcher.LaunchFolderAsync(ApplicationData.Current.TemporaryFolder, new FolderLauncherOptions() { ItemsToSelect = { file } });
@@ -251,13 +250,13 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        private DelegateCommand _RequestApplicationRestartCommand;
-        public DelegateCommand RequestApplicationRestartCommand
+        private RelayCommand _RequestApplicationRestartCommand;
+        public RelayCommand RequestApplicationRestartCommand
         {
             get
             {
                 return _RequestApplicationRestartCommand
-                    ?? (_RequestApplicationRestartCommand = new DelegateCommand(async () =>
+                    ?? (_RequestApplicationRestartCommand = new RelayCommand(async () =>
                     {
                         var result = await Windows.ApplicationModel.Core.CoreApplication.RequestRestartAsync(string.Empty);
                     }));
@@ -313,7 +312,7 @@ namespace Hohoema.Presentation.ViewModels
             Items.Clear();
             foreach (var item in _pinSettings.ReadAllItems().OrderBy(x => x.SortIndex).Select(x => new PinMenuItemViewModel(x, this)))
             {
-                Items.DisposableAdd(item);
+                Items.Add(item);
             }
         }
 
@@ -328,9 +327,9 @@ namespace Hohoema.Presentation.ViewModels
 
 
 
-        private DelegateCommand<PinMenuItemViewModel> _DeletePinCommand;
-        public DelegateCommand<PinMenuItemViewModel> DeletePinCommand =>
-            _DeletePinCommand ?? (_DeletePinCommand = new DelegateCommand<PinMenuItemViewModel>(ExecuteDeletePinCommand));
+        private RelayCommand<PinMenuItemViewModel> _DeletePinCommand;
+        public RelayCommand<PinMenuItemViewModel> DeletePinCommand =>
+            _DeletePinCommand ?? (_DeletePinCommand = new RelayCommand<PinMenuItemViewModel>(ExecuteDeletePinCommand));
 
         void ExecuteDeletePinCommand(PinMenuItemViewModel pinVM)
         {
@@ -346,9 +345,9 @@ namespace Hohoema.Presentation.ViewModels
 
 
 
-        private DelegateCommand<PinMenuItemViewModel> _OverridePinCommand;
-        public DelegateCommand<PinMenuItemViewModel> OverridePinCommand =>
-            _OverridePinCommand ?? (_OverridePinCommand = new DelegateCommand<PinMenuItemViewModel>(ExecuteOverridePinCommand));
+        private RelayCommand<PinMenuItemViewModel> _OverridePinCommand;
+        public RelayCommand<PinMenuItemViewModel> OverridePinCommand =>
+            _OverridePinCommand ?? (_OverridePinCommand = new RelayCommand<PinMenuItemViewModel>(ExecuteOverridePinCommand));
 
         async void ExecuteOverridePinCommand(PinMenuItemViewModel item)
         {
@@ -370,9 +369,9 @@ namespace Hohoema.Presentation.ViewModels
         }
 
 
-        private DelegateCommand<PinMenuItemViewModel> _MovePinToTopCommand;
-        public DelegateCommand<PinMenuItemViewModel> MovePinToTopCommand =>
-            _MovePinToTopCommand ?? (_MovePinToTopCommand = new DelegateCommand<PinMenuItemViewModel>(ExecuteMovePinToTopCommand));
+        private RelayCommand<PinMenuItemViewModel> _MovePinToTopCommand;
+        public RelayCommand<PinMenuItemViewModel> MovePinToTopCommand =>
+            _MovePinToTopCommand ?? (_MovePinToTopCommand = new RelayCommand<PinMenuItemViewModel>(ExecuteMovePinToTopCommand));
 
         void ExecuteMovePinToTopCommand(PinMenuItemViewModel item)
         {
@@ -385,9 +384,9 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        private DelegateCommand<PinMenuItemViewModel> _MovePinToBottomCommand;
-        public DelegateCommand<PinMenuItemViewModel> MovePinToBottomCommand =>
-            _MovePinToBottomCommand ?? (_MovePinToBottomCommand = new DelegateCommand<PinMenuItemViewModel>(ExecuteMovePinToBottomCommand));
+        private RelayCommand<PinMenuItemViewModel> _MovePinToBottomCommand;
+        public RelayCommand<PinMenuItemViewModel> MovePinToBottomCommand =>
+            _MovePinToBottomCommand ?? (_MovePinToBottomCommand = new RelayCommand<PinMenuItemViewModel>(ExecuteMovePinToBottomCommand));
 
         void ExecuteMovePinToBottomCommand(PinMenuItemViewModel item)
         {
@@ -400,9 +399,9 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        private DelegateCommand<PinMenuItemViewModel> _MovePinToMostTopCommand;
-        public DelegateCommand<PinMenuItemViewModel> MovePinToMostTopCommand =>
-            _MovePinToMostTopCommand ?? (_MovePinToMostTopCommand = new DelegateCommand<PinMenuItemViewModel>(ExecuteMovePinToMostTopCommand));
+        private RelayCommand<PinMenuItemViewModel> _MovePinToMostTopCommand;
+        public RelayCommand<PinMenuItemViewModel> MovePinToMostTopCommand =>
+            _MovePinToMostTopCommand ?? (_MovePinToMostTopCommand = new RelayCommand<PinMenuItemViewModel>(ExecuteMovePinToMostTopCommand));
 
         void ExecuteMovePinToMostTopCommand(PinMenuItemViewModel item)
         {
@@ -415,9 +414,9 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        private DelegateCommand<PinMenuItemViewModel> _MovePinToMostBottomCommand;
-        public DelegateCommand<PinMenuItemViewModel> MovePinToMostBottomCommand =>
-            _MovePinToMostBottomCommand ?? (_MovePinToMostBottomCommand = new DelegateCommand<PinMenuItemViewModel>(ExecuteMovePinToMostBottomCommand));
+        private RelayCommand<PinMenuItemViewModel> _MovePinToMostBottomCommand;
+        public RelayCommand<PinMenuItemViewModel> MovePinToMostBottomCommand =>
+            _MovePinToMostBottomCommand ?? (_MovePinToMostBottomCommand = new RelayCommand<PinMenuItemViewModel>(ExecuteMovePinToMostBottomCommand));
 
         void ExecuteMovePinToMostBottomCommand(PinMenuItemViewModel item)
         {

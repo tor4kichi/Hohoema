@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using Reactive.Bindings;
 using System.Diagnostics;
@@ -16,7 +16,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Models.Domain.Niconico.Community;
-using Prism.Navigation;
+using Hohoema.Presentation.Navigations;
 using Microsoft.Toolkit.Mvvm.Messaging;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Follow
@@ -64,7 +64,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Follow
         public override void OnNavigatingTo(INavigationParameters parameters)
         {
             FollowGroups = _FollowGroups_AvoidListViewMemoryLeak;
-            RaisePropertyChanged(nameof(FollowGroups));
+            OnPropertyChanged(nameof(FollowGroups));
 
             base.OnNavigatingTo(parameters);
         }
@@ -72,18 +72,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Follow
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
             FollowGroups = null;
-            RaisePropertyChanged(nameof(FollowGroups));
+            OnPropertyChanged(nameof(FollowGroups));
 
             base.OnNavigatedFrom(parameters);
         }
 
-        //private DelegateCommand<FollowItemInfo> _RemoveFavoriteCommand;
-        //public DelegateCommand<FollowItemInfo> RemoveFavoriteCommand
+        //private RelayCommand<FollowItemInfo> _RemoveFavoriteCommand;
+        //public RelayCommand<FollowItemInfo> RemoveFavoriteCommand
         //{
         //    get
         //    {
         //        return _RemoveFavoriteCommand
-        //            ?? (_RemoveFavoriteCommand = new DelegateCommand<FollowItemInfo>(async (followItem) =>
+        //            ?? (_RemoveFavoriteCommand = new RelayCommand<FollowItemInfo>(async (followItem) =>
         //            {
         //                switch (followItem.FollowItemType)
         //                {

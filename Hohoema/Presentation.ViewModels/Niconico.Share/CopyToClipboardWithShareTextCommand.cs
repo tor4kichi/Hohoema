@@ -3,7 +3,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Services;
 using I18NPortable;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Share
 {
-    public sealed class CopyToClipboardWithShareTextCommand : DelegateCommandBase
+    public sealed class CopyToClipboardWithShareTextCommand : CommandBase
     {
         private readonly NotificationService _notificationService;
         private readonly NicoVideoProvider _nicoVideoProvider;
