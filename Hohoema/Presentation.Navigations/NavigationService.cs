@@ -73,7 +73,6 @@ namespace Hohoema.Presentation.Navigations
         {
             Frame = frame;
             _rememberHistory = rememberHistory;
-            frame.IsNavigationStackEnabled = rememberHistory;
         }
 
         public bool CanGoBack()
@@ -147,6 +146,11 @@ namespace Hohoema.Presentation.Navigations
             var viewType = ViewTypeResolver(pageName);
             if (Frame.Navigate(viewType, parameters, infoOverride))
             {
+                if (_rememberHistory is false)
+                {
+                    Frame.BackStack.Clear();
+                }
+
                 var currentPage = Frame.Content as Page;
                 parameters.SetNavigationMode(NavigationMode.New);
                 return await HandleViewModelNavigation(prevPage?.DataContext as INavigationAware, currentPage.DataContext as INavigationAware, parameters);

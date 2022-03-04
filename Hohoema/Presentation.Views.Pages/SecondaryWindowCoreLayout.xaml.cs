@@ -27,13 +27,6 @@ namespace Hohoema.Presentation.Views.Pages
 
             Loaded += SecondaryViewCoreLayout_Loaded;
             Unloaded += SecondaryViewCoreLayout_Unloaded;
-
-            ContentFrame.Navigated += ContentFrame_Navigated;
-        }
-
-        private void ContentFrame_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
-        {
-            ContentFrame.BackStack.Clear();
         }
 
         CompositeDisposable _disposables;

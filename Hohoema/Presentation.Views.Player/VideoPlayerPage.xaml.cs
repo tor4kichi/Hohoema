@@ -347,6 +347,7 @@ namespace Hohoema.Presentation.Views.Player
         {
             _dispatcherQueue.TryEnqueue(() => 
             {
+                if (sender.PlaybackState == MediaPlaybackState.None) { return; }
                 VideoPosition = sender.Position;
                 if (this.NowVideoPositionChanging is false)
                 {
