@@ -37,6 +37,21 @@ namespace Hohoema.Presentation.Views.Player
 
         CompositeDisposable _compositeDisposable;
 
+
+        public bool NowCommentEditting
+        {
+            get { return (bool)GetValue(NowCommentEdittingProperty); }
+            set { SetValue(NowCommentEdittingProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for NowCommentEditting.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty NowCommentEdittingProperty =
+            DependencyProperty.Register("NowCommentEditting", typeof(bool), typeof(LivePlayerPage), new PropertyMetadata(false));
+
+
+
+
+
         public LivePlayerPage()
         {
             this.InitializeComponent();

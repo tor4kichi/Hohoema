@@ -22,7 +22,6 @@
       xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:iconPack="using:MahApps.Metro.IconPacks"
       xmlns:model="using:Hohoema.Models.Domain"
-      xmlns:mvvm="using:Prism.Mvvm"
       xmlns:winui="using:Microsoft.UI.Xaml.Controls"
       xmlns:controls="using:Hohoema.Presentation.Views.Controls"
       xmlns:system1="using:System"
@@ -171,11 +170,20 @@
                 KeyboardAcceleratorPlacementMode="Hidden"
                 >
             <Grid.KeyboardAccelerators>
-              <KeyboardAccelerator x:Name="CommentWriteBeginKeyboardTrigger" Key="C">
+              <!-- KeyboardAccelerator.IsEnabledが初期設定されていないとVisualStateのデフォルト状態に遷移した際の値の戻しが行われない -->
+              <KeyboardAccelerator x:Name="CommentWriteBeginKeyboardTrigger" Key="C" IsEnabled="True">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Invoked">
                     <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="True" />
-                    <mybehavior:SetFocus TargetObject="{x:Bind CommentTextBox}" Delay="00:00:00" />
+                    <mybehavior:SetFocus TargetObject="{x:Bind CommentTextBox}" Delay="0:0:0.10" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </KeyboardAccelerator>
+
+              <KeyboardAccelerator x:Name="CommentWriteExitKeyboardTrigger" Key="Escape" IsEnabled="False">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Invoked">
+                    <mybehavior:SetFocus TargetObject="{x:Bind PlayPauseButton}" />
                   </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
               </KeyboardAccelerator>
@@ -189,16 +197,16 @@
               </KeyboardAccelerator>
 
               <!-- スペースキー入力で再生停止の切り替え-->
-              <KeyboardAccelerator x:Name="PlayPauseToggleKeyboardTrigger" Key="Space" Invoked="PlayPauseToggleKeyboardTrigger_Invoked" />
+              <KeyboardAccelerator x:Name="PlayPauseToggleKeyboardTrigger" Key="Space" Invoked="PlayPauseToggleKeyboardTrigger_Invoked" IsEnabled="True" />
 
-              <KeyboardAccelerator x:Name="VideoForwardKeyboardTrigger" Key="Right">
+              <KeyboardAccelerator x:Name="VideoForwardKeyboardTrigger" Key="Right" IsEnabled="True">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Invoked">
-                    <core:InvokeCommandAction Command="{x:Bind _vm.SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" />
+                    <core:InvokeCommandAction Command="{x:Bind _vm.SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}"  />
                   </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
               </KeyboardAccelerator>
-              <KeyboardAccelerator x:Name="VideoBackKeyboardTrigger" Key="Left">
+              <KeyboardAccelerator x:Name="VideoBackKeyboardTrigger" Key="Left" IsEnabled="True">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Invoked">
                     <core:InvokeCommandAction Command="{x:Bind _vm.SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" />
@@ -639,11 +647,13 @@
                         </Style>
                       </TextBox.Style>
                       <i:Interaction.Behaviors>
-                        <mybehavior:KeyboardTrigger Key="Escape" x:Name="CommentWriteExitKeyboardTrigger" IsEnabled="False" OnlyWhenFocus="{x:Bind CommentTextBox}">
-                          <mybehavior:KeyboardTrigger.Actions>
-                            <mybehavior:SetFocus TargetObject="{x:Bind PlayPauseButton}" />
-                          </mybehavior:KeyboardTrigger.Actions>
-                        </mybehavior:KeyboardTrigger>
+                        <core:EventTriggerBehavior EventName="GotFocus">
+                          <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="NowCommentEditting" Value="True" />
+                        </core:EventTriggerBehavior>
+                        <core:EventTriggerBehavior EventName="LostFocus">
+                          <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="NowCommentEditting" Value="False" />
+                        </core:EventTriggerBehavior>
+                        
                         <core:EventTriggerBehavior EventName="GotFocus">
                           <core:CallMethodAction TargetObject="{x:Bind CommentTextBox}" MethodName="SelectAll" />
                         </core:EventTriggerBehavior>
@@ -1156,7 +1166,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <!-- Target="{x:Bind CommentTextBox}" と指定すると動作しない -->
-            <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <StateTrigger IsActive="{x:Bind NowCommentEditting, Mode=OneWay}" />
             <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{Binding ElementName=CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
             <StateTrigger IsActive="{Binding ElementName=ActionsCommandBar, Path=IsOpen, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind NowVideoPositionChanging, Mode=OneWay}" />
@@ -1175,7 +1185,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <!-- Target="{x:Bind CommentTextBox}" と指定すると動作しない -->
-            <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
+            <StateTrigger IsActive="{x:Bind NowCommentEditting, Mode=OneWay}" />
             <StateTrigger IsActive="{Binding ElementName=PlayerSplitView, Path=IsPaneOpen}" />
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
             <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{Binding ElementName=CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
@@ -1184,7 +1194,7 @@
             <Setter Target="CommentWriteBeginKeyboardTrigger.IsEnabled" Value="False" />
             <Setter Target="PlayPauseToggleKeyboardTrigger.IsEnabled" Value="False" />
             <Setter Target="VideoForwardKeyboardTrigger.IsEnabled" Value="False" />
-            <Setter Target="VideoPreviewKeyboardTrigger.IsEnabled" Value="False" />
+            <Setter Target="VideoBackKeyboardTrigger.IsEnabled" Value="False" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -1192,11 +1202,20 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" />
+            <StateTrigger IsActive="{x:Bind NowCommentEditting, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentWriteExitKeyboardTrigger.IsEnabled" Value="True" />
             <Setter Target="CommentSubmitKeyboardTrigger.IsEnabled" Value="True" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="True" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CommentWriteExitKeyboardTrigger.IsEnabled" Value="False" />
+            <Setter Target="CommentSubmitKeyboardTrigger.IsEnabled" Value="False" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
