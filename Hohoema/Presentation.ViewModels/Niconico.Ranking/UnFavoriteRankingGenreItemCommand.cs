@@ -1,16 +1,15 @@
-﻿using Prism.Commands;
+﻿using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Prism.Ioc;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Hohoema.Presentation.ViewModels.Niconico.Ranking.Messages;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Ranking
 {
-    public sealed class UnFavoriteRankingGenreItemCommand : DelegateCommandBase
+    public sealed class UnFavoriteRankingGenreItemCommand : CommandBase
     {
 
         public UnFavoriteRankingGenreItemCommand()

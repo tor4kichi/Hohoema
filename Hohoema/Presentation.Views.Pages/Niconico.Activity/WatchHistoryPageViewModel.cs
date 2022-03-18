@@ -7,8 +7,8 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using NiconicoToolkit.Video;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using Hohoema.Models.UseCase.Niconico.Video;
 using Microsoft.Extensions.Logging;
 using ZLogger;
+using Reactive.Bindings;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
 {
@@ -46,6 +47,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
             WatchHistoryRemoveAllCommand = watchHistoryRemoveAllCommand;
             SelectionModeToggleCommand = selectionModeToggleCommand;
             Histories = new ObservableCollection<HistoryVideoListItemControlViewModel>();
+
+            NowUpdating = new ReactivePropertySlim<bool>(false)
+                .AddTo(_CompositeDisposable);
         }
 
         private readonly NiconicoSession _niconicoSession;
@@ -59,12 +63,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public ObservableCollection<HistoryVideoListItemControlViewModel> Histories { get; }
 
+        public ReactivePropertySlim<bool> NowUpdating { get; } 
+
 
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
-            if (RefreshCommand.CanExecute())
+            if (RefreshCommand.CanExecute(null))
             {
-                RefreshCommand.Execute();
+                RefreshCommand.Execute(null);
             }
 
 
@@ -96,67 +102,63 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
             base.OnNavigatedTo(parameters);
         }
 
-        private DelegateCommand _RefreshCommand;
-        public DelegateCommand RefreshCommand
-        {
-            get
+        private RelayCommand _RefreshCommand;
+        public RelayCommand RefreshCommand => _RefreshCommand 
+            ??= new RelayCommand(async () =>
             {
-                return _RefreshCommand
-                    ?? (_RefreshCommand = new DelegateCommand(async () =>
+                Histories.Clear();
+
+                NowUpdating.Value = true;
+                try
+                {
+                    var items = await _watchHistoryManager.GetWatchHistoryItemsAsync();
+
+                    foreach (var x in items)
                     {
-                        Histories.Clear();
-                        
                         try
                         {
-                            var items = await _watchHistoryManager.GetWatchHistoryItemsAsync();
+                            var vm = new HistoryVideoListItemControlViewModel(
+                                (x.LastViewedAt ?? DateTimeOffset.Now).DateTime,
+                                (uint)(x.Views ?? 0),
+                                x.Video.Id,
+                                x.Video.Title,
+                                x.Video.Thumbnail.ListingUrl.OriginalString,
+                                TimeSpan.FromSeconds(x.Video.Duration),
+                                x.Video.RegisteredAt.DateTime
+                                );
 
-                            foreach (var x in items)
-                            {                 
-                                try
-                                {
-                                    var vm = new HistoryVideoListItemControlViewModel(
-                                        (x.LastViewedAt ?? DateTimeOffset.Now).DateTime,
-                                        (uint)(x.Views ?? 0),
-                                        x.Video.Id,
-                                        x.Video.Title,
-                                        x.Video.Thumbnail.ListingUrl.OriginalString,
-                                        TimeSpan.FromSeconds(x.Video.Duration),
-                                        x.Video.RegisteredAt.DateTime
-                                        );
+                            vm.ProviderId = x.Video.Owner.Id;
+                            vm.ProviderType = x.Video.Owner.OwnerType switch
+                            {
+                                NiconicoToolkit.Video.OwnerType.User => OwnerType.User,
+                                NiconicoToolkit.Video.OwnerType.Channel => OwnerType.Channel,
+                                _ => OwnerType.Hidden
+                            };
+                            vm.ProviderName = x.Video.Owner.Name;
 
-                                    vm.ProviderId = x.Video.Owner.Id;
-                                    vm.ProviderType = x.Video.Owner.OwnerType switch
-                                    {
-                                        NiconicoToolkit.Video.OwnerType.User => OwnerType.User,
-                                        NiconicoToolkit.Video.OwnerType.Channel => OwnerType.Channel,
-                                        _ => OwnerType.Hidden
-                                    };
-                                    vm.ProviderName = x.Video.Owner.Name;
+                            vm.CommentCount = x.Video.Count.Comment;
+                            vm.ViewCount = x.Video.Count.View;
+                            vm.MylistCount = x.Video.Count.Mylist;
 
-                                    vm.CommentCount = x.Video.Count.Comment;
-                                    vm.ViewCount = x.Video.Count.View;
-                                    vm.MylistCount = x.Video.Count.Mylist;
-
-                                    Histories.Add(vm);
-                                }
-                                catch (Exception e)
-                                {
-                                    _logger.ZLogErrorWithPayload(e, x, "History item process error.");
-                                }
-                            }
+                            Histories.Add(vm);
                         }
                         catch (Exception e)
                         {
-                            _logger.ZLogError(e, "History refresh failed.");
+                            _logger.ZLogErrorWithPayload(e, x, "History item process error.");
                         }
                     }
-                    , () => _niconicoSession.IsLoggedIn
-                    ));
+                }
+                catch (Exception e)
+                {
+                    _logger.ZLogError(e, "History refresh failed.");
+                }
+                finally
+                {
+                    NowUpdating.Value = false;
+                }
             }
-        }
-
-
-
+            , () => _niconicoSession.IsLoggedIn
+            );
     }
 
     

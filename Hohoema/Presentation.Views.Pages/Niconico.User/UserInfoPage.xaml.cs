@@ -12,6 +12,9 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using Hohoema.Presentation.ViewModels.Pages.Niconico.User;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -25,6 +28,10 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.User
 		public UserInfoPage()
 		{
 			this.InitializeComponent();
+
+			DataContext = _vm = Ioc.Default.GetRequiredService<UserInfoPageViewModel>();
 		}
+
+		private readonly UserInfoPageViewModel _vm;
 	}
 }

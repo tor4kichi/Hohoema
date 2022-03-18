@@ -13,8 +13,8 @@ using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.User;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -32,7 +32,7 @@ using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
 {
-    public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -173,13 +173,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
 		}
 
 
-        private DelegateCommand _OpenVideoOwnerUserPageCommand;
-		public DelegateCommand OpenVideoOwnerUserPageCommand
+        private RelayCommand _OpenVideoOwnerUserPageCommand;
+		public RelayCommand OpenVideoOwnerUserPageCommand
 		{
 			get
 			{
 				return _OpenVideoOwnerUserPageCommand
-					?? (_OpenVideoOwnerUserPageCommand = new DelegateCommand(() => 
+					?? (_OpenVideoOwnerUserPageCommand = new RelayCommand(() => 
 					{
 						PageManager.OpenPageWithId(HohoemaPageType.UserInfo, UserId);
 					}));

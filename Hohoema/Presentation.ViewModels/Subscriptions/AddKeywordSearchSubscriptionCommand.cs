@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain.Subscriptions;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Subscriptions
 {
-    public sealed class AddKeywordSearchSubscriptionCommand : DelegateCommandBase
+    public sealed class AddKeywordSearchSubscriptionCommand : CommandBase
     {
         private readonly SubscriptionManager _subscriptionManager;
 

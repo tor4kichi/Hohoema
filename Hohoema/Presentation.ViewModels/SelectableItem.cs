@@ -1,5 +1,5 @@
-﻿using Prism.Commands;
-using Prism.Mvvm;
+﻿using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,13 +23,13 @@ namespace Hohoema.Presentation.ViewModels
 
 		public Action<T> SelectedAction { get; private set; }
 
-		private DelegateCommand _SelectedCommand;
+		private RelayCommand _SelectedCommand;
         public ICommand PrimaryCommand
 		{
 			get
 			{
 				return _SelectedCommand
-					?? (_SelectedCommand = new DelegateCommand(() =>
+					?? (_SelectedCommand = new RelayCommand(() =>
 					{
 						SelectedAction(Source);
 					}));
@@ -37,7 +37,7 @@ namespace Hohoema.Presentation.ViewModels
 		}
 	}
 
-	public class SelectableItem : BindableBase
+	public class SelectableItem : ObservableObject
 	{
 		public SelectableItem(Action selectedAction)
 		{
@@ -46,13 +46,13 @@ namespace Hohoema.Presentation.ViewModels
 
 		public Action SelectedAction { get; private set; }
 
-		private DelegateCommand _SelectedCommand;
-		public DelegateCommand SelectedCommand
+		private RelayCommand _SelectedCommand;
+		public RelayCommand SelectedCommand
 		{
 			get
 			{
 				return _SelectedCommand
-					?? (_SelectedCommand = new DelegateCommand(() =>
+					?? (_SelectedCommand = new RelayCommand(() =>
 					{
 						SelectedAction();
 					}));

@@ -1,4 +1,4 @@
-﻿using Prism.Commands;
+﻿using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Ranking.Messages;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Ranking
 {
-    public sealed class FavoriteRankingGenreItemCommand : DelegateCommandBase
+    public sealed class FavoriteRankingGenreItemCommand : CommandBase
     {
 
         public FavoriteRankingGenreItemCommand()

@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase.Playlist;
 using Microsoft.Toolkit.Mvvm.Messaging;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
-    public sealed class PlaylistPlayAllCommand : DelegateCommandBase
+    public sealed class PlaylistPlayAllCommand : CommandBase
     {
         private readonly IMessenger _messenger;
 

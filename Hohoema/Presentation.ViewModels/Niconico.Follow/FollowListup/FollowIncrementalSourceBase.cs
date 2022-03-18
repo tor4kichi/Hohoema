@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System.Threading;
 using Microsoft.Toolkit.Collections;
 using Hohoema.Models.Domain.Niconico.Follow;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 {
-    public abstract class FollowIncrementalSourceBase<ItemType> : BindableBase, IIncrementalSource<ItemType>
+    public abstract class FollowIncrementalSourceBase<ItemType> : ObservableObject, IIncrementalSource<ItemType>
         where ItemType : IFollowable
     {
         private long _MaxCount;

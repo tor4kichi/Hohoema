@@ -12,7 +12,6 @@ using Hohoema.Presentation.ViewModels.Niconico.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.Views.Flyouts;
 using Hohoema.Presentation.Views.Helpers;
-using Prism.Ioc;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -32,7 +31,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
         static VideoItemsListView()
         {
-            _AppearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();
+            _AppearanceSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
         }
 
         private AppearanceSettings AppearanceSettings => _AppearanceSettings;
@@ -199,19 +198,19 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
             this.InitializeComponent();
 
             // Selection
-            _selectionContext = App.Current.Container.Resolve<VideoItemsSelectionContext>();
-            _niconicoSession = App.Current.Container.Resolve<NiconicoSession>();
-            _localPlaylistManager = App.Current.Container.Resolve<LocalMylistManager>();
-            _mylistManager = App.Current.Container.Resolve<LoginUserOwnedMylistManager>();
-            _queuePlaylist = App.Current.Container.Resolve<QueuePlaylist>();
+            _selectionContext = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoItemsSelectionContext>();
+            _niconicoSession = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NiconicoSession>();
+            _localPlaylistManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
+            _mylistManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LoginUserOwnedMylistManager>();
+            _queuePlaylist = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueuePlaylist>();
 
-            _addQueueCommand = App.Current.Container.Resolve<QueueAddItemCommand>();
-            _removeQueueCommand = App.Current.Container.Resolve<QueueRemoveItemCommand>();
-            _addMylistCommand = App.Current.Container.Resolve<MylistAddItemCommand>();
+            _addQueueCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueAddItemCommand>();
+            _removeQueueCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
+            _addMylistCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistAddItemCommand>();
             _localMylistAddCommand = new LocalPlaylistAddItemCommand();
-            _removeWatchHistoryCommand = App.Current.Container.Resolve<WatchHistoryRemoveItemCommand>();
-            _copyMylistItemCommand = App.Current.Container.Resolve<MylistCopyItemCommand>();
-            _moveMylistItemCommand = App.Current.Container.Resolve<MylistMoveItemCommand>();
+            _removeWatchHistoryCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<WatchHistoryRemoveItemCommand>();
+            _copyMylistItemCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistCopyItemCommand>();
+            _moveMylistItemCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistMoveItemCommand>();
 
             Loaded += VideoItemsListView_Loaded;
             Unloaded += VideoItemsListView_Unloaded;

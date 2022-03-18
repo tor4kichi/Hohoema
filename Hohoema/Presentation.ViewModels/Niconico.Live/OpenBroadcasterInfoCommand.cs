@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase.PageNavigation;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {
-    public sealed class OpenBroadcasterInfoCommand : DelegateCommandBase
+    public sealed class OpenBroadcasterInfoCommand : CommandBase
     {
         public OpenBroadcasterInfoCommand(
             PageManager pageManager

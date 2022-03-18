@@ -11,10 +11,26 @@ using Windows.Devices.Input;
 using Windows.Foundation.Metadata;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Markup;
-using WindowsStateTriggers;
 
 namespace Hohoema.Presentation.Views.StateTrigger
 {
+	/// <summary>
+	/// Implement this interface to be able to observe triggers or use them
+	/// in a <see cref="CompositeStateTrigger"/>.
+	/// </summary>
+	public interface ITriggerValue
+	{
+		/// <summary>
+		/// Gets a value indicating whether this trigger is active.
+		/// </summary>
+		/// <value><c>true</c> if this trigger is active; otherwise, <c>false</c>.</value>
+		bool IsActive { get; }
+		/// <summary>
+		/// Occurs when the <see cref="IsActive"/> property has changed.
+		/// </summary>
+		event EventHandler IsActiveChanged;
+	}
+
 	/// <summary>
 	/// Enables a state based on a collection of other triggers.
 	/// </summary>

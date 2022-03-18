@@ -13,6 +13,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Hohoema.Presentation.Navigations;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -28,7 +30,10 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Live
             this.InitializeComponent();
 
             Loaded += LiveInfomationPage_Loaded;
+            DataContext = _vm = Ioc.Default.GetRequiredService<LiveInfomationPageViewModel>();
         }
+
+        private readonly LiveInfomationPageViewModel _vm;
 
         private void LiveInfomationPage_Loaded(object sender, RoutedEventArgs e)
         {

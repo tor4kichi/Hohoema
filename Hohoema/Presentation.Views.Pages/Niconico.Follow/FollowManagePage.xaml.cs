@@ -12,7 +12,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Prism.Ioc;
 using Hohoema.Presentation.ViewModels.Pages.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico;
@@ -20,6 +19,8 @@ using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Community;
 using Hohoema.Models.Domain.Niconico.Channel;
+using Hohoema.Presentation.Navigations;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -30,12 +31,13 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Follow
 	/// </summary>
 	public sealed partial class FollowManagePage : Page
 	{
-		FollowManagePageViewModel _vm;
 		public FollowManagePage()
 		{
-			DataContext = _vm = App.Current.Container.Resolve<FollowManagePageViewModel>();
 			this.InitializeComponent();
+			DataContext = _vm = Ioc.Default.GetRequiredService<FollowManagePageViewModel>();
 		}
+
+		private readonly FollowManagePageViewModel _vm;
 	}
 
 	public class FollowTypeToSymbolIconConverter : IValueConverter

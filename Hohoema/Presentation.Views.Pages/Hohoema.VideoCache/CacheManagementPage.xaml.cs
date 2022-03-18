@@ -12,6 +12,9 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Hohoema.Presentation.Navigations;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -25,8 +28,11 @@ namespace Hohoema.Presentation.Views.Pages.Hohoema.VideoCache
 		public CacheManagementPage()
 		{
 			this.InitializeComponent();
+			DataContext = _vm = Ioc.Default.GetRequiredService<CacheManagementPageViewModel>();
 		}
-    }
+
+		private readonly CacheManagementPageViewModel _vm;
+	}
 
 
 

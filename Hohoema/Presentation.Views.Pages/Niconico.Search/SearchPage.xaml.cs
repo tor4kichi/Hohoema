@@ -1,5 +1,4 @@
-﻿using Prism.Navigation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,8 +12,10 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Prism.Ioc;
 using Hohoema.Presentation.ViewModels.Pages.Niconico.Search;
+using Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking;
+using Hohoema.Presentation.Navigations;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -25,14 +26,16 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Search
     /// </summary>
     public sealed partial class SearchPage : Page
     {
-        public static IPlatformNavigationService ContentNavigationService { get; private set; }
-        private readonly SearchPageViewModel _viewModel;
+        public static INavigationService ContentNavigationService { get; private set; }
 
         public SearchPage()
         {
             this.InitializeComponent();
 
-            ContentNavigationService = NavigationService.Create(SearchResultFrame, new Gestures[] { });
+            ContentNavigationService = NavigationService.Create(SearchResultFrame);
+            DataContext = _vm = Ioc.Default.GetRequiredService<SearchPageViewModel>();
         }
+
+        private readonly SearchPageViewModel _vm;
     }
 }

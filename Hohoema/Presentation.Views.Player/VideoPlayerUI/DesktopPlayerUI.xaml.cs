@@ -16,7 +16,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Prism.Ioc;
 using System.Reactive.Disposables;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Hohoema.Models.Domain.Application;
@@ -37,7 +36,7 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
 
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
-            _soundVolumeManager = App.Current.Container.Resolve<MediaPlayerSoundVolumeManager>();
+            _soundVolumeManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MediaPlayerSoundVolumeManager>();
             VolumeSlider.Value = _soundVolumeManager.Volume;
 
             CommentTextBox.GotFocus += CommentTextBox_GotFocus;
@@ -55,7 +54,7 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
             MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
 
             _compositeDisposable = new CompositeDisposable();
-            var appearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();
+            var appearanceSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
             appearanceSettings.ObserveProperty(x => x.ApplicationTheme)
                 .Subscribe(theme =>
                 {

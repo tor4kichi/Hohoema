@@ -1,9 +1,9 @@
-﻿using Prism.Mvvm;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 
 namespace Hohoema.Dialogs
 {
-    public abstract class SelectableContainerBase : BindableBase, ISelectableContainer
+    public abstract class SelectableContainerBase : ObservableObject, ISelectableContainer
 	{
 		private bool _IsSelected;
 		public bool IsSelected

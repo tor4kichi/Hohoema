@@ -1,10 +1,10 @@
 ﻿using Hohoema.Models.UseCase.Niconico.Player.Events;
 using Microsoft.Toolkit.Mvvm.Messaging;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
-    public sealed class TogglePlayerDisplayViewCommand : DelegateCommandBase
+    public sealed class TogglePlayerDisplayViewCommand : CommandBase
     {
         private readonly IMessenger _messenger;
 

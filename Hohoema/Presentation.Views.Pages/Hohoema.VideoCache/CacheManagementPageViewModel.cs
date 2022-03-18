@@ -7,10 +7,8 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-//using Hohoema.Models.Helpers;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using Windows.System;
-using Prism.Navigation;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase;
 using I18NPortable;
@@ -30,13 +28,13 @@ using System.Collections.ObjectModel;
 using System.Reactive.Concurrency;
 using Hohoema.Models.UseCase.VideoCache.Events;
 using Microsoft.Toolkit.Mvvm.Messaging;
-using Uno.Extensions;
 using Hohoema.Models.Domain.Niconico;
 using NiconicoToolkit.Video;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
 {
-    public class CacheManagementPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync,
+    public class CacheManagementPageViewModel : HohoemaPageViewModelBase,
         IRecipient<VideoCacheStatusChangedMessage>
     {
         public CacheManagementPageViewModel(
@@ -125,7 +123,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
         public NotificationService NotificationService { get; }
         public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
         public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
-        public DelegateCommand OpenCurrentCacheFolderCommand { get; }
+        public RelayCommand OpenCurrentCacheFolderCommand { get; }
         public DialogService HohoemaDialogService { get; }
 
         public IReadOnlyReactiveProperty<bool> IsLoggedInWithPremiumMember { get; }
@@ -136,13 +134,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
         public IReadOnlyReactiveProperty<long?> MaxCacheStorageSize { get; }
         public IReadOnlyReactiveProperty<double> AvairableStorageSizeNormalized { get; }
 
-        private DelegateCommand _ResumeCacheCommand;
-        public DelegateCommand ResumeCacheCommand
+        private RelayCommand _ResumeCacheCommand;
+        public RelayCommand ResumeCacheCommand
         {
             get
             {
                 return _ResumeCacheCommand
-                    ?? (_ResumeCacheCommand = new DelegateCommand(() =>
+                    ?? (_ResumeCacheCommand = new RelayCommand(() =>
                     {
                         // TODO: バックグラウンドダウンロードの強制更新？
                         //await _MediaManager.StartBackgroundDownload();
@@ -210,7 +208,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
         }
 
 
-        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             HasNoItems = false;
             bool anyItems = false;
@@ -218,7 +216,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.VideoCache
             {
                 var items = await GetCachedItemByStatus(group.CacheStatus);
                 group.Items.Clear();
-                group.Items.AddRange(items);
+                foreach (var item in items)
+                {
+                    group.Items.Add(item);
+                }
 
                 anyItems |= group.Items.Any();
             }

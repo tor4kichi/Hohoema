@@ -9,9 +9,8 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
-using Prism.Commands;
-using Prism.Navigation;
-using Prism.Ioc;
+using Microsoft.Toolkit.Mvvm.Input;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -70,7 +69,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
     }
 
-    public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -331,13 +330,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             private set { SetProperty(ref _LivePageUrl, value); }
         }
 
-        private DelegateCommand<object> _ScriptNotifyCommand;
-        public DelegateCommand<object> ScriptNotifyCommand
+        private RelayCommand<object> _ScriptNotifyCommand;
+        public RelayCommand<object> ScriptNotifyCommand
         {
             get
             {
                 return _ScriptNotifyCommand
-                    ?? (_ScriptNotifyCommand = new DelegateCommand<object>(async (parameter) =>
+                    ?? (_ScriptNotifyCommand = new RelayCommand<object>(async (parameter) =>
                     {
                         Uri url = parameter as Uri ?? (parameter as HyperlinkItem)?.Url;
                         if (url != null)
@@ -383,13 +382,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 
         #region Commands
 
-        private DelegateCommand _TogglePreserveTimeshift;
-        public DelegateCommand TogglePreserveTimeshift
+        private RelayCommand _TogglePreserveTimeshift;
+        public RelayCommand TogglePreserveTimeshift
         {
             get
             {
                 return _TogglePreserveTimeshift
-                    ?? (_TogglePreserveTimeshift = new DelegateCommand(async () => 
+                    ?? (_TogglePreserveTimeshift = new RelayCommand(async () => 
                     {
                         if (!NiconicoSession.IsLoggedIn) { return; }
 
@@ -442,13 +441,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                 if (isDeleted)
                 {
                     // 削除成功
-                    var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                    var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                     notificationService.ShowLiteInAppNotification_Success("InAppNotification_DeletedTimeshift".Translate());
                 }
                 else
                 {
                     // まだ存在するゾイ
-                    var notificationService = App.Current.Container.Resolve<Services.NotificationService>();
+                    var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                     notificationService.ShowLiteInAppNotification_Fail("InAppNotification_FailedDeleteTimeshift".Translate());
 
                     Debug.Fail("タイムシフト削除に失敗しました: " + liveId);
@@ -483,7 +482,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             {
                 // 予約できてるはず
                 // LiveInfoのタイムシフト周りの情報と共に通知
-                var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                 notificationService.ShowLiteInAppNotification_Success("InAppNotification_AddedTimeshiftWithTitle".Translate(liveTitle));
 
                 isAdded = true;
@@ -494,12 +493,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             }
             else if (result.IsReservationDeuplicated)
             {
-                var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                 notificationService.ShowLiteInAppNotification_Success("InAppNotification_ExistTimeshift".Translate());
             }
             else if (result.IsReservationExpired)
             {
-                var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                 notificationService.ShowLiteInAppNotification_Fail("InAppNotification_TimeshiftExpired".Translate());
             }
 
@@ -514,8 +513,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
         public ObservableCollection<HyperlinkItem> DescriptionHyperlinkItems { get; } = new ObservableCollection<HyperlinkItem>();
 
 
-        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            await base.OnNavigatedToAsync(parameters);
+
             LiveId? maybeLiveId = null;
             if (parameters.TryGetValue("id", out string strLiveId))
             {
@@ -671,7 +672,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                     }
                     */
 
-                    RaisePropertyChanged(nameof(DescriptionHyperlinkItems));
+                    OnPropertyChanged(nameof(DescriptionHyperlinkItems));
 
                 }
                 catch
@@ -703,7 +704,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                 _LiveTags.Add(tag);
             }
 
-            RaisePropertyChanged(nameof(LiveTags));
+            OnPropertyChanged(nameof(LiveTags));
         }
 
         async Task RefreshReservationInfo(LiveId liveId)
@@ -752,10 +753,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                 finally
                 {
                     IsEmptyIchibaItems = !_IchibaItems.Any();
-                    RaisePropertyChanged(nameof(IsEmptyIchibaItems));
+                    OnPropertyChanged(nameof(IsEmptyIchibaItems));
 
                     IsIchibaInitialized = true;
-                    RaisePropertyChanged(nameof(IsIchibaInitialized));
+                    OnPropertyChanged(nameof(IsIchibaInitialized));
                 }
             }
         }
@@ -816,10 +817,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                 finally
                 {
                     IsLiveRecommendInitialized = true;
-                    RaisePropertyChanged(nameof(IsLiveRecommendInitialized));
+                    OnPropertyChanged(nameof(IsLiveRecommendInitialized));
 
                     IsEmptyLiveRecommendItems = !_ReccomendItems.Any();
-                    RaisePropertyChanged(nameof(IsEmptyLiveRecommendItems));
+                    OnPropertyChanged(nameof(IsEmptyLiveRecommendItems));
                 }
             }
         }
@@ -837,17 +838,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
         public string Tag { get; set; }
         public LiveTagType Type { get; set; }
 
-        private static DelegateCommand<LiveTagViewModel> _SearchLiveTagCommand;
-        public DelegateCommand<LiveTagViewModel> SearchLiveTagCommand
+        private static RelayCommand<LiveTagViewModel> _SearchLiveTagCommand;
+        public RelayCommand<LiveTagViewModel> SearchLiveTagCommand
         {
             get
             {
                 return _SearchLiveTagCommand
-                    ?? (_SearchLiveTagCommand = new DelegateCommand<LiveTagViewModel>((tagVM) => 
+                    ?? (_SearchLiveTagCommand = new RelayCommand<LiveTagViewModel>((tagVM) => 
                     {
                         if (tagVM != null)
                         {
-                            var pageManager = App.Current.Container.Resolve<PageManager>();
+                            var pageManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
                             pageManager.Search(SearchTarget.Niconama, tagVM.Tag);
                         }
                     }));

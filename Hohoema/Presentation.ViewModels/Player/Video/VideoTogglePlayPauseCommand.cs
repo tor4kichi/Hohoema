@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Playlist;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using Windows.Media.Playback;
 
 namespace Hohoema.Presentation.ViewModels.Player.Video
 {
-    public sealed class VideoTogglePlayPauseCommand : DelegateCommandBase
+    public sealed class VideoTogglePlayPauseCommand : CommandBase
     {
         private readonly HohoemaPlaylistPlayer _playlistPlayer;
         private readonly MediaPlayer _mediaPlayer;

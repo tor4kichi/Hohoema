@@ -21,15 +21,13 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Uno.Extensions;
-using Uno.Threading;
 using Windows.Media.Playback;
 using Windows.System;
 using ZLogger;
 
 namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 {
-    public class VideoCommentPlayer : Prism.Mvvm.BindableBase, IDisposable
+    public class VideoCommentPlayer : ObservableObject, IDisposable
     {
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -51,7 +49,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         public AsyncReactiveCommand CommentSubmitCommand { get; }
         ICommentSession<VideoComment> _commentSession;
 
-        FastAsyncLock _commentUpdateLock = new FastAsyncLock();
+        Models.Helpers.AsyncLock _commentUpdateLock = new Models.Helpers.AsyncLock();
 
         private bool _nowSeekDisabledFromNicoScript;
         public bool NowSeekDisabledFromNicoScript

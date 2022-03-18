@@ -6,8 +6,7 @@ using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -21,16 +20,17 @@ using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.SearchWithPage.Live;
 using System.Collections.ObjectModel;
-using Uno.Extensions;
 using Hohoema.Presentation.ViewModels.Niconico.Live;
 using Hohoema.Models.Domain.Pins;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Live.Timeshift;
 using Microsoft.Extensions.Logging;
+using Hohoema.Presentation.Navigations;
+using Windows.UI.Xaml.Navigation;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
-    public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -132,13 +132,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         #region Commands
 
 
-        private DelegateCommand _ShowSearchHistoryCommand;
-		public DelegateCommand ShowSearchHistoryCommand
+        private RelayCommand _ShowSearchHistoryCommand;
+		public RelayCommand ShowSearchHistoryCommand
 		{
 			get
 			{
 				return _ShowSearchHistoryCommand
-					?? (_ShowSearchHistoryCommand = new DelegateCommand(() =>
+					?? (_ShowSearchHistoryCommand = new RelayCommand(() =>
 					{
 						PageManager.OpenPage(HohoemaPageType.Search);
 					}));
@@ -196,7 +196,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         protected override (int, IIncrementalSource<LiveInfoListItemViewModel>) GenerateIncrementalSource()
 		{
             var query = LiveSearchOptionsQuery.Create(Keyword, SelectedLiveStatus.Value);
-            if (SelectedProviders.Empty() is false)
+            if (SelectedProviders.Any())
             {
                 query.UseProviderTypes(SelectedProviders);
             }
@@ -227,10 +227,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 		}
 
         LiveSearchOptionsQuery _query;
-        DelegateCommand _SearchOptionsUpdatedCommand;
+        RelayCommand _SearchOptionsUpdatedCommand;
         private TimeshiftReservationsDetailResponse _reservation;
 
-        public DelegateCommand SearchOptionsUpdatedCommand => _SearchOptionsUpdatedCommand ??= new DelegateCommand(UpdatedSearchOptions);
+        public RelayCommand SearchOptionsUpdatedCommand => _SearchOptionsUpdatedCommand ??= new RelayCommand(UpdatedSearchOptions);
 
 
         public async void UpdatedSearchOptions()

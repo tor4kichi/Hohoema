@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Hohoema.Models.Domain;
 using System.Collections.ObjectModel;
 using Reactive.Bindings;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System.Reactive.Linq;
 using System.Diagnostics;
 using Reactive.Bindings.Extensions;
@@ -14,7 +14,7 @@ using Hohoema.Models.UseCase;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.PageNavigation;
-using Prism.Navigation;
+using Hohoema.Presentation.Navigations;
 using I18NPortable;
 using Hohoema.Presentation.Views.Pages.Niconico.Search;
 using Hohoema.Presentation.ViewModels.Niconico.Search;
@@ -64,13 +64,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 		public ObservableCollection<SearchHistoryListItemViewModel> SearchHistoryItems { get; private set; } = new ObservableCollection<SearchHistoryListItemViewModel>();
 
 
-		private DelegateCommand _ShowSearchHistoryCommand;
-		public DelegateCommand ShowSearchHistoryCommand
+		private RelayCommand _ShowSearchHistoryCommand;
+		public RelayCommand ShowSearchHistoryCommand
 		{
 			get
 			{
 				return _ShowSearchHistoryCommand
-					?? (_ShowSearchHistoryCommand = new DelegateCommand(() =>
+					?? (_ShowSearchHistoryCommand = new RelayCommand(() =>
 					{
 						PageManager.OpenPage(HohoemaPageType.Search);
 					}));
@@ -78,31 +78,31 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 		}
 
 
-		private DelegateCommand _DeleteAllSearchHistoryCommand;
-		public DelegateCommand DeleteAllSearchHistoryCommand
+		private RelayCommand _DeleteAllSearchHistoryCommand;
+		public RelayCommand DeleteAllSearchHistoryCommand
 		{
 			get
 			{
 				return _DeleteAllSearchHistoryCommand
-					?? (_DeleteAllSearchHistoryCommand = new DelegateCommand(() =>
+					?? (_DeleteAllSearchHistoryCommand = new RelayCommand(() =>
 					{
 						_searchHistoryRepository.Clear();
 
 						SearchHistoryItems.Clear();
-						RaisePropertyChanged(nameof(SearchHistoryItems));
+						OnPropertyChanged(nameof(SearchHistoryItems));
 					},
 					() => _searchHistoryRepository.Count() > 0
 					));
 			}
 		}
 
-		private DelegateCommand<SearchHistoryListItemViewModel> _SearchHistoryItemCommand;
-		public DelegateCommand<SearchHistoryListItemViewModel> SearchHistoryItemCommand
+		private RelayCommand<SearchHistoryListItemViewModel> _SearchHistoryItemCommand;
+		public RelayCommand<SearchHistoryListItemViewModel> SearchHistoryItemCommand
 		{
 			get
 			{
 				return _SearchHistoryItemCommand
-					?? (_SearchHistoryItemCommand = new DelegateCommand<SearchHistoryListItemViewModel>((item) =>
+					?? (_SearchHistoryItemCommand = new RelayCommand<SearchHistoryListItemViewModel>((item) =>
 					{
 						SearchText.Value = item.Keyword;
 						if (DoSearchCommand.CanExecute())
@@ -115,13 +115,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 		}
 
 
-		private DelegateCommand<SearchHistory> _DeleteSearchHistoryItemCommand;
-		public DelegateCommand<SearchHistory> DeleteSearchHistoryItemCommand
+		private RelayCommand<SearchHistory> _DeleteSearchHistoryItemCommand;
+		public RelayCommand<SearchHistory> DeleteSearchHistoryItemCommand
 		{
 			get
 			{
 				return _DeleteSearchHistoryItemCommand
-					?? (_DeleteSearchHistoryItemCommand = new DelegateCommand<SearchHistory>((item) =>
+					?? (_DeleteSearchHistoryItemCommand = new RelayCommand<SearchHistory>((item) =>
 					{
 						_searchHistoryRepository.Remove(item.Keyword, item.Target);
 						var itemVM = SearchHistoryItems.FirstOrDefault(x => x.Keyword == item.Keyword && x.Target == item.Target);
@@ -219,7 +219,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 		    NavigationFailedReason = new ReactiveProperty<string>();
 		}       
 
-        public override async void OnNavigatedTo(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
 			IsNavigationFailed.Value = false;
 			NavigationFailedReason.Value = null;
@@ -254,7 +254,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 				if (pageName != null && keyword != null)
                 {
 					var result = await NavigationService.NavigateAsync(pageName, ("keyword", keyword));
-					if (!result.Success)
+					if (!result.IsSuccess)
 					{
 						throw result.Exception;
 					}
@@ -275,7 +275,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 				Debug.WriteLine(e.ToString());
 			}
 
-			base.OnNavigatedTo(parameters);
+			await base.OnNavigatedToAsync(parameters);
         }
 
         public IObservable<string> GetTitleObservable()

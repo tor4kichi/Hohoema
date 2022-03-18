@@ -13,7 +13,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Prism.Ioc;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -24,7 +23,7 @@ namespace Hohoema.Presentation.Views
         NoUIProcessScreenContext _context;
         public NoUIProcessScreen()
         {
-            DataContext = _context = App.Current.Container.Resolve<NoUIProcessScreenContext>();
+            DataContext = _context = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NoUIProcessScreenContext>();
             this.InitializeComponent();
         }
     }

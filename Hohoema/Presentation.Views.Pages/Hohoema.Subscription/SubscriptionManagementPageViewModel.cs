@@ -1,12 +1,11 @@
 ﻿using I18NPortable;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Subscriptions;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -18,8 +17,6 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Uno.Disposables;
-using Uno.Extensions;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
@@ -32,10 +29,12 @@ using NiconicoToolkit.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Microsoft.Extensions.Logging;
 using ZLogger;
+using Hohoema.Presentation.Navigations;
+using System.Reactive.Disposables;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 {
-    public sealed class SubscriptionManagementPageViewModel : HohoemaPageViewModelBase, INavigationAware, IRecipient<SettingsRestoredMessage>, IDisposable
+    public sealed class SubscriptionManagementPageViewModel : HohoemaPageViewModelBase, IRecipient<SettingsRestoredMessage>, IDisposable
     {
         public ObservableCollection<SubscriptionViewModel> Subscriptions { get; }
 
@@ -86,12 +85,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
                 .Throttle(TimeSpan.FromSeconds(0.25))
                 .Subscribe(_ =>
                 {
-                    Subscriptions.ForEach((index, vm) =>
+                    foreach (var (index, vm) in Subscriptions.Select((x, i) => (i, x)))
                     {
                         var subscEntity = vm._source;
                         subscEntity.SortIndex = index + 1; // 新規追加時に既存アイテムを後ろにずらして表示したいため+1
                         _subscriptionManager.UpdateSubscription(subscEntity);
-                    });
+                    }
                 })
                 .AddTo(_CompositeDisposable);
 
@@ -116,7 +115,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             _subscriptionManager.Removed -= _subscriptionManager_Removed;
             _subscriptionManager.Updated -= _subscriptionManager_Updated;
 
-            Subscriptions.DisposeAllOrLog("subscription ViewModel dispose error.");
+            foreach (var subscription in Subscriptions)
+            {
+                subscription.Dispose();
+            }
 
             base.Dispose();
         }
@@ -185,9 +187,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
         #region PlayAllUnwatched
 
-        private DelegateCommand _PlayAllUnwatchedCommand;
-        public DelegateCommand PlayAllUnwatchedCommand =>
-            _PlayAllUnwatchedCommand ?? (_PlayAllUnwatchedCommand = new DelegateCommand(ExecutePlayAllUnwatchedCommand, CanExecutePlayAllUnwatchedCommand));
+        private RelayCommand _PlayAllUnwatchedCommand;
+        public RelayCommand PlayAllUnwatchedCommand =>
+            _PlayAllUnwatchedCommand ?? (_PlayAllUnwatchedCommand = new RelayCommand(ExecutePlayAllUnwatchedCommand, CanExecutePlayAllUnwatchedCommand));
 
         void ExecutePlayAllUnwatchedCommand()
         {
@@ -203,9 +205,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
         #region AddSubscriptionSource
 
-        private DelegateCommand _AddSubscriptionSourceCommand;
-        public DelegateCommand AddSubscriptionSourceCommand =>
-            _AddSubscriptionSourceCommand ?? (_AddSubscriptionSourceCommand = new DelegateCommand(ExecuteAddSubscriptionSourceCommand, CanExecuteAddSubscriptionSourceCommand));
+        private RelayCommand _AddSubscriptionSourceCommand;
+        public RelayCommand AddSubscriptionSourceCommand =>
+            _AddSubscriptionSourceCommand ?? (_AddSubscriptionSourceCommand = new RelayCommand(ExecuteAddSubscriptionSourceCommand, CanExecuteAddSubscriptionSourceCommand));
 
         void ExecuteAddSubscriptionSourceCommand()
         {
@@ -222,9 +224,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
         CancellationTokenSource _cancellationTokenSource;
 
-        private DelegateCommand _AllUpdateCommand;
-        public DelegateCommand AllUpdateCommand =>
-            _AllUpdateCommand ?? (_AllUpdateCommand = new DelegateCommand(ExecuteAllUpdateCommand));
+        private RelayCommand _AllUpdateCommand;
+        public RelayCommand AllUpdateCommand =>
+            _AllUpdateCommand ?? (_AllUpdateCommand = new RelayCommand(ExecuteAllUpdateCommand));
 
         void ExecuteAllUpdateCommand()
         {
@@ -249,11 +251,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         }
 
 
-        private DelegateCommand _CancelUpdateCommand;
+        private RelayCommand _CancelUpdateCommand;
         private ILogger<SubscriptionManagementPageViewModel> _logger;
 
-        public DelegateCommand CancelUpdateCommand =>
-            _CancelUpdateCommand ?? (_CancelUpdateCommand = new DelegateCommand(ExecuteCancelUpdateCommand));
+        public RelayCommand CancelUpdateCommand =>
+            _CancelUpdateCommand ?? (_CancelUpdateCommand = new RelayCommand(ExecuteCancelUpdateCommand));
 
         void ExecuteCancelUpdateCommand()
         {
@@ -263,7 +265,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
 
 
-    public sealed class SubscriptionViewModel : BindableBase, IDisposable
+    public sealed class SubscriptionViewModel : ObservableObject, IDisposable
     {
         public SubscriptionViewModel(
             ILogger logger,
@@ -327,20 +329,27 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         public void Dispose()
         {
             _disposables.Dispose();
-            Videos.DisposeAll();
+            foreach (var video in Videos)
+            {
+                video.Dispose();
+            }
         }
 
         internal void UpdateFeedResult(IList<NicoVideo> result, DateTime updatedAt)
         {
             Videos.Clear();
 
-            Videos.AddRange(result.Select(x => new VideoListItemControlViewModel(x)));
+            foreach (var video in result.Select(x => new VideoListItemControlViewModel(x)))
+            {
+                Videos.Add(video);
+            }
+
             LastUpdatedAt = updatedAt;
         }
 
-        private DelegateCommand _UpdateCommand;
-        public DelegateCommand UpdateCommand =>
-            _UpdateCommand ?? (_UpdateCommand = new DelegateCommand(ExecuteUpdateCommand));
+        private RelayCommand _UpdateCommand;
+        public RelayCommand UpdateCommand =>
+            _UpdateCommand ?? (_UpdateCommand = new RelayCommand(ExecuteUpdateCommand));
 
         internal async void ExecuteUpdateCommand()
         {
@@ -362,18 +371,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             }
         }
 
-        private DelegateCommand _PlayUnwatchVideosCommand;
-        public DelegateCommand PlayUnwatchVideosCommand =>
-            _PlayUnwatchVideosCommand ?? (_PlayUnwatchVideosCommand = new DelegateCommand(ExecutePlayUnwatchVideosCommandCommand));
+        private RelayCommand _PlayUnwatchVideosCommand;
+        public RelayCommand PlayUnwatchVideosCommand =>
+            _PlayUnwatchVideosCommand ?? (_PlayUnwatchVideosCommand = new RelayCommand(ExecutePlayUnwatchVideosCommandCommand));
 
         void ExecutePlayUnwatchVideosCommandCommand()
         {
 
         }
 
-        private DelegateCommand _OpenSourceVideoListPageCommand;
-        public DelegateCommand OpenSourceVideoListPageCommand =>
-            _OpenSourceVideoListPageCommand ?? (_OpenSourceVideoListPageCommand = new DelegateCommand(ExecuteOpenSourceVideoListPageCommand));
+        private RelayCommand _OpenSourceVideoListPageCommand;
+        public RelayCommand OpenSourceVideoListPageCommand =>
+            _OpenSourceVideoListPageCommand ?? (_OpenSourceVideoListPageCommand = new RelayCommand(ExecuteOpenSourceVideoListPageCommand));
 
         void ExecuteOpenSourceVideoListPageCommand()
         {
@@ -392,9 +401,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         }
 
 
-        private DelegateCommand _DeleteSubscriptionCommand;
-        public DelegateCommand DeleteSubscriptionCommand =>
-            _DeleteSubscriptionCommand ?? (_DeleteSubscriptionCommand = new DelegateCommand(ExecuteDeleteSubscriptionCommand));
+        private RelayCommand _DeleteSubscriptionCommand;
+        public RelayCommand DeleteSubscriptionCommand =>
+            _DeleteSubscriptionCommand ?? (_DeleteSubscriptionCommand = new RelayCommand(ExecuteDeleteSubscriptionCommand));
 
         async void ExecuteDeleteSubscriptionCommand()
         {
@@ -415,9 +424,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
 
 
-        private DelegateCommand _MoveToPreviewCommand;
-        public DelegateCommand MoveToPreviewCommand =>
-            _MoveToPreviewCommand ?? (_MoveToPreviewCommand = new DelegateCommand(ExecuteMoveToPreviewCommand));
+        private RelayCommand _MoveToPreviewCommand;
+        public RelayCommand MoveToPreviewCommand =>
+            _MoveToPreviewCommand ?? (_MoveToPreviewCommand = new RelayCommand(ExecuteMoveToPreviewCommand));
 
         void ExecuteMoveToPreviewCommand()
         {
@@ -432,9 +441,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
 
 
-        private DelegateCommand _MoveToNextCommand;
-        public DelegateCommand MoveToNextCommand =>
-            _MoveToNextCommand ?? (_MoveToNextCommand = new DelegateCommand(ExecuteMoveToNextCommand));
+        private RelayCommand _MoveToNextCommand;
+        public RelayCommand MoveToNextCommand =>
+            _MoveToNextCommand ?? (_MoveToNextCommand = new RelayCommand(ExecuteMoveToNextCommand));
 
         void ExecuteMoveToNextCommand()
         {
@@ -447,9 +456,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         }
 
 
-        private DelegateCommand _MoveToHeadCommand;
-        public DelegateCommand MoveToHeadCommand =>
-            _MoveToHeadCommand ?? (_MoveToHeadCommand = new DelegateCommand(ExecuteMoveToHeadCommand));
+        private RelayCommand _MoveToHeadCommand;
+        public RelayCommand MoveToHeadCommand =>
+            _MoveToHeadCommand ?? (_MoveToHeadCommand = new RelayCommand(ExecuteMoveToHeadCommand));
 
         void ExecuteMoveToHeadCommand()
         {
@@ -460,9 +469,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
 
 
-        private DelegateCommand _MoveToTailCommand;
-        public DelegateCommand MoveToTailCommand =>
-            _MoveToTailCommand ?? (_MoveToTailCommand = new DelegateCommand(ExecuteMoveToTailCommand));
+        private RelayCommand _MoveToTailCommand;
+        public RelayCommand MoveToTailCommand =>
+            _MoveToTailCommand ?? (_MoveToTailCommand = new RelayCommand(ExecuteMoveToTailCommand));
 
         void ExecuteMoveToTailCommand()
         {

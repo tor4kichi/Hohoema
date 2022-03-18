@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico.Search;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Search
 {
-    public sealed class RemoveSearchHistoryCommand : DelegateCommandBase
+    public sealed class RemoveSearchHistoryCommand : CommandBase
     {
         private readonly SearchHistoryRepository _searchHistoryRepository;
 

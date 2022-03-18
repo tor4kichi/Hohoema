@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Hohoema.Models.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Uno.Threading;
 using Windows.UI.Xaml;
 
 namespace Hohoema.Presentation.Views.Extensions
@@ -89,7 +89,7 @@ namespace Hohoema.Presentation.Views.Extensions
             _cts = new CancellationTokenSource();
         }
 
-        static FastAsyncLock _lock = new FastAsyncLock();
+        static AsyncLock _lock = new AsyncLock();
 
         static CancellationTokenSource _cts = new CancellationTokenSource();
         static List<IDeferInitialize> _CancelledItems = new List<IDeferInitialize>();

@@ -1,9 +1,9 @@
 ﻿using Hohoema.Models.UseCase.Niconico.Player.Comment;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {
-    public sealed class NicoLiveUserIdRemoveFromNGCommand : DelegateCommandBase
+    public sealed class NicoLiveUserIdRemoveFromNGCommand : CommandBase
     {
         private readonly CommentFilteringFacade _playerSettings;
 

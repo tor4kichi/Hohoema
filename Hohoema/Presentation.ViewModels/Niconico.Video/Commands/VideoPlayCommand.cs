@@ -5,7 +5,7 @@ using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using NiconicoToolkit.Video;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,7 @@ using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
-    public sealed class VideoPlayWithQueueCommand : DelegateCommandBase
+    public sealed class VideoPlayWithQueueCommand : CommandBase
     {
         private readonly ILogger<VideoPlayWithQueueCommand> _logger;
         private readonly IMessenger _messenger;

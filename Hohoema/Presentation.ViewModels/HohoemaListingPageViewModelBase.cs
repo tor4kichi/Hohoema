@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Helpers;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -12,17 +12,15 @@ using System.Threading.Tasks;
 using System.Threading;
 using Microsoft.Toolkit.Uwp.UI;
 using Windows.UI.Xaml.Data;
-using Prism.Navigation;
 using System.Reactive.Concurrency;
-using Prism.Ioc;
 using Windows.System;
-using Uno.Threading;
 using Hohoema.Models.UseCase;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
-using Uno.Disposables;
 using Microsoft.Extensions.Logging;
 using ZLogger;
+using Windows.UI.Xaml.Navigation;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -160,7 +158,7 @@ namespace Hohoema.Presentation.ViewModels
                 ItemsView.Source = new List<ITEM_VM>();
                 ItemsView.Clear();
                 ItemsView = null;
-                RaisePropertyChanged(nameof(ItemsView));
+                OnPropertyChanged(nameof(ItemsView));
             }
 
             base.Dispose();
@@ -181,16 +179,27 @@ namespace Hohoema.Presentation.ViewModels
 
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
-            if (ItemsView == null)
-            {
-                ResetList();
-            }
-
             base.OnNavigatedTo(parameters);
         }
         
-        public virtual Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            if (ItemsView == null)
+            {
+                try
+                {
+                    ResetList_Internal(NavigationCancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+
+                }
+                catch (Exception e)
+                {
+                    _logger.ZLogError(e, "failed GenerateIncrementalSource.");
+                }                
+            }
+
             return Task.CompletedTask;
         }
 
@@ -205,18 +214,18 @@ namespace Hohoema.Presentation.ViewModels
 
             foreach (var item in acv)
             {
-                item.TryDispose();
+                (item as IDisposable)?.Dispose();
             }
 
-            acv?.Source?.TryDispose();
-            acv.TryDispose();
+            (acv?.Source as IDisposable)?.Dispose();
+            (acv as IDisposable)?.Dispose();
         }
 
         private void ResetList_Internal(CancellationToken ct)
         {
             var prevItemsView = ItemsView;
             ItemsView = null;
-            RaisePropertyChanged(nameof(ItemsView));
+            OnPropertyChanged(nameof(ItemsView));
 
             NowLoading.Value = true;
             HasItem.Value = true;
@@ -237,7 +246,7 @@ namespace Hohoema.Presentation.ViewModels
                 var items = new HohoemaIncrementalLoadingCollection(source, pageSize, BeginLoadingItems, onEndLoading: CompleteLoadingItems, OnLodingItemError);
 
                 ItemsView = new AdvancedCollectionView(items);
-                RaisePropertyChanged(nameof(ItemsView));
+                OnPropertyChanged(nameof(ItemsView));
 
                 PostResetList();
             }
@@ -326,13 +335,13 @@ namespace Hohoema.Presentation.ViewModels
             */
         }
 
-        private DelegateCommand _ResetSortCommand;
-        public DelegateCommand ResetSortCommand
+        private RelayCommand _ResetSortCommand;
+        public RelayCommand ResetSortCommand
         {
             get
             {
                 return _ResetSortCommand
-                    ?? (_ResetSortCommand = new DelegateCommand(() =>
+                    ?? (_ResetSortCommand = new RelayCommand(() =>
                     {
                         ResetSort();
                     }
@@ -340,13 +349,13 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        private DelegateCommand<string> _SortAscendingCommand;
-        public DelegateCommand<string> SortAscendingCommand
+        private RelayCommand<string> _SortAscendingCommand;
+        public RelayCommand<string> SortAscendingCommand
         {
             get
             {
                 return _SortAscendingCommand
-                    ?? (_SortAscendingCommand = new DelegateCommand<string>(propertyName => 
+                    ?? (_SortAscendingCommand = new RelayCommand<string>(propertyName => 
                     {
                         AddSortDescription(new SortDescription(propertyName, SortDirection.Ascending), withReset:true);
                     }
@@ -354,13 +363,13 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
-        private DelegateCommand<string> _SortDescendingCommand;
-        public DelegateCommand<string> SortDescendingCommand
+        private RelayCommand<string> _SortDescendingCommand;
+        public RelayCommand<string> SortDescendingCommand
         {
             get
             {
                 return _SortDescendingCommand
-                    ?? (_SortDescendingCommand = new DelegateCommand<string>(propertyName =>
+                    ?? (_SortDescendingCommand = new RelayCommand<string>(propertyName =>
                     {
                         AddSortDescription(new SortDescription(propertyName, SortDirection.Descending), withReset: true);
                     }
@@ -401,13 +410,13 @@ namespace Hohoema.Presentation.ViewModels
         }
 
         
-        private DelegateCommand _RefreshCommand;
-        public DelegateCommand RefreshCommand
+        private RelayCommand _RefreshCommand;
+        public RelayCommand RefreshCommand
 		{
 			get
 			{
 				return _RefreshCommand
-					?? (_RefreshCommand = new DelegateCommand(() => 
+					?? (_RefreshCommand = new RelayCommand(() => 
 					{
                         ResetList();
                     }));

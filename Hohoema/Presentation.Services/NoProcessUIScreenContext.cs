@@ -1,4 +1,4 @@
-﻿using Prism.Mvvm;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using Windows.Foundation;
 
 namespace Hohoema.Presentation.Services
 {
-    public sealed class NoUIProcessScreenContext : BindableBase, IDisposable
+    public sealed class NoUIProcessScreenContext : ObservableObject, IDisposable
     {
 		public NoUIProcessScreenContext()
 		{

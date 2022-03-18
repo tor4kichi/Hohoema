@@ -3,7 +3,7 @@ using Hohoema.Models.Domain.Niconico.Search;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Navigation.Commands
 {
-    public sealed class SearchCommand : DelegateCommandBase
+    public sealed class SearchCommand : CommandBase
     {
         private readonly PageManager _pageManager;
         private readonly SearchHistoryRepository _searchHistoryRepository;

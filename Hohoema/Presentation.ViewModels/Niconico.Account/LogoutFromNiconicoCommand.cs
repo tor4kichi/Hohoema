@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Niconico;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Account
 {
-    public sealed class LogoutFromNiconicoCommand : DelegateCommandBase
+    public sealed class LogoutFromNiconicoCommand : CommandBase
     {
         public LogoutFromNiconicoCommand(
             NiconicoSession niconicoSession

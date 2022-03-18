@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Helpers;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Share
 {
-    public sealed class OpenShareUICommand : DelegateCommandBase
+    public sealed class OpenShareUICommand : CommandBase
     {
         public OpenShareUICommand(AppearanceSettings appearanceSettings)
         {

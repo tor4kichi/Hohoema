@@ -11,10 +11,9 @@ using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Playlist;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Navigation;
-using Prism.Services;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Hohoema.Presentation.Navigations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -62,7 +61,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
     }
 
 
-    public class PageManager : BindableBase
+    public class PageManager : ObservableObject
     {
         private readonly IMessenger _messenger;
         private readonly ILogger<PageManager> _logger;
@@ -115,9 +114,9 @@ namespace Hohoema.Models.UseCase.PageNavigation
         public bool PreventBackNavigation { get; internal set; }
 
 
-        private DelegateCommand<object> _OpenPageCommand;
-        public DelegateCommand<object> OpenPageCommand => _OpenPageCommand
-            ?? (_OpenPageCommand = new DelegateCommand<object>(parameter =>
+        private RelayCommand<object> _OpenPageCommand;
+        public RelayCommand<object> OpenPageCommand => _OpenPageCommand
+            ?? (_OpenPageCommand = new RelayCommand<object>(parameter =>
             {
                 switch (parameter)
                 {
@@ -200,9 +199,9 @@ namespace Hohoema.Models.UseCase.PageNavigation
             }));
 
 
-        private DelegateCommand<object> _OpenVideoListPageCommand;
-        public DelegateCommand<object> OpenVideoListPageCommand => _OpenVideoListPageCommand
-            ?? (_OpenVideoListPageCommand = new DelegateCommand<object>(parameter =>
+        private RelayCommand<object> _OpenVideoListPageCommand;
+        public RelayCommand<object> OpenVideoListPageCommand => _OpenVideoListPageCommand
+            ?? (_OpenVideoListPageCommand = new RelayCommand<object>(parameter =>
             {
                 switch (parameter)
                 {
@@ -252,9 +251,9 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
 
 
-        private DelegateCommand<object> _OpenContentOwnerPageCommand;
-        public DelegateCommand<object> OpenContentOwnerPageCommand => _OpenContentOwnerPageCommand
-            ?? (_OpenContentOwnerPageCommand = new DelegateCommand<object>(parameter =>
+        private RelayCommand<object> _OpenContentOwnerPageCommand;
+        public RelayCommand<object> OpenContentOwnerPageCommand => _OpenContentOwnerPageCommand
+            ?? (_OpenContentOwnerPageCommand = new RelayCommand<object>(parameter =>
             {
                 switch (parameter)
                 {
@@ -418,7 +417,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
 
         public void OpenPage(HohoemaPageType pageType, string parameterString, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
         {
-            INavigationParameters parameter = new NavigationParameters(parameterString);
+            INavigationParameters parameter = parameterString is not null ? new NavigationParameters(parameterString) : new NavigationParameters();
             OpenPage(pageType, parameter, stackBehavior);
         }
 

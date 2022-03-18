@@ -22,12 +22,6 @@ using Hohoema.Presentation.ViewModels;
 using LiteDB;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Helpers;
-using Prism;
-using Prism.Commands;
-using Prism.Ioc;
-using Prism.Mvvm;
-using Prism.Navigation;
-using Prism.DryIoc;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -68,20 +62,41 @@ using Hohoema.Models.Domain.Player.Comment;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using DryIoc;
-using Prism.Logging;
 using ZLogger;
 using Cysharp.Text;
 using Windows.UI.Core;
 using Microsoft.Toolkit.Mvvm.DependencyInjection;
 using DryIoc.Microsoft.DependencyInjection;
+using Microsoft.Toolkit.Mvvm.Input;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema
 {
+    sealed class ViewLocator : Presentation.Navigations.IViewLocator
+    {
+        public Type ResolveView(string viewName)
+        {
+            return _registory[viewName];
+        }
+
+        public void RegisterForNavigation<T>()
+        {
+            var type = typeof(T);
+            _registory.Add(type.Name, type);
+        }
+
+        private readonly Dictionary<string, Type> _registory = new Dictionary<string, Type>();
+
+        internal Type ResolveViewType(string viewName)
+        {
+            return _registory[viewName];
+        }
+    }
 
     /// <summary>
     /// 既定の Application クラスを補完するアプリケーション固有の動作を提供します。
     /// </summary>
-    sealed partial class App : PrismApplication
+    sealed partial class App : Application
     {
         const bool _DEBUG_XBOX_RESOURCE = false;
 
@@ -95,6 +110,10 @@ namespace Hohoema
 
         internal const string IS_COMPLETE_INTRODUCTION = "is_first_launch";
 
+
+        public new static App Current => (App)Application.Current;
+
+        public Container Container { get; }
 
         /// <summary>
         /// 単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの
@@ -112,235 +131,35 @@ namespace Hohoema
             // ThemeResourceの切り替えはアプリの再起動が必要
             RequestedTheme = GetTheme();
 
+            Container = ConfigureService();
+
             this.InitializeComponent();
         }
 
-        protected override Rules CreateContainerRules()
+
+        private Container ConfigureService()
         {
-            return base.CreateContainerRules()
-                .WithoutThrowOnRegisteringDisposableTransient();
-        }
+            var rules = Rules.Default
+                .WithConcreteTypeDynamicRegistrations((serviceType, serviceKey) => true, Reuse.Singleton)
+                .WithAutoConcreteTypeResolution()
+                .With(Made.Of(FactoryMethod.ConstructorWithResolvableArguments))
+                .WithoutThrowOnRegisteringDisposableTransient()
+                .WithFuncAndLazyWithoutRegistration()
+                .WithDefaultIfAlreadyRegistered(IfAlreadyRegistered.Replace)
+                .WithoutThrowOnRegisteringDisposableTransient()
+                ;
 
-        public override async Task OnStartAsync(StartArgs args)
-        {
-            using var initializeLock = await InitializeLock.LockAsync();
+            var container = new Container(rules);
 
-            if (args.Arguments is LaunchActivatedEventArgs launchArgs)
-            {
-                SplashScreen = launchArgs.SplashScreen;
-#if DEBUG
-                DebugSettings.IsBindingTracingEnabled = true;
-#endif
-                _IsPreLaunch = launchArgs.PrelaunchActivated;
+            RegisterRequiredTypes(container);
+            RegisterTypes(container);
 
-                Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.TrackAppUse(launchArgs);
-            }
-
-            if (args.StartKind == StartKinds.Launch)
-            {
-
-            }
-            else if (args.StartKind == StartKinds.Activate)
-            {
-                await OnActivateApplicationAsync(args.Arguments as IActivatedEventArgs);
-            }
-            else if (args.StartKind == StartKinds.Background)
-            {
-                await BackgroundActivated(args.Arguments as BackgroundActivatedEventArgs);
-            }
-
-            await base.OnStartAsync(args);
-        }
-
-        UIElement CreateShell()
-        {
-
-            // Grid
-            //   |- HohoemaInAppNotification
-            //   |- PlayerWithPageContainerViewModel
-            //   |    |- MenuNavigatePageBaseViewModel
-            //   |         |- rootFrame 
-
-            _primaryWindowCoreLayout = Container.Resolve<PrimaryWindowCoreLayout>();
-            var hohoemaInAppNotification = new Presentation.Views.Controls.HohoemaInAppNotification()
-            {
-                VerticalAlignment = VerticalAlignment.Bottom
-            };
-
-            var grid = new Grid()
-            {
-                Children =
-                {
-                    _primaryWindowCoreLayout,
-                    hohoemaInAppNotification,
-                    new Presentation.Views.NoUIProcessScreen()
-                }
-            };
-
-#pragma warning disable IDISP001 // Dispose created.
-            var unityContainer = Container.GetContainer();
-#pragma warning restore IDISP001 // Dispose created.
-            var primaryWindowContentNavigationService = _primaryWindowCoreLayout.CreateNavigationService();
-            unityContainer.UseInstance(primaryWindowContentNavigationService);
-
-            var primaryViewPlayerNavigationService = _primaryWindowCoreLayout.CreatePlayerNavigationService();
-            var name = "PrimaryPlayerNavigationService";
-            unityContainer.UseInstance(primaryViewPlayerNavigationService, serviceKey: name);
-
-
-#if DEBUG
-            _primaryWindowCoreLayout.FocusEngaged += (__, args) => Debug.WriteLine("focus engagad: " + args.OriginalSource.ToString());
-#endif
-
-            _primaryWindowCoreLayout.IsDebugModeEnabled = IsDebugModeEnabled;
-
-            return grid;
-        }
-
-        public override void RegisterTypes(IContainerRegistry container)
-        {
-            var unityContainer = container.GetContainer();
-
-            //            unityContainer.Register<PrimaryViewPlayerManager>(made: Made.Of().Parameters.Name("navigationServiceLazy", x => new Lazy<INavigationService>(() => unityContainer.Resolve<INavigationService>(serviceKey: "PrimaryPlayerNavigationService"))));
-
-            unityContainer.UseInstance<LocalObjectStorageHelper>(new LocalObjectStorageHelper(new SystemTextJsonSerializer()));
-
-            unityContainer.UseInstance<IMessenger>(WeakReferenceMessenger.Default);
-
-            LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
-            unityContainer.UseInstance<LiteDatabase>(db);
-
-            LiteDatabase thumbDb = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.TemporaryFolder.Path, "thumbnail_cache.db")};");
-            unityContainer.Register<ThumbnailCacheManager>(reuse: new SingletonReuse(), made: Made.Of(() => new ThumbnailCacheManager(thumbDb)));
-
-
-            unityContainer.RegisterDelegate<IPlayerView>(c =>
-            {
-                var appearanceSettings = c.Resolve<AppearanceSettings>();
-                if (appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView)
-                {
-                    return c.Resolve<PrimaryViewPlayerManager>();
-                }
-                else
-                {
-                    return c.Resolve<AppWindowSecondaryViewPlayerManager>();
-                }
-            });
-
-            // MediaPlayerを各ウィンドウごとに一つずつ作るように
-            container.RegisterSingleton<MediaPlayer>();
-
-            // 再生プレイリスト管理のクラスは各ウィンドウごとに一つずつ作成
-            container.RegisterSingleton<HohoemaPlaylistPlayer>();
-
-            // Service
-            container.RegisterSingleton<PageManager>();
-            container.RegisterSingleton<PrimaryViewPlayerManager>();
-            container.RegisterSingleton<SecondaryViewPlayerManager>();
-            container.RegisterSingleton<AppWindowSecondaryViewPlayerManager>();
-            container.RegisterSingleton<NiconicoLoginService>();
-            container.RegisterSingleton<DialogService>();
-            container.RegisterSingleton<INotificationService, NotificationService>();
-            container.RegisterSingleton<NoUIProcessScreenContext>();
-            container.RegisterSingleton<CurrentActiveWindowUIContextService>();
-
-            // Models
-            container.RegisterSingleton<AppearanceSettings>();
-            container.RegisterSingleton<PinSettings>();
-            container.RegisterSingleton<PlayerSettings>();
-            container.RegisterSingleton<VideoFilteringSettings>();
-            container.RegisterSingleton<VideoRankingSettings>();
-            container.RegisterSingleton<NicoRepoSettings>();
-            container.RegisterSingleton<CommentFliteringRepository>();
-            container.RegisterSingleton<QueuePlaylist>();
-
-            container.RegisterSingleton<NicoVideoProvider>();
-
-
-            container.RegisterSingleton<NiconicoSession>();
-            container.RegisterSingleton<NicoVideoSessionOwnershipManager>();
-
-            container.RegisterSingleton<LoginUserOwnedMylistManager>();
-
-            container.RegisterSingleton<SubscriptionManager>();
-
-            container.RegisterSingleton<Models.Domain.VideoCache.VideoCacheManager>();
-            container.RegisterSingleton<Models.Domain.VideoCache.VideoCacheSettings>();
-
-            // UseCase
-            container.RegisterSingleton<VideoCommentPlayer>();
-            container.RegisterSingleton<CommentFilteringFacade>();
-            container.RegisterSingleton<MediaPlayerSoundVolumeManager>();
-            container.RegisterSingleton<LocalMylistManager>();
-            container.RegisterSingleton<VideoItemsSelectionContext>();
-            container.RegisterSingleton<WatchHistoryManager>();
-            container.RegisterSingleton<ApplicationLayoutManager>();
-
-            container.RegisterSingleton<VideoCacheFolderManager>();
-
-            container.RegisterSingleton<IPlaylistFactoryResolver, PlaylistItemsSourceResolver>();
-
-        }
-
-        public class ZDebugLoggerFacade : ILoggerFacade
-        {
-            public ZDebugLoggerFacade(ILogger<App> logger)
-            {
-                _logger = logger;
-            }
-
-
-            public void Log(string message, Category category, Priority priority)
-            {
-                _logger.ZLog(ToLogLevel(category, priority), "{0}: {1}. Priority:{2}. Timestamp:{3}.", CategoryText[(int)category], message, priority, DateTime.Now);
-            }
-
-            private LogLevel ToLogLevel(Category category, Priority priority)
-            {
-                return (category, priority) switch
-                {
-                    (Category.Exception, Priority.High) => LogLevel.Critical,
-                    (Category.Debug, _) => LogLevel.Debug,
-                    (Category.Exception, _) => LogLevel.Error,
-                    (Category.Info, _) => LogLevel.Information,
-                    (Category.Warn, _) => LogLevel.Warning,
-                    _ => LogLevel.None,
-                };
-            }
-
-            private readonly string[] CategoryText = new[]
-            {
-                Category.Debug.ToString().ToUpper(),
-                Category.Exception.ToString().ToUpper(),
-                Category.Info.ToString().ToUpper(),
-                Category.Warn.ToString().ToUpper()
-            };
-            private readonly ILogger _logger;
+            Ioc.Default.ConfigureServices(container);
+            return container;
         }
 
 
-        public class ZFileLoggerFacade : ILoggerFacade
-        {
-            private readonly ILogger _logger;
-
-            public ZFileLoggerFacade(ILogger logger)
-            {
-                _logger = logger;
-            }
-
-            public void Log(string message, Category category, Priority priority)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public class EmptyLoggerFacade : ILoggerFacade
-        {
-            public void Log(string message, Category category, Priority priority)
-            {
-
-            }
-        }
+        private ILoggerFactory _loggerFactory;
 
         public class DebugOutputStream : Stream
         {
@@ -389,14 +208,11 @@ namespace Hohoema
             }
         }
 
-        private ILoggerFactory _loggerFactory;
 
-        protected override void RegisterRequiredTypes(IContainerRegistry containerRegistry)
+        private void RegisterRequiredTypes(IContainer container)
         {
-            base.RegisterRequiredTypes(containerRegistry);
-
             var mainWindowsScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current);
-            containerRegistry.RegisterInstance<IScheduler>(mainWindowsScheduler);
+            container.RegisterInstance<IScheduler>(mainWindowsScheduler);
 
             _loggerFactory = LoggerFactory.Create(builder =>
             {
@@ -436,133 +252,190 @@ namespace Hohoema
             });
 
             var logger = _loggerFactory.CreateLogger<App>();
-            containerRegistry.RegisterInstance<ILoggerFactory>(_loggerFactory);
-            containerRegistry.RegisterInstance<ILogger>(logger);
-            containerRegistry.RegisterInstance<ILogger<App>>(logger);
-#if DEBUG
-            containerRegistry.RegisterSingleton<ILoggerFacade, ZDebugLoggerFacade>();
-#else
-            containerRegistry.RegisterSingleton<ILoggerFacade, EmptyLoggerFacade>();
-#endif
+            container.RegisterInstance<ILoggerFactory>(_loggerFactory);
+            container.RegisterInstance<ILogger>(logger);
+            container.RegisterInstance<ILogger<App>>(logger);
 
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.BlankPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.DebugPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.SettingsPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.LocalMylist.LocalPlaylistPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.LocalMylist.LocalPlaylistManagePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Queue.VideoQueuePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Subscription.SubscriptionManagementPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Hohoema.VideoCache.CacheManagementPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Activity.WatchHistoryPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Channel.ChannelVideoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Community.CommunityPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Community.CommunityVideoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Follow.FollowManagePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Live.LiveInfomationPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Live.TimeshiftPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Mylist.MylistPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Mylist.OwnerMylistManagePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Mylist.UserMylistPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.NicoRepo.NicoRepoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultTagPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultKeywordPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultLivePage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Series.SeriesPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Series.UserSeriesPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.User.UserInfoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.User.UserVideoPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.VideoInfomationPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoRanking.RankingCategoryListPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoRanking.RankingCategoryPage>();
+            ViewLocator viewLocator = new ViewLocator();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.BlankPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.DebugPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.SettingsPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.LocalMylist.LocalPlaylistPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.LocalMylist.LocalPlaylistManagePage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Queue.VideoQueuePage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Subscription.SubscriptionManagementPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.VideoCache.CacheManagementPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Activity.WatchHistoryPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Channel.ChannelVideoPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Community.CommunityPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Community.CommunityVideoPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Follow.FollowManagePage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Live.LiveInfomationPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Live.TimeshiftPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Mylist.MylistPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Mylist.OwnerMylistManagePage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Mylist.UserMylistPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.NicoRepo.NicoRepoPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultTagPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultKeywordPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultLivePage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Series.SeriesPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Series.UserSeriesPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.User.UserInfoPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.User.UserVideoPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.VideoInfomationPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoRanking.RankingCategoryListPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoRanking.RankingCategoryPage>();
 
-            containerRegistry.RegisterForNavigation<Presentation.Views.Player.LivePlayerPage>();
-            containerRegistry.RegisterForNavigation<Presentation.Views.Player.VideoPlayerPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Player.LivePlayerPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Player.VideoPlayerPage>();
+            container.UseInstance<Presentation.Navigations.IViewLocator>(viewLocator);
 
-            Ioc.Default.ConfigureServices(new DryIocServiceProvider(Container.GetContainer(), (type) => false));
+            NavigationService.ViewTypeResolver = (pageName) => viewLocator.ResolveViewType(pageName);
+
+            Ioc.Default.ConfigureServices(Container);
         }
 
-        public bool IsTitleBarCustomized { get; } = DeviceTypeHelper.IsDesktop && InputCapabilityHelper.IsMouseCapable;
 
-        Models.Helpers.AsyncLock InitializeLock = new Models.Helpers.AsyncLock();
-        bool isInitialized = false;
-
-        async Task MigrationProcessAsync()
+        public void RegisterTypes(IContainer container)
         {
-            Type[] migrateTypes = new Type[]
-                {
-                    //typeof(MigrationCommentFilteringSettings),
-                    //typeof(CommentFilteringNGScoreZeroFixture),
-                    //typeof(SettingsMigration_V_0_23_0),
-                    //typeof(SearchPageQueryMigrate_0_26_0),
-                    typeof(VideoCacheDatabaseMigration_V_0_29_0),
-                    typeof(SearchTargetMigration_V_1_1_0),
-                };
+            //            unityContainer.Register<PrimaryViewPlayerManager>(made: Made.Of().Parameters.Name("navigationServiceLazy", x => new Lazy<INavigationService>(() => unityContainer.Resolve<INavigationService>(serviceKey: "PrimaryPlayerNavigationService"))));
 
-            async Task TryMigrationAsync(Type migrateType)
+            container.UseInstance<LocalObjectStorageHelper>(new LocalObjectStorageHelper(new SystemTextJsonSerializer()));
+
+            container.UseInstance<IMessenger>(WeakReferenceMessenger.Default);
+
+            LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
+            container.UseInstance<LiteDatabase>(db);
+
+            LiteDatabase thumbDb = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.TemporaryFolder.Path, "thumbnail_cache.db")};");
+            container.Register<ThumbnailCacheManager>(reuse: new SingletonReuse(), made: Made.Of(() => new ThumbnailCacheManager(thumbDb)));
+
+
+            container.RegisterDelegate<IPlayerView>(c =>
             {
-                var logger = _loggerFactory.CreateLogger(migrateType);
-                try
+                var appearanceSettings = c.Resolve<AppearanceSettings>();
+                if (appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView)
                 {
-                    logger.ZLogInformation("Try migrate: {0}", migrateType.Name);
-                    var migrater = Container.Resolve(migrateType);
-                    if (migrater is IMigrateSync migrateSycn)
-                    {
-                        migrateSycn.Migrate();
-                    }
-                    else if (migrater is IMigrateAsync migrateAsync)
-                    {
-                        await migrateAsync.MigrateAsync();
-                    }
-
-                    logger.ZLogInformation("Migration complete : {0}", migrateType.Name);
+                    return c.Resolve<PrimaryViewPlayerManager>();
                 }
-                catch (Exception e)
+                else
                 {
-                    logger.ZLogError(e.ToString());
-                    logger.ZLogError("Migration failed : {0}", migrateType.Name);
+                    return c.Resolve<AppWindowSecondaryViewPlayerManager>();
                 }
-            }
+            });
 
-            foreach (var migrateType in migrateTypes)
-            {
-                await TryMigrationAsync(migrateType);
-            }
+            // MediaPlayerを各ウィンドウごとに一つずつ作るように
+            container.Register<MediaPlayer>(reuse: new SingletonReuse());
+
+            // 再生プレイリスト管理のクラスは各ウィンドウごとに一つずつ作成
+            container.Register<HohoemaPlaylistPlayer>(reuse: new SingletonReuse());
+
+            // Service
+            container.Register<PageManager>(reuse: new SingletonReuse());
+            container.Register<PrimaryViewPlayerManager>(reuse: new SingletonReuse());
+            container.Register<SecondaryViewPlayerManager>(reuse: new SingletonReuse());
+            container.Register<AppWindowSecondaryViewPlayerManager>(reuse: new SingletonReuse());
+            container.Register<NiconicoLoginService>(reuse: new SingletonReuse());
+            container.Register<DialogService>(reuse: new SingletonReuse());
+            container.Register<INotificationService, NotificationService>(reuse: new SingletonReuse());
+            container.Register<NoUIProcessScreenContext>(reuse: new SingletonReuse());
+            container.Register<CurrentActiveWindowUIContextService>(reuse: new SingletonReuse());
+
+            // Models
+            container.Register<AppearanceSettings>(reuse: new SingletonReuse());
+            container.Register<PinSettings>(reuse: new SingletonReuse());
+            container.Register<PlayerSettings>(reuse: new SingletonReuse());
+            container.Register<VideoFilteringSettings>(reuse: new SingletonReuse());
+            container.Register<VideoRankingSettings>(reuse: new SingletonReuse());
+            container.Register<NicoRepoSettings>(reuse: new SingletonReuse());
+            container.Register<CommentFliteringRepository>(reuse: new SingletonReuse());
+            container.Register<QueuePlaylist>(reuse: new SingletonReuse());
+
+            container.Register<NicoVideoProvider>(reuse: new SingletonReuse());
+
+
+            container.Register<NiconicoSession>(reuse: new SingletonReuse());
+            container.Register<NicoVideoSessionOwnershipManager>(reuse: new SingletonReuse());
+
+            container.Register<LoginUserOwnedMylistManager>(reuse: new SingletonReuse());
+
+            container.Register<SubscriptionManager>(reuse: new SingletonReuse());
+
+            container.Register<Models.Domain.VideoCache.VideoCacheManager>(reuse: new SingletonReuse());
+            container.Register<Models.Domain.VideoCache.VideoCacheSettings>(reuse: new SingletonReuse());
+
+            // UseCase
+            container.Register<VideoCommentPlayer>(reuse: new SingletonReuse());
+            container.Register<CommentFilteringFacade>(reuse: new SingletonReuse());
+            container.Register<MediaPlayerSoundVolumeManager>(reuse: new SingletonReuse());
+            container.Register<LocalMylistManager>(reuse: new SingletonReuse());
+            container.Register<VideoItemsSelectionContext>(reuse: new SingletonReuse());
+            container.Register<WatchHistoryManager>(reuse: new SingletonReuse());
+            container.Register<ApplicationLayoutManager>(reuse: new SingletonReuse());
+
+            container.Register<VideoCacheFolderManager>(reuse: new SingletonReuse());
+
+            container.Register<IPlaylistFactoryResolver, PlaylistItemsSourceResolver>(reuse: new SingletonReuse());
+
         }
 
-        async Task MaintenanceProcessAsync()
+        protected override async void OnLaunched(LaunchActivatedEventArgs args)
         {
-            Type[] maintenanceTypes = new Type[]
-            {
-                typeof(Models.UseCase.Maintenance.VideoThumbnailImageCacheMaintenance),
-            };
+            _IsPreLaunch = args.PrelaunchActivated;
 
-            async Task TryMaintenanceAsync(Type maintenanceType)
-            {
-                var logger = _loggerFactory.CreateLogger(maintenanceType);
+            Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.TrackAppUse(args);
 
-                try
+            await EnsureInitializeAsync();
+            OnInitialized();
+        }
+
+        protected override async void OnActivated(IActivatedEventArgs args)
+        {
+            // 外部から起動した場合にサインイン動作と排他的動作にさせたい
+            // こうしないと再生処理を正常に開始できない
+            if (args.Kind == ActivationKind.ToastNotification)
+            {
+                await EnsureInitializeAsync();
+
+                using (await Container.Resolve<NiconicoSession>().SigninLock.LockAsync())
                 {
-                    logger.ZLogInformation("Try maintenance: {0}", maintenanceType.Name);
-                    var migrater = Container.Resolve(maintenanceType);
-                    if (migrater is Models.UseCase.Maintenance.IMaintenance maintenance)
-                    {
-                        maintenance.Maitenance();
-                    }
-
-                    logger.ZLogInformation("Maintenance complete : {0}", maintenanceType.Name);
+                    await Task.Delay(50);
                 }
-                catch (Exception e)
-                {
-                    logger.ZLogError(e, "Maintenance failed : {0}", maintenanceType.Name);
-                }
-            }
 
-            foreach (var maintenanceType in maintenanceTypes)
-            {
-                await TryMaintenanceAsync(maintenanceType);
+                await Container.Resolve<NavigationTriggerFromExternal>().Process((args as ToastNotificationActivatedEventArgs).Argument);
             }
         }
+
+        protected override async void OnBackgroundActivated(BackgroundActivatedEventArgs args)
+        {
+            var deferral = args.TaskInstance.GetDeferral();
+
+            await EnsureInitializeAsync();
+
+            try
+            {
+                switch (args.TaskInstance.Task.Name)
+                {
+                    case "ToastBackgroundTask":
+                        var details = args.TaskInstance.TriggerDetails as Windows.UI.Notifications.ToastNotificationActionTriggerDetail;
+                        if (details != null)
+                        {                            
+                            string arguments = details.Argument;
+                            var userInput = details.UserInput;
+
+                            await Task.Run(() => Container.Resolve<NavigationTriggerFromExternal>().Process(arguments));
+                        }
+                        break;
+                }
+            }
+            finally
+            {
+                deferral.Complete();
+            }
+        }
+
 
         private async Task EnsureInitializeAsync()
         {
@@ -580,8 +453,7 @@ namespace Hohoema
             // 機能切り替え管理クラスをDIコンテナに登録
             // Xaml側で扱いやすくするためApp.xaml上でインスタンス生成させている
             {
-                var unityContainer = Container.GetContainer();
-                unityContainer.UseInstance(Resources["FeatureFlags"] as FeatureFlags);
+                Container.UseInstance(Resources["FeatureFlags"] as FeatureFlags);
             }
 
             // ローカリゼーション用のライブラリを初期化
@@ -728,26 +600,22 @@ namespace Hohoema
             var mylitManager = Container.Resolve<LoginUserOwnedMylistManager>();
 
             {
-                var unityContainer = Container.GetContainer();
-
-                unityContainer.Resolve<Models.UseCase.Migration.CommentFilteringNGScoreZeroFixture>().Migration();
-
-
+                Container.Resolve<Models.UseCase.Migration.CommentFilteringNGScoreZeroFixture>().Migration();
 
                 // アプリのユースケース系サービスを配置
-                unityContainer.RegisterInstance(unityContainer.Resolve<NotificationCacheVideoDeletedService>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<CheckingClipboardAndNotificationService>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<FollowNotificationAndConfirmListener>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<SubscriptionUpdateManager>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<SyncWatchHistoryOnLoggedIn>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<FeedResultAddToWatchLater>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<LatestSubscriptionVideosNotifier>());
+                Container.RegisterInstance(Container.Resolve<NotificationCacheVideoDeletedService>());
+                Container.RegisterInstance(Container.Resolve<CheckingClipboardAndNotificationService>());
+                Container.RegisterInstance(Container.Resolve<FollowNotificationAndConfirmListener>());
+                Container.RegisterInstance(Container.Resolve<SubscriptionUpdateManager>());
+                Container.RegisterInstance(Container.Resolve<SyncWatchHistoryOnLoggedIn>());
+                Container.RegisterInstance(Container.Resolve<FeedResultAddToWatchLater>());
+                Container.RegisterInstance(Container.Resolve<LatestSubscriptionVideosNotifier>());
 
-                unityContainer.RegisterInstance(unityContainer.Resolve<VideoPlayRequestBridgeToPlayer>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<CloseToastNotificationWhenPlayStarted>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<AutoSkipToPlaylistNextVideoWhenPlayFailed>());
-                
-                unityContainer.RegisterInstance(unityContainer.Resolve<VideoCacheDownloadOperationManager>());
+                Container.RegisterInstance(Container.Resolve<VideoPlayRequestBridgeToPlayer>());
+                Container.RegisterInstance(Container.Resolve<CloseToastNotificationWhenPlayStarted>());
+                Container.RegisterInstance(Container.Resolve<AutoSkipToPlaylistNextVideoWhenPlayFailed>());
+
+                Container.RegisterInstance(Container.Resolve<VideoCacheDownloadOperationManager>());
             }
 
             // バックグラウンドでのトースト通知ハンドリングを初期化
@@ -770,7 +638,7 @@ namespace Hohoema
                             {
                                 new InAppNotificationCommand()
                                 {
-                                    Command = new DelegateCommand(async () =>
+                                    Command = new RelayCommand(async () =>
                                     {
                                         await AppUpdateNotice.ShowReleaseNotePageOnBrowserAsync();
                                     }),
@@ -833,38 +701,150 @@ namespace Hohoema
 
         }
 
-        
 
-        private async Task OnActivateApplicationAsync(IActivatedEventArgs args)
-		{
-            var niconicoSession = Container.Resolve<NiconicoSession>();
 
-            // 外部から起動した場合にサインイン動作と排他的動作にさせたい
-            // こうしないと再生処理を正常に開始できない
-            using (await niconicoSession.SigninLock.LockAsync())
+        private UIElement CreateShell()
+        {
+
+            // Grid
+            //   |- HohoemaInAppNotification
+            //   |- PlayerWithPageContainerViewModel
+            //   |    |- MenuNavigatePageBaseViewModel
+            //   |         |- rootFrame 
+
+            Container.Register<PrimaryWindowCoreLayout>();
+            Container.Register<PrimaryWindowCoreLayoutViewModel>();
+
+            _primaryWindowCoreLayout = Ioc.Default.GetRequiredService<PrimaryWindowCoreLayout>();
+            var hohoemaInAppNotification = new Presentation.Views.Controls.HohoemaInAppNotification()
             {
-                await Task.Delay(50);
+                VerticalAlignment = VerticalAlignment.Bottom
+            };
+
+            var grid = new Grid()
+            {
+                Children =
+                {
+                    _primaryWindowCoreLayout,
+                    hohoemaInAppNotification,
+                    new Presentation.Views.NoUIProcessScreen()
+                }
+            };
+
+#pragma warning disable IDISP001 // Dispose created.
+            var unityContainer = Container;
+#pragma warning restore IDISP001 // Dispose created.
+            var primaryWindowContentNavigationService = _primaryWindowCoreLayout.CreateNavigationService();
+            unityContainer.UseInstance(primaryWindowContentNavigationService);
+
+            var primaryViewPlayerNavigationService = _primaryWindowCoreLayout.CreatePlayerNavigationService();
+            var name = "PrimaryPlayerNavigationService";
+            unityContainer.UseInstance(primaryViewPlayerNavigationService, serviceKey: name);
+
+
+#if DEBUG
+            _primaryWindowCoreLayout.FocusEngaged += (__, args) => Debug.WriteLine("focus engagad: " + args.OriginalSource.ToString());
+#endif
+
+            _primaryWindowCoreLayout.IsDebugModeEnabled = IsDebugModeEnabled;
+
+            return grid;
+        }
+
+       
+
+        public bool IsTitleBarCustomized { get; } = DeviceTypeHelper.IsDesktop && InputCapabilityHelper.IsMouseCapable;
+
+        Models.Helpers.AsyncLock InitializeLock = new Models.Helpers.AsyncLock();
+        bool isInitialized = false;
+
+        async Task MigrationProcessAsync()
+        {
+            Type[] migrateTypes = new Type[]
+                {
+                    //typeof(MigrationCommentFilteringSettings),
+                    //typeof(CommentFilteringNGScoreZeroFixture),
+                    //typeof(SettingsMigration_V_0_23_0),
+                    //typeof(SearchPageQueryMigrate_0_26_0),
+                    typeof(VideoCacheDatabaseMigration_V_0_29_0),
+                    typeof(SearchTargetMigration_V_1_1_0),
+                };
+
+            async Task TryMigrationAsync(Type migrateType)
+            {
+                var logger = _loggerFactory.CreateLogger(migrateType);
+                try
+                {
+                    logger.ZLogInformation("Try migrate: {0}", migrateType.Name);
+                    var migrater = Container.Resolve(migrateType);
+                    if (migrater is IMigrateSync migrateSycn)
+                    {
+                        migrateSycn.Migrate();
+                    }
+                    else if (migrater is IMigrateAsync migrateAsync)
+                    {
+                        await migrateAsync.MigrateAsync();
+                    }
+
+                    logger.ZLogInformation("Migration complete : {0}", migrateType.Name);
+                }
+                catch (Exception e)
+                {
+                    logger.ZLogError(e.ToString());
+                    logger.ZLogError("Migration failed : {0}", migrateType.Name);
+                }
             }
 
-            if (args.Kind == ActivationKind.ToastNotification)
+            foreach (var migrateType in migrateTypes)
             {
-                var toastArgs = args as IActivatedEventArgs as ToastNotificationActivatedEventArgs;
-                var arguments = toastArgs.Argument;
-
-                await Container.Resolve<NavigationTriggerFromExternal>().Process(arguments);
+                await TryMigrationAsync(migrateType);
             }
         }
+
+        async Task MaintenanceProcessAsync()
+        {
+            Type[] maintenanceTypes = new Type[]
+            {
+                typeof(Models.UseCase.Maintenance.VideoThumbnailImageCacheMaintenance),
+            };
+
+            async Task TryMaintenanceAsync(Type maintenanceType)
+            {
+                var logger = _loggerFactory.CreateLogger(maintenanceType);
+
+                try
+                {
+                    logger.ZLogInformation("Try maintenance: {0}", maintenanceType.Name);
+                    var migrater = Container.Resolve(maintenanceType);
+                    if (migrater is Models.UseCase.Maintenance.IMaintenance maintenance)
+                    {
+                        maintenance.Maitenance();
+                    }
+
+                    logger.ZLogInformation("Maintenance complete : {0}", maintenanceType.Name);
+                }
+                catch (Exception e)
+                {
+                    logger.ZLogError(e, "Maintenance failed : {0}", maintenanceType.Name);
+                }
+            }
+
+            foreach (var maintenanceType in maintenanceTypes)
+            {
+                await TryMaintenanceAsync(maintenanceType);
+            }
+        }
+
+       
 
 
         bool _isNavigationStackRestored = false;
 
 
 
-        public override async void OnInitialized()
+        private async void OnInitialized()
         {
             Window.Current.Activate();
-
-            await EnsureInitializeAsync();
 
             // ログイン
             try
@@ -913,124 +893,11 @@ namespace Hohoema
             }
             catch { }
 #endif
-
-
-            base.OnInitialized();
-        }
-
-
-
-        async Task BackgroundActivated(BackgroundActivatedEventArgs args)
-        {
-            var deferral = args.TaskInstance.GetDeferral();
-
-            try
-            {
-                switch (args.TaskInstance.Task.Name)
-                {
-                    case "ToastBackgroundTask":
-                        var details = args.TaskInstance.TriggerDetails as Windows.UI.Notifications.ToastNotificationActionTriggerDetail;
-                        if (details != null)
-                        {
-                            string arguments = details.Argument;
-                            var userInput = details.UserInput;
-
-                            await Task.Run(() => Container.Resolve<NavigationTriggerFromExternal>().Process(arguments));
-                        }
-                        break;
-                }
-            }
-            finally
-            {
-                deferral.Complete();
-            }
-        }
-
-
-
-		
-
-
-#region Page and Application Appiarance
-
-        readonly static Regex ViewToViewModelNameReplaceRegex = new Regex("[^.]+$");
-        public override void ConfigureViewModelLocator()
-        {
-            ViewModelLocationProvider.SetDefaultViewTypeToViewModelTypeResolver(viewType => 
-            {
-                var pageToken = viewType.Name;
-
-                if (pageToken.EndsWith("_TV"))
-                {
-                    pageToken = pageToken.Remove(pageToken.IndexOf("_TV"));
-                }
-                else if (pageToken.EndsWith("_Mobile"))
-                {
-                    pageToken = pageToken.Remove(pageToken.IndexOf("_Mobile"));
-                }
-
-                var viewModelFullName = ViewToViewModelNameReplaceRegex.Replace(viewType.FullName, $"{pageToken}ViewModel")
-                    .Replace(".Views.", ".ViewModels.");
-
-//                var viewModelFullName = string.Format(CultureInfo.InvariantCulture, pageNameWithParameter, pageToken);
-                var viewModelType = Type.GetType(viewModelFullName);
-
-                if (viewModelType == null)
-                {
-                    throw new ArgumentException(
-                        string.Format(CultureInfo.InvariantCulture, pageToken, this.GetType().Namespace + ".ViewModels"),
-                        "pageToken");
-                }
-
-                return viewModelType;
-
-            });
-
-            base.ConfigureViewModelLocator();
         }
 
 
 
 
-        private Type GetPageType(string pageToken)
-        {
-            var layoutManager= Container.Resolve<ApplicationLayoutManager>();
-            
-            Type viewType = null;
-            if (layoutManager.AppLayout == ApplicationLayout.TV)
-            {
-                // pageTokenに対応するXbox表示用のページの型を取得
-                try
-                {
-                    var assemblyQualifiedAppType = this.GetType().AssemblyQualifiedName;
-
-                    var pageNameWithParameter = assemblyQualifiedAppType.Replace(this.GetType().FullName, this.GetType().Namespace + ".Views.{0}Page_TV");
-
-                    var viewFullName = string.Format(CultureInfo.InvariantCulture, pageNameWithParameter, pageToken);
-                    viewType = Type.GetType(viewFullName);
-                }
-                catch { }
-            }
-            else if (layoutManager.AppLayout == ApplicationLayout.Mobile)
-            {
-                try
-                {
-                    var assemblyQualifiedAppType = this.GetType().AssemblyQualifiedName;
-
-                    var pageNameWithParameter = assemblyQualifiedAppType.Replace(this.GetType().FullName, this.GetType().Namespace + ".Views.{0}Page_Mobile");
-
-                    var viewFullName = string.Format(CultureInfo.InvariantCulture, pageNameWithParameter, pageToken);
-                    viewType = Type.GetType(viewFullName);
-                }
-                catch { }
-            }
-
-            return viewType;// ?? base.GetPageType(pageToken);
-        }
-
-
-        
-#endregion
 
 
 #region Multi Window Size Restoring

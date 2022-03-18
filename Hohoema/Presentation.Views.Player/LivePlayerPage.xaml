@@ -15,7 +15,6 @@
       xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" 
       xmlns:myTrigger="using:Hohoema.Presentation.Views.StateTrigger" 
       xmlns:iconPack="using:MahApps.Metro.IconPacks" 
-      xmlns:mvvm="using:Prism.Mvvm"
       xmlns:controls="using:Hohoema.Presentation.Views.Controls" 
       xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector" 
       xmlns:windowsTrigger="using:WindowsStateTriggers" 
@@ -141,9 +140,10 @@
               </mybehavior:KeyboardTrigger.Actions>
             </mybehavior:KeyboardTrigger>
             <!-- キー入力でコメント入力開始 -->
-            <mybehavior:KeyboardTrigger x:Name="CommentWriteBeginKeyboardTrigger">
+            <mybehavior:KeyboardTrigger x:Name="CommentWriteBeginKeyboardTrigger" Key="C">
               <mybehavior:KeyboardTrigger.Actions>
-                <mybehavior:SetFocus TargetObject="{x:Bind CommentTextBox}" Delay="00:00:00.25" />
+                <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="True" />
+                <mybehavior:SetFocus TargetObject="{x:Bind CommentTextBox}" Delay="0:0:0.10" />
               </mybehavior:KeyboardTrigger.Actions>
             </mybehavior:KeyboardTrigger>
             <mybehavior:MouseWheelTrigger>
@@ -533,7 +533,11 @@
                           </mybehavior:KeyboardTrigger.Actions>
                         </mybehavior:KeyboardTrigger>
                         <core:EventTriggerBehavior EventName="GotFocus">
+                          <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="NowCommentEditting" Value="True" />
                           <core:CallMethodAction TargetObject="{x:Bind CommentTextBox}" MethodName="SelectAll" />
+                        </core:EventTriggerBehavior>
+                        <core:EventTriggerBehavior EventName="LostFocus">
+                          <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="NowCommentEditting" Value="False" />
                         </core:EventTriggerBehavior>
                       </i:Interaction.Behaviors>
                     </TextBox>
@@ -770,7 +774,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <!-- Target="{x:Bind CommentTextBox}" と指定すると動作しない -->
-            <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" />
+            <StateTrigger IsActive="{x:Bind NowCommentEditting, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind ActionsCommandBar.IsOpen, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind NowVideoPositionChanging, Mode=OneWay}" />
             <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
@@ -886,7 +890,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <!-- Target="{x:Bind CommentTextBox}" と指定すると動作しない -->
-            <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />
+            <StateTrigger IsActive="{x:Bind NowCommentEditting, Mode=OneWay}" />
             <StateTrigger IsActive="{Binding ElementName=PlayerSplitView, Path=IsPaneOpen}" />
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}"/>
             <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{Binding ElementName=CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind PageRoot}" />

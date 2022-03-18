@@ -3,14 +3,14 @@ using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Models.Domain.Niconico.User;
 using Hohoema.Models.Domain.Niconico.Video;
 using NiconicoToolkit.Video;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using Windows.UI.Popups;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
-    public sealed class HiddenVideoOwnerAddCommand : DelegateCommandBase
+    public sealed class HiddenVideoOwnerAddCommand : CommandBase
     {
         public HiddenVideoOwnerAddCommand(
             VideoFilteringSettings ngSettings,

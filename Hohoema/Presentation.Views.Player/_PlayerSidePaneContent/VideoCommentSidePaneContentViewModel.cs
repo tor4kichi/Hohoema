@@ -1,8 +1,8 @@
 ﻿using Microsoft.Toolkit.Uwp.UI;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Presentation.Services;
-using Prism.Commands;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ using Hohoema.Models.UseCase.Niconico.Player.Comment;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {
-    public sealed class VideoCommentSidePaneContentViewModel : BindableBase, IDisposable
+    public sealed class VideoCommentSidePaneContentViewModel : ObservableObject, IDisposable
     {
         public CommentFilteringFacade CommentFiltering { get; }
 
@@ -80,9 +80,9 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         private readonly DialogService _dialogService;
 
 
-        private DelegateCommand _ClearFilteringCommentUserIdOnCurrentVideoCommand;
-        public DelegateCommand ClearFilteringCommentUserIdOnCurrentVideoCommand => _ClearFilteringCommentUserIdOnCurrentVideoCommand
-            ?? (_ClearFilteringCommentUserIdOnCurrentVideoCommand = new DelegateCommand(() => 
+        private RelayCommand _ClearFilteringCommentUserIdOnCurrentVideoCommand;
+        public RelayCommand ClearFilteringCommentUserIdOnCurrentVideoCommand => _ClearFilteringCommentUserIdOnCurrentVideoCommand
+            ?? (_ClearFilteringCommentUserIdOnCurrentVideoCommand = new RelayCommand(() => 
             {
                 var currentVideoComments = CommentPlayer.Comments.ToArray().Select(x => x.UserId).Distinct();
 

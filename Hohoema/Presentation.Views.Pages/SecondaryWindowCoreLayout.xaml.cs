@@ -2,8 +2,7 @@
 using Hohoema.Models.Domain.Notification;
 using Hohoema.Presentation.Services;
 using Microsoft.Toolkit.Mvvm.Messaging;
-using Prism.Ioc;
-using Prism.Navigation;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Reactive.Disposables;
@@ -24,17 +23,10 @@ namespace Hohoema.Presentation.Views.Pages
             this.InitializeComponent();
 
            
-            _CurrentActiveWindowUIContextService = App.Current.Container.Resolve<Services.CurrentActiveWindowUIContextService>();
+            _CurrentActiveWindowUIContextService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.CurrentActiveWindowUIContextService>();
 
             Loaded += SecondaryViewCoreLayout_Loaded;
             Unloaded += SecondaryViewCoreLayout_Unloaded;
-
-            ContentFrame.Navigated += ContentFrame_Navigated;
-        }
-
-        private void ContentFrame_Navigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
-        {
-            ContentFrame.BackStack.Clear();
         }
 
         CompositeDisposable _disposables;
@@ -45,13 +37,12 @@ namespace Hohoema.Presentation.Views.Pages
         {
             _disposables.Dispose();
 
-            NavigationService.Instances.Remove(ContentFrame);
             WeakReferenceMessenger.Default.Unregister<LiteNotificationMessage>(this);
         }
 
         private void SecondaryViewCoreLayout_Loaded(object sender, RoutedEventArgs e)
         {
-            var appearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();           
+            var appearanceSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();           
             _disposables = new CompositeDisposable(new[] 
             {
                 appearanceSettings.ObserveProperty(x => x.ApplicationTheme)

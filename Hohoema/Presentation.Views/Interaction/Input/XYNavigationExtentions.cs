@@ -22,7 +22,7 @@ namespace Hohoema.Presentation.Views.Behaviors
                 "FocusAcceptOrientation",
                 typeof(Orientation),
                 typeof(XYNavigationExtentions),
-                new PropertyMetadata(null, OnFocusAcceptOrientatiRaisePropertyChanged)
+                new PropertyMetadata(null, OnFocusAcceptOrientatiOnPropertyChanged)
         );
 
         public static void SetFocusAcceptOrientation(UIElement element, Orientation value)
@@ -35,7 +35,7 @@ namespace Hohoema.Presentation.Views.Behaviors
         }
 
 
-        public static void OnFocusAcceptOrientatiRaisePropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+        public static void OnFocusAcceptOrientatiOnPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
         {
             // UIElement.GettingFocus is need UAC 4.0
             if (!ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))

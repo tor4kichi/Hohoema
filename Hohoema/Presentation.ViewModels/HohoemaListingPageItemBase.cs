@@ -1,7 +1,8 @@
 ﻿
 using Hohoema.Models.Domain;
-using Prism.Commands;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ using Windows.UI;
 
 namespace Hohoema.Presentation.ViewModels
 {
-    public class Selectable : Prism.Mvvm.BindableBase
+    public class Selectable : ObservableObject
     {
         private bool _IsSelected;
         public bool IsSelected
@@ -47,7 +48,7 @@ namespace Hohoema.Presentation.ViewModels
             {
                 if (SetProperty(ref _Label, value))
                 {
-                    RaisePropertyChanged(nameof(HasTitle));
+                    OnPropertyChanged(nameof(HasTitle));
                 }
             }
         }
@@ -61,7 +62,7 @@ namespace Hohoema.Presentation.ViewModels
             {
                 if (SetProperty(ref _Description, value))
                 {
-                    RaisePropertyChanged(nameof(HasDescription));
+                    OnPropertyChanged(nameof(HasDescription));
                 }
             }
         }
@@ -75,7 +76,7 @@ namespace Hohoema.Presentation.ViewModels
             {
                 if (SetProperty(ref _OptionText, value))
                 {
-                    RaisePropertyChanged(nameof(HasOptionText));
+                    OnPropertyChanged(nameof(HasOptionText));
                 }
             }
         }
@@ -93,7 +94,7 @@ namespace Hohoema.Presentation.ViewModels
             {
                 if (SetProperty(ref _ImageCaption, value))
                 {
-                    RaisePropertyChanged(nameof(HasImageCaption));
+                    OnPropertyChanged(nameof(HasImageCaption));
                 }
             }
         }
@@ -142,9 +143,9 @@ namespace Hohoema.Presentation.ViewModels
         protected void AddImageUrl(string url)
         {
             ImageUrlsSource.Add(url);
-            RaisePropertyChanged(nameof(FirstImageUrl));
-            RaisePropertyChanged(nameof(HasImageUrl));
-            RaisePropertyChanged(nameof(IsMultipulImages));
+            OnPropertyChanged(nameof(FirstImageUrl));
+            OnPropertyChanged(nameof(HasImageUrl));
+            OnPropertyChanged(nameof(IsMultipulImages));
         }
 
         public HohoemaListingPageItemBase()

@@ -8,7 +8,7 @@ using Hohoema.Presentation.ViewModels.VideoListPage;
 using NiconicoToolkit;
 using NiconicoToolkit.Recommend;
 using NiconicoToolkit.Video;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -40,7 +40,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         private readonly PageManager _pageManager;
         private readonly RelatedVideoContentsAggregator _relatedVideoContentsAggregator;
 
-        public DelegateCommand<object> OpenMylistCommand { get; }
+        public RelayCommand<object> OpenMylistCommand { get; }
         public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
         public List<VideoListItemControlViewModel> Videos { get; private set; }
@@ -68,11 +68,11 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         {
             CurrentVideo?.Dispose();
             CurrentVideo = null;
-            RaisePropertyChanged(nameof(CurrentVideo));
+            OnPropertyChanged(nameof(CurrentVideo));
 
             NextVideo?.Dispose();
             NextVideo = null;
-            RaisePropertyChanged(nameof(NextVideo));
+            OnPropertyChanged(nameof(NextVideo));
 
 
             if (Videos != null)
@@ -82,7 +82,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                     item.Dispose();
                 }
                 Videos.Clear();
-                RaisePropertyChanged(nameof(Videos));
+                OnPropertyChanged(nameof(Videos));
             }
 
             _IsInitialized = false;
@@ -91,7 +91,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         public async Task InitializeRelatedVideos(INicoVideoDetails currentVideo)
         {
             NowLoading = true;
-            RaisePropertyChanged(nameof(NowLoading));
+            OnPropertyChanged(nameof(NowLoading));
             try
             {
                 using (var releaser = await _InitializeLock.LockAsync())
@@ -103,23 +103,23 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
                     CurrentVideo?.Dispose();
                     CurrentVideo = new VideoListItemControlViewModel(currentVideo);
-                    RaisePropertyChanged(nameof(CurrentVideo));
+                    OnPropertyChanged(nameof(CurrentVideo));
 
                     Videos = result.OtherVideos;
-                    RaisePropertyChanged(nameof(Videos));
+                    OnPropertyChanged(nameof(Videos));
 
                     if (currentVideo.Series?.Video.Next is not null and NvapiVideoItem nextSeriesVideo)
                     {
                         NextVideo?.Dispose();
                         NextVideo = new VideoListItemControlViewModel(nextSeriesVideo);
-                        RaisePropertyChanged(nameof(NextVideo));
+                        OnPropertyChanged(nameof(NextVideo));
                     }
                 }
             }
             finally
             {
                 NowLoading = false;
-                RaisePropertyChanged(nameof(NowLoading));
+                OnPropertyChanged(nameof(NowLoading));
             }
         }
     }

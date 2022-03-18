@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Hohoema.Presentation.Navigations;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -25,6 +28,9 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Mylist
         public OwnerMylistManagePage()
         {
             this.InitializeComponent();
+            DataContext = _vm = Ioc.Default.GetRequiredService<OwnerMylistManagePageViewModel>();
         }
+
+        private readonly OwnerMylistManagePageViewModel _vm;
     }
 }

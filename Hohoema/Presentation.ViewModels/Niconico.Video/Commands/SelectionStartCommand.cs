@@ -1,17 +1,16 @@
-﻿using Prism.Commands;
+﻿using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Prism.Ioc;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Niconico.Video;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
-    public sealed class SelectionStartCommand : DelegateCommandBase
+    public sealed class SelectionStartCommand : CommandBase
     {
         protected override bool CanExecute(object parameter)
         {
@@ -20,7 +19,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
         protected override void Execute(object parameter)
         {
-            var selectionContext = App.Current.Container.Resolve<VideoItemsSelectionContext>();
+            var selectionContext = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoItemsSelectionContext>();
             selectionContext.StartSelection(parameter as IVideoContent);
         }
     }

@@ -6,8 +6,8 @@ using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Mvvm.Messaging.Messages;
 using NiconicoToolkit.Likes;
-using Prism.Commands;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
@@ -30,7 +30,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Likes
         }
     }
 
-    public sealed class VideoLikesContext : BindableBase, IRecipient<LikesChangedMessage>
+    public sealed class VideoLikesContext : ObservableObject, IRecipient<LikesChangedMessage>
     {
         public static readonly VideoLikesContext Default = new VideoLikesContext();
 

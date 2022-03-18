@@ -1,9 +1,9 @@
-﻿using Prism.Mvvm;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System.Text.Json;
 
 namespace Hohoema.Models.UseCase.PageNavigation
 {
-    public abstract class PagePayloadBase : BindableBase
+    public abstract class PagePayloadBase : ObservableObject
 	{
 		public string ToParameterString()
 		{

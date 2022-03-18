@@ -14,15 +14,16 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Prism.Ioc;
 using Hohoema.Presentation.ViewModels;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Hohoema.Models.Domain;
 using Reactive.Bindings.Extensions;
 using NiconicoToolkit.Live.WatchSession;
 using Hohoema.Models.Domain.Application;
-using Uno.Disposables;
 using Hohoema.Presentation.ViewModels.Player;
+using System.Reactive.Disposables;
+using Hohoema.Presentation.Navigations;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -36,41 +37,43 @@ namespace Hohoema.Presentation.Views.Player
 
         CompositeDisposable _compositeDisposable;
 
+
+        public bool NowCommentEditting
+        {
+            get { return (bool)GetValue(NowCommentEdittingProperty); }
+            set { SetValue(NowCommentEdittingProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for NowCommentEditting.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty NowCommentEdittingProperty =
+            DependencyProperty.Register("NowCommentEditting", typeof(bool), typeof(LivePlayerPage), new PropertyMetadata(false));
+
+
+
+
+
         public LivePlayerPage()
         {
             this.InitializeComponent();
 
-            _mediaPlayer = App.Current.Container.Resolve<MediaPlayer>();
+            _UIdispatcher = Dispatcher;
+            DataContext = _vm = Ioc.Default.GetRequiredService<LivePlayerPageViewModel>();
+            _mediaPlayer = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<MediaPlayer>();
+
             _mediaPlayer.VolumeChanged += OnMediaPlayerVolumeChanged;
             VolumeSlider.Value = _mediaPlayer.Volume;
-            VolumeSlider.ValueChanged += VolumeSlider_ValueChanged;
-
-            _UIdispatcher = Dispatcher;
-
-            
+            VolumeSlider.ValueChanged += VolumeSlider_ValueChanged;            
             Loaded += LivePlayerPage_Loaded;
             Unloaded += LivePlayerPage_Unloaded;
-
-            DataContextChanged += OnDataContextChanged;
         }
 
-        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
-        {
-            var oldViewModel = _vm;
-            _vm = args.NewValue as LivePlayerPageViewModel;
-            if (args.NewValue != null && args.NewValue != oldViewModel)
-            {
-                this.Bindings.Update();
-            }
-        }
-
-        private LivePlayerPageViewModel _vm { get; set; }
+        private readonly LivePlayerPageViewModel _vm;
 
 
         private void LivePlayerPage_Loaded(object sender, RoutedEventArgs e)
         {
             _compositeDisposable = new CompositeDisposable();
-            var appearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();
+            var appearanceSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
             appearanceSettings.ObserveProperty(x => x.ApplicationTheme)
                 .Subscribe(theme =>
                 {

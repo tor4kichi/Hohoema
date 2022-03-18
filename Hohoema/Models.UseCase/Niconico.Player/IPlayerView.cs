@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain.Playlist;
-using Prism.Navigation;
+using Hohoema.Presentation.Navigations;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;

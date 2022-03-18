@@ -1,4 +1,4 @@
-﻿using Prism.Mvvm;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.Views.Player.DownloadProgress
 {
-	public class ProgressFragment : BindableBase
+	public class ProgressFragment : ObservableObject
 	{
 		public ProgressFragment(double invertedTotalSize, uint start, uint end)
 		{

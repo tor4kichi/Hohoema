@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.UseCase.Niconico.Video;
 using Hohoema.Models.UseCase.Playlist;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
-    public sealed class WatchHistoryRemoveAllCommand : DelegateCommandBase
+    public sealed class WatchHistoryRemoveAllCommand : CommandBase
     {
         private readonly WatchHistoryManager _watchHistoryManager;
 

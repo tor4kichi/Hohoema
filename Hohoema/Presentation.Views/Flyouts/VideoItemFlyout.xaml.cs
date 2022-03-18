@@ -1,6 +1,5 @@
 ﻿using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml;
-using Prism.Ioc;
 using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.Player.Video.Cache;
@@ -11,8 +10,7 @@ using System.Linq;
 using Hohoema.Presentation.Views.Helpers;
 using I18NPortable;
 using System;
-using Prism.Commands;
-using Uno.Extensions.Specialized;
+using Microsoft.Toolkit.Mvvm.Input;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Domain.Playlist;
@@ -32,6 +30,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Video;
 using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using Microsoft.Toolkit.Mvvm.Messaging;
+using Hohoema.Presentation.ViewModels;
 
 namespace Hohoema.Presentation.Views.Flyouts
 {
@@ -101,22 +100,22 @@ namespace Hohoema.Presentation.Views.Flyouts
 
         static VideoItemFlyout()
         {
-            QueuePlaylist = App.Current.Container.Resolve<QueuePlaylist>();
-            _messenger = App.Current.Container.Resolve<IMessenger>();
-            CreateMylistCommand = App.Current.Container.Resolve<MylistCreateCommand>();
-            CreateLocalMylistCommand = App.Current.Container.Resolve<LocalPlaylistCreateCommand>();
-            PageManager = App.Current.Container.Resolve<PageManager>();
-            UserMylistManager = App.Current.Container.Resolve<LoginUserOwnedMylistManager>();
-            LocalMylistManager = App.Current.Container.Resolve<LocalMylistManager>();
-            SubscriptionManager = App.Current.Container.Resolve<SubscriptionManager>();
-            VideoCacheManager = App.Current.Container.Resolve<VideoCacheManager>();
-            VideoItemsSelectionContext = App.Current.Container.Resolve<VideoItemsSelectionContext>();
-            VideoFilteringSettings = App.Current.Container.Resolve<VideoFilteringSettings>();
+            QueuePlaylist = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueuePlaylist>();
+            _messenger = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IMessenger>();
+            CreateMylistCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistCreateCommand>();
+            CreateLocalMylistCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalPlaylistCreateCommand>();
+            PageManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
+            UserMylistManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LoginUserOwnedMylistManager>();
+            LocalMylistManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
+            SubscriptionManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SubscriptionManager>();
+            VideoCacheManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoCacheManager>();
+            VideoItemsSelectionContext = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoItemsSelectionContext>();
+            VideoFilteringSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
 
-            OpenLinkCommand = App.Current.Container.Resolve<OpenLinkCommand>();
-            CopyToClipboardCommand = App.Current.Container.Resolve<CopyToClipboardCommand>();
-            CopyToClipboardWithShareTextCommand = App.Current.Container.Resolve<CopyToClipboardWithShareTextCommand>();
-            OpenShareUICommand = App.Current.Container.Resolve<OpenShareUICommand>();
+            OpenLinkCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenLinkCommand>();
+            CopyToClipboardCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CopyToClipboardCommand>();
+            CopyToClipboardWithShareTextCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CopyToClipboardWithShareTextCommand>();
+            OpenShareUICommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenShareUICommand>();
         }
 
 
@@ -126,9 +125,9 @@ namespace Hohoema.Presentation.Views.Flyouts
 
             SelectedVideoItems = new List<IVideoContent>();
 
-            RemoveWatchHisotryItem.Command = App.Current.Container.Resolve<WatchHistoryRemoveItemCommand>();
-            AddWatchAfter.Command = App.Current.Container.Resolve<QueueAddItemCommand>();
-            RemoveWatchAfter.Command = App.Current.Container.Resolve<QueueRemoveItemCommand>();
+            RemoveWatchHisotryItem.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<WatchHistoryRemoveItemCommand>();
+            AddWatchAfter.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueAddItemCommand>();
+            RemoveWatchAfter.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
 
             OpenVideoInfoPage.Command = PageManager.OpenPageCommand;
             OpenOwnerMylistsPage.Command = new OpenPageWithIdCommand(HohoemaPageType.UserMylist, PageManager);
@@ -139,16 +138,16 @@ namespace Hohoema.Presentation.Views.Flyouts
             CopyVideoLink.Command = CopyToClipboardCommand;
             CopyShareText.Command = CopyToClipboardWithShareTextCommand;
 
-            LocalMylistItem.Command = App.Current.Container.Resolve<LocalPlaylistAddItemCommand>();
-            AddToMylistItem.Command = App.Current.Container.Resolve<MylistAddItemCommand>();
+            LocalMylistItem.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalPlaylistAddItemCommand>();
+            AddToMylistItem.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistAddItemCommand>();
 
-            AddSusbcriptionItem.Command = App.Current.Container.Resolve<AddSubscriptionCommand>();
+            AddSusbcriptionItem.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AddSubscriptionCommand>();
 
-            CacheRequest.Command = App.Current.Container.Resolve<CacheAddRequestCommand>();
-            DeleteCacheRequest.Command = App.Current.Container.Resolve<CacheDeleteRequestCommand>();
+            CacheRequest.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CacheAddRequestCommand>();
+            DeleteCacheRequest.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CacheDeleteRequestCommand>();
 
-            AddNgUser.Command = App.Current.Container.Resolve<HiddenVideoOwnerAddCommand>();
-            RemoveNgUser.Command = App.Current.Container.Resolve<HiddenVideoOwnerRemoveCommand>();
+            AddNgUser.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<HiddenVideoOwnerAddCommand>();
+            RemoveNgUser.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<HiddenVideoOwnerRemoveCommand>();
 
             Opening += VideoItemFlyout_Opening;
         }
@@ -309,11 +308,11 @@ namespace Hohoema.Presentation.Views.Flyouts
                 var notCachedToVisible = (canNewDownloadCache && anyItemsNotCached).ToVisibility();
                 CacheRequest.Visibility = notCachedToVisible;
                 CacheRequest.CommandParameter = dataContext;
-                (CacheRequest.Command as DelegateCommandBase).RaiseCanExecuteChanged();
+                (CacheRequest.Command as CommandBase).NotifyCanExecuteChanged();
 
                 CacheRequestWithQuality.Visibility = notCachedToVisible;
                 DeleteCacheRequest.CommandParameter = dataContext;
-                (DeleteCacheRequest.Command as DelegateCommandBase).RaiseCanExecuteChanged();
+                (DeleteCacheRequest.Command as CommandBase).NotifyCanExecuteChanged();
 
                 var cachedToVisible = (anyItemsCached).ToVisibility();
                 DeleteCacheRequest.Visibility = cachedToVisible;
@@ -344,7 +343,7 @@ namespace Hohoema.Presentation.Views.Flyouts
             {
                 foreach (var quality in Enum.GetValues(typeof(NicoVideoQuality)).Cast<NicoVideoQuality>().Where(x => x != NicoVideoQuality.Unknown))
                 {
-                    var command = App.Current.Container.Resolve<CacheAddRequestCommand>();
+                    var command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CacheAddRequestCommand>();
                     command.VideoQuality = quality;
                     var cacheRequestMenuItem = new MenuFlyoutItem() 
                     {

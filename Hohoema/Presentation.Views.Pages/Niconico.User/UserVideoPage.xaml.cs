@@ -13,6 +13,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -26,19 +28,9 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.User
 		public UserVideoPage()
 		{
 			this.InitializeComponent();
-            DataContextChanged += OnDataContextChanged;
-        }
+			DataContext = _vm = Ioc.Default.GetRequiredService<UserVideoPageViewModel>();
+		}
 
-        private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
-        {
-            var oldViewModel = _vm;
-            _vm = args.NewValue as UserVideoPageViewModel;
-            if (args.NewValue != null && args.NewValue != oldViewModel)
-            {
-                this.Bindings.Update();
-            }
-        }
-
-        private UserVideoPageViewModel _vm { get; set; }
+		private readonly UserVideoPageViewModel _vm;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase.PageNavigation;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
@@ -67,13 +67,13 @@ namespace Hohoema.Presentation.ViewModels.Community
 		
 
 
-		private DelegateCommand<Uri> _ScriptNotifyCommand;
-		public DelegateCommand<Uri> ScriptNotifyCommand
+		private RelayCommand<Uri> _ScriptNotifyCommand;
+		public RelayCommand<Uri> ScriptNotifyCommand
 		{
 			get
 			{
 				return _ScriptNotifyCommand
-					?? (_ScriptNotifyCommand = new DelegateCommand<Uri>((parameter) =>
+					?? (_ScriptNotifyCommand = new RelayCommand<Uri>((parameter) =>
 					{
 						System.Diagnostics.Debug.WriteLine($"script notified: {parameter}");
 

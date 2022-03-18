@@ -1,8 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
-using Prism.Navigation;
-using Prism.Ioc;
+using Hohoema.Presentation.Navigations;
 using System;
 using System.Diagnostics;
 using System.Reactive.Concurrency;
@@ -26,12 +25,13 @@ using Hohoema.Presentation.Views.Player;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Live;
 using Hohoema.Models.Domain.Playlist;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System.Windows.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
-    public sealed class SecondaryViewPlayerManager : Prism.Mvvm.BindableBase, IPlayerView
+    public sealed class SecondaryViewPlayerManager : ObservableObject, IPlayerView
     {
         /* 複数ウィンドウでプレイヤーを一つだけ表示するための管理をしています
          * 
@@ -39,7 +39,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
          * さらに「PerThreadLifetimeManager」を指定して依存解決時にウィンドウのUIスレッドごとに
          * PlayerViewManagerが生成されるように設定しています。
          * 
-         * これはBindableBaseによるINofityPropertyChangedイベントがウィンドウスレッドを越えて利用できないことが理由です。
+         * これはObservableObjectによるINofityPropertyChangedイベントがウィンドウスレッドを越えて利用できないことが理由です。
          * 
          * PlayerViewManagerはNowPlayingとPlayerViewModeの２つを公開プロパティとして保持しています。
          * NowPlaying
@@ -148,7 +148,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 // ウィンドウサイズの保存と復元
                 if (DeviceTypeHelper.IsDesktop)
                 {
-                    var localObjectStorageHelper = App.Current.Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                    var localObjectStorageHelper = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                     if (localObjectStorageHelper.KeyExists(secondary_view_size))
                     {
                         view.TryResizeView(localObjectStorageHelper.Read<Size>(secondary_view_size));
@@ -157,7 +157,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     view.VisibleBoundsChanged += View_VisibleBoundsChanged;
                 }
 
-                PlaylistPlayer = App.Current.Container.Resolve<HohoemaPlaylistPlayer>();
+                PlaylistPlayer = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<HohoemaPlaylistPlayer>();
 
                 view.Consolidated += SecondaryAppView_Consolidated;
 
@@ -195,7 +195,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             // ウィンドウサイズを保存する
             if (sender.Id != MainViewId)
             {
-                var localObjectStorageHelper = App.Current.Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                var localObjectStorageHelper = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                 _PrevSecondaryViewSize = localObjectStorageHelper.Read<Size>(secondary_view_size);
                 localObjectStorageHelper.Save(secondary_view_size, new Size(sender.VisibleBounds.Width, sender.VisibleBounds.Height));
             }
@@ -216,7 +216,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             // 直前のウィンドウサイズの値を前々回表示のウィンドウサイズ（_PrevSecondaryViewSize）で上書きする
             if (_PrevSecondaryViewSize != default(Size))
             {
-                var localObjectStorageHelper = App.Current.Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                var localObjectStorageHelper = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                 localObjectStorageHelper.Save(secondary_view_size, _PrevSecondaryViewSize);
             }
 
@@ -263,7 +263,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 await SecondaryCoreAppView.DispatcherQueue.EnqueueAsync(async () =>
                 {
                     var result = await SecondaryViewPlayerNavigationService.NavigateAsync(pageName, parameters, _PlayerPageNavgationTransitionInfo);
-                    if (!result.Success)
+                    if (!result.IsSuccess)
                     {
                         Debug.WriteLine(result.Exception?.ToString());
                         await CloseAsync();
@@ -409,9 +409,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         ICommand IPlayerView.ToggleFullScreenCommand => ToggleFullScreenCommand;
 
-        private DelegateCommand _ToggleFullScreenCommand;
-        public DelegateCommand ToggleFullScreenCommand =>
-            _ToggleFullScreenCommand ?? (_ToggleFullScreenCommand = new DelegateCommand(ExecuteToggleFullScreenCommand));
+        private RelayCommand _ToggleFullScreenCommand;
+        public RelayCommand ToggleFullScreenCommand =>
+            _ToggleFullScreenCommand ?? (_ToggleFullScreenCommand = new RelayCommand(ExecuteToggleFullScreenCommand));
 
         void ExecuteToggleFullScreenCommand()
         {
@@ -420,9 +420,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         ICommand IPlayerView.ToggleCompactOverlayCommand => ToggleCompactOverlayCommand;
 
-        private DelegateCommand _ToggleCompactOverlayCommand;
-        public DelegateCommand ToggleCompactOverlayCommand =>
-            _ToggleCompactOverlayCommand ??= new DelegateCommand(ExecuteToggleCompactOverlayCommand);
+        private RelayCommand _ToggleCompactOverlayCommand;
+        public RelayCommand ToggleCompactOverlayCommand =>
+            _ToggleCompactOverlayCommand ??= new RelayCommand(ExecuteToggleCompactOverlayCommand);
 
         void ExecuteToggleCompactOverlayCommand()
         {

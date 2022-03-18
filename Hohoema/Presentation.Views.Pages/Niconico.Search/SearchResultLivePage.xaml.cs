@@ -14,6 +14,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Hohoema.Presentation.Navigations;
+using Microsoft.Toolkit.Mvvm.DependencyInjection;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -24,11 +26,14 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.Search
 		public SearchResultLivePage()
 		{
 			this.InitializeComponent();
-		}
+            DataContext = _vm = Ioc.Default.GetRequiredService<SearchResultLivePageViewModel>();
+        }
+
+        private readonly SearchResultLivePageViewModel _vm;
 
         private void Flyout_Closed(object sender, object e)
         {
-			(DataContext as SearchResultLivePageViewModel).SearchOptionsUpdatedCommand.Execute();
+			(DataContext as SearchResultLivePageViewModel).SearchOptionsUpdatedCommand.Execute(null);
         }
 
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)

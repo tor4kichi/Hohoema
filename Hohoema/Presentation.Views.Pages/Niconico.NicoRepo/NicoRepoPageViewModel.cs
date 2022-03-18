@@ -14,8 +14,7 @@ using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.NicoRepo;
 using NiconicoToolkit.Video;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -29,13 +28,14 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Uno.Extensions;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Microsoft.Extensions.Logging;
+using Hohoema.Presentation.Navigations;
+using Windows.UI.Xaml.Navigation;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
 {
-    public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<INicoRepoItem>, INavigatedAwareAsync
+    public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<INicoRepoItem>
     {
         public NicoRepoPageViewModel(
             ILoggerFactory loggerFactory,
@@ -125,13 +125,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
         }
 
 
-        DelegateCommand<object> _openNicoRepoItemCommand;
+        RelayCommand<object> _openNicoRepoItemCommand;
         private readonly IScheduler _scheduler;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly OpenLiveContentCommand _openLiveContentCommand;
 
-        public DelegateCommand<object> OpenNicoRepoItemCommand => _openNicoRepoItemCommand
-            ?? (_openNicoRepoItemCommand = new DelegateCommand<object>(item => 
+        public RelayCommand<object> OpenNicoRepoItemCommand => _openNicoRepoItemCommand
+            ?? (_openNicoRepoItemCommand = new RelayCommand<object>(item => 
             {
                 if (item is NicoRepoVideoTimeline videoItem)
                 {
@@ -363,7 +363,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             return topicTypeMapedEntries.Select(item =>
             {
 #if DEBUG
-                triggers.AddDistinct(item.Item.MuteContext.Trigger);
+                if (triggers.Any(x => x == item.Item.MuteContext.Trigger) is false)
+                {
+                    triggers.Add(item.Item.MuteContext.Trigger);
+                }
 #endif
                 var topicType = item.TopicType;
                 if (IsLiveTopic(topicType))

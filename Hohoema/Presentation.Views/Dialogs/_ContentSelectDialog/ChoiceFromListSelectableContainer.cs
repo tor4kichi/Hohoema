@@ -31,7 +31,7 @@ namespace Hohoema.Dialogs
 				if (SetProperty(ref _SelectedItem, value))
 				{
 					_IsValidatedSelection = _SelectedItem != null;
-					RaisePropertyChanged(nameof(IsValidatedSelection));
+					OnPropertyChanged(nameof(IsValidatedSelection));
 
 					SelectionItemChanged?.Invoke(this);
 				}

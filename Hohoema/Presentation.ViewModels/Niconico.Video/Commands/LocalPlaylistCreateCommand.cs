@@ -1,4 +1,4 @@
-﻿using Prism.Commands;
+﻿using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
-    public sealed class LocalPlaylistCreateCommand : DelegateCommandBase
+    public sealed class LocalPlaylistCreateCommand : CommandBase
     {
         public LocalPlaylistCreateCommand(
             LocalMylistManager localMylistManager,

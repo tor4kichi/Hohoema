@@ -1,4 +1,4 @@
-﻿using Prism.Mvvm;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Helpers;
@@ -15,7 +15,7 @@ using Xamarin.Essentials;
 
 namespace Hohoema.Models.UseCase
 {
-    public sealed class ApplicationLayoutManager : BindableBase
+    public sealed class ApplicationLayoutManager : ObservableObject
     {
         private readonly AppearanceSettings _appearanceSettings;
 

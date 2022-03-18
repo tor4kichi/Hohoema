@@ -1,4 +1,4 @@
-﻿using Prism.Commands;
+﻿using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using Windows.Media.Playback;
 
 namespace Hohoema.Presentation.ViewModels.Player.Commands
 {
-    public sealed class MediaPlayerToggleMuteCommand : DelegateCommandBase
+    public sealed class MediaPlayerToggleMuteCommand : CommandBase
     {
         private readonly MediaPlayer _mediaPlayer;
 

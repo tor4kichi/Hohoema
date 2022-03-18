@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 using System.Reactive.Disposables;
 using System.Threading;
 using Reactive.Bindings.Extensions;
-using Prism.Mvvm;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Hohoema.Presentation.Views.Pages;
-using Uno.Threading;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Presentation.ViewModels
 {
-	public abstract class HohoemaPageViewModelBase : BindableBase, INavigationAware, IDisposable
+	public abstract class HohoemaPageViewModelBase : Navigations.NavigationAwareViewModelBase, IDisposable
 	{
         public HohoemaPageViewModelBase()
         {
@@ -40,21 +39,16 @@ namespace Hohoema.Presentation.ViewModels
             _CompositeDisposable?.Dispose();
         }
 
-        public virtual void OnNavigatingTo(INavigationParameters parameters) 
+        public override void OnNavigatingTo(INavigationParameters parameters) 
         {
             _navigationDisposables?.Dispose();
             _navigationDisposables = new();
-            Views.Pages.PrimaryWindowCoreLayout.SetCurrentNavigationParameters(parameters);
             _navigationCts = new CancellationTokenSource()
                 .AddTo(_navigationDisposables);
             NavigationCancellationToken = _navigationCts.Token;
         }
 
-        public virtual void OnNavigatedTo(INavigationParameters parameters)
-        {
-        }
-
-        public virtual void OnNavigatedFrom(INavigationParameters parameters)
+        public override void OnNavigatedFrom(INavigationParameters parameters)
         {
             _navigationCts?.Cancel();
             _navigationCts?.Dispose();

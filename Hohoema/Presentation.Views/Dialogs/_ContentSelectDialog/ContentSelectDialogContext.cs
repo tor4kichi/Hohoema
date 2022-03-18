@@ -1,4 +1,4 @@
-﻿using Prism.Mvvm;
+﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -13,7 +13,7 @@ using System.Threading;
 namespace Hohoema.Dialogs
 {
 
-    public sealed class ContentSelectDialogContext : BindableBase, IDisposable
+    public sealed class ContentSelectDialogContext : ObservableObject, IDisposable
 	{
         private SynchronizationContextScheduler _CurrentWindowContextScheduler;
         public SynchronizationContextScheduler CurrentWindowContextScheduler

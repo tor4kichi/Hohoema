@@ -574,6 +574,7 @@ namespace Hohoema.Models.Domain.Playlist
             _videoSessionDisposable?.Dispose();
             _videoSessionDisposable = null;
             CurrentPlayingSession = null;
+            _mediaPlayer.Pause();
             _mediaPlayer.Source = null;
             ClearCurrentContent();
 

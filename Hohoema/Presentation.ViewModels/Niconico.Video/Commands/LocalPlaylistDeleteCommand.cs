@@ -1,7 +1,7 @@
 ﻿using I18NPortable;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.Services;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ using Hohoema.Models.Domain.LocalMylist;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
-    public sealed class LocalPlaylistDeleteCommand : DelegateCommandBase
+    public sealed class LocalPlaylistDeleteCommand : CommandBase
     {
         private readonly LocalMylistManager _localMylistManager;
         private readonly DialogService _dialogService;

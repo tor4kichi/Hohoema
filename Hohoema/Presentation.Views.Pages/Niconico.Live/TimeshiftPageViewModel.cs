@@ -10,8 +10,8 @@ using I18NPortable;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Live.Timeshift;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -26,7 +26,7 @@ using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
 {
-    public sealed class TimeshiftPageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, INavigatedAwareAsync
+    public sealed class TimeshiftPageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>
     {
         public TimeshiftPageViewModel(
             ILoggerFactory loggerFactory,
@@ -53,15 +53,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
         public Services.DialogService DialogService { get; }
         public OpenLiveContentCommand OpenLiveContentCommand { get; }
 
-        private DelegateCommand _DeleteOutdatedReservations;
+        private RelayCommand _DeleteOutdatedReservations;
         private readonly NoUIProcessScreenContext _noUIProcessScreenContext;
 
-        public DelegateCommand DeleteOutdatedReservations 
+        public RelayCommand DeleteOutdatedReservations 
         {
             get
             {
                 return _DeleteOutdatedReservations
-                    ?? (_DeleteOutdatedReservations = new DelegateCommand(async () => 
+                    ?? (_DeleteOutdatedReservations = new RelayCommand(async () => 
                     {
                         try
                         {

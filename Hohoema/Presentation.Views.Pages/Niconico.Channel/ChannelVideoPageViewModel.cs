@@ -6,8 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
 using Hohoema.Models.UseCase.Playlist;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.UseCase;
@@ -31,6 +30,7 @@ using Hohoema.Models.Domain.Playlist;
 using Reactive.Bindings;
 using System.Reactive.Linq;
 using Microsoft.Extensions.Logging;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 {
@@ -45,7 +45,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
     }
 
-    public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -164,7 +164,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
         public ChannelVideoPlaylistSortOption[] SortOptions => ChannelVideoPlaylist.SortOptions;
 
 
-        private ChannelVideoPlaylistSortOption _selectedSortOption;
+        private ChannelVideoPlaylistSortOption _selectedSortOption = ChannelVideoPlaylist.DefaultSortOption;
         public ChannelVideoPlaylistSortOption SelectedSortOption
         {
             get { return _selectedSortOption; }
@@ -254,15 +254,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
         }
 
 
-        private DelegateCommand _ShowWithBrowserCommand;
+        private RelayCommand _ShowWithBrowserCommand;
         private readonly ChannelFollowProvider _channelFollowProvider;
 
-        public DelegateCommand ShowWithBrowserCommand
+        public RelayCommand ShowWithBrowserCommand
         {
             get
             {
                 return _ShowWithBrowserCommand ??
-                    (_ShowWithBrowserCommand = new DelegateCommand(async () => 
+                    (_ShowWithBrowserCommand = new RelayCommand(async () => 
                     {
                         await Windows.System.Launcher.LaunchUriAsync(new Uri($"http://ch.nicovideo.jp/{ChannelScreenName}/video"));
                     }));

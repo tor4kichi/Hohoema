@@ -1,8 +1,8 @@
 ﻿
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Presentation.Navigations;
 using Hohoema.Presentation.Services;
-using Prism.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Linq;

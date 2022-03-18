@@ -1,15 +1,13 @@
-﻿using Prism.Navigation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Prism.Ioc;
 using System.Reactive.Concurrency;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Diagnostics;
@@ -25,6 +23,8 @@ using System.Windows.Input;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 using System.Text.Json;
+using Hohoema.Presentation.Navigations;
+using DryIoc;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -38,7 +38,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
     }
 
 
-    public sealed class PrimaryViewPlayerManager : Prism.Mvvm.BindableBase, IPlayerView
+    public sealed class PrimaryViewPlayerManager : ObservableObject, IPlayerView
     {
         INavigationService _navigationService;
 
@@ -54,7 +54,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         public PrimaryViewPlayerManager(
             ILoggerFactory loggerFactory,
             IScheduler scheduler,
-            Lazy<INavigationService> navigationServiceLazy,
             RestoreNavigationManager restoreNavigationManager,
             HohoemaPlaylistPlayer hohoemaPlaylistPlayer
             )
@@ -113,20 +112,20 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             {
                 using var _ = await _navigationLock.LockAsync();
                 
-                if (_navigationService == null)
-                {
-                    _navigationService = App.Current.Container.Resolve<INavigationService>("PrimaryPlayerNavigationService");
-                }
-
                 if (DisplayMode == PrimaryPlayerDisplayMode.Close)
                 {
                     DisplayMode = _lastPlayedDisplayMode;
                 }
 
+                if (_navigationService == null)
+                {
+                    _navigationService = App.Current.Container.Resolve<INavigationService>("PrimaryPlayerNavigationService");
+                }
+
                 try
                 {
                     var result = await _navigationService.NavigateAsync(pageName, parameters, _playerTransisionAnimation);
-                    if (!result.Success)
+                    if (!result.IsSuccess)
                     {
                         DisplayMode = PrimaryPlayerDisplayMode.Close;
                         _view.Title = string.Empty;
@@ -306,22 +305,22 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         }
 
 
-        DelegateCommand _closeCommand;
-        public DelegateCommand CloseCommand => _closeCommand 
-            ?? (_closeCommand = new DelegateCommand(async () => await CloseAsync()));
+        RelayCommand _closeCommand;
+        public RelayCommand CloseCommand => _closeCommand 
+            ?? (_closeCommand = new RelayCommand(async () => await CloseAsync()));
 
-        DelegateCommand _WindowInWindowCommand;
-        public DelegateCommand WindowInWindowCommand => _WindowInWindowCommand
-            ?? (_WindowInWindowCommand = new DelegateCommand(ShowWithWindowInWindow));
+        RelayCommand _WindowInWindowCommand;
+        public RelayCommand WindowInWindowCommand => _WindowInWindowCommand
+            ?? (_WindowInWindowCommand = new RelayCommand(ShowWithWindowInWindow));
 
-        DelegateCommand _FillCommand;
-        public DelegateCommand FillCommand => _FillCommand
-            ?? (_FillCommand = new DelegateCommand(ShowWithFill));
+        RelayCommand _FillCommand;
+        public RelayCommand FillCommand => _FillCommand
+            ?? (_FillCommand = new RelayCommand(ShowWithFill));
 
 
-        DelegateCommand _ToggleFillOrWindowInWindowCommand;
-        public DelegateCommand ToggleFillOrWindowInWindowCommand => _ToggleFillOrWindowInWindowCommand
-            ?? (_ToggleFillOrWindowInWindowCommand = new DelegateCommand(() =>
+        RelayCommand _ToggleFillOrWindowInWindowCommand;
+        public RelayCommand ToggleFillOrWindowInWindowCommand => _ToggleFillOrWindowInWindowCommand
+            ?? (_ToggleFillOrWindowInWindowCommand = new RelayCommand(() =>
             {
                 if (DisplayMode == PrimaryPlayerDisplayMode.Fill)
                 {
@@ -335,9 +334,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         ICommand IPlayerView.ToggleFullScreenCommand => ToggleFullScreenCommand;
 
-        private DelegateCommand _ToggleFullScreenCommand;
-        public DelegateCommand ToggleFullScreenCommand =>
-            _ToggleFullScreenCommand ?? (_ToggleFullScreenCommand = new DelegateCommand(ExecuteToggleFullScreenCommand));
+        private RelayCommand _ToggleFullScreenCommand;
+        public RelayCommand ToggleFullScreenCommand =>
+            _ToggleFullScreenCommand ?? (_ToggleFullScreenCommand = new RelayCommand(ExecuteToggleFullScreenCommand));
 
         void ExecuteToggleFullScreenCommand()
         {
@@ -355,9 +354,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         ICommand IPlayerView.ToggleCompactOverlayCommand => ToggleCompactOverlayCommand;
 
-        private DelegateCommand _ToggleCompactOverlayCommand;
-        public DelegateCommand ToggleCompactOverlayCommand =>
-            _ToggleCompactOverlayCommand ??= new DelegateCommand(ExecuteToggleCompactOverlayCommand);
+        private RelayCommand _ToggleCompactOverlayCommand;
+        public RelayCommand ToggleCompactOverlayCommand =>
+            _ToggleCompactOverlayCommand ??= new RelayCommand(ExecuteToggleCompactOverlayCommand);
 
         void ExecuteToggleCompactOverlayCommand()
         {

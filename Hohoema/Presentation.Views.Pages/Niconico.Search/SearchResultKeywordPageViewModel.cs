@@ -12,8 +12,7 @@ using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.SearchWithCeApi.Video;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -23,10 +22,12 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Playlist;
 using Microsoft.Extensions.Logging;
+using Hohoema.Presentation.Navigations;
+using Windows.UI.Xaml.Navigation;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
-    public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -125,13 +126,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
         public ReactiveProperty<SearchTarget> SelectedSearchTarget { get; }
 
-        private DelegateCommand<SearchTarget?> _ChangeSearchTargetCommand;
-        public DelegateCommand<SearchTarget?> ChangeSearchTargetCommand
+        private RelayCommand<SearchTarget?> _ChangeSearchTargetCommand;
+        public RelayCommand<SearchTarget?> ChangeSearchTargetCommand
         {
             get
             {
                 return _ChangeSearchTargetCommand
-                    ?? (_ChangeSearchTargetCommand = new DelegateCommand<SearchTarget?>(target =>
+                    ?? (_ChangeSearchTargetCommand = new RelayCommand<SearchTarget?>(target =>
                     {
                         if (target.HasValue && target.Value != SearchOption.SearchTarget)
                         {
@@ -156,15 +157,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
         #region Commands
 
 
-        private DelegateCommand _ShowSearchHistoryCommand;
+        private RelayCommand _ShowSearchHistoryCommand;
         private readonly SearchHistoryRepository _searchHistoryRepository;
 
-        public DelegateCommand ShowSearchHistoryCommand
+        public RelayCommand ShowSearchHistoryCommand
 		{
 			get
 			{
 				return _ShowSearchHistoryCommand
-					?? (_ShowSearchHistoryCommand = new DelegateCommand(() =>
+					?? (_ShowSearchHistoryCommand = new RelayCommand(() =>
 					{
 						PageManager.OpenPage(HohoemaPageType.Search);
 					}));

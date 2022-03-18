@@ -6,7 +6,6 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.UseCase.Niconico.Player;
-using Prism.Ioc;
 using Reactive.Bindings.Extensions;
 using Windows.ApplicationModel.Core;
 using Windows.UI.ViewManagement;
@@ -14,18 +13,18 @@ using Windows.UI.Xaml;
 
 namespace Hohoema.Presentation.Views.StateTrigger
 {
-    public sealed class WindowInWindowViewModeTrigger : InvertibleStateTrigger, IDisposable
+    public sealed class WindowInWindowViewModeTrigger : InvertibleStateTrigger, IDisposable, ITriggerValue
     {
         private PrimaryViewPlayerManager _primaryViewPlayerManager;
 
         IDisposable _disposable;
         public WindowInWindowViewModeTrigger()
         {
-            var scheduler = App.Current.Container.Resolve<IScheduler>();
+            var scheduler = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IScheduler>();
             var coreApplication = CoreApplication.GetCurrentView();
             if (coreApplication.IsMain)
             {
-                _primaryViewPlayerManager = App.Current.Container.Resolve<PrimaryViewPlayerManager>();
+                _primaryViewPlayerManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PrimaryViewPlayerManager>();
                 _disposable = _primaryViewPlayerManager.ObserveProperty(x => x.DisplayMode)
                     .ObserveOn(scheduler)
                     .Subscribe(mode =>

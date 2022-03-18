@@ -24,7 +24,6 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Hohoema.Models.Domain;
-using Prism.Ioc;
 using System.Text.RegularExpressions;
 using System.Reactive.Disposables;
 using Hohoema.Models.Domain.Niconico.Video;

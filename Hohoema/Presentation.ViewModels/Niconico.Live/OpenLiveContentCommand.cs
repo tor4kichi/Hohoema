@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.UseCase.Niconico.Player.Events;
 using Microsoft.Toolkit.Mvvm.Messaging;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {
-    public sealed class OpenLiveContentCommand : DelegateCommandBase
+    public sealed class OpenLiveContentCommand : CommandBase
     {
         private readonly IMessenger _messenger;
 

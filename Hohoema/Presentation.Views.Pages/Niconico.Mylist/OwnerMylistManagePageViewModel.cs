@@ -12,8 +12,7 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using I18NPortable;
 using Microsoft.Toolkit.Uwp.UI;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -23,11 +22,11 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Uno.Extensions;
 using Windows.UI.Popups;
 using Windows.System;
 using Microsoft.Toolkit.Uwp;
 using NiconicoToolkit.Mylist;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 {
@@ -48,9 +47,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
         public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
         public ReactiveCommand<LoginUserMylistPlaylist> OpenMylistCommand { get;  }
-        public DelegateCommand AddMylistGroupCommand { get; }
-        public DelegateCommand<LoginUserMylistPlaylist> RemoveMylistGroupCommand { get; }
-        public DelegateCommand<LoginUserMylistPlaylist> EditMylistGroupCommand { get; }
+        public RelayCommand AddMylistGroupCommand { get; }
+        public RelayCommand<LoginUserMylistPlaylist> RemoveMylistGroupCommand { get; }
+        public RelayCommand<LoginUserMylistPlaylist> EditMylistGroupCommand { get; }
 
         public OwnerMylistManagePageViewModel(
             NiconicoSession niconicoSession,
@@ -79,7 +78,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 _pageManager.OpenPageWithId(HohoemaPageType.Mylist, listItem.MylistId);
             });
 
-            AddMylistGroupCommand = new DelegateCommand(async () =>
+            AddMylistGroupCommand = new RelayCommand(async () =>
             {
                 MylistGroupEditData data = new MylistGroupEditData()
                 {
@@ -118,7 +117,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             , () => _userMylistManager.Mylists.Count < _userMylistManager.MaxMylistGroupCountCurrentUser
             );
 
-            RemoveMylistGroupCommand = new DelegateCommand<LoginUserMylistPlaylist>(async (mylist) =>
+            RemoveMylistGroupCommand = new RelayCommand<LoginUserMylistPlaylist>(async (mylist) =>
             {
                 if (mylist.MylistId.IsWatchAfterMylist) { return; }
 
@@ -142,7 +141,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             });
 
 
-            EditMylistGroupCommand = new DelegateCommand<LoginUserMylistPlaylist>(async mylist =>
+            EditMylistGroupCommand = new RelayCommand<LoginUserMylistPlaylist>(async mylist =>
             {
                 if (mylist.MylistId.IsWatchAfterMylist)
                 {
@@ -215,8 +214,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                         // TODO: タイムアウト処理を追加する
                         using var _ = await _niconicoSession.SigninLock.LockAsync();
                         await _userMylistManager.WaitUpdate();
-
-                        _sourcePlaylistItems.AddRange(_userMylistManager.Mylists.Where(x => x.MylistId.IsWatchAfterMylist is false));
+                        
+                        foreach (var item in _userMylistManager.Mylists.Where(x => x.MylistId.IsWatchAfterMylist is false))
+                        {
+                            _sourcePlaylistItems.Add(item);
+                        }                        
                     }
                 }
                 finally
@@ -224,7 +226,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                     NowLoading.Value = false;
                 }
 
-                AddMylistGroupCommand.RaiseCanExecuteChanged();
+                AddMylistGroupCommand.NotifyCanExecuteChanged();
             });
         }
     }

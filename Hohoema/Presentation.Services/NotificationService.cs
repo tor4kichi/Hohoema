@@ -9,7 +9,7 @@ using I18NPortable;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Notifications;
 using NiconicoToolkit.Live;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -126,7 +126,7 @@ namespace Hohoema.Presentation.Services
                         new InAppNotificationCommand()
                         {
                             Label = "Play".Translate(),
-                            Command = new DelegateCommand(() =>
+                            Command = new RelayCommand(() =>
                             {
                                 _messenger.Send(VideoPlayRequestMessage.PlayVideo(videoId));
 
@@ -136,7 +136,7 @@ namespace Hohoema.Presentation.Services
                         new InAppNotificationCommand()
                         {
                             Label = "@view".Translate(),
-                            Command = new DelegateCommand(() =>
+                            Command = new RelayCommand(() =>
                             {
                                 _queuePlaylist.Add(nicoVideo);
 
@@ -146,7 +146,7 @@ namespace Hohoema.Presentation.Services
                         new InAppNotificationCommand()
                         {
                             Label = HohoemaPageType.VideoInfomation.Translate(),
-                            Command = new DelegateCommand(() =>
+                            Command = new RelayCommand(() =>
                             {
                                 PageManager.OpenPageWithId(HohoemaPageType.VideoInfomation, videoId);
 
@@ -174,7 +174,7 @@ namespace Hohoema.Presentation.Services
                         new InAppNotificationCommand()
                         {
                             Label = "WatchLiveStreaming".Translate(),
-                            Command = new DelegateCommand(() =>
+                            Command = new RelayCommand(() =>
                             {
                                 _messenger.Send(new PlayerPlayLiveRequestMessage(new() { LiveId = liveId }));
 
@@ -184,7 +184,7 @@ namespace Hohoema.Presentation.Services
                         new InAppNotificationCommand()
                         {
                             Label = HohoemaPageType.LiveInfomation.Translate(),
-                            Command = new DelegateCommand(() =>
+                            Command = new RelayCommand(() =>
                             {
                                 PageManager.OpenPageWithId(HohoemaPageType.LiveInfomation, liveId);
 
@@ -200,7 +200,7 @@ namespace Hohoema.Presentation.Services
                 payload.Commands.Add(new InAppNotificationCommand()
                 {
                     Label = HohoemaPageType.Community.Translate(),
-                    Command = new DelegateCommand(() =>
+                    Command = new RelayCommand(() =>
                     {
                         PageManager.OpenPageWithId(HohoemaPageType.Community, liveDesc.Data.ProviderId);
 
@@ -232,7 +232,7 @@ namespace Hohoema.Presentation.Services
                         new InAppNotificationCommand()
                         {
                             Label = HohoemaPageType.Mylist.Translate(),
-                            Command = new DelegateCommand(() =>
+                            Command = new RelayCommand(() =>
                             {
                                 PageManager.OpenPageWithId(HohoemaPageType.Mylist, mylistId);
 
@@ -264,7 +264,7 @@ namespace Hohoema.Presentation.Services
                         new InAppNotificationCommand()
                         {
                             Label = HohoemaPageType.Community.Translate(),
-                            Command = new DelegateCommand(() =>
+                            Command = new RelayCommand(() =>
                             {
                                 PageManager.OpenPageWithId(HohoemaPageType.Community, communityId);
 
@@ -290,7 +290,7 @@ namespace Hohoema.Presentation.Services
                         new InAppNotificationCommand()
                         {
                             Label = HohoemaPageType.UserInfo.Translate(),
-                            Command = new DelegateCommand(() =>
+                            Command = new RelayCommand(() =>
                             {
                                 PageManager.OpenPageWithId(HohoemaPageType.UserInfo, userId);
 
@@ -300,7 +300,7 @@ namespace Hohoema.Presentation.Services
                         new InAppNotificationCommand()
                         {
                             Label = HohoemaPageType.UserVideo.Translate(),
-                            Command = new DelegateCommand(() =>
+                            Command = new RelayCommand(() =>
                             {
                                 PageManager.OpenPageWithId(HohoemaPageType.UserVideo, userId);
 
@@ -334,7 +334,7 @@ namespace Hohoema.Presentation.Services
                         new InAppNotificationCommand()
                         {
                             Label = HohoemaPageType.Series.Translate(),
-                            Command = new DelegateCommand(() =>
+                            Command = new RelayCommand(() =>
                             {
                                 PageManager.OpenPageWithId(HohoemaPageType.Series, seriesId);
 

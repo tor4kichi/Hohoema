@@ -4,8 +4,7 @@ using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Views.Pages;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Toolkit.Uwp;
-using Prism.Mvvm;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +13,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Uno.Threading;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.System;
@@ -26,10 +24,12 @@ using Windows.UI.WindowManagement;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media.Animation;
+using Hohoema.Models.Helpers;
+using Hohoema.Presentation.Navigations;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
-    public sealed class AppWindowSecondaryViewPlayerManager : BindableBase, IPlayerView
+    public sealed class AppWindowSecondaryViewPlayerManager : ObservableObject, IPlayerView
     {
         private readonly AppearanceSettings _appearanceSettings;
         private readonly HohoemaPlaylistPlayer _playlistPlayer;
@@ -40,7 +40,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         private readonly DrillInNavigationTransitionInfo _PlayerPageNavgationTransitionInfo;
         private readonly SuppressNavigationTransitionInfo _BlankPageNavgationTransitionInfo;
         private readonly DispatcherQueue _dispatcherQueue;
-        FastAsyncLock _appWindowUpdateLock = new FastAsyncLock();
+        AsyncLock _appWindowUpdateLock = new AsyncLock();
 
         CancellationTokenSource _appWindowCloseCts;
 
@@ -303,7 +303,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     using (var _ = await _appWindowUpdateLock.LockAsync(_appWindowCloseCts?.Token ?? default))
                     {
                         var result = await _navigationService.NavigateAsync(pageName, parameters, _PlayerPageNavgationTransitionInfo);
-                        if (!result.Success)
+                        if (!result.IsSuccess)
                         {
                             Debug.WriteLine(result.Exception?.ToString());
                             throw result.Exception;

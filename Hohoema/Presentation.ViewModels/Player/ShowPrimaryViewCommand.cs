@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.UseCase.Niconico.Player;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ using Windows.UI.Xaml;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
-    public sealed class ShowPrimaryViewCommand : DelegateCommandBase
+    public sealed class ShowPrimaryViewCommand : CommandBase
     {
         private readonly IScheduler _scheduler;
 

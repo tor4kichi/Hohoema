@@ -91,7 +91,7 @@ namespace Hohoema.Dialogs
                 SelectedItem.Subscribe(x => 
 				{
 					_IsValidatedSelection = x != null;
-					RaisePropertyChanged(nameof(IsValidatedSelection));
+					OnPropertyChanged(nameof(IsValidatedSelection));
 
 					SelectionItemChanged?.Invoke(this);
 				})
@@ -104,7 +104,7 @@ namespace Hohoema.Dialogs
                 Text.Subscribe(x => 
 				{
 					_IsValidatedSelection = !string.IsNullOrEmpty(x);
-					RaisePropertyChanged(nameof(IsValidatedSelection));
+					OnPropertyChanged(nameof(IsValidatedSelection));
 
 					SelectionItemChanged?.Invoke(this);
 				})

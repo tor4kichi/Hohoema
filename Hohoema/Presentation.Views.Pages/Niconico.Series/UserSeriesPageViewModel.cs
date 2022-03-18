@@ -8,8 +8,8 @@ using Hohoema.Presentation.ViewModels.Niconico.Series;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using I18NPortable;
 using NiconicoToolkit.User;
-using Prism.Commands;
-using Prism.Navigation;
+using Microsoft.Toolkit.Mvvm.Input;
+using Hohoema.Presentation.Navigations;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 {
-    public sealed class UserSeriesPageViewModel : HohoemaPageViewModelBase, INavigatedAwareAsync, ITitleUpdatablePage, IPinablePage
+    public sealed class UserSeriesPageViewModel : HohoemaPageViewModelBase, ITitleUpdatablePage, IPinablePage
     {
         public HohoemaPin GetPin()
         {
@@ -80,9 +80,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
         }
 
 
-        private DelegateCommand<UserSeriesItemViewModel> _OpenSeriesVideoPageCommand;
-        public DelegateCommand<UserSeriesItemViewModel> OpenSeriesVideoPageCommand =>
-            _OpenSeriesVideoPageCommand ?? (_OpenSeriesVideoPageCommand = new DelegateCommand<UserSeriesItemViewModel>(ExecuteOpenSeriesVideoPageCommand));
+        private RelayCommand<UserSeriesItemViewModel> _OpenSeriesVideoPageCommand;
+        public RelayCommand<UserSeriesItemViewModel> OpenSeriesVideoPageCommand =>
+            _OpenSeriesVideoPageCommand ?? (_OpenSeriesVideoPageCommand = new RelayCommand<UserSeriesItemViewModel>(ExecuteOpenSeriesVideoPageCommand));
 
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
@@ -91,8 +91,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
             _pageManager.OpenPage(HohoemaPageType.Series, $"id={parameter.Id}");
         }
 
-        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            await base.OnNavigatedToAsync(parameters);
+
             UserId? userId = null;
             if (parameters.TryGetValue("id", out string id))
             {

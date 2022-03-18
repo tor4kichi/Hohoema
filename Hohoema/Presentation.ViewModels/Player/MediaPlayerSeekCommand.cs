@@ -1,4 +1,4 @@
-﻿using Prism.Commands;
+﻿using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using Windows.Media.Playback;
 
 namespace Hohoema.Presentation.ViewModels.Player.Commands
 {
-    public sealed class MediaPlayerSeekCommand : DelegateCommandBase
+    public sealed class MediaPlayerSeekCommand : CommandBase
     {
         private readonly MediaPlayer _mediaPlayer;
 

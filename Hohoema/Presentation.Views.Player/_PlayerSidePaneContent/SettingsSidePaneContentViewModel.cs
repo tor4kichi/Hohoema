@@ -4,8 +4,8 @@ using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Player.Comment;
 using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
-using Prism.Commands;
-using Prism.Mvvm;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -104,7 +104,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
     }
 
 
-    public class ValueWithAvairability<T> : BindableBase
+    public class ValueWithAvairability<T> : ObservableObject
     {
         public ValueWithAvairability(T value, bool isAvairable = true)
         {

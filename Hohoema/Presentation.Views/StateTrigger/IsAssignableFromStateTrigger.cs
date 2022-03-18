@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
-using WindowsStateTriggers;
 
 namespace Hohoema.Presentation.Views.StateTrigger
 {

@@ -3,7 +3,7 @@ using Microsoft.Toolkit.Uwp.Helpers;
 
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
-using Prism.Commands;
+using Microsoft.Toolkit.Mvvm.Input;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -177,9 +177,9 @@ namespace Hohoema.Models.UseCase.Hohoema.LocalMylist
 
 
 
-        private DelegateCommand<LocalPlaylist> _RemoveCommand;
-        public DelegateCommand<LocalPlaylist> RemoveCommand => _RemoveCommand
-            ?? (_RemoveCommand = new DelegateCommand<LocalPlaylist>((group) =>
+        private RelayCommand<LocalPlaylist> _RemoveCommand;
+        public RelayCommand<LocalPlaylist> RemoveCommand => _RemoveCommand
+            ?? (_RemoveCommand = new RelayCommand<LocalPlaylist>((group) =>
             {
                 try
                 {
