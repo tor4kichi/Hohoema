@@ -20,7 +20,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Share
         protected override bool CanExecute(object content)
         {
             return Windows.ApplicationModel.DataTransfer.DataTransferManager.IsSupported()
-                        && (content as INiconicoObject) != null;
+                        && content is INiconicoObject;
         }
 
         protected override void Execute(object content)
