@@ -170,7 +170,7 @@ namespace Hohoema.Presentation.Views.Behaviors
         {
             if (_SkipChangeVisible) { return; }
 
-            if (IsVisible || IsAutoHideEnabled is false)
+            if (IsVisible)
             {
                 Show();
             }
