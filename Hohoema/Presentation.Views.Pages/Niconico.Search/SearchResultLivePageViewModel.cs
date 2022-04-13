@@ -305,10 +305,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                         var liveInfoVM = new LiveInfoListItemViewModel(item.LiveId);
                         liveInfoVM.Setup(item);
 
-                        var reserve = _reservation?.Data.Items.FirstOrDefault(reservation => item.LiveId == reservation.LiveId);
-                        if (reserve != null)
+                        if (_reservation.IsSuccess)
                         {
-                            liveInfoVM.SetReservation(reserve);
+                            var reserve = _reservation?.Data?.Items.FirstOrDefault(reservation => item.LiveId == reservation.LiveId);
+                            if (reserve != null)
+                            {
+                                liveInfoVM.SetReservation(reserve);
+                            }
                         }
 
                         items.Add(liveInfoVM);
