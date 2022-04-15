@@ -99,7 +99,7 @@
                      >
     <MenuFlyoutItem x:Name="CopyVideoId"
                     Text="{i18nExt:Localize Key=CopyVideoId}"
-                    CommandParameter="{Binding Id}"
+                    CommandParameter="{Binding VideoId}"
                     />
 
     <MenuFlyoutItem x:Name="CopyVideoLink"

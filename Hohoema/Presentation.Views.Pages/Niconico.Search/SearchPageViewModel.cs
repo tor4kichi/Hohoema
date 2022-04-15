@@ -20,6 +20,7 @@ using Hohoema.Presentation.Views.Pages.Niconico.Search;
 using Hohoema.Presentation.ViewModels.Niconico.Search;
 using Hohoema.Models.Domain.Pins;
 using Hohoema.Models.Helpers;
+using System.Reactive.Concurrency;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
@@ -41,7 +42,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 		public NiconicoSession NiconicoSession { get; }
 		public SearchProvider SearchProvider { get; }
 		public PageManager PageManager { get; }
-		private readonly SearchHistoryRepository _searchHistoryRepository;
+
+        private readonly IScheduler _scheduler;
+        private readonly SearchHistoryRepository _searchHistoryRepository;
 
 
 		public ISearchPagePayloadContent RequireSearchOption { get; private set; }
@@ -138,6 +141,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 		public INavigationService NavigationService => SearchPage.ContentNavigationService;
 
 		public SearchPageViewModel(
+			IScheduler scheduler,
 			ApplicationLayoutManager applicationLayoutManager,
 			NiconicoSession niconicoSession,
             SearchProvider searchProvider,
@@ -145,7 +149,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 			SearchHistoryRepository searchHistoryRepository
             )
         {
-			ApplicationLayoutManager = applicationLayoutManager;
+            _scheduler = scheduler;
+            ApplicationLayoutManager = applicationLayoutManager;
 			NiconicoSession = niconicoSession;
             SearchProvider = searchProvider;
             PageManager = pageManager;
@@ -192,28 +197,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                 });
 #endif
 
-			DoSearchCommand.Subscribe(async _ =>
-            {
-				await Task.Delay(50);
-
-                if (SearchText.Value?.Length == 0) { return; }
-
-				if (_LastSelectedTarget == SelectedTarget.Value && _LastKeyword == SearchText.Value) { return; }
-
-				// 検索結果を表示
-				PageManager.Search(SelectedTarget.Value, SearchText.Value);
-
-                var searched = _searchHistoryRepository.Searched(SearchText.Value, SelectedTarget.Value);
-
-                var oldSearchHistory = SearchHistoryItems.FirstOrDefault(x => x.Keyword == SearchText.Value);
-                if (oldSearchHistory != null)
-                {
-                    SearchHistoryItems.Remove(oldSearchHistory);
-                }
-                SearchHistoryItems.Insert(0, new SearchHistoryListItemViewModel(searched, this));
-
-            })
-            .AddTo(_CompositeDisposable);
+			
 
 			IsNavigationFailed = new ReactiveProperty<bool>();
 		    NavigationFailedReason = new ReactiveProperty<string>();
@@ -234,15 +218,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
 
 				SearchTarget target = SearchTarget.Keyword;
-				if (!parameters.TryGetValue("service", out string modeString)
-					|| !Enum.TryParse<SearchTarget>(modeString, out target)
-					)
+				if (parameters.TryGetValue("service", out string modeString))
 				{
-					Debug.Assert(true);
-
-					target = SearchTarget.Keyword;
+					Enum.TryParse<SearchTarget>(modeString, out target);
 				}
-				
+				else if (parameters.TryGetValue("service", out target))
+                {
+
+                }
+
 				var pageName = target switch
 				{
 					SearchTarget.Keyword => nameof(SearchResultKeywordPage),
@@ -265,6 +249,29 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 
 				_LastSelectedTarget = target;
 				_LastKeyword = keyword;
+
+				DoSearchCommand.Throttle(TimeSpan.FromMilliseconds(50), _scheduler).Subscribe(_ =>
+				{
+					//await Task.Delay(50);
+
+					if (SearchText.Value?.Length == 0) { return; }
+
+					if (_LastSelectedTarget == SelectedTarget.Value && _LastKeyword == SearchText.Value) { return; }
+
+					// 検索結果を表示
+					PageManager.Search(SelectedTarget.Value, SearchText.Value);
+
+					var searched = _searchHistoryRepository.Searched(SearchText.Value, SelectedTarget.Value);
+
+					var oldSearchHistory = SearchHistoryItems.FirstOrDefault(x => x.Keyword == SearchText.Value);
+					if (oldSearchHistory != null)
+					{
+						SearchHistoryItems.Remove(oldSearchHistory);
+					}
+					SearchHistoryItems.Insert(0, new SearchHistoryListItemViewModel(searched, this));
+
+				})
+				.AddTo(_navigationDisposables);
 			}
 			catch (Exception e)
             {

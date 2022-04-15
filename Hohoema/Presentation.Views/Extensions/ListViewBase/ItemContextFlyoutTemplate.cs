@@ -146,7 +146,7 @@ namespace Hohoema.Presentation.Views.Extensions
                             var flyout = dataTemplate.LoadContent() as Windows.UI.Xaml.Controls.Primitives.FlyoutBase;
                             var contentPresenter = fe.FindFirstChild<FrameworkElement>();
                             fe.ContextFlyout = flyout;
-                            fe.DataContext = contentPresenter.DataContext;
+                            fe.DataContext = contentPresenter.DataContext ?? dataContext;
                             var customContext = GetItemContextFlyoutCustomObjectToTag(target);
                             if (customContext != null)
                             {
