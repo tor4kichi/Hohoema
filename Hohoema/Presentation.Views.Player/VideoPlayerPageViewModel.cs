@@ -383,11 +383,6 @@ namespace Hohoema.Presentation.ViewModels.Player
                             _relatedVideosSidePaneContentViewModel.Clear();
                             PlayerSplitViewIsPaneOpen = false;
 
-                            if (VideoInfo != null)
-                            {
-                                
-                            }
-
                             if (item == null)
                             {
                                 VideoInfo = null;
@@ -401,11 +396,6 @@ namespace Hohoema.Presentation.ViewModels.Player
                                 LikesContext = VideoLikesContext.Default;
                                 AvailableQualities = null;
                                 NowPlayingWithCache = false;
-                                return;
-                            }
-
-                            if (VideoInfo != null && VideoInfo.VideoId == item.VideoId)
-                            {
                                 return;
                             }
                         }
