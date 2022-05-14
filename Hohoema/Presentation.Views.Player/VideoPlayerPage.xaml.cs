@@ -119,8 +119,9 @@ namespace Hohoema.Presentation.Views.Player
             _compositeDisposable.Dispose();
             _mediaPlayer.VolumeChanged -= OnMediaPlayerVolumeChanged;
             _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
-
+            
             SeekBarSlider.ValueChanged -= SeekBarSlider_ValueChanged;
+            SeekBarSlider.Value = 0.0;
 
             LayoutRoot.SizeChanged -= LayoutRoot_SizeChanged;
         }
