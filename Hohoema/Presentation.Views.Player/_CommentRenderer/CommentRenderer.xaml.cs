@@ -514,9 +514,13 @@ namespace Hohoema.Presentation.Views.Player
                     }
 
                     // 追加待機中のコメントをチェック
+                    int count = 0;
                     CommentRenderFrameData frame = null;
                     for (int i = 0; i < _pendingRenderComments.Count; i++)
                     {
+                        if (count >= 10) { break; }
+                        count++;
+
                         var comment = _pendingRenderComments[i];
                         if (comment.VideoPosition <= (currentVpos + TimeSpan.FromSeconds(1)))
                         {
