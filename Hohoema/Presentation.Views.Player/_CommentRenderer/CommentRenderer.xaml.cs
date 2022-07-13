@@ -464,6 +464,8 @@ namespace Hohoema.Presentation.Views.Player
             ResetComments();
         }
 
+        private TimeSpan CurrentVPos => VideoPosition + VideoPositionOffset;
+
         private void CommentRenderer_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             Clip = new RectangleGeometry() { Rect = new Rect() { Width = ActualWidth, Height = ActualHeight } };
@@ -490,7 +492,7 @@ namespace Hohoema.Presentation.Views.Player
                     ResetScrollCommentsAnimation(GetRenderFrameData());
                 }
 
-                TimeSpan currentVpos = VideoPosition + VideoPositionOffset;
+                TimeSpan currentVpos = CurrentVPos;
                 if (Math.Abs((float)(currentVpos - _prevPosition).TotalSeconds) > 0.5f)
                 {
                     Debug.WriteLine("seeked! position changed");
@@ -536,7 +538,10 @@ namespace Hohoema.Presentation.Views.Player
                     }
                 }
 
-                _prevPosition = currentVpos;
+                // コメントの再描画完了時間を前回位置として記録する
+                // currentVposを使うとシーク判定の時間以上にコメント描画の処理に時間が掛かった場合に
+                // コメント再描画のループが発生してしまう。
+                _prevPosition = CurrentVPos;
             });
         }
 
@@ -689,7 +694,7 @@ namespace Hohoema.Presentation.Views.Player
                     {
                         var frame = data ?? GetRenderFrameData();
                         AddCommentToCanvas(Comments.Cast<IComment>(), frame);
-                        _prevPosition = frame.CurrentVpos;
+                        _prevPosition = CurrentVPos;
                     }
                 }
             }
@@ -843,37 +848,40 @@ namespace Hohoema.Presentation.Views.Player
 
                     float posToMovingRatio = initialCanvasLeft / (frame.CanvasWidth + renderComment.TextWidth);
                     TimeSpan displayDuration = (renderComment.EndPosition - frame.CurrentVpos) * frame.PlaybackRateInverse;
-                    if (frame.PlaybackState == MediaPlaybackState.Playing)
-                    {                        
-                        var ab = AnimationBuilder.Create()
-                            .Translation(Axis.Y)
-                            .NormalizedKeyFrames(b => b
-                                .KeyFrame(0.0, renderComment.VerticalPosition))
-                            .Translation(Axis.X,
-                                from: (float)initialCanvasLeft,
-                                to: -renderComment.TextWidth,                            
-                                duration: displayDuration,
-                                easingType: EasingType.Linear
-                                );
-
-                        ab.Start(renderComment, frame.ScrollCommentAnimationCancelToken);
-                    }
-                    else
+                    if (displayDuration > TimeSpan.FromMilliseconds(1))
                     {
-                        var ab = AnimationBuilder.Create()
-                           .Translation(Axis.Y)
-                           .NormalizedKeyFrames(b => b
-                               .KeyFrame(0.0, renderComment.VerticalPosition)
-                               , duration: displayDuration
-                               )
-                           .Translation(Axis.X)
-                           .NormalizedKeyFrames(b => b
-                               .KeyFrame(0.0, (float)initialCanvasLeft)
-                               , duration: displayDuration
-                               )
-                            ;
+                        if (frame.PlaybackState == MediaPlaybackState.Playing)
+                        {
+                            var ab = AnimationBuilder.Create()
+                                .Translation(Axis.Y)
+                                .NormalizedKeyFrames(b => b
+                                    .KeyFrame(0.0, renderComment.VerticalPosition))
+                                .Translation(Axis.X,
+                                    from: (float)initialCanvasLeft,
+                                    to: -renderComment.TextWidth,
+                                    duration: displayDuration,
+                                    easingType: EasingType.Linear
+                                    );
 
-                        ab.Start(renderComment);
+                            ab.Start(renderComment, frame.ScrollCommentAnimationCancelToken);
+                        }
+                        else
+                        {
+                            var ab = AnimationBuilder.Create()
+                               .Translation(Axis.Y)
+                               .NormalizedKeyFrames(b => b
+                                   .KeyFrame(0.0, renderComment.VerticalPosition)
+                                   , duration: displayDuration
+                                   )
+                               .Translation(Axis.X)
+                               .NormalizedKeyFrames(b => b
+                                   .KeyFrame(0.0, (float)initialCanvasLeft)
+                                   , duration: displayDuration
+                                   )
+                                ;
+
+                            ab.Start(renderComment);
+                        }
                     }
 
                     if (insertPosition == -1)

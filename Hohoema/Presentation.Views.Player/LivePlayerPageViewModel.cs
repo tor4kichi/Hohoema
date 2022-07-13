@@ -1124,13 +1124,16 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                 var requestQuality = RequestQuality.Value;
                 LiveAvailableQualities.Clear();
-                foreach (var item in e.AvailableQualities.Where(x => x != LiveQualityType.Abr))
+                foreach (var item in e.AvailableQualities.Where(x => x != nameof(LiveQualityType.Abr)))
                 {
-                    LiveAvailableQualities.Add(item);
+                    if (Enum.TryParse<LiveQualityType>(item, out var quality))
+                    {
+                        LiveAvailableQualities.Add(quality);
+                    }
                 }
                 
                 RequestQuality.Value = requestQuality;
-                CurrentQuality.Value = e.Quality;
+                CurrentQuality.Value = Enum.TryParse <LiveQualityType>(e.Quality, out var qualityType) ? qualityType : LiveQualityType.Abr;
 
                 RequestQuality.ForceNotify();
 

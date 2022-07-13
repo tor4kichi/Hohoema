@@ -12,22 +12,26 @@ using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.Domain.Playlist;
+using System.Reactive.Concurrency;
 
 namespace Hohoema.Models.UseCase.Subscriptions
 {
     public sealed class FeedResultAddToWatchLater
     {
+        private readonly IScheduler _scheduler;
         private readonly SubscriptionManager _subscriptionManager;
         private readonly SubscriptionSettings _subscriptionSettingsRepository;
         private readonly QueuePlaylist _queuePlaylist;
         List<SubscriptionFeedUpdateResult> Results = new List<SubscriptionFeedUpdateResult>();
 
         public FeedResultAddToWatchLater(
+            IScheduler scheduler,
             SubscriptionManager subscriptionManager,
             SubscriptionSettings subscriptionSettingsRepository,
             QueuePlaylist queuePlaylist
             )
         {
+            _scheduler = scheduler;
             _subscriptionManager = subscriptionManager;
             _subscriptionSettingsRepository = subscriptionSettingsRepository;
             _queuePlaylist = queuePlaylist;
@@ -38,6 +42,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
                 .Select(x => x.EventArgs)
                 .Do(x => Results.Add(x))
                 .Throttle(TimeSpan.FromSeconds(5))
+                .SubscribeOn(_scheduler)
                 .Subscribe(_ => 
                 {
                     var items = Results.ToList();
