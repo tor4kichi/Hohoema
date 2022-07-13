@@ -14,12 +14,14 @@ using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Models.UseCase.Playlist;
+using System.Reactive.Concurrency;
 
 namespace Hohoema.Models.UseCase.Subscriptions
 {
     public sealed class LatestSubscriptionVideosNotifier : IDisposable
     {
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
+        private readonly IScheduler _scheduler;
         private readonly SubscriptionManager _subscriptionManager;
         private readonly NotificationService _notificationService;
 
@@ -29,10 +31,12 @@ namespace Hohoema.Models.UseCase.Subscriptions
         List<SubscriptionFeedUpdateResult> Results = new List<SubscriptionFeedUpdateResult>();
 
         public LatestSubscriptionVideosNotifier(
+            IScheduler scheduler,
             SubscriptionManager subscriptionManager,
             NotificationService notificationService
             )
         {
+            _scheduler = scheduler;
             _subscriptionManager = subscriptionManager;
             _notificationService = notificationService;
 
@@ -44,6 +48,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
                 .Select(x => x.EventArgs)
                 .Do(x => Results.Add(x))
                 .Throttle(TimeSpan.FromSeconds(5))
+                .SubscribeOn(_scheduler)
                 .Subscribe(_ =>
                 {
                     var items = Results.ToList();
@@ -59,7 +64,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
                             Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long,
                             //luanchContent: SubscriptionManagementPageParam,
                             toastButtons: new[] {
-                            new ToastButton(HohoemaPageType.SubscriptionManagement.Translate(), OpenSubscriptionManagementPageParam)
+                                new ToastButton(HohoemaPageType.SubscriptionManagement.Translate(), OpenSubscriptionManagementPageParam)
                             }
                             );
                         }
@@ -77,8 +82,8 @@ namespace Hohoema.Models.UseCase.Subscriptions
                         Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long,
                         //luanchContent: PlayWithWatchAfterPlaylistParam,
                         toastButtons: new[] {
-                            new ToastButton("WatchVideo".Translate(), PlayWithWatchAfterPlaylistParam),
-                            new ToastButton(HohoemaPageType.SubscriptionManagement.Translate(), OpenSubscriptionManagementPageParam)
+                                new ToastButton("WatchVideo".Translate(), PlayWithWatchAfterPlaylistParam),
+                                new ToastButton(HohoemaPageType.SubscriptionManagement.Translate(), OpenSubscriptionManagementPageParam)
                         }
 
                         );
