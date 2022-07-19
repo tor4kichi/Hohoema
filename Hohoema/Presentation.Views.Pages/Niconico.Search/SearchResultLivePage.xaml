@@ -155,7 +155,7 @@
     </ListView>
     
     
-    <Grid x:Name="EmptyItemsLayout" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <Grid x:Name="EmptyItemsLayout" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
       <TextBlock Text="{localize:Localize Key=LiveSearchNoItems}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
     </Grid>
     

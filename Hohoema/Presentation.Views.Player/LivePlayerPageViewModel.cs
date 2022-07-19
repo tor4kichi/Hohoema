@@ -769,7 +769,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 */
 
                 if (UnresolvedUserId.TryPop(out var id))
-                {
+                {                    
                     _ = _dispatcherQueue.EnqueueAsync(async () =>
                     {
                         var owner = await _userNameRepository.ResolveUserNameAsync(id);
@@ -1124,16 +1124,16 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                 var requestQuality = RequestQuality.Value;
                 LiveAvailableQualities.Clear();
-                foreach (var item in e.AvailableQualities.Where(x => x != nameof(LiveQualityType.Abr)))
+                foreach (var item in e.AvailableQualities.Where(x => x.Equals(nameof(LiveQualityType.Abr), StringComparison.InvariantCultureIgnoreCase) is false))
                 {
-                    if (Enum.TryParse<LiveQualityType>(item, out var quality))
+                    if (Enum.TryParse<LiveQualityType>(item, true, out var quality))
                     {
                         LiveAvailableQualities.Add(quality);
                     }
                 }
                 
                 RequestQuality.Value = requestQuality;
-                CurrentQuality.Value = Enum.TryParse <LiveQualityType>(e.Quality, out var qualityType) ? qualityType : LiveQualityType.Abr;
+                CurrentQuality.Value = Enum.TryParse <LiveQualityType>(e.Quality, true, out var qualityType) ? qualityType : LiveQualityType.Abr;
 
                 RequestQuality.ForceNotify();
 
@@ -1141,7 +1141,15 @@ namespace Hohoema.Presentation.ViewModels.Player
                 {
                     var limit = QualityLimit.Value;
                     LiveAvailableLimitQualities.Clear();
-                    foreach (var item in LiveAvailableQualities.Select(x => (int)x - 1).Where(x => 0 <= x && x <= (int)LiveQualityLimitType.SuperHigh).Select(x => (LiveQualityLimitType)x))
+                    foreach (var item in LiveAvailableQualities.Where(x => x is LiveQualityType.SuperLow or LiveQualityType.Low or LiveQualityType.Normal or LiveQualityType.High or LiveQualityType.SuperHigh).Select(x => x switch
+                    {
+                        LiveQualityType.SuperLow => LiveQualityLimitType.SuperLow,
+                        LiveQualityType.Low => LiveQualityLimitType.Low,
+                        LiveQualityType.Normal => LiveQualityLimitType.Normal,
+                        LiveQualityType.High => LiveQualityLimitType.High,
+                        LiveQualityType.SuperHigh => LiveQualityLimitType.SuperHigh,
+                        _ => throw new NotImplementedException(),
+                    }))
                     {
                         LiveAvailableLimitQualities.Add(item);
                     }
@@ -1268,7 +1276,10 @@ namespace Hohoema.Presentation.ViewModels.Player
                                     return list;
                                 }
                             );
-                            UnresolvedUserId.Push(commentUserId);
+                            if (UnresolvedUserId.Contains(commentUserId) is false)
+                            {
+                                UnresolvedUserId.Push(commentUserId);
+                            }
                         });
                     }
                 }
