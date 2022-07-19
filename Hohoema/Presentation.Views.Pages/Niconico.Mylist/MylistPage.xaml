@@ -87,9 +87,17 @@
               </AppBarButton>
 
               <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
+
+              <AppBarButton x:Name="RefreshButton"
+                              Label="{i18nExt:Localize Key=Refresh}" 
+                              Icon="Refresh"
+                              Command="{x:Bind _vm.RefreshCommand}"
+                              VerticalAlignment="Center"
+                          >
+              </AppBarButton>
+              
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
-              <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.RefreshCommand}" VerticalAlignment="Center" />
               <AppBarButton x:Name="FeedRegstrationButton" Icon="Add" Visibility="Visible" Label="{i18nExt:Localize Key=SubscriptionAddMylist}"
                                 Command="{x:Bind _vm.AddSubscriptionCommand}"
                                 CommandParameter="{x:Bind _vm.Mylist.Value, Mode=OneWay}"

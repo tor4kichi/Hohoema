@@ -71,9 +71,6 @@
 
               <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
 
-            </CommandBar.PrimaryCommands>
-
-            <CommandBar.SecondaryCommands>
               <AppBarButton x:Name="RefreshButton"
                               Label="{i18nExt:Localize Key=Refresh}" 
                               Icon="Refresh"
@@ -82,8 +79,7 @@
                               VerticalAlignment="Center"
                           >
               </AppBarButton>
-
-            </CommandBar.SecondaryCommands>
+            </CommandBar.PrimaryCommands>
           </CommandBar>
         </Grid>
       </videolistPage:VideoItemsListView.Header>

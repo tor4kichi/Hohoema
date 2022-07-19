@@ -63,6 +63,15 @@
               </AppBarButton>
 
               <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+
+              <AppBarButton x:Name="RefreshButton"
+                              Label="{i18nExt:Localize Key=Refresh}" 
+                              Icon="Refresh"
+                              Command="{x:Bind _vm.RefreshCommand}"
+                              VerticalAlignment="Center"
+                          >
+              </AppBarButton>
+              
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
               <AppBarButton Label="{i18nExt:Localize Key=SubscriptionAdd}"
