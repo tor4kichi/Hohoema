@@ -236,15 +236,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
                 {
                     try
                     {
-                        await _subscriptionUpdateManager.UpdateAsync(_cancellationTokenSource.Token);
+                        await _subscriptionUpdateManager.UpdateIfOverExpirationAsync(_cancellationTokenSource.Token);
                     }
                     catch (OperationCanceledException)
                     {
                         
                     }
                 }
-
-                _subscriptionUpdateManager.RestartIfTimerNotRunning();
             });
 
             //Analytics.TrackEvent("Subscription_Update");

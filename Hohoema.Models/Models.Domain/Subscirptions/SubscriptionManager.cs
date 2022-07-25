@@ -203,47 +203,60 @@ namespace Hohoema.Models.Domain.Subscriptions
 
         public async Task<bool> RefreshFeedUpdateResultAsync(SubscriptionSourceEntity entity, CancellationToken cancellationToken = default)
         {
-            var prevResult = _subscriptionFeedResultRepository.GetFeedResult(entity);
-            if (prevResult != null && !IsExpiredFeedResultUpdatedTime(prevResult.LastUpdatedAt))
+            var result = await Task.Run(async () => 
             {
-                // 前回更新から時間経っていない場合はスキップする
-                Debug.WriteLine("[FeedUpdate] update skip: " + entity.Label);
-                return false;
-            }
+                var prevResult = _subscriptionFeedResultRepository.GetFeedResult(entity);
+                if (prevResult != null && !IsExpiredFeedResultUpdatedTime(prevResult.LastUpdatedAt))
+                {
+                    // 前回更新から時間経っていない場合はスキップする
+                    Debug.WriteLine("[FeedUpdate] update skip: " + entity.Label);
+                    return null;
+                }
 
-            Debug.WriteLine("[FeedUpdate] start: " + entity.Label);
+                Debug.WriteLine("[FeedUpdate] start: " + entity.Label);
 
-            // オンラインソースから情報を取得して
-            var result = await GetFeedResultAsync(entity);
+                // オンラインソースから情報を取得して
+                var result = await GetFeedResultAsync(entity);
 
-            cancellationToken.ThrowIfCancellationRequested();
+                cancellationToken.ThrowIfCancellationRequested();
 
-            // 新規動画を抽出する
-            // 初回更新時は新着抽出をスキップする
-            if (prevResult != null)
+                // 新規動画を抽出する
+                // 初回更新時は新着抽出をスキップする
+                if (prevResult != null)
+                {
+                    var prevContainVideoIds = prevResult.Videos.Select(x => x.VideoId).ToHashSet();
+                    var newVideos = result.Videos.TakeWhile(x => !prevContainVideoIds.Contains(x.Id));
+                    result.NewVideos = newVideos.ToList();
+                }
+                else
+                {
+                    result.NewVideos = new List<NicoVideo>();
+                }
+
+                // 成功したら前回までの内容に追記して保存する
+                if (result.IsSuccessed && (result.Videos?.Any() ?? false))
+                {
+                    var updatedResult = _subscriptionFeedResultRepository.MargeFeedResult(prevResult, entity, result.Videos);
+                }
+
+                return result;
+
+            }, cancellationToken);
+
+            if (result != null)
             {
-                var prevContainVideoIds = prevResult.Videos.Select(x => x.VideoId).ToHashSet();
-                var newVideos = result.Videos.TakeWhile(x => !prevContainVideoIds.Contains(x.Id));
-                result.NewVideos = newVideos.ToList();
+                // 更新を通知する
+                Updated?.Invoke(this, result);
+                Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
+
+                return true;
             }
             else
             {
-                result.NewVideos = new List<NicoVideo>();
+                Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
+
+                return false;
             }
-
-            // 成功したら前回までの内容に追記して保存する
-            if (result.IsSuccessed && (result.Videos?.Any() ?? false))
-            {
-                var updatedResult = _subscriptionFeedResultRepository.MargeFeedResult(prevResult, entity, result.Videos);
-            }
-
-            // 更新を通知する
-            Updated?.Invoke(this, result);
-
-
-            Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
-
-            return true;
         }
 
         async Task<SubscriptionFeedUpdateResult> GetFeedResultAsync(SubscriptionSourceEntity entity)

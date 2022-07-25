@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ZLogger;
+using Windows.System;
 
 namespace Hohoema.Models.UseCase.Subscriptions
 {
@@ -30,8 +31,9 @@ namespace Hohoema.Models.UseCase.Subscriptions
         private readonly SubscriptionSettings _subscriptionSettings;
         AsyncLock _timerLock = new AsyncLock();
 
-        IDisposable _timerDisposer;
         bool _isDisposed;
+        private readonly DispatcherQueue _dispatcherQueue;
+        private readonly DispatcherQueueTimer _timer;
 
 
         private bool _IsAutoUpdateEnabled;
@@ -89,6 +91,14 @@ namespace Hohoema.Models.UseCase.Subscriptions
             SubscriptionSettings subscriptionSettingsRepository
             )
         {
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            _timer = _dispatcherQueue.CreateTimer();
+            _timer.Interval = TimeSpan.FromMinutes(1);
+            _timer.IsRepeating = true;
+            _timer.Tick += async (s, e) => 
+            {
+                await UpdateIfOverExpirationAsync(CancellationToken.None);
+            };
             _logger = loggerFactory.CreateLogger<SubscriptionUpdateManager>();
             _subscriptionManager = subscriptionManager;
             _subscriptionSettings = subscriptionSettingsRepository;
@@ -107,6 +117,8 @@ namespace Hohoema.Models.UseCase.Subscriptions
         {
             using (await _timerLock.LockAsync())
             {
+                if (Helpers.InternetConnection.IsInternet() is false) { return; }
+
                 using (_timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                 {
                     await _subscriptionManager.RefreshFeedUpdateResultAsync(e, _timerUpdateCancellationTokenSource.Token);
@@ -160,24 +172,44 @@ namespace Hohoema.Models.UseCase.Subscriptions
             }
         }
 
-
-
-        public async Task UpdateAsync(CancellationToken cancellationToken = default)
+        public async Task UpdateIfOverExpirationAsync(CancellationToken ct)
         {
-            using (await _timerLock.LockAsync())
+            if (Helpers.InternetConnection.IsInternet() is false) { return; }
+
+            if (DateTime.Now - _subscriptionSettings.SubscriptionsLastUpdatedAt < _subscriptionSettings.SubscriptionsUpdateFrequency)
             {
-                if (_timerDisposer == null) { return; }
-                if (Helpers.InternetConnection.IsInternet() is false) { return; }
+                return;
+            }
 
-                _logger.ZLogDebug("start update");
-                await _subscriptionManager.RefreshAllFeedUpdateResultAsync(cancellationToken);
-                _logger.ZLogDebug("end update");
+            try
+            {
+                _timerUpdateCancellationTokenSource?.Cancel();
+                _timerUpdateCancellationTokenSource?.Dispose();
+                _timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(180));
+                var timeCt = _timerUpdateCancellationTokenSource.Token;
+                using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, timeCt))
+                using (await _timerLock.LockAsync())
+                {
+                    _logger.ZLogDebug("start update");
+                    await _subscriptionManager.RefreshAllFeedUpdateResultAsync(linkedCts.Token);
+                    _logger.ZLogDebug("end update");
 
-                // 次の自動更新周期を延長して設定
-                _subscriptionSettings.SubscriptionsLastUpdatedAt = DateTime.Now;
+                    // 次の自動更新周期を延長して設定
+                    _subscriptionSettings.SubscriptionsLastUpdatedAt = DateTime.Now;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                await StopTimerAsync();
+
+                _logger.ZLogInformation("購読の更新にあまりに時間が掛かったため処理を中断し、また定期自動更新も停止しました");
+            }
+            finally
+            {
+                _timerUpdateCancellationTokenSource.Dispose();
+                _timerUpdateCancellationTokenSource = null;
             }
         }
-
 
         public void RestartIfTimerNotRunning()
         {
@@ -195,35 +227,11 @@ namespace Hohoema.Models.UseCase.Subscriptions
             {
                 if (_isDisposed) { return; }
 
-                _timerDisposer?.Dispose();
-
                 if (!_IsAutoUpdateEnabled) { return; }
 
                 IsRunning = true;
-                var updateFrequency = _subscriptionSettings.SubscriptionsUpdateFrequency;
-                _timerDisposer = Observable.Timer(_subscriptionSettings.SubscriptionsLastUpdatedAt + updateFrequency, TimeSpan.FromMinutes(5))
-                    .Subscribe(async _ =>
-                    {
-                        try
-                        {
-                            _timerUpdateCancellationTokenSource?.Cancel();
-                            _timerUpdateCancellationTokenSource?.Dispose();
-                            _timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(180));
-                            await UpdateAsync(_timerUpdateCancellationTokenSource.Token);
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            await StopTimerAsync();
-
-                            _logger.ZLogInformation("購読の更新にあまりに時間が掛かったため処理を中断し、また定期自動更新も停止しました");
-                        }
-                        finally
-                        {
-                            _timerUpdateCancellationTokenSource.Dispose();
-                            _timerUpdateCancellationTokenSource = null;
-                        }
-
-                    });
+                _timer.Start();
+                _ = UpdateIfOverExpirationAsync(CancellationToken.None);
             }
         }
 
@@ -233,8 +241,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
             using (await _timerLock.LockAsync())
             {
                 IsRunning = false;
-                _timerDisposer?.Dispose();
-                _timerDisposer = null;
+                _timer.Stop();
             }
         }
 
@@ -243,9 +250,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
             if (_isDisposed) { return; }
 
             _isDisposed = true;
-
-            _ = StopTimerAsync();
-
+            _timer.Stop();
             App.Current.Suspending -= Current_Suspending;
             App.Current.Resuming -= Current_Resuming;
         }
