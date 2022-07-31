@@ -1,6 +1,6 @@
 ﻿
 using Hohoema.Models.Domain.VideoCache;
-using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using NiconicoToolkit.Video;
 
 namespace Hohoema.Models.UseCase.VideoCache.Events

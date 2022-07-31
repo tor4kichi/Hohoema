@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Helpers;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;

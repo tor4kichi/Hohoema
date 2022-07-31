@@ -1,11 +1,20 @@
-﻿using I18NPortable;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Presentation.Services;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase.Subscriptions;
-using Microsoft.Toolkit.Mvvm.Input;
+using Hohoema.Presentation.Navigations;
+using Hohoema.Presentation.Services;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Presentation.ViewModels.VideoListPage;
+using I18NPortable;
+using Microsoft.Extensions.Logging;
+using NiconicoToolkit.Video;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -13,24 +22,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Concurrency;
-using System.Reactive.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.UseCase.PageNavigation;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Application;
-using Hohoema.Presentation.ViewModels.VideoListPage;
-using Microsoft.Toolkit.Mvvm.Messaging;
-using Hohoema.Models.UseCase;
-using NiconicoToolkit.Video;
-using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
-using Microsoft.Extensions.Logging;
-using ZLogger;
-using Hohoema.Presentation.Navigations;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Threading;
+using Windows.UI.Xaml.Controls;
+using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 {
@@ -43,6 +39,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         private readonly DialogService _dialogService;
         private readonly PageManager _pageManager;
         private readonly NicoVideoProvider _nicoVideoProvider;
+        private readonly QueuePlaylist _queuePlaylist;
         private readonly VideoPlayWithQueueCommand _VideoPlayWithQueueCommand;
         private readonly IScheduler _scheduler;
         private readonly IMessenger _messenger;
@@ -65,6 +62,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             DialogService dialogService,
             PageManager pageManager,
             NicoVideoProvider nicoVideoProvider,
+            QueuePlaylist queuePlaylist,
             VideoPlayWithQueueCommand videoPlayWithQueueCommand
             )
         {
@@ -76,6 +74,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             _dialogService = dialogService;
             _pageManager = pageManager;
             _nicoVideoProvider = nicoVideoProvider;
+            _queuePlaylist = queuePlaylist;
             _VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
 
             _messenger.Register<SettingsRestoredMessage>(this);
@@ -127,11 +126,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         {
             if (!Subscriptions.Any())
             {
-                foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo().OrderBy(x => x.entity.SortIndex))
+                foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionSourceEntities().OrderBy(x => x.SortIndex))
                 {
-                    var vm = new SubscriptionViewModel(_logger, subscInfo.entity, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
-                    var items = _nicoVideoProvider.GetCachedVideoInfoItems(subscInfo.feedResult.Videos.Select(x => (VideoId)x.VideoId));
-                    vm.UpdateFeedResult(items, subscInfo.feedResult.LastUpdatedAt);
+                    var vm = new SubscriptionViewModel(_logger, _messenger, _queuePlaylist, subscInfo, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
+                    var latestVideo = _subscriptionManager.GetSubscFeedVideos(subscInfo, 0, 1).FirstOrDefault();
+                    if (latestVideo != null)
+                    {
+                        var items = _nicoVideoProvider.GetCachedVideoInfoItems(new[] { (VideoId)latestVideo.VideoId });
+                        vm.UpdateFeedResult(items, subscInfo.LastUpdateAt);
+                    }
                     Subscriptions.Add(vm);
                 }
             }
@@ -180,7 +183,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         {
             _scheduler.Schedule(() =>
             {
-                var vm = new SubscriptionViewModel(_logger, e, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
+                var vm = new SubscriptionViewModel(_logger, _messenger, _queuePlaylist, e, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
                 Subscriptions.Insert(0, vm);
             });
         }
@@ -259,14 +262,36 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         {
             _cancellationTokenSource?.Cancel();
         }
+
+
+
+        public void OpenSourceVideoListPage(object sender, ItemClickEventArgs args)
+        {
+            var source = (args.ClickedItem as SubscriptionViewModel)._source;
+            (HohoemaPageType pageType, string param) pageInfo = source.SourceType switch
+            {
+                SubscriptionSourceType.Mylist => (HohoemaPageType.Mylist, $"id={source.SourceParameter}"),
+                SubscriptionSourceType.User => (HohoemaPageType.UserVideo, $"id={source.SourceParameter}"),
+                SubscriptionSourceType.Channel => (HohoemaPageType.ChannelVideo, $"id={source.SourceParameter}"),
+                SubscriptionSourceType.Series => (HohoemaPageType.Series, $"id={source.SourceParameter}"),
+                SubscriptionSourceType.SearchWithKeyword => (HohoemaPageType.SearchResultKeyword, $"keyword={Uri.EscapeDataString(source.SourceParameter)}"),
+                SubscriptionSourceType.SearchWithTag => (HohoemaPageType.SearchResultTag, $"keyword={Uri.EscapeDataString(source.SourceParameter)}"),
+                _ => throw new NotImplementedException(),
+            };
+
+            _pageManager.OpenPage(pageInfo.pageType, pageInfo.param);
+
+        }
     }
 
 
 
-    public sealed class SubscriptionViewModel : ObservableObject, IDisposable
+    public partial class SubscriptionViewModel : ObservableObject, IDisposable
     {
         public SubscriptionViewModel(
             ILogger logger,
+            IMessenger messenger,
+            QueuePlaylist queuePlaylist,
             SubscriptionSourceEntity source,
             SubscriptionManagementPageViewModel pageViewModel,
             SubscriptionManager subscriptionManager,
@@ -276,6 +301,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             )
         {
             _logger = logger;
+            _messenger = messenger;
+            _queuePlaylist = queuePlaylist;
             _source = source;
             _pageViewModel = pageViewModel;
             _subscriptionManager = subscriptionManager;
@@ -294,6 +321,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
         private readonly ILogger _logger;
+        private readonly IMessenger _messenger;
+        private readonly QueuePlaylist _queuePlaylist;
         internal readonly SubscriptionSourceEntity _source;
         private readonly SubscriptionManagementPageViewModel _pageViewModel;
         private readonly SubscriptionManager _subscriptionManager;
@@ -307,8 +336,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
         public ReactiveProperty<bool> IsEnabled { get; }
 
-        public ObservableCollection<VideoListItemControlViewModel> Videos { get; } = new ObservableCollection<VideoListItemControlViewModel>();
-
+        public ObservableCollection<VideoListItemControlViewModel> Videos { get; } = new ObservableCollection<VideoListItemControlViewModel>();        
 
         private DateTime _lastUpdatedAt;
         public DateTime LastUpdatedAt
@@ -335,7 +363,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
         internal void UpdateFeedResult(IList<NicoVideo> result, DateTime updatedAt)
         {
-            Videos.Clear();
+            foreach (var video in Videos)
+            {
+                video.Dispose();
+            }
+
+            // Count == 0 の時にClearすると ArgumentOutOfRangeException がスローされてしまう
+            if (Videos.Any())
+            {
+                try
+                {
+                    Videos.Clear();
+                }
+                catch (System.ArgumentOutOfRangeException) { }
+            }
 
             foreach (var video in result.Select(x => new VideoListItemControlViewModel(x)))
             {
@@ -369,15 +410,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             }
         }
 
-        private RelayCommand _PlayUnwatchVideosCommand;
-        public RelayCommand PlayUnwatchVideosCommand =>
-            _PlayUnwatchVideosCommand ?? (_PlayUnwatchVideosCommand = new RelayCommand(ExecutePlayUnwatchVideosCommandCommand));
-
-        void ExecutePlayUnwatchVideosCommandCommand()
-        {
-
-        }
-
         private RelayCommand _OpenSourceVideoListPageCommand;
         public RelayCommand OpenSourceVideoListPageCommand =>
             _OpenSourceVideoListPageCommand ?? (_OpenSourceVideoListPageCommand = new RelayCommand(ExecuteOpenSourceVideoListPageCommand));
@@ -397,6 +429,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
             _pageManager.OpenPage(pageInfo.pageType, pageInfo.param);
         }
+
 
 
         private RelayCommand _DeleteSubscriptionCommand;

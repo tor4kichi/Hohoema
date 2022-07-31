@@ -3,7 +3,7 @@
 using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.Playlist;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -19,7 +19,7 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Playlist;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Diagnostics;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Uwp;

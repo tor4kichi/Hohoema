@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Helpers;
 using Hohoema.Models.UseCase.PageNavigation;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;

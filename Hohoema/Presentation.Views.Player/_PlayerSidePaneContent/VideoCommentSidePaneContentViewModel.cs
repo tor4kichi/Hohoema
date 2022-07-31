@@ -1,8 +1,8 @@
 ﻿using Microsoft.Toolkit.Uwp.UI;
 using Hohoema.Models.Domain.Niconico;
 using Hohoema.Presentation.Services;
-using Microsoft.Toolkit.Mvvm.Input;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;

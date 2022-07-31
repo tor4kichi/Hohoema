@@ -1,4 +1,4 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Subscriptions;
 using System;
@@ -175,11 +175,6 @@ namespace Hohoema.Models.UseCase.Subscriptions
         public async Task UpdateIfOverExpirationAsync(CancellationToken ct)
         {
             if (Helpers.InternetConnection.IsInternet() is false) { return; }
-
-            if (DateTime.Now - _subscriptionSettings.SubscriptionsLastUpdatedAt < _subscriptionSettings.SubscriptionsUpdateFrequency)
-            {
-                return;
-            }
 
             try
             {

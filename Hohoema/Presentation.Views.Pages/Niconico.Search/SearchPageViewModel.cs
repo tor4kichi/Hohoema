@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Hohoema.Models.Domain;
 using System.Collections.ObjectModel;
 using Reactive.Bindings;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System.Reactive.Linq;
 using System.Diagnostics;
 using Reactive.Bindings.Extensions;

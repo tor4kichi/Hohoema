@@ -1,0 +1,186 @@
+﻿<Page
+    x:Class="Hohoema.Presentation.Views.Pages.Hohoema.Subscription.SubscVideoListPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Hohoema.Presentation.Views.Pages.Hohoema.Subscription"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:videolistPage="using:Hohoema.Presentation.Views.Controls.VideoList"
+  xmlns:controls="using:Hohoema.Presentation.Views.Controls" 
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:windowsTriggers="using:WindowsStateTriggers" 
+  xmlns:models="using:Hohoema.Models.Domain.Application"
+    mc:Ignorable="d"
+
+  >
+
+  <Grid>
+    <videolistPage:VideoItemsListView ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
+                                      ItemCommand="{Binding VideoPlayWithQueueCommand}"
+                                      ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
+                                      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
+                                      RefreshCommand="{Binding RefreshCommand}"
+                                      x:Name="VideoItemsListView"
+                                      >
+      <videolistPage:VideoItemsListView.Header>
+        <Grid x:Name="HeaderLayout" Padding="8 0" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
+          <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{Binding Title}" />
+            </CommandBar.Content>
+
+            <CommandBar.PrimaryCommands>
+
+              <AppBarButton x:Name="OpenSubscManagementPageButton" Icon="List" Label="{i18nExt:Localize Key=HohoemaPageType.SubscriptionManagement}" Command="{Binding OpenSubscManagementPageCommand}" />
+
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+
+                <StackPanel Orientation="Horizontal">
+
+                  <Button Content="全てチェック済み" Command="{x:Bind _vm.AllCheckedCommand}"
+                          CornerRadius="6 0 0 6"
+                          />
+                  <DropDownButton Padding="4 9 8 9" CornerRadius="0 6 6 0">
+                    <DropDownButton.Flyout>
+                      <MenuFlyout>
+                        <MenuFlyoutItem Text="一日以上前をチェック済み" />
+                        <MenuFlyoutItem Text="一週間以上前をチェック済み" />
+                      </MenuFlyout>
+                    </DropDownButton.Flyout>
+                  </DropDownButton>
+                </StackPanel>
+              </AppBarElementContainer>
+
+              <!--<AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+                <ComboBox ItemsSource="{Binding SortOptions}"
+                          SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
+                          IsEnabled="{Binding NowLoading.Value, Converter={StaticResource BoolNegation}}"
+                          VerticalAlignment="Stretch"
+                          Margin="0 6"
+                          >
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Label}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </AppBarElementContainer>-->
+
+              <AppBarButton x:Name="PlayAllButton"
+                                Icon="Play"
+                                Label="{i18nExt:Localize Key=PlayAll}"
+                                Command="{Binding PlaylistPlayAllCommand}"
+                                CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
+
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Click">
+                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+
+              <AppBarButton x:Name="RefreshButton"
+                              Label="{i18nExt:Localize Key=Refresh}" 
+                              Icon="Refresh"
+                              Command="{x:Bind _vm.RefreshCommand}"
+                              VerticalAlignment="Center"
+                          >
+              </AppBarButton>
+
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+            </CommandBar.SecondaryCommands>
+          </CommandBar>
+        </Grid>
+      </videolistPage:VideoItemsListView.Header>
+    </videolistPage:VideoItemsListView>
+
+    <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <TextBlock Text="{i18nExt:Localize Key=SeriesVideoNoItems}"
+                     Style="{StaticResource SubtitleTextBlockStyle}"
+                     Opacity="0.8"
+                     />
+    </Grid>
+
+    <VisualStateManager.VisualStateGroups>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ChannelFollowButton.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding NowLoading.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ScrollToTopButton.IsEnabled" Value="False" />
+            <!--
+            <Setter Target="RefreshButton.IsEnabled" Value="False" />
+            -->
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ItemsView.Count}" EqualTo="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</Page>

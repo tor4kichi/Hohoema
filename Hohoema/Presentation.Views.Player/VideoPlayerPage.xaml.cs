@@ -1,4 +1,4 @@
-﻿using Microsoft.Toolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,7 +29,7 @@ using Hohoema.Presentation.ViewModels.Player;
 using Hohoema.Models.Domain.Niconico.Video;
 using System.Reactive.Disposables;
 using Hohoema.Presentation.Navigations;
-using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.DependencyInjection;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -58,8 +58,8 @@ namespace Hohoema.Presentation.Views.Player
 
             _UIdispatcher = Dispatcher;
 
-            _mediaPlayer = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MediaPlayer>();
-            _soundVolumeManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MediaPlayerSoundVolumeManager>();
+            _mediaPlayer = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MediaPlayer>();
+            _soundVolumeManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MediaPlayerSoundVolumeManager>();
             VolumeSlider.Value = _soundVolumeManager.Volume;
 
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
@@ -97,7 +97,7 @@ namespace Hohoema.Presentation.Views.Player
             SeekBarSlider.ValueChanged += SeekBarSlider_ValueChanged;
 
             _compositeDisposable = new CompositeDisposable();
-            var appearanceSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
+            var appearanceSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
             appearanceSettings.ObserveProperty(x => x.ApplicationTheme)
                 .Subscribe(theme =>
                 {

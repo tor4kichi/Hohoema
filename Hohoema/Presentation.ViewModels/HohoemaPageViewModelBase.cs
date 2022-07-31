@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Reactive.Disposables;
 using System.Threading;
 using Reactive.Bindings.Extensions;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Presentation.Views.Pages;
 using Hohoema.Presentation.Navigations;
 

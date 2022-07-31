@@ -1,4 +1,4 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Domain.Niconico.Video;
 using Microsoft.Toolkit.Collections;
 using Reactive.Bindings;

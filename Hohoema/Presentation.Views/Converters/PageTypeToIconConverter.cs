@@ -36,6 +36,7 @@ namespace Hohoema.Presentation.Views.Converters
                     HohoemaPageType.VideoQueue => new SymbolIcon(Symbol.Play),
                     HohoemaPageType.NicoRepo => new SymbolIcon(Symbol.Bookmarks),
                     HohoemaPageType.SubscriptionManagement => new SymbolIcon(Symbol.Globe),
+                    HohoemaPageType.SubscVideoList => new SymbolIcon(Symbol.Globe),
                     _ => throw new NotSupportedException(),
                 };
             }

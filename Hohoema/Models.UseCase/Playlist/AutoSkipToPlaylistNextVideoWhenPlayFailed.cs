@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.Services;
 using I18NPortable;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;

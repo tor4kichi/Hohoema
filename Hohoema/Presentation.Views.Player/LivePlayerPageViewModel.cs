@@ -20,8 +20,8 @@ using Microsoft.Toolkit.Uwp;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Live.WatchPageProp;
 using NiconicoToolkit.Live.WatchSession;
-using Microsoft.Toolkit.Mvvm.Input;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -858,7 +858,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             // 視聴権の使用を確認する
             if (_TimeshiftProgram?.GetReservationStatus() == ReservationStatus.FIRST_WATCH)
             {
-                var dialog = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.DialogService>();
+                var dialog = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.DialogService>();
 
                 // 視聴権に関する詳細な情報提示
 
@@ -1683,17 +1683,17 @@ namespace Hohoema.Presentation.ViewModels.Player
                 switch (maybeType.Value)
                 {
                     case PlayerSidePaneContentType.Playlist:
-                        sidePaneContent = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PlaylistSidePaneContentViewModel>();
+                        sidePaneContent = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PlaylistSidePaneContentViewModel>();
                         break;
                     case PlayerSidePaneContentType.Comment:
                         {
-                            var commentContentVM = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LiveCommentsSidePaneContentViewModel>();
+                            var commentContentVM = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LiveCommentsSidePaneContentViewModel>();
                             commentContentVM.Comments = FilterdComments;
                             sidePaneContent = commentContentVM;
                         }                        
                         break;
                     case PlayerSidePaneContentType.Setting:
-                        sidePaneContent = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SettingsSidePaneContentViewModel>();
+                        sidePaneContent = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SettingsSidePaneContentViewModel>();
                         break;
                     default:
                         sidePaneContent = EmptySidePaneContentViewModel.Default;

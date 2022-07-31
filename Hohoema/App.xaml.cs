@@ -20,7 +20,7 @@ using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels;
 using LiteDB;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.Collections.Generic;
@@ -65,9 +65,9 @@ using DryIoc;
 using ZLogger;
 using Cysharp.Text;
 using Windows.UI.Core;
-using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using DryIoc.Microsoft.DependencyInjection;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Presentation.Navigations;
 
 namespace Hohoema
@@ -264,6 +264,7 @@ namespace Hohoema
             viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.LocalMylist.LocalPlaylistManagePage>();
             viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Queue.VideoQueuePage>();
             viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Subscription.SubscriptionManagementPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Subscription.SubscVideoListPage>();
             viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.VideoCache.CacheManagementPage>();
             viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Activity.WatchHistoryPage>();
             viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Channel.ChannelVideoPage>();
@@ -293,8 +294,6 @@ namespace Hohoema
             container.UseInstance<Presentation.Navigations.IViewLocator>(viewLocator);
 
             NavigationService.ViewTypeResolver = (pageName) => viewLocator.ResolveViewType(pageName);
-
-            Ioc.Default.ConfigureServices(Container);
         }
 
 
@@ -768,6 +767,7 @@ namespace Hohoema
                     //typeof(SearchPageQueryMigrate_0_26_0),
                     typeof(VideoCacheDatabaseMigration_V_0_29_0),
                     typeof(SearchTargetMigration_V_1_1_0),
+                    typeof(SubscriptionMigration_1_3_13),
                 };
 
             async Task TryMigrationAsync(Type migrateType)

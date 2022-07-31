@@ -3,7 +3,7 @@ using Microsoft.Toolkit.Uwp.Helpers;
 
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Storage;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.LocalMylist;

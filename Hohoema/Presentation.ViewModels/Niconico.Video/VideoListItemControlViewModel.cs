@@ -11,10 +11,10 @@ using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase.VideoCache.Events;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Pages.VideoListPage.Commands;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using NiconicoToolkit;
 using NiconicoToolkit.Video;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Diagnostics;
@@ -26,7 +26,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Hohoema.Models.UseCase.Niconico.Player.Events;
 using Hohoema.Models.Domain.Playlist;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Hohoema.Presentation.ViewModels.VideoListPage
 {
@@ -45,13 +45,13 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
 
         static VideoItemViewModel()
         {
-            _messenger = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IMessenger>();
-            _queuePlaylist = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueuePlaylist>();
-            _cacheManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoCacheManager>();
-            _scheduler = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IScheduler>();
-            _videoPlayedHistoryRepository = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoPlayedHistoryRepository>();
-            _addWatchAfterCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueAddItemCommand>();
-            _removeWatchAfterCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
+            _messenger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IMessenger>();
+            _queuePlaylist = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueuePlaylist>();
+            _cacheManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoCacheManager>();
+            _scheduler = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IScheduler>();
+            _videoPlayedHistoryRepository = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoPlayedHistoryRepository>();
+            _addWatchAfterCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueAddItemCommand>();
+            _removeWatchAfterCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
         }
 
         protected void SetLength(TimeSpan length)
@@ -337,10 +337,10 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
     {
         static VideoListItemControlViewModel()
         {
-            _nicoVideoProvider = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NicoVideoProvider>();
-            _ngSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
-            _openVideoOwnerPageCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenVideoOwnerPageCommand>();
-            _messenger = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IMessenger>();
+            _nicoVideoProvider = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NicoVideoProvider>();
+            _ngSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
+            _openVideoOwnerPageCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenVideoOwnerPageCommand>();
+            _messenger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IMessenger>();
         }
 
         public VideoListItemControlViewModel(IVideoContent video)

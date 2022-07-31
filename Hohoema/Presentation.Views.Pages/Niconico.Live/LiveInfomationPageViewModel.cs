@@ -9,7 +9,7 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Presentation.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -441,13 +441,13 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                 if (isDeleted)
                 {
                     // 削除成功
-                    var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+                    var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                     notificationService.ShowLiteInAppNotification_Success("InAppNotification_DeletedTimeshift".Translate());
                 }
                 else
                 {
                     // まだ存在するゾイ
-                    var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+                    var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                     notificationService.ShowLiteInAppNotification_Fail("InAppNotification_FailedDeleteTimeshift".Translate());
 
                     Debug.Fail("タイムシフト削除に失敗しました: " + liveId);
@@ -482,7 +482,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             {
                 // 予約できてるはず
                 // LiveInfoのタイムシフト周りの情報と共に通知
-                var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+                var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                 notificationService.ShowLiteInAppNotification_Success("InAppNotification_AddedTimeshiftWithTitle".Translate(liveTitle));
 
                 isAdded = true;
@@ -493,12 +493,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
             }
             else if (result.IsReservationDeuplicated)
             {
-                var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+                var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                 notificationService.ShowLiteInAppNotification_Success("InAppNotification_ExistTimeshift".Translate());
             }
             else if (result.IsReservationExpired)
             {
-                var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
+                var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.NotificationService>();
                 notificationService.ShowLiteInAppNotification_Fail("InAppNotification_TimeshiftExpired".Translate());
             }
 
@@ -848,7 +848,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Live
                     {
                         if (tagVM != null)
                         {
-                            var pageManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
+                            var pageManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
                             pageManager.Search(SearchTarget.Niconama, tagVM.Tag);
                         }
                     }));

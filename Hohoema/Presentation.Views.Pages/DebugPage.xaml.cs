@@ -14,7 +14,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Hohoema.Models.Domain.Notification;
-using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.Presentation.ViewModels.Pages.Hohoema;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
@@ -45,7 +45,7 @@ namespace Hohoema.Presentation.Views.Pages.Hohoema
 
         private void TestInAppNotification(object sender, RoutedEventArgs e)
         {
-            var notificationService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NotificationService>();
+            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NotificationService>();
             notificationService.ShowInAppNotification(new InAppNotificationPayload() 
             {
                 Title = "通知テスト",

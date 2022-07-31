@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Player.Video;
 using Microsoft.Toolkit.Uwp.Connectivity;
 using Reactive.Bindings.Extensions;

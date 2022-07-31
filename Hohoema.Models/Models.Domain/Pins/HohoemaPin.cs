@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain.PageNavigation;
 using LiteDB;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Input;
 

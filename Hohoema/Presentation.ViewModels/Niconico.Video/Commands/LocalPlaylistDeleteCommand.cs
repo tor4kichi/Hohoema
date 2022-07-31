@@ -1,7 +1,7 @@
 ﻿using I18NPortable;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.Services;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;

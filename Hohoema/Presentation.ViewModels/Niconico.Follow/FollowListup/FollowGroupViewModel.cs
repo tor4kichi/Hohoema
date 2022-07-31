@@ -1,12 +1,12 @@
 ﻿using System;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Domain.Niconico.Follow;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Disposables;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase;
 using Microsoft.Extensions.Logging;
@@ -47,7 +47,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
             _followProvider = followProvider;
             _pageManager = pageManager;
             Items = new IncrementalLoadingCollection<IIncrementalSource<ItemType>, ItemType>(source: loadingSource);
-            _logger = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<ILoggerFactory>().CreateLogger<FollowGroupViewModel<ItemType>>();
+            _logger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<ILoggerFactory>().CreateLogger<FollowGroupViewModel<ItemType>>();
 
             loadingSource.ObserveProperty(x => x.MaxCount).Subscribe(x => MaxCount = x).AddTo(_disposables);
             loadingSource.ObserveProperty(x => x.TotalCount).Subscribe(x => TotalCount = x).AddTo(_disposables);

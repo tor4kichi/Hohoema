@@ -14,7 +14,7 @@ using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.NicoRepo;
 using NiconicoToolkit.Video;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;

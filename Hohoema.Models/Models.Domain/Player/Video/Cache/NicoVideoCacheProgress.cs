@@ -1,6 +1,6 @@
 ﻿using I18NPortable;
 using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

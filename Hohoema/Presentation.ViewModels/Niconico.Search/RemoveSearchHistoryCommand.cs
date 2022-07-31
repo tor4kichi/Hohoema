@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico.Search;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;

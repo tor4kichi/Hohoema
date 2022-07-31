@@ -1,8 +1,8 @@
 ﻿
 using Hohoema.Models.Domain;
-using Microsoft.Toolkit.Mvvm.Input;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;

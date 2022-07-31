@@ -25,7 +25,7 @@ using Hohoema.Models.Domain.Notification;
 using Windows.UI;
 using Windows.UI.Xaml.Media;
 using System.Threading;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Windows.System;
 using Microsoft.Toolkit.Uwp;
 using Hohoema.Presentation.Services.UINavigation;
@@ -39,7 +39,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 using Hohoema.Presentation.Navigations;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 

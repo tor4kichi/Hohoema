@@ -25,9 +25,9 @@ using Hohoema.Presentation.Views.Player;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Live;
 using Hohoema.Models.Domain.Playlist;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System.Windows.Input;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -148,7 +148,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 // ウィンドウサイズの保存と復元
                 if (DeviceTypeHelper.IsDesktop)
                 {
-                    var localObjectStorageHelper = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                    var localObjectStorageHelper = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                     if (localObjectStorageHelper.KeyExists(secondary_view_size))
                     {
                         view.TryResizeView(localObjectStorageHelper.Read<Size>(secondary_view_size));
@@ -157,7 +157,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     view.VisibleBoundsChanged += View_VisibleBoundsChanged;
                 }
 
-                PlaylistPlayer = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<HohoemaPlaylistPlayer>();
+                PlaylistPlayer = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<HohoemaPlaylistPlayer>();
 
                 view.Consolidated += SecondaryAppView_Consolidated;
 
@@ -195,7 +195,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             // ウィンドウサイズを保存する
             if (sender.Id != MainViewId)
             {
-                var localObjectStorageHelper = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                var localObjectStorageHelper = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                 _PrevSecondaryViewSize = localObjectStorageHelper.Read<Size>(secondary_view_size);
                 localObjectStorageHelper.Save(secondary_view_size, new Size(sender.VisibleBounds.Width, sender.VisibleBounds.Height));
             }
@@ -216,7 +216,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             // 直前のウィンドウサイズの値を前々回表示のウィンドウサイズ（_PrevSecondaryViewSize）で上書きする
             if (_PrevSecondaryViewSize != default(Size))
             {
-                var localObjectStorageHelper = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                var localObjectStorageHelper = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                 localObjectStorageHelper.Save(secondary_view_size, _PrevSecondaryViewSize);
             }
 

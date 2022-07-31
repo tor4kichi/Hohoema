@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico.Live;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.UseCase.PageNavigation;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;

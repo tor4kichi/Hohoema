@@ -20,7 +20,7 @@ using Hohoema.Presentation.ViewModels.Subscriptions;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using I18NPortable;
 using NiconicoToolkit.Mylist;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Presentation.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -36,7 +36,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Follow;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.LocalMylist;
 using NiconicoToolkit.Video;
 using Microsoft.Extensions.Logging;
@@ -231,7 +231,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
 
                         // ユーザーに結果を通知
                         var titleText = $"「{mylistGroup.Label}」から {successCount}件 の動画が登録解除されました";
-                        var toastService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NotificationService>();
+                        var toastService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NotificationService>();
                         var resultText = $"";
                         if (failedCount > 0)
                         {

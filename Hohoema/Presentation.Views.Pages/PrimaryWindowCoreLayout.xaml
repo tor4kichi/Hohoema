@@ -363,6 +363,17 @@
           <TextBlock Text="{Binding Label}" />
         </muxc:NavigationViewItem>
       </DataTemplate>
+
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.SubscriptionMenuItemViewModel, Converter={StaticResource StringToType}}" >
+        <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
+                                 >
+          <winui:ToolTipService.ToolTip>
+            <TextBlock Text="{Binding Label}" />
+          </winui:ToolTipService.ToolTip>
+
+          <TextBlock Text="{Binding Label}" />
+        </muxc:NavigationViewItem>
+      </DataTemplate>
     </templateSelector:TypeBasedTemplateSelector>
     
     <DataTemplate x:Key="PinMenuItemTemplate">

@@ -1,4 +1,4 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Helpers;
@@ -6,8 +6,8 @@ using Hohoema.Models.Infrastructure;
 using I18NPortable;
 using LiteDB;
 using Microsoft.Toolkit.Diagnostics;
-using Microsoft.Toolkit.Mvvm.Messaging;
-using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using NiconicoToolkit.Video;
 using System;
 using System.Collections;
@@ -283,7 +283,7 @@ namespace Hohoema.Models.Domain.Playlist
             Guard.IsAssignableToType<IVideoContentProvider>(video, nameof(video));
             Guard.IsFalse(Contains(video.VideoId), "already contain videoId");
 
-            var addedItem = new QueuePlaylistItem(video, video as IVideoContentProvider);
+            var addedItem = new QueuePlaylistItem(video, video as IVideoContentProvider);            
             Items.Add(addedItem);
             SendAddedMessage(addedItem);
             AddEntity(addedItem);

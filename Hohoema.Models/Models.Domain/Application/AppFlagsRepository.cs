@@ -88,5 +88,12 @@ namespace Hohoema.Models.Domain.Application
             get => Read<bool>();
             set => Save(value);
         }
+
+
+        public bool IsSubscriptionMigrate_1_3_13
+        {
+            get => Read<bool>();
+            set => Save(value);
+        }
     }
 }

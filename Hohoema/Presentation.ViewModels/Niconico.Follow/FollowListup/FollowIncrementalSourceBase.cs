@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Threading;
 using Microsoft.Toolkit.Collections;
 using Hohoema.Models.Domain.Niconico.Follow;

@@ -3,7 +3,7 @@ using Hohoema.Models.Domain.Niconico.Follow;
 using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Presentation.Services;
 using I18NPortable;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Linq;

@@ -10,7 +10,7 @@ using I18NPortable;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Live.Timeshift;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Presentation.Navigations;
 using Reactive.Bindings.Extensions;
 using System;

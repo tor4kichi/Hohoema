@@ -19,13 +19,13 @@ using Hohoema.Presentation.ViewModels.Niconico.Video;
 using Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using NiconicoToolkit;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Live.Notify;
 using NiconicoToolkit.Mylist;
-using Microsoft.Toolkit.Mvvm.Input;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.ObjectModel;
@@ -163,7 +163,7 @@ namespace Hohoema.Presentation.ViewModels
                 _localMylistMenuSubItemViewModel,
                 new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage),
                 new MenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift),
-                new MenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
+                new SubscriptionMenuItemViewModel(HohoemaPageType.SubscVideoList.Translate(), HohoemaPageType.SubscVideoList),
                 new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
             };
 
@@ -174,7 +174,7 @@ namespace Hohoema.Presentation.ViewModels
                 new SeparatorMenuItemViewModel(),
                 new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
                 _localMylistMenuSubItemViewModel,
-                new MenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
+                new SubscriptionMenuItemViewModel(HohoemaPageType.SubscVideoList.Translate(), HohoemaPageType.SubscVideoList),
                 new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
             };
 
@@ -600,8 +600,7 @@ namespace Hohoema.Presentation.ViewModels
 
         public LoginUserMylistPlaylist Mylist { get; }
     }
-
-
+    
     public class LocalMylistItemViewModel : MenuItemViewModel
     {
         public LocalMylistItemViewModel(LocalPlaylist localPlaylist)
@@ -777,6 +776,14 @@ namespace Hohoema.Presentation.ViewModels
         public LiveContentMenuItemViewModel(NotifyboxContent content)
         {
             _content = content;
+        }
+    }
+
+
+    public sealed class SubscriptionMenuItemViewModel : MenuItemViewModel
+    {
+        public SubscriptionMenuItemViewModel(string label, HohoemaPageType pageType, INavigationParameters paramaeter = null) : base(label, pageType, paramaeter)
+        {
         }
     }
 

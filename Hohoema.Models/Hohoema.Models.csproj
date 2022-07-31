@@ -260,12 +260,13 @@
     <Compile Include="Models.Domain\Playlist\QueuePlaylistSetting.cs" />
     <Compile Include="Models.Domain\Playlist\VideoPlayRequestMessage.cs" />
     <Compile Include="Models.Domain\Purchase\HohoemaPurchase.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionFeedResult.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionFeedResultRepository.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionManager.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionRegistrationRepository.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionSettings.cs" />
-    <Compile Include="Models.Domain\Subscirptions\SubscriptionSourceEntity.cs" />
+    <Compile Include="Models.Domain\Subscriptions\SubscFeedVideoRepository.cs" />
+    <Compile Include="Models.Domain\Subscriptions\SubscriptionFeedResult.cs" />
+    <Compile Include="Models.Domain\Subscriptions\SubscriptionFeedResultRepository.cs" />
+    <Compile Include="Models.Domain\Subscriptions\SubscriptionManager.cs" />
+    <Compile Include="Models.Domain\Subscriptions\SubscriptionRegistrationRepository.cs" />
+    <Compile Include="Models.Domain\Subscriptions\SubscriptionSettings.cs" />
+    <Compile Include="Models.Domain\Subscriptions\SubscriptionSourceEntity.cs" />
     <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperation.cs" />
     <Compile Include="Models.Domain\VideoCache\IVideoCacheDownloadOperationOutput.cs" />
     <Compile Include="Models.Domain\VideoCache\NicoVideoCacheQualityHelper.cs" />
@@ -320,6 +321,9 @@
     <EmbeddedResource Include="Properties\Hohoema.Models.rd.xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm">
+      <Version>8.0.0-preview4</Version>
+    </PackageReference>
     <PackageReference Include="I18NPortable">
       <Version>1.0.1</Version>
     </PackageReference>
@@ -336,9 +340,6 @@
       <Version>6.2.13</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Diagnostics">
-      <Version>7.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Toolkit.Mvvm">
       <Version>7.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">

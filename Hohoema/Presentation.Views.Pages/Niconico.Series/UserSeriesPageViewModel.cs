@@ -8,7 +8,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Series;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using I18NPortable;
 using NiconicoToolkit.User;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Presentation.Navigations;
 using Reactive.Bindings.Extensions;
 using System;

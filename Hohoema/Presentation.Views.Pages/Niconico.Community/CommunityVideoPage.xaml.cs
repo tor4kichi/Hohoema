@@ -13,7 +13,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Hohoema.Presentation.Navigations;
-using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.Presentation.ViewModels.Pages.Niconico.Community;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238

@@ -3,7 +3,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.VideoCache;
 using Hohoema.Models.Helpers;
 using Microsoft.Extensions.Logging;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.Collections.Generic;

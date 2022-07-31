@@ -22,6 +22,8 @@ namespace Hohoema.Models.Domain.Subscriptions
         public string SourceParameter { get; set; }
 
         public bool IsEnabled { get; set; } = true;
+
+        public DateTime LastUpdateAt { get; set; } = DateTime.MinValue;
     }
 
     public enum SubscriptionSourceType

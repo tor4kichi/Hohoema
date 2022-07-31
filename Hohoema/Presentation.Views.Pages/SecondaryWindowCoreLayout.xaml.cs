@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Notification;
 using Hohoema.Presentation.Services;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Presentation.Navigations;
 using Reactive.Bindings.Extensions;
 using System;
@@ -23,7 +23,7 @@ namespace Hohoema.Presentation.Views.Pages
             this.InitializeComponent();
 
            
-            _CurrentActiveWindowUIContextService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.CurrentActiveWindowUIContextService>();
+            _CurrentActiveWindowUIContextService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.CurrentActiveWindowUIContextService>();
 
             Loaded += SecondaryViewCoreLayout_Loaded;
             Unloaded += SecondaryViewCoreLayout_Unloaded;
@@ -42,7 +42,7 @@ namespace Hohoema.Presentation.Views.Pages
 
         private void SecondaryViewCoreLayout_Loaded(object sender, RoutedEventArgs e)
         {
-            var appearanceSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();           
+            var appearanceSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();           
             _disposables = new CompositeDisposable(new[] 
             {
                 appearanceSettings.ObserveProperty(x => x.ApplicationTheme)

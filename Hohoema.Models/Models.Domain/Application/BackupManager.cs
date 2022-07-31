@@ -1,4 +1,4 @@
-﻿using Microsoft.Toolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Domain.Niconico.NicoRepo;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
@@ -7,7 +7,7 @@ using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.Subscriptions;
 using LiteDB;
-using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using NiconicoToolkit.Ranking.Video;
 using NiconicoToolkit.Live.WatchSession;
 using System;

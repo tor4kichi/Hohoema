@@ -1,7 +1,7 @@
 ﻿using I18NPortable;
 using Hohoema.Models.Helpers;
 using Hohoema.Presentation.Views.Dialogs;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,7 +16,7 @@ using Hohoema.Models.Domain.Niconico;
 using Hohoema.Presentation.Services;
 using Hohoema.Models.Domain.Notification;
 using NiconicoToolkit.Account;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Hohoema.Models.UseCase.Niconico.Account
 {
