@@ -163,7 +163,7 @@ namespace Hohoema.Presentation.ViewModels
                 _localMylistMenuSubItemViewModel,
                 new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage),
                 new MenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift),
-                new SubscriptionMenuItemViewModel(HohoemaPageType.SubscVideoList.Translate(), HohoemaPageType.SubscVideoList),
+                new SubscriptionMenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
                 new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
             };
 
@@ -174,7 +174,7 @@ namespace Hohoema.Presentation.ViewModels
                 new SeparatorMenuItemViewModel(),
                 new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
                 _localMylistMenuSubItemViewModel,
-                new SubscriptionMenuItemViewModel(HohoemaPageType.SubscVideoList.Translate(), HohoemaPageType.SubscVideoList),
+                new SubscriptionMenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
                 new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
             };
 

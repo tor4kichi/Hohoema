@@ -13,33 +13,43 @@ using System.Threading.Tasks;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.Domain.Playlist;
 using System.Reactive.Concurrency;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
+using System.Reactive.Subjects;
 
 namespace Hohoema.Models.UseCase.Subscriptions
 {
     public sealed class FeedResultAddToWatchLater
     {
         private readonly IScheduler _scheduler;
+        private readonly IMessenger _messenger;
         private readonly SubscriptionManager _subscriptionManager;
         private readonly SubscriptionSettings _subscriptionSettingsRepository;
+        private readonly SubscFeedVideoRepository _subscFeedVideoRepository;
+        private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly QueuePlaylist _queuePlaylist;
-        List<SubscriptionFeedUpdateResult> Results = new List<SubscriptionFeedUpdateResult>();
+        List<SubscFeedVideo> Results = new List<SubscFeedVideo>();
 
         public FeedResultAddToWatchLater(
             IScheduler scheduler,
+            IMessenger messenger,
             SubscriptionManager subscriptionManager,
             SubscriptionSettings subscriptionSettingsRepository,
+            SubscFeedVideoRepository subscFeedVideoRepository,
+            NicoVideoProvider nicoVideoProvider,
             QueuePlaylist queuePlaylist
             )
         {
             _scheduler = scheduler;
+            _messenger = messenger;
             _subscriptionManager = subscriptionManager;
             _subscriptionSettingsRepository = subscriptionSettingsRepository;
+            _subscFeedVideoRepository = subscFeedVideoRepository;
+            _nicoVideoProvider = nicoVideoProvider;
             _queuePlaylist = queuePlaylist;
-            Observable.FromEventPattern<SubscriptionFeedUpdateResult>(
-                h => _subscriptionManager.Updated += h,
-                h => _subscriptionManager.Updated -= h
-                )
-                .Select(x => x.EventArgs)
+
+            _messenger.ObserveMessage<NewSubscFeedVideoMessage>()
+                .Select(x => x.Value)
                 .Do(x => Results.Add(x))
                 .Throttle(TimeSpan.FromSeconds(5))
                 .SubscribeOn(_scheduler)
@@ -48,13 +58,14 @@ namespace Hohoema.Models.UseCase.Subscriptions
                     var items = Results.ToList();
                     Results.Clear();
 
-                    foreach (var newVideo in items.SelectMany(x => x.NewVideos))
+                    foreach (var feed in items)
                     {
-                        if (!_queuePlaylist.Contains(newVideo.VideoId))
+                        if (!_queuePlaylist.Contains(feed.VideoId))
                         {
-                            _queuePlaylist.Add(newVideo);
+                            var video = _nicoVideoProvider.GetCachedVideoInfo(feed.VideoId);
+                            _queuePlaylist.Add(video);
 
-                            Debug.WriteLine("[FeedResultAddToWatchLater] added: " + newVideo.Label);
+                            Debug.WriteLine("[FeedResultAddToWatchLater] added: " + video.Label);
                         }
                     }
 

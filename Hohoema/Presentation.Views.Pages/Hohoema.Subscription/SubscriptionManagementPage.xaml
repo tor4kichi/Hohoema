@@ -74,6 +74,8 @@
                 </StackPanel>
               </Grid>
             </AppBarElementContainer>
+            <AppBarButton Icon="List" Command="{x:Bind _vm.OpenSubscVideoListPageCommand}" Label="{i18nExt:Localize Key=HohoemaPageType.SubscVideoList}" />
+
             <AppBarElementContainer VerticalContentAlignment="Center">
               <ToggleSwitch IsOn="{x:Bind _vm.IsAutoUpdateEnabled.Value, Mode=TwoWay}" Style="{StaticResource ToggleSwitchNoHeader}" Header="自動更新" VerticalAlignment="Center" />
             </AppBarElementContainer>
@@ -127,8 +129,8 @@
               <controls:DockPanel>
 
                 <Grid controls:DockPanel.Dock="Right" >
-                  <Image Source="{x:Bind Videos[0].ThumbnailUrl, Mode=OneWay}" Height="104"
-                         ToolTipService.ToolTip="{x:Bind Videos[0].Title, Mode=OneWay}"
+                  <Image Source="{x:Bind SampleVideo.ThumbnailUrl, Mode=OneWay}" Height="104"
+                         ToolTipService.ToolTip="{x:Bind SampleVideo.Title, Mode=OneWay}"
                          />
                 </Grid>
                
@@ -145,7 +147,7 @@
                   </StackPanel>
 
                   <TextBlock Margin="0 8 0 0">
-                    最新動画投稿：<Run Text="{x:Bind Videos[0].PostedAt, Mode=OneWay, Converter={StaticResource DateTimeToString}}" />
+                    最新動画投稿：<Run Text="{x:Bind SampleVideo.PostedAt, Mode=OneWay, Converter={StaticResource DateTimeToString}}" />
                   </TextBlock>
 
 

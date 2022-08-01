@@ -76,7 +76,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             var result = GetFeedResult(source);
             if (result != null)
             {
-                return DeleteItem(result.Id);
+                return base.DeleteItem(result.Id);
             }
             else
             {

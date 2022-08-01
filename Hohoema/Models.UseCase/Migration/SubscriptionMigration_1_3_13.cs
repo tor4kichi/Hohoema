@@ -45,7 +45,6 @@ namespace Hohoema.Models.UseCase.Migration
                     SourceSubscId = subsc.Id,
                     Title = x.Title,
                     VideoId = x.VideoId,     
-                    IsChecked = true,
                 }));
             }
 

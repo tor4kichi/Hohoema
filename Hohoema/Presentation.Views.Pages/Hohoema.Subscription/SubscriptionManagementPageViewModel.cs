@@ -30,7 +30,7 @@ using ZLogger;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 {
-    public sealed class SubscriptionManagementPageViewModel : HohoemaPageViewModelBase, IRecipient<SettingsRestoredMessage>, IDisposable
+    public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelBase, IRecipient<SettingsRestoredMessage>, IDisposable
     {
         public ObservableCollection<SubscriptionViewModel> Subscriptions { get; }
 
@@ -100,20 +100,12 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
                 .AddTo(_CompositeDisposable);
             IsAutoUpdateEnabled = _subscriptionUpdateManager.ToReactivePropertyAsSynchronized(x => x.IsAutoUpdateEnabled)
                 .AddTo(_CompositeDisposable);
-
-            _subscriptionManager.Added += _subscriptionManager_Added;
-            _subscriptionManager.Removed += _subscriptionManager_Removed;
-            _subscriptionManager.Updated += _subscriptionManager_Updated;
         }
 
         
 
         public override void Dispose()
         {
-            _subscriptionManager.Added -= _subscriptionManager_Added;
-            _subscriptionManager.Removed -= _subscriptionManager_Removed;
-            _subscriptionManager.Updated -= _subscriptionManager_Updated;
-
             foreach (var subscription in Subscriptions)
             {
                 subscription.Dispose();
@@ -139,11 +131,50 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
                 }
             }
 
+            _messenger.Register<NewSubscMessage>(this, (r, m) => 
+            {
+                _scheduler.Schedule(() =>
+                {
+                    var vm = new SubscriptionViewModel(_logger, _messenger, _queuePlaylist, m.Value, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
+                    Subscriptions.Insert(0, vm);
+                });
+            });
+
+            _messenger.Register<DeleteSubscMessage>(this, (r, m) =>
+            {
+                var entityId = m.Value;
+                var target = Subscriptions.FirstOrDefault(x => x._source.Id == entityId);
+                if (target == null) { return; }
+
+                _scheduler.Schedule(() =>
+                {
+                    target.Dispose();
+                    Subscriptions.Remove(target);
+                });
+            });
+
+            _messenger.Register<UpdateSubscMessage>(this, (r, m) =>
+            {
+                var entity = m.Value;
+                var vm = Subscriptions.FirstOrDefault(x => x.SourceType == entity.SourceType && x.SourceParameter == entity.SourceParameter);
+                if (vm != null)
+                {
+                    //_scheduler.Schedule(() =>
+                    //{
+                    //    vm.UpdateFeedResult(e.Videos, DateTime.Now);
+                    //});
+                }
+            });
+
             base.OnNavigatingTo(parameters);
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
+            _messenger.Unregister<NewSubscMessage>(this);
+            _messenger.Unregister<DeleteSubscMessage>(this);
+            _messenger.Unregister<UpdateSubscMessage>(this);
+
             base.OnNavigatedFrom(parameters);
         }
 
@@ -153,40 +184,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             return _nicoVideoProvider.GetCachedVideoInfo(item.VideoId);
         }
 
-        private void _subscriptionManager_Updated(object sender, SubscriptionFeedUpdateResult e)
-        {
-            var entity = e.Entity;
-            var vm = Subscriptions.FirstOrDefault(x => x.SourceType == entity.SourceType && x.SourceParameter == entity.SourceParameter);
-            if (vm != null)
-            {
-                _scheduler.Schedule(() => 
-                {
-                    vm.UpdateFeedResult(e.Videos, DateTime.Now);
-                });
-            }
-        }
-
-
-        private void _subscriptionManager_Removed(object sender, SubscriptionSourceEntity e)
-        {
-            var target = Subscriptions.FirstOrDefault(x => x.SourceType == e.SourceType && x.SourceParameter == e.SourceParameter);
-            if (target == null) { return; }
-
-            _scheduler.Schedule(() =>
-            {
-                target.Dispose();
-                Subscriptions.Remove(target);
-            });
-        }
-
-        private void _subscriptionManager_Added(object sender, SubscriptionSourceEntity e)
-        {
-            _scheduler.Schedule(() =>
-            {
-                var vm = new SubscriptionViewModel(_logger, _messenger, _queuePlaylist, e, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
-                Subscriptions.Insert(0, vm);
-            });
-        }
 
         #region PlayAllUnwatched
 
@@ -282,6 +279,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             _pageManager.OpenPage(pageInfo.pageType, pageInfo.param);
 
         }
+
+
+
+        [RelayCommand]
+        void OpenSubscVideoListPage()
+        {
+            _pageManager.OpenPage(HohoemaPageType.SubscVideoList);
+        }
     }
 
 
@@ -336,7 +341,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
         public ReactiveProperty<bool> IsEnabled { get; }
 
-        public ObservableCollection<VideoListItemControlViewModel> Videos { get; } = new ObservableCollection<VideoListItemControlViewModel>();        
+        //public ObservableCollection<VideoListItemControlViewModel> Videos { get; } = new ObservableCollection<VideoListItemControlViewModel>();        
+
+        [ObservableProperty]
+        private VideoListItemControlViewModel _sampleVideo;
 
         private DateTime _lastUpdatedAt;
         public DateTime LastUpdatedAt
@@ -355,32 +363,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         public void Dispose()
         {
             _disposables.Dispose();
-            foreach (var video in Videos)
-            {
-                video.Dispose();
-            }
+            _sampleVideo?.Dispose();
         }
 
         internal void UpdateFeedResult(IList<NicoVideo> result, DateTime updatedAt)
         {
-            foreach (var video in Videos)
-            {
-                video.Dispose();
-            }
-
+            _sampleVideo?.Dispose();
+            _sampleVideo = null;
             // Count == 0 の時にClearすると ArgumentOutOfRangeException がスローされてしまう
-            if (Videos.Any())
-            {
-                try
-                {
-                    Videos.Clear();
-                }
-                catch (System.ArgumentOutOfRangeException) { }
-            }
 
-            foreach (var video in result.Select(x => new VideoListItemControlViewModel(x)))
+            if (result.FirstOrDefault() is not null and var video)
             {
-                Videos.Add(video);
+                _sampleVideo = new VideoListItemControlViewModel(video);
             }
 
             LastUpdatedAt = updatedAt;

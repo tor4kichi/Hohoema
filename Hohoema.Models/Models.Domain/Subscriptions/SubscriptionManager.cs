@@ -15,6 +15,7 @@ using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.SearchWithCeApi.Video;
 using NiconicoToolkit.User;
+using LiteDB;
 
 namespace Hohoema.Models.Domain.Subscriptions
 {
@@ -38,12 +39,6 @@ namespace Hohoema.Models.Domain.Subscriptions
         private readonly SeriesProvider _seriesRepository;
         private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
         
-        public event EventHandler<SubscriptionFeedUpdateResult> Updated;
-
-        public event EventHandler<SubscriptionSourceEntity> Added;
-        public event EventHandler<SubscriptionSourceEntity> Removed;
-
-
         public SubscriptionManager(
             SubscriptionRegistrationRepository subscriptionRegistrationRepository,
             SubscFeedVideoRepository subscFeedVideoRepository,
@@ -113,8 +108,6 @@ namespace Hohoema.Models.Domain.Subscriptions
         {
             _subscriptionRegistrationRepository.CreateItem(newEntity);
 
-            Added?.Invoke(this, newEntity);
-
             return newEntity;
         }
 
@@ -130,16 +123,16 @@ namespace Hohoema.Models.Domain.Subscriptions
 
             var feedResultRemoved = _subscFeedVideoRepository.DeleteSubsc(entity);
             Debug.WriteLine("[SubscriptionSource Remove] feed result removed: " + feedResultRemoved);
-
-            if (registrationRemoved || feedResultRemoved)
-            {
-                Removed?.Invoke(this, entity);
-            }
         }
 
         public IList<SubscriptionSourceEntity> GetAllSubscriptionSourceEntities()
         {
             return _subscriptionRegistrationRepository.ReadAllItems();
+        }
+
+        public SubscriptionSourceEntity getSubscriptionSourceEntity(ObjectId id)
+        {
+            return _subscriptionRegistrationRepository.FindById(id);
         }
 
 
@@ -218,7 +211,6 @@ namespace Hohoema.Models.Domain.Subscriptions
             if (result != null)
             {
                 // 更新を通知する
-                Updated?.Invoke(this, result);
                 Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
 
                 return true;
@@ -226,7 +218,6 @@ namespace Hohoema.Models.Domain.Subscriptions
             else
             {
                 Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
-
                 return false;
             }
         }
@@ -242,15 +233,10 @@ namespace Hohoema.Models.Domain.Subscriptions
             return _subscFeedVideoRepository.GetVideos(skip, limit);
         }
 
-        public IEnumerable<SubscFeedVideo> GetUncheckedSubscFeedVideos(int skip = 0, int limit = int.MaxValue)
-        {
-            return _subscFeedVideoRepository.GetUncheckedVideos(skip, limit);
-        }
-
         public void UpdateFeedVideos(IEnumerable<SubscFeedVideo> videos)
         {
             _subscFeedVideoRepository.UpdateVideos(videos);
-        }
+        }        
 
         async Task<SubscriptionFeedUpdateResult> GetFeedResultAsync(SubscriptionSourceEntity entity)
         {

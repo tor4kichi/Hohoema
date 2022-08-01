@@ -91,6 +91,7 @@ HohoemaPageType.SearchResultTag = タグ検索
 HohoemaPageType.Settings = 設定
 HohoemaPageType.Splash = 起動画面
 HohoemaPageType.Subscription = 購読
+HohoemaPageType.SubscVideoList = 購読動画一覧
 HohoemaPageType.Timeshift = タイムシフト
 HohoemaPageType.UserInfo = ユーザー情報
 HohoemaPageType.UserMylist = マイリスト一覧

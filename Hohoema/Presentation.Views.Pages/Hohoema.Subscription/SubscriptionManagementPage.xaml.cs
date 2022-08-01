@@ -48,7 +48,7 @@ namespace Hohoema.Presentation.Views.Pages.Hohoema.Subscription
                 var subscVM = (listViewBase.DataContext as SubscriptionViewModel);
                 var flyout = new VideoItemFlyout()
                 {
-                    SourceVideoItems = subscVM.Videos,
+                    SourceVideoItems = new[] { subscVM.SampleVideo },
                     AllowSelection = false,
                 };
 

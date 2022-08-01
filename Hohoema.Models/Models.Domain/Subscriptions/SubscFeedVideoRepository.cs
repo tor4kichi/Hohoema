@@ -1,4 +1,6 @@
-﻿using Hohoema.Models.Domain.Niconico.Video;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
+using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Infrastructure;
 using LiteDB;
 using System;
@@ -20,8 +22,24 @@ namespace Hohoema.Models.Domain.Subscriptions
         public string Title { get; init; }
 
         public DateTime FeedUpdateAt { get; set; }
-        public bool IsChecked { get; set; }
     }
+
+
+    public sealed class SubscFeedVideoValueChangedMessage : ValueChangedMessage<SubscFeedVideo>
+    {
+        public SubscFeedVideoValueChangedMessage(SubscFeedVideo value) : base(value)
+        {
+            
+        }
+    }
+
+    public sealed class NewSubscFeedVideoMessage : ValueChangedMessage<SubscFeedVideo>
+    {
+        public NewSubscFeedVideoMessage(SubscFeedVideo value) : base(value)
+        {
+
+        }
+    }    
 
     public sealed class SubscFeedVideoRepository
     {
@@ -32,7 +50,6 @@ namespace Hohoema.Models.Domain.Subscriptions
                 _collection.EnsureIndex(x => x.SourceSubscId);
                 _collection.EnsureIndex(x => x.PostAt);
                 _collection.EnsureIndex(x => x.VideoId);
-                _collection.EnsureIndex(x => x.IsChecked);
                 _collection.EnsureIndex(x => x.FeedUpdateAt);
             }
 
@@ -43,10 +60,14 @@ namespace Hohoema.Models.Domain.Subscriptions
         }
 
         private readonly SubscFeedVideoRepository_Internal _subscFeedVideoRepository;
+        private readonly IMessenger _messenger;
 
-        public SubscFeedVideoRepository(LiteDatabase liteDatabase)
+        public SubscFeedVideoRepository(LiteDatabase liteDatabase,
+            IMessenger messenger
+            )
         {
             _subscFeedVideoRepository = new SubscFeedVideoRepository_Internal(liteDatabase);
+            _messenger = messenger;
         }
 
 
@@ -66,11 +87,6 @@ namespace Hohoema.Models.Domain.Subscriptions
             return _subscFeedVideoRepository.Find(Query.All(nameof(SubscFeedVideo.PostAt), Query.Descending), skip, limit);
         }
 
-        public IEnumerable<SubscFeedVideo> GetUncheckedVideos(int skip = 0, int limit = int.MaxValue)
-        {
-            return _subscFeedVideoRepository.Find(x => x.IsChecked == false).OrderByDescending(x => x.PostAt).Skip(skip).Take(limit);
-        }
-
         public DateTime GetLatestTimeOnSubscVideo(ObjectId subscId)
         {
             return _subscFeedVideoRepository.GetLatestPostAt(subscId);
@@ -79,6 +95,10 @@ namespace Hohoema.Models.Domain.Subscriptions
         public void UpdateVideos(IEnumerable<SubscFeedVideo> videos)
         {
             _subscFeedVideoRepository.UpdateItem(videos);
+            foreach (var video in videos)
+            {
+                _messenger.Send(new SubscFeedVideoValueChangedMessage(video));
+            }            
         }
 
         public IEnumerable<NicoVideo> RegisteringVideosIfNotExist(ObjectId subscId, DateTime updateAt, IEnumerable<NicoVideo> videos)
@@ -88,15 +108,18 @@ namespace Hohoema.Models.Domain.Subscriptions
                 string videoId = video.VideoId;
                 if (_subscFeedVideoRepository.Exists(x => x.SourceSubscId == subscId && x.VideoId == videoId) is false)
                 {
-                    _subscFeedVideoRepository.CreateItem(new SubscFeedVideo 
+                    var feed = new SubscFeedVideo
                     {
                         SourceSubscId = subscId,
                         Id = ObjectId.NewObjectId(),
                         VideoId = video.VideoId,
                         PostAt = video.PostedAt,
                         Title = video.Title,
-                        FeedUpdateAt = updateAt,                        
-                    });
+                        FeedUpdateAt = updateAt,
+                    };
+
+                    _subscFeedVideoRepository.CreateItem(feed);
+                    _messenger.Send(new NewSubscFeedVideoMessage(feed));
 
                     yield return video;
                 }
@@ -113,6 +136,7 @@ namespace Hohoema.Models.Domain.Subscriptions
                     video.FeedUpdateAt = updateAt;
                     _subscFeedVideoRepository.CreateItem(video);
 
+                    _messenger.Send(new NewSubscFeedVideoMessage(video));
                     yield return video;
                 }
             }

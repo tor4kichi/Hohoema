@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 using Windows.System;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Hohoema.Models.UseCase.Subscriptions
 {
@@ -27,6 +28,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
     public sealed class SubscriptionUpdateManager : ObservableObject, IDisposable
     {
         private readonly ILogger<SubscriptionUpdateManager> _logger;
+        private readonly IMessenger _messenger;
         private readonly SubscriptionManager _subscriptionManager;
         private readonly SubscriptionSettings _subscriptionSettings;
         AsyncLock _timerLock = new AsyncLock();
@@ -87,6 +89,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
         public SubscriptionUpdateManager(
             ILoggerFactory loggerFactory,
+            IMessenger messenger,
             SubscriptionManager subscriptionManager,
             SubscriptionSettings subscriptionSettingsRepository
             )
@@ -100,9 +103,24 @@ namespace Hohoema.Models.UseCase.Subscriptions
                 await UpdateIfOverExpirationAsync(CancellationToken.None);
             };
             _logger = loggerFactory.CreateLogger<SubscriptionUpdateManager>();
+            _messenger = messenger;
             _subscriptionManager = subscriptionManager;
             _subscriptionSettings = subscriptionSettingsRepository;
-            _subscriptionManager.Added += _subscriptionManager_Added;
+
+            _messenger.Register<NewSubscMessage>(this, async (r, m) => 
+            {
+                using (await _timerLock.LockAsync())
+                {
+                    if (Helpers.InternetConnection.IsInternet() is false) { return; }
+
+                    using (_timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                    {
+                        await _subscriptionManager.RefreshFeedUpdateResultAsync(m.Value, _timerUpdateCancellationTokenSource.Token);
+                    }
+
+                    _timerUpdateCancellationTokenSource = null;
+                }
+            });
 
             _updateFrequency = _subscriptionSettings.SubscriptionsUpdateFrequency;
             _IsAutoUpdateEnabled = _subscriptionSettings.IsSubscriptionAutoUpdateEnabled;
@@ -111,21 +129,6 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
             App.Current.Suspending += Current_Suspending;
             App.Current.Resuming += Current_Resuming;
-        }
-
-        private async void _subscriptionManager_Added(object sender, SubscriptionSourceEntity e)
-        {
-            using (await _timerLock.LockAsync())
-            {
-                if (Helpers.InternetConnection.IsInternet() is false) { return; }
-
-                using (_timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
-                {
-                    await _subscriptionManager.RefreshFeedUpdateResultAsync(e, _timerUpdateCancellationTokenSource.Token);
-                }
-
-                _timerUpdateCancellationTokenSource = null;
-            }
         }
 
         private async void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)

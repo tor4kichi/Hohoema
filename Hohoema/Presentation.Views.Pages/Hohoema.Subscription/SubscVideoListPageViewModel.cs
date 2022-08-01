@@ -1,9 +1,12 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Subscriptions;
+using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.Navigations;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.VideoListPage;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
@@ -19,38 +22,72 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 {
     public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBase<SubscVideoListItemViewModel>
     {
+        private readonly IMessenger _messenger;
         private readonly PageManager _pageManager;
         private readonly SubscriptionManager _subscriptionManager;
         private readonly NicoVideoProvider _nicoVideoProvider;
 
+        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
+        public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
+
         public SubscVideoListPageViewModel(
             ILogger logger,
+            IMessenger messenger,
             PageManager pageManager,
             SubscriptionManager subscriptionManager,
-            NicoVideoProvider nicoVideoProvider
+            NicoVideoProvider nicoVideoProvider,
+            VideoPlayWithQueueCommand videoPlayWithQueueCommand,
+            ApplicationLayoutManager applicationLayoutManager,
+            SelectionModeToggleCommand selectionModeToggleCommand
             )
             : base(logger)
         {
+            _messenger = messenger;
             _pageManager = pageManager;
             _subscriptionManager = subscriptionManager;
             _nicoVideoProvider = nicoVideoProvider;
+            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
+            ApplicationLayoutManager = applicationLayoutManager;
+            SelectionModeToggleCommand = selectionModeToggleCommand;
         }
 
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
             base.OnNavigatedTo(parameters);
 
-            _subscriptionManager.Updated += _subscriptionManager_Updated;
-        }
+            _messenger.Register<SubscFeedVideoValueChangedMessage>(this, (r, m) => 
+            {
+                //if (m.Value.IsChecked is false)
+                //{
+                //    var target = ItemsView.Cast<SubscVideoListItemViewModel>().FirstOrDefault(x => x.VideoId == m.Value.VideoId);
+                //    if (target is not null)
+                //    {
+                //        ItemsView.Remove(target);
+                //    }
+                //}
+            });
 
-        private void _subscriptionManager_Updated(object sender, SubscriptionFeedUpdateResult e)
-        {
-            ResetList();
+            _messenger.Register<NewSubscFeedVideoMessage>(this, (r, m) => 
+            {
+                var feed = m.Value;
+                VideoId videoId = feed.VideoId;
+
+                if (ItemsView.Cast<SubscVideoListItemViewModel>().FirstOrDefault(x => x.VideoId == videoId) is not null)
+                {
+                    return;
+                }
+
+                var nicoVideo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
+                var itemVM = new SubscVideoListItemViewModel(feed, nicoVideo);
+                ItemsView.Insert(0, itemVM);
+            });
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
-            _subscriptionManager.Updated -= _subscriptionManager_Updated;
+            _messenger.Unregister<SubscFeedVideoValueChangedMessage>(this);
+            _messenger.Unregister<NewSubscFeedVideoMessage>(this);
         }
 
         protected override (int PageSize, IIncrementalSource<SubscVideoListItemViewModel> IncrementalSource) GenerateIncrementalSource()
@@ -63,21 +100,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         public void OpenSubscManagementPage()
         {
             _pageManager.OpenPage(Models.Domain.PageNavigation.HohoemaPageType.SubscriptionManagement);
-        }
-
-
-        [RelayCommand]
-        public void AllChecked()
-        {
-            var items = _subscriptionManager.GetUncheckedSubscFeedVideos().ToArray();           
-            foreach (var itemVM in items)
-            {
-                itemVM.IsChecked = true;
-            }
-
-            _subscriptionManager.UpdateFeedVideos(items);
-
-            ResetList();
         }
     }
 
@@ -96,14 +118,23 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
             _nicoVideoProvider = nicoVideoProvider;
         }
 
+        HashSet<VideoId> _videoIds = new HashSet<VideoId>();
+
         public Task<IEnumerable<SubscVideoListItemViewModel>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
         {
-            var videos = _subscriptionManager.GetUncheckedSubscFeedVideos(pageIndex * pageSize, pageSize);
+            var videos = _subscriptionManager.GetSubscFeedVideos(pageIndex * pageSize, pageSize);
 
             List<SubscVideoListItemViewModel> resultItems = new();
             foreach (var video in videos)
             {
-                var nicoVideo = _nicoVideoProvider.GetCachedVideoInfo(video.VideoId);
+                VideoId videoId = video.VideoId;
+                if (_videoIds.Contains(videoId))
+                {
+                    continue;
+                }
+
+                _videoIds.Add(videoId);
+                var nicoVideo = _nicoVideoProvider.GetCachedVideoInfo(videoId);
                 resultItems.Add(new SubscVideoListItemViewModel(video, nicoVideo));
             }
 
@@ -117,18 +148,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
         public SubscVideoListItemViewModel(SubscFeedVideo feedVideo, NicoVideo video) : base(video)
         {
             FeedVideo = feedVideo;
-            _isChecked = feedVideo.IsChecked;
         }
 
         public SubscFeedVideo FeedVideo { get; }
-
-        [ObservableProperty]
-        private bool _isChecked;
-
-
-        partial void OnIsCheckedChanged(bool value)
-        {
-            FeedVideo.IsChecked = value;
-        }
     }
 }

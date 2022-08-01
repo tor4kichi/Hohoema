@@ -18,40 +18,22 @@
 
   <Grid>
     <videolistPage:VideoItemsListView ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
-                                      ItemCommand="{Binding VideoPlayWithQueueCommand}"
+                                      ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"
                                       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
-                                      RefreshCommand="{Binding RefreshCommand}"
+                                      RefreshCommand="{x:Bind _vm.RefreshCommand}"
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Padding="8 0" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
           <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
             <CommandBar.Content>
-              <controls:AppTitleBar Title="{Binding Title}" />
+              <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
             </CommandBar.Content>
 
             <CommandBar.PrimaryCommands>
 
-              <AppBarButton x:Name="OpenSubscManagementPageButton" Icon="List" Label="{i18nExt:Localize Key=HohoemaPageType.SubscriptionManagement}" Command="{Binding OpenSubscManagementPageCommand}" />
-
-              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
-
-                <StackPanel Orientation="Horizontal">
-
-                  <Button Content="全てチェック済み" Command="{x:Bind _vm.AllCheckedCommand}"
-                          CornerRadius="6 0 0 6"
-                          />
-                  <DropDownButton Padding="4 9 8 9" CornerRadius="0 6 6 0">
-                    <DropDownButton.Flyout>
-                      <MenuFlyout>
-                        <MenuFlyoutItem Text="一日以上前をチェック済み" />
-                        <MenuFlyoutItem Text="一週間以上前をチェック済み" />
-                      </MenuFlyout>
-                    </DropDownButton.Flyout>
-                  </DropDownButton>
-                </StackPanel>
-              </AppBarElementContainer>
+              <AppBarButton x:Name="OpenSubscManagementPageButton" Icon="Setting" Label="{i18nExt:Localize Key=HohoemaPageType.SubscriptionManagement}" Command="{Binding OpenSubscManagementPageCommand}" />
 
               <!--<AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
                 <ComboBox ItemsSource="{Binding SortOptions}"
@@ -68,11 +50,12 @@
                 </ComboBox>
               </AppBarElementContainer>-->
 
-              <AppBarButton x:Name="PlayAllButton"
+              <!--<AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"
-                                Command="{Binding PlaylistPlayAllCommand}"
+                                Command="{x:Bind _vm.PlaylistPlayAllCommand}"
                                 CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
+              -->
 
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                 <i:Interaction.Behaviors>
@@ -101,25 +84,13 @@
     </videolistPage:VideoItemsListView>
 
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{i18nExt:Localize Key=SeriesVideoNoItems}"
+      <TextBlock Text="{i18nExt:Localize Key=VideoNoItems}"
                      Style="{StaticResource SubtitleTextBlockStyle}"
                      Opacity="0.8"
                      />
     </Grid>
 
     <VisualStateManager.VisualStateGroups>
-
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="ChannelFollowButton.Visibility" Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-
       <!-- レイアウトモード -->
       <VisualStateGroup>
         <VisualState>

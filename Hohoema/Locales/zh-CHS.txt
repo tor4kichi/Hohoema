@@ -91,6 +91,7 @@ HohoemaPageType.SearchResultTag = 标签搜索
 HohoemaPageType.Settings = 设定
 HohoemaPageType.Splash = 启动画面
 HohoemaPageType.Subscription = 订阅
+HohoemaPageType.SubscVideoList = 订阅视频列表
 HohoemaPageType.Timeshift = 时移
 HohoemaPageType.UserInfo = 用户信息
 HohoemaPageType.UserMylist = Mylist一览

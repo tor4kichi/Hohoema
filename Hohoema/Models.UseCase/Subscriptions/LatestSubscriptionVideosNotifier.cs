@@ -15,6 +15,7 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Models.UseCase.Playlist;
 using System.Reactive.Concurrency;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace Hohoema.Models.UseCase.Subscriptions
 {
@@ -22,30 +23,30 @@ namespace Hohoema.Models.UseCase.Subscriptions
     {
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
         private readonly IScheduler _scheduler;
+        private readonly IMessenger _messenger;
         private readonly SubscriptionManager _subscriptionManager;
         private readonly NotificationService _notificationService;
 
         static readonly string OpenSubscriptionManagementPageParam = ToastNotificationConstants.MakeOpenPageToastArguments(HohoemaPageType.SubscriptionManagement).ToString();
         static readonly string PlayWithWatchAfterPlaylistParam = ToastNotificationConstants.MakePlayPlaylistToastArguments(Domain.Playlist.PlaylistItemsSourceOrigin.Local, Domain.Playlist.QueuePlaylist.Id.Id).ToString();
 
-        List<SubscriptionFeedUpdateResult> Results = new List<SubscriptionFeedUpdateResult>();
+        List<SubscFeedVideo> Results = new List<SubscFeedVideo>();
 
         public LatestSubscriptionVideosNotifier(
             IScheduler scheduler,
+            IMessenger messenger,
             SubscriptionManager subscriptionManager,
             NotificationService notificationService
             )
         {
             _scheduler = scheduler;
+            _messenger = messenger;
             _subscriptionManager = subscriptionManager;
             _notificationService = notificationService;
 
             this._disposables.Add(
-            Observable.FromEventPattern<SubscriptionFeedUpdateResult>(
-                h => _subscriptionManager.Updated += h,
-                h => _subscriptionManager.Updated -= h
-                )
-                .Select(x => x.EventArgs)
+            _messenger.ObserveMessage<NewSubscFeedVideoMessage>()
+                .Select(x => x.Value)
                 .Do(x => Results.Add(x))
                 .Throttle(TimeSpan.FromSeconds(5))
                 .SubscribeOn(_scheduler)
@@ -53,31 +54,17 @@ namespace Hohoema.Models.UseCase.Subscriptions
                 {
                     var items = Results.ToList();
                     Results.Clear();
-                    // 失敗したアイテムの通知
-                    if (!InternetConnection.IsInternet())
-                    {
-                        foreach (var failedItem in items.Where(x => !x.IsSuccessed))
-                        {
-                            _notificationService.ShowToast(
-                            $"Notification_FailedSubscriptionUpdate".Translate(),
-                            failedItem.Entity.Label,
-                            Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long,
-                            //luanchContent: SubscriptionManagementPageParam,
-                            toastButtons: new[] {
-                                new ToastButton(HohoemaPageType.SubscriptionManagement.Translate(), OpenSubscriptionManagementPageParam)
-                            }
-                            );
-                        }
-                    }
 
                     // 成功した購読ソースのラベルを連結してトーストコンテンツとして表示する
-                    var successedItems = items.Where(x => x.IsSuccessed && x.NewVideos.Any());
+                    var newFeedSubscIds = items.Select(x => x.SourceSubscId).Distinct().ToArray();
 
-                    if (!successedItems.Any()) { return; }
+                    if (!newFeedSubscIds.Any()) { return; }
 
-                    var newVideoOwnersText = string.Join(" - ", successedItems.Select(x => x.Entity.Label));
+                    var subscList = newFeedSubscIds.Select(x => _subscriptionManager.getSubscriptionSourceEntity(x));
+
+                    var newVideoOwnersText = string.Join(" - ", subscList.Select(x => x.Label));
                     _notificationService.ShowToast(
-                        $"Notification_SuccessAddToWatchLaterWithAddedCount".Translate(successedItems.Sum(x => x.NewVideos.Count)),
+                        $"Notification_SuccessAddToWatchLaterWithAddedCount".Translate(items.Count),
                         newVideoOwnersText,
                         Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long,
                         //luanchContent: PlayWithWatchAfterPlaylistParam,
