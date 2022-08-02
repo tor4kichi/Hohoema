@@ -365,11 +365,15 @@
       </DataTemplate>
 
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.SubscriptionMenuItemViewModel, Converter={StaticResource StringToType}}" >
-        <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" 
+        <muxc:NavigationViewItem 
                                  >
           <winui:ToolTipService.ToolTip>
             <TextBlock Text="{Binding Label}" />
           </winui:ToolTipService.ToolTip>
+
+          <muxc:NavigationViewItem.Icon>
+            <SymbolIcon Symbol="Globe" />
+          </muxc:NavigationViewItem.Icon>
 
           <TextBlock Text="{Binding Label}" />
         </muxc:NavigationViewItem>
