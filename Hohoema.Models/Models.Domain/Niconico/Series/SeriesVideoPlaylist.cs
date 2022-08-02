@@ -85,7 +85,7 @@ namespace Hohoema.Models.Domain.Niconico.Series
 
         IPlaylistSortOption[] IPlaylist.SortOptions => SortOptions;
 
-        public static SeriesPlaylistSortOption DefaultSortOption { get; } = new SeriesPlaylistSortOption(SeriesVideoSortKey.AddedAt, PlaylistItemSortOrder.Asc);
+        public static SeriesPlaylistSortOption DefaultSortOption { get; } = new SeriesPlaylistSortOption(SeriesVideoSortKey.AddedAt, PlaylistItemSortOrder.Desc);
 
         IPlaylistSortOption IPlaylist.DefaultSortOption => DefaultSortOption;
 
