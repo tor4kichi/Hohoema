@@ -31,6 +31,7 @@ using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Presentation.ViewModels;
+using NiconicoToolkit;
 
 namespace Hohoema.Presentation.Views.Flyouts
 {
@@ -130,9 +131,9 @@ namespace Hohoema.Presentation.Views.Flyouts
             RemoveWatchAfter.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
 
             OpenVideoInfoPage.Command = PageManager.OpenPageCommand;
-            OpenOwnerMylistsPage.Command = new OpenPageWithIdCommand(HohoemaPageType.UserMylist, PageManager);
-            OpenOwnerVideosPage.Command = PageManager.OpenVideoListPageCommand;
-            OpenOwnerSeriesPage.Command = new OpenPageWithIdCommand(HohoemaPageType.UserSeries, PageManager);
+            OpenOwnerMylistsPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenVideoOwnerMylistListCommand>();
+            OpenOwnerVideosPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenVideoOwnerVideoListCommand>();
+            OpenOwnerSeriesPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenVideoOwnerSeriesListCommand>(); 
             Share.Command = OpenShareUICommand;
             CopyVideoId.Command = CopyToClipboardCommand;
             CopyVideoLink.Command = CopyToClipboardCommand;
@@ -242,25 +243,29 @@ namespace Hohoema.Presentation.Views.Flyouts
                 VideoInfoItemSeparator.Visibility = Visibility.Visible;
                 ExternalActionsSeparator.Visibility = Visibility.Visible;
 
+                OpenOwnerVideosPage.CommandParameter = content;
+                OpenOwnerVideosPage.Visibility = Visibility.Visible;
+                if (content.VideoId.IdType == VideoIdType.Video && content.VideoId.StrId.StartsWith("so"))
+                {
+                    OpenOwnerMylistsPage.Visibility = Visibility.Collapsed;
+                    OpenOwnerSeriesPage.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    OpenOwnerMylistsPage.CommandParameter = content;
+                    OpenOwnerMylistsPage.Visibility = Visibility.Visible;
+                    OpenOwnerSeriesPage.CommandParameter = content;
+                    OpenOwnerSeriesPage.Visibility = Visibility.Visible;
+                }
+
                 if (content is IVideoContentProvider provider && provider.ProviderId != null)
                 {
-                    OpenOwnerVideosPage.Visibility = Visibility.Visible;
-
-                    bool isUserProvidedVideo = (provider.ProviderType == OwnerType.User && provider.ProviderId != null);
-                    OpenOwnerMylistsPage.Visibility =
-                    OpenOwnerSeriesPage.Visibility = isUserProvidedVideo.ToVisibility();
-
-                    OpenOwnerMylistsPage.CommandParameter =
-                    OpenOwnerSeriesPage.CommandParameter = provider?.ProviderId;
-                    
+                    bool isUserProvidedVideo = (provider.ProviderType == OwnerType.User && provider.ProviderId != null);                                        
                     AddSusbcriptionItem.CommandParameter = provider;
                     AddSusbcriptionItem.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    OpenOwnerVideosPage.Visibility = Visibility.Collapsed;
-                    OpenOwnerMylistsPage.Visibility = Visibility.Collapsed;
-                    OpenOwnerSeriesPage.Visibility = Visibility.Collapsed;
                     AddSusbcriptionItem.Visibility = Visibility.Collapsed;
                 }
             }

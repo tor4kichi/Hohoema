@@ -85,7 +85,7 @@ namespace Hohoema.Models.Domain.Niconico.Series
 
         IPlaylistSortOption[] IPlaylist.SortOptions => SortOptions;
 
-        public static SeriesPlaylistSortOption DefaultSortOption { get; } = new SeriesPlaylistSortOption(SeriesVideoSortKey.AddedAt, PlaylistItemSortOrder.Desc);
+        public static SeriesPlaylistSortOption DefaultSortOption { get; } = new SeriesPlaylistSortOption(SeriesVideoSortKey.AddedAt, PlaylistItemSortOrder.Asc);
 
         IPlaylistSortOption IPlaylist.DefaultSortOption => DefaultSortOption;
 
@@ -99,9 +99,9 @@ namespace Hohoema.Models.Domain.Niconico.Series
                 SeriesVideoSortKey.AddedAt => null,
                 SeriesVideoSortKey.PostedAt => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => DateTime.Compare(x.PostAt, y.PostAt) : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => DateTime.Compare(y.PostAt, x.PostAt),
                 SeriesVideoSortKey.Title => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => string.Compare(x.Title, y.Title) : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => string.Compare(y.Title, x.Title),
-                SeriesVideoSortKey.WatchCount => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => y.WatchCount - x.WatchCount : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => x.WatchCount - y.WatchCount,
-                SeriesVideoSortKey.MylistCount => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => y.MylistCount - x.MylistCount : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => x.MylistCount - y.MylistCount,
-                SeriesVideoSortKey.CommentCount => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => y.CommentCount - x.CommentCount : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => x.CommentCount - y.CommentCount,
+                SeriesVideoSortKey.WatchCount => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => x.WatchCount - y.WatchCount : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => y.WatchCount - x.WatchCount,
+                SeriesVideoSortKey.MylistCount => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => x.MylistCount - y.MylistCount : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => y.MylistCount - x.MylistCount,
+                SeriesVideoSortKey.CommentCount => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => x.CommentCount - y.CommentCount : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => y.CommentCount - x.CommentCount,
                 _ => throw new NotSupportedException(sortKey.ToString()),
             };
         }

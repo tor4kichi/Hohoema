@@ -18,6 +18,10 @@
   <Page.Resources>
     <DataTemplate x:Key="SeriesContextFlyoutTemplate" x:DataType="viewModels:UserSeriesItemViewModel">
       <MenuFlyout>
+        <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayAll}" 
+                        Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PlaylistPlayAllCommand}"
+                        CommandParameter="{Binding}"
+                        />
         <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAdd}" 
                         Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.AddSubscriptionCommand}"
                         CommandParameter="{Binding}"

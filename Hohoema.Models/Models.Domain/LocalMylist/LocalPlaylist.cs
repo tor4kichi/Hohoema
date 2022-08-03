@@ -67,7 +67,7 @@ namespace Hohoema.Models.Domain.LocalMylist
             new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.PostedAt, SortOrder = LocalMylistSortOrder.Desc },
             new LocalPlaylistSortOption() { SortKey = LocalMylistSortKey.PostedAt, SortOrder = LocalMylistSortOrder.Asc },
         };
-        public static LocalPlaylistSortOption DefaultSortOption => SortOptions[0];
+        public static LocalPlaylistSortOption DefaultSortOption => SortOptions[1];
 
         IPlaylistSortOption[] IPlaylist.SortOptions => SortOptions;
 

@@ -44,7 +44,7 @@
         </DataTemplate>
       </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
       <GridView.Header>
-        <Grid x:Name="HeaderLayout" Padding="8 0" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
+        <Grid x:Name="HeaderLayout" Padding="8 0" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}" Background="{ThemeResource ApplicationContentBackgroundBrush}">
           <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
             <CommandBar.Content>
               <mycontrols:AppTitleBar Title="{Binding Title}" />

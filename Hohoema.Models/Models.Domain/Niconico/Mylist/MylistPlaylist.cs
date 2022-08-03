@@ -64,7 +64,7 @@ namespace Hohoema.Models.Domain.Niconico.Mylist
             new (MylistSortKey.Duration, MylistSortOrder.Asc),
 
         };
-        public static MylistPlaylistSortOption DefaultSortOption => SortOptions[0];
+        public static MylistPlaylistSortOption DefaultSortOption => SortOptions[1];
 
         IPlaylistSortOption[] IPlaylist.SortOptions => SortOptions;
 

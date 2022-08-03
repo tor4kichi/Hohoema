@@ -16,10 +16,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using Hohoema.Models.Domain.Playlist;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Hohoema.Models.Domain.Niconico.Series;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 {
-    public sealed class UserSeriesPageViewModel : HohoemaPageViewModelBase, ITitleUpdatablePage, IPinablePage
+    public partial class UserSeriesPageViewModel : HohoemaPageViewModelBase, ITitleUpdatablePage, IPinablePage
     {
         public HohoemaPin GetPin()
         {
@@ -43,13 +47,15 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
             SeriesProvider seriesRepository,
             UserProvider userProvider,
             PageManager pageManager,
-            AddSubscriptionCommand addSubscriptionCommand
+            AddSubscriptionCommand addSubscriptionCommand,
+            PlaylistPlayAllCommand playlistPlayAllCommand
             )
         {
             _seriesProvider = seriesRepository;
             _userProvider = userProvider;
             _pageManager = pageManager;
             AddSubscriptionCommand = addSubscriptionCommand;
+            PlaylistPlayAllCommand = playlistPlayAllCommand;
         }
 
         private readonly SeriesProvider _seriesProvider;
@@ -85,6 +91,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
             _OpenSeriesVideoPageCommand ?? (_OpenSeriesVideoPageCommand = new RelayCommand<UserSeriesItemViewModel>(ExecuteOpenSeriesVideoPageCommand));
 
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
+        public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
+
+        [ObservableProperty]
+        private IPlaylist _playlist;
 
         void ExecuteOpenSeriesVideoPageCommand(UserSeriesItemViewModel parameter)
         {
@@ -129,6 +139,11 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
                 {
 
                 }
+            }
+            catch
+            {
+                UserSeriesList = null;
+                User = null;
             }
             finally
             {
