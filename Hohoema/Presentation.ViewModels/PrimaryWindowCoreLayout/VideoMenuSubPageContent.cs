@@ -38,12 +38,12 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 
             LocalMylists = LocalMylistManager.LocalPlaylists
                 .ToReadOnlyReactiveCollection(x =>
-                new MenuItemViewModel(x.Name, HohoemaPageType.LocalPlaylist, new NavigationParameters { { "id", x.PlaylistId.Id } }) as HohoemaListingPageItemBase
+                new NavigateAwareMenuItemViewModel(x.Name, HohoemaPageType.LocalPlaylist, new NavigationParameters { { "id", x.PlaylistId.Id } }) as HohoemaListingPageItemBase
                 )
                 .AddTo(_CompositeDisposable);
             Mylists = MylistManager.Mylists
                 .ToReadOnlyReactiveCollection(x =>
-                new MenuItemViewModel(x.Name, HohoemaPageType.Mylist, new NavigationParameters { { "id", x.MylistId } }) as HohoemaListingPageItemBase
+                new NavigateAwareMenuItemViewModel(x.Name, HohoemaPageType.Mylist, new NavigationParameters { { "id", x.MylistId } }) as HohoemaListingPageItemBase
                 )
                 .AddTo(_CompositeDisposable);
 
@@ -69,24 +69,24 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
             MenuItems.Clear();
             if (NiconicoSession.IsLoggedIn)
             {
-                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList));
-                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo));
-                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage));
-                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory));
+                MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList));
+                MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo));
+                MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage));
+                MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory));
                 MenuItems.Add(new SeparatorMenuItemViewModel());
                 MenuItems.Add(_watchAfterMenuItemViewModel);
-                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement));
-                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement));
+                MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement));
+                MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement));
                 //                MenuItems.Add(new MenuItemViewModel("オススメ".Translate(), HohoemaPageType.Recommend));
             }
             else
             {
-                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList));
+                MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList));
                 MenuItems.Add(new SeparatorMenuItemViewModel());
                 MenuItems.Add(_watchAfterMenuItemViewModel);
-                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement));
+                MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement));
                 //                MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
-                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement));
+                MenuItems.Add(new NavigateAwareMenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement));
             }
 
             OnPropertyChanged(nameof(MenuItems));

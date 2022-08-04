@@ -3,6 +3,7 @@ using LiteDB;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Input;
+using System.Collections.Generic;
 
 namespace Hohoema.Models.Domain.Pins
 {
@@ -29,5 +30,17 @@ namespace Hohoema.Models.Domain.Pins
 
         [BsonField]
         public int SortIndex { get; set; }
+
+        [BsonField]
+        public BookmarkType PinType { get; set; } = BookmarkType.Item;
+
+        [BsonField]
+        public List<HohoemaPin> SubItems { get; set; } = new List<HohoemaPin>();
+    }
+
+    public enum BookmarkType
+    {
+        Item,
+        Folder,
     }
 }

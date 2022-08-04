@@ -37,6 +37,7 @@ using Windows.Storage;
 using Windows.System;
 using ZLogger;
 using Hohoema.Presentation.Navigations;
+using System.Collections.Generic;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -145,7 +146,7 @@ namespace Hohoema.Presentation.ViewModels
             _userMylistManager = userMylistManager;
             _localMylistManager = localMylistManager;
             OpenLiveContentCommand = openLiveContentCommand;
-            _pinsMenuSubItemViewModel = new PinsMenuSubItemViewModel("Pin".Translate(), PinSettings, _dialogService, _notificationService);
+            _pinsMenuSubItemViewModel = new PinsMenuSubItemViewModel("Pin".Translate(), PinSettings, _dialogService, _notificationService, loggerFactory.CreateLogger<PinsMenuSubItemViewModel>());
             _localMylistMenuSubItemViewModel = new LocalMylistSubMenuItemViewModel(_localMylistManager, PageManager.OpenPageCommand);
 
             // メニュー項目の初期化
@@ -155,16 +156,16 @@ namespace Hohoema.Presentation.ViewModels
                 _queueMenuItemViewModel,
                 new LogginUserLiveSummaryItemViewModel(NiconicoSession, _logger, OpenLiveContentCommand),
                 new SeparatorMenuItemViewModel(),
-                new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
-                new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo),
-                new MenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory),
-                new MenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters(("id", MylistId.WatchAfterMylistId.ToString()))),
+                new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
+                new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo),
+                new NavigateAwareMenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory),
+                new NavigateAwareMenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters(("id", MylistId.WatchAfterMylistId.ToString()))),
                 new MylistSubMenuMenu(_userMylistManager, PageManager.OpenPageCommand),
                 _localMylistMenuSubItemViewModel,
-                new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage),
-                new MenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift),
+                new NavigateAwareMenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage),
+                new NavigateAwareMenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift),
                 new SubscriptionMenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
-                new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
+                new NavigateAwareMenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
             };
 
             MenuItems_Offline = new ObservableCollection<HohoemaListingPageItemBase>()
@@ -172,10 +173,10 @@ namespace Hohoema.Presentation.ViewModels
                 _pinsMenuSubItemViewModel,
                 _queueMenuItemViewModel,
                 new SeparatorMenuItemViewModel(),
-                new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
+                new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
                 _localMylistMenuSubItemViewModel,
                 new SubscriptionMenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
-                new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
+                new NavigateAwareMenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
             };
 
 
@@ -216,7 +217,7 @@ namespace Hohoema.Presentation.ViewModels
         public void AddPin(HohoemaPin pin)
         {
             _pinsMenuSubItemViewModel.AddPin(pin);
-        }
+        }        
 
         #endregion
 
@@ -263,6 +264,16 @@ namespace Hohoema.Presentation.ViewModels
             }
         }
 
+        internal IEnumerable<PinFolderMenuItemViewModel> GetPinFolders()
+        {
+            return _pinsMenuSubItemViewModel.GetPinFolders();
+        }
+
+        internal PinFolderMenuItemViewModel GetParentPinFolder(PinMenuItemViewModel itemVM)
+        {
+            return _pinsMenuSubItemViewModel.GetParentPinFolder(itemVM);
+        }
+
         #endregion
     }
 
@@ -289,13 +300,14 @@ namespace Hohoema.Presentation.ViewModels
         public ObservableCollection<MenuItemViewModel> Items { get; protected set; }
     }
 
-    public class PinsMenuSubItemViewModel : MenuSubItemViewModelBase
+    public partial class PinsMenuSubItemViewModel : MenuSubItemViewModelBase
     {
         private readonly PinSettings _pinSettings;
         private readonly DialogService _dialogService;
         private readonly NotificationService _notificationService;
+        private readonly ILogger<PinsMenuSubItemViewModel> _logger;
 
-        public PinsMenuSubItemViewModel(string label, PinSettings pinSettings, DialogService dialogService, NotificationService notificationService)
+        public PinsMenuSubItemViewModel(string label, PinSettings pinSettings, DialogService dialogService, NotificationService notificationService, ILogger<PinsMenuSubItemViewModel> logger)
         {
             Label = label;
 
@@ -303,23 +315,60 @@ namespace Hohoema.Presentation.ViewModels
             _pinSettings = pinSettings;
             _dialogService = dialogService;
             _notificationService = notificationService;
+            _logger = logger;
             Items = new ObservableCollection<MenuItemViewModel>();
             Reset();
+        }
+
+        internal IEnumerable<PinFolderMenuItemViewModel> GetPinFolders()
+        {
+            return Items.Where(x => x is PinFolderMenuItemViewModel).Select(x => x as PinFolderMenuItemViewModel);
+        }
+
+        internal PinFolderMenuItemViewModel GetParentPinFolder(PinMenuItemViewModel itemVM)
+        {
+            return Items.FirstOrDefault(x => (x as PinFolderMenuItemViewModel)?.Items.Contains(itemVM) ?? false) as PinFolderMenuItemViewModel;
         }
 
         public void Reset()
         {
             Items.Clear();
-            foreach (var item in _pinSettings.ReadAllItems().OrderBy(x => x.SortIndex).Select(x => new PinMenuItemViewModel(x, this)))
+            foreach (var item in _pinSettings.ReadAllItems().OrderBy(x => x.SortIndex))
             {
-                Items.Add(item);
-            }
+                try
+                {
+                    MenuItemViewModel itemVM = item.PinType switch
+                    {
+                        BookmarkType.Item => new PinMenuItemViewModel(item, this),
+                        BookmarkType.Folder => new PinFolderMenuItemViewModel(item, this),
+                        _ => throw new NotSupportedException(),
+                    };
+                    Items.Add(itemVM);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, $"Pin(Bookmark)の読み込みに失敗、問題回避のため削除 : {item.Label}");
+                    _pinSettings.DeleteItem(item.Id);
+                }
+            }                       
         }
 
 
         internal void AddPin(HohoemaPin pin)
         {
-            Items.Add(new PinMenuItemViewModel(pin, this));
+            if (pin.PinType == BookmarkType.Item)
+            {
+                Items.Add(new PinMenuItemViewModel(pin, this));
+            }
+            else if (pin.PinType == BookmarkType.Folder)
+            {
+                Items.Add(new PinFolderMenuItemViewModel(pin, this));
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+            
             SavePinsSortIndex();
 
             _notificationService.ShowLiteInAppNotification_Success("PinAddedWithTitle".Translate(pin.Label));
@@ -327,33 +376,40 @@ namespace Hohoema.Presentation.ViewModels
 
 
 
-        private RelayCommand<PinMenuItemViewModel> _DeletePinCommand;
-        public RelayCommand<PinMenuItemViewModel> DeletePinCommand =>
-            _DeletePinCommand ?? (_DeletePinCommand = new RelayCommand<PinMenuItemViewModel>(ExecuteDeletePinCommand));
-
-        void ExecuteDeletePinCommand(PinMenuItemViewModel pinVM)
+        [RelayCommand]
+        void DeletePin(MenuItemViewModel menuItem)
         {
-            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            //Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
+            if (menuItem is PinMenuItemViewModel pinVM)
+            {
+                foreach (var item in Items)
+                {
+                    if (item is PinFolderMenuItemViewModel folderVM)
+                    {
+                        if (folderVM.RemoveItem(pinVM))
+                        {
+                            _pinSettings.UpdateItem(pinVM.Pin);
+                        }
+                    }
+                }
 
-            Items.Remove(pinVM);
-            _pinSettings.DeleteItem(pinVM.Pin.Id);
+                Items.Remove(pinVM);
+                _pinSettings.DeleteItem(pinVM.Pin.Id);
 
-            _notificationService.ShowLiteInAppNotification_Success("PinRemovedWithTitle".Translate(pinVM.Label));
+                _notificationService.ShowLiteInAppNotification_Success("PinRemovedWithTitle".Translate(pinVM.Label));
+            }
+            else if (menuItem is PinFolderMenuItemViewModel folderVM)
+            {
+                Items.Remove(folderVM);
+                _pinSettings.DeleteItem(folderVM.Pin.Id);
+
+                _notificationService.ShowLiteInAppNotification_Success("PinRemovedWithTitle".Translate(folderVM.Label));
+            }
         }
 
 
-
-
-        private RelayCommand<PinMenuItemViewModel> _OverridePinCommand;
-        public RelayCommand<PinMenuItemViewModel> OverridePinCommand =>
-            _OverridePinCommand ?? (_OverridePinCommand = new RelayCommand<PinMenuItemViewModel>(ExecuteOverridePinCommand));
-
-        async void ExecuteOverridePinCommand(PinMenuItemViewModel item)
+        [RelayCommand]
+        async void OverridePin(IPinMenuItem item)
         {
-            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            //Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
-
             var pin = item.Pin;
 
             var name = pin.OverrideLabel ?? $"{pin.Label} ({pin.PageType.Translate()})";
@@ -368,63 +424,73 @@ namespace Hohoema.Presentation.ViewModels
             _pinSettings.UpdateItem(pin);
         }
 
-
-        private RelayCommand<PinMenuItemViewModel> _MovePinToTopCommand;
-        public RelayCommand<PinMenuItemViewModel> MovePinToTopCommand =>
-            _MovePinToTopCommand ?? (_MovePinToTopCommand = new RelayCommand<PinMenuItemViewModel>(ExecuteMovePinToTopCommand));
-
-        void ExecuteMovePinToTopCommand(PinMenuItemViewModel item)
+        ObservableCollection<MenuItemViewModel> GetParentItems(MenuItemViewModel itemVM)
         {
-            var index = Items.IndexOf(item);
+            var items = Items;
+            if (itemVM is PinMenuItemViewModel pinVM)
+            {
+                var parentFolder = GetParentPinFolder(pinVM);
+                if (parentFolder is not null)
+                {
+                    items = parentFolder.Items;
+                }
+            }
+            return items;
+        }
+
+
+        [RelayCommand]
+        void MovePinToTop(MenuItemViewModel item)
+        {
+            var items = GetParentItems(item);
+            var index = items.IndexOf(item);
             if (index >= 1)
             {
-                Items.Remove(item);
-                Items.Insert(index - 1, item);
+                items.Remove(item);
+                items.Insert(index - 1, item);
                 SavePinsSortIndex();
             }
         }
 
-        private RelayCommand<PinMenuItemViewModel> _MovePinToBottomCommand;
-        public RelayCommand<PinMenuItemViewModel> MovePinToBottomCommand =>
-            _MovePinToBottomCommand ?? (_MovePinToBottomCommand = new RelayCommand<PinMenuItemViewModel>(ExecuteMovePinToBottomCommand));
-
-        void ExecuteMovePinToBottomCommand(PinMenuItemViewModel item)
+        [RelayCommand]
+        void MovePinToBottom(MenuItemViewModel item)
         {
-            var index = Items.IndexOf(item);
-            if (index < Items.Count - 1)
+            var items = GetParentItems(item);
+            var index = items.IndexOf(item);
+            if (index < items.Count - 1)
             {
-                Items.Remove(item);
-                Items.Insert(index + 1, item);
+                items.Remove(item);
+                items.Insert(index + 1, item);
                 SavePinsSortIndex();
             }
         }
-
-        private RelayCommand<PinMenuItemViewModel> _MovePinToMostTopCommand;
-        public RelayCommand<PinMenuItemViewModel> MovePinToMostTopCommand =>
-            _MovePinToMostTopCommand ?? (_MovePinToMostTopCommand = new RelayCommand<PinMenuItemViewModel>(ExecuteMovePinToMostTopCommand));
-
-        void ExecuteMovePinToMostTopCommand(PinMenuItemViewModel item)
+        
+        [RelayCommand]
+        void MovePinToMostTop(MenuItemViewModel item)
         {
-            var index = Items.IndexOf(item);
+            var items = GetParentItems(item);
+            var index = items.IndexOf(item);
             if (index >= 1)
             {
-                Items.Remove(item);
-                Items.Insert(0, item);
+                items.Remove(item);
+                items.Insert(0, item);
                 SavePinsSortIndex();
             }
         }
 
-        private RelayCommand<PinMenuItemViewModel> _MovePinToMostBottomCommand;
-        public RelayCommand<PinMenuItemViewModel> MovePinToMostBottomCommand =>
-            _MovePinToMostBottomCommand ?? (_MovePinToMostBottomCommand = new RelayCommand<PinMenuItemViewModel>(ExecuteMovePinToMostBottomCommand));
 
-        void ExecuteMovePinToMostBottomCommand(PinMenuItemViewModel item)
+        [RelayCommand]
+        void MovePinToMostBottom(MenuItemViewModel item)
         {
-            var index = Items.IndexOf(item);
-            if (index < Items.Count - 1)
+            var items = GetParentItems(item);
+            var index = items.IndexOf(item);
+            if (index < items.Count - 1)
             {
-                Items.Remove(item);
-                Items.Insert(Items.Count, item);
+                items.Remove(item);
+                items.Insert(items.Count, item);   
+                
+                
+
                 SavePinsSortIndex();
             }
         }
@@ -433,17 +499,71 @@ namespace Hohoema.Presentation.ViewModels
         {
             for (int i = 0; i < Items.Count; i++)
             {
-                var pin = Items[i] as PinMenuItemViewModel;
-                pin.Pin.SortIndex = i;
-                _pinSettings.UpdateItem(pin.Pin);
+                HohoemaPin pin = Items[i] switch
+                {
+                    PinMenuItemViewModel pinVM => pinVM.Pin,
+                    PinFolderMenuItemViewModel folder => folder.Pin,
+                    _ => throw new NotSupportedException(),
+                };
+
+                pin.SortIndex = i;
+                if (Items[i] is PinFolderMenuItemViewModel folderVM)
+                {                    
+                    for (int m = 0; m < pin.SubItems.Count; m++)
+                    {
+                        (folderVM.Items[m] as IPinMenuItem).Pin.SortIndex = m;
+                    }
+                }
+
+                _pinSettings.UpdateItem(pin);
             }
         }
 
+        internal void PinMoveToFolder(PinMenuItemViewModel targetPinVM, PinFolderMenuItemViewModel destPinFolderVM)
+        {
+            // すでにあるフォルダから一回削除
+            foreach (var item in Items)
+            {
+                if (item is PinFolderMenuItemViewModel folderVM)
+                {
+                    folderVM.RemoveItem(targetPinVM);
+                    _pinSettings.UpdateItem(folderVM.Pin);                    
+                }
+            }
 
+            bool isRootFolderItemRemoved = _pinSettings.DeleteItem(targetPinVM.Pin.Id);
+            Items.Remove(targetPinVM);
+
+            destPinFolderVM.AddItem(targetPinVM);            
+            _pinSettings.UpdateItem(destPinFolderVM.Pin);
+
+            SavePinsSortIndex();
+        }
+
+        internal void PinMoveToRootFolder(PinMenuItemViewModel targetPinVM)
+        {
+            foreach (var item in Items)
+            {
+                if (item is PinFolderMenuItemViewModel folderVM)
+                {
+                    folderVM.RemoveItem(targetPinVM);
+                    _pinSettings.UpdateItem(folderVM.Pin);
+                }
+            }
+
+            _pinSettings.UpdateItem(targetPinVM.Pin);
+            Items.Add(targetPinVM);
+
+            SavePinsSortIndex();
+        }
     }
 
+    public interface IPinMenuItem
+    {
+        HohoemaPin Pin { get; }
+    }
 
-    public class PinMenuItemViewModel : MenuItemViewModel
+    public partial class PinMenuItemViewModel : NavigateAwareMenuItemViewModel, IPinMenuItem
     {
         public HohoemaPin Pin { get; }
         private readonly PinsMenuSubItemViewModel _parentVM;
@@ -481,7 +601,57 @@ namespace Hohoema.Presentation.ViewModels
         public ICommand MovePinToMostTopCommand => _parentVM.MovePinToMostTopCommand;
         public ICommand MovePinToMostBottomCommand => _parentVM.MovePinToMostBottomCommand;
 
+        [RelayCommand]
+        void MoveToFolder(PinFolderMenuItemViewModel pinFolderVM)
+        {
+            _parentVM.PinMoveToFolder(this, pinFolderVM);
+        }
 
+        [RelayCommand]
+        void MoveToRootFolder()
+        {
+            _parentVM.PinMoveToRootFolder(this);
+        }
+    }
+
+    public class PinFolderMenuItemViewModel : MenuItemViewModel, IPinMenuItem
+    {
+        public HohoemaPin Pin { get; }
+        private readonly PinsMenuSubItemViewModel _parentVM;
+
+        public ObservableCollection<MenuItemViewModel> Items { get; }
+
+        public PinFolderMenuItemViewModel(HohoemaPin pin, PinsMenuSubItemViewModel parentVM)
+            : base(pin.Label)
+        {
+            Pin = pin;
+            _parentVM = parentVM;
+
+            Items = new ObservableCollection<MenuItemViewModel>(pin.SubItems.OrderBy(x => x.SortIndex).Select(x => new PinMenuItemViewModel(x, parentVM)));
+        }
+
+        public ICommand DeletePinCommand => _parentVM.DeletePinCommand;
+        public ICommand OverridePinCommand => _parentVM.OverridePinCommand;
+
+        public ICommand MovePinToTopCommand => _parentVM.MovePinToTopCommand;
+        public ICommand MovePinToBottomCommand => _parentVM.MovePinToBottomCommand;
+        public ICommand MovePinToMostTopCommand => _parentVM.MovePinToMostTopCommand;
+        public ICommand MovePinToMostBottomCommand => _parentVM.MovePinToMostBottomCommand;
+
+
+        public bool RemoveItem(PinMenuItemViewModel itemVM)
+        {
+            Items.Remove(itemVM);
+            return Pin.SubItems.Remove(itemVM.Pin);
+        }
+
+        public void AddItem(PinMenuItemViewModel itemVM)
+        {
+            Items.Add(itemVM);
+            Pin.SubItems.Add(itemVM.Pin);
+
+            
+        }
     }
 
     public class MylistSubMenuMenu : MenuSubItemViewModelBase
@@ -590,7 +760,7 @@ namespace Hohoema.Presentation.ViewModels
     }
 
 
-    public class MylistMenuItemViewModel : MenuItemViewModel
+    public class MylistMenuItemViewModel : NavigateAwareMenuItemViewModel
     {
         public MylistMenuItemViewModel(LoginUserMylistPlaylist mylist) 
             : base(mylist.Name, HohoemaPageType.Mylist, new NavigationParameters(("id", mylist.MylistId)))
@@ -601,7 +771,7 @@ namespace Hohoema.Presentation.ViewModels
         public LoginUserMylistPlaylist Mylist { get; }
     }
     
-    public class LocalMylistItemViewModel : MenuItemViewModel
+    public class LocalMylistItemViewModel : NavigateAwareMenuItemViewModel
     {
         public LocalMylistItemViewModel(LocalPlaylist localPlaylist)
             : base(localPlaylist.Name, HohoemaPageType.LocalPlaylist, new NavigationParameters(("id", localPlaylist.PlaylistId.Id)))
@@ -780,7 +950,7 @@ namespace Hohoema.Presentation.ViewModels
     }
 
 
-    public sealed class SubscriptionMenuItemViewModel : MenuItemViewModel
+    public sealed class SubscriptionMenuItemViewModel : NavigateAwareMenuItemViewModel
     {
         public SubscriptionMenuItemViewModel(string label, HohoemaPageType pageType, INavigationParameters paramaeter = null) : base(label, pageType, paramaeter)
         {

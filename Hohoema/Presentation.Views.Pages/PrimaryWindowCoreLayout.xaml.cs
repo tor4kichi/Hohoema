@@ -40,6 +40,7 @@ using Microsoft.Extensions.Logging;
 using ZLogger;
 using Hohoema.Presentation.Navigations;
 using CommunityToolkit.Mvvm.Input;
+using Hohoema.Models.Domain.Pins;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -737,6 +738,12 @@ namespace Hohoema.Presentation.Views.Pages
             }
         }
 
+        [RelayCommand]
+        void AddBookmarkFolder()
+        {
+            var pinGroup = new HohoemaPin { PinType = Models.Domain.Pins.BookmarkType.Folder, Label = "BookmarkFolder".Translate() };
+            _viewModel.AddPin(pinGroup);
+        }
 
 
         private RelayCommand _GoBackCommand;
@@ -813,7 +820,7 @@ namespace Hohoema.Presentation.Views.Pages
         {
             if (args.InvokedItemContainer?.DataContext is IPageNavigatable menuItemVM)
             {
-                _viewModel.PageManager.OpenPageCommand.Execute(menuItemVM);
+                _viewModel.PageManager.OpenPageCommand.Execute(menuItemVM);                
             }
             else if (args.InvokedItemContainer?.DataContext is LiveContentMenuItemViewModel live)
             {
@@ -895,6 +902,25 @@ namespace Hohoema.Presentation.Views.Pages
                 Content = "もっと表示",
                 DisplayDuration = DisplayDuration.MoreAttention,
             }));
+        }
+
+        private void PinItemMenuFlyout_Opening(object sender, object e)
+        {            
+            var menuFlyout = sender as MenuFlyout;
+            var itemVM = menuFlyout.Target.DataContext as PinMenuItemViewModel;
+            var moveToFolderSubItem = menuFlyout.Items.First(x => x.Name == "MoveToFolderItem") as MenuFlyoutSubItem;
+
+            moveToFolderSubItem.Items.Clear();
+
+            var folderItems = _viewModel.GetPinFolders();
+
+            var parentFolderVM = _viewModel.GetParentPinFolder(itemVM);
+            // TODO: 今いるフォルダをDisableに
+            moveToFolderSubItem.Items.Add(new MenuFlyoutItem { Text = "PinMoveToRoot".Translate(), Command = itemVM.MoveToRootFolderCommand, IsEnabled = parentFolderVM != null });
+            foreach (var folder in folderItems)
+            {
+                moveToFolderSubItem.Items.Add(new MenuFlyoutItem { Text = folder.Label, Command = itemVM.MoveToFolderCommand, CommandParameter = folder, IsEnabled = folder != parentFolderVM });
+            }
         }
     }
 

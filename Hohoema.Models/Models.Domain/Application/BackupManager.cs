@@ -115,13 +115,16 @@ namespace Hohoema.Models.Domain.Application
                     })
                     .ToArray(),
                 PinItems = _pinSettings.ReadAllItems()
+                    .OrderBy(x => x.SortIndex)
                     .Select(x => new PinBackupEntry 
                     {
                         Id = x.Id,
                         Label = x.Label,
                         OverrideLabel = x.OverrideLabel,
                         PageName = x.PageType.ToString(),
-                        Parameter = x.Parameter
+                        Parameter = x.Parameter,
+                        SubItems = x.SubItems.OrderBy(x => x.SortIndex).Select(item => new PinBackupEntry { Id = item.Id, Label = item.Label, OverrideLabel = item.OverrideLabel, PageName = item.PageType.ToString(), Parameter = item.Parameter, PinType = BackupBookmarkType.Item, SubItems = null }).ToList(),
+                        PinType = x.PinType switch { BookmarkType.Item => BackupBookmarkType.Item, BookmarkType.Folder => BackupBookmarkType.Folder, _ => throw new NotSupportedException() }
                     })
                     .ToArray(),
                 VideoRankingFiltering = new RankingFilteringBackupEntry 
@@ -281,6 +284,7 @@ namespace Hohoema.Models.Domain.Application
 
             var pins = _pinSettings.ReadAllItems();
 
+            int index = 0;
             foreach (var s in backup.PinItems)
             {
                 if (!Enum.TryParse<PageNavigation.HohoemaPageType>(s.PageName, out var pageType)) { continue; }
@@ -293,8 +297,13 @@ namespace Hohoema.Models.Domain.Application
                     Label = s.Label,
                     OverrideLabel = s.OverrideLabel,
                     PageType = pageType,
-                    Parameter = s.Parameter
+                    Parameter = s.Parameter,
+                    PinType = s.PinType switch { BackupBookmarkType.Item => BookmarkType.Item, BackupBookmarkType.Folder => BookmarkType.Folder, _ => throw new NotSupportedException() },
+                    SubItems = s.SubItems?.Select((x, i) => new HohoemaPin { Id = x.Id, Label = x.Label, OverrideLabel = x.OverrideLabel, PageType = Enum.Parse<HohoemaPageType>(x.PageName), Parameter = x.Parameter, SortIndex = i,  PinType = BookmarkType.Item, SubItems = null }).ToList() ?? new List<HohoemaPin>(),
+                    SortIndex = index,
                 });
+
+                index++;
             }
         }
 
@@ -562,6 +571,11 @@ namespace Hohoema.Models.Domain.Application
         SearchWithTag,
     }
 
+    public enum BackupBookmarkType
+    {
+        Item,
+        Folder,
+    }
 
     public sealed class PinBackupEntry
     {
@@ -579,6 +593,12 @@ namespace Hohoema.Models.Domain.Application
 
         [JsonPropertyName("parameter")]
         public string Parameter { get; set; }
+
+        [JsonPropertyName("subItems")]
+        public List<PinBackupEntry> SubItems { get; set; }
+
+        [JsonPropertyName("pinType")]
+        public BackupBookmarkType PinType { get; set; }
     }
 
 

@@ -152,7 +152,11 @@ namespace Hohoema.Models.Domain.LocalMylist
 
         public bool DeletePlaylist(string playlistId)
         {
-            return _playlistDbService.DeleteItem(playlistId);
+            var result = _playlistDbService.DeleteItem(playlistId);
+
+            var count = _itemsDbService.ClearPlaylistItems(playlistId);
+
+            return result;
         }
 
 
@@ -190,13 +194,30 @@ namespace Hohoema.Models.Domain.LocalMylist
 
         public List<PlaylistItemEntity> AddItems(string playlistId, IEnumerable<VideoId> items)
         {
-            var entities = items.Where(itemId => !_itemsDbService.Exists(x => x.PlaylistId == playlistId && x.ContentId == itemId)).Select(item => new PlaylistItemEntity()
+            List<PlaylistItemEntity> resultItems = new();
+            HashSet<string> videoIds = new();
+            foreach (var itemId in items)
             {
-                PlaylistId = playlistId,
-                ContentId = item,
-            }).ToList();
-            _itemsDbService.UpdateItem(entities);
-            return entities;
+                var videoId = itemId.StrId;
+                if (videoIds.Contains(videoId)) { continue; }
+                if (_itemsDbService.Exists(x => x.PlaylistId == playlistId && x.ContentId == videoId))
+                {
+                    continue;
+                }
+
+                var entity = new PlaylistItemEntity()
+                {
+                    PlaylistId = playlistId,
+                    ContentId = videoId,
+                };
+
+                resultItems.Add(entity);
+                videoIds.Add(videoId);
+            }
+
+            _itemsDbService.UpdateItem(resultItems);
+
+            return resultItems;
         }
 
         public void UpdateItem(PlaylistItemEntity entity)
