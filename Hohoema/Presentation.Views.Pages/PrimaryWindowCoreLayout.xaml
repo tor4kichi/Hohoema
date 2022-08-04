@@ -246,10 +246,9 @@
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=Pin_MoveNext}" Command="{Binding MovePinToBottomCommand}" CommandParameter="{Binding}" />
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=Pin_MoveToTail}" Command="{Binding MovePinToMostBottomCommand}" CommandParameter="{Binding}" />
               </MenuFlyoutSubItem>
+              <MenuFlyoutSubItem x:Name="MoveToFolderItem" Text="{i18nExt:Localize Key=PinMoveToFolder}" />
               <MenuFlyoutSeparator />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=PinRemove}" Command="{Binding DeletePinCommand}" CommandParameter="{Binding}" />
-
-              <MenuFlyoutSubItem x:Name="MoveToFolderItem" Text="{i18nExt:Localize Key=PinMoveToFolder}" />
             </MenuFlyout>
           </muxc:NavigationViewItem.ContextFlyout>
           <StackPanel>
