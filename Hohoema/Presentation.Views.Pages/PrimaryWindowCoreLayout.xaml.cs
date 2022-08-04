@@ -741,7 +741,7 @@ namespace Hohoema.Presentation.Views.Pages
         [RelayCommand]
         void AddBookmarkFolder()
         {
-            var pinGroup = new HohoemaPin { PinType = Models.Domain.Pins.BookmarkType.Folder, Label = "BookmarkFolder".Translate() };
+            var pinGroup = new HohoemaPin { PinType = Models.Domain.Pins.BookmarkType.Folder, Label = "PinFolder_DefaultName".Translate() };
             _viewModel.AddPin(pinGroup);
         }
 

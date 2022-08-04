@@ -412,7 +412,8 @@ namespace Hohoema.Presentation.ViewModels
         {
             var pin = item.Pin;
 
-            var name = pin.OverrideLabel ?? $"{pin.Label} ({pin.PageType.Translate()})";
+
+            var name = pin.OverrideLabel ?? (item.Pin.PinType is BookmarkType.Item ? $"{pin.Label} ({pin.PageType.Translate()})" : $"{pin.Label}");
             var result = await _dialogService.GetTextAsync(
                 $"RenameX".Translate(name),
                 "PinRenameDialogPlacefolder_EmptyToDefault".Translate(),
