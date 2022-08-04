@@ -556,6 +556,13 @@ namespace Hohoema.Presentation.ViewModels
 
             SavePinsSortIndex();
         }
+
+        internal void SavePin(PinFolderMenuItemViewModel folderVM)
+        {
+            _pinSettings.UpdateItem(folderVM.Pin);
+        }
+
+
     }
 
     public interface IPinMenuItem
@@ -614,7 +621,7 @@ namespace Hohoema.Presentation.ViewModels
         }
     }
 
-    public class PinFolderMenuItemViewModel : MenuItemViewModel, IPinMenuItem
+    public partial class PinFolderMenuItemViewModel : MenuItemViewModel, IPinMenuItem
     {
         public HohoemaPin Pin { get; }
         private readonly PinsMenuSubItemViewModel _parentVM;
@@ -628,6 +635,7 @@ namespace Hohoema.Presentation.ViewModels
             _parentVM = parentVM;
 
             Items = new ObservableCollection<MenuItemViewModel>(pin.SubItems.OrderBy(x => x.SortIndex).Select(x => new PinMenuItemViewModel(x, parentVM)));
+            _isOpen = Pin.IsOpenSubItems;
         }
 
         public ICommand DeletePinCommand => _parentVM.DeletePinCommand;
@@ -649,8 +657,16 @@ namespace Hohoema.Presentation.ViewModels
         {
             Items.Add(itemVM);
             Pin.SubItems.Add(itemVM.Pin);
+        }
 
-            
+        [ObservableProperty]
+        private bool _isOpen;
+
+
+        partial void OnIsOpenChanged(bool value)
+        {
+            Pin.IsOpenSubItems = value;
+            _parentVM.SavePin(this);
         }
     }
 

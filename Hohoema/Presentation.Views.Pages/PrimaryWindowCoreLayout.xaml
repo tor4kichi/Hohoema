@@ -265,7 +265,7 @@
 
 
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PinFolderMenuItemViewModel, Converter={StaticResource StringToType}}">
-        <muxc:NavigationViewItem MenuItemsSource="{Binding Items}">
+        <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" IsExpanded="{Binding IsOpen, Mode=TwoWay}">
           <muxc:NavigationViewItem.ContextFlyout>
             <MenuFlyout>
               <MenuFlyoutItem Text="{i18nExt:Localize Key=PinChangeArias}" Command="{Binding OverridePinCommand}" CommandParameter="{Binding}" />

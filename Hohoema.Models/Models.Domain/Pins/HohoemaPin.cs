@@ -36,6 +36,9 @@ namespace Hohoema.Models.Domain.Pins
 
         [BsonField]
         public List<HohoemaPin> SubItems { get; set; } = new List<HohoemaPin>();
+
+        [BsonField]
+        public bool IsOpenSubItems { get; set; }
     }
 
     public enum BookmarkType
