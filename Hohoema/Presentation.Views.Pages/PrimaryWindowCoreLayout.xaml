@@ -267,6 +267,10 @@
         <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" IsExpanded="{Binding IsOpen, Mode=TwoWay}">
           <muxc:NavigationViewItem.ContextFlyout>
             <MenuFlyout>
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=PinCurrentPage}" 
+                      Click="PinCurrentPageMenuFlyoutItem_Click"
+                      />
+              <MenuFlyoutSeparator />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=PinChangeArias}" Command="{Binding OverridePinCommand}" CommandParameter="{Binding}" />
               <MenuFlyoutSubItem Text="{i18nExt:Localize Key=Pin_Move}">
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=Pin_MoveToHead}" Command="{Binding MovePinToMostTopCommand}" CommandParameter="{Binding}" />

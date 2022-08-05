@@ -130,7 +130,7 @@ PinRemovedWithTitle = {0} をピン留め解除
 PinMoveToFolder = フォルダ移動
 AddPinFolder = フォルダを追加
 PinFolder_DefaultName = ピンフォルダ
-
+PinMoveToRoot = ルートフォルダ
 
 
 #### Video Cache feature ####

@@ -217,7 +217,12 @@ namespace Hohoema.Presentation.ViewModels
         public void AddPin(HohoemaPin pin)
         {
             _pinsMenuSubItemViewModel.AddPin(pin);
-        }        
+        }    
+        
+        public void AddPinToFolder(HohoemaPin pin, PinFolderMenuItemViewModel folderVM)
+        {
+            _pinsMenuSubItemViewModel.AddPin(pin, folderVM);            
+        }
 
         #endregion
 
@@ -307,7 +312,7 @@ namespace Hohoema.Presentation.ViewModels
         private readonly NotificationService _notificationService;
         private readonly ILogger<PinsMenuSubItemViewModel> _logger;
 
-        public PinsMenuSubItemViewModel(string label, PinSettings pinSettings, DialogService dialogService, NotificationService notificationService, ILogger<PinsMenuSubItemViewModel> logger)
+        public PinsMenuSubItemViewModel(string label,  PinSettings pinSettings, DialogService dialogService, NotificationService notificationService, ILogger<PinsMenuSubItemViewModel> logger)
         {
             Label = label;
 
@@ -374,6 +379,21 @@ namespace Hohoema.Presentation.ViewModels
             _notificationService.ShowLiteInAppNotification_Success("PinAddedWithTitle".Translate(pin.Label));
         }
 
+        internal void AddPin(HohoemaPin pin, PinFolderMenuItemViewModel folderVM)
+        {
+            if (pin.PinType == BookmarkType.Item)
+            {
+                folderVM.AddItem(new PinMenuItemViewModel(pin, this));
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+
+            SavePinsSortIndex();
+
+            _notificationService.ShowLiteInAppNotification_Success("PinAddedWithTitle".Translate(pin.Label));
+        }
 
 
         [RelayCommand]
@@ -387,7 +407,7 @@ namespace Hohoema.Presentation.ViewModels
                     {
                         if (folderVM.RemoveItem(pinVM))
                         {
-                            _pinSettings.UpdateItem(pinVM.Pin);
+                            _pinSettings.UpdateItem(folderVM.Pin);
                         }
                     }
                 }
@@ -564,6 +584,12 @@ namespace Hohoema.Presentation.ViewModels
         }
 
 
+        [RelayCommand]
+        void PinCurrentPage()
+        {
+
+        }
+
     }
 
     public interface IPinMenuItem
@@ -647,6 +673,7 @@ namespace Hohoema.Presentation.ViewModels
         public ICommand MovePinToMostTopCommand => _parentVM.MovePinToMostTopCommand;
         public ICommand MovePinToMostBottomCommand => _parentVM.MovePinToMostBottomCommand;
 
+        public ICommand PinCurrentPageCommand => _parentVM.PinCurrentPageCommand;
 
         public bool RemoveItem(PinMenuItemViewModel itemVM)
         {

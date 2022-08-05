@@ -731,11 +731,19 @@ namespace Hohoema.Presentation.Views.Pages
 
         void TryAddPinWithCurrentFrameContent()
         {
-            if ((ContentFrame.Content as FrameworkElement)?.DataContext is IPinablePage page)
+            if (GetCurrentPagePin() is not null and var pin)
             {
-                var pin = page.GetPin();
                 _viewModel.AddPin(pin);
             }
+        }
+
+        HohoemaPin GetCurrentPagePin()
+        {
+            if ((ContentFrame.Content as FrameworkElement)?.DataContext is IPinablePage page)
+            {
+                return page.GetPin();
+            }
+            else { return null; }
         }
 
         [RelayCommand]
@@ -917,9 +925,23 @@ namespace Hohoema.Presentation.Views.Pages
             var parentFolderVM = _viewModel.GetParentPinFolder(itemVM);
             // TODO: 今いるフォルダをDisableに
             moveToFolderSubItem.Items.Add(new MenuFlyoutItem { Text = "PinMoveToRoot".Translate(), Command = itemVM.MoveToRootFolderCommand, IsEnabled = parentFolderVM != null });
+            moveToFolderSubItem.Items.Add(new MenuFlyoutSeparator());
             foreach (var folder in folderItems)
             {
                 moveToFolderSubItem.Items.Add(new MenuFlyoutItem { Text = folder.Label, Command = itemVM.MoveToFolderCommand, CommandParameter = folder, IsEnabled = folder != parentFolderVM });
+            }
+        }
+
+        private void PinCurrentPageMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (GetCurrentPagePin() is not null and var pin)
+            {
+                var item = sender as MenuFlyoutItem;
+                if (item == null) { return; }
+
+                var folderVM = item.DataContext as PinFolderMenuItemViewModel;
+                if (folderVM == null) { return; }
+                _viewModel.AddPinToFolder(pin, folderVM);
             }
         }
     }

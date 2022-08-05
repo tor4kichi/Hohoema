@@ -130,7 +130,7 @@ PinRemovedWithTitle = 取消固定{0}
 PinMoveToFolder = 移动文件夹
 AddPinFolder = 新增文件夹
 PinFolder_DefaultName = 大头针文件夹
-
+PinMoveToRoot = 根文件夹
 
 
 #### Video Cache feature ####
