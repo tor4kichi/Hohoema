@@ -928,7 +928,7 @@ namespace Hohoema.Presentation.Views.Pages
             moveToFolderSubItem.Items.Add(new MenuFlyoutSeparator());
             foreach (var folder in folderItems)
             {
-                moveToFolderSubItem.Items.Add(new MenuFlyoutItem { Text = folder.Label, Command = itemVM.MoveToFolderCommand, CommandParameter = folder, IsEnabled = folder != parentFolderVM });
+                moveToFolderSubItem.Items.Add(new MenuFlyoutItem { Text = folder.Pin.OverrideLabel ?? folder.Label, Command = itemVM.MoveToFolderCommand, CommandParameter = folder, IsEnabled = folder != parentFolderVM });
             }
         }
 
