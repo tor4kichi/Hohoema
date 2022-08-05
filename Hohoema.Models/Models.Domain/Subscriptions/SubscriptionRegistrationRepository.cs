@@ -45,6 +45,8 @@ namespace Hohoema.Models.Domain.Subscriptions
             : base(database)
         {
             _messenger = messenger;
+
+            _collection.EnsureIndex(x => x.SortIndex);
         }
 
         public void ClearAll()
@@ -61,8 +63,9 @@ namespace Hohoema.Models.Domain.Subscriptions
         public override BsonValue CreateItem(SubscriptionSourceEntity entity)
         {
             Guard.IsFalse(IsExist(entity), "IsExist(entity)");
-
+            
             entity.Id = ObjectId.NewObjectId();
+            entity.SortIndex = _collection.Max(x => x.SortIndex) + 1;
             var result = base.CreateItem(entity);
             _messenger.Send(new NewSubscMessage(entity));
             return result;

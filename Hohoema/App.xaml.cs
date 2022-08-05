@@ -607,8 +607,7 @@ namespace Hohoema
                 Container.RegisterInstance(Container.Resolve<FollowNotificationAndConfirmListener>());
                 Container.RegisterInstance(Container.Resolve<SubscriptionUpdateManager>());
                 Container.RegisterInstance(Container.Resolve<SyncWatchHistoryOnLoggedIn>());
-                Container.RegisterInstance(Container.Resolve<FeedResultAddToWatchLater>());
-                Container.RegisterInstance(Container.Resolve<LatestSubscriptionVideosNotifier>());
+                Container.RegisterInstance(Container.Resolve<NewFeedVideosProcesser>());
 
                 Container.RegisterInstance(Container.Resolve<VideoPlayRequestBridgeToPlayer>());
                 Container.RegisterInstance(Container.Resolve<CloseToastNotificationWhenPlayStarted>());

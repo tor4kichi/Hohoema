@@ -204,7 +204,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
             }
             finally
             {
-                _timerUpdateCancellationTokenSource.Dispose();
+                _timerUpdateCancellationTokenSource?.Dispose();
                 _timerUpdateCancellationTokenSource = null;
             }
         }

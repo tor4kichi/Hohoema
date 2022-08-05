@@ -81,17 +81,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
             Subscriptions = new ObservableCollection<SubscriptionViewModel>();
             Subscriptions.CollectionChangedAsObservable()
-                .Throttle(TimeSpan.FromSeconds(0.25))
-                .Subscribe(_ =>
-                {
-                    foreach (var (index, vm) in Subscriptions.Select((x, i) => (i, x)))
-                    {
-                        var subscEntity = vm._source;
-                        subscEntity.SortIndex = index + 1; // 新規追加時に既存アイテムを後ろにずらして表示したいため+1
-                        _subscriptionManager.UpdateSubscription(subscEntity);
-                    }
-                })
-                .AddTo(_CompositeDisposable);
+               .Throttle(TimeSpan.FromSeconds(0.25))
+               .Subscribe(_ =>
+               {
+                   foreach (var (index, vm) in Subscriptions.Select((x, i) => (i, x)))
+                   {
+                       var subscEntity = vm._source;
+                       subscEntity.SortIndex = index + 1; // 新規追加時に既存アイテムを後ろにずらして表示したいため+1
+                       _subscriptionManager.UpdateSubscription(subscEntity);
+                   }
+               })
+               .AddTo(_CompositeDisposable);
 
             IsAutoUpdateRunning = _subscriptionUpdateManager.ObserveProperty(x => x.IsRunning)
                 .ToReadOnlyReactiveProperty(false)
@@ -116,19 +116,17 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Subscription
 
         public override void OnNavigatingTo(INavigationParameters parameters)
         {
-            if (!Subscriptions.Any())
+            Subscriptions.Clear();
+            foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionSourceEntities().OrderBy(x => x.SortIndex))
             {
-                foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionSourceEntities().OrderBy(x => x.SortIndex))
+                var vm = new SubscriptionViewModel(_logger, _messenger, _queuePlaylist, subscInfo, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
+                var latestVideo = _subscriptionManager.GetSubscFeedVideos(subscInfo, 0, 1).FirstOrDefault();
+                if (latestVideo != null)
                 {
-                    var vm = new SubscriptionViewModel(_logger, _messenger, _queuePlaylist, subscInfo, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
-                    var latestVideo = _subscriptionManager.GetSubscFeedVideos(subscInfo, 0, 1).FirstOrDefault();
-                    if (latestVideo != null)
-                    {
-                        var items = _nicoVideoProvider.GetCachedVideoInfoItems(new[] { (VideoId)latestVideo.VideoId });
-                        vm.UpdateFeedResult(items, subscInfo.LastUpdateAt);
-                    }
-                    Subscriptions.Add(vm);
+                    var items = _nicoVideoProvider.GetCachedVideoInfoItems(new[] { (VideoId)latestVideo.VideoId });
+                    vm.UpdateFeedResult(items, subscInfo.LastUpdateAt);
                 }
+                Subscriptions.Add(vm);
             }
 
             _messenger.Register<NewSubscMessage>(this, (r, m) => 

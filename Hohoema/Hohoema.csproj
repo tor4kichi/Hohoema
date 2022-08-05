@@ -197,8 +197,7 @@
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\VideoPlayCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\VideoItemsSelectionContext.cs" />
     <Compile Include="Models.UseCase\Niconico.Video\WatchHistoryManager.cs" />
-    <Compile Include="Models.UseCase\Subscriptions\FeedResultAddToWatchLater.cs" />
-    <Compile Include="Models.UseCase\Subscriptions\LatestSubscriptionVideosNotifier.cs" />
+    <Compile Include="Models.UseCase\Subscriptions\NewFeedVideosProcesser.cs" />
     <Compile Include="Models.UseCase\Subscriptions\SubscriptionUpdateManager.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheDownloadOperationManager.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheFolderManager.cs" />

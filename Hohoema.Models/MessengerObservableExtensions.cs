@@ -11,25 +11,26 @@ namespace Hohoema
 {
     public static class MessengerObservableExtensions
     {
-        public static MessageObserver<TMessage> ObserveMessage<TMessage>(this IMessenger messenger) where TMessage : class
+        public static IObservable<TMessage> ObserveMessage<TMessage>(this IMessenger messenger, object recipient) where TMessage : class
         {
-            return new MessageObserver<TMessage>(messenger);
+            return new MessageObserver<TMessage>(messenger, recipient);
         }
 
-        public class MessageObserver<TMessage> : SubjectBase<TMessage>, IRecipient<TMessage> where TMessage : class
+        public class MessageObserver<TMessage> : SubjectBase<TMessage> where TMessage : class
         {
             private readonly IMessenger _messenger;
+            private readonly object _recipient;
             private readonly Subject<TMessage> _subject;
 
-            public MessageObserver(IMessenger messenger)
+            public MessageObserver(IMessenger messenger, object recipient)
             {
                 _subject = new Subject<TMessage>();
                 _messenger = messenger;
-            }
-
-            void IRecipient<TMessage>.Receive(TMessage message)
-            {
-                OnNext(message);
+                _recipient = recipient;
+                _messenger.Register<TMessage>(_recipient, (m, r) =>
+                {
+                    _subject.OnNext(r);
+                });
             }
 
             public override bool HasObservers => _subject.HasObservers;
@@ -38,18 +39,18 @@ namespace Hohoema
 
             public override void Dispose()
             {
-                if (_messenger.IsRegistered<TMessage>(this))
+                if (_messenger.IsRegistered<TMessage>(_recipient))
                 {
-                    _messenger.Unregister<TMessage>(this);
+                    _messenger.Unregister<TMessage>(_recipient);
                 }
                 _subject.Dispose();
             }
 
             public override void OnCompleted()
             {
-                if (_messenger.IsRegistered<TMessage>(this))
+                if (_messenger.IsRegistered<TMessage>(_recipient))
                 {
-                    _messenger.Unregister<TMessage>(this);
+                    _messenger.Unregister<TMessage>(_recipient);
                 }
                 _subject.OnCompleted();
             }
@@ -66,13 +67,8 @@ namespace Hohoema
 
             public override IDisposable Subscribe(IObserver<TMessage> observer)
             {
-                if (_messenger.IsRegistered<TMessage>(this) is false)
-                {
-                    _messenger.Register<TMessage>(this);
-                }
-
                 return _subject.Subscribe(observer);
-            }
+            }            
         }
     }
 }
