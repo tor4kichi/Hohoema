@@ -132,7 +132,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
                 };
 
                 SeriesVideoPlaylist = new SeriesVideoPlaylist(new PlaylistId() { Id = seriesId, Origin = PlaylistItemsSourceOrigin.Series }, _seriesDetails);
-                SelectedSortOption = new SeriesPlaylistSortOption(SeriesVideoSortKey.AddedAt, PlaylistItemSortOrder.Asc);
+                SelectedSortOption = new SeriesPlaylistSortOption(SeriesVideoSortKey.AddedAt, PlaylistItemSortOrder.Desc);
 
                 this.ObserveProperty(x => x.SelectedSortOption).Subscribe(_ =>
                 {
