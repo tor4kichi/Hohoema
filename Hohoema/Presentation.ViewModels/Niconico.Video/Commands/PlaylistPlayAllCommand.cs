@@ -1,12 +1,13 @@
 ﻿using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase.Playlist;
-using Microsoft.Toolkit.Mvvm.Messaging;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Models.Domain.Niconico.Video.Series;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 {
@@ -31,6 +32,11 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
                 return true;
             }
 
+            if (parameter is ISeries)
+            {
+                return true;
+            }
+
             return parameter is IPlaylist;
         }
 
@@ -43,6 +49,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             else if (parameter is PlaylistToken playlistToken)
             {
                 _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(playlistToken));
+            }
+            else if (parameter is ISeries series)
+            {
+                _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(series.Id, PlaylistItemsSourceOrigin.Series, null));
             }
         }
     }

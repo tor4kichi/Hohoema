@@ -25,7 +25,7 @@ using Hohoema.Models.Domain.Notification;
 using Windows.UI;
 using Windows.UI.Xaml.Media;
 using System.Threading;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Windows.System;
 using Microsoft.Toolkit.Uwp;
 using Hohoema.Presentation.Services.UINavigation;
@@ -39,7 +39,8 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 using Hohoema.Presentation.Navigations;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
+using Hohoema.Models.Domain.Pins;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -730,13 +731,27 @@ namespace Hohoema.Presentation.Views.Pages
 
         void TryAddPinWithCurrentFrameContent()
         {
-            if ((ContentFrame.Content as FrameworkElement)?.DataContext is IPinablePage page)
+            if (GetCurrentPagePin() is not null and var pin)
             {
-                var pin = page.GetPin();
                 _viewModel.AddPin(pin);
             }
         }
 
+        HohoemaPin GetCurrentPagePin()
+        {
+            if ((ContentFrame.Content as FrameworkElement)?.DataContext is IPinablePage page)
+            {
+                return page.GetPin();
+            }
+            else { return null; }
+        }
+
+        [RelayCommand]
+        void AddBookmarkFolder()
+        {
+            var pinGroup = new HohoemaPin { PinType = Models.Domain.Pins.BookmarkType.Folder, Label = "PinFolder_DefaultName".Translate() };
+            _viewModel.AddPin(pinGroup);
+        }
 
 
         private RelayCommand _GoBackCommand;
@@ -813,7 +828,7 @@ namespace Hohoema.Presentation.Views.Pages
         {
             if (args.InvokedItemContainer?.DataContext is IPageNavigatable menuItemVM)
             {
-                _viewModel.PageManager.OpenPageCommand.Execute(menuItemVM);
+                _viewModel.PageManager.OpenPageCommand.Execute(menuItemVM);                
             }
             else if (args.InvokedItemContainer?.DataContext is LiveContentMenuItemViewModel live)
             {
@@ -895,6 +910,39 @@ namespace Hohoema.Presentation.Views.Pages
                 Content = "もっと表示",
                 DisplayDuration = DisplayDuration.MoreAttention,
             }));
+        }
+
+        private void PinItemMenuFlyout_Opening(object sender, object e)
+        {            
+            var menuFlyout = sender as MenuFlyout;
+            var itemVM = menuFlyout.Target.DataContext as PinMenuItemViewModel;
+            var moveToFolderSubItem = menuFlyout.Items.First(x => x.Name == "MoveToFolderItem") as MenuFlyoutSubItem;
+
+            moveToFolderSubItem.Items.Clear();
+
+            var folderItems = _viewModel.GetPinFolders();
+
+            var parentFolderVM = _viewModel.GetParentPinFolder(itemVM);
+            // TODO: 今いるフォルダをDisableに
+            moveToFolderSubItem.Items.Add(new MenuFlyoutItem { Text = "PinMoveToRoot".Translate(), Command = itemVM.MoveToRootFolderCommand, IsEnabled = parentFolderVM != null });
+            moveToFolderSubItem.Items.Add(new MenuFlyoutSeparator());
+            foreach (var folder in folderItems)
+            {
+                moveToFolderSubItem.Items.Add(new MenuFlyoutItem { Text = folder.Pin.OverrideLabel ?? folder.Label, Command = itemVM.MoveToFolderCommand, CommandParameter = folder, IsEnabled = folder != parentFolderVM });
+            }
+        }
+
+        private void PinCurrentPageMenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (GetCurrentPagePin() is not null and var pin)
+            {
+                var item = sender as MenuFlyoutItem;
+                if (item == null) { return; }
+
+                var folderVM = item.DataContext as PinFolderMenuItemViewModel;
+                if (folderVM == null) { return; }
+                _viewModel.AddPinToFolder(pin, folderVM);
+            }
         }
     }
 

@@ -40,10 +40,9 @@
                 </i:Interaction.Behaviors>
               </AppBarButton>
               <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
+              <AppBarButton Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.RefreshCommand}" x:Name="RefreshButton" VerticalAlignment="Center" />
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
-              <AppBarButton Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.RefreshCommand}" x:Name="RefreshButton" VerticalAlignment="Center" />
-
               <AppBarButton x:Name="RemoveAllHistoryButton" Label="{i18nExt:Localize Key=WatchHistoryRemoveAll}" Icon="Delete" AllowFocusOnInteraction="True">
                 <AppBarButton.Flyout>
                   <Flyout>

@@ -2,9 +2,9 @@
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.Services;
 using Hohoema.Presentation.Views.Pages;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Toolkit.Uwp;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

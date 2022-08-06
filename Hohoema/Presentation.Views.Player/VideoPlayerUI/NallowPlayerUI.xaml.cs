@@ -30,7 +30,7 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
 
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
-            _soundVolumeManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MediaPlayerSoundVolumeManager>();
+            _soundVolumeManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MediaPlayerSoundVolumeManager>();
 
             CommentTextBox.GotFocus += CommentTextBox_GotFocus;
             CommentTextBox.LostFocus += CommentTextBox_LostFocus;

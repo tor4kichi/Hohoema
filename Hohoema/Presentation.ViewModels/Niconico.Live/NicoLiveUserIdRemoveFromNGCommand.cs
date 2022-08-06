@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.UseCase.Niconico.Player.Comment;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Live
 {

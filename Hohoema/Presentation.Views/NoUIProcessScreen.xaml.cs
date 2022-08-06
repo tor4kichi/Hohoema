@@ -23,7 +23,7 @@ namespace Hohoema.Presentation.Views
         NoUIProcessScreenContext _context;
         public NoUIProcessScreen()
         {
-            DataContext = _context = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NoUIProcessScreenContext>();
+            DataContext = _context = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NoUIProcessScreenContext>();
             this.InitializeComponent();
         }
     }

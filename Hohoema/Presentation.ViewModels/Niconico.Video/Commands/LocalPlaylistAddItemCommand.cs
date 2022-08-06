@@ -1,7 +1,7 @@
 ﻿
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,8 +37,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
             var playlist = Playlist;
             if (playlist == null)
             {
-                var localPlaylistManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
-                var dialogService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<DialogService>();
+                var localPlaylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
+                var dialogService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<DialogService>();
                 playlist = localPlaylistManager.LocalPlaylists.Any() ?
                     await dialogService.ShowSingleSelectDialogAsync(
                     localPlaylistManager.LocalPlaylists.ToList(),
@@ -61,8 +61,8 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
         async Task<LocalPlaylist> CreateLocalPlaylist()
         {
-            var localPlaylistManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
-            var dialogService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<DialogService>();
+            var localPlaylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
+            var dialogService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<DialogService>();
             var name = await dialogService.GetTextAsync("LocalPlaylistCreate".Translate(), "LocalPlaylistNameTextBoxPlacefolder".Translate(), "", (s) => !string.IsNullOrWhiteSpace(s));
             if (name != null)
             {

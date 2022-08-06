@@ -5,9 +5,11 @@
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
             xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
             mc:Ignorable="d">
-  <MenuFlyoutItem Text="{i18nExt:Localize Key=PlayAll}"
-                  Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PlayAllCommand}"
-                  CommandParameter="{Binding}" />
+  <MenuFlyoutItem
+    x:Name="PlayAllItem"
+    Text="{i18nExt:Localize Key=PlayAll}"
+    CommandParameter="{Binding}" 
+    />
   <!--
   <MenuFlyoutItem Text="名前を変更"
                   Command="{Binding ElementName=ContentLayout, Path=DataContext.EditMylistGroupCommand}"

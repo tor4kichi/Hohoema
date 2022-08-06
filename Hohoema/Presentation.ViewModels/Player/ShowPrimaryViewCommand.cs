@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.UseCase.Niconico.Player;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;

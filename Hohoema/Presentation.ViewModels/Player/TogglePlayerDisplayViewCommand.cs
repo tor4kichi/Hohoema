@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.UseCase.Niconico.Player.Events;
-using Microsoft.Toolkit.Mvvm.Messaging;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {

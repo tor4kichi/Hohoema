@@ -10,7 +10,7 @@ using System.Linq;
 using Hohoema.Presentation.Views.Helpers;
 using I18NPortable;
 using System;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Models.Domain.Playlist;
@@ -29,8 +29,9 @@ using NiconicoToolkit.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Video;
 using Hohoema.Models.Domain.LocalMylist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Presentation.ViewModels;
+using NiconicoToolkit;
 
 namespace Hohoema.Presentation.Views.Flyouts
 {
@@ -100,22 +101,22 @@ namespace Hohoema.Presentation.Views.Flyouts
 
         static VideoItemFlyout()
         {
-            QueuePlaylist = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueuePlaylist>();
-            _messenger = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IMessenger>();
-            CreateMylistCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistCreateCommand>();
-            CreateLocalMylistCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalPlaylistCreateCommand>();
-            PageManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
-            UserMylistManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LoginUserOwnedMylistManager>();
-            LocalMylistManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
-            SubscriptionManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SubscriptionManager>();
-            VideoCacheManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoCacheManager>();
-            VideoItemsSelectionContext = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoItemsSelectionContext>();
-            VideoFilteringSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
+            QueuePlaylist = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueuePlaylist>();
+            _messenger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IMessenger>();
+            CreateMylistCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistCreateCommand>();
+            CreateLocalMylistCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalPlaylistCreateCommand>();
+            PageManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
+            UserMylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LoginUserOwnedMylistManager>();
+            LocalMylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
+            SubscriptionManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SubscriptionManager>();
+            VideoCacheManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoCacheManager>();
+            VideoItemsSelectionContext = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoItemsSelectionContext>();
+            VideoFilteringSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
 
-            OpenLinkCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenLinkCommand>();
-            CopyToClipboardCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CopyToClipboardCommand>();
-            CopyToClipboardWithShareTextCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CopyToClipboardWithShareTextCommand>();
-            OpenShareUICommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenShareUICommand>();
+            OpenLinkCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenLinkCommand>();
+            CopyToClipboardCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CopyToClipboardCommand>();
+            CopyToClipboardWithShareTextCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CopyToClipboardWithShareTextCommand>();
+            OpenShareUICommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenShareUICommand>();
         }
 
 
@@ -125,29 +126,29 @@ namespace Hohoema.Presentation.Views.Flyouts
 
             SelectedVideoItems = new List<IVideoContent>();
 
-            RemoveWatchHisotryItem.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<WatchHistoryRemoveItemCommand>();
-            AddWatchAfter.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueAddItemCommand>();
-            RemoveWatchAfter.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
+            RemoveWatchHisotryItem.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<WatchHistoryRemoveItemCommand>();
+            AddWatchAfter.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueAddItemCommand>();
+            RemoveWatchAfter.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
 
             OpenVideoInfoPage.Command = PageManager.OpenPageCommand;
-            OpenOwnerMylistsPage.Command = new OpenPageWithIdCommand(HohoemaPageType.UserMylist, PageManager);
-            OpenOwnerVideosPage.Command = PageManager.OpenVideoListPageCommand;
-            OpenOwnerSeriesPage.Command = new OpenPageWithIdCommand(HohoemaPageType.UserSeries, PageManager);
+            OpenOwnerMylistsPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenVideoOwnerMylistListCommand>();
+            OpenOwnerVideosPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenVideoOwnerVideoListCommand>();
+            OpenOwnerSeriesPage.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<OpenVideoOwnerSeriesListCommand>(); 
             Share.Command = OpenShareUICommand;
             CopyVideoId.Command = CopyToClipboardCommand;
             CopyVideoLink.Command = CopyToClipboardCommand;
             CopyShareText.Command = CopyToClipboardWithShareTextCommand;
 
-            LocalMylistItem.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalPlaylistAddItemCommand>();
-            AddToMylistItem.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistAddItemCommand>();
+            LocalMylistItem.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalPlaylistAddItemCommand>();
+            AddToMylistItem.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistAddItemCommand>();
 
-            AddSusbcriptionItem.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AddSubscriptionCommand>();
+            AddSusbcriptionItem.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AddSubscriptionCommand>();
 
-            CacheRequest.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CacheAddRequestCommand>();
-            DeleteCacheRequest.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CacheDeleteRequestCommand>();
+            CacheRequest.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CacheAddRequestCommand>();
+            DeleteCacheRequest.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CacheDeleteRequestCommand>();
 
-            AddNgUser.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<HiddenVideoOwnerAddCommand>();
-            RemoveNgUser.Command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<HiddenVideoOwnerRemoveCommand>();
+            AddNgUser.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<HiddenVideoOwnerAddCommand>();
+            RemoveNgUser.Command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<HiddenVideoOwnerRemoveCommand>();
 
             Opening += VideoItemFlyout_Opening;
         }
@@ -242,25 +243,29 @@ namespace Hohoema.Presentation.Views.Flyouts
                 VideoInfoItemSeparator.Visibility = Visibility.Visible;
                 ExternalActionsSeparator.Visibility = Visibility.Visible;
 
+                OpenOwnerVideosPage.CommandParameter = content;
+                OpenOwnerVideosPage.Visibility = Visibility.Visible;
+                if (content.VideoId.IdType == VideoIdType.Video && content.VideoId.StrId.StartsWith("so"))
+                {
+                    OpenOwnerMylistsPage.Visibility = Visibility.Collapsed;
+                    OpenOwnerSeriesPage.Visibility = Visibility.Collapsed;
+                }
+                else
+                {
+                    OpenOwnerMylistsPage.CommandParameter = content;
+                    OpenOwnerMylistsPage.Visibility = Visibility.Visible;
+                    OpenOwnerSeriesPage.CommandParameter = content;
+                    OpenOwnerSeriesPage.Visibility = Visibility.Visible;
+                }
+
                 if (content is IVideoContentProvider provider && provider.ProviderId != null)
                 {
-                    OpenOwnerVideosPage.Visibility = Visibility.Visible;
-
-                    bool isUserProvidedVideo = (provider.ProviderType == OwnerType.User && provider.ProviderId != null);
-                    OpenOwnerMylistsPage.Visibility =
-                    OpenOwnerSeriesPage.Visibility = isUserProvidedVideo.ToVisibility();
-
-                    OpenOwnerMylistsPage.CommandParameter =
-                    OpenOwnerSeriesPage.CommandParameter = provider?.ProviderId;
-                    
+                    bool isUserProvidedVideo = (provider.ProviderType == OwnerType.User && provider.ProviderId != null);                                        
                     AddSusbcriptionItem.CommandParameter = provider;
                     AddSusbcriptionItem.Visibility = Visibility.Visible;
                 }
                 else
                 {
-                    OpenOwnerVideosPage.Visibility = Visibility.Collapsed;
-                    OpenOwnerMylistsPage.Visibility = Visibility.Collapsed;
-                    OpenOwnerSeriesPage.Visibility = Visibility.Collapsed;
                     AddSusbcriptionItem.Visibility = Visibility.Collapsed;
                 }
             }
@@ -343,7 +348,7 @@ namespace Hohoema.Presentation.Views.Flyouts
             {
                 foreach (var quality in Enum.GetValues(typeof(NicoVideoQuality)).Cast<NicoVideoQuality>().Where(x => x != NicoVideoQuality.Unknown))
                 {
-                    var command = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CacheAddRequestCommand>();
+                    var command = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CacheAddRequestCommand>();
                     command.VideoQuality = quality;
                     var cacheRequestMenuItem = new MenuFlyoutItem() 
                     {

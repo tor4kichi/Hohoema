@@ -65,10 +65,9 @@
                   </i:Interaction.Behaviors>
                 </AppBarButton>
                 <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
-
+                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.RefreshCommand}" IsEnabled="{x:Bind _vm.CanChangeSort.Value, Mode=OneWay}" VerticalAlignment="Center" />
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
-                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.RefreshCommand}" IsEnabled="{x:Bind _vm.CanChangeSort.Value, Mode=OneWay}" VerticalAlignment="Center" />
 
                 <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{i18nExt:Localize Key=SubscriptionAddTag}"
                                 Command="{x:Bind _vm.AddTagSearchSubscriptionCommand}"

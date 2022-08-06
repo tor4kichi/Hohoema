@@ -3,7 +3,7 @@ using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Models.Domain.Niconico.User;
 using Hohoema.Models.Domain.Niconico.Video;
 using NiconicoToolkit.Video;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using Windows.UI.Popups;
@@ -46,9 +46,6 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
         protected override async void Execute(object parameter)
         {
-            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            //Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
-
             if (parameter is IVideoContentProvider provider)
             {
                 string ownerName = null;

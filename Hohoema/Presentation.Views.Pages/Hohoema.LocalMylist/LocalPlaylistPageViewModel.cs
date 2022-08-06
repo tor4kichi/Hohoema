@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Playlist;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -20,7 +20,7 @@ using System.Threading;
 using System.Runtime.CompilerServices;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain.Pins;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Video;
 using Hohoema.Models.Domain.LocalMylist;

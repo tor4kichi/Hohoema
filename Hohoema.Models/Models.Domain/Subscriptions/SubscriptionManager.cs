@@ -15,6 +15,7 @@ using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.SearchWithCeApi.Video;
 using NiconicoToolkit.User;
+using LiteDB;
 
 namespace Hohoema.Models.Domain.Subscriptions
 {
@@ -29,7 +30,7 @@ namespace Hohoema.Models.Domain.Subscriptions
     public sealed class SubscriptionManager
     {
         private readonly SubscriptionRegistrationRepository _subscriptionRegistrationRepository;
-        private readonly SubscriptionFeedResultRepository _subscriptionFeedResultRepository;
+        private readonly SubscFeedVideoRepository _subscFeedVideoRepository;
         private readonly ChannelProvider _channelProvider;
         private readonly SearchProvider _searchProvider;
         private readonly UserProvider _userProvider;
@@ -38,15 +39,9 @@ namespace Hohoema.Models.Domain.Subscriptions
         private readonly SeriesProvider _seriesRepository;
         private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
         
-        public event EventHandler<SubscriptionFeedUpdateResult> Updated;
-
-        public event EventHandler<SubscriptionSourceEntity> Added;
-        public event EventHandler<SubscriptionSourceEntity> Removed;
-
-
         public SubscriptionManager(
             SubscriptionRegistrationRepository subscriptionRegistrationRepository,
-            SubscriptionFeedResultRepository subscriptionFeedResultRepository,
+            SubscFeedVideoRepository subscFeedVideoRepository,
             ChannelProvider channelProvider,
             SearchProvider searchProvider,
             UserProvider userProvider,
@@ -57,7 +52,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             )
         {
             _subscriptionRegistrationRepository = subscriptionRegistrationRepository;
-            _subscriptionFeedResultRepository = subscriptionFeedResultRepository;
+            _subscFeedVideoRepository = subscFeedVideoRepository;
             _channelProvider = channelProvider;
             _searchProvider = searchProvider;
             _userProvider = userProvider;
@@ -113,8 +108,6 @@ namespace Hohoema.Models.Domain.Subscriptions
         {
             _subscriptionRegistrationRepository.CreateItem(newEntity);
 
-            Added?.Invoke(this, newEntity);
-
             return newEntity;
         }
 
@@ -128,13 +121,8 @@ namespace Hohoema.Models.Domain.Subscriptions
             var registrationRemoved = _subscriptionRegistrationRepository.DeleteItem(entity.Id);
             Debug.WriteLine("[SubscriptionSource Remove] registration removed: " + registrationRemoved);
 
-            var feedResultRemoved = _subscriptionFeedResultRepository.DeleteItem(entity.Id);
+            var feedResultRemoved = _subscFeedVideoRepository.DeleteSubsc(entity);
             Debug.WriteLine("[SubscriptionSource Remove] feed result removed: " + feedResultRemoved);
-
-            if (registrationRemoved || feedResultRemoved)
-            {
-                Removed?.Invoke(this, entity);
-            }
         }
 
         public IList<SubscriptionSourceEntity> GetAllSubscriptionSourceEntities()
@@ -142,26 +130,9 @@ namespace Hohoema.Models.Domain.Subscriptions
             return _subscriptionRegistrationRepository.ReadAllItems();
         }
 
-        // TODO: 表示向けのFeedResultの取得
-        public List<(SubscriptionSourceEntity entity, SubscriptionFeedResult feedResult)> GetAllSubscriptionInfo()
+        public SubscriptionSourceEntity getSubscriptionSourceEntity(ObjectId id)
         {
-            List<SubscriptionSourceEntity> items = _subscriptionRegistrationRepository.ReadAllItems();
-            List<SubscriptionFeedResult> feedResults =_subscriptionFeedResultRepository.ReadAllItems();
-            Dictionary<SubscriptionSourceEntity, SubscriptionFeedResult> map = new Dictionary<SubscriptionSourceEntity, SubscriptionFeedResult>();
-            foreach (var entity in items)
-            {
-                var result = feedResults.Find(x => x.SourceType == entity.SourceType && x.SourceParamater == entity.SourceParameter);
-                if (result != null)
-                {
-                    map.Add(entity, result);
-                }
-                else
-                {
-                    map.Add(entity, new SubscriptionFeedResult() { SourceType = entity.SourceType, SourceParamater = entity.SourceParameter, Videos = new List<FeedResultVideoItem>() });
-                }
-            }
-
-            return map.Select(x => (entity: x.Key, feedResult: x.Value)).ToList();
+            return _subscriptionRegistrationRepository.FindById(id);
         }
 
 
@@ -203,48 +174,69 @@ namespace Hohoema.Models.Domain.Subscriptions
 
         public async Task<bool> RefreshFeedUpdateResultAsync(SubscriptionSourceEntity entity, CancellationToken cancellationToken = default)
         {
-            var prevResult = _subscriptionFeedResultRepository.GetFeedResult(entity);
-            if (prevResult != null && !IsExpiredFeedResultUpdatedTime(prevResult.LastUpdatedAt))
+            var result = await Task.Run(async () => 
+            {                                
+                if (!IsExpiredFeedResultUpdatedTime(entity.LastUpdateAt))
+                {
+                    // 前回更新から時間経っていない場合はスキップする
+                    Debug.WriteLine("[FeedUpdate] update skip: " + entity.Label);
+                    return null;
+                }
+
+                Debug.WriteLine("[FeedUpdate] start: " + entity.Label);
+
+                // オンラインソースから情報を取得して
+                var result = await GetFeedResultAsync(entity);
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+                DateTime now = DateTime.Now;
+                var newVideos = _subscFeedVideoRepository.RegisteringVideosIfNotExist(entity.Id, now, result.Videos).ToList();
+                if (entity.LastUpdateAt != DateTime.MinValue)
+                {
+                    result.NewVideos = newVideos.ToList();
+                }
+                else
+                {
+                    result.NewVideos = new List<NicoVideo>();
+                }
+
+                entity.LastUpdateAt = now;
+                _subscriptionRegistrationRepository.UpdateItem(entity);
+
+                return result;
+
+            }, cancellationToken);
+
+            if (result != null)
             {
-                // 前回更新から時間経っていない場合はスキップする
-                Debug.WriteLine("[FeedUpdate] update skip: " + entity.Label);
-                return false;
-            }
+                // 更新を通知する
+                Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
 
-            Debug.WriteLine("[FeedUpdate] start: " + entity.Label);
-
-            // オンラインソースから情報を取得して
-            var result = await GetFeedResultAsync(entity);
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            // 新規動画を抽出する
-            // 初回更新時は新着抽出をスキップする
-            if (prevResult != null)
-            {
-                var prevContainVideoIds = prevResult.Videos.Select(x => x.VideoId).ToHashSet();
-                var newVideos = result.Videos.TakeWhile(x => !prevContainVideoIds.Contains(x.Id));
-                result.NewVideos = newVideos.ToList();
+                return true;
             }
             else
             {
-                result.NewVideos = new List<NicoVideo>();
+                Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
+                return false;
             }
-
-            // 成功したら前回までの内容に追記して保存する
-            if (result.IsSuccessed && (result.Videos?.Any() ?? false))
-            {
-                var updatedResult = _subscriptionFeedResultRepository.MargeFeedResult(prevResult, entity, result.Videos);
-            }
-
-            // 更新を通知する
-            Updated?.Invoke(this, result);
-
-
-            Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
-
-            return true;
         }
+
+
+        public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(SubscriptionSourceEntity source, int skip = 0, int limit = int.MaxValue)
+        {
+            return _subscFeedVideoRepository.GetVideo(source.Id, skip, limit);
+        }
+
+        public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(int skip = 0, int limit = int.MaxValue)
+        {
+            return _subscFeedVideoRepository.GetVideos(skip, limit);
+        }
+
+        public void UpdateFeedVideos(IEnumerable<SubscFeedVideo> videos)
+        {
+            _subscFeedVideoRepository.UpdateVideos(videos);
+        }        
 
         async Task<SubscriptionFeedUpdateResult> GetFeedResultAsync(SubscriptionSourceEntity entity)
         {

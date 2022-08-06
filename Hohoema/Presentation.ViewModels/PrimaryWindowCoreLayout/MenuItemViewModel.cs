@@ -11,11 +11,22 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
 {
-    public class MenuItemViewModel : HohoemaListingPageItemBase, IPageNavigatable
+    public class MenuItemViewModel : HohoemaListingPageItemBase
     {
-        public MenuItemViewModel(string label, HohoemaPageType pageType, INavigationParameters paramaeter = null)
+        public MenuItemViewModel(string label)
         {
             Label = label;
+
+            IsSelected = false;
+        }
+
+    }
+
+    public class NavigateAwareMenuItemViewModel : MenuItemViewModel, IPageNavigatable
+    {
+        public NavigateAwareMenuItemViewModel(string label, HohoemaPageType pageType, INavigationParameters paramaeter = null)
+            : base(label)
+        {
             PageType = pageType;
             Parameter = paramaeter;
 
@@ -26,5 +37,6 @@ namespace Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout
         public INavigationParameters Parameter { get; set; }
     }
 
-    
+
+
 }

@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Helpers;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,8 +13,8 @@ using Windows.Web.Http;
 using AsyncLock = Hohoema.Models.Helpers.AsyncLock;
 using Hohoema.Models.Domain.Application;
 using NiconicoToolkit.Account;
-using Microsoft.Toolkit.Mvvm.Messaging;
-using Microsoft.Toolkit.Mvvm.Messaging.Messages;
+using CommunityToolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using Hohoema.Models.Infrastructure;
 using NiconicoToolkit.User;
 using Windows.UI.Xaml;

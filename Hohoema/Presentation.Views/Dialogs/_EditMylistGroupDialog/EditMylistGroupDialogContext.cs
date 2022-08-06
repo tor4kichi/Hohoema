@@ -25,7 +25,7 @@ namespace Hohoema.Dialogs
 
 		public EditMylistGroupDialogContext(MylistGroupEditData data, bool isCreate = false)
 		{
-			_scheduler = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IScheduler>();
+			_scheduler = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IScheduler>();
 			DialogTitle = isCreate ? "MylistCreate".Translate() : "EditMylist".Translate();
 			MylistName = new ReactiveProperty<string>(_scheduler, data.Name)
 				.SetValidateAttribute(() => MylistName);

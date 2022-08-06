@@ -31,7 +31,7 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
         static VideoItemsListView()
         {
-            _AppearanceSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
+            _AppearanceSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
         }
 
         private AppearanceSettings AppearanceSettings => _AppearanceSettings;
@@ -198,19 +198,19 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
             this.InitializeComponent();
 
             // Selection
-            _selectionContext = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoItemsSelectionContext>();
-            _niconicoSession = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NiconicoSession>();
-            _localPlaylistManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
-            _mylistManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LoginUserOwnedMylistManager>();
-            _queuePlaylist = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueuePlaylist>();
+            _selectionContext = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoItemsSelectionContext>();
+            _niconicoSession = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NiconicoSession>();
+            _localPlaylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
+            _mylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LoginUserOwnedMylistManager>();
+            _queuePlaylist = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueuePlaylist>();
 
-            _addQueueCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueAddItemCommand>();
-            _removeQueueCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
-            _addMylistCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistAddItemCommand>();
+            _addQueueCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueAddItemCommand>();
+            _removeQueueCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
+            _addMylistCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistAddItemCommand>();
             _localMylistAddCommand = new LocalPlaylistAddItemCommand();
-            _removeWatchHistoryCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<WatchHistoryRemoveItemCommand>();
-            _copyMylistItemCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistCopyItemCommand>();
-            _moveMylistItemCommand = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistMoveItemCommand>();
+            _removeWatchHistoryCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<WatchHistoryRemoveItemCommand>();
+            _copyMylistItemCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistCopyItemCommand>();
+            _moveMylistItemCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MylistMoveItemCommand>();
 
             Loaded += VideoItemsListView_Loaded;
             Unloaded += VideoItemsListView_Unloaded;

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,6 +22,8 @@ namespace Hohoema.Presentation.Views.Flyouts
         public MylistItemFlyout()
         {
             this.InitializeComponent();
+
+            PlayAllItem.Command = Ioc.Default.GetService<PlaylistPlayAllCommand>();
         }
     }
 }

@@ -14,7 +14,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.ViewModels.Player.Commands;
 using Hohoema.Presentation.ViewModels.Subscriptions;
 using I18NPortable;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Presentation.Navigations;
 using Reactive.Bindings.Extensions;
 using System;

@@ -38,7 +38,7 @@ namespace Hohoema.Presentation.Views.Flyouts
         
         public static async Task<ChannelInfoFlyout?> CreateAsync(ChannelId channelId)
         {
-            var userFollowProvider = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<ChannelFollowProvider>();
+            var userFollowProvider = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<ChannelFollowProvider>();
             var info = await userFollowProvider.GetChannelAuthorityAsync(channelId);
 
             if (!info.IsSuccess) { return null; }
@@ -111,8 +111,8 @@ namespace Hohoema.Presentation.Views.Flyouts
         {
             this.InitializeComponent();
 
-            _pageManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
-            _filterSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
+            _pageManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
+            _filterSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
         }
 
 

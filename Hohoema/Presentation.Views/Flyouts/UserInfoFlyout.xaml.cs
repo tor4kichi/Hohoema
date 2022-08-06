@@ -37,7 +37,7 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.User
     {
         public static async Task<UserInfoFlyout> CreateAsync(UserId userId)
         {
-            var niconicoSession = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NiconicoSession>();
+            var niconicoSession = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NiconicoSession>();
             var info = await niconicoSession.ToolkitContext.User.GetUserDetailAsync(userId);
             if (!info.IsSuccess) { return null; }
             var user = info.Data.User;
@@ -47,7 +47,7 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.User
                 Nickname = user.Nickname,
             };
             flyout.SetIcon(user.Icons.Small);
-            var userFollowProvider = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<UserFollowProvider>();
+            var userFollowProvider = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<UserFollowProvider>();
             flyout.UserFollowContext = FollowContext<IUser>.Create(userFollowProvider, new UserViewModel() { UserId = user.Id, Nickname = user.Nickname, IconUrl = user.Icons.Small.OriginalString }, info.Data.FollowStatus.IsFollowing);
             return flyout;
         }        
@@ -106,8 +106,8 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.User
         {
             this.InitializeComponent();
 
-            _pageManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
-            _filterSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
+            _pageManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PageManager>();
+            _filterSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoFilteringSettings>();
         }
 
 

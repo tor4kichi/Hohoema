@@ -14,7 +14,7 @@ using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.NicoRepo;
 using NiconicoToolkit.Video;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -219,9 +219,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
             {
                 if (_nicoRepoEntry.Actor.Url.OriginalString.StartsWith("https://ch.nicovideo.jp/"))
                 {
+                    
                     // チャンネル
                     ProviderName = _nicoRepoEntry.Actor.Name;
-                    ProviderId = _nicoRepoEntry.Actor.Url.Segments.Last();
+
+                    try
+                    {
+                        var iconFileName = _nicoRepoEntry.Actor.Icon.Segments.Last();
+                        ProviderId = new String(iconFileName.TakeWhile(c => c != '.').ToArray());
+                    }
+                    catch
+                    {
+                        ProviderId = _nicoRepoEntry.Actor.Url.Segments.Last();
+                    }
+
                     ProviderType = OwnerType.Channel;
                 }
                 else

@@ -1,6 +1,6 @@
 ﻿
 using NiconicoToolkit.Ranking.Video;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Hohoema.Presentation.ViewModels.Niconico.Ranking
 {

@@ -5,7 +5,7 @@ using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.Domain.VideoCache;
 using Hohoema.Models.UseCase.Niconico.Player.Events;
 using Hohoema.Models.UseCase.Playlist;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Notifications;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Video;

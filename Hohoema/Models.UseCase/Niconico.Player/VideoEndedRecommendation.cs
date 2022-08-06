@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain;
 using Hohoema.Presentation.Services;
-using Microsoft.Toolkit.Mvvm.Input;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -20,7 +20,7 @@ using NiconicoToolkit.Video.Watch;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.Domain.Playlist;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
 using NiconicoToolkit.Video;
 using Hohoema.Models.Domain.Application;

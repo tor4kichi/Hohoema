@@ -54,6 +54,9 @@
       <MenuFlyoutItem Text="{i18nExt:Localize Key=PinCurrentPage}" 
                       Command="{x:Bind AddPinCurrentPageCommand}"
                       />
+      <MenuFlyoutItem Text="{i18nExt:Localize Key=AddPinFolder}" 
+                      Command="{x:Bind AddBookmarkFolderCommand}"
+                      />
     </MenuFlyout>
 
     <MenuFlyout x:Key="QueueMenuItemFlyout">
@@ -235,7 +238,39 @@
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PinMenuItemViewModel, Converter={StaticResource StringToType}}">
         <muxc:NavigationViewItem>
           <muxc:NavigationViewItem.ContextFlyout>
+            <MenuFlyout Opening="PinItemMenuFlyout_Opening">
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=PinChangeArias}" Command="{Binding OverridePinCommand}" CommandParameter="{Binding}" />
+              <MenuFlyoutSubItem Text="{i18nExt:Localize Key=Pin_Move}">
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=Pin_MoveToHead}" Command="{Binding MovePinToMostTopCommand}" CommandParameter="{Binding}" />
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=Pin_MovePreview}" Command="{Binding MovePinToTopCommand}" CommandParameter="{Binding}" />
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=Pin_MoveNext}" Command="{Binding MovePinToBottomCommand}" CommandParameter="{Binding}" />
+                <MenuFlyoutItem Text="{i18nExt:Localize Key=Pin_MoveToTail}" Command="{Binding MovePinToMostBottomCommand}" CommandParameter="{Binding}" />
+              </MenuFlyoutSubItem>
+              <MenuFlyoutSubItem x:Name="MoveToFolderItem" Text="{i18nExt:Localize Key=PinMoveToFolder}" />
+              <MenuFlyoutSeparator />
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=PinRemove}" Command="{Binding DeletePinCommand}" CommandParameter="{Binding}" />
+            </MenuFlyout>
+          </muxc:NavigationViewItem.ContextFlyout>
+          <StackPanel>
+            <Grid>
+              <TextBlock Text="{Binding Pin.Label, Mode=OneTime}" Visibility="{Binding Pin.OverrideLabel, Converter={StaticResource EmptyStringToBoolean}}" />
+              <TextBlock Text="{Binding Pin.OverrideLabel}" Visibility="{Binding Pin.OverrideLabel, Converter={StaticResource NotEmptyStringToBoolean}}" />
+            </Grid>
+
+            <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.7" />
+          </StackPanel>
+        </muxc:NavigationViewItem>
+      </DataTemplate>
+
+
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PinFolderMenuItemViewModel, Converter={StaticResource StringToType}}">
+        <muxc:NavigationViewItem MenuItemsSource="{Binding Items}" IsExpanded="{Binding IsOpen, Mode=TwoWay}">
+          <muxc:NavigationViewItem.ContextFlyout>
             <MenuFlyout>
+              <MenuFlyoutItem Text="{i18nExt:Localize Key=PinCurrentPage}" 
+                      Click="PinCurrentPageMenuFlyoutItem_Click"
+                      />
+              <MenuFlyoutSeparator />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=PinChangeArias}" Command="{Binding OverridePinCommand}" CommandParameter="{Binding}" />
               <MenuFlyoutSubItem Text="{i18nExt:Localize Key=Pin_Move}">
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=Pin_MoveToHead}" Command="{Binding MovePinToMostTopCommand}" CommandParameter="{Binding}" />
@@ -253,11 +288,10 @@
               <TextBlock Text="{Binding Pin.OverrideLabel}" Visibility="{Binding Pin.OverrideLabel, Converter={StaticResource NotEmptyStringToBoolean}}" />
             </Grid>
 
-            <TextBlock Text="{Binding Description}" FontSize="12" Opacity="0.7" />
           </StackPanel>
         </muxc:NavigationViewItem>
       </DataTemplate>
-      
+
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout.MenuItemViewModel, Converter={StaticResource StringToType}}" >
         <muxc:NavigationViewItem Icon="{Binding PageType, Converter={StaticResource PageTypeToIconConverter}}">
           <winui:ToolTipService.ToolTip>
@@ -359,6 +393,21 @@
           <winui:ToolTipService.ToolTip>
             <TextBlock Text="{Binding Label}" />
           </winui:ToolTipService.ToolTip>
+
+          <TextBlock Text="{Binding Label}" />
+        </muxc:NavigationViewItem>
+      </DataTemplate>
+
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.SubscriptionMenuItemViewModel, Converter={StaticResource StringToType}}" >
+        <muxc:NavigationViewItem 
+                                 >
+          <winui:ToolTipService.ToolTip>
+            <TextBlock Text="{Binding Label}" />
+          </winui:ToolTipService.ToolTip>
+
+          <muxc:NavigationViewItem.Icon>
+            <SymbolIcon Symbol="Globe" />
+          </muxc:NavigationViewItem.Icon>
 
           <TextBlock Text="{Binding Label}" />
         </muxc:NavigationViewItem>

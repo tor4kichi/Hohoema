@@ -1,7 +1,7 @@
 ﻿using I18NPortable;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Player;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,8 +11,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Player.Comment;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 {

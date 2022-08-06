@@ -6,7 +6,7 @@ using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Domain.Player.Video.Comment;
 using Hohoema.Presentation.Services;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

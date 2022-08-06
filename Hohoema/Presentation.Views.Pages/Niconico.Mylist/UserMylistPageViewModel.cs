@@ -86,7 +86,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             if (parameters.TryGetValue("id", out string userId))
-            {
+            {                
                 UserId = userId;
             }
             else if (parameters.TryGetValue("id", out UserId justUserId))

@@ -77,5 +77,7 @@ namespace Hohoema.Models.Domain.PageNavigation
         
         OwnerMylistManage,
         LocalPlaylistManage,
+
+        SubscVideoList,
     }
 }

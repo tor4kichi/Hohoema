@@ -43,6 +43,11 @@ namespace Hohoema.Models.Infrastructure
             return _collection.Delete(i => i.Equals(item)) > 0;
         }
 
+        public virtual bool DeleteMany(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+        {
+            return _collection.Delete(predicate) > 0;
+        }
+
         public virtual bool DeleteItem(BsonValue id)
         {
             return _collection.Delete(id);
@@ -67,6 +72,16 @@ namespace Hohoema.Models.Infrastructure
         public T FindById(BsonValue id)
         {
             return _collection.FindById(id);
+        }
+
+        public IEnumerable<T> Find(System.Linq.Expressions.Expression<Func<T, bool>> predicate, int skip = 0, int limit = int.MaxValue)
+        {
+            return _collection.Find(predicate, skip, limit);
+        }
+
+        public IEnumerable<T> Find(Query query, int skip = 0, int limit = int.MaxValue)
+        {
+            return _collection.Find(query, skip, limit);
         }
     }
 

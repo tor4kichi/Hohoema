@@ -24,7 +24,7 @@ namespace Hohoema.Presentation.Views.Player
         private SettingsSidePaneContentViewModel _viewModel { get; }
         public LiveSettingsSidePaneContent()
         {
-            DataContext = _viewModel = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SettingsSidePaneContentViewModel>();
+            DataContext = _viewModel = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SettingsSidePaneContentViewModel>();
 
             this.InitializeComponent();
         }

@@ -20,11 +20,11 @@ namespace Hohoema.Presentation.Views.StateTrigger
         IDisposable _disposable;
         public WindowInWindowViewModeTrigger()
         {
-            var scheduler = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IScheduler>();
+            var scheduler = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IScheduler>();
             var coreApplication = CoreApplication.GetCurrentView();
             if (coreApplication.IsMain)
             {
-                _primaryViewPlayerManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PrimaryViewPlayerManager>();
+                _primaryViewPlayerManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PrimaryViewPlayerManager>();
                 _disposable = _primaryViewPlayerManager.ObserveProperty(x => x.DisplayMode)
                     .ObserveOn(scheduler)
                     .Subscribe(mode =>

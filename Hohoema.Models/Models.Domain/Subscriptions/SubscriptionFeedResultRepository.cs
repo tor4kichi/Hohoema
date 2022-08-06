@@ -28,7 +28,6 @@ namespace Hohoema.Models.Domain.Subscriptions
             _collection.DeleteAll();
         }
 
-
         public SubscriptionFeedResult GetFeedResult(SubscriptionSourceEntity source)
         {
             return _collection.FindOne(x => x.SourceType == source.SourceType && x.SourceParamater == source.SourceParameter);
@@ -77,7 +76,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             var result = GetFeedResult(source);
             if (result != null)
             {
-                return DeleteItem(result.Id);
+                return base.DeleteItem(result.Id);
             }
             else
             {

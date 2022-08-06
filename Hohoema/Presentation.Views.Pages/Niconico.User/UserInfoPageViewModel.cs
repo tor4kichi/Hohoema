@@ -4,7 +4,7 @@ using Hohoema.Presentation.Services;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Playlist;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;

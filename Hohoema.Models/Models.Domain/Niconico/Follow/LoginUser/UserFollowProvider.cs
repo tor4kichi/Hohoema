@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
-using Microsoft.Toolkit.Mvvm.Messaging.Messages;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
+using CommunityToolkit.Mvvm.Messaging;
 using NiconicoToolkit.Follow;
 using NiconicoToolkit.Account;
 using NiconicoToolkit.User;

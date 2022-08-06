@@ -36,7 +36,7 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
 
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
-            _soundVolumeManager = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MediaPlayerSoundVolumeManager>();
+            _soundVolumeManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<MediaPlayerSoundVolumeManager>();
             VolumeSlider.Value = _soundVolumeManager.Volume;
 
             CommentTextBox.GotFocus += CommentTextBox_GotFocus;
@@ -54,7 +54,7 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
             MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
 
             _compositeDisposable = new CompositeDisposable();
-            var appearanceSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
+            var appearanceSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
             appearanceSettings.ObserveProperty(x => x.ApplicationTheme)
                 .Subscribe(theme =>
                 {

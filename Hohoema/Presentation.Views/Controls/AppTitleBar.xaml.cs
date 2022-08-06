@@ -24,7 +24,7 @@ namespace Hohoema.Presentation.Views.Controls
 
         static AppTitleBar()
         {
-            _AppearanceSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
+            _AppearanceSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
         }
 
         private AppearanceSettings AppearanceSettings => _AppearanceSettings;

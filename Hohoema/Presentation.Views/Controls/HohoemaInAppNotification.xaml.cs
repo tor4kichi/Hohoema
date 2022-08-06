@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using Windows.UI.Xaml;
 using Windows.UI.ViewManagement;
 using Windows.UI.Core;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging;
 using Windows.System;
 using Hohoema.Models.Domain.Notification;
 using Hohoema.Presentation.Services;
@@ -26,8 +26,8 @@ namespace Hohoema.Presentation.Views.Controls
             Window.Current.CoreWindow.Activated += CoreWindow_Activated;
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
-            _messenger = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IMessenger>();
-            _CurrentActiveWindowUIContextService = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CurrentActiveWindowUIContextService>();
+            _messenger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IMessenger>();
+            _CurrentActiveWindowUIContextService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CurrentActiveWindowUIContextService>();
         }
 
         private void HohoemaInAppNotification_Loaded(object sender, RoutedEventArgs e)

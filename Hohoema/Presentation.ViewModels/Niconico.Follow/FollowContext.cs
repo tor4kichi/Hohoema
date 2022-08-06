@@ -3,8 +3,8 @@ using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
 using Hohoema.Models.UseCase;
 using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Account;
-using Microsoft.Toolkit.Mvvm.Input;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,7 +63,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
         private FollowContext()
         {
-            _logger = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<ILoggerFactory>().CreateLogger<FollowContext<ItemType>>();
+            _logger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<ILoggerFactory>().CreateLogger<FollowContext<ItemType>>();
         }
 
         private FollowContext(IFollowProvider<ItemType> provider, ItemType followable, bool isFollowing) : this()

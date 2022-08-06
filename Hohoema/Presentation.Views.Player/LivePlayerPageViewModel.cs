@@ -20,8 +20,8 @@ using Microsoft.Toolkit.Uwp;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Live.WatchPageProp;
 using NiconicoToolkit.Live.WatchSession;
-using Microsoft.Toolkit.Mvvm.Input;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -769,7 +769,7 @@ namespace Hohoema.Presentation.ViewModels.Player
                 */
 
                 if (UnresolvedUserId.TryPop(out var id))
-                {
+                {                    
                     _ = _dispatcherQueue.EnqueueAsync(async () =>
                     {
                         var owner = await _userNameRepository.ResolveUserNameAsync(id);
@@ -858,7 +858,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             // 視聴権の使用を確認する
             if (_TimeshiftProgram?.GetReservationStatus() == ReservationStatus.FIRST_WATCH)
             {
-                var dialog = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.DialogService>();
+                var dialog = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<Services.DialogService>();
 
                 // 視聴権に関する詳細な情報提示
 
@@ -1124,16 +1124,16 @@ namespace Hohoema.Presentation.ViewModels.Player
 
                 var requestQuality = RequestQuality.Value;
                 LiveAvailableQualities.Clear();
-                foreach (var item in e.AvailableQualities.Where(x => x != nameof(LiveQualityType.Abr)))
+                foreach (var item in e.AvailableQualities.Where(x => x.Equals(nameof(LiveQualityType.Abr), StringComparison.InvariantCultureIgnoreCase) is false))
                 {
-                    if (Enum.TryParse<LiveQualityType>(item, out var quality))
+                    if (Enum.TryParse<LiveQualityType>(item, true, out var quality))
                     {
                         LiveAvailableQualities.Add(quality);
                     }
                 }
                 
                 RequestQuality.Value = requestQuality;
-                CurrentQuality.Value = Enum.TryParse <LiveQualityType>(e.Quality, out var qualityType) ? qualityType : LiveQualityType.Abr;
+                CurrentQuality.Value = Enum.TryParse <LiveQualityType>(e.Quality, true, out var qualityType) ? qualityType : LiveQualityType.Abr;
 
                 RequestQuality.ForceNotify();
 
@@ -1141,7 +1141,15 @@ namespace Hohoema.Presentation.ViewModels.Player
                 {
                     var limit = QualityLimit.Value;
                     LiveAvailableLimitQualities.Clear();
-                    foreach (var item in LiveAvailableQualities.Select(x => (int)x - 1).Where(x => 0 <= x && x <= (int)LiveQualityLimitType.SuperHigh).Select(x => (LiveQualityLimitType)x))
+                    foreach (var item in LiveAvailableQualities.Where(x => x is LiveQualityType.SuperLow or LiveQualityType.Low or LiveQualityType.Normal or LiveQualityType.High or LiveQualityType.SuperHigh).Select(x => x switch
+                    {
+                        LiveQualityType.SuperLow => LiveQualityLimitType.SuperLow,
+                        LiveQualityType.Low => LiveQualityLimitType.Low,
+                        LiveQualityType.Normal => LiveQualityLimitType.Normal,
+                        LiveQualityType.High => LiveQualityLimitType.High,
+                        LiveQualityType.SuperHigh => LiveQualityLimitType.SuperHigh,
+                        _ => throw new NotImplementedException(),
+                    }))
                     {
                         LiveAvailableLimitQualities.Add(item);
                     }
@@ -1268,7 +1276,10 @@ namespace Hohoema.Presentation.ViewModels.Player
                                     return list;
                                 }
                             );
-                            UnresolvedUserId.Push(commentUserId);
+                            if (UnresolvedUserId.Contains(commentUserId) is false)
+                            {
+                                UnresolvedUserId.Push(commentUserId);
+                            }
                         });
                     }
                 }
@@ -1672,17 +1683,17 @@ namespace Hohoema.Presentation.ViewModels.Player
                 switch (maybeType.Value)
                 {
                     case PlayerSidePaneContentType.Playlist:
-                        sidePaneContent = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PlaylistSidePaneContentViewModel>();
+                        sidePaneContent = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<PlaylistSidePaneContentViewModel>();
                         break;
                     case PlayerSidePaneContentType.Comment:
                         {
-                            var commentContentVM = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LiveCommentsSidePaneContentViewModel>();
+                            var commentContentVM = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LiveCommentsSidePaneContentViewModel>();
                             commentContentVM.Comments = FilterdComments;
                             sidePaneContent = commentContentVM;
                         }                        
                         break;
                     case PlayerSidePaneContentType.Setting:
-                        sidePaneContent = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SettingsSidePaneContentViewModel>();
+                        sidePaneContent = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SettingsSidePaneContentViewModel>();
                         break;
                     default:
                         sidePaneContent = EmptySidePaneContentViewModel.Default;

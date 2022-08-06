@@ -8,7 +8,7 @@ using Hohoema.Models.Domain.Subscriptions;
 using Hohoema.Presentation.Services;
 using I18NPortable;
 using NiconicoToolkit.Video;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

@@ -23,7 +23,7 @@ namespace Hohoema.Presentation.Views.Player
         VideoCommentSidePaneContentViewModel _viewModel;
         public VideoCommentSidePaneContent()
         {
-            DataContext = _viewModel = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoCommentSidePaneContentViewModel>();
+            DataContext = _viewModel = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoCommentSidePaneContentViewModel>();
             this.InitializeComponent();
         }
     }

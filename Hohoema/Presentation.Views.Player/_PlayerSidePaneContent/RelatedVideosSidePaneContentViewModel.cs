@@ -8,7 +8,7 @@ using Hohoema.Presentation.ViewModels.VideoListPage;
 using NiconicoToolkit;
 using NiconicoToolkit.Recommend;
 using NiconicoToolkit.Video;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

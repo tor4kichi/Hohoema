@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Domain;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Models.UseCase.Playlist;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.UseCase;

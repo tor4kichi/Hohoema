@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using System;
 using Hohoema.Models.Domain.Niconico.Mylist;
-using Microsoft.Toolkit.Mvvm.Messaging.Messages;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.Messaging.Messages;
+using CommunityToolkit.Mvvm.Messaging;
 using NiconicoToolkit.Follow;
 using NiconicoToolkit.Account;
 

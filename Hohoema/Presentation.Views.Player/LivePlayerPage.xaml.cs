@@ -23,7 +23,7 @@ using Hohoema.Models.Domain.Application;
 using Hohoema.Presentation.ViewModels.Player;
 using System.Reactive.Disposables;
 using Hohoema.Presentation.Navigations;
-using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.DependencyInjection;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -58,7 +58,7 @@ namespace Hohoema.Presentation.Views.Player
 
             _UIdispatcher = Dispatcher;
             DataContext = _vm = Ioc.Default.GetRequiredService<LivePlayerPageViewModel>();
-            _mediaPlayer = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<MediaPlayer>();
+            _mediaPlayer = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetRequiredService<MediaPlayer>();
 
             _mediaPlayer.VolumeChanged += OnMediaPlayerVolumeChanged;
             VolumeSlider.Value = _mediaPlayer.Volume;
@@ -73,7 +73,7 @@ namespace Hohoema.Presentation.Views.Player
         private void LivePlayerPage_Loaded(object sender, RoutedEventArgs e)
         {
             _compositeDisposable = new CompositeDisposable();
-            var appearanceSettings = Microsoft.Toolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
+            var appearanceSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
             appearanceSettings.ObserveProperty(x => x.ApplicationTheme)
                 .Subscribe(theme =>
                 {

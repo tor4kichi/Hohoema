@@ -5,7 +5,7 @@ using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Microsoft.Toolkit.Uwp.UI;
-using Microsoft.Toolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Presentation.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;

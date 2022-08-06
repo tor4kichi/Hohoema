@@ -15,7 +15,7 @@ using Windows.UI.Xaml.Navigation;
 using Hohoema.Presentation.ViewModels.Pages.Niconico.Search;
 using Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking;
 using Hohoema.Presentation.Navigations;
-using Microsoft.Toolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.DependencyInjection;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
