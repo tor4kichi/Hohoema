@@ -399,7 +399,7 @@
                                             CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"
                                             />
 
-                              <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddUser}"
+                              <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddUserVideos}"
                                             Command="{x:Bind _vm.AddSubscriptionCommand}"
                                             CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"
                                             />

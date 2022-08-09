@@ -90,8 +90,8 @@ HohoemaPageType.SearchResultMylist = Mylist搜索
 HohoemaPageType.SearchResultTag = 标签搜索
 HohoemaPageType.Settings = 设定
 HohoemaPageType.Splash = 启动画面
-HohoemaPageType.Subscription = 订阅
-HohoemaPageType.SubscVideoList = 订阅视频列表
+HohoemaPageType.Subscription = 新视频
+HohoemaPageType.SubscVideoList = 新视频列表
 HohoemaPageType.Timeshift = 时移
 HohoemaPageType.UserInfo = 用户信息
 HohoemaPageType.UserMylist = Mylist一览
@@ -103,7 +103,7 @@ HohoemaPageType.WatchHistory = 播放历史
 HohoemaPageType.LocalPlaylist = 播放清单
 HohoemaPageType.Mylist = Mylist
 HohoemaPageType.VideoQueue = 队列
-HohoemaPageType.SubscriptionManagement = 订阅管理
+HohoemaPageType.SubscriptionManagement = 新视频
 HohoemaPageType.OwnerMylistManage = Mylist管理
 HohoemaPageType.LocalPlaylistManage = Local Mylist管理
 
@@ -190,10 +190,7 @@ CacheVideo_ToastNotification_CacheDelete = 删除
 
 #### Subscription ####
 SubscriptionAdd = 添加订阅
-SubscriptionAddUser = 将作者添加到订阅
-SubscriptionAddMylist = 将我的列表添加到订阅
-SubscriptionAddKeyword = 将关键字添加到订阅
-SubscriptionAddTag = 将标签添加到订阅
+SubscriptionAddUserVideos = 将作者添加到订阅
 SubscriptionAddSeries = 将系列添加到订阅
 
 SubscriptionSourceType.User = 用户名
@@ -206,8 +203,8 @@ SubscriptionsAutoUpdateRunning = 自动更新
 SubscriptionsNextUpdateTime = 下次更新
 SubscriptionsAutoNotUpdateRunning = 自动更新已停止
 
-StopSubscribe? = 我可以停止订阅吗？
-StopSubscribe = 退订
+StopSubscribe? = 我可以停止检查新来者吗？
+StopSubscribe = 停止检查新来者
 
 OpenSubscriptionSourceVideoList = 打开视频列表
 ReorderSubsciprionSource_Move = 移动

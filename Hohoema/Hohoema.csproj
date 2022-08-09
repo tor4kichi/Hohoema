@@ -786,6 +786,7 @@
     <Content Include="Assets\xbox_encrypt_key.txt" />
     <EmbeddedResource Include="Locales\ja-JP.txt" />
     <EmbeddedResource Include="Locales\zh-CHS.txt" />
+    <EmbeddedResource Include="Locales\en-US.txt" />
     <Content Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
   </ItemGroup>

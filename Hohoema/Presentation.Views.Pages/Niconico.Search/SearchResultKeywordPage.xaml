@@ -68,7 +68,7 @@
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
 
-                <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{i18nExt:Localize Key=SubscriptionAddKeyword}"
+                <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{i18nExt:Localize Key=SubscriptionAdd}"
                                 Command="{x:Bind _vm.AddKeywordSearchSubscriptionCommand}"
                                 CommandParameter="{x:Bind _vm.Keyword, Mode=OneWay}"
                                 >

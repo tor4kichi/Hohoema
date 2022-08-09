@@ -163,7 +163,7 @@
                   <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenOwnerVideos}" Command="{x:Bind _vm.PageManager.OpenVideoListPageCommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"></MenuFlyoutItem>
                   <MenuFlyoutItem Text="{i18nExt:Localize Key=HohoemaPageType.UserSeries}" Command="{x:Bind _vm.OpenUserSeriesPageCommand}" />
                   <MenuFlyoutItem 
-                        Text="{i18nExt:Localize Key=SubscriptionAddUser}" 
+                        Text="{i18nExt:Localize Key=SubscriptionAddUserVideos}" 
                         Icon="Add"
                         Command="{x:Bind _vm.AddSubscriptionCommand}"
                         CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"

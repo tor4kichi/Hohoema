@@ -589,6 +589,10 @@
                                       Visibility="Collapsed" Text="Open Debug Page"
                                       Command="{x:Bind _viewModel.OpenDebugPageCommand}" />
 
+                <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenFollowPage"
+                                      Visibility="Collapsed" Text="{i18nExt:Localize Key=HohoemaPageType.FollowManage}"
+                                      Command="{x:Bind _viewModel.OpenFollowPageCommand}" />
+
 
                 <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=LogInUserInfo}"
@@ -1264,6 +1268,7 @@
           <VisualState.Setters>
             <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
             <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
+            <Setter Target="MenuFlyoutItem_OpenFollowPage.Visibility" Value="Visible" />
             <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
             <Setter Target="CoreNavigationView.MenuItemsSource" Value="{x:Bind _viewModel.MenuItems_LoggedIn}" />
           </VisualState.Setters>

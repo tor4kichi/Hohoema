@@ -95,6 +95,16 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
         public SubscriptionManager SubscriptionManager { get; }
         public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 
+        public override void OnNavigatedTo(INavigationParameters parameters)
+        {
+            if (parameters.TryGetValue("type", out string showType))
+            {
+                NicoRepoType.Value = Enum.Parse<NicoRepoType>(showType);
+            }
+
+            base.OnNavigatedTo(parameters);
+        }
+
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
             // ニレコポ表示設定をニコレポの設定に書き戻し

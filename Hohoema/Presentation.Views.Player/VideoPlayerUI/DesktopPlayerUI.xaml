@@ -337,7 +337,7 @@
                                             CommandParameter="{Binding VideoInfo}"
                                             />
 
-                  <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddUser}"
+                  <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddUserVideos}"
                                             Command="{Binding AddSubscriptionCommand}"
                                             CommandParameter="{Binding VideoInfo}"
                                             />
