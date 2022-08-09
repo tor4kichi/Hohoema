@@ -143,7 +143,7 @@ namespace Hohoema.Models.Domain.Subscriptions
             return lastUpdatedAt + _FeedResultUpdateInterval < DateTime.Now;
         }
 
-        public async Task RefreshAllFeedUpdateResultAsync(CancellationToken cancellationToken = default)
+        public async ValueTask RefreshAllFeedUpdateResultAsync(CancellationToken cancellationToken = default)
         {
             IList<SubscriptionSourceEntity> entities = _subscriptionRegistrationRepository.ReadAllItems();
             foreach(var entity in entities.Where(x => x.IsEnabled).OrderBy(x => x.SortIndex))
@@ -172,17 +172,17 @@ namespace Hohoema.Models.Domain.Subscriptions
         }
 
 
-        public async Task<bool> RefreshFeedUpdateResultAsync(SubscriptionSourceEntity entity, CancellationToken cancellationToken = default)
+        public async ValueTask<bool> RefreshFeedUpdateResultAsync(SubscriptionSourceEntity entity, CancellationToken cancellationToken = default)
         {
-            var result = await Task.Run(async () => 
-            {                                
-                if (!IsExpiredFeedResultUpdatedTime(entity.LastUpdateAt))
-                {
-                    // 前回更新から時間経っていない場合はスキップする
-                    Debug.WriteLine("[FeedUpdate] update skip: " + entity.Label);
-                    return null;
-                }
+            if (!IsExpiredFeedResultUpdatedTime(entity.LastUpdateAt))
+            {
+                // 前回更新から時間経っていない場合はスキップする
+                Debug.WriteLine("[FeedUpdate] update skip: " + entity.Label);
+                return false;
+            }
 
+            var result = await Task.Run(async () => 
+            {                                                
                 Debug.WriteLine("[FeedUpdate] start: " + entity.Label);
 
                 // オンラインソースから情報を取得して
@@ -208,18 +208,10 @@ namespace Hohoema.Models.Domain.Subscriptions
 
             }, cancellationToken);
 
-            if (result != null)
-            {
-                // 更新を通知する
-                Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
+            // 更新を通知する
+            Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
 
-                return true;
-            }
-            else
-            {
-                Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
-                return false;
-            }
+            return true;
         }
 
 
