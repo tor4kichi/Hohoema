@@ -1146,7 +1146,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay}" />
-            <windowsTrigger:EqualsStateTrigger Value="{Binding PrimaryViewPlayerManager.DisplayMode}" EqualTo="{x:Bind playerService:PrimaryPlayerDisplayMode.WindowInWindow}" />
+            <windowsTrigger:EqualsStateTrigger Value="{Binding PrimaryViewPlayerManager.DisplayMode}" EqualTo="{x:Bind playerService:PlayerDisplayMode.WindowInWindow}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="BroadcasterPermanentCommentLayout.Padding" Value="2" />

@@ -41,6 +41,7 @@ using ZLogger;
 using Hohoema.Presentation.Navigations;
 using CommunityToolkit.Mvvm.Input;
 using Hohoema.Models.Domain.Pins;
+using Windows.UI.ViewManagement;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -242,11 +243,11 @@ namespace Hohoema.Presentation.Views.Pages
 
         public void TogglePlayerFillBtwWindowInWindow()
         {
-            if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Fill)
+            if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PlayerDisplayMode.FillWindow)
             {
                 _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
             }
-            else if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.WindowInWindow)
+            else if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PlayerDisplayMode.WindowInWindow)
             {
                 _viewModel.PrimaryViewPlayerManager.ShowWithFill();
             }
@@ -317,8 +318,9 @@ namespace Hohoema.Presentation.Views.Pages
                             // TODO: NavigationStackBehavior.NotRemember
                         }
 
-                        await _viewModel.PrimaryViewPlayerManager.ShowAsync();
-                        //Window.Current.Activate();
+                        //await _viewModel.PrimaryViewPlayerManager.ShowAsync();
+                        //Window.Current.Activate();                        
+                        await ApplicationViewSwitcher.TryShowAsStandaloneAsync(ApplicationView.GetForCurrentView().Id, ViewSizePreference.Default);
 
                         GoBackCommand.NotifyCanExecuteChanged();
                     }
@@ -330,7 +332,7 @@ namespace Hohoema.Presentation.Views.Pages
                     Debug.WriteLineIf(!result.IsSuccess, result.Exception?.ToString());
 
 
-                    if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Fill)
+                    if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PlayerDisplayMode.FillWindow)
                     {
                         _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
                     }
@@ -478,9 +480,9 @@ namespace Hohoema.Presentation.Views.Pages
             }
 
             var displayMode = _viewModel.PrimaryViewPlayerManager.DisplayMode;
-            if (displayMode == PrimaryPlayerDisplayMode.Fill
-                || displayMode == PrimaryPlayerDisplayMode.FullScreen
-                || displayMode == PrimaryPlayerDisplayMode.CompactOverlay
+            if (displayMode == PlayerDisplayMode.FillWindow
+                || displayMode == PlayerDisplayMode.FullScreen
+                || displayMode == PlayerDisplayMode.CompactOverlay
                 )
             {
                 Debug.WriteLine("BackNavigation canceled. priority player UI.");

@@ -15,7 +15,7 @@ namespace Hohoema.Presentation.Views.StateTrigger
         {
             if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
             {
-                Update();
+                Update();                
                 Window.Current.SizeChanged += Current_SizeChanged;
             }
             else

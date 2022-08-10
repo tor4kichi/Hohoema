@@ -66,6 +66,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _ = CloseAsync();
         }
 
+        PlayerDisplayMode _displayMode;
+
         private bool _IsFullScreen;
         public bool IsFullScreen
         {
@@ -97,12 +99,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 _appWindow.Presenter.RequestPresentation(AppWindowPresentationKind.Default);
                 IsCompactOverlay = false;
                 IsFullScreen = false;
+                _displayMode = PlayerDisplayMode.FillWindow;
             }
             else
             {
                 _appWindow.Presenter.RequestPresentation(AppWindowPresentationKind.FullScreen);
                 IsCompactOverlay = false;
                 IsFullScreen = true;
+                _displayMode = PlayerDisplayMode.FullScreen;
             }
         }
 
@@ -122,6 +126,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 _appWindow.Presenter.RequestPresentation(AppWindowPresentationKind.Default);                
                 IsCompactOverlay = false;
                 IsFullScreen = false;
+                _displayMode = PlayerDisplayMode.FillWindow;
             }
             else
             {
@@ -129,6 +134,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 _appWindow.RequestSize(new Size(500, 282));
                 IsCompactOverlay = true;
                 IsFullScreen = false;
+                _displayMode = PlayerDisplayMode.CompactOverlay;
             }
         }
 
@@ -215,6 +221,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                         _rootBorder = null;
                         _appWindow = null;
                         LastNavigatedPageName = null;
+                        _displayMode = PlayerDisplayMode.Close;
 
                         await PlaylistPlayer.ClearAsync();
                         await _navigationService.NavigateAsync(nameof(BlankPage));
@@ -347,5 +354,62 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 });
             }        
         }
+
+        public async Task<bool> TrySetDisplayModeAsync(PlayerDisplayMode mode)
+        {
+            if (_displayMode == PlayerDisplayMode.Close && mode != PlayerDisplayMode.Close)
+            {
+                await ShowAsync();
+            }
+
+            switch (mode)
+            {
+                case PlayerDisplayMode.Close:
+                    await CloseAsync();
+                    break;
+                case PlayerDisplayMode.FillWindow:
+                    if (IsCompactOverlay)
+                    {
+                        await ToggleCompactOverlayAsync();
+                    }
+                    else if (IsFullScreen)
+                    {
+                        await ToggleFullScreenAsync();
+                    }
+                    break;
+                case PlayerDisplayMode.FullScreen:
+                    if (IsFullScreen is false)
+                    {
+                        await ToggleFullScreenAsync();
+                    }
+                    break;
+                case PlayerDisplayMode.WindowInWindow:
+                    return false;
+                case PlayerDisplayMode.CompactOverlay:
+                    if (IsCompactOverlay is false)
+                    {
+                        await ToggleCompactOverlayAsync();
+                    }
+                    break;
+            }
+
+            return true;
+        }
+
+        public Task<PlayerDisplayMode> GetDisplayModeAsync()
+        {
+            return Task.FromResult(_displayMode);
+        }
+
+        public Task<bool> IsWindowFilledScreenAsync()
+        {
+            var windowPlacement = _appWindow.GetPlacement();
+            var region = windowPlacement.DisplayRegion;
+            bool isFilled = windowPlacement.Offset == region.WorkAreaOffset
+                && windowPlacement.Size == region.WorkAreaSize;
+
+            return Task.FromResult(isFilled);
+        }
+        
     }
 }

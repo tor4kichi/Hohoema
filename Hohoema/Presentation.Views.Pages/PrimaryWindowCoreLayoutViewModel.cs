@@ -59,7 +59,6 @@ namespace Hohoema.Presentation.ViewModels
         public ObservableMediaPlayer ObservableMediaPlayer { get; }
         public NiconicoLoginService NiconicoLoginService { get; }
         public LogoutFromNiconicoCommand LogoutFromNiconicoCommand { get; }
-        public WindowService WindowService { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public RestoreNavigationManager RestoreNavigationManager { get; }
         public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
@@ -94,7 +93,6 @@ namespace Hohoema.Presentation.ViewModels
             ObservableMediaPlayer observableMediaPlayer,
             NiconicoLoginService niconicoLoginService,
             LogoutFromNiconicoCommand logoutFromNiconicoCommand,
-            WindowService windowService,
             ApplicationLayoutManager applicationLayoutManager,
             RestoreNavigationManager restoreNavigationManager,
             VideoItemsSelectionContext videoItemsSelectionContext,
@@ -116,7 +114,6 @@ namespace Hohoema.Presentation.ViewModels
             ObservableMediaPlayer = observableMediaPlayer;
             NiconicoLoginService = niconicoLoginService;
             LogoutFromNiconicoCommand = logoutFromNiconicoCommand;
-            WindowService = windowService;
             ApplicationLayoutManager = applicationLayoutManager;
             RestoreNavigationManager = restoreNavigationManager;
             VideoItemsSelectionContext = videoItemsSelectionContext;

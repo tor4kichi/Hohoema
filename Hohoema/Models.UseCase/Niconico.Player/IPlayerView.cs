@@ -7,6 +7,15 @@ using Windows.System;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
+    public enum PlayerDisplayMode
+    {
+        Close,
+        FillWindow,
+        FullScreen,
+        WindowInWindow,
+        CompactOverlay,
+    }
+
     public interface IPlayerView : INotifyPropertyChanged
     {
         string LastNavigatedPageName { get; }
@@ -17,6 +26,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         Task NavigationAsync(string pageName, INavigationParameters parameters);
         void SetTitle(string title);
         Task ShowAsync();
+
+        Task<bool> TrySetDisplayModeAsync(PlayerDisplayMode mode);
+        Task<PlayerDisplayMode> GetDisplayModeAsync();
+
+        Task<bool> IsWindowFilledScreenAsync();
 
         ICommand ToggleFullScreenCommand { get; }
 

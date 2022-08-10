@@ -29,7 +29,7 @@ namespace Hohoema.Presentation.Views.StateTrigger
                     .ObserveOn(scheduler)
                     .Subscribe(mode =>
                     {
-                        SetActiveInvertible(mode == PrimaryPlayerDisplayMode.WindowInWindow);
+                        SetActiveInvertible(mode == PlayerDisplayMode.WindowInWindow);
                     });
             }
             else

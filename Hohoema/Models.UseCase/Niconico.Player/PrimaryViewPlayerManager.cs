@@ -25,29 +25,21 @@ using ZLogger;
 using System.Text.Json;
 using Hohoema.Presentation.Navigations;
 using DryIoc;
+using Windows.System;
+using Microsoft.Toolkit.Uwp;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
-    public enum PrimaryPlayerDisplayMode
-    {
-        Close,
-        Fill,
-        WindowInWindow,
-        FullScreen,
-        CompactOverlay,        
-    }
-
-
     public sealed class PrimaryViewPlayerManager : ObservableObject, IPlayerView
     {
         INavigationService _navigationService;
-
-        private ApplicationView _view;
+        private readonly DispatcherQueue _dispatcherQueue;
+        private readonly ApplicationView _view;
         private readonly ILogger _logger;
-        IScheduler _scheduler;
+        private readonly IScheduler _scheduler;
  //       private readonly Lazy<INavigationService> _navigationServiceLazy;
         private readonly RestoreNavigationManager _restoreNavigationManager;
-        PrimaryPlayerDisplayMode _prevDisplayMode;
+        PlayerDisplayMode _prevDisplayMode;
 
         Models.Helpers.AsyncLock _navigationLock = new Models.Helpers.AsyncLock();
 
@@ -58,6 +50,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             HohoemaPlaylistPlayer hohoemaPlaylistPlayer
             )
         {
+            _dispatcherQueue =  DispatcherQueue.GetForCurrentThread();
             _view = ApplicationView.GetForCurrentView();
             _logger = loggerFactory.CreateLogger<PrimaryViewPlayerManager>();
             _scheduler = scheduler;
@@ -71,8 +64,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 {
                     SetDisplayMode(_prevDisplayMode, x);
                     _prevDisplayMode = x;
-                    IsFullScreen = x == PrimaryPlayerDisplayMode.FullScreen;
-                    IsCompactOverlay = x == PrimaryPlayerDisplayMode.CompactOverlay;
+                    IsFullScreen = x == PlayerDisplayMode.FullScreen;
+                    IsCompactOverlay = x == PlayerDisplayMode.CompactOverlay;
                 });
         }
 
@@ -99,24 +92,26 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public async Task ShowAsync()
         {
-            _scheduler.Schedule(async () => 
+            await _dispatcherQueue.EnqueueAsync(async () => 
             {
+                if (DisplayMode == PlayerDisplayMode.Close)
+                {
+                    DisplayMode = PlayerDisplayMode.FillWindow;
+                }
+
                 await ApplicationViewSwitcher.TryShowAsStandaloneAsync(_view.Id, ViewSizePreference.Default);
             });
         }
 
+
+
         private readonly DrillInNavigationTransitionInfo _playerTransisionAnimation = new DrillInNavigationTransitionInfo();
         public async Task NavigationAsync(string pageName, INavigationParameters parameters)
         {
-            _scheduler.Schedule(async () =>
+            await _dispatcherQueue.EnqueueAsync(async () =>
             {
                 using var _ = await _navigationLock.LockAsync();
                 
-                if (DisplayMode == PrimaryPlayerDisplayMode.Close)
-                {
-                    DisplayMode = _lastPlayedDisplayMode;
-                }
-
                 if (_navigationService == null)
                 {
                     _navigationService = App.Current.Container.Resolve<INavigationService>("PrimaryPlayerNavigationService");
@@ -127,7 +122,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     var result = await _navigationService.NavigateAsync(pageName, parameters, _playerTransisionAnimation);
                     if (!result.IsSuccess)
                     {
-                        DisplayMode = PrimaryPlayerDisplayMode.Close;
+                        DisplayMode = PlayerDisplayMode.Close;
                         _view.Title = string.Empty;
                         throw result.Exception ?? new Models.Infrastructure.HohoemaExpception("unknown navigation error.");
                     }
@@ -161,11 +156,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             using (await _navigationLock.LockAsync()) { }
         }
 
-        PrimaryPlayerDisplayMode _lastPlayedDisplayMode = PrimaryPlayerDisplayMode.Fill;
 
-
-        private PrimaryPlayerDisplayMode _DisplayMode;
-        public PrimaryPlayerDisplayMode DisplayMode
+        private PlayerDisplayMode _DisplayMode;
+        public PlayerDisplayMode DisplayMode
         {
             get { return _DisplayMode; }
             set { SetProperty(ref _DisplayMode, value); }
@@ -173,12 +166,13 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public async Task CloseAsync()
         {
-            if (DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
+            if (DisplayMode == PlayerDisplayMode.Close) { return; }
 
             await PlaylistPlayer.ClearAsync();
             LastNavigatedPageName = null;
-            _lastPlayedDisplayMode = DisplayMode == PrimaryPlayerDisplayMode.Close ? _lastPlayedDisplayMode : DisplayMode;
-            DisplayMode = PrimaryPlayerDisplayMode.Close;
+            DisplayMode = PlayerDisplayMode.Close;
+            IsFullScreen = false;
+            IsCompactOverlay = false;
             _view.Title = string.Empty;
             _restoreNavigationManager.ClearCurrentPlayerEntry();
         }
@@ -190,42 +184,42 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         public void ShowWithFill()
         {
-            DisplayMode = PrimaryPlayerDisplayMode.Fill;
+            DisplayMode = PlayerDisplayMode.FillWindow;
         }
 
         public void ShowWithWindowInWindow()
         {
-            DisplayMode = PrimaryPlayerDisplayMode.WindowInWindow;
+            DisplayMode = PlayerDisplayMode.WindowInWindow;
         }
 
         public void ShowWithFullScreen()
         {
-            DisplayMode = PrimaryPlayerDisplayMode.FullScreen;
+            DisplayMode = PlayerDisplayMode.FullScreen;
         }
 
         public void ShowWithCompactOverlay()
         {
-            DisplayMode = PrimaryPlayerDisplayMode.CompactOverlay;
+            DisplayMode = PlayerDisplayMode.CompactOverlay;
         }
 
-        void SetDisplayMode(PrimaryPlayerDisplayMode old, PrimaryPlayerDisplayMode mode)
+        void SetDisplayMode(PlayerDisplayMode old, PlayerDisplayMode mode)
         {
             var currentMode = old;
             switch (mode)
             {
-                case PrimaryPlayerDisplayMode.Close:
+                case PlayerDisplayMode.Close:
                     SetClose(currentMode);
                     break;
-                case PrimaryPlayerDisplayMode.Fill:
+                case PlayerDisplayMode.FillWindow:
                     SetFill(currentMode);
                     break;
-                case PrimaryPlayerDisplayMode.WindowInWindow:
+                case PlayerDisplayMode.WindowInWindow:
                     SetWindowInWindow(currentMode);
                     break;
-                case PrimaryPlayerDisplayMode.FullScreen:
+                case PlayerDisplayMode.FullScreen:
                     SetFullScreen(currentMode);
                     break;
-                case PrimaryPlayerDisplayMode.CompactOverlay:
+                case PlayerDisplayMode.CompactOverlay:
                     SetCompactOverlay(currentMode);
                     break;
                 default:
@@ -233,7 +227,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             }
         }
 
-        void SetClose(PrimaryPlayerDisplayMode currentMode)
+        void SetClose(PlayerDisplayMode currentMode)
         {
             if (_view.ViewMode == ApplicationViewMode.CompactOverlay)
             {
@@ -243,13 +237,13 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             if (_view.IsFullScreenMode 
                 && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen)
             {
-                //_view.ExitFullScreenMode();
-            }
+                _view.ExitFullScreenMode();
+            }            
 
             _navigationService.NavigateAsync(nameof(BlankPage));
         }
 
-        void SetFill(PrimaryPlayerDisplayMode currentMode)
+        void SetFill(PlayerDisplayMode currentMode)
         {
             if (_view.ViewMode == ApplicationViewMode.CompactOverlay)
             {
@@ -264,7 +258,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             }
         }
 
-        void SetWindowInWindow(PrimaryPlayerDisplayMode currentMode)
+        void SetWindowInWindow(PlayerDisplayMode currentMode)
         {
             if (_view.ViewMode == ApplicationViewMode.CompactOverlay)
             {
@@ -279,7 +273,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             }
         }
 
-        void SetFullScreen(PrimaryPlayerDisplayMode currentMode)
+        void SetFullScreen(PlayerDisplayMode currentMode)
         {
             if (!_view.IsFullScreenMode)
             {
@@ -287,7 +281,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             }
         }
 
-        void SetCompactOverlay(PrimaryPlayerDisplayMode currentMode)
+        void SetCompactOverlay(PlayerDisplayMode currentMode)
         {
             if (_view.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
             {
@@ -322,11 +316,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         public RelayCommand ToggleFillOrWindowInWindowCommand => _ToggleFillOrWindowInWindowCommand
             ?? (_ToggleFillOrWindowInWindowCommand = new RelayCommand(() =>
             {
-                if (DisplayMode == PrimaryPlayerDisplayMode.Fill)
+                if (DisplayMode == PlayerDisplayMode.FillWindow)
                 {
                     ShowWithWindowInWindow();
                 }
-                else if (DisplayMode == PrimaryPlayerDisplayMode.WindowInWindow)
+                else if (DisplayMode == PlayerDisplayMode.WindowInWindow)
                 {
                     ShowWithFill();
                 }
@@ -340,9 +334,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         void ExecuteToggleFullScreenCommand()
         {
-            if (DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
+            if (DisplayMode == PlayerDisplayMode.Close) { return; }
 
-            if (DisplayMode == PrimaryPlayerDisplayMode.FullScreen)
+            if (DisplayMode == PlayerDisplayMode.FullScreen)
             {                
                 ShowWithFill();
             }
@@ -360,9 +354,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         void ExecuteToggleCompactOverlayCommand()
         {
-            if (DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
+            if (DisplayMode == PlayerDisplayMode.Close) { return; }
 
-            if (DisplayMode == PrimaryPlayerDisplayMode.CompactOverlay)
+            if (DisplayMode == PlayerDisplayMode.CompactOverlay)
             {
                 ShowWithFill();
             }
@@ -372,6 +366,22 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             }
         }
 
+        public Task<bool> TrySetDisplayModeAsync(PlayerDisplayMode mode)
+        {
+            SetDisplayMode(DisplayMode, mode);
+
+            return Task.FromResult(true);
+        }
+
+        public Task<PlayerDisplayMode> GetDisplayModeAsync()
+        {
+            return Task.FromResult(DisplayMode);
+        }
+
+        public Task<bool> IsWindowFilledScreenAsync()
+        {
+            return Task.FromResult(ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.Default);
+        }
 
         public HohoemaPlaylistPlayer PlaylistPlayer { get; }
     }

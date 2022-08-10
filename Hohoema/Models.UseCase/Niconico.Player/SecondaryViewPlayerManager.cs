@@ -428,5 +428,20 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         {
             _ = ToggleCompactOverlayAsync();
         }
+
+        public Task<bool> TrySetDisplayModeAsync(PlayerDisplayMode mode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<PlayerDisplayMode> GetDisplayModeAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> IsWindowFilledScreenAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -201,7 +201,6 @@
     <Compile Include="Models.UseCase\Subscriptions\SubscriptionUpdateManager.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheDownloadOperationManager.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheFolderManager.cs" />
-    <Compile Include="Models.UseCase\WindowService.cs" />
     <Compile Include="Presentation.Services\DialogService.cs" />
     <Compile Include="Presentation.ViewModels\NavigationQueryHelper.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowContext.cs" />
