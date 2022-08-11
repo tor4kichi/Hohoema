@@ -32,6 +32,7 @@
   mc:Ignorable="d"
   d:DesignHeight="300"
   d:DesignWidth="400"
+  IsTabStop="False"
              >
   <UserControl.Resources>
     <x:String x:Key="SideMenuPaneLength">280</x:String>
@@ -465,7 +466,9 @@
         Background="{ThemeResource ApplicationContentBackgroundBrush}"    
         >
 
-    <Grid x:Name="PaneBackgroundForTVLayout" HorizontalAlignment="Left" Background="{ThemeResource ApplicationHeaderBackgroundBrush}" Width="48" Opacity="0">
+    <Grid x:Name="PaneBackgroundForTVLayout" HorizontalAlignment="Left" Background="{ThemeResource ApplicationHeaderBackgroundBrush}" Width="48" Opacity="0"
+          IsHitTestVisible="False"
+          >
       
     </Grid>
     <uwpToolkitControls:DockPanel>
@@ -484,7 +487,7 @@
                            SelectionFollowsFocus="Disabled"
                            AlwaysShowHeader="False"
                            XYFocusLeftNavigationStrategy="Projection"
-                           XYFocusRightNavigationStrategy="Projection"
+                           XYFocusRightNavigationStrategy="Projection"          
                       >
         <muxc:NavigationView.Resources>
           <!-- 
@@ -657,7 +660,7 @@
                           QuerySubmitted="SearchTextBox_QuerySubmitted"
                           TextChanged="SearchTextBox_TextChanged"
                           UpdateTextOnSelect="False"
-                          GotFocus="SearchTextBox_GotFocus"                          
+                          GotFocus="SearchTextBox_GotFocus"    
                           >
             <i:Interaction.Behaviors>
               <core:EventTriggerBehavior EventName="GotFocus">
