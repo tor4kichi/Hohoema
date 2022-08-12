@@ -61,11 +61,11 @@
                       XYFocusLeftNavigationStrategy="RectilinearDistance"
                       >
           <CommandBar.Content>
-            <mycontrols:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
+            <mycontrols:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" IsTabStop="False" />
           </CommandBar.Content>
 
           <CommandBar.PrimaryCommands>
-            <AppBarElementContainer IsEnabled="False" Visibility="{x:Bind _vm.IsAutoUpdateEnabled.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" VerticalContentAlignment="Center">
+            <AppBarElementContainer IsEnabled="False" Visibility="{x:Bind _vm.IsAutoUpdateEnabled.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" VerticalContentAlignment="Center" IsTabStop="False">
               <Grid Margin="8 0" HorizontalAlignment="Right">
                 <StackPanel Orientation="Horizontal" x:Name="AutoUpdateRunningStatusLayout" Spacing="8" Opacity="0.0">
                 </StackPanel>
@@ -76,7 +76,7 @@
             </AppBarElementContainer>
             <AppBarButton Icon="List" Command="{x:Bind _vm.OpenSubscVideoListPageCommand}" Label="{i18nExt:Localize Key=HohoemaPageType.SubscVideoList}" />
 
-            <AppBarElementContainer VerticalContentAlignment="Center">
+            <AppBarElementContainer VerticalContentAlignment="Center" IsTabStop="False">
               <ToggleSwitch IsOn="{x:Bind _vm.IsAutoUpdateEnabled.Value, Mode=TwoWay}" Style="{StaticResource ToggleSwitchNoHeader}" Header="自動更新" VerticalAlignment="Center" />
             </AppBarElementContainer>
             <AppBarButton Visibility="Collapsed" Icon="Play" Command="{x:Bind _vm.PlayAllUnwatchedCommand}" />
@@ -138,6 +138,7 @@
                   <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Top">
                     <ContentControl Content="{x:Bind SourceType}" ContentTemplateSelector="{StaticResource SubscriptionSourceTypeTemplateSelector}"
                                 VerticalAlignment="Center"
+                                    IsTabStop="False"
                                 />
                     <TextBlock Text="{x:Bind Label}"
                            Style="{StaticResource SubtitleTextBlockStyle}"

@@ -130,12 +130,12 @@
           <StackPanel x:Name="HeaderLayout">
             <CommandBar x:Name="TopCommandBar" Padding="8 0" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
               <CommandBar.Content>
-                <controls:AppTitleBar Title="{x:Bind _vm.Title}" />
+                <controls:AppTitleBar Title="{x:Bind _vm.Title}" IsTabStop="False" />
               </CommandBar.Content>
 
               <CommandBar.PrimaryCommands>
-                <AppBarElementContainer VerticalContentAlignment="Stretch">
-                  <DropDownButton Background="Transparent" VerticalAlignment="Stretch" CornerRadius="4">
+                <AppBarElementContainer VerticalContentAlignment="Stretch" IsTabStop="False">
+                  <DropDownButton Background="Transparent" VerticalAlignment="Stretch" CornerRadius="4" Height="34">
                     <TextBlock>
                       <Run Text="{i18nExt:Localize Key=NicoRepoDisplayOptions}" /> : <Run Text="{x:Bind _vm.NicoRepoType.Value, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" />
                     </TextBlock>
@@ -143,6 +143,7 @@
                       <Flyout x:Name="TopicsEditFlyout" >
                         <ListView ItemsSource="{x:Bind _vm.NicoRepoTypeList}" SelectionMode="Single" IsMultiSelectCheckBoxEnabled="False" SelectedItem="{Binding NicoRepoType.Value, Mode=TwoWay}"
                                   ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                                  SingleSelectionFollowsFocus="False"
                                   >
                         </ListView>
                       </Flyout>

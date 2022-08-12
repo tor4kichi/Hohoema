@@ -49,7 +49,7 @@
                                     Icon="Sort"
                                     />
 
-              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
                 <ComboBox ItemsSource="{Binding SortOptionItems}"
                             SelectedItem="{Binding SelectedSortOptionItem, Mode=TwoWay}"
                             VerticalAlignment="Stretch"

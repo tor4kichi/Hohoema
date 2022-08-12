@@ -12,7 +12,7 @@
     d:DesignWidth="400"
   >
 
-  <AppBarElementContainer MaxWidth="180" ToolTipService.ToolTip="{Binding ElementName=NameTextBlock, Path=Text}">
+  <AppBarElementContainer MaxWidth="180" ToolTipService.ToolTip="{Binding ElementName=NameTextBlock, Path=Text}" IsTabStop="False">
     <StackPanel Orientation="Horizontal">
       <Image x:Name="ChannelIconImage" />
       <TextBlock x:Name="NameTextBlock" VerticalAlignment="Center" Margin="8 0 0 0" TextTrimming="CharacterEllipsis" TextWrapping="Wrap" MaxLines="2" FontSize="12" />

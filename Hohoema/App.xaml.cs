@@ -98,7 +98,7 @@ namespace Hohoema
     /// </summary>
     sealed partial class App : Application
     {
-        const bool _DEBUG_XBOX_RESOURCE = false;
+        const bool _DEBUG_XBOX_RESOURCE = true;
 
         public SplashScreen SplashScreen { get; private set; }
 

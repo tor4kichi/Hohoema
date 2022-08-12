@@ -66,7 +66,7 @@
                 </CommandBar.Content>
 
                 <CommandBar.PrimaryCommands>
-                  <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+                  <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
                     <ComboBox ItemsSource="{Binding SortOptions}"
                           SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
                           IsEnabled="{Binding NowLoading.Value, Converter={StaticResource BoolNegation}}"

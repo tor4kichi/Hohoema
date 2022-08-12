@@ -614,7 +614,7 @@
 
               </MenuFlyout>
             </Button.Flyout>
-            <uwpToolkitControls:SwitchPresenter x:Name="AccountButtonSwitchPresenter" Value="{x:Bind _viewModel.NiconicoSession.IsLoggedIn, Mode=OneWay}" >
+            <uwpToolkitControls:SwitchPresenter x:Name="AccountButtonSwitchPresenter" Value="{x:Bind _viewModel.NiconicoSession.IsLoggedIn, Mode=OneWay}">
               <uwpToolkitControls:Case IsDefault="True">
                 <uwpToolkitControls:Case.Value>
                   <x:Boolean>False</x:Boolean>
@@ -640,6 +640,7 @@
                              Width="22"
                              Margin="0 0 0 0"
                                  CornerRadius="60"
+                                              IsTabStop="False"
                                  />
                   <StackPanel Margin="11 0 0 0">
                     <TextBlock Text="{x:Bind _viewModel.NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" TextLineBounds="TrimToBaseline" />

@@ -49,6 +49,7 @@
                                                 ContentTemplate="{TemplateBinding HeaderTemplate}"
                                                 ContentTransitions="{TemplateBinding HeaderTransitions}"
                                 HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              IsTabStop="False"
                                 />
 
               <ScrollViewer x:Name="ScrollViewer"

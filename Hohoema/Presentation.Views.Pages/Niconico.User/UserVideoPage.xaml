@@ -33,7 +33,7 @@
             </CommandBar.Content>
 
             <CommandBar.PrimaryCommands>
-              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
                 <ComboBox ItemsSource="{x:Bind _vm.SortOptions}"
                           SelectedItem="{x:Bind _vm.SelectedSortOption, Mode=TwoWay}"
                           IsEnabled="{x:Bind _vm.NowLoading.Value, Mode=OneWay, Converter={StaticResource BoolNegation}}"
