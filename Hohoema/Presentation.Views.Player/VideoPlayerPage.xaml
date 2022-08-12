@@ -369,7 +369,6 @@
                     <CommandBar x:Name="ActionsCommandBar" uwpControls:DockPanel.Dock="Right" 
                               XYFocusLeft="{x:Bind CloseButton}"
                               DefaultLabelPosition="Right"
-                              IsTabStop="False"
                               >
 
                       <CommandBar.PrimaryCommands>
