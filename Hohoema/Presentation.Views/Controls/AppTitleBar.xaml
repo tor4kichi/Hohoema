@@ -16,13 +16,13 @@
   <Grid>
     <TextBlock x:Name="TitleText" Text="{x:Bind Title, Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" 
                MaxLines="2"
-                 Margin="0"
                  ToolTipService.ToolTip="{x:Bind Title, Mode=OneWay}"
                  TextTrimming="CharacterEllipsis"
                VerticalAlignment="Center"
                
                  />
 
+    <!--
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>
         <VisualState>
@@ -56,5 +56,6 @@
         </VisualState>
       </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
+    -->
   </Grid>
 </UserControl>

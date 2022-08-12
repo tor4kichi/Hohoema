@@ -32,11 +32,23 @@ namespace Hohoema.Presentation.Views.Controls
         public AppTitleBar()
         {
             this.InitializeComponent();
+
+            Loaded += AppTitleBar_Loaded;
         }
 
-
-
-
+        private void AppTitleBar_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (_AppearanceSettings.MenuPaneDisplayMode is Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode.LeftMinimal)
+            {
+                TitleText.Margin = new Thickness(48, 0, 0, 0);
+                TitleText.FontSize = 16;
+            }
+            else
+            {
+                TitleText.Margin = new Thickness(0, 0, 0, 0);
+                TitleText.FontSize = 16;
+            }
+        }
 
         public string Title
         {
