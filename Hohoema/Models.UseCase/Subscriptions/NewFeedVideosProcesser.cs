@@ -22,11 +22,14 @@ using I18NPortable;
 using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Application;
 using LiteDB;
+using Windows.System;
+using Microsoft.Toolkit.Uwp;
 
 namespace Hohoema.Models.UseCase.Subscriptions
 {
     public sealed class NewFeedVideosProcesser
     {
+        private readonly DispatcherQueue _dispatcherQueue;
         private readonly IScheduler _scheduler;
         private readonly IMessenger _messenger;
         private readonly SubscriptionManager _subscriptionManager;
@@ -54,6 +57,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
             NotificationService notificationService
             )
         {
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             _scheduler = scheduler;
             _messenger = messenger;
             _subscriptionManager = subscriptionManager;
@@ -68,9 +72,8 @@ namespace Hohoema.Models.UseCase.Subscriptions
             _messenger.ObserveMessage<NewSubscFeedVideoMessage>(this)
                 .Select(x => x.Value)
                 .Do(x => Results.Add(x))
-                .Throttle(TimeSpan.FromSeconds(5))
-                .SubscribeOn(_scheduler)
-                .Subscribe(_ => 
+                .Throttle(TimeSpan.FromSeconds(5))                
+                .Subscribe(async _ => 
                 {
                     var items = Results.ToList();
                     Results.Clear();
@@ -105,16 +108,19 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
                     try
                     {
-                        foreach (var feed in feedItemMapBySubscSource.SelectMany(x => x.Value))
+                        await _dispatcherQueue.EnqueueAsync(() => 
                         {
-                            if (!_queuePlaylist.Contains(feed.VideoId))
+                            foreach (var feed in feedItemMapBySubscSource.SelectMany(x => x.Value))
                             {
-                                var video = _nicoVideoProvider.GetCachedVideoInfo(feed.VideoId);
-                                _queuePlaylist.Add(video);
+                                if (!_queuePlaylist.Contains(feed.VideoId))
+                                {
+                                    var video = _nicoVideoProvider.GetCachedVideoInfo(feed.VideoId);
+                                    _queuePlaylist.Add(video);
 
-                                Debug.WriteLine("[FeedResultAddToWatchLater] added: " + video.Label);
+                                    Debug.WriteLine("[FeedResultAddToWatchLater] added: " + video.Label);
+                                }
                             }
-                        }
+                        });                        
                     }
                     catch
                     {
@@ -135,7 +141,6 @@ namespace Hohoema.Models.UseCase.Subscriptions
                                 new ToastButton("WatchVideo".Translate(), PlayWithWatchAfterPlaylistParam),
                                 new ToastButton(HohoemaPageType.SubscriptionManagement.Translate(), OpenSubscriptionManagementPageParam)
                             }
-
                             );
                     }
                 });
