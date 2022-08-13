@@ -33,7 +33,7 @@
   d:DesignHeight="300"
   d:DesignWidth="400"
   IsTabStop="False"
-             >
+  >
   <UserControl.Resources>
     <x:String x:Key="SideMenuPaneLength">280</x:String>
     <x:String x:Key="SideMenuPaneLength_TVMode">340</x:String>
@@ -487,7 +487,7 @@
                            SelectionFollowsFocus="Disabled"
                            AlwaysShowHeader="False"
                            XYFocusLeftNavigationStrategy="Projection"
-                           XYFocusRightNavigationStrategy="Projection"          
+                           XYFocusRightNavigationStrategy="Projection"                               
                       >
         <muxc:NavigationView.Resources>
           <!-- 

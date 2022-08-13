@@ -981,6 +981,13 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
             <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
             <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
           </VisualState.StateTriggers>

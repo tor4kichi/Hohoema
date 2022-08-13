@@ -33,8 +33,8 @@ namespace Hohoema.Presentation.Services.UINavigation
 
         private static UINavigationManager __Instance;
 
-        static readonly TimeSpan __InputPollingInterval = TimeSpan.FromMilliseconds(16); 
-        static readonly TimeSpan __HoldDetectTime = TimeSpan.FromSeconds(1);
+        static readonly TimeSpan __InputPollingInterval = TimeSpan.FromMilliseconds(8); 
+        static readonly TimeSpan __HoldDetectTime = TimeSpan.FromSeconds(0.3);
         static readonly UINavigationButtons[] __InputDetectTargets = ((UINavigationButtons[])Enum.GetValues(typeof(UINavigationButtons))).Skip(1).ToArray();
 
         Timer _PollingTimer;
@@ -182,13 +182,7 @@ namespace Hohoema.Presentation.Services.UINavigation
                             | OptionalUINavigationButtonsHelper.ToUINavigationButtons(currentInput.OptionalButtons);
 
                         //                var trigger = pressing & (_PrevPressingButtons ^ pressing);
-                        var released = _PrevPressingButtons & (_PrevPressingButtons ^ pressing);
-
-                        if (released != UINavigationButtons.None)
-                        {
-                            Pressed?.Invoke(this, released);
-                        }
-
+                        var released = _PrevPressingButtons & (_PrevPressingButtons ^ pressing);                        
                         // ホールド入力の検出
                         UINavigationButtons holdingButtons = UINavigationButtons.None;
                         foreach (var target in __InputDetectTargets)
@@ -216,6 +210,10 @@ namespace Hohoema.Presentation.Services.UINavigation
                         if (holdingButtons != UINavigationButtons.None)
                         {
                             Holding?.Invoke(this, holdingButtons);
+                        }
+                        else if (released != UINavigationButtons.None)
+                        {
+                            Pressed?.Invoke(this, released);
                         }
 
                         // トリガー検出用に前フレームの入力情報を保存

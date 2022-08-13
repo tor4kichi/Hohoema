@@ -70,6 +70,13 @@ namespace Hohoema.Presentation.Views.Pages
             _currentActiveWindowUIContextService = currentActiveWindowUIContextService;
             _logger = loggerFactory.CreateLogger<PrimaryWindowCoreLayout>();
 
+            CoreWindow.GetForCurrentThread().KeyDown += (sender, args) =>
+            {                
+                if (args.VirtualKey == VirtualKey.GamepadView && sender.ActivationMode == CoreWindowActivationMode.ActivatedInForeground)
+                {
+                    CoreNavigationView.IsPaneOpen = true;
+                }
+            };
 
             ContentFrame.NavigationFailed += (_, e) =>
             {
@@ -212,6 +219,7 @@ namespace Hohoema.Presentation.Views.Pages
                 Resources["NavigationViewPaneContentGridMargin"] = new Thickness(0, 27, 0, 27);
             }
         }
+
 
         private void Current_Activated(object sender, WindowActivatedEventArgs e)
         {
@@ -944,6 +952,17 @@ namespace Hohoema.Presentation.Views.Pages
                 var folderVM = item.DataContext as PinFolderMenuItemViewModel;
                 if (folderVM == null) { return; }
                 _viewModel.AddPinToFolder(pin, folderVM);
+            }
+        }
+
+        private void CoreNavigationView_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Handled) { return; }
+
+            if (e.Key == VirtualKey.GamepadView)
+            {
+                CoreNavigationView.IsPaneOpen = !CoreNavigationView.IsPaneOpen;
+                e.Handled = true;
             }
         }
     }
