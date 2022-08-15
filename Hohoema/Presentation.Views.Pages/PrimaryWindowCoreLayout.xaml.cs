@@ -193,6 +193,18 @@ namespace Hohoema.Presentation.Views.Pages
 
                 });
 
+            CoreNavigationView.ObserveDependencyProperty(Microsoft.UI.Xaml.Controls.NavigationView.PaneDisplayModeProperty)
+                .Subscribe(_ => 
+                {
+                    _viewModel.ApplicationLayoutManager.SetCurrentNavigationViewPaneDisplayMode(CoreNavigationView.PaneDisplayMode);                    
+                });
+
+            CoreNavigationView.ObserveDependencyProperty(Microsoft.UI.Xaml.Controls.NavigationView.IsBackButtonVisibleProperty)
+                .Subscribe(_ =>
+                {
+                    _viewModel.ApplicationLayoutManager.SetCurrentNavigationViewIsBackButtonVisible(CoreNavigationView.IsBackButtonVisible);
+                });
+
             WeakReferenceMessenger.Default.Register<LiteNotificationMessage>(this, (r, m) => 
             {
                 var payload = m.Value;
@@ -964,6 +976,12 @@ namespace Hohoema.Presentation.Views.Pages
                 CoreNavigationView.IsPaneOpen = !CoreNavigationView.IsPaneOpen;
                 e.Handled = true;
             }
+        }
+
+        private void CoreNavigationView_DisplayModeChanged(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewDisplayModeChangedEventArgs args)
+        {
+            // TODO: Top の場合でもMinimalになってしまうためページヘッダー向けの条件分岐としては不十分
+            _viewModel.ApplicationLayoutManager.SetCurrentNavigationViewDisplayMode(args.DisplayMode);
         }
     }
 

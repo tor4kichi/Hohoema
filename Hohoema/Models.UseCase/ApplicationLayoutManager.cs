@@ -2,6 +2,7 @@
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Helpers;
+using Microsoft.UI.Xaml.Controls;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,46 @@ namespace Hohoema.Models.UseCase
             get { return _InteractionMode; }
             private set { SetProperty(ref _InteractionMode, value); }
         }
+
+        private NavigationViewDisplayMode _navigationViewDisplayMode;
+        public NavigationViewDisplayMode NavigationViewDisplayMode
+        {
+            get { return _navigationViewDisplayMode; }
+            private set { SetProperty(ref _navigationViewDisplayMode, value); }
+        }
+
+
+
+        internal void SetCurrentNavigationViewDisplayMode(NavigationViewDisplayMode newDisplayMode)
+        {
+            NavigationViewDisplayMode = newDisplayMode;
+        }
+
+
+        private NavigationViewPaneDisplayMode _navigationViewPaneDisplayMode;
+        public NavigationViewPaneDisplayMode NavigationViewPaneDisplayMode
+        {
+            get { return _navigationViewPaneDisplayMode; }
+            private set { SetProperty(ref _navigationViewPaneDisplayMode, value); }
+        }
+
+        internal void SetCurrentNavigationViewPaneDisplayMode(NavigationViewPaneDisplayMode newPaneDisplayMode)
+        {
+            NavigationViewPaneDisplayMode = newPaneDisplayMode;
+        }
+
+        private NavigationViewBackButtonVisible _navigationViewIsBackButtonVisible;
+        public NavigationViewBackButtonVisible NavigationViewIsBackButtonVisible
+        {
+            get { return _navigationViewIsBackButtonVisible; }
+            private set { SetProperty(ref _navigationViewIsBackButtonVisible, value); }
+        }
+
+        internal void SetCurrentNavigationViewIsBackButtonVisible(NavigationViewBackButtonVisible visibility)
+        {
+            NavigationViewIsBackButtonVisible = visibility;
+        }
+
 
         public ApplicationLayoutManager(AppearanceSettings appearanceSettings)
         {

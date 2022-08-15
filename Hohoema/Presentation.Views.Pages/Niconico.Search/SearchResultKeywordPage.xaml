@@ -29,9 +29,13 @@
       PlaylistPassToFlyout="{x:Bind _vm.SearchVideoPlaylist, Mode=OneWay}"
       x:Name="VideoItemsListView">
       <videolistPage:VideoItemsListView.Header>
-        <Grid x:Name="HeaderLayout">
+        <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
           <StackPanel >
             <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
+
+              <CommandBar.Content>
+                <TextBlock Text="{Binding Title}" FontSize="16" Margin="8 0" />
+              </CommandBar.Content>
               <CommandBar.PrimaryCommands>
 
                 <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
@@ -84,7 +88,7 @@
     </Grid>
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
-      <!--
+      
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -92,7 +96,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
-            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_TV}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -101,7 +105,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
-            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -110,7 +114,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
-            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Tablet}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -119,11 +123,11 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
-            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      -->
+      
       
       <VisualStateGroup>
         <VisualState>

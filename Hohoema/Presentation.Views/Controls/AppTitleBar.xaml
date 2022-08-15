@@ -18,8 +18,7 @@
                MaxLines="2"
                  ToolTipService.ToolTip="{x:Bind Title, Mode=OneWay}"
                  TextTrimming="CharacterEllipsis"
-               VerticalAlignment="Center"
-               
+               VerticalAlignment="Center"        
                  />
 
     <!--

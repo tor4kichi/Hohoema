@@ -27,9 +27,13 @@
       RefreshCommand="{x:Bind _vm.RefreshCommand}" 
       x:Name="VideoItemsListView">
       <videolistPage:VideoItemsListView.Header>
-        <Grid x:Name="HeaderLayout">
+        <Grid x:Name="HeaderLayout" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
           <StackPanel >
             <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
+
+              <CommandBar.Content>
+                <TextBlock Text="{Binding Title}" FontSize="16" Margin="8 0" />
+              </CommandBar.Content>
               <CommandBar.PrimaryCommands>
 
                 <AppBarToggleButton x:Name="TagFollowButton" Label="{i18nExt:Localize Key=Follow}" Icon="Favorite" IsChecked="{x:Bind _vm.FollowContext.IsFollowing, Mode=TwoWay}" IsEnabled="{x:Bind _vm.FollowContext.NowChanging, Mode=OneWay, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" />

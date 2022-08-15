@@ -1,24 +1,24 @@
 ﻿<Page
-    x:Class="Hohoema.Presentation.Views.Pages.Niconico.Search.SearchPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Hohoema.Presentation.Views"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:mvvm="using:Prism.Mvvm"
-    xmlns:view="using:Hohoema.Presentation.Views"
-    xmlns:i="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
-    xmlns:controls="using:Hohoema.Presentation.Views.Controls"
-    xmlns:iconPack="using:MahApps.Metro.IconPacks"
-    xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-    xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI"
-    xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector" 
+  x:Class="Hohoema.Presentation.Views.Pages.Niconico.Search.SearchPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Hohoema.Presentation.Views"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:view="using:Hohoema.Presentation.Views"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
+  xmlns:controls="using:Hohoema.Presentation.Views.Controls"
+  xmlns:iconPack="using:MahApps.Metro.IconPacks"
+  xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+  xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI"
+  xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector" 
   xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
   xmlns:appModels="using:Hohoema.Models.Domain.Application"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
   DataContext="{x:Null}"
   NavigationCacheMode="Enabled"
     mc:Ignorable="d">
@@ -32,20 +32,14 @@
   <Grid MaxWidth="960">
 
     <uwpControls:DockPanel Margin="0 0 0 0" x:Name="ContentLayout">
-
-      <CommandBar uwpControls:DockPanel.Dock="Top" DefaultLabelPosition="Right" VerticalContentAlignment="Center">
-        <CommandBar.Content>
-          <controls:AppTitleBar Title="{Binding Title}" />
-        </CommandBar.Content>
-      </CommandBar>      
       
-      <uwpControls:DockPanel Margin="0" uwpControls:DockPanel.Dock="Top" >
+      <uwpControls:DockPanel x:Name="SearchUIContainer" Margin="0" uwpControls:DockPanel.Dock="Top" >
 
         <ComboBox x:Name="SearchTargetListView" ItemsSource="{Binding TargetListItems}" SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}" 
                         HorizontalAlignment="Stretch" TabIndex="1" IsTabStop="True" UseSystemFocusVisuals="True" 
                   uwpControls:DockPanel.Dock="Left"
                   VerticalAlignment="Center"
-                  Margin="0 0 8 0"
+                  Margin="0 0 8 0"                  
                         >
           <i:Interaction.Behaviors>
             <core:EventTriggerBehavior EventName="SelectionChanged">
@@ -63,7 +57,7 @@
         <uwpControls:DockPanel Margin="0 0 0 0" MaxWidth="960">
           <DropDownButton uwpControls:DockPanel.Dock="Right"
                               Margin="0 0 8 0"
-                              Height="40"
+                              Height="32"
                               Width="64"                          
                               >
             <DropDownButton.Content>
@@ -86,7 +80,7 @@
             </DropDownButton.Flyout>
           </DropDownButton>
 
-          <Button Margin="8 0" Command="{Binding DoSearchCommand}" Width="80" Height="40" MinHeight="40" uwpControls:DockPanel.Dock="Right" UseSystemFocusVisuals="True">
+          <Button Margin="8 0" Command="{Binding DoSearchCommand}" Width="80" Height="32" MinHeight="40" uwpControls:DockPanel.Dock="Right" UseSystemFocusVisuals="True">
             <StackPanel Orientation="Horizontal">
               <SymbolIcon Symbol="Find" />
             </StackPanel>
@@ -116,7 +110,7 @@
       </Frame>
 
     </uwpControls:DockPanel>
-    
+
     <VisualStateManager.VisualStateGroups>
 
       <VisualStateGroup>
@@ -150,10 +144,9 @@
             </windowsStateTriggers:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="ContentLayout.Margin" Value="0 32 0 0" />
-            <Setter Target="ContentLayout.Padding" Value="{StaticResource ContentPageMargin_TV}" />
+            <Setter Target="SearchUIContainer.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
             <Setter Target="ContentLayout.MaxWidth" Value="1280" />
-            <Setter Target="SearchTargetListView.Margin" Value="0 0 0 8" />
+            <Setter Target="SearchTargetListView.Margin" Value="0 0 0 0" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -166,8 +159,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ContentLayout.Margin" Value="0 0 0 0" />
-            <Setter Target="ContentLayout.Padding" Value="{StaticResource ContentPageMargin_Desktop}" />
-            <Setter Target="SearchTargetListView.Margin" Value="120 8 0 8" />
+            <Setter Target="SearchTargetListView.Margin" Value="0 0 0 0" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -182,7 +174,7 @@
             <!--
             <Setter Target="ContentLayout.Margin" Value="{StaticResource ContentPageMargin_Tablet}" />
             -->
-            <Setter Target="SearchTargetListView.Margin" Value="0 8 0 8" />
+            <Setter Target="SearchTargetListView.Margin" Value="0 0 0 0" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -197,7 +189,7 @@
             <!--
             <Setter Target="ContentLayout.Margin" Value="{StaticResource ContentPageMargin_Mobile}" />
             -->
-            <Setter Target="SearchTargetListView.Margin" Value="0 8 0 8" />
+            <Setter Target="SearchTargetListView.Margin" Value="0 0 0 0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

@@ -24,6 +24,7 @@ using Hohoema.Models.Domain.Playlist;
 using Microsoft.Extensions.Logging;
 using Hohoema.Presentation.Navigations;
 using Windows.UI.Xaml.Navigation;
+using I18NPortable;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
 {
@@ -194,6 +195,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                     .AddTo(_navigationDisposables);
             }
 
+            Title = $"{"Search".Translate()} '{Keyword}'";
 
             SelectedSearchTarget.Value = SearchTarget.Keyword;
 

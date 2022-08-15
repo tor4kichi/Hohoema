@@ -161,6 +161,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
                 Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"));
             }
 
+            Title = $"{"Search".Translate()} '{Keyword}'";
+
             _NowNavigatingTo = true;
             try
             {
@@ -173,6 +175,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Search
             {
                 _NowNavigatingTo = false;
             }
+
 
             //SelectedSearchSort.Value = SearchOption.Sort;
             //SelectedLiveStatus.Value = SearchOption.LiveStatus;
