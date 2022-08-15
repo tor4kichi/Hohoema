@@ -1,8 +1,11 @@
 ﻿using Hohoema.Models.Domain.Application;
+using Hohoema.Models.UseCase;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -20,23 +23,72 @@ namespace Hohoema.Presentation.Views.Controls
 {
     public sealed partial class AppTitleBar : UserControl
     {
-        private static AppearanceSettings _AppearanceSettings { get; }
-
         static AppTitleBar()
         {
-            _AppearanceSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
+            _applicationLayoutManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<ApplicationLayoutManager>();
         }
 
-        private AppearanceSettings AppearanceSettings => _AppearanceSettings;
+        private static readonly ApplicationLayoutManager _applicationLayoutManager;
+
+        public ApplicationLayoutManager ApplicationLayoutManager => _applicationLayoutManager;
 
         public AppTitleBar()
         {
             this.InitializeComponent();
+
+            Loaded += AppTitleBar_Loaded;
+            Unloaded += AppTitleBar_Unloaded;
+        }
+
+        IDisposable _layoutChangeMonitorDisposer;
+
+
+        private void AppTitleBar_Unloaded(object sender, RoutedEventArgs e)
+        {
+            _layoutChangeMonitorDisposer?.Dispose();
+            _layoutChangeMonitorDisposer = null;
+        }
+
+        private void AppTitleBar_Loaded(object sender, RoutedEventArgs e)
+        {
+            _layoutChangeMonitorDisposer = new[]
+            {
+                ApplicationLayoutManager.ObserveProperty(x => x.NavigationViewPaneDisplayMode, isPushCurrentValueAtFirst: false).ToUnit(),
+                ApplicationLayoutManager.ObserveProperty(x => x.NavigationViewIsBackButtonVisible, isPushCurrentValueAtFirst: false).ToUnit(),
+                ApplicationLayoutManager.ObserveProperty(x => x.NavigationViewDisplayMode, isPushCurrentValueAtFirst: false).ToUnit()
+            }
+            .Merge()
+            .Subscribe(_ => RefreshDisplay());
+            
+            RefreshDisplay();
         }
 
 
-
-
+        void RefreshDisplay()
+        {
+            if ((
+                ApplicationLayoutManager.NavigationViewPaneDisplayMode is Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode.LeftMinimal
+                || ApplicationLayoutManager.NavigationViewDisplayMode is Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode.Minimal
+                )
+                && ApplicationLayoutManager.NavigationViewIsBackButtonVisible is not Microsoft.UI.Xaml.Controls.NavigationViewBackButtonVisible.Collapsed
+                )
+            {
+                TitleText.Margin = new Thickness(80, 0, 0, 0);
+                TitleText.FontSize = 16;
+            }
+            else if (ApplicationLayoutManager.NavigationViewPaneDisplayMode is Microsoft.UI.Xaml.Controls.NavigationViewPaneDisplayMode.LeftMinimal
+                || ApplicationLayoutManager.NavigationViewDisplayMode is Microsoft.UI.Xaml.Controls.NavigationViewDisplayMode.Minimal
+                )
+            {
+                TitleText.Margin = new Thickness(48, 0, 0, 0);
+                TitleText.FontSize = 16;
+            }
+            else
+            {
+                TitleText.Margin = new Thickness(0, 0, 0, 0);
+                TitleText.FontSize = 16;
+            }
+        }
 
         public string Title
         {

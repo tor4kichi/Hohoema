@@ -53,7 +53,7 @@
                                 />
 
                 <!-- 非選択中 -->
-                <AppBarElementContainer VerticalContentAlignment="Center">
+                <AppBarElementContainer VerticalContentAlignment="Center" IsTabStop="False">
                   <ComboBox ItemsSource="{Binding SortOptionItems}"
                             SelectedItem="{Binding SelectedSortOptionItem, Mode=TwoWay}"
                             >

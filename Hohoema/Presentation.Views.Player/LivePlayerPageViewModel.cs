@@ -110,7 +110,6 @@ namespace Hohoema.Presentation.ViewModels.Player
         
         public MediaPlayer MediaPlayer { get; private set; }
         public ObservableMediaPlayer ObservableMediaPlayer { get; }
-        public WindowService WindowService { get; }
         public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
         public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }
         public ShowPrimaryViewCommand ShowPrimaryViewCommand { get; }
@@ -388,7 +387,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             NotificationService notificationService,
             MediaPlayer mediaPlayer,
             ObservableMediaPlayer observableMediaPlayer,
-            WindowService windowService,
             PrimaryViewPlayerManager primaryViewPlayerManager,
             TogglePlayerDisplayViewCommand togglePlayerDisplayViewCommand,
             ShowPrimaryViewCommand showPrimaryViewCommand,
@@ -423,7 +421,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             _NotificationService = notificationService;
             MediaPlayer = mediaPlayer;
             ObservableMediaPlayer = observableMediaPlayer;
-            WindowService = windowService;
             PrimaryViewPlayerManager = primaryViewPlayerManager;
             TogglePlayerDisplayViewCommand = togglePlayerDisplayViewCommand;
             ShowPrimaryViewCommand = showPrimaryViewCommand;

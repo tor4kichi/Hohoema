@@ -35,7 +35,7 @@
 
             <CommandBar.PrimaryCommands>
 
-              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
                 <ComboBox x:Name="GenreTagSelector"
                             ItemsSource="{x:Bind _vm.PickedTags, Mode=OneWay}"
                             SelectedItem="{x:Bind _vm.SelectedRankingTag.Value, Mode=TwoWay}"
@@ -47,7 +47,7 @@
                 </ComboBox>
               </AppBarElementContainer>
 
-              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
                 <ComboBox x:Name="RankingTermSelector"
                             ItemsSource="{x:Bind _vm.CurrentSelectableRankingTerms.Value, Mode=OneWay}"
                             SelectedItem="{Binding SelectedRankingTerm.Value, Mode=TwoWay}"

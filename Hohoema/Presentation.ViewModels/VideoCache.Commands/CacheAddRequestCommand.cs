@@ -30,9 +30,6 @@ namespace Hohoema.Presentation.ViewModels.VideoCache.Commands
 
         protected override void Execute(IVideoContent content)
         {
-            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            //Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
-
             _ = _videoCacheManager.PushCacheRequestAsync(content.VideoId, VideoQuality);
         }
     }

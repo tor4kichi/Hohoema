@@ -44,7 +44,7 @@
 
               <AppBarToggleButton x:Name="ToggleMylistFavoriteButton" IsChecked="{x:Bind _vm.FollowContext.IsFollowing, Mode=TwoWay}" IsEnabled="{x:Bind _vm.FollowContext.NowChanging, Mode=OneWay, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" Icon="Favorite" Label="{i18nExt:Localize Key=Follow}" />
 
-              <AppBarElementContainer IsEnabled="False">
+              <AppBarElementContainer IsEnabled="False" IsTabStop="False">
                 <StackPanel Orientation="Horizontal">
 
                   <StackPanel Orientation="Horizontal" Margin="0 0 0 0" Visibility="{x:Bind _vm.UserName, Mode=OneWay, Converter={StaticResource NotNullToVisibility}}">
@@ -61,7 +61,7 @@
                   </StackPanel>
                 </StackPanel>
               </AppBarElementContainer>
-              <AppBarElementContainer  VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+              <AppBarElementContainer  VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
                 <ComboBox ItemsSource="{x:Bind _vm.SortItems}"
                           SelectedItem="{x:Bind _vm.SelectedSortOptionItem.Value, Mode=TwoWay}"
                           VerticalAlignment="Stretch"
@@ -98,7 +98,7 @@
               
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
-              <AppBarButton x:Name="FeedRegstrationButton" Icon="Add" Visibility="Visible" Label="{i18nExt:Localize Key=SubscriptionAddMylist}"
+              <AppBarButton x:Name="FeedRegstrationButton" Icon="Add" Visibility="Visible" Label="{i18nExt:Localize Key=SubscriptionAdd}"
                                 Command="{x:Bind _vm.AddSubscriptionCommand}"
                                 CommandParameter="{x:Bind _vm.Mylist.Value, Mode=OneWay}"
                                 >

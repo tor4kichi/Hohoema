@@ -60,7 +60,7 @@
 
             <CommandBar.PrimaryCommands>
 
-              <AppBarElementContainer VerticalContentAlignment="Center">
+              <AppBarElementContainer VerticalContentAlignment="Center" IsTabStop="False">
                 <StackPanel>
                   <StackPanel Orientation="Horizontal" Spacing="16">
                     <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}">
@@ -78,7 +78,7 @@
                 </StackPanel>
               </AppBarElementContainer>
 
-              <AppBarElementContainer VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
+              <AppBarElementContainer VerticalContentAlignment="Center" HorizontalContentAlignment="Center" IsTabStop="False"> 
                 <uwpcontrols:DockPanel Margin="8 0" MaxWidth="120">
                   <TextBlock Text="{i18nExt:Localize Key=DownloadOperationRunning}" Visibility="{Binding IsAllowDownload.Value, Converter={StaticResource BooleanToVisibility}}" uwpcontrols:DockPanel.Dock="Left" Margin="0 0 8 0" />
                   <TextBlock Text="{i18nExt:Localize Key=DownloadOperationStopping}" Visibility="{Binding IsAllowDownload.Value, Converter={StaticResource BooleanToVisibilityInverted}}" uwpcontrols:DockPanel.Dock="Left" Margin="0 0 8 0" />

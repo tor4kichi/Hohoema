@@ -201,7 +201,6 @@
     <Compile Include="Models.UseCase\Subscriptions\SubscriptionUpdateManager.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheDownloadOperationManager.cs" />
     <Compile Include="Models.UseCase\VideoCache\VideoCacheFolderManager.cs" />
-    <Compile Include="Models.UseCase\WindowService.cs" />
     <Compile Include="Presentation.Services\DialogService.cs" />
     <Compile Include="Presentation.ViewModels\NavigationQueryHelper.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Follow\FollowContext.cs" />
@@ -786,6 +785,7 @@
     <Content Include="Assets\xbox_encrypt_key.txt" />
     <EmbeddedResource Include="Locales\ja-JP.txt" />
     <EmbeddedResource Include="Locales\zh-CHS.txt" />
+    <EmbeddedResource Include="Locales\en-US.txt" />
     <Content Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
   </ItemGroup>
@@ -848,7 +848,7 @@
       <Version>7.1.1</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.UI.Xaml">
-      <Version>2.7.1-prerelease.211026002</Version>
+      <Version>2.7.2</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>7.12.0</Version>

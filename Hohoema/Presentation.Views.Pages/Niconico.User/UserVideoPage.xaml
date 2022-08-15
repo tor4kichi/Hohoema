@@ -33,7 +33,7 @@
             </CommandBar.Content>
 
             <CommandBar.PrimaryCommands>
-              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
                 <ComboBox ItemsSource="{x:Bind _vm.SortOptions}"
                           SelectedItem="{x:Bind _vm.SelectedSortOption, Mode=TwoWay}"
                           IsEnabled="{x:Bind _vm.NowLoading.Value, Mode=OneWay, Converter={StaticResource BoolNegation}}"
@@ -69,7 +69,7 @@
               <AppBarButton Label="{i18nExt:Localize Key=VideoOwner}" Command="{x:Bind _vm.OpenVideoOwnerUserPageCommand}"
                                 />
 
-              <AppBarButton x:Name="FeedRegstrationButton" Label="{i18nExt:Localize Key=SubscriptionAddUser}" Icon="Add" Visibility="Visible"
+              <AppBarButton x:Name="FeedRegstrationButton" Label="{i18nExt:Localize Key=SubscriptionAddUserVideos}" Icon="Add" Visibility="Visible"
                                 Command="{x:Bind _vm.AddSubscriptionCommand}"
                                 CommandParameter="{x:Bind _vm.UserInfo.Value, Mode=OneWay}"
                                 >

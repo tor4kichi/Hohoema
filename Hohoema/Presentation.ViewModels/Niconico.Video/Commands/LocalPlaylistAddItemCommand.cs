@@ -31,9 +31,6 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
         protected override async void Execute(IEnumerable<IVideoContent> items)
         {
-            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            //Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
-
             var playlist = Playlist;
             if (playlist == null)
             {

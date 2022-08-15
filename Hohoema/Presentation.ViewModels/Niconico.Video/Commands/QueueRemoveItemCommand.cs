@@ -33,9 +33,6 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
         protected override void Execute(IEnumerable<IVideoContent> items)
         {
-            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            //Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
-
             foreach (var content in items)
             {
                 _queuePlaylist.Remove(content);

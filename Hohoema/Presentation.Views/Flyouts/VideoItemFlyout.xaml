@@ -59,7 +59,7 @@
 
 
   <MenuFlyoutItem x:Name="AddSusbcriptionItem"
-                     Text="{i18nExt:Localize Key=SubscriptionAddUser}"
+                     Text="{i18nExt:Localize Key=SubscriptionAddUserVideos}"
                   CommandParameter="{Binding}"
                     >
   </MenuFlyoutItem>

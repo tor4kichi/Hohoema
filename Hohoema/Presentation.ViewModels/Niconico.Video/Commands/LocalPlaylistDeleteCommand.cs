@@ -33,9 +33,6 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
 
         protected override async void Execute(object parameter)
         {
-            var currentMethod = System.Reflection.MethodBase.GetCurrentMethod();
-            //Microsoft.AppCenter.Analytics.Analytics.TrackEvent($"{currentMethod.DeclaringType.Name}#{currentMethod.Name}");
-
             if (parameter is LocalPlaylist localPlaylist)
             {
                 if (await _dialogService.ShowMessageDialog(

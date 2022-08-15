@@ -58,7 +58,7 @@
     </Button>
 
 
-    <ContentControl Content="{x:Bind CenterContent, Mode=OneWay}">
+    <ContentControl Content="{x:Bind CenterContent, Mode=OneWay}" IsTabStop="False">
 
     </ContentControl>
 

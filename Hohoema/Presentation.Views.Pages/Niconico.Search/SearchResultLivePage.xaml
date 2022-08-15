@@ -75,7 +75,7 @@
 
             <CommandBar Margin="0" VerticalContentAlignment="Center">
               <CommandBar.PrimaryCommands>
-                <AppBarElementContainer VerticalAlignment="Center" VerticalContentAlignment="Center">
+                <AppBarElementContainer VerticalAlignment="Center" VerticalContentAlignment="Center" IsTabStop="False">
                   <DropDownButton Content="絞り込み" VerticalAlignment="Center">
                     <DropDownButton.Flyout>
                       <Flyout Closed="Flyout_Closed">

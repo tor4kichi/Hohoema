@@ -41,6 +41,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly NicoLiveProvider _nicoLiveProvider;
         private readonly PlaylistItemsSourceResolver _playlistItemsSourceResolver;
+        private readonly ApplicationLayoutManager _applicationLayoutManager;
         AsyncLock _asyncLock = new AsyncLock();
 
         public VideoPlayRequestBridgeToPlayer(
@@ -52,7 +53,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             QueuePlaylist queuePlaylist,
             NicoVideoProvider nicoVideoProvider,
             NicoLiveProvider nicoLiveProvider,
-            PlaylistItemsSourceResolver playlistItemsSourceResolver
+            PlaylistItemsSourceResolver playlistItemsSourceResolver,
+            ApplicationLayoutManager applicationLayoutManager
             )
         {
             _messenger = messenger;
@@ -64,7 +66,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             _nicoVideoProvider = nicoVideoProvider;
             _nicoLiveProvider = nicoLiveProvider;
             _playlistItemsSourceResolver = playlistItemsSourceResolver;
-            
+            _applicationLayoutManager = applicationLayoutManager;
             _messenger.Register<VideoPlayRequestMessage>(this);
             _messenger.Register<PlayerPlayLiveRequestMessage>(this);
             _messenger.Register<ChangePlayerDisplayViewRequestMessage>(this);
@@ -262,6 +264,15 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
             await sourcePlayerView.ShowAsync();
 
+            if (_appearanceSettings.PlayerDisplayView == PlayerDisplayView.PrimaryView
+                && _applicationLayoutManager.InteractionMode == ApplicationInteractionMode.Touch
+                && await sourcePlayerView.IsWindowFilledScreenAsync()
+                && await sourcePlayerView.GetDisplayModeAsync() == PlayerDisplayMode.FillWindow
+                )
+            {
+                await sourcePlayerView.TrySetDisplayModeAsync(PlayerDisplayMode.FullScreen);
+            }
+
             _titleUpdater = sourcePlayerView.PlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
                 .Subscribe(async playlistItem =>
                 {
@@ -304,7 +315,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             using var _ = await _asyncLock.LockAsync(default);
             if (displayMode == PlayerDisplayView.PrimaryView)
             {
-                if (_primaryViewPlayerManager.DisplayMode != PrimaryPlayerDisplayMode.Close)
+                if (_primaryViewPlayerManager.DisplayMode != PlayerDisplayMode.Close)
                 {
                     if (!nowViewChanging
                         && _lastPlayedLive == liveId

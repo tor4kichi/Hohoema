@@ -189,7 +189,12 @@ namespace Hohoema.Presentation.ViewModels.Player
                 .AddTo(_CompositeDisposable);
 
             IsAvailablePlaylistRepeatOrShuffle = _hohoemaPlaylistPlayer.ObserveProperty(x => x.IsShuffleAndRepeatAvailable)
-                .ToReadOnlyReactiveProperty();
+                .ToReadOnlyReactiveProperty()
+                .AddTo(_CompositeDisposable);
+
+            PlayerSettings.ObserveProperty(x => x.PlaybackRate)
+                .Subscribe(rate => MediaPlayer.PlaybackSession.PlaybackRate = rate)
+                .AddTo(_CompositeDisposable);
 
         }
 

@@ -110,8 +110,8 @@
         </MenuFlyoutItem>
       </MenuFlyoutSubItem>
       <MenuFlyoutSeparator />
-      <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=CompactOverlay}"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{Binding PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{Binding PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=CompactOverlay}"></MenuFlyoutItem>
       <MenuFlyoutItem x:Name="SmallWindowButton_Menu" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=WindowInWindow}"></MenuFlyoutItem>
       <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=PlayWithSecondaryView}"></MenuFlyoutItem>
     </MenuFlyout>
@@ -337,7 +337,7 @@
                                             CommandParameter="{Binding VideoInfo}"
                                             />
 
-                  <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddUser}"
+                  <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddUserVideos}"
                                             Command="{Binding AddSubscriptionCommand}"
                                             CommandParameter="{Binding VideoInfo}"
                                             />
@@ -354,8 +354,8 @@
           </CommandBar.PrimaryCommands>
 
           <CommandBar.SecondaryCommands>
-            <AppBarButton x:Name="FullscreenButton" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></AppBarButton>
-            <AppBarButton x:Name="CompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=CompactOverlay}"></AppBarButton>
+            <AppBarButton x:Name="FullscreenButton" Command="{Binding PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></AppBarButton>
+            <AppBarButton x:Name="CompactOverlayButton" Command="{Binding PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=CompactOverlay}"></AppBarButton>
             <AppBarButton x:Name="SmallWindowButton" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=WindowInWindow}"></AppBarButton>
             <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{i18nExt:Localize Key=PlayWithSecondaryView}"></AppBarButton>
           </CommandBar.SecondaryCommands>
@@ -734,7 +734,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding WindowService.IsFullScreen.Value, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsFullScreen, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />

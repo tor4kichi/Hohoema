@@ -369,7 +369,6 @@
                     <CommandBar x:Name="ActionsCommandBar" uwpControls:DockPanel.Dock="Right" 
                               XYFocusLeft="{x:Bind CloseButton}"
                               DefaultLabelPosition="Right"
-                              IsTabStop="False"
                               >
 
                       <CommandBar.PrimaryCommands>
@@ -399,7 +398,7 @@
                                             CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"
                                             />
 
-                              <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddUser}"
+                              <MenuFlyoutItem Text="{i18nExt:Localize Key=SubscriptionAddUserVideos}"
                                             Command="{x:Bind _vm.AddSubscriptionCommand}"
                                             CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}"
                                             />
@@ -622,8 +621,22 @@
                       <Button x:Name="OpenPlaylistButton" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Playlist" MinWidth="48" MinHeight="48">
                         <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="24" Height="24"></iconPack:PackIconMaterial>
                       </Button>
-                      <Button x:Name="OpenSettingsPaneButton" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Setting" MinWidth="48" MinHeight="48">
-                        <SymbolIcon Symbol="Setting" />
+                      <Button x:Name="OpenSettingsPaneButton" MinWidth="48" MinHeight="48">
+                        <Button.Flyout>
+                          <Flyout>
+                            <Flyout.FlyoutPresenterStyle>
+                              <Style TargetType="FlyoutPresenter">
+                                <Setter Property="Padding" Value="0 27 48 0" />
+                              </Style>
+                            </Flyout.FlyoutPresenterStyle>
+                            
+                            <local:VideoSettingsSidePaneContent />
+                          </Flyout>
+                        </Button.Flyout>
+
+                        <Button.Content>
+                          <SymbolIcon Symbol="Setting" />
+                        </Button.Content>
                       </Button>
                     </StackPanel>
                   </Grid>
@@ -980,6 +993,13 @@
       </VisualStateGroup>
       <!-- Xbox時のレイアウト調整 -->
       <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+          </VisualState.Setters>
+        </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />

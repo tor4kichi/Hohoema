@@ -41,6 +41,7 @@ using ZLogger;
 using Hohoema.Presentation.Navigations;
 using CommunityToolkit.Mvvm.Input;
 using Hohoema.Models.Domain.Pins;
+using Windows.UI.ViewManagement;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -69,6 +70,13 @@ namespace Hohoema.Presentation.Views.Pages
             _currentActiveWindowUIContextService = currentActiveWindowUIContextService;
             _logger = loggerFactory.CreateLogger<PrimaryWindowCoreLayout>();
 
+            CoreWindow.GetForCurrentThread().KeyDown += (sender, args) =>
+            {                
+                if (args.VirtualKey == VirtualKey.GamepadView && sender.ActivationMode == CoreWindowActivationMode.ActivatedInForeground)
+                {
+                    CoreNavigationView.IsPaneOpen = true;
+                }
+            };
 
             ContentFrame.NavigationFailed += (_, e) =>
             {
@@ -185,6 +193,18 @@ namespace Hohoema.Presentation.Views.Pages
 
                 });
 
+            CoreNavigationView.ObserveDependencyProperty(Microsoft.UI.Xaml.Controls.NavigationView.PaneDisplayModeProperty)
+                .Subscribe(_ => 
+                {
+                    _viewModel.ApplicationLayoutManager.SetCurrentNavigationViewPaneDisplayMode(CoreNavigationView.PaneDisplayMode);                    
+                });
+
+            CoreNavigationView.ObserveDependencyProperty(Microsoft.UI.Xaml.Controls.NavigationView.IsBackButtonVisibleProperty)
+                .Subscribe(_ =>
+                {
+                    _viewModel.ApplicationLayoutManager.SetCurrentNavigationViewIsBackButtonVisible(CoreNavigationView.IsBackButtonVisible);
+                });
+
             WeakReferenceMessenger.Default.Register<LiteNotificationMessage>(this, (r, m) => 
             {
                 var payload = m.Value;
@@ -211,6 +231,7 @@ namespace Hohoema.Presentation.Views.Pages
                 Resources["NavigationViewPaneContentGridMargin"] = new Thickness(0, 27, 0, 27);
             }
         }
+
 
         private void Current_Activated(object sender, WindowActivatedEventArgs e)
         {
@@ -242,11 +263,11 @@ namespace Hohoema.Presentation.Views.Pages
 
         public void TogglePlayerFillBtwWindowInWindow()
         {
-            if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Fill)
+            if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PlayerDisplayMode.FillWindow)
             {
                 _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
             }
-            else if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.WindowInWindow)
+            else if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PlayerDisplayMode.WindowInWindow)
             {
                 _viewModel.PrimaryViewPlayerManager.ShowWithFill();
             }
@@ -317,8 +338,9 @@ namespace Hohoema.Presentation.Views.Pages
                             // TODO: NavigationStackBehavior.NotRemember
                         }
 
-                        await _viewModel.PrimaryViewPlayerManager.ShowAsync();
-                        //Window.Current.Activate();
+                        //await _viewModel.PrimaryViewPlayerManager.ShowAsync();
+                        //Window.Current.Activate();                        
+                        await ApplicationViewSwitcher.TryShowAsStandaloneAsync(ApplicationView.GetForCurrentView().Id, ViewSizePreference.Default);
 
                         GoBackCommand.NotifyCanExecuteChanged();
                     }
@@ -330,7 +352,7 @@ namespace Hohoema.Presentation.Views.Pages
                     Debug.WriteLineIf(!result.IsSuccess, result.Exception?.ToString());
 
 
-                    if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Fill)
+                    if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PlayerDisplayMode.FillWindow)
                     {
                         _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
                     }
@@ -478,9 +500,9 @@ namespace Hohoema.Presentation.Views.Pages
             }
 
             var displayMode = _viewModel.PrimaryViewPlayerManager.DisplayMode;
-            if (displayMode == PrimaryPlayerDisplayMode.Fill
-                || displayMode == PrimaryPlayerDisplayMode.FullScreen
-                || displayMode == PrimaryPlayerDisplayMode.CompactOverlay
+            if (displayMode == PlayerDisplayMode.FillWindow
+                || displayMode == PlayerDisplayMode.FullScreen
+                || displayMode == PlayerDisplayMode.CompactOverlay
                 )
             {
                 Debug.WriteLine("BackNavigation canceled. priority player UI.");
@@ -943,6 +965,23 @@ namespace Hohoema.Presentation.Views.Pages
                 if (folderVM == null) { return; }
                 _viewModel.AddPinToFolder(pin, folderVM);
             }
+        }
+
+        private void CoreNavigationView_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            if (e.Handled) { return; }
+
+            if (e.Key == VirtualKey.GamepadView)
+            {
+                CoreNavigationView.IsPaneOpen = !CoreNavigationView.IsPaneOpen;
+                e.Handled = true;
+            }
+        }
+
+        private void CoreNavigationView_DisplayModeChanged(Microsoft.UI.Xaml.Controls.NavigationView sender, Microsoft.UI.Xaml.Controls.NavigationViewDisplayModeChangedEventArgs args)
+        {
+            // TODO: Top の場合でもMinimalになってしまうためページヘッダー向けの条件分岐としては不十分
+            _viewModel.ApplicationLayoutManager.SetCurrentNavigationViewDisplayMode(args.DisplayMode);
         }
     }
 

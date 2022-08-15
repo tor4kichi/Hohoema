@@ -6,7 +6,6 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-  xmlns:mvvm="using:Prism.Mvvm"
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
   xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
   xmlns:myconverter="using:Hohoema.Presentation.Views.Converters"
@@ -34,7 +33,7 @@
       <Setter Property="Margin" Value="0 0 0 16" />
     </Style>
     <Style x:Key="SettingsOptionTitleTextBlock" TargetType="TextBlock" >
-      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="FontWeight" Value="Normal" />
       <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
     <Style x:Key="SettingsSubHeaderHorizonBorderStyle" TargetType="Border">
@@ -45,8 +44,8 @@
     </Style>
   </UserControl.Resources>
   <Grid>
-    <ScrollViewer>
-      <StackPanel x:Name="SettingsContentLayout" Margin="16 8 8 8" MinWidth="400" HorizontalAlignment="Left"
+    <Border>
+      <StackPanel x:Name="SettingsContentLayout" Margin="16 8 8 8" MinWidth="380" HorizontalAlignment="Left"
                       Spacing="16"
                       >
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
@@ -100,10 +99,10 @@
             <TextBlock Text="{i18nExt:Localize Key=PlaybackRate}"
                        Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <ComboBox SelectedItem="{Binding PlayerSettings.PlaybackRate, Mode=TwoWay, UpdateSourceTrigger=Default}"
-                              ItemsSource="{x:Bind VideoPlaybackRateList}"
-                            HorizontalAlignment="Right"
-                            >
+            <ComboBox SelectedItem="{x:Bind _vm.PlayerSettings.PlaybackRate, Mode=TwoWay, UpdateSourceTrigger=Default}"
+                      ItemsSource="{x:Bind VideoPlaybackRateList}"
+                      HorizontalAlignment="Right"
+                      >
               <ComboBox.ItemTemplate>
                 <DataTemplate>
                   <TextBlock >
@@ -117,7 +116,7 @@
                        Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
             <ComboBox ItemsSource="{x:Bind PlaylistEndActionList}"
-                              SelectedItem="{Binding PlayerSettings.PlaylistEndAction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedItem="{x:Bind _vm.PlayerSettings.PlaylistEndAction, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                       HorizontalAlignment="Right"
                               >
               <ComboBox.ItemTemplate>
@@ -132,7 +131,7 @@
             <TextBlock Text="{i18nExt:Localize Key=NextVideoAutoDectectionAndMove}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <ToggleSwitch IsOn="{Binding PlayerSettings.AutoMoveNextVideoOnPlaylistEmpty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+            <ToggleSwitch IsOn="{x:Bind _vm.PlayerSettings.AutoMoveNextVideoOnPlaylistEmpty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                           HorizontalAlignment="Right"
                           HorizontalContentAlignment="Right"
                           Margin="0"
@@ -184,7 +183,7 @@
             <TextBlock Text="{i18nExt:Localize Key=CommentDisplayDuration}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <muxc:NumberBox x:Name="CommentDisplayDurationNumberBox" Value="{Binding PlayerSettings.CommentDisplayDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToDoubleConverter}}"
+            <muxc:NumberBox x:Name="CommentDisplayDurationNumberBox" Value="{x:Bind _vm.PlayerSettings.CommentDisplayDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToDoubleConverter}}"
                             Maximum="10"
                             Minimum="1"
                             SmallChange="0.5"
@@ -211,7 +210,7 @@
                            uwpControls:DockPanel.Dock="Left"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <muxc:NumberBox x:Name="CommentFontScaleNumberBox" Value="{Binding PlayerSettings.DefaultCommentFontScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <muxc:NumberBox x:Name="CommentFontScaleNumberBox" Value="{x:Bind _vm.PlayerSettings.DefaultCommentFontScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             SmallChange="0.05"
                             LargeChange="1.0"
                             Minimum="0.1"
@@ -238,7 +237,7 @@
             <TextBlock Text="{i18nExt:Localize Key=CommentOpacity}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <Slider Value="{Binding PlayerSettings.CommentOpacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <Slider Value="{x:Bind _vm.PlayerSettings.CommentOpacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             Width="200"
                             Maximum="1.0"
                             Minimum="0.0"
@@ -246,7 +245,7 @@
                             StepFrequency="0.01"
                             SmallChange="0.05"
                             LargeChange="0.2"
-                            Header="{Binding PlayerSettings.CommentOpacity, Mode=OneWay}"
+                            Header="{x:Bind _vm.PlayerSettings.CommentOpacity, Mode=OneWay}"
                             HorizontalAlignment="Right"
                             HorizontalContentAlignment="Left"
                           />
@@ -256,7 +255,7 @@
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
             <ComboBox ItemsSource="{x:Bind CommentColorList}"
-                              SelectedItem="{Binding PlayerSettings.CommentColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedItem="{x:Bind _vm.PlayerSettings.CommentColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               
                     HorizontalAlignment="Right"
                           >
@@ -290,7 +289,7 @@
                                Style="{StaticResource SettingsOptionTitleTextBlock}"
                                />
             <ComboBox ItemsSource="{x:Bind _NGScoreShareLevels}"
-                      SelectedItem="{Binding CommentFiltering.ShareNGScore, Mode=TwoWay, Converter={StaticResource CommentNGScoreShareLevelConverter}}"
+                      SelectedItem="{x:Bind _vm.CommentFiltering.ShareNGScore, Mode=TwoWay, Converter={StaticResource CommentNGScoreShareLevelConverter}}"
                       HorizontalAlignment="Right"
                       >
               <ComboBox.ItemTemplate>
@@ -330,12 +329,12 @@
             <TextBlock Text="{i18nExt:Localize Key=EnableCommentFilteringWithFreeWord}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <ToggleSwitch IsOn="{Binding CommentFiltering.IsEnableFilteringCommentText, Mode=TwoWay}"
+            <ToggleSwitch IsOn="{x:Bind _vm.CommentFiltering.IsEnableFilteringCommentText, Mode=TwoWay}"
                           HorizontalAlignment="Right"
                                           />
           </Grid>
 
-          <ItemsControl ItemsSource="{Binding FilteringKeywords}" x:Name="FilteringKeywordItems"
+          <ItemsControl ItemsSource="{x:Bind _vm.FilteringKeywords}" x:Name="FilteringKeywordItems"
                         IsTabStop="False"
                         >
             <ItemsControl.ItemTemplate>
@@ -375,7 +374,7 @@
             </ItemsControl.ItemTemplate>
           </ItemsControl>
 
-          <Button Content="NGキーワードを追加" Command="{Binding CommentFiltering.AddFilteringCommentTextConditionCommand}" CommandParameter=""
+          <Button Content="NGキーワードを追加" Command="{x:Bind _vm.CommentFiltering.AddFilteringCommentTextConditionCommand}" CommandParameter=""
                   HorizontalAlignment="Right"
                   />
 
@@ -385,7 +384,7 @@
             <TextBlock Text="{i18nExt:Localize Key=CommentReplaceSettings}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
           </Grid>
 
-          <ItemsControl ItemsSource="{Binding VideoCommentTransformConditions}" x:Name="TransformConditionItems" IsTabStop="False">
+          <ItemsControl ItemsSource="{x:Bind _vm.VideoCommentTransformConditions}" x:Name="TransformConditionItems" IsTabStop="False">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
                 <uwpControls:DockPanel Margin="0 0 0 8">
@@ -444,7 +443,7 @@
             </ItemsControl.ItemTemplate>
           </ItemsControl>
 
-          <Button Content="置換を追加" Command="{Binding CommentFiltering.AddTextTransformConditionsCommand}"
+          <Button Content="置換を追加" Command="{x:Bind _vm.CommentFiltering.AddTextTransformConditionsCommand}"
                   HorizontalAlignment="Right"
                   >
           </Button>
@@ -466,7 +465,7 @@
             <TextBlock Text="{i18nExt:Localize Key=NicoScript_Default}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <ToggleSwitch IsOn="{Binding PlayerSettings.NicoScript_Default_Enabled, Mode=TwoWay}"                                
+            <ToggleSwitch IsOn="{x:Bind _vm.PlayerSettings.NicoScript_Default_Enabled, Mode=TwoWay}"                                
                             HorizontalAlignment="Right"
                                         />
           </Grid>
@@ -474,7 +473,7 @@
             <TextBlock Text="{i18nExt:Localize Key=NicoScript_DisallowSeek}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <ToggleSwitch IsOn="{Binding PlayerSettings.NicoScript_DisallowSeek_Enabled, Mode=TwoWay}"
+            <ToggleSwitch IsOn="{x:Bind _vm.PlayerSettings.NicoScript_DisallowSeek_Enabled, Mode=TwoWay}"
                             HorizontalAlignment="Right"
                                         />
           </Grid>
@@ -482,7 +481,7 @@
             <TextBlock Text="{i18nExt:Localize Key=NicoScript_DisallowComment}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <ToggleSwitch IsOn="{Binding PlayerSettings.NicoScript_DisallowComment_Enabled, Mode=TwoWay}"
+            <ToggleSwitch IsOn="{x:Bind _vm.PlayerSettings.NicoScript_DisallowComment_Enabled, Mode=TwoWay}"
                             HorizontalAlignment="Right"
                                         />
           </Grid>
@@ -490,7 +489,7 @@
             <TextBlock Text="{i18nExt:Localize Key=NicoScript_Jump}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <ToggleSwitch IsOn="{Binding PlayerSettings.NicoScript_Jump_Enabled, Mode=TwoWay}"
+            <ToggleSwitch IsOn="{x:Bind _vm.PlayerSettings.NicoScript_Jump_Enabled, Mode=TwoWay}"
                             HorizontalAlignment="Right"
                                         />
           </Grid>
@@ -522,7 +521,7 @@
             <TextBlock Text="{i18nExt:Localize Key=SoundVolumeChangeValueWithMouseScroll}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <muxc:NumberBox Value="{Binding PlayerSettings.SoundVolumeChangeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
+            <muxc:NumberBox Value="{x:Bind _vm.PlayerSettings.SoundVolumeChangeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
                             SmallChange="1"
                             LargeChange="5"
                             Minimum="1"
@@ -537,7 +536,7 @@
           </Grid>
         </StackPanel>
       </StackPanel>
-    </ScrollViewer>
+    </Border>
     <i:Interaction.Behaviors>
       <core:EventTriggerBehavior EventName="Loaded">
         <mybehavior:SetFocus TargetObject="{Binding ElementName=VideoQualityComboBox}" />

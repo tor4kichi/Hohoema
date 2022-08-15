@@ -98,7 +98,7 @@ namespace Hohoema
     /// </summary>
     sealed partial class App : Application
     {
-        const bool _DEBUG_XBOX_RESOURCE = false;
+        const bool _DEBUG_XBOX_RESOURCE = true;
 
         public SplashScreen SplashScreen { get; private set; }
 
@@ -1021,8 +1021,6 @@ namespace Hohoema
             }
         }
 
-        bool isFirstCrashe = true;
-
         private void PrismUnityApplication_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
             Debug.Write(e.Message);
@@ -1038,14 +1036,6 @@ namespace Hohoema
             {
                 return;
             }
-
-            if (!isFirstCrashe)
-            {
-                return;
-            }
-
-            isFirstCrashe = false;
-            e.Handled = true;
 
             var logger = Container.Resolve<ILogger>();
             logger.ZLogError(e.Exception.ToString());

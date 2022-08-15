@@ -90,8 +90,8 @@ HohoemaPageType.SearchResultMylist = マイリスト検索
 HohoemaPageType.SearchResultTag = タグ検索
 HohoemaPageType.Settings = 設定
 HohoemaPageType.Splash = 起動画面
-HohoemaPageType.Subscription = 購読
-HohoemaPageType.SubscVideoList = 購読動画一覧
+HohoemaPageType.Subscription = 新着動画
+HohoemaPageType.SubscVideoList = 新着動画一覧
 HohoemaPageType.Timeshift = タイムシフト
 HohoemaPageType.UserInfo = ユーザー情報
 HohoemaPageType.UserMylist = マイリスト一覧
@@ -103,7 +103,7 @@ HohoemaPageType.WatchHistory = 視聴履歴
 HohoemaPageType.LocalPlaylist = プレイリスト
 HohoemaPageType.Mylist = マイリスト
 HohoemaPageType.VideoQueue = キュー
-HohoemaPageType.SubscriptionManagement = 購読管理
+HohoemaPageType.SubscriptionManagement = 新着動画
 HohoemaPageType.OwnerMylistManage = マイリスト管理
 HohoemaPageType.LocalPlaylistManage = ローカルマイリスト管理
 
@@ -189,11 +189,8 @@ CacheVideo_ToastNotification_CacheDelete = 削除
 
 
 #### Subscription ####
-SubscriptionAdd = 購読追加
-SubscriptionAddUser = 投稿者を購読に追加
-SubscriptionAddMylist = マイリストを購読に追加
-SubscriptionAddKeyword = キーワードを購読に追加
-SubscriptionAddTag = タグを購読に追加
+SubscriptionAdd = 新着チェックに追加
+SubscriptionAddUserVideos = 投稿者動画を新着チェックに追加
 SubscriptionAddSeries = シリーズを購読に追加
 
 SubscriptionSourceType.User = ユーザー
@@ -206,8 +203,8 @@ SubscriptionsAutoUpdateRunning = 自動更新
 SubscriptionsNextUpdateTime = 次回更新
 SubscriptionsAutoNotUpdateRunning = 自動更新 停止中
 
-StopSubscribe? = 購読をやめていいですか？
-StopSubscribe = 購読をやめる
+StopSubscribe? = 新着チェックをやめていいですか？
+StopSubscribe = 新着チェックをやめる
 
 OpenSubscriptionSourceVideoList = 動画一覧を開く
 ReorderSubsciprionSource_Move = 移動
@@ -216,8 +213,8 @@ ReorderSubsciprionSource_MoveNext = 一つ下へ移動
 ReorderSubsciprionSource_MoveToHead = 先頭へ移動
 ReorderSubsciprionSource_MoveToTail = 最後尾へ移動
 
-Notification_SuccessAddSubscriptionSourceWithLabel = 「{0}」を購読に追加しました。\n今後、新着動画が「あとで見る」に追加されます。
-Notification_FailedSubscriptionUpdate = 購読の更新に失敗しました
+Notification_SuccessAddSubscriptionSourceWithLabel = 「{0}」を新着チェックに追加しました。\n今後、新着動画が「あとで見る」に追加されます。
+Notification_FailedSubscriptionUpdate = 新着動画の更新に失敗しました
 Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を あとで見る に追加しました
 
 

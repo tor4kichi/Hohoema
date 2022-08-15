@@ -41,7 +41,7 @@ using System.Collections.Generic;
 
 namespace Hohoema.Presentation.ViewModels
 {
-    public sealed class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecipient<SettingsRestoredMessage>
+    public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecipient<SettingsRestoredMessage>
     {
         void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
         {
@@ -59,7 +59,6 @@ namespace Hohoema.Presentation.ViewModels
         public ObservableMediaPlayer ObservableMediaPlayer { get; }
         public NiconicoLoginService NiconicoLoginService { get; }
         public LogoutFromNiconicoCommand LogoutFromNiconicoCommand { get; }
-        public WindowService WindowService { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public RestoreNavigationManager RestoreNavigationManager { get; }
         public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
@@ -94,7 +93,6 @@ namespace Hohoema.Presentation.ViewModels
             ObservableMediaPlayer observableMediaPlayer,
             NiconicoLoginService niconicoLoginService,
             LogoutFromNiconicoCommand logoutFromNiconicoCommand,
-            WindowService windowService,
             ApplicationLayoutManager applicationLayoutManager,
             RestoreNavigationManager restoreNavigationManager,
             VideoItemsSelectionContext videoItemsSelectionContext,
@@ -116,7 +114,6 @@ namespace Hohoema.Presentation.ViewModels
             ObservableMediaPlayer = observableMediaPlayer;
             NiconicoLoginService = niconicoLoginService;
             LogoutFromNiconicoCommand = logoutFromNiconicoCommand;
-            WindowService = windowService;
             ApplicationLayoutManager = applicationLayoutManager;
             RestoreNavigationManager = restoreNavigationManager;
             VideoItemsSelectionContext = videoItemsSelectionContext;
@@ -153,26 +150,28 @@ namespace Hohoema.Presentation.ViewModels
             MenuItems_LoggedIn = new ObservableCollection<HohoemaListingPageItemBase>()
             {
                 _pinsMenuSubItemViewModel,
-                _queueMenuItemViewModel,
-                new LogginUserLiveSummaryItemViewModel(NiconicoSession, _logger, OpenLiveContentCommand),
                 new SeparatorMenuItemViewModel(),
+                _queueMenuItemViewModel,
                 new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
-                new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo),
-                new NavigateAwareMenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory),
-                new NavigateAwareMenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters(("id", MylistId.WatchAfterMylistId.ToString()))),
+                new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo, new NavigationParameters("type=Video")),
+                new SubscriptionMenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
+                //new NavigateAwareMenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters(("id", MylistId.WatchAfterMylistId.ToString()))),
                 new MylistSubMenuMenu(_userMylistManager, PageManager.OpenPageCommand),
                 _localMylistMenuSubItemViewModel,
-                new NavigateAwareMenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage),
-                new NavigateAwareMenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift),
-                new SubscriptionMenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
+                new NavigateAwareMenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory),
                 new NavigateAwareMenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
+                
+                new SeparatorMenuItemViewModel(),
+                new LogginUserLiveSummaryItemViewModel(NiconicoSession, _logger, OpenLiveContentCommand),
+                new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo, new NavigationParameters("type=Program")),
+                new NavigateAwareMenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift),
             };
 
             MenuItems_Offline = new ObservableCollection<HohoemaListingPageItemBase>()
             {
                 _pinsMenuSubItemViewModel,
-                _queueMenuItemViewModel,
                 new SeparatorMenuItemViewModel(),
+                _queueMenuItemViewModel,
                 new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
                 _localMylistMenuSubItemViewModel,
                 new SubscriptionMenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
@@ -180,6 +179,13 @@ namespace Hohoema.Presentation.ViewModels
             };
 
 
+        }
+
+        [RelayCommand]
+        void OpenFollowPage()
+        {
+            //new NavigateAwareMenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage),
+            PageManager.OpenPage(HohoemaPageType.FollowManage);
         }
 
 
