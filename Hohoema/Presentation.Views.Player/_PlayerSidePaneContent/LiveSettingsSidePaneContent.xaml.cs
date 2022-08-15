@@ -21,10 +21,10 @@ namespace Hohoema.Presentation.Views.Player
 {
     public sealed partial class LiveSettingsSidePaneContent : UserControl
     {
-        private SettingsSidePaneContentViewModel _viewModel { get; }
+        private SettingsSidePaneContentViewModel _vm { get; }
         public LiveSettingsSidePaneContent()
         {
-            DataContext = _viewModel = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SettingsSidePaneContentViewModel>();
+            DataContext = _vm = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<SettingsSidePaneContentViewModel>();
 
             this.InitializeComponent();
         }

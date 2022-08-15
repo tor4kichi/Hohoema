@@ -493,7 +493,12 @@ namespace Hohoema.Presentation.Views.Pages
         bool HandleBackRequest()
         {
             var currentPageType = ContentFrame.Content?.GetType();
-            if (PreventGoBackPageTypes.Contains(ContentFrame.Content.GetType()))
+            if (currentPageType == null)
+            {
+                return false;
+            }
+
+            if (PreventGoBackPageTypes.Contains(currentPageType))
             {
                 Debug.WriteLine($"{currentPageType.Name} からの戻る操作をブロック");
                 return false;

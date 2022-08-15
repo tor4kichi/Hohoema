@@ -499,8 +499,19 @@
                       <Button x:Name="OpenCommentListButton" Command="{Binding ToggleCommentListSidePaneContentCommand}" MinWidth="48" MinHeight="48">
                         <iconPack:PackIconMaterial Kind="CommentMultipleOutline" Width="24" Height="24" />
                       </Button>
-                      <Button x:Name="OpenSettingsButton" Command="{Binding SelectSidePaneContentCommand}" CommandParameter="Setting" MinWidth="48" MinHeight="48">
+                      <Button x:Name="OpenSettingsButton" MinWidth="48" MinHeight="48">
                         <SymbolIcon Symbol="Setting" />
+
+                        <Button.Flyout>
+                          <Flyout>
+                            <Flyout.FlyoutPresenterStyle>
+                              <Style TargetType="FlyoutPresenter">
+                                <Setter Property="Padding" Value="0 27 48 0" />
+                              </Style>
+                            </Flyout.FlyoutPresenterStyle>
+                            <local:LiveSettingsSidePaneContent />
+                          </Flyout>
+                        </Button.Flyout>
                       </Button>
                     </StackPanel>
                   </Grid>
@@ -1023,6 +1034,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
+            <windowsTrigger:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
             <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
           </VisualState.StateTriggers>
           <VisualState.Setters>

@@ -45,6 +45,7 @@
     <ScrollViewer>
       <StackPanel x:Name="SettingsContentLayout" Margin="16 8 8 8" HorizontalAlignment="Stretch"
                       Spacing="16"
+                  MinWidth="380"
                       >
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}" Visibility="Collapsed">
           <uwpControls:DockPanel x:Name="LivePlayerSettingsPanel"
@@ -71,7 +72,7 @@
             <TextBlock Text="{i18nExt:Localize Key=EnableAnonimityCommentCommandAsDefault}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.IsDefaultCommentWithAnonymous, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+            <ToggleSwitch IsOn="{x:Bind _vm.PlayerSettings.IsDefaultCommentWithAnonymous, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                         HorizontalAlignment="Right"
                         />
           </Grid>
@@ -90,7 +91,7 @@
             <TextBlock Text="{i18nExt:Localize Key=CommentDisplayDuration}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <muxc:NumberBox x:Name="CommentDisplayDurationNumberBox" Value="{x:Bind _viewModel.PlayerSettings.CommentDisplayDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToDoubleConverter}}"
+            <muxc:NumberBox x:Name="CommentDisplayDurationNumberBox" Value="{x:Bind _vm.PlayerSettings.CommentDisplayDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToDoubleConverter}}"
                             Maximum="10"
                             Minimum="1"
                             SmallChange="0.5"
@@ -117,7 +118,7 @@
                            uwpControls:DockPanel.Dock="Left"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <muxc:NumberBox x:Name="CommentFontScaleNumberBox" Value="{x:Bind _viewModel.PlayerSettings.DefaultCommentFontScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <muxc:NumberBox x:Name="CommentFontScaleNumberBox" Value="{x:Bind _vm.PlayerSettings.DefaultCommentFontScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             SmallChange="0.05"
                             LargeChange="1.0"
                             Minimum="0.1"
@@ -144,7 +145,7 @@
             <TextBlock Text="{i18nExt:Localize Key=CommentOpacity}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <Slider Value="{x:Bind _viewModel.PlayerSettings.CommentOpacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <Slider Value="{x:Bind _vm.PlayerSettings.CommentOpacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             Width="200"
                             Maximum="1.0"
                             Minimum="0.0"
@@ -152,7 +153,7 @@
                             StepFrequency="0.01"
                             SmallChange="0.05"
                             LargeChange="0.2"
-                            Header="{x:Bind _viewModel.PlayerSettings.CommentOpacity, Mode=OneWay}"
+                            Header="{x:Bind _vm.PlayerSettings.CommentOpacity, Mode=OneWay}"
                             HorizontalAlignment="Right"
                             HorizontalContentAlignment="Left"
                           />
@@ -162,7 +163,7 @@
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
             <ComboBox ItemsSource="{x:Bind CommentColorList}"
-                              SelectedItem="{x:Bind _viewModel.PlayerSettings.CommentColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              SelectedItem="{x:Bind _vm.PlayerSettings.CommentColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               
                     HorizontalAlignment="Right"
                           >
@@ -196,7 +197,7 @@
                                Style="{StaticResource SettingsOptionTitleTextBlock}"
                                />
             <ComboBox ItemsSource="{x:Bind _NGScoreShareLevels}"
-                      SelectedItem="{x:Bind _viewModel.CommentFiltering.ShareNGScore, Mode=TwoWay, Converter={StaticResource CommentNGScoreShareLevelConverter}}"
+                      SelectedItem="{x:Bind _vm.CommentFiltering.ShareNGScore, Mode=TwoWay, Converter={StaticResource CommentNGScoreShareLevelConverter}}"
                       HorizontalAlignment="Right"
                       >
               <ComboBox.ItemTemplate>
@@ -267,7 +268,7 @@
             <TextBlock Text="{i18nExt:Localize Key=SoundVolumeChangeValueWithMouseScroll}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <muxc:NumberBox Value="{x:Bind _viewModel.PlayerSettings.SoundVolumeChangeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
+            <muxc:NumberBox Value="{x:Bind _vm.PlayerSettings.SoundVolumeChangeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
                             SmallChange="1"
                             LargeChange="5"
                             Minimum="1"
