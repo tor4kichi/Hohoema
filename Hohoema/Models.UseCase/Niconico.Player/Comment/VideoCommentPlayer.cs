@@ -159,7 +159,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         void RefreshFiltering()
         {
             HiddenCommentIds.Clear();
-            
+
+            ResetDisplayingComments(Comments);
+            /*
             var displayingComments = _commentDisplayingRangeExtractor.Rewind(_mediaPlayer.PlaybackSession.Position);
 
             DisplayingComments.Clear();
@@ -167,6 +169,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             {
                 DisplayingComments.Add(comment);
             }
+            */
         }
 
         private void RewindAsync(TimeSpan position)
