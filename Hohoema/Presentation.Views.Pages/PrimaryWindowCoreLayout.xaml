@@ -204,7 +204,8 @@
       </DataTemplate>
 
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.Presentation.ViewModels.LogginUserLiveSummaryItemViewModel, Converter={StaticResource StringToType}}" >
-        <muxc:NavigationViewItem x:Name="LiveSummaryNVI" MenuItemsSource="{Binding Items}" IsExpanded="True">
+        <muxc:NavigationViewItem x:Name="LiveSummaryNVI" MenuItemsSource="{Binding Items}" IsExpanded="False"
+                                 >
           <muxc:NavigationViewItem.Icon>
             <winui:SymbolIcon Symbol="Video" />
           </muxc:NavigationViewItem.Icon>
@@ -215,11 +216,6 @@
             </core:EventTriggerBehavior>
           </i:Interaction.Behaviors>
           
-          <muxc:NavigationViewItem.ContextFlyout>
-            <MenuFlyout>
-            </MenuFlyout>
-          </muxc:NavigationViewItem.ContextFlyout>
-
           <uwpToolkitControls:DockPanel>
             <Grid uwpToolkitControls:DockPanel.Dock="Right">
               <Border Visibility="{Binding IsUnread}" Background="{ThemeResource SystemAccentColor}" CornerRadius="60" Width="32" Height="32">

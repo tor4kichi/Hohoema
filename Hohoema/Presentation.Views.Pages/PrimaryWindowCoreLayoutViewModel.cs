@@ -884,6 +884,8 @@ namespace Hohoema.Presentation.ViewModels
 
             App.Current.Suspending += Current_Suspending;
             App.Current.Resuming += Current_Resuming;
+
+            RefreshItems();
         }
 
         private void Current_Resuming(object sender, object e)
