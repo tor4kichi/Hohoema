@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI;
 using Hohoema.Models.Domain.Player;
+using CommunityToolkit.Mvvm.DependencyInjection;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -25,7 +26,10 @@ namespace Hohoema.Presentation.Views.Player
 		public VideoSettingsSidePaneContent()
 		{
 			this.InitializeComponent();
+			DataContext = _vm = Ioc.Default.GetRequiredService<SettingsSidePaneContentViewModel>();
 		}
+
+		private readonly SettingsSidePaneContentViewModel _vm;
 
 		List<Color> CommentColorList = new[]
 		{
@@ -62,9 +66,9 @@ namespace Hohoema.Presentation.Views.Player
 			CommentNGScoreShareLevel.VeryStrong,
 			CommentNGScoreShareLevel.UltraVeryStrong,
 		}.ToList();
+        
 
-
-		public void IncreaseCommentDisplayTime()
+        public void IncreaseCommentDisplayTime()
         {
 			CommentDisplayDurationNumberBox.Value += CommentDisplayDurationNumberBox.SmallChange;
 		}
