@@ -328,6 +328,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
                 await _secondaryPlayerManager.CloseAsync().ConfigureAwait(false);
 
+                await _primaryViewPlayerManager.ShowAsync();
                 await _primaryViewPlayerManager.NavigationAsync(pageName, parameters);
 
                 _primaryViewPlayerManager.SetTitle(await ResolveLiveContentNameAsync(liveId));
@@ -347,6 +348,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
                 await _primaryViewPlayerManager.CloseAsync();
 
+                await _secondaryPlayerManager.ShowAsync();
                 await _secondaryPlayerManager.NavigationAsync(pageName, parameters).ConfigureAwait(false);
 
                 _secondaryPlayerManager.SetTitle(await ResolveLiveContentNameAsync(liveId));
