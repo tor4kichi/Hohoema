@@ -397,6 +397,7 @@ namespace Hohoema.Presentation.Views.Pages
         {
             typeof(Views.Player.LivePlayerPage),
             typeof(Views.Player.VideoPlayerPage),
+            typeof(Views.Player.LegacyVideoPlayerPage),
         }.ToImmutableHashSet();
 
         

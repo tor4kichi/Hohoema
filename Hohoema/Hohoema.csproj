@@ -263,7 +263,16 @@
     <Compile Include="Presentation.Views.Pages\Hohoema.LocalMylist\LocalPlaylistPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\DebugPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Community\CommunityViewModel.cs" />
+    <Compile Include="Presentation.Views.Player\LegacyVideoPlayerPage.xaml.cs">
+      <DependentUpon>LegacyVideoPlayerPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presentation.Views.Player\LegacyVideoPlayerPageViewModel.cs" />
+    <Compile Include="Presentation.Views.Player\VideoPlayerUI\LegacyPlayerUI.xaml.cs">
+      <DependentUpon>LegacyPlayerUI.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Presentation.Views.Player\VideoPlayerUI\VideoQualityListItemContainerStyleSelector.cs" />
     <Compile Include="Presentation.Views\Converters\ColorToBrushConverter.cs" />
+    <Compile Include="Presentation.Views\Interaction\Input\PointerCursolAutoHideBehavior.cs" />
     <Compile Include="Presentation.Views\Mylist\MylistCardView.cs" />
     <Compile Include="Presentation.Views\Flyouts\ChannelInfoFlyout.xaml.cs">
       <DependentUpon>ChannelInfoFlyout.xaml</DependentUpon>
@@ -371,9 +380,6 @@
     <Compile Include="Presentation.ViewModels\Player\MediaPlayerToggleMuteCommand.cs" />
     <Compile Include="Presentation.ViewModels\Player\MediaPlayerVolumeChangeCommand.cs" />
     <Compile Include="Presentation.Views.Player\PlayerSidePaneContentType.cs" />
-    <Compile Include="Presentation.Views.Player\VideoPlayerUI\DesktopPlayerUI.xaml.cs">
-      <DependentUpon>DesktopPlayerUI.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Presentation.Views.Player\VideoPlayerUI\NallowPlayerUI.xaml.cs">
       <DependentUpon>NallowPlayerUI.xaml</DependentUpon>
     </Compile>
@@ -636,7 +642,6 @@
     <Compile Include="Presentation.Views\Interaction\Input\HideInputPaneAction.cs" />
     <Compile Include="Presentation.Views\Interaction\Input\KeyboardTrigger.cs" />
     <Compile Include="Presentation.Views\Interaction\Input\MouseWheelTrigger.cs" />
-    <Compile Include="Presentation.Views\Interaction\Input\PointerCursolAutoHideBehavior.cs" />
     <Compile Include="Presentation.Views\Interaction\Input\Swipe.cs" />
     <Compile Include="Presentation.Views\Interaction\Input\UINavigationTrigger.cs" />
     <Compile Include="Presentation.Views\Interaction\Input\XYNavigationExtentions.cs" />
@@ -908,6 +913,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Presentation.Views.Player\LegacyVideoPlayerPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Presentation.Views.Player\VideoPlayerUI\LegacyPlayerUI.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Presentation.Views\Mylist\MylistCardView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -955,10 +968,6 @@
     <Page Include="Presentation.Views.Pages\DebugPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Presentation.Views.Player\VideoPlayerUI\DesktopPlayerUI.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Presentation.Views.Player\VideoPlayerUI\NallowPlayerUI.xaml">
       <SubType>Designer</SubType>

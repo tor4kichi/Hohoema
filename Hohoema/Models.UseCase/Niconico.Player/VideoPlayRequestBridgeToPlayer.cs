@@ -245,12 +245,19 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
             await destPlayerView.CloseAsync().ConfigureAwait(false);
 
-            if (nowViewChanging
-                || sourcePlayerView.LastNavigatedPageName != nameof(Presentation.Views.Player.VideoPlayerPage)
-                )
+            if (_appearanceSettings.UsePreviewVersionVideoPage)
             {
-                System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
-                await sourcePlayerView.NavigationAsync(nameof(Presentation.Views.Player.VideoPlayerPage), null);
+                if (nowViewChanging || sourcePlayerView.LastNavigatedPageName != nameof(Presentation.Views.Player.VideoPlayerPage))
+                {
+                    await sourcePlayerView.NavigationAsync(nameof(Presentation.Views.Player.VideoPlayerPage), null);
+                }
+            }
+            else
+            {
+                if (nowViewChanging || sourcePlayerView.LastNavigatedPageName != nameof(Presentation.Views.Player.LegacyVideoPlayerPage))
+                {
+                    await sourcePlayerView.NavigationAsync(nameof(Presentation.Views.Player.LegacyVideoPlayerPage), null);
+                }
             }
 
             if (playlist.IsQueuePlaylist()
