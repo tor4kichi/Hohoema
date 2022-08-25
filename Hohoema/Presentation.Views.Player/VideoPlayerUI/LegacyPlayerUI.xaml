@@ -517,7 +517,7 @@
                     <Grid>
                       <TextBlock Text="{i18nExt:Localize Key=LoudnessCorrectionValueTitle}" uwpControls:DockPanel.Dock="Left" />
                       <TextBlock HorizontalAlignment="Right">
-                                  <Run Text="{x:Bind _vm.SoundVolumeManager.LoudnessCorrectionValue, Mode=OneWay, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
+                                  <Run Text="{x:Bind _vm.LoudnessCorrectionValue.Value, Mode=OneWay, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
                       </TextBlock>
                     </Grid>
                     <Grid>

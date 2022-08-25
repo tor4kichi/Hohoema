@@ -112,6 +112,10 @@ namespace Hohoema.Presentation.ViewModels.Player
                 .ToReadOnlyReactivePropertySlim()
                 .AddTo(_CompositeDisposable);
 
+            LoudnessCorrectionValue = soundVolumeManager.ObserveProperty(x => x.LoudnessCorrectionValue)
+                .ToReadOnlyReactiveProperty(eventScheduler: scheduler)
+                .AddTo(_CompositeDisposable);
+
             _scheduler = scheduler;
             PlayerView = playerView;
             NiconicoSession = niconicoSession;
@@ -201,6 +205,8 @@ namespace Hohoema.Presentation.ViewModels.Player
         private readonly ILogger<VideoPlayerPageViewModel> _logger;
 
         public ReadOnlyReactivePropertySlim<PlayerDisplayView> CurrentPlayerDisplayView { get; }
+
+        public ReadOnlyReactiveProperty<double> LoudnessCorrectionValue { get; }
 
         public SubscriptionManager SubscriptionManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
