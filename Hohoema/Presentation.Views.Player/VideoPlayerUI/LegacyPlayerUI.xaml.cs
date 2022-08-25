@@ -190,6 +190,9 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
         bool _prevMediaPlayerPlaying;
         private void CommentTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
+            NowCommentEditting = true;
+            (sender as TextBox).SelectAll();
+
             if (DataContext is ViewModels.Player.VideoPlayerPageViewModel vm)
             {
                 if (vm.PlayerSettings.PauseWithCommentWriting)
@@ -202,6 +205,7 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
 
         private void CommentTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
+            NowCommentEditting = false;
             if (DataContext is ViewModels.Player.VideoPlayerPageViewModel vm)
             {
                 if (vm.PlayerSettings.PauseWithCommentWriting)
