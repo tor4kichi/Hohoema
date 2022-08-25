@@ -51,6 +51,7 @@ namespace Hohoema.Presentation.Views.Player
 
 
 
+        private readonly DispatcherQueue _dispatcherQueue;
 
         public LegacyVideoPlayerPage()
         {
@@ -302,7 +303,7 @@ namespace Hohoema.Presentation.Views.Player
         // Using a DependencyProperty as the backing store for NowVideoPositionChanging.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty NowVideoPositionChangingProperty =
             DependencyProperty.Register("NowVideoPositionChanging", typeof(bool), typeof(LegacyVideoPlayerPage), new PropertyMetadata(false));
-        private readonly DispatcherQueue _dispatcherQueue;
+        
 
         void RefrectSliderPositionToPlaybackPosition()
         {

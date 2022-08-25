@@ -72,6 +72,8 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
             _vm.MediaPlayer.VolumeChanged += OnMediaPlayerVolumeChanged;
             _vm.MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
 
+            SeekBarSlider.ValueChanged += SeekBarSlider_ValueChanged;
+
             _compositeDisposable = new CompositeDisposable();
             var appearanceSettings = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<AppearanceSettings>();
             appearanceSettings.ObserveProperty(x => x.ApplicationTheme)
@@ -79,13 +81,15 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
                 {
                     ThemeChanged(theme);
                 }).AddTo(_compositeDisposable);
-
         }
 
         private void DesktopPlayerUI_Unloaded(object sender, RoutedEventArgs e)
         {
             _vm.MediaPlayer.VolumeChanged -= OnMediaPlayerVolumeChanged;
             _vm.MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+
+            SeekBarSlider.ValueChanged -= SeekBarSlider_ValueChanged;
+            SeekBarSlider.Value = 0.0;
 
             _compositeDisposable?.Dispose();
         }
@@ -246,14 +250,56 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
             DependencyProperty.Register("VideoPosition", typeof(TimeSpan), typeof(LegacyPlayerUI), new PropertyMetadata(TimeSpan.Zero));
 
 
-        private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
+        
+        void RefrectSliderPositionToPlaybackPosition()
         {
-            _ = _dispatcherQueue.TryEnqueue(() =>
+            this.NowVideoPositionChanging = true;
+            if (_vm.MediaPlayer.PlaybackSession.PlaybackState is MediaPlaybackState.Playing or MediaPlaybackState.Paused)
             {
-                VideoPosition = sender.Position;
-            });
+                _vm.MediaPlayer.PlaybackSession.Position = TimeSpan.FromSeconds(SeekBarSlider.Value);
+            }
+            this.NowVideoPositionChanging = false;
         }
 
+        double _prevPosition;
+        private void SeekBarSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            if (Math.Abs(_prevPosition - e.NewValue) > 1.0)
+            {
+                RefrectSliderPositionToPlaybackPosition();
+            }
+
+            _prevPosition = e.NewValue;
+        }
+
+        private void SeekBarSlider_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+        {
+            SeekBarSlider.ManipulationCompleted -= SeekBarSlider_ManipulationCompleted;
+        }
+
+        private void CoreWindow_PointerReleased(CoreWindow sender, PointerEventArgs args)
+        {
+            SeekBarSlider.ManipulationCompleted -= SeekBarSlider_ManipulationCompleted;
+            Window.Current.CoreWindow.PointerReleased -= CoreWindow_PointerReleased;
+
+            NowVideoPositionChanging = false;
+            SeekSwipe.IsEnabled = true;
+
+            RefrectSliderPositionToPlaybackPosition();
+        }
+
+        private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
+        {
+            _dispatcherQueue.TryEnqueue(() =>
+            {
+                if (sender.PlaybackState == MediaPlaybackState.None) { return; }
+                VideoPosition = sender.Position;
+                if (this.NowVideoPositionChanging is false)
+                {
+                    SeekBarSlider.Value = VideoPosition.TotalSeconds;
+                }
+            });
+        }
 
         public bool NowVideoPositionChanging
         {

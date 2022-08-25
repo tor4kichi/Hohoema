@@ -213,10 +213,10 @@
       </mybehavior:UINavigationTrigger>
 
       <!-- 再生停止時にUIを表示 -->
-      <core:DataTriggerBehavior Binding="{x:Bind _vm.ObservableMediaPlayer.NowPlaying.Value}" Value="False" ComparisonCondition="Equal">
+      <core:DataTriggerBehavior Binding="{x:Bind _vm.ObservableMediaPlayer.NowPlaying.Value, Mode=OneWay}" Value="False" ComparisonCondition="Equal">
         <core:CallMethodAction TargetObject="{x:Bind}" MethodName="ShowControlUI" />
       </core:DataTriggerBehavior>
-      <core:DataTriggerBehavior Binding="{x:Bind _vm.ObservableMediaPlayer.NowPlaying.Value}" Value="True" ComparisonCondition="Equal">
+      <core:DataTriggerBehavior Binding="{x:Bind _vm.ObservableMediaPlayer.NowPlaying.Value, Mode=OneWay}" Value="True" ComparisonCondition="Equal">
         <core:CallMethodAction TargetObject="{x:Bind}" MethodName="HideControlUI" />
       </core:DataTriggerBehavior>
 
@@ -992,7 +992,7 @@
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{x:Bind ActionsCommandBar.IsOpen, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind NowVideoPositionChanging, Mode=OneWay}" />
-            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
             <StateTrigger IsActive="{Binding PlayerSettings.IsAutoHidePlayerControlUI, Converter={StaticResource BoolNegation}}" />
             <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
             <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
@@ -1025,7 +1025,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <!-- 読み取り再生位置スライダーの表示状態 -->
-            <Setter Target="ReadOnlySeekBarSlider.Visibility" Value="Collapsed" />
+            <Setter Target="ReadOnlySeekBarSlider.Opacity" Value="0.0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -1077,7 +1077,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ActionsCommandBar.Visibility" Value="Collapsed" />
@@ -1088,7 +1088,8 @@
             <Setter Target="CommentCommandEditButton.Visibility" Value="Collapsed" />
             <Setter Target="CommentSubmitButton.Visibility" Value="Collapsed" />
 
-            <Setter Target="SeekbarSlider.Visibility" Value="Collapsed" />
+            <Setter Target="ExitCompactOverlayButton.Visibility" Value="Visible" />
+            <Setter Target="SeekBarSlider.Visibility" Value="Collapsed" />
 
           </VisualState.Setters>
         </VisualState>
@@ -1105,7 +1106,8 @@
             <Setter Target="CommentCommandEditButton.Visibility" Value="Collapsed" />
             <Setter Target="CommentSubmitButton.Visibility" Value="Collapsed" />
 
-            <Setter Target="SeekbarSlider.Visibility" Value="Collapsed" />
+            <Setter Target="ExitWindonwInWindowViewButton.Visibility" Value="Visible" />
+            <Setter Target="SeekBarSlider.Visibility" Value="Collapsed" />
 
           </VisualState.Setters>
         </VisualState>
@@ -1186,7 +1188,7 @@
             <StateTrigger IsActive="{Binding CommentPlayer.NowSeekDisabledFromNicoScript}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="SeekbarSlider.IsEnabled" Value="False" />
+            <Setter Target="SeekBarSlider.IsEnabled" Value="False" />
             <Setter Target="SeekDisabledFromNicoScriptText.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
@@ -1224,7 +1226,7 @@
             <myTrigger:CompositeStateTrigger Operator="And">
               <StateTrigger IsActive="{Binding VideoEndedRecommendation.HasRecomend.Value}" />
               <myTrigger:CompositeStateTrigger Operator="Or">
-                <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+                <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
                 <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
               </myTrigger:CompositeStateTrigger>
             </myTrigger:CompositeStateTrigger>
@@ -1239,7 +1241,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
             <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
