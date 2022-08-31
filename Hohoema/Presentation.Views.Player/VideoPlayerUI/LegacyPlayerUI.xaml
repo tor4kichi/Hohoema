@@ -197,7 +197,7 @@
         </mybehavior:MouseWheelTrigger.DownActions>
       </mybehavior:MouseWheelTrigger>
       <mybehavior:UINavigationTrigger Kind="Cancel" x:Name="ControllerToggleDisplayUITrigger" IsEnabled="True">
-        <core:ChangePropertyAction TargetObject="{x:Bind RootLayout}" PropertyName="IsVisibleUI" Value="{x:Bind IsVisibleUI, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+        <core:CallMethodAction TargetObject="{x:Bind}" MethodName="ToggleControlUI" />
       </mybehavior:UINavigationTrigger>
       <mybehavior:UINavigationTrigger x:Name="ConrollerHidePlayerTrigger" Kind="Cancel" Hold="True" IsEnabled="True">
         <core:InvokeCommandAction Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" />

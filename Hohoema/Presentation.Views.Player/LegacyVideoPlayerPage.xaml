@@ -240,7 +240,7 @@
                 </mybehavior:MouseWheelTrigger.DownActions>
               </mybehavior:MouseWheelTrigger>
               <mybehavior:UINavigationTrigger Kind="Cancel" x:Name="ControllerToggleDisplayUITrigger" IsEnabled="True">
-                <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="{x:Bind IsDisplayControlUI, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+                <core:CallMethodAction TargetObject="{x:Bind}" MethodName="ToggleControlUI" />
               </mybehavior:UINavigationTrigger>
               <mybehavior:UINavigationTrigger x:Name="ConrollerHidePlayerTrigger" Kind="Cancel" Hold="True" IsEnabled="True">
                 <core:InvokeCommandAction Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" />
@@ -354,7 +354,7 @@
                     <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Left">
                       <!-- 閉じる -->
                       <Button x:Name="CloseButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" UseSystemFocusVisuals="True" MinWidth="48" MinHeight="48"
-                            XYFocusRight="{x:Bind ActionsCommandBar}"
+                            XYFocusRight="{x:Bind LikeToggleButton}"
                             >
                         <iconPack:PackIconMaterial Kind="Close" />
                       </Button>
@@ -449,7 +449,9 @@
                   <!-- シークバー -->
                   <Grid Margin="0 0 0 12">
                     <TextBlock x:Name="SeekDisabledFromNicoScriptText" Text="{i18nExt:Localize Key=DisableSeekFromNicoScript}" Visibility="Collapsed" VerticalAlignment="Bottom" HorizontalAlignment="Center" Opacity="0.6" />
-                    <Slider x:Name="SeekBarSlider" Minimum="0.0" Maximum="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" Padding="0 16 0 8" StepFrequency="0.1" LargeChange="30" SmallChange="5" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" Opacity="0.75"></Slider>
+                    <Slider x:Name="SeekBarSlider" Minimum="0.0" Maximum="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" Padding="0 16 0 8" StepFrequency="0.1" LargeChange="30" SmallChange="5" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" Opacity="0.75"
+                            XYFocusUp="{x:Bind LikeToggleButton}"
+                            />
                   </Grid>
                   <!-- 動画画質 -->
                   <Grid x:Name="VideoProps" Margin="0 0 0 8">

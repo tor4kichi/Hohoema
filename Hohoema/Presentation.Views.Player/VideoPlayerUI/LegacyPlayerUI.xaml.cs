@@ -171,6 +171,11 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
             IsVisibleUI = false;
         }
 
+        public void ToggleControlUI()
+        {
+            IsVisibleUI = !IsVisibleUI;
+        }
+
 
 
         public bool NowCommentEditting

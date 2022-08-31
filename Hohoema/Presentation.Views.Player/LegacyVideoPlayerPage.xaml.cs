@@ -248,6 +248,23 @@ namespace Hohoema.Presentation.Views.Player
             DependencyProperty.Register("IsDisplayControlUI", typeof(bool), typeof(LegacyVideoPlayerPage), new PropertyMetadata(false));
 
 
+
+        public void HideControlUI()
+        {
+            IsDisplayControlUI = false;
+        }
+
+        public void ShowControlUI()
+        {
+            IsDisplayControlUI = true;
+        }
+
+        public void ToggleControlUI()
+        {
+            IsDisplayControlUI = true;
+        }
+
+
         private readonly MediaPlayerSoundVolumeManager _soundVolumeManager;
 
         CoreDispatcher _UIdispatcher;
