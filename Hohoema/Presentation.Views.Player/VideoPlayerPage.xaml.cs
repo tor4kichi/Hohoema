@@ -29,12 +29,13 @@ using Hohoema.Presentation.ViewModels.Player;
 using System.Reactive.Disposables;
 using Hohoema.Presentation.Navigations;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
 namespace Hohoema.Presentation.Views.Player
 {
-    public sealed partial class VideoPlayerPage : Page
+    public sealed partial class VideoPlayerPage : Page, IDraggableAreaAware
     {
         public VideoPlayerPage()
         {
@@ -43,6 +44,11 @@ namespace Hohoema.Presentation.Views.Player
             DataContext = _vm = Ioc.Default.GetRequiredService<VideoPlayerPageViewModel>();
         }
 
-        private readonly VideoPlayerPageViewModel _vm;        
+        private readonly VideoPlayerPageViewModel _vm;
+
+        public UIElement? GetDraggableArea()
+        {
+            return (PlayerControlUISwitchPresenter.Content as IDraggableAreaAware)?.GetDraggableArea();
+        }
     }
 }

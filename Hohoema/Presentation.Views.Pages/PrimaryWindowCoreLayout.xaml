@@ -458,21 +458,25 @@
 
     <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent" />
   </UserControl.Resources>
-  <Grid x:Name="RootLayout" 
-        Background="{ThemeResource ApplicationContentBackgroundBrush}"    
+
+
+  <Grid>
+    
+    <Grid x:Name="RootLayout" 
+        Background="{ThemeResource ApplicationContentBackgroundBrush}"            
         >
 
-    <Grid x:Name="PaneBackgroundForTVLayout" HorizontalAlignment="Left" Background="{ThemeResource ApplicationHeaderBackgroundBrush}" Width="48" Opacity="0"
+      <Grid x:Name="PaneBackgroundForTVLayout" HorizontalAlignment="Left" Background="{ThemeResource ApplicationHeaderBackgroundBrush}" Width="48" Opacity="0"
           IsHitTestVisible="False"
           >
-      
-    </Grid>
-    <uwpToolkitControls:DockPanel>
-      <Border uwpToolkitControls:DockPanel.Dock="Top"
+
+      </Grid>
+      <uwpToolkitControls:DockPanel>
+        <Border uwpToolkitControls:DockPanel.Dock="Top"
               x:Name="MobilePlayerTopMargin"
               Height="{Binding ElementName=PlayerFrame, Path=ActualHeight, Mode=OneWay}"
               Visibility="Collapsed" />
-      <muxc:NavigationView x:Name="CoreNavigationView"
+        <muxc:NavigationView x:Name="CoreNavigationView"
                       MenuItemsSource="{x:Bind _viewModel.MenuItems_Offline}"
                       MenuItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
                       PaneDisplayMode="{x:Bind _viewModel.AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}"
@@ -486,24 +490,24 @@
                       XYFocusRightNavigationStrategy="Projection"     
                            DisplayModeChanged="CoreNavigationView_DisplayModeChanged"                                                             
                       >
-        <muxc:NavigationView.Resources>
-          <!-- 
+          <muxc:NavigationView.Resources>
+            <!-- 
             work around "Unable to Interact with WebView in WinUI 2.6" 
           
             see@ https://github.com/microsoft/microsoft-ui-xaml/issues/5299
           -->
-          <x:Double x:Key="NavigationViewContentGridCornerRadius">0.0</x:Double>
-        </muxc:NavigationView.Resources>
-        
-        <muxc:NavigationView.PaneHeader>
-          <Grid >
-            <TextBlock Text="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}"
+            <x:Double x:Key="NavigationViewContentGridCornerRadius">0.0</x:Double>
+          </muxc:NavigationView.Resources>
+
+          <muxc:NavigationView.PaneHeader>
+            <Grid >
+              <TextBlock Text="{x:Bind _viewModel.NiconicoSession.ServiceStatus, Mode=OneWay}"
                        x:Name="ServiceStateText" 
                        Margin="8 0"
                        Visibility="Collapsed"
                        />
-          </Grid>
-          <!--
+            </Grid>
+            <!--
           <StackPanel Visibility="Collapsed">
             <uwpToolkitControls:DockPanel Margin="0">
               <Button Command="{x:Bind AddPinCurrentPageCommand}"
@@ -559,11 +563,11 @@
             </StackPanel>
           </StackPanel>
           -->
-        </muxc:NavigationView.PaneHeader>
+          </muxc:NavigationView.PaneHeader>
 
-        <muxc:NavigationView.PaneFooter>
+          <muxc:NavigationView.PaneFooter>
 
-          <Button x:Name="OpenAccountButton"
+            <Button x:Name="OpenAccountButton"
                         Padding="8 0 0 0"
                   MinHeight="40"
                         Background="Transparent"
@@ -575,63 +579,63 @@
                   Margin="4 0"
                   BorderThickness="0"
                       >
-            <Button.Flyout>
-              <MenuFlyout x:Name="AccountMenuFlyout" Placement="RightEdgeAlignedTop">
+              <Button.Flyout>
+                <MenuFlyout x:Name="AccountMenuFlyout" Placement="RightEdgeAlignedTop">
 
-                <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenSettings"
+                  <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenSettings"
                                       Text="{i18nExt:Localize Key=HohoemaPageType.Settings}"
                                       Command="{x:Bind _viewModel.PageManager.OpenPageCommand}"
                                     CommandParameter="{x:Bind pageNavigation:HohoemaPageType.Settings}"
                                 Visibility="Collapsed"
                                     />
 
-                <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
+                  <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
                                       Visibility="Collapsed" Text="Open Debug Page"
                                       Command="{x:Bind _viewModel.OpenDebugPageCommand}" />
 
-                <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenFollowPage"
+                  <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenFollowPage"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=HohoemaPageType.FollowManage}"
                                       Command="{x:Bind _viewModel.OpenFollowPageCommand}" />
 
 
-                <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
+                  <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=LogInUserInfo}"
                                       Command="{x:Bind _viewModel.OpenAccountInfoCommand}" />
 
-                <MenuFlyoutSeparator />
+                  <MenuFlyoutSeparator />
 
-                <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
+                  <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=LogOut}"
                                       Command="{x:Bind _viewModel.LogoutFromNiconicoCommand}" />
 
-                <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
+                  <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
                                       Visibility="Collapsed" Text="{i18nExt:Localize Key=LogIn}"
                                       Command="{x:Bind _viewModel.NiconicoLoginService.LoginCommand}" />
 
 
-              </MenuFlyout>
-            </Button.Flyout>
-            <uwpToolkitControls:SwitchPresenter x:Name="AccountButtonSwitchPresenter" Value="{x:Bind _viewModel.NiconicoSession.IsLoggedIn, Mode=OneWay}">
-              <uwpToolkitControls:Case IsDefault="True">
-                <uwpToolkitControls:Case.Value>
-                  <x:Boolean>False</x:Boolean>
-                </uwpToolkitControls:Case.Value>
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                  <iconPack:PackIconMaterial Kind="Account" Margin="0 4 0 0" Height="16" Width="24" Foreground="Gray" />
-                  <TextBlock Text="{i18nExt:Localize Key=Account}"
+                </MenuFlyout>
+              </Button.Flyout>
+              <uwpToolkitControls:SwitchPresenter x:Name="AccountButtonSwitchPresenter" Value="{x:Bind _viewModel.NiconicoSession.IsLoggedIn, Mode=OneWay}">
+                <uwpToolkitControls:Case IsDefault="True">
+                  <uwpToolkitControls:Case.Value>
+                    <x:Boolean>False</x:Boolean>
+                  </uwpToolkitControls:Case.Value>
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <iconPack:PackIconMaterial Kind="Account" Margin="0 4 0 0" Height="16" Width="24" Foreground="Gray" />
+                    <TextBlock Text="{i18nExt:Localize Key=Account}"
                                      Margin="2 0 0 0"
                              />
-                </StackPanel>
-              </uwpToolkitControls:Case>
+                  </StackPanel>
+                </uwpToolkitControls:Case>
 
-              <uwpToolkitControls:Case>
-                <uwpToolkitControls:Case.Value>
-                  <x:Boolean>True</x:Boolean>
-                </uwpToolkitControls:Case.Value>
-                <uwpToolkitControls:DockPanel Margin="2 0 0 0"
+                <uwpToolkitControls:Case>
+                  <uwpToolkitControls:Case.Value>
+                    <x:Boolean>True</x:Boolean>
+                  </uwpToolkitControls:Case.Value>
+                  <uwpToolkitControls:DockPanel Margin="2 0 0 0"
                                                   x:Name="AccountInfoLayout"
                                                       >
-                  <uwpToolkitControls:ImageEx Source="{x:Bind _viewModel.NiconicoSession.UserIconUrl,Mode=OneWay}"
+                    <uwpToolkitControls:ImageEx Source="{x:Bind _viewModel.NiconicoSession.UserIconUrl,Mode=OneWay}"
                              uwpToolkitControls:DockPanel.Dock="Left"
                              Height="22"
                              Width="22"
@@ -639,17 +643,17 @@
                                  CornerRadius="60"
                                               IsTabStop="False"
                                  />
-                  <StackPanel Margin="11 0 0 0">
-                    <TextBlock Text="{x:Bind _viewModel.NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" TextLineBounds="TrimToBaseline" />
-                  </StackPanel>
-                </uwpToolkitControls:DockPanel>
-              </uwpToolkitControls:Case>
-            </uwpToolkitControls:SwitchPresenter>
-          </Button>
-        </muxc:NavigationView.PaneFooter>
+                    <StackPanel Margin="11 0 0 0">
+                      <TextBlock Text="{x:Bind _viewModel.NiconicoSession.UserName, Mode=OneWay}" VerticalAlignment="Center" TextLineBounds="TrimToBaseline" />
+                    </StackPanel>
+                  </uwpToolkitControls:DockPanel>
+                </uwpToolkitControls:Case>
+              </uwpToolkitControls:SwitchPresenter>
+            </Button>
+          </muxc:NavigationView.PaneFooter>
 
-        <muxc:NavigationView.AutoSuggestBox>
-          <AutoSuggestBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+          <muxc:NavigationView.AutoSuggestBox>
+            <AutoSuggestBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                           PlaceholderText="{i18nExt:Localize Key=Search}" 
                           TabIndex="103" Margin="0" 
                           UseSystemFocusVisuals="True"
@@ -660,79 +664,91 @@
                           UpdateTextOnSelect="False"
                           GotFocus="SearchTextBox_GotFocus"    
                           >
-            <i:Interaction.Behaviors>
-              <core:EventTriggerBehavior EventName="GotFocus">
-                <core:CallMethodAction MethodName="SelectAll" />
-              </core:EventTriggerBehavior>
-              <mybehavior:KeyboardTrigger Key="Enter" x:Name="SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
-                <core:InvokeCommandAction Command="{x:Bind _viewModel.SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
-              </mybehavior:KeyboardTrigger>
-              <mybehavior:UINavigationTrigger Kind="Cancel" IsRequireFocus="True">
-                <core:ChangePropertyAction PropertyName="IsFocusEngaged" Value="False" />
-              </mybehavior:UINavigationTrigger>
-            </i:Interaction.Behaviors>
+              <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="GotFocus">
+                  <core:CallMethodAction MethodName="SelectAll" />
+                </core:EventTriggerBehavior>
+                <mybehavior:KeyboardTrigger Key="Enter" x:Name="SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
+                  <core:InvokeCommandAction Command="{x:Bind _viewModel.SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
+                </mybehavior:KeyboardTrigger>
+                <mybehavior:UINavigationTrigger Kind="Cancel" IsRequireFocus="True">
+                  <core:ChangePropertyAction PropertyName="IsFocusEngaged" Value="False" />
+                </mybehavior:UINavigationTrigger>
+              </i:Interaction.Behaviors>
 
-            <AutoSuggestBox.ItemTemplate>
-              <DataTemplate>
-                <TextBlock Text="{Binding Id, Converter={StaticResource LocalizeConverter}}" />
-              </DataTemplate>
-            </AutoSuggestBox.ItemTemplate>
-          </AutoSuggestBox>
-        </muxc:NavigationView.AutoSuggestBox>
-        
-        <muxc:NavigationView.Content>
-          <!-- CacheSize="0" はキャッシュを使用した場合にページコンテンツのメモリ解放が正常に行われないからか
+              <AutoSuggestBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Id, Converter={StaticResource LocalizeConverter}}" />
+                </DataTemplate>
+              </AutoSuggestBox.ItemTemplate>
+            </AutoSuggestBox>
+          </muxc:NavigationView.AutoSuggestBox>
+
+          <muxc:NavigationView.Content>
+            <!-- CacheSize="0" はキャッシュを使用した場合にページコンテンツのメモリ解放が正常に行われないからか
                使用メモリ量が数MBずつ際限なく増えていく問題があるため。
                see@ https://github.com/tor4kichi/Hohoema/issues/836
           -->
-          <Frame x:Name="ContentFrame" VerticalContentAlignment="Stretch" DataContext="{x:Null}" Margin="0 0 0 0"
+            <Frame x:Name="ContentFrame" VerticalContentAlignment="Stretch" DataContext="{x:Null}" Margin="0 0 0 0"
                  CacheSize="5"
                  
                        >
-            <Frame.ContentTransitions>
-              <TransitionCollection>
-                <NavigationThemeTransition>
-                  <NavigationThemeTransition.DefaultNavigationTransitionInfo>
-                    <SlideNavigationTransitionInfo Effect="FromRight" />
-                  </NavigationThemeTransition.DefaultNavigationTransitionInfo>
-                </NavigationThemeTransition>
-              </TransitionCollection>
-            </Frame.ContentTransitions>
-            
-            <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
-              <templateSelector:HohoemaFlyoutTemplateSelector>
-                <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-                  <DataTemplate>
-                    <listItemControls:LiveListItemFlyout />
-                  </DataTemplate>
-                </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-                <templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
-                  <DataTemplate>
-                    <local:SearchHistoryListItemFlyout />
-                  </DataTemplate>
-                </templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
-              </templateSelector:HohoemaFlyoutTemplateSelector>
-            </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
-          </Frame>
-        </muxc:NavigationView.Content>
-      </muxc:NavigationView>
-    </uwpToolkitControls:DockPanel>
-    <Grid x:Name="PlayerLayout"
+              <Frame.ContentTransitions>
+                <TransitionCollection>
+                  <NavigationThemeTransition>
+                    <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                      <SlideNavigationTransitionInfo Effect="FromRight" />
+                    </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                  </NavigationThemeTransition>
+                </TransitionCollection>
+              </Frame.ContentTransitions>
+
+              <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
+                <templateSelector:HohoemaFlyoutTemplateSelector>
+                  <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
+                    <DataTemplate>
+                      <listItemControls:LiveListItemFlyout />
+                    </DataTemplate>
+                  </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
+                  <templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
+                    <DataTemplate>
+                      <local:SearchHistoryListItemFlyout />
+                    </DataTemplate>
+                  </templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
+                </templateSelector:HohoemaFlyoutTemplateSelector>
+              </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
+            </Frame>
+          </muxc:NavigationView.Content>
+        </muxc:NavigationView>
+      </uwpToolkitControls:DockPanel>
+
+      <Grid Height="32" VerticalAlignment="Top">
+        <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent" IsHitTestVisible="True">
+          <TextBlock x:Name="TitleBarTextBlock" Text="Hohoema" Margin="12 0 0 0" VerticalAlignment="Center" Opacity="0.9" FontSize="13" HorizontalAlignment="Left" >
+            <TextBlock.RenderTransform>
+              <TranslateTransform x:Name="TitleBarTextBlockTransform"></TranslateTransform>
+            </TextBlock.RenderTransform>
+          </TextBlock>
+        </Border>
+      </Grid>
+
+      
+      <Grid x:Name="PlayerLayout"
           Visibility="Collapsed"
           uwpUi:VisualExtensions.NormalizedCenterPoint="0.5"
           >
 
-      <animations:Implicit.ShowAnimations>
-        <animations:ScaleAnimation To="1.0" From="0.95" Duration="0:0:0.25"  />
-        <animations:OpacityAnimation To="1.0" Duration="0:0:0.25" />
-      </animations:Implicit.ShowAnimations>
+        <animations:Implicit.ShowAnimations>
+          <animations:ScaleAnimation To="1.0" From="0.95" Duration="0:0:0.25"  />
+          <animations:OpacityAnimation To="1.0" Duration="0:0:0.25" />
+        </animations:Implicit.ShowAnimations>
 
-      <animations:Implicit.HideAnimations>
-        <animations:ScaleAnimation To="0.95" Duration="0:0:0.25" />
-        <animations:OpacityAnimation To="0.0" Duration="0:0:0.25" />
-      </animations:Implicit.HideAnimations>
+        <animations:Implicit.HideAnimations>
+          <animations:ScaleAnimation To="0.95" Duration="0:0:0.25" />
+          <animations:OpacityAnimation To="0.0" Duration="0:0:0.25" />
+        </animations:Implicit.HideAnimations>
 
-      <Frame x:Name="PlayerFrame"
+        <Frame x:Name="PlayerFrame"
              DataContext="{x:Null}"
              CacheSize="2"
              HorizontalContentAlignment="Stretch"
@@ -742,25 +758,17 @@
              ContentTransitions="{StaticResource SuppressNavigationTransitionCollection}"
              Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
              >
-        <i:Interaction.Behaviors>
-          <mybehavior:UINavigationTrigger Kind="View" Hold="True">
-            <core:CallMethodAction TargetObject="{x:Bind}" MethodName="TogglePlayerFillBtwWindowInWindow" />
-          </mybehavior:UINavigationTrigger>
-        </i:Interaction.Behaviors>
-      </Frame>
-     
-    </Grid>
-    <Grid Height="32" VerticalAlignment="Top">
-      <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent">
-        <TextBlock x:Name="TitleBarTextBlock" Text="Hohoema" Margin="12 0 0 0" VerticalAlignment="Center" Opacity="0.9" FontSize="13" HorizontalAlignment="Left" >
-          <TextBlock.RenderTransform>
-            <TranslateTransform x:Name="TitleBarTextBlockTransform"></TranslateTransform>
-          </TextBlock.RenderTransform>
-        </TextBlock>
-      </Border>
+          <i:Interaction.Behaviors>
+            <mybehavior:UINavigationTrigger Kind="View" Hold="True">
+              <core:CallMethodAction TargetObject="{x:Bind}" MethodName="TogglePlayerFillBtwWindowInWindow" />
+            </mybehavior:UINavigationTrigger>
+          </i:Interaction.Behaviors>
+        </Frame>
 
-      <StackPanel x:Name="ErrorTrackingUI" Orientation="Horizontal" Visibility="Collapsed" HorizontalAlignment="Right" Margin="0 0 200 0" Spacing="8">
+      </Grid>
 
+
+      <StackPanel x:Name="ErrorTrackingUI" Orientation="Horizontal" Visibility="Collapsed" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 0 200 0" Spacing="8">
         <Button Height="32" ToolTipService.ToolTip="ErrorTrankingTool" Background="Transparent" Opacity="0.5">
           <Button.Content>
             <iconPack:PackIconMaterial Kind="Bug" />
@@ -773,16 +781,11 @@
               <MenuFlyoutItem Text="アプリを再起動" Command="{x:Bind _viewModel.RequestApplicationRestartCommand}" />
             </MenuFlyout>
           </Button.Flyout>
-          
-
         </Button>
-        
       </StackPanel>
 
-    </Grid>
-
-    <Grid>
-      <muxc:TeachingTip x:Name="AppErrorTeachingTip"
+      <Grid>
+        <muxc:TeachingTip x:Name="AppErrorTeachingTip"
                         Title="アプリにエラーが発生しました【デバッグモード】"
                         ActionButtonContent="エラー報告"
                         CloseButtonContent="{i18nExt:Localize Key=Cancel}"
@@ -790,18 +793,18 @@
                         Closed="AppErrorTeachingTip_Closed"
                         PreferredPlacement="Top"
                         >
-        <muxc:TeachingTip.Content>
-          <StackPanel Spacing="4">
-            <winui:TextBlock Text="アプリは継続して利用できますが、異常があればアプリを再起動してください。" TextWrapping="Wrap" />
-            <winui:TextBlock Text="キャンセルを選んでも簡易クラッシュレポートは送信されます。"  TextWrapping="Wrap" />
-          </StackPanel>
-        </muxc:TeachingTip.Content>
+          <muxc:TeachingTip.Content>
+            <StackPanel Spacing="4">
+              <winui:TextBlock Text="アプリは継続して利用できますが、異常があればアプリを再起動してください。" TextWrapping="Wrap" />
+              <winui:TextBlock Text="キャンセルを選んでも簡易クラッシュレポートは送信されます。"  TextWrapping="Wrap" />
+            </StackPanel>
+          </muxc:TeachingTip.Content>
 
-      </muxc:TeachingTip>
-    </Grid>
+        </muxc:TeachingTip>
+      </Grid>
 
-    <!-- Lite -->
-    <liteInAppNotification:LiteInAppNotification x:Name="LiteInAppNotification" 
+      <!-- Lite -->
+      <liteInAppNotification:LiteInAppNotification x:Name="LiteInAppNotification" 
                                                  HorizontalAlignment="Center" 
                                                  VerticalAlignment="Bottom" 
                                                  HorizontalContentAlignment="Center"
@@ -818,24 +821,26 @@
                                                  BorderThickness="0.5"
                                                  BorderBrush="{StaticResource HohoemaLightBorderColor}"
                                  >
-      <i:Interaction.Behaviors>
-        <core:EventTriggerBehavior EventName="Tapped">
-          <core:CallMethodAction MethodName="Dismiss" />
-        </core:EventTriggerBehavior>
-      </i:Interaction.Behaviors>
-      <liteInAppNotification:LiteInAppNotification.ContentTemplate>
-        <DataTemplate x:DataType="service1:LiteNotificationPayload">
-          <uwpToolkitControls:DockPanel>
-            <winui:SymbolIcon Symbol="{x:Bind Symbol}" Visibility="{x:Bind IsDisplaySymbol}" uwpToolkitControls:DockPanel.Dock="Left" />
-            <TextBlock Text="{x:Bind Content}" Margin="8 0 0 0" TextWrapping="Wrap" MaxLines="2" MaxWidth="350" />
-          </uwpToolkitControls:DockPanel>
-          
-        </DataTemplate>
-      </liteInAppNotification:LiteInAppNotification.ContentTemplate> 
-    </liteInAppNotification:LiteInAppNotification>
+        <i:Interaction.Behaviors>
+          <core:EventTriggerBehavior EventName="Tapped">
+            <core:CallMethodAction MethodName="Dismiss" />
+          </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+        <liteInAppNotification:LiteInAppNotification.ContentTemplate>
+          <DataTemplate x:DataType="service1:LiteNotificationPayload">
+            <uwpToolkitControls:DockPanel>
+              <winui:SymbolIcon Symbol="{x:Bind Symbol}" Visibility="{x:Bind IsDisplaySymbol}" uwpToolkitControls:DockPanel.Dock="Left" />
+              <TextBlock Text="{x:Bind Content}" Margin="8 0 0 0" TextWrapping="Wrap" MaxLines="2" MaxWidth="350" />
+            </uwpToolkitControls:DockPanel>
+
+          </DataTemplate>
+        </liteInAppNotification:LiteInAppNotification.ContentTemplate>
+      </liteInAppNotification:LiteInAppNotification>
 
 
 
+      
+    </Grid>
     <VisualStateManager.VisualStateGroups >
 
       <VisualStateGroup>
@@ -848,7 +853,7 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
+
       <!-- デバッグ -->
       <VisualStateGroup>
         <VisualState>
@@ -1292,4 +1297,5 @@
       </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
   </Grid>
+  
 </UserControl>

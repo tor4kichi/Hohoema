@@ -115,15 +115,15 @@
               />
 
           <!-- コントロールUI -->
-          <uwpControls:SwitchPresenter Value="{x:Bind _vm.ApplicationLayoutManager.InteractionMode}">
+          <uwpControls:SwitchPresenter x:Name="PlayerControlUISwitchPresenter" Value="{x:Bind _vm.ApplicationLayoutManager.InteractionMode}">
             <uwpControls:Case Value="{x:Bind models:ApplicationInteractionMode.Mouse}">
-              <playerUI:LegacyPlayerUI />
+              <playerUI:DesktopPlayerUI />
             </uwpControls:Case>
             <uwpControls:Case Value="{x:Bind models:ApplicationInteractionMode.Controller}">
-              <playerUI:LegacyPlayerUI />
+              <playerUI:DesktopPlayerUI />
             </uwpControls:Case>
             <uwpControls:Case Value="{x:Bind models:ApplicationInteractionMode.Touch}">
-              <playerUI:LegacyPlayerUI />
+              <playerUI:DesktopPlayerUI />
             </uwpControls:Case>
           </uwpControls:SwitchPresenter>
         </Grid>

@@ -254,6 +254,7 @@
     <Compile Include="Presentation.ViewModels\Niconico.Share\OpenShareUICommand.cs" />
     <Compile Include="Presentation.ViewModels\Player\Video\ChangeVideoQualityCommand.cs" />
     <Compile Include="Presentation.ViewModels\Player\Video\VideoTogglePlayPauseCommand.cs" />
+    <Compile Include="Presentation.ViewModels\PrimaryWindowCoreLayout\IDraggableAreaAware.cs" />
     <Compile Include="Presentation.Views.Pages\Hohoema.Subscription\SubscVideoListPage.xaml.cs">
       <DependentUpon>SubscVideoListPage.xaml</DependentUpon>
     </Compile>
@@ -267,8 +268,8 @@
       <DependentUpon>LegacyVideoPlayerPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Player\LegacyVideoPlayerPageViewModel.cs" />
-    <Compile Include="Presentation.Views.Player\VideoPlayerUI\LegacyPlayerUI.xaml.cs">
-      <DependentUpon>LegacyPlayerUI.xaml</DependentUpon>
+    <Compile Include="Presentation.Views.Player\VideoPlayerUI\DesktopPlayerUI.xaml.cs">
+      <DependentUpon>DesktopPlayerUI.xaml</DependentUpon>
     </Compile>
     <Compile Include="Presentation.Views.Player\VideoPlayerUI\VideoQualityListItemContainerStyleSelector.cs" />
     <Compile Include="Presentation.Views\Converters\ColorToBrushConverter.cs" />
@@ -917,7 +918,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Presentation.Views.Player\VideoPlayerUI\LegacyPlayerUI.xaml">
+    <Page Include="Presentation.Views.Player\VideoPlayerUI\DesktopPlayerUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

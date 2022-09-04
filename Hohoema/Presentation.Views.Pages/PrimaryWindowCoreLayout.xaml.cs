@@ -42,6 +42,8 @@ using Hohoema.Presentation.Navigations;
 using CommunityToolkit.Mvvm.Input;
 using Hohoema.Models.Domain.Pins;
 using Windows.UI.ViewManagement;
+using Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout;
+using System.Reactive.Concurrency;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -50,6 +52,7 @@ namespace Hohoema.Presentation.Views.Pages
     public sealed partial class PrimaryWindowCoreLayout : UserControl
     {
         private readonly PrimaryWindowCoreLayoutViewModel _viewModel;
+        private readonly IScheduler _scheduler;
         private readonly Services.CurrentActiveWindowUIContextService _currentActiveWindowUIContextService;
         private readonly ILogger<PrimaryWindowCoreLayout> _logger;
         private readonly DispatcherQueue _dispatcherQueue;
@@ -58,6 +61,7 @@ namespace Hohoema.Presentation.Views.Pages
         private static readonly int MaxBackStackCount = 5;
 
         public PrimaryWindowCoreLayout(
+            IScheduler scheduler,
             PrimaryWindowCoreLayoutViewModel viewModel,
             Services.CurrentActiveWindowUIContextService currentActiveWindowUIContextService,
             ILoggerFactory loggerFactory
@@ -67,6 +71,7 @@ namespace Hohoema.Presentation.Views.Pages
 
             this.InitializeComponent();
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            _scheduler = scheduler;
             _currentActiveWindowUIContextService = currentActiveWindowUIContextService;
             _logger = loggerFactory.CreateLogger<PrimaryWindowCoreLayout>();
 
@@ -151,10 +156,17 @@ namespace Hohoema.Presentation.Views.Pages
             Window.Current.CoreWindow.PointerPressed += CoreWindow_PointerPressed;
 
 
-            if (DeviceTypeHelper.IsDesktop)
+            ResetTitleBarDraggableArea();
+
+
+            new[]
             {
-                Window.Current.SetTitleBar(DraggableContent as UIElement);
+                _viewModel.PrimaryViewPlayerManager.ObserveProperty(x => x.DisplayMode).ToUnit(),
+                Observable.FromEventPattern(ContentFrame, "Navigated").ToUnit(),
+                Observable.FromEventPattern(PlayerFrame, "Navigated").Delay(TimeSpan.FromMilliseconds(1000), _scheduler).ToUnit(),
             }
+            .Merge()
+            .Subscribe(_ => ResetTitleBarDraggableArea());
 
             ContentFrame.Navigated += TVModeContentFrame_Navigated;
             this.GettingFocus += PrimaryWindowCoreLayout_GettingFocus;
@@ -232,6 +244,42 @@ namespace Hohoema.Presentation.Views.Pages
             }
         }
 
+        void ResetTitleBarDraggableArea()
+        {
+            if (DeviceTypeHelper.IsDesktop)
+            {
+                try
+                {
+                    if (_viewModel.PrimaryViewPlayerManager.DisplayMode is PlayerDisplayMode.FillWindow or PlayerDisplayMode.FullScreen or PlayerDisplayMode.CompactOverlay)
+                    {
+                        if (PlayerFrame.Content is IDraggableAreaAware draggableArea)
+                        {
+                            if (draggableArea.GetDraggableArea() is not null and var area)
+                            {
+                                Window.Current.SetTitleBar(area);
+                                return;
+                            }                            
+                        }
+                    }
+
+                    if (ContentFrame.Content is IDraggableAreaAware contentDraggableArea)
+                    {
+                        if (contentDraggableArea.GetDraggableArea() is not null and var area)
+                        {
+                            Window.Current.SetTitleBar(area);
+                            return;
+                        }
+                    }
+
+                    Window.Current.SetTitleBar(DraggableContent);
+                }
+                catch
+                {
+                    Window.Current.SetTitleBar(DraggableContent);
+                    throw;
+                }
+            }
+        }
 
         private void Current_Activated(object sender, WindowActivatedEventArgs e)
         {

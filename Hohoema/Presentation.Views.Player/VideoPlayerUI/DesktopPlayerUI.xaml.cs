@@ -23,16 +23,22 @@ using Reactive.Bindings.Extensions;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Presentation.ViewModels.Player;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.Presentation.ViewModels.PrimaryWindowCoreLayout;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
 namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
 {
-    public sealed partial class LegacyPlayerUI : UserControl
+    public sealed partial class DesktopPlayerUI : UserControl, IDraggableAreaAware
     {
+        UIElement IDraggableAreaAware.GetDraggableArea()
+        {
+            return PlayerTopDraggableArea;
+        }
+
         private readonly DispatcherQueue _dispatcherQueue;
 
-        public LegacyPlayerUI()
+        public DesktopPlayerUI()
         {
             this.InitializeComponent();
 
@@ -62,7 +68,7 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
 
         // Using a DependencyProperty as the backing store for IsVisibleUI.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsVisibleUIProperty =
-            DependencyProperty.Register(nameof(IsVisibleUI), typeof(bool), typeof(LegacyPlayerUI), new PropertyMetadata(false));
+            DependencyProperty.Register(nameof(IsVisibleUI), typeof(bool), typeof(DesktopPlayerUI), new PropertyMetadata(false));
 
 
 
@@ -150,7 +156,7 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
 
         // Using a DependencyProperty as the backing store for MediaControlWidth.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MediaControlWidthProperty =
-            DependencyProperty.Register("MediaControlWidth", typeof(double), typeof(LegacyPlayerUI), new PropertyMetadata(0.0));
+            DependencyProperty.Register("MediaControlWidth", typeof(double), typeof(DesktopPlayerUI), new PropertyMetadata(0.0));
 
 
         private void MediaControl_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -186,7 +192,7 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
 
         // Using a DependencyProperty as the backing store for NowCommentEditting.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty NowCommentEdittingProperty =
-            DependencyProperty.Register(nameof(NowCommentEditting), typeof(bool), typeof(LegacyPlayerUI), new PropertyMetadata(false));
+            DependencyProperty.Register(nameof(NowCommentEditting), typeof(bool), typeof(DesktopPlayerUI), new PropertyMetadata(false));
 
 
 
@@ -256,7 +262,7 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
 
         // Using a DependencyProperty as the backing store for VideoPositionSeconds.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty VideoPositionProperty =
-            DependencyProperty.Register("VideoPosition", typeof(TimeSpan), typeof(LegacyPlayerUI), new PropertyMetadata(TimeSpan.Zero));
+            DependencyProperty.Register("VideoPosition", typeof(TimeSpan), typeof(DesktopPlayerUI), new PropertyMetadata(TimeSpan.Zero));
 
 
         
@@ -318,7 +324,7 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
 
         // Using a DependencyProperty as the backing store for NowVideoPositionChanging.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty NowVideoPositionChangingProperty =
-            DependencyProperty.Register("NowVideoPositionChanging", typeof(bool), typeof(LegacyPlayerUI), new PropertyMetadata(false));
+            DependencyProperty.Register("NowVideoPositionChanging", typeof(bool), typeof(DesktopPlayerUI), new PropertyMetadata(false));
 
         #endregion Seekbar Slider
 
@@ -363,5 +369,7 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
                 _vm.MediaPlayer.Play();
             }
         }
+
+        
     }
 }

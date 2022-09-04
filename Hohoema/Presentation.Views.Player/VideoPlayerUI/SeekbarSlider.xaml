@@ -7,22 +7,20 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignWidth="400"
+  IsTabStop="False"
+  >
 
   <Grid>
     <Slider x:Name="SeekBarSlider" 
             Minimum="0.0" 
             Maximum="{x:Bind VideoLength, Mode=OneWay, Converter={StaticResource TimeSpanToDoubleConverter}}" 
-            Style="{StaticResource VideoProgressBarStyle}" 
-            Padding="0 16 0 8"
+            Style="{StaticResource VideoProgressBarStyle}"             
             StepFrequency="0.1" 
             LargeChange="30" 
             SmallChange="5" 
             IsThumbToolTipEnabled="True" 
             ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" 
-            HorizontalAlignment="Stretch" 
-            HorizontalContentAlignment="Stretch" 
-            VerticalAlignment="Center" 
             Opacity="0.75">
       
     </Slider>
