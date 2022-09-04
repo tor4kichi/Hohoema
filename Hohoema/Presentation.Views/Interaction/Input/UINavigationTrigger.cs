@@ -129,14 +129,18 @@ namespace Hohoema.Presentation.Views.Behaviors
             UINavigationManager.Holding += Instance_Holding;
         }
 
-        bool _Holding = false;
         private async void Instance_Holding(UINavigationManager sender, UINavigationButtons button)
         {
             await _UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
             {
                 if (Hold && button.HasFlag(Kind))
                 {
-                    _Holding = true;
+                    foreach (var action in Actions.Cast<IAction>())
+                    {
+                        action.Execute(this.AssociatedObject, null);
+                    }
+
+                    Debug.WriteLine($"Hold : {button}");
                 }
             });
         }
@@ -154,6 +158,11 @@ namespace Hohoema.Presentation.Views.Behaviors
             {
                 if (!IsEnabled) { return; }
 
+                if (Hold)
+                {
+                    return;
+                }
+
                 if (Windows.UI.ViewManagement.InputPane.GetForCurrentView().Visible)
                 {
                     return;
@@ -168,14 +177,7 @@ namespace Hohoema.Presentation.Views.Behaviors
                 {
                     return;
                 }
-
-                if (Hold && !_Holding)
-                {
-                    return;
-                }
-
-                _Holding = false;
-
+               
                 foreach (var action in Actions.Cast<IAction>())
                 {
                     action.Execute(this.AssociatedObject, null);
