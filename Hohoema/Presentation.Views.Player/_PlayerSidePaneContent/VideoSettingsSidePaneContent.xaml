@@ -140,6 +140,15 @@
                           OnContent="{x:Null}"
                               />
           </Grid>
+
+
+          <Grid>
+            <TextBlock Text="{i18nExt:Localize Key=UseLoudnessCorrection}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+            <ToggleSwitch IsOn="{x:Bind _vm.SoundVolumeManager.IsLoudnessCorrectionEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource ToggleSwitchNoHeader}" MinWidth="0"                           
+                          HorizontalAlignment="Right"
+                          HorizontalContentAlignment="Right"
+                          />
+          </Grid>
         </StackPanel>
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
           <uwpControls:DockPanel>

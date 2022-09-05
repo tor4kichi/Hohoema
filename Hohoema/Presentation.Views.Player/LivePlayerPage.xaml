@@ -127,7 +127,7 @@
             <!-- 左右スワイプでシーク （タイムシフト視聴時のみ有効）-->
             <mybehavior:Swipe x:Name="SeekSwipe" SwipeCommand="{Binding SeekVideoCommand}" SwipeAmountConverter="{StaticResource SwipeSeekValueToTimeSpan}" SwipeAmountScale="0.15" SwipeEdgeOfPlay="48" IsEnabled="False" />
             <!-- マウスの非表示 -->
-            <mybehavior:PointerCursolAutoHideBehavior x:Name="AutoHideCursor" IsAutoHideEnabled="False" AutoHideDelay="0:0:2" />
+            <mybehavior:PointerCursorAutoHideBehavior x:Name="AutoHideCursor" IsAutoHideEnabled="False" AutoHideDelay="0:0:2" />
             <mybehavior:KeyboardTrigger Key="Enter" x:Name="CommentSubmitKeyboardTrigger">
               <mybehavior:KeyboardTrigger.Actions>
                 <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />

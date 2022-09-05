@@ -44,7 +44,15 @@ namespace Hohoema.Presentation.Views.Behaviors
         public static void OnIsAutoHideEnabledPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
         {
             VisiblityFadeChanger source = sender as VisiblityFadeChanger;
-            source.ChangeVisible();
+            if (source.IsAutoHideEnabled)
+            {
+                source.ChangeVisible();
+            }
+            else
+            {
+                source.Show();
+            }
+            
         }
 
 

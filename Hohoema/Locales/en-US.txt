@@ -286,6 +286,14 @@ ApplicationDiagnosticsReport = App usage report
 EnableCrashReport = Send app error information
 EnableAnalyticsReport = Send application function / page usage status
 
+UseNewStylePlayerControlUI = Enable new video player UI
+
+
+
+
+
+
+
 #### Niconico General ####
 PrivateReasonType.PostedBy = Delete poster
 PrivateReasonType.Private = Private setting
@@ -439,6 +447,7 @@ NicoScript_DisallowComment = @Comment prohibited
 NicoScript_Jump = @ Jump
 DesktopSettings = Settings for desktop
 SoundVolumeChangeValueWithMouseScroll = Mouse scroll volume change
+PlayRepeat = Loop playback
 
 # Likes いいね機能
 NicoLike = ❤ Like

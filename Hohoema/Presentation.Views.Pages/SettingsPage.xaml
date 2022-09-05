@@ -301,6 +301,24 @@
               </StackPanel>
             </StackPanel>
           </StackPanel>
+          
+          <!-- プレイヤーの設定 -->
+          <StackPanel>
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=VideoPlayerSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
+              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+            </uwpControls:DockPanel>
+            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
+              
+              <Grid>
+                <TextBlock Text="{i18nExt:Localize Key=UseNewStylePlayerControlUI}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch IsOn="{x:Bind _vm.AppearanceSettings.UsePreviewVersionVideoPage, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
+              
+            </StackPanel>
+          </StackPanel>
+
+
           <!-- キャッシュ設定 -->
           <StackPanel>
             <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">

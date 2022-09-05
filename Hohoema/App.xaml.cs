@@ -290,6 +290,7 @@ namespace Hohoema
             viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoRanking.RankingCategoryPage>();
 
             viewLocator.RegisterForNavigation<Presentation.Views.Player.LivePlayerPage>();
+            viewLocator.RegisterForNavigation<Presentation.Views.Player.LegacyVideoPlayerPage>();
             viewLocator.RegisterForNavigation<Presentation.Views.Player.VideoPlayerPage>();
             container.UseInstance<Presentation.Navigations.IViewLocator>(viewLocator);
 

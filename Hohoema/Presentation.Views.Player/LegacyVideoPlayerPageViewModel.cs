@@ -51,14 +51,14 @@ using ZLogger;
 namespace Hohoema.Presentation.ViewModels.Player
 {
 
-    public class VideoPlayerPageViewModel : HohoemaPageViewModelBase
+    public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
 	{
         // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
         private readonly IScheduler _scheduler;
         private readonly QueuePlaylist _queuePlaylist;
         private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;        
 
-        public VideoPlayerPageViewModel(
+        public LegacyVideoPlayerPageViewModel(
             ILoggerFactory loggerFactory,
             IScheduler scheduler,
             IPlayerView playerView,
@@ -110,10 +110,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             CurrentPlayerDisplayView = appearanceSettings
                 .ObserveProperty(x => x.PlayerDisplayView)
                 .ToReadOnlyReactivePropertySlim()
-                .AddTo(_CompositeDisposable);
-
-            LoudnessCorrectionValue = soundVolumeManager.ObserveProperty(x => x.LoudnessCorrectionValue)
-                .ToReadOnlyReactiveProperty(eventScheduler: scheduler)
                 .AddTo(_CompositeDisposable);
 
             _scheduler = scheduler;
@@ -205,8 +201,6 @@ namespace Hohoema.Presentation.ViewModels.Player
         private readonly ILogger<VideoPlayerPageViewModel> _logger;
 
         public ReadOnlyReactivePropertySlim<PlayerDisplayView> CurrentPlayerDisplayView { get; }
-
-        public ReadOnlyReactiveProperty<double> LoudnessCorrectionValue { get; }
 
         public SubscriptionManager SubscriptionManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
@@ -658,29 +652,29 @@ namespace Hohoema.Presentation.ViewModels.Player
         #endregion
     }
 
-    public class VideoSeriesViewModel : ISeries
-    {
-        private readonly WatchApiSeries _userSeries;
+    //public class VideoSeriesViewModel : ISeries
+    //{
+    //    private readonly WatchApiSeries _userSeries;
 
-        public VideoSeriesViewModel(WatchApiSeries userSeries)
-        {
-            _userSeries = userSeries;
-        }
+    //    public VideoSeriesViewModel(WatchApiSeries userSeries)
+    //    {
+    //        _userSeries = userSeries;
+    //    }
 
-        public string Id => _userSeries.Id.ToString();
+    //    public string Id => _userSeries.Id.ToString();
 
-        public string Title => _userSeries.Title;
+    //    public string Title => _userSeries.Title;
 
-        public bool IsListed => throw new NotSupportedException();
+    //    public bool IsListed => throw new NotSupportedException();
 
-        public string Description => throw new NotSupportedException();
+    //    public string Description => throw new NotSupportedException();
 
-        public string ThumbnailUrl => _userSeries.ThumbnailUrl.OriginalString;
+    //    public string ThumbnailUrl => _userSeries.ThumbnailUrl.OriginalString;
 
-        public int ItemsCount => throw new NotSupportedException();
+    //    public int ItemsCount => throw new NotSupportedException();
 
-        public OwnerType ProviderType => throw new NotSupportedException();
+    //    public OwnerType ProviderType => throw new NotSupportedException();
 
-        public string ProviderId => throw new NotSupportedException();
-    }
+    //    public string ProviderId => throw new NotSupportedException();
+    //}
 }
