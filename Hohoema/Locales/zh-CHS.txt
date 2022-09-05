@@ -286,6 +286,14 @@ ApplicationDiagnosticsReport = 应用使用情况报告
 EnableCrashReport = 发送应用错误信息
 EnableAnalyticsReport = 发送应用程序功能/页面使用状态
 
+UseNewStylePlayerControlUI = 启用新的视频播放器 UI
+
+
+
+
+
+
+
 #### Niconico General ####
 PrivateReasonType.PostedBy = 投稿者删除
 PrivateReasonType.Private = 非公开设定

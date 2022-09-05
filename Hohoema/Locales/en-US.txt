@@ -286,6 +286,14 @@ ApplicationDiagnosticsReport = App usage report
 EnableCrashReport = Send app error information
 EnableAnalyticsReport = Send application function / page usage status
 
+UseNewStylePlayerControlUI = Enable new video player UI
+
+
+
+
+
+
+
 #### Niconico General ####
 PrivateReasonType.PostedBy = Delete poster
 PrivateReasonType.Private = Private setting
