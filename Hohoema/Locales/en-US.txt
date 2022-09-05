@@ -447,6 +447,7 @@ NicoScript_DisallowComment = @Comment prohibited
 NicoScript_Jump = @ Jump
 DesktopSettings = Settings for desktop
 SoundVolumeChangeValueWithMouseScroll = Mouse scroll volume change
+PlayRepeat = Loop playback
 
 # Likes いいね機能
 NicoLike = ❤ Like

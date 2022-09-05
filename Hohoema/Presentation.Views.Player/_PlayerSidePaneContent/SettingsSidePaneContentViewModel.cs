@@ -27,12 +27,14 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             VideoFilteringSettings videoFilteringRepository, 
             PlayerSettings playerSettings,
             CommentFilteringFacade commentFiltering,
+            MediaPlayerSoundVolumeManager soundVolumeManager,
             IScheduler scheduler
             )
         {
             _videoFilteringRepository = videoFilteringRepository;
             PlayerSettings = playerSettings;
             CommentFiltering = commentFiltering;
+            SoundVolumeManager = soundVolumeManager;
             _scheduler = scheduler;
 
 
@@ -92,6 +94,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         public PlayerSettings PlayerSettings { get; }
 
         public CommentFilteringFacade CommentFiltering { get; }
+        public MediaPlayerSoundVolumeManager SoundVolumeManager { get; }
 
         private readonly VideoFilteringSettings _videoFilteringRepository;
         private readonly IScheduler _scheduler;

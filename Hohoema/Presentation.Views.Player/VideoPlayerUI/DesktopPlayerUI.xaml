@@ -119,6 +119,11 @@
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
       </MenuFlyoutSubItem>
+      <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=PlayRepeat}" IsChecked="{x:Bind _vm.IsLoopingEnabled.Value, Mode=TwoWay}">
+        <ToggleMenuFlyoutItem.Icon>
+          <iconPack:PathIconMaterial Kind="Repeat" />
+        </ToggleMenuFlyoutItem.Icon>
+      </ToggleMenuFlyoutItem>
       <MenuFlyoutSeparator />
       <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{x:Bind _vm.PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=FullScreen}" Icon="FullScreen"></MenuFlyoutItem>
       <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{x:Bind _vm.PlayerView.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=CompactOverlay}"></MenuFlyoutItem>
@@ -335,6 +340,10 @@
                 <Setter Property="ToolTipService.Placement" Value="Bottom" />
               </Style>
             </Panel.Resources>
+
+            <!-- Title Bar Margin -->
+            <TextBlock x:Name="TitleTextBlock_Nallow" Text="{x:Bind _vm.VideoInfo.Title, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Visibility="Collapsed" Margin="8" uwpControls:DockPanel.Dock="Top" />
+
             <!-- タイトルバーに表示する画面関連操作 -->
             <Grid x:Name="TitleBarWindowControlUI" uwpControls:DockPanel.Dock="Right" VerticalAlignment="Bottom" Height="32">
 
@@ -356,8 +365,6 @@
             <!-- Secondary window TitleBar margin -->
             <Border x:Name="SecondaryWindowTopMarginBorder" Height="32" uwpControls:DockPanel.Dock="Top" Visibility="Collapsed" />
 
-            <!-- Title Bar Margin -->
-            <TextBlock x:Name="TitleTextBlock_Nallow" Text="{x:Bind _vm.VideoInfo.Title, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Visibility="Collapsed" Margin="8" uwpControls:DockPanel.Dock="Top" />
             <!-- 左上 -->
             <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Left">
               <!-- 閉じる -->
@@ -517,11 +524,16 @@
             </StackPanel>
 
             <!-- 動画位置と再生速度倍率 -->
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-              <TextBlock VerticalAlignment="Bottom" IsHitTestVisible="False" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="16 0 8 0">
-              <Run Text="{x:Bind VideoPosition, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" />
-              <Run Text="/" />
-              <Run Text="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+              <iconPack:PathIconMaterial Kind="Repeat" Visibility="{x:Bind _vm.IsLoopingEnabled.Value, Mode=OneWay}" Opacity="0.8">
+                <iconPack:PathIconMaterial.RenderTransform>
+                  <ScaleTransform CenterX="0.5" CenterY="0.5" ScaleX="0.65" ScaleY="0.65" />
+                </iconPack:PathIconMaterial.RenderTransform>
+              </iconPack:PathIconMaterial>
+              <TextBlock VerticalAlignment="Bottom" IsHitTestVisible="False" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 0 0">
+                <Run Text="{x:Bind VideoPosition, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                <Run Text="/" />
+                <Run Text="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" />
               </TextBlock>
               <HyperlinkButton Margin="0 0 16 0" VerticalAlignment="Bottom" Opacity="0.7" MinWidth="36" HorizontalAlignment="Right" Padding="0">
                 <i:Interaction.Behaviors>
@@ -562,34 +574,6 @@
               <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <StackPanel Orientation="Horizontal" Spacing="8">
-              <!-- 音量 -->
-              <Button x:Name="VolumeControlLayout" MinWidth="48" MinHeight="48">
-                <SymbolIcon x:Name="VolumeButton" Symbol="Mute" />
-                <Button.Flyout>
-                  <Flyout>
-                    <StackPanel Spacing="16" HorizontalAlignment="Stretch" MinWidth="240">
-                      <Grid>
-                        <TextBlock Text="{i18nExt:Localize Key=LoudnessCorrectionValueTitle}" uwpControls:DockPanel.Dock="Left" />
-                        <TextBlock HorizontalAlignment="Right">
-                                  <Run Text="{x:Bind _vm.LoudnessCorrectionValue.Value, Mode=OneWay, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
-                        </TextBlock>
-                      </Grid>
-                      <Grid>
-                        <TextBlock Text="{i18nExt:Localize Key=UseLoudnessCorrection}" uwpControls:DockPanel.Dock="Left" />
-                        <ToggleSwitch IsOn="{x:Bind _vm.SoundVolumeManager.IsLoudnessCorrectionEnabled, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" Style="{StaticResource ToggleSwitchNoHeader}" MinWidth="0" />
-                      </Grid>
-                      <Grid>
-                        <TextBlock Text="{i18nExt:Localize Key=Mute}" uwpControls:DockPanel.Dock="Left" VerticalAlignment="Center" />
-                        <AppBarButton Icon="Volume" Label="{i18nExt:Localize Key=Mute}" VerticalAlignment="Stretch" x:Name="MuteToggleButton" Command="{x:Bind _vm.ToggleMuteCommand}" HorizontalAlignment="Right" />
-                      </Grid>
-                      <Grid>
-                        <TextBlock Text="{i18nExt:Localize Key=SoundVolume}"  uwpControls:DockPanel.Dock="Left" VerticalAlignment="Center" />
-                        <Slider x:Name="VolumeSlider" Orientation="Horizontal" VerticalAlignment="Top" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}" Maximum="1.0" Minimum="0.0" StepFrequency="0.01" SmallChange="0.05" LargeChange="0.1" Height="32" Width="160" ValueChanged="VolumeSlider_ValueChanged" HorizontalAlignment="Right" TabIndex="-1" />
-                      </Grid>
-                    </StackPanel>
-                  </Flyout>
-                </Button.Flyout>
-              </Button>
               <!-- コメント表示切替 -->
               <Button x:Name="CommentDisplayControlLayout" MinWidth="48" MinHeight="48" ClickMode="Release">
                 <Grid>
@@ -604,15 +588,18 @@
                   </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
               </Button>
-
-              <!-- 単品リピート -->
-              <ToggleButton IsChecked="{x:Bind _vm.IsLoopingEnabled.Value, Mode=TwoWay}" UseSystemFocusVisuals="True" MinWidth="48" MinHeight="48">
-                <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon" Kind="Repeat" RenderTransformOrigin="0.5, 0.5">
-                  <iconPack:PackIconMaterial.RenderTransform>
-                    <CompositeTransform ScaleX="1.4" ScaleY="1.4" />
-                  </iconPack:PackIconMaterial.RenderTransform>
-                </iconPack:PackIconMaterial>
-              </ToggleButton>
+              <!-- 音量 -->
+              <Button x:Name="VolumeControlLayout" MinWidth="48" MinHeight="48" ToolTipService.ToolTip="{i18nExt:Localize Key=Mute}"
+                      Command="{x:Bind _vm.ToggleMuteCommand}"
+                      >
+                <SymbolIcon x:Name="VolumeButton" Symbol="Mute" />
+              </Button>
+              <Slider x:Name="VolumeSlider" Orientation="Horizontal" VerticalAlignment="Center" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}" Maximum="1.0" Minimum="0.0" StepFrequency="0.01" SmallChange="0.05" LargeChange="0.1" Height="32" Width="120" ValueChanged="VolumeSlider_ValueChanged" HorizontalAlignment="Right" TabIndex="-1"
+                      ToolTipService.ToolTip="{i18nExt:Localize Key=SoundVolume}"
+                      Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                      
+                      />
+              
             </StackPanel>
             <!-- 再生切り替え・シーク -->
             <StackPanel Orientation="Horizontal" Grid.Column="1" Spacing="16">
@@ -1044,7 +1031,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="VolumeButton.Symbol" Value="Mute" />
-            <Setter Target="MuteToggleButton.Icon" Value="Mute" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -1053,7 +1039,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="VolumeButton.Symbol" Value="Volume" />
-            <Setter Target="MuteToggleButton.Icon" Value="Volume" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

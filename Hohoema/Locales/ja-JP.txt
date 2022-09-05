@@ -447,6 +447,7 @@ NicoScript_DisallowComment = ＠コメント禁止
 NicoScript_Jump = ＠ジャンプ
 DesktopSettings = デスクトップ向けの設定
 SoundVolumeChangeValueWithMouseScroll = マウススクロール音量変化量
+PlayRepeat = ループ再生
 
 # Likes いいね機能
 NicoLike = ❤ いいね
