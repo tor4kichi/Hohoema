@@ -345,7 +345,7 @@
             <TextBlock x:Name="TitleTextBlock_Nallow" Text="{x:Bind _vm.VideoInfo.Title, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Visibility="Collapsed" Margin="8" uwpControls:DockPanel.Dock="Top" />
 
             <!-- タイトルバーに表示する画面関連操作 -->
-            <Grid x:Name="TitleBarWindowControlUI" uwpControls:DockPanel.Dock="Right" VerticalAlignment="Bottom" Height="32">
+            <Grid x:Name="TitleBarWindowControlUI" uwpControls:DockPanel.Dock="Right" VerticalAlignment="Top" Height="32">
 
 
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 188 0">
@@ -368,7 +368,7 @@
             <!-- 左上 -->
             <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Left">
               <!-- 閉じる -->
-              <Button x:Name="CloseButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" UseSystemFocusVisuals="True" MinWidth="48" MinHeight="32"                                
+              <Button x:Name="CloseButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" UseSystemFocusVisuals="True" MinWidth="48" MinHeight="48"                                
                       XYFocusDown="{x:Bind LikeToggleButton}"
                       ToolTipService.ToolTip="{i18nExt:Localize Key=Close}"
                       ToolTipService.Placement="Bottom"
@@ -472,7 +472,7 @@
           <!-- シークバー -->
           <Grid Margin="0 0 0 12">
             <TextBlock x:Name="SeekDisabledFromNicoScriptText" Text="{i18nExt:Localize Key=DisableSeekFromNicoScript}" Visibility="Collapsed" VerticalAlignment="Bottom" HorizontalAlignment="Center" Opacity="0.6" />
-            <Slider x:Name="SeekBarSlider" Minimum="0.0" Maximum="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" Padding="0 16 0 8" StepFrequency="0.1" LargeChange="30" SmallChange="5" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" Opacity="0.75"></Slider>
+            <Slider x:Name="SeekBarSlider" Minimum="0.0" Maximum="{x:Bind _vm.VideoInfo.Length, Mode=OneWay, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" Padding="0 16 0 8" StepFrequency="0.1" LargeChange="30" SmallChange="5" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" Opacity="0.75" Margin="8 0" />
 
           </Grid>
           <!-- 動画画質 -->
