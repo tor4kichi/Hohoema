@@ -20,7 +20,9 @@ namespace Hohoema.Presentation.ViewModels.Player.Video
 
         protected override bool CanExecute(object parameter)
         {
-            return parameter is  NicoVideoQuality or NicoVideoQualityEntity;
+            if (parameter is NicoVideoQuality) { return true; }
+            else if (parameter is NicoVideoQualityEntity entity) { return entity?.IsAvailable ?? false; }
+            else { return false; }
         }
 
         protected override async void Execute(object parameter)

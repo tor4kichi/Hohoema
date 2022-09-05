@@ -74,7 +74,7 @@
           <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{x:Bind _vm.AvailableQualities, Mode=OneWay}" CustomObjectToTag="{x:Bind _vm}">
             <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
               <DataTemplate>
-                <MenuFlyoutItem IsEnabled="{Binding IsAvailable}" Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.ChangePlayQualityCommand}" CommandParameter="{Binding}"></MenuFlyoutItem>
+                <MenuFlyoutItem IsEnabled="{Binding IsAvailable}" Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.ChangeVideoQualityCommand}" CommandParameter="{Binding}"></MenuFlyoutItem>
               </DataTemplate>
             </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
           </mybehavior:MenuFlyoutSubItemItemsSetter>
@@ -475,7 +475,7 @@
               <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibility}}">
                             <Run Text="{x:Bind _vm.CurrentQuality.Quality, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
               <HyperlinkButton Padding="0" Opacity="0.7">
-                <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibilityInverted}}">
+                <TextBlock Visibility="{Binding NowPlayingWithCache, Converter={StaticResource BooleanToVisibilityInverted}}">
                               <Run Text="{x:Bind _vm.CurrentQuality.Quality, Mode=OneWay, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="Click">
@@ -500,7 +500,7 @@
                         <DataTemplate>
                           <StackPanel Orientation="Horizontal" Spacing="8">
                             <TextBlock Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />
-                            <TextBlock >
+                            <TextBlock Opacity="0.7">
                                            <Run Text="{Binding Bitrate, Converter={StaticResource ToKMGTPEZY}}" />bps
                             </TextBlock>
                           </StackPanel>
