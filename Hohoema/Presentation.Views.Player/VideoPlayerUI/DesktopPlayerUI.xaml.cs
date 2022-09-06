@@ -68,7 +68,7 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
 
         // Using a DependencyProperty as the backing store for IsVisibleUI.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsVisibleUIProperty =
-            DependencyProperty.Register(nameof(IsVisibleUI), typeof(bool), typeof(DesktopPlayerUI), new PropertyMetadata(false));
+            DependencyProperty.Register(nameof(IsVisibleUI), typeof(bool), typeof(DesktopPlayerUI), new PropertyMetadata(true));
 
 
 
