@@ -47,11 +47,13 @@ using Reactive.Bindings;
 using Hohoema.Models.Domain.Application;
 using Microsoft.Extensions.Logging;
 using ZLogger;
+using CommunityToolkit.Mvvm.ComponentModel;
+using NiconicoToolkit.Live.WatchPageProp;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
 
-    public class VideoPlayerPageViewModel : HohoemaPageViewModelBase
+    public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
 	{
         // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
         private readonly IScheduler _scheduler;
@@ -182,6 +184,21 @@ namespace Hohoema.Presentation.ViewModels.Player
                 .AddTo(_CompositeDisposable);
 
             PlayPreviousCommand.Subscribe(async () => await _hohoemaPlaylistPlayer.GoPreviewAsync(NavigationCancellationToken))
+                .AddTo(_CompositeDisposable);
+
+            _hohoemaPlaylistPlayer.GetCanGoNextOrPreviewObservable()
+                .Throttle(TimeSpan.FromSeconds(0.5))
+                .Where(x => NavigationCancellationToken.IsCancellationRequested is false && NavigationCancellationToken != default)
+                .Subscribe(async _ =>
+                {
+                    var prevVideo = await _hohoemaPlaylistPlayer.GetPreviewItemAsync(NavigationCancellationToken);
+                    var nextVideo = await _hohoemaPlaylistPlayer.GetNextItemAsync(NavigationCancellationToken);
+                    _scheduler.Schedule(() =>
+                    {
+                        NextVideoContent = nextVideo;
+                        PrevVideoContent = prevVideo;
+                    });
+                })
                 .AddTo(_CompositeDisposable);
 
             IsLoopingEnabled = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsCurrentVideoLoopingEnabled, raiseEventScheduler: scheduler)
@@ -362,6 +379,13 @@ namespace Hohoema.Presentation.ViewModels.Player
         }
 
 
+
+
+        [ObservableProperty]
+        private IVideoContent _nextVideoContent;
+
+        [ObservableProperty]
+        private IVideoContent _prevVideoContent;
 
 
         public override void Dispose()

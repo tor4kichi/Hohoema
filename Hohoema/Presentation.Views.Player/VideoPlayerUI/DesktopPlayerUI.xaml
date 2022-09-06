@@ -764,13 +764,29 @@
             </Border>
           </Border>
           <Border x:Name="GoPrevVideoLayout" VerticalAlignment="Center" HorizontalAlignment="Left">
-            <Button MinWidth="24" Height="120" Command="{x:Bind _vm.PlayPreviousCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="0 1 1 1">
-              <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE016;" FontSize="20" Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"></TextBlock>
+            <Button MinWidth="24" Height="120" Command="{x:Bind _vm.PlayPreviousCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="0 1 1 1"
+                    ToolTipService.Placement="Right"
+                    >
+              <ToolTipService.ToolTip>
+                <StackPanel MaxWidth="240">
+                  <Image Source="{x:Bind _vm.PrevVideoContent.ThumbnailUrl, Mode=OneWay}" Width="180" />
+                  <TextBlock Text="{x:Bind _vm.PrevVideoContent.Title, Mode=OneWay}" TextWrapping="Wrap" MaxLines="3" />
+                </StackPanel>
+              </ToolTipService.ToolTip>
+              <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE016;" FontSize="20" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"></TextBlock>
             </Button>
           </Border>
           <Border x:Name="GoNextVideoLayout" VerticalAlignment="Center" HorizontalAlignment="Right">
-            <Button MinWidth="24" Height="120" Command="{x:Bind _vm.PlayNextCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="1 1 0 1">
-              <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE017;" FontSize="20" Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"></TextBlock>
+            <Button MinWidth="24" Height="120" Command="{x:Bind _vm.PlayNextCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="1 1 0 1"
+                    ToolTipService.Placement="Left"
+                    >
+              <ToolTipService.ToolTip>
+                <StackPanel MaxWidth="240">
+                  <Image Source="{x:Bind _vm.NextVideoContent.ThumbnailUrl, Mode=OneWay}" Width="180" />
+                  <TextBlock Text="{x:Bind _vm.NextVideoContent.Title, Mode=OneWay}" TextWrapping="Wrap" MaxLines="3" />
+                </StackPanel>
+              </ToolTipService.ToolTip>
+              <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE017;" FontSize="20" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"></TextBlock>
             </Button>
           </Border>
         </Grid>
