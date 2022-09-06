@@ -11,6 +11,7 @@
   xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
   xmlns:viewmodel="using:Hohoema.Presentation.ViewModels"
   xmlns:sidepaneVM="using:Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent"
+  xmlns:playerView="using:Hohoema.Presentation.Views.Player"
   xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
   xmlns:connectivityTrigger="using:AdaptiveTriggerLibrary.Triggers.ConnectivityTriggers"
   xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
@@ -348,7 +349,7 @@
             <Grid x:Name="TitleBarWindowControlUI" uwpControls:DockPanel.Dock="Right" VerticalAlignment="Top" Height="32">
 
 
-              <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 188 0">
+              <StackPanel x:Name="TitleBarWindowActionsPanel" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0 0 188 0">
                 <Button x:Name="FullscreenButton" Command="{x:Bind _vm.PlayerView.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinHeight="32" MinWidth="48" ToolTipService.ToolTip="{i18nExt:Localize Key=FullScreen}">
                   <iconPack:PackIconMaterial Kind="Fullscreen" />
                 </Button>
@@ -359,7 +360,7 @@
                   <iconPack:PackIconMaterial Kind="ArrowBottomRight" />
                 </Button>
               </StackPanel>
-              <Border Background="{ThemeResource AppBarSeparatorForegroundThemeBrush}" Margin="0 6 158 6" Width="1" HorizontalAlignment="Right" Opacity="0.4" />
+              <Border x:Name="TitleBarWindowSeparator" Background="{ThemeResource AppBarSeparatorForegroundThemeBrush}" Margin="0 6 158 6" Width="1" HorizontalAlignment="Right" Opacity="0.4" />
             </Grid>
             
             <!-- Secondary window TitleBar margin -->
@@ -1191,6 +1192,22 @@
             <Setter Target="TitleBarWindowControlUI.Visibility" Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
+      </VisualStateGroup>
+      
+      <!-- ウィンドウ操作UI -->      
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="{x:Bind models:ApplicationInteractionMode.Touch}" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding SidePaneType}" EqualTo="{x:Bind playerView:PlayerSidePaneContentType.Playlist}" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding SidePaneType}" EqualTo="{x:Bind playerView:PlayerSidePaneContentType.Comment}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="TitleBarWindowActionsPanel.Margin" Value="0 0 0 0" />
+            <Setter Target="TitleBarWindowSeparator.Opacity" Value="0" />
+          </VisualState.Setters>
+        </VisualState>
+        
       </VisualStateGroup>
       <!-- コンパクトオーバーレイ切り替えボタンの表示・非表示 -->
       <VisualStateGroup>
