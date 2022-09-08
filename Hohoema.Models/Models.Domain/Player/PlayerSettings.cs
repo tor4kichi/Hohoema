@@ -68,7 +68,8 @@ namespace Hohoema.Models.Domain.Player
 			_NicoScript_Replace_Enabled = Read(true, nameof(NicoScript_Replace_Enabled));
 
 			_isCurrentVideoLoopingEnabled = Read(false, nameof(IsCurrentVideoLoopingEnabled));
-			_isPlaylistLoopingEnabled = Read(false, nameof(IsPlaylistLoopingEnabled));
+			_isPlaylistAutoMoveEnabled = Read(true, nameof(IsPlaylistAutoMoveEnabled));
+            _isPlaylistLoopingEnabled = Read(false, nameof(IsPlaylistLoopingEnabled));
 			_IsShuffleEnable = Read(false, nameof(IsShuffleEnable));
 			_IsReverseModeEnable = Read(false, nameof(IsReverseModeEnable));
 			_PlaylistEndAction = Read(PlaylistEndAction.NothingDo, nameof(PlaylistEndAction));
@@ -312,7 +313,15 @@ namespace Hohoema.Models.Domain.Player
 			set { SetProperty(ref _isCurrentVideoLoopingEnabled, value); }
 		}
 
-		private bool _isPlaylistLoopingEnabled;
+
+        private bool _isPlaylistAutoMoveEnabled;
+        public bool IsPlaylistAutoMoveEnabled
+        {
+            get { return _isPlaylistAutoMoveEnabled; }
+            set { SetProperty(ref _isPlaylistAutoMoveEnabled, value); }
+        }
+
+        private bool _isPlaylistLoopingEnabled;
 		public bool IsPlaylistLoopingEnabled
 		{
 			get { return _isPlaylistLoopingEnabled; }

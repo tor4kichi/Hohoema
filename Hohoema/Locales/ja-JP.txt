@@ -591,6 +591,10 @@ PlaylistEndAction.NothingDo = 何もしない
 PlaylistEndAction.ChangeIntoSplit = プレイヤーを小さく表示
 PlaylistEndAction.CloseIfPlayWithCurrentWindow = プレイヤーを閉じる
 
+AutoMovePlaylist = 自動再生
+
+
+
 # 全て表示（NGScoreを無視）
 CommentNGScoreShareLevel.None = 無し
 # NGScore -10000 以上を表示

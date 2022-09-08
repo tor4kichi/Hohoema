@@ -623,7 +623,7 @@
               <Button x:Name="OpenCommentListButton" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Comment" MinWidth="48" MinHeight="48">
                 <iconPack:PackIconMaterial Kind="Comment" Width="24" Height="24"></iconPack:PackIconMaterial>
               </Button>
-              <Button x:Name="OpenPlaylistButton" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Playlist" MinWidth="48" MinHeight="48">
+              <Button x:Name="OpenPlaylistButton" Command="{x:Bind _vm.SelectSidePaneCommand}" CommandParameter="Playlist" MinWidth="48" MinHeight="48" Visibility="{x:Bind _vm.CurrentPlaylist, Mode=OneWay, Converter={StaticResource NotNullToVisibility}}">
                 <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="24" Height="24"></iconPack:PackIconMaterial>
               </Button>
               <Button x:Name="OpenSettingsPaneButton" MinWidth="48" MinHeight="48">

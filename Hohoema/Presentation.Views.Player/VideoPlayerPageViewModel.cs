@@ -379,6 +379,8 @@ namespace Hohoema.Presentation.ViewModels.Player
         }
 
 
+        [ObservableProperty]
+        private IPlaylist _currentPlaylist;
 
 
         [ObservableProperty]
@@ -404,6 +406,10 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentQuality)
                 .Subscribe(quality => _scheduler.Schedule(() => CurrentQuality = quality))
+                .AddTo(_navigationDisposables);
+
+            _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylist)
+                .Subscribe(playlist => _scheduler.Schedule(() => CurrentPlaylist = playlist))
                 .AddTo(_navigationDisposables);
 
             _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)

@@ -72,6 +72,9 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 .ToReactiveProperty(_scheduler)
                 .AddTo(_CompositeDisposable);
 
+            IsAutoMovePlaylistEnabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsPlaylistAutoMoveEnabled, raiseEventScheduler: _scheduler)
+                .AddTo(_CompositeDisposable);
+
             _hohoemaPlaylistPlayer.GetBufferedItems()
                 .Subscribe(items => 
                 {
@@ -136,11 +139,12 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
         public MediaPlayer MediaPlayer { get; }
         public PageManager PageManager { get; }
 
-        public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
+        public ReactiveProperty<bool> IsShuffleEnabled { get; }
         public ReadOnlyReactiveProperty<bool> IsShuffleAvailable { get; }
-        public ReactiveProperty<bool> IsListRepeatModeEnable { get; private set; }      
-        public ReactiveProperty<bool> PlaylistCanGoBack { get; private set; }
-        public ReactiveProperty<bool> PlaylistCanGoNext { get; private set; }
+        public ReactiveProperty<bool> IsListRepeatModeEnable { get;  }
+        public ReactiveProperty<bool> IsAutoMovePlaylistEnabled { get; }
+        public ReactiveProperty<bool> PlaylistCanGoBack { get; }
+        public ReactiveProperty<bool> PlaylistCanGoNext { get; }
 
         private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;
         private readonly PlayerSettings _playerSettings;

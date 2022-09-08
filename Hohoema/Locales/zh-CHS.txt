@@ -591,6 +591,10 @@ PlaylistEndAction.NothingDo = 无动作
 PlaylistEndAction.ChangeIntoSplit = 播放窗口小窗化
 PlaylistEndAction.CloseIfPlayWithCurrentWindow = 关闭播放窗口
 
+AutoMovePlaylist = 自动播放
+
+
+
 # 全て表示（NGScoreを無視）
 CommentNGScoreShareLevel.None = 无
 # NGScore -10000 以上を表示
