@@ -162,6 +162,8 @@ namespace Hohoema.Presentation.Views.Player.VideoPlayerUI
         private void MediaControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             MediaControlWidth = e.NewSize.Width;
+
+            HideControlUI();
         }
 
         #region Comment Textbox

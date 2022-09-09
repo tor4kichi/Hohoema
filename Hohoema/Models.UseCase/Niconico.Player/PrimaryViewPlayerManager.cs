@@ -292,7 +292,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen
                 )
             {
-                //_view.ExitFullScreenMode();
+                _view.ExitFullScreenMode();
             }
         }
 
@@ -339,13 +339,13 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         public RelayCommand ToggleFillOrWindowInWindowCommand => _ToggleFillOrWindowInWindowCommand
             ?? (_ToggleFillOrWindowInWindowCommand = new RelayCommand(() =>
             {
-                if (DisplayMode == PlayerDisplayMode.FillWindow)
-                {
-                    ShowWithWindowInWindow();
-                }
-                else if (DisplayMode == PlayerDisplayMode.WindowInWindow)
+                if (DisplayMode == PlayerDisplayMode.WindowInWindow)
                 {
                     ShowWithFill();
+                }
+                else 
+                {
+                    ShowWithWindowInWindow();
                 }
             }));
 

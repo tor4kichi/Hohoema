@@ -399,8 +399,7 @@ namespace Hohoema.Presentation.Views.Pages
 
                     Debug.WriteLineIf(!result.IsSuccess, result.Exception?.ToString());
 
-
-                    if (_viewModel.PrimaryViewPlayerManager.DisplayMode == PlayerDisplayMode.FillWindow)
+                    if (_viewModel.PrimaryViewPlayerManager.DisplayMode is PlayerDisplayMode.FillWindow or PlayerDisplayMode.FullScreen)
                     {
                         _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
                     }

@@ -346,7 +346,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             {
                 return _OpenVideoInfoCommand
                     ?? (_OpenVideoInfoCommand = new RelayCommand(() =>
-                    {
+                    {                        
                         PageManager.OpenPageWithId(HohoemaPageType.VideoInfomation, VideoId);
                     }
                     ));

@@ -243,7 +243,7 @@
       <core:EventTriggerBehavior EventName="Loaded">
         <mybehavior:SetFocus TargetObject="{x:Bind RootLayout}" />
       </core:EventTriggerBehavior>
-
+      
     </i:Interaction.Behaviors>
 
     <!-- 読み込み中表示 -->
@@ -439,7 +439,7 @@
                 <DropDownButton.Flyout>
                   <MenuFlyout>
 
-                    <MenuFlyoutItem x:Name="ShowVideoInfoButon" Icon="Help" Text="{i18nExt:Localize Key=VideoInfomation}" />
+                    <MenuFlyoutItem x:Name="ShowVideoInfoButon" Text="{i18nExt:Localize Key=VideoInfomation}" Command="{x:Bind _vm.OpenVideoInfoCommand}" />
 
                     <MenuFlyoutSubItem x:Name="AddToMenuFlyout" Icon="Add" Text="{i18nExt:Localize Key=Add}">
                       <MenuFlyoutItem Text="{i18nExt:Localize Key=MylistAddItem}" Command="{x:Bind _vm.AddMylistCommand}" CommandParameter="{x:Bind _vm.VideoInfo, Mode=OneWay}" />
