@@ -12,6 +12,7 @@ using Hohoema.Presentation.ViewModels.Niconico.Video;
 using Hohoema.Presentation.ViewModels.Niconico.Video.Commands;
 using Hohoema.Presentation.Views.Flyouts;
 using Hohoema.Presentation.Views.Helpers;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -378,12 +379,20 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
         #region Context Flyout
 
+        static Dictionary<DataTemplate, FlyoutBase> _cache = new ();
         private void ItemsList_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
         {
             var list = sender as ListViewBase;
+            if (ItemContextFlyoutTemplate is null) { return; }
 
-            var itemFlyout = ItemContextFlyoutTemplate?.LoadContent() as FlyoutBase;
+            var cached = _cache.TryGetValue(ItemContextFlyoutTemplate, out var itemFlyout);
+            itemFlyout ??= ItemContextFlyoutTemplate.LoadContent() as FlyoutBase;
             if (itemFlyout == null) { return; }
+
+            if (cached is false)
+            {
+                _cache.Add(ItemContextFlyoutTemplate, itemFlyout);
+            }
 
             if (itemFlyout is VideoItemFlyout videoItemFlyout)
             {
