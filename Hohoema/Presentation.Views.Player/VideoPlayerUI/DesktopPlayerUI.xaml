@@ -423,10 +423,11 @@
                 </core:EventTriggerBehavior>
               </i:Interaction.Behaviors>
             </Border>
-            <StackPanel Margin="8 0" Orientation="Horizontal" HorizontalAlignment="Center">
+            <uwpControls:DockPanel Margin="32 0" HorizontalAlignment="Center">
 
               <ToggleButton x:Name="LikeToggleButton" ToolTipService.ToolTip="{i18nExt:Localize Key=NicoLike}" IsChecked="{x:Bind _vm.LikesContext.IsLikes, Mode=TwoWay}" IsEnabled="{Binding LikesContext.NowLikeProcessing, Mode=OneWay, Converter={StaticResource BoolNegation}}" Visibility="Collapsed" 
-                        Background="Transparent" Height="48"
+                        Background="Transparent" Height="48"    
+                            uwpControls:DockPanel.Dock="Left"
                         >
                 <ToggleButton.Content>
                   <StackPanel Orientation="Horizontal">
@@ -434,7 +435,7 @@
                   </StackPanel>
                 </ToggleButton.Content>
               </ToggleButton>
-              <DropDownButton HorizontalAlignment="Center" Background="Transparent" Height="48">
+              <DropDownButton Background="Transparent" MinHeight="48">
                 <DropDownButton.Flyout>
                   <MenuFlyout>
 
@@ -459,19 +460,15 @@
                   </MenuFlyout>
                 </DropDownButton.Flyout>
 
-                <TextBlock x:Name="TitleTextBlock" Text="{x:Bind _vm.VideoInfo.Title, Mode=OneWay}" FontSize="24" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                <TextBlock x:Name="TitleTextBlock" Text="{x:Bind _vm.VideoInfo.Title, Mode=OneWay}" FontSize="20" TextWrapping="Wrap"                           
+                           MaxWidth="720"
+                           MaxLines="3"
+                           TextAlignment="Center"
+                           />
 
               </DropDownButton>
-              <!--
-          <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Tapped">
-              <core:CallMethodAction TargetObject="{x:Bind}" MethodName="HideControlUI" />
-            </core:EventTriggerBehavior>
-          </i:Interaction.Behaviors>
-          -->
-            </StackPanel>
+            </uwpControls:DockPanel>
           </uwpControls:DockPanel>
-          
           <!-- シークバー -->
           <Grid Margin="0 0 0 12">
             <TextBlock x:Name="SeekDisabledFromNicoScriptText" Text="{i18nExt:Localize Key=DisableSeekFromNicoScript}" Visibility="Collapsed" VerticalAlignment="Bottom" HorizontalAlignment="Center" Opacity="0.6" />
