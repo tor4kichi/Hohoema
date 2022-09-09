@@ -132,8 +132,7 @@
       <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{x:Bind _vm.TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{i18nExt:Localize Key=PlayWithSecondaryView}"></MenuFlyoutItem>
     </MenuFlyout>
   </UserControl.Resources>
-  <Grid x:Name="UIControlLayout" 
-        ContextFlyout="{StaticResource VideoOptionsFlyout}"
+  <Grid x:Name="UIControlLayout"         
         ManipulationMode="TranslateX"
         SizeChanged="MediaControl_SizeChanged"
         KeyboardAcceleratorPlacementMode="Hidden"
@@ -215,6 +214,9 @@
       </mybehavior:UINavigationTrigger>
       <mybehavior:UINavigationTrigger x:Name="ControllerTogglePlayPauseTrigger" Kind="Context1" IsEnabled="True">
         <core:InvokeCommandAction Command="{x:Bind _vm.VideoTogglePlayPauseCommand}" />
+      </mybehavior:UINavigationTrigger>
+      <mybehavior:UINavigationTrigger Kind="Menu">
+        <mybehavior:OpenFlyout TargetFlyout="{StaticResource VideoOptionsFlyout}" ShowAt="{x:Bind UIControlLayout}"/>
       </mybehavior:UINavigationTrigger>
 
       <!-- 再生停止時にUIを表示 -->
@@ -704,7 +706,7 @@
           </Grid>
         </StackPanel>
         <!-- 中央 余白とリコメンド -->
-        <Grid x:Name="UIControlCenterLayout" BorderThickness="0">
+        <Grid x:Name="UIControlCenterLayout" BorderThickness="0" ContextFlyout="{StaticResource VideoOptionsFlyout}">
           <Border IsHitTestVisible="True" Background="Transparent" BorderThickness="0">
             <i:Interaction.Behaviors>
               <core:EventTriggerBehavior EventName="Tapped">
@@ -819,7 +821,9 @@
       </Border>
     </Grid>
     
-    <Grid IsHitTestVisible="{x:Bind IsVisibleUI, Mode=OneWay, Converter={StaticResource BoolNegation}}" Background="Transparent" Margin="0 0 0 0">
+    <Grid IsHitTestVisible="{x:Bind IsVisibleUI, Mode=OneWay, Converter={StaticResource BoolNegation}}" Background="Transparent" Margin="0 0 0 0"
+          ContextFlyout="{StaticResource VideoOptionsFlyout}"
+          >
       <i:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Tapped">
           <core:CallMethodAction TargetObject="{x:Bind}" MethodName="ShowControlUI" />
