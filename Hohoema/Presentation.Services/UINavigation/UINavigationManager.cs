@@ -9,6 +9,7 @@ using Windows.Gaming.Input;
 using Windows.UI.Xaml;
 using System.Threading;
 using Windows.UI.Core;
+using System.Diagnostics;
 
 namespace Hohoema.Presentation.Services.UINavigation
 {
@@ -184,34 +185,31 @@ namespace Hohoema.Presentation.Services.UINavigation
                         //                var trigger = pressing & (_PrevPressingButtons ^ pressing);
                         var released = _PrevPressingButtons & (_PrevPressingButtons ^ pressing);                        
                         // ホールド入力の検出
-                        UINavigationButtons holdingButtons = UINavigationButtons.None;
                         foreach (var target in __InputDetectTargets)
                         {
                             if (pressing.HasFlag(target))
                             {
-                                if (!_ProcessedHoldingButtons.HasFlag(target))
+                                if (((int)_ProcessedHoldingButtons & (int)target) == 0)
                                 {
                                     var time = _ButtonHold[target] += __InputPollingInterval;
 
                                     if (time > __HoldDetectTime)
                                     {
-                                        holdingButtons |= target;
                                         _ProcessedHoldingButtons |= target;
+                                        Holding?.Invoke(this, target);
                                     }
+
+                                    Debug.WriteLine($"Holding {target} @{time.TotalSeconds:F1}s");
                                 }
                             }
                             else
                             {
                                 _ButtonHold[target] = TimeSpan.Zero;
-                                _ProcessedHoldingButtons = (((UINavigationButtons)0) ^ target) & _ProcessedHoldingButtons;
+                                _ProcessedHoldingButtons = (UINavigationButtons)((int.MaxValue - (int)target) & (int)_ProcessedHoldingButtons);
                             }
                         }
 
-                        if (holdingButtons != UINavigationButtons.None)
-                        {
-                            Holding?.Invoke(this, holdingButtons);
-                        }
-                        else if (released != UINavigationButtons.None)
+                        if (released != UINavigationButtons.None)
                         {
                             Pressed?.Invoke(this, released);
                         }

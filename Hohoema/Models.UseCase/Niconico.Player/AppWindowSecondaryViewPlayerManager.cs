@@ -58,7 +58,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
-            ApplicationView.GetForCurrentView().Consolidated += AppWindowSecondaryViewPlayerManager_Consolidated; ;
+            ApplicationView.GetForCurrentView().Consolidated += AppWindowSecondaryViewPlayerManager_Consolidated;
         }
 
         private void AppWindowSecondaryViewPlayerManager_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
@@ -174,6 +174,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     _appWindow.TitleBar.ButtonPressedBackgroundColor = Colors.Transparent;
                     _appWindow.TitleBar.ButtonBackgroundColor = Colors.Transparent;
 
+                    
 
                     SecondaryWindowCoreLayout secondaryWindowCoreLayout = new();
                     _rootBorder = new Border();
@@ -227,6 +228,34 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                         await _navigationService.NavigateAsync(nameof(BlankPage));
 
                         _closingTaskCompletionSource?.SetResult(0);
+                    };
+
+                    _appWindow.Changed += async (s, e) => 
+                    {
+                        await Task.Delay(500);
+
+                        if (e.DidWindowPresentationChange || e.DidSizeChange)
+                        {
+                            var config = s.Presenter.GetConfiguration();
+                            if (config.Kind == AppWindowPresentationKind.FullScreen)
+                            {
+                                _displayMode = PlayerDisplayMode.FullScreen;
+                                IsFullScreen = true;
+                                IsCompactOverlay = false;
+                            }
+                            else if (config.Kind == AppWindowPresentationKind.CompactOverlay)
+                            {
+                                _displayMode = PlayerDisplayMode.FullScreen;
+                                IsFullScreen = false;
+                                IsCompactOverlay = true;
+                            }
+                            else
+                            {
+                                _displayMode = PlayerDisplayMode.FillWindow;
+                                IsFullScreen = false;
+                                IsCompactOverlay = false;
+                            }
+                        }
                     };
 
                     SetupListenersForWindow(_appWindow);

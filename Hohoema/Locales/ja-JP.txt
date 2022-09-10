@@ -286,6 +286,14 @@ ApplicationDiagnosticsReport = アプリの使用状況レポート
 EnableCrashReport = アプリのエラー情報を送信する
 EnableAnalyticsReport = アプリ機能・ページの利用状況を送信する
 
+UseNewStylePlayerControlUI = 新しい動画プレイヤーのUIを有効にする
+
+
+
+
+
+
+
 #### Niconico General ####
 PrivateReasonType.PostedBy = 投稿者削除
 PrivateReasonType.Private = 非公開設定
@@ -439,6 +447,7 @@ NicoScript_DisallowComment = ＠コメント禁止
 NicoScript_Jump = ＠ジャンプ
 DesktopSettings = デスクトップ向けの設定
 SoundVolumeChangeValueWithMouseScroll = マウススクロール音量変化量
+PlayRepeat = ループ再生
 
 # Likes いいね機能
 NicoLike = ❤ いいね
@@ -581,6 +590,10 @@ HiddenCommentUser = コメント非表示のユーザー
 PlaylistEndAction.NothingDo = 何もしない
 PlaylistEndAction.ChangeIntoSplit = プレイヤーを小さく表示
 PlaylistEndAction.CloseIfPlayWithCurrentWindow = プレイヤーを閉じる
+
+AutoMovePlaylist = 自動再生
+
+
 
 # 全て表示（NGScoreを無視）
 CommentNGScoreShareLevel.None = 無し

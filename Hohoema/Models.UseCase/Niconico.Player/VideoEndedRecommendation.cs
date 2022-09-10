@@ -91,10 +91,12 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     }
 
                     var currentVideoId = _hohoemaPlaylistPlayer.CurrentPlaylistItem.VideoId;
-                    _queuePlaylist.Remove(currentVideoId);
+                    // この時点でキューから削除してしまうと、プレイヤー上のプレイリストの現在アイテムがnullになってしまう
+                    // 他のアイテムが再生されたり、プレイヤーが閉じられたタイミングで
+                    //_queuePlaylist.Remove(currentVideoId);
                     _videoPlayedHistoryRepository.VideoPlayed(currentVideoId, sender.Position);
 
-                    if (await _hohoemaPlaylistPlayer.CanGoNextAsync())
+                    if (_playerSettings.IsPlaylistAutoMoveEnabled && await _hohoemaPlaylistPlayer.CanGoNextAsync())
                     {
                         if (await _hohoemaPlaylistPlayer.GoNextAsync())
                         {

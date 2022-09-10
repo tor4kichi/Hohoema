@@ -47,20 +47,18 @@ using Reactive.Bindings;
 using Hohoema.Models.Domain.Application;
 using Microsoft.Extensions.Logging;
 using ZLogger;
-using CommunityToolkit.Mvvm.ComponentModel;
-using NiconicoToolkit.Live.WatchPageProp;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
 
-    public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
+    public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
 	{
         // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
         private readonly IScheduler _scheduler;
         private readonly QueuePlaylist _queuePlaylist;
         private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;        
 
-        public VideoPlayerPageViewModel(
+        public LegacyVideoPlayerPageViewModel(
             ILoggerFactory loggerFactory,
             IScheduler scheduler,
             IPlayerView playerView,
@@ -112,10 +110,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             CurrentPlayerDisplayView = appearanceSettings
                 .ObserveProperty(x => x.PlayerDisplayView)
                 .ToReadOnlyReactivePropertySlim()
-                .AddTo(_CompositeDisposable);
-
-            LoudnessCorrectionValue = soundVolumeManager.ObserveProperty(x => x.LoudnessCorrectionValue)
-                .ToReadOnlyReactiveProperty(eventScheduler: scheduler)
                 .AddTo(_CompositeDisposable);
 
             _scheduler = scheduler;
@@ -186,21 +180,6 @@ namespace Hohoema.Presentation.ViewModels.Player
             PlayPreviousCommand.Subscribe(async () => await _hohoemaPlaylistPlayer.GoPreviewAsync(NavigationCancellationToken))
                 .AddTo(_CompositeDisposable);
 
-            _hohoemaPlaylistPlayer.GetCanGoNextOrPreviewObservable()
-                .Throttle(TimeSpan.FromSeconds(0.5))
-                .Where(x => NavigationCancellationToken.IsCancellationRequested is false && NavigationCancellationToken != default)
-                .Subscribe(async _ =>
-                {
-                    var prevVideo = await _hohoemaPlaylistPlayer.GetPreviewItemAsync(NavigationCancellationToken);
-                    var nextVideo = await _hohoemaPlaylistPlayer.GetNextItemAsync(NavigationCancellationToken);
-                    _scheduler.Schedule(() =>
-                    {
-                        NextVideoContent = nextVideo;
-                        PrevVideoContent = prevVideo;
-                    });
-                })
-                .AddTo(_CompositeDisposable);
-
             IsLoopingEnabled = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsCurrentVideoLoopingEnabled, raiseEventScheduler: scheduler)
                 .AddTo(_CompositeDisposable);
             IsLoopingEnabled.Subscribe(x => mediaPlayer.IsLoopingEnabled = x)
@@ -222,8 +201,6 @@ namespace Hohoema.Presentation.ViewModels.Player
         private readonly ILogger<VideoPlayerPageViewModel> _logger;
 
         public ReadOnlyReactivePropertySlim<PlayerDisplayView> CurrentPlayerDisplayView { get; }
-
-        public ReadOnlyReactiveProperty<double> LoudnessCorrectionValue { get; }
 
         public SubscriptionManager SubscriptionManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
@@ -346,7 +323,7 @@ namespace Hohoema.Presentation.ViewModels.Player
             {
                 return _OpenVideoInfoCommand
                     ?? (_OpenVideoInfoCommand = new RelayCommand(() =>
-                    {                        
+                    {
                         PageManager.OpenPageWithId(HohoemaPageType.VideoInfomation, VideoId);
                     }
                     ));
@@ -379,15 +356,6 @@ namespace Hohoema.Presentation.ViewModels.Player
         }
 
 
-        [ObservableProperty]
-        private IPlaylist _currentPlaylist;
-
-
-        [ObservableProperty]
-        private IVideoContent _nextVideoContent;
-
-        [ObservableProperty]
-        private IVideoContent _prevVideoContent;
 
 
         public override void Dispose()
@@ -406,10 +374,6 @@ namespace Hohoema.Presentation.ViewModels.Player
 
             _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentQuality)
                 .Subscribe(quality => _scheduler.Schedule(() => CurrentQuality = quality))
-                .AddTo(_navigationDisposables);
-
-            _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylist)
-                .Subscribe(playlist => _scheduler.Schedule(() => CurrentPlaylist = playlist))
                 .AddTo(_navigationDisposables);
 
             _hohoemaPlaylistPlayer.ObserveProperty(x => x.CurrentPlaylistItem)
@@ -688,29 +652,29 @@ namespace Hohoema.Presentation.ViewModels.Player
         #endregion
     }
 
-    public class VideoSeriesViewModel : ISeries
-    {
-        private readonly WatchApiSeries _userSeries;
+    //public class VideoSeriesViewModel : ISeries
+    //{
+    //    private readonly WatchApiSeries _userSeries;
 
-        public VideoSeriesViewModel(WatchApiSeries userSeries)
-        {
-            _userSeries = userSeries;
-        }
+    //    public VideoSeriesViewModel(WatchApiSeries userSeries)
+    //    {
+    //        _userSeries = userSeries;
+    //    }
 
-        public string Id => _userSeries.Id.ToString();
+    //    public string Id => _userSeries.Id.ToString();
 
-        public string Title => _userSeries.Title;
+    //    public string Title => _userSeries.Title;
 
-        public bool IsListed => throw new NotSupportedException();
+    //    public bool IsListed => throw new NotSupportedException();
 
-        public string Description => throw new NotSupportedException();
+    //    public string Description => throw new NotSupportedException();
 
-        public string ThumbnailUrl => _userSeries.ThumbnailUrl.OriginalString;
+    //    public string ThumbnailUrl => _userSeries.ThumbnailUrl.OriginalString;
 
-        public int ItemsCount => throw new NotSupportedException();
+    //    public int ItemsCount => throw new NotSupportedException();
 
-        public OwnerType ProviderType => throw new NotSupportedException();
+    //    public OwnerType ProviderType => throw new NotSupportedException();
 
-        public string ProviderId => throw new NotSupportedException();
-    }
+    //    public string ProviderId => throw new NotSupportedException();
+    //}
 }

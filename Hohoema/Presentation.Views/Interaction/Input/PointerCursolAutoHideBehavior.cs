@@ -7,6 +7,8 @@ using Windows.Foundation;
 using Windows.ApplicationModel.Core;
 using System.Diagnostics;
 using Windows.System;
+using Microsoft.Toolkit.Diagnostics;
+using System.Reactive.Linq;
 
 namespace Hohoema.Presentation.Views.Behaviors
 {
@@ -33,79 +35,23 @@ namespace Hohoema.Presentation.Views.Behaviors
     /// <summary>
     /// ポインターが操作されていない時にカーソル表示を自動非表示するビヘイビア
     /// </summary>
-    public class PointerCursolAutoHideBehavior : Behavior<FrameworkElement>
+    public class PointerCursorAutoHideBehavior : Behavior<FrameworkElement>
     {
         // カーソルを元に戻すためのやつ
         CoreCursor _DefaultCursor;
-
         Point _LastCursorPosition;
 
         // 自動非表示のためのタイマー
         // DispatcherTimerはUIスレッドフレンドリーなタイマー
         private readonly DispatcherQueueTimer _AutoHideTimer;
 
+        private readonly MouseDevice _mouseDevice;
+        private readonly DispatcherQueue _dispattcherQueue;
 
         // このビヘイビアを保持しているElement内にカーソルがあるかのフラグ
         // PointerEntered/PointerExitedで変更される
         bool _IsCursorInsideAssociatedObject = false;
 
-
-
-        #region IsAutoHideEnabled DependencyProperty
-
-        public static readonly DependencyProperty IsAutoHideEnabledProperty =
-           DependencyProperty.Register(nameof(IsAutoHideEnabled)
-                   , typeof(Boolean)
-                   , typeof(PointerCursolAutoHideBehavior)
-                   , new PropertyMetadata(true, OnIsAutoHideEnabledPropertyChanged)
-               );
-
-
-        /// <summary>
-        /// IsAutoHideEnabledがTrueに設定されるとマウスの移動が無くなった後、
-        /// AutoHideDelayに設定された時間後、カーソルが非表示に自動設定されます。
-        /// </summary>
-        public Boolean IsAutoHideEnabled
-        {
-            get { return (Boolean)GetValue(IsAutoHideEnabledProperty); }
-            set { SetValue(IsAutoHideEnabledProperty, value); }
-        }
-
-        public static void OnIsAutoHideEnabledPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
-        {
-            var source = (PointerCursolAutoHideBehavior)sender;
-            source.ResetAutoHideTimer();
-        }
-
-        #endregion
-
-
-        #region AutoHideDelay DependencyProperty
-
-        public static readonly DependencyProperty AutoHideDelayProperty =
-          DependencyProperty.Register(nameof(AutoHideDelay)
-                  , typeof(TimeSpan)
-                  , typeof(PointerCursolAutoHideBehavior)
-                  , new PropertyMetadata(TimeSpan.FromSeconds(1), OnAutoHideDelayPropertyChanged)
-              );
-
-        /// <summary>
-        /// マウスが動かなくなってから非表示になるまでの時間を指定します。<br />
-        /// Delayに0秒を設定するとユーザーのマウス操作が困難になるので注意してください。
-        /// </summary>
-        public TimeSpan AutoHideDelay
-        {
-            get { return (TimeSpan)GetValue(AutoHideDelayProperty); }
-            set { SetValue(AutoHideDelayProperty, value); }
-        }
-
-        public static void OnAutoHideDelayPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
-        {
-            PointerCursolAutoHideBehavior source = (PointerCursolAutoHideBehavior)sender;
-            source._AutoHideTimer.Interval = source.AutoHideDelay;
-        }
-
-        #endregion
 
 
         private static bool GetIsWindowActive()
@@ -114,20 +60,28 @@ namespace Hohoema.Presentation.Views.Behaviors
         }
 
 
-        public PointerCursolAutoHideBehavior()
+        public PointerCursorAutoHideBehavior()
         {
-            _AutoHideTimer = DispatcherQueue.GetForCurrentThread().CreateTimer();
-            _AutoHideTimer.Tick += AutoHideTimer_Tick;
-            _AutoHideTimer.IsRepeating = false;
             _DefaultCursor = Window.Current.CoreWindow.PointerCursor;
+            _mouseDevice = MouseDevice.GetForCurrentView();
+            _dispattcherQueue = DispatcherQueue.GetForCurrentThread();            
+
+            _AutoHideTimer = _dispattcherQueue.CreateTimer();
+            _AutoHideTimer.Tick += AutoHideTimer_FireOnce;
+            _AutoHideTimer.IsRepeating = false;            
         }
+
+        IDisposable _mouseMovedDisposable;
 
         protected override void OnAttached()
         {
+            _isUnlaoded = false;
+            _AutoHideTimer.Interval = AutoHideDelay;
+
             _LastCursorPosition = GetPointerPosition();
 
-            _AutoHideTimer.Interval = AutoHideDelay;
             _IsCursorInsideAssociatedObject = IsCursorInWindow();
+            _isAutoHideEnabledReal = IsAutoHideEnabled;
             _prevIsVisible = true;
             ResetAutoHideTimer();
 
@@ -139,8 +93,21 @@ namespace Hohoema.Presentation.Views.Behaviors
             Window.Current.Activated -= Current_Activated;
             Window.Current.Activated += Current_Activated;
 
-            MouseDevice.GetForCurrentView().MouseMoved -= CursorSetter_MouseMoved;
-            MouseDevice.GetForCurrentView().MouseMoved += CursorSetter_MouseMoved;
+            _mouseMovedDisposable = WindowsObservable.FromEventPattern<MouseDevice, MouseEventArgs>(
+                h => _mouseDevice.MouseMoved += h,
+                h => _mouseDevice.MouseMoved -= h
+                )
+                .Sample(TimeSpan.FromMilliseconds(10))
+                .Subscribe(e => 
+                {
+                    _dispattcherQueue.TryEnqueue(() => 
+                    {
+                        CursorSetter_MouseMoved(e.Sender, e.EventArgs);
+                    });
+                });
+                
+            //_mouseDevice.MouseMoved -= CursorSetter_MouseMoved;
+            //_mouseDevice.MouseMoved += CursorSetter_MouseMoved;
 
             AssociatedObject.Unloaded -= AssociatedObject_Unloaded;
             AssociatedObject.Unloaded += AssociatedObject_Unloaded;
@@ -152,24 +119,27 @@ namespace Hohoema.Presentation.Views.Behaviors
         {
             if (e.WindowActivationState != CoreWindowActivationState.Deactivated)
             {
-                ResetAutoHideTimer();
+                ResetAutoHideTimer();                
             }
         }
 
-        bool IsUnlaoded = false;
+        bool _isUnlaoded = false;
         private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
         {
-            IsUnlaoded = true;
+            _isUnlaoded = true;
 
             Window.Current.Activated -= Current_Activated;
-            MouseDevice.GetForCurrentView().MouseMoved -= CursorSetter_MouseMoved;
+            //MouseDevice.GetForCurrentView().MouseMoved -= CursorSetter_MouseMoved;
+            _mouseMovedDisposable.Dispose();
 
-            _AutoHideTimer.Stop();
+            _AutoHideTimer?.Stop();
             Window.Current.CoreWindow.PointerCursor = _DefaultCursor;
         }
 
         protected override void OnDetaching()
         {
+            _AutoHideTimer.Stop();
+
             AssociatedObject.PointerEntered -= AssociatedObject_PointerEntered;
             AssociatedObject.PointerExited -= AssociatedObject_PointerExited;
 
@@ -178,21 +148,62 @@ namespace Hohoema.Presentation.Views.Behaviors
             base.OnDetaching();
         }
 
+        // 変数のキャプチャがバグるためstatic指定が必要
+        static bool _isAutoHideEnabledReal = false;
+
+        private void AutoHideTimer_FireOnce(object sender, object e)
+        {
+            var timer = sender as DispatcherQueueTimer;
+
+            Debug.WriteLine($"_IsCursorInsideAssociatedObject: {_IsCursorInsideAssociatedObject}, _isAutoHideEnabledReal: {_isAutoHideEnabledReal}");
+
+            if (_isUnlaoded is false
+                && _IsCursorInsideAssociatedObject
+                && _isAutoHideEnabledReal
+                && IsCursorInWindow()
+                )
+            {
+                (sender as DispatcherQueueTimer).Stop();
+                Debug.WriteLine($"[CursorAutoHide] Auto hide cursor start.");
+                SetCursorVisibility(false);
+                Debug.WriteLine($"[CursorAutoHide] Auto hide cursor end.");
+            }
+            else
+            {
+                (sender as DispatcherQueueTimer).Stop();
+                SetCursorVisibility(true);
+            }
+        }
+
         private void ResetAutoHideTimer()
         {
-            _AutoHideTimer.Stop();
+            if (_AutoHideTimer == null) { return; }
 
-            if (IsAutoHideEnabled)
+            if (_isAutoHideEnabledReal
+                && _IsCursorInsideAssociatedObject
+                )
             {
-                _AutoHideTimer.Start();
-            }
+                _AutoHideTimer.Stop();
+                Debug.WriteLine($"[CursorAutoHide] Hide timer Reset.");
 
-            CursorVisibilityChanged(true);
+                _AutoHideTimer.Start();
+                SetCursorVisibility(true);
+            }
+            else
+            {
+                if (_AutoHideTimer.IsRunning)
+                {
+                    _AutoHideTimer.Stop();
+                    Debug.WriteLine($"[CursorAutoHide] Hide timer Stop.");
+                }
+
+                SetCursorVisibility(true);
+            }
         }
 
         bool _prevIsVisible = true;
 
-        private void CursorVisibilityChanged(bool isVisible)
+        private void SetCursorVisibility(bool isVisible)
         {
             if (_DefaultCursor == null) { throw new InvalidOperationException($"Default cursor is can not be null."); }
 
@@ -204,14 +215,14 @@ namespace Hohoema.Presentation.Views.Behaviors
                     Window.Current.CoreWindow.PointerCursor = _DefaultCursor;
                     RestoreCursorPosition();
 
-                    Debug.WriteLine($"Show Mouse Cursor.");
+                    Debug.WriteLine($"[CursorAutoHide] Show mouse cursor.");
                 }
                 else
                 {
                     Window.Current.CoreWindow.PointerCursor = null;
                     RecordCursorPosition();
 
-                    Debug.WriteLine($"Hide Mouse Cursor.");
+                    Debug.WriteLine($"[CursorAutoHide] Hide mouse cursor.");
                 }
             }
 
@@ -222,60 +233,53 @@ namespace Hohoema.Presentation.Views.Behaviors
         private void RecordCursorPosition()
         {
             _LastCursorPosition = GetPointerPosition();
+            //Debug.WriteLine($"[CursorAutoHide] RecordCursorPosition() called.");
         }
 
         private void RestoreCursorPosition()
         {
             var windowBound = Window.Current.CoreWindow.Bounds;
             Window.Current.CoreWindow.PointerPosition = new Point(windowBound.Left + _LastCursorPosition.X, windowBound.Top + _LastCursorPosition.Y);
+            //Debug.WriteLine($"[CursorAutoHide] RestoreCursorPosition() called.");
         }
 
-        private void AutoHideTimer_Tick(object sender, object e)
-        {
-            if (IsUnlaoded) { return; }
-            if (GetIsWindowActive() is false) { return; }
-
-            if (IsAutoHideEnabled && _IsCursorInsideAssociatedObject)
-            {
-                CursorVisibilityChanged(false);
-            }
-
-            Debug.WriteLine("AutoHideTimer Stop!");
-        }
 
         private void CursorSetter_MouseMoved(MouseDevice sender, MouseEventArgs args)
         {
-            if (IsUnlaoded) { return; }
+            if (_isUnlaoded) { return; }
 
             RecordCursorPosition();
 
             // マウスホイールを動かした時等には移動していなくても呼ばれるがその場合は無視する
             if (args.MouseDelta.X == 0 && args.MouseDelta.Y == 0) { return; }
 
-            CursorVisibilityChanged(true);
+            //Debug.WriteLine($"[CursorAutoHide] Mouse moved start.");
+            SetCursorVisibility(true);
             ResetAutoHideTimer();
+            //Debug.WriteLine($"[CursorAutoHide] Mouse moved end.");
         }
 
 
         private void AssociatedObject_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (IsUnlaoded) { return; }
+            if (_isUnlaoded) { return; }
 
             _IsCursorInsideAssociatedObject = true;
 
-            Debug.WriteLine("PointerEntered");
+            Debug.WriteLine($"[CursorAutoHide] Pointer entered.");
         }
 
         private void AssociatedObject_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            if (IsUnlaoded) { return; }
+            if (_isUnlaoded) { return; }
 
             _IsCursorInsideAssociatedObject = false;
 
-            CursorVisibilityChanged(true);
+            Debug.WriteLine($"[CursorAutoHide] Pointer exited start.");
+            SetCursorVisibility(true);
             ResetAutoHideTimer();
 
-            Debug.WriteLine("PointerExited");
+            Debug.WriteLine($"[CursorAutoHide] Pointer exited end.");
         }
 
         #region this code copy from VLC WinRT
@@ -320,5 +324,66 @@ namespace Hohoema.Presentation.Views.Behaviors
         }
 
         #endregion
+
+
+
+        #region IsAutoHideEnabled DependencyProperty
+
+        public static readonly DependencyProperty IsAutoHideEnabledProperty =
+           DependencyProperty.Register(nameof(IsAutoHideEnabled)
+                   , typeof(Boolean)
+                   , typeof(PointerCursorAutoHideBehavior)
+                   , new PropertyMetadata(true, OnIsAutoHideEnabledPropertyChanged)
+               );
+
+
+        /// <summary>
+        /// IsAutoHideEnabledがTrueに設定されるとマウスの移動が無くなった後、
+        /// AutoHideDelayに設定された時間後、カーソルが非表示に自動設定されます。
+        /// </summary>
+        public Boolean IsAutoHideEnabled
+        {
+            get { return (Boolean)GetValue(IsAutoHideEnabledProperty); }
+            set { SetValue(IsAutoHideEnabledProperty, value); }
+        }
+
+        public static void OnIsAutoHideEnabledPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+        {
+            var source = (PointerCursorAutoHideBehavior)sender;
+            Debug.WriteLine($"[CursorAutoHide] IsAutoHideEnabled: {source.IsAutoHideEnabled}");
+            PointerCursorAutoHideBehavior._isAutoHideEnabledReal = source.IsAutoHideEnabled;
+            source.ResetAutoHideTimer();
+        }
+
+        #endregion
+
+
+        #region AutoHideDelay DependencyProperty
+
+        public static readonly DependencyProperty AutoHideDelayProperty =
+          DependencyProperty.Register(nameof(AutoHideDelay)
+                  , typeof(TimeSpan)
+                  , typeof(PointerCursorAutoHideBehavior)
+                  , new PropertyMetadata(TimeSpan.FromSeconds(1), OnAutoHideDelayPropertyChanged)
+              );
+
+        /// <summary>
+        /// マウスが動かなくなってから非表示になるまでの時間を指定します。<br />
+        /// Delayに0秒を設定するとユーザーのマウス操作が困難になるので注意してください。
+        /// </summary>
+        public TimeSpan AutoHideDelay
+        {
+            get { return (TimeSpan)GetValue(AutoHideDelayProperty); }
+            set { SetValue(AutoHideDelayProperty, value); }
+        }
+
+        public static void OnAutoHideDelayPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+        {
+            PointerCursorAutoHideBehavior source = (PointerCursorAutoHideBehavior)sender;
+            source._AutoHideTimer.Interval = source.AutoHideDelay;
+        }
+
+        #endregion
+
     }
 }

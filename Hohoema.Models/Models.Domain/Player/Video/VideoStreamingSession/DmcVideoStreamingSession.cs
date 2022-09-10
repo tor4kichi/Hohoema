@@ -211,7 +211,7 @@ namespace Hohoema.Models.Domain.Player.Video
         protected override async void OnStopStreaming()
         {
             if (_DmcSessionHeartbeatTimer != null)
-            {
+            {                
                 _DmcSessionHeartbeatTimer.Dispose();
                 _DmcSessionHeartbeatTimer = null;
                 Debug.WriteLine($"{_dmcWatchData.Video.Title} のハートビートを終了しました");

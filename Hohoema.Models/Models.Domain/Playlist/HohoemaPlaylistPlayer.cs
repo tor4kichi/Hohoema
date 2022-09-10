@@ -257,6 +257,17 @@ namespace Hohoema.Models.Domain.Playlist
         }
 
 
+        void MarkPlayedLastContent()
+        {
+            if (CurrentPlayingIndex == InvalidIndex) { return; }
+            if (CurrentPlaylistItem == null) { return; }
+
+            if (CurrentPlaylist is QueuePlaylist queuePlaylist)
+            {
+                queuePlaylist.Remove(CurrentPlaylistItem.VideoId);
+            }
+        }
+
         async ValueTask<IVideoContent?> GetNextItemAsync_Internal(CancellationToken ct)
         {
             if (CurrentPlayingIndex == InvalidIndex) { return null; }
@@ -358,6 +369,8 @@ namespace Hohoema.Models.Domain.Playlist
             if (CurrentPlayingIndex == InvalidIndex) { return false; }
             if (BufferedPlaylistItemsSource == null) { return false; }
 
+            MarkPlayedLastContent();
+
             var nextItem = await GetNextItemAsync_Internal(ct);
             if (nextItem != null)
             {
@@ -377,6 +390,8 @@ namespace Hohoema.Models.Domain.Playlist
 
             if (CurrentPlayingIndex == InvalidIndex) { return false; }
             if (BufferedPlaylistItemsSource == null) { return false; }
+
+            MarkPlayedLastContent();
 
             var prevItem = await GetPreviewItemAsync_Internal(ct);
             if (prevItem != null)

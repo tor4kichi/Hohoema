@@ -27,19 +27,26 @@
 
       <uwpControls:DockPanel x:Name="HeaderLayout" uwpControls:DockPanel.Dock="Top">
 
-        <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
+        <CommandBar DefaultLabelPosition="Collapsed" VerticalContentAlignment="Center" >
           <CommandBar.Content>
-            <StackPanel Margin="8 0">
-              <TextBlock uwpControls:DockPanel.Dock="Top" Text="{i18nExt:Localize Key=CurrentPlaylist}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0" Opacity="0.7"></TextBlock>
-              <TextBlock Text="{Binding CurrentPlaylist.Value.Name, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" Margin="0" VerticalAlignment="Top" />
+            <StackPanel Orientation="Horizontal">
+              <StackPanel Margin="8 0">
+                <TextBlock uwpControls:DockPanel.Dock="Top" Text="{i18nExt:Localize Key=CurrentPlaylist}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0" Opacity="0.7"></TextBlock>
+                <TextBlock Text="{Binding CurrentPlaylist.Value.Name, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" Margin="0" VerticalAlignment="Top" />
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <TextBlock Text="{i18nExt:Localize Key=AutoMovePlaylist}" VerticalAlignment="Center" />
+                <ToggleSwitch IsOn="{Binding IsAutoMovePlaylistEnabled.Value, Mode=TwoWay}" Style="{StaticResource ToggleSwitchNoHeader}" />
+              </StackPanel>
             </StackPanel>
           </CommandBar.Content>
 
           <CommandBar.PrimaryCommands>
-            <AppBarToggleButton Label="{i18nExt:Localize Key=RepeatAll}" IsChecked="{Binding IsListRepeatModeEnable.Value, Mode=TwoWay}" Icon="RepeatAll" />
+            <AppBarToggleButton Label="{i18nExt:Localize Key=RepeatAll}" IsChecked="{Binding IsListRepeatModeEnable.Value, Mode=TwoWay}" Icon="RepeatAll" ToolTipService.ToolTip="{i18nExt:Localize Key=RepeatAll}" />
             <AppBarToggleButton Label="{i18nExt:Localize Key=Shuffle}" IsChecked="{Binding IsShuffleEnabled.Value, Mode=TwoWay}" Icon="Shuffle"
                                 x:Name="ShuffleSwitchingButton" 
                                 IsEnabled="{Binding IsShuffleAvailable.Value}"
+                                ToolTipService.ToolTip="{i18nExt:Localize Key=Shuffle}"
                                 />
           </CommandBar.PrimaryCommands>
 

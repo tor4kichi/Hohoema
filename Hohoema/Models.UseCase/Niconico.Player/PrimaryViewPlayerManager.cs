@@ -67,6 +67,29 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     IsFullScreen = x == PlayerDisplayMode.FullScreen;
                     IsCompactOverlay = x == PlayerDisplayMode.CompactOverlay;
                 });
+
+            _view.VisibleBoundsChanged += _view_VisibleBoundsChanged;
+        }
+
+        private void RefreshCurrentDisplayModeWhenExitFullScreenFromEmbedButton()
+        {
+            if (_view.IsFullScreenMode)
+            {
+                DisplayMode = PlayerDisplayMode.FullScreen;
+            }
+            else if (_view.ViewMode == ApplicationViewMode.CompactOverlay)
+            {
+                DisplayMode = PlayerDisplayMode.CompactOverlay;
+            }
+            else if (DisplayMode is not PlayerDisplayMode.WindowInWindow and not PlayerDisplayMode.Close)
+            {
+                DisplayMode = PlayerDisplayMode.FillWindow;
+            }
+        }
+
+        private void _view_VisibleBoundsChanged(ApplicationView sender, object args)
+        {
+            RefreshCurrentDisplayModeWhenExitFullScreenFromEmbedButton();
         }
 
         private bool _IsFullScreen;
@@ -269,7 +292,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen
                 )
             {
-                //_view.ExitFullScreenMode();
+                _view.ExitFullScreenMode();
             }
         }
 
@@ -316,13 +339,13 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         public RelayCommand ToggleFillOrWindowInWindowCommand => _ToggleFillOrWindowInWindowCommand
             ?? (_ToggleFillOrWindowInWindowCommand = new RelayCommand(() =>
             {
-                if (DisplayMode == PlayerDisplayMode.FillWindow)
-                {
-                    ShowWithWindowInWindow();
-                }
-                else if (DisplayMode == PlayerDisplayMode.WindowInWindow)
+                if (DisplayMode == PlayerDisplayMode.WindowInWindow)
                 {
                     ShowWithFill();
+                }
+                else 
+                {
+                    ShowWithWindowInWindow();
                 }
             }));
 
