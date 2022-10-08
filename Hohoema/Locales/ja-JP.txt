@@ -300,6 +300,9 @@ PrivateReasonType.Private = 非公開設定
 PrivateReasonType.Publishers = 管理人削除
 PrivateReasonType.RightsHolders = 権利者削除
 
+HidingSensitiveContent = センシティブな内容が含まれている可能性のあるコンテンツです。
+ChangeSensitiveSettings = 設定を変更（ブラウザが開きます）
+
 VideoOwner = 投稿者
 Follow = フォロー
 Keyword = キーワード

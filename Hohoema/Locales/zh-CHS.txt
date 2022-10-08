@@ -300,6 +300,9 @@ PrivateReasonType.Private = 非公开设定
 PrivateReasonType.Publishers = 管理员删除
 PrivateReasonType.RightsHolders = 版权方删除
 
+HidingSensitiveContent = 可能包含敏感材料的内容。
+ChangeSensitiveSettings = 更改设置（浏览器打开）
+
 VideoOwner = 贡献者
 Follow = 跟随
 Keyword = 关键字

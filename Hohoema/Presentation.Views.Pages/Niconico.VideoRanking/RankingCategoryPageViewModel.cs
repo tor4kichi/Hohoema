@@ -34,6 +34,9 @@ using Microsoft.Extensions.Logging;
 using AsyncLock = Hohoema.Models.Helpers.AsyncLock;
 using Windows.UI.Xaml.Navigation;
 using Hohoema.Presentation.Navigations;
+using NiconicoToolkit;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 {
@@ -90,7 +93,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         }
     }
 
-    public class RankingCategoryPageViewModel 
+    public sealed partial class RankingCategoryPageViewModel 
         : HohoemaListingPageViewModelBase<RankedVideoListItemControlViewModel>,        
         IPinablePage,
         ITitleUpdatablePage
@@ -140,6 +143,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         public ReactiveProperty<RankingTerm?> SelectedRankingTerm { get; }
 
         public IReadOnlyReactiveProperty<RankingTerm[]> CurrentSelectableRankingTerms { get; }
+
+
+        
 
         public ObservableCollection<RankingGenreTag> PickedTags { get; } = new ObservableCollection<RankingGenreTag>();
 
@@ -397,11 +403,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             IIncrementalSource<RankedVideoListItemControlViewModel> source = null;
             try
             {
-                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _videoFilteringSettings, _rankingMemoryCache);
-
-                CanChangeRankingParameter.Value = true;
-
-                return (CategoryRankingLoadingSource.OneTimeLoadCount, source);
+                if (IsRssRankingSource is false)
+                {
+                    source = new CategoryRankingFromWebLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _videoFilteringSettings, _rankingMemoryCache);
+                    CanChangeRankingParameter.Value = true;
+                    return (CategoryRankingFromWebLoadingSource.OneTimeLoadCount, source);
+                }
+                else
+                {                    
+                    source = new Rss_CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _videoFilteringSettings, _rankingMemoryCache);
+                    CanChangeRankingParameter.Value = true;
+                    return (Rss_CategoryRankingLoadingSource.OneTimeLoadCount, source);
+                }
             }
             catch
             {
@@ -417,10 +430,20 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
             base.PostResetList();
         }
+
+        [ObservableProperty]
+        private bool _isRssRankingSource;
+
+        [RelayCommand]
+        private void ToggleRankingItemsSource()
+        {
+            IsRssRankingSource = !IsRssRankingSource;
+            ResetList();
+        }
     }
 
 
-    public class CategoryRankingLoadingSource : IIncrementalSource<RankedVideoListItemControlViewModel>
+    public class Rss_CategoryRankingLoadingSource : IIncrementalSource<RankedVideoListItemControlViewModel>
     {
         private readonly TimeSpan RankingResponseExpireDuration = TimeSpan.FromMinutes(10);
 
@@ -431,7 +454,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         RankingOptions _options;
         RssVideoResponse _rankingRssResponse;
 
-        public CategoryRankingLoadingSource(
+        public Rss_CategoryRankingLoadingSource(
             RankingGenre genre,
             string tag,
             RankingTerm term,
@@ -496,6 +519,87 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                 //vm.ProviderId = owner.OwnerId;
                 //vm.ProviderName = owner.ScreenName;
                 //vm.ProviderType = owner.UserType;
+
+                return vm;
+            });
+        }
+    }
+
+    public class CategoryRankingFromWebLoadingSource : IIncrementalSource<RankedVideoListItemControlViewModel>
+    {
+        private readonly TimeSpan RankingResponseExpireDuration = TimeSpan.FromMinutes(10);
+
+        private readonly NiconicoSession _niconicoSession;
+        private readonly NicoVideoProvider _nicoVideoProvider;
+        private readonly VideoFilteringSettings _videoFilteringSettings;
+        private readonly MemoryCache _memoryCache;
+        RankingOptions _options;
+        VideoRankingResponse _rankingRssResponse;
+
+        public CategoryRankingFromWebLoadingSource(
+            RankingGenre genre,
+            string tag,
+            RankingTerm term,
+            NiconicoSession niconicoSession,
+            NicoVideoProvider nicoVideoProvider,
+            VideoFilteringSettings videoFilteringSettings,
+            MemoryCache memoryCache
+            )
+            : base()
+        {
+            _niconicoSession = niconicoSession;
+            _nicoVideoProvider = nicoVideoProvider;
+            _videoFilteringSettings = videoFilteringSettings;
+            _memoryCache = memoryCache;
+            _options = new RankingOptions(genre, term, tag);
+        }
+
+        public const int OneTimeLoadCount = 20;
+
+
+        private async ValueTask<VideoRankingResponse> GetCachedRankingAsync()
+        {
+            if (_memoryCache.TryGetValue<VideoRankingResponse>(_options, out var res))
+            {
+                return res;
+            }
+            else
+            {
+                res = await _niconicoSession.ToolkitContext.Video.Ranking.GetRankingFromWebAsync(_options.Genre, _options.Tag, _options.Term);
+                if (res.IsSuccess)
+                {
+                    _memoryCache.Set(_options, res, TimeSpan.FromMinutes(5));
+                }
+                return res;
+            }
+        }
+
+        async Task<IEnumerable<RankedVideoListItemControlViewModel>> IIncrementalSource<RankedVideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
+        {
+            _rankingRssResponse ??= await GetCachedRankingAsync();
+
+            ct.ThrowIfCancellationRequested();
+
+            int head = pageIndex * pageSize;
+            var targetItems = _rankingRssResponse.Items.Skip(head).Take(pageSize);
+
+            ct.ThrowIfCancellationRequested();
+
+            return targetItems.Select((item, offset) =>
+            {
+                var videoId = item.VideoId;                
+                var vm = new RankedVideoListItemControlViewModel((uint)(head + offset + 1), videoId, item.Title, item.Thumbnail, item.Duration, item.RegisteredAt);
+
+                vm.IsSensitiveContent = item.IsSensitiveContent;                
+                vm.CommentCount = item.CommentCount;
+                vm.ViewCount = item.ViewCount;
+                vm.MylistCount = item.MylistCount;
+                
+                // Note: ランキングページにおける投稿者NGは扱わないように変更する
+                // プレ垢であれば追加情報取得してもいいと思うが、長期メンテするには面倒なので対応しない
+                vm.ProviderId = item.OwnerId;
+                //vm.ProviderName = owner.ScreenName;
+                vm.ProviderType = item.OwnerId.StartsWith(ContentIdHelper.ChannelIdPrefix) ? OwnerType.Channel : OwnerType.User;
 
                 return vm;
             });

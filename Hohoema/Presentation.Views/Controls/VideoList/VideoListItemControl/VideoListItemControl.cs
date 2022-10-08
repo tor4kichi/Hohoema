@@ -245,6 +245,28 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
             }
         }
 
+
+
+
+        public bool IsSensitiveContent
+        {
+            get { return (bool)GetValue(IsSensitiveContentProperty); }
+            set { SetValue(IsSensitiveContentProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsSensitiveContent.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsSensitiveContentProperty =
+            DependencyProperty.Register("IsSensitiveContent", typeof(bool), typeof(VideoListItemControl), new PropertyMetadata(false, OnIsSensitiveContentPropertyChanged));
+
+        private static void OnIsSensitiveContentPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var _this = d as VideoListItemControl;
+            if (_this.IsSensitiveContent)
+            {
+                VisualStateManager.GoToState(_this, "VS_SensitiveContent", false);
+            }
+        }
+
         public string PrivateReason
         {
             get { return (string)GetValue(PrivateReasonProperty); }

@@ -540,7 +540,14 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             get { return _IsDeleted; }
             set { SetProperty(ref _IsDeleted, value); }
         }
-      
+
+        private bool _IsSensitiveContent;
+        public bool IsSensitiveContent
+        {
+            get { return _IsSensitiveContent; }
+            set { SetProperty(ref _IsSensitiveContent, value); }
+        }
+
         private VideoPermission _permission;
         public VideoPermission Permission
         {

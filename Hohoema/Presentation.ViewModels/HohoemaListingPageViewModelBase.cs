@@ -252,9 +252,12 @@ namespace Hohoema.Presentation.ViewModels
             }
             catch
             {
-                NowLoading.Value = false;
                 HasError.Value = true;
                 throw;
+            }
+            finally
+            {
+                NowLoading.Value = false;
             }
             
         }

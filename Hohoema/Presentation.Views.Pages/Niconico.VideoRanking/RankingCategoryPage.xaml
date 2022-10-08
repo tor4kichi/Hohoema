@@ -105,6 +105,7 @@
                 IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
                 IsWatched="{x:Bind IsWatched, Mode=OneWay}"
                 IsDeleted="{x:Bind IsDeleted}"
+                IsSensitiveContent="{x:Bind IsSensitiveContent}"
                 IsHidden="{x:Bind VideoHiddenInfo, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}"
                 CacheStatus="{x:Bind CacheStatus, Mode=OneWay}"
                 PostedAt="{x:Bind PostedAt, Converter={StaticResource DateTimeToString}}"
@@ -120,10 +121,15 @@
     </videolistPage:VideoItemsListView>
 
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{i18nExt:Localize Key=RankingNoItems}"
+      <StackPanel Spacing="8">
+        <TextBlock Text="{i18nExt:Localize Key=RankingNoItems}"
                      Style="{StaticResource SubtitleTextBlockStyle}"
                      Opacity="0.8"
                      />
+
+        <Button Content="ソース切り替えて再試行" Command="{x:Bind _vm.ToggleRankingItemsSourceCommand}" />
+
+      </StackPanel>
     </Grid>
 
 
@@ -176,6 +182,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:CompareStateTrigger Value="{x:Bind _vm.ItemsView.Count, Mode=OneWay}" CompareTo="0" Comparison="Equal" />
+            <StateTrigger IsActive="{x:Bind _vm.IsFailedRefreshRanking.Value, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />

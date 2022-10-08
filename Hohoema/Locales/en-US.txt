@@ -300,6 +300,9 @@ PrivateReasonType.Private = Private setting
 PrivateReasonType.Publishers = Admin delete
 PrivateReasonType.RightsHolders = Right holder deletion
 
+HidingSensitiveContent = Content that may contain sensitive material.
+ChangeSensitiveSettings = Change settings (browser opens)
+
 VideoOwner = Contributor
 Follow = Follow
 Keyword = Keyword

@@ -45,6 +45,7 @@
                              Text="{TemplateBinding PrivateReason}"
                              >
                   </TextBlock>
+
                 </StackPanel>
 
 
@@ -110,6 +111,20 @@
               </Grid>
             </Grid>
 
+            <StackPanel x:Name="Grid_SensitiveContent" Opacity="0.0" Margin="16" Spacing="4">
+              <TextBlock x:Name="SensitiveContentTextBlock" Opacity="1.0" FontSize="13" TextLineBounds="Tight"
+                             Text="{i18nExt:Localize Key=HidingSensitiveContent}"
+                             >
+              </TextBlock>
+
+              <HyperlinkButton NavigateUri="https://account.nicovideo.jp/my/account?ref=pc_video_sensitive#sensitive_contents"
+                               Content="{i18nExt:Localize Key=ChangeSensitiveSettings}"
+                               >
+                
+              </HyperlinkButton>
+
+            </StackPanel>
+
             <VisualStateManager.VisualStateGroups>
 
               <VisualStateGroup>
@@ -131,10 +146,11 @@
                     <StateTrigger IsActive="{TemplateBinding IsDeleted}" />
                   </VisualState.StateTriggers>
                   <VisualState.Setters>
+                    
                     <Setter Target="PrivteReasonTextBlock.Opacity" Value="0.7" />
                   </VisualState.Setters>
                 </VisualState>
-
+                
                 <VisualState x:Name="VS_NotVideoDeleted">
                 </VisualState>
               </VisualStateGroup>
@@ -171,8 +187,21 @@
 
               <VisualStateGroup>
                 <VisualState x:Name="VS_NotHiddenVideo">
-                  
+
                 </VisualState>
+
+                <VisualState x:Name="VS_SensitiveContent">
+                  <VisualState.StateTriggers>
+                    <StateTrigger IsActive="{TemplateBinding IsSensitiveContent}" />
+                  </VisualState.StateTriggers>
+                  <VisualState.Setters>
+                    <Setter Target="Grid_SensitiveContent.Opacity" Value="0.8" />
+
+                    <Setter Target="ContentLayout.Opacity" Value="0.0" />
+                    <Setter Target="ContentLayout.IsEnabled" Value="False" />
+                  </VisualState.Setters>
+                </VisualState>
+                
                 <VisualState x:Name="VS_RevealHiddenVideo">
                   <VisualState.StateTriggers>
                     <StateTrigger IsActive="{TemplateBinding IsRevealHiddenVideo}" />
