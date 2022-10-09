@@ -114,11 +114,13 @@
             <StackPanel x:Name="Grid_SensitiveContent" Opacity="0.0" Margin="16" Spacing="4">
               <TextBlock x:Name="SensitiveContentTextBlock" Opacity="1.0" FontSize="13" TextLineBounds="Tight"
                              Text="{i18nExt:Localize Key=HidingSensitiveContent}"
+                         IsHitTestVisible="False"
                              >
               </TextBlock>
 
-              <HyperlinkButton NavigateUri="https://account.nicovideo.jp/my/account?ref=pc_video_sensitive#sensitive_contents"
+              <HyperlinkButton x:Name="SensitiveContentChangeSettingsOpenWithBrowser" NavigateUri="https://account.nicovideo.jp/my/account?ref=pc_video_sensitive#sensitive_contents"
                                Content="{i18nExt:Localize Key=ChangeSensitiveSettings}"
+                               IsEnabled="False"
                                >
                 
               </HyperlinkButton>
@@ -196,6 +198,9 @@
                   </VisualState.StateTriggers>
                   <VisualState.Setters>
                     <Setter Target="Grid_SensitiveContent.Opacity" Value="0.8" />
+                    <Setter Target="SensitiveContentChangeSettingsOpenWithBrowser.IsEnabled" Value="True" />
+                    <Setter Target="HiddenVideoOwnerLayout.IsHitTestVisible"
+                    Value="True" />
 
                     <Setter Target="ContentLayout.Opacity" Value="0.0" />
                     <Setter Target="ContentLayout.IsEnabled" Value="False" />

@@ -35,7 +35,7 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
         {            
             try
             {
-                if (item is VideoListItemControlViewModel itemVM && itemVM.VideoHiddenInfo != null)
+                if (item is VideoListItemControlViewModel itemVM && (itemVM.VideoHiddenInfo != null || itemVM.IsSensitiveContent || itemVM.IsDeleted))
                 {
                     return;
                 }
