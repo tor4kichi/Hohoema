@@ -88,7 +88,23 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
         {
             base.OnNavigatedTo(parameters);
 
-            SelectedSortOptionItem = QueuePlaylist.DefaultSortOption;
+            try
+            {
+                if (!string.IsNullOrEmpty(_queuePlaylistSetting.LastSelectedSortOptions))
+                {
+                    var option = QueuePlaylistSortOption.Deserialize(_queuePlaylistSetting.LastSelectedSortOptions);
+                    SelectedSortOptionItem = SortOptionItems.FirstOrDefault(x => x.SortKey == option.SortKey && x.SortOrder == option.SortOrder) ?? QueuePlaylist.DefaultSortOption;
+                }
+                else
+                {
+                    SelectedSortOptionItem = QueuePlaylist.DefaultSortOption;
+                }
+            }
+            catch
+            {
+                SelectedSortOptionItem = QueuePlaylist.DefaultSortOption;
+            }
+            
 
             Observable.Merge(
                 IsEnableGroupingByTitleSimulality.ToUnit(),
@@ -97,6 +113,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.Queue
                 .Subscribe(sort => ResetList())
                 .AddTo(_navigationDisposables);
 
+            this.ObserveProperty(x => x.SelectedSortOptionItem)
+                .Subscribe(x => _queuePlaylistSetting.LastSelectedSortOptions = x.Serialize())
+                .AddTo(_navigationDisposables);
 
             _messenger.Register<PlaylistItemRemovedMessage, PlaylistId>(this, QueuePlaylist.Id, (r, m) => 
             {

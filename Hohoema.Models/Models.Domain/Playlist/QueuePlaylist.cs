@@ -66,14 +66,13 @@ namespace Hohoema.Models.Domain.Playlist
         }
     }
 
-
     public class QueuePlaylistItem : IVideoContent, IVideoContentProvider
     {
         private QueuePlaylistItem(QueuePlaylistItem item) { }
 
         public QueuePlaylistItem() { }
 
-        public QueuePlaylistItem(IVideoContent video, IVideoContentProvider videoContentProvider)
+        public QueuePlaylistItem(IVideoContent video, IVideoContentProvider videoContentProvider, PlaylistId sourcePlaylistId)
         {
             Id = video.VideoId; 
             Length = video.Length; 
@@ -82,6 +81,7 @@ namespace Hohoema.Models.Domain.Playlist
             ThumbnailUrl = video.ThumbnailUrl;
             ProviderId = videoContentProvider.ProviderId;
             ProviderType = videoContentProvider.ProviderType;
+            SourcePlaylistId = sourcePlaylistId;
         }
 
         [BsonId]
@@ -104,6 +104,8 @@ namespace Hohoema.Models.Domain.Playlist
 
         public OwnerType ProviderType { get; init; }
 
+        public PlaylistId SourcePlaylistId { get; init; }
+
         public bool Equals(IVideoContent other)
         {
             return this.VideoId == other.VideoId;
@@ -123,7 +125,7 @@ namespace Hohoema.Models.Domain.Playlist
         public LocalMylistSortKey SortKey { get; init; }
 
         public LocalMylistSortOrder SortOrder { get; init; }
-
+        
         string? _label;
         public string Label => _label ??= $"LocalMylistSortKey.{SortKey}_{SortOrder}".Translate();
 
@@ -278,12 +280,12 @@ namespace Hohoema.Models.Domain.Playlist
             _queuePlaylistRepository.UpdateItem(entityItem);
         }        
 
-        public QueuePlaylistItem Add(IVideoContent video)
+        public QueuePlaylistItem Add(IVideoContent video, PlaylistId playlistId = null)
         {
             Guard.IsAssignableToType<IVideoContentProvider>(video, nameof(video));
             Guard.IsFalse(Contains(video.VideoId), "already contain videoId");
 
-            var addedItem = new QueuePlaylistItem(video, video as IVideoContentProvider);            
+            var addedItem = new QueuePlaylistItem(video, video as IVideoContentProvider, playlistId);            
             Items.Add(addedItem);
             SendAddedMessage(addedItem);
             AddEntity(addedItem);
@@ -292,12 +294,12 @@ namespace Hohoema.Models.Domain.Playlist
             return addedItem;
         }
 
-        public QueuePlaylistItem Insert(int index, IVideoContent video)
+        public QueuePlaylistItem Insert(int index, IVideoContent video, PlaylistId playlistId = null)
         {
             Guard.IsAssignableToType<IVideoContentProvider>(video, nameof(video));
             Guard.IsFalse(Contains(video.VideoId), "already contain videoId");
 
-            var addedItem = new QueuePlaylistItem(video, video as IVideoContentProvider);
+            var addedItem = new QueuePlaylistItem(video, video as IVideoContentProvider, playlistId);
             Items.Insert(index, addedItem);
             SendAddedMessage(addedItem);
             AddEntity(addedItem);
@@ -385,6 +387,12 @@ namespace Hohoema.Models.Domain.Playlist
                         {
                             groupKey = key;
                             break;
+                        }
+                        else if (key.SourcePlaylistId is not null 
+                            && item.SourcePlaylistId == key.SourcePlaylistId)
+                        {
+                           groupKey = key;
+                           break;
                         }
                     }
 

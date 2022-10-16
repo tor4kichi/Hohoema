@@ -10,6 +10,13 @@ namespace Hohoema.Models.Domain.Playlist
 {
     public sealed class QueuePlaylistSetting : FlagsRepositoryBase
     {
+        public string LastSelectedSortOptions
+        {
+            get => Read(string.Empty);
+            set => Save(value);
+        }
+
+
         public bool IsGroupingNearByTitleThenByTitleAscending
         {
             get => Read(true);
