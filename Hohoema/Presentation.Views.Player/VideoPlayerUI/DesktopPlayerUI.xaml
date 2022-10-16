@@ -347,6 +347,9 @@
             <!-- Title Bar Margin -->
             <TextBlock x:Name="TitleTextBlock_Nallow" Text="{x:Bind _vm.VideoInfo.Title, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}" Visibility="Collapsed" Margin="8" uwpControls:DockPanel.Dock="Top" />
 
+            <!-- Secondary window TitleBar margin -->
+            <Border x:Name="SecondaryWindowTopMarginBorder" Height="32" uwpControls:DockPanel.Dock="Top" Visibility="Collapsed" />
+            
             <!-- タイトルバーに表示する画面関連操作 -->
             <Grid x:Name="TitleBarWindowControlUI" uwpControls:DockPanel.Dock="Right" VerticalAlignment="Top" Height="32">
 
@@ -365,9 +368,6 @@
               <Border x:Name="TitleBarWindowSeparator" Background="{ThemeResource AppBarSeparatorForegroundThemeBrush}" Margin="0 6 158 6" Width="1" HorizontalAlignment="Right" Opacity="0.4" />
             </Grid>
             
-            <!-- Secondary window TitleBar margin -->
-            <Border x:Name="SecondaryWindowTopMarginBorder" Height="32" uwpControls:DockPanel.Dock="Top" Visibility="Collapsed" />
-
             <!-- 左上 -->
             <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Left">
               <!-- 閉じる -->
