@@ -115,7 +115,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
                                 if (!_queuePlaylist.Contains(feed.VideoId))
                                 {
                                     var video = _nicoVideoProvider.GetCachedVideoInfo(feed.VideoId);
-                                    _queuePlaylist.Add(video);
+                                    _queuePlaylist.Add(video, GetQueuePlaylistOrigin(subscSourceMap[feed.SourceSubscId]));
 
                                     Debug.WriteLine("[FeedResultAddToWatchLater] added: " + video.Label);
                                 }
@@ -147,6 +147,20 @@ namespace Hohoema.Models.UseCase.Subscriptions
 
         }
 
+
+        static PlaylistId? GetQueuePlaylistOrigin(SubscriptionSourceEntity source)
+        {
+            return new(source.SourceType switch
+            {
+                SubscriptionSourceType.Mylist => PlaylistItemsSourceOrigin.Mylist,
+                SubscriptionSourceType.User => PlaylistItemsSourceOrigin.UserVideos,
+                SubscriptionSourceType.Channel => PlaylistItemsSourceOrigin.ChannelVideos,
+                SubscriptionSourceType.Series => PlaylistItemsSourceOrigin.Series,
+                SubscriptionSourceType.SearchWithKeyword => PlaylistItemsSourceOrigin.SearchWithKeyword,
+                SubscriptionSourceType.SearchWithTag => PlaylistItemsSourceOrigin.SearchWithTag,
+                _ => throw new NotSupportedException(),
+            }, source.SourceParameter);
+        }
 
         void DoWatchItLater(IReadOnlyCollection<SubscFeedVideo> videos)
         {

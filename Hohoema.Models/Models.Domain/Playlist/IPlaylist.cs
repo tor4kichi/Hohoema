@@ -15,6 +15,14 @@ namespace Hohoema.Models.Domain.Playlist
 {
     public record PlaylistId
     {
+        public PlaylistId() { }
+
+        public PlaylistId(PlaylistItemsSourceOrigin origin, string id)
+        {
+            Origin = origin;
+            Id = id;
+        }
+
         public PlaylistItemsSourceOrigin Origin { get; init; }
         public string Id { get; init; }
     }

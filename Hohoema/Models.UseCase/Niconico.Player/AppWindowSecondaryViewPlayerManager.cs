@@ -165,6 +165,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             {
                 using (await _appWindowUpdateLock.LockAsync(_appWindowCloseCts?.Token ?? default))
                 {
+                    if (_appWindow != null) { return; }
+
                     _appWindowCloseCts = new CancellationTokenSource();
                     _appWindow = await AppWindow.TryCreateAsync();
                     _appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
@@ -329,8 +331,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         public async Task NavigationAsync(string pageName, INavigationParameters parameters)
         {
             await EnsureCreateSecondaryView();
-
-
             
             try
             {

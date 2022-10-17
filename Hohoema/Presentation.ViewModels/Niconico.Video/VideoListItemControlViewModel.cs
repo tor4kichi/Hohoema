@@ -30,7 +30,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Hohoema.Presentation.ViewModels.VideoListPage
 {
-    public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItemPlayable, IDisposable,
+    public interface ISourcePlaylistPresenter
+    {
+        PlaylistId GetPlaylistId();
+    }
+
+    public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItemPlayable, IDisposable, ISourcePlaylistPresenter,
         IRecipient<VideoPlayedMessage>,
         IRecipient<PlaylistItemAddedMessage>,
         IRecipient<PlaylistItemRemovedMessage>,
@@ -208,6 +213,11 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
         #endregion
 
         #region Queue Item
+
+        public PlaylistId GetPlaylistId()
+        {
+            return PlaylistItemToken?.Playlist.PlaylistId;
+        }
 
 
         private static readonly QueueAddItemCommand _addWatchAfterCommand;

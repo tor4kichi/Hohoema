@@ -3,6 +3,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Presentation.Services;
+using Hohoema.Presentation.ViewModels.VideoListPage;
 using I18NPortable;
 using System;
 using System.Collections.Generic;
@@ -35,7 +36,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Video.Commands
         {
             foreach (var content in items)
             {
-                _queuePlaylist.Add(content);
+                if (content is ISourcePlaylistPresenter playlistPresenter)
+                {
+                    _queuePlaylist.Add(content, playlistPresenter.GetPlaylistId());
+                }                
             }
 
             _notificationService.ShowLiteInAppNotification_Success("InAppNotification_MylistAddedItems_Success".Translate("HohoemaPageType.VideoQueue".Translate(), items.Count()));
