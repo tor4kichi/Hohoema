@@ -722,16 +722,6 @@
         </muxc:NavigationView>
       </uwpToolkitControls:DockPanel>
 
-      <Grid Height="32" VerticalAlignment="Top">
-        <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent" IsHitTestVisible="True">
-          <TextBlock x:Name="TitleBarTextBlock" Text="Hohoema" Margin="12 0 0 0" VerticalAlignment="Center" Opacity="0.9" FontSize="13" HorizontalAlignment="Left" >
-            <TextBlock.RenderTransform>
-              <TranslateTransform x:Name="TitleBarTextBlockTransform"></TranslateTransform>
-            </TextBlock.RenderTransform>
-          </TextBlock>
-        </Border>
-      </Grid>
-
       
       <Grid x:Name="PlayerLayout"
           Visibility="Collapsed"
@@ -768,6 +758,18 @@
       </Grid>
 
 
+
+      <Grid Height="32" VerticalAlignment="Top">
+        <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent" IsHitTestVisible="True">
+          <TextBlock x:Name="TitleBarTextBlock" Text="Hohoema" Margin="12 0 0 0" VerticalAlignment="Center" Opacity="0.9" FontSize="13" HorizontalAlignment="Left" >
+            <TextBlock.RenderTransform>
+              <TranslateTransform x:Name="TitleBarTextBlockTransform"></TranslateTransform>
+            </TextBlock.RenderTransform>
+          </TextBlock>
+        </Border>
+      </Grid>
+
+      
       <StackPanel x:Name="ErrorTrackingUI" Orientation="Horizontal" Visibility="Collapsed" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0 0 200 0" Spacing="8">
         <Button Height="32" ToolTipService.ToolTip="ErrorTrankingTool" Background="Transparent" Opacity="0.5">
           <Button.Content>
