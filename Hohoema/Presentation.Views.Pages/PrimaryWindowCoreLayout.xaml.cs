@@ -257,6 +257,7 @@ namespace Hohoema.Presentation.Views.Pages
                             if (draggableArea.GetDraggableArea() is not null and var area)
                             {
                                 Window.Current.SetTitleBar(area);
+                                DraggableContent.Visibility = Visibility.Collapsed;
                                 return;
                             }                            
                         }
@@ -267,14 +268,17 @@ namespace Hohoema.Presentation.Views.Pages
                         if (contentDraggableArea.GetDraggableArea() is not null and var area)
                         {
                             Window.Current.SetTitleBar(area);
+                            DraggableContent.Visibility = Visibility.Collapsed;
                             return;
                         }
                     }
 
+                    DraggableContent.Visibility = Visibility.Visible;
                     Window.Current.SetTitleBar(DraggableContent);
                 }
                 catch
                 {
+                    DraggableContent.Visibility = Visibility.Visible;
                     Window.Current.SetTitleBar(DraggableContent);
                     throw;
                 }
