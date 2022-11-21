@@ -311,8 +311,8 @@
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               
               <Grid>
-                <TextBlock Text="{i18nExt:Localize Key=UseNewStylePlayerControlUI}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ToggleSwitch IsOn="{x:Bind _vm.AppearanceSettings.UsePreviewVersionVideoPage, Mode=TwoWay}" HorizontalAlignment="Right" />
+                <TextBlock Text="{i18nExt:Localize Key=UseLegacyStylePlayerControlUI}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch IsOn="{x:Bind _vm.AppearanceSettings.UseLegacyVersionVideoPage, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
               
             </StackPanel>

@@ -42,7 +42,7 @@ namespace Hohoema.Models.Domain.Application
             _SecondaryViewDisplayRegionMonitorDeviceId = Read(default(string), nameof(SecondaryViewDisplayRegionMonitorDeviceId));
             _SecondaryViewLastWindowPosition = Read(default(Point?), nameof(SecondaryViewLastWindowPosition));
             _SecondaryViewLastWindowSize = Read(default(Size?), nameof(SecondaryViewLastWindowSize));
-            _UsePreviewVersionVideoPage = Read(false, nameof(UsePreviewVersionVideoPage));
+            _UseLegacyVersionVideoPage = Read(false, nameof(UseLegacyVersionVideoPage));
         }
 
         private string _locale;
@@ -185,11 +185,11 @@ namespace Hohoema.Models.Domain.Application
             set { SetProperty(ref _SecondaryViewLastWindowSize, value); }
         }
 
-        private bool _UsePreviewVersionVideoPage;
-        public bool UsePreviewVersionVideoPage
+        private bool _UseLegacyVersionVideoPage;
+        public bool UseLegacyVersionVideoPage
         {
-            get { return _UsePreviewVersionVideoPage; }
-            set { SetProperty(ref _UsePreviewVersionVideoPage, value); }
+            get { return _UseLegacyVersionVideoPage; }
+            set { SetProperty(ref _UseLegacyVersionVideoPage, value); }
         }
     }
 

@@ -286,7 +286,7 @@ ApplicationDiagnosticsReport = アプリの使用状況レポート
 EnableCrashReport = アプリのエラー情報を送信する
 EnableAnalyticsReport = アプリ機能・ページの利用状況を送信する
 
-UseNewStylePlayerControlUI = 新しい動画プレイヤーのUIを有効にする
+UseLegacyStylePlayerControlUI = 旧バージョンの動画プレイヤーUIを使う
 
 
 

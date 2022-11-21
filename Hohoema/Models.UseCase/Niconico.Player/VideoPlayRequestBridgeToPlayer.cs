@@ -245,7 +245,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
             await destPlayerView.CloseAsync().ConfigureAwait(false);
 
-            if (_appearanceSettings.UsePreviewVersionVideoPage)
+            if (_appearanceSettings.UseLegacyVersionVideoPage is false)
             {
                 if (nowViewChanging || sourcePlayerView.LastNavigatedPageName != nameof(Presentation.Views.Player.VideoPlayerPage))
                 {
