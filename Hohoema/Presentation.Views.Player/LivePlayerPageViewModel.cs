@@ -826,16 +826,29 @@ namespace Hohoema.Presentation.ViewModels.Player
 
 
         private async Task RefreshTimeshiftProgram()
-        {
+        {            
             if (NiconicoSession.IsLoggedIn)
             {
-                var timeshiftDetailsRes = await LoginUserLiveReservationProvider.GetReservtionsDetailAsync();
-                foreach (var timeshift in timeshiftDetailsRes.Data.Items)
+                try
                 {
-                    if (LiveId.EndsWith(timeshift.LiveId))
+                    var timeshiftDetailsRes = await LoginUserLiveReservationProvider.GetReservtionsDetailAsync();
+                    if (timeshiftDetailsRes.IsSuccess is false)
                     {
-                        _TimeshiftProgram = timeshift;
+                        _TimeshiftProgram = null;
+                        return;
                     }
+
+                    foreach (var timeshift in timeshiftDetailsRes.Data.Items)
+                    {
+                        if (LiveId.EndsWith(timeshift.LiveId))
+                        {
+                            _TimeshiftProgram = timeshift;
+                        }
+                    }
+                }
+                catch
+                {
+                    _TimeshiftProgram = null;
                 }
             }
             else
