@@ -389,11 +389,12 @@ namespace Hohoema.Models.Domain.Playlist
                             break;
                         }
                         else if (key.SourcePlaylistId is not null 
+                            && key.SourcePlaylistId.Origin is PlaylistItemsSourceOrigin.Series or PlaylistItemsSourceOrigin.Mylist
                             && item.SourcePlaylistId == key.SourcePlaylistId)
                         {
                            groupKey = key;
                            break;
-                        }
+                        }                        
                     }
 
                     if (groupKey is not null)
