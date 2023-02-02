@@ -32,9 +32,9 @@ namespace Hohoema.Models.Domain.Niconico.Video.Series
             return items;
         }
 
-        public async Task<SeriesDetails> GetSeriesVideosAsync(string seriesId)
+        public async Task<NvapiSeriesVidoesResponseContainer> GetSeriesVideosAsync(string seriesId)
         {
-            return await _niconicoSession.ToolkitContext.Series.GetSeriesVideosAsync(seriesId);
+            return await _niconicoSession.ToolkitContext.Series.GetUserSeriesVideosAsync(seriesId);
         }
     }
 }

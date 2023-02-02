@@ -333,15 +333,15 @@ namespace Hohoema.Models.Domain.Subscriptions
         {
             var result = await seriesRepository.GetSeriesVideosAsync(seriesId);
 
-            return result.Videos.OrderByDescending(x => x.PostAt).Select(video =>
+            return result.Data.Items.OrderByDescending(x => x.Video.RegisteredAt).Select(video =>
             {
-                return _nicoVideoProvider.UpdateCache(video.Id, v => 
+                return _nicoVideoProvider.UpdateCache(video.Video.Id, v => 
                 {
-                    v.Title = video.Title;
-                    v.VideoAliasId = video.Id;
-                    v.PostedAt = video.PostAt;
-                    v.Length = video.Duration;
-                    v.ThumbnailUrl = video.ThumbnailUrl.OriginalString;
+                    v.Title = video.Video.Title;
+                    v.VideoAliasId = video.Video.Id;
+                    v.PostedAt = video.Video.RegisteredAt.DateTime;
+                    v.Length = TimeSpan.FromSeconds(video.Video.Duration);
+                    v.ThumbnailUrl = video.Video.Thumbnail.MiddleUrl.OriginalString;
 
                     return (false, default);
                 });

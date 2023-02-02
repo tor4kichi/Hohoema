@@ -52,16 +52,16 @@ namespace Hohoema.Models.Domain.Niconico.Series
 
     public sealed class SeriesVideoPlaylist : ISortablePlaylist
     {
-        public SeriesDetails SeriesDetails { get; }
+        public NvapiSeriesVidoesResponseContainer SeriesDetails { get; }
 
-        public SeriesVideoPlaylist(PlaylistId playlistId, SeriesDetails seriesDetails)
+        public SeriesVideoPlaylist(PlaylistId playlistId, NvapiSeriesVidoesResponseContainer seriesDetails)
         {
             PlaylistId = playlistId;
             SeriesDetails = seriesDetails;
         }
-        public int TotalCount => SeriesDetails.Series.Count ?? 0;
+        public int TotalCount => SeriesDetails.Data.TotalCount ?? 0;
 
-        public string Name => SeriesDetails.Series.Title;
+        public string Name => SeriesDetails.Data.Detail.Title;
 
         public PlaylistId PlaylistId { get; }
 
@@ -89,26 +89,26 @@ namespace Hohoema.Models.Domain.Niconico.Series
 
         IPlaylistSortOption IPlaylist.DefaultSortOption => DefaultSortOption;
 
-        public List<SeriesDetails.SeriesVideo> Videos => SeriesDetails.Videos;
+        public List<NiconicoToolkit.Series.SeriesVideoItem> Videos => SeriesDetails.Data.Items;
 
-        static Comparison<SeriesDetails.SeriesVideo> GetComparision(SeriesVideoSortKey sortKey, PlaylistItemSortOrder sortOrder)
+        static Comparison<NiconicoToolkit.Series.SeriesVideoItem> GetComparision(SeriesVideoSortKey sortKey, PlaylistItemSortOrder sortOrder)
         {
             var isAsc = sortOrder == PlaylistItemSortOrder.Asc;
             return sortKey switch
             {
                 SeriesVideoSortKey.AddedAt => null,
-                SeriesVideoSortKey.PostedAt => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => DateTime.Compare(x.PostAt, y.PostAt) : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => DateTime.Compare(y.PostAt, x.PostAt),
-                SeriesVideoSortKey.Title => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => string.Compare(x.Title, y.Title) : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => string.Compare(y.Title, x.Title),
-                SeriesVideoSortKey.WatchCount => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => x.WatchCount - y.WatchCount : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => y.WatchCount - x.WatchCount,
-                SeriesVideoSortKey.MylistCount => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => x.MylistCount - y.MylistCount : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => y.MylistCount - x.MylistCount,
-                SeriesVideoSortKey.CommentCount => isAsc ? (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => x.CommentCount - y.CommentCount : (SeriesDetails.SeriesVideo x, SeriesDetails.SeriesVideo y) => y.CommentCount - x.CommentCount,
+                SeriesVideoSortKey.PostedAt => isAsc ? (NiconicoToolkit.Series.SeriesVideoItem x, NiconicoToolkit.Series.SeriesVideoItem y) => DateTimeOffset.Compare(x.Video.RegisteredAt, y.Video.RegisteredAt) : (NiconicoToolkit.Series.SeriesVideoItem x, NiconicoToolkit.Series.SeriesVideoItem y) => DateTimeOffset.Compare(y.Video.RegisteredAt, x.Video.RegisteredAt),
+                SeriesVideoSortKey.Title => isAsc ? (NiconicoToolkit.Series.SeriesVideoItem x, NiconicoToolkit.Series.SeriesVideoItem y) => string.Compare(x.Video.Title, y.Video.Title) : (NiconicoToolkit.Series.SeriesVideoItem x, NiconicoToolkit.Series.SeriesVideoItem y) => string.Compare(y.Video.Title, x.Video.Title),
+                SeriesVideoSortKey.WatchCount => isAsc ? (NiconicoToolkit.Series.SeriesVideoItem x, NiconicoToolkit.Series.SeriesVideoItem y) => x.Video.Count.View - y.Video.Count.View : (NiconicoToolkit.Series.SeriesVideoItem x, NiconicoToolkit.Series.SeriesVideoItem y) => y.Video.Count.View - x.Video.Count.View,
+                SeriesVideoSortKey.MylistCount => isAsc ? (NiconicoToolkit.Series.SeriesVideoItem x, NiconicoToolkit.Series.SeriesVideoItem y) => x.Video.Count.Mylist - y.Video.Count.Mylist : (NiconicoToolkit.Series.SeriesVideoItem x, NiconicoToolkit.Series.SeriesVideoItem y) => y.Video.Count.Mylist - x.Video.Count.Mylist,
+                SeriesVideoSortKey.CommentCount => isAsc ? (NiconicoToolkit.Series.SeriesVideoItem x, NiconicoToolkit.Series.SeriesVideoItem y) => x.Video.Count.Comment - y.Video.Count.Comment : (NiconicoToolkit.Series.SeriesVideoItem x, NiconicoToolkit.Series.SeriesVideoItem y) => y.Video.Count.Comment - x.Video.Count.Comment,
                 _ => throw new NotSupportedException(sortKey.ToString()),
             };
         }
 
-        public List<SeriesDetails.SeriesVideo> GetSortedItems(SeriesPlaylistSortOption sortOption)
+        public List<NiconicoToolkit.Series.SeriesVideoItem> GetSortedItems(SeriesPlaylistSortOption sortOption)
         {
-            var list = SeriesDetails.Videos.ToList();
+            var list = SeriesDetails.Data.Items;
             if (GetComparision(sortOption.SortKey, sortOption.SortOrder) is not null and var sortComparision)
             {
                 list.Sort(sortComparision);
@@ -129,7 +129,7 @@ namespace Hohoema.Models.Domain.Niconico.Series
             Guard.IsOfType<SeriesPlaylistSortOption>(sortOption, nameof(sortOption));
 
             var list = GetSortedItems(sortOption as SeriesPlaylistSortOption);
-            return Task.FromResult(list.Select(x => new SeriesVideoItem(x, SeriesDetails.Owner) as IVideoContent));
+            return Task.FromResult(list.Select(x => new SeriesVideoItem(x) as IVideoContent));
         }
     }
 
@@ -137,28 +137,26 @@ namespace Hohoema.Models.Domain.Niconico.Series
 
     public sealed class SeriesVideoItem : IVideoContent, IVideoContentProvider
     {
-        private readonly SeriesDetails.SeriesVideo _video;
-        private readonly SeriesDetails.SeriesOwner _owner;
+        private readonly NiconicoToolkit.Series.SeriesVideoItem _video;        
 
-        public SeriesVideoItem(SeriesDetails.SeriesVideo video, SeriesDetails.SeriesOwner owner)
+        public SeriesVideoItem(NiconicoToolkit.Series.SeriesVideoItem video)
         {
-            _video = video;
-            _owner = owner;
+            _video = video;            
         }
 
-        public string ProviderId => _owner.Id;
+        public string ProviderId => _video.Video.Owner.Id;
 
-        public OwnerType ProviderType => _owner.OwnerType;
+        public OwnerType ProviderType => _video.Video.Owner.OwnerType;
 
-        public VideoId VideoId => _video.Id;
+        public VideoId VideoId => _video.Video.Id;
 
-        public TimeSpan Length => _video.Duration;
+        public TimeSpan Length => TimeSpan.FromSeconds(_video.Video.Duration);
 
-        public string ThumbnailUrl => _video.ThumbnailUrl.OriginalString;
+        public string ThumbnailUrl => _video.Video.Thumbnail.MiddleUrl.OriginalString;
 
-        public DateTime PostedAt => _video.PostAt;
+        public DateTime PostedAt => _video.Video.RegisteredAt.DateTime;
 
-        public string Title => _video.Title;
+        public string Title => _video.Video.Title;
 
         public bool Equals(IVideoContent other)
         {

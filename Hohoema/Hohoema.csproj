@@ -193,6 +193,7 @@
     <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenVideoOwnerMylistListCommand.cs" />
     <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenVideoOwnerSeriesListCommand.cs" />
     <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenVideoOwnerVideoListCommand.cs" />
+    <Compile Include="Presentation.ViewModels\Niconico.User\UserInfoViewModel.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\PlaylistPlayFromHereCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\Commands\VideoPlayCommand.cs" />
     <Compile Include="Presentation.ViewModels\Niconico.Video\VideoItemsSelectionContext.cs" />
@@ -329,7 +330,6 @@
     <Compile Include="Presentation.Views.Pages\Niconico.Live\TimeshiftPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.Activity\WatchHistoryPageViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.User\UserInfoPageViewModel.cs" />
-    <Compile Include="Presentation.ViewModels\Niconico.User\UserInfoViewModel.cs" />
     <Compile Include="Presentation.Views.Pages\Niconico.User\UserVideoPageViewModel.cs" />
     <Compile Include="Presentation.ViewModels\VideoCache.Commands\CacheAddRequestCommand.cs" />
     <Compile Include="Presentation.ViewModels\VideoCache.Commands\CacheDeleteRequestCommand.cs" />

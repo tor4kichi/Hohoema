@@ -367,92 +367,13 @@
     </ReservedNames>
   </ProductReservedInfo>
   <AccountPackageIdentityNames>
-    <MainPackageIdentityName>18803tor4kichi.HohoemaLive</MainPackageIdentityName>
     <MainPackageIdentityName>18803tor4kichi.Nicolify</MainPackageIdentityName>
     <MainPackageIdentityName>18803tor4kichi.NicoOpener</MainPackageIdentityName>
+    <MainPackageIdentityName>18803tor4kichi.138483E9D7FB0</MainPackageIdentityName>
     <MainPackageIdentityName>18803tor4kichi.ReNaming</MainPackageIdentityName>
     <MainPackageIdentityName>18803tor4kichi.TsubameViewer</MainPackageIdentityName>
     <MainPackageIdentityName>18803tor4kichi.Uncord</MainPackageIdentityName>
+    <MainPackageIdentityName>18803tor4kichi.475944D1EDD78</MainPackageIdentityName>
   </AccountPackageIdentityNames>
-  <PackageInfoList LandingUrl="https://developer.microsoft.com/dashboard/Application?appId=9NBLGGH4RXT6">
-    <BundleInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Arm</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.17.17.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.17.17.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.17.17.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.17.17.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.17.17.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.17.17.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.17.17.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-    </BundleInfo>
-    <BundleInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>X86</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>X64</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Arm</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-      <PackageInfo>
-        <OsMinVersion>0.0.0.0</OsMinVersion>
-        <PackageArchitecture>Neutral</PackageArchitecture>
-        <PackageMaxArchitectureVersion>0.25.5.0</PackageMaxArchitectureVersion>
-      </PackageInfo>
-    </BundleInfo>
-  </PackageInfoList>
+  <PackageInfoList LandingUrl="https://developer.microsoft.com/dashboard/Application?appId=9NBLGGH4RXT6" />
 </StoreAssociation>

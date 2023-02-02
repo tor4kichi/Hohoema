@@ -92,7 +92,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
             set { SetProperty(ref _user, value); }
         }
 
-        SeriesDetails _seriesDetails;
+        NvapiSeriesVidoesResponseContainer _seriesDetails;
 
 
         private SeriesVideoPlaylist _SeriesVideoPlaylist;
@@ -125,10 +125,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
                 Series = new UserSeriesItemViewModel(_seriesDetails);
                 User = new NicoVideoOwner()
                 {
-                    OwnerId = _seriesDetails.Owner.Id,
-                    UserType = _seriesDetails.Owner.OwnerType,
-                    ScreenName = _seriesDetails.Owner.Nickname,
-                    IconUrl = _seriesDetails.Owner.IconUrl,
+                    OwnerId = _seriesDetails.Data.Detail.Owner.Id,
+                    UserType = _seriesDetails.Data.Detail.Owner.OwnerType,
+                    ScreenName = _seriesDetails.Data.Detail.Owner.Name,
+                    IconUrl = _seriesDetails.Data.Detail.Owner.IconUrl,
                 };
 
                 SeriesVideoPlaylist = new SeriesVideoPlaylist(new PlaylistId() { Id = seriesId, Origin = PlaylistItemsSourceOrigin.Series }, _seriesDetails);
@@ -155,38 +155,37 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 
         public class UserSeriesItemViewModel : ISeries
         {
-            private readonly SeriesDetails _userSeries;
+            private readonly NvapiSeriesVidoesResponseContainer _userSeries;
 
-            public UserSeriesItemViewModel(SeriesDetails userSeries)
+            public UserSeriesItemViewModel(NvapiSeriesVidoesResponseContainer userSeries)
             {
                 _userSeries = userSeries;
             }
 
-            public string Id => _userSeries.Series.Id;
+            public string Id => _userSeries.Data.Detail.Id.ToString();
 
-            public string Title => _userSeries.Series.Title;
+            public string Title => _userSeries.Data.Detail.Title;
 
             public bool IsListed => true;
 
-            public string Description => _userSeries.DescriptionHTML;
+            public string Description => _userSeries.Data.Detail.DecoratedDescriptionHtml;
 
-            public string ThumbnailUrl => _userSeries.Series.ThumbnailUrl.OriginalString;
+            public string ThumbnailUrl => _userSeries.Data.Detail.ThumbnailUrl;
 
-            public int ItemsCount => _userSeries.Videos.Count;
+            public int ItemsCount => _userSeries.Data.TotalCount ?? 0;
 
-            public OwnerType ProviderType => _userSeries.Owner.OwnerType;
+            public OwnerType ProviderType => _userSeries.Data.Detail.Owner.OwnerType;
 
-            public string ProviderId => _userSeries.Owner.Id;
+            public string ProviderId => _userSeries.Data.Detail.Owner.Id;
         }
     }
 
 
     public class SeriesVideosIncrementalSource : IIncrementalSource<VideoListItemControlViewModel>
     {
-        private SeriesDetails.SeriesOwner _owner => _seriesVideoPlaylist.SeriesDetails.Owner;
         private readonly SeriesVideoPlaylist _seriesVideoPlaylist;
         private readonly SeriesPlaylistSortOption _selectedSortOption;
-        private List<SeriesDetails.SeriesVideo> _SortedItems;
+        private List<NiconicoToolkit.Series.SeriesVideoItem> _SortedItems;
 
         public SeriesVideosIncrementalSource(SeriesVideoPlaylist seriesVideoPlaylist, SeriesPlaylistSortOption selectedSortOption)
         {
@@ -205,18 +204,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
             var head = pageIndex * pageSize;
             return Task.FromResult(_SortedItems.Skip(head).Take(pageSize).Select((item, i) =>
             {
-                var itemVM = new VideoListItemControlViewModel(item.Id, item.Title, item.ThumbnailUrl.OriginalString, item.Duration, item.PostAt)
+                var itemVM = new VideoListItemControlViewModel(item.Video.Id, item.Video.Title, item.Video.Thumbnail.MiddleUrl.OriginalString, TimeSpan.FromSeconds(item.Video.Duration), item.Video.RegisteredAt.DateTime)
                 {
-                    PlaylistItemToken = new PlaylistItemToken(_seriesVideoPlaylist, _selectedSortOption, new SeriesVideoItem(item, _seriesVideoPlaylist.SeriesDetails.Owner))
+                    PlaylistItemToken = new PlaylistItemToken(_seriesVideoPlaylist, _selectedSortOption, new Models.Domain.Niconico.Series.SeriesVideoItem(item))
                 };
 
-                itemVM.ViewCount = item.WatchCount;
-                itemVM.CommentCount = item.CommentCount;
-                itemVM.MylistCount = item.MylistCount;
+                itemVM.ViewCount = item.Video.Count.View;
+                itemVM.CommentCount = item.Video.Count.Comment;
+                itemVM.MylistCount = item.Video.Count.Mylist;
 
-                itemVM.ProviderId = _owner.Id;
-                itemVM.ProviderType = _owner.OwnerType;
-                itemVM.ProviderName = _owner.Nickname;
+                itemVM.ProviderId = item.Video.Owner.Id;
+                itemVM.ProviderType = item.Video.Owner.OwnerType;
+                itemVM.ProviderName = item.Video.Owner.Name;
 
                 return itemVM;
             }));

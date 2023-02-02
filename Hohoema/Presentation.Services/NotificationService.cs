@@ -318,16 +318,16 @@ namespace Hohoema.Presentation.Services
         */
         private async Task<InAppNotificationPayload> SubmitSeriesSuggestion(string seriesId)
         {
-            var series = await _niconicoSession.ToolkitContext.Series.GetSeriesVideosAsync(seriesId);
+            var series = await _niconicoSession.ToolkitContext.Series.GetUserSeriesVideosAsync(seriesId);
 
-            if (!(series.Videos?.Any() ?? false))
+            if (!(series.Data.Items?.Any() ?? false))
             {
                 return null;
             }
 
             return new InAppNotificationPayload()
             {
-                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(series.Series.Title),
+                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(series.Data.Detail.Title),
                 ShowDuration = DefaultNotificationShowDuration,
                 IsShowDismissButton = true,
                 Commands = {

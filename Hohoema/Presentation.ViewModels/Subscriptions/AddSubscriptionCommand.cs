@@ -120,7 +120,7 @@ namespace Hohoema.Presentation.ViewModels.Subscriptions
         async Task<string> ResolveSeriesName(string id)
         {
             var seriesDetails = await _seriesRepository.GetSeriesVideosAsync(id);
-            return seriesDetails.Series.Title;
+            return seriesDetails.Data.Detail.Title;
         }
     }
 }
