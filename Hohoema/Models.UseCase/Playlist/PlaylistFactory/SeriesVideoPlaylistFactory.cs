@@ -24,8 +24,8 @@ namespace Hohoema.Models.UseCase.Playlist.PlaylistFactory
 
         public async ValueTask<IPlaylist> Create(PlaylistId playlistId)
         {
-            var result = await _seriesProvider.GetSeriesVideosAsync(playlistId.Id);
-            return new SeriesVideoPlaylist(playlistId, result);
+            var result = await _seriesProvider.GetSeriesVideosAsync(playlistId.Id, 0, 25);
+            return new SeriesVideoPlaylist(playlistId, result, _seriesProvider);
         }
 
         public IPlaylistSortOption DeserializeSortOptions(string serializedSortOptions)
