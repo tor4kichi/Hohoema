@@ -269,6 +269,7 @@ namespace Hohoema.Models.Domain.Playlist
                 {
                     CurrentPlayingIndex = queuePlaylist.IndexOf(CurrentPlaylistItem);
                 }
+                _maxItemsCount = queuePlaylist.TotalCount;
             }
         }
 
@@ -373,6 +374,7 @@ namespace Hohoema.Models.Domain.Playlist
             if (CurrentPlayingIndex == InvalidIndex) { return false; }
             if (BufferedPlaylistItemsSource == null) { return false; }
 
+            // Note: 後でMarkPlayedLastContentを呼ばないとキュープレイリストラスト動画が２回再生されるバグが起きる
             VideoId? lastPlayedId = CurrentPlaylistItem?.VideoId;
             var nextItem = await GetNextItemAsync_Internal(ct);
             if (nextItem != null)

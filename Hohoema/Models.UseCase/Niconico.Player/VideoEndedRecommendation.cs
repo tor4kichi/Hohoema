@@ -109,7 +109,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     // sortablePlaylist.TotalCountが実際とズレる可能性があるため、処理完了を待つ
                     await Task.Delay(10);
 
-                    if (_playerSettings.IsPlaylistLoopingEnabled && _hohoemaPlaylistPlayer.CurrentPlaylist is ISortablePlaylist sortablePlaylist && sortablePlaylist.TotalCount > 0)
+                    if (_playerSettings.IsPlaylistLoopingEnabled 
+                        && _hohoemaPlaylistPlayer.CurrentPlaylist is ISortablePlaylist sortablePlaylist 
+                        && sortablePlaylist.TotalCount > 0
+                        && _hohoemaPlaylistPlayer.CurrentPlaylist is not QueuePlaylist
+                    )
                     {
                         if (await _hohoemaPlaylistPlayer.PlayAsync(_hohoemaPlaylistPlayer.CurrentPlaylist, _hohoemaPlaylistPlayer.CurrentPlaylistSortOption))
                         {
