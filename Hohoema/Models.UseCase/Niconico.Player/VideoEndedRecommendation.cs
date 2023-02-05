@@ -94,7 +94,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     // この時点でキューから削除してしまうと、プレイヤー上のプレイリストの現在アイテムがnullになってしまう
                     // 他のアイテムが再生されたり、プレイヤーが閉じられたタイミングで
                     //
-                    _queuePlaylist.Remove(currentVideoId);
+                    //_queuePlaylist.Remove(currentVideoId);
                     _videoPlayedHistoryRepository.VideoPlayed(currentVideoId, sender.Position);
 
                     if (_playerSettings.IsPlaylistAutoMoveEnabled && await _hohoemaPlaylistPlayer.CanGoNextAsync())
@@ -117,35 +117,24 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                         }
                     }
 
-                    //if (_playerSettings.AutoMoveNextVideoOnPlaylistEmpty)
+
+                    if (_hohoemaPlaylistPlayer.CurrentPlaylistItem == null && _videoRelatedContents?.NextVideo != null)
                     {
-                        /*
-                        if (_videoPlayer.PlayingVideoId == null)
-                        {
-                            _endedProcessed = true;
-                            _scheduler.Schedule(() =>
-                            {
-                                HasNextVideo = _videoRelatedContents?.NextVideo != null;
-                                NextVideoTitle = _videoRelatedContents?.NextVideo?.Label;
-                                HasRecomend.Value = HasNextVideo && IsEnded.Value;
-                            });
-                            return;
-                        }
-                        */
+                        _endedProcessed = true;
+                        HasNextVideo = _videoRelatedContents?.NextVideo != null;
+                        NextVideoTitle = _videoRelatedContents?.NextVideo?.Label;
+                        HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                        return;
+                    }
 
-                        if (_series?.Video.Next is not null and var nextVideo)
-                        {
-                            _scheduler.Schedule(() =>
-                            {
-                                NextVideoTitle = nextVideo.Title;
-                                HasRecomend.Value = true;
-                                HasNextVideo = true;
+                    if (_series?.Video.Next is not null and var nextVideo)
+                    {
+                        NextVideoTitle = nextVideo.Title;
+                        HasRecomend.Value = true;
+                        HasNextVideo = true;
 
-                                Debug.WriteLine("シリーズ情報から次の動画を提示: " + nextVideo.Title);
-                            });
-
-                            return;
-                        }
+                        Debug.WriteLine("シリーズ情報から次の動画を提示: " + nextVideo.Title);
+                        return;
                     }
 
                     if (TryPlaylistEndActionPlayerClosed())
@@ -157,21 +146,13 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
                     if (_currentVideoDetail != null)
                     {
-                        _relatedVideoContentsAggregator.GetRelatedContentsAsync(_currentVideoDetail)
-                            .ContinueWith(async task =>
-                            {
-                                var relatedVideos = await task;
+                        var relatedVideos = await _relatedVideoContentsAggregator.GetRelatedContentsAsync(_currentVideoDetail);
+                        _videoRelatedContents = relatedVideos;
+                        HasNextVideo = _videoRelatedContents.NextVideo != null;
+                        NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
+                        HasRecomend.Value = HasNextVideo && IsEnded.Value;
 
-                                _scheduler.Schedule(() =>
-                                {
-                                    _videoRelatedContents = relatedVideos;
-                                    HasNextVideo = _videoRelatedContents.NextVideo != null;
-                                    NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
-                                    HasRecomend.Value = HasNextVideo && IsEnded.Value;
-
-                                    Debug.WriteLine("動画情報から次の動画を提示: " + NextVideoTitle);
-                                });
-                            });
+                        Debug.WriteLine("動画情報から次の動画を提示: " + NextVideoTitle);
                     }
                 }
                 finally

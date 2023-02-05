@@ -257,14 +257,18 @@ namespace Hohoema.Models.Domain.Playlist
         }
 
 
-        void MarkPlayedLastContent()
+        void MarkPlayedLastContent(VideoId? lastPlayedVideoId)
         {
+            if (lastPlayedVideoId == null) { return; }
             if (CurrentPlayingIndex == InvalidIndex) { return; }
-            if (CurrentPlaylistItem == null) { return; }
 
             if (CurrentPlaylist is QueuePlaylist queuePlaylist)
             {
-                queuePlaylist.Remove(CurrentPlaylistItem.VideoId);
+                queuePlaylist.Remove(lastPlayedVideoId.Value);
+                if (CurrentPlaylistItem != null)
+                {
+                    CurrentPlayingIndex = queuePlaylist.IndexOf(CurrentPlaylistItem);
+                }
             }
         }
 
@@ -369,17 +373,18 @@ namespace Hohoema.Models.Domain.Playlist
             if (CurrentPlayingIndex == InvalidIndex) { return false; }
             if (BufferedPlaylistItemsSource == null) { return false; }
 
-            MarkPlayedLastContent();
-
+            VideoId? lastPlayedId = CurrentPlaylistItem?.VideoId;
             var nextItem = await GetNextItemAsync_Internal(ct);
             if (nextItem != null)
             {
                 await PlayVideoOnSamePlaylistAsync_Internal(nextItem);
-                SetCurrentContent(nextItem, BufferedPlaylistItemsSource.IndexOf(nextItem));
+                SetCurrentContent(nextItem, BufferedPlaylistItemsSource.IndexOf(nextItem));                
+                MarkPlayedLastContent(lastPlayedId);
                 return true;
             }
             else
             {
+                MarkPlayedLastContent(lastPlayedId);
                 return false;
             }
         }
@@ -391,17 +396,19 @@ namespace Hohoema.Models.Domain.Playlist
             if (CurrentPlayingIndex == InvalidIndex) { return false; }
             if (BufferedPlaylistItemsSource == null) { return false; }
 
-            MarkPlayedLastContent();
+            VideoId? lastPlayedId = CurrentPlaylistItem?.VideoId;
 
             var prevItem = await GetPreviewItemAsync_Internal(ct);
             if (prevItem != null)
             {
                 await PlayVideoOnSamePlaylistAsync_Internal(prevItem);
                 SetCurrentContent(prevItem, BufferedPlaylistItemsSource.IndexOf(prevItem));
+                MarkPlayedLastContent(lastPlayedId);
                 return true;
             }
             else
             {
+                MarkPlayedLastContent(lastPlayedId);
                 return false;
             }        
         }
@@ -599,10 +606,10 @@ namespace Hohoema.Models.Domain.Playlist
                 _messenger.Send(new PlaybackStopedMessage(new(this, CurrentPlaylistId, videoId.Value, endPosition, PlaybackStopReason.FromUser)));
             }
 
-            _soundVolumeManager.LoudnessCorrectionValue = 1.0;
-
             _dispatcherQueue.TryEnqueue(() => 
             {
+                _soundVolumeManager.LoudnessCorrectionValue = 1.0;
+
                 _smtc.IsEnabled = false;
                 _smtc.PlaybackStatus = MediaPlaybackStatus.Closed;
                 _smtc.ButtonPressed -= _smtc_ButtonPressed;
@@ -768,7 +775,6 @@ namespace Hohoema.Models.Domain.Playlist
                 OnPropertyChanged(nameof(AvailableQualities));
 
                 NowPlayingWithCache = videoSession is CachedVideoStreamingSession;
-                _soundVolumeManager.LoudnessCorrectionValue = CurrentPlayingSession.VideoDetails.LoudnessCorrectionValue;
 
                 // メディア再生成功時のメッセージを飛ばす
                 _messenger.Send(new PlaybackStartedMessage(new(this, CurrentPlaylistId, item.VideoId, videoSession.Quality, _mediaPlayer.PlaybackSession)));
@@ -779,6 +785,8 @@ namespace Hohoema.Models.Domain.Playlist
 
                 await _dispatcherQueue.EnqueueAsync(async () => 
                 {
+                    _soundVolumeManager.LoudnessCorrectionValue = CurrentPlayingSession.VideoDetails.LoudnessCorrectionValue;
+
                     _smtc.IsEnabled = true;
                     _smtc.IsPauseEnabled = true;
                     _smtc.IsPlayEnabled = true;
