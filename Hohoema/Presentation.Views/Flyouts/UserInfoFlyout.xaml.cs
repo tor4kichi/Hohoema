@@ -48,7 +48,7 @@ namespace Hohoema.Presentation.Views.Pages.Niconico.User
             };
             flyout.SetIcon(user.Icons.Small);
             var userFollowProvider = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<UserFollowProvider>();
-            flyout.UserFollowContext = FollowContext<IUser>.Create(userFollowProvider, new UserViewModel() { UserId = user.Id, Nickname = user.Nickname, IconUrl = user.Icons.Small.OriginalString }, info.Data.FollowStatus.IsFollowing);
+            flyout.UserFollowContext = FollowContext<IUser>.Create(userFollowProvider, new UserViewModel() { UserId = user.Id, Nickname = user.Nickname, IconUrl = user.Icons.Small.OriginalString }, info.Data.Relationships.SessionUser.IsFollowing);
             return flyout;
         }        
 

@@ -353,7 +353,7 @@
       <Version>2.7.1-prerelease.211026002</Version>
     </PackageReference>
     <PackageReference Include="NiconicoToolkit">
-      <Version>0.1.37</Version>
+      <Version>0.2.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>7.12.0</Version>
