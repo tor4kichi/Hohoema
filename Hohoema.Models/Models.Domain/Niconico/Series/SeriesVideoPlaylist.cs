@@ -162,7 +162,8 @@ namespace Hohoema.Models.Domain.Niconico.Series
             int page = 0;
             while (items.Count < TotalCount)
             {
-                items.AddRange(await GetItems(page, 100));
+                var result = await _seriesProvider.GetSeriesVideosAsync(PlaylistId.Id, page, 100);
+                items.AddRange(result.Data.Items);
                 page++;
             }
             return GetSortedItems(items, sortOption as SeriesPlaylistSortOption).Select(x => new SeriesVideoItem(x));
