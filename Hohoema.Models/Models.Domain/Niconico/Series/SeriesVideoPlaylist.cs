@@ -189,7 +189,7 @@ namespace Hohoema.Models.Domain.Niconico.Series
 
         public TimeSpan Length => TimeSpan.FromSeconds(_video.Video.Duration);
 
-        public string ThumbnailUrl => _video.Video.Thumbnail.MiddleUrl.OriginalString;
+        public string ThumbnailUrl => _video.Video.Thumbnail.ListingUrl?.OriginalString ?? _video.Video.Thumbnail.MiddleUrl?.OriginalString;
 
         public DateTime PostedAt => _video.Video.RegisteredAt.DateTime;
 
