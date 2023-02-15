@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Niconico.Video.Series;
 using Hohoema.Models.Domain.Playlist;
 using I18NPortable;
 using Microsoft.Toolkit.Diagnostics;
@@ -11,6 +12,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.UI.Xaml.Controls;
 
 namespace Hohoema.Models.Domain.Niconico.Series
 {
@@ -52,11 +54,14 @@ namespace Hohoema.Models.Domain.Niconico.Series
 
     public sealed class SeriesVideoPlaylist : ISortablePlaylist
     {
+        private readonly SeriesProvider _seriesProvider;
+
         public NvapiSeriesVidoesResponseContainer SeriesDetails { get; }
 
-        public SeriesVideoPlaylist(PlaylistId playlistId, NvapiSeriesVidoesResponseContainer seriesDetails)
+        public SeriesVideoPlaylist(PlaylistId playlistId, NvapiSeriesVidoesResponseContainer seriesDetails, SeriesProvider seriesProvider)
         {
             PlaylistId = playlistId;
+            _seriesProvider = seriesProvider;
             SeriesDetails = seriesDetails;
         }
         public int TotalCount => SeriesDetails.Data.TotalCount ?? 0;
@@ -91,6 +96,8 @@ namespace Hohoema.Models.Domain.Niconico.Series
 
         public List<NiconicoToolkit.Series.SeriesVideoItem> Videos => SeriesDetails.Data.Items;
 
+        //int IUnlimitedPlaylist.OneTimeLoadItemsCount => 100;
+
         static Comparison<NiconicoToolkit.Series.SeriesVideoItem> GetComparision(SeriesVideoSortKey sortKey, PlaylistItemSortOrder sortOrder)
         {
             var isAsc = sortOrder == PlaylistItemSortOrder.Asc;
@@ -106,9 +113,32 @@ namespace Hohoema.Models.Domain.Niconico.Series
             };
         }
 
-        public List<NiconicoToolkit.Series.SeriesVideoItem> GetSortedItems(SeriesPlaylistSortOption sortOption)
+        private  async Task<IEnumerable<NiconicoToolkit.Series.SeriesVideoItem>> GetItems(int page, int pageSize)
         {
-            var list = SeriesDetails.Data.Items;
+            int head = page * pageSize;
+            int tail = page * pageSize + pageSize;
+            if (head < SeriesDetails.Data.Items.Count)
+            {
+                List<NiconicoToolkit.Series.SeriesVideoItem> items = new();
+                items.AddRange(SeriesDetails.Data.Items.Skip(head).Take(tail));
+                if (tail > SeriesDetails.Data.Items.Count)
+                {
+                    var remainCount = tail - SeriesDetails.Data.Items.Count;
+                    var result = await _seriesProvider.GetSeriesVideosAsync(PlaylistId.Id, page, pageSize);
+                    items.AddRange(result.Data.Items.Skip(head).Take(tail));
+                }
+                return items;
+            }
+            else
+            {
+                var result = await _seriesProvider.GetSeriesVideosAsync(PlaylistId.Id, page, pageSize);
+                return result.Data.Items;
+            }
+        }
+
+        public static List<NiconicoToolkit.Series.SeriesVideoItem> GetSortedItems(List<NiconicoToolkit.Series.SeriesVideoItem> videoItems, SeriesPlaylistSortOption sortOption)
+        {
+            var list = videoItems;
             if (GetComparision(sortOption.SortKey, sortOption.SortOrder) is not null and var sortComparision)
             {
                 list.Sort(sortComparision);
@@ -124,12 +154,19 @@ namespace Hohoema.Models.Domain.Niconico.Series
             return list;
         }
 
-        public Task<IEnumerable<IVideoContent>> GetAllItemsAsync(IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<IVideoContent>> GetAllItemsAsync(IPlaylistSortOption sortOption, CancellationToken cancellationToken = default)
         {
             Guard.IsOfType<SeriesPlaylistSortOption>(sortOption, nameof(sortOption));
 
-            var list = GetSortedItems(sortOption as SeriesPlaylistSortOption);
-            return Task.FromResult(list.Select(x => new SeriesVideoItem(x) as IVideoContent));
+            List<NiconicoToolkit.Series.SeriesVideoItem> items = new();
+            int page = 0;
+            while (items.Count < TotalCount)
+            {
+                var result = await _seriesProvider.GetSeriesVideosAsync(PlaylistId.Id, page, 100);
+                items.AddRange(result.Data.Items);
+                page++;
+            }
+            return GetSortedItems(items, sortOption as SeriesPlaylistSortOption).Select(x => new SeriesVideoItem(x));
         }
     }
 
@@ -152,7 +189,7 @@ namespace Hohoema.Models.Domain.Niconico.Series
 
         public TimeSpan Length => TimeSpan.FromSeconds(_video.Video.Duration);
 
-        public string ThumbnailUrl => _video.Video.Thumbnail.MiddleUrl.OriginalString;
+        public string ThumbnailUrl => _video.Video.Thumbnail.ListingUrl?.OriginalString ?? _video.Video.Thumbnail.MiddleUrl?.OriginalString;
 
         public DateTime PostedAt => _video.Video.RegisteredAt.DateTime;
 
@@ -162,6 +199,17 @@ namespace Hohoema.Models.Domain.Niconico.Series
         {
             return this.VideoId == other.VideoId;
         }
+
+        public int ViewCount => _video.Video.Count.View;
+        public int MylistCount => _video.Video.Count.Mylist;
+        public int CommentCount => _video.Video.Count.Comment;
+        public int LikeCount => _video.Video.Count.Like;
+
+        public string ProviderName => _video.Video.Owner.Name;
+
+        public bool RequireSensitiveMasking => _video.Video.RequireSensitiveMasking;
+
+        public bool IsDeleted => _video.Video.IsDeleted;
     }
 
 }

@@ -287,6 +287,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                 try
                 {
                     PickedTags.Clear();
+                    PickedTags.Add(new RankingGenreTag() { Genre = RankingGenre });
                     var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre);
                     foreach (var tag in tags)
                     {
@@ -405,9 +406,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             {
                 if (IsRssRankingSource is false)
                 {
-                    source = new CategoryRankingFromWebLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _videoFilteringSettings, _rankingMemoryCache);
+                    source = new Nvapi_CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, _niconicoSession, NicoVideoProvider, _videoFilteringSettings, _rankingMemoryCache);
                     CanChangeRankingParameter.Value = true;
-                    return (CategoryRankingFromWebLoadingSource.OneTimeLoadCount, source);
+                    return (Nvapi_CategoryRankingLoadingSource.OneTimeLoadCount, source);
                 }
                 else
                 {                    
@@ -525,7 +526,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         }
     }
 
-    public class CategoryRankingFromWebLoadingSource : IIncrementalSource<RankedVideoListItemControlViewModel>
+    public class Nvapi_CategoryRankingLoadingSource : IIncrementalSource<RankedVideoListItemControlViewModel>
     {
         private readonly TimeSpan RankingResponseExpireDuration = TimeSpan.FromMinutes(10);
 
@@ -536,7 +537,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
         RankingOptions _options;
         VideoRankingResponse _rankingRssResponse;
 
-        public CategoryRankingFromWebLoadingSource(
+        public Nvapi_CategoryRankingLoadingSource(
             RankingGenre genre,
             string tag,
             RankingTerm term,
@@ -554,55 +555,43 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             _options = new RankingOptions(genre, term, tag);
         }
 
-        public const int OneTimeLoadCount = 20;
+        public const int OneTimeLoadCount = 100;
 
-
-        private async ValueTask<VideoRankingResponse> GetCachedRankingAsync()
+        private async ValueTask<List<NvapiVideoItem>> GetCachedRankingAsync(int page, CancellationToken ct)
         {
-            if (_memoryCache.TryGetValue<VideoRankingResponse>(_options, out var res))
+            string key = _options.ToString() + page;
+            if (_memoryCache.TryGetValue<List<NvapiVideoItem>>(key, out var items))
             {
-                return res;
+                Debug.WriteLine($"RankingItems get from cache: {key}");
+                return items;
             }
-            else
+            else 
             {
-                res = await _niconicoSession.ToolkitContext.Video.Ranking.GetRankingFromWebAsync(_options.Genre, _options.Tag, _options.Term);
+                Debug.WriteLine($"RankingItems get from online: {key}");
+                var res = await _niconicoSession.ToolkitContext.Video.Ranking.GetRankingAsync(_options.Genre, _options.Term, _options.Tag, page, ct);
                 if (res.IsSuccess)
                 {
-                    _memoryCache.Set(_options, res, TimeSpan.FromMinutes(5));
+                    _memoryCache.Set(key, res.Data.Items, TimeSpan.FromMinutes(5));
+                    return res.Data.Items;
                 }
-                return res;
+                else
+                {
+                    Debug.WriteLine($"RankingItems get from online (no more items): {key}");
+                    return new List<NvapiVideoItem>();
+                }
             }
         }
 
+        int _itemsCount = 0;
         async Task<IEnumerable<RankedVideoListItemControlViewModel>> IIncrementalSource<RankedVideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
-        {
-            _rankingRssResponse ??= await GetCachedRankingAsync();
+        { 
+            var targetItems = await GetCachedRankingAsync(pageIndex + 1, ct);
 
             ct.ThrowIfCancellationRequested();
-
-            int head = pageIndex * pageSize;
-            var targetItems = _rankingRssResponse.Items.Skip(head).Take(pageSize);
-
-            ct.ThrowIfCancellationRequested();
-
             return targetItems.Select((item, offset) =>
             {
-                var videoId = item.VideoId;                
-                var vm = new RankedVideoListItemControlViewModel((uint)(head + offset + 1), videoId, item.Title, item.Thumbnail, item.Duration, item.RegisteredAt);
-
-                vm.IsSensitiveContent = item.IsSensitiveContent;                
-                vm.CommentCount = item.CommentCount;
-                vm.ViewCount = item.ViewCount;
-                vm.MylistCount = item.MylistCount;
-                
-                // Note: ランキングページにおける投稿者NGは扱わないように変更する
-                // プレ垢であれば追加情報取得してもいいと思うが、長期メンテするには面倒なので対応しない
-                vm.ProviderId = item.OwnerId;
-                //vm.ProviderName = owner.ScreenName;
-                vm.ProviderType = item.OwnerId.StartsWith(ContentIdHelper.ChannelIdPrefix) ? OwnerType.Channel : OwnerType.User;
-
-                return vm;
-            });
+                return new RankedVideoListItemControlViewModel((uint)(_itemsCount++) + 1, item);
+            }).ToList();
         }
     }
 
@@ -613,6 +602,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
     public class RankedVideoListItemControlViewModel : VideoListItemControlViewModel
     {
+        public RankedVideoListItemControlViewModel(
+            uint rank, NvapiVideoItem nvapiVideoItem
+            )
+            : base(nvapiVideoItem)
+        {
+            Rank = rank;
+        }
+
         public RankedVideoListItemControlViewModel(
             uint rank, NicoVideo data
             )

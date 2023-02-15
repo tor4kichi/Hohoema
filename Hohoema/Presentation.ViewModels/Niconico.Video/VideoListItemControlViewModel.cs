@@ -381,8 +381,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             CommentCount = videoItem.Count.Comment;
             MylistCount = videoItem.Count.Mylist;
 
-            IsDeleted = videoItem.IsDeleted;
-
+            _IsDeleted = videoItem.IsDeleted;
+            _IsSensitiveContent = videoItem.RequireSensitiveMasking;
 
             if (videoItem.Owner is not null)
             {

@@ -131,7 +131,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
                     IconUrl = _seriesDetails.Data.Detail.Owner.IconUrl,
                 };
 
-                SeriesVideoPlaylist = new SeriesVideoPlaylist(new PlaylistId() { Id = seriesId, Origin = PlaylistItemsSourceOrigin.Series }, _seriesDetails);
+                SeriesVideoPlaylist = new SeriesVideoPlaylist(new PlaylistId() { Id = seriesId, Origin = PlaylistItemsSourceOrigin.Series }, _seriesDetails, _seriesProvider);
                 SelectedSortOption = new SeriesPlaylistSortOption(SeriesVideoSortKey.AddedAt, PlaylistItemSortOrder.Desc);
 
                 this.ObserveProperty(x => x.SelectedSortOption).Subscribe(_ =>
@@ -195,30 +195,34 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
 
         public const int OneTimeLoadingCount = 25;
 
-        Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
+        private List<IVideoContent> _allItems;
+
+        async Task<IEnumerable<VideoListItemControlViewModel>> IIncrementalSource<VideoListItemControlViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
         {
-            if (pageIndex == 0)
+            if (_allItems == null)
             {
-                _SortedItems = _seriesVideoPlaylist.GetSortedItems(_selectedSortOption);
-            }
-            var head = pageIndex * pageSize;
-            return Task.FromResult(_SortedItems.Skip(head).Take(pageSize).Select((item, i) =>
+                _allItems = (await _seriesVideoPlaylist.GetAllItemsAsync(_selectedSortOption, cancellationToken)).ToList();
+            }            
+
+            return _allItems.Skip(pageIndex * pageSize).Take(pageSize).Cast<Models.Domain.Niconico.Series.SeriesVideoItem>().Select((item, i) =>
             {
-                var itemVM = new VideoListItemControlViewModel(item.Video.Id, item.Video.Title, item.Video.Thumbnail.MiddleUrl.OriginalString, TimeSpan.FromSeconds(item.Video.Duration), item.Video.RegisteredAt.DateTime)
+                var itemVM = new VideoListItemControlViewModel(item.VideoId, item.Title, item.ThumbnailUrl, item.Length, item.PostedAt)
                 {
-                    PlaylistItemToken = new PlaylistItemToken(_seriesVideoPlaylist, _selectedSortOption, new Models.Domain.Niconico.Series.SeriesVideoItem(item))
+                    PlaylistItemToken = new PlaylistItemToken(_seriesVideoPlaylist, _selectedSortOption, item)
                 };
 
-                itemVM.ViewCount = item.Video.Count.View;
-                itemVM.CommentCount = item.Video.Count.Comment;
-                itemVM.MylistCount = item.Video.Count.Mylist;
+                itemVM.ViewCount = item.ViewCount;
+                itemVM.CommentCount = item.CommentCount;
+                itemVM.MylistCount = item.MylistCount;
 
-                itemVM.ProviderId = item.Video.Owner.Id;
-                itemVM.ProviderType = item.Video.Owner.OwnerType;
-                itemVM.ProviderName = item.Video.Owner.Name;
+                itemVM.ProviderId = item.ProviderId;
+                itemVM.ProviderType = item.ProviderType;
+                itemVM.ProviderName = item.ProviderName;
+                itemVM.IsSensitiveContent = item.RequireSensitiveMasking;
+                itemVM.IsDeleted = item.IsDeleted;
 
                 return itemVM;
-            }));
+            });
         }
     }
 

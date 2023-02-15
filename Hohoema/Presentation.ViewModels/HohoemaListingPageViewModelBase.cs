@@ -229,6 +229,7 @@ namespace Hohoema.Presentation.ViewModels
 
             NowLoading.Value = true;
             HasItem.Value = true;
+            HasError.Value = false;
             LoadedItemsCount.Value = 0;
 
             DisposeItemsView(prevItemsView);

@@ -167,7 +167,6 @@ namespace Hohoema.Models.Domain.Playlist
 
 
         private readonly IMessenger _messenger;
-        private readonly IScheduler _scheduler;
         private readonly QueuePlaylistRepository _queuePlaylistRepository;
         private readonly QueuePlaylistSetting _queuePlaylistSetting;
         private readonly NicoVideoProvider _nicoVideoProvider;
@@ -191,8 +190,7 @@ namespace Hohoema.Models.Domain.Playlist
         {
             Items = new (GetQueuePlaylistItems(queuePlaylistRepository, out var itemEntityMap));
             _itemEntityMap = itemEntityMap;
-            _messenger = messenger;
-            _scheduler = scheduler;
+            _messenger = messenger;            
             _queuePlaylistRepository = queuePlaylistRepository;
             _queuePlaylistSetting = queuePlaylistSetting;
         }
@@ -326,16 +324,13 @@ namespace Hohoema.Models.Domain.Playlist
         {
             Guard.IsTrue(Contains(removeItem.VideoId), "no contain videoId");
 
-            _scheduler.Schedule(() => 
-            {
-                var item = Items.FirstOrDefault(x => x.Equals(removeItem));
-                if (item == null) { return; }
+            var item = Items.FirstOrDefault(x => x.Equals(removeItem));
+            if (item == null) { return; }
 
-                Items.Remove(item);
-                SendRemovedMessage(item.Index, item);
-                RemoveEntity(removeItem.VideoId);
-                OnPropertyChanged(nameof(IUserManagedPlaylist.TotalCount));               
-            });
+            Items.Remove(item);
+            SendRemovedMessage(item.Index, item);
+            RemoveEntity(removeItem.VideoId);
+            OnPropertyChanged(nameof(IUserManagedPlaylist.TotalCount));
 
             // 他アイテムのIndex更新は必要ない
             // アプリ復帰時に順序が保たれていれば十分

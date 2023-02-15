@@ -29,6 +29,7 @@ using System.Reactive.Linq;
 using Hohoema.Models.Domain.Video;
 using Microsoft.Extensions.Logging;
 using ZLogger;
+using Microsoft.Toolkit.Diagnostics;
 
 namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
 {
@@ -139,22 +140,30 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
 
             UserId = userId;
 
-            var res = await UserProvider.GetUserDetailAsync(UserId.Value);
-            if (res.IsSuccess)
+            Guard.IsNotNull(UserId, nameof(UserId));
+
+            try
             {
-                User = res.Data.User;
+                var res = await UserProvider.GetUserDetailAsync(UserId.Value);
+                if (res.IsSuccess)
+                {
+                    User = res.Data.User;
+                    UserVideoPlaylist = new UserVideoPlaylist(UserId.Value, new PlaylistId() { Id = UserId.Value, Origin = PlaylistItemsSourceOrigin.UserVideos }, User.Nickname, UserProvider);
+                    SelectedSortOption = UserVideoPlaylist.DefaultSortOption;
 
-                UserInfo.Value = new UserInfoViewModel(User.Nickname, User.Id.ToString(), User.Icons.Small.OriginalString);
-                UserName = User.Nickname;
+                    UserInfo.Value = new UserInfoViewModel(User.Nickname, User.Id.ToString(), User.Icons.Small.OriginalString);
+                    UserName = User.Nickname;
 
-
-                UserVideoPlaylist = new UserVideoPlaylist(User.Id, new PlaylistId() { Id = User.Id, Origin = PlaylistItemsSourceOrigin.UserVideos }, User.Nickname, UserProvider);
+                    this.ObserveProperty(x => x.SelectedSortOption)
+                        .Where(x => x is not null)
+                        .Subscribe(_ => ResetList())
+                        .AddTo(_navigationDisposables);
+                }
+            }
+            catch 
+            {
+                UserVideoPlaylist = new UserVideoPlaylist(UserId.Value, new PlaylistId() { Id = UserId.Value, Origin = PlaylistItemsSourceOrigin.UserVideos }, "", UserProvider);
                 SelectedSortOption = UserVideoPlaylist.DefaultSortOption;
-
-                this.ObserveProperty(x => x.SelectedSortOption)
-                    .Where(x => x is not null)
-                    .Subscribe(_ => ResetList())
-                    .AddTo(_navigationDisposables);
             }
 
             await base.OnNavigatedToAsync(parameters);

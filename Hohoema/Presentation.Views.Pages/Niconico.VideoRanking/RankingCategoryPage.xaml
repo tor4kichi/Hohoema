@@ -95,7 +95,7 @@
                        VerticalAlignment="Bottom"
                        HorizontalAlignment="Right"
                        HorizontalTextAlignment="Left"
-                       Width="70"
+                       Width="80"
                        FontWeight="Bold" />
 
             <videolistPage:VideoListItemControl 
@@ -165,24 +165,14 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
+
 
 
 
       <VisualStateGroup>
-
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind _vm.NowLoading.Value, Mode=OneWay}"/>
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-          </VisualState.Setters>
-        </VisualState>
-        
-        <VisualState>
-          <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{x:Bind _vm.ItemsView.Count, Mode=OneWay}" CompareTo="0" Comparison="Equal" />
-            <StateTrigger IsActive="{x:Bind _vm.IsFailedRefreshRanking.Value, Mode=OneWay}" />
+            <StateTrigger IsActive="{x:Bind _vm.HasError.Value, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
