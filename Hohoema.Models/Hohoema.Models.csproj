@@ -329,7 +329,7 @@
       <Version>1.0.1</Version>
     </PackageReference>
     <PackageReference Include="LiteDB">
-      <Version>4.1.4</Version>
+      <Version>5.0.13</Version>
     </PackageReference>
     <PackageReference Include="Macross.Json.Extensions">
       <Version>2.0.0</Version>
