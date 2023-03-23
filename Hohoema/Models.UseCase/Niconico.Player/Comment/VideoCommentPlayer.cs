@@ -9,7 +9,6 @@ using Hohoema.Presentation.Services;
 using Microsoft.Extensions.Logging;
 using MvvmHelpers;
 using NiconicoToolkit;
-using NiconicoToolkit.Video.Watch.NMSG_Comment;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -295,7 +294,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             {
                 CommentPostResult res = await _commentSession.PostComment(postComment, posision, command);
 
-                if (res.Status == ChatResultCode.Success)
+                if (res.IsSuccessed)
                 {
                     _logger.ZLogDebug("コメントの投稿に成功: {0}", WritingComment.Value);
 
@@ -322,14 +321,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                 {
                     CommentSubmitFailed?.Invoke(this, EventArgs.Empty);
 
-                    _notificationService.ShowLiteInAppNotification_Fail($"{_commentSession.ContentId} へのコメント投稿に失敗\n ステータスコード：{res.StatusCode}");
+                    _notificationService.ShowLiteInAppNotification_Fail($"{_commentSession.ContentId} へのコメント投稿に失敗");
 
                     _logger.ZLogWarningWithPayload(new Dictionary<string, string>()
                     {
                         { "ContentId",  _commentSession.ContentId },
                         { "Command", command },
                         { "CommentLength", postComment?.Length.ToString() },
-                        { "StatusCode", res.StatusCode.ToString() },
+                        { "StatusCode", res.IsSuccessed.ToString() },
                     }, "SubmitComment Failed");
                 }
             }

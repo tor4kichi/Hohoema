@@ -184,7 +184,7 @@ namespace Hohoema.Presentation.Views.Behaviors
                 )
             {
                 _AutoHideTimer.Stop();
-                Debug.WriteLine($"[CursorAutoHide] Hide timer Reset.");
+                //Debug.WriteLine($"[CursorAutoHide] Hide timer Reset.");
 
                 _AutoHideTimer.Start();
                 SetCursorVisibility(true);
@@ -194,7 +194,7 @@ namespace Hohoema.Presentation.Views.Behaviors
                 if (_AutoHideTimer.IsRunning)
                 {
                     _AutoHideTimer.Stop();
-                    Debug.WriteLine($"[CursorAutoHide] Hide timer Stop.");
+                    //Debug.WriteLine($"[CursorAutoHide] Hide timer Stop.");
                 }
 
                 SetCursorVisibility(true);

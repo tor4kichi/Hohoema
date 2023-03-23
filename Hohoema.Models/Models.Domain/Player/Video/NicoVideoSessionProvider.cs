@@ -288,25 +288,25 @@ namespace Hohoema.Models.Domain.Player.Video
         {
             var commentClient = new CommentClient(_niconicoSession, contentId);
             var dmcRes = watchData;
-            commentClient.CommentServerInfo = new CommentServerInfo()
-            {
-                ServerUrl = dmcRes.Comment.Threads[0].Server.OriginalString,
-                VideoId = contentId,
-                DefaultThreadId = dmcRes.Comment.Threads[0].Id,
-                ViewerUserId = dmcRes.Viewer?.Id ?? 0,
-                ThreadKeyRequired = dmcRes.Comment.Threads[0].IsThreadkeyRequired
-            };
+            //commentClient.CommentServerInfo = new CommentServerInfo()
+            //{
+            //    ServerUrl = dmcRes.Comment.Threads[0].Server.OriginalString,
+            //    VideoId = contentId,
+            //    DefaultThreadId = dmcRes.Comment.Threads[0].Id,
+            //    ViewerUserId = dmcRes.Viewer?.Id ?? 0,
+            //    ThreadKeyRequired = dmcRes.Comment.Threads[0].IsThreadkeyRequired
+            //};
 
             // チャンネル動画ではOnwerはnullになる
-            commentClient.VideoOwnerId = dmcRes.Owner?.Id.ToString();
+            //commentClient.VideoOwnerId = dmcRes.Owner?.Id.ToString();
 
-            commentClient.DmcWatch = dmcRes;
+            commentClient._watchApiData = dmcRes;
 
-            var communityThread = dmcRes.Comment.Threads.FirstOrDefault(x => x.Label == "community");
-            if (communityThread != null)
-            {
-                commentClient.CommentServerInfo.CommunityThreadId = communityThread.Id;
-            }
+            //var communityThread = dmcRes.Comment.Threads.FirstOrDefault(x => x.Label == "community");
+            //if (communityThread != null)
+            //{
+            //    commentClient.CommentServerInfo.CommunityThreadId = communityThread.Id;
+            //}
 
             return Task.FromResult(new VideoCommentService(commentClient, _niconicoSession.UserId) as ICommentSession<VideoComment>);
         }

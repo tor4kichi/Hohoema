@@ -5,19 +5,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NiconicoToolkit.Video.Watch.NMSG_Comment;
 
 namespace Hohoema.Models.Domain.Player.Comment
 {
     public struct CommentPostResult
     {
-        public ChatResultCode StatusCode { get; set; }
         public int CommentNo { get; set; }
         public TimeSpan VideoPosition { get; set; }
         public string ThreadId { get; set; }
-
-        public bool IsSuccessed => Status == ChatResultCode.Success;
-        public ChatResultCode Status => StatusCode;
+        public string ThreadForkLabel { get; set; }
+        public bool IsSuccessed { get; set; }
     }
 
     public interface ICommentSession<TComment> : IDisposable where TComment : IComment

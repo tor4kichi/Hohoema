@@ -13,10 +13,10 @@ using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
 using AngleSharp.Html.Parser;
 using Hohoema.Models.Domain.Player.Comment;
+using NiconicoToolkit.Video.Watch.NV_Comment;
 
 namespace Hohoema.Models.Domain.Player.Video.Comment
-{
-
+{   
     [DataContract]
 	public class VideoComment : ObservableObject, IComment
     {
