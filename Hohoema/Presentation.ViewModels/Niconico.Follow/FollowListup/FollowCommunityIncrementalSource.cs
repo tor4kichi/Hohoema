@@ -54,13 +54,17 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
                     _ownedCommunities.Data.OwnedCommunities,
                     res.Data.Where(x => !_OwnedCommunitiesIdHashSet.Contains(x.GlobalId))
                     )
-                    .Select(x => new FollowCommunityViewModel(x, _OwnedCommunitiesIdHashSet.Contains(x.GlobalId)));
+                    .Select(x => new FollowCommunityViewModel(x, _OwnedCommunitiesIdHashSet.Contains(x.GlobalId)))
+                    .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                    ;
             }
             else
             {
                 return res.Data
                     .Where(x => !_OwnedCommunitiesIdHashSet.Contains(x.GlobalId))
-                    .Select(x => new FollowCommunityViewModel(x, _OwnedCommunitiesIdHashSet.Contains(x.GlobalId)));
+                    .Select(x => new FollowCommunityViewModel(x, _OwnedCommunitiesIdHashSet.Contains(x.GlobalId)))
+                    .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                    ;
             }
         }
     }

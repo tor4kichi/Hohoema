@@ -158,7 +158,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 _userMylists ??= await _mylistRepository.GetUserMylistsAsync(UserId);
 
                 var head = pageIndex * pageSize;
-                return _userMylists.Skip(head).Take(pageSize);
+                return _userMylists.Skip(head).Take(pageSize)
+                    .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                    ;
             }
             catch (Exception ex)
             {

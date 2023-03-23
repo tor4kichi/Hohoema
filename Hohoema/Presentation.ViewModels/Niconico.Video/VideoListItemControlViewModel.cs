@@ -392,6 +392,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
                 ProviderIconUrl = videoItem.Owner.IconUrl?.OriginalString;
             }
 
+            IsRequirePayment = videoItem.IsPaymentRequired;
+
             UpdateIsHidenVideoOwner(this);
 
             if (VideoId != VideoId && VideoId != null)
@@ -572,6 +574,8 @@ namespace Hohoema.Presentation.ViewModels.VideoListPage
             get { return _PrivateReason; }
             set { SetProperty(ref _PrivateReason, value); }
         }
+
+        public bool IsRequirePayment { get; }
 
         #region NG 
 

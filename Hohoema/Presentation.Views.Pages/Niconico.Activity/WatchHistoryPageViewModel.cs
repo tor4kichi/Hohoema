@@ -102,6 +102,18 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Activity
             base.OnNavigatedTo(parameters);
         }
 
+        public override void OnNavigatedFrom(INavigationParameters parameters)
+        {
+            foreach (var history in Histories)
+            {
+                history.Dispose();
+            }
+
+            Histories.Clear();
+
+            base.OnNavigatedFrom(parameters);
+        }
+
         private RelayCommand _RefreshCommand;
         public RelayCommand RefreshCommand => _RefreshCommand 
             ??= new RelayCommand(async () =>

@@ -11,126 +11,258 @@ using System.Linq;
 using System.Threading.Tasks;
 using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
 using NiconicoToolkit.Video.Watch;
-using NiconicoToolkit.Video.Watch.NMSG_Comment;
 using Hohoema.Models.Domain.Player.Comment;
+using NiconicoToolkit.Video.Watch.NV_Comment;
+using CommunityToolkit.Diagnostics;
+using NiconicoToolkit.Video;
+using System.Threading;
+using NiconicoToolkit.Live.WatchPageProp;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System.Runtime.Serialization;
+using Windows.UI;
 
-namespace Hohoema.Models.Domain.Player.Video.Comment
+
+#nullable enable
+
+namespace Hohoema.Models.Domain.Player.Video.Comment;
+
+
+public class CommentClient
 {
-    public class CommentClient
+    // コメントの取得、とアプリケーションドメインなコメントモデルへの変換
+    // コメントの投稿可否判断と投稿処理
+
+    public CommentClient(NiconicoSession niconicoSession, string rawVideoid)
     {
-        // コメントの取得、とアプリケーションドメインなコメントモデルへの変換
-        // コメントの投稿可否判断と投稿処理
+        _niconicoSession = niconicoSession;
+        RawVideoId = rawVideoid;        
+    }
 
-        public CommentClient(NiconicoSession niconicoSession, string rawVideoid)
+    public string RawVideoId { get; }
+    public string VideoOwnerId => _watchApiData!.Owner.Id.ToString();
+
+    internal DmcWatchApiData? _watchApiData { get; set; }
+
+
+    private readonly NiconicoSession _niconicoSession;
+    private NiconicoToolkit.NiconicoContext _toolkitContext => _niconicoSession.ToolkitContext;
+    
+    private NvCommentSubClient _nvCommentApi => _niconicoSession.ToolkitContext.Video.NvComment;
+
+    public async Task<CommentPostResult> SubmitComment(string comment, TimeSpan position, string commands)
+    {
+        CancellationToken ct = default;
+        Guard.IsNotNull(_watchApiData);
+
+        VideoId videoId = _watchApiData.Video.Id;
+        var mainThread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Main);
+        string threadId = mainThread.Id.ToString();
+
+        bool isPostCompleted = false;
+        ThreadPostResponse.ThreadPostResponseData? chatRes = null;
+        foreach (var i in Enumerable.Range(0, 2))
         {
-            _niconicoSession = niconicoSession;
-            RawVideoId = rawVideoid;
-        }
+            string postKey = await GetPostKeyWithCacheAsync(mainThread.ForkLabel, ct);
+            var res = await _nvCommentApi.PostCommentAsync(threadId, videoId, commands.Split(' '), comment, (int)position.TotalMilliseconds, postKey, ct);
 
-        public string RawVideoId { get; }
-        public CommentServerInfo CommentServerInfo { get; set; }
-
-        internal DmcWatchApiData DmcWatch { get; set; }
-
-
-        private CommentSession _CommentSession;
-        private readonly NiconicoSession _niconicoSession;
-        private NiconicoToolkit.NiconicoContext _toolkitContext => _niconicoSession.ToolkitContext;
-
-        private CommentSession CommentSession
-        {
-            get
+            if (res.IsSuccess)
             {
-                return _CommentSession ?? (_CommentSession = DmcWatch != null ? new CommentSession(_toolkitContext, DmcWatch) : null);
-            }
-        }
-
-
-        private bool CanGetCommentsFromNMSG 
-        {
-            get
-            {
-                return CommentSession != null;
-            }
-        }
-
-        private async Task<NMSG_Response> GetCommentsFromNMSG()
-        {
-            if (CommentSession == null) { return null; }
-
-            return await CommentSession.GetCommentFirstAsync();
-        }
-
-        public async Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
-        {
-            return await CommentSession.PostCommentAsync(position, comment, commands);
-        }
-
-        public bool IsAllowAnnonimityComment
-        {
-            get
-            {
-                if (DmcWatch == null) { return false; }
-
-                if (DmcWatch.Channel != null) { return false; }
-
-                if (DmcWatch.Community != null) { return false; }
-
-                return true;
-            }
-        }
-
-        public bool CanSubmitComment
-        {
-            get
-            {
-                if (!Helpers.InternetConnection.IsInternet()) { return false; }
-
-                if (CommentServerInfo == null) { return false; }
-
-                return true;
-            }
-        }
-
-
-        public async Task<IEnumerable<VideoComment>> GetCommentsAsync()
-        {
-            if (CanGetCommentsFromNMSG)
-            {
-                var res = await GetCommentsFromNMSG();
-                return res.Comments.Select(x => ChatToComment(x));
+                isPostCompleted = true;
+                chatRes = res.Data;
+                break;
             }
             else
             {
-                throw new NotSupportedException();
+                ClearPostKeyCache();
             }
         }
 
-        public string VideoOwnerId { get; set; }
-
-        private VideoComment ChatToComment(NMSG_Chat rawComment)
+        return new CommentPostResult()
         {
-            return new VideoComment()
-            {
-                CommentText = rawComment.Content,
-                CommentId = rawComment.No,
-                VideoPosition = rawComment.Vpos.ToTimeSpan(),
-                UserId = rawComment.UserId,
-                Mail = rawComment.Mail,
-                NGScore = rawComment.Score ?? 0,
-                IsAnonymity = rawComment.Anonymity != 0,
-                IsLoginUserComment = _niconicoSession.IsLoggedIn && rawComment.Anonymity == 0 && rawComment.UserId == _niconicoSession.UserId,
-                //IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
-                DeletedFlag = rawComment.Deleted ?? 0
-            };
+            CommentNo = chatRes?.Number ?? -1, 
+            IsSuccessed = isPostCompleted,
+            ThreadId = threadId,
+            VideoPosition = position,
+            ThreadForkLabel = mainThread.ForkLabel,
+        };
+    }
+
+    public bool IsAllowAnnonimityComment
+    {
+        get
+        {
+            if (_watchApiData == null) { return false; }
+
+            if (_watchApiData.Channel != null) { return false; }
+
+            if (_watchApiData.Community != null) { return false; }
+
+            return true;
+        }
+    }
+
+    public bool CanSubmitComment
+    {
+        get
+        {
+            if (!Helpers.InternetConnection.IsInternet()) { return false; }
+
+            if (_watchApiData?.Comment?.NvComment == null) { return false; }            
+
+            return true;
+        }
+    }
+
+
+    public async Task<IEnumerable<IVideoComment>> GetCommentsAsync()
+    {
+        var commentRes = await _nvCommentApi.GetCommentsAsync(_watchApiData!.Comment.NvComment, ct: default);
+        return commentRes.Data.Threads.SelectMany(x => x.Comments).OrderBy(x => x.VposMs).Select(ToVideoComent);
+    }
+
+    //private VideoComment ChatToComment(NMSG_Chat rawComment)
+    //{
+    //    return new VideoComment()
+    //    {
+    //        CommentText = rawComment.Content,
+    //        CommentId = rawComment.No,
+    //        VideoPosition = rawComment.Vpos.ToTimeSpan(),
+    //        UserId = rawComment.UserId,
+    //        Mail = rawComment.Mail,
+    //        NGScore = rawComment.Score ?? 0,
+    //        IsAnonymity = rawComment.Anonymity != 0,
+    //        IsLoginUserComment = _niconicoSession.IsLoggedIn && rawComment.Anonymity == 0 && rawComment.UserId == _niconicoSession.UserId,
+    //        //IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
+    //        DeletedFlag = rawComment.Deleted ?? 0
+    //    };
+    //}
+
+
+
+    private static NvVideoComment ToVideoComent(ThreadResponse.Comment nvComment)
+    {
+        return new NvVideoComment(nvComment);
+    }
+
+    private Dictionary<string, string> _threadForkToPostKeyCachedMap = new();
+    private VideoId? _lastThreadForkToPostKeyVideoId;
+
+    private void ClearPostKeyCache()
+    {
+        _lastThreadForkToPostKeyVideoId = null;
+        _threadForkToPostKeyCachedMap.Clear();
+    }
+    private async ValueTask<string> GetPostKeyWithCacheAsync(string threadForkLabel, CancellationToken ct = default)
+    {
+        Guard.IsNotNull(_watchApiData);
+        if (_lastThreadForkToPostKeyVideoId is not null and VideoId videoId && videoId == _watchApiData.Video.Id
+            && _threadForkToPostKeyCachedMap.TryGetValue(threadForkLabel, out string postKey)
+            )
+        {
+            return postKey;
+        }
+        else
+        {
+            _lastThreadForkToPostKeyVideoId = _watchApiData.Video.Id;
+            postKey = await GetPostKeyLatestAsync(threadForkLabel, ct);
+            _threadForkToPostKeyCachedMap.Add(threadForkLabel, postKey);
+            return postKey;
+        }
+    }
+
+    private async Task<string> GetPostKeyLatestAsync(string threadForkLabel, CancellationToken ct = default)
+    {
+        if (threadForkLabel == ThreadTargetForkConstants.Main)
+        {
+            Guard.IsNotNull(_watchApiData);
+            var thread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Main);
+            var res = await _nvCommentApi.GetPostKeyAsync(thread.Id.ToString(), ct);
+            Guard.IsTrue(res.IsSuccess);
+
+            return res.Data!.PostKey;
+        }
+        else if (threadForkLabel == ThreadTargetForkConstants.Easy)
+        {
+            Guard.IsNotNull(_watchApiData);
+            var thread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Easy);
+            var res = await _nvCommentApi.GetEasyPostKeyAsync(thread.Id.ToString(), ct);
+            Guard.IsTrue(res.IsSuccess);
+
+            return res.Data!.EasyPostKey;
+        }
+        else
+        {
+            throw new NotSupportedException(threadForkLabel);
+        }
+    }
+
+
+
+
+}
+
+
+public class NvVideoComment : ObservableObject, IVideoComment
+{
+    // コメントのデータ構造だけで他のことを知っているべきじゃない
+    // このデータを解釈して実際に表示するためのオブジェクトにする部分は処理は
+    // View側が持つべき
+
+    public NvVideoComment(ThreadResponse.Comment comment)
+    {
+        _comment = comment;
+        IsAnonymity = _comment.Commands.Contains("184");
+    }
+
+    private readonly ThreadResponse.Comment _comment;
+
+    bool _isAppliedCommands;
+    public void ApplyCommands()
+    {
+        if (_isAppliedCommands) { return; }
+
+        foreach (var action in MailToCommandHelper.MakeCommandActions(Commands))
+        {
+            action(this);
         }
 
-
-
-
-
-
-
-
+        _isAppliedCommands = true;
     }
+
+    public uint CommentId => (uint)_comment.No;
+
+    public string CommentText => _comment.Body;
+
+    string? _commands;
+    public IReadOnlyList<string> Commands => _comment.Commands;
+    public string UserId => _comment.UserId;
+
+
+    public bool IsAnonymity { get; set; }
+
+    private TimeSpan? _videoPosition;
+    public TimeSpan VideoPosition => _videoPosition ??= TimeSpan.FromMilliseconds(_comment.VposMs);
+
+    public int NGScore => _comment.Score;
+
+    public bool IsLoginUserComment => _comment.IsMyPost;
+
+    public bool IsOwnerComment => _comment.Source == ThreadTargetForkConstants.Owner;
+
+    public int DeletedFlag => 0; 
+
+
+    private string? _commentText_Transformed;
+    public string CommentText_Transformed
+    {
+        get => _commentText_Transformed ?? CommentText;
+        set => _commentText_Transformed = value;
+    }
+
+
+    public CommentDisplayMode DisplayMode { get; set; }
+    public bool IsScrolling => DisplayMode == CommentDisplayMode.Scrolling;
+    public CommentSizeMode SizeMode { get; set; }
+    public bool IsInvisible { get; set; }
+    public Color? Color { get; set; }
 }

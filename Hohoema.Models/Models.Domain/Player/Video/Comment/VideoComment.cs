@@ -13,12 +13,18 @@ using System.Text.RegularExpressions;
 using System.Runtime.Serialization;
 using AngleSharp.Html.Parser;
 using Hohoema.Models.Domain.Player.Comment;
+using NiconicoToolkit.Video.Watch.NV_Comment;
+using Hohoema.Models.Domain.Niconico.Video;
 
 namespace Hohoema.Models.Domain.Player.Video.Comment
-{
+{   
+    public interface IVideoComment : IComment
+    {
+        
+    }
 
     [DataContract]
-	public class VideoComment : ObservableObject, IComment
+	public class VideoComment : ObservableObject, IVideoComment
     {
         // コメントのデータ構造だけで他のことを知っているべきじゃない
         // このデータを解釈して実際に表示するためのオブジェクトにする部分は処理は
@@ -31,7 +37,7 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
         public string CommentText { get; set; }
 
         [DataMember]
-        public string Mail { get; set; }
+        public IReadOnlyList<string> Commands { get; set; }
         [DataMember]
         public string UserId { get; set; }
 
@@ -63,16 +69,23 @@ namespace Hohoema.Models.Domain.Player.Video.Comment
 
 
         public CommentDisplayMode DisplayMode { get; set; }
-
         public bool IsScrolling => DisplayMode == CommentDisplayMode.Scrolling;
-
-
         public CommentSizeMode SizeMode { get; set; }
-
         public bool IsInvisible { get; set; }
-
-
         public Color? Color { get; set; }
+
+        bool _isAppliedCommands;
+        public void ApplyCommands()
+        {
+            if (_isAppliedCommands) { return; }
+
+            foreach (var action in MailToCommandHelper.MakeCommandActions(Commands))
+            {
+                action(this);
+            }
+
+            _isAppliedCommands = true;
+        }
     }
 
 

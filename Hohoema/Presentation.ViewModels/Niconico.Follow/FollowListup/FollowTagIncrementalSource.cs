@@ -34,7 +34,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
 
             TotalCount = res.Count;
 
-            return res.Select(x => new FollowTagViewModel(x));
+            return res.Select(x => new FollowTagViewModel(x))
+                .ToArray() // Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                ;
         }
     }
 }

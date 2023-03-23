@@ -9,7 +9,6 @@ using Hohoema.Presentation.Services;
 using Microsoft.Extensions.Logging;
 using MvvmHelpers;
 using NiconicoToolkit;
-using NiconicoToolkit.Video.Watch.NMSG_Comment;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -32,22 +31,22 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         CompositeDisposable _disposables = new CompositeDisposable();
 
         private readonly IScheduler _scheduler;
-        private readonly CommentDisplayingRangeExtractor _commentDisplayingRangeExtractor;
+        private readonly CommentDisplayingRangeExtractor<IVideoComment> _commentDisplayingRangeExtractor;
         private readonly CommentFilteringFacade _commentFiltering;
         private readonly NotificationService _notificationService;
         private readonly PlayerSettings _playerSettings;
-        private INiconicoCommentSessionProvider<VideoComment> _niconicoCommentSessionProvider;
+        private INiconicoCommentSessionProvider<IVideoComment> _niconicoCommentSessionProvider;
         private readonly ILogger _logger;
         private readonly MediaPlayer _mediaPlayer;
 
-        public ObservableRangeCollection<VideoComment> Comments { get; private set; }
-        public ObservableRangeCollection<VideoComment> DisplayingComments { get; } = new ObservableRangeCollection<VideoComment>();
+        public ObservableRangeCollection<IVideoComment> Comments { get; private set; }
+        public ObservableRangeCollection<IVideoComment> DisplayingComments { get; } = new ();
         public ReactiveProperty<string> WritingComment { get; private set; }
         public ReactiveProperty<string> CommandText { get; private set; }
         public ReactiveProperty<bool> NowSubmittingComment { get; private set; }
 
         public AsyncReactiveCommand CommentSubmitCommand { get; }
-        ICommentSession<VideoComment> _commentSession;
+        ICommentSession<IVideoComment> _commentSession;
 
         Models.Helpers.AsyncLock _commentUpdateLock = new Models.Helpers.AsyncLock();
 
@@ -74,7 +73,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             ILoggerFactory loggerFactory,
             MediaPlayer mediaPlayer, 
             IScheduler scheduler,
-            CommentDisplayingRangeExtractor commentDisplayingRangeExtractor,
+            CommentDisplayingRangeExtractor<IVideoComment> commentDisplayingRangeExtractor,
             CommentFilteringFacade commentFiltering,
             NotificationService notificationService,
             PlayerSettings playerSettings
@@ -87,7 +86,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             _commentFiltering = commentFiltering;
             _notificationService = notificationService;
             _playerSettings = playerSettings;
-            Comments = new ObservableRangeCollection<VideoComment>();
+            Comments = new ();
 
             CommentSubmitCommand = new AsyncReactiveCommand()
                 .AddTo(_disposables);
@@ -216,7 +215,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         }
 
 
-        public async Task UpdatePlayingCommentAsync(INiconicoCommentSessionProvider<VideoComment> niconicoCommentSessionProvider, CancellationToken ct = default)
+        public async Task UpdatePlayingCommentAsync(INiconicoCommentSessionProvider<IVideoComment> niconicoCommentSessionProvider, CancellationToken ct = default)
         {
             using (await _commentUpdateLock.LockAsync(ct))
             {
@@ -295,7 +294,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             {
                 CommentPostResult res = await _commentSession.PostComment(postComment, posision, command);
 
-                if (res.Status == ChatResultCode.Success)
+                if (res.IsSuccessed)
                 {
                     _logger.ZLogDebug("コメントの投稿に成功: {0}", WritingComment.Value);
 
@@ -322,14 +321,14 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                 {
                     CommentSubmitFailed?.Invoke(this, EventArgs.Empty);
 
-                    _notificationService.ShowLiteInAppNotification_Fail($"{_commentSession.ContentId} へのコメント投稿に失敗\n ステータスコード：{res.StatusCode}");
+                    _notificationService.ShowLiteInAppNotification_Fail($"{_commentSession.ContentId} へのコメント投稿に失敗");
 
                     _logger.ZLogWarningWithPayload(new Dictionary<string, string>()
                     {
                         { "ContentId",  _commentSession.ContentId },
                         { "Command", command },
                         { "CommentLength", postComment?.Length.ToString() },
-                        { "StatusCode", res.StatusCode.ToString() },
+                        { "StatusCode", res.IsSuccessed.ToString() },
                     }, "SubmitComment Failed");
                 }
             }
@@ -347,7 +346,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
 
 
-        private async Task UpdateComments_Internal(ICommentSession<VideoComment> commentSession)
+        private async Task UpdateComments_Internal(ICommentSession<IVideoComment> commentSession)
         {
             // ニコスクリプトの状態を初期化
             ClearNicoScriptState();
@@ -356,7 +355,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             DisplayingComments.Clear();
             HiddenCommentIds.Clear();
 
-            IEnumerable<VideoComment> commentsAction(IEnumerable<VideoComment> comments)
+            IEnumerable<IVideoComment> commentsAction(IEnumerable<IVideoComment> comments)
             {
                 foreach (var comment in comments)
                 {
@@ -377,7 +376,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                             {
                                  { "VideoId", commentSession.ContentId },
                                 { "CommentText", comment.CommentText },
-                                { "Command", comment.Mail },
+                                { "Command", comment.GetJoinedCommandsText() },
                                 { "VideoPosition", comment.VideoPosition.ToString() },
                             }, "CommentScript_ParseError Failed");
                         }
@@ -397,7 +396,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         }
 
 
-        void ResetDisplayingComments(IReadOnlyCollection<VideoComment> comments)
+        void ResetDisplayingComments(IReadOnlyCollection<IVideoComment> comments)
         {
             DisplayingComments.Clear();
             _logger.ZLogDebug("CommentReset");
@@ -423,32 +422,26 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             }
         }
 
-        bool IsHiddenComment(VideoComment comment)
+        bool IsHiddenComment(IVideoComment comment)
         {
             if (_commentFiltering.IsHiddenComment(comment))
             {
                 return true;
             }
 
-            if (!string.IsNullOrWhiteSpace(comment.Mail))
+            if (comment.Commands.Any())
             {
-                var commands = comment.Mail.Split(' ');
-                if (commands.Any(x => _commentFiltering.IsIgnoreCommand(x)))
+                var commands = comment.Commands;
+                if (commands.Any(_commentFiltering.IsIgnoreCommand))
                 {
                     return true;
-                }
-
-                // 効率的実行のためやむなくここでコマンドを処理
-                foreach (var action in MailToCommandHelper.MakeCommandActions(commands))
-                {
-                    action(comment);
-                }
+                }                
             }
 
             return false;
         }
 
-        bool IsHiddenCommentWithCache(VideoComment comment)
+        bool IsHiddenCommentWithCache(IVideoComment comment)
         {
             if (HiddenCommentIds.TryGetValue(comment.CommentId, out bool isHiddenComment))
             {
@@ -467,7 +460,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             }
         }
 
-        IEnumerable<VideoComment> EnumerateFilteredDisplayComment(IEnumerable<VideoComment> comments)
+        IEnumerable<IVideoComment> EnumerateFilteredDisplayComment(IEnumerable<IVideoComment> comments)
         {
             foreach (var comment in comments)
             {
@@ -520,9 +513,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         {
             // TODO: Commentsにアクセスする際の非同期ロック
             var currentIndex = CurrentCommentIndex;
-            foreach (var comment in Comments.Skip(CurrentCommentIndex).Cast<VideoComment>())
+            foreach (var comment in Comments.Skip(CurrentCommentIndex).Cast<IVideoComment>())
             {
-                if ((comment as VideoComment).VideoPosition > position)
+                if (comment.VideoPosition > position)
                 {
                     CurrentComment = comment;
                     break;
@@ -534,8 +527,8 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             CurrentCommentIndex = currentIndex;
         }
 
-        private VideoComment _CurrentComment;
-        public VideoComment CurrentComment
+        private IVideoComment _CurrentComment;
+        public IVideoComment CurrentComment
         {
             get { return _CurrentComment; }
             private set { SetProperty(ref _CurrentComment, value); }
@@ -569,7 +562,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
 
 
-        private bool TryAddNicoScript(VideoComment chat)
+        private bool TryAddNicoScript(IVideoComment chat)
         {
             const bool IS_ENABLE_Default = true; // Default comment Command
             const bool IS_ENABLE_Replace = false; // Replace comment text
@@ -591,7 +584,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                     if (IS_ENABLE_Default)
                     {
                         TimeSpan? endTime = null;
-                        var commands = chat.Mail.Split(' ');
+                        var commands = chat.Commands;
                         var timeCommand = commands.FirstOrDefault(x => x.StartsWith("@"));
                         if (timeCommand != null)
                         {
@@ -613,7 +606,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                 case "置換":
                     if (IS_ENABLE_Replace)
                     {
-                        var commands = chat.Mail.Split(' ');
+                        var commands = chat.Commands;
                         List<string> commandItems = new List<string>();
                         TimeSpan duration = TimeSpan.FromSeconds(30);
                         foreach (var command in commands)
@@ -651,9 +644,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                         if (condition.StartsWith("#"))
                         {
                             TimeSpan? endTime = null;
-                            if (chat.Mail?.StartsWith("@") ?? false)
+                            if (chat.Commands.ElementAtOrDefault(0)?.StartsWith("@") ?? false)
                             {
-                                endTime = beginTime + TimeSpan.FromSeconds(int.Parse(chat.Mail.Remove(0, 1)));
+                                endTime = beginTime + TimeSpan.FromSeconds(int.Parse(chat.Commands.ElementAtOrDefault(0).Remove(0, 1)));
                             }
                             _NicoScriptList.Add(new NicoScript(nicoScriptType)
                             {
@@ -694,7 +687,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                             var message = nicoScriptContents.ElementAtOrDefault(2);
 
                             TimeSpan endTime = _mediaPlayer.PlaybackSession.NaturalDuration;
-                            var commands = chat.Mail?.Split(' ') ?? new string[0];
+                            var commands = chat.Commands;
                             var timeCommand = commands.FirstOrDefault(x => x.StartsWith("@"));
                             if (timeCommand != null && timeCommand.Skip(1).IsAllDigit())
                             {
@@ -716,10 +709,10 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                 case "シーク禁止":
                     if (IS_ENABLE_DisallowSeek)
                     {
-                        TimeSpan? endTime = null;
-                        if (chat.Mail?.StartsWith("@") ?? false)
+                        TimeSpan? endTime = null;                        
+                        if (chat.Commands.ElementAtOrDefault(0)?.StartsWith("@") ?? false)
                         {
-                            endTime = beginTime + TimeSpan.FromSeconds(int.Parse(chat.Mail.Remove(0, 1)));
+                            endTime = beginTime + TimeSpan.FromSeconds(int.Parse(chat.Commands.ElementAt(0).Remove(0, 1)));
                         }
                         _NicoScriptList.Add(new NicoScript(nicoScriptType)
                         {
@@ -743,9 +736,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                     if (IS_ENABLE_DisallowComment)
                     {
                         TimeSpan? endTime = null;
-                        if (chat.Mail?.StartsWith("@") ?? false)
+                        if (chat.Commands.ElementAtOrDefault(0)?.StartsWith("@") ?? false)
                         {
-                            endTime = beginTime + TimeSpan.FromSeconds(int.Parse(chat.Mail.Remove(0, 1)));
+                            endTime = beginTime + TimeSpan.FromSeconds(int.Parse(chat.Commands.ElementAt(0).Remove(0, 1)));
                         }
                         _NicoScriptList.Add(new NicoScript(nicoScriptType)
                         {

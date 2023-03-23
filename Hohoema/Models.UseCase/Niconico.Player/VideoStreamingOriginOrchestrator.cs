@@ -76,7 +76,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                 Exception = exception;
             }
 
-            internal PlayingOrchestrateResult(INiconicoVideoSessionProvider vss, INiconicoCommentSessionProvider<VideoComment> cs, INicoVideoDetails videoDetails)
+            internal PlayingOrchestrateResult(INiconicoVideoSessionProvider vss, INiconicoCommentSessionProvider<IVideoComment> cs, INicoVideoDetails videoDetails)
             {
                 IsSuccess = vss != null;
                 VideoSessionProvider = vss;
@@ -89,7 +89,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
             
 
             public INiconicoVideoSessionProvider VideoSessionProvider { get; }
-            public INiconicoCommentSessionProvider<VideoComment> CommentSessionProvider { get; }
+            public INiconicoCommentSessionProvider<IVideoComment> CommentSessionProvider { get; }
 
             public INicoVideoDetails VideoDetails { get; }
 

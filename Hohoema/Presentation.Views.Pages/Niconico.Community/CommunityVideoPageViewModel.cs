@@ -255,7 +255,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Community
 					return Enumerable.Empty<CommunityVideoInfoViewModel>();
 				}
 
-				return itemsRes.Data.Videos.Select((x, i) => new CommunityVideoInfoViewModel(x) { PlaylistItemToken = new PlaylistItemToken(_communityVideoPlaylist, _sortOption, new CommunityVideoContent(x))});
+				return itemsRes.Data.Videos
+					.Select((x, i) => new CommunityVideoInfoViewModel(x) { PlaylistItemToken = new PlaylistItemToken(_communityVideoPlaylist, _sortOption, new CommunityVideoContent(x))})
+                    .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                    ;
 			}
             catch (Exception e)
             {

@@ -269,7 +269,8 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
                 {
                     PlaylistItemToken = new PlaylistItemToken(_userVideoPlaylist, _selectedSortOption, new NvapiVideoContent(item.Essential))
                 }
-                );
+                ).ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                ;
             }
             catch (Exception e)
             {

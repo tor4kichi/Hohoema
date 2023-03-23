@@ -129,7 +129,7 @@ namespace Hohoema.Models.Domain.Player.Video
         NotPlayPermit_RequirePremiumMember,
     }
 
-    public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCommentSessionProvider<VideoComment>
+    public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCommentSessionProvider<IVideoComment>
     {
         public Exception Exception { get; }
         public bool IsSuccess { get; }
@@ -272,7 +272,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
 
 
-        public Task<ICommentSession<VideoComment>> CreateCommentSessionAsync()
+        public Task<ICommentSession<IVideoComment>> CreateCommentSessionAsync()
         {
             if (_dmcWatchData != null)
             {
@@ -284,31 +284,31 @@ namespace Hohoema.Models.Domain.Player.Video
             }
         }
 
-        Task<ICommentSession<VideoComment>> CreateCommentSession(string contentId, DmcWatchApiData watchData)
+        Task<ICommentSession<IVideoComment>> CreateCommentSession(string contentId, DmcWatchApiData watchData)
         {
             var commentClient = new CommentClient(_niconicoSession, contentId);
             var dmcRes = watchData;
-            commentClient.CommentServerInfo = new CommentServerInfo()
-            {
-                ServerUrl = dmcRes.Comment.Threads[0].Server.OriginalString,
-                VideoId = contentId,
-                DefaultThreadId = dmcRes.Comment.Threads[0].Id,
-                ViewerUserId = dmcRes.Viewer?.Id ?? 0,
-                ThreadKeyRequired = dmcRes.Comment.Threads[0].IsThreadkeyRequired
-            };
+            //commentClient.CommentServerInfo = new CommentServerInfo()
+            //{
+            //    ServerUrl = dmcRes.Comment.Threads[0].Server.OriginalString,
+            //    VideoId = contentId,
+            //    DefaultThreadId = dmcRes.Comment.Threads[0].Id,
+            //    ViewerUserId = dmcRes.Viewer?.Id ?? 0,
+            //    ThreadKeyRequired = dmcRes.Comment.Threads[0].IsThreadkeyRequired
+            //};
 
             // チャンネル動画ではOnwerはnullになる
-            commentClient.VideoOwnerId = dmcRes.Owner?.Id.ToString();
+            //commentClient.VideoOwnerId = dmcRes.Owner?.Id.ToString();
 
-            commentClient.DmcWatch = dmcRes;
+            commentClient._watchApiData = dmcRes;
 
-            var communityThread = dmcRes.Comment.Threads.FirstOrDefault(x => x.Label == "community");
-            if (communityThread != null)
-            {
-                commentClient.CommentServerInfo.CommunityThreadId = communityThread.Id;
-            }
+            //var communityThread = dmcRes.Comment.Threads.FirstOrDefault(x => x.Label == "community");
+            //if (communityThread != null)
+            //{
+            //    commentClient.CommentServerInfo.CommunityThreadId = communityThread.Id;
+            //}
 
-            return Task.FromResult(new VideoCommentService(commentClient, _niconicoSession.UserId) as ICommentSession<VideoComment>);
+            return Task.FromResult(new VideoCommentService(commentClient, _niconicoSession.UserId) as ICommentSession<IVideoComment>);
         }
 
 

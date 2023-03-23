@@ -754,7 +754,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             {
                 var result = await _mylist.GetItemsAsync(pageIndex, pageSize, _sortOption.SortKey, _sortOption.SortOrder);
                 var start = pageIndex * pageSize;
-                return result.Items.Select((x, i) => new VideoListItemControlViewModel(x.Video) { PlaylistItemToken = new(_mylist, _sortOption, new NvapiVideoItemWrapped(x.Video)) });
+                return result.Items
+                    .Select((x, i) => new VideoListItemControlViewModel(x.Video) { PlaylistItemToken = new(_mylist, _sortOption, new NvapiVideoItemWrapped(x.Video)) })
+                    .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                    ;
             }
             catch (Exception e)
             {
@@ -799,7 +802,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
                 ct.ThrowIfCancellationRequested();
 
                 var start = pageIndex * pageSize;
-                return items.Items.Select((x, i) => new VideoListItemControlViewModel(x.Video) { PlaylistItemToken = new(_mylist, _sortOption, new NvapiVideoItemWrapped(x.Video)) });
+                return items.Items
+                    .Select((x, i) => new VideoListItemControlViewModel(x.Video) { PlaylistItemToken = new(_mylist, _sortOption, new NvapiVideoItemWrapped(x.Video)) })
+                    .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                    ;
             }
             catch (Exception e)
             {

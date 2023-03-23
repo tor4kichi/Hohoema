@@ -326,7 +326,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Channel
 
             if (!res.IsSuccess) { return Enumerable.Empty<ChannelVideoListItemViewModel>(); }
 
-            return ToChannelVideoVMItems(res.Data.Videos, head: pageIndex * pageSize);
+            return ToChannelVideoVMItems(res.Data.Videos, head: pageIndex * pageSize)
+                .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                ;
         }
 
         IEnumerable<ChannelVideoListItemViewModel> ToChannelVideoVMItems(ChannelVideoItem[] items, int head)

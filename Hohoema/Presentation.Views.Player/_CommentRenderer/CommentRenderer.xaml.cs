@@ -262,7 +262,10 @@ namespace Hohoema.Presentation.Views.Player
                                 }
                                 else if (args.Action == NotifyCollectionChangedAction.Add)
                                 {
-                                    me.AddCommentToCanvas(args.NewItems.Cast<IComment>());
+                                    foreach (var comment in args.NewItems)
+                                    {
+                                        me.AddOrPushPending(comment as IComment);
+                                    }
                                 }
                                 else if (args.Action == NotifyCollectionChangedAction.Remove)
                                 {
@@ -493,7 +496,7 @@ namespace Hohoema.Presentation.Views.Player
                 }
 
                 TimeSpan currentVpos = CurrentVPos;
-                if (Math.Abs((float)(currentVpos - _prevPosition).TotalSeconds) > 0.5f)
+                if (Math.Abs((float)(currentVpos - _prevPosition).TotalSeconds) > 1.0f)
                 {
                     Debug.WriteLine("seeked! position changed");
                     ResetComments();
@@ -516,24 +519,29 @@ namespace Hohoema.Presentation.Views.Player
                     }
 
                     // 追加待機中のコメントをチェック
-                    int count = 0;
-                    CommentRenderFrameData frame = null;
-                    for (int i = 0; i < _pendingRenderComments.Count; i++)
+                    var now = DateTime.UtcNow;
+                    if (_nextTickCommentTiming < now)
                     {
-                        if (count >= 10) { break; }
-                        count++;
+                        _nextTickCommentTiming = now + TimeSpan.FromMilliseconds(500);
+                        int count = 0;
+                        CommentRenderFrameData frame = null;
+                        for (int i = 0; i < _pendingRenderComments.Count; i++)
+                        {
+                            if (count >= 25) { break; }
+                            count++;
 
-                        var comment = _pendingRenderComments[i];
-                        if (comment.VideoPosition <= (currentVpos + TimeSpan.FromSeconds(1)))
-                        {
-                            frame ??= GetRenderFrameData();
-                            _pendingRenderComments.RemoveAt(i);
-                            --i;
-                            AddCommentToCanvas(comment, frame);
-                        }
-                        else
-                        {
-                            break;
+                            var comment = _pendingRenderComments[i];
+                            if (comment.VideoPosition <= (currentVpos + TimeSpan.FromSeconds(1)))
+                            {
+                                frame ??= GetRenderFrameData();
+                                _pendingRenderComments.RemoveAt(i);
+                                --i;
+                                AddCommentToCanvas(comment, frame);
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
                     }
                 }
@@ -544,6 +552,8 @@ namespace Hohoema.Presentation.Views.Player
                 _prevPosition = CurrentVPos;
             });
         }
+
+        DateTime _nextTickCommentTiming = DateTime.MinValue;
 
         private MediaPlaybackState? PlaybackState = null;
         private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
@@ -693,7 +703,10 @@ namespace Hohoema.Presentation.Views.Player
                     if (Comments != null)
                     {
                         var frame = data ?? GetRenderFrameData();
-                        AddCommentToCanvas(Comments.Cast<IComment>(), frame);
+                        foreach (var comment in Comments)
+                        {
+                            AddOrPushPending(comment as IComment, frame);
+                        }
                         _prevPosition = CurrentVPos;
                     }
                 }
@@ -776,6 +789,8 @@ namespace Hohoema.Presentation.Views.Player
             {
                 return;
             }
+
+            comment.ApplyCommands();
 
             if (comment.IsInvisible) { return; }
 

@@ -112,7 +112,8 @@
                 PrivateReason="{x:Bind PrivateReason, Converter={StaticResource LocalizeConverter}}"
                 ViewCount="{x:Bind ViewCount, Converter={StaticResource ToUserFriendlyNumber}}"
                 CommentCount="{x:Bind CommentCount, Converter={StaticResource ToUserFriendlyNumber}}"
-                MylistCount="{x:Bind MylistCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                MylistCount="{x:Bind MylistCount, Converter={StaticResource ToUserFriendlyNumber}}"      
+              IsRequirePayment="{x:Bind IsRequirePayment, Converter={StaticResource BooleanToVisibility}}"
               />
           </Grid>
         </DataTemplate>
