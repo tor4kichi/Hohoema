@@ -129,7 +129,7 @@ namespace Hohoema.Models.Domain.Player.Video
         NotPlayPermit_RequirePremiumMember,
     }
 
-    public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCommentSessionProvider<VideoComment>
+    public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCommentSessionProvider<IVideoComment>
     {
         public Exception Exception { get; }
         public bool IsSuccess { get; }
@@ -272,7 +272,7 @@ namespace Hohoema.Models.Domain.Player.Video
 
 
 
-        public Task<ICommentSession<VideoComment>> CreateCommentSessionAsync()
+        public Task<ICommentSession<IVideoComment>> CreateCommentSessionAsync()
         {
             if (_dmcWatchData != null)
             {
@@ -284,7 +284,7 @@ namespace Hohoema.Models.Domain.Player.Video
             }
         }
 
-        Task<ICommentSession<VideoComment>> CreateCommentSession(string contentId, DmcWatchApiData watchData)
+        Task<ICommentSession<IVideoComment>> CreateCommentSession(string contentId, DmcWatchApiData watchData)
         {
             var commentClient = new CommentClient(_niconicoSession, contentId);
             var dmcRes = watchData;
@@ -308,7 +308,7 @@ namespace Hohoema.Models.Domain.Player.Video
             //    commentClient.CommentServerInfo.CommunityThreadId = communityThread.Id;
             //}
 
-            return Task.FromResult(new VideoCommentService(commentClient, _niconicoSession.UserId) as ICommentSession<VideoComment>);
+            return Task.FromResult(new VideoCommentService(commentClient, _niconicoSession.UserId) as ICommentSession<IVideoComment>);
         }
 
 

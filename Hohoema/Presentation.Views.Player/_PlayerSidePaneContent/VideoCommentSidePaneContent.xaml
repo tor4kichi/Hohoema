@@ -9,7 +9,7 @@
   xmlns:i="using:Microsoft.Xaml.Interactivity" 
   xmlns:myBehaviors="using:Hohoema.Presentation.Views.Interaction.Behaviors" 
   xmlns:myextensions="using:Hohoema.Presentation.Views.Extensions"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:converters="using:Hohoema.Presentation.Views.Converters"
   mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -30,6 +30,8 @@
         <MenuFlyoutItem Text="{i18nExt:Localize Key=AddFilteringCommentUserId}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.AddFilteringCommentOwnerIdCommand}" CommandParameter="{Binding}" />
       </MenuFlyout>
     </DataTemplate>
+
+    <converters:StringJoinConverter x:Key="StringJoinConverter" Separator=" "  />
   </UserControl.Resources>
   <Grid>
     <uwpControls:DockPanel>
@@ -71,13 +73,13 @@
                 >
 
         <ListView.ItemTemplate>
-          <DataTemplate x:DataType="niconicoModels:VideoComment">
+          <DataTemplate x:DataType="niconicoModels:IVideoComment">
             <uwpControls:DockPanel>
               <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Top" Spacing="8">
                 <TextBlock Style="{StaticResource CommentOptionTextBlockStyle}">
                 No. <Run Text="{x:Bind CommentId}" />
                 </TextBlock>
-                <TextBlock Text="{x:Bind Mail}" Style="{StaticResource CommentOptionTextBlockStyle}" />
+                <TextBlock Text="{x:Bind Commands, Converter={StaticResource StringJoinConverter}}" Style="{StaticResource CommentOptionTextBlockStyle}" />
 
                 <TextBlock Style="{StaticResource CommentOptionTextBlockStyle}">
                 UserId: <Run Text="{x:Bind UserId}" />

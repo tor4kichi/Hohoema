@@ -790,6 +790,8 @@ namespace Hohoema.Presentation.Views.Player
                 return;
             }
 
+            comment.ApplyCommands();
+
             if (comment.IsInvisible) { return; }
 
 

@@ -68,7 +68,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
                 using (Comments.DeferRefresh())
                 {
                     Comments.SortDescriptions.Add(new SortDescription("VideoPosition", SortDirection.Ascending));
-                    Comments.Filter = (c) => !isCommentFiltered(c as VideoComment);
+                    Comments.Filter = (c) => !isCommentFiltered(c as IVideoComment);
                 }
             }
         }
@@ -94,7 +94,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
         
 
-        bool isCommentFiltered(VideoComment comment)
+        bool isCommentFiltered(IVideoComment comment)
         {
             if (CommentFiltering.IsHiddenCommentOwnerUserId(comment.UserId)) { return true; }
             if (CommentFiltering.GetAllFilteringCommentTextCondition().IsMatchAny(comment.CommentText)) { return true; }

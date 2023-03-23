@@ -17,6 +17,9 @@ using CommunityToolkit.Diagnostics;
 using NiconicoToolkit.Video;
 using System.Threading;
 using NiconicoToolkit.Live.WatchPageProp;
+using CommunityToolkit.Mvvm.ComponentModel;
+using System.Runtime.Serialization;
+using Windows.UI;
 
 
 #nullable enable
@@ -111,7 +114,7 @@ public class CommentClient
     }
 
 
-    public async Task<IEnumerable<VideoComment>> GetCommentsAsync()
+    public async Task<IEnumerable<IVideoComment>> GetCommentsAsync()
     {
         var commentRes = await _nvCommentApi.GetCommentsAsync(_watchApiData!.Comment.NvComment, ct: default);
         return commentRes.Data.Threads.SelectMany(x => x.Comments).OrderBy(x => x.VposMs).Select(ToVideoComent);
@@ -136,20 +139,9 @@ public class CommentClient
 
 
 
-    private static VideoComment ToVideoComent(ThreadResponse.Comment nvComment)
+    private static NvVideoComment ToVideoComent(ThreadResponse.Comment nvComment)
     {
-        return new VideoComment()
-        {
-            CommentId = (uint)nvComment.No,
-            CommentText = nvComment.Body,
-            Mail = string.Join(' ', nvComment.Commands),
-            UserId = nvComment.UserId,
-            NGScore = nvComment.Score,
-            IsLoginUserComment = nvComment.IsMyPost,
-            IsOwnerComment = nvComment.Source == ThreadTargetForkConstants.Owner,
-            IsAnonymity = nvComment.Commands.Contains("184"),
-            VideoPosition = TimeSpan.FromMilliseconds(nvComment.VposMs),
-        };
+        return new NvVideoComment(nvComment);
     }
 
     private Dictionary<string, string> _threadForkToPostKeyCachedMap = new();
@@ -207,4 +199,70 @@ public class CommentClient
 
 
 
+}
+
+
+public class NvVideoComment : ObservableObject, IVideoComment
+{
+    // コメントのデータ構造だけで他のことを知っているべきじゃない
+    // このデータを解釈して実際に表示するためのオブジェクトにする部分は処理は
+    // View側が持つべき
+
+    public NvVideoComment(ThreadResponse.Comment comment)
+    {
+        _comment = comment;
+        IsAnonymity = _comment.Commands.Contains("184");
+    }
+
+    private readonly ThreadResponse.Comment _comment;
+
+    bool _isAppliedCommands;
+    public void ApplyCommands()
+    {
+        if (_isAppliedCommands) { return; }
+
+        foreach (var action in MailToCommandHelper.MakeCommandActions(Commands))
+        {
+            action(this);
+        }
+
+        _isAppliedCommands = true;
+    }
+
+    public uint CommentId => (uint)_comment.No;
+
+    public string CommentText => _comment.Body;
+
+    string? _commands;
+    public IReadOnlyList<string> Commands => _comment.Commands;
+    public string UserId => _comment.UserId;
+
+
+    public bool IsAnonymity { get; set; }
+
+    private TimeSpan? _videoPosition;
+    public TimeSpan VideoPosition => _videoPosition ??= TimeSpan.FromMilliseconds(_comment.VposMs);
+
+    public int NGScore => _comment.Score;
+
+    public bool IsLoginUserComment => _comment.IsMyPost;
+
+    public bool IsOwnerComment => _comment.Source == ThreadTargetForkConstants.Owner;
+
+    public int DeletedFlag => 0; 
+
+
+    private string? _commentText_Transformed;
+    public string CommentText_Transformed
+    {
+        get => _commentText_Transformed ?? CommentText;
+        set => _commentText_Transformed = value;
+    }
+
+
+    public CommentDisplayMode DisplayMode { get; set; }
+    public bool IsScrolling => DisplayMode == CommentDisplayMode.Scrolling;
+    public CommentSizeMode SizeMode { get; set; }
+    public bool IsInvisible { get; set; }
+    public Color? Color { get; set; }
 }

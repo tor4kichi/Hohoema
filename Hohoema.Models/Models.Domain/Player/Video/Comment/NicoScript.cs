@@ -86,14 +86,11 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         public string[] Command { get; set; }
 
-        List<Action<VideoComment>> _CommandActions;
+        List<Action<IComment>> _CommandActions;
 
-        public void ApplyCommand(VideoComment commentVM)
+        public void ApplyCommand(IVideoComment commentVM)
         {
-            if (_CommandActions == null)
-            {
-                _CommandActions = MailToCommandHelper.MakeCommandActions(Command).ToList();
-            }
+            _CommandActions ??= MailToCommandHelper.MakeCommandActions(Command).ToList();
 
             foreach (var action in _CommandActions)
             {
@@ -112,7 +109,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
     public static class MailToCommandHelper
     {
-        public static IEnumerable<Action<VideoComment>> MakeCommandActions(IEnumerable<string> commands)
+        public static IEnumerable<Action<IComment>> MakeCommandActions(IEnumerable<string> commands)
         {
             foreach (var command in commands)
             {

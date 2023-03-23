@@ -276,6 +276,7 @@
     </Compile>
     <Compile Include="Presentation.Views.Player\VideoPlayerUI\VideoQualityListItemContainerStyleSelector.cs" />
     <Compile Include="Presentation.Views\Converters\ColorToBrushConverter.cs" />
+    <Compile Include="Presentation.Views\Converters\StringJoinConverter.cs" />
     <Compile Include="Presentation.Views\Interaction\Input\PointerCursolAutoHideBehavior.cs" />
     <Compile Include="Presentation.Views\Mylist\MylistCardView.cs" />
     <Compile Include="Presentation.Views\Flyouts\ChannelInfoFlyout.xaml.cs">

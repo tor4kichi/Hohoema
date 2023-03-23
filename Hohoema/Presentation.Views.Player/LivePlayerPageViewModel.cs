@@ -49,6 +49,7 @@ using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using Hohoema.Models.Domain.Player.Comment;
 using Hohoema.Presentation.Navigations;
+using Hohoema.Models.Domain.Niconico.Video;
 
 namespace Hohoema.Presentation.ViewModels.Player
 {
@@ -1773,11 +1774,26 @@ namespace Hohoema.Presentation.ViewModels.Player
         // このデータを解釈して実際に表示するためのオブジェクトにする部分は処理は
         // View側が持つべき
 
+        bool _isAppliedCommands;
+        public void ApplyCommands()
+        {
+            /*
+            if (_isAppliedCommands) { return; }
+
+            foreach (var action in MailToCommandHelper.MakeCommandActions(Commands))
+            {
+                action(this);
+            }
+
+            _isAppliedCommands = true;
+            */
+        }
+
         public uint CommentId { get; set; }
 
         public string CommentText { get; set; }
 
-        public string Mail { get; set; }
+        public IReadOnlyList<string> Commands { get; set; }
 
         public string UserId { get; set; }
 

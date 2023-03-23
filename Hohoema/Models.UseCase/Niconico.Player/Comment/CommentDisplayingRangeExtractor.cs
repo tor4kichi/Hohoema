@@ -9,17 +9,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Domain.Player.Comment;
 
 namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 {
-    public ref struct CommentDisplayingRangeChanged
+    public ref struct CommentDisplayingRangeChanged<TComment>
     {
-        public ReadOnlySpan<VideoComment> InRangeComments;
-        public ReadOnlySpan<VideoComment> AddedComments;
-        public ReadOnlySpan<VideoComment> RemovedComments;
+        public ReadOnlySpan<TComment> InRangeComments;
+        public ReadOnlySpan<TComment> AddedComments;
+        public ReadOnlySpan<TComment> RemovedComments;
     }
 
-    public sealed class CommentDisplayingRangeExtractor
+    public sealed class CommentDisplayingRangeExtractor<TComment> where TComment : IComment
     {
         public CommentDisplayingRangeExtractor(PlayerSettings playerSettings)
         {
@@ -27,7 +28,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         }
 
 
-        VideoComment[] _comments;
+        TComment[] _comments;
         TimeSpan _prevPosition;
         int _endIndex = 0;
         int _startIndex = 0;
@@ -41,7 +42,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             _endIndex = 0;
         }
 
-        public ReadOnlySpan<VideoComment> ResetComments(IEnumerable<VideoComment> comments, TimeSpan initialPosition = default)
+        public ReadOnlySpan<TComment> ResetComments(IEnumerable<TComment> comments, TimeSpan initialPosition = default)
         {
             Clear();
 
@@ -50,9 +51,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             return Rewind(initialPosition);
         }
 
-        public CommentDisplayingRangeChanged UpdateToNextFrame(TimeSpan currentPosition)
+        public CommentDisplayingRangeChanged<TComment> UpdateToNextFrame(TimeSpan currentPosition)
         {
-            if (_comments == null) { return new CommentDisplayingRangeChanged(); }
+            if (_comments == null) { return new CommentDisplayingRangeChanged<TComment>(); }
 
             TimeSpan startPosition = GetDisplayRangeStartPosition(currentPosition);
 
@@ -64,11 +65,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 
                 var comments = Rewind(currentPosition);
 
-                return new CommentDisplayingRangeChanged()
+                return new CommentDisplayingRangeChanged<TComment>()
                 {
                     InRangeComments = comments,
                     AddedComments = comments,
-                    RemovedComments = new ReadOnlySpan<VideoComment>(_comments, prevStart, prevEnd - prevStart)
+                    RemovedComments = new ReadOnlySpan<TComment>(_comments, prevStart, prevEnd - prevStart)
                 };
             }
 
@@ -79,9 +80,9 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             return rangeComments;
         }
 
-        public ReadOnlySpan<VideoComment> Rewind(TimeSpan endPosition)
+        public ReadOnlySpan<TComment> Rewind(TimeSpan endPosition)
         {
-            if (_comments == null) { return ReadOnlySpan<VideoComment>.Empty; }
+            if (_comments == null) { return ReadOnlySpan<TComment>.Empty; }
 
             var startPosition = GetDisplayRangeStartPosition(endPosition);
             _startIndex = 0;
@@ -100,7 +101,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         }
 
 
-        private CommentDisplayingRangeChanged EnumerateCommentsInRange(ref int start, ref int end, TimeSpan startPosition, TimeSpan endPosition)
+        private CommentDisplayingRangeChanged<TComment> EnumerateCommentsInRange(ref int start, ref int end, TimeSpan startPosition, TimeSpan endPosition)
         {
             int prevStart = start;
             int newStart = start;
@@ -139,11 +140,11 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
             }
 #endif 
 
-            return new CommentDisplayingRangeChanged()
+            return new ()
             {
-                InRangeComments = new ReadOnlySpan<VideoComment>(_comments, newStart, newEnd - newStart),
-                RemovedComments = new ReadOnlySpan<VideoComment>(_comments, prevStart, newStart - prevStart),
-                AddedComments = new ReadOnlySpan<VideoComment>(_comments, prevEnd, newEnd - prevEnd),
+                InRangeComments = new (_comments, newStart, newEnd - newStart),
+                RemovedComments = new (_comments, prevStart, newStart - prevStart),
+                AddedComments = new (_comments, prevEnd, newEnd - prevEnd),
             };
         }
 
