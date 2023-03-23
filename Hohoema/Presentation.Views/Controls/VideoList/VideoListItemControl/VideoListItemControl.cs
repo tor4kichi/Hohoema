@@ -307,5 +307,19 @@ namespace Hohoema.Presentation.Views.Controls.VideoList
 
         }
 
+
+
+
+        public Visibility IsRequirePayment
+        {
+            get { return (Visibility)GetValue(IsRequirePaymentProperty); }
+            set { SetValue(IsRequirePaymentProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsRequirePayment.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsRequirePaymentProperty =
+            DependencyProperty.Register("IsRequirePayment", typeof(Visibility), typeof(VideoListItemControl), new PropertyMetadata(Visibility.Collapsed));
+
+
     }
 }

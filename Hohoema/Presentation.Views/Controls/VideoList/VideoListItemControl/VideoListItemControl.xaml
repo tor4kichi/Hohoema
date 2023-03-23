@@ -46,6 +46,12 @@
                              >
                   </TextBlock>
 
+                  <TextBlock x:Name="RequirePaymentTextBlock" Text="{i18nExt:Localize Key=Video_RequirePay}"                                                          
+                             Visibility="{TemplateBinding IsRequirePayment}"                            
+                             Foreground="{ThemeResource SystemErrorTextColor}"
+                             Opacity="1"
+                             />
+
                 </StackPanel>
 
 

@@ -514,13 +514,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                 vm.ViewCount = itemData.WatchCount;
                 vm.MylistCount = itemData.MylistCount;
 
-                // Note: ランキングページにおける投稿者NGは扱わないように変更する
-                // プレ垢であれば追加情報取得してもいいと思うが、長期メンテするには面倒なので対応しない
-                //var owner = owners[videoId];
-                //vm.ProviderId = owner.OwnerId;
-                //vm.ProviderName = owner.ScreenName;
-                //vm.ProviderType = owner.UserType;
-
                 return vm;
             })
             .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
