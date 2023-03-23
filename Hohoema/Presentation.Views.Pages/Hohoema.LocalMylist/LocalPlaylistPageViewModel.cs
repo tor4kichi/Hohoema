@@ -239,7 +239,10 @@ namespace Hohoema.Presentation.ViewModels.Pages.Hohoema.LocalMylist
             
 
             ct.ThrowIfCancellationRequested();
-            return _items.Skip(head).Take(pageSize).Select((item, i) => new VideoListItemControlViewModel(item as NicoVideo) { PlaylistItemToken = new PlaylistItemToken(_playlist, _sortOption, item) });
+            return _items.Skip(head).Take(pageSize)
+                .Select((item, i) => new VideoListItemControlViewModel(item as NicoVideo) { PlaylistItemToken = new PlaylistItemToken(_playlist, _sortOption, item) })
+                .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                ;
         }
     }
 }

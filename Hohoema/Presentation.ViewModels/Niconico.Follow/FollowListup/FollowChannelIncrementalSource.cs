@@ -37,7 +37,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
                 isTailReached = true;
             }
 
-            return res.Data.Select(x => new FollowChannelViewModel(x));
+            return res.Data
+                .Select(x => new FollowChannelViewModel(x))
+                .ToArray() // Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                ;
         }
     }
 }

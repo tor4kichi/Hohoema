@@ -52,7 +52,10 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Search
                 return Enumerable.Empty<VideoListItemControlViewModel>();
             }
 
-            return res.Videos.Select((x, i) => new VideoListItemControlViewModel(x.Video, x.Thread) { PlaylistItemToken = new Models.Domain.Playlist.PlaylistItemToken(_searchVideoPlaylist, _sortOption, new CeApiSearchVideoContent(x.Video))});
+            return res.Videos
+                .Select((x, i) => new VideoListItemControlViewModel(x.Video, x.Thread) { PlaylistItemToken = new Models.Domain.Playlist.PlaylistItemToken(_searchVideoPlaylist, _sortOption, new CeApiSearchVideoContent(x.Video))})
+                .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                ;
         }
     }
 }

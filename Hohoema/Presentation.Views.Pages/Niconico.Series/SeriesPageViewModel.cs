@@ -222,7 +222,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Series
                 itemVM.IsDeleted = item.IsDeleted;
 
                 return itemVM;
-            });
+            })
+            .ToArray() // Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+            ;
         }
     }
 

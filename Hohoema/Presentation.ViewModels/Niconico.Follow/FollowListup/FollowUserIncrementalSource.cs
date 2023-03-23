@@ -34,7 +34,9 @@ namespace Hohoema.Presentation.ViewModels.Niconico.Follow
                 return Enumerable.Empty<IUser>();
             }
 
-            return _lastRes?.Data.Items.Select(x => new FollowUserViewModel(x));
+            return _lastRes?.Data.Items.Select(x => new FollowUserViewModel(x))
+                .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                ;
         }
     }
 

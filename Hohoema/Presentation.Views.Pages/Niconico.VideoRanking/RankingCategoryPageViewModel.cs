@@ -522,7 +522,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                 //vm.ProviderType = owner.UserType;
 
                 return vm;
-            });
+            })
+            .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+            ;
         }
     }
 
@@ -591,7 +593,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             return targetItems.Select((item, offset) =>
             {
                 return new RankedVideoListItemControlViewModel((uint)(_itemsCount++) + 1, item);
-            }).ToList();
+            }).ToArray();
         }
     }
 

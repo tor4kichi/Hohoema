@@ -412,7 +412,9 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.NicoRepo
                     return null;
                 }
             })
-                .Where(x => x != null);
+                .Where(x => x != null)
+                .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                ;
 
 #if DEBUG
             //Debug.WriteLine(string.Join(" ", triggers));
