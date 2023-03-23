@@ -25,13 +25,13 @@ namespace Hohoema.Models.Domain.Pins
 
         public void RemovePin(HohoemaPageType pageType, string parameter)
         {
-            _collection.Delete(x => x.PageType == pageType && x.Parameter == parameter);
+            _collection.DeleteMany(x => x.PageType == pageType && x.Parameter == parameter);
         }
 
 
         HohoemaPin CreatePin(string label, HohoemaPageType pageType, string parameter)
         {
-            var sortIndex = _collection.Max(x => x.SortIndex) ?? 0;
+            var sortIndex = _collection.Max(x => x.SortIndex);
 
             var pin = new HohoemaPin()
             {

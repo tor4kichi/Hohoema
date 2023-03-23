@@ -51,7 +51,7 @@ namespace Hohoema.Models.Domain.Application
 
     public sealed class ThumbnailCacheManager
     {
-        private readonly LiteStorage _fileStorage;
+        private readonly ILiteStorage<string> _fileStorage;
         private readonly HttpClient _httpClient;
 
         public ThumbnailCacheManager(

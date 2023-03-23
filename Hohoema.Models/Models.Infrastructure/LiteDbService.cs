@@ -12,12 +12,10 @@ namespace Hohoema.Models.Infrastructure
 {
     public abstract class LiteDBServiceBase<T>
     {
-        protected LiteCollection<T> _collection;
-        private readonly LiteDatabase _liteDatabase;
+        protected ILiteCollection<T> _collection;
 
         public LiteDBServiceBase(LiteDatabase liteDatabase)
         {
-            _liteDatabase = liteDatabase;
             _collection = liteDatabase.GetCollection<T>();
         }
 
@@ -40,12 +38,12 @@ namespace Hohoema.Models.Infrastructure
 
         public virtual bool DeleteItem(T item)
         {
-            return _collection.Delete(i => i.Equals(item)) > 0;
+            return _collection.DeleteMany(i => i.Equals(item)) > 0;
         }
 
         public virtual bool DeleteMany(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
         {
-            return _collection.Delete(predicate) > 0;
+            return _collection.DeleteMany(predicate) > 0;
         }
 
         public virtual bool DeleteItem(BsonValue id)
@@ -89,12 +87,12 @@ namespace Hohoema.Models.Infrastructure
     {
         public static int DeleteMany<T>(this LiteCollection<T> collection, Expression<Func<T, bool>> predicate)
         {
-            return collection.Delete(predicate);
+            return collection.DeleteMany(predicate);
         }
 
         public static int DeleteAll<T>(this LiteCollection<T> collection)
         {
-            return collection.Delete(Query.All());
+            return collection.DeleteAll();
         }
     }
 }

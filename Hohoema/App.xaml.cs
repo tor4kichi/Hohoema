@@ -113,7 +113,7 @@ namespace Hohoema
 
         public new static App Current => (App)Application.Current;
 
-        public Container Container { get; }
+        public Container Container { get; private set; }
 
         /// <summary>
         /// 単一アプリケーション オブジェクトを初期化します。これは、実行される作成したコードの
@@ -130,8 +130,6 @@ namespace Hohoema
             // テーマ設定
             // ThemeResourceの切り替えはアプリの再起動が必要
             RequestedTheme = GetTheme();
-
-            Container = ConfigureService();
 
             this.InitializeComponent();
         }
@@ -306,13 +304,15 @@ namespace Hohoema
 
             container.UseInstance<IMessenger>(WeakReferenceMessenger.Default);
 
-            LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
-            container.UseInstance<LiteDatabase>(db);
+            string listDbUpgradeConnectionStringParam = SystemInformation.Instance.IsAppUpdated
+                ? "Upgrade=true;"
+                : ""
+                ;
 
-            LiteDatabase thumbDb = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.TemporaryFolder.Path, "thumbnail_cache.db")};");
-            container.Register<ThumbnailCacheManager>(reuse: new SingletonReuse(), made: Made.Of(() => new ThumbnailCacheManager(thumbDb)));
-
-
+            container.UseInstance<LiteDatabase>(new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};{listDbUpgradeConnectionStringParam}"));
+            var thumb = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.TemporaryFolder.Path, "thumbnail_cache.db")};{listDbUpgradeConnectionStringParam}");
+            container.Register<ThumbnailCacheManager>(reuse: new SingletonReuse(), made: Made.Of(() => new ThumbnailCacheManager(thumb)));
+           
             container.RegisterDelegate<IPlayerView>(c =>
             {
                 var appearanceSettings = c.Resolve<AppearanceSettings>();
@@ -443,6 +443,8 @@ namespace Hohoema
 
             if (isInitialized) { return; }
             isInitialized = true;
+
+            Container = ConfigureService();
 
             if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.Instance.IsAppUpdated)
             {
