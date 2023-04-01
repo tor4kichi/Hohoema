@@ -13,9 +13,23 @@ using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Domain.Player.Video.Comment;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
+using System.Collections;
 
 namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 {
+    public sealed class VideoCommentDefaultOrderComparer : IComparer, IComparer<IVideoComment>
+    {
+        public int Compare(IVideoComment x, IVideoComment y)
+        {
+            return TimeSpan.Compare(x.VideoPosition, y.VideoPosition);
+        }
+
+        public int Compare(object x, object y)
+        {
+            return Compare(x as IVideoComment, y as IVideoComment);
+        }
+    }
+
     public sealed class VideoCommentSidePaneContentViewModel : ObservableObject, IDisposable
     {
         public CommentFilteringFacade CommentFiltering { get; }
@@ -29,7 +43,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
             CommentPlayer = commentPlayer;
             CommentFiltering = commentFiltering;
             _dialogService = dialogService;
-            Comments = new AdvancedCollectionView(CommentPlayer.Comments, true);
+            Comments = new AdvancedCollectionView(CommentPlayer.Comments, false);
 
             HandleCommentFilterConditionChanged();
 
@@ -67,7 +81,7 @@ namespace Hohoema.Presentation.ViewModels.Player.PlayerSidePaneContent
 
                 using (Comments.DeferRefresh())
                 {
-                    Comments.SortDescriptions.Add(new SortDescription("VideoPosition", SortDirection.Ascending));
+                    Comments.SortDescriptions.Add(new SortDescription(SortDirection.Ascending, new VideoCommentDefaultOrderComparer()));
                     Comments.Filter = (c) => !isCommentFiltered(c as IVideoComment);
                 }
             }
