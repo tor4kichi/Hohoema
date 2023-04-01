@@ -280,7 +280,7 @@ namespace Hohoema.Models.Domain.Niconico
             try
             {
                 var user = await context.User.GetUserInfoAsync(_UserId.ToString());
-                if (!user.IsOK) { throw new HohoemaExpception(); }
+                if (!user.IsOK) { throw new HohoemaException(); }
                 return (user.User.Nickname, user.User.ThumbnailUrl);
             }
             catch (Exception ex)

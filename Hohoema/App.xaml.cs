@@ -1042,6 +1042,11 @@ namespace Hohoema
 
             var logger = Container.Resolve<ILogger>();
             logger.ZLogError(e.Exception.ToString());
+
+            if (e.Exception is HohoemaException)
+            {
+                return;
+            }
         }
 
         // エラー報告用に画面のスクショを取れるように

@@ -5,7 +5,6 @@
     xmlns:local="using:Hohoema.Presentation.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:view="using:Hohoema.Presentation.Views"
     xmlns:models="using:Hohoema.Models.Domain.Application"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
@@ -28,7 +27,7 @@
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
                                       ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
-                                      RefreshCommand="{Binding RefreshCommand}"
+                                      RefreshCommand="{Binding ResetListCommand}"
                                       PlaylistPassToFlyout="{Binding ChannelVideoPlaylist}"
                                       x:Name="VideoItemsListView"
                                       >
@@ -53,7 +52,7 @@
               <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
                 <ComboBox ItemsSource="{Binding SortOptions}"
                           SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
-                          IsEnabled="{Binding NowLoading.Value, Converter={StaticResource BoolNegation}}"
+                          IsEnabled="{Binding NowLoading, Converter={StaticResource BoolNegation}}"
                           VerticalAlignment="Stretch"
                           Margin="0 6"
                           >
@@ -88,7 +87,7 @@
                               Label="{i18nExt:Localize Key=Refresh}" 
                               Icon="Refresh"
                               Command="{Binding RefreshCommand}"
-                              IsEnabled="{Binding CanChangeSort.Value}"
+                              IsEnabled="{Binding CanChangeSort}"
                               VerticalAlignment="Center"
                           >
               </AppBarButton>
@@ -131,13 +130,20 @@
 
     </videolistPage:VideoItemsListView>
 
-    <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+    <StackPanel x:Name="EmptyItemsLayout" Visibility="Collapsed" Spacing="8" >
       <TextBlock Text="{i18nExt:Localize Key=ChannelVideoNoItems}"
-                     Style="{StaticResource SubtitleTextBlockStyle}"
-                     Opacity="0.8"
-                     />
-    </Grid>
-    
+                    Style="{StaticResource SubtitleTextBlockStyle}"
+                    Opacity="0.8"
+                  HorizontalAlignment="Center"
+                    />
+
+    </StackPanel>
+
+    <StackPanel x:Name="PageLoadingErrorLayout" Visibility="Collapsed" Spacing="8">
+      <Grid BorderBrush="{ThemeResource SystemErrorTextColor}" MaxWidth="600" BorderThickness="1" >
+        <TextBlock Text="{x:Bind _vm.Error, Mode=OneWay}" TextWrapping="Wrap" IsTextSelectionEnabled="True" Margin="16" />
+      </Grid>
+    </StackPanel>
 
 
     <VisualStateManager.VisualStateGroups>
@@ -195,7 +201,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding NowLoading.Value}" />
+            <StateTrigger IsActive="{Binding NowLoading}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ScrollToTopButton.IsEnabled" Value="False" />

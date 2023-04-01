@@ -574,7 +574,7 @@ namespace Hohoema.Models.Domain.Playlist
 
             if (quelityEntity.IsAvailable is false)
             {
-                throw new HohoemaExpception("unavailable video quality : " + quality);
+                throw new HohoemaException("unavailable video quality : " + quality);
             }
 
             var videoSession = await CurrentPlayingSession.VideoSessionProvider.CreateVideoSessionAsync(quality);

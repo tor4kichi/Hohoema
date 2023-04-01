@@ -41,7 +41,7 @@
         
         <mybehavior:KeyboardTrigger Key="F5">
           <mybehavior:KeyboardTrigger.Actions>
-            <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
+            <core:InvokeCommandAction Command="{x:Bind _vm.ResetListCommand}" />
           </mybehavior:KeyboardTrigger.Actions>
         </mybehavior:KeyboardTrigger>
         <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
@@ -164,7 +164,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding HasItem.Value, Converter={StaticResource BoolNegation}}"/>
+            <StateTrigger IsActive="{Binding HasItem, Converter={StaticResource BoolNegation}}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="EmptyItemsLayout.Opacity" Value="1.0" />

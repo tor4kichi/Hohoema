@@ -27,12 +27,12 @@ namespace Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser
             
             if (!_niconicoSession.IsLoggedIn)
             {
-                throw new HohoemaExpception("Failed get login user video watch history. Require LogIn.");
+                throw new HohoemaException("Failed get login user video watch history. Require LogIn.");
             }
 
             var res = await _niconicoSession.ToolkitContext.Activity.VideoWachHistory.GetWatchHistoryAsync(0, 100);
 
-            if (res.Meta.IsSuccess is false) { throw new HohoemaExpception("Failed get login user video watch history"); }
+            if (res.Meta.IsSuccess is false) { throw new HohoemaException("Failed get login user video watch history"); }
 
             foreach (var history in res.Data.Items)
             {

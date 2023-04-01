@@ -12,5 +12,10 @@ namespace Hohoema.Presentation.ViewModels
         {
             return String.Join("&", query.Select(x => x.Key + "=" + Uri.EscapeDataString(x.Value)));
         }
+
+        public static string ToQueryStringWithoutEscape(this IEnumerable<KeyValuePair<string, string>> query)
+        {
+            return String.Join("&", query.Select(x => x.Key + "=" + x.Value));
+        }
     }
 }

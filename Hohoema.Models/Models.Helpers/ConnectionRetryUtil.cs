@@ -49,7 +49,7 @@ namespace Hohoema.Models.Helpers
 			
 			}
 
-			throw new Models.Infrastructure.HohoemaExpception("connection retry rimit.", lastError);
+			throw new Models.Infrastructure.HohoemaException("connection retry rimit.", lastError);
 		}
 
 

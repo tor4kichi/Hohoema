@@ -192,6 +192,7 @@
     <Compile Include="Presentation.Services\NotificationService.cs" />
     <Compile Include="Presentation.ViewModels\CommandBase.cs" />
     <Compile Include="Presentation.ViewModels\Hohoema.LocalMylist\LocalMylistCreateCommand.cs" />
+    <Compile Include="Presentation.ViewModels\HohoemaVideoListException.cs" />
     <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenVideoOwnerMylistListCommand.cs" />
     <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenVideoOwnerSeriesListCommand.cs" />
     <Compile Include="Presentation.ViewModels\Navigation.Commands\OpenVideoOwnerVideoListCommand.cs" />

@@ -43,7 +43,7 @@
         
         <mybehavior:KeyboardTrigger Key="F5">
           <mybehavior:KeyboardTrigger.Actions>
-            <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
+            <core:InvokeCommandAction Command="{Binding ResetListCommand}" />
           </mybehavior:KeyboardTrigger.Actions>
         </mybehavior:KeyboardTrigger>
         <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
@@ -69,7 +69,7 @@
                   <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
                     <ComboBox ItemsSource="{Binding SortOptions}"
                           SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
-                          IsEnabled="{Binding NowLoading.Value, Converter={StaticResource BoolNegation}}"
+                          IsEnabled="{Binding NowLoading, Converter={StaticResource BoolNegation}}"
                               VerticalAlignment="Stretch"
                           Margin="0 6"
                           >

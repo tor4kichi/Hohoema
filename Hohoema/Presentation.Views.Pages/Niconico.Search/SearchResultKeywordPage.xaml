@@ -25,7 +25,7 @@
       ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}" 
       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" 
-      RefreshCommand="{x:Bind _vm.RefreshCommand}" 
+      RefreshCommand="{x:Bind _vm.ResetListCommand}" 
       PlaylistPassToFlyout="{x:Bind _vm.SearchVideoPlaylist, Mode=OneWay}"
       x:Name="VideoItemsListView">
       <videolistPage:VideoItemsListView.Header>
@@ -41,7 +41,7 @@
                 <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
                   <ComboBox ItemsSource="{x:Bind _vm.SortOptions}"
                           SelectedItem="{x:Bind _vm.SelectedSortOption, Mode=TwoWay}"
-                          IsEnabled="{x:Bind _vm.NowLoading.Value, Mode=OneWay, Converter={StaticResource BoolNegation}}"
+                          IsEnabled="{x:Bind _vm.NowLoading, Mode=OneWay, Converter={StaticResource BoolNegation}}"
                           VerticalAlignment="Stretch"
                           Margin="0 6"
                           >
@@ -68,7 +68,7 @@
                 </AppBarButton>
 
                 <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
-                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.RefreshCommand}" IsEnabled="{x:Bind _vm.CanChangeSort.Value, Mode=OneWay}" VerticalAlignment="Center"></AppBarButton>
+                <AppBarButton x:Name="RefreshButton" Label="{i18nExt:Localize Key=Refresh}" Icon="Refresh" Command="{x:Bind _vm.ResetListCommand}" IsEnabled="{x:Bind _vm.CanChangeSort, Mode=OneWay}" VerticalAlignment="Center"></AppBarButton>
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
 
@@ -132,7 +132,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind _vm.NowLoading.Value, Mode=OneWay}" />
+            <StateTrigger IsActive="{x:Bind _vm.NowLoading, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ScrollToTopButton.IsEnabled" Value="False" />

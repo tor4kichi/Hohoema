@@ -147,7 +147,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     {
                         DisplayMode = PlayerDisplayMode.Close;
                         _view.Title = string.Empty;
-                        throw result.Exception ?? new Models.Infrastructure.HohoemaExpception("unknown navigation error.");
+                        throw result.Exception ?? new Models.Infrastructure.HohoemaException("unknown navigation error.");
                     }
 
                     LastNavigatedPageName = pageName;

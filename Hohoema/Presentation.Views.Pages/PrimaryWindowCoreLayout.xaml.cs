@@ -398,7 +398,7 @@ namespace Hohoema.Presentation.Views.Pages
                     }
                     else
                     {
-                        throw result.Exception ?? new HohoemaExpception("navigation error");
+                        throw result.Exception ?? new HohoemaException("navigation error");
                     }
 
                     Debug.WriteLineIf(!result.IsSuccess, result.Exception?.ToString());

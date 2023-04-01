@@ -117,7 +117,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.Mylist
             }
             else
             {
-                throw new Models.Infrastructure.HohoemaExpception("UserMylistPage が不明なパラメータと共に開かれました : " + parameters.ToString());
+                throw new Models.Infrastructure.HohoemaException("UserMylistPage が不明なパラメータと共に開かれました : " + parameters.ToString());
             }
 
 

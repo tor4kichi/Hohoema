@@ -250,7 +250,7 @@ namespace Hohoema.Models.Domain.VideoCache
                 }
                 else
                 {
-                    throw new HohoemaExpception("数字のみのIDを動画IDに変換できなかった: " + videoId);
+                    throw new HohoemaException("数字のみのIDを動画IDに変換できなかった: " + videoId);
                 }
             }
             else
@@ -788,7 +788,7 @@ namespace Hohoema.Models.Domain.VideoCache
                 else
                 {
                     var avairableQualities = watchApiData.Media.Delivery.Movie.Session.Videos.Select(x => NicoVideoCacheQualityHelper.QualityIdToCacheQuality(x)).ToArray();
-                    if (avairableQualities.Length == 0) { throw new Models.Infrastructure.HohoemaExpception("キャッシュ用画質Enumの変換に失敗"); }
+                    if (avairableQualities.Length == 0) { throw new Models.Infrastructure.HohoemaException("キャッシュ用画質Enumの変換に失敗"); }
 
                     while (avairableQualities.Contains(candidateDownloadingQuality) is false && candidateDownloadingQuality is not NicoVideoQuality.Unknown)
                     {
