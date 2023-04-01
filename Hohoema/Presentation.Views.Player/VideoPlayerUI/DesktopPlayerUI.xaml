@@ -895,9 +895,9 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind IsVisibleUI, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding ElementName=IsVisibleUI, Mode=OneWay}" />
             <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
-            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{Binding ElementName=RootLayout}"/>
             <windowsTriggers:EqualsStateTrigger Value="{Binding CurrentPlayerDisplayView.Value, Mode=OneWay}" EqualTo="SecondaryView" />
             <StateTrigger IsActive="{x:Bind _vm.ObservableMediaPlayer.NowPlaying.Value, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
           </VisualState.StateTriggers>
@@ -921,7 +921,7 @@
         <!-- 幅が十分に広いとき -->
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControlWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_WideToMiddle}" Comparison="GreaterThan" />
+            <windowsTriggers:CompareStateTrigger Value="{Binding ElementName=MediaControlWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_WideToMiddle}" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>
@@ -930,7 +930,7 @@
         <!-- 中ぐらい -->
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControlWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_MiddleToNallow}" Comparison="GreaterThan" />
+            <windowsTriggers:CompareStateTrigger Value="{Binding ElementName=MediaControlWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_MiddleToNallow}" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />
@@ -952,7 +952,7 @@
         <!-- 超狭い -->
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControlWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_NallowToVeryNallow}" Comparison="GreaterThan" />
+            <windowsTriggers:CompareStateTrigger Value="{Binding ElementName=MediaControlWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_NallowToVeryNallow}" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />
@@ -977,7 +977,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControlWidth, Mode=OneWay}" CompareTo="0" Comparison="GreaterThan" />
+            <windowsTriggers:CompareStateTrigger Value="{Binding ElementName=MediaControlWidth, Mode=OneWay}" CompareTo="0" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />
@@ -1069,8 +1069,8 @@
             <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
             <StateTrigger IsActive="{Binding PlayerSettings.IsAutoHidePlayerControlUI, Converter={StaticResource BoolNegation}}" />
             <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
-            <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
-            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{Binding ElementName=RootLayout}" />
+            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{Binding ElementName=CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{Binding ElementName=RootLayout}" />
             <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="Controller" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1083,7 +1083,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:WindowActiveTrigger Inverted="True" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <myTrigger:WindowActiveTrigger Inverted="True" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{Binding ElementName=RootLayout}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="WindowDeactiveMouseMoveDetectWall.Visibility" Value="Visible" />
@@ -1100,7 +1100,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind IsVisibleUI, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding ElementName=IsVisibleUI, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <!-- 読み取り再生位置スライダーの表示状態 -->
@@ -1116,10 +1116,10 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
-            <StateTrigger IsActive="{x:Bind _vm.PlayerSplitViewIsPaneOpen, Mode=OneWay}" />
-            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
-            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{Binding ElementName=RootLayout}" />
+            <StateTrigger IsActive="{Binding PlayerSplitViewIsPaneOpen, Mode=OneWay}" />
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{Binding ElementName=RootLayout}" />
+            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{Binding ElementName=CommandEditerFlyout}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{Binding ElementName=RootLayout}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentWriteBeginKeyboardAccelerator.IsEnabled" Value="False" />
@@ -1135,7 +1135,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}" />
+            <myTrigger:FocusTrigger Target="{Binding ElementName=CommentTextBox}" myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{Binding ElementName=RootLayout}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentWriteExitKeyboardAccelerator.IsEnabled" Value="True" />
@@ -1330,7 +1330,7 @@
               <StateTrigger IsActive="{Binding VideoEndedRecommendation.HasRecomend.Value}" />
               <myTrigger:CompositeStateTrigger Operator="Or">
                 <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
-                <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
+                <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{Binding ElementName=RootLayout}"/>
               </myTrigger:CompositeStateTrigger>
             </myTrigger:CompositeStateTrigger>
           </VisualState.StateTriggers>
@@ -1345,7 +1345,7 @@
         <VisualState>
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{Binding PlayerView.IsCompactOverlay, Mode=OneWay}" />
-            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{Binding ElementName=RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="UIControlCenterLayout.Background" Value="{ThemeResource SystemAltMediumColor}" />
@@ -1359,7 +1359,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{x:Bind RootLayout}"/>
+            <myTrigger:WindowInWindowViewModeTrigger myExt:DependencyObjectExtensions.DisposeOnUnloadedTarget="{Binding ElementName=RootLayout}"/>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ControllerToggleDisplayUITrigger.IsEnabled" Value="False" />
