@@ -490,19 +490,15 @@
                   </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
                 <FlyoutBase.AttachedFlyout>
-                  <Flyout>
+                  <Flyout AllowFocusOnInteraction="True">
                     <ListView ItemsSource="{x:Bind _vm.AvailableQualities, Mode=OneWay}"
-                                      SelectedItem="{x:Bind _vm.CurrentQuality, Mode=OneWay}"
-                                      SelectionMode="Single"
-                                      IsItemClickEnabled="True"
-                                      ItemContainerStyleSelector="{StaticResource VideoQualityListItemContainerStyleSelector}"
+                              SelectedItem="{x:Bind _vm.CurrentQuality, Mode=OneWay}"
+                              ItemContainerStyleSelector="{StaticResource VideoQualityListItemContainerStyleSelector}"
+                              SelectionMode="Single"
+                              SingleSelectionFollowsFocus="False"
+                              IsItemClickEnabled="True"
+                              uwpui:ListViewExtensions.Command="{x:Bind _vm.ChangeVideoQualityCommand}"
                                       >
-                      <i:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="ItemClick">
-                          <core:InvokeCommandAction Command="{x:Bind _vm.ChangeVideoQualityCommand}"
-                                                            InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-                        </core:EventTriggerBehavior>
-                      </i:Interaction.Behaviors>
                       <ListView.ItemTemplate>
                         <DataTemplate>
                           <StackPanel Orientation="Horizontal" Spacing="8">
