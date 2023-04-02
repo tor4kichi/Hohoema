@@ -717,20 +717,6 @@ namespace Hohoema
             Container.Register<PrimaryWindowCoreLayoutViewModel>();
 
             _primaryWindowCoreLayout = Ioc.Default.GetRequiredService<PrimaryWindowCoreLayout>();
-            var hohoemaInAppNotification = new Presentation.Views.Controls.HohoemaInAppNotification()
-            {
-                VerticalAlignment = VerticalAlignment.Bottom
-            };
-
-            var grid = new Grid()
-            {
-                Children =
-                {
-                    _primaryWindowCoreLayout,
-                    hohoemaInAppNotification,
-                    new Presentation.Views.NoUIProcessScreen()
-                }
-            };
 
 #pragma warning disable IDISP001 // Dispose created.
             var unityContainer = Container;
@@ -749,7 +735,7 @@ namespace Hohoema
 
             _primaryWindowCoreLayout.IsDebugModeEnabled = IsDebugModeEnabled;
 
-            return grid;
+            return _primaryWindowCoreLayout;
         }
 
        

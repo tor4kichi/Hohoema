@@ -758,6 +758,8 @@
       </Grid>
 
 
+      <local:NoUIProcessScreen x:Name="NoUIProcessScreen" />
+
 
       <Grid Height="32" VerticalAlignment="Top">
         <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent" IsHitTestVisible="True">
@@ -805,6 +807,14 @@
         </muxc:TeachingTip>
       </Grid>
 
+      <listItemControls:HohoemaInAppNotification x:Name="HohoemaInAppNotification" VerticalAlignment="Bottom">
+        <i:Interaction.Behaviors>
+          <mybehavior:UINavigationTrigger Kind="Context2" IsRequireFocus="False">
+            <core:CallMethodAction MethodName="Dismiss" />
+          </mybehavior:UINavigationTrigger>
+        </i:Interaction.Behaviors>
+      </listItemControls:HohoemaInAppNotification>
+
       <!-- Lite -->
       <liteInAppNotification:LiteInAppNotification x:Name="LiteInAppNotification" 
                                                  HorizontalAlignment="Center" 
@@ -827,6 +837,9 @@
           <core:EventTriggerBehavior EventName="Tapped">
             <core:CallMethodAction MethodName="Dismiss" />
           </core:EventTriggerBehavior>
+          <mybehavior:UINavigationTrigger Kind="Context2" IsRequireFocus="False">
+            <core:CallMethodAction MethodName="Dismiss" />
+          </mybehavior:UINavigationTrigger>
         </i:Interaction.Behaviors>
         <liteInAppNotification:LiteInAppNotification.ContentTemplate>
           <DataTemplate x:DataType="service1:LiteNotificationPayload">

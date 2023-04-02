@@ -27,7 +27,7 @@ namespace Hohoema.Presentation.Views.Controls
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
             _messenger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IMessenger>();
-            _CurrentActiveWindowUIContextService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CurrentActiveWindowUIContextService>();
+            _CurrentActiveWindowUIContextService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CurrentActiveWindowUIContextService>();            
         }
 
         private void HohoemaInAppNotification_Loaded(object sender, RoutedEventArgs e)
@@ -89,7 +89,7 @@ namespace Hohoema.Presentation.Views.Controls
                 NoticationRequestQueue.Clear();
                 return;
             }
-
+                        
             if (NoticationRequestQueue.TryDequeue(out var payload))
             {
                 if (payload == null) { return; }
@@ -112,6 +112,18 @@ namespace Hohoema.Presentation.Views.Controls
         public void Receive(InAppNotificationMessage message)
         {
             PushNextNotication(message.Value);
+        }        
+
+
+        public void Dismiss()
+        {
+            LiteNotification.Dismiss();
+            TryNextDisplayNotication();
+        }
+
+        public void TrySetFocus()
+        {
+            Focus(FocusState.Programmatic);
         }
     }
 
