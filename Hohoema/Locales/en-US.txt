@@ -415,6 +415,8 @@ DeletedVideoNotice = It is a deleted video
 DeletedVideoToastNotificationTitleWithVideoId = Video {0} cannot be played
 ToastNotification_VideoDeletedWithId = Video deletion: {0}
 ToastNotification_ExplainVideoForceDeletion = "{0}" was deleted from the NicoNico video server, so the cache was deleted forcibly.
+Notification_VideoQualityChanged_Success = Change to {0}
+Notification_VideoQualityChanged_Failed = Failed to change quality
 
 # CommentCommandEditer
 OpenAboutCommentCommand = About commands

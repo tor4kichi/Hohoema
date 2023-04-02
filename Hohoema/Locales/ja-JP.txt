@@ -415,6 +415,8 @@ DeletedVideoNotice = 削除された動画です
 DeletedVideoToastNotificationTitleWithVideoId = 動画 {0} は再生できません
 ToastNotification_VideoDeletedWithId = 動画削除： {0}
 ToastNotification_ExplainVideoForceDeletion = 『{0}』 はニコニコ動画サーバーから削除されたため、キャッシュを強制削除しました。
+Notification_VideoQualityChanged_Success = {0} に変更
+Notification_VideoQualityChanged_Failed = 画質変更に失敗
 
 # CommentCommandEditer
 OpenAboutCommentCommand = コマンドについて

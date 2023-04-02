@@ -415,6 +415,8 @@ DeletedVideoNotice = 删除的视频
 DeletedVideoToastNotificationTitleWithVideoId = 视频{0}无法播放
 ToastNotification_VideoDeletedWithId = 视频删除：{0}
 ToastNotification_ExplainVideoForceDeletion = “ {0}”已被强制删除，因为它已从NicoNico Video Server中删除。
+Notification_VideoQualityChanged_Success = 改为{0}
+Notification_VideoQualityChanged_Failed = 更改质量失败
 
 # CommentCommandEditer
 OpenAboutCommentCommand = 关于命令
