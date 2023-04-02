@@ -51,6 +51,9 @@ ToastNotification_ExceptionHandled = I have a problem with Hohoema
 OpenErrorLog = Copy error log
 OpenErrorLogFolder = Open log folder
 
+Notification_HowToFocusForController = Y to focus here (close if no action)
+
+
 ## Clipboard action
 InAppNotification_ContentDetectedFromClipboard = Are you looking for {0}?
 

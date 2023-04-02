@@ -513,12 +513,12 @@ namespace Hohoema
 
             }
 
-            Resources["IsDebug_XboxLayout"] = _DEBUG_XBOX_RESOURCE;
-
 #if DEBUG
             Resources["IsDebug"] = true;
+            Resources["IsDebug_XboxLayout"] = _DEBUG_XBOX_RESOURCE;
 #else
             Resources["IsDebug"] = false;
+            Resources["IsDebug_XboxLayout"] = false;
 #endif
             Resources["TitleBarCustomized"] = IsTitleBarCustomized;
             Resources["TitleBarDummyHeight"] = IsTitleBarCustomized ? 32.0 : 0.0;
@@ -623,34 +623,6 @@ namespace Hohoema
             await RegisterDebugToastNotificationBackgroundHandling();
 
 
-            // 更新通知を表示
-            try
-            {
-                if (AppUpdateNotice.IsUpdated)
-                {
-                    var version = Windows.ApplicationModel.Package.Current.Id.Version;
-                    var notificationService = Container.Resolve<NotificationService>();
-                    notificationService.ShowInAppNotification(new InAppNotificationPayload()
-                    {
-                        Content = ZString.Format("Hohoema v{0}.{1}.{2} に更新しました", version.Major, version.Minor, version.Build),
-                        ShowDuration = TimeSpan.FromSeconds(7),
-                        IsShowDismissButton = true,
-                        Commands =
-                            {
-                                new InAppNotificationCommand()
-                                {
-                                    Command = new RelayCommand(async () =>
-                                    {
-                                        await AppUpdateNotice.ShowReleaseNotePageOnBrowserAsync();
-                                    }),
-                                    Label = "更新情報を確認（ブラウザで表示）"
-                                }
-                            }
-                    });
-                    AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
-                }
-            }
-            catch { }
 
 
             /*
@@ -833,6 +805,25 @@ namespace Hohoema
         private async void OnInitialized()
         {
             Window.Current.Activate();
+
+            var currentActiveWindowUIContextService = Ioc.Default.GetRequiredService<CurrentActiveWindowUIContextService>();
+            CurrentActiveWindowUIContextService.SetUIContext(currentActiveWindowUIContextService , Window.Current.Content.UIContext, Window.Current.Content.XamlRoot);
+
+            // 更新通知を表示
+            try
+            {
+                if (AppUpdateNotice.IsUpdated)
+                {
+                    var version = Windows.ApplicationModel.Package.Current.Id.Version;
+                    var notificationService = Container.Resolve<NotificationService>();
+                    notificationService.ShowLiteInAppNotification(
+                        ZString.Format("Hohoema v{0}.{1}.{2} に更新しました", version.Major, version.Minor, version.Build),
+                        TimeSpan.FromSeconds(7)
+                        );
+                    AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
+                }
+            }
+            catch { }
 
             // ログイン
             try

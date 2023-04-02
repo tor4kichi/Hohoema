@@ -51,6 +51,9 @@ ToastNotification_ExceptionHandled = Hohoemaに問題が発生しました
 OpenErrorLog = エラーログをコピー
 OpenErrorLogFolder = ログフォルダを開く
 
+Notification_HowToFocusForController = Y でここにフォーカス移動（アクションが無い場合は閉じる）
+
+
 ## Clipboard action
 InAppNotification_ContentDetectedFromClipboard = {0} をお探しですか？
 

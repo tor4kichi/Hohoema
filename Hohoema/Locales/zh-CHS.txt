@@ -51,6 +51,9 @@ ToastNotification_ExceptionHandled = Hohoema遇到问题
 OpenErrorLog = 复制错误日志
 OpenErrorLogFolder = 打开日志文件夹
 
+Notification_HowToFocusForController = Y 聚焦这里（如果没有动作则关闭）
+
+
 ## Clipboard action
 InAppNotification_ContentDetectedFromClipboard = 寻找{0}？
 

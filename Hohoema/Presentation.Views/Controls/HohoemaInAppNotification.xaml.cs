@@ -8,6 +8,10 @@ using CommunityToolkit.Mvvm.Messaging;
 using Windows.System;
 using Hohoema.Models.Domain.Notification;
 using Hohoema.Presentation.Services;
+using System.Linq;
+using Windows.UI.Xaml.Input;
+using Hohoema.Models.Helpers;
+using System.Threading.Tasks;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -27,16 +31,19 @@ namespace Hohoema.Presentation.Views.Controls
             _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
             _messenger = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IMessenger>();
-            _CurrentActiveWindowUIContextService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CurrentActiveWindowUIContextService>();            
-        }
-
-        private void HohoemaInAppNotification_Loaded(object sender, RoutedEventArgs e)
-        {
+            _CurrentActiveWindowUIContextService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<CurrentActiveWindowUIContextService>();
             _messenger.Register<InAppNotificationMessage>(this, (r, m) => PushNextNotication(m.Value));
             _messenger.Register<InAppNotificationDismissMessage>(this, (r, m) =>
             {
                 LiteNotification.Dismiss();
             });
+        }
+
+        
+        private async void HohoemaInAppNotification_Loaded(object sender, RoutedEventArgs e)
+        {
+            await Task.Delay(3000);
+            TryNextDisplayNotication();
         }
 
         private void HohoemaInAppNotification_Unloaded(object sender, RoutedEventArgs e)
@@ -49,7 +56,7 @@ namespace Hohoema.Presentation.Views.Controls
         private readonly DispatcherQueue _dispatcherQueue;
         private readonly IMessenger _messenger;
         private readonly CurrentActiveWindowUIContextService _CurrentActiveWindowUIContextService;
-        static readonly TimeSpan DefaultShowDuration = TimeSpan.FromSeconds(7);
+        static readonly TimeSpan DefaultShowDuration = DeviceTypeHelper.IsXbox ? TimeSpan.FromSeconds(25) : TimeSpan.FromSeconds(15);
 
         private InAppNotificationPayload _CurrentNotication;
 
@@ -58,6 +65,8 @@ namespace Hohoema.Presentation.Views.Controls
         private void PushNextNotication(InAppNotificationPayload payload)
         {
             NoticationRequestQueue.Enqueue(payload);
+
+            if (!IsLoaded) { return; }
 
             _dispatcherQueue.TryEnqueue(() => 
             {
@@ -84,6 +93,11 @@ namespace Hohoema.Presentation.Views.Controls
         private void TryNextDisplayNotication()
         {
             // only show Active Window
+            if (_CurrentActiveWindowUIContextService.UIContext == null)
+            {
+                return;
+            }
+
             if (_CurrentActiveWindowUIContextService.UIContext != UIContext)
             {
                 NoticationRequestQueue.Clear();
@@ -98,7 +112,7 @@ namespace Hohoema.Presentation.Views.Controls
                 
                 LiteNotification.DataContext = payload;
                 LiteNotification.ShowDismissButton = payload.IsShowDismissButton;
-                LiteNotification.Show((int)(payload.ShowDuration ?? DefaultShowDuration).TotalMilliseconds);
+                LiteNotification.Show((int)(payload.ShowDuration ?? DefaultShowDuration).TotalMilliseconds);                
             }
         }
 
@@ -112,18 +126,42 @@ namespace Hohoema.Presentation.Views.Controls
         public void Receive(InAppNotificationMessage message)
         {
             PushNextNotication(message.Value);
-        }        
+        }
 
+        object _lastFocusedElement;
+        public void TryFocusOrDismissWhenNoCommands()
+        {
+            if (TrySetFocus()) { return; }
+
+            LiteNotification.Dismiss();
+            TryNextDisplayNotication();            
+        }
 
         public void Dismiss()
         {
+            if (_lastFocusedElement is DependencyObject lastFocusedDep)
+            {
+                _ = FocusManager.TryFocusAsync(lastFocusedDep, FocusState.Programmatic);
+            }
+
             LiteNotification.Dismiss();
             TryNextDisplayNotication();
         }
 
-        public void TrySetFocus()
+        public bool TrySetFocus()
         {
-            Focus(FocusState.Programmatic);
+            _lastFocusedElement = FocusManager.GetFocusedElement();
+            if (LiteNotification.DataContext is InAppNotificationPayload payload)
+            {
+                if (payload.Commands.Any())
+                {
+                    var button = CommandsItemsControl.FindFirstChild<Button>();
+                    button.Focus(FocusState.Programmatic);
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 
