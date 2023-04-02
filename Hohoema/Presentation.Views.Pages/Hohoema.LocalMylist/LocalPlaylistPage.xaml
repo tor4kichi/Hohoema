@@ -22,11 +22,11 @@
 
   <Grid>
 
-    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
-                                      ItemCommand="{Binding VideoPlayWithQueueCommand}"
+    <videolistPage:VideoItemsListView ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
+                                      ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"
                                       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
-                                      RefreshCommand="{Binding RefreshCommand}"
-                                      PlaylistPassToFlyout="{Binding Playlist}"
+                                      RefreshCommand="{x:Bind _vm.ResetListCommand}"
+                                      PlaylistPassToFlyout="{x:Bind _vm.Playlist, Mode=OneWay}"
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
@@ -42,20 +42,20 @@
                           DefaultLabelPosition="Right" VerticalContentAlignment="Center"
                           OverflowButtonVisibility="Auto">
               <CommandBar.Content>
-                <controls:AppTitleBar Title="{Binding Title}" />
+                <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
               </CommandBar.Content>
               <CommandBar.PrimaryCommands>
-                <AppBarButton x:Name="RemoveWatchedItemsButton"
+                <!--<AppBarButton x:Name="RemoveWatchedItemsButton"
                                 Label="{i18nExt:Localize Key=RemoveWatchedItems}"
-                                Command="{Binding RemoveWatchedItemsInAfterWatchPlaylistCommand}"
+                                Command="{x:Bind _vm.RemoveWatchedItemsInAfterWatchPlaylistCommand}"
                                 Icon="Delete"
                                 Visibility="Collapsed"
-                                />
+                                />-->
 
                 <!-- 非選択中 -->
                 <AppBarElementContainer VerticalContentAlignment="Center" IsTabStop="False">
-                  <ComboBox ItemsSource="{Binding SortOptionItems}"
-                            SelectedItem="{Binding SelectedSortOptionItem, Mode=TwoWay}"
+                  <ComboBox ItemsSource="{x:Bind _vm.SortOptionItems, Mode=OneWay}"
+                            SelectedItem="{x:Bind _vm.SelectedSortOptionItem, Mode=TwoWay}"
                             >
                     <ComboBox.ItemTemplate>
                       <DataTemplate>
@@ -67,8 +67,8 @@
                 <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"
-                                Command="{Binding PlaylistPlayAllCommand}"
-                                CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
+                                Command="{x:Bind _vm.PlaylistPlayAllCommand}"
+                                CommandParameter="{x:Bind _vm.CurrentPlaylistToken.Value, Mode=OneWay}"></AppBarButton>
 
                 <AppBarButton x:Name="ScrollToTopButton"
                                 Icon="Up"
@@ -81,13 +81,13 @@
                   </i:Interaction.Behaviors>
                 </AppBarButton>
 
-                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
+                <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
 
                 <AppBarButton x:Name="DeletePlaylistButton"
-                                Command="{Binding LocalPlaylistDeleteCommand}"
-                                CommandParameter="{Binding Playlist}"
+                                Command="{x:Bind _vm.LocalPlaylistDeleteCommand}"
+                                CommandParameter="{x:Bind _vm.Playlist, Mode=OneWay}"
                                 Background="Transparent"
                                 Icon="Delete"
                                 Label="{i18nExt:Localize Key=LocalPlaylistDelete}"></AppBarButton>
@@ -105,6 +105,19 @@
                      />
     </Grid>
 
+    <StackPanel x:Name="PageLoadingErrorLayout" Visibility="Collapsed" Spacing="8" VerticalAlignment="Center" Margin="32">
+      <Grid BorderBrush="{ThemeResource SystemErrorTextColor}" MaxWidth="600" BorderThickness="1"  Padding="16">
+
+        <ScrollViewer>
+          <StackPanel>
+            <TextBlock Text="読み込み中にエラーが発生しました" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap" />
+            <TextBlock Text="以下のエラーテキストを開発者に伝えると問題箇所の特定が早まる可能性があります。" TextWrapping="Wrap" />
+            <TextBlock Text="{x:Bind _vm.Error, Mode=OneWay}" TextWrapping="Wrap" IsTextSelectionEnabled="True" Margin="8 16 0 0" />
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+    </StackPanel>
+    
 
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
@@ -162,9 +175,27 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding PlaylistItems.Count}" EqualTo="0" />
+            <StateTrigger IsActive="{x:Bind _vm.NowLoading, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.IsEnabled" Value="False" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _vm.HasError, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.IsEnabled" Value="False" />
+            <Setter Target="PageLoadingErrorLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _vm.HasItem, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.IsEnabled" Value="False" />
             <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>

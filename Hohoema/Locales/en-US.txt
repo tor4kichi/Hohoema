@@ -51,6 +51,9 @@ ToastNotification_ExceptionHandled = I have a problem with Hohoema
 OpenErrorLog = Copy error log
 OpenErrorLogFolder = Open log folder
 
+Notification_HowToFocusForController = Y to focus here (close if no action)
+
+
 ## Clipboard action
 InAppNotification_ContentDetectedFromClipboard = Are you looking for {0}?
 
@@ -415,6 +418,8 @@ DeletedVideoNotice = It is a deleted video
 DeletedVideoToastNotificationTitleWithVideoId = Video {0} cannot be played
 ToastNotification_VideoDeletedWithId = Video deletion: {0}
 ToastNotification_ExplainVideoForceDeletion = "{0}" was deleted from the NicoNico video server, so the cache was deleted forcibly.
+Notification_VideoQualityChanged_Success = Change to {0}
+Notification_VideoQualityChanged_Failed = Failed to change quality
 
 # CommentCommandEditer
 OpenAboutCommentCommand = About commands

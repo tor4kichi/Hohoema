@@ -28,12 +28,12 @@ namespace Hohoema.Presentation.Views.TemplateSelector
                 var targetType = DataTemplate.GetTargetType(template);
                 if (targetType == null)
                 {
-                    throw new Models.Infrastructure.HohoemaExpception("TargetTypeProperty must be set your Type. (restrict only TypeBasedTemplateSelector insided DateTemplate)");
+                    throw new Models.Infrastructure.HohoemaException("TargetTypeProperty must be set your Type. (restrict only TypeBasedTemplateSelector insided DateTemplate)");
                 }
 
                 if (map.ContainsKey(targetType))
                 {
-                    throw new Models.Infrastructure.HohoemaExpception("Duplicate TargetTypeProperty present Type's in DataTemplate. Ensure indivisual Type to set DataTemplate with TargetType.");
+                    throw new Models.Infrastructure.HohoemaException("Duplicate TargetTypeProperty present Type's in DataTemplate. Ensure indivisual Type to set DataTemplate with TargetType.");
                 }
 
                 map.Add(targetType, template);

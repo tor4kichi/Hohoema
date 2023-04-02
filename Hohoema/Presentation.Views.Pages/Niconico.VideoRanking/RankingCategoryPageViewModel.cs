@@ -239,7 +239,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             }
                 .CombineLatest()
                 .Where(_ => _IsNavigateCompleted)
-                .Throttle(TimeSpan.FromMilliseconds(250))
+                .Throttle(TimeSpan.FromMilliseconds(50))
                 .Subscribe(__ =>
                 {
                     ResetList();
@@ -276,7 +276,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
                 if (rankingGenre == null)
                 {
-                    throw new Models.Infrastructure.HohoemaExpception("ランキングページの表示に失敗");
+                    throw new Models.Infrastructure.HohoemaException("ランキングページの表示に失敗");
                 }
 
                 RankingGenre = rankingGenre.Value;
@@ -317,7 +317,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
 
                 _IsNavigateCompleted = true;
 
-                HasError
+                this.ObserveProperty(x => x.HasError)
                     .Where(x => x)
                     .Subscribe(async _ =>
                 {
@@ -337,8 +337,6 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                             return;
                         }
 
-
-
                         var sameGenreFavTags = RankingSettings.FavoriteTags.Where(x => x.Genre == RankingGenre).ToArray();
                         foreach (var oldFavTag in sameGenreFavTags)
                         {
@@ -349,15 +347,14 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
                         }
 
                         var selectedTag = SelectedRankingTag.Value;
-                        if (selectedTag.Tag != null)
+                        if (selectedTag != null && selectedTag.Tag != null)
                         {
                             if (false == PickedTags.Any(x => x.Tag == selectedTag.Tag))
                             {
                                 SelectedRankingTag.Value = PickedTags.ElementAtOrDefault(0);
 
-
-                            // TODO: i18n：人気タグがオンライン側で外れた場合の通知
-                            _notificationService.ShowLiteInAppNotification($"「{selectedTag.Label}」は人気のタグの一覧から外れたようです", DisplayDuration.MoreAttention);
+                                // TODO: i18n：人気タグがオンライン側で外れた場合の通知
+                                _notificationService.ShowLiteInAppNotification($"「{selectedTag.Label}」は人気のタグの一覧から外れたようです", DisplayDuration.MoreAttention);
                             }
                         }
                     }
@@ -420,8 +417,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.VideoRanking
             catch
             {
                 IsFailedRefreshRanking.Value = true;
-
-                return default;
+                throw;
             }            
         }
 

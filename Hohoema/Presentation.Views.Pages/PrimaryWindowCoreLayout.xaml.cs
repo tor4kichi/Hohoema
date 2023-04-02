@@ -220,6 +220,11 @@ namespace Hohoema.Presentation.Views.Pages
             WeakReferenceMessenger.Default.Register<LiteNotificationMessage>(this, (r, m) => 
             {
                 var payload = m.Value;
+                if (_currentActiveWindowUIContextService.UIContext == null)
+                {
+                    return;
+                }
+
                 if (_currentActiveWindowUIContextService.UIContext != UIContext)
                 {
                     return;
@@ -242,6 +247,13 @@ namespace Hohoema.Presentation.Views.Pages
             {
                 Resources["NavigationViewPaneContentGridMargin"] = new Thickness(0, 27, 0, 27);
             }
+            
+            Loaded += PrimaryWindowCoreLayout_Loaded;
+        }
+
+        private void PrimaryWindowCoreLayout_Loaded(object sender, RoutedEventArgs e)
+        {
+            Services.CurrentActiveWindowUIContextService.SetUIContext(_currentActiveWindowUIContextService, UIContext, XamlRoot);
         }
 
         void ResetTitleBarDraggableArea()
@@ -398,7 +410,7 @@ namespace Hohoema.Presentation.Views.Pages
                     }
                     else
                     {
-                        throw result.Exception ?? new HohoemaExpception("navigation error");
+                        throw result.Exception ?? new HohoemaException("navigation error");
                     }
 
                     Debug.WriteLineIf(!result.IsSuccess, result.Exception?.ToString());

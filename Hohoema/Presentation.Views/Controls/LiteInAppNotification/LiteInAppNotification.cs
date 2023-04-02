@@ -169,8 +169,8 @@ namespace Hohoema.Presentation.Views.Controls.LiteInAppNotification
             }
             else
             {
-                // 非表示アニメーション中ならそのまま待てばよし
-                // 何も表示してない状態で呼ばれた場合も何もしなくてもよし
+                _showAnimationSet.Stop();
+                _hideAnimationSet.Start();
             }
         }
 

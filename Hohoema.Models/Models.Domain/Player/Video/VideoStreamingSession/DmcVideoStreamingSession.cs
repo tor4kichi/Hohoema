@@ -121,7 +121,7 @@ namespace Hohoema.Models.Domain.Player.Video
                 }
                 else
                 {
-                    throw new Models.Infrastructure.HohoemaExpception();
+                    throw new Models.Infrastructure.HohoemaException();
                 }
             }
 

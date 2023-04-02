@@ -298,15 +298,18 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                 {
                     _logger.ZLogDebug("コメントの投稿に成功: {0}", WritingComment.Value);
 
+                    WritingComment.Value = "";
+
                     VideoComment videoComment = new()
                     {
                         CommentId = (uint)res.CommentNo,
                         VideoPosition = posision,
                         UserId = _commentSession.UserId,
                         CommentText = postComment,
+                        Commands = command.Split(' '),
                     };
 
-                    foreach (var action in MailToCommandHelper.MakeCommandActions(command.Split(' ')))
+                    foreach (var action in MailToCommandHelper.MakeCommandActions(videoComment.Commands))
                     {
                         action(videoComment);
                     }
@@ -314,8 +317,6 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
                     Comments.Add(videoComment);
 
                     ResetDisplayingComments(Comments);
-
-                    WritingComment.Value = "";
                 }
                 else
                 {

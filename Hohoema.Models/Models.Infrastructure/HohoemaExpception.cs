@@ -7,21 +7,21 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.Infrastructure
 {
-    public sealed class HohoemaExpception : Exception
+    public class HohoemaException : Exception
     {
-        public HohoemaExpception()
+        public HohoemaException()
         {
         }
 
-        public HohoemaExpception(string message) : base(message)
+        public HohoemaException(string message) : base(message)
         {
         }
 
-        public HohoemaExpception(string message, Exception innerException) : base(message, innerException)
+        public HohoemaException(string message, Exception innerException) : base(message, innerException)
         {
         }
 
-        public HohoemaExpception(SerializationInfo info, StreamingContext context) : base(info, context)
+        public HohoemaException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
     }

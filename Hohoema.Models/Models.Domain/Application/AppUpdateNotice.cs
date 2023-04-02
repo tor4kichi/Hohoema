@@ -1,10 +1,15 @@
 ﻿using Hohoema.Models.Helpers;
+using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.ApplicationModel;
+using Windows.ApplicationModel.Store;
+using Windows.ApplicationModel.Store.Preview;
+using Windows.Services.Store;
 using Windows.Storage;
 using Windows.System;
 
@@ -116,7 +121,13 @@ namespace Hohoema.Models.Domain.Application
 
         public static async Task<bool> ShowReleaseNotePageOnBrowserAsync()
         {
-            return await Launcher.LaunchUriAsync(new Uri("https://github.com/tor4kichi/Hohoema/releases"));
+            var lisence = await StoreContext.GetDefault().GetStoreProductForCurrentAppAsync();            
+            if (lisence.Product == null) { return false; }
+
+            var s = await StoreContext.GetDefault().GetAppLicenseAsync();
+            var updates = await StoreContext.GetDefault().GetAppAndOptionalStorePackageUpdatesAsync();            
+
+            return await Launcher.LaunchUriAsync(lisence.Product.LinkUri);
         }
 
 

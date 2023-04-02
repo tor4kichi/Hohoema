@@ -21,7 +21,7 @@
                                       ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
-                                      RefreshCommand="{Binding RefreshCommand}"
+                                      RefreshCommand="{Binding ResetListCommand}"
                                       PlaylistPassToFlyout="{Binding SeriesVideoPlaylist}"
                                       x:Name="VideoItemsListView"
                                       >
@@ -35,9 +35,9 @@
             <CommandBar.PrimaryCommands>
               
               <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
-                <ComboBox ItemsSource="{Binding SortOptions}"
-                          SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
-                          IsEnabled="{Binding NowLoading.Value, Converter={StaticResource BoolNegation}}"
+                <ComboBox ItemsSource="{x:Bind _vm.SortOptions, Mode=OneWay}"
+                          SelectedItem="{x:Bind _vm.SelectedSortOption, Mode=TwoWay}"
+                          IsEnabled="{x:Bind _vm.NowLoading, Mode=OneWay, Converter={StaticResource BoolNegation}}"
                           VerticalAlignment="Stretch"
                           Margin="0 6"
                           >
@@ -53,8 +53,8 @@
               <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
                                 Label="{i18nExt:Localize Key=PlayAll}"
-                                Command="{Binding PlaylistPlayAllCommand}"
-                                CommandParameter="{Binding CurrentPlaylistToken.Value}"></AppBarButton>
+                                Command="{x:Bind _vm.PlaylistPlayAllCommand}"
+                                CommandParameter="{x:Bind _vm.CurrentPlaylistToken.Value, Mode=OneWay}"></AppBarButton>
 
               <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}">
                 <i:Interaction.Behaviors>
@@ -69,7 +69,7 @@
               <AppBarButton x:Name="RefreshButton"
                               Label="{i18nExt:Localize Key=Refresh}" 
                               Icon="Refresh"
-                              Command="{x:Bind _vm.RefreshCommand}"
+                              Command="{x:Bind _vm.ResetListCommand}"
                               VerticalAlignment="Center"
                           >
               </AppBarButton>
@@ -77,8 +77,8 @@
             </CommandBar.PrimaryCommands>
             <CommandBar.SecondaryCommands>
               <AppBarButton Label="{i18nExt:Localize Key=SubscriptionAdd}"
-                              Command="{Binding AddSubscriptionCommand}"
-                              CommandParameter="{Binding Series}"
+                              Command="{x:Bind _vm.AddSubscriptionCommand}"
+                              CommandParameter="{x:Bind _vm.Series, Mode=OneWay}"
                               />
             </CommandBar.SecondaryCommands>
           </CommandBar>
@@ -148,7 +148,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding NowLoading.Value}" />
+            <StateTrigger IsActive="{x:Bind _vm.NowLoading, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ScrollToTopButton.IsEnabled" Value="False" />
@@ -159,7 +159,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding ItemsView.Count}" EqualTo="0" />
+            <StateTrigger IsActive="{x:Bind _vm.HasError, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />

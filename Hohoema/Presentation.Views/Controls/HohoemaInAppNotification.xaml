@@ -6,8 +6,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI"
-    mc:Ignorable="d"
+    xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI" 
+  xmlns:winTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
@@ -19,12 +21,21 @@
       CornerRadius="8"
       Background="{ThemeResource ApplicationContentBackgroundBrush}"
       MaxWidth="680"
+      VerticalContentAlignment="Center"      
             >
       <uwpcontrol:InAppNotification.Content>
         <uwpcontrol:DockPanel Margin="0 0 8 0" 
                                             MinHeight="48"
                            
                                             >
+
+          <TextBlock x:Name="XboxGuideText" Text="{i18nExt:Localize Key=Notification_HowToFocusForController}" Opacity="0.7"
+                     uwpcontrol:DockPanel.Dock="Top"
+                     HorizontalAlignment="Center"
+                     Margin="0 0 0 16"
+                     Visibility="Collapsed"
+                     />
+          
           <Image Source="{Binding Icon}"
                  Visibility="{Binding Icon, Converter={StaticResource NotEmptyStringToBoolean}}"
                                            Height="49" Width="48" 
@@ -46,7 +57,8 @@
                         uwpcontrol:DockPanel.Dock="Bottom"
                         x:Name="CommandsItemsControl"
                         HorizontalAlignment="Right"
-                        Margin="0 8 0 0"
+                        Margin="0 8 0 0"            
+                        IsTabStop="False"
                         >
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate>
@@ -100,6 +112,18 @@
             <Setter Target="CommandsItemsControl.(uwpControls:DockPanel.Dock)" Value="Right" />
             <Setter Target="CommandsItemsControl.HorizontalAlignment" Value="Stretch" />
             <Setter Target="CommandsItemsControl.Margin" Value="0 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <winTrigger:DeviceFamilyTrigger Condition="Xbox" />
+            <StateTrigger IsActive="{StaticResource IsDebug_XboxLayout}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="XboxGuideText.Visibility" Value="Visible" />
+            <Setter Target="LiteNotification.ShowDismissButton" Value="False" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

@@ -6,16 +6,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Presentation.Services;
+using I18NPortable;
+using Hohoema.Models.Infrastructure;
 
 namespace Hohoema.Presentation.ViewModels.Player.Video
 {
     public sealed class ChangeVideoQualityCommand : CommandBase
     {
         private readonly HohoemaPlaylistPlayer _playlistPlayer;
+        private readonly INotificationService _notificationService;
 
-        public ChangeVideoQualityCommand(HohoemaPlaylistPlayer playlistPlayer)
+        public ChangeVideoQualityCommand(HohoemaPlaylistPlayer playlistPlayer, INotificationService notificationService)
         {
             _playlistPlayer = playlistPlayer;
+            _notificationService = notificationService;
         }
 
         protected override bool CanExecute(object parameter)
@@ -27,15 +32,31 @@ namespace Hohoema.Presentation.ViewModels.Player.Video
 
         protected override async void Execute(object parameter)
         {
-            if (parameter is NicoVideoQuality quality)
+            try
             {
-                if (!_playlistPlayer.CanPlayQuality(quality)) { return; }
-                await _playlistPlayer.ChangeQualityAsync(quality);
+
+                if (parameter is NicoVideoQuality quality)
+                {
+                    if (!_playlistPlayer.CanPlayQuality(quality)) { return; }
+                    await _playlistPlayer.ChangeQualityAsync(quality);
+
+                    _notificationService.ShowLiteInAppNotification_Success("Notification_VideoQualityChanged_Success".Translate(quality.Translate()));
+                }
+                else if (parameter is NicoVideoQualityEntity qualityEntity)
+                {
+                    if (!_playlistPlayer.CanPlayQuality(qualityEntity.Quality)) { return; }
+                    await _playlistPlayer.ChangeQualityAsync(qualityEntity.Quality);
+
+                    _notificationService.ShowLiteInAppNotification_Success("Notification_VideoQualityChanged_Success".Translate(qualityEntity.Quality.Translate()));
+                }
+                else
+                {
+                    throw new HohoemaException("画質変更に失敗");
+                }
             }
-            else if (parameter is NicoVideoQualityEntity qualityEntity)
+            catch
             {
-                if (!_playlistPlayer.CanPlayQuality(qualityEntity.Quality)) { return; }
-                await _playlistPlayer.ChangeQualityAsync(qualityEntity.Quality);
+                _notificationService.ShowLiteInAppNotification_Fail("Notification_VideoQualityChanged_Failed".Translate());
             }
         }
     }

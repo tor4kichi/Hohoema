@@ -37,7 +37,7 @@ namespace Hohoema.Models.UseCase.Playlist.PlaylistFactory
                 var localPlaylist = _localMylistManager.GetPlaylist(playlistId.Id);
                 if (localPlaylist == null)
                 {
-                    throw new HohoemaExpception();
+                    throw new HohoemaException();
                 }
 
                 return new(localPlaylist);

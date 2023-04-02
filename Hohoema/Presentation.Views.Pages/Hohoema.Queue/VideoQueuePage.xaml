@@ -23,7 +23,7 @@
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
                                       ItemCommand="{Binding VideoPlayWithQueueCommand}"
                                       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
-                                      RefreshCommand="{Binding RefreshCommand}"
+                                      RefreshCommand="{x:Bind _vm.ResetListCommand}"
                                       PlaylistPassToFlyout="{Binding QueuePlaylist}"
                                       x:Name="VideoItemsListView"
                                       >
@@ -103,6 +103,20 @@
                      />
     </Grid>
 
+
+    <StackPanel x:Name="PageLoadingErrorLayout" Visibility="Collapsed" Spacing="8" VerticalAlignment="Center" Margin="32">
+      <Grid BorderBrush="{ThemeResource SystemErrorTextColor}" MaxWidth="600" BorderThickness="1"  Padding="16">
+
+        <ScrollViewer>
+          <StackPanel>
+            <TextBlock Text="読み込み中にエラーが発生しました" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap" />
+            <TextBlock Text="以下のエラーテキストを開発者に伝えると問題箇所の特定が早まる可能性があります。" TextWrapping="Wrap" />
+            <TextBlock Text="{x:Bind _vm.Error, Mode=OneWay}" TextWrapping="Wrap" IsTextSelectionEnabled="True" Margin="8 16 0 0" />
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+    </StackPanel>
+
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
       <VisualStateGroup>
@@ -159,9 +173,27 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{Binding PlaylistItems.Count}" EqualTo="0" />
+            <StateTrigger IsActive="{x:Bind _vm.NowLoading, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.IsEnabled" Value="False" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _vm.HasError, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.IsEnabled" Value="False" />
+            <Setter Target="PageLoadingErrorLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _vm.HasItem, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.IsEnabled" Value="False" />
             <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>

@@ -20,7 +20,7 @@
     <videolistPage:VideoItemsListView ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
                                       ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
-                                      RefreshCommand="{x:Bind _vm.RefreshCommand}"
+                                      RefreshCommand="{x:Bind _vm.ResetListCommand}"
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
@@ -74,8 +74,8 @@
               <AppBarButton x:Name="RefreshButton"
                               Label="{i18nExt:Localize Key=Refresh}" 
                               Icon="Refresh"
-                              Command="{x:Bind _vm.RefreshCommand}"
-                              IsEnabled="{x:Bind _vm.CanChangeSort.Value, Mode=OneWay}"
+                              Command="{x:Bind _vm.ResetListCommand}"
+                              IsEnabled="{x:Bind _vm.CanChangeSort, Mode=OneWay}"
                               VerticalAlignment="Center"
                           >
               </AppBarButton>
@@ -121,17 +121,33 @@
 
     </videolistPage:VideoItemsListView>
 
-    <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <StackPanel Spacing="8">
-        <TextBlock Text="{i18nExt:Localize Key=RankingNoItems}"
-                     Style="{StaticResource SubtitleTextBlockStyle}"
-                     Opacity="0.8"
-                     />
+    <StackPanel x:Name="EmptyItemsLayout" Visibility="Collapsed" Spacing="8" VerticalAlignment="Center"
+                Margin="32"
+                >
+      <TextBlock Text="{i18nExt:Localize Key=RankingNoItems}"
+                    Style="{StaticResource SubtitleTextBlockStyle}"
+                    Opacity="0.8"
+                  HorizontalAlignment="Center"
+                    />
 
-        <Button Content="ソース切り替えて再試行" Command="{x:Bind _vm.ToggleRankingItemsSourceCommand}" />
+      <Button Content="ソース切り替えて再試行" Command="{x:Bind _vm.ToggleRankingItemsSourceCommand}"
+              HorizontalAlignment="Center"
+              />
+                
+    </StackPanel>
 
-      </StackPanel>
-    </Grid>
+    <StackPanel x:Name="PageLoadingErrorLayout" Visibility="Collapsed" Spacing="8" VerticalAlignment="Center" Margin="32">
+      <Grid BorderBrush="{ThemeResource SystemErrorTextColor}" MaxWidth="600" BorderThickness="1"  Padding="16">
+
+        <ScrollViewer>
+          <StackPanel>
+            <TextBlock Text="読み込み中にエラーが発生しました" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap" />
+            <TextBlock Text="以下のエラーテキストを開発者に伝えると問題箇所の特定が早まる可能性があります。" TextWrapping="Wrap" />
+            <TextBlock Text="{x:Bind _vm.Error, Mode=OneWay}" TextWrapping="Wrap" IsTextSelectionEnabled="True" Margin="8 16 0 0" />
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+    </StackPanel>
 
 
     <VisualStateManager.VisualStateGroups>
@@ -173,9 +189,27 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind _vm.HasError.Value, Mode=OneWay}" />
+            <StateTrigger IsActive="{x:Bind _vm.NowLoading, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.IsEnabled" Value="False" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _vm.HasError, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.IsEnabled" Value="False" />
+            <Setter Target="PageLoadingErrorLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _vm.HasItem, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.IsEnabled" Value="False" />
             <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>

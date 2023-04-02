@@ -44,7 +44,7 @@ namespace Hohoema.Models.Domain.Niconico.Live.LoginUser
 
             if (_token == null)
             {
-                throw new HohoemaExpception("Failed refresh ReservationToken.");
+                throw new HohoemaException("Failed refresh ReservationToken.");
             }
 
             return _token;

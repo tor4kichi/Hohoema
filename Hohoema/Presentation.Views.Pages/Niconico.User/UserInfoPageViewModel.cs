@@ -357,7 +357,7 @@ namespace Hohoema.Presentation.ViewModels.Pages.Niconico.User
                 var userInfo = await UserProvider.GetUserDetailAsync(UserId.Value);
                 if (!userInfo.IsSuccess)
                 {
-                    throw new HohoemaExpception();
+                    throw new HohoemaException();
                 }
 
                 var user = userInfo.Data;

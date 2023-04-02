@@ -35,7 +35,7 @@ namespace Hohoema.Presentation.Views.Pages.Hohoema
 
         private void ForceThrowException(object sender, RoutedEventArgs e)
         {
-            throw new Models.Infrastructure.HohoemaExpception("例外テスト");
+            throw new Models.Infrastructure.HohoemaException("例外テスト");
         }
 
         private void TestCrashReport_Click(object sender, RoutedEventArgs e)

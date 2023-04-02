@@ -21,7 +21,7 @@
                                       ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"
                                       ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
-                                      RefreshCommand="{x:Bind _vm.RefreshCommand}"
+                                      RefreshCommand="{x:Bind _vm.ResetListCommand}"
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
@@ -38,7 +38,7 @@
               <!--<AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
                 <ComboBox ItemsSource="{Binding SortOptions}"
                           SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
-                          IsEnabled="{Binding NowLoading.Value, Converter={StaticResource BoolNegation}}"
+                          IsEnabled="{Binding NowLoading, Converter={StaticResource BoolNegation}}"
                           VerticalAlignment="Stretch"
                           Margin="0 6"
                           >
@@ -70,7 +70,7 @@
               <AppBarButton x:Name="RefreshButton"
                               Label="{i18nExt:Localize Key=Refresh}" 
                               Icon="Refresh"
-                              Command="{x:Bind _vm.RefreshCommand}"
+                              Command="{x:Bind _vm.ResetListCommand}"
                               VerticalAlignment="Center"
                           >
               </AppBarButton>
@@ -133,7 +133,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding NowLoading.Value}" />
+            <StateTrigger IsActive="{Binding NowLoading}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ScrollToTopButton.IsEnabled" Value="False" />

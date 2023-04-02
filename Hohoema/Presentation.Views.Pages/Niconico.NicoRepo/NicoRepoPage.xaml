@@ -157,7 +157,7 @@
                     </core:EventTriggerBehavior>
                   </i:Interaction.Behaviors>
                 </AppBarButton>
-                <AppBarButton x:Name="RefreshButton" Icon="Refresh" Background="Transparent" Label="{i18nExt:Localize Key=Refresh}" Command="{Binding RefreshCommand}" />
+                <AppBarButton x:Name="RefreshButton" Icon="Refresh" Background="Transparent" Label="{i18nExt:Localize Key=Refresh}" Command="{x:Bind _vm.ResetListCommand}" />
               </CommandBar.PrimaryCommands>
             </CommandBar>
           </StackPanel>
@@ -222,7 +222,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind _vm.HasItem.Value, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+            <StateTrigger IsActive="{x:Bind _vm.HasItem, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="NoTimelineItemsLayout.Visibility"

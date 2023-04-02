@@ -13,13 +13,18 @@ public sealed class StringJoinConverter : IValueConverter
 
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        if (value is IEnumerable<string> str)
+        if (value is null) { return ""; }
+        else if (value is IReadOnlyList<string> str)
         {
             return string.Join(Separator, str);
         }
+        else if (value is string s)
+        {
+            return s;
+        }
         else
         {
-            throw new NotSupportedException();
+            throw new NotSupportedException(value.ToString());
         }
     }
 
