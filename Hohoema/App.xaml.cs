@@ -310,9 +310,12 @@ namespace Hohoema
                 ;
 
             container.UseInstance<LiteDatabase>(new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};{listDbUpgradeConnectionStringParam}"));
-            var thumb = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.TemporaryFolder.Path, "thumbnail_cache.db")};{listDbUpgradeConnectionStringParam}");
-            container.Register<ThumbnailCacheManager>(reuse: new SingletonReuse(), made: Made.Of(() => new ThumbnailCacheManager(thumb)));
-           
+
+            var tempDb = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.TemporaryFolder.Path, "thumbnail_cache.db")};{listDbUpgradeConnectionStringParam}");
+            container.UseInstance<LiteDatabase>(tempDb, serviceKey: "TempDb");
+            container.Register<ThumbnailCacheManager>(reuse: new SingletonReuse(), made: Made.Of(() => new ThumbnailCacheManager(tempDb)));
+
+            container.RegisterDelegate<NicoVideoCacheRepository>((c) => new NicoVideoCacheRepository(tempDb), new SingletonReuse());
             container.RegisterDelegate<IPlayerView>(c =>
             {
                 var appearanceSettings = c.Resolve<AppearanceSettings>();

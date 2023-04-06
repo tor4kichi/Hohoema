@@ -53,7 +53,6 @@ namespace Hohoema.Models.Domain.Niconico.Mylist.LoginUser
 
 
 
-        private readonly NicoVideoCacheRepository _nicoVideoRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly LoginUserMylistItemIdRepository _loginUserMylistItemIdRepository;
 

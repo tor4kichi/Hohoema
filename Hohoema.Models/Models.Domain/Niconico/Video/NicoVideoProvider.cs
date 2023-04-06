@@ -18,6 +18,7 @@ using System.Linq.Expressions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using NiconicoToolkit.SearchWithCeApi.Video;
+using LiteDB;
 
 namespace Hohoema.Models.Domain.Niconico.Video
 {
@@ -45,10 +46,11 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
 
 
-    sealed class NicoVideoCacheRepository : LiteDBServiceBase<NicoVideo>
+    public sealed class NicoVideoCacheRepository : LiteDBServiceBase<NicoVideo>
     {
-        internal NicoVideoCacheRepository(LiteDB.LiteDatabase liteDatabase) : base(liteDatabase)
+        public NicoVideoCacheRepository(LiteDatabase liteDatabase) : base(liteDatabase)
         {
+            
         }
 
         public NicoVideo Get(VideoId videoId)
@@ -111,11 +113,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
     {
         public NicoVideoProvider(
             NiconicoSession niconicoSession,
-            LiteDB.LiteDatabase liteDatabase
+            LiteDB.LiteDatabase liteDatabase,
+            NicoVideoCacheRepository nicoVideoCacheRepository
             )
             : base(niconicoSession)
         {
-            _nicoVideoRepository = new NicoVideoCacheRepository(liteDatabase);
+            _nicoVideoRepository = nicoVideoCacheRepository;
             _nicoVideoOwnerRepository = new NicoVideoOwnerCacheRepository(liteDatabase);
             _cache ??= new MemoryCache(new MemoryCacheOptions());
             _entryOptions = new MemoryCacheEntryOptions()
