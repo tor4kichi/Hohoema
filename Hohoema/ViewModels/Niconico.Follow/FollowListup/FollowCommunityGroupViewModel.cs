@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Follow;
 using Hohoema.Models.Niconico.Follow.LoginUser;
-using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Services.PageNavigation;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Input;
 using System;

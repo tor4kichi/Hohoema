@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.UseCase.PageNavigation;
-using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.Playlist;
+﻿using Hohoema.Services.PageNavigation;
+using Hohoema.Services;
+using Hohoema.Services.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings.Extensions;
 using System;
@@ -24,7 +24,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Video;
 using Hohoema.Models.LocalMylist;
-using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Hohoema.Services.Hohoema.LocalMylist;
 using I18NPortable;
 using Reactive.Bindings;
 using Microsoft.Extensions.Logging;

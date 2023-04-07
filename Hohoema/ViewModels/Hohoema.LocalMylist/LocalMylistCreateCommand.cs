@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.LocalMylist;
-using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Hohoema.Services.Hohoema.LocalMylist;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;

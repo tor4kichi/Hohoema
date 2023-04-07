@@ -8,7 +8,7 @@ using System.Diagnostics;
 using Hohoema.Models;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Services;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.Playlist;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 {

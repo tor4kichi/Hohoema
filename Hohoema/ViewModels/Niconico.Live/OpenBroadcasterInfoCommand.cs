@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.PageNavigation;
-using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Services.PageNavigation;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;

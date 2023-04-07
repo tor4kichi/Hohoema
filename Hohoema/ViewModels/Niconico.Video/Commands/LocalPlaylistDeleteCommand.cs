@@ -7,8 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Hohoema.Services.Playlist;
+using Hohoema.Services.Hohoema.LocalMylist;
 using Hohoema.Models.LocalMylist;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands

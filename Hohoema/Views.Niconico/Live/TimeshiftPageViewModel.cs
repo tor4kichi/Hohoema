@@ -2,8 +2,8 @@
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Live.LoginUser;
 using Hohoema.Helpers;
-using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services;
+using Hohoema.Services.Playlist;
 using Hohoema.Services;
 using Hohoema.ViewModels.Niconico.Live;
 using I18NPortable;

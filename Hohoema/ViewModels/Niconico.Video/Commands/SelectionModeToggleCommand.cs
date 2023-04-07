@@ -1,12 +1,12 @@
 ﻿using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.UseCase.Niconico.Video;
+using Hohoema.Services.Niconico.Video;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 { 

@@ -10,9 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using I18NPortable;
 using Hohoema.Services;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.Playlist;
 using Hohoema.Models.LocalMylist;
-using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Hohoema.Services.Hohoema.LocalMylist;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 {

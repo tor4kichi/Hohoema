@@ -11,8 +11,8 @@ using Windows.UI.Popups;
 using Windows.Web.Http;
 using Hohoema.Views.Dialogs;
 using Hohoema.Models.Application;
-using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Hohoema.Services.Playlist;
+using Hohoema.Services.Hohoema.LocalMylist;
 
 namespace Hohoema.Services
 {

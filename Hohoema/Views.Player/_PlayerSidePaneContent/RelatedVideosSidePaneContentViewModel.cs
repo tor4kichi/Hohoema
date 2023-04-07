@@ -2,8 +2,8 @@
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player.Video;
 using Hohoema.Helpers;
-using Hohoema.Models.UseCase.Niconico.Player;
-using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Services.Niconico.Player;
+using Hohoema.Services.PageNavigation;
 using Hohoema.ViewModels.VideoListPage;
 using NiconicoToolkit;
 using NiconicoToolkit.Recommend;
@@ -15,7 +15,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Threading.Tasks;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.Playlist;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 
 namespace Hohoema.ViewModels.Player.PlayerSidePaneContent

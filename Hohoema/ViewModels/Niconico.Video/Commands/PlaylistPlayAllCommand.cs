@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Playlist;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.Playlist;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Input;
 using System;

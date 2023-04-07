@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.UseCase.Niconico.Video;
+using Hohoema.Services.Playlist;
+using Hohoema.Services.Niconico.Video;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 {

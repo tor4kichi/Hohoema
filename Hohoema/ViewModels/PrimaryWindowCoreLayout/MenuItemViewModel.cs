@@ -1,6 +1,6 @@
 ﻿
 using Hohoema.Models.PageNavigation;
-using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Services.PageNavigation;
 using Hohoema.Navigations;
 using Hohoema.Services;
 using System;

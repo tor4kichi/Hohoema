@@ -6,7 +6,7 @@ using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
 using Hohoema.Models.Playlist;
 using Hohoema.Helpers;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.Playlist;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.Subscriptions;
 using Hohoema.ViewModels.VideoListPage;

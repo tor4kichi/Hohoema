@@ -2,9 +2,9 @@
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.PageNavigation;
-using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Services;
+using Hohoema.Services.Playlist;
+using Hohoema.Services.PageNavigation;
 using I18NPortable;
 using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings;

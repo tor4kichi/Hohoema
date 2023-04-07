@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.Playlist;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;

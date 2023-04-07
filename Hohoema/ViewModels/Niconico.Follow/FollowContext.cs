@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Niconico.Follow;
 using Hohoema.Models.Niconico.Follow.LoginUser;
-using Hohoema.Models.UseCase;
+using Hohoema.Services;
 using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Account;
 using CommunityToolkit.Mvvm.Input;

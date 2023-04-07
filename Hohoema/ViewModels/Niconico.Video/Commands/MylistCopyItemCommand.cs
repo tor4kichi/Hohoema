@@ -1,7 +1,7 @@
 ﻿using Hohoema.Dialogs;
 using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.Playlist;
 using Hohoema.Services;
 using I18NPortable;
 using NiconicoToolkit.Account;

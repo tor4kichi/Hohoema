@@ -1,7 +1,7 @@
 ﻿using I18NPortable;
 using Hohoema.Models;
 using Hohoema.Services;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.Playlist;
 using Hohoema.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -12,10 +12,10 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Services.PageNavigation;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Niconico;
-using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Hohoema.Services.Hohoema.LocalMylist;
 
 namespace Hohoema.ViewModels.PrimaryWindowCoreLayout
 {

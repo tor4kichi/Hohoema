@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.UseCase.Niconico.Video;
+using Hohoema.Services.Niconico.Video;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 {

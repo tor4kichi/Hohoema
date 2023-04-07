@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using Hohoema.Dialogs;
 using System;
 using System.Threading.Tasks;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.Playlist;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 {

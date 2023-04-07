@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.UseCase.Niconico.Video;
-using Hohoema.Models.UseCase.Playlist;
+﻿using Hohoema.Services.Niconico.Video;
+using Hohoema.Services.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;

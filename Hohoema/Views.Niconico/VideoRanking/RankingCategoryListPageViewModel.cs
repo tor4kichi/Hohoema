@@ -2,8 +2,8 @@
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.Ranking;
 using Hohoema.Models.PageNavigation;
-using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Services;
+using Hohoema.Services.PageNavigation;
 using Hohoema.ViewModels.Niconico.Ranking;
 using Hohoema.ViewModels.Niconico.Ranking.Messages;
 using Hohoema.ViewModels.Pages.Niconico.Video;

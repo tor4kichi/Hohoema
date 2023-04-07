@@ -2,8 +2,8 @@
 using Hohoema.Models.Niconico.Video.Series;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
-using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Services.Playlist;
+using Hohoema.Services.PageNavigation;
 using Hohoema.ViewModels.Niconico.Series;
 using Hohoema.ViewModels.Subscriptions;
 using I18NPortable;

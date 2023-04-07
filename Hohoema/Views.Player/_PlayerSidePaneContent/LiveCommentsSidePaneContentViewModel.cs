@@ -10,10 +10,10 @@ using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Player;
-using Hohoema.Models.UseCase.Niconico.Player;
+using Hohoema.Services.Niconico.Player;
 using Hohoema.ViewModels.Niconico.Live;
 using Hohoema.ViewModels.Niconico.Share;
-using Hohoema.Models.UseCase.Niconico.Player.Comment;
+using Hohoema.Services.Niconico.Player.Comment;
 using Hohoema.Models.Player.Comment;
 
 namespace Hohoema.ViewModels.Player.PlayerSidePaneContent

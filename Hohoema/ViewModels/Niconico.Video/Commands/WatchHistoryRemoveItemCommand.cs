@@ -1,8 +1,8 @@
 ﻿using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
-using Hohoema.Models.UseCase.Niconico.Video;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.Niconico.Video;
+using Hohoema.Services.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections;

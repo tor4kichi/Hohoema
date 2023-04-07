@@ -286,15 +286,6 @@
     <Compile Include="Models\VideoCache\VideoCacheSaveFolderManager.cs" />
     <Compile Include="Models\VideoCache\VideoCacheSettings.cs" />
     <Compile Include="Models\VideoCache\VideoCacheStatus.cs" />
-    <Compile Include="Models\_Settings_Legacy\AccountSettings.cs" />
-    <Compile Include="Models\_Settings_Legacy\ActivityFeedSettings.cs" />
-    <Compile Include="Models\_Settings_Legacy\AppearanceSettings.cs" />
-    <Compile Include="Models\_Settings_Legacy\CacheSettings.cs" />
-    <Compile Include="Models\_Settings_Legacy\HohoemaUserSettings.cs" />
-    <Compile Include="Models\_Settings_Legacy\NGSettings.cs" />
-    <Compile Include="Models\_Settings_Legacy\PinSettings.cs" />
-    <Compile Include="Models\_Settings_Legacy\PlayerSettings.cs" />
-    <Compile Include="Models\_Settings_Legacy\RankingSettings.cs" />
     <Compile Include="Helpers\ApiContractHelper.cs" />
     <Compile Include="Helpers\AsyncLock.cs" />
     <Compile Include="Helpers\ClipboardHelper.cs" />

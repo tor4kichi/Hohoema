@@ -2,8 +2,8 @@
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player;
 using Hohoema.Models.Player.Comment;
-using Hohoema.Models.UseCase.Niconico.Player;
-using Hohoema.Models.UseCase.Niconico.Player.Comment;
+using Hohoema.Services.Niconico.Player;
+using Hohoema.Services.Niconico.Player.Comment;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;

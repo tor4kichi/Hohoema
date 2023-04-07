@@ -2,7 +2,7 @@
 
 using Hohoema.Models;
 using Hohoema.Services;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -15,7 +15,7 @@ using System.Reactive.Linq;
 using Windows.Media;
 using Windows.Media.Playback;
 using Windows.UI.Xaml.Data;
-using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Services.PageNavigation;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player;
 using Hohoema.Models.Playlist;

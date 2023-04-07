@@ -1,9 +1,9 @@
 ﻿using I18NPortable;
 using Hohoema.Models;
 using Hohoema.Services;
-using Hohoema.Models.UseCase.PageNavigation;
-using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.PageNavigation;
+using Hohoema.Services;
+using Hohoema.Services.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;

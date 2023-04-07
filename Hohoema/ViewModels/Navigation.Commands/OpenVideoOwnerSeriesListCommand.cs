@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Services.PageNavigation;
 using System;
 using System.Collections.Generic;
 using System.Linq;

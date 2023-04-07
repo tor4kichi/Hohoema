@@ -20,7 +20,7 @@ using Reactive.Bindings.Extensions;
 using Windows.UI;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Hohoema.Models;
-using Hohoema.Models.UseCase.Niconico.Player;
+using Hohoema.Services.Niconico.Player;
 using Hohoema.Models.Application;
 using System.Diagnostics;
 using Hohoema.Models.Player;

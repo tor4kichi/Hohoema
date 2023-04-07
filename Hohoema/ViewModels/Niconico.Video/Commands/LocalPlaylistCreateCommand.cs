@@ -8,8 +8,8 @@ using System.Diagnostics;
 using I18NPortable;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Services;
-using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.UseCase.Hohoema.LocalMylist;
+using Hohoema.Services.Playlist;
+using Hohoema.Services.Hohoema.LocalMylist;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 {

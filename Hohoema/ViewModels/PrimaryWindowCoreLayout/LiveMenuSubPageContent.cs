@@ -6,11 +6,11 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Services.PageNavigation;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico;
-using Hohoema.Models.UseCase;
+using Hohoema.Services;
 
 namespace Hohoema.ViewModels.PrimaryWindowCoreLayout
 {

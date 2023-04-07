@@ -1,6 +1,6 @@
 ﻿
 using Hohoema.Services;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using Hohoema.Models.PageNavigation;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Playlist;
-using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Services.PageNavigation;
 using Hohoema.Navigations;
 
 namespace Hohoema.ViewModels.PrimaryWindowCoreLayout

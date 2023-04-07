@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.UseCase;
+﻿using Hohoema.Services;
 using I18NPortable;
 using System;
 using System.Collections.Generic;

@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
-using Hohoema.Models.UseCase;
-using Hohoema.Models.UseCase.Playlist;
+using Hohoema.Services;
+using Hohoema.Services.Playlist;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
 using Microsoft.Extensions.Logging;

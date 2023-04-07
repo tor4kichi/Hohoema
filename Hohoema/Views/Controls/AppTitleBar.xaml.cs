@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Application;
-using Hohoema.Models.UseCase;
+using Hohoema.Services;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;

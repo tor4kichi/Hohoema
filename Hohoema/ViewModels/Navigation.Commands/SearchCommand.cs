@@ -2,7 +2,7 @@
 using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Services;
-using Hohoema.Models.UseCase.PageNavigation;
+using Hohoema.Services.PageNavigation;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
