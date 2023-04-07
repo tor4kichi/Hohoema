@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.PageNavigation;
+﻿using Hohoema.Models.PageNavigation;
 using Hohoema.Navigations;
 using System;
 using System.Collections.Generic;

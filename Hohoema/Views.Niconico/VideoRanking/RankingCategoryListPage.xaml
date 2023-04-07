@@ -14,7 +14,7 @@
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   xmlns:rankingViewModel="using:Hohoema.ViewModels.Niconico.Ranking" 
-  xmlns:models="using:Hohoema.Models.Domain.Application"
+  xmlns:models="using:Hohoema.Models.Application"
   NavigationCacheMode="Required"
   mc:Ignorable="d"
   >

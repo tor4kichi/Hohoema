@@ -17,11 +17,11 @@
     xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI"
     xmlns:actions="using:Hohoema.Views.Actions"
     xmlns:myExtensions="using:Hohoema.Views.Extensions"
-  xmlns:models="using:Hohoema.Models.Domain.Application"
+  xmlns:models="using:Hohoema.Models.Application"
   xmlns:videolistPage="using:Hohoema.Views.Controls.VideoList" 
   xmlns:windowsStateTrigger="using:WindowsStateTriggers" 
   DataContext="{x:Null}"
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:videoList="using:Hohoema.Views.Controls.VideoList.VideoListItem" xmlns:cacheModel="using:Hohoema.Models.Domain.VideoCache"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:videoList="using:Hohoema.Views.Controls.VideoList.VideoListItem" xmlns:cacheModel="using:Hohoema.Models.VideoCache"
   mc:Ignorable="d"
     >
 

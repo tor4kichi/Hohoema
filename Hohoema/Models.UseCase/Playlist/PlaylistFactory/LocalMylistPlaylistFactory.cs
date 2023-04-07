@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.Domain.LocalMylist;
-using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.Infrastructure;
+﻿using Hohoema.Models.LocalMylist;
+using Hohoema.Models.Playlist;
+using Hohoema.Infra;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

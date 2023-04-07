@@ -1,0 +1,395 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{5877A9CA-2D3A-4B8B-86CA-D77E6D68CF98}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Hohoema</RootNamespace>
+    <AssemblyName>Hohoema.Models</AssemblyName>
+    <DefaultLanguage>ja-JP</DefaultLanguage>
+    <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
+    <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22000.0</TargetPlatformVersion>
+    <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
+    <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
+    <PlatformTarget>ARM</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\ARM\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
+    <PlatformTarget>ARM</PlatformTarget>
+    <OutputPath>bin\ARM\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM64'">
+    <PlatformTarget>ARM64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\ARM64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM64'">
+    <PlatformTarget>ARM64</PlatformTarget>
+    <OutputPath>bin\ARM64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <PlatformTarget>x64</PlatformTarget>
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="IsExternalInit.cs" />
+    <Compile Include="MessengerObservableExtensions.cs" />
+    <Compile Include="Models\Application\AppearanceSettings.cs" />
+    <Compile Include="Models\Application\AppFlagsRepository.cs" />
+    <Compile Include="Models\Application\ApplicationInteractionMode.cs" />
+    <Compile Include="Models\Application\ApplicationLayout.cs" />
+    <Compile Include="Models\Application\AppUpdateNotice.cs" />
+    <Compile Include="Models\Application\BackupManager.cs" />
+    <Compile Include="Models\Application\FeatureFlags.cs" />
+    <Compile Include="Models\Application\HohoemaAppServiceLevel.cs" />
+    <Compile Include="Models\Application\LisenceSummary.cs" />
+    <Compile Include="Models\Application\PlayerDisplayView.cs" />
+    <Compile Include="Models\Application\ThumbnailCacheManager.cs" />
+    <Compile Include="Models\Application\ToastNotificationConstants.cs" />
+    <Compile Include="Models\Niconico\AccountManager.cs" />
+    <Compile Include="Models\Niconico\Channel\ChannelNameCacheRepository.cs" />
+    <Compile Include="Models\Niconico\Channel\ChannelProvider.cs" />
+    <Compile Include="Models\Niconico\Channel\ChannelVideoContent.cs" />
+    <Compile Include="Models\Niconico\Channel\ChannelVideoPlaylist.cs" />
+    <Compile Include="Models\Niconico\Channel\ChannelVideoPlaylistSortOption.cs" />
+    <Compile Include="Models\Niconico\Channel\IChannel.cs" />
+    <Compile Include="Models\Niconico\Community\CommunityProvider.cs" />
+    <Compile Include="Models\Niconico\Community\CommunityVideoPlaylist.cs" />
+    <Compile Include="Models\Niconico\Community\ICommunity.cs" />
+    <Compile Include="Models\Niconico\FollowableExtension.cs" />
+    <Compile Include="Models\Niconico\Follow\FollowItemInfo.cs" />
+    <Compile Include="Models\Niconico\Follow\FollowItemType.cs" />
+    <Compile Include="Models\Niconico\Follow\IFollowable.cs" />
+    <Compile Include="Models\Niconico\Follow\LoginUser\ChannelFollowProvider.cs" />
+    <Compile Include="Models\Niconico\Follow\LoginUser\CommunituFollowAdditionalInfo.cs" />
+    <Compile Include="Models\Niconico\Follow\LoginUser\CommunityFollowProvider.cs" />
+    <Compile Include="Models\Niconico\Follow\LoginUser\IFollowProvider.cs" />
+    <Compile Include="Models\Niconico\Follow\LoginUser\MylistFollowProvider.cs" />
+    <Compile Include="Models\Niconico\Follow\LoginUser\TagFollowProvider.cs" />
+    <Compile Include="Models\Niconico\Follow\LoginUser\UserFollowProvider.cs" />
+    <Compile Include="Models\Niconico\INiconicoContent.cs" />
+    <Compile Include="Models\Niconico\Live\ILiveContent.cs" />
+    <Compile Include="Models\Niconico\Live\LoginUser\LoginUserLiveReservationProvider.cs" />
+    <Compile Include="Models\Niconico\Live\NicoLiveCacheRepository.cs" />
+    <Compile Include="Models\Niconico\Live\NicoLiveProvider.cs" />
+    <Compile Include="Models\Niconico\Mylist\IMylist.cs" />
+    <Compile Include="Models\Niconico\Mylist\LoginUser\LoginUserMylistPlaylist.cs" />
+    <Compile Include="Models\Niconico\Mylist\LoginUser\LoginUserMylistProvider.cs" />
+    <Compile Include="Models\Niconico\Mylist\MylistItemsGetResult.cs" />
+    <Compile Include="Models\Niconico\Mylist\MylistPlaylist.cs" />
+    <Compile Include="Models\Niconico\Mylist\MylistPlaylistExtension.cs" />
+    <Compile Include="Models\Niconico\Mylist\MylistProvider.cs" />
+    <Compile Include="Models\Niconico\NiconicoObjectExtension.cs" />
+    <Compile Include="Models\Niconico\NiconicoSession.cs" />
+    <Compile Include="Models\Niconico\NicoRepo\LoginUser\LoginUserNicoRepoProvider.cs" />
+    <Compile Include="Models\Niconico\NicoRepo\NicoRepoSettings.cs" />
+    <Compile Include="Models\Niconico\Recommend\RecommendProvider.cs" />
+    <Compile Include="Models\Niconico\Search\CeApiSearchVideoContent.cs" />
+    <Compile Include="Models\Niconico\Search\CeApiSearchVideoPlaylist.cs" />
+    <Compile Include="Models\Niconico\Search\CeApiSearchVideoPlaylistSortOption.cs" />
+    <Compile Include="Models\Niconico\Search\SearchHistory.cs" />
+    <Compile Include="Models\Niconico\Search\SearchProvider.cs" />
+    <Compile Include="Models\Niconico\Video\NvapiVideoContent.cs" />
+    <Compile Include="Models\Niconico\User\UserVideoPlaylist.cs" />
+    <Compile Include="Models\Niconico\User\UserVideoPlaylistSortOption.cs" />
+    <Compile Include="Models\Playlist\BufferedPlaylistItemsSource.cs" />
+    <Compile Include="Models\Playlist\PlaylistItemSortOrder.cs" />
+    <Compile Include="Models\Niconico\Series\SeriesVideoPlaylist.cs" />
+    <Compile Include="Models\Niconico\User\IUser.cs" />
+    <Compile Include="Models\Niconico\User\UserNameProvider.cs" />
+    <Compile Include="Models\Niconico\User\UserProvider.cs" />
+    <Compile Include="Models\Niconico\Video.WatchHistory.LoginUser\IWatchHistory.cs" />
+    <Compile Include="Models\Niconico\Video.WatchHistory.LoginUser\LoginUserHistoryProvider.cs" />
+    <Compile Include="Models\Niconico\Video.WatchHistory.LoginUser\VideoPlayedHistoryRepository.cs" />
+    <Compile Include="Models\Niconico\Video\ITag.cs" />
+    <Compile Include="Models\Niconico\Video\IVideoContent.cs" />
+    <Compile Include="Models\Niconico\Video\NicoVideo.cs" />
+    <Compile Include="Models\Niconico\Video\NicoVideoOwner.cs" />
+    <Compile Include="Models\Niconico\Video\NicoVideoProvider.cs" />
+    <Compile Include="Models\Niconico\Video\NicoVideoQuality.cs" />
+    <Compile Include="Models\Niconico\Video\Ranking\RankingGenreCache.cs" />
+    <Compile Include="Models\Niconico\Video\Ranking\RankingProvider.cs" />
+    <Compile Include="Models\Niconico\Video\Series\ISeries.cs" />
+    <Compile Include="Models\Niconico\Video\Series\SeriesProvider.cs" />
+    <Compile Include="Models\Niconico\Video\VideoCacheSettings_Legacy.cs" />
+    <Compile Include="Models\Niconico\Video\VideoFilteringSettings.cs" />
+    <Compile Include="Models\Niconico\Video\VideoRankingSettings.cs" />
+    <Compile Include="Models\Notification\InAppNotificationMessage.cs" />
+    <Compile Include="Models\Notification\LiteNotificationMessage.cs" />
+    <Compile Include="Models\PageNavigation\HohoemaPageType.cs" />
+    <Compile Include="Models\PageNavigation\IPinablePage.cs" />
+    <Compile Include="Models\PageNavigation\ISearchHistory.cs" />
+    <Compile Include="Models\PageNavigation\ITitleUpdatablePage.cs" />
+    <Compile Include="Models\PageNavigation\MylistUserSelectedSortRepository.cs" />
+    <Compile Include="Models\PageNavigation\RestoreNavigationManager.cs" />
+    <Compile Include="Models\PageNavigation\SearchTarget.cs" />
+    <Compile Include="Models\Pins\HohoemaPin.cs" />
+    <Compile Include="Models\Pins\PinSettings.cs" />
+    <Compile Include="Models\Player\Comment\CommentDisplayMode.cs" />
+    <Compile Include="Models\Player\Comment\CommentFliteringRepository.cs" />
+    <Compile Include="Models\Player\Comment\CommentSizeMode.cs" />
+    <Compile Include="Models\Player\Comment\IComment.cs" />
+    <Compile Include="Models\Player\Comment\ICommentFilter.cs" />
+    <Compile Include="Models\Player\Comment\ICommentService.cs" />
+    <Compile Include="Models\Player\INiconicoVideoSessionProvider.cs" />
+    <Compile Include="Models\Player\IStreamingSession.cs" />
+    <Compile Include="Models\Player\Live\LiveSuggestion.cs" />
+    <Compile Include="Models\Player\Live\LiveVidePagePayload.cs" />
+    <Compile Include="Models\Player\Live\NicoLiveInfoType.cs" />
+    <Compile Include="Models\Player\MediaPlayerSoundVolumeManager.cs" />
+    <Compile Include="Models\Player\PlayerSettings.cs" />
+    <Compile Include="Models\Player\Video\Cache\CachefolderAccessState.cs" />
+    <Compile Include="Models\Player\Video\Cache\CacheRequestRepository.cs" />
+    <Compile Include="Models\Player\Video\Cache\NicoVideoCached.cs" />
+    <Compile Include="Models\Player\Video\Cache\NicoVideoCacheProgress.cs" />
+    <Compile Include="Models\Player\Video\Cache\NicoVideoCacheState.cs" />
+    <Compile Include="Models\Player\Video\Cache\VideoCacheManagerLegacy.cs" />
+    <Compile Include="Models\Player\Video\Comment\CommentClient.cs" />
+    <Compile Include="Models\Player\Video\Comment\CommentCommandPermissionType.cs" />
+    <Compile Include="Models\Player\Video\Comment\CommentServerInfo.cs" />
+    <Compile Include="Models\Player\Video\Comment\NicoScript.cs" />
+    <Compile Include="Models\Player\Video\Comment\VideoComment.cs" />
+    <Compile Include="Models\Player\Video\Comment\VideoCommentService.cs" />
+    <Compile Include="Models\Player\Video\NicoVideoCanNotDownloadReason.cs" />
+    <Compile Include="Models\Player\Video\NicoVideoQualityEntity.cs" />
+    <Compile Include="Models\Player\Video\NicoVideoQuality_Legacy.cs" />
+    <Compile Include="Models\Player\Video\NicoVideoSessionProvider.cs" />
+    <Compile Include="Models\Player\Video\NicoVideoTag.cs" />
+    <Compile Include="Models\Player\Video\VideoStreamingSession\CachedVideoStreamingSession.cs" />
+    <Compile Include="Models\Player\Video\VideoStreamingSession\DmcVideoStreamingSession.cs" />
+    <Compile Include="Models\Player\Video\VideoStreamingSession\IVideoStreamingSession.cs" />
+    <Compile Include="Models\Player\Video\VideoStreamingSession\VideoStreamingSession.cs" />
+    <Compile Include="Models\Playlist\HohoemaPlaylistPlayer.cs" />
+    <Compile Include="Models\LocalMylist\LocalPlaylist.cs" />
+    <Compile Include="Models\Playlist\IPlaylist.cs" />
+    <Compile Include="Models\Playlist\IPlaylistFactoryResolver.cs" />
+    <Compile Include="Models\Playlist\PlaylistExtension.cs" />
+    <Compile Include="Models\Playlist\PlaylistItemsSourceOrigin.cs" />
+    <Compile Include="Models\LocalMylist\LocalMylistRepository.cs" />
+    <Compile Include="Models\Player\VideoStreamingOriginOrchestrator.cs" />
+    <Compile Include="Models\Playlist\QueuePlaylist.cs" />
+    <Compile Include="Models\Playlist\QueuePlaylistSetting.cs" />
+    <Compile Include="Models\Playlist\VideoPlayRequestMessage.cs" />
+    <Compile Include="Models\Purchase\HohoemaPurchase.cs" />
+    <Compile Include="Models\Subscriptions\SubscFeedVideoRepository.cs" />
+    <Compile Include="Models\Subscriptions\SubscriptionFeedResult.cs" />
+    <Compile Include="Models\Subscriptions\SubscriptionFeedResultRepository.cs" />
+    <Compile Include="Models\Subscriptions\SubscriptionManager.cs" />
+    <Compile Include="Models\Subscriptions\SubscriptionRegistrationRepository.cs" />
+    <Compile Include="Models\Subscriptions\SubscriptionSettings.cs" />
+    <Compile Include="Models\Subscriptions\SubscriptionSourceEntity.cs" />
+    <Compile Include="Models\VideoCache\IVideoCacheDownloadOperation.cs" />
+    <Compile Include="Models\VideoCache\IVideoCacheDownloadOperationOutput.cs" />
+    <Compile Include="Models\VideoCache\NicoVideoCacheQualityHelper.cs" />
+    <Compile Include="Models\VideoCache\PrepareNextVideoCacheDownloadingResult.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheDownloadOperation.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheDownloadOperationCreationResult.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheDownloadOperationFailedReason.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheDownloadOperationOutputWithEncryption.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheDownloadOperationProgress.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheDownloadOperationResult.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheEntity.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheException.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheItem.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheItemRepository.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheManager.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheSaveFolderManager.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheSettings.cs" />
+    <Compile Include="Models\VideoCache\VideoCacheStatus.cs" />
+    <Compile Include="Models\_Settings_Legacy\AccountSettings.cs" />
+    <Compile Include="Models\_Settings_Legacy\ActivityFeedSettings.cs" />
+    <Compile Include="Models\_Settings_Legacy\AppearanceSettings.cs" />
+    <Compile Include="Models\_Settings_Legacy\CacheSettings.cs" />
+    <Compile Include="Models\_Settings_Legacy\HohoemaUserSettings.cs" />
+    <Compile Include="Models\_Settings_Legacy\NGSettings.cs" />
+    <Compile Include="Models\_Settings_Legacy\PinSettings.cs" />
+    <Compile Include="Models\_Settings_Legacy\PlayerSettings.cs" />
+    <Compile Include="Models\_Settings_Legacy\RankingSettings.cs" />
+    <Compile Include="Helpers\ApiContractHelper.cs" />
+    <Compile Include="Helpers\AsyncLock.cs" />
+    <Compile Include="Helpers\ClipboardHelper.cs" />
+    <Compile Include="Helpers\ColorExtention.cs" />
+    <Compile Include="Helpers\ConnectionRetryUtil.cs" />
+    <Compile Include="Helpers\DeviceTypeHelper.cs" />
+    <Compile Include="Helpers\DisplayRequestHelper.cs" />
+    <Compile Include="Helpers\FilePathHelper.cs" />
+    <Compile Include="Helpers\HtmlFileHelper.cs" />
+    <Compile Include="Helpers\HttpRandomAccessStream.cs" />
+    <Compile Include="Helpers\IAsyncInitialize.cs" />
+    <Compile Include="Helpers\InputCapabilityHelper.cs" />
+    <Compile Include="Helpers\InternetConnection.cs" />
+    <Compile Include="Helpers\ListExtention.cs" />
+    <Compile Include="Helpers\ObservableHashSet.cs" />
+    <Compile Include="Helpers\ShareHelper.cs" />
+    <Compile Include="Helpers\StorageFolderExtention.cs" />
+    <Compile Include="Helpers\StringHelper.cs" />
+    <Compile Include="Infra\FlagsRepositoryBase.cs" />
+    <Compile Include="Infra\HohoemaExpception.cs" />
+    <Compile Include="Infra\LiteDbService.cs" />
+    <Compile Include="Infra\ProviderBase.cs" />
+    <Compile Include="Infra\SystemTextJsonSerializer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Properties\Hohoema.Models.rd.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Diagnostics">
+      <Version>8.1.0</Version>
+    </PackageReference>
+    <PackageReference Include="CommunityToolkit.Mvvm">
+      <Version>8.0.0-preview4</Version>
+    </PackageReference>
+    <PackageReference Include="DryIoc.Microsoft.DependencyInjection">
+      <Version>5.1.0</Version>
+    </PackageReference>
+    <PackageReference Include="I18NPortable">
+      <Version>1.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="LiteDB">
+      <Version>5.0.16</Version>
+    </PackageReference>
+    <PackageReference Include="Macross.Json.Extensions">
+      <Version>2.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory">
+      <Version>5.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
+      <Version>6.2.13</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp">
+      <Version>7.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications">
+      <Version>7.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.UI.Xaml">
+      <Version>2.7.1-prerelease.211026002</Version>
+    </PackageReference>
+    <PackageReference Include="NiconicoToolkit">
+      <Version>0.3.2</Version>
+    </PackageReference>
+    <PackageReference Include="ReactiveProperty">
+      <Version>7.12.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Interactive.Async">
+      <Version>5.0.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Text.Json">
+      <Version>5.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="System.Threading.Tasks.Extensions">
+      <Version>4.5.4</Version>
+    </PackageReference>
+    <PackageReference Include="XTSSharp.NetStandard">
+      <Version>1.0.0</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
+    <VisualStudioVersion>14.0</VisualStudioVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

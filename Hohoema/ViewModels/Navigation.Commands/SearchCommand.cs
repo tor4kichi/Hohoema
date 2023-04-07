@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.Search;
-using Hohoema.Models.Domain.PageNavigation;
+﻿using Hohoema.Models;
+using Hohoema.Models.Niconico.Search;
+using Hohoema.Models.PageNavigation;
 using Hohoema.Services;
 using Hohoema.Models.UseCase.PageNavigation;
 using CommunityToolkit.Mvvm.Input;

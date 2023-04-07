@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.VideoCache;
+﻿using Hohoema.Models.VideoCache;
 using System;
 using System.Collections.Generic;
 using System.Linq;

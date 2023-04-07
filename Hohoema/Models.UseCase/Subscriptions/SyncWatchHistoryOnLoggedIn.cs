@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
+﻿using Hohoema.Models;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.UseCase.Playlist;
 using Microsoft.Extensions.Logging;
 using System;

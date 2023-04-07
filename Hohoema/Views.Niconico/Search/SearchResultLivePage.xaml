@@ -6,7 +6,7 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-  xmlns:models="using:Hohoema.Models.Domain.Application"
+  xmlns:models="using:Hohoema.Models.Application"
   xmlns:mybehavior="using:Hohoema.Views.Behaviors"
   xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI"

@@ -9,7 +9,7 @@
   xmlns:mycontrols="using:Hohoema.Views.Controls"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-  xmlns:models="using:Hohoema.Models.Domain.Application"
+  xmlns:models="using:Hohoema.Models.Application"
   xmlns:flyouts="using:Hohoema.Views.Flyouts"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:mylistPages="using:Hohoema.Views.Pages.Niconico.Mylist" 
@@ -79,7 +79,7 @@
         </GridView.ItemsPanel>
         <GridView.ItemTemplate>
           <DataTemplate x:DataType="mylistModel:MylistPlaylist"
-                      xmlns:mylistModel="using:Hohoema.Models.Domain.Niconico.Mylist"
+                      xmlns:mylistModel="using:Hohoema.Models.Niconico.Mylist"
                       >
             <mylistView:MylistCardView xmlns:mylistView="using:Hohoema.Views.Mylist" 
                                      PlaylistName="{x:Bind Name}" ImageUrl="{x:Bind ThumbnailImage}" ImageCaption="{x:Bind Count}"

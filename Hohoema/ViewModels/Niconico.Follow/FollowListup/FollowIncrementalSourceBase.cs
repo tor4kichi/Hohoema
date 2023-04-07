@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Threading;
 using Microsoft.Toolkit.Collections;
-using Hohoema.Models.Domain.Niconico.Follow;
+using Hohoema.Models.Niconico.Follow;
 
 namespace Hohoema.ViewModels.Niconico.Follow
 {

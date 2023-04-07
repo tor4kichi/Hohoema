@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain;
+﻿using Hohoema.Models;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Reactive.Bindings;
@@ -14,8 +14,8 @@ using Windows.UI;
 using Hohoema.Views;
 using System.Reactive.Concurrency;
 using System.Threading;
-using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Player;
+using Hohoema.Models.Niconico;
 using NiconicoToolkit.Comment;
 
 namespace Hohoema.ViewModels

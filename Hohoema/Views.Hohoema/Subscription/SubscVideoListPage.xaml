@@ -11,7 +11,7 @@
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:windowsTriggers="using:WindowsStateTriggers" 
-  xmlns:models="using:Hohoema.Models.Domain.Application"
+  xmlns:models="using:Hohoema.Models.Application"
     mc:Ignorable="d"
 
   >

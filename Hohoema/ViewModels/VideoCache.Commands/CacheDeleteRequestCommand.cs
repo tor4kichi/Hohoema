@@ -1,5 +1,5 @@
 ﻿using I18NPortable;
-using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Niconico.Video;
 using Hohoema.Services;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.ViewModels.Niconico.Video.Commands;
-using Hohoema.Models.Domain.VideoCache;
+using Hohoema.Models.VideoCache;
 
 namespace Hohoema.ViewModels.VideoCache.Commands
 {

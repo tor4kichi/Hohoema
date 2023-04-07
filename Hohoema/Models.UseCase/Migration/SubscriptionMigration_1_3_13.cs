@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Subscriptions;
+﻿using Hohoema.Models.Application;
+using Hohoema.Models.Subscriptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;

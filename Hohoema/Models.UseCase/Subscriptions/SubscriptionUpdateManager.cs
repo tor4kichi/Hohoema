@@ -1,6 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Hohoema.Models.Helpers;
-using Hohoema.Models.Domain.Subscriptions;
+using Hohoema.Helpers;
+using Hohoema.Models.Subscriptions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

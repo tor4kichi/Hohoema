@@ -1,9 +1,9 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Player.Video;
-using Hohoema.Models.Domain.Player.Video.Cache;
-using Hohoema.Models.Domain.VideoCache;
+﻿using Hohoema.Models;
+using Hohoema.Models.Application;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Player.Video;
+using Hohoema.Models.Player.Video.Cache;
+using Hohoema.Models.VideoCache;
 using Hohoema.Services;
 using System;
 using System.Collections.Generic;
@@ -23,9 +23,9 @@ namespace Hohoema.Models.UseCase.Migration
         private readonly DialogService _dialogService;
 
         public VideoCacheDatabaseMigration_V_0_29_0(
-            Domain.Application.AppFlagsRepository appFlagsRepository,
-            Domain.Player.Video.Cache.CacheRequestRepository cacheRequestRepositoryLegacy,
-            Domain.VideoCache.VideoCacheManager videoCacheManager,
+            Application.AppFlagsRepository appFlagsRepository,
+            Player.Video.Cache.CacheRequestRepository cacheRequestRepositoryLegacy,
+            VideoCacheManager videoCacheManager,
             Services.DialogService dialogService
             )
         {

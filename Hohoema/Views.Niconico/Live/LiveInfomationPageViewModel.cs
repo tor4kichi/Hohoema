@@ -1,11 +1,11 @@
 ﻿using I18NPortable;
 using NiconicoToolkit.Live;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Helpers;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Community;
-using Hohoema.Models.Domain.Niconico.Live;
-using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models;
+using Hohoema.Helpers;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Community;
+using Hohoema.Models.Niconico.Live;
+using Hohoema.Models.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Services;
 using Hohoema.Models.UseCase.PageNavigation;
@@ -23,10 +23,10 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Xaml;
-using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
-using Hohoema.Models.Domain.Application;
+using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
+using Hohoema.Models.Application;
 using Hohoema.ViewModels.Niconico.Live;
-using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Pins;
 using Hohoema.ViewModels.Niconico.Share;
 using Hohoema.ViewModels.Pages.Niconico.Video;
 using NiconicoToolkit.Ichiba;
@@ -552,7 +552,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Live
 
             IsLiveInfoLoaded.Value = false;
 
-            if (liveId == default(LiveId)) { throw new Models.Infrastructure.HohoemaException("Require LiveId in LiveInfomationPage navigation with (e.Parameter as string)"); }
+            if (liveId == default(LiveId)) { throw new Infra.HohoemaException("Require LiveId in LiveInfomationPage navigation with (e.Parameter as string)"); }
 
             try
             {
@@ -592,7 +592,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Live
                 }
                 else
                 {
-                    throw new Models.Infrastructure.HohoemaException("Live not found. LiveId is " + LiveId);
+                    throw new Infra.HohoemaException("Live not found. LiveId is " + LiveId);
                 }
             }
             catch (Exception ex)

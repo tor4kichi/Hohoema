@@ -1,11 +1,11 @@
-﻿using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
-using Hohoema.Models.Domain.Niconico.Follow;
+﻿using Hohoema.Models.Niconico.Follow.LoginUser;
+using Hohoema.Models.Niconico.Follow;
 using Hohoema.ViewModels.Niconico.Follow;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq;
-using Hohoema.Models.Domain.Niconico.Community;
+using Hohoema.Models.Niconico.Community;
 using NiconicoToolkit.Follow;
 
 namespace Hohoema.ViewModels.Niconico.Follow

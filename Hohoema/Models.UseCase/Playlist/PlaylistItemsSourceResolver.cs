@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.Playlist;
 using Hohoema.Models.UseCase.Playlist.PlaylistFactory;
 using System;
 using System.Text;

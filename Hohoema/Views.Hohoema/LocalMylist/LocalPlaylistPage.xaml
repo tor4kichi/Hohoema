@@ -13,7 +13,7 @@
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:flyouts="using:Hohoema.Views.Flyouts"
   xmlns:controls="using:Hohoema.Views.Controls"
-  xmlns:models="using:Hohoema.Models.Domain.Application"
+  xmlns:models="using:Hohoema.Models.Application"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   mc:Ignorable="d"

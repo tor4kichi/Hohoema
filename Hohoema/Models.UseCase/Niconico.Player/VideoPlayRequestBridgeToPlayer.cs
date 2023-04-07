@@ -5,19 +5,19 @@ using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Hohoema.Models.Helpers;
+using Hohoema.Helpers;
 using Hohoema.Models.UseCase.Niconico.Player.Events;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Playlist;
 using NiconicoToolkit.Video;
-using Hohoema.Models.Infrastructure;
-using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.Live;
+using Hohoema.Infra;
+using Hohoema.Models.Player;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Niconico.Live;
 using NiconicoToolkit.Live;
 using Hohoema.Models.UseCase.Playlist;
 using Microsoft.Toolkit.Diagnostics;
 using Reactive.Bindings.Extensions;
-using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Application;
 using Hohoema.Navigations;
 
 namespace Hohoema.Models.UseCase.Niconico.Player

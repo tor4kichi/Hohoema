@@ -11,14 +11,14 @@ using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Diagnostics;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.Live;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Niconico.Live;
 using Hohoema.Views.Player;
 using Hohoema.Views.Pages;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Live;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Playlist;
 using System.Windows.Input;
 using Microsoft.Extensions.Logging;
 using ZLogger;
@@ -41,7 +41,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         private readonly RestoreNavigationManager _restoreNavigationManager;
         PlayerDisplayMode _prevDisplayMode;
 
-        Models.Helpers.AsyncLock _navigationLock = new Models.Helpers.AsyncLock();
+        Helpers.AsyncLock _navigationLock = new Helpers.AsyncLock();
 
         public PrimaryViewPlayerManager(
             ILoggerFactory loggerFactory,
@@ -147,7 +147,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
                     {
                         DisplayMode = PlayerDisplayMode.Close;
                         _view.Title = string.Empty;
-                        throw result.Exception ?? new Models.Infrastructure.HohoemaException("unknown navigation error.");
+                        throw result.Exception ?? new Infra.HohoemaException("unknown navigation error.");
                     }
 
                     LastNavigatedPageName = pageName;

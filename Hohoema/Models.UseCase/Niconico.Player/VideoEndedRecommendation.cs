@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain;
+﻿using Hohoema.Models;
 using Hohoema.Services;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -15,15 +15,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Media.Playback;
 using Windows.UI.Xaml;
-using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Player;
 using NiconicoToolkit.Video.Watch;
-using Hohoema.Models.Domain.Player.Video;
+using Hohoema.Models.Player.Video;
 using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
+using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using NiconicoToolkit.Video;
-using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Application;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -33,7 +33,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         IRecipient<PlaybackFailedMessage>
     {
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
-        private readonly Models.Helpers.AsyncLock _lock = new Models.Helpers.AsyncLock();
+        private readonly Helpers.AsyncLock _lock = new Helpers.AsyncLock();
 
         public VideoEndedRecommendation(
             MediaPlayer mediaPlayer,

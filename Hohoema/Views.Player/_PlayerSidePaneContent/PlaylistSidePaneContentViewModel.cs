@@ -1,6 +1,6 @@
 ﻿using I18NPortable;
 
-using Hohoema.Models.Domain;
+using Hohoema.Models;
 using Hohoema.Services;
 using Hohoema.Models.UseCase.Playlist;
 using CommunityToolkit.Mvvm.Input;
@@ -16,9 +16,9 @@ using Windows.Media;
 using Windows.Media.Playback;
 using Windows.UI.Xaml.Data;
 using Hohoema.Models.UseCase.PageNavigation;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Player;
+using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Diagnostics;
 using Hohoema.ViewModels.VideoListPage;

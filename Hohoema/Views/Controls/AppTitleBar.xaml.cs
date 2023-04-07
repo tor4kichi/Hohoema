@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Application;
+﻿using Hohoema.Models.Application;
 using Hohoema.Models.UseCase;
 using Reactive.Bindings.Extensions;
 using System;

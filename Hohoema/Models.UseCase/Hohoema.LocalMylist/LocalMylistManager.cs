@@ -1,8 +1,8 @@
 ﻿using I18NPortable;
 using Microsoft.Toolkit.Uwp.Helpers;
 
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings.Extensions;
 using System;
@@ -17,9 +17,9 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.Storage;
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Application;
 using Hohoema.Services;
-using Hohoema.Models.Domain.LocalMylist;
+using Hohoema.Models.LocalMylist;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 

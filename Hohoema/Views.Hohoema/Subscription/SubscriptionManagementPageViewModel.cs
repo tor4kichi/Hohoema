@@ -1,11 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.Domain.Subscriptions;
+using Hohoema.Models.Application;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Playlist;
+using Hohoema.Models.Subscriptions;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase.Subscriptions;
 using Hohoema.Navigations;

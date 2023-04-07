@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Niconico.Video;
+﻿using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.UseCase.PageNavigation;
 using NiconicoToolkit.Video;
 using CommunityToolkit.Mvvm.Input;
@@ -30,7 +30,7 @@ namespace Hohoema.ViewModels.Pages.VideoListPage.Commands
             {
                 if (video.ProviderType == OwnerType.User)
                 {
-                    _pageManager.OpenPageWithId(Models.Domain.PageNavigation.HohoemaPageType.UserInfo, video.ProviderId);
+                    _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserInfo, video.ProviderId);
                 }
                 else if (video.ProviderType == OwnerType.Channel)
                 {

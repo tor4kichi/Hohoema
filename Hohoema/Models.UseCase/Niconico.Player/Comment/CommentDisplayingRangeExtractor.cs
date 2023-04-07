@@ -1,15 +1,15 @@
 ﻿using NiconicoToolkit.Live.WatchSession;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Player.Video.Comment;
+using Hohoema.Models;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Player.Video.Comment;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Domain.Player.Comment;
+using Hohoema.Models.Player;
+using Hohoema.Models.Player.Comment;
 
 namespace Hohoema.Models.UseCase.Niconico.Player.Comment
 {

@@ -7,7 +7,7 @@
       xmlns:i="using:Microsoft.Xaml.Interactivity"
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
       xmlns:controls="using:Hohoema.Views.Controls"
-      xmlns:models="using:Hohoema.Models.Domain.Application"
+      xmlns:models="using:Hohoema.Models.Application"
       xmlns:myExtensions="using:Hohoema.Views.Extensions"
       xmlns:flyouts="using:Hohoema.Views.Flyouts"
       xmlns:windowsStateTriggers="using:WindowsStateTriggers"

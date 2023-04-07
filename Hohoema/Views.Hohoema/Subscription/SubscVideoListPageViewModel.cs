@@ -1,8 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Subscriptions;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Subscriptions;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Navigations;
@@ -99,7 +99,7 @@ namespace Hohoema.ViewModels.Pages.Hohoema.Subscription
         [RelayCommand]
         public void OpenSubscManagementPage()
         {
-            _pageManager.OpenPage(Models.Domain.PageNavigation.HohoemaPageType.SubscriptionManagement);
+            _pageManager.OpenPage(Models.PageNavigation.HohoemaPageType.SubscriptionManagement);
         }
     }
 

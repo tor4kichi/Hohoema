@@ -1,7 +1,7 @@
-﻿using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.Niconico.Video.Series;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Pins;
+﻿using Hohoema.Models.Niconico.User;
+using Hohoema.Models.Niconico.Video.Series;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Pins;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.ViewModels.Niconico.Series;
@@ -17,9 +17,9 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Hohoema.ViewModels.Niconico.Video.Commands;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Hohoema.Models.Domain.Niconico.Series;
+using Hohoema.Models.Niconico.Series;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Series
 {

@@ -1,9 +1,9 @@
-﻿using Hohoema.Models.Domain.Niconico.Community;
-using Hohoema.Models.Domain.Niconico.Live;
-using Hohoema.Models.Domain.Niconico.Mylist;
-using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.PageNavigation;
+﻿using Hohoema.Models.Niconico.Community;
+using Hohoema.Models.Niconico.Live;
+using Hohoema.Models.Niconico.Mylist;
+using Hohoema.Models.Niconico.User;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.PageNavigation;
 using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;
 using CommunityToolkit.Mvvm.Messaging;
@@ -15,16 +15,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Windows.UI.Notifications;
 using Windows.UI.Xaml.Controls;
-using Hohoema.Models.Domain.Notification;
+using Hohoema.Models.Notification;
 using NiconicoToolkit.Community;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
-using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Niconico;
 using NiconicoToolkit;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Niconico.Player.Events;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Playlist;
 
 namespace Hohoema.Services
 {

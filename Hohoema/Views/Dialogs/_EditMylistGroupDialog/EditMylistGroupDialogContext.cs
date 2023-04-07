@@ -1,5 +1,5 @@
 ﻿using I18NPortable;
-using Hohoema.Models.Domain;
+using Hohoema.Models;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI;
 using NiconicoToolkit.Mylist;
-using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Niconico.Mylist;
 
 namespace Hohoema.Dialogs
 {

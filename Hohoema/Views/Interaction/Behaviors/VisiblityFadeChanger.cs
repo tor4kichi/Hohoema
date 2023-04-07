@@ -8,7 +8,7 @@ using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.Toolkit.Uwp.UI.Helpers;
 using System.Diagnostics;
 using Windows.UI.Xaml.Input;
-using Hohoema.Models.Helpers;
+using Hohoema.Helpers;
 using System.Threading.Tasks;
 using Reactive.Bindings.Extensions;
 using Windows.Foundation;

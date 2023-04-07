@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.Video.Series;
+﻿using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Niconico.Video.Series;
 using NiconicoToolkit.Series;
 using NiconicoToolkit.Video;
 

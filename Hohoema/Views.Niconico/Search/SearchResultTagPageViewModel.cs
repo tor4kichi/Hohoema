@@ -1,9 +1,9 @@
-﻿using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Search;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Pins;
-using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Search;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Pins;
+using Hohoema.Models.Subscriptions;
+using Hohoema.Helpers;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
@@ -20,20 +20,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
+using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
 using Hohoema.ViewModels.Niconico.Follow;
-using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
-using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Niconico.Follow.LoginUser;
+using Hohoema.Models.Niconico.Video;
 using NiconicoToolkit.SearchWithCeApi.Video;
 using Microsoft.Toolkit.Collections;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Playlist;
 using Microsoft.Extensions.Logging;
 using Windows.UI.Xaml.Navigation;
 using I18NPortable;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Search
 {
-    using TagFollowContext = FollowContext<Models.Domain.Niconico.Video.ITag>;
+    using TagFollowContext = FollowContext<Models.Niconico.Video.ITag>;
 
     public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoListItemControlViewModel>, ITag, IPinablePage, ITitleUpdatablePage
     {

@@ -1,10 +1,10 @@
 ﻿using Cysharp.Text;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Domain.Player.Comment;
-using Hohoema.Models.Domain.Player.Video.Cache;
-using Hohoema.Models.Domain.Player.Video.Comment;
-using Hohoema.Models.Infrastructure;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Player;
+using Hohoema.Models.Player.Comment;
+using Hohoema.Models.Player.Video.Cache;
+using Hohoema.Models.Player.Video.Comment;
+using Hohoema.Infra;
 using Hohoema.Services;
 using Microsoft.Extensions.Logging;
 using MvvmHelpers;
@@ -48,7 +48,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player.Comment
         public AsyncReactiveCommand CommentSubmitCommand { get; }
         ICommentSession<IVideoComment> _commentSession;
 
-        Models.Helpers.AsyncLock _commentUpdateLock = new Models.Helpers.AsyncLock();
+        Helpers.AsyncLock _commentUpdateLock = new Helpers.AsyncLock();
 
         private bool _nowSeekDisabledFromNicoScript;
         public bool NowSeekDisabledFromNicoScript

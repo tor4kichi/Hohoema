@@ -1,5 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.UI;
-using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Niconico;
 using Hohoema.Services;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -11,7 +11,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.Player.Video.Comment;
+using Hohoema.Models.Player.Video.Comment;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using System.Collections;
 

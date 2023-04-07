@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Niconico.Video;
+﻿using Hohoema.Models.Niconico.Video;
 using System;
 using System.Linq;
 using System.Reactive.Linq;

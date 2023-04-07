@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico.Community;
-using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.Niconico.Community;
+using Hohoema.Models.Playlist;
 using Microsoft.Toolkit.Diagnostics;
 using NiconicoToolkit.Community;
 using System;

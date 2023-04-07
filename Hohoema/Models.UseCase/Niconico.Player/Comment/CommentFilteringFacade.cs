@@ -1,6 +1,6 @@
 ﻿using I18NPortable;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Player;
+using Hohoema.Models;
+using Hohoema.Models.Player;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
@@ -9,8 +9,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Player.Comment;
+using Hohoema.Models.Application;
+using Hohoema.Models.Player.Comment;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 

@@ -6,7 +6,7 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-  xmlns:models="using:Hohoema.Models.Domain.Application"
+  xmlns:models="using:Hohoema.Models.Application"
   xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:listitem="using:Hohoema.Views.HohoemaListItem"
   xmlns:mycontrols="using:Hohoema.Views.Controls"
@@ -119,7 +119,7 @@
                   </GridView.ItemsPanel>
                   <GridView.ItemTemplate>
                     <DataTemplate x:DataType="mylistModel:MylistPlaylist"
-                                      xmlns:mylistModel="using:Hohoema.Models.Domain.Niconico.Mylist"
+                                      xmlns:mylistModel="using:Hohoema.Models.Niconico.Mylist"
                                       >
                       <mylistView:MylistCardView xmlns:mylistView="using:Hohoema.Views.Mylist"
                                                  PlaylistName="{x:Bind Name}" ImageUrl="{x:Bind ThumbnailImage}" ImageCaption="{x:Bind Count}" ImageHeight="100"

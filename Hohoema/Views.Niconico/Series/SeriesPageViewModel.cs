@@ -1,11 +1,11 @@
-﻿using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Series;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.Video.Series;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Pins;
-using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Series;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Niconico.Video.Series;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Pins;
+using Hohoema.Models.Playlist;
+using Hohoema.Helpers;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.Subscriptions;
@@ -204,7 +204,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Series
                 _allItems = (await _seriesVideoPlaylist.GetAllItemsAsync(_selectedSortOption, cancellationToken)).ToList();
             }            
 
-            return _allItems.Skip(pageIndex * pageSize).Take(pageSize).Cast<Models.Domain.Niconico.Series.SeriesVideoItem>().Select((item, i) =>
+            return _allItems.Skip(pageIndex * pageSize).Take(pageSize).Cast<Models.Niconico.Series.SeriesVideoItem>().Select((item, i) =>
             {
                 var itemVM = new VideoListItemControlViewModel(item.VideoId, item.Title, item.ThumbnailUrl, item.Length, item.PostedAt)
                 {

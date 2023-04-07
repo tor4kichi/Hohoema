@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Niconico.Search;
+﻿using Hohoema.Models.Niconico.Search;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;

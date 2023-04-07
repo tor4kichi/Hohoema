@@ -1,7 +1,7 @@
-﻿using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Live;
-using Hohoema.Models.Domain.Niconico.Live.LoginUser;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Live;
+using Hohoema.Models.Niconico.Live.LoginUser;
+using Hohoema.Helpers;
 using Hohoema.Services;
 using Hohoema.Models.UseCase.PageNavigation;
 using I18NPortable;

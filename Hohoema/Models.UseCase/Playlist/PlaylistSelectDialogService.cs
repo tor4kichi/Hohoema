@@ -1,7 +1,7 @@
 ﻿using I18NPortable;
 using Hohoema.Dialogs;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models;
+using Hohoema.Models.Playlist;
 using Hohoema.Services;
 using System;
 using System.Collections.Generic;

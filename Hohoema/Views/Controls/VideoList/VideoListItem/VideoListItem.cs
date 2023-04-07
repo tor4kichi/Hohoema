@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.VideoCache;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.VideoCache;
+using Hohoema.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;

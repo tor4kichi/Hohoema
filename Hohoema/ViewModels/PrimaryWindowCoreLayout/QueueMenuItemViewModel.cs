@@ -10,9 +10,9 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.PageNavigation;
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Navigations;
 

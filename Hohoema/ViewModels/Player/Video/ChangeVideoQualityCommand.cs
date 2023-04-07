@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Services;
 using I18NPortable;
-using Hohoema.Models.Infrastructure;
+using Hohoema.Infra;
 
 namespace Hohoema.ViewModels.Player.Video
 {

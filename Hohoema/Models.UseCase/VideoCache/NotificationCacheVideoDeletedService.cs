@@ -1,6 +1,6 @@
 ﻿using I18NPortable;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Player.Video.Cache;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Player.Video.Cache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Services;
-using Hohoema.Models.Domain.VideoCache;
+using Hohoema.Models.VideoCache;
 
 namespace Hohoema.Models.UseCase.VideoCache
 {

@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+﻿using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.ViewModels.Niconico.Follow;
 using NiconicoToolkit.User;
 using System;
@@ -19,11 +19,11 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
 using Hohoema.ViewModels.Pages.Niconico.User;
 using Hohoema.Models.UseCase.PageNavigation;
-using Hohoema.Models.Helpers;
+using Hohoema.Helpers;
 using Windows.System;
 using NiconicoToolkit;
-using Hohoema.Models.Domain.Pins;
-using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Pins;
+using Hohoema.Models.Niconico.Video;
 using System.Threading.Tasks;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
@@ -115,7 +115,7 @@ namespace Hohoema.Views.Pages.Niconico.User
         {
             if (UserId is not null and UserId userId)
             {
-                _pageManager.OpenPageWithId(Models.Domain.PageNavigation.HohoemaPageType.UserVideo, userId);
+                _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserVideo, userId);
             }
         }
 
@@ -123,7 +123,7 @@ namespace Hohoema.Views.Pages.Niconico.User
         {
             if (UserId is not null and UserId userId)
             {
-                _pageManager.OpenPageWithId(Models.Domain.PageNavigation.HohoemaPageType.UserMylist, userId);
+                _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserMylist, userId);
             }
         }
 
@@ -131,7 +131,7 @@ namespace Hohoema.Views.Pages.Niconico.User
         {
             if (UserId is not null and UserId userId)
             {
-                _pageManager.OpenPageWithId(Models.Domain.PageNavigation.HohoemaPageType.UserSeries, userId);
+                _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserSeries, userId);
             }
         }
 

@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Notification;
+﻿using Hohoema.Models.Application;
+using Hohoema.Models.Notification;
 using Hohoema.Services;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Navigations;

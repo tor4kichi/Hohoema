@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Mylist;
-using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
+﻿using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Mylist;
+using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Services;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
@@ -12,8 +12,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ZLogger;
-using static Hohoema.Models.Domain.Niconico.Mylist.LoginUser.LoginUserMylistProvider;
-using Hohoema.Models.Helpers;
+using static Hohoema.Models.Niconico.Mylist.LoginUser.LoginUserMylistProvider;
+using Hohoema.Helpers;
 
 namespace Hohoema.Models.UseCase.Playlist
 {

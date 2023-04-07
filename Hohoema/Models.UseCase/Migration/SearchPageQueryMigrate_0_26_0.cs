@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Pins;
+﻿using Hohoema.Models.Application;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Pins;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,21 +31,21 @@ namespace Hohoema.Models.UseCase.Migration
             foreach (var pin in pins)
             {
 #pragma warning disable CS0612 // 型またはメンバーが旧型式です
-                if (pin.PageType == Domain.PageNavigation.HohoemaPageType.SearchResultKeyword)
+                if (pin.PageType == HohoemaPageType.SearchResultKeyword)
                 {
-                    pin.PageType = Domain.PageNavigation.HohoemaPageType.Search;
+                    pin.PageType = HohoemaPageType.Search;
                     pin.Parameter = pin.Parameter + $"&service={SearchTarget.Keyword}";
                     _pinSettings.UpdateItem(pin);
                 }
-                else if (pin.PageType == Domain.PageNavigation.HohoemaPageType.SearchResultTag)
+                else if (pin.PageType == HohoemaPageType.SearchResultTag)
                 {
-                    pin.PageType = Domain.PageNavigation.HohoemaPageType.Search;
+                    pin.PageType = HohoemaPageType.Search;
                     pin.Parameter = pin.Parameter + $"&service={SearchTarget.Tag}";
                     _pinSettings.UpdateItem(pin);
                 }
-                else if (pin.PageType == Domain.PageNavigation.HohoemaPageType.SearchResultLive)
+                else if (pin.PageType == HohoemaPageType.SearchResultLive)
                 {
-                    pin.PageType = Domain.PageNavigation.HohoemaPageType.Search;
+                    pin.PageType = HohoemaPageType.Search;
                     pin.Parameter = pin.Parameter + $"&service={SearchTarget.Niconama}";
                     _pinSettings.UpdateItem(pin);
                 }

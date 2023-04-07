@@ -1,9 +1,9 @@
-﻿using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.Video.Ranking;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Pins;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Application;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Niconico.Video.Ranking;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Pins;
+using Hohoema.Helpers;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Services;
@@ -24,14 +24,14 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.Notification;
-using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Notification;
+using Hohoema.Models.Niconico;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Rss.Video;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-using AsyncLock = Hohoema.Models.Helpers.AsyncLock;
+using AsyncLock = Hohoema.Helpers.AsyncLock;
 using Windows.UI.Xaml.Navigation;
 using Hohoema.Navigations;
 using NiconicoToolkit;
@@ -276,7 +276,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.VideoRanking
 
                 if (rankingGenre == null)
                 {
-                    throw new Models.Infrastructure.HohoemaException("ランキングページの表示に失敗");
+                    throw new Infra.HohoemaException("ランキングページの表示に失敗");
                 }
 
                 RankingGenre = rankingGenre.Value;

@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.PageNavigation;
+﻿using Hohoema.Models;
+using Hohoema.Models.PageNavigation;
 
 namespace Hohoema.Models.UseCase.PageNavigation
 {

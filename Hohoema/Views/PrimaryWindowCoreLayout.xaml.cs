@@ -1,6 +1,6 @@
 ﻿using I18NPortable;
-using Hohoema.Models.Helpers;
-using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Helpers;
+using Hohoema.Models.PageNavigation;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.ViewModels;
 using Reactive.Bindings;
@@ -19,9 +19,9 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
-using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Application;
 using System.Windows.Input;
-using Hohoema.Models.Domain.Notification;
+using Hohoema.Models.Notification;
 using Windows.UI;
 using Windows.UI.Xaml.Media;
 using System.Threading;
@@ -29,18 +29,18 @@ using CommunityToolkit.Mvvm.Messaging;
 using Windows.System;
 using Microsoft.Toolkit.Uwp;
 using Hohoema.Services.UINavigation;
-using Hohoema.Models.Infrastructure;
+using Hohoema.Infra;
 using Hohoema.Models.UseCase;
 using Hohoema.Views.Pages.Niconico.VideoRanking;
 using Hohoema.Views.Pages.Niconico.Follow;
 using Hohoema.Models.UseCase.Niconico.Player;
 using Windows.UI.WindowManagement;
-using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Niconico.Video;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 using Hohoema.Navigations;
 using CommunityToolkit.Mvvm.Input;
-using Hohoema.Models.Domain.Pins;
+using Hohoema.Models.Pins;
 using Windows.UI.ViewManagement;
 using Hohoema.ViewModels.PrimaryWindowCoreLayout;
 using System.Reactive.Concurrency;
@@ -840,7 +840,7 @@ namespace Hohoema.Views.Pages
         [RelayCommand]
         void AddBookmarkFolder()
         {
-            var pinGroup = new HohoemaPin { PinType = Models.Domain.Pins.BookmarkType.Folder, Label = "PinFolder_DefaultName".Translate() };
+            var pinGroup = new HohoemaPin { PinType = Models.Pins.BookmarkType.Folder, Label = "PinFolder_DefaultName".Translate() };
             _viewModel.AddPin(pinGroup);
         }
 

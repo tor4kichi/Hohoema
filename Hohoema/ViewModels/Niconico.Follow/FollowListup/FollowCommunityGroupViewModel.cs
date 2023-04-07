@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.Domain.Niconico.Community;
-using Hohoema.Models.Domain.Niconico.Follow;
-using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+﻿using Hohoema.Models.Niconico.Community;
+using Hohoema.Models.Niconico.Follow;
+using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.UseCase.PageNavigation;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Input;
@@ -46,7 +46,7 @@ namespace Hohoema.ViewModels.Niconico.Follow
         public override RelayCommand<ICommunity> OpenPageCommand =>
             _OpenPageCommand ??= new RelayCommand<ICommunity>(item => 
             {
-//                _pageManager.OpenPageWithId(Models.Domain.PageNavigation.HohoemaPageType.Community, item.Id);
+//                _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.Community, item.Id);
             });
     }
 }

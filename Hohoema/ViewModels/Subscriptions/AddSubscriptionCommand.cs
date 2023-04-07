@@ -1,10 +1,10 @@
-﻿using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Niconico.Mylist;
-using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.Video.Series;
-using Hohoema.Models.Domain.Subscriptions;
+﻿using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Channel;
+using Hohoema.Models.Niconico.Mylist;
+using Hohoema.Models.Niconico.User;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Niconico.Video.Series;
+using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
 using I18NPortable;
 using NiconicoToolkit.Video;

@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Niconico.Video;
+﻿using Hohoema.Models.Niconico.Channel;
+using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.ViewModels.Niconico.Follow;
 using System;
@@ -16,7 +16,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+using Hohoema.Models.Niconico.Follow.LoginUser;
 using NiconicoToolkit.Channels;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Media.Imaging;
@@ -122,7 +122,7 @@ namespace Hohoema.Views.Flyouts
         {
             if (ChannelId is not null and ChannelId channelId)
             {
-                _pageManager.OpenPageWithId(Models.Domain.PageNavigation.HohoemaPageType.ChannelVideo, channelId);
+                _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.ChannelVideo, channelId);
             }
         }
 

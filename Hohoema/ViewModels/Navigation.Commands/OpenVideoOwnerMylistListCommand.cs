@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Niconico.Video;
+﻿using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.UseCase.PageNavigation;
 using System;
 using System.Collections.Generic;
@@ -33,7 +33,7 @@ namespace Hohoema.ViewModels.Navigation.Commands
             {
                 if (parameter is IVideoContentProvider provider && provider.ProviderType is NiconicoToolkit.Video.OwnerType.User && provider.ProviderId is not null)
                 {
-                    _pageManager.OpenPageWithId(Models.Domain.PageNavigation.HohoemaPageType.UserMylist, provider.ProviderId);
+                    _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserMylist, provider.ProviderId);
                     return;
                 }
             }
@@ -44,7 +44,7 @@ namespace Hohoema.ViewModels.Navigation.Commands
                 var video = await _nicoVideoProvider.GetCachedVideoInfoAsync(content.VideoId);
                 if (video.ProviderType is NiconicoToolkit.Video.OwnerType.User)
                 {
-                    _pageManager.OpenPageWithId(Models.Domain.PageNavigation.HohoemaPageType.UserMylist, video.ProviderId);
+                    _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserMylist, video.ProviderId);
                 }
             }
         }

@@ -1,7 +1,7 @@
-﻿using Hohoema.Models.Domain.Niconico.Series;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.Video.Series;
-using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.Niconico.Series;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Niconico.Video.Series;
+using Hohoema.Models.Playlist;
 using NiconicoToolkit.Series;
 using NiconicoToolkit.Video;
 using System;

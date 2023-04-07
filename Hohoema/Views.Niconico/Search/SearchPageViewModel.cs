@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain;
+using Hohoema.Models;
 using System.Collections.ObjectModel;
 using Reactive.Bindings;
 using CommunityToolkit.Mvvm.Input;
@@ -11,15 +11,15 @@ using System.Diagnostics;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase;
-using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
-using Hohoema.Models.Domain.Niconico.Search;
-using Hohoema.Models.Domain.PageNavigation;
+using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
+using Hohoema.Models.Niconico.Search;
+using Hohoema.Models.PageNavigation;
 using Hohoema.Navigations;
 using I18NPortable;
 using Hohoema.Views.Pages.Niconico.Search;
 using Hohoema.ViewModels.Niconico.Search;
-using Hohoema.Models.Domain.Pins;
-using Hohoema.Models.Helpers;
+using Hohoema.Models.Pins;
+using Hohoema.Helpers;
 using System.Reactive.Concurrency;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Search

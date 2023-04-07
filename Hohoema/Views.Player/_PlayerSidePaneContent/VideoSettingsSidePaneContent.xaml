@@ -11,7 +11,7 @@
   xmlns:myconverter="using:Hohoema.Views.Converters"
   xmlns:uwpconverter="using:Microsoft.Toolkit.Uwp.UI.Converters"
   xmlns:templateSelector="using:Hohoema.Views.TemplateSelector"
-  xmlns:models="using:Hohoema.Models.Domain.Application" 
+  xmlns:models="using:Hohoema.Models.Application" 
   xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:local="using:Hohoema.Views.Player" 
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 

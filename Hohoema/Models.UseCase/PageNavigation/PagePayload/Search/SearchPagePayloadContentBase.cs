@@ -1,10 +1,10 @@
-﻿using Hohoema.Models.Domain;
+﻿using Hohoema.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.PageNavigation;
 
 namespace Hohoema.Models.UseCase.PageNavigation
 {

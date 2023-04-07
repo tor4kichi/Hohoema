@@ -164,9 +164,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Hohoema.Models\Hohoema.Models.csproj">
+    <ProjectReference Include="..\Hohoema.Core\Hohoema.Core.csproj">
       <Project>{5877a9ca-2d3a-4b8b-86ca-d77e6d68cf98}</Project>
-      <Name>Hohoema.Models</Name>
+      <Name>Hohoema.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

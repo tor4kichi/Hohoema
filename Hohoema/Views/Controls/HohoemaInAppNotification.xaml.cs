@@ -6,11 +6,11 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Core;
 using CommunityToolkit.Mvvm.Messaging;
 using Windows.System;
-using Hohoema.Models.Domain.Notification;
+using Hohoema.Models.Notification;
 using Hohoema.Services;
 using System.Linq;
 using Windows.UI.Xaml.Input;
-using Hohoema.Models.Helpers;
+using Hohoema.Helpers;
 using System.Threading.Tasks;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236

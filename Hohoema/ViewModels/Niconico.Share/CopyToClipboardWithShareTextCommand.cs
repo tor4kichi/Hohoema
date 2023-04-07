@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Helpers;
 using Hohoema.Services;
 using I18NPortable;
 using CommunityToolkit.Mvvm.Input;

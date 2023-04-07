@@ -1,7 +1,7 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.Niconico.Video;
+﻿using Hohoema.Models;
+using Hohoema.Models.Niconico.Channel;
+using Hohoema.Models.Niconico.User;
+using Hohoema.Models.Niconico.Video;
 using NiconicoToolkit.Video;
 using CommunityToolkit.Mvvm.Input;
 using System;

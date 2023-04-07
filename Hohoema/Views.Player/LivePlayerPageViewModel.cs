@@ -1,13 +1,13 @@
-﻿using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Live;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Community;
-using Hohoema.Models.Domain.Niconico.Live;
-using Hohoema.Models.Domain.Niconico.Live.LoginUser;
-using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Application;
+using Hohoema.Models.Live;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Community;
+using Hohoema.Models.Niconico.Live;
+using Hohoema.Models.Niconico.Live.LoginUser;
+using Hohoema.Models.Niconico.User;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Player;
+using Hohoema.Helpers;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Services;
@@ -47,9 +47,9 @@ using NiconicoToolkit.Live.Timeshift;
 using AngleSharp.Html.Parser;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
-using Hohoema.Models.Domain.Player.Comment;
+using Hohoema.Models.Player.Comment;
 using Hohoema.Navigations;
-using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Niconico.Video;
 
 namespace Hohoema.ViewModels.Player
 {

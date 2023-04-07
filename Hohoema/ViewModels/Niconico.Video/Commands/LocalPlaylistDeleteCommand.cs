@@ -1,5 +1,5 @@
 ﻿using I18NPortable;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Playlist;
 using Hohoema.Services;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
-using Hohoema.Models.Domain.LocalMylist;
+using Hohoema.Models.LocalMylist;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 {

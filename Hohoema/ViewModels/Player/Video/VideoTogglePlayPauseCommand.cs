@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;

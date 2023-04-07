@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.LocalMylist;
+﻿using Hohoema.Models.LocalMylist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using CommunityToolkit.Mvvm.Input;
 using System;

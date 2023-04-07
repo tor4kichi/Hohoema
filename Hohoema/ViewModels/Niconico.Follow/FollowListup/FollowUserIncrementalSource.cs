@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
-using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
-using Hohoema.Models.Domain.Niconico.Follow;
-using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Niconico.Follow.LoginUser;
+using Hohoema.Models.Niconico.Follow;
+using Hohoema.Models.Niconico;
 using NiconicoToolkit.Follow;
 
 namespace Hohoema.ViewModels.Niconico.Follow

@@ -1,10 +1,10 @@
 ﻿using Hohoema.Dialogs;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Mylist;
-using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Mylist;
+using Hohoema.Models.Niconico.Mylist.LoginUser;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Playlist;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Services;

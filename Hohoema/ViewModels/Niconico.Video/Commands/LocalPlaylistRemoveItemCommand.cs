@@ -1,7 +1,7 @@
 ﻿
-using Hohoema.Models.Domain.LocalMylist;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.LocalMylist;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Playlist;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -8,7 +8,7 @@
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:controls="using:Hohoema.Views.Controls"
   xmlns:videolistPage="using:Hohoema.Views.Controls.VideoList"
-  xmlns:models="using:Hohoema.Models.Domain.Application"
+  xmlns:models="using:Hohoema.Models.Application"
   xmlns:windowsTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   DataContext="{x:Null}"

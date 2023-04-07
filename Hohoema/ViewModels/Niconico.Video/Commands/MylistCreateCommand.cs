@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models;
+using Hohoema.Models.Niconico.Video;
 using Hohoema.Services;
 using Hohoema.Models.UseCase.Playlist;
 

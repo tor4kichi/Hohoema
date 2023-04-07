@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain;
+﻿using Hohoema.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,12 +13,12 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Hohoema.ViewModels.Pages.Niconico.Follow;
-using Hohoema.Models.Domain.Niconico.Follow;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Mylist;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.Community;
-using Hohoema.Models.Domain.Niconico.Channel;
+using Hohoema.Models.Niconico.Follow;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Mylist;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Niconico.Community;
+using Hohoema.Models.Niconico.Channel;
 using Hohoema.Navigations;
 using CommunityToolkit.Mvvm.DependencyInjection;
 

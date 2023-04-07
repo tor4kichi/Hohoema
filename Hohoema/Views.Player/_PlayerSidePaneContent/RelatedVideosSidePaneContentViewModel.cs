@@ -1,7 +1,7 @@
-﻿using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Player.Video;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Player.Video;
+using Hohoema.Helpers;
 using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.ViewModels.VideoListPage;
@@ -51,7 +51,7 @@ namespace Hohoema.ViewModels.Player.PlayerSidePaneContent
         public string JumpVideoId { get; set; }
         public bool HasVideoDescription { get; private set; }
 
-        public Models.Helpers.AsyncLock _InitializeLock = new Models.Helpers.AsyncLock();
+        public Helpers.AsyncLock _InitializeLock = new Helpers.AsyncLock();
 
         private bool _IsInitialized = false;
 

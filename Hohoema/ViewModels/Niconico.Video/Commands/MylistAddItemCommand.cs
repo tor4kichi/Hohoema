@@ -1,8 +1,8 @@
 ﻿using I18NPortable;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models;
+using Hohoema.Models.Niconico.Mylist.LoginUser;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Playlist;
 using Hohoema.Services;
 using CommunityToolkit.Mvvm.Input;
 using System.Linq;

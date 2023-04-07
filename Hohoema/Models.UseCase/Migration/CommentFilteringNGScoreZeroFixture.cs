@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Application;
+﻿using Hohoema.Models;
+using Hohoema.Models.Application;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using System;
 using System.Collections.Generic;

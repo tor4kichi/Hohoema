@@ -1,5 +1,5 @@
 ﻿using System;
-using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Niconico;
 using NiconicoToolkit.Follow;
 using NiconicoToolkit.User;
 

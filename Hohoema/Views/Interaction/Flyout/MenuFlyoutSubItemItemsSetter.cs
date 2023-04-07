@@ -154,7 +154,7 @@ namespace Hohoema.Views.Behaviors
 #if DEBUG
                 else
                 {
-                    throw new Models.Infrastructure.HohoemaException($"{nameof(MenuFlyoutItemsSetter)}.{nameof(ItemTemplate)} is must be MenuFlyoutItemBase inherit class.");
+                    throw new Infra.HohoemaException($"{nameof(MenuFlyoutItemsSetter)}.{nameof(ItemTemplate)} is must be MenuFlyoutItemBase inherit class.");
                 }
 #endif
             }

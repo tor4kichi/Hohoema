@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Subscriptions;
+﻿using Hohoema.Models.Subscriptions;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;

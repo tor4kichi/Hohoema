@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Niconico.Video;
+﻿using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.UseCase.PageNavigation;
 using System;
 using System.Collections.Generic;
@@ -35,11 +35,11 @@ namespace Hohoema.ViewModels.Navigation.Commands
                 {
                     if (provider.ProviderType is NiconicoToolkit.Video.OwnerType.User)
                     {
-                        _pageManager.OpenPageWithId(Models.Domain.PageNavigation.HohoemaPageType.UserVideo, provider.ProviderId);
+                        _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserVideo, provider.ProviderId);
                     }
                     else if (provider.ProviderType is NiconicoToolkit.Video.OwnerType.Channel)
                     {
-                        _pageManager.OpenPageWithId(Models.Domain.PageNavigation.HohoemaPageType.ChannelVideo, provider.ProviderId);
+                        _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.ChannelVideo, provider.ProviderId);
                     }
                     return;
                 }
@@ -51,11 +51,11 @@ namespace Hohoema.ViewModels.Navigation.Commands
                 var video = await _nicoVideoProvider.GetCachedVideoInfoAsync(content.VideoId);
                 if (video.ProviderType is NiconicoToolkit.Video.OwnerType.User)
                 {
-                    _pageManager.OpenPageWithId(Models.Domain.PageNavigation.HohoemaPageType.UserVideo, video.ProviderId);
+                    _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.UserVideo, video.ProviderId);
                 }
                 else if (video.ProviderType is NiconicoToolkit.Video.OwnerType.Channel)
                 {
-                    _pageManager.OpenPageWithId(Models.Domain.PageNavigation.HohoemaPageType.ChannelVideo, video.ProviderId);
+                    _pageManager.OpenPageWithId(Models.PageNavigation.HohoemaPageType.ChannelVideo, video.ProviderId);
                 }
             }
 

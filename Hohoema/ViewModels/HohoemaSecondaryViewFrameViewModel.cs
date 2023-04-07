@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain;
+using Hohoema.Models;
 using System.Diagnostics;
-using Hohoema.Models.Domain.Live;
-using Hohoema.Models.Helpers;
+using Hohoema.Models.Live;
+using Hohoema.Helpers;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Hohoema.ViewModels

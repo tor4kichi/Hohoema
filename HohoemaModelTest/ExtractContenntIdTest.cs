@@ -1,6 +1,6 @@
 ﻿
 using System;
-using Hohoema.Models.Helpers;
+using Hohoema.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace HohoemaModelTest

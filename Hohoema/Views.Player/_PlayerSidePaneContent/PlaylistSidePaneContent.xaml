@@ -12,7 +12,7 @@
   xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI"
   xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" 
   xmlns:videoList="using:Hohoema.Views.Controls.VideoList" 
-  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:videoModel="using:Hohoema.Models.Domain.Niconico.Video"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:videoModel="using:Hohoema.Models.Niconico.Video"
   mc:Ignorable="d"
   d:DesignHeight="300"
   d:DesignWidth="400"

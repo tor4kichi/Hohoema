@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
+﻿using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;

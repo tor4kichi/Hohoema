@@ -12,7 +12,7 @@
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors" 
   xmlns:local="using:Hohoema.Views.Pages.Niconico.Mylist" 
-  xmlns:models="using:Hohoema.Models.Domain.Application"
+  xmlns:models="using:Hohoema.Models.Application"
   mc:Ignorable="d"
   >
 
@@ -64,7 +64,7 @@
       </GridView.ItemsPanel>
       <GridView.ItemTemplate>
         <DataTemplate x:DataType="playlistModel:LocalPlaylist"
-                      xmlns:playlistModel="using:Hohoema.Models.Domain.LocalMylist"
+                      xmlns:playlistModel="using:Hohoema.Models.LocalMylist"
                       >
           <mylistView:MylistCardView xmlns:mylistView="using:Hohoema.Views.Mylist" 
                                      PlaylistName="{x:Bind Name}" ImageUrl="{x:Bind ThumbnailImage}" ImageCaption="{x:Bind Count}"

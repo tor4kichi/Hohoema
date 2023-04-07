@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Niconico.Follow;
-using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+﻿using Hohoema.Models.Niconico.Channel;
+using Hohoema.Models.Niconico.Follow;
+using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.UseCase.PageNavigation;
 using CommunityToolkit.Mvvm.Messaging;
 using System;

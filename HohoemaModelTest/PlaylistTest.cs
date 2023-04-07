@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Playlist;
 using Microsoft.Toolkit.Collections;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Reactive.Bindings.Extensions;

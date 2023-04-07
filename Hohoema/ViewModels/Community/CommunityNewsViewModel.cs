@@ -1,10 +1,10 @@
-﻿using Hohoema.Models.Helpers;
+﻿using Hohoema.Helpers;
 using Hohoema.Models.UseCase.PageNavigation;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
-using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Application;
 
 namespace Hohoema.ViewModels.Community
 {

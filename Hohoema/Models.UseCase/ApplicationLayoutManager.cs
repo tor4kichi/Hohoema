@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Helpers;
+using Hohoema.Models;
+using Hohoema.Models.Application;
+using Hohoema.Helpers;
 using Microsoft.UI.Xaml.Controls;
 using Reactive.Bindings.Extensions;
 using System;

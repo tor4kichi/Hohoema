@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
-using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
+using Hohoema.Models.Playlist;
 using Hohoema.Models.UseCase.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using System;

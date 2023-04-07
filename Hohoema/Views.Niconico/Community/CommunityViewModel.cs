@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Niconico.Community;
+﻿using Hohoema.Models.Niconico.Community;
 using Hohoema.ViewModels.Niconico.Follow;
 using NiconicoToolkit;
 using NiconicoToolkit.Community;

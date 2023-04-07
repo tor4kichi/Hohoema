@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.PageNavigation;
+﻿using Hohoema.Models.PageNavigation;
 using Hohoema.Services;
 using Hohoema.Models.UseCase.PageNavigation;
 using CommunityToolkit.Mvvm.Input;

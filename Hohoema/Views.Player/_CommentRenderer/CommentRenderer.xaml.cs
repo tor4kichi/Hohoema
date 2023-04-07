@@ -1,6 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Animations;
-using Hohoema.Models.Helpers;
-using Hohoema.Models.Domain.Niconico;
+using Hohoema.Helpers;
+using Hohoema.Models.Niconico;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,20 +23,20 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Hohoema.Models.Domain;
+using Hohoema.Models;
 using System.Text.RegularExpressions;
 using System.Reactive.Disposables;
-using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Niconico.Video;
 using System.Reactive.Subjects;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
-using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Player;
 using System.Numerics;
 using Microsoft.Extensions.ObjectPool;
 using System.Reactive;
 using System.Reactive.Concurrency;
 using Windows.System;
-using Hohoema.Models.Domain.Player.Comment;
+using Hohoema.Models.Player.Comment;
 using Cysharp.Text;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236

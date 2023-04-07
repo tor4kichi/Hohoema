@@ -1,7 +1,7 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.VideoCache;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.VideoCache;
+using Hohoema.Helpers;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Helpers;

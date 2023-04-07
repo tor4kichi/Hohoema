@@ -1,11 +1,11 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Niconico.Mylist;
-using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
-using Hohoema.Models.Domain.Player.Video.Cache;
-using Hohoema.Models.Domain.VideoCache;
+﻿using Hohoema.Models;
+using Hohoema.Models.Niconico.Channel;
+using Hohoema.Models.Niconico.Mylist;
+using Hohoema.Models.Niconico.User;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
+using Hohoema.Models.Player.Video.Cache;
+using Hohoema.Models.VideoCache;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase.VideoCache.Events;
@@ -25,7 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Hohoema.Models.UseCase.Niconico.Player.Events;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Hohoema.ViewModels.VideoListPage

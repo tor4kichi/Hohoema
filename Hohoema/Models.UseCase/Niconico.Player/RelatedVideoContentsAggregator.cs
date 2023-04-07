@@ -1,19 +1,19 @@
 ﻿using Microsoft.Toolkit.Uwp.UI;
-using Hohoema.Models.Helpers;
+using Hohoema.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Player.Video;
+using Hohoema.Models.Niconico.Channel;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Player.Video;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.ViewModels.VideoListPage;
-using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Niconico.Mylist;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Channels;
-using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Niconico;
 using NiconicoToolkit.Recommend;
 using Hohoema.Models.UseCase.Playlist;
 

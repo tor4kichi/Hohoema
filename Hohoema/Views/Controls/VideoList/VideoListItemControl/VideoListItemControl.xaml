@@ -11,7 +11,7 @@
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:nicoLToolkitVideo="using:NiconicoToolkit.Video" 
   xmlns:winUI="using:Microsoft.UI.Xaml.Controls" 
-  xmlns:videoCache="using:Hohoema.Models.Domain.VideoCache"
+  xmlns:videoCache="using:Hohoema.Models.VideoCache"
   xmlns:videoListItem="using:Hohoema.Views.Controls.VideoList.VideoListItem"
   >
   <Style TargetType="local:VideoListItemControl">

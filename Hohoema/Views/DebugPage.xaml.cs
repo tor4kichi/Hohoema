@@ -13,7 +13,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Hohoema.Models.Domain.Notification;
+using Hohoema.Models.Notification;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.ViewModels.Pages.Hohoema;
 
@@ -35,7 +35,7 @@ namespace Hohoema.Views.Pages.Hohoema
 
         private void ForceThrowException(object sender, RoutedEventArgs e)
         {
-            throw new Models.Infrastructure.HohoemaException("例外テスト");
+            throw new Infra.HohoemaException("例外テスト");
         }
 
         private void TestCrashReport_Click(object sender, RoutedEventArgs e)

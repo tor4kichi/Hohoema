@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Niconico.Video;
+﻿using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.UseCase.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using System;

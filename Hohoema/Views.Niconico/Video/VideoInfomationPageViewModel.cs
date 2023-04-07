@@ -1,14 +1,14 @@
-﻿using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.Video.Series;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Pins;
-using Hohoema.Models.Domain.Player.Video;
-using Hohoema.Models.Domain.Player.Video.Cache;
-using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Application;
+using Hohoema.Models.Niconico.Mylist.LoginUser;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Niconico.Video.Series;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Pins;
+using Hohoema.Models.Player.Video;
+using Hohoema.Models.Player.Video.Cache;
+using Hohoema.Models.Playlist;
+using Hohoema.Models.Subscriptions;
+using Hohoema.Helpers;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Services;
@@ -30,14 +30,14 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 using Windows.UI.Xaml;
-using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
+using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
 using Hohoema.ViewModels.Niconico.Share;
-using Hohoema.Models.Domain.Notification;
-using Hohoema.Models.Domain.Niconico.Recommend;
+using Hohoema.Models.Notification;
+using Hohoema.Models.Niconico.Recommend;
 using Hohoema.ViewModels.Niconico.Follow;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
-using Hohoema.Models.Domain.Niconico.Channel;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Follow.LoginUser;
+using Hohoema.Models.Niconico.Channel;
 using Hohoema.ViewModels.VideoCache.Commands;
 using System.Threading;
 using NiconicoToolkit.Video.Watch;
@@ -46,7 +46,7 @@ using Hohoema.ViewModels.Niconico.Likes;
 using NiconicoToolkit.Ichiba;
 using AngleSharp.Html.Parser;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
-using Hohoema.Models.Domain.LocalMylist;
+using Hohoema.Models.LocalMylist;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 using Hohoema.Navigations;
@@ -398,7 +398,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Video
             set { SetProperty(ref _VideoDescriptionHyperlinkItems, value); }
         }       
 
-        Models.Helpers.AsyncLock _UpdateLock = new AsyncLock();
+        Helpers.AsyncLock _UpdateLock = new AsyncLock();
 
         private List<VideoListItemControlViewModel> _relatedVideos;
         public List<VideoListItemControlViewModel> RelatedVideos

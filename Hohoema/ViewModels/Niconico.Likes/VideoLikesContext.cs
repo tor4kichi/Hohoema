@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Notification;
-using Hohoema.Models.Domain.Player.Video;
+﻿using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Notification;
+using Hohoema.Models.Player.Video;
 using Hohoema.Services;
 using I18NPortable;
 using CommunityToolkit.Mvvm.Messaging;

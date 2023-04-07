@@ -1,9 +1,9 @@
-﻿using Hohoema.Models.Domain.Niconico.Live;
-using Hohoema.Models.Domain.Niconico.NicoRepo;
-using Hohoema.Models.Domain.Niconico.NicoRepo.LoginUser;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Niconico.Live;
+using Hohoema.Models.Niconico.NicoRepo;
+using Hohoema.Models.Niconico.NicoRepo.LoginUser;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Subscriptions;
+using Hohoema.Helpers;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;

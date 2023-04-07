@@ -1,7 +1,7 @@
 ﻿
-using Hohoema.Models.Helpers;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Subscriptions;
+using Hohoema.Helpers;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Subscriptions;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -11,7 +11,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Playlist;
 using System.Reactive.Concurrency;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
@@ -19,8 +19,8 @@ using System.Reactive.Subjects;
 using Hohoema.Services;
 using Microsoft.Toolkit.Uwp.Notifications;
 using I18NPortable;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Application;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Application;
 using LiteDB;
 using Windows.System;
 using Microsoft.Toolkit.Uwp;
@@ -41,7 +41,7 @@ namespace Hohoema.Models.UseCase.Subscriptions
         List<SubscFeedVideo> Results = new List<SubscFeedVideo>();
 
         static readonly string OpenSubscriptionManagementPageParam = ToastNotificationConstants.MakeOpenPageToastArguments(HohoemaPageType.SubscriptionManagement).ToString();
-        static readonly string PlayWithWatchAfterPlaylistParam = ToastNotificationConstants.MakePlayPlaylistToastArguments(Domain.Playlist.PlaylistItemsSourceOrigin.Local, Domain.Playlist.QueuePlaylist.Id.Id).ToString();
+        static readonly string PlayWithWatchAfterPlaylistParam = ToastNotificationConstants.MakePlayPlaylistToastArguments(PlaylistItemsSourceOrigin.Local, QueuePlaylist.Id.Id).ToString();
 
 
         Dictionary<ObjectId, DateTime> _subscLastUpdateAtMap = new();

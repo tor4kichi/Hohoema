@@ -1,5 +1,5 @@
 ﻿
-using Hohoema.Models.Domain.Niconico.Live;
+using Hohoema.Models.Niconico.Live;
 using Hohoema.ViewModels.Pages.Niconico.Search;
 using Hohoema.ViewModels.VideoListPage;
 using System;

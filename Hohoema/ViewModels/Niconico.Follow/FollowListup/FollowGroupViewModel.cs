@@ -1,11 +1,11 @@
 ﻿using System;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Hohoema.Models.Domain.Niconico.Follow;
+using Hohoema.Models.Niconico.Follow;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Disposables;
-using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
+using Hohoema.Models.Niconico.Follow.LoginUser;
 using CommunityToolkit.Mvvm.Input;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.Models.UseCase;

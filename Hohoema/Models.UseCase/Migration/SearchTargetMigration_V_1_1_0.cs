@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Niconico.Search;
+﻿using Hohoema.Models.Application;
+using Hohoema.Models.Niconico.Search;
 using System;
 using System.Collections.Generic;
 using System.Linq;

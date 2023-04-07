@@ -7,9 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.UseCase.PageNavigation;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Niconico.Live;
-using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Niconico.Live;
+using Hohoema.Models.Niconico;
 using Hohoema.Models.UseCase;
 
 namespace Hohoema.ViewModels.PrimaryWindowCoreLayout

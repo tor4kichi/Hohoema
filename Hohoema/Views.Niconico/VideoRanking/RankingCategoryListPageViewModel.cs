@@ -1,7 +1,7 @@
-﻿using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Niconico.Video.Ranking;
-using Hohoema.Models.Domain.PageNavigation;
+﻿using Hohoema.Models.Application;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Niconico.Video.Ranking;
+using Hohoema.Models.PageNavigation;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.PageNavigation;
 using Hohoema.ViewModels.Niconico.Ranking;

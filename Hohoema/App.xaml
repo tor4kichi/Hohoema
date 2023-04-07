@@ -5,7 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="using:Hohoema"
-    xmlns:model="using:Hohoema.Models.Domain"
+    xmlns:model="using:Hohoema.Models"
     xmlns:myconv="using:Hohoema.Views.Converters"
     xmlns:templateSelector="using:Hohoema.Views.TemplateSelector"
     xmlns:view="using:Hohoema.Views"
@@ -17,7 +17,7 @@
     xmlns:flyouts="using:Hohoema.Views.Flyouts" 
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
   xmlns:locales="using:Hohoema.Locales" 
-  xmlns:appModels="using:Hohoema.Models.Domain.Application" 
+  xmlns:appModels="using:Hohoema.Models.Application" 
   xmlns:videoList="using:Hohoema.Views.Controls.VideoList" 
    xmlns:listPageVM="using:Hohoema.ViewModels.VideoListPage" 
   xmlns:styles="using:Hohoema.Styles">

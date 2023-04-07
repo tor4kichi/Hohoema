@@ -1,5 +1,5 @@
 ﻿
-using Hohoema.Models.Domain.VideoCache;
+using Hohoema.Models.VideoCache;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using NiconicoToolkit.Video;
 

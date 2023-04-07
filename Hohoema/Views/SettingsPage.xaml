@@ -7,7 +7,7 @@
       xmlns:view="using:Hohoema.Views"
       xmlns:i="using:Microsoft.Xaml.Interactivity"
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-      xmlns:models="using:Hohoema.Models.Domain.Application"
+      xmlns:models="using:Hohoema.Models.Application"
       xmlns:mybehavior="using:Hohoema.Views.Behaviors"
       xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:iconPack="using:MahApps.Metro.IconPacks"

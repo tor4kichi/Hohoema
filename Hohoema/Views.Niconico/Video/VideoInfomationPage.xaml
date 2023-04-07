@@ -17,10 +17,10 @@
       xmlns:ui="using:Microsoft.Toolkit.Uwp.UI" 
       xmlns:local1="using:Hohoema.Views.Controls.VideoList" 
       xmlns:behavior="using:Microsoft.Toolkit.Uwp.UI.Behaviors" 
-      xmlns:videoModels="using:Hohoema.Models.Domain.Niconico.Video" 
+      xmlns:videoModels="using:Hohoema.Models.Niconico.Video" 
       xmlns:viewModels="using:Hohoema.ViewModels.Pages.Niconico.Video"
       xmlns:nicoIchiba="using:NiconicoToolkit.Ichiba"
-      xmlns:models="using:Hohoema.Models.Domain.Application"
+      xmlns:models="using:Hohoema.Models.Application"
       DataContext="{x:Null}"
       NavigationCacheMode="Enabled"
       mc:Ignorable="d">

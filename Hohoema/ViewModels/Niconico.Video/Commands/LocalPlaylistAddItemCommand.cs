@@ -1,6 +1,6 @@
 ﻿
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using I18NPortable;
 using Hohoema.Services;
 using Hohoema.Models.UseCase.Playlist;
-using Hohoema.Models.Domain.LocalMylist;
+using Hohoema.Models.LocalMylist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands

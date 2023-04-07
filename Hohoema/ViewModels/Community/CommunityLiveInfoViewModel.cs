@@ -1,5 +1,5 @@
 ﻿using NiconicoToolkit.Live;
-using Hohoema.Models.Domain.Niconico.Live;
+using Hohoema.Models.Niconico.Live;
 using System;
 using NiconicoToolkit;
 

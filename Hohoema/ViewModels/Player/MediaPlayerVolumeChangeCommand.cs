@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Player;
+﻿using Hohoema.Models.Player;
 using Hohoema.Models.UseCase.Niconico.Player;
 using CommunityToolkit.Mvvm.Input;
 using System;

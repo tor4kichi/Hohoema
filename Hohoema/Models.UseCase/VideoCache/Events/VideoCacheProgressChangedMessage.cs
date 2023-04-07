@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.VideoCache;
+﻿using Hohoema.Models.VideoCache;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using System;
 using System.Collections.Generic;

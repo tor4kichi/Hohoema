@@ -1,6 +1,6 @@
-﻿using Hohoema.Models.Domain.Niconico.Search;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.Niconico.Search;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Playlist;
 using I18NPortable;
 using Microsoft.Toolkit.Diagnostics;
 using NiconicoToolkit.SearchWithCeApi.Video;

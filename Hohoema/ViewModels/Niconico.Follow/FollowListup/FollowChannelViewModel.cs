@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Niconico.Channel;
+﻿using Hohoema.Models.Niconico.Channel;
 using NiconicoToolkit;
 using NiconicoToolkit.Channels;
 using NiconicoToolkit.Follow;

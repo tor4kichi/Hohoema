@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Application;
+﻿using Hohoema.Models.Application;
 using System;
 using System.Collections.Generic;
 using System.Linq;

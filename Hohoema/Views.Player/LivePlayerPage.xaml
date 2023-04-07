@@ -20,7 +20,7 @@
       xmlns:windowsTrigger="using:WindowsStateTriggers" 
       xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI" 
       xmlns:playerService="using:Hohoema.Models.UseCase.Niconico.Player" 
-      xmlns:models="using:Hohoema.Models.Domain.Application" 
+      xmlns:models="using:Hohoema.Models.Application" 
       xmlns:liveToolkitWatchSession="using:NiconicoToolkit.Live.WatchSession" 
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       xmlns:myExt="using:Hohoema.Views.Extensions" xmlns:muxc="using:Microsoft.UI.Xaml.Controls"

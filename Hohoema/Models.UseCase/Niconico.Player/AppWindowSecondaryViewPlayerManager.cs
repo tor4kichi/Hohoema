@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.Application;
+using Hohoema.Models.Playlist;
 using Hohoema.Services;
 using Hohoema.Views.Pages;
 using CommunityToolkit.Mvvm.Input;
@@ -24,7 +24,7 @@ using Windows.UI.WindowManagement;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media.Animation;
-using Hohoema.Models.Helpers;
+using Hohoema.Helpers;
 using Hohoema.Navigations;
 
 namespace Hohoema.Models.UseCase.Niconico.Player

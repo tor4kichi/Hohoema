@@ -1,16 +1,16 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
-using Hohoema.Models.Domain.Niconico.NicoRepo;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Pins;
-using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Domain.Player.Video;
-using Hohoema.Models.Domain.Player.Video.Cache;
-using Hohoema.Models.Domain.Subscriptions;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models;
+using Hohoema.Models.Application;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Follow.LoginUser;
+using Hohoema.Models.Niconico.NicoRepo;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Pins;
+using Hohoema.Models.Player;
+using Hohoema.Models.Player.Video;
+using Hohoema.Models.Player.Video.Cache;
+using Hohoema.Models.Subscriptions;
+using Hohoema.Helpers;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Migration;
 using Hohoema.Models.UseCase.Niconico.Player;
@@ -48,18 +48,18 @@ using Windows.UI.Xaml.Controls;
 using Hohoema.Views.Pages;
 using Hohoema.Models.UseCase.Niconico.Account;
 using Hohoema.Models.UseCase.Niconico.Follow;
-using Hohoema.Models.Domain.Notification;
-using Hohoema.Models.Domain.VideoCache;
+using Hohoema.Models.Notification;
+using Hohoema.Models.VideoCache;
 using Windows.Storage.AccessCache;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Extensions.Logging;
-using Hohoema.Models.Infrastructure;
+using Hohoema.Infra;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using Hohoema.Models.UseCase.Niconico.Video;
 using Hohoema.ViewModels.Niconico.Video;
-using Hohoema.Models.Domain.Player.Comment;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models.Player.Comment;
+using Hohoema.Models.Playlist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
 using DryIoc;
 using ZLogger;
@@ -366,8 +366,8 @@ namespace Hohoema
 
             container.Register<SubscriptionManager>(reuse: new SingletonReuse());
 
-            container.Register<Models.Domain.VideoCache.VideoCacheManager>(reuse: new SingletonReuse());
-            container.Register<Models.Domain.VideoCache.VideoCacheSettings>(reuse: new SingletonReuse());
+            container.Register<Models.VideoCache.VideoCacheManager>(reuse: new SingletonReuse());
+            container.Register<Models.VideoCache.VideoCacheSettings>(reuse: new SingletonReuse());
 
             // UseCase
             container.Register<VideoCommentPlayer>(reuse: new SingletonReuse());
@@ -479,7 +479,7 @@ namespace Hohoema
 
             Resources["Strings"] = I18NPortable.I18N.Current;
 
-            var appearanceSettings = Container.Resolve<Models.Domain.Application.AppearanceSettings>();
+            var appearanceSettings = Container.Resolve<Models.Application.AppearanceSettings>();
             I18NPortable.I18N.Current.Locale = appearanceSettings.Locale ?? I18NPortable.I18N.Current.Languages.FirstOrDefault(x => x.Locale.StartsWith(CultureInfo.CurrentCulture.TwoLetterISOLanguageName)).Locale ?? I18NPortable.I18N.Current.Locale;
 
             CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(I18NPortable.I18N.Current.Locale);
@@ -717,7 +717,7 @@ namespace Hohoema
 
         public bool IsTitleBarCustomized { get; } = DeviceTypeHelper.IsDesktop && InputCapabilityHelper.IsMouseCapable;
 
-        Models.Helpers.AsyncLock InitializeLock = new Models.Helpers.AsyncLock();
+        Helpers.AsyncLock InitializeLock = new Helpers.AsyncLock();
         bool isInitialized = false;
 
         async Task MigrationProcessAsync()

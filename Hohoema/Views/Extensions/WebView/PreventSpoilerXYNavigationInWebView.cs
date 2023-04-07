@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xaml.Interactivity;
-using Hohoema.Models.Helpers;
+using Hohoema.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;

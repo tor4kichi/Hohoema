@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.Niconico.Channel;
+using Hohoema.Models.Playlist;
 using System.Text;
 using System.Threading.Tasks;
 

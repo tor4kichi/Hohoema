@@ -1,7 +1,7 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Domain.Player.Comment;
+﻿using Hohoema.Models;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Player;
+using Hohoema.Models.Player.Comment;
 using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using CommunityToolkit.Mvvm.Input;

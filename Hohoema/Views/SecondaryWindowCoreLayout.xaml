@@ -11,7 +11,7 @@
              xmlns:mybehavior="using:Hohoema.Views.Behaviors"
              xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" 
              xmlns:liteInAppNotification="using:Hohoema.Views.Controls.LiteInAppNotification" 
-             xmlns:service1="using:Hohoema.Models.Domain.Notification" 
+             xmlns:service1="using:Hohoema.Models.Notification" 
              xmlns:uwpToolkitControls="using:Microsoft.Toolkit.Uwp.UI.Controls" 
              xmlns:myControls="using:Hohoema.Views.Controls"
              mc:Ignorable="d"

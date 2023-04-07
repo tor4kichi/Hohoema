@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.Playlist;
 using Hohoema.Services;
 using I18NPortable;
 using CommunityToolkit.Mvvm.Messaging;

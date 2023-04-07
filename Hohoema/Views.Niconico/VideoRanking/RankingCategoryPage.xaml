@@ -11,7 +11,7 @@
   xmlns:windowsTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   xmlns:muxc="using:Microsoft.UI.Xaml.Controls" 
-  xmlns:models="using:Hohoema.Models.Domain.Application"
+  xmlns:models="using:Hohoema.Models.Application"
   NavigationCacheMode="Enabled"
   mc:Ignorable="d"
   >

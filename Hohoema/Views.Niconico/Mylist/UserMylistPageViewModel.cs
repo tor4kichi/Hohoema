@@ -1,10 +1,10 @@
-﻿using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Mylist;
-using Hohoema.Models.Domain.Niconico.User;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Pins;
-using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Mylist;
+using Hohoema.Models.Niconico.User;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Pins;
+using Hohoema.Models.Playlist;
+using Hohoema.Helpers;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.PageNavigation;
@@ -117,7 +117,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Mylist
             }
             else
             {
-                throw new Models.Infrastructure.HohoemaException("UserMylistPage が不明なパラメータと共に開かれました : " + parameters.ToString());
+                throw new Infra.HohoemaException("UserMylistPage が不明なパラメータと共に開かれました : " + parameters.ToString());
             }
 
 

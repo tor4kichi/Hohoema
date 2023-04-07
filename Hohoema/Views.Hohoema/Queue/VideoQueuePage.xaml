@@ -14,7 +14,7 @@
   xmlns:flyouts="using:Hohoema.Views.Flyouts" 
   xmlns:windowsTriggers="using:WindowsStateTriggers"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
-  xmlns:models="using:Hohoema.Models.Domain.Application"
+  xmlns:models="using:Hohoema.Models.Application"
   mc:Ignorable="d"
   NavigationCacheMode="Enabled"
   >

@@ -1,8 +1,8 @@
-﻿using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Playlist;
-using Hohoema.Models.Domain.VideoCache;
+﻿using Hohoema.Models.Application;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Playlist;
+using Hohoema.Models.VideoCache;
 using Hohoema.Models.UseCase.Niconico.Player.Events;
 using Hohoema.Models.UseCase.Playlist;
 using CommunityToolkit.Mvvm.Messaging;
@@ -54,7 +54,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                     {
                         if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
                         {
-                            throw new Models.Infrastructure.HohoemaException("no id");
+                            throw new Infra.HohoemaException("no id");
                         }
 
                         await _videoCacheManager.CancelCacheRequestAsync(id);
@@ -64,7 +64,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                     {
                         if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
                         {
-                            throw new Models.Infrastructure.HohoemaException("no id");
+                            throw new Infra.HohoemaException("no id");
                         }
 
                         await PlayVideoFromExternal(id);
@@ -74,14 +74,14 @@ namespace Hohoema.Models.UseCase.PageNavigation
                     {
                         if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PlaylistId, out string playlistId))
                         {
-                            throw new Models.Infrastructure.HohoemaException("no id");
+                            throw new Infra.HohoemaException("no id");
                         }
 
                         if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PlaylistOrigin, out string playlistOrigin)
                             || !Enum.TryParse<PlaylistItemsSourceOrigin>(playlistOrigin, out var origin)
                             )
                         {
-                            throw new Models.Infrastructure.HohoemaException("no id");
+                            throw new Infra.HohoemaException("no id");
                         }
 
                         await PlayPlaylistFromExternal(origin, playlistId);
@@ -91,12 +91,12 @@ namespace Hohoema.Models.UseCase.PageNavigation
                     {
                         if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PageType, out string pageTypeStr))
                         {
-                            throw new Models.Infrastructure.HohoemaException("no pageType");
+                            throw new Infra.HohoemaException("no pageType");
                         }
 
                         if (!Enum.TryParse<HohoemaPageType>(pageTypeStr, out var pageType))
                         {
-                            throw new Models.Infrastructure.HohoemaException("no supported pageType: " + pageTypeStr);
+                            throw new Infra.HohoemaException("no supported pageType: " + pageTypeStr);
                         }
 
                         if (toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PageParameters, out string parameters))

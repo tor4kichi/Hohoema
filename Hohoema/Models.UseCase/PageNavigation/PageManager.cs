@@ -1,16 +1,16 @@
 ﻿using I18NPortable;
 using NiconicoToolkit.Live;
-using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico;
-using Hohoema.Models.Domain.Niconico.Channel;
-using Hohoema.Models.Domain.Niconico.Community;
-using Hohoema.Models.Domain.Niconico.Live;
-using Hohoema.Models.Domain.Niconico.Search;
-using Hohoema.Models.Domain.Niconico.Follow.LoginUser;
-using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Playlist;
+using Hohoema.Models;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Channel;
+using Hohoema.Models.Niconico.Community;
+using Hohoema.Models.Niconico.Live;
+using Hohoema.Models.Niconico.Search;
+using Hohoema.Models.Niconico.Follow.LoginUser;
+using Hohoema.Models.Niconico.Mylist.LoginUser;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Navigations;
@@ -21,12 +21,12 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.Application;
+using Hohoema.Models.Application;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Models.Domain.Pins;
-using Hohoema.Models.Domain.Niconico.Follow;
-using Hohoema.Models.Domain.Niconico.Mylist;
+using Hohoema.Models.Pins;
+using Hohoema.Models.Niconico.Follow;
+using Hohoema.Models.Niconico.Mylist;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Mylist;
@@ -496,7 +496,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
                 }
                 else
 				{
-					throw new Models.Infrastructure.HohoemaExpception();
+					throw new Infra.HohoemaExpception();
 				}
 			}
 		}

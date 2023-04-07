@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico.Live;
-using Hohoema.Models.Domain.PageNavigation;
+﻿using Hohoema.Models.Niconico.Live;
+using Hohoema.Models.PageNavigation;
 using Hohoema.Models.UseCase.PageNavigation;
 using CommunityToolkit.Mvvm.Input;
 using System;

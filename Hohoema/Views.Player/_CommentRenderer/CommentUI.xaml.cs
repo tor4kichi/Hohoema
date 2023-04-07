@@ -1,5 +1,5 @@
 ﻿using NiconicoToolkit.Live.WatchSession;
-using Hohoema.Models.Domain.Niconico;
+using Hohoema.Models.Niconico;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,8 +20,8 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Navigation;
-using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Domain.Player.Comment;
+using Hohoema.Models.Player;
+using Hohoema.Models.Player.Comment;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 

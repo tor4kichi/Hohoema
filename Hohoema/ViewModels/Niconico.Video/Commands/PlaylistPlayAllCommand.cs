@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.Playlist;
 using Hohoema.Models.UseCase.Playlist;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Input;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.Niconico.Video.Series;
+using Hohoema.Models.Niconico.Video.Series;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 {

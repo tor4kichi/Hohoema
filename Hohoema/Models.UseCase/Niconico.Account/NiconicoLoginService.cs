@@ -1,5 +1,5 @@
 ﻿using I18NPortable;
-using Hohoema.Models.Helpers;
+using Hohoema.Helpers;
 using Hohoema.Views.Dialogs;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -10,11 +10,11 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
-using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
-using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Niconico;
+using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
+using Hohoema.Models.Application;
+using Hohoema.Models.Niconico;
 using Hohoema.Services;
-using Hohoema.Models.Domain.Notification;
+using Hohoema.Models.Notification;
 using NiconicoToolkit.Account;
 using CommunityToolkit.Mvvm.Messaging;
 

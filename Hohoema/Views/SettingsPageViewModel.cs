@@ -1,10 +1,10 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Niconico.NicoRepo;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Models.Domain.Player;
-using Hohoema.Models.Helpers;
+﻿using Hohoema.Models;
+using Hohoema.Models.Application;
+using Hohoema.Models.Niconico.NicoRepo;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Player;
+using Hohoema.Helpers;
 using Hohoema.Models.UseCase;
 using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Services;
@@ -34,7 +34,7 @@ using Windows.UI.StartScreen;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Models.Domain.VideoCache;
+using Hohoema.Models.VideoCache;
 using Hohoema.Models.UseCase.VideoCache;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using System.Text;
@@ -431,7 +431,7 @@ namespace Hohoema.ViewModels.Pages.Hohoema
                 return _ShowCheerPurchaseCommand
                     ?? (_ShowCheerPurchaseCommand = new RelayCommand<ProductViewModel>(async (product) =>
                     {
-                        var result = await Models.Domain.Purchase.HohoemaPurchase.RequestPurchase(product.ProductListing);
+                        var result = await Models.Purchase.HohoemaPurchase.RequestPurchase(product.ProductListing);
 
                         product.Update();
 
@@ -566,7 +566,7 @@ namespace Hohoema.ViewModels.Pages.Hohoema
 
                 try
                 {
-                    var listing = await Models.Domain.Purchase.HohoemaPurchase.GetAvailableCheersAddOn();
+                    var listing = await Models.Purchase.HohoemaPurchase.GetAvailableCheersAddOn();
                     PurchaseItems = listing.ProductListings.Select(x => new ProductViewModel(x.Value)).ToList();
                     OnPropertyChanged(nameof(PurchaseItems));
                 }
@@ -883,7 +883,7 @@ namespace Hohoema.ViewModels.Pages.Hohoema
 
         internal void Update()
         {
-            IsActive = Models.Domain.Purchase.HohoemaPurchase.ProductIsActive(ProductListing);
+            IsActive = Models.Purchase.HohoemaPurchase.ProductIsActive(ProductListing);
         }
     }
 
@@ -941,19 +941,19 @@ namespace Hohoema.ViewModels.Pages.Hohoema
         {
             switch (type)
             {
-                case Models.Domain.LisenceType.MIT:
+                case Models.LisenceType.MIT:
                     return "MIT";
-                case Models.Domain.LisenceType.MS_PL:
+                case Models.LisenceType.MS_PL:
                     return "Microsoft Public Lisence";
-                case Models.Domain.LisenceType.Apache_v2:
+                case Models.LisenceType.Apache_v2:
                     return "Apache Lisence version 2.0";
-                case Models.Domain.LisenceType.GPL_v3:
+                case Models.LisenceType.GPL_v3:
                     return "GNU General Public License Version 3";
-                case Models.Domain.LisenceType.Simplified_BSD:
+                case Models.LisenceType.Simplified_BSD:
                     return "二条項BSDライセンス";
-                case Models.Domain.LisenceType.CC_BY_40:
+                case Models.LisenceType.CC_BY_40:
                     return "クリエイティブ・コモンズ 表示 4.0 国際";
-                case Models.Domain.LisenceType.SIL_OFL_v1_1:
+                case Models.LisenceType.SIL_OFL_v1_1:
                     return "SIL OPEN FONT LICENSE Version 1.1";
                 default:
                     throw new NotSupportedException(type.ToString());

@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hohoema", "Hohoema\Hohoema.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HohoemaModelTest", "HohoemaModelTest\HohoemaModelTest.csproj", "{D46333EA-134E-46A0-AA86-FECA2C1E74E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hohoema.Models", "Hohoema.Models\Hohoema.Models.csproj", "{5877A9CA-2D3A-4B8B-86CA-D77E6D68CF98}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hohoema.Core", "Hohoema.Core\Hohoema.Core.csproj", "{5877A9CA-2D3A-4B8B-86CA-D77E6D68CF98}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

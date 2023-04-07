@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Helpers;
+﻿using Hohoema.Helpers;
 using Hohoema.Services;
 using NiconicoToolkit;
 using System;

@@ -8,7 +8,7 @@
       xmlns:core="using:Microsoft.Xaml.Interactions.Core"
       xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
       xmlns:iconPack="using:MahApps.Metro.IconPacks"
-      xmlns:models="using:Hohoema.Models.Domain.Application"
+      xmlns:models="using:Hohoema.Models.Application"
       xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
       xmlns:mybehavior="using:Hohoema.Views.Behaviors"
       xmlns:templateselector="using:Hohoema.Views.TemplateSelector"

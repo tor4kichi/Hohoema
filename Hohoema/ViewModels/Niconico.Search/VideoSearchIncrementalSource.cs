@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Hohoema.Models.Domain.Niconico.Search;
+using Hohoema.Models.Niconico.Search;
 using Hohoema.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.SearchWithCeApi.Video;
@@ -28,7 +28,7 @@ namespace Hohoema.ViewModels.Niconico.Search
 
         public string Keyword => _searchVideoPlaylist.PlaylistId.Id;
 
-        public bool IsTagSearch => _searchVideoPlaylist.PlaylistId.Origin == Models.Domain.Playlist.PlaylistItemsSourceOrigin.SearchWithTag;
+        public bool IsTagSearch => _searchVideoPlaylist.PlaylistId.Origin == Models.Playlist.PlaylistItemsSourceOrigin.SearchWithTag;
 
 		public SearchProvider SearchProvider { get; }
 
@@ -53,7 +53,7 @@ namespace Hohoema.ViewModels.Niconico.Search
             }
 
             return res.Videos
-                .Select((x, i) => new VideoListItemControlViewModel(x.Video, x.Thread) { PlaylistItemToken = new Models.Domain.Playlist.PlaylistItemToken(_searchVideoPlaylist, _sortOption, new CeApiSearchVideoContent(x.Video))})
+                .Select((x, i) => new VideoListItemControlViewModel(x.Video, x.Thread) { PlaylistItemToken = new Models.Playlist.PlaylistItemToken(_searchVideoPlaylist, _sortOption, new CeApiSearchVideoContent(x.Video))})
                 .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
                 ;
         }

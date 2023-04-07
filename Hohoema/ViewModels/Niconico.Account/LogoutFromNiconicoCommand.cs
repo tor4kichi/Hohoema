@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico;
+﻿using Hohoema.Models;
+using Hohoema.Models.Niconico;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;

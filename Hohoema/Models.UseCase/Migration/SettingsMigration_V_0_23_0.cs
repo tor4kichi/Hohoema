@@ -1,8 +1,8 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Application;
-using Hohoema.Models.Domain.Legacy;
-using Hohoema.Models.Domain.Niconico.Video;
-using Hohoema.Models.Domain.Player;
+﻿using Hohoema.Models;
+using Hohoema.Models.Application;
+using Hohoema.Models.Legacy;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Player;
 using LiteDB;
 using System;
 using System.Collections.Generic;
@@ -11,23 +11,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
-using PlayerSettings = Hohoema.Models.Domain.Player.PlayerSettings;
+using PlayerSettings = Hohoema.Models.Player.PlayerSettings;
 
 namespace Hohoema.Models.UseCase.Migration
 {
     public sealed class SettingsMigration_V_0_23_0 : IMigrateAsync
     {
         private readonly AppFlagsRepository _appFlagsRepository;
-        private readonly Domain.Application.AppearanceSettings _appearanceSettings;
-        private readonly Domain.Pins.PinSettings _pinSettings;
+        private readonly Application.AppearanceSettings _appearanceSettings;
+        private readonly Pins.PinSettings _pinSettings;
         private readonly VideoRankingSettings _videoRankingSettings;
         private readonly VideoFilteringSettings _videoFilteringRepository;
         private readonly PlayerSettings _playerSettings;
 
         public SettingsMigration_V_0_23_0(
             AppFlagsRepository appFlagsRepository,
-            Domain.Application.AppearanceSettings appearanceSettings,
-            Domain.Pins.PinSettings pinSettings,
+            Application.AppearanceSettings appearanceSettings,
+            Pins.PinSettings pinSettings,
             VideoRankingSettings videoRankingSettings,
             VideoFilteringSettings videoFilteringRepository,
             PlayerSettings playerSettings
@@ -93,7 +93,7 @@ namespace Hohoema.Models.UseCase.Migration
                     int index = 0;
                     foreach (var pin in pinSettings.Pins)
                     {
-                        _pinSettings.CreateItem(new Domain.Pins.HohoemaPin()
+                        _pinSettings.CreateItem(new Pins.HohoemaPin()
                         {
                             Label = pin.Label,
                             Parameter = pin.Parameter,
@@ -174,9 +174,9 @@ namespace Hohoema.Models.UseCase.Migration
                     _playerSettings.IsReverseModeEnable = ps.IsReverseModeEnable;
                     _playerSettings.PlaylistEndAction = ps.PlaylistEndAction switch
                     {
-                        Domain.Legacy.PlaylistEndAction.NothingDo => Domain.Player.PlaylistEndAction.NothingDo,
-                        Domain.Legacy.PlaylistEndAction.ChangeIntoSplit => Domain.Player.PlaylistEndAction.ChangeIntoSplit,
-                        Domain.Legacy.PlaylistEndAction.CloseIfPlayWithCurrentWindow => Domain.Player.PlaylistEndAction.CloseIfPlayWithCurrentWindow,
+                        Legacy.PlaylistEndAction.NothingDo => Player.PlaylistEndAction.NothingDo,
+                        Legacy.PlaylistEndAction.ChangeIntoSplit => Player.PlaylistEndAction.ChangeIntoSplit,
+                        Legacy.PlaylistEndAction.CloseIfPlayWithCurrentWindow => Player.PlaylistEndAction.CloseIfPlayWithCurrentWindow,
                         _ => throw new NotSupportedException()
                     };
                     _playerSettings.AutoMoveNextVideoOnPlaylistEmpty = ps.AutoMoveNextVideoOnPlaylistEmpty;

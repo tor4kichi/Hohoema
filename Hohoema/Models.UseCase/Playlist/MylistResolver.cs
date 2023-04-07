@@ -1,11 +1,11 @@
-﻿using Hohoema.Models.Domain;
+﻿using Hohoema.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NiconicoSession = Hohoema.Models.Domain.Niconico.NiconicoSession;
-using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
-using Hohoema.Models.Domain.Niconico.Mylist;
+using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
+using Hohoema.Models.Niconico.Mylist.LoginUser;
+using Hohoema.Models.Niconico.Mylist;
 using NiconicoToolkit;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.User;

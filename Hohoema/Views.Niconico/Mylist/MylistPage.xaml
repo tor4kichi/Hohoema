@@ -13,7 +13,7 @@
   xmlns:videolistPage="using:Hohoema.Views.Controls.VideoList"
   xmlns:windowsStateTriggers="using:WindowsStateTriggers"
   xmlns:myConv="using:Hohoema.Views.Converters"
-  xmlns:models="using:Hohoema.Models.Domain.Application"
+  xmlns:models="using:Hohoema.Models.Application"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
   DataContext="{x:Null}"
     NavigationCacheMode="Enabled"

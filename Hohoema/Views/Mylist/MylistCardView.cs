@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain.Niconico.Mylist;
-using Hohoema.Models.Domain.Playlist;
+﻿using Hohoema.Models.Niconico.Mylist;
+using Hohoema.Models.Playlist;
 using System;
 using System.Collections.Generic;
 using System.Linq;

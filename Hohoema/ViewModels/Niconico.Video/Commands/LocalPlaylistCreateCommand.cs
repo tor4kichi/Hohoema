@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using I18NPortable;
-using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Niconico.Video;
 using Hohoema.Services;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;

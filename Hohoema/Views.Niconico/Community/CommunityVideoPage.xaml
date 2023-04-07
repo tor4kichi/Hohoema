@@ -15,7 +15,7 @@
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
       xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors" 
       xmlns:videolistPage="using:Hohoema.Views.Controls.VideoList" 
-      xmlns:models="using:Hohoema.Models.Domain.Application"
+      xmlns:models="using:Hohoema.Models.Application"
       DataContext="{x:Null}"
       NavigationCacheMode="Enabled"
       mc:Ignorable="d"

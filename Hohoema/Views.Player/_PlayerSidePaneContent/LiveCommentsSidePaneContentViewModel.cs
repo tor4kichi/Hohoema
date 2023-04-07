@@ -1,5 +1,5 @@
-﻿using Hohoema.Models.Domain;
-using Hohoema.Models.Domain.Niconico.Video;
+﻿using Hohoema.Models;
+using Hohoema.Models.Niconico.Video;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -9,12 +9,12 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Models.Domain.Player;
+using Hohoema.Models.Player;
 using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.ViewModels.Niconico.Live;
 using Hohoema.ViewModels.Niconico.Share;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
-using Hohoema.Models.Domain.Player.Comment;
+using Hohoema.Models.Player.Comment;
 
 namespace Hohoema.ViewModels.Player.PlayerSidePaneContent
 {

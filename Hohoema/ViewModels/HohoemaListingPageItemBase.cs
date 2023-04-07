@@ -1,5 +1,5 @@
 ﻿
-using Hohoema.Models.Domain;
+using Hohoema.Models;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
