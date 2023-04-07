@@ -1,0 +1,624 @@
+﻿<Page x:Class="Hohoema.Views.Pages.Hohoema.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:local="using:Hohoema.Views.Pages.Hohoema"
+      xmlns:view="using:Hohoema.Views"
+      xmlns:i="using:Microsoft.Xaml.Interactivity"
+      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:models="using:Hohoema.Models.Domain.Application"
+      xmlns:mybehavior="using:Hohoema.Views.Behaviors"
+      xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:iconPack="using:MahApps.Metro.IconPacks"
+      xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+      xmlns:myconverters="using:Hohoema.Views.Converters"
+      xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+      xmlns:templateselector="using:Hohoema.Views.TemplateSelector"
+      xmlns:windowsStateTriggers="using:WindowsStateTriggers" 
+      xmlns:locales="using:Hohoema.Locales"
+      xmlns:controls="using:Hohoema.Views.Controls" 
+      xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+      DataContext="{x:Null}"
+      mc:Ignorable="d"
+      x:Name="PageRoot"
+      >
+  <Page.Resources>
+    <DataTemplate x:Key="RemovableListItemTemplate">
+      <Button Background="Transparent"
+              UseSystemFocusVisuals="True"
+              HorizontalAlignment="Stretch"
+              HorizontalContentAlignment="Left"
+              Padding="8 0 0 0">
+        <Button.Flyout>
+          <MenuFlyout>
+            <MenuFlyoutItem Text="削除"
+                            Command="{Binding RemoveCommand}" />
+          </MenuFlyout>
+        </Button.Flyout>
+        <uwpControls:DockPanel Background="Transparent"
+                           Margin="16 0">
+          <TextBlock Text="{Binding Label}"
+                     VerticalAlignment="Center"></TextBlock>
+        </uwpControls:DockPanel>
+      </Button>
+    </DataTemplate>
+    <DataTemplate x:Key="TextWithRemoveButtonTemplate">
+      <uwpControls:DockPanel>
+        <TextBlock Text="{Binding Content}"
+                   uwpControls:DockPanel.Dock="Left"
+                   VerticalAlignment="Center" />
+        <AppBarButton Icon="Remove"
+                      Command="{Binding RemoveCommand}" />
+      </uwpControls:DockPanel>
+    </DataTemplate>
+    <Style x:Key="SubTitleStyle"
+           TargetType="TextBlock">
+      <Setter Property="FontSize"
+              Value="20" />
+      <Setter Property="Margin"
+              Value="0 0" />
+    </Style>
+    <Style x:Key="ContentTextStyle"
+           TargetType="TextBlock">
+      <Setter Property="Margin"
+              Value="0 0 0 8" />
+      <Setter Property="TextWrapping"
+              Value="Wrap" />
+    </Style>
+    <Style TargetType="ToggleSwitch"
+           BasedOn="{StaticResource ToggleSwitchNoHeader}">
+      <Style.Setters>
+        <Setter Property="MinWidth"
+                Value="0" />
+      </Style.Setters>
+    </Style>
+    <Style x:Key="SettingsGroupStackPanel"
+           TargetType="StackPanel">
+      <Setter Property="Spacing"
+              Value="20" />
+      <Setter Property="Margin"
+              Value="0 0 0 16" />
+    </Style>
+    <Style x:Key="SettingsMiddleGroupStackPanelStyle"
+           TargetType="StackPanel">
+      <Setter Property="Spacing" Value="24" />
+      <Setter Property="Margin" Value="16 0 8 0" />
+      <Setter Property="MinWidth" Value="320" />
+      <Setter Property="MaxWidth" Value="320" />
+    </Style>
+    
+    <Style x:Key="SettingsOptionTitleTextBlock"
+           TargetType="TextBlock">
+      <Setter Property="FontWeight"
+              Value="SemiBold" />
+      <Setter Property="VerticalAlignment"
+              Value="Center" />
+    </Style>
+    <Style x:Key="SettingsSubHeaderHorizonBorderStyle"
+           TargetType="Border">
+      <Setter Property="BorderBrush"
+              Value="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
+      <Setter Property="BorderThickness"
+              Value="0 1 0 0" />
+      <Setter Property="VerticalAlignment"
+              Value="Center" />
+      <Setter Property="Margin"
+              Value="8 0 0 0" />
+    </Style>
+
+    <Style x:Key="SettingsTitleContainerStyle" TargetType="uwpControls:DockPanel">
+      <Setter Property="Margin" Value="8 32 8 16" />
+      <Setter Property="MinWidth" Value="320" />
+    </Style>
+    
+    <locales:LocaleToDisplayNameConverter x:Key="LocaleToDisplayNameConverter" />
+  </Page.Resources>
+  <Grid>
+    <uwpControls:DockPanel>
+      <StackPanel x:Name="HeaderPanel" uwpControls:DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+
+        <uwpControls:DockPanel Margin="8 0" >
+
+          <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Right">
+            <TextBlock Opacity="0.7" Style="{StaticResource BodyTextBlockStyle}" VerticalAlignment="Center"
+                       TextAlignment="Right"
+                           Text="{Binding VersionText}"                                                      
+                       IsTextSelectionEnabled="True"
+                           >
+              <TextBlock.ContextFlyout>
+                <MenuFlyout>
+                  <MenuFlyoutItem Text="{i18nExt:Localize Key=CopyAppVersionToClipboard}" Command="{Binding CopyVersionTextToClipboardCommand}" />
+                  <ToggleMenuFlyoutItem Text="{i18nExt:Localize Key=EnableDebugModeToggleSwitchTitle}" IsChecked="{Binding IsDebugModeEnabled.Value,Mode=TwoWay}" />
+                </MenuFlyout>
+              </TextBlock.ContextFlyout>
+            </TextBlock>
+          </StackPanel>
+          <controls:AppTitleBar Title="{Binding Title}" />
+        </uwpControls:DockPanel>
+      </StackPanel>
+
+      <ScrollViewer>
+        <StackPanel x:Name="ContentPanel" Padding="0 0 0 32" MinWidth="400" MaxWidth="960" Spacing="16" HorizontalAlignment="Left">
+          <!-- アプリの表示設定 -->
+          <StackPanel>
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=AppearanceSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
+              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+            </uwpControls:DockPanel>
+            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
+              <Grid x:Name="MenuPaneDisplayModeLayout">
+                <TextBlock Text="{i18nExt:Localize Key=MenuPaneDisplayMode}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ComboBox ItemsSource="{Binding PaneDisplayModeItems}" 
+                          SelectedItem="{Binding AppearanceSettings.MenuPaneDisplayMode, Mode=TwoWay}"  
+                          HorizontalAlignment="Right" 
+                          >
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </Grid>
+              <Grid x:Name="DisplayLanguageLayout" Visibility="Collapsed">
+                <TextBlock Text="{i18nExt:Localize Key=DisplayLanguage}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=AvairableLocales}" HorizontalAlignment="Right" SelectedItem="{Binding AppearanceSettings.Locale, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Converter={StaticResource LocaleToDisplayNameConverter}}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </Grid>
+              <Grid>
+                <TextBlock Text="{i18nExt:Localize Key=FirstOpenPageType}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ComboBox ItemsSource="{Binding StartupPageTypeList}" SelectedItem="{Binding StartupPageType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </Grid>
+              <Grid>
+                <StackPanel>
+                  <TextBlock Text="{i18nExt:Localize Key=Theme}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                </StackPanel>
+                <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=_elementThemeList}" SelectedItem="{Binding SelectedTheme.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </Grid>
+              <Grid x:Name="DefaultFullScreenSwitchLayout" Visibility="Collapsed">
+                <StackPanel>
+                  <TextBlock Text="アプリ起動時にフルスクリーン表示を設定する" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                </StackPanel>
+                <ToggleSwitch IsOn="{Binding IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" />
+              </Grid>
+              <Grid x:Name="AppDisplayModeSettingLayout">
+                <TextBlock Text="{i18nExt:Localize Key=ApplicationInteractionMode}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=OverrideInteractionModeList}" SelectedValue="{Binding AppearanceSettings.OverrideInteractionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" IsSynchronizedWithCurrentItem="False">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}, FallbackValue={i18nExt:Localize Key=NoSelected}}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </Grid>
+            </StackPanel>
+          </StackPanel>
+          <!-- NG設定 -->
+          <StackPanel>
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=FilterSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
+              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+            </uwpControls:DockPanel>
+            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
+
+              <TextBlock Text="ランキングページは投稿者NGに対応していません" />
+
+              <Grid>
+                <TextBlock Text="{i18nExt:Localize Key=FilterEnableWithVideoOwnerID}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch IsOn="{Binding NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
+              <StackPanel Margin="0 8">
+                <uwpControls:Expander Header="{i18nExt:Localize Key=ShowFilteredVideoOwnerNames}" HorizontalContentAlignment="Left" >
+                  <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
+                            Margin="0 0"
+                            IsTabStop="False"
+                            HorizontalContentAlignment="Stretch"
+                            IsItemClickEnabled="True"
+                            SelectionMode="None">
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="ItemClick">
+                        <core:InvokeCommandAction Command="{Binding OpenUserPageCommand}"
+                                                  InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+
+                    <ListView.ItemContainerStyle>
+                      <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="2" />
+                        <Setter Property="Margin" Value="0" />
+                        <Setter Property="BorderThickness" Value="1" />
+                        <Setter Property="BorderBrush" Value="{ThemeResource ButtonDisabledBorderThemeBrush}" />
+                        <Setter Property="CornerRadius" Value="8" />
+                      </Style>
+                    </ListView.ItemContainerStyle>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Border Background="Transparent" IsHitTestVisible="True" Padding="4 0"
+                                Width="140"
+                                >
+                          <TextBlock Text="{Binding Description}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ListView.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <uwpControls:UniformGrid ColumnSpacing="4" RowSpacing="4" />
+                      </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                  </ListView>
+                </uwpControls:Expander>
+              </StackPanel>
+              <Grid>
+                <TextBlock Text="{i18nExt:Localize Key=FilterEnableWithVideoTitle}" uwpControls:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch IsOn="{Binding NGVideoTitleKeywordEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
+              <StackPanel Visibility="{Binding NGVideoTitleKeywordEnable.Value, Converter={StaticResource BooleanToVisibility}}" Spacing="8">
+
+                <Button Content="{i18nExt:Localize Key=AddVideoTitleFilterEntry}" 
+                        Command="{Binding AddVideoTitleFilterEntryCommand}"
+                        HorizontalAlignment="Right"
+                        />
+
+                <ItemsControl ItemsSource="{Binding VideoTitleFilteringItems}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <uwpControls:DockPanel>
+                        <Button uwpControls:DockPanel.Dock="Right" Background="Transparent" Height="32" Width="32">
+                          <Button.Flyout>
+                            <MenuFlyout>
+                              <MenuFlyoutItem Text="{i18nExt:Localize Key=Delete}" Command="{Binding RemoveCommand}" />
+                            </MenuFlyout>
+                          </Button.Flyout>
+
+                          <SymbolIcon Symbol="More" />
+                        </Button>
+                        <TextBox Text="{Binding Keyword.Value, Mode=TwoWay}" Margin="0 0 0 8" />
+                      </uwpControls:DockPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                
+                <TextBlock Text="{Binding NGVideoTitleKeywordError.Value}" Visibility="{Binding NGVideoTitleKeywordError.Value, Converter={StaticResource NotNullToVisibility}}" />
+                <TextBlock Margin="0 8" Foreground="Gray" Text="{i18nExt:Localize Key=AvairableRegureExpression}" />
+
+              </StackPanel>
+            </StackPanel>
+          </StackPanel>
+          
+          <!-- プレイヤーの設定 -->
+          <StackPanel>
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=VideoPlayerSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
+              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+            </uwpControls:DockPanel>
+            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
+              
+              <Grid>
+                <TextBlock Text="{i18nExt:Localize Key=UseLegacyStylePlayerControlUI}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch IsOn="{x:Bind _vm.AppearanceSettings.UseLegacyVersionVideoPage, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
+              
+            </StackPanel>
+          </StackPanel>
+
+
+          <!-- キャッシュ設定 -->
+          <StackPanel>
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=CacheSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
+              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+            </uwpControls:DockPanel>
+            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
+              <Grid>
+                <TextBlock Text="{i18nExt:Localize Key=DefaultCacheVideoQuality}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ComboBox ItemsSource="{Binding AvairableCacheQualities}" SelectedItem="{Binding DefaultCacheQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock>
+                         <Run Text="{Binding Converter={StaticResource LocalizeConverter}}" /></TextBlock>
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </Grid>
+
+              <Grid>
+                <TextBlock Text="{i18nExt:Localize Key=IsAllowDownloadOnMeteredNetwork}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ToggleSwitch IsOn="{Binding IsAllowDownloadOnMeteredNetwork.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
+              </Grid>
+
+              <Grid>
+                <Grid.Resources>
+                  <local:VideoCacheMaxSizeDoubleGigaByte2NullableLongByteConverter x:Key="MaxCacheSizeNumberConverter" />
+                </Grid.Resources>
+                <TextBlock Text="{i18nExt:Localize Key=MaxVideoCacheStorageSize}" HorizontalAlignment="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
+                  <muxc:NumberBox x:Name="MaxCacheSizeNumberBox" Value="{Binding MaxVideoCacheStorageSize.Value, Converter={StaticResource MaxCacheSizeNumberConverter}, Mode=TwoWay}" SmallChange="0.1" LargeChange="1" SpinButtonPlacementMode="Hidden"
+                                  PlaceholderText="{i18nExt:Localize Key=MaxVideoCacheSize_Unlimited}"
+                                  >
+                    
+                  </muxc:NumberBox>
+                  <TextBlock Text="GB" VerticalAlignment="Center" FontSize="16" />
+                </StackPanel>
+              </Grid>
+              
+              <StackPanel Orientation="Horizontal" Spacing="16" HorizontalAlignment="Right">
+
+                <Button Content="{i18nExt:Localize Key=OpenCacheFolder}" Command="{Binding OpenCurrentCacheFolderCommand}" HorizontalAlignment="Right" />
+                <Button Content="{i18nExt:Localize Key=ChangeCacheFolder}" Command="{Binding ChangeCacheVideoFolderCommand}" HorizontalAlignment="Right" />
+              </StackPanel>
+            </StackPanel>
+            
+          </StackPanel>
+          <!-- バックアップ -->
+          <StackPanel>
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=UserDataSettings}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
+              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+            </uwpControls:DockPanel>
+            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}" Orientation="Horizontal" HorizontalAlignment="Right">
+              <Button Content="{i18nExt:Localize Key=BackupUserData}" Command="{Binding ExportBackupCommand}" />
+              <Button Content="{i18nExt:Localize Key=RestoreUserData}" Command="{Binding ImportBackupCommand}" />
+            </StackPanel>
+          </StackPanel>
+          
+          <!-- このアプリについて -->
+          <StackPanel>
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=AboutThisApp}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
+              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+            </uwpControls:DockPanel>
+            <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}" Spacing="8">
+              <Grid>
+                <TextBlock Text="{i18nExt:Localize Key=ApplicationVersion}" Opacity="0.7" VerticalAlignment="Center" />
+                <TextBlock HorizontalAlignment="Right" TextAlignment="Right" IsTextSelectionEnabled="True">
+                     <Run Text="{Binding VersionText}" /></TextBlock>
+              </Grid>
+              <HyperlinkButton Content="{i18nExt:Localize Key=ShowUpdateNote}" Command="{Binding ShowUpdateNoticeCommand}" CommandParameter="{Binding CurrentVersion}" HorizontalAlignment="Right" />
+              <HyperlinkButton Content="{i18nExt:Localize Key=DevelopProjectPage_LinkTitle}" NavigateUri="https://github.com/tor4kichi/Hohoema" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
+              <HyperlinkButton Content="{i18nExt:Localize Key=PrivacyPolicy}" NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
+            </StackPanel>
+          </StackPanel>
+          <StackPanel>
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=Feedback}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
+              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+            </uwpControls:DockPanel>
+            <HyperlinkButton Content="{i18nExt:Localize Key=SendMessageToDeveloperWith_Marshmallow-QA}" Margin="0 0 0 8" NavigateUri="https://marshmallow-qa.com/tor4kichi" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
+
+            <HyperlinkButton Content="{i18nExt:Localize Key=ReviewInMicrosoftStore}" Margin="0 0 0 8" Command="{Binding LaunchAppReviewCommand}" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
+          </StackPanel>
+          <!--  -->
+          <StackPanel>
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=ThirdPartyLibraryDependencies}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
+              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+            </uwpControls:DockPanel>
+            <ItemsControl ItemsSource="{Binding LisenceItems}" Margin="0 0 8 0" IsTabStop="False">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                  <HyperlinkButton Margin="0 0" NavigateUri="{Binding Site}" Content="{Binding Name}" HorizontalAlignment="Right" />
+                  <!--
+                                    <StackPanel Orientation="Horizontal"
+                                        Margin="8 8 0 0"                                            
+                                        >
+                                        <TextBlock
+                                        >
+                                    <Run Text="Lisence:" Foreground="Gray"  />
+                                    <Run Text="{Binding LisenceType}"
+                                        >
+                                
+                                    </Run>
+                                        </TextBlock>
+
+
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal" Margin="16 8 0 0">
+
+                                        <TextBlock Text="Author:" Foreground="Gray"  />
+
+                                        <ItemsControl ItemsSource="{Binding Authors}"
+                                                    IsTabStop="False"
+                                                    >
+
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Vertical">
+
+                                                    </StackPanel>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}"
+                                                    Margin="8 0 0 1"
+                                                    />
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal"
+                                        Margin="8 8 0 0"                                            
+                                        >
+                                        <TextBlock>
+                                    <Run Text="Project Site:" Foreground="Gray" />
+                                    <Hyperlink NavigateUri="{Binding Site}">
+                                        <Run Text="{Binding Site}" />                                                                            
+                                    </Hyperlink>
+                                        </TextBlock>
+                                    </StackPanel>
+
+
+                                    <Button Content="ライセンスの全文を表示"
+                                        Margin="8 16 8 16"
+                                        UseSystemFocusVisuals="True"
+                                        >
+                                        <Button.ContextFlyout>
+                                            <Flyout Placement="Full">
+                                                <StackPanel>
+
+                                                    <TextBlock Margin="0 32" HorizontalAlignment="Center" TextWrapping="Wrap">
+                                                <Run Text="原文"></Run>
+                                                <Hyperlink NavigateUri="{Binding LisencePageUrl}"
+                                                            >
+                                                    <Run Text="{Binding LisencePageUrl}" />
+                                                </Hyperlink>
+                                                    </TextBlock>
+
+
+
+
+                                                    <Border Height="8" BorderBrush="Black" BorderThickness="0 1 0 0" />
+
+                                                    <TextBlock Text="{Binding LisenceText}" MaxWidth="400" TextWrapping="Wrap" />
+
+                                                </StackPanel>
+                                            </Flyout>
+                                        </Button.ContextFlyout>
+                                    </Button>
+
+
+                                    <Border
+                                Margin="0 8"
+                                BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" BorderThickness="0 1 0 0" />
+                                    -->
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+          <!-- その他 -->
+          <StackPanel>
+            <uwpControls:DockPanel Style="{StaticResource SettingsTitleContainerStyle}">
+              <TextBlock Text="{i18nExt:Localize Key=Others}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
+              <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+            </uwpControls:DockPanel>
+            <ListView ItemsSource="{Binding PurchaseItems}"
+                      IsItemClickEnabled="True"
+                      SelectionMode="None">
+              <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="ItemClick">
+                  <core:InvokeCommandAction Command="{Binding ShowCheerPurchaseCommand}"
+                                            InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                </core:EventTriggerBehavior>
+              </i:Interaction.Behaviors>
+              <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                  <Setter Property="Margin" Value="0 0 0 4" />
+                </Style>
+              </ListView.ItemContainerStyle>
+              <ListView.ItemTemplate>
+                <DataTemplate>
+                  <Grid>
+                    <uwpControls:DockPanel>
+                      <Image Source="{Binding ProductListing.ImageUri}" Height="48" Width="48" uwpControls:DockPanel.Dock="Left" />
+                      <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Bottom" Margin="0 0 0 8">
+                        <TextBlock Margin="8 0" VerticalAlignment="Center">
+                                                <Run Text="{Binding ProductListing.FormattedPrice}" /></TextBlock>
+                        <Border Visibility="{Binding IsActive, Converter={StaticResource BooleanToVisibility}}" Margin="8 0">
+                          <TextBlock Text="{i18nExt:Localize Key=Purchased}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        </Border>
+                      </StackPanel>
+                      <TextBlock Text="{Binding ProductListing.Name}" Margin="8 0" VerticalAlignment="Center" />
+                    </uwpControls:DockPanel>
+                  </Grid>
+                </DataTemplate>
+              </ListView.ItemTemplate>
+            </ListView>
+          </StackPanel>
+          
+          <!-- 実験的機能 -->
+          <uwpControls:Expander Visibility="Collapsed">
+
+            <uwpControls:Expander.Header>
+              <TextBlock Text="実験的機能" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" uwpControls:DockPanel.Dock="Left" />
+            </uwpControls:Expander.Header>
+            <StackPanel Spacing="8" Margin="0 16">
+
+              <TextBlock Text="有効にする前にユーザーデータのバックアップを推奨" Foreground="Red" FontWeight="Bold" />
+
+              <ToggleSwitch Header="動画リストアイテムを新しいカードUIで表示する" IsOn="{Binding Source={StaticResource FeatureFlags}, Path=UseNewCardViewForVideoListView, Mode=TwoWay}"
+                            HorizontalContentAlignment="Right"
+                            HorizontalAlignment="Right"
+                            />
+
+            </StackPanel>
+          </uwpControls:Expander>
+          
+        </StackPanel>
+      </ScrollViewer>
+    </uwpControls:DockPanel>
+    <VisualStateManager.VisualStateGroups>
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="ContentPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="ContentPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Tablet}" />
+            <Setter Target="ContentPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="ContentPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsDebugModeEnabled.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="DisplayLanguageLayout.Visibility"
+                    Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</Page>

@@ -1,4 +1,4 @@
-﻿using Hohoema.Presentation.Services;
+﻿using Hohoema.Services;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Helpers;
 using System;
@@ -18,7 +18,7 @@ using Hohoema.Models.UseCase.Playlist;
 using Microsoft.Toolkit.Diagnostics;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.Domain.Application;
-using Hohoema.Presentation.Navigations;
+using Hohoema.Navigations;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -247,16 +247,16 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
             if (_appearanceSettings.UseLegacyVersionVideoPage is false)
             {
-                if (nowViewChanging || sourcePlayerView.LastNavigatedPageName != nameof(Presentation.Views.Player.VideoPlayerPage))
+                if (nowViewChanging || sourcePlayerView.LastNavigatedPageName != nameof(Views.Player.VideoPlayerPage))
                 {
-                    await sourcePlayerView.NavigationAsync(nameof(Presentation.Views.Player.VideoPlayerPage), null);
+                    await sourcePlayerView.NavigationAsync(nameof(Views.Player.VideoPlayerPage), null);
                 }
             }
             else
             {
-                if (nowViewChanging || sourcePlayerView.LastNavigatedPageName != nameof(Presentation.Views.Player.LegacyVideoPlayerPage))
+                if (nowViewChanging || sourcePlayerView.LastNavigatedPageName != nameof(Views.Player.LegacyVideoPlayerPage))
                 {
-                    await sourcePlayerView.NavigationAsync(nameof(Presentation.Views.Player.LegacyVideoPlayerPage), null);
+                    await sourcePlayerView.NavigationAsync(nameof(Views.Player.LegacyVideoPlayerPage), null);
                 }
             }
 
@@ -316,7 +316,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
 
         async Task PlayLiveAsync(LiveId liveId, PlayerDisplayView displayMode, bool nowViewChanging)
         {
-            var pageName = nameof(Presentation.Views.Player.LivePlayerPage);
+            var pageName = nameof(Views.Player.LivePlayerPage);
             var parameters = new NavigationParameters(("id", liveId));
 
             using var _ = await _asyncLock.LockAsync(default);

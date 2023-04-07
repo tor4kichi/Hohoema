@@ -2,8 +2,8 @@
   x:Class="Hohoema.Styles.VideoListItemControlDefaultTemplate"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
-  xmlns:listPageVM="using:Hohoema.Presentation.ViewModels.VideoListPage" 
-  xmlns:videoList="using:Hohoema.Presentation.Views.Controls.VideoList"
+  xmlns:listPageVM="using:Hohoema.ViewModels.VideoListPage" 
+  xmlns:videoList="using:Hohoema.Views.Controls.VideoList"
   >
   <DataTemplate x:Key="VideoListItemControlDefaultTemplate" 
                     x:DataType="listPageVM:VideoListItemControlViewModel"

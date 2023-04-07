@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Domain.PageNavigation;
-using Hohoema.Presentation.Navigations;
+using Hohoema.Navigations;
 using System;
 using System.Collections.Generic;
 using System.Linq;

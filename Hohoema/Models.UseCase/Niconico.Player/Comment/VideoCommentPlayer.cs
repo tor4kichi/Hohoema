@@ -5,7 +5,7 @@ using Hohoema.Models.Domain.Player.Comment;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Models.Domain.Player.Video.Comment;
 using Hohoema.Models.Infrastructure;
-using Hohoema.Presentation.Services;
+using Hohoema.Services;
 using Microsoft.Extensions.Logging;
 using MvvmHelpers;
 using NiconicoToolkit;

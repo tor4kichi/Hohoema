@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain.Niconico;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using Hohoema.Models.Domain.Niconico.Mylist.LoginUser;
-using Hohoema.Presentation.Services;
+using Hohoema.Services;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Mylist;

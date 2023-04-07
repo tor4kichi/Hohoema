@@ -16,7 +16,7 @@ using System.Reactive.Concurrency;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using System.Reactive.Subjects;
-using Hohoema.Presentation.Services;
+using Hohoema.Services;
 using Microsoft.Toolkit.Uwp.Notifications;
 using I18NPortable;
 using Hohoema.Models.Domain.PageNavigation;

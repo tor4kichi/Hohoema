@@ -1,0 +1,130 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Hohoema.Views.Controls.VideoList.VideoListItem" 
+  xmlns:windowsStateTrigger="using:WindowsStateTriggers"
+   xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:templateSelector="using:Hohoema.Views.TemplateSelector"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:nicoLToolkitVideo="using:NiconicoToolkit.Video" 
+  xmlns:winUI="using:Microsoft.UI.Xaml.Controls"
+  xmlns:videoCache="using:Hohoema.Models.Domain.VideoCache"
+  >
+
+  <Style TargetType="local:VideoListItem">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="local:VideoListItem">
+          <Grid x:Name="UserControlRoot">
+            <Grid>
+              <StackPanel x:Name="CacheStatusLayout" HorizontalAlignment="Right" VerticalAlignment="Top" Visibility="Collapsed">
+                <SymbolIcon x:Name="CacheIcon" Symbol="Download" Height="32" Width="32" />
+              </StackPanel>
+
+              <Grid x:Name="QueueIndexLayout" Opacity="0.0" HorizontalAlignment="Right">
+                <Border Width="4" Background="{ThemeResource SystemAccentColor}" Opacity="0.5" />
+              </Grid>
+
+              <uwpControls:DockPanel Margin="4 0 0 0"
+                           x:Name="ContentLayout"
+                           >
+                <Grid uwpControls:DockPanel.Dock="Left" Margin="0 0 12 0" Width="132" Height="72">
+                  <Image x:Name="ImagePart"
+                        Stretch="Uniform"
+                        VerticalAlignment="Center"
+                         Height="100"
+                    >
+                  </Image>
+
+
+
+
+                  <Border HorizontalAlignment="Right" 
+                        VerticalAlignment="Bottom"
+                        CornerRadius="4 0 0 0"
+                        >
+                    <Border.Background>
+                      <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                    </Border.Background>
+
+                    <TextBlock Text="{TemplateBinding ImageSubText}" 
+                               Padding="4 0 3 3" 
+                               TextWrapping="Wrap" VerticalAlignment="Center" 
+                               FontSize="13"
+                               
+                               />
+                  </Border>
+                </Grid>
+
+                <Grid>
+                  <ContentPresenter x:Name="MyContentPresenter" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+
+
+                  <StackPanel x:Name="MobileSupportActionsLayout"  Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Stretch" Visibility="Collapsed" 
+                            
+                            >
+                    <Button Flyout="{StaticResource VideoListItemFlyout}" VerticalAlignment="Stretch" Width="80" Background="Transparent" Opacity="0.6" BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" BorderThickness="0 0 0 0">
+                      <SymbolIcon Symbol="More" />
+                    </Button>
+                  </StackPanel>
+
+                </Grid>
+              </uwpControls:DockPanel>
+            </Grid>
+
+            <VisualStateManager.VisualStateGroups>
+              
+              <VisualStateGroup>
+                <VisualState x:Name="QueuedItemState">
+                  <VisualState.Setters>
+                    <Setter Target="QueueIndexLayout.Opacity" Value="0.75" />
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="NotQueuedItemState">
+                  <VisualState.Setters>
+                  </VisualState.Setters>
+                </VisualState>
+              </VisualStateGroup>
+
+              <VisualStateGroup x:Name="CacheStatusStateGroup">
+                <VisualState x:Name="CacheStatusNormalState">
+                </VisualState>
+                <VisualState x:Name="CacheStatusPendingState">
+                  <VisualState.Setters>
+                    <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
+                    <Setter Target="CacheIcon.Opacity" Value="0.5" />
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="CacheStatusDownloadingState">
+                  <VisualState.Setters>
+                    <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
+                    <Setter Target="CacheIcon.Foreground" Value="{ThemeResource SystemAccentColor}" />
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="CacheStatusDownloadPausedState">
+                  <VisualState.Setters>
+                    <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
+                    <Setter Target="CacheIcon.Foreground" Value="Yellow" />
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="CacheStatusCompletedState">
+                  <VisualState.Setters>
+                    <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="CacheStatusFailedState">
+                  <VisualState.Setters>
+                    <Setter Target="CacheStatusLayout.Visibility" Value="Visible" />
+                    <Setter Target="CacheIcon.Foreground" Value="Red" />
+                  </VisualState.Setters>
+                </VisualState>
+              </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+</ResourceDictionary>

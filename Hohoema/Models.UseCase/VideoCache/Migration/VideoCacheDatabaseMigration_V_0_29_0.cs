@@ -4,7 +4,7 @@ using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.Domain.Player.Video.Cache;
 using Hohoema.Models.Domain.VideoCache;
-using Hohoema.Presentation.Services;
+using Hohoema.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +26,7 @@ namespace Hohoema.Models.UseCase.Migration
             Domain.Application.AppFlagsRepository appFlagsRepository,
             Domain.Player.Video.Cache.CacheRequestRepository cacheRequestRepositoryLegacy,
             Domain.VideoCache.VideoCacheManager videoCacheManager,
-            Presentation.Services.DialogService dialogService
+            Services.DialogService dialogService
             )
         {
             _appFlagsRepository = appFlagsRepository;

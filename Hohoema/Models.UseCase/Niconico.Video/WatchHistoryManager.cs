@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Niconico.Video.WatchHistory.LoginUser;
-using Hohoema.Presentation.Services;
+using Hohoema.Services;
 using I18NPortable;
 using NiconicoToolkit.Activity.VideoWatchHistory;
 using NiconicoToolkit.Video;

@@ -13,7 +13,7 @@ using Hohoema.Models.Domain.PageNavigation;
 using Hohoema.Models.Domain.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Hohoema.Presentation.Navigations;
+using Hohoema.Navigations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -356,7 +356,7 @@ namespace Hohoema.Models.UseCase.PageNavigation
         {
             _messenger.Send(new PageNavigationEvent(new ()
             {
-                PageName = nameof(Presentation.Views.Pages.Hohoema.DebugPage),
+                PageName = nameof(Views.Pages.Hohoema.DebugPage),
                 IsMainViewTarget = true,
                 Behavior = NavigationStackBehavior.NotRemember,
             }));

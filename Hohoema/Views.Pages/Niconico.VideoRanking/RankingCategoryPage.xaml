@@ -1,0 +1,221 @@
+﻿<Page
+  x:Class="Hohoema.Views.Pages.Niconico.VideoRanking.RankingCategoryPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:controls="using:Hohoema.Views.Controls"
+  xmlns:videolistPage="using:Hohoema.Views.Controls.VideoList"
+  xmlns:windowsTriggers="using:WindowsStateTriggers"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions" 
+  xmlns:muxc="using:Microsoft.UI.Xaml.Controls" 
+  xmlns:models="using:Hohoema.Models.Domain.Application"
+  NavigationCacheMode="Enabled"
+  mc:Ignorable="d"
+  >
+
+  <Grid>
+    <videolistPage:VideoItemsListView ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
+                                      ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"
+                                      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
+                                      RefreshCommand="{x:Bind _vm.ResetListCommand}"
+                                      x:Name="VideoItemsListView"
+                                      >
+      <videolistPage:VideoItemsListView.Header>
+        <Grid BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
+          <CommandBar x:Name="VideoListCommandBar" DefaultLabelPosition="Right" VerticalContentAlignment="Center"
+                      XYFocusRightNavigationStrategy="Projection"
+                      XYFocusLeftNavigationStrategy="Projection"
+                      >
+            <CommandBar.Content>
+              <controls:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" />
+            </CommandBar.Content>
+
+            <CommandBar.PrimaryCommands>
+
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
+                <ComboBox x:Name="GenreTagSelector"
+                            ItemsSource="{x:Bind _vm.PickedTags, Mode=OneWay}"
+                            SelectedItem="{x:Bind _vm.SelectedRankingTag.Value, Mode=TwoWay}"
+                            DisplayMemberPath="Label"
+                          XYFocusRight="{x:Bind RankingTermSelector}"
+                          VerticalAlignment="Stretch"
+                          Margin="0 6"
+                            >
+                </ComboBox>
+              </AppBarElementContainer>
+
+              <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" IsTabStop="False">
+                <ComboBox x:Name="RankingTermSelector"
+                            ItemsSource="{x:Bind _vm.CurrentSelectableRankingTerms.Value, Mode=OneWay}"
+                            SelectedItem="{Binding SelectedRankingTerm.Value, Mode=TwoWay}"
+                          ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                          XYFocusRight="{x:Bind ScrollToTopButton}"
+                          XYFocusLeft="{x:Bind GenreTagSelector}"
+                          VerticalAlignment="Stretch"
+                          Margin="0 6"
+                            >
+                </ComboBox>
+              </AppBarElementContainer>
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{i18nExt:Localize Key=ReturnToPageTop}"
+                            XYFocusLeft="{x:Bind RankingTermSelector}"
+                           >
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Click">
+                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+
+              <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{x:Bind _vm.SelectionModeToggleCommand}" />
+
+              <AppBarButton x:Name="RefreshButton"
+                              Label="{i18nExt:Localize Key=Refresh}" 
+                              Icon="Refresh"
+                              Command="{x:Bind _vm.ResetListCommand}"
+                              IsEnabled="{x:Bind _vm.CanChangeSort, Mode=OneWay}"
+                              VerticalAlignment="Center"
+                          >
+              </AppBarButton>
+            </CommandBar.PrimaryCommands>
+          </CommandBar>
+        </Grid>
+      </videolistPage:VideoItemsListView.Header>
+
+      <videolistPage:VideoItemsListView.ItemTemplate>
+        <DataTemplate x:DataType="rankingPageVM:RankedVideoListItemControlViewModel"
+                      xmlns:rankingPageVM="using:Hohoema.ViewModels.Pages.Niconico.VideoRanking"
+                      >
+          <Grid>
+            <TextBlock Text="{x:Bind Rank}"
+                       Style="{StaticResource HeaderTextBlockStyle}"
+                       Opacity="0.25"
+                       VerticalAlignment="Bottom"
+                       HorizontalAlignment="Right"
+                       HorizontalTextAlignment="Left"
+                       Width="80"
+                       FontWeight="Bold" />
+
+            <videolistPage:VideoListItemControl 
+                Title="{x:Bind Label}"                 
+                ImageSource="{x:Bind ThumbnailUrl}"
+                Length="{x:Bind Length, Converter={StaticResource TimeToMovieLengthConverter}}"  
+                IsQueueItem="{x:Bind IsQueueItem, Mode=OneWay}"
+                IsWatched="{x:Bind IsWatched, Mode=OneWay}"
+                IsDeleted="{x:Bind IsDeleted}"
+                IsSensitiveContent="{x:Bind IsSensitiveContent}"
+                IsHidden="{x:Bind VideoHiddenInfo, Mode=OneWay, Converter={StaticResource NotNullToBoolean}}"
+                CacheStatus="{x:Bind CacheStatus, Mode=OneWay}"
+                PostedAt="{x:Bind PostedAt, Converter={StaticResource DateTimeToString}}"
+                PrivateReason="{x:Bind PrivateReason, Converter={StaticResource LocalizeConverter}}"
+                ViewCount="{x:Bind ViewCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                CommentCount="{x:Bind CommentCount, Converter={StaticResource ToUserFriendlyNumber}}"
+                MylistCount="{x:Bind MylistCount, Converter={StaticResource ToUserFriendlyNumber}}"      
+              IsRequirePayment="{x:Bind IsRequirePayment, Converter={StaticResource BooleanToVisibility}}"
+              />
+          </Grid>
+        </DataTemplate>
+      </videolistPage:VideoItemsListView.ItemTemplate>
+
+    </videolistPage:VideoItemsListView>
+
+    <StackPanel x:Name="EmptyItemsLayout" Visibility="Collapsed" Spacing="8" VerticalAlignment="Center"
+                Margin="32"
+                >
+      <TextBlock Text="{i18nExt:Localize Key=RankingNoItems}"
+                    Style="{StaticResource SubtitleTextBlockStyle}"
+                    Opacity="0.8"
+                  HorizontalAlignment="Center"
+                    />
+
+      <Button Content="ソース切り替えて再試行" Command="{x:Bind _vm.ToggleRankingItemsSourceCommand}"
+              HorizontalAlignment="Center"
+              />
+                
+    </StackPanel>
+
+    <StackPanel x:Name="PageLoadingErrorLayout" Visibility="Collapsed" Spacing="8" VerticalAlignment="Center" Margin="32">
+      <Grid BorderBrush="{ThemeResource SystemErrorTextColor}" MaxWidth="600" BorderThickness="1"  Padding="16">
+
+        <ScrollViewer>
+          <StackPanel>
+            <TextBlock Text="読み込み中にエラーが発生しました" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap" />
+            <TextBlock Text="以下のエラーテキストを開発者に伝えると問題箇所の特定が早まる可能性があります。" TextWrapping="Wrap" />
+            <TextBlock Text="{x:Bind _vm.Error, Mode=OneWay}" TextWrapping="Wrap" IsTextSelectionEnabled="True" Margin="8 16 0 0" />
+          </StackPanel>
+        </ScrollViewer>
+      </Grid>
+    </StackPanel>
+
+
+    <VisualStateManager.VisualStateGroups>
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentPageMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _vm.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.ItemsPanelPadding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+
+
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _vm.NowLoading, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.IsEnabled" Value="False" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _vm.HasError, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.IsEnabled" Value="False" />
+            <Setter Target="PageLoadingErrorLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _vm.HasItem, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.IsEnabled" Value="False" />
+            <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+    </VisualStateManager.VisualStateGroups>
+    
+  </Grid>
+</Page>

@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Playlist;
-using Hohoema.Presentation.Services;
-using Hohoema.Presentation.Views.Pages;
+using Hohoema.Services;
+using Hohoema.Views.Pages;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Toolkit.Uwp;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -25,7 +25,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media.Animation;
 using Hohoema.Models.Helpers;
-using Hohoema.Presentation.Navigations;
+using Hohoema.Navigations;
 
 namespace Hohoema.Models.UseCase.Niconico.Player
 {
@@ -47,7 +47,7 @@ namespace Hohoema.Models.UseCase.Niconico.Player
         public AppWindowSecondaryViewPlayerManager(
             AppearanceSettings appearanceSettings,
             HohoemaPlaylistPlayer playlistPlayer,
-            Presentation.Services.CurrentActiveWindowUIContextService currentActiveWindowUIContextService
+            Services.CurrentActiveWindowUIContextService currentActiveWindowUIContextService
             )
         {
             _appearanceSettings = appearanceSettings;

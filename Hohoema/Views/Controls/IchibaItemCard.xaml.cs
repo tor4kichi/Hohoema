@@ -1,0 +1,42 @@
+﻿using NiconicoToolkit.Ichiba;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Navigation;
+
+// ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
+
+namespace Hohoema.Views.Controls
+{
+    public sealed partial class IchibaItemCard : UserControl
+    {
+        public IchibaItemCard()
+        {
+            this.InitializeComponent();
+        }
+
+
+
+        public IchibaItem Item
+        {
+            get { return (IchibaItem)GetValue(ItemProperty); }
+            set { SetValue(ItemProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Item.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ItemProperty =
+            DependencyProperty.Register("Item", typeof(IchibaItem), typeof(IchibaItemCard), new PropertyMetadata(0));
+
+
+    }
+}

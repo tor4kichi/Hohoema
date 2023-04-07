@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Helpers;
-using Hohoema.Presentation.Services;
+using Hohoema.Services;
 using NiconicoToolkit;
 using System;
 using System.Collections.Generic;

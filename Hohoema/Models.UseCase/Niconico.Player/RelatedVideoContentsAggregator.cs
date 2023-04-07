@@ -9,7 +9,7 @@ using Hohoema.Models.Domain.Niconico.Channel;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.Player.Video;
 using Hohoema.Models.UseCase.PageNavigation;
-using Hohoema.Presentation.ViewModels.VideoListPage;
+using Hohoema.ViewModels.VideoListPage;
 using Hohoema.Models.Domain.Niconico.Mylist;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Channels;

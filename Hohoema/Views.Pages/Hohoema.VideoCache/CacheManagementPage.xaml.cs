@@ -1,0 +1,57 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Controls.Primitives;
+using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Input;
+using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Navigation;
+using Hohoema.Navigations;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.ViewModels.Pages.Hohoema.VideoCache;
+
+// 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
+
+namespace Hohoema.Views.Pages.Hohoema.VideoCache
+{
+	/// <summary>
+	/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
+	/// </summary>
+	public sealed partial class CacheManagementPage : Page
+	{
+		public CacheManagementPage()
+		{
+			this.InitializeComponent();
+			DataContext = _vm = Ioc.Default.GetRequiredService<CacheManagementPageViewModel>();
+		}
+
+		private readonly CacheManagementPageViewModel _vm;
+	}
+
+
+
+    public class ProgressTemplateSelector : DataTemplateSelector
+	{
+		public DataTemplate Progress { get; set; }
+		public DataTemplate Empty { get; set; }
+
+
+		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+		{
+			if (item == null)
+			{
+				return Empty;
+			}
+			else
+			{
+				return Progress;
+			}
+		}
+	}
+}

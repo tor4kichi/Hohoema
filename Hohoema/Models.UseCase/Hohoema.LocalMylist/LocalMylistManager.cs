@@ -18,7 +18,7 @@ using System.Windows.Input;
 using Windows.Storage;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Domain.Application;
-using Hohoema.Presentation.Services;
+using Hohoema.Services;
 using Hohoema.Models.Domain.LocalMylist;
 using Microsoft.Extensions.Logging;
 using ZLogger;

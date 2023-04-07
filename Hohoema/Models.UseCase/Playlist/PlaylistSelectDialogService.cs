@@ -2,7 +2,7 @@
 using Hohoema.Dialogs;
 using Hohoema.Models.Domain;
 using Hohoema.Models.Domain.Playlist;
-using Hohoema.Presentation.Services;
+using Hohoema.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;

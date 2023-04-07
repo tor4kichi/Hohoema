@@ -12,7 +12,7 @@ using Microsoft.Toolkit.Uwp.Connectivity;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Reactive.Disposables;
-using Hohoema.Presentation.Services;
+using Hohoema.Services;
 using I18NPortable;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Windows.UI.Notifications;

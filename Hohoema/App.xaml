@@ -6,20 +6,20 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="using:Hohoema"
     xmlns:model="using:Hohoema.Models.Domain"
-    xmlns:myconv="using:Hohoema.Presentation.Views.Converters"
-    xmlns:templateSelector="using:Hohoema.Presentation.Views.TemplateSelector"
-    xmlns:view="using:Hohoema.Presentation.Views"
-    xmlns:controls="using:Hohoema.Presentation.Views.Controls"
+    xmlns:myconv="using:Hohoema.Views.Converters"
+    xmlns:templateSelector="using:Hohoema.Views.TemplateSelector"
+    xmlns:view="using:Hohoema.Views"
+    xmlns:controls="using:Hohoema.Views.Controls"
     xmlns:uwpconv="using:Microsoft.Toolkit.Uwp.UI.Converters"
     xmlns:logicalModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.LogicalModifiers"
     xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
     xmlns:system="using:System"
-    xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts" 
+    xmlns:flyouts="using:Hohoema.Views.Flyouts" 
     xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
   xmlns:locales="using:Hohoema.Locales" 
   xmlns:appModels="using:Hohoema.Models.Domain.Application" 
-  xmlns:videoList="using:Hohoema.Presentation.Views.Controls.VideoList" 
-   xmlns:listPageVM="using:Hohoema.Presentation.ViewModels.VideoListPage" 
+  xmlns:videoList="using:Hohoema.Views.Controls.VideoList" 
+   xmlns:listPageVM="using:Hohoema.ViewModels.VideoListPage" 
   xmlns:styles="using:Hohoema.Styles">
   <Application.Resources>
 
@@ -34,11 +34,11 @@
         <ResourceDictionary Source="Styles/SettingsControlStyles.xaml"/>
         <ResourceDictionary Source="Styles/FixedHeaderListViewStyle.xaml"/>
 
-        <ResourceDictionary Source="Presentation.Views/Controls/TransientContainer/TransientContainer.xaml"/>
-        <ResourceDictionary Source="Presentation.Views/Controls/LiteInAppNotification/LiteInAppNotification.xaml"/>
-        <ResourceDictionary Source="Presentation.Views/Controls/VideoList/VideoListItem/VideoListItem.xaml"/>
-        <ResourceDictionary Source="Presentation.Views/Controls/VideoList/VideoListItemControl/VideoListItemControl.xaml"/>
-        <ResourceDictionary Source="Presentation.Views/Mylist/MylistCardView.xaml"/>
+        <ResourceDictionary Source="Views/Controls/TransientContainer/TransientContainer.xaml"/>
+        <ResourceDictionary Source="Views/Controls/LiteInAppNotification/LiteInAppNotification.xaml"/>
+        <ResourceDictionary Source="Views/Controls/VideoList/VideoListItem/VideoListItem.xaml"/>
+        <ResourceDictionary Source="Views/Controls/VideoList/VideoListItemControl/VideoListItemControl.xaml"/>
+        <ResourceDictionary Source="Views/Mylist/MylistCardView.xaml"/>
 
         <muxc:XamlControlsResources  />
 

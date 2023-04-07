@@ -16,9 +16,9 @@ using Hohoema.Models.UseCase.Migration;
 using Hohoema.Models.UseCase.Niconico.Player;
 using Hohoema.Models.UseCase.Subscriptions;
 using Hohoema.Models.UseCase.VideoCache;
-using Hohoema.Presentation.Services;
+using Hohoema.Services;
 using Hohoema.Models.UseCase.PageNavigation;
-using Hohoema.Presentation.ViewModels;
+using Hohoema.ViewModels;
 using LiteDB;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Helpers;
@@ -45,7 +45,7 @@ using Windows.UI;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Hohoema.Presentation.Views.Pages;
+using Hohoema.Views.Pages;
 using Hohoema.Models.UseCase.Niconico.Account;
 using Hohoema.Models.UseCase.Niconico.Follow;
 using Hohoema.Models.Domain.Notification;
@@ -57,7 +57,7 @@ using Hohoema.Models.Infrastructure;
 using Hohoema.Models.UseCase.Playlist;
 using Hohoema.Models.UseCase.Niconico.Player.Comment;
 using Hohoema.Models.UseCase.Niconico.Video;
-using Hohoema.Presentation.ViewModels.Niconico.Video;
+using Hohoema.ViewModels.Niconico.Video;
 using Hohoema.Models.Domain.Player.Comment;
 using Hohoema.Models.Domain.Playlist;
 using Hohoema.Models.UseCase.Hohoema.LocalMylist;
@@ -68,11 +68,11 @@ using Windows.UI.Core;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using DryIoc.Microsoft.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
-using Hohoema.Presentation.Navigations;
+using Hohoema.Navigations;
 
 namespace Hohoema
 {
-    sealed class ViewLocator : Presentation.Navigations.IViewLocator
+    sealed class ViewLocator : Navigations.IViewLocator
     {
         public Type ResolveView(string viewName)
         {
@@ -255,42 +255,42 @@ namespace Hohoema
             container.RegisterInstance<ILogger<App>>(logger);
 
             ViewLocator viewLocator = new ViewLocator();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.BlankPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.DebugPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.SettingsPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.LocalMylist.LocalPlaylistPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.LocalMylist.LocalPlaylistManagePage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Queue.VideoQueuePage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Subscription.SubscriptionManagementPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.Subscription.SubscVideoListPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Hohoema.VideoCache.CacheManagementPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Activity.WatchHistoryPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Channel.ChannelVideoPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Community.CommunityPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Community.CommunityVideoPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Follow.FollowManagePage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Live.LiveInfomationPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Live.TimeshiftPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Mylist.MylistPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Mylist.OwnerMylistManagePage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Mylist.UserMylistPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.NicoRepo.NicoRepoPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultTagPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultKeywordPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Search.SearchResultLivePage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Series.SeriesPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Series.UserSeriesPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.User.UserInfoPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.User.UserVideoPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.Video.VideoInfomationPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoRanking.RankingCategoryListPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Pages.Niconico.VideoRanking.RankingCategoryPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.BlankPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Hohoema.DebugPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Hohoema.SettingsPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Hohoema.LocalMylist.LocalPlaylistPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Hohoema.LocalMylist.LocalPlaylistManagePage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Hohoema.Queue.VideoQueuePage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Hohoema.Subscription.SubscriptionManagementPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Hohoema.Subscription.SubscVideoListPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Hohoema.VideoCache.CacheManagementPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Activity.WatchHistoryPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Channel.ChannelVideoPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Community.CommunityPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Community.CommunityVideoPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Follow.FollowManagePage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Live.LiveInfomationPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Live.TimeshiftPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Mylist.MylistPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Mylist.OwnerMylistManagePage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Mylist.UserMylistPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.NicoRepo.NicoRepoPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Search.SearchPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Search.SearchResultTagPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Search.SearchResultKeywordPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Search.SearchResultLivePage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Series.SeriesPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Series.UserSeriesPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.User.UserInfoPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.User.UserVideoPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.Video.VideoInfomationPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.VideoRanking.RankingCategoryListPage>();
+            viewLocator.RegisterForNavigation<Views.Pages.Niconico.VideoRanking.RankingCategoryPage>();
 
-            viewLocator.RegisterForNavigation<Presentation.Views.Player.LivePlayerPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Player.LegacyVideoPlayerPage>();
-            viewLocator.RegisterForNavigation<Presentation.Views.Player.VideoPlayerPage>();
-            container.UseInstance<Presentation.Navigations.IViewLocator>(viewLocator);
+            viewLocator.RegisterForNavigation<Views.Player.LivePlayerPage>();
+            viewLocator.RegisterForNavigation<Views.Player.LegacyVideoPlayerPage>();
+            viewLocator.RegisterForNavigation<Views.Player.VideoPlayerPage>();
+            container.UseInstance<Navigations.IViewLocator>(viewLocator);
 
             NavigationService.ViewTypeResolver = (pageName) => viewLocator.ResolveViewType(pageName);
         }
