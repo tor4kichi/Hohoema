@@ -28,7 +28,7 @@ using System.Threading;
 using CommunityToolkit.Mvvm.Messaging;
 using Windows.System;
 using Microsoft.Toolkit.Uwp;
-using Hohoema.Services.UINavigation;
+using Hohoema.Views.UINavigation;
 using Hohoema.Infra;
 using Hohoema.Services;
 using Hohoema.Views.Pages.Niconico.VideoRanking;

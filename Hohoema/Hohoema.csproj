@@ -204,7 +204,7 @@
     <Compile Include="Services\DialogService.cs" />
     <Compile Include="ViewModels\NavigationQueryHelper.cs" />
     <Compile Include="ViewModels\Niconico.Follow\FollowContext.cs" />
-    <Compile Include="Services\Niconico.Account\NiconicoLoginService.cs" />
+    <Compile Include="Services\NiconicoLoginService.cs" />
     <Compile Include="Services\NoProcessUIScreenContext.cs" />
     <Compile Include="Services\CheckingClipboardAndNotificationService.cs" />
     <Compile Include="Services\VideoCache\NotificationCacheVideoDeletedService.cs" />
@@ -239,8 +239,7 @@
     <Compile Include="ViewModels\Niconico.Likes\VideoLikesContext.cs" />
     <Compile Include="ViewModels\Niconico.Live\LiveInfoListItemViewModel.cs" />
     <Compile Include="ViewModels\Niconico.Share\CopyToClipboardWithShareTextCommand.cs" />
-    <Compile Include="Services\UINavigation\UINavigationButtons.cs" />
-    <Compile Include="Services\UINavigation\UINavigationManager.cs" />
+    <Compile Include="Views\UINavigation\UINavigationManager.cs" />
     <Compile Include="ViewModels\Community\CommunityLiveInfoViewModel.cs" />
     <Compile Include="ViewModels\Community\CommunityNewsViewModel.cs" />
     <Compile Include="ViewModels\Community\CommunityVideoInfoViewModel.cs" />
@@ -644,7 +643,7 @@
     <Compile Include="Views\Interaction\Input\KeyboardTrigger.cs" />
     <Compile Include="Views\Interaction\Input\MouseWheelTrigger.cs" />
     <Compile Include="Views\Interaction\Input\Swipe.cs" />
-    <Compile Include="Views\Interaction\Input\UINavigationTrigger.cs" />
+    <Compile Include="Views\UINavigation\UINavigationTrigger.cs" />
     <Compile Include="Views\Interaction\Input\XYNavigationExtentions.cs" />
     <Compile Include="Views\MediaElementExtention.cs" />
     <Compile Include="Views\NoUIProcessScreen.xaml.cs">
@@ -891,6 +890,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Services\Niconico.Account\" />
     <Folder Include="Services\Niconico.Player\Playlist\" />
     <Folder Include="ViewModels\Niconico.Mylist\" />
     <Folder Include="ViewModels\Player\PlayerSidePaneContent\" />

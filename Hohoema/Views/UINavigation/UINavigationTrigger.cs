@@ -12,7 +12,7 @@ using Windows.Gaming.Input;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Markup;
-using Hohoema.Services.UINavigation;
+using Hohoema.Views.UINavigation;
 
 namespace Hohoema.Views.Behaviors
 {
