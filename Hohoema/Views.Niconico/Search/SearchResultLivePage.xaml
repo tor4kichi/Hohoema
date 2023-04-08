@@ -1,0 +1,220 @@
+﻿<Page
+  x:Class="Hohoema.Views.Pages.Niconico.Search.SearchResultLivePage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:models="using:Hohoema.Models.Application"
+  xmlns:mybehavior="using:Hohoema.Views.Behaviors"
+  xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI"
+  xmlns:actions="using:Hohoema.Views.Actions"
+  xmlns:livePages="using:Hohoema.Views.Pages.Niconico.Live"
+  xmlns:localize="using:I18NPortable.Xaml.Extensions"
+  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
+  DataContext="{x:Null}"
+  NavigationCacheMode="Enabled"
+  mc:Ignorable="d"
+  d:DesignHeight="300"
+  d:DesignWidth="400"
+  Transitions="{StaticResource SuppressNavigationTransitionCollection}"
+  >
+  <Grid>
+
+    <ListView x:Name="ItemsList"
+              ItemsSource="{Binding ItemsView, Mode=OneWay}"
+              IsItemClickEnabled="True"
+              IncrementalLoadingTrigger="Edge"
+              UseSystemFocusVisuals="True"
+              SelectionMode="None"
+              HorizontalContentAlignment="Stretch"
+              uwpExtension:ScrollViewerExtensions.VerticalScrollBarMargin="0 96 0 0"
+              xmlns:myExtensions="using:Hohoema.Views.Extensions"
+              myExtensions:ListViewBase.DeferInitialize="True">
+      <ListView.ItemContainerTransitions>
+        <TransitionCollection></TransitionCollection>
+      </ListView.ItemContainerTransitions>
+      <i:Interaction.Behaviors>
+        <behaviors:StickyHeaderBehavior />
+        
+        <mybehavior:KeyboardTrigger Key="F5">
+          <mybehavior:KeyboardTrigger.Actions>
+            <core:InvokeCommandAction Command="{x:Bind _vm.ResetListCommand}" />
+          </mybehavior:KeyboardTrigger.Actions>
+        </mybehavior:KeyboardTrigger>
+        <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
+        <core:DataTriggerBehavior Binding="{Binding ItemsView, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}">
+          <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" VerticalOffset="{Binding ScrollPosition.Value}" WithAnimation="False" Delay="0:0:0.001" />
+        </core:DataTriggerBehavior>
+        <core:EventTriggerBehavior EventName="ItemClick">
+          <core:InvokeCommandAction Command="{Binding OpenLiveContentCommand}"
+                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+        </core:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+      <ListView.Header>
+        <Grid x:Name="HeaderLayout" Background="{StaticResource ApplicationContentBackgroundBrush}" BorderBrush="{StaticResource HohoemaLightBorderBrush}"  BorderThickness="0 0 0 1">
+          <StackPanel Spacing="8">
+
+            <uwpcontrols:WrapPanel Orientation="Horizontal">
+              <!-- LiveStatus -->
+              <ListView ItemsSource="{Binding LiveStatusItems}" 
+                          SelectedItem="{Binding SelectedLiveStatus.Value, Mode=TwoWay}" 
+                          SelectionMode="Single"
+                          ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                                  >
+                <ListView.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <ItemsStackPanel Orientation="Horizontal" />
+                  </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+              </ListView>
+            </uwpcontrols:WrapPanel>
+
+
+            <CommandBar Margin="0" VerticalContentAlignment="Center">
+              <CommandBar.PrimaryCommands>
+                <AppBarElementContainer VerticalAlignment="Center" VerticalContentAlignment="Center" IsTabStop="False">
+                  <DropDownButton Content="絞り込み" VerticalAlignment="Center">
+                    <DropDownButton.Flyout>
+                      <Flyout Closed="Flyout_Closed">
+                        <StackPanel Spacing="8">
+                          <ToggleSwitch IsOn="{Binding IsTagSearch.Value, Mode=TwoWay}" 
+                                                    Header="{localize:Localize Key=LiveSearchDisplayWithIsTagSearch}"
+                                          />
+
+                          <ToggleSwitch IsOn="{Binding IsTimeshiftAvairable.Value, Mode=TwoWay}" 
+                                                    Header="{localize:Localize Key=LiveSearchDisplayWIthIsTimeshiftAvairable}"  />
+
+                          <ToggleSwitch IsOn="{Binding IsDisableGrouping.Value, Mode=TwoWay}" 
+                                                    Header="{localize:Localize Key=LiveSearchDisplayWithIsDisableGrouping}"  />
+
+                          <ToggleSwitch IsOn="{Binding IsHideMemberOnly.Value, Mode=TwoWay}" 
+                                                    Header="{localize:Localize Key=LiveSearchDisplayWithIsHideMemberOnly}"  />
+                        </StackPanel>
+                      </Flyout>
+                    </DropDownButton.Flyout>
+                  </DropDownButton>
+                </AppBarElementContainer>
+
+                <AppBarSeparator />
+
+                <AppBarButton x:Name="ScrollToTopButton" Label="{localize:Localize Key=ReturnToPageTop}" Icon="Up">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+                <AppBarButton Background="Transparent" Label="{localize:Localize Key=Refresh}" Command="{Binding RefreshCommand}" Icon="Refresh" />
+              </CommandBar.PrimaryCommands>
+              <CommandBar.Content>
+                <StackPanel Orientation="Horizontal" Margin="0 0 0 0" Spacing="8">
+                  <!-- Sort -->
+                  <ComboBox ItemsSource="{Binding SortOptionItems}" 
+                              SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" 
+                              ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                            VerticalAlignment="Center"
+                              >
+                  </ComboBox>
+
+                  <ListView ItemsSource="{Binding ProvidersItems}" 
+                            SelectionMode="Multiple"
+                            IsMultiSelectCheckBoxEnabled="False"
+                            ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                            SelectionChanged="ListView_SelectionChanged"
+                            >
+                    <ListView.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <ItemsStackPanel Orientation="Horizontal" />
+                      </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                  </ListView>
+                </StackPanel>
+              </CommandBar.Content>
+            </CommandBar>
+          </StackPanel>
+        </Grid>
+      </ListView.Header>
+      <ListView.ItemTemplate>
+        <DataTemplate>
+          <livePages:LiveVideoListItem />
+        </DataTemplate>
+      </ListView.ItemTemplate>
+      <ListView.ItemContainerStyle>
+        <Style TargetType="ListViewItem">
+          <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+          <Setter Property="Margin" Value="0 0 0 0" />
+          <Setter Property="Padding" Value="0 8 16 8" />
+          <Setter Property="UseSystemFocusVisuals" Value="True" />
+          <Setter Property="BorderThickness" Value="0 0 0 1" />
+          <Setter Property="BorderBrush" Value="{StaticResource HohoemaLightBorderBrush}" />
+        </Style>
+      </ListView.ItemContainerStyle>
+    </ListView>
+    
+    
+    <Grid x:Name="EmptyItemsLayout" Opacity="0" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+      <TextBlock Text="{localize:Localize Key=LiveSearchNoItems}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
+    </Grid>
+    
+    <VisualStateManager.VisualStateGroups>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding HasItem, Converter={StaticResource BoolNegation}}"/>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="EmptyItemsLayout.Opacity" Value="1.0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      
+      <!-- レイアウトモード -->
+      <!--
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentPageMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="ItemsList.Padding" Value="0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Tablet}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="ItemsList.Padding" Value="0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.Mobile}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="ItemsList.Padding" Value="0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      -->
+      
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</Page>

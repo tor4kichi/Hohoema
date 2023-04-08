@@ -1,0 +1,37 @@
+﻿<ContentDialog
+    x:Class="Hohoema.Views.Dialogs.TwoFactorAuthDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Hohoema.Views.Dialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+    PrimaryButtonText="{i18nExt:Localize Key=Submit}"
+    SecondaryButtonText="{i18nExt:Localize Key=Cancel}"
+    Title="{i18nExt:Localize Key=TwoFactorAuth_InputCode}"
+  >
+  <StackPanel Spacing="8">
+    <TextBox x:Name="CodeTextBox"
+             InputScope="Digits"
+             MaxLength="6"
+             PlaceholderText="{i18nExt:Localize Key=CodeTextBoxPlacefolder_Input6digit}"
+             />
+
+    <ToggleSwitch x:Name="IsTrustedDeviceToggleSwitch"
+                  Header="{i18nExt:Localize Key=IsTrustedDevice}" 
+                  />
+
+    <TextBlock Text="{i18nExt:Localize Key=IsTrustedDevice_Desc}"
+               Style="{StaticResource CaptionTextBlockStyle}"
+               Opacity="0.7"
+               />
+
+    <TextBox x:Name="DeviceNameTextBox"
+             Text="Hohoema_App"
+            />
+    
+  </StackPanel>
+</ContentDialog>

@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:hohoemaListItem="using:Hohoema.Presentation.Views.HohoemaListItem"
+    xmlns:hohoemaListItem="using:Hohoema.Views.HohoemaListItem"
     >
 
     <Style TargetType="hohoemaListItem:HohoemaListItemMiniCard">

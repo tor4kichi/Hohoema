@@ -1,0 +1,181 @@
+﻿<UserControl
+    x:Class="Hohoema.Views.Controls.VideoList.VideoItemsListView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI"
+  xmlns:wst="using:WindowsStateTriggers" 
+  xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+  xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
+  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors" 
+  mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+  >
+
+  <Grid>
+
+    <i:Interaction.Behaviors>
+      <core:DataTriggerBehavior Binding="{x:Bind _selectionContext.IsSelectionEnabled, Mode=OneWay}" Value="False">
+        <core:CallMethodAction TargetObject="{x:Bind}" MethodName="OnEndSelection" />
+      </core:DataTriggerBehavior>
+    </i:Interaction.Behaviors>
+
+    <uwpcontrol:DockPanel >
+      <Grid uwpcontrol:DockPanel.Dock="Top">
+        <ContentControl Content="{x:Bind Header}" x:Name="HeaderContent" HorizontalContentAlignment="Stretch" IsTabStop="False" />
+
+        <uwpcontrol:DockPanel x:Name="SelectActionsContainer" Visibility="Collapsed"
+                            uwpcontrol:DockPanel.Dock="Top" 
+                            >
+          <CommandBar OverflowButtonVisibility="Collapsed" DefaultLabelPosition="Right" uwpcontrol:DockPanel.Dock="Right"
+                    IsDynamicOverflowEnabled="False"
+                          Margin="0 0 48 0"
+                    >
+            <AppBarButton x:Name="SelectActions_SwitchAll" Label="{i18nExt:Localize Key=SelectAll}"
+                          Icon="List"
+                          >
+              <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="Click">
+                  <core:CallMethodAction TargetObject="{x:Bind _selectionContext}" MethodName="ToggleSelectAll" />
+                </core:EventTriggerBehavior>
+              </i:Interaction.Behaviors>
+            </AppBarButton>
+            <AppBarButton x:Name="SelectActions_Exit" Label="{i18nExt:Localize Key=SelectEnd}"
+                          Icon="Clear"
+                          >
+              <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="Click">
+                  <core:CallMethodAction TargetObject="{x:Bind _selectionContext}" MethodName="EndSelectioin" />
+                </core:EventTriggerBehavior>
+              </i:Interaction.Behaviors>
+            </AppBarButton>
+          </CommandBar>
+
+          <!-- 単品選択時のアクションはコンテキストメニューで実装するため、複数選択時は考慮しない -->
+          <CommandBar x:Name="SelectActions_Default"
+                  DefaultLabelPosition="Right"
+                  UseSystemFocusVisuals="True"        
+                  Margin="0 0 0 0"
+                          IsDynamicOverflowEnabled="True"
+                          OverflowButtonVisibility="Visible"
+                          HorizontalAlignment="Left"
+                          HorizontalContentAlignment="Stretch"
+                  >
+
+
+            <AppBarButton x:Name="SelectActions_CopyMylist" Label="{i18nExt:Localize Key=MylistCopyItem}" Command="{x:Bind _copyMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarButton x:Name="SelectActions_MoveMylist" Label="{i18nExt:Localize Key=MylistMoveItem}" Command="{x:Bind _moveMylistItemCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+
+            <AppBarSeparator x:Name="SelectActions_EditButtonSeparator" />
+
+            <AppBarButton x:Name="SelectActions_RemoveMylist" Label="{i18nExt:Localize Key=MylistRemoveItem}" Command="{x:Bind _removeMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarButton x:Name="SelectActions_RemoveWatchAfter" Label="{i18nExt:Localize Key=QueueRemoveItem}" Command="{x:Bind _removeQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarButton x:Name="SelectActions_RemoveLocalMylist" Label="{i18nExt:Localize Key=LocalMylistRemoveItem}" Command="{x:Bind _localMylistRemoveCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarButton x:Name="SelectActions_RemoveWatchHistory" Label="{i18nExt:Localize Key=RemoveWatchHisotryItem}" Command="{x:Bind _removeWatchHistoryCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarSeparator x:Name="SelectActions_RemoveButtonSeparator" />
+
+            <AppBarButton x:Name="SelectActions_AddWatchAfter" Label="{i18nExt:Localize Key=QueueAddItem}" Command="{x:Bind _addQueueCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarButton x:Name="SelectActions_AddMylist" Label="{i18nExt:Localize Key=MylistAddItem}" Command="{x:Bind _addMylistCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+            <AppBarButton x:Name="SelectActions_AddLocalMylist" Label="{i18nExt:Localize Key=LocalMylistAddItem}" Command="{x:Bind _localMylistAddCommand}" CommandParameter="{x:Bind _selectionContext.SelectionItems}" />
+          </CommandBar>
+
+        </uwpcontrol:DockPanel>
+
+      </Grid>
+
+      <ListView x:Name="ItemsList"
+              ItemsSource="{x:Bind ItemsSource, Mode=OneWay}"
+              ItemTemplate="{x:Bind ItemTemplate, Mode=OneWay}"
+              IncrementalLoadingTrigger="Edge"
+              UseSystemFocusVisuals="True"
+              SelectionMode="None"
+              HorizontalContentAlignment="Stretch"
+              ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+              uwpExtension:ScrollViewerExtensions.VerticalScrollBarMargin="0 0 0 0"
+              xmlns:myExtensions="using:Hohoema.Views.Extensions"
+              IsItemClickEnabled="True"
+              Padding="{x:Bind ItemsPanelPadding, Mode=OneWay}"
+                Style="{StaticResource FixedHeaderListViewStyle}"
+              >
+        <ListView.Transitions>
+          <TransitionCollection>
+            <NavigationThemeTransition>
+              <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                <SuppressNavigationTransitionInfo />
+              </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+            </NavigationThemeTransition>
+          </TransitionCollection>
+        </ListView.Transitions>
+        <i:Interaction.Behaviors>
+          <!--
+          <behaviors:StickyHeaderBehavior />
+          -->
+          
+          <core:EventTriggerBehavior EventName="ItemClick">
+            <core:InvokeCommandAction Command="{x:Bind ItemCommand, Mode=OneWay}"
+                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+          </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+        <ListView.ItemContainerTransitions>
+          <TransitionCollection>
+
+          </TransitionCollection>
+        </ListView.ItemContainerTransitions>
+      </ListView>
+
+    </uwpcontrol:DockPanel>
+    
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _selectionContext.IsSelectionEnabled, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+
+          <VisualState.Setters>
+            <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
+            <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
+            <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
+
+            <Setter Target="SelectActionsContainer.Visibility" Value="Visible" />
+            <Setter Target="HeaderContent.Visibility" Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <wst:EqualsStateTrigger Value="{x:Bind AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.LeftMinimal}"  />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="SelectActionsContainer.Margin" Value="80 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="641" />
+            <wst:EqualsStateTrigger Value="{x:Bind AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Left}"  />
+            <wst:EqualsStateTrigger Value="{x:Bind AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.LeftCompact}"  />
+            <wst:EqualsStateTrigger Value="{x:Bind AppearanceSettings.MenuPaneDisplayMode, Mode=OneWay}" EqualTo="{x:Bind muxc:NavigationViewPaneDisplayMode.Top}"  />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="SelectActionsContainer.Margin" Value="0 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="SelectActionsContainer.Margin" Value="80 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</UserControl>
