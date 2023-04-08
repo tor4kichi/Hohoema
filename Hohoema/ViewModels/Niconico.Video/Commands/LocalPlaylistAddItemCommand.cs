@@ -1,4 +1,5 @@
-﻿
+﻿#nullable enable
+
 using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Services;

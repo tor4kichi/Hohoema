@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.ComponentModel;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Diagnostics;

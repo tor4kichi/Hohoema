@@ -1,4 +1,5 @@
-﻿using Hohoema.Infra;
+﻿#nullable enable
+using Hohoema.Infra;
 using Hohoema.Models.Niconico.Video;
 using NiconicoToolkit.Recommend;
 using NiconicoToolkit.Video;

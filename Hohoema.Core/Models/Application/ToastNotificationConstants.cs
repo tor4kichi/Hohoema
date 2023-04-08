@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.PageNavigation;
+﻿#nullable enable
+using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Playlist;
 using Microsoft.Toolkit.Uwp.Notifications;
 

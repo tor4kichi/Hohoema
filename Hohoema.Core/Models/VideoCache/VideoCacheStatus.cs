@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Models.VideoCache;
+﻿#nullable enable
+namespace Hohoema.Models.VideoCache;
 
 // Listring管理とDLセッション管理を分ける
 

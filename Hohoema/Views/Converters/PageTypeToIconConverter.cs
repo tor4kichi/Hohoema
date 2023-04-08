@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.PageNavigation;
+﻿#nullable enable
+using Hohoema.Models.PageNavigation;
 using System;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;

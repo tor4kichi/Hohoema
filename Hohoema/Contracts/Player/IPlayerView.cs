@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Playlist;
+﻿#nullable enable
+using Hohoema.Models.Playlist;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;

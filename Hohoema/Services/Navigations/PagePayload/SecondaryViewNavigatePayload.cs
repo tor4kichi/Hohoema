@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Services.Navigations;
+﻿#nullable enable
+namespace Hohoema.Services.Navigations;
 
 public class SecondaryViewNavigatePayload : PagePayloadBase
 {

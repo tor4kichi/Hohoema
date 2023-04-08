@@ -1,4 +1,5 @@
-﻿using Hohoema.Infra;
+﻿#nullable enable
+using Hohoema.Infra;
 using NiconicoToolkit.Channels;
 using System.Threading.Tasks;
 

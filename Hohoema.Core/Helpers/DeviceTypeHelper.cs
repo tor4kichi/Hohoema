@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Helpers;
+﻿#nullable enable
+namespace Hohoema.Helpers;
 
 public static class DeviceTypeHelper
 {

@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Video.Series;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Video.Series;
 using NiconicoToolkit.Series;
 using NiconicoToolkit.Video;
 

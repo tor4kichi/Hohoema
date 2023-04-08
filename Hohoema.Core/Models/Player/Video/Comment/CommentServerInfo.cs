@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Models;
+﻿#nullable enable
+namespace Hohoema.Models;
 
 public class CommentServerInfo
 {

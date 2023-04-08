@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Styles;
+﻿#nullable enable
+namespace Hohoema.Styles;
 
 public partial class VideoListItemControlDefaultTemplate
 {

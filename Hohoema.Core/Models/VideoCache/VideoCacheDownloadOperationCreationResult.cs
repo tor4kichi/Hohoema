@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Models.VideoCache;
+﻿#nullable enable
+namespace Hohoema.Models.VideoCache;
 
 public class VideoCacheDownloadOperationCreationResult
 {

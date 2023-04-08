@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging.Messages;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging.Messages;
 using System;
 using Windows.UI.Xaml.Controls;
 

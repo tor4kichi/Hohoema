@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Search;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Search;
 using Hohoema.ViewModels.VideoListPage;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.SearchWithCeApi.Video;

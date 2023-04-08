@@ -1,6 +1,5 @@
-﻿using Hohoema.Helpers;
+﻿#nullable enable
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Services.Store;
 using Windows.Storage;
@@ -20,12 +19,6 @@ public static class AppUpdateNotice
     private static readonly bool __ForceNoticeIsMinorVersionUpdated = false;
     private static readonly bool __ForceNoticeUpdate = true;
 #endif
-
-    private static readonly List<Version> _UpdateNoticeAvairableVersions;
-
-    private static readonly AsyncLock _LoadLock = new();
-
-
 
     public static bool IsMinorVersionUpdated
     {

@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Models.Player.Comment;
+﻿#nullable enable
+namespace Hohoema.Models.Player.Comment;
 
 public enum CommentDisplayMode
 {

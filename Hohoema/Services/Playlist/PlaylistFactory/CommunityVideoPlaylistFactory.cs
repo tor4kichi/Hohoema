@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Community;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Playlist;
 using Microsoft.Toolkit.Diagnostics;
 using NiconicoToolkit.Community;

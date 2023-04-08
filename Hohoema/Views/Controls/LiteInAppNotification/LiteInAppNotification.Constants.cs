@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Views.Controls.LiteInAppNotification;
+﻿#nullable enable
+namespace Hohoema.Views.Controls.LiteInAppNotification;
 
 public partial class LiteInAppNotification
 {

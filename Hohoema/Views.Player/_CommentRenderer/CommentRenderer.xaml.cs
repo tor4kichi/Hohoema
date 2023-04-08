@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Player.Comment;
+﻿#nullable enable
+using Hohoema.Models.Player.Comment;
 using Microsoft.Extensions.ObjectPool;
 using Microsoft.Toolkit.Uwp.UI.Animations;
 using Reactive.Bindings.Extensions;

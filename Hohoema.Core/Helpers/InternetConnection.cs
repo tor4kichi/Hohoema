@@ -1,4 +1,5 @@
-﻿using Windows.Networking.Connectivity;
+﻿#nullable enable
+using Windows.Networking.Connectivity;
 
 namespace Hohoema.Helpers;
 

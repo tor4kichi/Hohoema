@@ -1,4 +1,5 @@
-﻿
+﻿#nullable enable
+
 namespace Hohoema.Models.PageNavigation;
 
 public interface ISearchHistory

@@ -1,4 +1,5 @@
-﻿
+﻿#nullable enable
+
 using Hohoema.Models.Niconico.Live;
 using Hohoema.ViewModels.Pages.Niconico.Search;
 using Hohoema.ViewModels.VideoListPage;

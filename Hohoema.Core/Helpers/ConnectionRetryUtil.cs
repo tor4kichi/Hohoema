@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -41,10 +42,6 @@ public static class ConnectionRetryUtil
 
 
         }
-
-
-        Exception lastError;
-        throw new Infra.HohoemaException("connection retry rimit.", lastError);
     }
 
 

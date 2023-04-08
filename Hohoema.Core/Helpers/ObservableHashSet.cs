@@ -1,4 +1,5 @@
-﻿using System.Collections.Specialized;
+﻿#nullable enable
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 

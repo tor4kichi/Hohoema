@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.Playlist;
 using System.Linq;
 

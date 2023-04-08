@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Video;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Video;
 using Microsoft.Toolkit.Collections;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;

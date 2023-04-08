@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.ViewModels.Player;
 using Hohoema.ViewModels.PrimaryWindowCoreLayout;
 using Windows.UI.Xaml;

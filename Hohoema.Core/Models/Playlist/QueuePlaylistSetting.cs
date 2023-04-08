@@ -1,11 +1,10 @@
-﻿using Hohoema.Infra;
+﻿#nullable enable
+using Hohoema.Infra;
 
 namespace Hohoema.Models.Playlist;
 
-[System.Obsolete]
 public sealed class QueuePlaylistSetting : FlagsRepositoryBase
 {
-    [System.Obsolete]
     public string LastSelectedSortOptions
     {
         get => Read(string.Empty);
@@ -13,7 +12,6 @@ public sealed class QueuePlaylistSetting : FlagsRepositoryBase
     }
 
 
-    [System.Obsolete]
     public bool IsGroupingNearByTitleThenByTitleAscending
     {
         get => Read(true);
@@ -22,7 +20,6 @@ public sealed class QueuePlaylistSetting : FlagsRepositoryBase
 
     public const double DefaultTitleSimulalityThreshold = 0.8;
 
-    [System.Obsolete]
     public double TitleSimulalityThreshold
     {
         get => Read(DefaultTitleSimulalityThreshold);

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Follow;

@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Application;
+﻿#nullable enable
+using Hohoema.Models.Application;
 using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Mylist.LoginUser;

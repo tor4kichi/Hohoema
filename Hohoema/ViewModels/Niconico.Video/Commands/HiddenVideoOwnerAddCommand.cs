@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Channel;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.User;
 using Hohoema.Models.Niconico.Video;
 using NiconicoToolkit.Video;

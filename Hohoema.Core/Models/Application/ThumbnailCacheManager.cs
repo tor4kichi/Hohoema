@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.DependencyInjection;
 using LiteDB;
 using System;
 using System.Buffers;

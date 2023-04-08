@@ -1,4 +1,5 @@
-﻿using NiconicoToolkit.Account;
+﻿#nullable enable
+using NiconicoToolkit.Account;
 using System.Threading.Tasks;
 
 namespace Hohoema.Models.Niconico.Follow.LoginUser;

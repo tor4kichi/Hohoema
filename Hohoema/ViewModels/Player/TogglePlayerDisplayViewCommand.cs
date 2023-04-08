@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Services.Player.Events;
 
 namespace Hohoema.ViewModels.Player;

@@ -1,4 +1,5 @@
-﻿using Hohoema.Contracts.Migrations;
+﻿#nullable enable
+using Hohoema.Contracts.Migrations;
 using Hohoema.Models.Application;
 using Hohoema.Models.Subscriptions;
 using System;

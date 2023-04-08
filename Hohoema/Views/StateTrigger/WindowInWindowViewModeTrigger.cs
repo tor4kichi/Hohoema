@@ -1,4 +1,5 @@
-﻿using Hohoema.Contracts.Services.Player;
+﻿#nullable enable
+using Hohoema.Contracts.Services.Player;
 using Hohoema.Services.Player;
 using Reactive.Bindings.Extensions;
 using System;

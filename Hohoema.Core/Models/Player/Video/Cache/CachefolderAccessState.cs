@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Models.Player.Video.Cache;
+﻿#nullable enable
+namespace Hohoema.Models.Player.Video.Cache;
 
 public enum CacheFolderAccessState
 {

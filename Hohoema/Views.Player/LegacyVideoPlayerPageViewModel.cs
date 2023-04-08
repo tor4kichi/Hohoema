@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Contracts.Services.Player;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico;

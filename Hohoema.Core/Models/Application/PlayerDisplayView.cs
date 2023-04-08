@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Models.Application;
+﻿#nullable enable
+namespace Hohoema.Models.Application;
 
 public enum PlayerDisplayView
 {

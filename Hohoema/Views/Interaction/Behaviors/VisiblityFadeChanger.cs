@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Animations;
+﻿#nullable enable
+using Microsoft.Toolkit.Uwp.UI.Animations;
 using Microsoft.Xaml.Interactivity;
 using Reactive.Bindings.Extensions;
 using System;

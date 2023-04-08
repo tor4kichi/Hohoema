@@ -1,4 +1,5 @@
-﻿using Hohoema.Helpers;
+﻿#nullable enable
+using Hohoema.Helpers;
 using Hohoema.Models.Player.Comment;
 using Hohoema.Models.Player.Video.Comment;
 using System;

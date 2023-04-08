@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Player;
 using NiconicoToolkit.Comment;

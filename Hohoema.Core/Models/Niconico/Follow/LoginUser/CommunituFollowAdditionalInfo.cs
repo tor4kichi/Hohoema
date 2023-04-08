@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Models.Niconico.Follow.LoginUser;
+﻿#nullable enable
+namespace Hohoema.Models.Niconico.Follow.LoginUser;
 
 public class CommunituFollowAdditionalInfo
 {

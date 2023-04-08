@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Player.Comment;
+﻿#nullable enable
+using Hohoema.Models.Player.Comment;
 using System;
 using Windows.UI;
 using Windows.UI.Xaml;

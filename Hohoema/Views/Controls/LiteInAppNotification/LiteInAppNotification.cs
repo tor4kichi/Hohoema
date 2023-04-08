@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Animations;
+﻿#nullable enable
+using Microsoft.Toolkit.Uwp.UI.Animations;
 using System;
 using System.Collections.Generic;
 using System.Linq;

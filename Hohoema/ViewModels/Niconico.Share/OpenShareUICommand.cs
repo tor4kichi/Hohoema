@@ -1,4 +1,5 @@
-﻿using Hohoema.Helpers;
+﻿#nullable enable
+using Hohoema.Helpers;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico;
 

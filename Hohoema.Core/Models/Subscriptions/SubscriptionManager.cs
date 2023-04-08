@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Channel;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.Niconico.User;

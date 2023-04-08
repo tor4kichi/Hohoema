@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Video;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Video;
 using NiconicoToolkit.Follow;
 
 namespace Hohoema.ViewModels.Niconico.Follow;

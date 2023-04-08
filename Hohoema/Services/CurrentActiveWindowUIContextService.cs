@@ -1,4 +1,5 @@
-﻿using Windows.UI;
+﻿#nullable enable
+using Windows.UI;
 using Windows.UI.Xaml;
 
 namespace Hohoema.Services;

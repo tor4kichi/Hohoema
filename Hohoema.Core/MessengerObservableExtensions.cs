@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.Reactive.Subjects;
 

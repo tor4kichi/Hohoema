@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico;
+﻿#nullable enable
+using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.User;
 using Hohoema.Models.PageNavigation;

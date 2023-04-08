@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Hohoema.ViewModels.PrimaryWindowCoreLayout;
 

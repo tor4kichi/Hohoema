@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
+﻿#nullable enable
+using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.Text.Json;
 

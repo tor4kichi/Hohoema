@@ -1,4 +1,5 @@
-﻿using LiteDB;
+﻿#nullable enable
+using LiteDB;
 using NiconicoToolkit.Video;
 using System;
 
@@ -31,7 +32,7 @@ public class NicoVideo : IVideoContent, IVideoContentProvider
 
 
     [BsonIgnore]
-    public string Label
+    public string? Label
     {
         get => Title;
         set => Title = value;
@@ -63,7 +64,7 @@ public class NicoVideo : IVideoContent, IVideoContentProvider
     public OwnerType ProviderType
     {
         get => Owner?.UserType ?? OwnerType.User;
-        set => Owner.UserType = value;
+        set => Owner!.UserType = value;
     }
 
     [BsonIgnore]

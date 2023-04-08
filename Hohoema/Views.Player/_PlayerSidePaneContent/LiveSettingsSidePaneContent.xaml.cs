@@ -1,4 +1,5 @@
-﻿using Hohoema.ViewModels.Player.PlayerSidePaneContent;
+﻿#nullable enable
+using Hohoema.ViewModels.Player.PlayerSidePaneContent;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.UI;

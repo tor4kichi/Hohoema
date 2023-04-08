@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Search;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Search;
 
 namespace Hohoema.ViewModels.Niconico.Search;
 

@@ -1,4 +1,5 @@
-﻿using Hohoema.Infra;
+﻿#nullable enable
+using Hohoema.Infra;
 using Hohoema.Models.Niconico.Channel;
 using LiteDB;
 using NiconicoToolkit.Channels;

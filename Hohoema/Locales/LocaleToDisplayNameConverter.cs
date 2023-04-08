@@ -1,4 +1,5 @@
-﻿using I18NPortable;
+﻿#nullable enable
+using I18NPortable;
 using System;
 using System.Globalization;
 using Windows.UI.Xaml.Data;

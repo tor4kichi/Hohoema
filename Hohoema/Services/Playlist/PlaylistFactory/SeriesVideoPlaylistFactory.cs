@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Series;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Series;
 using Hohoema.Models.Niconico.Video.Series;
 using Hohoema.Models.Playlist;
 using System.Threading.Tasks;

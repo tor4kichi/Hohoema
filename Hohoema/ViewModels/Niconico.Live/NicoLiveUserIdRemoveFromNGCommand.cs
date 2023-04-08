@@ -1,4 +1,5 @@
-﻿using Hohoema.Services.Player.Videos;
+﻿#nullable enable
+using Hohoema.Services.Player.Videos;
 
 namespace Hohoema.ViewModels.Niconico.Live;
 

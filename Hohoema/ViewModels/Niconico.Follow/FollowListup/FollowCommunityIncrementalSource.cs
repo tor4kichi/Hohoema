@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Community;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Follow.LoginUser;
 using NiconicoToolkit.Follow;
 using System.Collections.Generic;

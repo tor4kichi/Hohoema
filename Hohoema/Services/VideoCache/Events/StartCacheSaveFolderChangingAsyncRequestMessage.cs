@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging.Messages;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging.Messages;
 
 namespace Hohoema.Services.VideoCache.Events;
 

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Contracts.Services.Player;
 using Hohoema.Helpers;
 using Hohoema.Models.Application;

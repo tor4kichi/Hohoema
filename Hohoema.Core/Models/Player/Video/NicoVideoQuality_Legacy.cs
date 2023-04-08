@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Models.Player.Video;
+﻿#nullable enable
+namespace Hohoema.Models.Player.Video;
 
 public enum NicoVideoQuality_Legacy
 {

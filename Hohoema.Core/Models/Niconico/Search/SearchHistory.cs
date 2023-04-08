@@ -1,4 +1,5 @@
-﻿using Hohoema.Infra;
+﻿#nullable enable
+using Hohoema.Infra;
 using Hohoema.Models.PageNavigation;
 using LiteDB;
 using System;

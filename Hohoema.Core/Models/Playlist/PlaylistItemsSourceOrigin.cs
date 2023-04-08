@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Models.Playlist;
+﻿#nullable enable
+namespace Hohoema.Models.Playlist;
 
 public enum PlaylistItemsSourceOrigin
 {

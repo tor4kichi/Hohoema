@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿#nullable enable
+using System.Threading.Tasks;
 using Windows.UI.Xaml.Media.Animation;
 
 namespace Hohoema.Contracts.Services.Navigations;

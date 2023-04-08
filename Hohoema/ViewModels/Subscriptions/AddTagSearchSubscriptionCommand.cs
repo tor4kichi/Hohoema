@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Subscriptions;
+﻿#nullable enable
+using Hohoema.Models.Subscriptions;
 
 namespace Hohoema.ViewModels.Subscriptions;
 

@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Mylist.LoginUser;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
 

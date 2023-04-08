@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Behaviors;
+﻿#nullable enable
+using Microsoft.Toolkit.Uwp.UI.Behaviors;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 

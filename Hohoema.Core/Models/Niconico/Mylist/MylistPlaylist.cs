@@ -1,4 +1,5 @@
-﻿
+﻿#nullable enable
+
 
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.Contracts.Services;

@@ -1,4 +1,5 @@
-﻿using Hohoema.Contracts.Maintenances;
+﻿#nullable enable
+using Hohoema.Contracts.Maintenances;
 using Hohoema.Models.Application;
 using System;
 

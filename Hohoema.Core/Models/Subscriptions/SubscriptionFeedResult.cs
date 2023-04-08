@@ -1,4 +1,5 @@
-﻿using LiteDB;
+﻿#nullable enable
+using LiteDB;
 using System;
 using System.Collections.Generic;
 

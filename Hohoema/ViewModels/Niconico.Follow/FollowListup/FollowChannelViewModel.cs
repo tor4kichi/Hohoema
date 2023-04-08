@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Channel;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Channel;
 using NiconicoToolkit.Channels;
 using NiconicoToolkit.Follow;
 using System;

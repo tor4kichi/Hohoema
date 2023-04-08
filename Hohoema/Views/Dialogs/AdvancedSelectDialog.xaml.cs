@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI;
+﻿#nullable enable
+using Microsoft.Toolkit.Uwp.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;

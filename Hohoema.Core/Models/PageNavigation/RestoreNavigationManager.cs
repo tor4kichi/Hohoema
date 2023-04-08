@@ -1,4 +1,5 @@
-﻿
+﻿#nullable enable
+
 using Hohoema.Infra;
 using Hohoema.Models.Playlist;
 using System;

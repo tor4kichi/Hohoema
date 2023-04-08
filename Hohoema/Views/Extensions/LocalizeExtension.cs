@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using Windows.UI.Xaml.Markup;
 
 namespace I18NPortable.Xaml.Extensions;

@@ -1,4 +1,5 @@
-﻿using Hohoema.Infra;
+﻿#nullable enable
+using Hohoema.Infra;
 using NiconicoToolkit.Series;
 using NiconicoToolkit.User;
 using System.Collections.Generic;

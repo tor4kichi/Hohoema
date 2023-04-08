@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.ViewModels.Niconico.Ranking.Messages;
 using System;
 

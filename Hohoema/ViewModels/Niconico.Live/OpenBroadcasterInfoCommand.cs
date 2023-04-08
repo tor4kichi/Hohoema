@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Live;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.PageNavigation;
 
 namespace Hohoema.ViewModels.Niconico.Live;

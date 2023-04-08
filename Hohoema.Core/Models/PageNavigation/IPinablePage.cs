@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Pins;
+﻿#nullable enable
+using Hohoema.Models.Pins;
 
 namespace Hohoema.Models.PageNavigation;
 

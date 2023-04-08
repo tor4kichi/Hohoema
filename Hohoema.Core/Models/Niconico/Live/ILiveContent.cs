@@ -1,4 +1,5 @@
-﻿using NiconicoToolkit.Live;
+﻿#nullable enable
+using NiconicoToolkit.Live;
 
 namespace Hohoema.Models.Niconico.Live;
 

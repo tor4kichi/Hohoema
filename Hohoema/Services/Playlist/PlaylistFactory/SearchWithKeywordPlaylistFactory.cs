@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Search;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.Playlist;
 using System.Threading.Tasks;
 

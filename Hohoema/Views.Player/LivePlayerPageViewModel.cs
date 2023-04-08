@@ -1,4 +1,5 @@
-﻿using AngleSharp.Html.Parser;
+﻿#nullable enable
+using AngleSharp.Html.Parser;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Hohoema.Contracts.Services.Player;

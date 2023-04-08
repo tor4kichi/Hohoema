@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.PageNavigation;
+﻿#nullable enable
+using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Playlist;
 using System;
 using Windows.Media.Playback;

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Cysharp.Text;
 using Hohoema.Helpers;
 using Hohoema.Models.Application;

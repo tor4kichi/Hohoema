@@ -1,4 +1,5 @@
-﻿using Windows.UI.Xaml;
+﻿#nullable enable
+using Windows.UI.Xaml;
 
 namespace Hohoema.Views.Extensions;
 

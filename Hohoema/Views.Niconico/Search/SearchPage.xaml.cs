@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.ViewModels.Pages.Niconico.Search;
 using Reactive.Bindings.Extensions;
 using System;

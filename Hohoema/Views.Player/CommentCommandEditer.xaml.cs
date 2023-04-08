@@ -1,4 +1,5 @@
-﻿using NiconicoToolkit.Comment;
+﻿#nullable enable
+using NiconicoToolkit.Comment;
 using System.Collections.Generic;
 using Windows.UI.Core;
 using Windows.UI.Xaml;

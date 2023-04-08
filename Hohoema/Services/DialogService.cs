@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Dialogs;
 using Hohoema.Models.Application;
 using Hohoema.Services.LocalMylist;

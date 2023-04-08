@@ -1,4 +1,5 @@
-﻿
+﻿#nullable enable
+
 using Hohoema.Models.PageNavigation;
 
 namespace Hohoema.ViewModels.PrimaryWindowCoreLayout;

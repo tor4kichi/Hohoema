@@ -1,4 +1,5 @@
-﻿using Hohoema.Infra;
+﻿#nullable enable
+using Hohoema.Infra;
 using Hohoema.Models.Playlist;
 using LiteDB;
 using NiconicoToolkit.Video;

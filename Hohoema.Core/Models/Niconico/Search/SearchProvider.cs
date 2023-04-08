@@ -1,4 +1,5 @@
-﻿using Hohoema.Infra;
+﻿#nullable enable
+using Hohoema.Infra;
 using Hohoema.Models.Niconico.Mylist;
 using NiconicoToolkit.SearchWithCeApi.Video;
 using System.Threading;

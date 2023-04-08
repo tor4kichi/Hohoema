@@ -1,4 +1,5 @@
-﻿using I18NPortable;
+﻿#nullable enable
+using I18NPortable;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;

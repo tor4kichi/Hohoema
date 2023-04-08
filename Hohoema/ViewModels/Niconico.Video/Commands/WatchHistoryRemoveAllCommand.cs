@@ -1,4 +1,5 @@
-﻿using Hohoema.Services.Niconico;
+﻿#nullable enable
+using Hohoema.Services.Niconico;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands;
 

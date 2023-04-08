@@ -1,4 +1,5 @@
-﻿using Hohoema.Views.UINavigation;
+﻿#nullable enable
+using Hohoema.Views.UINavigation;
 using Microsoft.Xaml.Interactivity;
 using System;
 using System.Diagnostics;

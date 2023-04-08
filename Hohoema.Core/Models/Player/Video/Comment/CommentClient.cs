@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player.Comment;
@@ -210,7 +211,6 @@ public class NvVideoComment : ObservableObject, IVideoComment
 
     public string CommentText => _comment.Body;
 
-    private readonly string? _commands;
     public IReadOnlyList<string> Commands => _comment.Commands;
     public string UserId => _comment.UserId;
 

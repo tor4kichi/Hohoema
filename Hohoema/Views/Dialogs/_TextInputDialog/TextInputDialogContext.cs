@@ -1,4 +1,5 @@
-﻿using Reactive.Bindings;
+﻿#nullable enable
+using Reactive.Bindings;
 using System;
 using System.Linq;
 using System.Reactive.Concurrency;

@@ -1,4 +1,5 @@
-﻿using Hohoema.Helpers;
+﻿#nullable enable
+using Hohoema.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

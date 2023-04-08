@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Infra;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;

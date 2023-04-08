@@ -1,4 +1,5 @@
-﻿using Hohoema.Helpers;
+﻿#nullable enable
+using Hohoema.Helpers;
 using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Store;
@@ -20,6 +21,8 @@ public class HohoemaPurchase
     private static async Task Initialize()
     {
         using IDisposable releaser = await _InitializeLock.LockAsync();
+
+        if (_Initialized) { return; }
 #if DEBUG
         StorageFile proxyFile = await StorageFile.GetFileFromApplicationUriAsync(
             new Uri("ms-appx:///Assets/StoreTesting.xml")

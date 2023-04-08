@@ -1,4 +1,5 @@
-﻿
+﻿#nullable enable
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using NiconicoToolkit.Ranking.Video;
 

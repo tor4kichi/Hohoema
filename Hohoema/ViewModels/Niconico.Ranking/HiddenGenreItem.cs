@@ -1,4 +1,5 @@
-﻿using NiconicoToolkit.Ranking.Video;
+﻿#nullable enable
+using NiconicoToolkit.Ranking.Video;
 
 namespace Hohoema.ViewModels.Niconico.Ranking;
 

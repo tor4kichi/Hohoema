@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Playlist;
+﻿#nullable enable
+using Hohoema.Models.Playlist;
 using Hohoema.Services.LocalMylist;
 using Hohoema.Services.Niconico;
 using I18NPortable;

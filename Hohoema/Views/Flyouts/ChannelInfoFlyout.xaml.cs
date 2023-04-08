@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Channel;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.ViewModels.Niconico.Follow;

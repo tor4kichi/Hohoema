@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Niconico.Follow;
 using Microsoft.Toolkit.Collections;
 using System.Collections.Generic;

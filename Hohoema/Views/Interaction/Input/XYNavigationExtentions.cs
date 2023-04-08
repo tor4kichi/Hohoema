@@ -1,4 +1,5 @@
-﻿using Windows.Foundation.Metadata;
+﻿#nullable enable
+using Windows.Foundation.Metadata;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;

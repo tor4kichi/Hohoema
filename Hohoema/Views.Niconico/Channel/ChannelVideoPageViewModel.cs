@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Follow.LoginUser;

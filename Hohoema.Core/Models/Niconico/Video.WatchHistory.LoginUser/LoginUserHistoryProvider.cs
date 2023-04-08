@@ -1,4 +1,5 @@
-﻿using Hohoema.Infra;
+﻿#nullable enable
+using Hohoema.Infra;
 using NiconicoToolkit.Activity.VideoWatchHistory;
 using NiconicoToolkit.Video;
 using System;

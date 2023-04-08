@@ -1,4 +1,5 @@
-﻿namespace Hohoema.ViewModels.Niconico.Video.Commands;
+﻿#nullable enable
+namespace Hohoema.ViewModels.Niconico.Video.Commands;
 
 public class SelectionModeToggleCommand : CommandBase
 {

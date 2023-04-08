@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Models.Niconico.Video;
+﻿#nullable enable
+namespace Hohoema.Models.Niconico.Video;
 
 public class NicoVideoTag : ITag
 {

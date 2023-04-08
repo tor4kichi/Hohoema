@@ -1,4 +1,5 @@
-﻿using Windows.ApplicationModel.Core;
+﻿#nullable enable
+using Windows.ApplicationModel.Core;
 
 namespace Hohoema.Views.StateTrigger;
 

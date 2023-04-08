@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Video;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.VideoCache;
 using System.Threading.Tasks;
 using Windows.Media.Core;

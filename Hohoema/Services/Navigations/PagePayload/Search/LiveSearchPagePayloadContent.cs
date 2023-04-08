@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.PageNavigation;
+﻿#nullable enable
+using Hohoema.Models.PageNavigation;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.SearchWithPage.Live;
 using System.Runtime.Serialization;

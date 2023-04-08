@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using Windows.Foundation.Metadata;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;

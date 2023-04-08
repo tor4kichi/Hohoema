@@ -1,4 +1,5 @@
-﻿using NiconicoToolkit.Ichiba;
+﻿#nullable enable
+using NiconicoToolkit.Ichiba;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 

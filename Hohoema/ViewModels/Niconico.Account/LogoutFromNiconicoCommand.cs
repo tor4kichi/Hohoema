@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico;
+﻿#nullable enable
+using Hohoema.Models.Niconico;
 
 namespace Hohoema.ViewModels.Niconico.Account;
 

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿#nullable enable
+using System.Threading.Tasks;
 
 namespace Hohoema.Contracts.Migrations;
 

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Messaging;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
 using Hohoema.ViewModels.VideoListPage;

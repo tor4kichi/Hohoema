@@ -1,4 +1,5 @@
-﻿using Hohoema.Views.Player.DownloadProgress;
+﻿#nullable enable
+using Hohoema.Views.Player.DownloadProgress;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;

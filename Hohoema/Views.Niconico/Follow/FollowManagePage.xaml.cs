@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Community;

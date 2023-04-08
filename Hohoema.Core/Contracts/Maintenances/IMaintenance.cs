@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Contracts.Maintenances;
+﻿#nullable enable
+namespace Hohoema.Contracts.Maintenances;
 
 public interface IMaintenance
 {

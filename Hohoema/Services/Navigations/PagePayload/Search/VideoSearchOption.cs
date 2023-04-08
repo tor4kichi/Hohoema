@@ -1,4 +1,5 @@
-﻿using NiconicoToolkit.SearchWithCeApi.Video;
+﻿#nullable enable
+using NiconicoToolkit.SearchWithCeApi.Video;
 using System;
 using System.Runtime.Serialization;
 

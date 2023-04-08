@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.User;
+﻿#nullable enable
+using Hohoema.Models.Niconico.User;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
 using Hohoema.Models.Video;

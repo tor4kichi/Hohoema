@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Player;
+﻿#nullable enable
+using Hohoema.Models.Player;
 
 namespace Hohoema.ViewModels.Player.Commands;
 

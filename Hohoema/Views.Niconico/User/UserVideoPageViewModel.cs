@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.Input;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Models.Niconico.User;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;

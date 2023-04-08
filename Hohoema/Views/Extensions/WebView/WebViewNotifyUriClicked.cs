@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿#nullable enable
+using System.Windows.Input;
 using Windows.UI.Xaml;
 
 namespace Hohoema.Views.Extensions;

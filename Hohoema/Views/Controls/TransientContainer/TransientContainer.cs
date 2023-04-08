@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Animations;
+﻿#nullable enable
+using Microsoft.Toolkit.Uwp.UI.Animations;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Reactive.Disposables;

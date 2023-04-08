@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Diagnostics;
+﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;

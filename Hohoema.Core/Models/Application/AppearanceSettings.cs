@@ -1,4 +1,6 @@
-﻿using Hohoema.Contracts.Services;
+﻿#nullable enable
+#nullable enable
+using Hohoema.Contracts.Services;
 using Hohoema.Helpers;
 using Hohoema.Infra;
 using Hohoema.Models.PageNavigation;

@@ -1,4 +1,5 @@
-﻿using Hohoema.Contracts.Services;
+﻿#nullable enable
+using Hohoema.Contracts.Services;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using NiconicoToolkit.Activity.VideoWatchHistory;

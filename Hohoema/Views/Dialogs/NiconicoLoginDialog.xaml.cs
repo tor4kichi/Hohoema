@@ -1,4 +1,5 @@
-﻿using Windows.UI.Xaml.Controls;
+﻿#nullable enable
+using Windows.UI.Xaml.Controls;
 
 // コンテンツ ダイアログの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 

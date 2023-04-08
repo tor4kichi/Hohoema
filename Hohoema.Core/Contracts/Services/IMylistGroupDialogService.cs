@@ -1,4 +1,5 @@
-﻿using NiconicoToolkit.Mylist;
+﻿#nullable enable
+using NiconicoToolkit.Mylist;
 using System.Threading.Tasks;
 
 namespace Hohoema.Contracts.Services;

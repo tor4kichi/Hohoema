@@ -1,4 +1,5 @@
-﻿using Hohoema.Services;
+﻿#nullable enable
+using Hohoema.Services;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 

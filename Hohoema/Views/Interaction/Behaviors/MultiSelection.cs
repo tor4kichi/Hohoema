@@ -1,4 +1,5 @@
-﻿using Microsoft.Xaml.Interactivity;
+﻿#nullable enable
+using Microsoft.Xaml.Interactivity;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;

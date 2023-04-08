@@ -1,4 +1,5 @@
-﻿using Hohoema.Contracts.Services;
+﻿#nullable enable
+using Hohoema.Contracts.Services;
 using Hohoema.Infra;
 using Hohoema.Models.Niconico.Video;
 using NiconicoToolkit.Mylist;

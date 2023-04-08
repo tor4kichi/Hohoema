@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.ViewModels.Pages.Niconico.Video;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;

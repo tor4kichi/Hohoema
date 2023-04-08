@@ -1,4 +1,5 @@
-﻿using Hohoema.Infra;
+﻿#nullable enable
+using Hohoema.Infra;
 using NiconicoToolkit.Ranking.Video;
 using NiconicoToolkit.Rss.Video;
 using System;

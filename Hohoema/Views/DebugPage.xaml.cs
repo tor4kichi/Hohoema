@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.Models.Notification;
 using Hohoema.Services;
 using Hohoema.ViewModels.Pages.Hohoema;

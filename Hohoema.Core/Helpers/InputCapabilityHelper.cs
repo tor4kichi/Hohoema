@@ -1,4 +1,5 @@
-﻿using Windows.Devices.Input;
+﻿#nullable enable
+using Windows.Devices.Input;
 
 namespace Hohoema.Helpers;
 

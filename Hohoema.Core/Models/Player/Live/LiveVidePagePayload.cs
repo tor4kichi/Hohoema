@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿#nullable enable
+using System.Text.Json;
 
 namespace Hohoema.Models.Live;
 

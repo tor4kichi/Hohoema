@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI;
+﻿#nullable enable
+using Microsoft.Toolkit.Uwp.UI;
 
 namespace Hohoema.ViewModels.Niconico.Ranking;
 

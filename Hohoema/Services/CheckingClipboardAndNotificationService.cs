@@ -1,4 +1,5 @@
-﻿using Hohoema.Helpers;
+﻿#nullable enable
+using Hohoema.Helpers;
 using NiconicoToolkit;
 using System;
 using Windows.UI.Core;

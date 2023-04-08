@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿#nullable enable
+using System.Text.RegularExpressions;
 using Windows.UI;
 
 // this code from http://www.cambiaresearch.com/articles/25/convert-hex-string-to-dotnet-color

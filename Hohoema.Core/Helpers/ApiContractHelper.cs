@@ -1,4 +1,5 @@
-﻿using Windows.Foundation.Metadata;
+﻿#nullable enable
+using Windows.Foundation.Metadata;
 
 namespace Hohoema.Helpers;
 

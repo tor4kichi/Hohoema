@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Player;
+﻿#nullable enable
+using Hohoema.Models.Player;
 using Hohoema.Models.Player.Comment;
 using System;
 using System.Collections.Generic;

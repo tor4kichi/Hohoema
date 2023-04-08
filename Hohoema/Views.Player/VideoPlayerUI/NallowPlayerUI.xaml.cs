@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Player;
+﻿#nullable enable
+using Hohoema.Models.Player;
 using System;
 using Windows.Media.Playback;
 using Windows.System;

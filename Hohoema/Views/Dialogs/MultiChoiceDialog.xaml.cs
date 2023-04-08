@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿#nullable enable
+using System.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 

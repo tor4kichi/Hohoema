@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿#nullable enable
+using System.Diagnostics;
 using Windows.UI.Xaml;
 
 namespace Hohoema.Views.Extensions.VIsualStateManager;

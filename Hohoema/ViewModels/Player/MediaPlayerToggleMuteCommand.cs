@@ -1,4 +1,5 @@
-﻿using Windows.Media.Playback;
+﻿#nullable enable
+using Windows.Media.Playback;
 
 namespace Hohoema.ViewModels.Player.Commands;
 

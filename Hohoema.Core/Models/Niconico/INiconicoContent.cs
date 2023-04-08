@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Models.Niconico;
+﻿#nullable enable
+namespace Hohoema.Models.Niconico;
 
 public interface INiconicoObject
 {

@@ -1,4 +1,5 @@
-﻿namespace Hohoema.ViewModels.Player.PlayerSidePaneContent;
+﻿#nullable enable
+namespace Hohoema.ViewModels.Player.PlayerSidePaneContent;
 
 public class EmptySidePaneContentViewModel : SidePaneContentViewModelBase
 {

@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Helpers;
 using Microsoft.Toolkit.Uwp.Helpers;
 using System.Runtime.CompilerServices;

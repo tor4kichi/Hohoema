@@ -1,4 +1,5 @@
-﻿using Microsoft.Xaml.Interactivity;
+﻿#nullable enable
+using Microsoft.Xaml.Interactivity;
 using System;
 using System.Diagnostics;
 using System.Reactive.Linq;

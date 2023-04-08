@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.PageNavigation;
+﻿#nullable enable
+using Hohoema.Models.PageNavigation;
 using System.Runtime.Serialization;
 using System.Text.Json;
 

@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Mylist;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Services.Niconico;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.User;

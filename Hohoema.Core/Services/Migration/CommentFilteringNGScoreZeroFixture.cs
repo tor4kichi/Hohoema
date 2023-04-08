@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Application;
+﻿#nullable enable
+using Hohoema.Models.Application;
 using Hohoema.Services.Player.Videos;
 
 namespace Hohoema.Services.Migrations;

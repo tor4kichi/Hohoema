@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Niconico.Mylist;
+﻿#nullable enable
+using Hohoema.Models.Niconico.Mylist;
 using I18NPortable;
 using Reactive.Bindings;
 using System;

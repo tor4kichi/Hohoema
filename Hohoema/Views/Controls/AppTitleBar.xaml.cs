@@ -1,4 +1,5 @@
-﻿using Hohoema.Services;
+﻿#nullable enable
+using Hohoema.Services;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Linq;

@@ -1,4 +1,5 @@
-﻿using Reactive.Bindings.Extensions;
+﻿#nullable enable
+using Reactive.Bindings.Extensions;
 using System;
 using System.Reactive.Disposables;
 using System.Threading;

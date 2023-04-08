@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿#nullable enable
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 // アセンブリに関する一般情報は、以下の属性セットによって制御されます。

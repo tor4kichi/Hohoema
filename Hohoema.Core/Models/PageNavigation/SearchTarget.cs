@@ -1,4 +1,5 @@
-﻿namespace Hohoema.Models.PageNavigation;
+﻿#nullable enable
+namespace Hohoema.Models.PageNavigation;
 
 public enum SearchTarget
 {

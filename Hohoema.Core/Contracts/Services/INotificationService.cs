@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Notification;
+﻿#nullable enable
+using Hohoema.Models.Notification;
 using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using Windows.UI.Xaml.Controls;

@@ -1,4 +1,5 @@
-﻿using Hohoema.Infra;
+﻿#nullable enable
+using Hohoema.Infra;
 using System;
 
 namespace Hohoema.Models.Subscriptions;

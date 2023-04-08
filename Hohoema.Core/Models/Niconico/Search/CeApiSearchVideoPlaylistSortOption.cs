@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.DependencyInjection;
+﻿#nullable enable
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.Contracts.Services;
 using Hohoema.Models.Playlist;
 using NiconicoToolkit.SearchWithCeApi.Video;

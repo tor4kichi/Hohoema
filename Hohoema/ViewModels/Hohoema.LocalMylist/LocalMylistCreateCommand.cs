@@ -1,4 +1,5 @@
-﻿using Hohoema.Services.LocalMylist;
+﻿#nullable enable
+using Hohoema.Services.LocalMylist;
 
 namespace Hohoema.ViewModels.Hohoema.LocalMylist;
 

@@ -1,4 +1,5 @@
-﻿using Windows.Media.Core;
+﻿#nullable enable
+using Windows.Media.Core;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;

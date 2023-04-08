@@ -1,4 +1,5 @@
-﻿using Reactive.Bindings.Interactivity;
+﻿#nullable enable
+using Reactive.Bindings.Interactivity;
 using System.Windows.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Markup;
