@@ -1,11 +1,11 @@
 ﻿using Hohoema.Models.Playlist;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.System;
 
-namespace Hohoema.Services.Player
+namespace Hohoema.Contracts.Services.Player
 {
     public enum PlayerDisplayMode
     {

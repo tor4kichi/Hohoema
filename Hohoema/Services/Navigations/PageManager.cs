@@ -13,7 +13,7 @@ using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

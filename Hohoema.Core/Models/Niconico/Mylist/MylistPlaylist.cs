@@ -7,9 +7,10 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.Contracts.Services;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
-using I18NPortable;
 using Microsoft.Toolkit.Diagnostics;
 using NiconicoToolkit;
 using NiconicoToolkit.Mylist;
@@ -18,8 +19,13 @@ namespace Hohoema.Models.Niconico.Mylist
 {
     public record MylistPlaylistSortOption(MylistSortKey SortKey, MylistSortOrder SortOrder) : IPlaylistSortOption
     {
+        private static string GetLocalizedLabel(MylistSortKey SortKey, MylistSortOrder SortOrder)
+        {
+            return Ioc.Default.GetRequiredService<ILocalizeService>().Translate($"MylistSort.{SortKey}{SortOrder}");
+        }
+
         string _label;
-        public string Label => _label ??= $"MylistSort.{SortKey}{SortOrder}".Translate();
+        public string Label => _label ??= GetLocalizedLabel(SortKey, SortOrder);
 
         public string Serialize()
         {

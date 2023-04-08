@@ -1,5 +1,4 @@
-﻿using I18NPortable;
-using LiteDB;
+﻿using LiteDB;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Infra;
 using System;
@@ -10,6 +9,7 @@ using NiconicoToolkit.Mylist;
 using NiconicoToolkit.Account;
 using NiconicoToolkit.Mylist.LoginUser;
 using NiconicoToolkit.Video;
+using Hohoema.Contracts.Services;
 
 namespace Hohoema.Models.Niconico.Mylist.LoginUser
 {
@@ -51,18 +51,19 @@ namespace Hohoema.Models.Niconico.Mylist.LoginUser
             public string VideoId { get; set; }
         }
 
-
-
+        private readonly ILocalizeService _localizeService;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly LoginUserMylistItemIdRepository _loginUserMylistItemIdRepository;
 
         public LoginUserMylistProvider(
+            ILocalizeService localizeService,
             NiconicoSession niconicoSession,
             NicoVideoProvider nicoVideoProvider,
             LoginUserMylistItemIdRepository loginUserMylistItemIdRepository
             )
             : base(niconicoSession)
         {
+            _localizeService = localizeService;
             _nicoVideoProvider = nicoVideoProvider;
             _loginUserMylistItemIdRepository = loginUserMylistItemIdRepository;            
         }
@@ -78,7 +79,7 @@ namespace Hohoema.Models.Niconico.Mylist.LoginUser
 
             return new LoginUserMylistPlaylist(MylistId.WatchAfterMylistId, this) 
             {
-                Name = "WatchAfterMylist".Translate(),
+                Name = _localizeService.Translate("WatchAfterMylist"),
                 Count = (int)defMylist.Data.Mylist.TotalCount,
                 UserId = _niconicoSession.UserId,
                 ThumbnailImages = defMylist.Data.Mylist.Items.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),

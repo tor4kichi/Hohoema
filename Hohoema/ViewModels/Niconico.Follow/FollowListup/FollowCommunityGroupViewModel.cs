@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Follow;
 using Hohoema.Models.Niconico.Follow.LoginUser;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Services.Navigations;
 
 namespace Hohoema.ViewModels.Niconico.Follow
 {

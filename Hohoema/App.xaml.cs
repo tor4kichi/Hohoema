@@ -1,26 +1,41 @@
-﻿using Hohoema.Models;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Messaging;
+using Cysharp.Text;
+using DryIoc;
+using Hohoema.Contracts.Maintenances;
+using Hohoema.Contracts.Migrations;
+using Hohoema.Contracts.Services;
+using Hohoema.Contracts.Services.Navigations;
+using Hohoema.Contracts.Services.Player;
+using Hohoema.Helpers;
+using Hohoema.Infra;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico;
-using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.Niconico.NicoRepo;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
 using Hohoema.Models.Player;
+using Hohoema.Models.Player.Comment;
 using Hohoema.Models.Player.Video;
-using Hohoema.Models.Player.Video.Cache;
+using Hohoema.Models.Playlist;
 using Hohoema.Models.Subscriptions;
-using Hohoema.Helpers;
 using Hohoema.Services;
-using Hohoema.Services.Migration;
+using Hohoema.Services.LocalMylist;
+using Hohoema.Services.Maintenance;
+using Hohoema.Services.Migrations;
+using Hohoema.Services.Navigations;
+using Hohoema.Services.Niconico;
+using Hohoema.Services.Niconico.Account;
 using Hohoema.Services.Player;
+using Hohoema.Services.Player.Videos;
+using Hohoema.Services.Playlist;
 using Hohoema.Services.Subscriptions;
 using Hohoema.Services.VideoCache;
-using Hohoema.Services;
-using Hohoema.Services.Navigations;
 using Hohoema.ViewModels;
+using Hohoema.ViewModels.Niconico.Video;
+using Hohoema.Views.Pages;
 using LiteDB;
-using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.Collections.Generic;
@@ -30,42 +45,18 @@ using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.UI;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Hohoema.Views.Pages;
-using Hohoema.Services.Niconico.Account;
-using Hohoema.Services.Niconico.Follow;
-using Hohoema.Models.Notification;
-using Hohoema.Models.VideoCache;
-using Windows.Storage.AccessCache;
-using Microsoft.Toolkit.Uwp.Notifications;
-using Microsoft.Extensions.Logging;
-using Hohoema.Infra;
-using Hohoema.Services.Playlist;
-using Hohoema.Services.Player.Videos;
-using Hohoema.Services.Niconico.Video;
-using Hohoema.ViewModels.Niconico.Video;
-using Hohoema.Models.Player.Comment;
-using Hohoema.Models.Playlist;
-using Hohoema.Services.LocalMylist;
-using DryIoc;
 using ZLogger;
-using Cysharp.Text;
-using Windows.UI.Core;
-using CommunityToolkit.Mvvm.DependencyInjection;
 
 namespace Hohoema
 {
@@ -339,9 +330,13 @@ namespace Hohoema
             container.Register<AppWindowSecondaryViewPlayerManager>(reuse: new SingletonReuse());
             container.Register<NiconicoLoginService>(reuse: new SingletonReuse());
             container.Register<DialogService>(reuse: new SingletonReuse());
+            container.RegisterMapping<IDialogService, DialogService>();
+            container.RegisterMapping<IMylistGroupDialogService, DialogService>();
+            container.RegisterMapping<ISelectionDialogService, DialogService>();
             container.Register<INotificationService, NotificationService>(reuse: new SingletonReuse());
             container.Register<NoUIProcessScreenContext>(reuse: new SingletonReuse());
             container.Register<CurrentActiveWindowUIContextService>(reuse: new SingletonReuse());
+            container.Register<ILocalizeService, LocalizeService>();
 
             // Models
             container.Register<AppearanceSettings>(reuse: new SingletonReuse());
@@ -602,7 +597,7 @@ namespace Hohoema
             var mylitManager = Container.Resolve<LoginUserOwnedMylistManager>();
 
             {
-                Container.Resolve<Services.Migration.CommentFilteringNGScoreZeroFixture>().Migration();
+                Container.Resolve<Services.Migrations.CommentFilteringNGScoreZeroFixture>().Migration();
 
                 // アプリのユースケース系サービスを配置
                 Container.RegisterInstance(Container.Resolve<NotificationCacheVideoDeletedService>());
@@ -761,7 +756,7 @@ namespace Hohoema
         {
             Type[] maintenanceTypes = new Type[]
             {
-                typeof(Services.Maintenance.VideoThumbnailImageCacheMaintenance),
+                typeof(VideoThumbnailImageCacheMaintenance),
             };
 
             async Task TryMaintenanceAsync(Type maintenanceType)
@@ -772,7 +767,7 @@ namespace Hohoema
                 {
                     logger.ZLogInformation("Try maintenance: {0}", maintenanceType.Name);
                     var migrater = Container.Resolve(maintenanceType);
-                    if (migrater is Services.Maintenance.IMaintenance maintenance)
+                    if (migrater is IMaintenance maintenance)
                     {
                         maintenance.Maitenance();
                     }

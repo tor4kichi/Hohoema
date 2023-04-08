@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hohoema.Services.Navigations
+namespace Hohoema.Contracts.Services.Navigations
 {
     public interface IViewLocator
     {

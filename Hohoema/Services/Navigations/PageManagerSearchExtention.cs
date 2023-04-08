@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Hohoema.Models.PageNavigation;
 
 namespace Hohoema.Services.Navigations

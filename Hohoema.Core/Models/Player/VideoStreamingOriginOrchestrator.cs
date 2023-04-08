@@ -1,5 +1,4 @@
-﻿using I18NPortable;
-using Hohoema.Models;
+﻿using Hohoema.Models;
 using Hohoema.Helpers;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player;

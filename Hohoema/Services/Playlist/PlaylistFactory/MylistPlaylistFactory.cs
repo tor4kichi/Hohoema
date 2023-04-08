@@ -12,14 +12,12 @@ namespace Hohoema.Services.Playlist.PlaylistFactory
 {
     public sealed class MylistPlaylistFactory : IPlaylistFactory
     {
-        private readonly LoginUserOwnedMylistManager _loginUserOwnedMylistManager;
         private readonly MylistResolver _mylistResolver;
 
-        public MylistPlaylistFactory(LoginUserOwnedMylistManager loginUserOwnedMylistManager,
+        public MylistPlaylistFactory(
             MylistResolver mylistResolver
             )
         {
-            _loginUserOwnedMylistManager = loginUserOwnedMylistManager;
             _mylistResolver = mylistResolver;
         }
 

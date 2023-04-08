@@ -1,10 +1,10 @@
-﻿using Hohoema.Helpers;
+﻿using CommunityToolkit.Mvvm.Input;
+using Hohoema.Helpers;
+using Hohoema.Models.Application;
 using Hohoema.Services.Navigations;
-using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
-using Hohoema.Models.Application;
 
 namespace Hohoema.ViewModels.Community
 {

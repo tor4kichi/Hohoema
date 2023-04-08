@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player.Video;
-using Hohoema.Services.Navigations;
 using Hohoema.ViewModels.VideoListPage;
 using Hohoema.Models.Niconico.Mylist;
 using NiconicoToolkit.Video;
@@ -16,6 +15,7 @@ using NiconicoToolkit.Channels;
 using Hohoema.Models.Niconico;
 using NiconicoToolkit.Recommend;
 using Hohoema.Services.Playlist;
+using Hohoema.Services.Navigations;
 
 namespace Hohoema.Services.Player
 {

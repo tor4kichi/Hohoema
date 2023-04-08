@@ -1,4 +1,5 @@
-﻿using Hohoema.Models;
+﻿using Hohoema.Contracts.Migrations;
+using Hohoema.Models;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player.Video;
@@ -13,7 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.AccessCache;
 
-namespace Hohoema.Services.Migration
+namespace Hohoema.Services.Migrations
 {
     internal sealed class VideoCacheDatabaseMigration_V_0_29_0 : IMigrateAsync
     {

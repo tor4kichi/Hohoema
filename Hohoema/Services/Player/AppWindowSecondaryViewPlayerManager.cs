@@ -25,7 +25,8 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media.Animation;
 using Hohoema.Helpers;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
+using Hohoema.Contracts.Services.Player;
 
 namespace Hohoema.Services.Player
 {

@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
-using Hohoema.Services.Niconico.Video;
+using Hohoema.Services.Niconico;
 using Hohoema.Services.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using System;

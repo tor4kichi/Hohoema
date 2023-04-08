@@ -2,13 +2,14 @@
 using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Services;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Services.Navigations;
 
 namespace Hohoema.ViewModels.Navigation.Commands
 {

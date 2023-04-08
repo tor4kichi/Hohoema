@@ -1,23 +1,35 @@
-﻿using Hohoema.Models.Application;
+﻿using AngleSharp.Html.Parser;
+using CommunityToolkit.Mvvm.Input;
+using Hohoema.Helpers;
+using Hohoema.Models.Application;
+using Hohoema.Models.LocalMylist;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Channel;
+using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.Niconico.Mylist.LoginUser;
+using Hohoema.Models.Niconico.Recommend;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.Series;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
 using Hohoema.Models.Player.Video;
-using Hohoema.Models.Player.Video.Cache;
 using Hohoema.Models.Playlist;
 using Hohoema.Models.Subscriptions;
-using Hohoema.Helpers;
 using Hohoema.Services;
-using Hohoema.Services.Playlist;
-using Hohoema.Services;
-using Hohoema.Services.Navigations;
+using Hohoema.Services.LocalMylist;
+using Hohoema.Contracts.Services.Navigations;
+using Hohoema.Services.Niconico;
+using Hohoema.ViewModels.Niconico.Follow;
+using Hohoema.ViewModels.Niconico.Likes;
+using Hohoema.ViewModels.Niconico.Share;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.Subscriptions;
+using Hohoema.ViewModels.VideoCache.Commands;
 using Hohoema.ViewModels.VideoListPage;
-using I18NPortable;
-using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
+using NiconicoToolkit.Ichiba;
+using NiconicoToolkit.Video;
+using NiconicoToolkit.Video.Watch;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -26,29 +38,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.System;
 using Windows.UI.Xaml;
-using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
-using Hohoema.ViewModels.Niconico.Share;
-using Hohoema.Models.Notification;
-using Hohoema.Models.Niconico.Recommend;
-using Hohoema.ViewModels.Niconico.Follow;
-using Hohoema.Models.Niconico;
-using Hohoema.Models.Niconico.Follow.LoginUser;
-using Hohoema.Models.Niconico.Channel;
-using Hohoema.ViewModels.VideoCache.Commands;
-using System.Threading;
-using NiconicoToolkit.Video.Watch;
-using NiconicoToolkit.Video;
-using Hohoema.ViewModels.Niconico.Likes;
-using NiconicoToolkit.Ichiba;
-using AngleSharp.Html.Parser;
-using Hohoema.Services.LocalMylist;
-using Hohoema.Models.LocalMylist;
-using Microsoft.Extensions.Logging;
 using ZLogger;
+using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
 using Hohoema.Services.Navigations;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Video
@@ -82,8 +78,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Video
             SubscriptionManager subscriptionManager,
             NicoVideoSessionProvider nicoVideo,
             PageManager pageManager,
-            Services.NotificationService notificationService,
-            Services.DialogService dialogService,
+            Services.NotificationService notificationService,            
             VideoPlayWithQueueCommand videoPlayWithQueueCommand,
             MylistAddItemCommand addMylistCommand,
             LocalPlaylistAddItemCommand localPlaylistAddItemCommand,
@@ -109,8 +104,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Video
             SubscriptionManager = subscriptionManager;
             NicoVideo = nicoVideo;
             PageManager = pageManager;
-            NotificationService = notificationService;
-            DialogService = dialogService;
+            NotificationService = notificationService;            
             VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
             AddMylistCommand = addMylistCommand;
             LocalPlaylistAddItemCommand = localPlaylistAddItemCommand;
@@ -421,7 +415,6 @@ namespace Hohoema.ViewModels.Pages.Niconico.Video
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public PageManager PageManager { get; }
-        public Services.DialogService DialogService { get; }
         public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
         public MylistAddItemCommand AddMylistCommand { get; }
         public LocalPlaylistAddItemCommand LocalPlaylistAddItemCommand { get; }
@@ -507,7 +500,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Video
                     LikesContext = new VideoLikesContext(VideoDetails, NiconicoSession.ToolkitContext.Likes, NotificationService);
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 FollowContext = FollowContext<IUser>.Default;
                 throw;
@@ -678,7 +671,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Video
                     }
                 }
             }
-            catch (Exception e)
+            catch
             {
                 IsLoadFailed.Value = true;
                 throw;

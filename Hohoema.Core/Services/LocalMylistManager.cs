@@ -1,7 +1,4 @@
-﻿using I18NPortable;
-using Microsoft.Toolkit.Uwp.Helpers;
-
-using Hohoema.Models.Niconico.Video;
+﻿using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings.Extensions;
@@ -21,7 +18,7 @@ using Hohoema.Models.Application;
 using Hohoema.Services;
 using Hohoema.Models.LocalMylist;
 using Microsoft.Extensions.Logging;
-using ZLogger;
+using Hohoema.Contracts.Services;
 
 namespace Hohoema.Services.LocalMylist
 {
@@ -37,14 +34,15 @@ namespace Hohoema.Services.LocalMylist
             ILogger logger,
             LocalMylistRepository playlistRepository,
             NicoVideoProvider nicoVideoProvider,
-            INotificationService notificationService
+            INotificationService notificationService,
+            ILocalizeService localizeService
             )
         {
             _logger = logger;
             _playlistRepository = playlistRepository;
             _nicoVideoProvider = nicoVideoProvider;
             _notificationService = notificationService;
-
+            _localizeService = localizeService;
             _playlists = new ObservableCollection<LocalPlaylist>();
             LocalPlaylists = new ReadOnlyObservableCollection<LocalPlaylist>(_playlists);
 
@@ -87,6 +85,7 @@ namespace Hohoema.Services.LocalMylist
         private readonly LocalMylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly INotificationService _notificationService;
+        private readonly ILocalizeService _localizeService;
         ObservableCollection<LocalPlaylist> _playlists;
         public ReadOnlyObservableCollection<LocalPlaylist> LocalPlaylists { get; }
 
@@ -132,13 +131,13 @@ namespace Hohoema.Services.LocalMylist
             WeakReferenceMessenger.Default.Register<LocalPlaylist, PlaylistItemAddedMessage, PlaylistId>(playlist, playlist.PlaylistId, (r, m) => 
             {
                 var sender = r;
-                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistAddedItems".Translate(sender.Name, m.Value.AddedItems.Count()));
+                _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("InAppNotification_LocalPlaylistAddedItems", sender.Name, m.Value.AddedItems.Count()));
             });
 
             WeakReferenceMessenger.Default.Register<LocalPlaylist, PlaylistItemRemovedMessage, PlaylistId>(playlist, playlist.PlaylistId, (r, m) =>
             {
                 var sender = r;
-                _notificationService.ShowLiteInAppNotification_Success("InAppNotification_LocalPlaylistRemovedItems".Translate(sender.Name, m.Value.RemovedItems.Count()));
+                _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("InAppNotification_LocalPlaylistRemovedItems", sender.Name, m.Value.RemovedItems.Count()));
             });
         }
 
@@ -187,7 +186,7 @@ namespace Hohoema.Services.LocalMylist
                 }
                 catch (Exception e)
                 {
-                    _logger.ZLogError(e.ToString());
+                    _logger.LogError(e.ToString());
                 }
             }
             , (p) => p != null && LocalPlaylists.Contains(p)

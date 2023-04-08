@@ -1,7 +1,7 @@
 ﻿
 using Hohoema.Models.PageNavigation;
-using Hohoema.Services.Navigations;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Hohoema.Services;
 using System;
 using System.Collections.Generic;

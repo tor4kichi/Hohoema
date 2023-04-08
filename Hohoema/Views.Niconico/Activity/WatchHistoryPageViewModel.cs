@@ -1,27 +1,21 @@
-﻿using Hohoema.Models.Niconico;
-using Hohoema.Models.Niconico.Video;
+﻿using CommunityToolkit.Mvvm.Input;
+using Hohoema.Contracts.Services.Navigations;
+using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Services;
-using Hohoema.Services.Playlist;
 using Hohoema.Services.Navigations;
+using Hohoema.Services.Niconico;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
+using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Video;
-using CommunityToolkit.Mvvm.Input;
-using Hohoema.Services.Navigations;
+using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using Hohoema.Services.Niconico.Video;
-using Microsoft.Extensions.Logging;
 using ZLogger;
-using Reactive.Bindings;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Activity
 {

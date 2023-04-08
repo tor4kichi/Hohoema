@@ -9,6 +9,7 @@ using Hohoema.Models.Niconico.Mylist;
 using NiconicoToolkit;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.User;
+using Hohoema.Services.Niconico;
 
 namespace Hohoema.Services.Playlist
 {

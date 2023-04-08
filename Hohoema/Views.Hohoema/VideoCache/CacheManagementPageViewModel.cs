@@ -14,7 +14,7 @@ using Hohoema.Services;
 using I18NPortable;
 using System.Runtime.CompilerServices;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Hohoema.Services;
 using Hohoema.ViewModels.VideoListPage;
 using Hohoema.ViewModels.Niconico.Video.Commands;
@@ -30,7 +30,7 @@ using Hohoema.Services.VideoCache.Events;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico;
 using NiconicoToolkit.Video;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 
 namespace Hohoema.ViewModels.Pages.Hohoema.VideoCache
 {

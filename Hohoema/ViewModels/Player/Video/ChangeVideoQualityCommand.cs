@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Hohoema.Services;
 using I18NPortable;
 using Hohoema.Infra;
+using Hohoema.Contracts.Services;
 
 namespace Hohoema.ViewModels.Player.Video
 {

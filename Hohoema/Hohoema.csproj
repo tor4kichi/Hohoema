@@ -21,6 +21,7 @@
     <WindowsXamlEnableOverview>true</WindowsXamlEnableOverview>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <LangVersion>preview</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
@@ -135,20 +136,17 @@
     </Compile>
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Hohoema.GlobalUsings.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="Locales\LocaleToDisplayNameConverter.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
     <Compile Include="Locales\LocalizeWithParameterConverter.cs" />
     <Compile Include="Services\ApplicationLayoutManager.cs" />
-    <Compile Include="Services\LocalMylist\LocalMylistManager.cs" />
-    <Compile Include="Services\Maintenance\VideoThumbnailImageCacheMaintenance.cs" />
-    <Compile Include="Services\Migration\CommentFilteringNGScoreZeroFixture.cs" />
-    <Compile Include="Services\Migration\IMigateAsync.cs" />
-    <Compile Include="Services\Migration\SearchTargetMigration_V_1_1_0.cs" />
-    <Compile Include="Services\Migration\SubscriptionMigration_1_3_13.cs" />
+    <Compile Include="Services\LocalizeService.cs" />
+    <Compile Include="Contracts\Navigations\INavigationService.cs" />
     <Compile Include="Services\Player\AppWindowSecondaryViewPlayerManager.cs" />
-    <Compile Include="Services\Player\IPlayerView.cs" />
-    <Compile Include="Services\Navigations\IPageNavigatable.cs" />
+    <Compile Include="Contracts\Player\IPlayerView.cs" />
+    <Compile Include="Contracts\Navigations\IPageNavigatable.cs" />
     <Compile Include="Services\Navigations\NavigationTriggerFromExternal.cs" />
     <Compile Include="Services\Playlist\AutoSkipToPlaylistNextVideoWhenPlayFailed.cs" />
     <Compile Include="Services\Playlist\PlaylistFactory\ChannelVideoPlaylistFactory.cs" />
@@ -168,8 +166,6 @@
     <Compile Include="Services\Player\CloseToastNotificationWhenPlayStarted.cs" />
     <Compile Include="Services\Player\Messages\VideoPlayedMessage.cs" />
     <Compile Include="Services\Playlist\MylistResolver.cs" />
-    <Compile Include="Services\Player\Videos\CommentDisplayingRangeExtractor.cs" />
-    <Compile Include="Services\Player\Videos\CommentFilteringFacade.cs" />
     <Compile Include="Services\Player\Videos\VideoCommentPlayer.cs" />
     <Compile Include="Services\Player\KeepActiveDisplayWhenPlaying.cs" />
     <Compile Include="Services\Player\ObservableMediaPlayer.cs" />
@@ -178,13 +174,10 @@
     <Compile Include="Services\Player\Videos\VideoPlayRequestBridgeToPlayer.cs" />
     <Compile Include="Services\Player\Videos\VideoStreamingOriginOrchestrator.cs" />
     <Compile Include="Services\Playlist\PlaylistSelectDialogService.cs" />
-    <Compile Include="Services\Playlist\LoginUserOwnedMylistManager.cs" />
-    <Compile Include="Services\Navigations\IViewLocator.cs" />
-    <Compile Include="Services\Navigations\NavigationAwareViewModelBase.cs" />
-    <Compile Include="Services\Navigations\NavigationParametersExtensions.cs" />
+    <Compile Include="Contracts\Navigations\IViewLocator.cs" />
+    <Compile Include="Contracts\Navigations\NavigationAwareViewModelBase.cs" />
     <Compile Include="Services\Navigations\NavigationService.cs" />
     <Compile Include="Services\CurrentActiveWindowUIContextService.cs" />
-    <Compile Include="Services\INotificationService.cs" />
     <Compile Include="Services\NotificationService.cs" />
     <Compile Include="ViewModels\CommandBase.cs" />
     <Compile Include="ViewModels\Hohoema.LocalMylist\LocalMylistCreateCommand.cs" />
@@ -196,7 +189,6 @@
     <Compile Include="ViewModels\Niconico.Video\Commands\PlaylistPlayFromHereCommand.cs" />
     <Compile Include="ViewModels\Niconico.Video\Commands\VideoPlayCommand.cs" />
     <Compile Include="ViewModels\Niconico.Video\VideoItemsSelectionContext.cs" />
-    <Compile Include="Services\Niconico\WatchHistoryManager.cs" />
     <Compile Include="Services\Subscriptions\NewFeedVideosProcesser.cs" />
     <Compile Include="Services\Subscriptions\SubscriptionUpdateManager.cs" />
     <Compile Include="Services\VideoCache\VideoCacheDownloadOperationManager.cs" />
@@ -208,7 +200,6 @@
     <Compile Include="Services\NoProcessUIScreenContext.cs" />
     <Compile Include="Services\CheckingClipboardAndNotificationService.cs" />
     <Compile Include="Services\VideoCache\NotificationCacheVideoDeletedService.cs" />
-    <Compile Include="Services\Niconico\FollowNotificationAndConfirmListener.cs" />
     <Compile Include="Services\Navigations\PageManager.cs" />
     <Compile Include="Services\Navigations\PageManagerSearchExtention.cs" />
     <Compile Include="Services\Navigations\PagePayload\LoginRedirectPayload.cs" />
@@ -565,16 +556,10 @@
     <Compile Include="Views\Dialogs\TwoFactorAuthDialog.xaml.cs">
       <DependentUpon>TwoFactorAuthDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Dialogs\_ContentSelectDialog\ChoiceFromListSelectableContainer.cs" />
     <Compile Include="Views\Dialogs\_ContentSelectDialog\ContentSelectDialog.xaml.cs">
       <DependentUpon>ContentSelectDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Dialogs\_ContentSelectDialog\ContentSelectDialogContext.cs" />
-    <Compile Include="Views\Dialogs\_ContentSelectDialog\ContentSelectDialogDefaultSet.cs" />
-    <Compile Include="Views\Dialogs\_ContentSelectDialog\ISelectableContainer.cs" />
-    <Compile Include="Views\Dialogs\_ContentSelectDialog\SelectableContainerBase.cs" />
-    <Compile Include="Views\Dialogs\_ContentSelectDialog\SelectDialogPayload.cs" />
-    <Compile Include="Views\Dialogs\_ContentSelectDialog\TextInputSelectableContainer.cs" />
     <Compile Include="Views\Dialogs\_EditMylistGroupDialog\EditMylistGroupDialog.xaml.cs">
       <DependentUpon>EditMylistGroupDialog.xaml</DependentUpon>
     </Compile>
@@ -890,7 +875,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ViewModels\Niconico.Mylist\" />
     <Folder Include="ViewModels\Player\PlayerSidePaneContent\" />
     <Folder Include="ViewModels\Playlist\Commands\" />
   </ItemGroup>

@@ -1,13 +1,14 @@
 ﻿using Hohoema.Models.Niconico.Follow;
 using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using CommunityToolkit.Mvvm.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Services.Navigations;
 
 namespace Hohoema.ViewModels.Niconico.Follow
 {

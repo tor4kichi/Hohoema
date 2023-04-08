@@ -1,21 +1,15 @@
-﻿using I18NPortable;
-using Hohoema.Models;
-using Hohoema.Services;
-using Hohoema.Services.Playlist;
+﻿using Hohoema.Contracts.Services.Navigations;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Services.LocalMylist;
 using Hohoema.Services.Navigations;
+using Hohoema.Services.Niconico;
+using I18NPortable;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Reactive.Disposables;
-using System.Text;
-using System.Threading.Tasks;
-using Hohoema.Services.Navigations;
-using Hohoema.Models.PageNavigation;
-using Hohoema.Models.Niconico;
-using Hohoema.Services.LocalMylist;
 
 namespace Hohoema.ViewModels.PrimaryWindowCoreLayout
 {

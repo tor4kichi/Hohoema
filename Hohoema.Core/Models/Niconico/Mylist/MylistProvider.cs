@@ -7,146 +7,145 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using I18NPortable;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.User;
+using Hohoema.Contracts.Services;
 
-namespace Hohoema.Models.Niconico.Mylist
+namespace Hohoema.Models.Niconico.Mylist;
+
+public sealed class MylistProvider : ProviderBase
 {
-    
+    private readonly ILocalizeService _localizeService;
+    private readonly NicoVideoProvider _nicoVideoProvider;
 
-
-    public sealed class MylistProvider : ProviderBase
+    public MylistProvider(
+        ILocalizeService localizeService,
+        NiconicoSession niconicoSession,
+        NicoVideoProvider nicoVideoProvider
+        )
+        : base(niconicoSession)
     {
-        private readonly NicoVideoProvider _nicoVideoProvider;
+        _localizeService = localizeService;
+        _nicoVideoProvider = nicoVideoProvider;
+    }
 
-        public MylistProvider(
-            NiconicoSession niconicoSession,
-            NicoVideoProvider nicoVideoProvider
-            )
-            : base(niconicoSession)
+   
+
+
+    private async Task<IMylistItem> GetMylistGroupDetail(MylistId mylistId)
+    {
+        if (mylistId.IsWatchAfterMylist)
         {
-            _nicoVideoProvider = nicoVideoProvider;
+            throw new NotSupportedException();
         }
-
-       
-
-
-        private async Task<IMylistItem> GetMylistGroupDetail(MylistId mylistId)
+        else
         {
-            if (mylistId.IsWatchAfterMylist)
-            {
-                throw new NotSupportedException();
-            }
-            else
-            {
-                var res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, 0, 1);
-                
-                if (res.Data?.Mylist != null) { return res.Data.Mylist; }
-
-                res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylistId, 0, 1);
-
-                return res.Data?.Mylist;
-            }
-        }
-
-        public async Task<MylistPlaylist?> GetMylist(MylistId mylistId)
-        {
-            if (mylistId.IsWatchAfterMylist)
-            {
-                var res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync(0, 1);
-                var detail = res.Data.Mylist;
-                var mylist = new MylistPlaylist(mylistId, this)
-                {
-                    Name = "WatchAfterMylist".Translate(),
-                    Count = (int)detail.TotalCount,
-                    IsPublic = true,
-                    ThumbnailImages = detail.Items?.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
-                };
-                return mylist;
-            }
-            else
-            {
-                var detail = await GetMylistGroupDetail(mylistId);
-
-                if (detail == null) { return null; }
-
-                var mylist = new MylistPlaylist(detail.Id.ToString(), this)
-                {
-                    Name = detail.Name,
-                    Count = (int)detail.ItemsCount,
-                    CreateTime = detail.CreatedAt.DateTime,
-                    DefaultSortOrder = detail.DefaultSortOrder,
-                    DefaultSortKey = detail.DefaultSortKey,
-                    IsPublic = detail.IsPublic,
-                    SortIndex = 0,
-                    UserId = detail.Owner.Id,
-                    Description = detail.Description,
-                    ThumbnailImages = detail.SampleItems?.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
-                };
-                return mylist;
-            }
-        }
-
-
-
-        public async Task<List<MylistPlaylist>> GetMylistsByUser(UserId userId, int sampleItemCount = 0)
-        {
-            var groups = await _niconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId, sampleItemCount);
-
-            if (groups == null) { return null; }
-
-            var list = groups.Data.MylistGroups.Select((x, i) =>
-            {
-                return new MylistPlaylist(x.Id.ToString(), this)
-                {
-                    Name = x.Name,
-                    Count = (int)x.ItemsCount,
-                    SortIndex = i,
-                    UserId = x.Owner.Id,
-                    Description = x.Description,
-                    IsPublic = x.IsPublic,
-                    CreateTime = x.CreatedAt.DateTime,
-                    DefaultSortKey = x.DefaultSortKey,
-                    DefaultSortOrder = x.DefaultSortOrder,
-                    ThumbnailImages = x.SampleItems.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray()
-                };
-            }
-            ).ToList();
-
-            return list;
-        }
-
-
-
-        public async Task<MylistItemsGetResult> GetMylistVideoItems(MylistId mylistId, int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
-        {
-            var res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, page, pageSize, sortKey, sortOrder);
+            var res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, 0, 1);
             
-            if (res.Meta.IsSuccess is false) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }
+            if (res.Data?.Mylist != null) { return res.Data.Mylist; }
 
-            var videos = res.Data.Mylist.Items;
-            var resultItems = new List<MylistItem>();
-            var nicoVideoList = new List<NicoVideo>();
+            res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylistId, 0, 1);
 
-            foreach (var item in videos)
+            return res.Data?.Mylist;
+        }
+    }
+
+    public async Task<MylistPlaylist?> GetMylist(MylistId mylistId)
+    {
+        if (mylistId.IsWatchAfterMylist)
+        {
+            var res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync(0, 1);
+            var detail = res.Data.Mylist;
+            var mylist = new MylistPlaylist(mylistId, this)
             {
-                var nicoVideo = _nicoVideoProvider.UpdateCache(item.WatchId, item.Video, item.IsDeleted);
+                Name = _localizeService.Translate("WatchAfterMylist"),
+                Count = (int)detail.TotalCount,
+                IsPublic = true,
+                ThumbnailImages = detail.Items?.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
+            };
+            return mylist;
+        }
+        else
+        {
+            var detail = await GetMylistGroupDetail(mylistId);
 
-                nicoVideoList.Add(nicoVideo);
-                resultItems.Add(item);
-            }
+            if (detail == null) { return null; }
 
-            return new MylistItemsGetResult()
+            var mylist = new MylistPlaylist(detail.Id.ToString(), this)
             {
-                IsSuccess = true,
-                MylistId = mylistId,
-                HeadPosition = (int)(pageSize * page),
-                Items = new ReadOnlyCollection<MylistItem>(resultItems),
-                NicoVideoItems = new ReadOnlyCollection<NicoVideo>(nicoVideoList),
-                TotalCount = (int)res.Data.Mylist.TotalItemCount,
+                Name = detail.Name,
+                Count = (int)detail.ItemsCount,
+                CreateTime = detail.CreatedAt.DateTime,
+                DefaultSortOrder = detail.DefaultSortOrder,
+                DefaultSortKey = detail.DefaultSortKey,
+                IsPublic = detail.IsPublic,
+                SortIndex = 0,
+                UserId = detail.Owner.Id,
+                Description = detail.Description,
+                ThumbnailImages = detail.SampleItems?.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray(),
+            };
+            return mylist;
+        }
+    }
+
+
+
+    public async Task<List<MylistPlaylist>> GetMylistsByUser(UserId userId, int sampleItemCount = 0)
+    {
+        var groups = await _niconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId, sampleItemCount);
+
+        if (groups == null) { return null; }
+
+        var list = groups.Data.MylistGroups.Select((x, i) =>
+        {
+            return new MylistPlaylist(x.Id.ToString(), this)
+            {
+                Name = x.Name,
+                Count = (int)x.ItemsCount,
+                SortIndex = i,
+                UserId = x.Owner.Id,
+                Description = x.Description,
+                IsPublic = x.IsPublic,
+                CreateTime = x.CreatedAt.DateTime,
+                DefaultSortKey = x.DefaultSortKey,
+                DefaultSortOrder = x.DefaultSortOrder,
+                ThumbnailImages = x.SampleItems.Take(3).Select(x => x.Video.Thumbnail.ListingUrl).ToArray()
             };
         }
+        ).ToList();
 
+        return list;
     }
+
+
+
+    public async Task<MylistItemsGetResult> GetMylistVideoItems(MylistId mylistId, int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
+    {
+        var res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, page, pageSize, sortKey, sortOrder);
+        
+        if (res.Meta.IsSuccess is false) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }
+
+        var videos = res.Data.Mylist.Items;
+        var resultItems = new List<MylistItem>();
+        var nicoVideoList = new List<NicoVideo>();
+
+        foreach (var item in videos)
+        {
+            var nicoVideo = _nicoVideoProvider.UpdateCache(item.WatchId, item.Video, item.IsDeleted);
+
+            nicoVideoList.Add(nicoVideo);
+            resultItems.Add(item);
+        }
+
+        return new MylistItemsGetResult()
+        {
+            IsSuccess = true,
+            MylistId = mylistId,
+            HeadPosition = (int)(pageSize * page),
+            Items = new ReadOnlyCollection<MylistItem>(resultItems),
+            NicoVideoItems = new ReadOnlyCollection<NicoVideo>(nicoVideoList),
+            TotalCount = (int)res.Data.Mylist.TotalItemCount,
+        };
+    }
+
 }

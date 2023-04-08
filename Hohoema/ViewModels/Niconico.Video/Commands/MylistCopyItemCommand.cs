@@ -1,8 +1,5 @@
-﻿using Hohoema.Dialogs;
-using Hohoema.Models.Niconico.Mylist.LoginUser;
+﻿using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Services.Playlist;
-using Hohoema.Services;
 using I18NPortable;
 using NiconicoToolkit.Account;
 using System;
@@ -10,19 +7,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Services.Niconico;
+using Hohoema.Contracts.Services;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 {
     public sealed class MylistCopyItemCommand : VideoContentSelectionCommandBase
     {
-        private readonly DialogService _dialogService;
-        private readonly NotificationService _notificationService;
+        private readonly IMylistGroupDialogService _dialogService;
+        private readonly INotificationService _notificationService;
         private readonly LoginUserOwnedMylistManager _userMylistManager;
 
         public MylistCopyItemCommand(
             LoginUserOwnedMylistManager userMylistManager,
-            DialogService dialogService,
-            NotificationService notificationService
+            IMylistGroupDialogService dialogService,
+            INotificationService notificationService
             )
         {
             _userMylistManager = userMylistManager;

@@ -12,7 +12,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.ViewModels.Pages.Hohoema.LocalMylist;
 

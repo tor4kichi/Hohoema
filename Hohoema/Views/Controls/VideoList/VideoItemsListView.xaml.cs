@@ -6,7 +6,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.Playlist;
 using Hohoema.Services.LocalMylist;
-using Hohoema.Services.Niconico.Video;
+using Hohoema.Services.Niconico;
 using Hohoema.Services.Playlist;
 using Hohoema.ViewModels.Niconico.Video;
 using Hohoema.ViewModels.Niconico.Video.Commands;

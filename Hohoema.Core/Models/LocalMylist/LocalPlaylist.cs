@@ -1,6 +1,5 @@
 ﻿using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
-using I18NPortable;
 using Microsoft.Toolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
@@ -13,6 +12,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.Contracts.Services;
 
 namespace Hohoema.Models.LocalMylist
 {
@@ -36,9 +37,12 @@ namespace Hohoema.Models.LocalMylist
 
         public LocalMylistSortOrder SortOrder { get; init; }
 
-
+        private static string GetLocalizedLabel(LocalMylistSortKey SortKey, LocalMylistSortOrder SortOrder)
+        {
+            return Ioc.Default.GetRequiredService<ILocalizeService>().Translate($"LocalMylistSortKey.{SortKey}_{SortOrder}");
+        }
         string? _label;
-        public string Label => _label ??= $"LocalMylistSortKey.{SortKey}_{SortOrder}".Translate();
+        public string Label => _label ??= GetLocalizedLabel(SortKey, SortOrder);
 
         public string Serialize()
         {

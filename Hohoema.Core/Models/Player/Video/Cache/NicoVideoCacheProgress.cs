@@ -1,5 +1,4 @@
-﻿using I18NPortable;
-using Microsoft.Toolkit.Uwp.Notifications;
+﻿using Microsoft.Toolkit.Uwp.Notifications;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.Generic;
@@ -12,6 +11,8 @@ using Windows.Foundation;
 using Windows.Networking.BackgroundTransfer;
 using Windows.UI.Notifications;
 using Hohoema.Helpers;
+using Hohoema.Contracts.Services;
+using CommunityToolkit.Mvvm.DependencyInjection;
 
 namespace Hohoema.Models.Player.Video.Cache
 {
@@ -195,7 +196,9 @@ namespace Hohoema.Models.Player.Video.Cache
 
             // Define a tag value and a group value to uniquely identify a notification, in order to target it to apply the update later;
             string toastTag = $"{VideoId}";
-            string toastGroup = "hohoema_cache_dl";
+            string toastGroup = "hohoema_cache_dl";            
+
+            ILocalizeService localizeService = Ioc.Default.GetRequiredService<ILocalizeService>();
 
             // Construct the toast content with updatable data fields inside;
             var content = new ToastContent()
@@ -225,7 +228,7 @@ namespace Hohoema.Models.Player.Video.Cache
                 {
                     Buttons =
                     {
-                        new ToastButton("Cancel".Translate(), $"cache_cancel?id={VideoId}")
+                        new ToastButton(localizeService.Translate("Cancel"), $"cache_cancel?id={VideoId}")
                         {
 
                         }

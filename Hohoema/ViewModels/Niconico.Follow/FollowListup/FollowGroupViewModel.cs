@@ -1,15 +1,14 @@
-﻿using System;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Hohoema.Models.Niconico.Follow;
+using Hohoema.Models.Niconico.Follow.LoginUser;
+using Hohoema.Services.Navigations;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using Microsoft.Toolkit.Uwp;
 using Reactive.Bindings.Extensions;
+using System;
 using System.Reactive.Disposables;
-using Hohoema.Models.Niconico.Follow.LoginUser;
-using CommunityToolkit.Mvvm.Input;
-using Hohoema.Services.Navigations;
-using Hohoema.Services;
-using Microsoft.Extensions.Logging;
 using ZLogger;
 
 namespace Hohoema.ViewModels.Niconico.Follow

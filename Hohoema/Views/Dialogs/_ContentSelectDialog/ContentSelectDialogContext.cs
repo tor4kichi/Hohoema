@@ -1,4 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Hohoema.Contracts.Services;
+using Hohoema.Services;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -10,105 +12,103 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 
-namespace Hohoema.Dialogs
+namespace Hohoema.Dialogs;
+
+public sealed class ContentSelectDialogContext : ObservableObject, IDisposable
 {
-
-    public sealed class ContentSelectDialogContext : ObservableObject, IDisposable
-	{
-        private SynchronizationContextScheduler _CurrentWindowContextScheduler;
-        public SynchronizationContextScheduler CurrentWindowContextScheduler
+    private SynchronizationContextScheduler _CurrentWindowContextScheduler;
+    public SynchronizationContextScheduler CurrentWindowContextScheduler
+    {
+        get
         {
-            get
-            {
-                return _CurrentWindowContextScheduler
-                    ?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
-            }
+            return _CurrentWindowContextScheduler
+                ?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
         }
+    }
 
-        public List<ISelectableContainer> SelectableContainerList { get; private set; }
+    public List<ISelectableContainer> SelectableContainerList { get; private set; }
 
-		public ReactiveProperty<ISelectableContainer> SelectedContainer { get; private set; }
-		public ISelectableContainer _Prev;
+    public ReactiveProperty<ISelectableContainer> SelectedContainer { get; private set; }
+    public ISelectableContainer _Prev;
 
-		public ReactiveProperty<bool> IsValidItemSelected { get; private set; }
+    public ReactiveProperty<bool> IsValidItemSelected { get; private set; }
 
-		private IDisposable _ContainerItemChangedEventDisposer;
+    private IDisposable _ContainerItemChangedEventDisposer;
 
-        public bool IsSingleContainer { get; private set; }
+    public bool IsSingleContainer { get; private set; }
 
-		public string Title { get; private set; }
+    public string Title { get; private set; }
 
-		public ContentSelectDialogContext(string dialogTitle, IEnumerable<ISelectableContainer> containers, ISelectableContainer firstSelected = null)
-		{
-			Title = dialogTitle;
-			SelectableContainerList = containers.ToList();
-            IsSingleContainer = SelectableContainerList.Count == 1;
+    public ContentSelectDialogContext(string dialogTitle, IEnumerable<ISelectableContainer> containers, ISelectableContainer firstSelected = null)
+    {
+        Title = dialogTitle;
+        SelectableContainerList = containers.ToList();
+        IsSingleContainer = SelectableContainerList.Count == 1;
 
-            SelectedContainer = new ReactiveProperty<ISelectableContainer>(CurrentWindowContextScheduler, firstSelected);
-            IsValidItemSelected = SelectedContainer.Select(x => x?.IsValidatedSelection ?? false)
-                .ToReactiveProperty();
+        SelectedContainer = new ReactiveProperty<ISelectableContainer>(CurrentWindowContextScheduler, firstSelected);
+        IsValidItemSelected = SelectedContainer.Select(x => x?.IsValidatedSelection ?? false)
+            .ToReactiveProperty();
 
-            _ContainerItemChangedEventDisposer = SelectedContainer.Subscribe(x => 
-			{
-				if (_Prev != null)
-				{
-					_Prev.SelectionItemChanged -= SelectableContainer_SelectionItemChanged;
-				}
-
-				if (x != null)
-				{
-					x.SelectionItemChanged += SelectableContainer_SelectionItemChanged;
-				}
-
-				_Prev = x;
-
-
-				if (x != null)
-				{
-					SelectableContainer_SelectionItemChanged(x);
-				}
-
-			});
-			
-
-            foreach (var container in SelectableContainerList)
-            {
-                (container as SelectableContainerBase).PropertyChanged += ContentSelectDialogContext_PropertyChanged;
-            }
-
-            if (firstSelected != null)
-            {
-                (firstSelected as SelectableContainerBase).IsSelected = true;
-            }
-        }
-
-        private void ContentSelectDialogContext_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        _ContainerItemChangedEventDisposer = SelectedContainer.Subscribe(x =>
         {
-            if (e.PropertyName == "IsSelected")
+            if (_Prev != null)
             {
-                var container = sender as SelectableContainerBase;
-                if (container.IsSelected)
-                {
-                    SelectedContainer.Value = container;
-                }
+                _Prev.SelectionItemChanged -= SelectableContainer_SelectionItemChanged;
             }
+
+            if (x != null)
+            {
+                x.SelectionItemChanged += SelectableContainer_SelectionItemChanged;
+            }
+
+            _Prev = x;
+
+
+            if (x != null)
+            {
+                SelectableContainer_SelectionItemChanged(x);
+            }
+
+        });
+
+
+        foreach (var container in SelectableContainerList)
+        {
+            (container as SelectableContainerBase).PropertyChanged += ContentSelectDialogContext_PropertyChanged;
         }
 
-        private void SelectableContainer_SelectionItemChanged(ISelectableContainer obj)
-		{
-			IsValidItemSelected.Value = obj.IsValidatedSelection;
-		}
+        if (firstSelected != null)
+        {
+            (firstSelected as SelectableContainerBase).IsSelected = true;
+        }
+    }
 
-		public SelectDialogPayload GetResult()
-		{
-			return SelectedContainer.Value?.GetResult();
-		}
+    private void ContentSelectDialogContext_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == "IsSelected")
+        {
+            var container = sender as SelectableContainerBase;
+            if (container.IsSelected)
+            {
+                SelectedContainer.Value = container;
+            }
+        }
+    }
 
-		public void Dispose()
-		{
-			SelectedContainer?.Dispose();
-			IsValidItemSelected?.Dispose();
-			_ContainerItemChangedEventDisposer?.Dispose();
-		}
-	}
+    private void SelectableContainer_SelectionItemChanged(ISelectableContainer obj)
+    {
+        IsValidItemSelected.Value = obj.IsValidatedSelection;
+    }
+
+    public SelectDialogPayload GetResult()
+    {
+        return SelectedContainer.Value?.GetResult();
+    }
+
+    public void Dispose()
+    {
+        SelectedContainer?.Dispose();
+        IsValidItemSelected?.Dispose();
+        _ContainerItemChangedEventDisposer?.Dispose();
+    }
 }

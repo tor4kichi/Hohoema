@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hohoema.Services.Migration
+namespace Hohoema.Services.Migrations
 {
     public sealed class CommentFilteringNGScoreZeroFixture
     {

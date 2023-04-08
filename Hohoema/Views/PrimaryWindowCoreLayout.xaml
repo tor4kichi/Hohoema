@@ -16,7 +16,7 @@
   xmlns:listItemControls="using:Hohoema.Views.Controls"
   xmlns:templateSelector="using:Hohoema.Views.TemplateSelector"
   xmlns:mytrigger="using:Hohoema.Views.StateTrigger"
-  xmlns:servicesPlayer="using:Hohoema.Services.Player" 
+  xmlns:servicesPlayer="using:Hohoema.Contracts.Services.Player" 
   xmlns:winui="using:Windows.UI.Xaml.Controls" 
   xmlns:models="using:Hohoema.Models.Application"  
   xmlns:muxc="using:Microsoft.UI.Xaml.Controls"

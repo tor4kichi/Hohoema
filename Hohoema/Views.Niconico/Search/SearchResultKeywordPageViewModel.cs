@@ -5,7 +5,7 @@ using Hohoema.Models.Subscriptions;
 using Hohoema.Helpers;
 using Hohoema.Services;
 using Hohoema.Services.Playlist;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Hohoema.ViewModels.Niconico.Search;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.Subscriptions;
@@ -22,7 +22,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Hohoema.Models.Playlist;
 using Microsoft.Extensions.Logging;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Windows.UI.Xaml.Navigation;
 using I18NPortable;
 

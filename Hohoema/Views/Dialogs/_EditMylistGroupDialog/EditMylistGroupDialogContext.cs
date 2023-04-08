@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Windows.UI;
 using NiconicoToolkit.Mylist;
 using Hohoema.Models.Niconico.Mylist;
+using Hohoema.Contracts.Services;
 
 namespace Hohoema.Dialogs
 {
@@ -81,17 +82,5 @@ namespace Hohoema.Dialogs
 		public ReactiveProperty<string> LastErrorMessage { get; private set; }
 	}
 
-	public class MylistGroupEditData
-	{
-		public string Name { get; set; }
-        public string Description { get; set; } = string.Empty;
-		public bool IsPublic { get; set; }
-		public MylistSortKey DefaultSortKey { get; set; }
-		public MylistSortOrder DefaultSortOrder { get; set; }
-
-		public MylistGroupEditData()
-		{
-
-		}
-	}
+	
 }

@@ -1,10 +1,24 @@
-﻿using I18NPortable;
-using Hohoema.Models;
+﻿using CommunityToolkit.Mvvm.Input;
+using Hohoema.Contracts.Services.Navigations;
+using Hohoema.Infra;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Follow.LoginUser;
+using Hohoema.Models.Niconico.Mylist;
+using Hohoema.Models.Niconico.User;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Pins;
+using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
 using Hohoema.Services.Navigations;
-using Hohoema.Services;
+using Hohoema.Services.Niconico;
 using Hohoema.Services.Playlist;
-using CommunityToolkit.Mvvm.Input;
+using Hohoema.ViewModels.Niconico.Follow;
+using Hohoema.ViewModels.Niconico.Share;
+using Hohoema.ViewModels.Niconico.Video.Commands;
+using Hohoema.ViewModels.Subscriptions;
+using Hohoema.ViewModels.VideoListPage;
+using NiconicoToolkit.User;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -13,167 +27,149 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Hohoema.Models.PageNavigation;
-using Hohoema.Models.Niconico;
-using Hohoema.Models.Niconico.User;
-using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
-using Hohoema.Models.Subscriptions;
-using Hohoema.Models.Niconico.Mylist.LoginUser;
-using Hohoema.ViewModels.Subscriptions;
-using Hohoema.Models.Niconico.Video;
-using Hohoema.ViewModels.VideoListPage;
-using Hohoema.Models.Pins;
-using Hohoema.Models.Niconico.Mylist;
-using Hohoema.ViewModels.Niconico.Follow;
-using Hohoema.ViewModels.Niconico.Share;
-using Hohoema.Models.Niconico.Follow.LoginUser;
-using Hohoema.Infra;
-using NiconicoToolkit.User;
-using Hohoema.ViewModels.Niconico.Video.Commands;
-using Hohoema.Services.Navigations;
 using Windows.UI.Xaml.Navigation;
+using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
 
-namespace Hohoema.ViewModels.Pages.Niconico.User
+namespace Hohoema.ViewModels.Pages.Niconico.User;
+
+using UserFollowContext = FollowContext<IUser>;
+
+public class UserViewModel : IUser
 {
-    using UserFollowContext = FollowContext<IUser>;
+    public UserId UserId { get; set; }
 
-    public class UserViewModel : IUser
+    public string Nickname { get; set; }
+
+    public string IconUrl { get; set; }
+}
+
+public class UserInfoPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITitleUpdatablePage
+	{
+    HohoemaPin IPinablePage.GetPin()
     {
-        public UserId UserId { get; set; }
-
-        public string Nickname { get; set; }
-
-        public string IconUrl { get; set; }
+        return new HohoemaPin()
+        {
+            Label = Nickname,
+            PageType = HohoemaPageType.UserInfo,
+            Parameter = $"id={UserId}"
+        };
     }
 
-    public class UserInfoPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITitleUpdatablePage
-	{
-        HohoemaPin IPinablePage.GetPin()
-        {
-            return new HohoemaPin()
-            {
-                Label = Nickname,
-                PageType = HohoemaPageType.UserInfo,
-                Parameter = $"id={UserId}"
-            };
-        }
+    IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+    {
+        return this.ObserveProperty(x => x.Nickname);
+    }
 
-        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
-        {
-            return this.ObserveProperty(x => x.Nickname);
-        }
+    public UserInfoPageViewModel(
+        ApplicationLayoutManager applicationLayoutManager,
+        UserProvider userProvider,
+        UserFollowProvider userFollowProvider,
+        VideoFilteringSettings ngSettings,
+        NiconicoSession niconicoSession,
+        SubscriptionManager subscriptionManager,
+        LoginUserOwnedMylistManager userMylistManager,
+        PageManager pageManager,
+        MylistResolver mylistRepository,
+        VideoPlayWithQueueCommand videoPlayWithQueueCommand,
+        AddSubscriptionCommand addSubscriptionCommand,
+        OpenLinkCommand openLinkCommand
+        )
+    {
+        NiconicoSession = niconicoSession;
+        SubscriptionManager = subscriptionManager;
+        UserMylistManager = userMylistManager;
+        PageManager = pageManager;
+        _mylistRepository = mylistRepository;
+        VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
+        AddSubscriptionCommand = addSubscriptionCommand;
+        OpenLinkCommand = openLinkCommand;
+        ApplicationLayoutManager = applicationLayoutManager;
+        UserProvider = userProvider;
+        _userFollowProvider = userFollowProvider;
+        NgSettings = ngSettings;
 
-        public UserInfoPageViewModel(
-            ApplicationLayoutManager applicationLayoutManager,
-            UserProvider userProvider,
-            UserFollowProvider userFollowProvider,
-            VideoFilteringSettings ngSettings,
-            NiconicoSession niconicoSession,
-            SubscriptionManager subscriptionManager,
-            LoginUserOwnedMylistManager userMylistManager,
-            PageManager pageManager,
-            MylistResolver mylistRepository,
-            VideoPlayWithQueueCommand videoPlayWithQueueCommand,
-            AddSubscriptionCommand addSubscriptionCommand,
-            OpenLinkCommand openLinkCommand
-            )
-        {
-            NiconicoSession = niconicoSession;
-            SubscriptionManager = subscriptionManager;
-            UserMylistManager = userMylistManager;
-            PageManager = pageManager;
-            _mylistRepository = mylistRepository;
-            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
-            AddSubscriptionCommand = addSubscriptionCommand;
-            OpenLinkCommand = openLinkCommand;
-            ApplicationLayoutManager = applicationLayoutManager;
-            UserProvider = userProvider;
-            _userFollowProvider = userFollowProvider;
-            NgSettings = ngSettings;
+        HasOwnerVideo = true;
 
-            HasOwnerVideo = true;
+        VideoInfoItems = new ObservableCollection<VideoListItemControlViewModel>();
 
-            VideoInfoItems = new ObservableCollection<VideoListItemControlViewModel>();
-
-            OpenUserVideoPageCommand = VideoInfoItems.ObserveProperty(x => x.Count)
-                .Select(x => x > 0)
-                .ToReactiveCommand()
-                .AddTo(_CompositeDisposable);
-
-            OpenUserVideoPageCommand.Subscribe(x =>
-            {
-                PageManager.OpenPageWithId(HohoemaPageType.UserVideo, UserId);
-            })
+        OpenUserVideoPageCommand = VideoInfoItems.ObserveProperty(x => x.Count)
+            .Select(x => x > 0)
+            .ToReactiveCommand()
             .AddTo(_CompositeDisposable);
 
-            IsNGVideoOwner = new ReactiveProperty<bool>(false, ReactivePropertyMode.DistinctUntilChanged);
-
-            IsNGVideoOwner.Subscribe(isNgVideoOwner =>
-            {
-                if (isNgVideoOwner)
-                {
-                    NgSettings.AddHiddenVideoOwnerId(UserId, Nickname);
-                    IsNGVideoOwner.Value = true;
-                    Debug.WriteLine(Nickname + "をNG動画投稿者として登録しました。");
-                }
-                else
-                {
-                    NgSettings.RemoveHiddenVideoOwnerId(UserId);
-                    IsNGVideoOwner.Value = false;
-                    Debug.WriteLine(Nickname + "をNG動画投稿者の指定を解除しました。");
-
-                }
-            });
-        }
-
-        public ReactiveCommand OpenUserVideoPageCommand { get; private set; }
-        public NiconicoSession NiconicoSession { get; }
-        public SubscriptionManager SubscriptionManager { get; }
-        public LoginUserOwnedMylistManager UserMylistManager { get; }
-        public PageManager PageManager { get; }
-        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
-        public AddSubscriptionCommand AddSubscriptionCommand { get; }
-        public OpenLinkCommand OpenLinkCommand { get; }
-        public ApplicationLayoutManager ApplicationLayoutManager { get; }
-        public UserProvider UserProvider { get; }
-        public VideoFilteringSettings NgSettings { get; }
-       
-        private RelayCommand _OpenUserMylistPageCommand;
-        public RelayCommand OpenUserMylistPageCommand
+        OpenUserVideoPageCommand.Subscribe(x =>
         {
-            get
+            PageManager.OpenPageWithId(HohoemaPageType.UserVideo, UserId);
+        })
+        .AddTo(_CompositeDisposable);
+
+        IsNGVideoOwner = new ReactiveProperty<bool>(false, ReactivePropertyMode.DistinctUntilChanged);
+
+        IsNGVideoOwner.Subscribe(isNgVideoOwner =>
+        {
+            if (isNgVideoOwner)
             {
-                return _OpenUserMylistPageCommand
-                    ?? (_OpenUserMylistPageCommand = new RelayCommand(() =>
-                    {
-                        PageManager.OpenPageWithId(HohoemaPageType.UserMylist, UserId);
-                    }));
+                NgSettings.AddHiddenVideoOwnerId(UserId, Nickname);
+                IsNGVideoOwner.Value = true;
+                Debug.WriteLine(Nickname + "をNG動画投稿者として登録しました。");
             }
-        }
-
-        private RelayCommand _OpenUserSeriesPageCommand;
-        public RelayCommand OpenUserSeriesPageCommand
-        {
-            get
+            else
             {
-                return _OpenUserSeriesPageCommand
-                    ?? (_OpenUserSeriesPageCommand = new RelayCommand(() =>
-                    {
-                        PageManager.OpenPageWithId(HohoemaPageType.UserSeries, UserId);
-                    }));
+                NgSettings.RemoveHiddenVideoOwnerId(UserId);
+                IsNGVideoOwner.Value = false;
+                Debug.WriteLine(Nickname + "をNG動画投稿者の指定を解除しました。");
+
             }
-        }
+        });
+    }
 
-        private UserViewModel _User;
-        public UserViewModel User
+    public ReactiveCommand OpenUserVideoPageCommand { get; private set; }
+    public NiconicoSession NiconicoSession { get; }
+    public SubscriptionManager SubscriptionManager { get; }
+    public LoginUserOwnedMylistManager UserMylistManager { get; }
+    public PageManager PageManager { get; }
+    public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
+    public AddSubscriptionCommand AddSubscriptionCommand { get; }
+    public OpenLinkCommand OpenLinkCommand { get; }
+    public ApplicationLayoutManager ApplicationLayoutManager { get; }
+    public UserProvider UserProvider { get; }
+    public VideoFilteringSettings NgSettings { get; }
+   
+    private RelayCommand _OpenUserMylistPageCommand;
+    public RelayCommand OpenUserMylistPageCommand
+    {
+        get
         {
-            get { return _User; }
-            set { SetProperty(ref _User, value); }
+            return _OpenUserMylistPageCommand
+                ?? (_OpenUserMylistPageCommand = new RelayCommand(() =>
+                {
+                    PageManager.OpenPageWithId(HohoemaPageType.UserMylist, UserId);
+                }));
         }
+    }
 
-        public UserId? UserId { get; private set; }
+    private RelayCommand _OpenUserSeriesPageCommand;
+    public RelayCommand OpenUserSeriesPageCommand
+    {
+        get
+        {
+            return _OpenUserSeriesPageCommand
+                ?? (_OpenUserSeriesPageCommand = new RelayCommand(() =>
+                {
+                    PageManager.OpenPageWithId(HohoemaPageType.UserSeries, UserId);
+                }));
+        }
+    }
+
+    private UserViewModel _User;
+    public UserViewModel User
+    {
+        get { return _User; }
+        set { SetProperty(ref _User, value); }
+    }
+
+    public UserId? UserId { get; private set; }
 		public bool IsLoadFailed { get; private set; }
 
 
@@ -273,179 +269,178 @@ namespace Hohoema.ViewModels.Pages.Niconico.User
 		}
 
 
-        // Follow
-        private UserFollowContext _FollowContext = UserFollowContext.Default;
-        public UserFollowContext FollowContext
+    // Follow
+    private UserFollowContext _FollowContext = UserFollowContext.Default;
+    public UserFollowContext FollowContext
+    {
+        get => _FollowContext;
+        set => SetProperty(ref _FollowContext, value);
+    }
+
+
+    public ReactiveProperty<bool> IsNGVideoOwner { get; private set; }
+
+
+    private readonly UserFollowProvider _userFollowProvider;
+    private readonly MylistResolver _mylistRepository;
+
+    private IReadOnlyCollection<MylistPlaylist> _mylists;
+    public IReadOnlyCollection<MylistPlaylist> MylistGroups
+    {
+        get { return _mylists; }
+        set { SetProperty(ref _mylists, value); }
+    }
+
+    public ObservableCollection<VideoListItemControlViewModel> VideoInfoItems { get; private set; }
+
+    public override void OnNavigatedFrom(INavigationParameters parameters)
+    {
+        if (VideoInfoItems != null)
         {
-            get => _FollowContext;
-            set => SetProperty(ref _FollowContext, value);
-        }
-
-
-        public ReactiveProperty<bool> IsNGVideoOwner { get; private set; }
-
-
-        private readonly UserFollowProvider _userFollowProvider;
-        private readonly MylistResolver _mylistRepository;
-
-        private IReadOnlyCollection<MylistPlaylist> _mylists;
-        public IReadOnlyCollection<MylistPlaylist> MylistGroups
-        {
-            get { return _mylists; }
-            set { SetProperty(ref _mylists, value); }
-        }
-
-        public ObservableCollection<VideoListItemControlViewModel> VideoInfoItems { get; private set; }
-
-        public override void OnNavigatedFrom(INavigationParameters parameters)
-        {
-            if (VideoInfoItems != null)
+            foreach (var item in VideoInfoItems)
             {
-                foreach (var item in VideoInfoItems)
-                {
-                    item.Dispose();
-                }
-                VideoInfoItems.Clear();
+                item.Dispose();
             }
-            base.OnNavigatedFrom(parameters);
-        }
-
-        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
-        {
-            await base.OnNavigatedToAsync(parameters);
-
-            var prevUserId = UserId;
-            if (parameters.GetNavigationMode() is not NavigationMode.Refresh)
-            {
-                UserId? userId = null;
-                if (parameters.TryGetValue("id", out string id))
-                {
-                    userId = id;
-                }
-                if (parameters.TryGetValue("id", out UserId justUserId))
-                {
-                    userId = justUserId;
-                }
-                
-                UserId = userId;
-                OnPropertyChanged(nameof(UserId));
-            }
-
-            if (UserId is null)
-            {
-                IsLoadFailed = true;
-                UserId = null;
-                User = null;
-                FollowContext = UserFollowContext.Default;
-                IsNGVideoOwner.Value = false;
-                IsLoginUser = false;
-                VideoInfoItems.Clear();
-                HasOwnerVideo = false;
-                MylistGroups = null;
-                return;
-            }
-
-            // ログインユーザーと同じ場合、お気に入り表示をOFFに
-            IsLoginUser = NiconicoSession.UserId == UserId.Value;
-
-            IsLoadFailed = false;
-
             VideoInfoItems.Clear();
+        }
+        base.OnNavigatedFrom(parameters);
+    }
 
-            try
+    public override async Task OnNavigatedToAsync(INavigationParameters parameters)
+    {
+        await base.OnNavigatedToAsync(parameters);
+
+        var prevUserId = UserId;
+        if (parameters.GetNavigationMode() is not NavigationMode.Refresh)
+        {
+            UserId? userId = null;
+            if (parameters.TryGetValue("id", out string id))
             {
-                var userInfo = await UserProvider.GetUserDetailAsync(UserId.Value);
-                if (!userInfo.IsSuccess)
-                {
-                    throw new HohoemaException();
-                }
-
-                var user = userInfo.Data;
-                Nickname = user.User.Nickname;
-                IconUrl = user.User.Icons.Small.OriginalString;
-
-                FollowerCount = (uint)user.User.FollowerCount;
-
-
-                User = new UserViewModel()
-                {
-                    UserId = UserId.Value,
-                    Nickname = Nickname,
-                    IconUrl = IconUrl
-                };
+                userId = id;
             }
-            catch
+            if (parameters.TryGetValue("id", out UserId justUserId))
             {
-                IsLoadFailed = true;
+                userId = justUserId;
+            }
+            
+            UserId = userId;
+            OnPropertyChanged(nameof(UserId));
+        }
+
+        if (UserId is null)
+        {
+            IsLoadFailed = true;
+            UserId = null;
+            User = null;
+            FollowContext = UserFollowContext.Default;
+            IsNGVideoOwner.Value = false;
+            IsLoginUser = false;
+            VideoInfoItems.Clear();
+            HasOwnerVideo = false;
+            MylistGroups = null;
+            return;
+        }
+
+        // ログインユーザーと同じ場合、お気に入り表示をOFFに
+        IsLoginUser = NiconicoSession.UserId == UserId.Value;
+
+        IsLoadFailed = false;
+
+        VideoInfoItems.Clear();
+
+        try
+        {
+            var userInfo = await UserProvider.GetUserDetailAsync(UserId.Value);
+            if (!userInfo.IsSuccess)
+            {
+                throw new HohoemaException();
             }
 
+            var user = userInfo.Data;
+            Nickname = user.User.Nickname;
+            IconUrl = user.User.Icons.Small.OriginalString;
 
-            try
-            {
-                if (NiconicoSession.IsLoggedIn)
-                {
-                    FollowContext = await UserFollowContext.CreateAsync(_userFollowProvider, User);
-                }
-                else
-                {
-                    FollowContext = UserFollowContext.Default;
-                }
-            }
-            catch
-            {
-                FollowContext = UserFollowContext.Default;
-            }
+            FollowerCount = (uint)user.User.FollowerCount;
 
-            // NGユーザーの設定
 
-            if (!IsLoginUser)
+            User = new UserViewModel()
             {
-                IsNGVideoOwner.Value = NgSettings.IsHiddenVideoOwnerId(UserId);
+                UserId = UserId.Value,
+                Nickname = Nickname,
+                IconUrl = IconUrl
+            };
+        }
+        catch
+        {
+            IsLoadFailed = true;
+        }
+
+
+        try
+        {
+            if (NiconicoSession.IsLoggedIn)
+            {
+                FollowContext = await UserFollowContext.CreateAsync(_userFollowProvider, User);
             }
             else
             {
-                IsNGVideoOwner.Value = false;
+                FollowContext = UserFollowContext.Default;
             }
+        }
+        catch
+        {
+            FollowContext = UserFollowContext.Default;
+        }
 
+        // NGユーザーの設定
+
+        if (!IsLoginUser)
+        {
+            IsNGVideoOwner.Value = NgSettings.IsHiddenVideoOwnerId(UserId);
+        }
+        else
+        {
+            IsNGVideoOwner.Value = false;
+        }
+
+        try
+        {
+            var userVideos = await UserProvider.GetUserVideosAsync(uint.Parse(UserId), 0, 5);
+            foreach (var item in userVideos.Data.Items.Take(5))
+            {
+                var vm = new VideoListItemControlViewModel(item.Essential);
+                VideoInfoItems.Add(vm);
+            }
+            OnPropertyChanged(nameof(VideoInfoItems));
+
+            HasOwnerVideo = VideoInfoItems.Count != 0;
+        }
+        catch (Exception ex)
+        {
+            IsLoadFailed = true;
+            Debug.WriteLine(ex.Message);
+        }
+
+
+
+        if (NiconicoSession.IsLoginUserId(UserId.Value))
+        {
+            MylistGroups = UserMylistManager.Mylists;
+            OnPropertyChanged(nameof(MylistGroups));
+        }
+        else
+        {
             try
             {
-                var userVideos = await UserProvider.GetUserVideosAsync(uint.Parse(UserId), 0, 5);
-                foreach (var item in userVideos.Data.Items.Take(5))
-                {
-                    var vm = new VideoListItemControlViewModel(item.Essential);
-                    VideoInfoItems.Add(vm);
-                }
-                OnPropertyChanged(nameof(VideoInfoItems));
-
-                HasOwnerVideo = VideoInfoItems.Count != 0;
+                MylistGroups = await _mylistRepository.GetUserMylistsAsync(UserId.Value);
+                OnPropertyChanged(nameof(MylistGroups));
             }
             catch (Exception ex)
             {
                 IsLoadFailed = true;
                 Debug.WriteLine(ex.Message);
             }
-
-
-
-            if (NiconicoSession.IsLoginUserId(UserId.Value))
-            {
-                MylistGroups = UserMylistManager.Mylists;
-                OnPropertyChanged(nameof(MylistGroups));
-            }
-            else
-            {
-                try
-                {
-                    MylistGroups = await _mylistRepository.GetUserMylistsAsync(UserId.Value);
-                    OnPropertyChanged(nameof(MylistGroups));
-                }
-                catch (Exception ex)
-                {
-                    IsLoadFailed = true;
-                    Debug.WriteLine(ex.Message);
-                }
-            }
         }
-        
     }
+    
 }

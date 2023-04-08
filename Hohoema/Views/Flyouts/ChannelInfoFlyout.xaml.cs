@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Hohoema.ViewModels.Niconico.Follow;
 using System;
 using System.Collections.Generic;

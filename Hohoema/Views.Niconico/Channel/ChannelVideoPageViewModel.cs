@@ -13,7 +13,7 @@ using Hohoema.Services;
 using System.Runtime.CompilerServices;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Niconico.Channel;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Hohoema.Services;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.ViewModels.VideoListPage;
@@ -30,7 +30,7 @@ using Hohoema.Models.Playlist;
 using Reactive.Bindings;
 using System.Reactive.Linq;
 using Microsoft.Extensions.Logging;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Channel
 {

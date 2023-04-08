@@ -2,7 +2,7 @@
 using Hohoema.Models.Notification;
 using Hohoema.Services;
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Reactive.Disposables;

@@ -9,6 +9,8 @@ using Hohoema.Models;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Services;
 using Hohoema.Services.Playlist;
+using Hohoema.Services.Niconico;
+using Hohoema.Contracts.Services;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 {
@@ -33,7 +35,7 @@ namespace Hohoema.ViewModels.Niconico.Video.Commands
 
         protected override async void Execute(object parameter)
         {
-            var data = new Dialogs.MylistGroupEditData() { };
+            var data = new MylistGroupEditData() { };
             var result = await DialogService.ShowCreateMylistGroupDialogAsync(data);
             if (result)
             {

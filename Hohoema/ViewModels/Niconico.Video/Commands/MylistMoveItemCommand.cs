@@ -1,5 +1,4 @@
-﻿using Hohoema.Dialogs;
-using Hohoema.Models.Niconico.Mylist.LoginUser;
+﻿using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Services.Playlist;
 using Hohoema.Services;
@@ -10,18 +9,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Services.Niconico;
+using Hohoema.Contracts.Services;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 {
     public sealed class MylistMoveItemCommand : VideoContentSelectionCommandBase
     {
-        private readonly DialogService _dialogService;
+        private readonly IMylistGroupDialogService _dialogService;
         private readonly NotificationService _notificationService;
         private readonly LoginUserOwnedMylistManager _userMylistManager;
 
         public MylistMoveItemCommand(
             LoginUserOwnedMylistManager userMylistManager,
-            DialogService dialogService,
+            IMylistGroupDialogService dialogService,
             NotificationService notificationService
             )
         {

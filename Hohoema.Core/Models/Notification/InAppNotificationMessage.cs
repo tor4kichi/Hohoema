@@ -5,9 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
-using I18NPortable;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using NiconicoToolkit.Account;
+using Hohoema.Contracts.Services;
+using CommunityToolkit.Mvvm.DependencyInjection;
 
 namespace Hohoema.Models.Notification
 {
@@ -77,18 +78,20 @@ namespace Hohoema.Models.Notification
             params InAppNotificationCommand[] commands
             )
         {
+            ILocalizeService localizeService = Ioc.Default.GetRequiredService<ILocalizeService>();
+
             string notifyContent = null;
             if (registrationResult == ContentManageResult.Success)
             {
-                notifyContent = "CompleteRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerTitle, targetTitle);
+                notifyContent = localizeService.Translate("CompleteRegisrationForKind0_AddItem2_ToKindTitle1", containerKindLabel, containerTitle, targetTitle);
             }
             else if (registrationResult == ContentManageResult.Exist)
             {
-                notifyContent = "ExistRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerTitle, targetTitle);
+                notifyContent = localizeService.Translate("ExistRegisrationForKind0_AddItem2_ToKindTitle1", containerKindLabel, containerTitle, targetTitle);
             }
             else
             {
-                notifyContent = "FailedRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerTitle, targetTitle);
+                notifyContent = localizeService.Translate("FailedRegisrationForKind0_AddItem2_ToKindTitle1", containerKindLabel, containerTitle, targetTitle);
             }
 
             return new InAppNotificationPayload()

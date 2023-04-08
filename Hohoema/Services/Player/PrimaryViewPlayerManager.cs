@@ -23,10 +23,11 @@ using System.Windows.Input;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 using System.Text.Json;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using DryIoc;
 using Windows.System;
 using Microsoft.Toolkit.Uwp;
+using Hohoema.Contracts.Services.Player;
 
 namespace Hohoema.Services.Player
 {

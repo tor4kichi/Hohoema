@@ -1,17 +1,23 @@
-﻿using Hohoema.Models.Application;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Hohoema.Contracts.Services.Navigations;
+using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.Ranking;
+using Hohoema.Models.Notification;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
-using Hohoema.Helpers;
-using Hohoema.Services;
-using Hohoema.Services.Playlist;
 using Hohoema.Services;
 using Hohoema.Services.Navigations;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
 using I18NPortable;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Ranking.Video;
+using NiconicoToolkit.Rss.Video;
+using NiconicoToolkit.Video;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -19,24 +25,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Hohoema.Models.Notification;
-using Hohoema.Models.Niconico;
-using NiconicoToolkit.Video;
-using NiconicoToolkit.Rss.Video;
-using Microsoft.Toolkit.Collections;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-using AsyncLock = Hohoema.Helpers.AsyncLock;
 using Windows.UI.Xaml.Navigation;
-using Hohoema.Services.Navigations;
-using NiconicoToolkit;
-using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
+using AsyncLock = Hohoema.Helpers.AsyncLock;
 
 namespace Hohoema.ViewModels.Pages.Niconico.VideoRanking
 {
@@ -257,7 +250,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.VideoRanking
                 .AddTo(_CompositeDisposable);
         }
 
-        private (RankingGenre? genre, string ?tag) GetRankingParameters(INavigationParameters parameters)
+        private (RankingGenre? genre, string? tag) GetRankingParameters(INavigationParameters parameters)
         {
             return (parameters.TryGetRankingGenre(out var rankingGenre) ? rankingGenre : null, parameters.TryGetRankingGenreTag(out var queryTag) ? queryTag : null);
         }

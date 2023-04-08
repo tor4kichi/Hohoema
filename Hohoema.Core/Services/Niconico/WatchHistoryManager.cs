@@ -1,7 +1,7 @@
-﻿using Hohoema.Models.Niconico.Video;
+﻿using Hohoema.Contracts.Services;
+using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Services;
-using I18NPortable;
 using NiconicoToolkit.Activity.VideoWatchHistory;
 using NiconicoToolkit.Video;
 using System;
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Hohoema.Services.Niconico.Video
+namespace Hohoema.Services.Niconico
 {
     public sealed class WatchHistoryRemovedEventArgs
     {
@@ -24,15 +24,18 @@ namespace Hohoema.Services.Niconico.Video
     public sealed class WatchHistoryManager
     {
         private readonly LoginUserVideoWatchHistoryProvider _LoginUserVideoWatchHistoryProvider;
-        private readonly NotificationService _notificationService;
+        private readonly INotificationService _notificationService;
+        private readonly ILocalizeService _localizeService;
 
         public WatchHistoryManager(
             LoginUserVideoWatchHistoryProvider LoginUserVideoWatchHistoryProvider,
-            NotificationService notificationService
+            INotificationService notificationService,
+            ILocalizeService localizeService
             )
         {
             _LoginUserVideoWatchHistoryProvider = LoginUserVideoWatchHistoryProvider;
             _notificationService = notificationService;
+            _localizeService = localizeService;
         }
 
         public event EventHandler<ContentWatchedEventArgs> ContentWatched;
@@ -53,18 +56,18 @@ namespace Hohoema.Services.Niconico.Video
                 {
                     WatchHistoryRemoved?.Invoke(this, new WatchHistoryRemovedEventArgs() { VideoId = watchHistory.VideoId });
 
-                    _notificationService.ShowLiteInAppNotification_Success("VideoHistory_DeleteOne_Success".Translate());
+                    _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Success"));
                 }
                 else
                 {
-                    _notificationService.ShowLiteInAppNotification_Success("VideoHistory_DeleteOne_Fail".Translate());
+                    _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Fail"));
                 }
 
                 return result;
             }
             catch
             {
-                _notificationService.ShowLiteInAppNotification_Success("VideoHistory_DeleteOne_Fail".Translate());
+                _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Fail"));
                 throw;
             }
         }
@@ -81,18 +84,18 @@ namespace Hohoema.Services.Niconico.Video
                         WatchHistoryRemoved?.Invoke(this, new WatchHistoryRemovedEventArgs() { VideoId = item.VideoId });
                     }
 
-                    _notificationService.ShowLiteInAppNotification_Success("VideoHistory_DeleteOne_Success".Translate());
+                    _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Success"));
                 }
                 else
                 {
-                    _notificationService.ShowLiteInAppNotification_Success("VideoHistory_DeleteOne_Fail".Translate());
+                    _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Fail"));
                 }
 
                 return result;
             }
             catch
             {
-                _notificationService.ShowLiteInAppNotification_Success("VideoHistory_DeleteOne_Fail".Translate());
+                _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Fail"));
                 throw;
             }
         }
@@ -106,17 +109,17 @@ namespace Hohoema.Services.Niconico.Video
                 {
                     WatchHistoryAllRemoved?.Invoke(this, EventArgs.Empty);
 
-                    _notificationService.ShowLiteInAppNotification_Success("VideoHistories_AllDelete_Success".Translate());
+                    _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistories_AllDelete_Success"));
                 }
                 else
                 {
-                    _notificationService.ShowLiteInAppNotification_Success("VideoHistories_AllDeleted_Fail".Translate());
+                    _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistories_AllDeleted_Fail"));
                 }
                 return res;
             }
             catch
             {
-                _notificationService.ShowLiteInAppNotification_Success("VideoHistories_AllDeleted_Fail".Translate());
+                _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistories_AllDeleted_Fail"));
                 throw;
             }
         }

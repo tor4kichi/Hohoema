@@ -8,7 +8,7 @@ using Hohoema.Helpers;
 using Hohoema.Services;
 using Hohoema.Services.Player;
 using Hohoema.Services;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using I18NPortable;
 using Microsoft.Services.Store.Engagement;
 using Microsoft.UI.Xaml.Controls;
@@ -42,7 +42,7 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using Xamarin.Essentials;
 using Microsoft.Extensions.Logging;
 using ZLogger;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 
 namespace Hohoema.ViewModels.Pages.Hohoema
 {

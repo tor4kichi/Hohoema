@@ -1,6 +1,7 @@
-﻿using Hohoema.Models.Niconico.Video;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.Contracts.Services;
+using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
-using I18NPortable;
 using NiconicoToolkit.Community;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
@@ -97,7 +98,12 @@ namespace Hohoema.Models.Niconico.Community
 
     public record CommunityVideoPlaylistSortOption(CommunityVideoSortKey SortKey, CommunityVideoSortOrder SortOrder) : IPlaylistSortOption
     {
-        public string Label { get; } = $"CommunityVideoSortKey.{SortKey}_{SortOrder}".Translate();
+        private static string GetLocalizedLabel(CommunityVideoSortKey SortKey, CommunityVideoSortOrder SortOrder)
+        {
+            return Ioc.Default.GetRequiredService<ILocalizeService>().Translate($"CommunityVideoSortKey.{SortKey}_{SortOrder}");
+        }
+
+        public string Label { get; } = GetLocalizedLabel(SortKey, SortOrder);
 
         public bool Equals(IPlaylistSortOption other)
         {

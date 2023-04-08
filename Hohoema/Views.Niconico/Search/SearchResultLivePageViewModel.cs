@@ -4,7 +4,7 @@ using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Services;
 using Hohoema.Services.Playlist;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using I18NPortable;
 using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings;
@@ -25,7 +25,7 @@ using Hohoema.Models.Pins;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Live.Timeshift;
 using Microsoft.Extensions.Logging;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Windows.UI.Xaml.Navigation;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Search

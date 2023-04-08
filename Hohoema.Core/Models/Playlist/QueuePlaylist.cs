@@ -3,7 +3,6 @@ using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Helpers;
 using Hohoema.Infra;
-using I18NPortable;
 using LiteDB;
 using Microsoft.Toolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
@@ -20,6 +19,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.System;
+using Hohoema.Contracts.Services;
+using CommunityToolkit.Mvvm.DependencyInjection;
 
 namespace Hohoema.Models.Playlist
 {
@@ -122,12 +123,17 @@ namespace Hohoema.Models.Playlist
 
     public record QueuePlaylistSortOption : IPlaylistSortOption
     {
+        private static string GetLocalizedLabel(LocalMylistSortKey SortKey, LocalMylistSortOrder SortOrder)
+        {
+            return Ioc.Default.GetRequiredService<ILocalizeService>().Translate($"LocalMylistSortKey.{SortKey}_{SortOrder}");
+        }
+
         public LocalMylistSortKey SortKey { get; init; }
 
         public LocalMylistSortOrder SortOrder { get; init; }
         
         string? _label;
-        public string Label => _label ??= $"LocalMylistSortKey.{SortKey}_{SortOrder}".Translate();
+        public string Label => _label ??= GetLocalizedLabel(SortKey, SortOrder);
 
         public string Serialize()
         {
@@ -167,6 +173,7 @@ namespace Hohoema.Models.Playlist
 
 
         private readonly IMessenger _messenger;
+        private readonly ILocalizeService _localizeService;
         private readonly QueuePlaylistRepository _queuePlaylistRepository;
         private readonly QueuePlaylistSetting _queuePlaylistSetting;
         private readonly NicoVideoProvider _nicoVideoProvider;
@@ -174,7 +181,7 @@ namespace Hohoema.Models.Playlist
 
         public int TotalCount => _itemEntityMap.Count;
 
-        public string Name { get; } = Id.Id.Translate();
+        public string Name { get; }
 
         public PlaylistId PlaylistId => Id;
 
@@ -184,15 +191,18 @@ namespace Hohoema.Models.Playlist
         public QueuePlaylist(
             IMessenger messenger,
             IScheduler scheduler,
+            ILocalizeService localizeService,
             QueuePlaylistRepository queuePlaylistRepository,
             QueuePlaylistSetting queuePlaylistSetting
             )
         {
             Items = new (GetQueuePlaylistItems(queuePlaylistRepository, out var itemEntityMap));
             _itemEntityMap = itemEntityMap;
-            _messenger = messenger;            
+            _messenger = messenger;
+            _localizeService = localizeService;
             _queuePlaylistRepository = queuePlaylistRepository;
             _queuePlaylistSetting = queuePlaylistSetting;
+            Name = _localizeService.Translate(Id.Id);
         }
 
         public event NotifyCollectionChangedEventHandler CollectionChanged

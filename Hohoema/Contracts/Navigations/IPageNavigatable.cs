@@ -1,12 +1,12 @@
 ﻿using Hohoema.Models.PageNavigation;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hohoema.Services.Navigations
+namespace Hohoema.Contracts.Services.Navigations
 {
     public interface IPageNavigatable
     {

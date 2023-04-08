@@ -7,7 +7,7 @@ using Reactive.Bindings;
 using System.Diagnostics;
 using Hohoema.Services;
 using Hohoema.Models.Niconico.Follow.LoginUser;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Follow;
 using System.ComponentModel;
@@ -16,7 +16,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Community;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using CommunityToolkit.Mvvm.Messaging;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Follow

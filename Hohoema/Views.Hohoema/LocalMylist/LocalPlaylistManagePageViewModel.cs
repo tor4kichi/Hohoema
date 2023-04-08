@@ -2,11 +2,11 @@
 using Hohoema.Models.Playlist;
 using Hohoema.Services;
 using Hohoema.Services.Playlist;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Microsoft.Toolkit.Uwp.UI;
 using CommunityToolkit.Mvvm.Input;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;

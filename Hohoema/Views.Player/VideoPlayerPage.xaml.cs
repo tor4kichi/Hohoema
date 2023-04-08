@@ -27,7 +27,7 @@ using Hohoema.Models.Player;
 using Windows.System;
 using Hohoema.ViewModels.Player;
 using System.Reactive.Disposables;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.ViewModels.PrimaryWindowCoreLayout;
 

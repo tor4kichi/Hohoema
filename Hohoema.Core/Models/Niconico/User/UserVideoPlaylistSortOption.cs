@@ -1,5 +1,6 @@
-﻿using Hohoema.Models.Playlist;
-using I18NPortable;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.Contracts.Services;
+using Hohoema.Models.Playlist;
 using NiconicoToolkit.User;
 using System.Text.Json;
 
@@ -7,7 +8,12 @@ namespace Hohoema.Models.User
 {
     public record UserVideoPlaylistSortOption(UserVideoSortKey SortKey, UserVideoSortOrder SortOrder) : IPlaylistSortOption
     {
-        public string Label { get; } = $"UserVideoSortKey.{SortKey}_{SortOrder}".Translate();
+        private static string GetLocalizedLabel(UserVideoSortKey SortKey, UserVideoSortOrder SortOrder)
+        {
+            return Ioc.Default.GetRequiredService<ILocalizeService>().Translate($"UserVideoSortKey.{SortKey}_{SortOrder}");
+        }
+
+        public string Label { get; } = GetLocalizedLabel(SortKey, SortOrder);
 
         public bool Equals(IPlaylistSortOption other)
         {

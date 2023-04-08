@@ -6,7 +6,7 @@ using Hohoema.Models.Subscriptions;
 using Hohoema.Helpers;
 using Hohoema.Services;
 using Hohoema.Services.Playlist;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Hohoema.ViewModels.Niconico.Live;
 using Hohoema.ViewModels.VideoListPage;
 using I18NPortable;
@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Microsoft.Extensions.Logging;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Windows.UI.Xaml.Navigation;
 
 namespace Hohoema.ViewModels.Pages.Niconico.NicoRepo

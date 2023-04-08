@@ -18,7 +18,8 @@ using Hohoema.Services.Playlist;
 using Microsoft.Toolkit.Diagnostics;
 using Reactive.Bindings.Extensions;
 using Hohoema.Models.Application;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
+using Hohoema.Contracts.Services.Player;
 
 namespace Hohoema.Services.Player
 {

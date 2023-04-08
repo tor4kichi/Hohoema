@@ -22,7 +22,7 @@ using NiconicoToolkit.Live.WatchSession;
 using Hohoema.Models.Application;
 using Hohoema.ViewModels.Player;
 using System.Reactive.Disposables;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using CommunityToolkit.Mvvm.DependencyInjection;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236

@@ -9,14 +9,15 @@ using Hohoema.Infra;
 using Microsoft.UI.Xaml.Controls;
 using Hohoema.Helpers;
 using Windows.Foundation;
+using Hohoema.Contracts.Services;
 
 namespace Hohoema.Models.Application
 {
     public class AppearanceSettings : FlagsRepositoryBase
     {
-        public AppearanceSettings()
+        public AppearanceSettings(ILocalizeService localizeService)
         {
-            _locale = Read(I18NPortable.I18N.Current.GetDefaultLocale(), nameof(Locale));
+            _locale = Read(localizeService.GetDefaultLocale(), nameof(Locale));
             _firstAppearPageType = Read(HohoemaPageType.RankingCategoryList, nameof(FirstAppearPageType));
             _OverrideInteractionMode = Read(default(ApplicationInteractionMode?), nameof(OverrideInteractionMode));
             _Theme = Read(Internal_ElementTheme.Default, nameof(ApplicationTheme)) switch

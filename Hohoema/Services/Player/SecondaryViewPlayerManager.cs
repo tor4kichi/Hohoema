@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.PageNavigation;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using System;
 using System.Diagnostics;
 using System.Reactive.Concurrency;
@@ -28,6 +28,7 @@ using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.Input;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Hohoema.Contracts.Services.Player;
 
 namespace Hohoema.Services.Player
 {

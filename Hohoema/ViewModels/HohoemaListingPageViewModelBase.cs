@@ -13,7 +13,7 @@ using Microsoft.Toolkit.Uwp;
 using Microsoft.Extensions.Logging;
 using ZLogger;
 using Windows.UI.Xaml.Navigation;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 

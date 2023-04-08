@@ -5,6 +5,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Contracts.Services.Player;
 using Hohoema.Services.Player;
 using Reactive.Bindings.Extensions;
 using Windows.ApplicationModel.Core;

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Hohoema.Services.Niconico.Video;
+using Hohoema.Services.Niconico;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 { 

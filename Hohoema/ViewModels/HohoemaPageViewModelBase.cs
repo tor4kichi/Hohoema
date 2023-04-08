@@ -8,7 +8,8 @@ using System.Threading;
 using Reactive.Bindings.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Views.Pages;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 
 namespace Hohoema.ViewModels
 {

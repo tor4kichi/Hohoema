@@ -7,7 +7,7 @@ using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.Player.Video.Cache;
 using Hohoema.Models.VideoCache;
 using Hohoema.Services.Playlist;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Hohoema.Services.VideoCache.Events;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.Pages.VideoListPage.Commands;
@@ -27,6 +27,7 @@ using System.Windows.Input;
 using Hohoema.Services.Player.Events;
 using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Hohoema.Services.Navigations;
 
 namespace Hohoema.ViewModels.VideoListPage
 {

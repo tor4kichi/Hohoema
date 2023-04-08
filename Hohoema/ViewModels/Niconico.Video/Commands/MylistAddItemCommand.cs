@@ -1,27 +1,25 @@
 ﻿using I18NPortable;
-using Hohoema.Models;
 using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.Playlist;
 using Hohoema.Services;
 using CommunityToolkit.Mvvm.Input;
 using System.Linq;
 using System.Collections.Generic;
-using Hohoema.Dialogs;
 using System;
 using System.Threading.Tasks;
-using Hohoema.Services.Playlist;
+using Hohoema.Services.Niconico;
+using Hohoema.Contracts.Services;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 {
     public sealed class MylistAddItemCommand : VideoContentSelectionCommandBase
     {
-        private readonly DialogService _dialogService;
+        private readonly IMylistGroupDialogService _dialogService;
         private readonly LoginUserOwnedMylistManager _userMylistManager;
 
         public MylistAddItemCommand(
-            NotificationService notificationService,
-            DialogService dialogService,
+            INotificationService notificationService,
+            IMylistGroupDialogService dialogService,
             LoginUserOwnedMylistManager userMylistManager
             )
         {
@@ -30,7 +28,7 @@ namespace Hohoema.ViewModels.Niconico.Video.Commands
             _userMylistManager = userMylistManager;
         }
 
-        public NotificationService NotificationService { get; }
+        public INotificationService NotificationService { get; }
         public DialogService DialogService { get; }
 
         protected override void Execute(IVideoContent content)

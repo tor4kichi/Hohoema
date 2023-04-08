@@ -6,7 +6,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Services;
 using Hohoema.Services;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using CommunityToolkit.Mvvm.Input;
 using Reactive.Bindings.Extensions;
 using System;
@@ -25,7 +25,7 @@ using Hohoema.Models.Pins;
 using Hohoema.ViewModels.Niconico.Follow;
 using NiconicoToolkit.Community;
 using NiconicoToolkit;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Community
 {

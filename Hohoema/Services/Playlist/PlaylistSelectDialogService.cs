@@ -10,6 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using NiconicoToolkit.Mylist;
 using Hohoema.Services.LocalMylist;
+using Hohoema.Services.Niconico;
+using Hohoema.Contracts.Services;
 
 namespace Hohoema.Services.Playlist
 {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Services;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -36,11 +37,11 @@ namespace Hohoema.Dialogs
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
-			if (item is Dialogs.ChoiceFromListSelectableContainer)
+			if (item is ChoiceFromListSelectableContainer)
 			{
 				return List;
 			}
-			else if (item is Dialogs.TextInputSelectableContainer)
+			else if (item is TextInputSelectableContainer)
 			{
 				return InputText;
 			}

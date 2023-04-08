@@ -3,7 +3,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player.Video;
 using Hohoema.Helpers;
 using Hohoema.Services.Player;
-using Hohoema.Services.Navigations;
+using Hohoema.Contracts.Services.Navigations;
 using Hohoema.ViewModels.VideoListPage;
 using NiconicoToolkit;
 using NiconicoToolkit.Recommend;

@@ -1,18 +1,22 @@
-﻿using Hohoema.Models.Niconico;
+﻿using CommunityToolkit.Mvvm.Input;
+using Hohoema.Contracts.Services.Navigations;
+using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.Niconico.Search;
+using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
+using Hohoema.Models.Playlist;
 using Hohoema.Models.Subscriptions;
-using Hohoema.Helpers;
 using Hohoema.Services;
-using Hohoema.Services.Playlist;
 using Hohoema.Services.Navigations;
+using Hohoema.ViewModels.Niconico.Follow;
 using Hohoema.ViewModels.Niconico.Search;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.Subscriptions;
 using Hohoema.ViewModels.VideoListPage;
-using CommunityToolkit.Mvvm.Input;
-using Hohoema.Services.Navigations;
+using I18NPortable;
+using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.Collections;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -20,16 +24,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
-using Hohoema.ViewModels.Niconico.Follow;
-using Hohoema.Models.Niconico.Follow.LoginUser;
-using Hohoema.Models.Niconico.Video;
-using NiconicoToolkit.SearchWithCeApi.Video;
-using Microsoft.Toolkit.Collections;
-using Hohoema.Models.Playlist;
-using Microsoft.Extensions.Logging;
 using Windows.UI.Xaml.Navigation;
-using I18NPortable;
+using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Search
 {
