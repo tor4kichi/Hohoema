@@ -1,10 +1,9 @@
-﻿namespace Hohoema.Models.Application
+﻿namespace Hohoema.Models.Application;
+
+public enum ApplicationLayout
 {
-    public enum ApplicationLayout
-    {
-        TV,
-        Desktop,
-        Tablet,
-        Mobile,
-    }
+    TV,
+    Desktop,
+    Tablet,
+    Mobile,
 }

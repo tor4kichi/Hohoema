@@ -1,11 +1,9 @@
 ﻿using CommunityToolkit.Mvvm.Input;
-using Hohoema.Contracts.Services;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Playlist;
 using Hohoema.Services;
-using Hohoema.Contracts.Services.Navigations;
 using Hohoema.Services.Niconico;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using I18NPortable;
@@ -21,7 +19,6 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Popups;
-using Hohoema.Services.Navigations;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Mylist;
 

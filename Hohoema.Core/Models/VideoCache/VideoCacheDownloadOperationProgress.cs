@@ -1,14 +1,13 @@
-﻿namespace Hohoema.Models.VideoCache
+﻿namespace Hohoema.Models.VideoCache;
+
+public struct VideoCacheDownloadOperationProgress
 {
-    public struct VideoCacheDownloadOperationProgress
+    public long TotalBytes { get; set; }
+
+    public long ProgressBytes { get; set; }
+
+    public float GetNormalizedProgress()
     {
-        public long TotalBytes { get; set; }
-
-        public long ProgressBytes { get; set; }
-
-        public float GetNormalizedProgress()
-        {
-            return ProgressBytes / (float)TotalBytes;
-        }
+        return ProgressBytes / (float)TotalBytes;
     }
 }

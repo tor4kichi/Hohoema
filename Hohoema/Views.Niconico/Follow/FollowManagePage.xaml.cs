@@ -1,35 +1,24 @@
-﻿using Hohoema.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using Hohoema.ViewModels.Pages.Niconico.Follow;
-using Hohoema.Models.Niconico.Follow;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Channel;
+using Hohoema.Models.Niconico.Community;
+using Hohoema.Models.Niconico.Follow;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.Niconico.Community;
-using Hohoema.Models.Niconico.Channel;
-using Hohoema.Contracts.Services.Navigations;
-using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.ViewModels.Pages.Niconico.Follow;
+using System;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Data;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
-namespace Hohoema.Views.Pages.Niconico.Follow
-{
-	/// <summary>
-	/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
-	/// </summary>
-	public sealed partial class FollowManagePage : Page
+namespace Hohoema.Views.Pages.Niconico.Follow;
+
+/// <summary>
+/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
+/// </summary>
+public sealed partial class FollowManagePage : Page
 	{
 		public FollowManagePage()
 		{
@@ -56,8 +45,8 @@ namespace Hohoema.Views.Pages.Niconico.Follow
 						return Symbol.Tag;
 					case FollowItemType.Mylist:
 						return Symbol.List;
-                    case FollowItemType.Channel:
-                        return Symbol.OtherUser;
+                case FollowItemType.Channel:
+                    return Symbol.OtherUser;
 					case FollowItemType.Community:
 						return Symbol.People;
 					default:
@@ -78,7 +67,7 @@ namespace Hohoema.Views.Pages.Niconico.Follow
 
 
 	public sealed class FollowTypeItemTemplateSelector : DataTemplateSelector
-    {
+{
 		public DataTemplate UserItemTemplate { get; set; }
 		public DataTemplate TagItemTemplate { get; set; }
 		public DataTemplate MylistItemTemplate { get; set; }
@@ -87,12 +76,12 @@ namespace Hohoema.Views.Pages.Niconico.Follow
 
 
 		protected override DataTemplate SelectTemplateCore(object item)
-        {
-            return SelectTemplateCore(item, null);
-        }
+    {
+        return SelectTemplateCore(item, null);
+    }
 
-        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
-        {
+    protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+    {
 			return item switch
 			{
 				IUser => UserItemTemplate,
@@ -103,5 +92,4 @@ namespace Hohoema.Views.Pages.Niconico.Follow
 				_ => throw new NotSupportedException(),
 			};
 		}
-    }
 }

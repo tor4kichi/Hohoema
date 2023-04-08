@@ -1,18 +1,17 @@
-﻿namespace Hohoema.Models.VideoCache
+﻿namespace Hohoema.Models.VideoCache;
+
+public enum VideoCacheDownloadOperationFailedReason
 {
-    public enum VideoCacheDownloadOperationFailedReason
-    {
-        None,
-        Unknown,
-        InternetUnavairable,
-        NoUsageAuthority,
-        CanNotCacheEncryptedContent,
-        StorageCapacityLimitReached,
-        RistrictedDownloadLineCount,
-        NoMorePendingOrPausingItem,
-        VideoDeleteFromServer,
-        RequirePermission_Admission,
-        RequirePermission_Premium,
-        RequirePermission_Ppv,
-    }
+    None,
+    Unknown,
+    InternetUnavairable,
+    NoUsageAuthority,
+    CanNotCacheEncryptedContent,
+    StorageCapacityLimitReached,
+    RistrictedDownloadLineCount,
+    NoMorePendingOrPausingItem,
+    VideoDeleteFromServer,
+    RequirePermission_Admission,
+    RequirePermission_Premium,
+    RequirePermission_Ppv,
 }

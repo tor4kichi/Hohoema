@@ -1,11 +1,7 @@
-﻿using Hohoema.Contracts.Services;
-using I18NPortable;
-using System;
+﻿using I18NPortable;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hohoema.Services;
 

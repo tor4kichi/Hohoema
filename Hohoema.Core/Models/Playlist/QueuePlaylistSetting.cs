@@ -1,35 +1,32 @@
-﻿using Hohoema.Models.Application;
-using Hohoema.Infra;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Hohoema.Infra;
 
-namespace Hohoema.Models.Playlist
+namespace Hohoema.Models.Playlist;
+
+[System.Obsolete]
+public sealed class QueuePlaylistSetting : FlagsRepositoryBase
 {
-    public sealed class QueuePlaylistSetting : FlagsRepositoryBase
+    [System.Obsolete]
+    public string LastSelectedSortOptions
     {
-        public string LastSelectedSortOptions
-        {
-            get => Read(string.Empty);
-            set => Save(value);
-        }
-
-
-        public bool IsGroupingNearByTitleThenByTitleAscending
-        {
-            get => Read(true);
-            set => Save(value);
-        }
-
-        public const double DefaultTitleSimulalityThreshold = 0.8;
-
-        public double TitleSimulalityThreshold
-        {
-            get => Read(DefaultTitleSimulalityThreshold);
-            set => Save(value);
-        }
-
+        get => Read(string.Empty);
+        set => Save(value);
     }
+
+
+    [System.Obsolete]
+    public bool IsGroupingNearByTitleThenByTitleAscending
+    {
+        get => Read(true);
+        set => Save(value);
+    }
+
+    public const double DefaultTitleSimulalityThreshold = 0.8;
+
+    [System.Obsolete]
+    public double TitleSimulalityThreshold
+    {
+        get => Read(DefaultTitleSimulalityThreshold);
+        set => Save(value);
+    }
+
 }

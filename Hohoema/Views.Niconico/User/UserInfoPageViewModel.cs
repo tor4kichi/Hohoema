@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.Input;
-using Hohoema.Contracts.Services.Navigations;
 using Hohoema.Infra;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Follow.LoginUser;
@@ -10,7 +9,6 @@ using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
-using Hohoema.Services.Navigations;
 using Hohoema.Services.Niconico;
 using Hohoema.Services.Playlist;
 using Hohoema.ViewModels.Niconico.Follow;

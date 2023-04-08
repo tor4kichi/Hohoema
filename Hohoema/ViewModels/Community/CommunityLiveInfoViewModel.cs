@@ -1,21 +1,21 @@
-﻿using NiconicoToolkit.Live;
-using Hohoema.Models.Niconico.Live;
-using System;
+﻿using Hohoema.Models.Niconico.Live;
 using NiconicoToolkit;
+using NiconicoToolkit.Live;
+using System;
 
-namespace Hohoema.ViewModels.Community
-{
-    public class CommunityLiveInfoViewModel : ILiveContent
+namespace Hohoema.ViewModels.Community;
+
+public class CommunityLiveInfoViewModel : ILiveContent
 	{
-        public CommunityLiveInfoViewModel()
-        {
-            //LiveInfo = info;
+    public CommunityLiveInfoViewModel()
+    {
+        //LiveInfo = info;
 
-            //LiveId = LiveInfo.LiveId;
-            //LiveTitle = LiveInfo.LiveId;
-            //StartTime = LiveInfo.StartTime;
-            //StreamerName = LiveInfo.StreamerName;
-        }
+        //LiveId = LiveInfo.LiveId;
+        //LiveTitle = LiveInfo.LiveId;
+        //StartTime = LiveInfo.StartTime;
+        //StreamerName = LiveInfo.StreamerName;
+    }
 
 
 
@@ -24,11 +24,10 @@ namespace Hohoema.ViewModels.Community
 		public string StreamerName { get; private set; }
 		public DateTime StartTime { get; private set; }
 
-        public string BroadcasterId => null;
+    public string BroadcasterId => null;
 
-        public NiconicoId Id => LiveId;
+    public NiconicoId Id => LiveId;
 
-        public string Label => Title;
+    public string Label => Title;
 
-    }
 }

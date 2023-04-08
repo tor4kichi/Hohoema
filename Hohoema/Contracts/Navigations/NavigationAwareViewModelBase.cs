@@ -2,147 +2,145 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Windows.UI.Xaml.Navigation;
 
-namespace Hohoema.Contracts.Services.Navigations
+namespace Hohoema.Contracts.Services.Navigations;
+
+public interface INavigationResult
 {
-    public interface INavigationResult
+    bool IsSuccess { get; }
+    Exception Exception { get; }
+}
+
+public class NavigationResult : INavigationResult
+{
+    public bool IsSuccess { get; init; }
+
+    public Exception Exception { get; init; }
+}
+
+public interface INavigationParameters : IDictionary<string, object>
+{
+    bool TryGetValue<T>(string key, out T outValue);
+    T GetValue<T>(string key);
+}
+
+public class NavigationParameters : Dictionary<string, object>, INavigationParameters
+{
+    static IEnumerable<KeyValuePair<string, object>> ParseQueryParametersString(string queryParameters)
     {
-        bool IsSuccess { get; }
-        Exception Exception { get; }
+        var query = HttpUtility.ParseQueryString(queryParameters);
+        return query.AllKeys.Select(x => new KeyValuePair<string, object>(x, query.Get(x)));
+    }
+    public NavigationParameters(string queryParameters)
+        : base(ParseQueryParametersString(queryParameters))
+    {
+        
     }
 
-    public class NavigationResult : INavigationResult
+    public NavigationParameters(IEnumerable<KeyValuePair<string, object>> parameters)
+        : base(parameters)
     {
-        public bool IsSuccess { get; init; }
-
-        public Exception Exception { get; init; }
     }
 
-    public interface INavigationParameters : IDictionary<string, object>
+    public NavigationParameters(params (string Key, object Value)[] parameters)
+        : base(parameters.Select(x => new KeyValuePair<string, object>(x.Key, x.Value)))
     {
-        bool TryGetValue<T>(string key, out T outValue);
-        T GetValue<T>(string key);
     }
 
-    public class NavigationParameters : Dictionary<string, object>, INavigationParameters
+    public bool TryGetValue<T>(string key, out T outValue)
     {
-        static IEnumerable<KeyValuePair<string, object>> ParseQueryParametersString(string queryParameters)
+        if (base.TryGetValue(key, out object temp))
         {
-            var query = HttpUtility.ParseQueryString(queryParameters);
-            return query.AllKeys.Select(x => new KeyValuePair<string, object>(x, query.Get(x)));
-        }
-        public NavigationParameters(string queryParameters)
-            : base(ParseQueryParametersString(queryParameters))
-        {
-            
-        }
-
-        public NavigationParameters(IEnumerable<KeyValuePair<string, object>> parameters)
-            : base(parameters)
-        {
-        }
-
-        public NavigationParameters(params (string Key, object Value)[] parameters)
-            : base(parameters.Select(x => new KeyValuePair<string, object>(x.Key, x.Value)))
-        {
-        }
-
-        public bool TryGetValue<T>(string key, out T outValue)
-        {
-            if (base.TryGetValue(key, out object temp))
+            var type = typeof(T);
+            if (type.IsEnum && temp is string strTemp)
             {
-                var type = typeof(T);
-                if (type.IsEnum && temp is string strTemp)
-                {
-                    outValue = (T)Enum.Parse(type, strTemp);
-                    return true;
-                }
-                else if (temp.GetType() == typeof(T))
-                {                    
-                    outValue = (T)temp;
-                    return true;
-                }
-                else
-                {
-                    outValue = default;
-                    return false;
-                }
+                outValue = (T)Enum.Parse(type, strTemp);
+                return true;
+            }
+            else if (temp.GetType() == typeof(T))
+            {                    
+                outValue = (T)temp;
+                return true;
             }
             else
             {
-                outValue = default(T);
+                outValue = default;
                 return false;
             }
         }
-
-        public T GetValue<T>(string key)
+        else
         {
-            return TryGetValue(key, out T value) ? value : throw new KeyNotFoundException();
+            outValue = default(T);
+            return false;
         }
     }
 
-    public interface INavigationAware
+    public T GetValue<T>(string key)
     {
-        void OnNavigatedFrom(INavigationParameters parameters);
-        void OnNavigatingTo(INavigationParameters parameters);
-        void OnNavigatedTo(INavigationParameters parameters);
-        Task OnNavigatedToAsync(INavigationParameters parameters);
+        return TryGetValue(key, out T value) ? value : throw new KeyNotFoundException();
+    }
+}
+
+public interface INavigationAware
+{
+    void OnNavigatedFrom(INavigationParameters parameters);
+    void OnNavigatingTo(INavigationParameters parameters);
+    void OnNavigatedTo(INavigationParameters parameters);
+    Task OnNavigatedToAsync(INavigationParameters parameters);
+}
+
+public abstract class NavigationAwareViewModelBase : ObservableObject, INavigationAware
+{
+    public virtual void OnNavigatedFrom(INavigationParameters parameters)
+    {
+
     }
 
-    public abstract class NavigationAwareViewModelBase : ObservableObject, INavigationAware
+    public virtual void OnNavigatingTo(INavigationParameters parameters)
     {
-        public virtual void OnNavigatedFrom(INavigationParameters parameters)
-        {
 
+    }
+
+    public virtual void OnNavigatedTo(INavigationParameters parameters)
+    {
+
+    }
+
+    public virtual Task OnNavigatedToAsync(INavigationParameters parameters)
+    {
+        return Task.CompletedTask;
+    }
+}
+
+public static class NavigationParametersExtensions
+{
+    public static bool TryGetValue<T>(this INavigationParameters parameters, string key, out T outValue)
+    {
+        if (!parameters.ContainsKey(key))
+        {
+            outValue = default(T);
+            return false;
         }
-
-        public virtual void OnNavigatingTo(INavigationParameters parameters)
+        else
         {
-
-        }
-
-        public virtual void OnNavigatedTo(INavigationParameters parameters)
-        {
-
-        }
-
-        public virtual Task OnNavigatedToAsync(INavigationParameters parameters)
-        {
-            return Task.CompletedTask;
+            return parameters.TryGetValue(key, out outValue);
         }
     }
 
-    public static class NavigationParametersExtensions
+    public const string NavigationModeKey = "__nm";
+    public static NavigationMode GetNavigationMode(this INavigationParameters parameters)
     {
-        public static bool TryGetValue<T>(this INavigationParameters parameters, string key, out T outValue)
-        {
-            if (!parameters.ContainsKey(key))
-            {
-                outValue = default(T);
-                return false;
-            }
-            else
-            {
-                return parameters.TryGetValue(key, out outValue);
-            }
-        }
+        return parameters.TryGetValue<NavigationMode>(NavigationModeKey, out var mode) ? mode : throw new InvalidOperationException();
+    }
 
-        public const string NavigationModeKey = "__nm";
-        public static NavigationMode GetNavigationMode(this INavigationParameters parameters)
-        {
-            return parameters.TryGetValue<NavigationMode>(NavigationModeKey, out var mode) ? mode : throw new InvalidOperationException();
-        }
+    public static void SetNavigationMode(this INavigationParameters parameters, NavigationMode mode)
+    {
+        if (parameters == null) { return; }
 
-        public static void SetNavigationMode(this INavigationParameters parameters, NavigationMode mode)
-        {
-            if (parameters == null) { return; }
-
-            parameters.Remove(NavigationModeKey);
-            parameters.Add(NavigationModeKey, mode);
-        }
+        parameters.Remove(NavigationModeKey);
+        parameters.Add(NavigationModeKey, mode);
     }
 }

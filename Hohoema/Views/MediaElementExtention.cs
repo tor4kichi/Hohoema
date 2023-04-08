@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Media.Core;
+﻿using Windows.Media.Core;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace NicoPlayerHohoema.Views
-{
-	public class MediaElementExtention 
+namespace NicoPlayerHohoema.Views;
+
+public class MediaElementExtention 
 	{
 		#region CustomStream Attached Behavior
 
@@ -104,4 +99,3 @@ namespace NicoPlayerHohoema.Views
 
 		#endregion
 	}
-}

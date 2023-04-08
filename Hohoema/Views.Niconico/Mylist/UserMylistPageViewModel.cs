@@ -4,170 +4,165 @@ using Hohoema.Models.Niconico.User;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
 using Hohoema.Models.Playlist;
-using Hohoema.Helpers;
 using Hohoema.Services;
+using Hohoema.Services.LocalMylist;
 using Hohoema.Services.Playlist;
-using Hohoema.Contracts.Services.Navigations;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.User;
-using Hohoema.Contracts.Services.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Hohoema.Services.LocalMylist;
-using Microsoft.Extensions.Logging;
 using ZLogger;
 
-namespace Hohoema.ViewModels.Pages.Niconico.Mylist
-{
-    public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, IPinablePage, ITitleUpdatablePage
+namespace Hohoema.ViewModels.Pages.Niconico.Mylist;
+
+public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, IPinablePage, ITitleUpdatablePage
 	{
-        HohoemaPin IPinablePage.GetPin()
+    HohoemaPin IPinablePage.GetPin()
+    {
+        return new HohoemaPin()
         {
-            return new HohoemaPin()
-            {
-                Label = UserName,
-                PageType = HohoemaPageType.UserMylist,
-                Parameter = $"id={UserId}"
-            };
-        }
-
-        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
-        {
-            return this.ObserveProperty(x => x.UserName);
-        }
-
-        public UserMylistPageViewModel(
-            ILoggerFactory loggerFactory,
-            ApplicationLayoutManager applicationLayoutManager,
-            PageManager pageManager,
-            Services.DialogService dialogService,
-            NiconicoSession niconicoSession,
-            UserProvider userProvider,
-            MylistResolver mylistRepository,
-            LocalMylistManager localMylistManager
-            )
-            : base(loggerFactory.CreateLogger<UserMylistPageViewModel>())
-        {
-            ApplicationLayoutManager = applicationLayoutManager;
-            PageManager = pageManager;
-            DialogService = dialogService;
-            NiconicoSession = niconicoSession;
-            UserProvider = userProvider;
-            _mylistRepository = mylistRepository;
-            _localMylistManager = localMylistManager;
-        }
-
-        public ApplicationLayoutManager ApplicationLayoutManager { get; }
-        public PageManager PageManager { get; }
-        public Services.DialogService DialogService { get; }
-        public NiconicoSession NiconicoSession { get; }
-        public UserProvider UserProvider { get; }
-        private readonly MylistResolver _mylistRepository;
-        private readonly LocalMylistManager _localMylistManager;
-
-        public UserId? UserId { get; private set; }
-
-        private string _UserName;
-        public string UserName
-        {
-            get { return _UserName; }
-            set { SetProperty(ref _UserName, value); }
-        }
-
-        public ReactiveCommand<IPlaylist> OpenMylistCommand { get; private set; }
-
-        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
-        {
-            if (parameters.TryGetValue("id", out string userId))
-            {                
-                UserId = userId;
-            }
-            else if (parameters.TryGetValue("id", out UserId justUserId))
-            {
-                UserId = justUserId;
-            }
-
-
-            if ((!UserId.HasValue && NiconicoSession.IsLoggedIn) || UserId.HasValue && (NiconicoSession.IsLoginUserId(UserId.Value)))
-            {
-                // ログインユーザー用のマイリスト一覧ページにリダイレクト
-                PageManager.ForgetLastPage();
-                PageManager.OpenPage(HohoemaPageType.OwnerMylistManage);
-
-                return;
-            }
-            else if (UserId != null)
-            {
-                try
-                {
-                    var userInfo = await UserProvider.GetUserInfoAsync(UserId.Value);
-                    UserName = userInfo.ScreenName;
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(ex.Message);
-                }
-            }
-            else
-            {
-                throw new Infra.HohoemaException("UserMylistPage が不明なパラメータと共に開かれました : " + parameters.ToString());
-            }
-
-
-            await base.OnNavigatedToAsync(parameters);
-        }
-
-
-        protected override (int, IIncrementalSource<MylistPlaylist>) GenerateIncrementalSource()
-        {
-            return (25 /* 全件取得するため指定不要 */, new OtherUserMylistIncrementalLoadingSource(UserId, _mylistRepository, _logger));
-        }
+            Label = UserName,
+            PageType = HohoemaPageType.UserMylist,
+            Parameter = $"id={UserId}"
+        };
     }
 
-    public sealed class OtherUserMylistIncrementalLoadingSource : IIncrementalSource<MylistPlaylist>
+    IObservable<string> ITitleUpdatablePage.GetTitleObservable()
     {
-        List<MylistPlaylist> _userMylists { get; set; }
+        return this.ObserveProperty(x => x.UserName);
+    }
 
-        public string UserId { get; }
+    public UserMylistPageViewModel(
+        ILoggerFactory loggerFactory,
+        ApplicationLayoutManager applicationLayoutManager,
+        PageManager pageManager,
+        Services.DialogService dialogService,
+        NiconicoSession niconicoSession,
+        UserProvider userProvider,
+        MylistResolver mylistRepository,
+        LocalMylistManager localMylistManager
+        )
+        : base(loggerFactory.CreateLogger<UserMylistPageViewModel>())
+    {
+        ApplicationLayoutManager = applicationLayoutManager;
+        PageManager = pageManager;
+        DialogService = dialogService;
+        NiconicoSession = niconicoSession;
+        UserProvider = userProvider;
+        _mylistRepository = mylistRepository;
+        _localMylistManager = localMylistManager;
+    }
 
-        private readonly MylistResolver _mylistRepository;
-        private readonly ILogger _logger;
+    public ApplicationLayoutManager ApplicationLayoutManager { get; }
+    public PageManager PageManager { get; }
+    public Services.DialogService DialogService { get; }
+    public NiconicoSession NiconicoSession { get; }
+    public UserProvider UserProvider { get; }
+    private readonly MylistResolver _mylistRepository;
+    private readonly LocalMylistManager _localMylistManager;
 
-        public OtherUserMylistIncrementalLoadingSource(
-            string userId, 
-            MylistResolver mylistRepository,
-            ILogger logger
-            )
-        {
+    public UserId? UserId { get; private set; }
+
+    private string _UserName;
+    public string UserName
+    {
+        get { return _UserName; }
+        set { SetProperty(ref _UserName, value); }
+    }
+
+    public ReactiveCommand<IPlaylist> OpenMylistCommand { get; private set; }
+
+    public override async Task OnNavigatedToAsync(INavigationParameters parameters)
+    {
+        if (parameters.TryGetValue("id", out string userId))
+        {                
             UserId = userId;
-            _mylistRepository = mylistRepository;
-            _logger = logger;
+        }
+        else if (parameters.TryGetValue("id", out UserId justUserId))
+        {
+            UserId = justUserId;
         }
 
-        async Task<IEnumerable<MylistPlaylist>> IIncrementalSource<MylistPlaylist>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
+
+        if ((!UserId.HasValue && NiconicoSession.IsLoggedIn) || UserId.HasValue && (NiconicoSession.IsLoginUserId(UserId.Value)))
+        {
+            // ログインユーザー用のマイリスト一覧ページにリダイレクト
+            PageManager.ForgetLastPage();
+            PageManager.OpenPage(HohoemaPageType.OwnerMylistManage);
+
+            return;
+        }
+        else if (UserId != null)
         {
             try
             {
-                _userMylists ??= await _mylistRepository.GetUserMylistsAsync(UserId);
-
-                var head = pageIndex * pageSize;
-                return _userMylists.Skip(head).Take(pageSize)
-                    .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
-                    ;
+                var userInfo = await UserProvider.GetUserInfoAsync(UserId.Value);
+                UserName = userInfo.ScreenName;
             }
             catch (Exception ex)
             {
-                _logger.ZLogErrorWithPayload(exception: ex, UserId, "UserMylists loading failed");
-                return Enumerable.Empty<MylistPlaylist>();
+                System.Diagnostics.Debug.WriteLine(ex.Message);
             }
-
         }
+        else
+        {
+            throw new Infra.HohoemaException("UserMylistPage が不明なパラメータと共に開かれました : " + parameters.ToString());
+        }
+
+
+        await base.OnNavigatedToAsync(parameters);
+    }
+
+
+    protected override (int, IIncrementalSource<MylistPlaylist>) GenerateIncrementalSource()
+    {
+        return (25 /* 全件取得するため指定不要 */, new OtherUserMylistIncrementalLoadingSource(UserId, _mylistRepository, _logger));
+    }
+}
+
+public sealed class OtherUserMylistIncrementalLoadingSource : IIncrementalSource<MylistPlaylist>
+{
+    List<MylistPlaylist> _userMylists { get; set; }
+
+    public string UserId { get; }
+
+    private readonly MylistResolver _mylistRepository;
+    private readonly ILogger _logger;
+
+    public OtherUserMylistIncrementalLoadingSource(
+        string userId, 
+        MylistResolver mylistRepository,
+        ILogger logger
+        )
+    {
+        UserId = userId;
+        _mylistRepository = mylistRepository;
+        _logger = logger;
+    }
+
+    async Task<IEnumerable<MylistPlaylist>> IIncrementalSource<MylistPlaylist>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken)
+    {
+        try
+        {
+            _userMylists ??= await _mylistRepository.GetUserMylistsAsync(UserId);
+
+            var head = pageIndex * pageSize;
+            return _userMylists.Skip(head).Take(pageSize)
+                .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                ;
+        }
+        catch (Exception ex)
+        {
+            _logger.ZLogErrorWithPayload(exception: ex, UserId, "UserMylists loading failed");
+            return Enumerable.Empty<MylistPlaylist>();
+        }
+
     }
 }

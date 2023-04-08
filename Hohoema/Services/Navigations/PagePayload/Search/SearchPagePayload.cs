@@ -1,11 +1,10 @@
-﻿using Hohoema.Models;
-using Hohoema.Models.PageNavigation;
+﻿using Hohoema.Models.PageNavigation;
 using System.Runtime.Serialization;
 using System.Text.Json;
 
-namespace Hohoema.Services.Navigations
-{
-    [DataContract]
+namespace Hohoema.Services.Navigations;
+
+[DataContract]
 	public class SearchPagePayload : PagePayloadBase
 	{
 		public SearchPagePayload()
@@ -63,4 +62,3 @@ namespace Hohoema.Services.Navigations
 			return _Content;
 		}
 	}
-}

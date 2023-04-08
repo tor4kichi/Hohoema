@@ -1,17 +1,10 @@
 ﻿using Microsoft.Xaml.Interactivity;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Media;
 
-namespace Hohoema.Views.Behaviors
-{
-	public class ListViewVerticalOffsetGetter : Behavior<ListViewBase>, IAction
+namespace Hohoema.Views.Behaviors;
+
+public class ListViewVerticalOffsetGetter : Behavior<ListViewBase>, IAction
 	{
 
 		#region WithCursor Property 
@@ -44,44 +37,41 @@ namespace Hohoema.Views.Behaviors
 			
 		}
 
-        protected override void OnDetaching()
-        {
-            this.AssociatedObject.Loaded -= AssociatedObject_Loaded;
-            base.OnDetaching();
-        }
+    protected override void OnDetaching()
+    {
+        this.AssociatedObject.Loaded -= AssociatedObject_Loaded;
+        base.OnDetaching();
+    }
 
 		private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
 		{
-            _ScrollViewer = AssociatedObject.FindFirstChild<ScrollViewer>();
+        _ScrollViewer = AssociatedObject.FindFirstChild<ScrollViewer>();
 
-            if (_ScrollViewer != null)
-            {
-                _ScrollViewer.ViewChanged += AssociatedObject_ViewChanged;
-            }
-        }
-
-
-        bool _NowChangingInViewChanged = false;
-		private void AssociatedObject_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
-		{
-            _NowChangingInViewChanged = true;
-            try
-            {
-                VerticalOffset = _ScrollViewer.VerticalOffset;
-            }
-            finally
-            {
-                _NowChangingInViewChanged = false;
-            }
-        }
-
-
-        object IAction.Execute(object sender, object parameter)
+        if (_ScrollViewer != null)
         {
-            VerticalOffset = _ScrollViewer.VerticalOffset;
-            return true;
+            _ScrollViewer.ViewChanged += AssociatedObject_ViewChanged;
         }
     }
 
 
+    bool _NowChangingInViewChanged = false;
+		private void AssociatedObject_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
+		{
+        _NowChangingInViewChanged = true;
+        try
+        {
+            VerticalOffset = _ScrollViewer.VerticalOffset;
+        }
+        finally
+        {
+            _NowChangingInViewChanged = false;
+        }
+    }
+
+
+    object IAction.Execute(object sender, object parameter)
+    {
+        VerticalOffset = _ScrollViewer.VerticalOffset;
+        return true;
+    }
 }

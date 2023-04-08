@@ -1,29 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.ViewModels.Pages.Hohoema.VideoCache;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using Hohoema.Contracts.Services.Navigations;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using Hohoema.ViewModels.Pages.Hohoema.VideoCache;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
-namespace Hohoema.Views.Pages.Hohoema.VideoCache
-{
-	/// <summary>
-	/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
-	/// </summary>
-	public sealed partial class CacheManagementPage : Page
+namespace Hohoema.Views.Pages.Hohoema.VideoCache;
+
+/// <summary>
+/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
+/// </summary>
+public sealed partial class CacheManagementPage : Page
 	{
 		public CacheManagementPage()
 		{
@@ -36,7 +23,7 @@ namespace Hohoema.Views.Pages.Hohoema.VideoCache
 
 
 
-    public class ProgressTemplateSelector : DataTemplateSelector
+public class ProgressTemplateSelector : DataTemplateSelector
 	{
 		public DataTemplate Progress { get; set; }
 		public DataTemplate Empty { get; set; }
@@ -54,4 +41,3 @@ namespace Hohoema.Views.Pages.Hohoema.VideoCache
 			}
 		}
 	}
-}

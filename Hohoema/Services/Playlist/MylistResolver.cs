@@ -1,67 +1,62 @@
-﻿using Hohoema.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
-using Hohoema.Models.Niconico.Mylist.LoginUser;
-using Hohoema.Models.Niconico.Mylist;
-using NiconicoToolkit;
+﻿using Hohoema.Models.Niconico.Mylist;
+using Hohoema.Services.Niconico;
 using NiconicoToolkit.Mylist;
 using NiconicoToolkit.User;
-using Hohoema.Services.Niconico;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
 
-namespace Hohoema.Services.Playlist
+namespace Hohoema.Services.Playlist;
+
+
+public class MylistResolver
 {
+    private readonly NiconicoSession _niconicoSession;
+    private readonly LoginUserOwnedMylistManager _userMylistManager;
+    private readonly MylistProvider _mylistProvider;
 
-    public class MylistResolver
+    public MylistResolver(
+        NiconicoSession niconicoSession,
+        LoginUserOwnedMylistManager userMylistManager,
+        MylistProvider mylistProvider
+        )
     {
-        private readonly NiconicoSession _niconicoSession;
-        private readonly LoginUserOwnedMylistManager _userMylistManager;
-        private readonly MylistProvider _mylistProvider;
+        _niconicoSession = niconicoSession;
+        _userMylistManager = userMylistManager;
+        _mylistProvider = mylistProvider;
+    }
 
-        public MylistResolver(
-            NiconicoSession niconicoSession,
-            LoginUserOwnedMylistManager userMylistManager,
-            MylistProvider mylistProvider
-            )
+    public bool IsLoginUserMylistId(MylistId mylistId)
+    {
+        return _userMylistManager.HasMylistGroup(mylistId);
+    }
+
+
+    public async Task<MylistPlaylist> GetMylistAsync(MylistId mylistId)
+    {
+        using var _ = await _niconicoSession.SigninLock.LockAsync();
+        await _userMylistManager.WaitUpdate();
+
+        if (_userMylistManager.HasMylistGroup(mylistId))
         {
-            _niconicoSession = niconicoSession;
-            _userMylistManager = userMylistManager;
-            _mylistProvider = mylistProvider;
+            return await _userMylistManager.GetMylistGroupAsync(mylistId);
         }
-
-        public bool IsLoginUserMylistId(MylistId mylistId)
+        else
         {
-            return _userMylistManager.HasMylistGroup(mylistId);
+            return await _mylistProvider.GetMylist(mylistId);
         }
+    }
 
-
-        public async Task<MylistPlaylist> GetMylistAsync(MylistId mylistId)
+    public async Task<List<MylistPlaylist>> GetUserMylistsAsync(UserId userId)
+    {
+        if (_niconicoSession.UserId == userId)
         {
-            using var _ = await _niconicoSession.SigninLock.LockAsync();
-            await _userMylistManager.WaitUpdate();
-
-            if (_userMylistManager.HasMylistGroup(mylistId))
-            {
-                return await _userMylistManager.GetMylistGroupAsync(mylistId);
-            }
-            else
-            {
-                return await _mylistProvider.GetMylist(mylistId);
-            }
+            return _userMylistManager.Mylists.Cast<MylistPlaylist>().ToList();
         }
-
-        public async Task<List<MylistPlaylist>> GetUserMylistsAsync(UserId userId)
+        else
         {
-            if (_niconicoSession.UserId == userId)
-            {
-                return _userMylistManager.Mylists.Cast<MylistPlaylist>().ToList();
-            }
-            else
-            {
-                return await _mylistProvider.GetMylistsByUser(userId, 1);
-            }
+            return await _mylistProvider.GetMylistsByUser(userId, 1);
         }
     }
 }

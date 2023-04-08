@@ -1,28 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Foundation.Metadata;
+﻿using Windows.Foundation.Metadata;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 
-namespace Hohoema.Views.StateTrigger
+namespace Hohoema.Views.StateTrigger;
+
+public class IsSupportCompactOverlayTrigger : StateTriggerBase
 {
-    public class IsSupportCompactOverlayTrigger : StateTriggerBase
+    public IsSupportCompactOverlayTrigger()
     {
-        public IsSupportCompactOverlayTrigger()
+        if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
         {
-            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
-            {
-                var view = ApplicationView.GetForCurrentView();
-                var supported = view.IsViewModeSupported(ApplicationViewMode.CompactOverlay);
-                SetActive(supported);
-            }
-            else
-            {
-                SetActive(false);
-            }
+            var view = ApplicationView.GetForCurrentView();
+            var supported = view.IsViewModeSupported(ApplicationViewMode.CompactOverlay);
+            SetActive(supported);
+        }
+        else
+        {
+            SetActive(false);
         }
     }
 }

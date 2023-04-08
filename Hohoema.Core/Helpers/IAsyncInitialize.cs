@@ -1,77 +1,70 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Foundation;
 
-namespace Hohoema.Helpers
+namespace Hohoema.Helpers;
+
+public interface IAsyncInitialize
 {
-    public interface IAsyncInitialize 
+    bool IsInitialized { get; }
+
+    Task Initialize();
+
+    void Cancel();
+}
+
+
+public abstract class AsyncInitialize : ObservableObject, IAsyncInitialize
+{
+    public bool IsInitialized { get; private set; } = false;
+
+    private readonly AsyncLock _InitializeLock = new();
+
+    public bool IsCancel { get; private set; }
+
+    private CancellationTokenSource _CancellationTokenSource;
+
+    public async Task Initialize()
     {
-        bool IsInitialized { get; }
+        using IDisposable releaser = await _InitializeLock.LockAsync();
+        if (IsInitialized) { return; }
 
-        Task Initialize();
+        await InitializeAsync();
+    }
 
-        void Cancel();
+    private async Task InitializeAsync()
+    {
+        _CancellationTokenSource = new CancellationTokenSource();
+
+        try
+        {
+            CancellationToken ct = _CancellationTokenSource.Token;
+
+            await OnInitializeAsync(ct);
+
+            IsInitialized = true;
+        }
+        catch (OperationCanceledException)
+        {
+            Debug.WriteLine("Initialize Canceled");
+        }
+        finally
+        {
+            _CancellationTokenSource?.Dispose();
+            _CancellationTokenSource = null;
+        }
     }
 
 
-    public abstract class AsyncInitialize : ObservableObject, IAsyncInitialize
+    public void Cancel()
     {
-        public bool IsInitialized { get; private set; } = false;
+        _CancellationTokenSource?.Cancel();
 
-        AsyncLock _InitializeLock = new AsyncLock();
-
-        public bool IsCancel { get; private set; }
-
-        CancellationTokenSource _CancellationTokenSource;
-
-        public async Task Initialize()
-        {
-            using (var releaser = await _InitializeLock.LockAsync())
-            {
-                if (IsInitialized) { return; }
-
-                await InitializeAsync();
-            }
-        }
-
-        async Task InitializeAsync()
-        {
-            _CancellationTokenSource = new CancellationTokenSource();
-
-            try
-            {
-                var ct = _CancellationTokenSource.Token;
-
-                await OnInitializeAsync(ct);
-
-                IsInitialized = true;
-            }
-            catch (OperationCanceledException)
-            {
-                Debug.WriteLine("Initialize Canceled");
-            }
-            finally
-            {
-                _CancellationTokenSource?.Dispose();
-                _CancellationTokenSource = null;
-            }
-        }
-
-
-        public void Cancel()
-        {
-            _CancellationTokenSource?.Cancel();
-
-            Debug.WriteLine("Initialize Cancel Requested");
-        }
-
-        protected abstract Task OnInitializeAsync(CancellationToken token);
-
+        Debug.WriteLine("Initialize Cancel Requested");
     }
+
+    protected abstract Task OnInitializeAsync(CancellationToken token);
+
 }

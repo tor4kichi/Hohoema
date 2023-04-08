@@ -1,18 +1,16 @@
-﻿using NiconicoToolkit;
-using NiconicoToolkit.Live;
+﻿using NiconicoToolkit.Live;
 
-namespace Hohoema.Models.Niconico.Live
+namespace Hohoema.Models.Niconico.Live;
+
+public interface ILiveContent : INiconicoContent
 {
-    public interface ILiveContent : INiconicoContent
-    {
-        LiveId LiveId { get; }
+    LiveId LiveId { get; }
 
-    }
+}
 
-    public interface ILiveContentProvider
-    {
-        string ProviderId { get; }
-        string ProviderName { get; }
-        ProviderType ProviderType { get; }
-    }
+public interface ILiveContentProvider
+{
+    string ProviderId { get; }
+    string ProviderName { get; }
+    ProviderType ProviderType { get; }
 }

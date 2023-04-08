@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Hohoema.Models.Player.Video.Cache;
 
-namespace Hohoema.Models.Player.Video.Cache
+public enum CacheFolderAccessState
 {
-    public enum CacheFolderAccessState
-    {
-        NotAccepted,
-        NotEnabled,
-        NotSelected,
-        SelectedButNotExist,
-        Exist
-    }
+    NotAccepted,
+    NotEnabled,
+    NotSelected,
+    SelectedButNotExist,
+    Exist
 }

@@ -1,18 +1,15 @@
-﻿using Hohoema.Models.Niconico.Video;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.Player.Video
+namespace Hohoema.Models.Player.Video;
+
+
+public interface IVideoStreamingSession : IStreamingSession
 {
+    string QualityId { get; }
+}
 
-    public interface IVideoStreamingSession : IStreamingSession
-    {
-        string QualityId { get; }
-    }
-
-    public interface IVideoStreamingDownloadSession : IVideoStreamingSession
-    {
-        Task<Uri> GetDownloadUrlAndSetupDownloadSession();
-    }
-
+public interface IVideoStreamingDownloadSession : IVideoStreamingSession
+{
+    Task<Uri> GetDownloadUrlAndSetupDownloadSession();
 }

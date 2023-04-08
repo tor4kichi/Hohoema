@@ -1,33 +1,22 @@
-﻿using Hohoema.Models.Niconico.Video;
-using Hohoema.Services.Playlist;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Hohoema.Services.Niconico;
+﻿namespace Hohoema.ViewModels.Niconico.Video.Commands;
 
-namespace Hohoema.ViewModels.Niconico.Video.Commands
-{ 
-    public class SelectionModeToggleCommand : CommandBase
+public class SelectionModeToggleCommand : CommandBase
+{
+    protected override bool CanExecute(object parameter)
     {
-        protected override bool CanExecute(object parameter)
-        {
-            return true;
-        }
+        return true;
+    }
 
-        protected override void Execute(object parameter)
+    protected override void Execute(object parameter)
+    {
+        var selectionContext = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoItemsSelectionContext>();
+        if (selectionContext.IsSelectionEnabled)
         {
-            var selectionContext = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoItemsSelectionContext>();
-            if (selectionContext.IsSelectionEnabled)
-            {
-                selectionContext.EndSelectioin();
-            }
-            else
-            {
-                selectionContext.StartSelection();
-            }
+            selectionContext.EndSelectioin();
+        }
+        else
+        {
+            selectionContext.StartSelection();
         }
     }
 }

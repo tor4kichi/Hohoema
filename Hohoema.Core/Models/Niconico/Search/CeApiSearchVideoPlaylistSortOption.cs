@@ -17,12 +17,7 @@ public record CeApiSearchVideoPlaylistSortOption(VideoSortKey SortKey, VideoSort
 
     public bool Equals(IPlaylistSortOption other)
     {
-        if (other is CeApiSearchVideoPlaylistSortOption option)
-        {
-            return this == option;
-        }
-
-        return false;
+        return other is CeApiSearchVideoPlaylistSortOption option && this == option;
     }
 
     public string Serialize()

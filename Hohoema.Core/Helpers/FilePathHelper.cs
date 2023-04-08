@@ -1,30 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Hohoema.Helpers
+namespace Hohoema.Helpers;
+
+public static class FilePathHelper
 {
-	public static class FilePathHelper
-	{
-		public static string ToSafeFilePath(this string fileName)
-		{
-			var invalidChars = Path.GetInvalidFileNameChars();
-			return new String(fileName
-				.Where(x => !invalidChars.Any(y => x == y))
-				.ToArray()
-				);
-		}
+    public static string ToSafeFilePath(this string fileName)
+    {
+        char[] invalidChars = Path.GetInvalidFileNameChars();
+        return new string(fileName
+            .Where(x => !invalidChars.Any(y => x == y))
+            .ToArray()
+            );
+    }
 
-		public static string ToSafeDirectoryPath(this string fileName)
-		{
-			var invalidChars = Path.GetInvalidPathChars();
-			return new String(fileName
-				.Where(x => !invalidChars.Any(y => x == y))
-				.ToArray()
-				);
-		}
-	}
+    public static string ToSafeDirectoryPath(this string fileName)
+    {
+        char[] invalidChars = Path.GetInvalidPathChars();
+        return new string(fileName
+            .Where(x => !invalidChars.Any(y => x == y))
+            .ToArray()
+            );
+    }
 }

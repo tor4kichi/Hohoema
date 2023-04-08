@@ -1,19 +1,14 @@
 ﻿using Microsoft.Xaml.Interactivity;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 
-namespace Hohoema.Views.Behaviors
-{
-	public class ListViewSelectedItemsGetter : Behavior<ListViewBase>
+namespace Hohoema.Views.Behaviors;
+
+public class ListViewSelectedItemsGetter : Behavior<ListViewBase>
 	{
 		public IList SelectedItems
 		{
@@ -110,24 +105,24 @@ namespace Hohoema.Views.Behaviors
 
 			this.AssociatedObject.SelectionChanged += AssociatedObject_SelectionChanged;
 
-            this.AssociatedObject.Loaded += AssociatedObject_Loaded;
-        }
+        this.AssociatedObject.Loaded += AssociatedObject_Loaded;
+    }
 
-        private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
+    private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (SelectedItems != null)
         {
-            if (SelectedItems != null)
+            Array selecteItems = Array.CreateInstance(typeof(object), SelectedItems.Count);
+            SelectedItems.CopyTo(selecteItems, 0);
+            for (var i = 0; i < selecteItems.Length; i++)
             {
-                Array selecteItems = Array.CreateInstance(typeof(object), SelectedItems.Count);
-                SelectedItems.CopyTo(selecteItems, 0);
-                for (var i = 0; i < selecteItems.Length; i++)
-                {
-                    var item = selecteItems.GetValue(i);
-                    this.AssociatedObject.SelectedItems.Add(item);
-                }
+                var item = selecteItems.GetValue(i);
+                this.AssociatedObject.SelectedItems.Add(item);
             }
         }
+    }
 
-        protected override void OnDetaching()
+    protected override void OnDetaching()
 		{
 			base.OnDetaching();
 
@@ -141,7 +136,7 @@ namespace Hohoema.Views.Behaviors
 		{
 			var me = sender as ListViewBase;
 
-            if (SelectedItems != null)
+        if (SelectedItems != null)
 			{
 				// Viewで追加済みのアイテムをVM側のコレクションに追加
 				foreach (var item in me.SelectedItems)
@@ -176,4 +171,3 @@ namespace Hohoema.Views.Behaviors
 		}
 
 	}
-}

@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml.Data;
 
-namespace Hohoema.Views.Converters
-{
-	public class ToUserFriendlyNumber : IValueConverter
+namespace Hohoema.Views.Converters;
+
+public class ToUserFriendlyNumber : IValueConverter
 	{
 		public object Convert(object value, Type targetType, object parameter, string language)
 		{
@@ -29,4 +25,3 @@ namespace Hohoema.Views.Converters
 			throw new NotImplementedException();
 		}
 	}
-}

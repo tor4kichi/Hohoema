@@ -1,31 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Hohoema.Models;
-using System.Collections.ObjectModel;
-using Reactive.Bindings;
-using CommunityToolkit.Mvvm.Input;
-using System.Reactive.Linq;
-using System.Diagnostics;
-using Reactive.Bindings.Extensions;
-using Hohoema.Contracts.Services.Navigations;
-using Hohoema.Services;
-using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
+﻿using CommunityToolkit.Mvvm.Input;
 using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.PageNavigation;
-using Hohoema.Contracts.Services.Navigations;
-using I18NPortable;
-using Hohoema.Views.Pages.Niconico.Search;
-using Hohoema.ViewModels.Niconico.Search;
 using Hohoema.Models.Pins;
-using Hohoema.Helpers;
+using Hohoema.Services;
+using Hohoema.Views.Pages.Niconico.Search;
+using I18NPortable;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
+using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
 
-namespace Hohoema.ViewModels.Pages.Niconico.Search
+namespace Hohoema.ViewModels.Pages.Niconico.Search;
+
+public class SearchPageViewModel : HohoemaPageViewModelBase, ITitleUpdatablePage, IPinablePage
 {
-    public class SearchPageViewModel : HohoemaPageViewModelBase, ITitleUpdatablePage, IPinablePage
-    {
 		public HohoemaPin GetPin()
 		{
 			if (_LastKeyword == null) { return null; }
@@ -43,8 +38,8 @@ namespace Hohoema.ViewModels.Pages.Niconico.Search
 		public SearchProvider SearchProvider { get; }
 		public PageManager PageManager { get; }
 
-        private readonly IScheduler _scheduler;
-        private readonly SearchHistoryRepository _searchHistoryRepository;
+    private readonly IScheduler _scheduler;
+    private readonly SearchHistoryRepository _searchHistoryRepository;
 
 
 		public ISearchPagePayloadContent RequireSearchOption { get; private set; }
@@ -109,7 +104,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Search
 					{
 						SearchText.Value = item.Keyword;
 						if (DoSearchCommand.CanExecute())
-                        {
+                    {
 							DoSearchCommand.Execute();
 						}
 					}
@@ -144,57 +139,57 @@ namespace Hohoema.ViewModels.Pages.Niconico.Search
 			IScheduler scheduler,
 			ApplicationLayoutManager applicationLayoutManager,
 			NiconicoSession niconicoSession,
-            SearchProvider searchProvider,
-            PageManager pageManager,
+        SearchProvider searchProvider,
+        PageManager pageManager,
 			SearchHistoryRepository searchHistoryRepository
-            )
-        {
-            _scheduler = scheduler;
-            ApplicationLayoutManager = applicationLayoutManager;
+        )
+    {
+        _scheduler = scheduler;
+        ApplicationLayoutManager = applicationLayoutManager;
 			NiconicoSession = niconicoSession;
-            SearchProvider = searchProvider;
-            PageManager = pageManager;
-            _searchHistoryRepository = searchHistoryRepository;
-            HashSet<string> HistoryKeyword = new HashSet<string>();
-            foreach (var item in _searchHistoryRepository.ReadAllItems().OrderByDescending(x => x.LastUpdated))
+        SearchProvider = searchProvider;
+        PageManager = pageManager;
+        _searchHistoryRepository = searchHistoryRepository;
+        HashSet<string> HistoryKeyword = new HashSet<string>();
+        foreach (var item in _searchHistoryRepository.ReadAllItems().OrderByDescending(x => x.LastUpdated))
+        {
+            if (HistoryKeyword.Contains(item.Keyword))
             {
-                if (HistoryKeyword.Contains(item.Keyword))
-                {
-                    continue;
-                }
-
-                SearchHistoryItems.Add(new SearchHistoryListItemViewModel(item, this));
-                HistoryKeyword.Add(item.Keyword);
+                continue;
             }
 
-            SearchText = new ReactiveProperty<string>(_LastKeyword)
-                .AddTo(_CompositeDisposable);
+            SearchHistoryItems.Add(new SearchHistoryListItemViewModel(item, this));
+            HistoryKeyword.Add(item.Keyword);
+        }
 
-            TargetListItems = new List<SearchTarget>()
-            {
-                SearchTarget.Keyword,
-                SearchTarget.Tag,
-                SearchTarget.Niconama,
-            };
+        SearchText = new ReactiveProperty<string>(_LastKeyword)
+            .AddTo(_CompositeDisposable);
 
-            SelectedTarget = new ReactiveProperty<SearchTarget>(_LastSelectedTarget)
-                .AddTo(_CompositeDisposable);
+        TargetListItems = new List<SearchTarget>()
+        {
+            SearchTarget.Keyword,
+            SearchTarget.Tag,
+            SearchTarget.Niconama,
+        };
 
-            DoSearchCommand = new ReactiveCommand()
-                .AddTo(_CompositeDisposable);
+        SelectedTarget = new ReactiveProperty<SearchTarget>(_LastSelectedTarget)
+            .AddTo(_CompositeDisposable);
+
+        DoSearchCommand = new ReactiveCommand()
+            .AddTo(_CompositeDisposable);
 #if DEBUG
 			SearchText.Subscribe(x =>
-            {
-                Debug.WriteLine($"検索：{x}");
-            });
+        {
+            Debug.WriteLine($"検索：{x}");
+        });
 #endif
 
 #if DEBUG
 			DoSearchCommand.CanExecuteChangedAsObservable()
-                .Subscribe(x =>
-                {
-                    Debug.WriteLine(DoSearchCommand.CanExecute());
-                });
+            .Subscribe(x =>
+            {
+                Debug.WriteLine(DoSearchCommand.CanExecute());
+            });
 #endif
 
 			
@@ -203,13 +198,13 @@ namespace Hohoema.ViewModels.Pages.Niconico.Search
 		    NavigationFailedReason = new ReactiveProperty<string>();
 		}       
 
-        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
-        {
+    public override async Task OnNavigatedToAsync(INavigationParameters parameters)
+    {
 			IsNavigationFailed.Value = false;
 			NavigationFailedReason.Value = null;
 
 			try
-            {
+        {
 				string keyword = null;
 				if (parameters.TryGetValue("keyword", out keyword))
 				{
@@ -223,9 +218,9 @@ namespace Hohoema.ViewModels.Pages.Niconico.Search
 					Enum.TryParse<SearchTarget>(modeString, out target);
 				}
 				else if (parameters.TryGetValue("service", out target))
-                {
+            {
 
-                }
+            }
 
 				var pageName = target switch
 				{
@@ -236,7 +231,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Search
 				};
 
 				if (pageName != null && keyword != null)
-                {
+            {
 					var result = await NavigationService.NavigateAsync(pageName, ("keyword", keyword));
 					if (!result.IsSuccess)
 					{
@@ -274,7 +269,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Search
 				.AddTo(_navigationDisposables);
 			}
 			catch (Exception e)
-            {
+        {
 				IsNavigationFailed.Value = true;
 #if DEBUG
 				NavigationFailedReason.Value = e.Message;
@@ -283,13 +278,12 @@ namespace Hohoema.ViewModels.Pages.Niconico.Search
 			}
 
 			await base.OnNavigatedToAsync(parameters);
-        }
-
-        public IObservable<string> GetTitleObservable()
-        {
-			return SearchText.Select(x => $"{"Search".Translate()} '{x}'");
-        }
-
-        
     }
+
+    public IObservable<string> GetTitleObservable()
+    {
+			return SearchText.Select(x => $"{"Search".Translate()} '{x}'");
+    }
+
+    
 }

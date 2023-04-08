@@ -1,26 +1,19 @@
-﻿using Hohoema.Models;
-using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Player;
+using NiconicoToolkit.Comment;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.UI;
-using Hohoema.Views;
-using System.Reactive.Concurrency;
-using System.Threading;
-using Hohoema.Models.Player;
-using Hohoema.Models.Niconico;
-using NiconicoToolkit.Comment;
 
-namespace Hohoema.ViewModels
-{
-	public class CommentCommandEditerViewModel : ObservableObject, IDisposable
+namespace Hohoema.ViewModels;
+
+public class CommentCommandEditerViewModel : ObservableObject, IDisposable
 	{
 		public PlayerSettings PlayerSettings { get; }
 		public NiconicoSession NiconicoSession { get; }
@@ -114,9 +107,8 @@ namespace Hohoema.ViewModels
 			return String.Join(' ', commands.Distinct());
 		}
 
-        public void Dispose()
-        {
-            ((IDisposable)_disposables).Dispose();
-        }
+    public void Dispose()
+    {
+        ((IDisposable)_disposables).Dispose();
     }
 }

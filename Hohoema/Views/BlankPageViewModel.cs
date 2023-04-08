@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Hohoema.ViewModels.Pages;
 
-namespace Hohoema.ViewModels.Pages
+public sealed class BlankPageViewModel
 {
-    public sealed class BlankPageViewModel
-    {
-        public BlankPageViewModel() { }
-    }
+    public BlankPageViewModel() { }
 }

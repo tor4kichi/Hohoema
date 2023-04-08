@@ -2,37 +2,35 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Hohoema.Models.Live
+namespace Hohoema.Models.Live;
+
+public class LiveSuggestion
 {
-	public class LiveSuggestion
-	{
-		public string Title { get; private set; }
+    public string Title { get; private set; }
 
-		public List<SuggestAction> Actions { get; private set; }
+    public List<SuggestAction> Actions { get; private set; }
 
-		public LiveSuggestion(string title, params SuggestAction[] actions)
-		{
-			Title = title;
-			Actions = actions.ToList();
-		}
-	}
+    public LiveSuggestion(string title, params SuggestAction[] actions)
+    {
+        Title = title;
+        Actions = actions.ToList();
+    }
+}
 
-	public class SuggestAction
-	{
-		public string Label { get; private set; }
-		public RelayCommand SuggestActionCommand { get; private set; }
+public class SuggestAction
+{
+    public string Label { get; private set; }
+    public RelayCommand SuggestActionCommand { get; private set; }
 
-		public SuggestAction(string label, Action action)
-		{
-			Label = label;
-			SuggestActionCommand = new RelayCommand(action);
-		}
-	}
+    public SuggestAction(string label, Action action)
+    {
+        Label = label;
+        SuggestActionCommand = new RelayCommand(action);
+    }
+}
 
-	/*
+/*
 	public static class LiveSuggestionExtention
 	{
 		public static LiveSuggestion Make(this LiveStatusType liveStatus, NicoLiveVideo liveVideo, Services.PageManager pageManager, NiconicoSession niconicoSession)
@@ -70,8 +68,8 @@ namespace Hohoema.Models.Live
 					break;
 				case LiveStatusType.NotLogin:
 					title = "視聴するには「ニコニコ」にログインが必要です";
-                    
-                    break;
+                
+                break;
 				default:
 					break;
 			}
@@ -81,4 +79,3 @@ namespace Hohoema.Models.Live
 		}
 	}
 	*/
-}

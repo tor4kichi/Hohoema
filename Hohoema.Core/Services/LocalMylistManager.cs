@@ -1,200 +1,189 @@
-﻿using Hohoema.Models.Niconico.Video;
+﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
+using Hohoema.Contracts.Services;
+using Hohoema.Models.Application;
+using Hohoema.Models.LocalMylist;
+using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
-using CommunityToolkit.Mvvm.Input;
-using Reactive.Bindings.Extensions;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using Windows.Storage;
-using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Models.Application;
-using Hohoema.Services;
-using Hohoema.Models.LocalMylist;
-using Microsoft.Extensions.Logging;
-using Hohoema.Contracts.Services;
 
-namespace Hohoema.Services.LocalMylist
+namespace Hohoema.Services.LocalMylist;
+
+public sealed class LocalMylistManager : IDisposable, IRecipient<SettingsRestoredMessage>
 {
-    public sealed class LocalMylistManager : IDisposable, IRecipient<SettingsRestoredMessage>
+    void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
     {
-        void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
-        {
-            Load();
-        }
-
-
-        public LocalMylistManager(
-            ILogger logger,
-            LocalMylistRepository playlistRepository,
-            NicoVideoProvider nicoVideoProvider,
-            INotificationService notificationService,
-            ILocalizeService localizeService
-            )
-        {
-            _logger = logger;
-            _playlistRepository = playlistRepository;
-            _nicoVideoProvider = nicoVideoProvider;
-            _notificationService = notificationService;
-            _localizeService = localizeService;
-            _playlists = new ObservableCollection<LocalPlaylist>();
-            LocalPlaylists = new ReadOnlyObservableCollection<LocalPlaylist>(_playlists);
-
-
-            WeakReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
-
-            Load();
-        }
-
-        private void Load()
-        {
-            foreach (var localMylist in _playlists)
-            {
-                RemoveHandleItemsChanged(localMylist);
-            }
-
-            _playlists.Clear();
-            _playlistIdToEntity.Clear();
-
-            var localPlaylistEntities = _playlistRepository.GetPlaylistsFromOrigin(PlaylistItemsSourceOrigin.Local);
-            var localPlaylists = localPlaylistEntities.Select(x => new LocalPlaylist(x.Id, x.Label, _playlistRepository, _nicoVideoProvider, WeakReferenceMessenger.Default)
-            {
-                ThumbnailImage = x.ThumbnailImage,
-            }).ToList();
-
-            localPlaylists.ForEach(HandleItemsChanged);
-
-            foreach (var entity in localPlaylistEntities)
-            {
-                _playlistIdToEntity.Add(entity.Id, entity);
-            }
-
-            foreach (var i in localPlaylists)
-            {
-                _playlists.Add(i);
-            }
-        }
-
-        private readonly ILogger _logger;
-        private readonly LocalMylistRepository _playlistRepository;
-        private readonly NicoVideoProvider _nicoVideoProvider;
-        private readonly INotificationService _notificationService;
-        private readonly ILocalizeService _localizeService;
-        ObservableCollection<LocalPlaylist> _playlists;
-        public ReadOnlyObservableCollection<LocalPlaylist> LocalPlaylists { get; }
-
-        Dictionary<string, PlaylistEntity> _playlistIdToEntity = new Dictionary<string, PlaylistEntity>();
-
-        public void Dispose()
-        {
-            foreach (var playlist in _playlists)
-            {
-                RemoveHandleItemsChanged(playlist);
-            }
-        }
-
-        public LocalPlaylist CreatePlaylist(string label)
-        {
-            var playlist = CreatePlaylist_Internal(label);
-
-            return playlist;
-        }
-
-        private LocalPlaylist CreatePlaylist_Internal(string label)
-        {
-            var entity = new PlaylistEntity()
-            {
-                Id = LiteDB.ObjectId.NewObjectId().ToString(),
-                Label = label,
-                PlaylistOrigin = PlaylistItemsSourceOrigin.Local
-            };
-            _playlistRepository.UpsertPlaylist(entity);
-            _playlistIdToEntity.Add(entity.Id, entity);
-
-            var playlist = new LocalPlaylist(entity.Id, label, _playlistRepository, _nicoVideoProvider, WeakReferenceMessenger.Default);
-
-            HandleItemsChanged(playlist);
-
-            _playlists.Add(playlist);            
-            return playlist;
-        }
-
-
-        void HandleItemsChanged(LocalPlaylist playlist)
-        {
-            WeakReferenceMessenger.Default.Register<LocalPlaylist, PlaylistItemAddedMessage, PlaylistId>(playlist, playlist.PlaylistId, (r, m) => 
-            {
-                var sender = r;
-                _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("InAppNotification_LocalPlaylistAddedItems", sender.Name, m.Value.AddedItems.Count()));
-            });
-
-            WeakReferenceMessenger.Default.Register<LocalPlaylist, PlaylistItemRemovedMessage, PlaylistId>(playlist, playlist.PlaylistId, (r, m) =>
-            {
-                var sender = r;
-                _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("InAppNotification_LocalPlaylistRemovedItems", sender.Name, m.Value.RemovedItems.Count()));
-            });
-        }
-
-        void RemoveHandleItemsChanged(LocalPlaylist playlist)
-        {
-            WeakReferenceMessenger.Default.Unregister<PlaylistItemAddedMessage, PlaylistId>(playlist, playlist.PlaylistId);
-            WeakReferenceMessenger.Default.Unregister<PlaylistItemRemovedMessage, PlaylistId>(playlist, playlist.PlaylistId);
-        }
-
-
-        public LocalPlaylist CreatePlaylist(string label, IEnumerable<IVideoContent> firstItems)
-        {
-            var playlist = CreatePlaylist(label);
-            playlist.AddPlaylistItem(firstItems);
-
-            return playlist;
-        }
-
-
-        public bool HasPlaylist(string playlistId)
-        {
-            return _playlistIdToEntity.ContainsKey(playlistId);
-        }
-
-        public LocalPlaylist GetPlaylist(string playlistId)
-        {
-            return _playlists.FirstOrDefault(x => x.PlaylistId.Id == playlistId);
-        }
-
-        public bool RemovePlaylist(LocalPlaylist localPlaylist)
-        {
-            var result = _playlistRepository.DeletePlaylist(localPlaylist.PlaylistId.Id);
-            RemoveHandleItemsChanged(localPlaylist);
-            return _playlists.Remove(localPlaylist);
-        }
-
-
-
-        private RelayCommand<LocalPlaylist> _RemoveCommand;
-        public RelayCommand<LocalPlaylist> RemoveCommand => _RemoveCommand
-            ?? (_RemoveCommand = new RelayCommand<LocalPlaylist>((group) =>
-            {
-                try
-                {
-                    RemovePlaylist(group);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e.ToString());
-                }
-            }
-            , (p) => p != null && LocalPlaylists.Contains(p)
-            ));
-
-
-
-
-        
+        Load();
     }
+
+
+    public LocalMylistManager(
+        ILogger logger,
+        LocalMylistRepository playlistRepository,
+        NicoVideoProvider nicoVideoProvider,
+        INotificationService notificationService,
+        ILocalizeService localizeService
+        )
+    {
+        _logger = logger;
+        _playlistRepository = playlistRepository;
+        _nicoVideoProvider = nicoVideoProvider;
+        _notificationService = notificationService;
+        _localizeService = localizeService;
+        _playlists = new ObservableCollection<LocalPlaylist>();
+        LocalPlaylists = new ReadOnlyObservableCollection<LocalPlaylist>(_playlists);
+
+
+        WeakReferenceMessenger.Default.Register<SettingsRestoredMessage>(this);
+
+        Load();
+    }
+
+    private void Load()
+    {
+        foreach (LocalPlaylist localMylist in _playlists)
+        {
+            RemoveHandleItemsChanged(localMylist);
+        }
+
+        _playlists.Clear();
+        _playlistIdToEntity.Clear();
+
+        IEnumerable<PlaylistEntity> localPlaylistEntities = _playlistRepository.GetPlaylistsFromOrigin(PlaylistItemsSourceOrigin.Local);
+        List<LocalPlaylist> localPlaylists = localPlaylistEntities.Select(x => new LocalPlaylist(x.Id, x.Label, _playlistRepository, _nicoVideoProvider, WeakReferenceMessenger.Default)
+        {
+            ThumbnailImage = x.ThumbnailImage,
+        }).ToList();
+
+        localPlaylists.ForEach(HandleItemsChanged);
+
+        foreach (PlaylistEntity entity in localPlaylistEntities)
+        {
+            _playlistIdToEntity.Add(entity.Id, entity);
+        }
+
+        foreach (LocalPlaylist i in localPlaylists)
+        {
+            _playlists.Add(i);
+        }
+    }
+
+    private readonly ILogger _logger;
+    private readonly LocalMylistRepository _playlistRepository;
+    private readonly NicoVideoProvider _nicoVideoProvider;
+    private readonly INotificationService _notificationService;
+    private readonly ILocalizeService _localizeService;
+    private readonly ObservableCollection<LocalPlaylist> _playlists;
+    public ReadOnlyObservableCollection<LocalPlaylist> LocalPlaylists { get; }
+
+    private readonly Dictionary<string, PlaylistEntity> _playlistIdToEntity = new();
+
+    public void Dispose()
+    {
+        foreach (LocalPlaylist playlist in _playlists)
+        {
+            RemoveHandleItemsChanged(playlist);
+        }
+    }
+
+    public LocalPlaylist CreatePlaylist(string label)
+    {
+        LocalPlaylist playlist = CreatePlaylist_Internal(label);
+
+        return playlist;
+    }
+
+    private LocalPlaylist CreatePlaylist_Internal(string label)
+    {
+        PlaylistEntity entity = new()
+        {
+            Id = LiteDB.ObjectId.NewObjectId().ToString(),
+            Label = label,
+            PlaylistOrigin = PlaylistItemsSourceOrigin.Local
+        };
+        _playlistRepository.UpsertPlaylist(entity);
+        _playlistIdToEntity.Add(entity.Id, entity);
+
+        LocalPlaylist playlist = new(entity.Id, label, _playlistRepository, _nicoVideoProvider, WeakReferenceMessenger.Default);
+
+        HandleItemsChanged(playlist);
+
+        _playlists.Add(playlist);
+        return playlist;
+    }
+
+    private void HandleItemsChanged(LocalPlaylist playlist)
+    {
+        WeakReferenceMessenger.Default.Register<LocalPlaylist, PlaylistItemAddedMessage, PlaylistId>(playlist, playlist.PlaylistId, (r, m) =>
+        {
+            LocalPlaylist sender = r;
+            _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("InAppNotification_LocalPlaylistAddedItems", sender.Name, m.Value.AddedItems.Count()));
+        });
+
+        WeakReferenceMessenger.Default.Register<LocalPlaylist, PlaylistItemRemovedMessage, PlaylistId>(playlist, playlist.PlaylistId, (r, m) =>
+        {
+            LocalPlaylist sender = r;
+            _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("InAppNotification_LocalPlaylistRemovedItems", sender.Name, m.Value.RemovedItems.Count()));
+        });
+    }
+
+    private void RemoveHandleItemsChanged(LocalPlaylist playlist)
+    {
+        WeakReferenceMessenger.Default.Unregister<PlaylistItemAddedMessage, PlaylistId>(playlist, playlist.PlaylistId);
+        WeakReferenceMessenger.Default.Unregister<PlaylistItemRemovedMessage, PlaylistId>(playlist, playlist.PlaylistId);
+    }
+
+
+    public LocalPlaylist CreatePlaylist(string label, IEnumerable<IVideoContent> firstItems)
+    {
+        LocalPlaylist playlist = CreatePlaylist(label);
+        playlist.AddPlaylistItem(firstItems);
+
+        return playlist;
+    }
+
+
+    public bool HasPlaylist(string playlistId)
+    {
+        return _playlistIdToEntity.ContainsKey(playlistId);
+    }
+
+    public LocalPlaylist GetPlaylist(string playlistId)
+    {
+        return _playlists.FirstOrDefault(x => x.PlaylistId.Id == playlistId);
+    }
+
+    public bool RemovePlaylist(LocalPlaylist localPlaylist)
+    {
+        _ = _playlistRepository.DeletePlaylist(localPlaylist.PlaylistId.Id);
+        RemoveHandleItemsChanged(localPlaylist);
+        return _playlists.Remove(localPlaylist);
+    }
+
+
+
+    private RelayCommand<LocalPlaylist> _RemoveCommand;
+    public RelayCommand<LocalPlaylist> RemoveCommand => _RemoveCommand ??= new RelayCommand<LocalPlaylist>((group) =>
+        {
+            try
+            {
+                _ = RemovePlaylist(group);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.ToString());
+            }
+        }
+        , (p) => p != null && LocalPlaylists.Contains(p)
+        );
+
+
+
+
+
 }

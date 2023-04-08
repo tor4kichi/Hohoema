@@ -1,42 +1,39 @@
 ﻿using Hohoema.Models.Niconico.Follow.LoginUser;
-using Hohoema.Models.Niconico.Follow;
-using Hohoema.ViewModels.Niconico.Follow;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Threading;
-using System.Linq;
 using Hohoema.Models.Niconico.Video;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Hohoema.ViewModels.Niconico.Follow
+namespace Hohoema.ViewModels.Niconico.Follow;
+
+public sealed class FollowTagIncrementalSource : FollowIncrementalSourceBase<ITag>
 {
-    public sealed class FollowTagIncrementalSource : FollowIncrementalSourceBase<ITag>
+    private readonly TagFollowProvider _tagFollowProvider;
+
+    public FollowTagIncrementalSource(TagFollowProvider tagFollowProvider)
     {
-        private readonly TagFollowProvider _tagFollowProvider;
+        _tagFollowProvider = tagFollowProvider;
+        MaxCount = 30;
+    }
 
-        public FollowTagIncrementalSource(TagFollowProvider tagFollowProvider)
+    public override async Task<IEnumerable<ITag>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
+    {
+        if (pageIndex != 0)
         {
-            _tagFollowProvider = tagFollowProvider;
-            MaxCount = 30;
+            return Enumerable.Empty<ITag>();
+        }
+        
+        var res = await _tagFollowProvider.GetAllAsync();
+        if (res == null)
+        {
+            return Enumerable.Empty<ITag>();
         }
 
-        public override async Task<IEnumerable<ITag>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
-        {
-            if (pageIndex != 0)
-            {
-                return Enumerable.Empty<ITag>();
-            }
-            
-            var res = await _tagFollowProvider.GetAllAsync();
-            if (res == null)
-            {
-                return Enumerable.Empty<ITag>();
-            }
+        TotalCount = res.Count;
 
-            TotalCount = res.Count;
-
-            return res.Select(x => new FollowTagViewModel(x))
-                .ToArray() // Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
-                ;
-        }
+        return res.Select(x => new FollowTagViewModel(x))
+            .ToArray() // Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+            ;
     }
 }

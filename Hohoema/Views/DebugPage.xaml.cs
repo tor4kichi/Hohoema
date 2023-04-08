@@ -1,61 +1,48 @@
-﻿using Hohoema.Services;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
+using Hohoema.Models.Notification;
+using Hohoema.Services;
+using Hohoema.ViewModels.Pages.Hohoema;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using Hohoema.Models.Notification;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using Hohoema.ViewModels.Pages.Hohoema;
 
 // 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
-namespace Hohoema.Views.Pages.Hohoema
+namespace Hohoema.Views.Pages.Hohoema;
+
+/// <summary>
+/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
+/// </summary>
+public sealed partial class DebugPage : Page
 {
-    /// <summary>
-    /// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
-    /// </summary>
-    public sealed partial class DebugPage : Page
+    public DebugPage()
     {
-        public DebugPage()
-        {
-            this.InitializeComponent();
+        this.InitializeComponent();
 
-            DataContext = Ioc.Default.GetRequiredService<DebugPageViewModel>();
-        }
+        DataContext = Ioc.Default.GetRequiredService<DebugPageViewModel>();
+    }
 
-        private void ForceThrowException(object sender, RoutedEventArgs e)
-        {
-            throw new Infra.HohoemaException("例外テスト");
-        }
+    private void ForceThrowException(object sender, RoutedEventArgs e)
+    {
+        throw new Infra.HohoemaException("例外テスト");
+    }
 
-        private void TestCrashReport_Click(object sender, RoutedEventArgs e)
-        {
-            
-        }
+    private void TestCrashReport_Click(object sender, RoutedEventArgs e)
+    {
+        
+    }
 
-        private void TestInAppNotification(object sender, RoutedEventArgs e)
+    private void TestInAppNotification(object sender, RoutedEventArgs e)
+    {
+        var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NotificationService>();
+        notificationService.ShowInAppNotification(new InAppNotificationPayload() 
         {
-            var notificationService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<NotificationService>();
-            notificationService.ShowInAppNotification(new InAppNotificationPayload() 
+            Title = "通知テスト",
+            Content = "通知テスト\nあああああああああああああああああああああああああああああ",
+            Commands = 
             {
-                Title = "通知テスト",
-                Content = "通知テスト\nあああああああああああああああああああああああああああああ",
-                Commands = 
-                {
-                    new InAppNotificationCommand() { Label = "コマンドテスト１" },
-                    new InAppNotificationCommand() { Label = "コマンドテスト２" },
-                }                
-            });        
-        }
+                new InAppNotificationCommand() { Label = "コマンドテスト１" },
+                new InAppNotificationCommand() { Label = "コマンドテスト２" },
+            }                
+        });        
     }
 }

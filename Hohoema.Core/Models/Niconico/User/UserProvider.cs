@@ -1,126 +1,112 @@
-﻿using Hohoema.Models.Niconico.Video;
-using Hohoema.Infra;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NiconicoToolkit.Video;
+﻿using Hohoema.Infra;
+using Hohoema.Models.Niconico.Video;
 using NiconicoToolkit.User;
+using NiconicoToolkit.Video;
+using System.Threading.Tasks;
 using UserDetailResponse = NiconicoToolkit.User.UserDetailResponse;
 
-namespace Hohoema.Models.Niconico.User
+namespace Hohoema.Models.Niconico.User;
+
+public sealed class UserProvider : ProviderBase
 {
-    public sealed class UserProvider : ProviderBase
+    private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
+    private readonly NicoVideoProvider _nicoVideoProvider;
+
+    public UserProvider(NiconicoSession niconicoSession,
+        NicoVideoOwnerCacheRepository nicoVideoOwnerRepository,
+        NicoVideoProvider nicoVideoProvider
+        )
+        : base(niconicoSession)
     {
-        private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
-        private readonly NicoVideoProvider _nicoVideoProvider;
+        _nicoVideoOwnerRepository = nicoVideoOwnerRepository;
+        _nicoVideoProvider = nicoVideoProvider;
+    }
 
-        public UserProvider(NiconicoSession niconicoSession,
-            NicoVideoOwnerCacheRepository nicoVideoOwnerRepository,
-            NicoVideoProvider nicoVideoProvider
-            )
-            : base(niconicoSession)
+    public async Task<string> GetUserNameAsync(UserId userId)
+    {
+        try
         {
-            _nicoVideoOwnerRepository = nicoVideoOwnerRepository;
-            _nicoVideoProvider = nicoVideoProvider;
-        }
+            UserNickname userName = await _niconicoSession.ToolkitContext.User.GetUserNicknameAsync(userId);
 
-        public async Task<string> GetUserNameAsync(UserId userId)
-        {
-            try
+            if (userName != null)
             {
-                var userName = await _niconicoSession.ToolkitContext.User.GetUserNicknameAsync(userId);
-
-                if (userName != null)
+                NicoVideoOwner owner = _nicoVideoOwnerRepository.Get(userId);
+                owner ??= new NicoVideoOwner()
                 {
-                    var owner = _nicoVideoOwnerRepository.Get(userId);
-                    if (owner == null)
-                    {
-                        owner = new NicoVideoOwner()
-                        {
-                            OwnerId = userId,
-                            UserType = OwnerType.User
-                        };
-                    }
-                    owner.ScreenName = userName.Nickname;
-                    _nicoVideoOwnerRepository.UpdateItem(owner);
-                }
+                    OwnerId = userId,
+                    UserType = OwnerType.User
+                };
+                owner.ScreenName = userName.Nickname;
+                _ = _nicoVideoOwnerRepository.UpdateItem(owner);
+            }
 
-                return userName.Nickname;
-            }
-            catch
-            {
-                throw;
-            }
+            return userName.Nickname;
         }
-
-        public async Task<NicoVideoOwner> GetUserInfoAsync(UserId userId)
+        catch
         {
-            var userRes = await _niconicoSession.ToolkitContext.User.GetUserInfoAsync(userId);
-
-            var owner = _nicoVideoOwnerRepository.Get(userId);
-            if (userRes.IsOK)
-            {
-                var user = userRes.User;
-                if (owner == null)
-                {
-                    owner = new NicoVideoOwner()
-                    {
-                        OwnerId = userId,
-                        UserType = OwnerType.User
-                    };
-                }
-                owner.ScreenName = user.Nickname;
-                owner.IconUrl = user.ThumbnailUrl.OriginalString;
-
-                _nicoVideoOwnerRepository.UpdateItem(owner);
-            }
-
-            return owner;
+            throw;
         }
+    }
 
+    public async Task<NicoVideoOwner> GetUserInfoAsync(UserId userId)
+    {
+        NicovideoUserResponse userRes = await _niconicoSession.ToolkitContext.User.GetUserInfoAsync(userId);
 
-        public async Task<UserDetailResponse> GetUserDetailAsync(UserId userId)
+        NicoVideoOwner owner = _nicoVideoOwnerRepository.Get(userId);
+        if (userRes.IsOK)
         {
-            var detail = await _niconicoSession.ToolkitContext.User.GetUserDetailAsync(userId);
-
-            var owner = _nicoVideoOwnerRepository.Get(userId);
-            if (detail.IsSuccess)
+            UserInfo user = userRes.User;
+            owner ??= new NicoVideoOwner()
             {
-                if (owner == null)
-                {
-                    owner = new NicoVideoOwner()
-                    {
-                        OwnerId = userId,
-                        UserType = OwnerType.User
-                    };
-                }
-                var ownerData = detail.Data;
-                owner.ScreenName = ownerData.User.Nickname;
-                owner.IconUrl = ownerData.User.Icons.Small.OriginalString;
+                OwnerId = userId,
+                UserType = OwnerType.User
+            };
+            owner.ScreenName = user.Nickname;
+            owner.IconUrl = user.ThumbnailUrl.OriginalString;
 
-
-                _nicoVideoOwnerRepository.UpdateItem(owner);
-            }
-
-            return detail;
+            _ = _nicoVideoOwnerRepository.UpdateItem(owner);
         }
 
+        return owner;
+    }
 
-        public async Task<NiconicoToolkit.User.UserVideoResponse> GetUserVideosAsync(UserId userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
+
+    public async Task<UserDetailResponse> GetUserDetailAsync(UserId userId)
+    {
+        UserDetailResponse detail = await _niconicoSession.ToolkitContext.User.GetUserDetailAsync(userId);
+
+        NicoVideoOwner owner = _nicoVideoOwnerRepository.Get(userId);
+        if (detail.IsSuccess)
         {
-            var res = await _niconicoSession.ToolkitContext.User.GetUserVideoAsync(userId, page, pageSize, sortKey, sortOrder);
-
-            if (res.IsSuccess)
+            owner ??= new NicoVideoOwner()
             {
-                foreach (var item in res.Data.Items)
-                {
-                    _nicoVideoProvider.UpdateCache(item.Essential.Id, item.Essential);
-                }
-            }
+                OwnerId = userId,
+                UserType = OwnerType.User
+            };
+            Data ownerData = detail.Data;
+            owner.ScreenName = ownerData.User.Nickname;
+            owner.IconUrl = ownerData.User.Icons.Small.OriginalString;
 
-            return res;
+
+            _ = _nicoVideoOwnerRepository.UpdateItem(owner);
         }
+
+        return detail;
+    }
+
+
+    public async Task<NiconicoToolkit.User.UserVideoResponse> GetUserVideosAsync(UserId userId, int page = 0, int pageSize = 100, UserVideoSortKey sortKey = UserVideoSortKey.RegisteredAt, UserVideoSortOrder sortOrder = UserVideoSortOrder.Desc)
+    {
+        UserVideoResponse res = await _niconicoSession.ToolkitContext.User.GetUserVideoAsync(userId, page, pageSize, sortKey, sortOrder);
+
+        if (res.IsSuccess)
+        {
+            foreach (UserVideoItem item in res.Data.Items)
+            {
+                _ = _nicoVideoProvider.UpdateCache(item.Essential.Id, item.Essential);
+            }
+        }
+
+        return res;
     }
 }

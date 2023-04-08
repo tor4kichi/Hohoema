@@ -1,34 +1,27 @@
 ﻿using Hohoema.Models.Niconico.Search;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Hohoema.ViewModels.Niconico.Search
+namespace Hohoema.ViewModels.Niconico.Search;
+
+public sealed class RemoveSearchHistoryCommand : CommandBase
 {
-    public sealed class RemoveSearchHistoryCommand : CommandBase
+    private readonly SearchHistoryRepository _searchHistoryRepository;
+
+    public RemoveSearchHistoryCommand(SearchHistoryRepository searchHistoryRepository)
     {
-        private readonly SearchHistoryRepository _searchHistoryRepository;
+        _searchHistoryRepository = searchHistoryRepository;
+    }
 
-        public RemoveSearchHistoryCommand(SearchHistoryRepository searchHistoryRepository)
-        {
-            _searchHistoryRepository = searchHistoryRepository;
-        }
+    protected override bool CanExecute(object parameter)
+    {
+        return parameter is SearchHistory;
+    }
 
-        protected override bool CanExecute(object parameter)
+    protected override void Execute(object parameter)
+    {
+        if (parameter is SearchHistory)
         {
-            return parameter is SearchHistory;
-        }
-
-        protected override void Execute(object parameter)
-        {
-            if (parameter is SearchHistory)
-            {
-                var history = parameter as SearchHistory;
-                _searchHistoryRepository.Remove(history.Keyword, history.Target);
-            }
+            var history = parameter as SearchHistory;
+            _searchHistoryRepository.Remove(history.Keyword, history.Target);
         }
     }
 }

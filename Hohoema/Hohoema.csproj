@@ -1270,6 +1270,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
+    <None Include=".editerconfig" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
   </ItemGroup>

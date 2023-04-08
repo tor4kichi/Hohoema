@@ -1,43 +1,32 @@
-﻿using Hohoema.Models;
-using Hohoema.Models.Niconico.Search;
+﻿using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.PageNavigation;
-using Hohoema.Services;
-using Hohoema.Contracts.Services.Navigations;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Hohoema.Services.Navigations;
 
-namespace Hohoema.ViewModels.Navigation.Commands
+namespace Hohoema.ViewModels.Navigation.Commands;
+
+public sealed class SearchCommand : CommandBase
 {
-    public sealed class SearchCommand : CommandBase
+    private readonly PageManager _pageManager;
+    private readonly SearchHistoryRepository _searchHistoryRepository;
+
+    public SearchCommand(PageManager pageManager, SearchHistoryRepository searchHistoryRepository)
     {
-        private readonly PageManager _pageManager;
-        private readonly SearchHistoryRepository _searchHistoryRepository;
+        _pageManager = pageManager;
+        _searchHistoryRepository = searchHistoryRepository;
+    }
 
-        public SearchCommand(PageManager pageManager, SearchHistoryRepository searchHistoryRepository)
-        {
-            _pageManager = pageManager;
-            _searchHistoryRepository = searchHistoryRepository;
-        }
+    protected override bool CanExecute(object parameter)
+    {
+        return parameter is string;
+    }
 
-        protected override bool CanExecute(object parameter)
+    protected override void Execute(object parameter)
+    {
+        if (parameter is string text)
         {
-            return parameter is string;
-        }
-
-        protected override void Execute(object parameter)
-        {
-            if (parameter is string text)
-            {
 //                var searched = _searchHistoryRepository.LastSearchedTarget(text);
 //                SearchTarget searchType = searched ?? SearchTarget.Keyword;
 
-                _pageManager.Search(SearchTarget.Keyword, text);
-            }
+            _pageManager.Search(SearchTarget.Keyword, text);
         }
     }
 }

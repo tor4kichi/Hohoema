@@ -1,10 +1,9 @@
-﻿namespace Hohoema.Models.Player.Comment
+﻿namespace Hohoema.Models.Player.Comment;
+
+public enum CommentDisplayMode
 {
-    public enum CommentDisplayMode
-    {
-        Scrolling,
-        Top,
-        Center,
-        Bottom,
-    }
+    Scrolling,
+    Top,
+    Center,
+    Bottom,
 }

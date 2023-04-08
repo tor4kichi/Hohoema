@@ -7,7 +7,6 @@ using Hohoema.Models.Playlist;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Models.VideoCache;
 using Hohoema.Services.LocalMylist;
-using Hohoema.Services.Navigations;
 using Hohoema.Services.Niconico;
 using Hohoema.ViewModels;
 using Hohoema.ViewModels.Navigation.Commands;

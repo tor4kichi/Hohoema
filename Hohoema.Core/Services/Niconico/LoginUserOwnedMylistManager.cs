@@ -1,17 +1,17 @@
-﻿using Hohoema.Models.Niconico;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Hohoema.Contracts.Services;
+using Hohoema.Helpers;
+using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Mylist;
-using CommunityToolkit.Mvvm.ComponentModel;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
-using static Hohoema.Models.Niconico.Mylist.LoginUser.LoginUserMylistProvider;
-using Hohoema.Helpers;
-using Hohoema.Contracts.Services;
 using System.Threading.Tasks;
+using static Hohoema.Models.Niconico.Mylist.LoginUser.LoginUserMylistProvider;
 
 namespace Hohoema.Services.Niconico;
 
@@ -76,45 +76,42 @@ public class LoginUserOwnedMylistManager : ObservableObject
         };
     }
 
-
-
-
-    AsyncLock _mylistSyncLock = new AsyncLock();
+    private readonly AsyncLock _mylistSyncLock = new();
 
     private bool _IsLoginUserMylistReady;
     public bool IsLoginUserMylistReady
     {
-        get { return _IsLoginUserMylistReady; }
-        set { SetProperty(ref _IsLoginUserMylistReady, value); }
+        get => _IsLoginUserMylistReady;
+        set => SetProperty(ref _IsLoginUserMylistReady, value);
     }
 
     private readonly ILogger<LoginUserOwnedMylistManager> _logger;
     private readonly ILocalizeService _localizeService;
-    readonly private NiconicoSession _niconicoSession;
-    readonly private LoginUserMylistProvider _loginUserMylistProvider;
+    private readonly NiconicoSession _niconicoSession;
+    private readonly LoginUserMylistProvider _loginUserMylistProvider;
     private readonly INotificationService _notificationService;
     private readonly LoginUserMylistItemIdRepository _loginUserMylistItemIdRepository;
 
     public LoginUserMylistPlaylist Deflist { get; private set; }
 
-		private ObservableCollection<LoginUserMylistPlaylist> _mylists;
-		public ReadOnlyObservableCollection<LoginUserMylistPlaylist> Mylists { get; private set; }
+    private readonly ObservableCollection<LoginUserMylistPlaylist> _mylists;
+    public ReadOnlyObservableCollection<LoginUserMylistPlaylist> Mylists { get; private set; }
 
-    private AsyncLock _updateLock = new AsyncLock();
+    private readonly AsyncLock _updateLock = new();
 
-    
+
 
     public int DeflistRegistrationCapacity => _niconicoSession.IsPremiumAccount ? 500 : 100;
 
     public int DeflistRegistrationCount => Deflist.Count;
     public int MylistRegistrationCapacity => _niconicoSession.IsPremiumAccount ? 25000 : 100;
 
-    public int MylistRegistrationCount => Mylists.Where(x => !x.MylistId.IsWatchAfterMylist).Sum((System.Func<MylistPlaylist, int>)(x => (int)x.Count));
+    public int MylistRegistrationCount => Mylists.Where(x => !x.MylistId.IsWatchAfterMylist).Sum((System.Func<MylistPlaylist, int>)(x => x.Count));
 
     public const int MaxUserMylistGroupCount = 25;
     public const int MaxPremiumUserMylistGroupCount = 50;
 
-    public int MaxMylistGroupCountCurrentUser => 
+    public int MaxMylistGroupCountCurrentUser =>
         _niconicoSession.IsPremiumAccount ? MaxPremiumUserMylistGroupCount : MaxUserMylistGroupCount;
 
 
@@ -142,7 +139,7 @@ public class LoginUserOwnedMylistManager : ObservableObject
 
     private void Playlist_MylistItemAdded(object sender, MylistItemAddedEventArgs e)
     {
-        var playlist = (LoginUserMylistPlaylist)sender;
+        LoginUserMylistPlaylist playlist = (LoginUserMylistPlaylist)sender;
         if (e.FailedItems?.Any() ?? false)
         {
             _notificationService.ShowLiteInAppNotification_Fail(_localizeService.Translate("InAppNotification_MylistAddedItems_Fail", playlist.Name));
@@ -155,7 +152,7 @@ public class LoginUserOwnedMylistManager : ObservableObject
 
     private void Playlist_MylistItemRemoved(object sender, MylistItemRemovedEventArgs e)
     {
-        var playlist = (LoginUserMylistPlaylist)sender;
+        LoginUserMylistPlaylist playlist = (LoginUserMylistPlaylist)sender;
         if (e.FailedItems?.Any() ?? false)
         {
             _notificationService.ShowLiteInAppNotification_Fail(_localizeService.Translate("InAppNotification_MylistRemovedItems_Fail", playlist.Name));
@@ -168,19 +165,19 @@ public class LoginUserOwnedMylistManager : ObservableObject
 
 
     public bool HasMylistGroup(MylistId groupId)
-	{
-		return Mylists.Any(x => x.MylistId == groupId);
-	}
+    {
+        return Mylists.Any(x => x.MylistId == groupId);
+    }
 
     public async Task WaitUpdate(CancellationToken ct = default)
     {
-        using var _ = await _updateLock.LockAsync(ct);
+        using IDisposable _ = await _updateLock.LockAsync(ct);
     }
 
-		public LoginUserMylistPlaylist GetMylistGroup(MylistId groupId)
-		{
-			return Mylists.SingleOrDefault(x => x.MylistId == groupId);
-		}
+    public LoginUserMylistPlaylist GetMylistGroup(MylistId groupId)
+    {
+        return Mylists.SingleOrDefault(x => x.MylistId == groupId);
+    }
 
     public async Task<LoginUserMylistPlaylist> GetMylistGroupAsync(MylistId groupId, CancellationToken ct = default)
     {
@@ -193,50 +190,48 @@ public class LoginUserOwnedMylistManager : ObservableObject
 
     public async Task SyncMylistGroups(CancellationToken ct = default)
     {
-        using (var releaser = await _updateLock.LockAsync(ct))            
+        using IDisposable releaser = await _updateLock.LockAsync(ct);
+        Deflist = null;
+
+        foreach (LoginUserMylistPlaylist item in _mylists)
         {
-            Deflist = null;
+            RemoveHandleMylistItemChanged(item);
+        }
+        _mylists.Clear();
 
-            foreach (var item in _mylists)
+        if (_niconicoSession.IsLoggedIn)
+        {
+            try
             {
-                RemoveHandleMylistItemChanged(item);
-            }
-            _mylists.Clear();
+                System.Collections.Generic.List<LoginUserMylistPlaylist> groups = await _loginUserMylistProvider.GetLoginUserMylistGroups();
 
-            if (_niconicoSession.IsLoggedIn)
-            {
-                try
+                ct.ThrowIfCancellationRequested();
+
+                foreach (LoginUserMylistPlaylist mylistGroup in groups ?? Enumerable.Empty<LoginUserMylistPlaylist>())
                 {
-                    var groups = await _loginUserMylistProvider.GetLoginUserMylistGroups();
-
-                    ct.ThrowIfCancellationRequested();
-
-                    foreach (var mylistGroup in groups ?? Enumerable.Empty<LoginUserMylistPlaylist>())
+                    if (mylistGroup.MylistId.IsWatchAfterMylist)
                     {
-                        if (mylistGroup.MylistId.IsWatchAfterMylist)
-                        {
-                            Deflist = mylistGroup;
-                        }
-
-                        _mylists.Add(mylistGroup);
+                        Deflist = mylistGroup;
                     }
-                }
-                catch
-                {
-                    _mylists.Clear();
+
+                    _mylists.Add(mylistGroup);
                 }
             }
-
-            foreach (var item in _mylists)
+            catch
             {
-                HandleMylistItemChanged(item);
+                _mylists.Clear();
             }
         }
-	}
 
-	public async Task<LoginUserMylistPlaylist> AddMylist(string name, string description, bool isPublic, MylistSortKey sortKey, MylistSortOrder sortOrder)
+        foreach (LoginUserMylistPlaylist item in _mylists)
+        {
+            HandleMylistItemChanged(item);
+        }
+    }
+
+    public async Task<LoginUserMylistPlaylist> AddMylist(string name, string description, bool isPublic, MylistSortKey sortKey, MylistSortOrder sortOrder)
     {
-        var result = await _loginUserMylistProvider.AddMylist(name, description, isPublic, sortKey, sortOrder);
+        string result = await _loginUserMylistProvider.AddMylist(name, description, isPublic, sortKey, sortOrder);
         if (result != null)
         {
             await SyncMylistGroups();
@@ -248,30 +243,30 @@ public class LoginUserOwnedMylistManager : ObservableObject
         }
     }
 
-		
-	public async Task<bool> RemoveMylist(MylistId mylistId)
-	{
-		var result = await _loginUserMylistProvider.RemoveMylist(mylistId);
 
-		if (result)
-		{
-        await SyncMylistGroups();
+    public async Task<bool> RemoveMylist(MylistId mylistId)
+    {
+        bool result = await _loginUserMylistProvider.RemoveMylist(mylistId);
+
+        if (result)
+        {
+            await SyncMylistGroups();
+        }
+
+        return result;
     }
-
-		return result;
-	}
 
 
     public bool CheckIsRegistratedAnyMylist(string videoId)
-	{
+    {
         throw new NotImplementedException();
-		//return Mylists.Any(x => x.ContainsVideoId(videoId));
-	}
+        //return Mylists.Any(x => x.ContainsVideoId(videoId));
+    }
 
 }
 
 public class MylistVideoItemInfo
 {
-	public string VideoId { get; set; }
-	public string ThreadId { get; set; }
+    public string VideoId { get; set; }
+    public string ThreadId { get; set; }
 }

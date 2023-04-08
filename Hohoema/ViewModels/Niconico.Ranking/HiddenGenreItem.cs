@@ -1,11 +1,10 @@
 ﻿using NiconicoToolkit.Ranking.Video;
 
-namespace Hohoema.ViewModels.Niconico.Ranking
+namespace Hohoema.ViewModels.Niconico.Ranking;
+
+public class HiddenGenreItem
 {
-    public class HiddenGenreItem
-    {
-        public string Label { get; set; }
-        public RankingGenre Genre { get; set; }
-        public string Tag { get; set; }
-    }
+    public string Label { get; set; }
+    public RankingGenre Genre { get; set; }
+    public string Tag { get; set; }
 }

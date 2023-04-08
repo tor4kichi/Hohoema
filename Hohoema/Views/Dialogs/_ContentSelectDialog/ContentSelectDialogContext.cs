@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Hohoema.Contracts.Services;
 using Hohoema.Services;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -9,7 +8,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading;
 
 namespace Hohoema.Dialogs;

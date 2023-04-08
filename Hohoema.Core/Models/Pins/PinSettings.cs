@@ -1,48 +1,39 @@
-﻿using Hohoema.Models.PageNavigation;
-using Hohoema.Infra;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Hohoema.Infra;
+using Hohoema.Models.PageNavigation;
 
-namespace Hohoema.Models.Pins
+namespace Hohoema.Models.Pins;
+
+public sealed class PinSettings : LiteDBServiceBase<HohoemaPin>
 {
-    public sealed class PinSettings : LiteDBServiceBase<HohoemaPin>
+    public PinSettings(LiteDB.LiteDatabase liteDatabase) : base(liteDatabase)
     {
-        public PinSettings(LiteDB.LiteDatabase liteDatabase) : base(liteDatabase)
+        _ = _collection.EnsureIndex(nameof(HohoemaPin.PageType));
+        _ = _collection.EnsureIndex(nameof(HohoemaPin.Parameter));
+    }
+
+    public bool HasPin(HohoemaPageType pageType, string parameter)
+    {
+        return _collection.Exists(x => x.PageType == pageType && x.Parameter == parameter);
+    }
+
+    public void RemovePin(HohoemaPageType pageType, string parameter)
+    {
+        _ = _collection.DeleteMany(x => x.PageType == pageType && x.Parameter == parameter);
+    }
+
+    private HohoemaPin CreatePin(string label, HohoemaPageType pageType, string parameter)
+    {
+        int sortIndex = _collection.Max(x => x.SortIndex);
+
+        HohoemaPin pin = new()
         {
-            _collection.EnsureIndex(nameof(HohoemaPin.PageType));
-            _collection.EnsureIndex(nameof(HohoemaPin.Parameter));
-        }
+            Label = label,
+            Parameter = parameter,
+            PageType = pageType,
+            SortIndex = sortIndex + 1
+        };
+        _ = CreateItem(pin);
 
-        public bool HasPin(HohoemaPageType pageType, string parameter)
-        {
-            return _collection.Exists(x => x.PageType == pageType && x.Parameter == parameter);
-        }
-
-        public void RemovePin(HohoemaPageType pageType, string parameter)
-        {
-            _collection.DeleteMany(x => x.PageType == pageType && x.Parameter == parameter);
-        }
-
-
-        HohoemaPin CreatePin(string label, HohoemaPageType pageType, string parameter)
-        {
-            var sortIndex = _collection.Max(x => x.SortIndex);
-
-            var pin = new HohoemaPin()
-            {
-                Label = label,
-                Parameter = parameter,
-                PageType = pageType,
-                SortIndex = sortIndex + 1
-            };
-            CreateItem(pin);
-
-            return pin;
-        }
+        return pin;
     }
 }

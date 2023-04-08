@@ -1,23 +1,15 @@
-﻿using I18NPortable;
-using Hohoema.Models;
+﻿using Hohoema.Models.Niconico.Mylist;
+using I18NPortable;
 using Reactive.Bindings;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Windows.UI;
-using NiconicoToolkit.Mylist;
-using Hohoema.Models.Niconico.Mylist;
-using Hohoema.Contracts.Services;
 
-namespace Hohoema.Dialogs
-{
-	public sealed class EditMylistGroupDialogContext : IDisposable
+namespace Hohoema.Dialogs;
+
+public sealed class EditMylistGroupDialogContext : IDisposable
 	{
 		IScheduler _scheduler;
 
@@ -58,17 +50,17 @@ namespace Hohoema.Dialogs
 			};
 		}
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
 			CanEditCompletion?.Dispose();
 			MylistName?.Dispose();
-            MylistDescription?.Dispose();
-            MylistIsPublicIndex?.Dispose();
-            SelectedSort?.Dispose();
-            LastErrorMessage?.Dispose();
-        }
+        MylistDescription?.Dispose();
+        MylistIsPublicIndex?.Dispose();
+        SelectedSort?.Dispose();
+        LastErrorMessage?.Dispose();
+    }
 
-        public ReactiveProperty<bool> CanEditCompletion { get; private set; }
+    public ReactiveProperty<bool> CanEditCompletion { get; private set; }
 
 		public string DialogTitle { get; private set; }
 
@@ -83,4 +75,3 @@ namespace Hohoema.Dialogs
 	}
 
 	
-}

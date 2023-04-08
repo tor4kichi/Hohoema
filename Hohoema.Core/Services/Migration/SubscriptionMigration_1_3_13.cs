@@ -2,20 +2,19 @@
 using Hohoema.Models.Application;
 using Hohoema.Models.Subscriptions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hohoema.Services.Migrations;
 
 public sealed class SubscriptionMigration_1_3_13 : IMigrateSync
 {
     private readonly SubscFeedVideoRepository _subscFeedVideoRepository;
+    [Obsolete]
     private readonly AppFlagsRepository _appFlagsRepository;
     private readonly SubscriptionRegistrationRepository _subscriptionRegistrationRepository;
     private readonly SubscriptionFeedResultRepository _subscriptionFeedResultRepository;
 
+    [Obsolete]
     public SubscriptionMigration_1_3_13(
         AppFlagsRepository appFlagsRepository,
         SubscriptionRegistrationRepository subscriptionRegistrationRepository,
@@ -27,25 +26,26 @@ public sealed class SubscriptionMigration_1_3_13 : IMigrateSync
         _appFlagsRepository = appFlagsRepository;
         _subscriptionRegistrationRepository = subscriptionRegistrationRepository;
         _subscriptionFeedResultRepository = subscriptionFeedResultRepository;
-    }        
+    }
 
+    [Obsolete]
     public void Migrate()
     {
         if (_appFlagsRepository.IsSubscriptionMigrate_1_3_13) { return; }
 
-        var subscItems = _subscriptionRegistrationRepository.ReadAllItems();
+        System.Collections.Generic.List<SubscriptionSourceEntity> subscItems = _subscriptionRegistrationRepository.ReadAllItems();
 
         DateTime now = DateTime.Now;
-        foreach (var subsc in subscItems)
+        foreach (SubscriptionSourceEntity subsc in subscItems)
         {
-            var result = _subscriptionFeedResultRepository.GetFeedResult(subsc);
+            SubscriptionFeedResult result = _subscriptionFeedResultRepository.GetFeedResult(subsc);
 
-            _subscFeedVideoRepository.RegisteringVideosIfNotExist(subsc.Id, now, result.Videos.Select(x => new SubscFeedVideo 
+            _ = _subscFeedVideoRepository.RegisteringVideosIfNotExist(subsc.Id, now, result.Videos.Select(x => new SubscFeedVideo
             {
                 PostAt = x.PostAt,
                 SourceSubscId = subsc.Id,
                 Title = x.Title,
-                VideoId = x.VideoId,     
+                VideoId = x.VideoId,
             }));
         }
 

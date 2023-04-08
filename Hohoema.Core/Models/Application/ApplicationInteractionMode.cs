@@ -1,9 +1,8 @@
-﻿namespace Hohoema.Models.Application
+﻿namespace Hohoema.Models.Application;
+
+public enum ApplicationInteractionMode
 {
-    public enum ApplicationInteractionMode
-    {
-        Controller,
-        Mouse,
-        Touch,
-    }
+    Controller,
+    Mouse,
+    Touch,
 }

@@ -1,83 +1,78 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Hohoema.Models.PageNavigation
+namespace Hohoema.Models.PageNavigation;
+
+public enum HohoemaPageType
 {
-	public enum HohoemaPageType
-	{
-		RankingCategoryList,
-		RankingCategory,
-		UserMylist,
-		Mylist,
-		FollowManage,
-		WatchHistory,
+    RankingCategoryList,
+    RankingCategory,
+    UserMylist,
+    Mylist,
+    FollowManage,
+    WatchHistory,
 
-		Search,
-        SearchSummary,
+    Search,
+    SearchSummary,
 
-        [Obsolete]
-        SearchResultCommunity,
-        [Obsolete]
-        SearchResultTag,
-        [Obsolete]
-        SearchResultKeyword,
-        [Obsolete]
-        SearchResultMylist,
-        [Obsolete]
-        SearchResultLive,
+    [Obsolete]
+    SearchResultCommunity,
+    [Obsolete]
+    SearchResultTag,
+    [Obsolete]
+    SearchResultKeyword,
+    [Obsolete]
+    SearchResultMylist,
+    [Obsolete]
+    SearchResultLive,
 
-		FeedGroupManage,
-		FeedGroup,
-		FeedVideoList,
+    FeedGroupManage,
+    FeedGroup,
+    FeedVideoList,
 
-		UserInfo,
-		UserVideo,
+    UserInfo,
+    UserVideo,
 
-		Community,
-		CommunityVideo,
+    Community,
+    CommunityVideo,
 
-        VideoInfomation,
+    VideoInfomation,
 
-        CacheManagement,
+    CacheManagement,
 
-        Settings,
+    Settings,
 
-        Splash,
-        VideoPlayer,
+    Splash,
+    VideoPlayer,
 
-        NicoRepo,
-        Recommend,
+    NicoRepo,
+    Recommend,
 
-        ChannelInfo,
-        ChannelVideo,
+    ChannelInfo,
+    ChannelVideo,
 
-        PrologueIntroduction,
-        NicoAccountIntroduction,
-        VideoCacheIntroduction,
-        EpilogueIntroduction,
+    PrologueIntroduction,
+    NicoAccountIntroduction,
+    VideoCacheIntroduction,
+    EpilogueIntroduction,
 
-        LiveInfomation,
-        Timeshift,
+    LiveInfomation,
+    Timeshift,
 
 
-        Subscription,
+    Subscription,
 
-        LocalPlaylist,
+    LocalPlaylist,
 
 
-        UserSeries,
-        Series,
+    UserSeries,
+    Series,
 
-        VideoQueue, // @view
+    VideoQueue, // @view
 
-        SubscriptionManagement,
-        
-        OwnerMylistManage,
-        LocalPlaylistManage,
+    SubscriptionManagement,
 
-        SubscVideoList,
-    }
+    OwnerMylistManage,
+    LocalPlaylistManage,
+
+    SubscVideoList,
 }

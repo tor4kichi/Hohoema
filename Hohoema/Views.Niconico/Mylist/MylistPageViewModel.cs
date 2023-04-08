@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Contracts.Services;
 using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Follow.LoginUser;
@@ -14,8 +13,6 @@ using Hohoema.Models.Playlist;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
 using Hohoema.Services.LocalMylist;
-using Hohoema.Contracts.Services.Navigations;
-using Hohoema.Services.Navigations;
 using Hohoema.Services.Niconico;
 using Hohoema.Services.Playlist;
 using Hohoema.ViewModels.Niconico.Follow;

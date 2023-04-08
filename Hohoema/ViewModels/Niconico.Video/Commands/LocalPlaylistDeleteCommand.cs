@@ -1,50 +1,42 @@
-﻿using I18NPortable;
-using Hohoema.Models.Playlist;
+﻿using Hohoema.Models.LocalMylist;
 using Hohoema.Services;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Hohoema.Services.Playlist;
 using Hohoema.Services.LocalMylist;
-using Hohoema.Models.LocalMylist;
+using I18NPortable;
+using System;
 
-namespace Hohoema.ViewModels.Niconico.Video.Commands
+namespace Hohoema.ViewModels.Niconico.Video.Commands;
+
+public sealed class LocalPlaylistDeleteCommand : CommandBase
 {
-    public sealed class LocalPlaylistDeleteCommand : CommandBase
+    private readonly LocalMylistManager _localMylistManager;
+    private readonly DialogService _dialogService;
+
+    public LocalPlaylistDeleteCommand(
+        LocalMylistManager localMylistManager,
+        DialogService dialogService
+        )
     {
-        private readonly LocalMylistManager _localMylistManager;
-        private readonly DialogService _dialogService;
+        _localMylistManager = localMylistManager;
+        _dialogService = dialogService;
+    }
+    protected override bool CanExecute(object parameter)
+    {
+        return parameter is LocalPlaylist;
+    }
 
-        public LocalPlaylistDeleteCommand(
-            LocalMylistManager localMylistManager,
-            DialogService dialogService
-            )
+    protected override async void Execute(object parameter)
+    {
+        if (parameter is LocalPlaylist localPlaylist)
         {
-            _localMylistManager = localMylistManager;
-            _dialogService = dialogService;
-        }
-        protected override bool CanExecute(object parameter)
-        {
-            return parameter is LocalPlaylist;
-        }
-
-        protected override async void Execute(object parameter)
-        {
-            if (parameter is LocalPlaylist localPlaylist)
+            if (await _dialogService.ShowMessageDialog(
+                "DeleteLocalPlaylistDescription".Translate(localPlaylist.Name),
+                "DeleteLocalPlaylistTitle".Translate(localPlaylist.Name),
+                "Delete".Translate(),
+                "Cancel".Translate()
+                ))
             {
-                if (await _dialogService.ShowMessageDialog(
-                    "DeleteLocalPlaylistDescription".Translate(localPlaylist.Name),
-                    "DeleteLocalPlaylistTitle".Translate(localPlaylist.Name),
-                    "Delete".Translate(),
-                    "Cancel".Translate()
-                    ))
-                {
-                    _localMylistManager.RemovePlaylist(localPlaylist);
+                _localMylistManager.RemovePlaylist(localPlaylist);
 
-                }
             }
         }
     }

@@ -1,15 +1,13 @@
 ﻿using Hohoema.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Gaming.Input;
-using Windows.UI.Xaml;
 using System.Threading;
+using Windows.Gaming.Input;
 using Windows.UI.Core;
-using System.Diagnostics;
+using Windows.UI.Xaml;
 
 namespace Hohoema.Views.UINavigation;
 

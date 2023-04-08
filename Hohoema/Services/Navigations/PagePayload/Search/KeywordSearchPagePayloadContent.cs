@@ -1,10 +1,8 @@
-﻿using Hohoema.Models;
-using Hohoema.Models.PageNavigation;
+﻿using Hohoema.Models.PageNavigation;
 
-namespace Hohoema.Services.Navigations
-{
-    public class KeywordSearchPagePayloadContent : VideoSearchOption
+namespace Hohoema.Services.Navigations;
+
+public class KeywordSearchPagePayloadContent : VideoSearchOption
 	{
 		public override SearchTarget SearchTarget => SearchTarget.Keyword;
 	}
-}

@@ -1,26 +1,23 @@
-﻿using I18NPortable;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Dialogs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.UI.Popups;
-using Hohoema.Views.Dialogs;
 using Hohoema.Models.Application;
 using Hohoema.Services.LocalMylist;
 using Hohoema.Services.Niconico;
-using Hohoema.Contracts.Services;
+using Hohoema.Views.Dialogs;
+using I18NPortable;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
-using System.Threading;
-using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
-using System.ComponentModel;
+using System.Threading;
+using System.Threading.Tasks;
+using Windows.UI.Popups;
 
 namespace Hohoema.Services;
 

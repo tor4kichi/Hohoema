@@ -1,48 +1,43 @@
 ﻿using Hohoema.Infra;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NiconicoToolkit.Channels;
+using System.Threading.Tasks;
 
-namespace Hohoema.Models.Niconico.Channel
+namespace Hohoema.Models.Niconico.Channel;
+
+public sealed class ChannelProvider : ProviderBase
 {
-    public sealed class ChannelProvider : ProviderBase
+    private readonly ChannelNameCacheRepository _channelNameCacheRepository;
+
+    public ChannelProvider(
+        NiconicoSession niconicoSession,
+        ChannelNameCacheRepository channelNameCacheRepository
+        ) : base(niconicoSession)
     {
-        private readonly ChannelNameCacheRepository _channelNameCacheRepository;
+        _channelNameCacheRepository = channelNameCacheRepository;
+    }
 
-        public ChannelProvider(
-            NiconicoSession niconicoSession,
-            ChannelNameCacheRepository channelNameCacheRepository
-            ) : base(niconicoSession)
+    public async ValueTask<string> GetChannelNameWithCacheAsync(ChannelId channelId)
+    {
+        string strChannelId = channelId.ToString();
+        ChannelEntity cached = _channelNameCacheRepository.FindById(strChannelId);
+        if (cached == null)
         {
-            _channelNameCacheRepository = channelNameCacheRepository;
+            ChannelInfo info = await GetChannelInfo(channelId);
+            cached = new ChannelEntity() { ChannelId = strChannelId, ScreenName = info.ScreenName };
+            _ = _channelNameCacheRepository.UpdateItem(cached);
         }
 
-        public async ValueTask<string> GetChannelNameWithCacheAsync(ChannelId channelId)
-        {
-            var strChannelId = channelId.ToString();
-            var cached = _channelNameCacheRepository.FindById(strChannelId);
-            if (cached == null)
-            {
-                var info = await GetChannelInfo(channelId);
-                cached = new ChannelEntity() { ChannelId = strChannelId, ScreenName = info.ScreenName };
-                _channelNameCacheRepository.UpdateItem(cached);
-            }
-
-            return cached.ScreenName;
-        }
+        return cached.ScreenName;
+    }
 
 
-        public Task<ChannelVideoResponse> GetChannelVideo(string channelIdOrScreenName, int page, ChannelVideoSortKey? sortKey = null, ChannelVideoSortOrder? sortOrder = null)
-        {
-            return _niconicoSession.ToolkitContext.Channel.GetChannelVideoAsync(channelIdOrScreenName, page, sortKey, sortOrder);
-        }
+    public Task<ChannelVideoResponse> GetChannelVideo(string channelIdOrScreenName, int page, ChannelVideoSortKey? sortKey = null, ChannelVideoSortOrder? sortOrder = null)
+    {
+        return _niconicoSession.ToolkitContext.Channel.GetChannelVideoAsync(channelIdOrScreenName, page, sortKey, sortOrder);
+    }
 
-        public Task<ChannelInfo> GetChannelInfo(ChannelId channelId)
-        {
-            return _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
-        }
+    public Task<ChannelInfo> GetChannelInfo(ChannelId channelId)
+    {
+        return _niconicoSession.ToolkitContext.Channel.GetChannelInfoAsync(channelId);
     }
 }

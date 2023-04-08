@@ -1,29 +1,27 @@
 ﻿using Hohoema.Models.PageNavigation;
-using Hohoema.Services.Navigations;
 
-namespace Hohoema.ViewModels.Navigation.Commands
+namespace Hohoema.ViewModels.Navigation.Commands;
+
+public sealed class OpenPageWithIdCommand : CommandBase
 {
-    public sealed class OpenPageWithIdCommand : CommandBase
+    private readonly HohoemaPageType _hohoemaPage;
+    private readonly PageManager _pageManager;
+
+    public OpenPageWithIdCommand(HohoemaPageType hohoemaPage, PageManager pageManager)
     {
-        private readonly HohoemaPageType _hohoemaPage;
-        private readonly PageManager _pageManager;
+        _hohoemaPage = hohoemaPage;
+        _pageManager = pageManager;
+    }
+    protected override bool CanExecute(object parameter)
+    {
+        return parameter is string;
+    }
 
-        public OpenPageWithIdCommand(HohoemaPageType hohoemaPage, PageManager pageManager)
+    protected override void Execute(object parameter)
+    {
+        if (parameter is string id)
         {
-            _hohoemaPage = hohoemaPage;
-            _pageManager = pageManager;
-        }
-        protected override bool CanExecute(object parameter)
-        {
-            return parameter is string;
-        }
-
-        protected override void Execute(object parameter)
-        {
-            if (parameter is string id)
-            {
-                _pageManager.OpenPageWithId(_hohoemaPage, id);
-            }
+            _pageManager.OpenPageWithId(_hohoemaPage, id);
         }
     }
 }

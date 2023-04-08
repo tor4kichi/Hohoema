@@ -1,45 +1,37 @@
-﻿using Hohoema.Models.Playlist;
-using Hohoema.Services;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using Hohoema.Models.Playlist;
 using I18NPortable;
-using CommunityToolkit.Mvvm.Messaging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Hohoema.Contracts.Services;
 
-namespace Hohoema.Services.Playlist
+namespace Hohoema.Services.Playlist;
+
+public sealed class AutoSkipToPlaylistNextVideoWhenPlayFailed 
+    : IRecipient<PlaybackFailedMessage>
 {
-    public sealed class AutoSkipToPlaylistNextVideoWhenPlayFailed 
-        : IRecipient<PlaybackFailedMessage>
+    private readonly IMessenger _messenger;
+    private readonly INotificationService _notificationService;
+
+    public AutoSkipToPlaylistNextVideoWhenPlayFailed(
+        IMessenger messenger,
+        INotificationService notificationService
+        )
     {
-        private readonly IMessenger _messenger;
-        private readonly INotificationService _notificationService;
+        _messenger = messenger;
+        _notificationService = notificationService;
+        _messenger.Register(this);
+    }
 
-        public AutoSkipToPlaylistNextVideoWhenPlayFailed(
-            IMessenger messenger,
-            INotificationService notificationService
-            )
+    public async void Receive(PlaybackFailedMessage message)
+    {
+        var player = message.Value.Player;
+
+        if (await player.CanGoNextAsync())
         {
-            _messenger = messenger;
-            _notificationService = notificationService;
-            _messenger.Register(this);
+            _notificationService.ShowLiteInAppNotification_Fail($"{"CanNotPlay".Translate()}\n{message.Value.FailedReason.Translate()}");
+            await player.GoNextAsync();
         }
-
-        public async void Receive(PlaybackFailedMessage message)
+        else
         {
-            var player = message.Value.Player;
-
-            if (await player.CanGoNextAsync())
-            {
-                _notificationService.ShowLiteInAppNotification_Fail($"{"CanNotPlay".Translate()}\n{message.Value.FailedReason.Translate()}");
-                await player.GoNextAsync();
-            }
-            else
-            {
-                _notificationService.ShowLiteInAppNotification_Fail($"{"CanNotPlay".Translate()}\n{message.Value.FailedReason.Translate()}");
-            }
+            _notificationService.ShowLiteInAppNotification_Fail($"{"CanNotPlay".Translate()}\n{message.Value.FailedReason.Translate()}");
         }
     }
 }

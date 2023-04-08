@@ -2,37 +2,36 @@
 using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.PageNavigation;
 
-namespace Hohoema.ViewModels.Pages.Niconico.Search
+namespace Hohoema.ViewModels.Pages.Niconico.Search;
+
+public class SearchHistoryListItemViewModel : ISearchHistory
 {
-    public class SearchHistoryListItemViewModel : ISearchHistory
-    {
-        public SearchHistory SearchHistory { get; }
-        public string Keyword { get; private set; }
+    public SearchHistory SearchHistory { get; }
+    public string Keyword { get; private set; }
 		public SearchTarget Target { get; private set; }
 
-        SearchPageViewModel SearchPageVM { get; }
+    SearchPageViewModel SearchPageVM { get; }
 
-        public SearchHistoryListItemViewModel(SearchHistory source, SearchPageViewModel parentVM)
+    public SearchHistoryListItemViewModel(SearchHistory source, SearchPageViewModel parentVM)
 		{
-            SearchHistory = source;
-            SearchPageVM = parentVM;
-            Keyword = source.Keyword;
+        SearchHistory = source;
+        SearchPageVM = parentVM;
+        Keyword = source.Keyword;
 			Target = source.Target;
 		}
 
-        
-        private RelayCommand _DeleteSearchHistoryItemCommand;
-        public RelayCommand DeleteSearchHistoryItemCommand
+    
+    private RelayCommand _DeleteSearchHistoryItemCommand;
+    public RelayCommand DeleteSearchHistoryItemCommand
+    {
+        get
         {
-            get
-            {
-                return _DeleteSearchHistoryItemCommand
-                    ?? (_DeleteSearchHistoryItemCommand = new RelayCommand(() =>
-                    {
-                        SearchPageVM.DeleteSearchHistoryItemCommand.Execute(SearchHistory);
-                    }
-                    ));
-            }
+            return _DeleteSearchHistoryItemCommand
+                ?? (_DeleteSearchHistoryItemCommand = new RelayCommand(() =>
+                {
+                    SearchPageVM.DeleteSearchHistoryItemCommand.Execute(SearchHistory);
+                }
+                ));
         }
     }
 }

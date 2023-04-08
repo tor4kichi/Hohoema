@@ -9,11 +9,9 @@ using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.UI.Xaml.Controls;
 
 namespace Hohoema.Models.Niconico.Series;
 
@@ -29,12 +27,7 @@ public record SeriesPlaylistSortOption(SeriesVideoSortKey SortKey, PlaylistItemS
 
     public bool Equals(IPlaylistSortOption other)
     {
-        if (other is SeriesPlaylistSortOption seriesPlaylistSortOption)
-        {
-            return this == seriesPlaylistSortOption;
-        }
-
-        return false;
+        return other is SeriesPlaylistSortOption seriesPlaylistSortOption && this == seriesPlaylistSortOption;
     }
 
     public string Serialize()
@@ -76,7 +69,7 @@ public sealed class SeriesVideoPlaylist : ISortablePlaylist
 
     public PlaylistId PlaylistId { get; }
 
-    public static SeriesPlaylistSortOption[] SortOptions { get; } = new []
+    public static SeriesPlaylistSortOption[] SortOptions { get; } = new[]
     {
         SeriesVideoSortKey.AddedAt,
         SeriesVideoSortKey.PostedAt,
@@ -85,9 +78,9 @@ public sealed class SeriesVideoPlaylist : ISortablePlaylist
         SeriesVideoSortKey.MylistCount,
         SeriesVideoSortKey.CommentCount,
     }
-    .SelectMany(x => 
+    .SelectMany(x =>
     {
-        return new[] { 
+        return new[] {
                 new SeriesPlaylistSortOption(x, PlaylistItemSortOrder.Desc),
                 new SeriesPlaylistSortOption(x, PlaylistItemSortOrder.Asc),
             };
@@ -104,9 +97,9 @@ public sealed class SeriesVideoPlaylist : ISortablePlaylist
 
     //int IUnlimitedPlaylist.OneTimeLoadItemsCount => 100;
 
-    static Comparison<NiconicoToolkit.Series.SeriesVideoItem> GetComparision(SeriesVideoSortKey sortKey, PlaylistItemSortOrder sortOrder)
+    private static Comparison<NiconicoToolkit.Series.SeriesVideoItem> GetComparision(SeriesVideoSortKey sortKey, PlaylistItemSortOrder sortOrder)
     {
-        var isAsc = sortOrder == PlaylistItemSortOrder.Asc;
+        bool isAsc = sortOrder == PlaylistItemSortOrder.Asc;
         return sortKey switch
         {
             SeriesVideoSortKey.AddedAt => null,
@@ -119,32 +112,32 @@ public sealed class SeriesVideoPlaylist : ISortablePlaylist
         };
     }
 
-    private  async Task<IEnumerable<NiconicoToolkit.Series.SeriesVideoItem>> GetItems(int page, int pageSize)
+    private async Task<IEnumerable<NiconicoToolkit.Series.SeriesVideoItem>> GetItems(int page, int pageSize)
     {
         int head = page * pageSize;
-        int tail = page * pageSize + pageSize;
+        int tail = (page * pageSize) + pageSize;
         if (head < SeriesDetails.Data.Items.Count)
         {
             List<NiconicoToolkit.Series.SeriesVideoItem> items = new();
             items.AddRange(SeriesDetails.Data.Items.Skip(head).Take(tail));
             if (tail > SeriesDetails.Data.Items.Count)
             {
-                var remainCount = tail - SeriesDetails.Data.Items.Count;
-                var result = await _seriesProvider.GetSeriesVideosAsync(PlaylistId.Id, page, pageSize);
+                _ = tail - SeriesDetails.Data.Items.Count;
+                NvapiSeriesVidoesResponseContainer result = await _seriesProvider.GetSeriesVideosAsync(PlaylistId.Id, page, pageSize);
                 items.AddRange(result.Data.Items.Skip(head).Take(tail));
             }
             return items;
         }
         else
         {
-            var result = await _seriesProvider.GetSeriesVideosAsync(PlaylistId.Id, page, pageSize);
+            NvapiSeriesVidoesResponseContainer result = await _seriesProvider.GetSeriesVideosAsync(PlaylistId.Id, page, pageSize);
             return result.Data.Items;
         }
     }
 
     public static List<NiconicoToolkit.Series.SeriesVideoItem> GetSortedItems(List<NiconicoToolkit.Series.SeriesVideoItem> videoItems, SeriesPlaylistSortOption sortOption)
     {
-        var list = videoItems;
+        List<NiconicoToolkit.Series.SeriesVideoItem> list = videoItems;
         if (GetComparision(sortOption.SortKey, sortOption.SortOrder) is not null and var sortComparision)
         {
             list.Sort(sortComparision);
@@ -168,7 +161,7 @@ public sealed class SeriesVideoPlaylist : ISortablePlaylist
         int page = 0;
         while (items.Count < TotalCount)
         {
-            var result = await _seriesProvider.GetSeriesVideosAsync(PlaylistId.Id, page, 100);
+            NvapiSeriesVidoesResponseContainer result = await _seriesProvider.GetSeriesVideosAsync(PlaylistId.Id, page, 100);
             items.AddRange(result.Data.Items);
             page++;
         }
@@ -180,11 +173,11 @@ public sealed class SeriesVideoPlaylist : ISortablePlaylist
 
 public sealed class SeriesVideoItem : IVideoContent, IVideoContentProvider
 {
-    private readonly NiconicoToolkit.Series.SeriesVideoItem _video;        
+    private readonly NiconicoToolkit.Series.SeriesVideoItem _video;
 
     public SeriesVideoItem(NiconicoToolkit.Series.SeriesVideoItem video)
     {
-        _video = video;            
+        _video = video;
     }
 
     public string ProviderId => _video.Video.Owner.Id;
@@ -203,7 +196,7 @@ public sealed class SeriesVideoItem : IVideoContent, IVideoContentProvider
 
     public bool Equals(IVideoContent other)
     {
-        return this.VideoId == other.VideoId;
+        return VideoId == other.VideoId;
     }
 
     public int ViewCount => _video.Video.Count.View;

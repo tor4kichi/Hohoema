@@ -1,16 +1,12 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace Hohoema.ViewModels
-{
-	
-	public class SelectableItem<T> : HohoemaListingPageItemBase
+namespace Hohoema.ViewModels;
+
+
+public class SelectableItem<T> : HohoemaListingPageItemBase
 	{
 		public SelectableItem(T source, Action<T> selectedAction)
 		{
@@ -24,7 +20,7 @@ namespace Hohoema.ViewModels
 		public Action<T> SelectedAction { get; private set; }
 
 		private RelayCommand _SelectedCommand;
-        public ICommand PrimaryCommand
+    public ICommand PrimaryCommand
 		{
 			get
 			{
@@ -59,4 +55,3 @@ namespace Hohoema.ViewModels
 			}
 		}
 	}
-}

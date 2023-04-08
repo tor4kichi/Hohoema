@@ -1,44 +1,35 @@
-﻿using Hohoema.Models.Niconico;
-using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
+﻿using Hohoema.Models.Niconico.Video;
 using Hohoema.Services.Niconico;
-using Hohoema.Services.Playlist;
-using CommunityToolkit.Mvvm.Input;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Hohoema.ViewModels.Niconico.Video.Commands
+namespace Hohoema.ViewModels.Niconico.Video.Commands;
+
+public sealed class WatchHistoryRemoveItemCommand : CommandBase
 {
-    public sealed class WatchHistoryRemoveItemCommand : CommandBase
+    private readonly WatchHistoryManager _watchHistoryManager;
+
+    public WatchHistoryRemoveItemCommand(
+        WatchHistoryManager watchHistoryManager
+        )
     {
-        private readonly WatchHistoryManager _watchHistoryManager;
+        _watchHistoryManager = watchHistoryManager;
+    }
 
-        public WatchHistoryRemoveItemCommand(
-            WatchHistoryManager watchHistoryManager
-            )
+    protected override bool CanExecute(object parameter)
+    {
+        return true;
+    }
+
+    protected override async void Execute(object parameter)
+    {
+        if (parameter is IVideoContent watchHistory)
         {
-            _watchHistoryManager = watchHistoryManager;
+            _ = _watchHistoryManager.RemoveHistoryAsync(watchHistory);
         }
-
-        protected override bool CanExecute(object parameter)
+        else if (parameter is IList histories)
         {
-            return true;
-        }
-
-        protected override async void Execute(object parameter)
-        {
-            if (parameter is IVideoContent watchHistory)
-            {
-                _ = _watchHistoryManager.RemoveHistoryAsync(watchHistory);
-            }
-            else if (parameter is IList histories)
-            {
-                await _watchHistoryManager.RemoveHistoryAsync(histories.Cast<IVideoContent>().ToList());
-            }
+            await _watchHistoryManager.RemoveHistoryAsync(histories.Cast<IVideoContent>().ToList());
         }
     }
 }

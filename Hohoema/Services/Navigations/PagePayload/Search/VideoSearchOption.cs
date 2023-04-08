@@ -2,16 +2,16 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Hohoema.Services.Navigations
-{
-    [DataContract]
+namespace Hohoema.Services.Navigations;
+
+[DataContract]
 	public abstract class VideoSearchOption : SearchPagePayloadContentBase, IEquatable<VideoSearchOption>
 	{
-        [DataMember]
-        public VideoSortOrder Order { get; set; } = VideoSortOrder.Desc;
+    [DataMember]
+    public VideoSortOrder Order { get; set; } = VideoSortOrder.Desc;
 
-        [DataMember]
-        public VideoSortKey Sort { get; set; } = VideoSortKey.FirstRetrieve;
+    [DataMember]
+    public VideoSortKey Sort { get; set; } = VideoSortKey.FirstRetrieve;
 
 
 
@@ -43,4 +43,3 @@ namespace Hohoema.Services.Navigations
 			return base.GetHashCode();
 		}
 	}
-}

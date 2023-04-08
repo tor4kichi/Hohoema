@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Hohoema.Models.Application;
 
-namespace Hohoema.Models.Application
+public enum PlayerDisplayView
 {
-    public enum PlayerDisplayView
-    {
-        PrimaryView,
-        SecondaryView,
-    }
+    PrimaryView,
+    SecondaryView,
 }

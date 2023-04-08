@@ -1,50 +1,42 @@
-﻿using Hohoema.Models.Niconico;
-using Hohoema.Models.Niconico.Video;
-using Hohoema.Helpers;
+﻿using Hohoema.Helpers;
+using Hohoema.Models.Niconico;
 using Hohoema.Services;
 using I18NPortable;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Hohoema.ViewModels.Niconico.Share
+namespace Hohoema.ViewModels.Niconico.Share;
+
+public sealed class CopyToClipboardCommand : CommandBase
 {
-    public sealed class CopyToClipboardCommand : CommandBase
+    private readonly NotificationService _notificationService;
+
+    public CopyToClipboardCommand(
+        NotificationService notificationService
+        )
     {
-        private readonly NotificationService _notificationService;
+        _notificationService = notificationService;
+    }
+    protected override bool CanExecute(object parameter)
+    {
+        return true;
+    }
 
-        public CopyToClipboardCommand(
-            NotificationService notificationService
-            )
+    protected override void Execute(object content)
+    {
+        if (content is INiconicoObject niconicoContent)
         {
-            _notificationService = notificationService;
+            var uri = ShareHelper.ConvertToUrl(niconicoContent);
+            ClipboardHelper.CopyToClipboard(uri.OriginalString);
         }
-        protected override bool CanExecute(object parameter)
+        else
         {
-            return true;
+            ClipboardHelper.CopyToClipboard(content.ToString());
         }
 
-        protected override void Execute(object content)
-        {
-            if (content is INiconicoObject niconicoContent)
-            {
-                var uri = ShareHelper.ConvertToUrl(niconicoContent);
-                ClipboardHelper.CopyToClipboard(uri.OriginalString);
-            }
-            else
-            {
-                ClipboardHelper.CopyToClipboard(content.ToString());
-            }
+        _notificationService.ShowLiteInAppNotification_Success("Copy".Translate());
 
-            _notificationService.ShowLiteInAppNotification_Success("Copy".Translate());
+        //Analytics.TrackEvent("CopyToClipboardCommand", new Dictionary<string, string>
+        //{
 
-            //Analytics.TrackEvent("CopyToClipboardCommand", new Dictionary<string, string>
-            //{
-
-            //});
-        }
+        //});
     }
 }

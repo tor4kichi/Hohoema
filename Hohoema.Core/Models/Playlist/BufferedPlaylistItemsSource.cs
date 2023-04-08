@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Hohoema.Models.Niconico.Video;
+﻿using Hohoema.Models.Niconico.Video;
 using Microsoft.Toolkit.Collections;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -16,232 +15,221 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.Playlist
+namespace Hohoema.Models.Playlist;
+
+public interface IBufferedPlaylistItemsSource : IIncrementalSource<IVideoContent>
 {
-    public interface IBufferedPlaylistItemsSource : IIncrementalSource<IVideoContent>
+    int Count { get; }
+
+    int IndexOf(IVideoContent item);
+
+    ValueTask<IVideoContent> GetAsync(int index, CancellationToken ct = default);
+
+    IPlaylistSortOption SortOption { get; }
+}
+public sealed class BufferedPlaylistItemsSource : ReadOnlyObservableCollection<IVideoContent>, IBufferedPlaylistItemsSource
+{
+    public const int MaxBufferSize = 2000;
+    private readonly IUnlimitedPlaylist _playlistItemsSource;
+    public IPlaylistSortOption SortOption { get; }
+
+    public ReadOnlyObservableCollection<IVideoContent> BufferedItems { get; }
+
+    public new int Count => Count;
+
+
+    public bool CanLoadMoreItems { get; private set; } = true;
+
+    public BufferedPlaylistItemsSource(IUnlimitedPlaylist playlistItemsSource, IPlaylistSortOption sortOption)
+        : base(new ObservableCollection<IVideoContent>())
     {
-        int Count { get; }
-
-        int IndexOf(IVideoContent item);
-
-        ValueTask<IVideoContent> GetAsync(int index, CancellationToken ct = default);
-
-        IPlaylistSortOption SortOption { get; }
-    }
-    public sealed class BufferedPlaylistItemsSource : ReadOnlyObservableCollection<IVideoContent>, IBufferedPlaylistItemsSource
-    {
-        public const int MaxBufferSize = 2000;
-        private readonly IUnlimitedPlaylist _playlistItemsSource;
-        public IPlaylistSortOption SortOption { get; }
-
-        public ReadOnlyObservableCollection<IVideoContent> BufferedItems { get; }
-
-        public int Count => this.Count;
-
-
-        public bool CanLoadMoreItems { get; private set; } = true;
-
-        public BufferedPlaylistItemsSource(IUnlimitedPlaylist playlistItemsSource, IPlaylistSortOption sortOption)
-            : base(new ObservableCollection<IVideoContent>())
-        {
-            _playlistItemsSource = playlistItemsSource;
-            SortOption = sortOption;
-        }
-
-        public int OneTimeLoadingItemsCount => _playlistItemsSource.OneTimeLoadItemsCount;
-
-       
-
-        public async ValueTask<IVideoContent?> GetAsync(int index, CancellationToken ct = default)
-        {
-            if (index < 0) { return null; }
-
-            var page = index / OneTimeLoadingItemsCount;
-            while (CanLoadMoreItems && IsLoadedPage(page) is false)
-            {
-                await GetPagedItemsAsync(page, OneTimeLoadingItemsCount, ct);
-            }
-
-            if (index >= this.Items.Count) { return null; }
-
-            return this.Items[index];
-        }
-
-        Helpers.AsyncLock _loadingLock = new ();
-
-        public async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct = default)
-        {
-            using var _ = await _loadingLock.LockAsync(ct);
-
-            int head = pageIndex * pageSize;
-            if (_loadedPageIndex == pageIndex)
-            {
-                return this.Items.Skip(head).Take(pageSize);
-            }
-
-            if (CanLoadMoreItems)
-            {
-                var items = await _playlistItemsSource.GetPagedItemsAsync(pageIndex, pageSize, SortOption, ct);
-                foreach (var item in items)
-                {
-                    this.Items.Add(item);
-                }
-
-                if (items.Any() is false)
-                {
-                    CanLoadMoreItems = false;
-                }
-
-                _loadedPageIndex = pageIndex;
-            }
-
-            return this.Items.Skip(head).Take(pageSize);
-        }
-
-        private bool IsLoadedPage(int page)
-        {
-            var loadedPageCount = _loadedPageIndex;
-            return page <= loadedPageCount;
-        }
-
-        int _loadedPageIndex = -1;
-        
+        _playlistItemsSource = playlistItemsSource;
+        SortOption = sortOption;
     }
 
+    public int OneTimeLoadingItemsCount => _playlistItemsSource.OneTimeLoadItemsCount;
 
 
-    public sealed class BufferedShufflePlaylistItemsSource : IBufferedPlaylistItemsSource, INotifyCollectionChanged, IDisposable
+
+    public async ValueTask<IVideoContent?> GetAsync(int index, CancellationToken ct = default)
     {
-        public const int MaxBufferSize = 2000;
-        public const int DefaultBufferSize = 500;
+        if (index < 0) { return null; }
 
-
-        CompositeDisposable _disposables;
-        private readonly ISortablePlaylist _playlistItemsSource;
-        public IPlaylistSortOption SortOption { get; }
-        private readonly IScheduler _scheduler;
-
-        public int Count => Items.Count;
-
-        BehaviorSubject<Unit> _IndexUpdateTimingSubject = new BehaviorSubject<Unit>(Unit.Default);
-        public IObservable<Unit> IndexUpdateTiming => _IndexUpdateTimingSubject;
-
-        ObservableCollection<IVideoContent> Items;
-
-        public ReadOnlyReactiveCollection<IVideoContent> CreateItemsReadOnlyReactiveCollection(IScheduler scheduler)
+        int page = index / OneTimeLoadingItemsCount;
+        while (CanLoadMoreItems && IsLoadedPage(page) is false)
         {
-            return Items.ToReadOnlyReactiveCollection(scheduler);
+            _ = await GetPagedItemsAsync(page, OneTimeLoadingItemsCount, ct);
         }
 
-        public int IndexOf(IVideoContent video)
+        return index >= Items.Count ? null : Items[index];
+    }
+
+    private readonly Helpers.AsyncLock _loadingLock = new();
+
+    public async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct = default)
+    {
+        using IDisposable _ = await _loadingLock.LockAsync(ct);
+
+        int head = pageIndex * pageSize;
+        if (_loadedPageIndex == pageIndex)
         {
-            return Items.IndexOf(video);
+            return Items.Skip(head).Take(pageSize);
         }
 
-        public IVideoContent this[int index]
+        if (CanLoadMoreItems)
         {
-            get => Items[index];
-            set => Items[index] = value;
-        }
-
-        public BufferedShufflePlaylistItemsSource(ISortablePlaylist shufflePlaylist, IPlaylistSortOption sortOption, IScheduler scheduler)
-        {
-            Items = new ();
-            _playlistItemsSource = shufflePlaylist;
-            SortOption = sortOption;
-            _scheduler = scheduler;
-            _disposables = new CompositeDisposable();
-
-            if (shufflePlaylist is IUserManagedPlaylist userManagedPlaylist)
+            IEnumerable<IVideoContent> items = await _playlistItemsSource.GetPagedItemsAsync(pageIndex, pageSize, SortOption, ct);
+            foreach (IVideoContent item in items)
             {
-                userManagedPlaylist.ObserveAddChangedItems<IVideoContent>()
-                    .Subscribe(args =>
-                    {
-                        scheduler.Schedule(() =>
-                        {
-                            Items.Clear();
-                            isItemsFilled = false;
-                            _ = GetAsync(0);
-                            _IndexUpdateTimingSubject.OnNext(Unit.Default);
-                        });
-                    })
-                    .AddTo(_disposables);
-
-                userManagedPlaylist.ObserveRemoveChangedItems<IVideoContent>()
-                    .Subscribe(args =>
-                    {
-                        scheduler.Schedule(() =>
-                        {
-                            foreach (var remove in args)
-                            {
-                                Items.Remove(remove);
-                            }
-
-                            _IndexUpdateTimingSubject.OnNext(Unit.Default);
-                        });
-                    })
-                    .AddTo(_disposables);
-            }
-        }
-
-        public event NotifyCollectionChangedEventHandler CollectionChanged
-        {
-            add
-            {
-                ((INotifyCollectionChanged)Items).CollectionChanged += value;
+                Items.Add(item);
             }
 
-            remove
+            if (items.Any() is false)
             {
-                ((INotifyCollectionChanged)Items).CollectionChanged -= value;
+                CanLoadMoreItems = false;
             }
+
+            _loadedPageIndex = pageIndex;
         }
 
-        public int OneTimeLoadingItemsCount = 30;
+        return Items.Skip(head).Take(pageSize);
+    }
 
-        public PlaylistId PlaylistId => _playlistItemsSource.PlaylistId;
+    private bool IsLoadedPage(int page)
+    {
+        int loadedPageCount = _loadedPageIndex;
+        return page <= loadedPageCount;
+    }
 
-        public async ValueTask<IVideoContent> GetAsync(int index, CancellationToken ct = default)
+    private int _loadedPageIndex = -1;
+
+}
+
+
+
+public sealed class BufferedShufflePlaylistItemsSource : IBufferedPlaylistItemsSource, INotifyCollectionChanged, IDisposable
+{
+    public const int MaxBufferSize = 2000;
+    public const int DefaultBufferSize = 500;
+    private readonly CompositeDisposable _disposables;
+    private readonly ISortablePlaylist _playlistItemsSource;
+    public IPlaylistSortOption SortOption { get; }
+    private readonly IScheduler _scheduler;
+
+    public int Count => Items.Count;
+
+    private readonly BehaviorSubject<Unit> _IndexUpdateTimingSubject = new(Unit.Default);
+    public IObservable<Unit> IndexUpdateTiming => _IndexUpdateTimingSubject;
+
+    private readonly ObservableCollection<IVideoContent> Items;
+
+    public ReadOnlyReactiveCollection<IVideoContent> CreateItemsReadOnlyReactiveCollection(IScheduler scheduler)
+    {
+        return Items.ToReadOnlyReactiveCollection(scheduler);
+    }
+
+    public int IndexOf(IVideoContent video)
+    {
+        return Items.IndexOf(video);
+    }
+
+    public IVideoContent this[int index]
+    {
+        get => Items[index];
+        set => Items[index] = value;
+    }
+
+    public BufferedShufflePlaylistItemsSource(ISortablePlaylist shufflePlaylist, IPlaylistSortOption sortOption, IScheduler scheduler)
+    {
+        Items = new();
+        _playlistItemsSource = shufflePlaylist;
+        SortOption = sortOption;
+        _scheduler = scheduler;
+        _disposables = new CompositeDisposable();
+
+        if (shufflePlaylist is IUserManagedPlaylist userManagedPlaylist)
         {
-            if (index < 0) { return null; }
-            if (index >= _playlistItemsSource.TotalCount) { return null; }
-
-            var indexInsidePage = index / OneTimeLoadingItemsCount;
-            await GetPagedItemsAsync(indexInsidePage, OneTimeLoadingItemsCount, ct);
-
-            return Items.ElementAt(index);
-        }
-
-        bool isItemsFilled = false;
-
-        public async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct = default)
-        {
-            if (isItemsFilled is false)
-            {
-                isItemsFilled = true;
-                var items = await _playlistItemsSource.GetAllItemsAsync(SortOption, ct);
-
-                foreach (var item in items)
+            _ = userManagedPlaylist.ObserveAddChangedItems<IVideoContent>()
+                .Subscribe(args =>
                 {
-                    Items.Add(item);
-                }
+                    _ = scheduler.Schedule(() =>
+                    {
+                        Items.Clear();
+                        isItemsFilled = false;
+                        _ = GetAsync(0);
+                        _IndexUpdateTimingSubject.OnNext(Unit.Default);
+                    });
+                })
+                .AddTo(_disposables);
+
+            _ = userManagedPlaylist.ObserveRemoveChangedItems<IVideoContent>()
+                .Subscribe(args =>
+                {
+                    _ = scheduler.Schedule(() =>
+                    {
+                        foreach (IVideoContent remove in args)
+                        {
+                            _ = Items.Remove(remove);
+                        }
+
+                        _IndexUpdateTimingSubject.OnNext(Unit.Default);
+                    });
+                })
+                .AddTo(_disposables);
+        }
+    }
+
+    public event NotifyCollectionChangedEventHandler CollectionChanged
+    {
+        add => ((INotifyCollectionChanged)Items).CollectionChanged += value;
+
+        remove => ((INotifyCollectionChanged)Items).CollectionChanged -= value;
+    }
+
+    public int OneTimeLoadingItemsCount = 30;
+
+    public PlaylistId PlaylistId => _playlistItemsSource.PlaylistId;
+
+    public async ValueTask<IVideoContent> GetAsync(int index, CancellationToken ct = default)
+    {
+        if (index < 0) { return null; }
+        if (index >= _playlistItemsSource.TotalCount) { return null; }
+
+        int indexInsidePage = index / OneTimeLoadingItemsCount;
+        _ = await GetPagedItemsAsync(indexInsidePage, OneTimeLoadingItemsCount, ct);
+
+        return Items.ElementAt(index);
+    }
+
+    private bool isItemsFilled = false;
+
+    public async Task<IEnumerable<IVideoContent>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct = default)
+    {
+        if (isItemsFilled is false)
+        {
+            isItemsFilled = true;
+            IEnumerable<IVideoContent> items = await _playlistItemsSource.GetAllItemsAsync(SortOption, ct);
+
+            foreach (IVideoContent item in items)
+            {
+                Items.Add(item);
             }
-
-            var start = pageIndex * OneTimeLoadingItemsCount;
-            return this.Items.Skip(start).Take(OneTimeLoadingItemsCount);
         }
 
+        int start = pageIndex * OneTimeLoadingItemsCount;
+        return Items.Skip(start).Take(OneTimeLoadingItemsCount);
+    }
 
-        public bool CanLoadMoreItems => false;
 
-        public ValueTask<bool> LoadMoreItemsAsync(CancellationToken ct = default)
-        {
-            return new(false);
-        }
+    public bool CanLoadMoreItems => false;
 
-        public void Dispose()
-        {
-            _disposables.Dispose();
-        }
+    public ValueTask<bool> LoadMoreItemsAsync(CancellationToken ct = default)
+    {
+        return new(false);
+    }
+
+    public void Dispose()
+    {
+        _disposables.Dispose();
     }
 }

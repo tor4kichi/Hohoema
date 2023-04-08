@@ -1,26 +1,23 @@
 ﻿using Hohoema.Infra;
 using NiconicoToolkit.NicoRepo;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Hohoema.Models.Niconico.NicoRepo
+namespace Hohoema.Models.Niconico.NicoRepo;
+
+public class NicoRepoSettings : FlagsRepositoryBase
 {
-    public class NicoRepoSettings : FlagsRepositoryBase
+    [System.Obsolete]
+    public NicoRepoSettings()
     {
-        public NicoRepoSettings()
-        {
-            DisplayNicoRepoMuteContextTriggers = Read(new List<NicoRepoMuteContextTrigger>(), nameof(DisplayNicoRepoMuteContextTriggers));
-        }
+        DisplayNicoRepoMuteContextTriggers = Read(new List<NicoRepoMuteContextTrigger>(), nameof(DisplayNicoRepoMuteContextTriggers));
+    }
 
-        private List<NicoRepoMuteContextTrigger> _DisplayNicoRepoMuteContextTriggers;
-        public List<NicoRepoMuteContextTrigger> DisplayNicoRepoMuteContextTriggers
-        {
-            get { return _DisplayNicoRepoMuteContextTriggers; }
-            set { SetProperty(ref _DisplayNicoRepoMuteContextTriggers, value); }
-        }        
+    private List<NicoRepoMuteContextTrigger> _DisplayNicoRepoMuteContextTriggers;
+
+    [System.Obsolete]
+    public List<NicoRepoMuteContextTrigger> DisplayNicoRepoMuteContextTriggers
+    {
+        get => _DisplayNicoRepoMuteContextTriggers;
+        set => SetProperty(ref _DisplayNicoRepoMuteContextTriggers, value);
     }
 }

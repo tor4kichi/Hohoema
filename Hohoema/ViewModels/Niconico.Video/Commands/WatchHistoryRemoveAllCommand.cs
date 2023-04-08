@@ -1,34 +1,25 @@
 ﻿using Hohoema.Services.Niconico;
-using Hohoema.Services.Playlist;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Hohoema.Services.Niconico;
 
-namespace Hohoema.ViewModels.Niconico.Video.Commands
+namespace Hohoema.ViewModels.Niconico.Video.Commands;
+
+public sealed class WatchHistoryRemoveAllCommand : CommandBase
 {
-    public sealed class WatchHistoryRemoveAllCommand : CommandBase
+    private readonly WatchHistoryManager _watchHistoryManager;
+
+    public WatchHistoryRemoveAllCommand(
+        WatchHistoryManager watchHistoryManager
+        )
     {
-        private readonly WatchHistoryManager _watchHistoryManager;
+        _watchHistoryManager = watchHistoryManager;
+    }
 
-        public WatchHistoryRemoveAllCommand(
-            WatchHistoryManager watchHistoryManager
-            )
-        {
-            _watchHistoryManager = watchHistoryManager;
-        }
+    protected override bool CanExecute(object parameter)
+    {
+        return true;
+    }
 
-        protected override bool CanExecute(object parameter)
-        {
-            return true;
-        }
-
-        protected override void Execute(object parameter)
-        {
-            _ = _watchHistoryManager.RemoveAllHistoriesAsync();
-        }
+    protected override void Execute(object parameter)
+    {
+        _ = _watchHistoryManager.RemoveAllHistoriesAsync();
     }
 }

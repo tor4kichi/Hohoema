@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Hohoema.Models.PageNavigation
+namespace Hohoema.Models.PageNavigation;
+
+public interface ITitleUpdatablePage
 {
-    public interface ITitleUpdatablePage
-    {
-        IObservable<string> GetTitleObservable();
-    }
+    IObservable<string> GetTitleObservable();
 }

@@ -1,25 +1,23 @@
 ﻿using Hohoema.Services.Player.Videos;
-using CommunityToolkit.Mvvm.Input;
 
-namespace Hohoema.ViewModels.Niconico.Live
+namespace Hohoema.ViewModels.Niconico.Live;
+
+public sealed class NicoLiveUserIdRemoveFromNGCommand : CommandBase
 {
-    public sealed class NicoLiveUserIdRemoveFromNGCommand : CommandBase
+    private readonly CommentFilteringFacade _playerSettings;
+
+    public NicoLiveUserIdRemoveFromNGCommand(CommentFilteringFacade playerSettings)
     {
-        private readonly CommentFilteringFacade _playerSettings;
+        _playerSettings = playerSettings;
+    }
 
-        public NicoLiveUserIdRemoveFromNGCommand(CommentFilteringFacade playerSettings)
-        {
-            _playerSettings = playerSettings;
-        }
+    protected override bool CanExecute(object parameter)
+    {
+        return parameter is string;
+    }
 
-        protected override bool CanExecute(object parameter)
-        {
-            return parameter is string;
-        }
-
-        protected override void Execute(object parameter)
-        {
-            _playerSettings.RemoveFilteringCommentOwnerId(parameter as string);
-        }
+    protected override void Execute(object parameter)
+    {
+        _playerSettings.RemoveFilteringCommentOwnerId(parameter as string);
     }
 }

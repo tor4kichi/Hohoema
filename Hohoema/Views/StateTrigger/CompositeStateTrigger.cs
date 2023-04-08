@@ -4,21 +4,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using Windows.Devices.Input;
-using Windows.Foundation.Metadata;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Markup;
 
-namespace Hohoema.Views.StateTrigger
-{
-	/// <summary>
-	/// Implement this interface to be able to observe triggers or use them
-	/// in a <see cref="CompositeStateTrigger"/>.
-	/// </summary>
-	public interface ITriggerValue
+namespace Hohoema.Views.StateTrigger;
+
+/// <summary>
+/// Implement this interface to be able to observe triggers or use them
+/// in a <see cref="CompositeStateTrigger"/>.
+/// </summary>
+public interface ITriggerValue
 	{
 		/// <summary>
 		/// Gets a value indicating whether this trigger is active.
@@ -314,4 +311,3 @@ namespace Hohoema.Views.StateTrigger
 	/// Collection for the <see cref="CompositeStateTrigger"/>.
 	/// </summary>
 	public sealed class StateTriggerCollection : DependencyObjectCollection { }
-}

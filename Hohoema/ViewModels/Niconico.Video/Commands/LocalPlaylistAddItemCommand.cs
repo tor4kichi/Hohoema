@@ -1,74 +1,67 @@
 ﻿
+using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.Playlist;
-using CommunityToolkit.Mvvm.Input;
-using System;
+using Hohoema.Services;
+using Hohoema.Services.LocalMylist;
+using I18NPortable;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
-using I18NPortable;
-using Hohoema.Services;
-using Hohoema.Services.Playlist;
-using Hohoema.Models.LocalMylist;
-using Hohoema.Services.LocalMylist;
 
-namespace Hohoema.ViewModels.Niconico.Video.Commands
+namespace Hohoema.ViewModels.Niconico.Video.Commands;
+
+public sealed class LocalPlaylistAddItemCommand : VideoContentSelectionCommandBase
 {
-    public sealed class LocalPlaylistAddItemCommand : VideoContentSelectionCommandBase
+    public LocalPlaylist Playlist { get; set; }
+
+    public LocalPlaylistAddItemCommand()
     {
-        public LocalPlaylist Playlist { get; set; }
+    }
 
-        public LocalPlaylistAddItemCommand()
-        {
-        }
+    protected override void Execute(IVideoContent content)
+    {
+        Execute(new[] { content });
+    }
 
-        protected override void Execute(IVideoContent content)
-        {
-            Execute(new[] { content });
-        }
-
-        protected override async void Execute(IEnumerable<IVideoContent> items)
-        {
-            var playlist = Playlist;
-            if (playlist == null)
-            {
-                var localPlaylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
-                var dialogService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<DialogService>();
-                playlist = localPlaylistManager.LocalPlaylists.Any() ?
-                    await dialogService.ShowSingleSelectDialogAsync(
-                    localPlaylistManager.LocalPlaylists.ToList(),
-                    nameof(LocalPlaylist.Name),
-                    (mylist, s) => mylist.Name.Contains(s),
-                    "SelectLocalMylist".Translate(),
-                    "Select".Translate(),
-                    "CreateNew".Translate(),
-                    () => CreateLocalPlaylist()
-                    )
-                    : await CreateLocalPlaylist()
-                    ;
-            }
-
-            if (playlist != null)
-            {
-                playlist.AddPlaylistItem(items);
-            }
-        }
-
-        async Task<LocalPlaylist> CreateLocalPlaylist()
+    protected override async void Execute(IEnumerable<IVideoContent> items)
+    {
+        var playlist = Playlist;
+        if (playlist == null)
         {
             var localPlaylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
             var dialogService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<DialogService>();
-            var name = await dialogService.GetTextAsync("LocalPlaylistCreate".Translate(), "LocalPlaylistNameTextBoxPlacefolder".Translate(), "", (s) => !string.IsNullOrWhiteSpace(s));
-            if (name != null)
-            {
-                return localPlaylistManager.CreatePlaylist(name);
-            }
-            else
-            {
-                return null;
-            }
+            playlist = localPlaylistManager.LocalPlaylists.Any() ?
+                await dialogService.ShowSingleSelectDialogAsync(
+                localPlaylistManager.LocalPlaylists.ToList(),
+                nameof(LocalPlaylist.Name),
+                (mylist, s) => mylist.Name.Contains(s),
+                "SelectLocalMylist".Translate(),
+                "Select".Translate(),
+                "CreateNew".Translate(),
+                () => CreateLocalPlaylist()
+                )
+                : await CreateLocalPlaylist()
+                ;
+        }
+
+        if (playlist != null)
+        {
+            playlist.AddPlaylistItem(items);
+        }
+    }
+
+    async Task<LocalPlaylist> CreateLocalPlaylist()
+    {
+        var localPlaylistManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<LocalMylistManager>();
+        var dialogService = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<DialogService>();
+        var name = await dialogService.GetTextAsync("LocalPlaylistCreate".Translate(), "LocalPlaylistNameTextBoxPlacefolder".Translate(), "", (s) => !string.IsNullOrWhiteSpace(s));
+        if (name != null)
+        {
+            return localPlaylistManager.CreatePlaylist(name);
+        }
+        else
+        {
+            return null;
         }
     }
 }

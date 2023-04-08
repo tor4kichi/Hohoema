@@ -1,36 +1,31 @@
 ﻿using I18NPortable;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml.Data;
 
-namespace Hohoema.Views.Converters
+namespace Hohoema.Views.Converters;
+
+public sealed class TiemSpanToLocalizedStringConverter : IValueConverter
 {
-    public sealed class TiemSpanToLocalizedStringConverter : IValueConverter
+    public object Convert(object value, Type targetType, object parameter, string language)
     {
-        public object Convert(object value, Type targetType, object parameter, string language)
+        if (value is TimeSpan timeSpan)
         {
-            if (value is TimeSpan timeSpan)
+            int hours = (int)Math.Floor(timeSpan.TotalHours);
+            if (hours > 0)
             {
-                int hours = (int)Math.Floor(timeSpan.TotalHours);
-                if (hours > 0)
-                {
-                    return "TimeSpanHoursAndMinites".Translate(hours, (int)timeSpan.Minutes);
-                }
-                else
-                {
-                    return "TimeSpanMinutes".Translate((int)timeSpan.Minutes);
-                }
+                return "TimeSpanHoursAndMinites".Translate(hours, (int)timeSpan.Minutes);
             }
-
-            return value?.ToString() ?? "";
+            else
+            {
+                return "TimeSpanMinutes".Translate((int)timeSpan.Minutes);
+            }
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
-        {
-            throw new NotImplementedException();
-        }
+        return value?.ToString() ?? "";
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
     }
 }

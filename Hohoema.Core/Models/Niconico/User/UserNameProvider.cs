@@ -1,103 +1,100 @@
-﻿namespace Hohoema.Models.Niconico.User
+﻿using Hohoema.Infra;
+using LiteDB;
+using NiconicoToolkit;
+using System;
+using System.Threading.Tasks;
+
+namespace Hohoema.Models.Niconico.User;
+
+public sealed class UserNameEntity
 {
-    using LiteDB;
-    using NiconicoToolkit;
-    using Hohoema.Infra;
-    using System;
-    using System.Collections.Generic;
-    using System.Text;
-    using System.Threading.Tasks;
+    [BsonId]
+    public uint Id { get; set; }
 
-    public sealed class UserNameEntity
+    [BsonField]
+    public string Name { get; set; }
+
+    [BsonField]
+    public DateTime UpdatedAt { get; set; }
+}
+
+public sealed class UserNameProvider : ProviderBase
+{
+    private readonly NiconicoContext _context;
+    private readonly UserNameRepository _userNameRepository;
+
+    public static TimeSpan UserNameExpire { get; set; } = TimeSpan.FromDays(1);
+
+    public UserNameProvider(NiconicoSession session, UserNameRepository userNameRepository)
+        : base(session)
     {
-        [BsonId]
-        public uint Id { get; set; }
-
-        [BsonField]
-        public string Name { get; set; }
-
-        [BsonField]
-        public DateTime UpdatedAt { get; set; }
+        _context = session.ToolkitContext;
+        _userNameRepository = userNameRepository;
     }
 
-    public sealed class UserNameProvider : ProviderBase
+    public class UserNameRepository : LiteDBServiceBase<UserNameEntity>
     {
-        private readonly NiconicoContext _context;
-        private readonly UserNameRepository _userNameRepository;
-
-        public static TimeSpan UserNameExpire { get; set; } = TimeSpan.FromDays(1);
-
-        public UserNameProvider(NiconicoSession session, UserNameRepository userNameRepository)
-            : base(session)
+        public UserNameRepository(LiteDatabase database) : base(database)
         {
-            _context = session.ToolkitContext;
-            _userNameRepository = userNameRepository;
         }
 
-        public class UserNameRepository : LiteDBServiceBase<UserNameEntity>
+        public UserNameEntity GetName(uint userId)
         {
-            public UserNameRepository(LiteDatabase database) : base(database)
-            {
-            }
+            return _collection.FindById((long)userId);
+        }
+    }
 
-            public UserNameEntity GetName(uint userId)
-            {
-                return _collection.FindById((long)userId);
-            }
+    public bool TryResolveUserNameFromCache(uint userId, out string userName)
+    {
+        UserNameEntity cachedName = _userNameRepository.GetName(userId);
+        if (cachedName != null &&
+            DateTime.Now > cachedName.UpdatedAt + UserNameExpire)
+        {
+            userName = cachedName.Name;
+            return true;
+        }
+        else
+        {
+            userName = string.Empty;
+            return false;
         }
 
-        public bool TryResolveUserNameFromCache(uint userId, out string userName)
+    }
+
+
+    public async ValueTask<string> ResolveUserNameAsync(uint userId)
+    {
+        UserNameEntity cachedName = _userNameRepository.GetName(userId);
+        if (cachedName != null &&
+            DateTime.Now > cachedName.UpdatedAt + UserNameExpire)
         {
-            var cachedName = _userNameRepository.GetName(userId);
-            if (cachedName != null &&
-                DateTime.Now > cachedName.UpdatedAt + UserNameExpire)
+            return cachedName.Name;
+        }
+
+        NiconicoToolkit.User.UserNickname info = await _context.User.GetUserNicknameAsync(userId);
+        if (info != null)
+        {
+            if (cachedName != null)
             {
-                userName = cachedName.Name;
-                return true;
+                cachedName.Name = info.Nickname;
+                cachedName.UpdatedAt = DateTime.Now;
+                _ = _userNameRepository.UpdateItem(cachedName);
             }
             else
             {
-                userName = string.Empty;
-                return false;
+                _ = _userNameRepository.CreateItem(new UserNameEntity()
+                {
+                    Id = userId,
+                    Name = info.Nickname,
+                    UpdatedAt = DateTime.Now,
+                });
             }
 
+            return info.Nickname;
         }
-
-
-        public async ValueTask<string> ResolveUserNameAsync(uint userId)
+        else
         {
-            var cachedName = _userNameRepository.GetName(userId);
-            if (cachedName != null &&
-                DateTime.Now > cachedName.UpdatedAt + UserNameExpire)
-            {
-                return cachedName.Name;
-            }
-
-            var info = await _context.User.GetUserNicknameAsync(userId);
-            if (info != null)
-            {
-                if (cachedName != null)
-                {
-                    cachedName.Name = info.Nickname;
-                    cachedName.UpdatedAt = DateTime.Now;
-                    _userNameRepository.UpdateItem(cachedName);
-                }
-                else
-                {
-                    _userNameRepository.CreateItem(new UserNameEntity()
-                    {
-                        Id = userId,
-                        Name = info.Nickname,
-                        UpdatedAt = DateTime.Now,
-                    });
-                }
-
-                return info.Nickname;
-            }
-            else
-            {
-                return null;
-            }
+            return null;
         }
     }
 }

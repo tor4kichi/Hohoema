@@ -1,53 +1,46 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.ViewModels.Pages.Niconico;
+﻿using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.ViewModels.Niconico.Ranking.Messages;
+using System;
 
-namespace Hohoema.ViewModels.Niconico.Ranking
+namespace Hohoema.ViewModels.Niconico.Ranking;
+
+public sealed class FavoriteRankingGenreItemCommand : CommandBase
 {
-    public sealed class FavoriteRankingGenreItemCommand : CommandBase
+
+    public FavoriteRankingGenreItemCommand()
     {
+    }
 
-        public FavoriteRankingGenreItemCommand()
+    protected override bool CanExecute(object parameter)
+    {
+        return parameter is RankingItem;
+    }
+
+    protected override void Execute(object parameter)
+    {
+        if (parameter is RankingGenreItem)
         {
+
         }
-
-        protected override bool CanExecute(object parameter)
+        else if (parameter is FavoriteRankingGenreGroupItem)
         {
-            return parameter is RankingItem;
+
         }
-
-        protected override void Execute(object parameter)
+        else if (parameter is RankingItem rankingItem)
         {
-            if (parameter is RankingGenreItem)
+            if (rankingItem.Genre == null)
             {
-
+                throw new NotSupportedException();
             }
-            else if (parameter is FavoriteRankingGenreGroupItem)
+
+            WeakReferenceMessenger.Default.Send(new RankingGenreFavoriteRequestedEvent(new ()
             {
+                RankingGenre = rankingItem.Genre.Value,
+                Tag = rankingItem.Tag,
+                Label = rankingItem.Label
+            }));
 
-            }
-            else if (parameter is RankingItem rankingItem)
-            {
-                if (rankingItem.Genre == null)
-                {
-                    throw new NotSupportedException();
-                }
-
-                WeakReferenceMessenger.Default.Send(new RankingGenreFavoriteRequestedEvent(new ()
-                {
-                    RankingGenre = rankingItem.Genre.Value,
-                    Tag = rankingItem.Tag,
-                    Label = rankingItem.Label
-                }));
-
-                System.Diagnostics.Debug.WriteLine("FavoriteRankingGenreItemCommand with RankingItem");
-            }
+            System.Diagnostics.Debug.WriteLine("FavoriteRankingGenreItemCommand with RankingItem");
         }
     }
 }

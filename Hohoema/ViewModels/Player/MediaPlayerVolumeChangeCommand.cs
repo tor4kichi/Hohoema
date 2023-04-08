@@ -1,58 +1,49 @@
 ﻿using Hohoema.Models.Player;
-using Hohoema.Services.Player;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Media.Playback;
 
-namespace Hohoema.ViewModels.Player.Commands
+namespace Hohoema.ViewModels.Player.Commands;
+
+public sealed class MediaPlayerVolumeUpCommand : CommandBase
 {
-    public sealed class MediaPlayerVolumeUpCommand : CommandBase
+    private readonly MediaPlayerSoundVolumeManager _soundVolumeManager;
+
+    public MediaPlayerVolumeUpCommand(MediaPlayerSoundVolumeManager soundVolumeManager)
     {
-        private readonly MediaPlayerSoundVolumeManager _soundVolumeManager;
-
-        public MediaPlayerVolumeUpCommand(MediaPlayerSoundVolumeManager soundVolumeManager)
-        {
-            _soundVolumeManager = soundVolumeManager;
-        }
-
-        protected override bool CanExecute(object parameter)
-        {
-            return parameter is double;
-        }
-
-        protected override void Execute(object parameter)
-        {
-            if (parameter is double val)
-            {
-                _soundVolumeManager.Volume = _soundVolumeManager.Volume + val;
-            }
-        }
+        _soundVolumeManager = soundVolumeManager;
     }
 
-    public sealed class MediaPlayerVolumeDownCommand : CommandBase
+    protected override bool CanExecute(object parameter)
     {
-        private readonly MediaPlayerSoundVolumeManager _soundVolumeManager;
+        return parameter is double;
+    }
 
-        public MediaPlayerVolumeDownCommand(MediaPlayerSoundVolumeManager soundVolumeManager)
+    protected override void Execute(object parameter)
+    {
+        if (parameter is double val)
         {
-            _soundVolumeManager = soundVolumeManager;
+            _soundVolumeManager.Volume = _soundVolumeManager.Volume + val;
         }
+    }
+}
 
-        protected override bool CanExecute(object parameter)
-        {
-            return parameter is double;
-        }
+public sealed class MediaPlayerVolumeDownCommand : CommandBase
+{
+    private readonly MediaPlayerSoundVolumeManager _soundVolumeManager;
 
-        protected override void Execute(object parameter)
+    public MediaPlayerVolumeDownCommand(MediaPlayerSoundVolumeManager soundVolumeManager)
+    {
+        _soundVolumeManager = soundVolumeManager;
+    }
+
+    protected override bool CanExecute(object parameter)
+    {
+        return parameter is double;
+    }
+
+    protected override void Execute(object parameter)
+    {
+        if (parameter is double val)
         {
-            if (parameter is double val)
-            {
-                _soundVolumeManager.Volume = _soundVolumeManager.Volume - val;
-            }
+            _soundVolumeManager.Volume = _soundVolumeManager.Volume - val;
         }
     }
 }

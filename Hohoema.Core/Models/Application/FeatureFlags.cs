@@ -1,14 +1,9 @@
 ﻿using Hohoema.Infra;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Hohoema.Models.Application
+namespace Hohoema.Models.Application;
+
+[System.Obsolete]
+public sealed class FeatureFlags : FlagsRepositoryBase
 {
-    public sealed class FeatureFlags : FlagsRepositoryBase
-    {
-        
-    }
+
 }

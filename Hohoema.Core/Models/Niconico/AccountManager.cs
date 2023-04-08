@@ -1,10 +1,10 @@
-﻿using Hohoema.Helpers;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using Windows.Security.Cryptography;
+using Windows.Security.Cryptography.Core;
 using Windows.Storage;
+using Windows.Storage.Streams;
 
 namespace Hohoema.Helpers
 {
@@ -12,27 +12,25 @@ namespace Hohoema.Helpers
     // PCやモバイルでは Windows.Security.Credentials を利用し、
     // XboxOneでは 暗号化してローカルストレージに保存します。
 
-    public static class AccountManager 
+    public static class AccountManager
     {
-        const string AccountResrouceKey = "HohoemaApp";
+        private const string AccountResrouceKey = "HohoemaApp";
 
         // v0.3.9 以前との互換性のために残しています
-        const string RECENT_LOGIN_ACCOUNT = "recent_login_account";
-
-        const string PRIMARY_ACCOUNT = "primary_account";
-
-        const string XBOX_ACCOUNT_PASSWORD_CONTAINER = "xbox_account";
-        public static Uri XboxEncryptKeyFileUri = new Uri("ms-appx:///Assets/xbox_encrypt_key.txt");
+        private const string RECENT_LOGIN_ACCOUNT = "recent_login_account";
+        private const string PRIMARY_ACCOUNT = "primary_account";
+        private const string XBOX_ACCOUNT_PASSWORD_CONTAINER = "xbox_account";
+        public static Uri XboxEncryptKeyFileUri = new("ms-appx:///Assets/xbox_encrypt_key.txt");
 
 #if DEBUG
-        const bool IsDebugXboxMode = false;
+        private const bool IsDebugXboxMode = false;
 
 #endif
 
 
         private static async Task<string> GetXboxEncryptKey()
         {
-            var file = await StorageFile.GetFileFromApplicationUriAsync(XboxEncryptKeyFileUri);
+            StorageFile file = await StorageFile.GetFileFromApplicationUriAsync(XboxEncryptKeyFileUri);
             return await FileIO.ReadTextAsync(file);
         }
 
@@ -41,20 +39,20 @@ namespace Hohoema.Helpers
         {
             if (!DeviceTypeHelper.IsXbox)
             {
-                var vault = new Windows.Security.Credentials.PasswordVault();
+                _ = new Windows.Security.Credentials.PasswordVault();
 
                 // v0.3.9 以前との互換性
                 if (ApplicationData.Current.LocalSettings.Containers.ContainsKey(RECENT_LOGIN_ACCOUNT))
                 {
-                    var container = ApplicationData.Current.LocalSettings.Containers[RECENT_LOGIN_ACCOUNT];
-                    var prop = container.Values.FirstOrDefault();
+                    ApplicationDataContainer container = ApplicationData.Current.LocalSettings.Containers[RECENT_LOGIN_ACCOUNT];
+                    System.Collections.Generic.KeyValuePair<string, object> prop = container.Values.FirstOrDefault();
 
-                    var id = prop.Key;
-                    var password = prop.Value as string ?? "";
+                    string id = prop.Key;
+                    string password = prop.Value as string ?? "";
 
                     try
                     {
-                        AddOrUpdateAccount(id, password);
+                        _ = AddOrUpdateAccount(id, password);
                     }
                     catch { }
 
@@ -67,13 +65,13 @@ namespace Hohoema.Helpers
 
         public static void SetPrimaryAccountId(string mailAddress)
         {
-            var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
+            ApplicationDataContainer container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
             container.Values["primary_id"] = mailAddress;
         }
 
         public static string GetPrimaryAccountId()
         {
-            var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
+            ApplicationDataContainer container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
             return container.Values["primary_id"] as string;
         }
 
@@ -81,7 +79,7 @@ namespace Hohoema.Helpers
         {
             try
             {
-                var container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
+                ApplicationDataContainer container = ApplicationData.Current.LocalSettings.CreateContainer(PRIMARY_ACCOUNT, ApplicationDataCreateDisposition.Always);
                 return !string.IsNullOrWhiteSpace(container.Values["primary_id"] as string);
             }
             catch
@@ -109,17 +107,17 @@ namespace Hohoema.Helpers
 
         private static void _AddOrUpdateAccount(string mailAddress, string password)
         {
-            var id = mailAddress;
+            string id = mailAddress;
 
-            if (String.IsNullOrWhiteSpace(mailAddress) || String.IsNullOrWhiteSpace(password))
+            if (string.IsNullOrWhiteSpace(mailAddress) || string.IsNullOrWhiteSpace(password))
             {
                 throw new Infra.HohoemaException();
             }
 
-            var vault = new Windows.Security.Credentials.PasswordVault();
+            Windows.Security.Credentials.PasswordVault vault = new();
             try
             {
-                var credential = vault.Retrieve(AccountResrouceKey, id);
+                Windows.Security.Credentials.PasswordCredential credential = vault.Retrieve(AccountResrouceKey, id);
                 vault.Remove(credential);
             }
             catch
@@ -127,22 +125,22 @@ namespace Hohoema.Helpers
             }
 
             {
-                var credential = new Windows.Security.Credentials.PasswordCredential(AccountResrouceKey, id, password);
+                Windows.Security.Credentials.PasswordCredential credential = new(AccountResrouceKey, id, password);
                 vault.Add(credential);
             }
         }
 
         private static async Task _AddOrUpdateAccount_Xbox(string mailAddress, string password)
         {
-            var container = ApplicationData.Current.LocalSettings.CreateContainer(XBOX_ACCOUNT_PASSWORD_CONTAINER, ApplicationDataCreateDisposition.Always);
-            var encryptKey = await GetXboxEncryptKey();
-            var encryptedPassword = Helpers.EncryptHelper.EncryptStringHelper(password, encryptKey);
-            foreach (var pair in container.Values.ToArray())
+            ApplicationDataContainer container = ApplicationData.Current.LocalSettings.CreateContainer(XBOX_ACCOUNT_PASSWORD_CONTAINER, ApplicationDataCreateDisposition.Always);
+            string encryptKey = await GetXboxEncryptKey();
+            string encryptedPassword = Helpers.EncryptHelper.EncryptStringHelper(password, encryptKey);
+            foreach (System.Collections.Generic.KeyValuePair<string, object> pair in container.Values.ToArray())
             {
-                var mail = pair.Key;
+                string mail = pair.Key;
                 if (mail == mailAddress && container.Values.ContainsKey(mail))
                 {
-                    container.Values.Remove(mail);
+                    _ = container.Values.Remove(mail);
                     break;
                 }
             }
@@ -168,17 +166,17 @@ namespace Hohoema.Helpers
 
         private static bool _RemoveAccount(string mailAddress)
         {
-            var id = mailAddress;
+            string id = mailAddress;
 
-            if (String.IsNullOrWhiteSpace(mailAddress))
+            if (string.IsNullOrWhiteSpace(mailAddress))
             {
                 return false;
             }
 
-            var vault = new Windows.Security.Credentials.PasswordVault();
+            Windows.Security.Credentials.PasswordVault vault = new();
             try
             {
-                var credential = vault.Retrieve(AccountResrouceKey, id);
+                Windows.Security.Credentials.PasswordCredential credential = vault.Retrieve(AccountResrouceKey, id);
                 vault.Remove(credential);
                 return true;
             }
@@ -192,10 +190,10 @@ namespace Hohoema.Helpers
 
         private static bool _RemoveAccount_Xbox(string mailAddress)
         {
-            var container = ApplicationData.Current.LocalSettings.CreateContainer(XBOX_ACCOUNT_PASSWORD_CONTAINER, ApplicationDataCreateDisposition.Always);
-            foreach (var pair in container.Values.ToArray())
+            ApplicationDataContainer container = ApplicationData.Current.LocalSettings.CreateContainer(XBOX_ACCOUNT_PASSWORD_CONTAINER, ApplicationDataCreateDisposition.Always);
+            foreach (System.Collections.Generic.KeyValuePair<string, object> pair in container.Values.ToArray())
             {
-                var mail = pair.Key;
+                string mail = pair.Key;
                 if (mailAddress == mail && container.Values.ContainsKey(mail))
                 {
                     return container.Values.Remove(mail);
@@ -232,14 +230,14 @@ namespace Hohoema.Helpers
 
         public static Tuple<string, string> _GetPrimaryAccount()
         {
-            var vault = new Windows.Security.Credentials.PasswordVault();
+            Windows.Security.Credentials.PasswordVault vault = new();
             try
             {
-                var primary_id = GetPrimaryAccountId();
+                string primary_id = GetPrimaryAccountId();
 
                 if (string.IsNullOrWhiteSpace(primary_id)) { return null; }
 
-                var credential = vault.Retrieve(AccountResrouceKey, primary_id);
+                Windows.Security.Credentials.PasswordCredential credential = vault.Retrieve(AccountResrouceKey, primary_id);
                 credential.RetrievePassword();
                 return new Tuple<string, string>(credential.UserName, credential.Password);
             }
@@ -249,13 +247,13 @@ namespace Hohoema.Helpers
 
         public static async Task<Tuple<string, string>> _GetPrimaryAccount_Xbox()
         {
-            var container = ApplicationData.Current.LocalSettings.CreateContainer(XBOX_ACCOUNT_PASSWORD_CONTAINER, ApplicationDataCreateDisposition.Always);
-            var encryptKey = await GetXboxEncryptKey();
-            foreach (var pair in container.Values)
+            ApplicationDataContainer container = ApplicationData.Current.LocalSettings.CreateContainer(XBOX_ACCOUNT_PASSWORD_CONTAINER, ApplicationDataCreateDisposition.Always);
+            string encryptKey = await GetXboxEncryptKey();
+            foreach (System.Collections.Generic.KeyValuePair<string, object> pair in container.Values)
             {
-                var mail = pair.Key;
-                var encryptedPassword = (string)pair.Value;
-                var plainPassword = Helpers.EncryptHelper.DecryptStringHelper(encryptedPassword, encryptKey);
+                string mail = pair.Key;
+                string encryptedPassword = (string)pair.Value;
+                string plainPassword = Helpers.EncryptHelper.DecryptStringHelper(encryptedPassword, encryptKey);
 
                 return new Tuple<string, string>(mail, plainPassword);
             }
@@ -267,32 +265,28 @@ namespace Hohoema.Helpers
 
 namespace Hohoema.Helpers
 {
-    using Windows.Security.Cryptography;
-    using Windows.Security.Cryptography.Core;
-    using Windows.Storage.Streams;
-
     // this code copy from
     // http://www.c-sharpcorner.com/article/encrypt-and-decrypt-string-in-windows-runtime-apps/
     public static class EncryptHelper
     {
         public static string EncryptStringHelper(string plainString, string key)
         {
-            var hashKey = GetMD5Hash(key);
-            var decryptBuffer = CryptographicBuffer.ConvertStringToBinary(plainString, BinaryStringEncoding.Utf8);
-            var AES = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesEcbPkcs7);
-            var symmetricKey = AES.CreateSymmetricKey(hashKey);
-            var encryptedBuffer = CryptographicEngine.Encrypt(symmetricKey, decryptBuffer, null);
-            var encryptedString = CryptographicBuffer.EncodeToBase64String(encryptedBuffer);
+            IBuffer hashKey = GetMD5Hash(key);
+            IBuffer decryptBuffer = CryptographicBuffer.ConvertStringToBinary(plainString, BinaryStringEncoding.Utf8);
+            SymmetricKeyAlgorithmProvider AES = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesEcbPkcs7);
+            CryptographicKey symmetricKey = AES.CreateSymmetricKey(hashKey);
+            IBuffer encryptedBuffer = CryptographicEngine.Encrypt(symmetricKey, decryptBuffer, null);
+            string encryptedString = CryptographicBuffer.EncodeToBase64String(encryptedBuffer);
             return encryptedString;
         }
 
         public static string DecryptStringHelper(string encryptedString, string key)
         {
-            var hashKey = GetMD5Hash(key);
+            IBuffer hashKey = GetMD5Hash(key);
             IBuffer decryptBuffer = CryptographicBuffer.DecodeFromBase64String(encryptedString);
-            var AES = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesEcbPkcs7);
-            var symmetricKey = AES.CreateSymmetricKey(hashKey);
-            var decryptedBuffer = CryptographicEngine.Decrypt(symmetricKey, decryptBuffer, null);
+            SymmetricKeyAlgorithmProvider AES = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesEcbPkcs7);
+            CryptographicKey symmetricKey = AES.CreateSymmetricKey(hashKey);
+            IBuffer decryptedBuffer = CryptographicEngine.Decrypt(symmetricKey, decryptBuffer, null);
             string decryptedString = CryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, decryptedBuffer);
             return decryptedString;
         }
@@ -302,11 +296,9 @@ namespace Hohoema.Helpers
             IBuffer bufferUTF8Msg = CryptographicBuffer.ConvertStringToBinary(key, BinaryStringEncoding.Utf8);
             HashAlgorithmProvider hashAlgorithmProvider = HashAlgorithmProvider.OpenAlgorithm(HashAlgorithmNames.Md5);
             IBuffer hashBuffer = hashAlgorithmProvider.HashData(bufferUTF8Msg);
-            if (hashBuffer.Length != hashAlgorithmProvider.HashLength)
-            {
-                throw new Infra.HohoemaException("There was an error creating the hash");
-            }
-            return hashBuffer;
+            return hashBuffer.Length != hashAlgorithmProvider.HashLength
+                ? throw new Infra.HohoemaException("There was an error creating the hash")
+                : hashBuffer;
         }
     }
 }

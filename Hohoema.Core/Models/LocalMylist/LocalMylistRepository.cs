@@ -1,243 +1,238 @@
-﻿using LiteDB;
-using Hohoema.Infra;
+﻿using Hohoema.Infra;
+using Hohoema.Models.Playlist;
+using LiteDB;
+using NiconicoToolkit.Video;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NiconicoToolkit.Video;
-using Hohoema.Models.Playlist;
 
-namespace Hohoema.Models.LocalMylist
+namespace Hohoema.Models.LocalMylist;
+
+
+public class PlaylistEntity
 {
-    
-    public class PlaylistEntity
+    [BsonId]
+    public string Id { get; set; }
+
+    [BsonField]
+    public PlaylistItemsSourceOrigin PlaylistOrigin { get; set; }
+
+    [BsonField]
+    public string Label { get; set; }
+
+    [BsonField]
+    public Uri ThumbnailImage { get; set; }
+
+
+    [BsonField]
+    public int PlaylistSortIndex { get; set; }
+
+    [BsonField]
+    public LocalMylistSortKey ItemsSortKey { get; set; }
+
+    [BsonField]
+    public LocalMylistSortOrder ItemsSortOrder { get; set; }
+
+}
+
+
+public class PlaylistItemEntity
+{
+    [BsonId(autoId: true)]
+    public int Id { get; set; }
+
+    [BsonField]
+    public string PlaylistId { get; set; }
+    [BsonField]
+    public string ContentId { get; set; }
+}
+
+
+
+public sealed class LocalMylistRepository
+{
+    public sealed class PlaylistDbService : LiteDBServiceBase<PlaylistEntity>
     {
-        [BsonId]
-        public string Id { get; set; }
-
-        [BsonField]
-        public PlaylistItemsSourceOrigin PlaylistOrigin { get; set; }
-
-        [BsonField]
-        public string Label { get; set; }
-
-        [BsonField]
-        public Uri ThumbnailImage { get; set; }
-
-
-        [BsonField]
-        public int PlaylistSortIndex { get; set; }
-
-        [BsonField]
-        public LocalMylistSortKey ItemsSortKey { get; set; }
-        
-        [BsonField]
-        public LocalMylistSortOrder ItemsSortOrder { get; set; }
-
-    }
-
-
-    public class PlaylistItemEntity
-    {
-        [BsonId(autoId: true)]
-        public int Id { get; set; }
-
-        [BsonField]
-        public string PlaylistId { get; set; }
-        [BsonField]
-        public string ContentId { get; set; }
-    }
-
-
-
-    public sealed class LocalMylistRepository
-    {
-        public sealed class PlaylistDbService : LiteDBServiceBase<PlaylistEntity>
+        public PlaylistDbService(LiteDatabase liteDatabase) : base(liteDatabase)
         {
-            public PlaylistDbService(LiteDatabase liteDatabase) : base(liteDatabase)
-            {
-            }
-
-            public PlaylistEntity Get(string playlistId)
-            {
-                return _collection.FindById(playlistId);
-            }
-
-            public IEnumerable<PlaylistEntity> GetPlaylistsFromOrigin(PlaylistItemsSourceOrigin playlistOrigin)
-            {
-                return _collection.Find(x => x.PlaylistOrigin == playlistOrigin);
-            }
-
-            public PlaylistEntity[] GetAllPlaylist()
-            {
-                return _collection.FindAll().ToArray();
-            }
         }
 
-        public sealed class PlaylistItemsDbService : LiteDBServiceBase<PlaylistItemEntity>
+        public PlaylistEntity Get(string playlistId)
         {
-            public PlaylistItemsDbService(LiteDatabase liteDatabase)
-                : base(liteDatabase)
-            {
-                _collection.EnsureIndex(nameof(PlaylistItemEntity.PlaylistId));
-                _collection.EnsureIndex(nameof(PlaylistItemEntity.ContentId));
-            }
-            public List<PlaylistItemEntity> GetItems(string playlistId, int start, int count)
-            {
-                return _collection.Find(x => x.PlaylistId == playlistId).Skip(start).Take(count).ToList();
-            }
-
-            public int ClearPlaylistItems(string playlistId)
-            {
-                return _collection.DeleteMany(x => x.PlaylistId == playlistId);
-            }
-
-            public bool DeletePlaylistItem(string playlistId, VideoId contentId)
-            {
-                var strId = contentId.ToString();
-                return _collection.DeleteMany(x => x.PlaylistId == playlistId && x.ContentId == strId) > 0;
-            }
-
-            public int DeletePlaylistItem(string playlistId, IEnumerable<VideoId> contentId)
-            {
-                var hashSet = contentId.Select(x => x.ToString()).ToHashSet();
-                return _collection.DeleteMany(x => x.PlaylistId == playlistId && hashSet.Contains(x.ContentId));
-            }
-
-            public int CountPlaylisItems(string playlistId)
-            {
-                return _collection.Count(x => x.PlaylistId == playlistId);
-            }
-
-
-            public bool ExistPlaylistItem(string playlistId, VideoId videoId)
-            {
-                var videoIdStr = videoId.ToString();
-                return _collection.Exists(x => x.PlaylistId == playlistId && x.ContentId == videoIdStr);
-            }
+            return _collection.FindById(playlistId);
         }
 
-
-
-        public LocalMylistRepository(PlaylistDbService playlistDbService, PlaylistItemsDbService playlistItemsDbService)
+        public IEnumerable<PlaylistEntity> GetPlaylistsFromOrigin(PlaylistItemsSourceOrigin playlistOrigin)
         {
-            _playlistDbService = playlistDbService;
-            _itemsDbService = playlistItemsDbService;
-        }
-
-        private readonly PlaylistDbService _playlistDbService;
-        private readonly PlaylistItemsDbService _itemsDbService;
-
-        public PlaylistEntity GetPlaylist(string playlistId)
-        {
-            return _playlistDbService.Get(playlistId);
+            return _collection.Find(x => x.PlaylistOrigin == playlistOrigin);
         }
 
         public PlaylistEntity[] GetAllPlaylist()
         {
-            return _playlistDbService.GetAllPlaylist();
+            return _collection.FindAll().ToArray();
+        }
+    }
+
+    public sealed class PlaylistItemsDbService : LiteDBServiceBase<PlaylistItemEntity>
+    {
+        public PlaylistItemsDbService(LiteDatabase liteDatabase)
+            : base(liteDatabase)
+        {
+            _ = _collection.EnsureIndex(nameof(PlaylistItemEntity.PlaylistId));
+            _ = _collection.EnsureIndex(nameof(PlaylistItemEntity.ContentId));
+        }
+        public List<PlaylistItemEntity> GetItems(string playlistId, int start, int count)
+        {
+            return _collection.Find(x => x.PlaylistId == playlistId).Skip(start).Take(count).ToList();
         }
 
-        public IEnumerable<PlaylistEntity> GetPlaylistsFromOrigin(PlaylistItemsSourceOrigin origin)
+        public int ClearPlaylistItems(string playlistId)
         {
-            return _playlistDbService.GetPlaylistsFromOrigin(origin);
+            return _collection.DeleteMany(x => x.PlaylistId == playlistId);
         }
 
-        public void UpsertPlaylist(PlaylistEntity playlist)
+        public bool DeletePlaylistItem(string playlistId, VideoId contentId)
         {
-            _playlistDbService.UpdateItem(playlist);
+            string strId = contentId.ToString();
+            return _collection.DeleteMany(x => x.PlaylistId == playlistId && x.ContentId == strId) > 0;
         }
 
-        public bool DeletePlaylist(string playlistId)
+        public int DeletePlaylistItem(string playlistId, IEnumerable<VideoId> contentId)
         {
-            var result = _playlistDbService.DeleteItem(playlistId);
+            HashSet<string> hashSet = contentId.Select(x => x.ToString()).ToHashSet();
+            return _collection.DeleteMany(x => x.PlaylistId == playlistId && hashSet.Contains(x.ContentId));
+        }
 
-            var count = _itemsDbService.ClearPlaylistItems(playlistId);
-
-            return result;
+        public int CountPlaylisItems(string playlistId)
+        {
+            return _collection.Count(x => x.PlaylistId == playlistId);
         }
 
 
-
-        public List<PlaylistItemEntity> GetItems(string playlistId, int start = 0, int count = int.MaxValue)
+        public bool ExistPlaylistItem(string playlistId, VideoId videoId)
         {
-            return _itemsDbService.GetItems(playlistId, start, count);
+            string videoIdStr = videoId.ToString();
+            return _collection.Exists(x => x.PlaylistId == playlistId && x.ContentId == videoIdStr);
+        }
+    }
+
+
+
+    public LocalMylistRepository(PlaylistDbService playlistDbService, PlaylistItemsDbService playlistItemsDbService)
+    {
+        _playlistDbService = playlistDbService;
+        _itemsDbService = playlistItemsDbService;
+    }
+
+    private readonly PlaylistDbService _playlistDbService;
+    private readonly PlaylistItemsDbService _itemsDbService;
+
+    public PlaylistEntity GetPlaylist(string playlistId)
+    {
+        return _playlistDbService.Get(playlistId);
+    }
+
+    public PlaylistEntity[] GetAllPlaylist()
+    {
+        return _playlistDbService.GetAllPlaylist();
+    }
+
+    public IEnumerable<PlaylistEntity> GetPlaylistsFromOrigin(PlaylistItemsSourceOrigin origin)
+    {
+        return _playlistDbService.GetPlaylistsFromOrigin(origin);
+    }
+
+    public void UpsertPlaylist(PlaylistEntity playlist)
+    {
+        _ = _playlistDbService.UpdateItem(playlist);
+    }
+
+    public bool DeletePlaylist(string playlistId)
+    {
+        bool result = _playlistDbService.DeleteItem(playlistId);
+        _ = _itemsDbService.ClearPlaylistItems(playlistId);
+
+        return result;
+    }
+
+
+
+    public List<PlaylistItemEntity> GetItems(string playlistId, int start = 0, int count = int.MaxValue)
+    {
+        return _itemsDbService.GetItems(playlistId, start, count);
+    }
+
+    public int GetCount(string playlistId)
+    {
+        return _itemsDbService.CountPlaylisItems(playlistId);
+    }
+
+    public int ClearItems(string playlistId)
+    {
+        return _itemsDbService.ClearPlaylistItems(playlistId);
+    }
+
+    public PlaylistItemEntity AddItem(string playlistId, string contentId, int index = -1)
+    {
+        if (_itemsDbService.Exists(x => x.PlaylistId == playlistId && x.ContentId == contentId))
+        {
+            return null;
         }
 
-        public int GetCount(string playlistId)
+        PlaylistItemEntity item = new()
         {
-            return _itemsDbService.CountPlaylisItems(playlistId);
-        }
+            PlaylistId = playlistId,
+            ContentId = contentId,
+        };
+        _ = _itemsDbService.CreateItem(item);
+        return item;
+    }
 
-        public int ClearItems(string playlistId)
+    public List<PlaylistItemEntity> AddItems(string playlistId, IEnumerable<VideoId> items)
+    {
+        List<PlaylistItemEntity> resultItems = new();
+        HashSet<string> videoIds = new();
+        foreach (VideoId itemId in items)
         {
-            return _itemsDbService.ClearPlaylistItems(playlistId);
-        }
-
-        public PlaylistItemEntity AddItem(string playlistId, string contentId, int index = -1)
-        {
-            if (_itemsDbService.Exists(x => x.PlaylistId == playlistId && x.ContentId == contentId))
+            string videoId = itemId.StrId;
+            if (videoIds.Contains(videoId)) { continue; }
+            if (_itemsDbService.Exists(x => x.PlaylistId == playlistId && x.ContentId == videoId))
             {
-                return null;
+                continue;
             }
 
-            var item = new PlaylistItemEntity()
+            PlaylistItemEntity entity = new()
             {
                 PlaylistId = playlistId,
-                ContentId = contentId,
+                ContentId = videoId,
             };
-            _itemsDbService.CreateItem(item);
-            return item;
+
+            resultItems.Add(entity);
+            _ = videoIds.Add(videoId);
         }
 
-        public List<PlaylistItemEntity> AddItems(string playlistId, IEnumerable<VideoId> items)
-        {
-            List<PlaylistItemEntity> resultItems = new();
-            HashSet<string> videoIds = new();
-            foreach (var itemId in items)
-            {
-                var videoId = itemId.StrId;
-                if (videoIds.Contains(videoId)) { continue; }
-                if (_itemsDbService.Exists(x => x.PlaylistId == playlistId && x.ContentId == videoId))
-                {
-                    continue;
-                }
+        _ = _itemsDbService.UpdateItem(resultItems);
 
-                var entity = new PlaylistItemEntity()
-                {
-                    PlaylistId = playlistId,
-                    ContentId = videoId,
-                };
+        return resultItems;
+    }
 
-                resultItems.Add(entity);
-                videoIds.Add(videoId);
-            }
+    public void UpdateItem(PlaylistItemEntity entity)
+    {
+        _ = _itemsDbService.UpdateItem(entity);
+    }
 
-            _itemsDbService.UpdateItem(resultItems);
+    public bool DeleteItem(string playlistId, VideoId contentId)
+    {
+        return _itemsDbService.DeletePlaylistItem(playlistId, contentId);
+    }
 
-            return resultItems;
-        }
+    public int DeleteItems(string playlistId, IEnumerable<VideoId> contentIdList)
+    {
+        return _itemsDbService.DeletePlaylistItem(playlistId, contentIdList);
+    }
 
-        public void UpdateItem(PlaylistItemEntity entity)
-        {
-            _itemsDbService.UpdateItem(entity);
-        }
-
-        public bool DeleteItem(string playlistId, VideoId contentId)
-        {
-            return _itemsDbService.DeletePlaylistItem(playlistId, contentId);
-        }
-
-        public int DeleteItems(string playlistId, IEnumerable<VideoId> contentIdList)
-        {
-            return _itemsDbService.DeletePlaylistItem(playlistId, contentIdList);
-        }
-
-        public bool ExistItem(string playlistId, VideoId videoId)
-        {
-            return _itemsDbService.ExistPlaylistItem(playlistId, videoId);
-        }
+    public bool ExistItem(string playlistId, VideoId videoId)
+    {
+        return _itemsDbService.ExistPlaylistItem(playlistId, videoId);
     }
 }

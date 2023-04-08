@@ -1,105 +1,92 @@
-﻿using Hohoema.Services;
-using I18NPortable;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
+﻿using System;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 // コンテンツ ダイアログの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
-namespace Hohoema.Views.Dialogs
+namespace Hohoema.Views.Dialogs;
+
+public sealed partial class HohoemaErrorReportDialog : ContentDialog
 {
-    public sealed partial class HohoemaErrorReportDialog : ContentDialog
+    private readonly Exception _exception;
+
+    private HohoemaErrorReportDialog(Exception exception, bool sendScreenshot, ImageSource screenshot)
     {
-        private readonly Exception _exception;
+        _exception = exception;
+        this.InitializeComponent();
 
-        private HohoemaErrorReportDialog(Exception exception, bool sendScreenshot, ImageSource screenshot)
+        ExceptionMessageTextBlock.Text = _exception.ToString();
+        ExceptionMessageTextBlock.Visibility = Visibility.Visible;
+        SendScreenshotToggleButton.IsOn = sendScreenshot;
+        ScreenshotImage.Source = screenshot;
+    }
+
+    private HohoemaErrorReportDialog(bool sendScreenshot, ImageSource screenshot)
+    {
+        this.InitializeComponent();
+        ExceptionMessageTextBlock.Visibility = Visibility.Collapsed;
+        SendScreenshotToggleButton.IsOn = sendScreenshot;
+        ScreenshotImage.Source = screenshot;
+    }
+
+    public static async Task<HohoemaErrorReportDialogResult> ShowAsync(Exception exception, bool sendScreenshot, ImageSource screenshot)
+    {
+        var dialog = new HohoemaErrorReportDialog(exception, sendScreenshot, screenshot);
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
         {
-            _exception = exception;
-            this.InitializeComponent();
-
-            ExceptionMessageTextBlock.Text = _exception.ToString();
-            ExceptionMessageTextBlock.Visibility = Visibility.Visible;
-            SendScreenshotToggleButton.IsOn = sendScreenshot;
-            ScreenshotImage.Source = screenshot;
-        }
-
-        private HohoemaErrorReportDialog(bool sendScreenshot, ImageSource screenshot)
-        {
-            this.InitializeComponent();
-            ExceptionMessageTextBlock.Visibility = Visibility.Collapsed;
-            SendScreenshotToggleButton.IsOn = sendScreenshot;
-            ScreenshotImage.Source = screenshot;
-        }
-
-        public static async Task<HohoemaErrorReportDialogResult> ShowAsync(Exception exception, bool sendScreenshot, ImageSource screenshot)
-        {
-            var dialog = new HohoemaErrorReportDialog(exception, sendScreenshot, screenshot);
-            var result = await dialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
-            {
-                return new HohoemaErrorReportDialogResult
-                { 
-                    IsSendRequested = true,
-                    Data = new HohoemaErrorReportDialogInputData 
-                    {
-                        InputText = dialog.UserInputTextBox.Text,
-                        UseScreenshot = dialog.SendScreenshotToggleButton.IsOn
-                    }
-                };
-            }
-            else
-            {
-                return new HohoemaErrorReportDialogResult { IsSendRequested = false };
-            }
-        }
-
-        public static async Task<HohoemaErrorReportDialogResult> ShowAsyncForLiteIssue(bool sendScreenshot, ImageSource screenshot)
-        {
-            var dialog = new HohoemaErrorReportDialog(sendScreenshot, screenshot);
-            
-            var result = await dialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
-            {
-                return new HohoemaErrorReportDialogResult
+            return new HohoemaErrorReportDialogResult
+            { 
+                IsSendRequested = true,
+                Data = new HohoemaErrorReportDialogInputData 
                 {
-                    IsSendRequested = true,
-                    Data = new HohoemaErrorReportDialogInputData
-                    {
-                        InputText = dialog.UserInputTextBox.Text,
-                        UseScreenshot = dialog.SendScreenshotToggleButton.IsOn
-                    }
-                };
-            }
-            else
-            {
-                return new HohoemaErrorReportDialogResult { IsSendRequested = false };
-            }
+                    InputText = dialog.UserInputTextBox.Text,
+                    UseScreenshot = dialog.SendScreenshotToggleButton.IsOn
+                }
+            };
+        }
+        else
+        {
+            return new HohoemaErrorReportDialogResult { IsSendRequested = false };
         }
     }
 
-    public struct HohoemaErrorReportDialogResult
+    public static async Task<HohoemaErrorReportDialogResult> ShowAsyncForLiteIssue(bool sendScreenshot, ImageSource screenshot)
     {
-        public bool IsSendRequested { get; set; }
-
-        public HohoemaErrorReportDialogInputData Data { get; set; }
+        var dialog = new HohoemaErrorReportDialog(sendScreenshot, screenshot);
+        
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+        {
+            return new HohoemaErrorReportDialogResult
+            {
+                IsSendRequested = true,
+                Data = new HohoemaErrorReportDialogInputData
+                {
+                    InputText = dialog.UserInputTextBox.Text,
+                    UseScreenshot = dialog.SendScreenshotToggleButton.IsOn
+                }
+            };
+        }
+        else
+        {
+            return new HohoemaErrorReportDialogResult { IsSendRequested = false };
+        }
     }
+}
 
-    public sealed class HohoemaErrorReportDialogInputData
-    {
-        public string InputText { get; set; }
+public struct HohoemaErrorReportDialogResult
+{
+    public bool IsSendRequested { get; set; }
 
-        public bool UseScreenshot { get; set; }        
-    }
+    public HohoemaErrorReportDialogInputData Data { get; set; }
+}
+
+public sealed class HohoemaErrorReportDialogInputData
+{
+    public string InputText { get; set; }
+
+    public bool UseScreenshot { get; set; }        
 }

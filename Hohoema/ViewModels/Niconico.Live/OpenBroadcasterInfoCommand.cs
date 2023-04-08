@@ -1,40 +1,32 @@
 ﻿using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.PageNavigation;
-using Hohoema.Contracts.Services.Navigations;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Hohoema.ViewModels.Niconico.Live
+namespace Hohoema.ViewModels.Niconico.Live;
+
+public sealed class OpenBroadcasterInfoCommand : CommandBase
 {
-    public sealed class OpenBroadcasterInfoCommand : CommandBase
+    public OpenBroadcasterInfoCommand(
+        PageManager pageManager
+        )
     {
-        public OpenBroadcasterInfoCommand(
-            PageManager pageManager
-            )
-        {
-            PageManager = pageManager;
-        }
+        PageManager = pageManager;
+    }
 
-        public PageManager PageManager { get; }
+    public PageManager PageManager { get; }
 
-        protected override bool CanExecute(object parameter)
-        {
-            return parameter is ILiveContentProvider liveContent
-                && !string.IsNullOrEmpty(liveContent.ProviderId);
-        }
+    protected override bool CanExecute(object parameter)
+    {
+        return parameter is ILiveContentProvider liveContent
+            && !string.IsNullOrEmpty(liveContent.ProviderId);
+    }
 
-        protected override void Execute(object parameter)
+    protected override void Execute(object parameter)
+    {
+        if (parameter is ILiveContentProvider content)
         {
-            if (parameter is ILiveContentProvider content)
+            if (!string.IsNullOrEmpty(content.ProviderId))
             {
-                if (!string.IsNullOrEmpty(content.ProviderId))
-                {
-                    PageManager.OpenPageWithId(HohoemaPageType.Community, content.ProviderId);
-                }
+                PageManager.OpenPageWithId(HohoemaPageType.Community, content.ProviderId);
             }
         }
     }

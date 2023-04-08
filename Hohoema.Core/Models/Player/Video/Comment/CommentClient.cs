@@ -1,25 +1,17 @@
-﻿using NiconicoToolkit.Live.WatchSession;
-using Hohoema.Helpers;
-using Hohoema.Models.Niconico;
+﻿using CommunityToolkit.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Infra;
+using Hohoema.Models.Player.Comment;
+using NiconicoToolkit.Video;
+using NiconicoToolkit.Video.Watch;
+using NiconicoToolkit.Video.Watch.NV_Comment;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
-using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
-using NiconicoToolkit.Video.Watch;
-using Hohoema.Models.Player.Comment;
-using NiconicoToolkit.Video.Watch.NV_Comment;
-using CommunityToolkit.Diagnostics;
-using NiconicoToolkit.Video;
 using System.Threading;
-using NiconicoToolkit.Live.WatchPageProp;
-using CommunityToolkit.Mvvm.ComponentModel;
-using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Windows.UI;
+using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
 
 
 #nullable enable
@@ -35,7 +27,7 @@ public class CommentClient
     public CommentClient(NiconicoSession niconicoSession, string rawVideoid)
     {
         _niconicoSession = niconicoSession;
-        RawVideoId = rawVideoid;        
+        RawVideoId = rawVideoid;
     }
 
     public string RawVideoId { get; }
@@ -46,7 +38,7 @@ public class CommentClient
 
     private readonly NiconicoSession _niconicoSession;
     private NiconicoToolkit.NiconicoContext _toolkitContext => _niconicoSession.ToolkitContext;
-    
+
     private NvCommentSubClient _nvCommentApi => _niconicoSession.ToolkitContext.Video.NvComment;
 
     public async Task<CommentPostResult> SubmitComment(string comment, TimeSpan position, string commands)
@@ -55,15 +47,15 @@ public class CommentClient
         Guard.IsNotNull(_watchApiData);
 
         VideoId videoId = _watchApiData.Video.Id;
-        var mainThread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Main);
+        NiconicoToolkit.Video.Watch.Thread mainThread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Main);
         string threadId = mainThread.Id.ToString();
 
         bool isPostCompleted = false;
         ThreadPostResponse.ThreadPostResponseData? chatRes = null;
-        foreach (var i in Enumerable.Range(0, 2))
+        foreach (int i in Enumerable.Range(0, 2))
         {
             string postKey = await GetPostKeyWithCacheAsync(mainThread.ForkLabel, ct);
-            var res = await _nvCommentApi.PostCommentAsync(threadId, videoId, commands.Split(' '), comment, (int)position.TotalMilliseconds, postKey, ct);
+            ThreadPostResponse res = await _nvCommentApi.PostCommentAsync(threadId, videoId, commands.Split(' '), comment, (int)position.TotalMilliseconds, postKey, ct);
 
             if (res.IsSuccess)
             {
@@ -79,7 +71,7 @@ public class CommentClient
 
         return new CommentPostResult()
         {
-            CommentNo = chatRes?.Number ?? -1, 
+            CommentNo = chatRes?.Number ?? -1,
             IsSuccessed = isPostCompleted,
             ThreadId = threadId,
             VideoPosition = position,
@@ -93,30 +85,16 @@ public class CommentClient
         {
             if (_watchApiData == null) { return false; }
 
-            if (_watchApiData.Channel != null) { return false; }
-
-            if (_watchApiData.Community != null) { return false; }
-
-            return true;
+            return _watchApiData.Channel == null && _watchApiData.Community == null;
         }
     }
 
-    public bool CanSubmitComment
-    {
-        get
-        {
-            if (!Helpers.InternetConnection.IsInternet()) { return false; }
-
-            if (_watchApiData?.Comment?.NvComment == null) { return false; }            
-
-            return true;
-        }
-    }
+    public bool CanSubmitComment => Helpers.InternetConnection.IsInternet() && (_watchApiData?.Comment?.NvComment) != null;
 
 
     public async Task<IEnumerable<IVideoComment>> GetCommentsAsync()
     {
-        var commentRes = await _nvCommentApi.GetCommentsAsync(_watchApiData!.Comment.NvComment, ct: default);
+        ThreadResponse commentRes = await _nvCommentApi.GetCommentsAsync(_watchApiData!.Comment.NvComment, ct: default);
         return commentRes.Data.Threads.SelectMany(x => x.Comments).OrderBy(x => x.VposMs).Select(ToVideoComent);
     }
 
@@ -144,7 +122,7 @@ public class CommentClient
         return new NvVideoComment(nvComment);
     }
 
-    private Dictionary<string, string> _threadForkToPostKeyCachedMap = new();
+    private readonly Dictionary<string, string> _threadForkToPostKeyCachedMap = new();
     private VideoId? _lastThreadForkToPostKeyVideoId;
 
     private void ClearPostKeyCache()
@@ -175,8 +153,8 @@ public class CommentClient
         if (threadForkLabel == ThreadTargetForkConstants.Main)
         {
             Guard.IsNotNull(_watchApiData);
-            var thread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Main);
-            var res = await _nvCommentApi.GetPostKeyAsync(thread.Id.ToString(), ct);
+            NiconicoToolkit.Video.Watch.Thread thread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Main);
+            ThreadPostKeyResponse res = await _nvCommentApi.GetPostKeyAsync(thread.Id.ToString(), ct);
             Guard.IsTrue(res.IsSuccess);
 
             return res.Data!.PostKey;
@@ -184,8 +162,8 @@ public class CommentClient
         else if (threadForkLabel == ThreadTargetForkConstants.Easy)
         {
             Guard.IsNotNull(_watchApiData);
-            var thread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Easy);
-            var res = await _nvCommentApi.GetEasyPostKeyAsync(thread.Id.ToString(), ct);
+            NiconicoToolkit.Video.Watch.Thread thread = _watchApiData.Comment.Threads.First(x => x.ForkLabel == ThreadTargetForkConstants.Easy);
+            ThreadEasyPostKeyResponse res = await _nvCommentApi.GetEasyPostKeyAsync(thread.Id.ToString(), ct);
             Guard.IsTrue(res.IsSuccess);
 
             return res.Data!.EasyPostKey;
@@ -215,13 +193,12 @@ public class NvVideoComment : ObservableObject, IVideoComment
     }
 
     private readonly ThreadResponse.Comment _comment;
-
-    bool _isAppliedCommands;
+    private bool _isAppliedCommands;
     public void ApplyCommands()
     {
         if (_isAppliedCommands) { return; }
 
-        foreach (var action in MailToCommandHelper.MakeCommandActions(Commands))
+        foreach (Action<IComment>? action in MailToCommandHelper.MakeCommandActions(Commands))
         {
             action(this);
         }
@@ -233,7 +210,7 @@ public class NvVideoComment : ObservableObject, IVideoComment
 
     public string CommentText => _comment.Body;
 
-    string? _commands;
+    private readonly string? _commands;
     public IReadOnlyList<string> Commands => _comment.Commands;
     public string UserId => _comment.UserId;
 
@@ -249,7 +226,7 @@ public class NvVideoComment : ObservableObject, IVideoComment
 
     public bool IsOwnerComment => _comment.Source == ThreadTargetForkConstants.Owner;
 
-    public int DeletedFlag => 0; 
+    public int DeletedFlag => 0;
 
 
     private string? _commentText_Transformed;

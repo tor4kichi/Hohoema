@@ -1,43 +1,40 @@
 ﻿using Hohoema.Models.Playlist;
-using Hohoema.Contracts.Services.Navigations;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Windows.System;
 
-namespace Hohoema.Contracts.Services.Player
+namespace Hohoema.Contracts.Services.Player;
+
+public enum PlayerDisplayMode
 {
-    public enum PlayerDisplayMode
-    {
-        Close,
-        FillWindow,
-        FullScreen,
-        WindowInWindow,
-        CompactOverlay,
-    }
+    Close,
+    FillWindow,
+    FullScreen,
+    WindowInWindow,
+    CompactOverlay,
+}
 
-    public interface IPlayerView : INotifyPropertyChanged
-    {
-        string LastNavigatedPageName { get; }
-        HohoemaPlaylistPlayer PlaylistPlayer { get; }
+public interface IPlayerView : INotifyPropertyChanged
+{
+    string LastNavigatedPageName { get; }
+    HohoemaPlaylistPlayer PlaylistPlayer { get; }
 
-        Task ClearVideoPlayerAsync();
-        Task CloseAsync();
-        Task NavigationAsync(string pageName, INavigationParameters parameters);
-        void SetTitle(string title);
-        Task ShowAsync();
+    Task ClearVideoPlayerAsync();
+    Task CloseAsync();
+    Task NavigationAsync(string pageName, INavigationParameters parameters);
+    void SetTitle(string title);
+    Task ShowAsync();
 
-        Task<bool> TrySetDisplayModeAsync(PlayerDisplayMode mode);
-        Task<PlayerDisplayMode> GetDisplayModeAsync();
+    Task<bool> TrySetDisplayModeAsync(PlayerDisplayMode mode);
+    Task<PlayerDisplayMode> GetDisplayModeAsync();
 
-        Task<bool> IsWindowFilledScreenAsync();
+    Task<bool> IsWindowFilledScreenAsync();
 
-        ICommand ToggleFullScreenCommand { get; }
+    ICommand ToggleFullScreenCommand { get; }
 
-        ICommand ToggleCompactOverlayCommand { get; }
+    ICommand ToggleCompactOverlayCommand { get; }
 
-        bool IsFullScreen { get; }
+    bool IsFullScreen { get; }
 
-        bool IsCompactOverlay { get; }
-    }
+    bool IsCompactOverlay { get; }
 }

@@ -1,190 +1,194 @@
 ﻿
-using Hohoema.Models.Playlist;
 using Hohoema.Infra;
+using Hohoema.Models.Playlist;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.PageNavigation
+namespace Hohoema.Models.PageNavigation;
+
+public sealed class RestoreNavigationManager
 {
-    public sealed class RestoreNavigationManager
+    private static readonly NavigationStackRepository _navigationStackRepository;
+
+    [Obsolete]
+    static RestoreNavigationManager()
     {
-        private static readonly NavigationStackRepository _navigationStackRepository;
+        _navigationStackRepository ??= new NavigationStackRepository();
+    }
 
-        static RestoreNavigationManager()
+    public RestoreNavigationManager()
+    {
+    }
+
+    [Obsolete]
+    public void SetCurrentPlayerEntry(PlayerEntry entry)
+    {
+        _navigationStackRepository.SetCurrentPlayerEntry(entry);
+    }
+
+    [Obsolete]
+    public void ClearCurrentPlayerEntry()
+    {
+        _navigationStackRepository.ClearCurrentPlayerEntry();
+    }
+
+    [Obsolete]
+    public PlayerEntry GetCurrentPlayerEntry()
+    {
+        return _navigationStackRepository.GetCurrentPlayerContent();
+    }
+
+    [Obsolete]
+    public void SetCurrentNavigationEntry(PageEntry pageEntry)
+    {
+        _navigationStackRepository.SetCurrentNavigationEntry(pageEntry);
+    }
+
+    [Obsolete]
+    public PageEntry GetCurrentNavigationEntry()
+    {
+        return _navigationStackRepository.GetCurrentNavigationEntry();
+    }
+
+    [Obsolete]
+    public Task SetBackNavigationEntriesAsync(IEnumerable<PageEntry> entries)
+    {
+        return entries.Any(x => string.IsNullOrWhiteSpace(x.PageName))
+            ? throw new ArgumentNullException()
+            : _navigationStackRepository.SetBackNavigationEntriesAsync(entries.ToArray());
+    }
+
+    [Obsolete]
+    public Task SetForwardNavigationEntriesAsync(IEnumerable<PageEntry> entries)
+    {
+        return entries.Any(x => string.IsNullOrWhiteSpace(x.PageName))
+            ? throw new ArgumentNullException()
+            : _navigationStackRepository.SetForwardNavigationEntriesAsync(entries.ToArray());
+    }
+
+    [Obsolete]
+    public Task<PageEntry[]> GetBackNavigationEntriesAsync()
+    {
+        return _navigationStackRepository.GetBackNavigationEntriesAsync();
+    }
+
+    [Obsolete]
+    public Task<PageEntry[]> GetForwardNavigationEntriesAsync()
+    {
+        return _navigationStackRepository.GetForwardNavigationEntriesAsync();
+    }
+
+
+
+    internal class NavigationStackRepository : FlagsRepositoryBase
+    {
+        [Obsolete]
+        public NavigationStackRepository()
         {
-            _navigationStackRepository ??= new NavigationStackRepository();
+
         }
 
-        public RestoreNavigationManager()
+        public const string CurrentPlayerEntryName = "CurrentPlayerEntry";
+        public const string CurrentNavigationEntryName = "CurrentNavigationEntry";
+        public const string BackNavigationEntriesName = "BackNavigationEntries";
+        public const string ForwardNavigationEntriesName = "ForwardNavigationEntries";
+        private readonly JsonSerializerOptions _options = new()
         {
+            Converters =
+            {
+                new JsonTimeSpanConverter(),
+            }
+        };
+
+        [Obsolete]
+        public PlayerEntry GetCurrentPlayerContent()
+        {
+            byte[] json = Read<byte[]>(null, CurrentPlayerEntryName);
+            return json == null ? null : JsonSerializer.Deserialize<PlayerEntry>(json, _options);
         }
 
-
+        [Obsolete]
         public void SetCurrentPlayerEntry(PlayerEntry entry)
         {
-            _navigationStackRepository.SetCurrentPlayerEntry(entry);
+            byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(entry, _options);
+            Save(bytes, CurrentPlayerEntryName);
         }
 
+        [Obsolete]
         public void ClearCurrentPlayerEntry()
         {
-            _navigationStackRepository.ClearCurrentPlayerEntry();
+            Save<PlayerEntry>(null, CurrentPlayerEntryName);
         }
 
-        public PlayerEntry GetCurrentPlayerEntry()
-        {
-            return _navigationStackRepository.GetCurrentPlayerContent();
-        }
-
-
-
-        public void SetCurrentNavigationEntry(PageEntry pageEntry)
-        {
-            _navigationStackRepository.SetCurrentNavigationEntry(pageEntry);
-        }
-
+        [Obsolete]
         public PageEntry GetCurrentNavigationEntry()
         {
-            return _navigationStackRepository.GetCurrentNavigationEntry();
+            byte[] json = Read<byte[]>(null, CurrentNavigationEntryName);
+            return json == null ? null : JsonSerializer.Deserialize<PageEntry>(json);
         }
 
-        public Task SetBackNavigationEntriesAsync(IEnumerable<PageEntry> entries)
+        [Obsolete]
+        public void SetCurrentNavigationEntry(PageEntry entry)
         {
-            if (entries.Any(x => string.IsNullOrWhiteSpace(x.PageName)))
-            {
-                throw new ArgumentNullException();
-            }
-
-            return _navigationStackRepository.SetBackNavigationEntriesAsync(entries.ToArray());
+            byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(entry);
+            Save(bytes, CurrentNavigationEntryName);
         }
 
-        public Task SetForwardNavigationEntriesAsync(IEnumerable<PageEntry> entries)
+        [Obsolete]
+        public async Task<PageEntry[]> GetBackNavigationEntriesAsync()
         {
-            if (entries.Any(x => string.IsNullOrWhiteSpace(x.PageName)))
-            {
-                throw new ArgumentNullException();
-            }
-
-            return _navigationStackRepository.SetForwardNavigationEntriesAsync(entries.ToArray());
+            byte[] json = await ReadFileAsync<byte[]>(null, BackNavigationEntriesName);
+            return json == null ? (new PageEntry[0]) : JsonSerializer.Deserialize<PageEntry[]>(json);
         }
 
-        public Task<PageEntry[]> GetBackNavigationEntriesAsync()
+        [Obsolete]
+        public async Task SetBackNavigationEntriesAsync(PageEntry[] entries)
         {
-            return _navigationStackRepository.GetBackNavigationEntriesAsync();
+            byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(entries);
+            _ = await SaveFileAsync(bytes, BackNavigationEntriesName);
         }
 
-        public Task<PageEntry[]> GetForwardNavigationEntriesAsync()
+        [Obsolete]
+        public async Task<PageEntry[]> GetForwardNavigationEntriesAsync()
         {
-            return _navigationStackRepository.GetForwardNavigationEntriesAsync();
+            byte[] json = await ReadFileAsync<byte[]>(null, ForwardNavigationEntriesName);
+            return json == null ? (new PageEntry[0]) : JsonSerializer.Deserialize<PageEntry[]>(json);
         }
 
-
-
-        internal class NavigationStackRepository : FlagsRepositoryBase
+        [Obsolete]
+        public async Task SetForwardNavigationEntriesAsync(PageEntry[] entries)
         {
-            public NavigationStackRepository()
-            {
-
-            }
-
-            public const string CurrentPlayerEntryName = "CurrentPlayerEntry";
-            public const string CurrentNavigationEntryName = "CurrentNavigationEntry";
-            public const string BackNavigationEntriesName = "BackNavigationEntries";
-            public const string ForwardNavigationEntriesName = "ForwardNavigationEntries";
-
-            JsonSerializerOptions _options = new JsonSerializerOptions()
-            { 
-                Converters = 
-                {
-                    new JsonTimeSpanConverter(),
-                }
-            };
-            public PlayerEntry GetCurrentPlayerContent()
-            {
-                var json = Read<byte[]>(null, CurrentPlayerEntryName);
-                if (json == null) { return null; }
-                return JsonSerializer.Deserialize<PlayerEntry>(json, _options);
-            }
-
-            public void SetCurrentPlayerEntry(PlayerEntry entry)
-            {
-                var bytes = JsonSerializer.SerializeToUtf8Bytes(entry, _options);
-                Save(bytes, CurrentPlayerEntryName);
-            }
-
-            public void ClearCurrentPlayerEntry()
-            {
-                Save<PlayerEntry>(null, CurrentPlayerEntryName);
-            }
-
-
-            public PageEntry GetCurrentNavigationEntry()
-            {
-                var json = Read<byte[]>(null, CurrentNavigationEntryName);
-                if (json == null) { return null; }
-                return JsonSerializer.Deserialize<PageEntry>(json);
-            }
-
-            public void SetCurrentNavigationEntry(PageEntry entry)
-            {
-                var bytes = JsonSerializer.SerializeToUtf8Bytes(entry);
-                Save(bytes, CurrentNavigationEntryName);
-            }
-
-            public async Task<PageEntry[]> GetBackNavigationEntriesAsync()
-            {
-                var json = await ReadFileAsync<byte[]>(null, BackNavigationEntriesName);
-                if (json == null) { return new PageEntry[0]; }
-                return JsonSerializer.Deserialize<PageEntry[]>(json);
-            }
-
-            public async Task SetBackNavigationEntriesAsync(PageEntry[] entries)
-            {
-                var bytes = JsonSerializer.SerializeToUtf8Bytes(entries);
-                await SaveFileAsync(bytes, BackNavigationEntriesName);
-            }
-
-            public async Task<PageEntry[]> GetForwardNavigationEntriesAsync()
-            {
-                var json = await ReadFileAsync<byte[]>(null, ForwardNavigationEntriesName);
-                if (json == null) { return new PageEntry[0]; }
-                return JsonSerializer.Deserialize<PageEntry[]>(json);
-            }
-
-            public async Task SetForwardNavigationEntriesAsync(PageEntry[] entries)
-            {
-                var bytes = JsonSerializer.SerializeToUtf8Bytes(entries);
-                await SaveFileAsync(bytes, ForwardNavigationEntriesName);
-            }
+            byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(entries);
+            _ = await SaveFileAsync(bytes, ForwardNavigationEntriesName);
         }
     }
+}
 
-    public class PlayerEntry
+public class PlayerEntry
+{
+    public string ContentId { get; set; }
+
+    public TimeSpan Position { get; set; }
+
+    public PlaylistItemsSourceOrigin? PlaylistOrigin { get; set; }
+    public string PlaylistId { get; set; }
+}
+
+
+public class PageEntry
+{
+    public PageEntry() { }
+
+    public PageEntry(string pageName, IEnumerable<KeyValuePair<string, object>> parameters)
     {
-        public string ContentId { get; set; }
-        
-        public TimeSpan Position { get; set; }
-
-        public PlaylistItemsSourceOrigin? PlaylistOrigin { get; set; }
-        public string PlaylistId { get; set; }
+        PageName = pageName;
+        Parameters = parameters?.ToDictionary(x => x.Key, (x) => x.Value?.ToString()).ToList();
     }
 
-
-    public class PageEntry
-    {
-        public PageEntry() { }
-
-        public PageEntry(string pageName, IEnumerable<KeyValuePair<string, object>> parameters)
-        {
-            PageName = pageName;
-            Parameters = parameters?.ToDictionary(x => x.Key, (x) => x.Value?.ToString()).ToList();
-        }
-
-        public string PageName { get; set; }
-        public List<KeyValuePair<string, string>> Parameters { get; set; }
-    }
+    public string PageName { get; set; }
+    public List<KeyValuePair<string, string>> Parameters { get; set; }
 }

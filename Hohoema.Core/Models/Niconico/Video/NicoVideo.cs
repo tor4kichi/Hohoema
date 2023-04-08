@@ -1,13 +1,6 @@
 ﻿using LiteDB;
-using NiconicoToolkit;
 using NiconicoToolkit.Video;
-using CommunityToolkit.Mvvm.ComponentModel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 #nullable enable
 
@@ -16,7 +9,7 @@ namespace Hohoema.Models.Niconico.Video;
 public class NicoVideo : IVideoContent, IVideoContentProvider
 {
     [BsonId]
-    public string Id { get; set; }
+    public string? Id { get; set; }
 
     private VideoId? _videoId;
     public VideoId VideoId => _videoId ??= Id;
@@ -25,14 +18,14 @@ public class NicoVideo : IVideoContent, IVideoContentProvider
     [BsonIgnore]
     public string? VideoAliasId { get; set; }
 
-    public string Title { get; set; }
-    public string ThumbnailUrl { get; set; }
+    public string? Title { get; set; }
+    public string? ThumbnailUrl { get; set; }
     public TimeSpan Length { get; set; }
     public DateTime PostedAt { get; set; }
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [BsonRef]
-    public NicoVideoOwner Owner { get; set; }
+    public NicoVideoOwner? Owner { get; set; }
 
     public DateTime LastUpdated { get; set; }
 
@@ -49,7 +42,7 @@ public class NicoVideo : IVideoContent, IVideoContentProvider
     public string? ProviderId
     {
         get => Owner?.OwnerId;
-        set 
+        set
         {
             if (value == null) { return; }
             if (Owner == null)
@@ -74,10 +67,7 @@ public class NicoVideo : IVideoContent, IVideoContentProvider
     }
 
     [BsonIgnore]
-    public string? ProviderName
-    {
-        get => Owner?.ScreenName;
-    }
+    public string? ProviderName => Owner?.ScreenName;
 
 
     public bool Equals(IVideoContent other)

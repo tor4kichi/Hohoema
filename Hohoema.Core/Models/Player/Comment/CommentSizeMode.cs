@@ -1,9 +1,8 @@
-﻿namespace Hohoema.Models.Player.Comment
+﻿namespace Hohoema.Models.Player.Comment;
+
+public enum CommentSizeMode
 {
-    public enum CommentSizeMode
-    {
-        Normal,
-        Big,
-        Small,
-    }
+    Normal,
+    Big,
+    Small,
 }

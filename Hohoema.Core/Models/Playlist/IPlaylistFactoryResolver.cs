@@ -1,18 +1,14 @@
-﻿using Hohoema.Models.LocalMylist;
-using Hohoema.Infra;
-using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace Hohoema.Models.Playlist
+namespace Hohoema.Models.Playlist;
+
+public interface IPlaylistFactoryResolver
 {
-    public interface IPlaylistFactoryResolver
-    {
-        IPlaylistFactory Resolve(PlaylistItemsSourceOrigin origin);
-    }
+    IPlaylistFactory Resolve(PlaylistItemsSourceOrigin origin);
+}
 
-    public interface IPlaylistFactory
-    {
-        ValueTask<IPlaylist> Create(PlaylistId playlistId);
-        IPlaylistSortOption DeserializeSortOptions(string serializedSortOptions);
-    }
+public interface IPlaylistFactory
+{
+    ValueTask<IPlaylist> Create(PlaylistId playlistId);
+    IPlaylistSortOption DeserializeSortOptions(string serializedSortOptions);
 }

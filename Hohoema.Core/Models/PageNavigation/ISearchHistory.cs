@@ -1,9 +1,8 @@
 ﻿
-namespace Hohoema.Models.PageNavigation
+namespace Hohoema.Models.PageNavigation;
+
+public interface ISearchHistory
 {
-    public interface ISearchHistory
-    {
-        string Keyword { get; }
-        SearchTarget Target { get; }
-    }
+    string Keyword { get; }
+    SearchTarget Target { get; }
 }

@@ -1,7 +1,6 @@
 ﻿using Hohoema.Contracts.Services;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
-using Hohoema.Services;
 using NiconicoToolkit.Activity.VideoWatchHistory;
 using NiconicoToolkit.Video;
 using System;
@@ -9,119 +8,118 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Hohoema.Services.Niconico
+namespace Hohoema.Services.Niconico;
+
+public sealed class WatchHistoryRemovedEventArgs
 {
-    public sealed class WatchHistoryRemovedEventArgs
+    public VideoId VideoId { get; set; }
+}
+
+public sealed class ContentWatchedEventArgs
+{
+    public VideoId ContentId { get; set; }
+}
+
+public sealed class WatchHistoryManager
+{
+    private readonly LoginUserVideoWatchHistoryProvider _LoginUserVideoWatchHistoryProvider;
+    private readonly INotificationService _notificationService;
+    private readonly ILocalizeService _localizeService;
+
+    public WatchHistoryManager(
+        LoginUserVideoWatchHistoryProvider LoginUserVideoWatchHistoryProvider,
+        INotificationService notificationService,
+        ILocalizeService localizeService
+        )
     {
-        public VideoId VideoId { get; set; }
+        _LoginUserVideoWatchHistoryProvider = LoginUserVideoWatchHistoryProvider;
+        _notificationService = notificationService;
+        _localizeService = localizeService;
     }
 
-    public sealed class ContentWatchedEventArgs
+    public event EventHandler<ContentWatchedEventArgs> ContentWatched;
+    public event EventHandler<WatchHistoryRemovedEventArgs> WatchHistoryRemoved;
+    public event EventHandler WatchHistoryAllRemoved;
+
+    public Task<VideoWatchHistory.VideoWatchHistoryItem[]> GetWatchHistoryItemsAsync(int page = 0, int pageSize = 100)
     {
-        public VideoId ContentId { get; set; }
+        return _LoginUserVideoWatchHistoryProvider.GetHistoryAsync(page, pageSize);
     }
 
-    public sealed class WatchHistoryManager
+    public async Task<bool> RemoveHistoryAsync(IVideoContent watchHistory)
     {
-        private readonly LoginUserVideoWatchHistoryProvider _LoginUserVideoWatchHistoryProvider;
-        private readonly INotificationService _notificationService;
-        private readonly ILocalizeService _localizeService;
-
-        public WatchHistoryManager(
-            LoginUserVideoWatchHistoryProvider LoginUserVideoWatchHistoryProvider,
-            INotificationService notificationService,
-            ILocalizeService localizeService
-            )
+        try
         {
-            _LoginUserVideoWatchHistoryProvider = LoginUserVideoWatchHistoryProvider;
-            _notificationService = notificationService;
-            _localizeService = localizeService;
-        }
-
-        public event EventHandler<ContentWatchedEventArgs> ContentWatched;
-        public event EventHandler<WatchHistoryRemovedEventArgs> WatchHistoryRemoved;
-        public event EventHandler WatchHistoryAllRemoved;
-
-        public Task<VideoWatchHistory.VideoWatchHistoryItem[]> GetWatchHistoryItemsAsync(int page = 0, int pageSize = 100)
-        {
-            return _LoginUserVideoWatchHistoryProvider.GetHistoryAsync(page, pageSize);
-        }
-
-        public async Task<bool> RemoveHistoryAsync(IVideoContent watchHistory)
-        {
-            try
+            bool result = await _LoginUserVideoWatchHistoryProvider.RemoveHistoryAsync(watchHistory.VideoId);
+            if (result)
             {
-                var result = await _LoginUserVideoWatchHistoryProvider.RemoveHistoryAsync(watchHistory.VideoId);
-                if (result)
-                {
-                    WatchHistoryRemoved?.Invoke(this, new WatchHistoryRemovedEventArgs() { VideoId = watchHistory.VideoId });
+                WatchHistoryRemoved?.Invoke(this, new WatchHistoryRemovedEventArgs() { VideoId = watchHistory.VideoId });
 
-                    _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Success"));
-                }
-                else
-                {
-                    _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Fail"));
-                }
-
-                return result;
+                _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Success"));
             }
-            catch
+            else
             {
                 _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Fail"));
-                throw;
             }
+
+            return result;
         }
-
-        public async Task<bool> RemoveHistoryAsync(IEnumerable<IVideoContent> watchHistoryItems)
+        catch
         {
-            try
+            _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Fail"));
+            throw;
+        }
+    }
+
+    public async Task<bool> RemoveHistoryAsync(IEnumerable<IVideoContent> watchHistoryItems)
+    {
+        try
+        {
+            bool result = await _LoginUserVideoWatchHistoryProvider.RemoveHistoryAsync(watchHistoryItems.Select(x => x.VideoId));
+            if (result)
             {
-                var result = await _LoginUserVideoWatchHistoryProvider.RemoveHistoryAsync(watchHistoryItems.Select(x => x.VideoId));
-                if (result)
+                foreach (IVideoContent item in watchHistoryItems)
                 {
-                    foreach (var item in watchHistoryItems)
-                    {
-                        WatchHistoryRemoved?.Invoke(this, new WatchHistoryRemovedEventArgs() { VideoId = item.VideoId });
-                    }
-
-                    _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Success"));
-                }
-                else
-                {
-                    _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Fail"));
+                    WatchHistoryRemoved?.Invoke(this, new WatchHistoryRemovedEventArgs() { VideoId = item.VideoId });
                 }
 
-                return result;
+                _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Success"));
             }
-            catch
+            else
             {
                 _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Fail"));
-                throw;
             }
+
+            return result;
         }
-
-        public async Task<bool> RemoveAllHistoriesAsync()
+        catch
         {
-            try
-            {
-                var res = await _LoginUserVideoWatchHistoryProvider.RemoveAllHistoriesAsync();
-                if (res)
-                {
-                    WatchHistoryAllRemoved?.Invoke(this, EventArgs.Empty);
+            _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistory_DeleteOne_Fail"));
+            throw;
+        }
+    }
 
-                    _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistories_AllDelete_Success"));
-                }
-                else
-                {
-                    _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistories_AllDeleted_Fail"));
-                }
-                return res;
+    public async Task<bool> RemoveAllHistoriesAsync()
+    {
+        try
+        {
+            bool res = await _LoginUserVideoWatchHistoryProvider.RemoveAllHistoriesAsync();
+            if (res)
+            {
+                WatchHistoryAllRemoved?.Invoke(this, EventArgs.Empty);
+
+                _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistories_AllDelete_Success"));
             }
-            catch
+            else
             {
                 _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistories_AllDeleted_Fail"));
-                throw;
             }
+            return res;
+        }
+        catch
+        {
+            _notificationService.ShowLiteInAppNotification_Success(_localizeService.Translate("VideoHistories_AllDeleted_Fail"));
+            throw;
         }
     }
 }

@@ -1,20 +1,13 @@
 ﻿using Microsoft.Xaml.Interactivity;
-using Reactive.Bindings.Extensions;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Windows.Media.Playback;
 using Windows.System;
-using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
-namespace Hohoema.Views.Behaviors
-{
-	public class MediaPlayerElementContentHeightGetter : Behavior<MediaPlayerElement>
+namespace Hohoema.Views.Behaviors;
+
+public class MediaPlayerElementContentHeightGetter : Behavior<MediaPlayerElement>
 	{
 
 		#region ContentHeight
@@ -55,58 +48,58 @@ namespace Hohoema.Views.Behaviors
 			set { SetValue(ContentWidthProperty, value); }
 		}
 
-        #endregion
+    #endregion
 
 
-        private bool IsSizeChanged;
+    private bool IsSizeChanged;
 		private readonly DispatcherQueueTimer _Timer;
 
 
-        public MediaPlayerElementContentHeightGetter()
-        {
+    public MediaPlayerElementContentHeightGetter()
+    {
 			_Timer = DispatcherQueue.GetForCurrentThread().CreateTimer();
 			_Timer.IsRepeating = true;
 			_Timer.Interval = TimeSpan.FromMilliseconds(100);
-            _Timer.Tick += _Timer_Tick;
-        }
+        _Timer.Tick += _Timer_Tick;
+    }
 
-        protected override void OnAttached()
+    protected override void OnAttached()
 		{
 			base.OnAttached();
 
 			this.AssociatedObject.Loaded += AssociatedObject_Loaded;
-            this.AssociatedObject.Unloaded += AssociatedObject_Unloaded;
+        this.AssociatedObject.Unloaded += AssociatedObject_Unloaded;
 
-            this.AssociatedObject.SizeChanged += AssociatedObject_SizeChanged;
+        this.AssociatedObject.SizeChanged += AssociatedObject_SizeChanged;
 
 			StartEnsureResizeNotifyTimer();
 		}
 
-        protected override void OnDetaching()
-        {
-            base.OnDetaching();
+    protected override void OnDetaching()
+    {
+        base.OnDetaching();
 
-            this.AssociatedObject.Loaded -= AssociatedObject_Loaded;
-            this.AssociatedObject.Unloaded -= AssociatedObject_Unloaded;
+        this.AssociatedObject.Loaded -= AssociatedObject_Loaded;
+        this.AssociatedObject.Unloaded -= AssociatedObject_Unloaded;
 
-            this.AssociatedObject.SizeChanged -= AssociatedObject_SizeChanged;
+        this.AssociatedObject.SizeChanged -= AssociatedObject_SizeChanged;
 
-            _Timer.Stop();
-        }
+        _Timer.Stop();
+    }
 
 
 
-        private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
+    private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
 		{
-            StartEnsureResizeNotifyTimer();
-        }
+        StartEnsureResizeNotifyTimer();
+    }
 
-        private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
-        {
-            _Timer.Stop();
-        }
+    private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
+    {
+        _Timer.Stop();
+    }
 
-        private void AssociatedObject_SizeChanged(object sender, SizeChangedEventArgs e)
+    private void AssociatedObject_SizeChanged(object sender, SizeChangedEventArgs e)
 		{
 			StartEnsureResizeNotifyTimer();
 		}
@@ -115,19 +108,19 @@ namespace Hohoema.Views.Behaviors
 
 		public void StartEnsureResizeNotifyTimer()
 		{
-            IsSizeChanged = true;
+        IsSizeChanged = true;
 
-            _Timer.Start();
-        }
+        _Timer.Start();
+    }
 
-        private void _Timer_Tick(object sender, object e)
-        {
-            TryCalc();
-        }
+    private void _Timer_Tick(object sender, object e)
+    {
+        TryCalc();
+    }
 
-        async void TryCalc(object state = null)
+    async void TryCalc(object state = null)
 		{
-            if (this.AssociatedObject?.MediaPlayer == null) { return; }
+        if (this.AssociatedObject?.MediaPlayer == null) { return; }
 
 			if (IsSizeChanged == false)
 			{
@@ -139,10 +132,10 @@ namespace Hohoema.Views.Behaviors
 			{
 				if (AssociatedObject == null) { return; }
 
-                var playbackSession = this.AssociatedObject.MediaPlayer.PlaybackSession;
+            var playbackSession = this.AssociatedObject.MediaPlayer.PlaybackSession;
 
 
-                if (playbackSession.PlaybackState == MediaPlaybackState.None)
+            if (playbackSession.PlaybackState == MediaPlaybackState.None)
 				{
 					return;
 				}
@@ -177,11 +170,8 @@ namespace Hohoema.Views.Behaviors
 
 				IsSizeChanged = false;
 
-                _Timer.Stop();
+            _Timer.Stop();
 			});
 		}
 
 	}
-
-
-}

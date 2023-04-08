@@ -1,15 +1,10 @@
-﻿using Hohoema.Models;
-using System.Collections.Generic;
-using System.Linq;
+﻿using Hohoema.Models.PageNavigation;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using Hohoema.Models.PageNavigation;
 
-namespace Hohoema.Services.Navigations
-{
+namespace Hohoema.Services.Navigations;
 
-    [DataContract]
+
+[DataContract]
 	public abstract class SearchPagePayloadContentBase : PagePayloadBase, ISearchPagePayloadContent
 	{
 		[DataMember]
@@ -17,4 +12,3 @@ namespace Hohoema.Services.Navigations
 
 		public abstract SearchTarget SearchTarget { get; }
 	}
-}

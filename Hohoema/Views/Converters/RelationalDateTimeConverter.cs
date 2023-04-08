@@ -1,14 +1,11 @@
 ﻿using I18NPortable;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml.Data;
 
-namespace Hohoema.Views.Converters
-{
-	public class RelationalDateTimeConverter : IValueConverter
+namespace Hohoema.Views.Converters;
+
+public class RelationalDateTimeConverter : IValueConverter
 	{
 		class DurationToTextConvertInfo{
 			public TimeSpan Duration { get; set; }
@@ -53,4 +50,3 @@ namespace Hohoema.Views.Converters
 			return !(bool)value;
 		}
 	}
-}

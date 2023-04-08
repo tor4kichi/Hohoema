@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Hohoema.Models.PageNavigation;
 
-namespace Hohoema.Models.PageNavigation
+public enum SearchTarget
 {
-	public enum SearchTarget
-	{
-		Keyword,
-		Tag,
-        Niconama,
-	}
+    Keyword,
+    Tag,
+    Niconama,
 }

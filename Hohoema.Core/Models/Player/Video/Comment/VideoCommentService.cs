@@ -7,7 +7,7 @@ namespace Hohoema.Models.Player.Video.Comment;
 
 public class VideoCommentService : ICommentSession<IVideoComment>
 {
-    CommentClient CommentClient;
+    private readonly CommentClient CommentClient;
 
     public string ContentId => CommentClient.RawVideoId;
     public string UserId { get; }

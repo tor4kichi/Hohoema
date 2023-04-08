@@ -1,24 +1,15 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Hohoema.Services.Niconico;
+﻿namespace Hohoema.ViewModels.Niconico.Video.Commands;
 
-namespace Hohoema.ViewModels.Niconico.Video.Commands
+public sealed class SelectionExitCommand : CommandBase
 {
-    public sealed class SelectionExitCommand : CommandBase
+    protected override bool CanExecute(object parameter)
     {
-        protected override bool CanExecute(object parameter)
-        {
-            return true;
-        }
+        return true;
+    }
 
-        protected override void Execute(object parameter)
-        {
-            var selectionContext = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoItemsSelectionContext>();
-            selectionContext.EndSelectioin();
-        }
+    protected override void Execute(object parameter)
+    {
+        var selectionContext = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoItemsSelectionContext>();
+        selectionContext.EndSelectioin();
     }
 }

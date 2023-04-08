@@ -1,98 +1,93 @@
-﻿using LiteDB;
-using Hohoema.Infra;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Hohoema.Infra;
+using LiteDB;
 using NiconicoToolkit.Video;
+using System;
 
-namespace Hohoema.Models.Niconico.Video.WatchHistory.LoginUser
+namespace Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
+
+public class VideoPlayedHistoryRepository : LiteDBServiceBase<VideoPlayHistoryEntry>
 {
-    public class VideoPlayedHistoryRepository : LiteDBServiceBase<VideoPlayHistoryEntry>
+    public VideoPlayedHistoryRepository(LiteDatabase liteDatabase) : base(liteDatabase)
     {
-        public VideoPlayedHistoryRepository(LiteDatabase liteDatabase) : base(liteDatabase)
-        {
-        }
-
-        public VideoPlayHistoryEntry VideoPlayed(VideoId videoId, TimeSpan playedPosition)
-        {
-            var history = _collection.FindById(videoId.ToString());
-            if (history != null)
-            {
-                history.PlayCount++;
-            }
-            else
-            {
-                history = new VideoPlayHistoryEntry
-                {
-                    VideoId = videoId,
-                    PlayCount = 1,
-                    LastPlayed = DateTime.Now,
-                    LastPlayedPosition = playedPosition
-                };
-            }
-
-            _collection.Upsert(history);
-
-            return history;
-        }
-
-        public VideoPlayHistoryEntry VideoPlayedIfNotWatched(VideoId videoId, TimeSpan playedPosition)
-        {
-            var history = _collection.FindById(videoId.ToString());
-            if (history != null)
-            {
-                return history;
-            }
-            else
-            {
-                history = new VideoPlayHistoryEntry
-                {
-                    VideoId = videoId,
-                    PlayCount = 1,
-                    LastPlayed = DateTime.Now,
-                    LastPlayedPosition = playedPosition
-                };
-            }
-
-            _collection.Upsert(history);
-
-            return history;
-        }
-
-        public VideoPlayHistoryEntry Get(VideoId videoId)
-        {
-            return _collection.FindById(videoId.ToString());
-        }
-
-        public bool IsVideoPlayed(VideoId videoId)
-        {
-            return _collection.FindById(videoId.ToString())?.PlayCount > 0;
-        }
-
-        public bool IsVideoPlayed(VideoId videoId, out VideoPlayHistoryEntry history)
-        {
-            var entry = _collection.FindById(videoId.ToString());
-            history = entry;
-            return entry?.PlayCount > 0;
-        }
-
-        public int ClearAllHistories()
-        {
-            return _collection.DeleteAll();
-        }
     }
 
-    public class VideoPlayHistoryEntry
+    public VideoPlayHistoryEntry VideoPlayed(VideoId videoId, TimeSpan playedPosition)
     {
-        [BsonId]
-        public string VideoId { get; set; }
+        VideoPlayHistoryEntry history = _collection.FindById(videoId.ToString());
+        if (history != null)
+        {
+            history.PlayCount++;
+        }
+        else
+        {
+            history = new VideoPlayHistoryEntry
+            {
+                VideoId = videoId,
+                PlayCount = 1,
+                LastPlayed = DateTime.Now,
+                LastPlayedPosition = playedPosition
+            };
+        }
 
-        public TimeSpan LastPlayedPosition { get; set; }
+        _ = _collection.Upsert(history);
 
-        public uint PlayCount { get; set; } = 0;
-
-        public DateTime LastPlayed { get; set; }
+        return history;
     }
+
+    public VideoPlayHistoryEntry VideoPlayedIfNotWatched(VideoId videoId, TimeSpan playedPosition)
+    {
+        VideoPlayHistoryEntry history = _collection.FindById(videoId.ToString());
+        if (history != null)
+        {
+            return history;
+        }
+        else
+        {
+            history = new VideoPlayHistoryEntry
+            {
+                VideoId = videoId,
+                PlayCount = 1,
+                LastPlayed = DateTime.Now,
+                LastPlayedPosition = playedPosition
+            };
+        }
+
+        _ = _collection.Upsert(history);
+
+        return history;
+    }
+
+    public VideoPlayHistoryEntry Get(VideoId videoId)
+    {
+        return _collection.FindById(videoId.ToString());
+    }
+
+    public bool IsVideoPlayed(VideoId videoId)
+    {
+        return _collection.FindById(videoId.ToString())?.PlayCount > 0;
+    }
+
+    public bool IsVideoPlayed(VideoId videoId, out VideoPlayHistoryEntry history)
+    {
+        VideoPlayHistoryEntry entry = _collection.FindById(videoId.ToString());
+        history = entry;
+        return entry?.PlayCount > 0;
+    }
+
+    public int ClearAllHistories()
+    {
+        return _collection.DeleteAll();
+    }
+}
+
+public class VideoPlayHistoryEntry
+{
+    [BsonId]
+    public string VideoId { get; set; }
+
+    public TimeSpan LastPlayedPosition { get; set; }
+
+    public uint PlayCount { get; set; } = 0;
+
+    public DateTime LastPlayed { get; set; }
 }

@@ -1,57 +1,47 @@
-﻿using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using Hohoema.Models;
-using Hohoema.Models.Niconico.Video;
+﻿using Hohoema.Models.Niconico.Video;
 using Hohoema.Services;
-using Hohoema.Services.Playlist;
 using Hohoema.Services.Niconico;
-using Hohoema.Contracts.Services;
+using System.Collections.Generic;
 
-namespace Hohoema.ViewModels.Niconico.Video.Commands
+namespace Hohoema.ViewModels.Niconico.Video.Commands;
+
+public sealed class MylistCreateCommand : CommandBase
 {
-    public sealed class MylistCreateCommand : CommandBase
+    public MylistCreateCommand(
+        LoginUserOwnedMylistManager userMylistManager,
+        DialogService dialogService
+        )
     {
-        public MylistCreateCommand(
-            LoginUserOwnedMylistManager userMylistManager,
-            DialogService dialogService
-            )
-        {
-            UserMylistManager = userMylistManager;
-            DialogService = dialogService;
-        }
+        UserMylistManager = userMylistManager;
+        DialogService = dialogService;
+    }
 
-        public LoginUserOwnedMylistManager UserMylistManager { get; }
-        public DialogService DialogService { get; }
+    public LoginUserOwnedMylistManager UserMylistManager { get; }
+    public DialogService DialogService { get; }
 
-        protected override bool CanExecute(object parameter)
-        {
-            return true;
-        }
+    protected override bool CanExecute(object parameter)
+    {
+        return true;
+    }
 
-        protected override async void Execute(object parameter)
+    protected override async void Execute(object parameter)
+    {
+        var data = new MylistGroupEditData() { };
+        var result = await DialogService.ShowCreateMylistGroupDialogAsync(data);
+        if (result)
         {
-            var data = new MylistGroupEditData() { };
-            var result = await DialogService.ShowCreateMylistGroupDialogAsync(data);
-            if (result)
+            var mylist = await UserMylistManager.AddMylist(data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder);
+            if (mylist == null) { return; }
+
+            if (parameter is IVideoContent content)
             {
-                var mylist = await UserMylistManager.AddMylist(data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder);
-                if (mylist == null) { return; }
-
-                if (parameter is IVideoContent content)
-                {
-                    await mylist.AddItem(content);
-                }
-                else if (parameter is IEnumerable<IVideoContent> items)
-                {
-                    await mylist.AddItem(items);
-                }
+                await mylist.AddItem(content);
             }
-
+            else if (parameter is IEnumerable<IVideoContent> items)
+            {
+                await mylist.AddItem(items);
+            }
         }
+
     }
 }

@@ -1,28 +1,25 @@
 ﻿using Reactive.Bindings;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace Hohoema.Dialogs
-{
-	public sealed class TextInputDialogContext : IDisposable
+namespace Hohoema.Dialogs;
+
+public sealed class TextInputDialogContext : IDisposable
 	{
-        private SynchronizationContextScheduler _CurrentWindowContextScheduler;
-        public SynchronizationContextScheduler CurrentWindowContextScheduler
+    private SynchronizationContextScheduler _CurrentWindowContextScheduler;
+    public SynchronizationContextScheduler CurrentWindowContextScheduler
+    {
+        get
         {
-            get
-            {
-                return _CurrentWindowContextScheduler
-                    ?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
-            }
+            return _CurrentWindowContextScheduler
+                ?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
         }
+    }
 
-        public TextInputDialogContext(string title, string placeholder, string defaultText, Func<string, bool> validater)
+    public TextInputDialogContext(string title, string placeholder, string defaultText, Func<string, bool> validater)
 		{
 			Title = title;
 			PlaceholderText = placeholder;
@@ -42,10 +39,9 @@ namespace Hohoema.Dialogs
 			return Text.Value;
 		}
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
 			Text.Dispose();
 			IsValid.Dispose();
 		}
-    }
 }

@@ -1,72 +1,67 @@
-﻿using Hohoema.Models.Niconico.Video;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Hohoema.Models.Niconico.Video;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Hohoema.ViewModels.Niconico.Video
+namespace Hohoema.ViewModels.Niconico.Video;
+
+public sealed class RequestSelectionStartEventArgs
 {
-    public sealed class RequestSelectionStartEventArgs
+    public IVideoContent FirstSelectedItem { get; internal set; }
+}
+
+
+public sealed class RequestSelectAllEventArgs
+{
+    
+}
+
+
+public sealed class VideoItemsSelectionContext : ObservableObject
+{
+    private bool _isSelectionEnabled;
+    public bool IsSelectionEnabled
     {
-        public IVideoContent FirstSelectedItem { get; internal set; }
+        get { return _isSelectionEnabled; }
+        private set { SetProperty(ref _isSelectionEnabled, value); }
+    }
+
+    public ObservableCollection<IVideoContent> SelectionItems { get; }
+
+    public event EventHandler<RequestSelectionStartEventArgs> SelectionStarted;
+    public event EventHandler<RequestSelectAllEventArgs> RequestSelectAll;
+
+    public VideoItemsSelectionContext()
+    {
+        SelectionItems = new ObservableCollection<IVideoContent>();
     }
 
 
-    public sealed class RequestSelectAllEventArgs
+    public void StartSelection(IVideoContent firstSelectedItem = null)
     {
-        
-    }
-
-
-    public sealed class VideoItemsSelectionContext : ObservableObject
-    {
-        private bool _isSelectionEnabled;
-        public bool IsSelectionEnabled
+        if (!IsSelectionEnabled)
         {
-            get { return _isSelectionEnabled; }
-            private set { SetProperty(ref _isSelectionEnabled, value); }
-        }
+            IsSelectionEnabled = true;
 
-        public ObservableCollection<IVideoContent> SelectionItems { get; }
-
-        public event EventHandler<RequestSelectionStartEventArgs> SelectionStarted;
-        public event EventHandler<RequestSelectAllEventArgs> RequestSelectAll;
-
-        public VideoItemsSelectionContext()
-        {
-            SelectionItems = new ObservableCollection<IVideoContent>();
-        }
-
-
-        public void StartSelection(IVideoContent firstSelectedItem = null)
-        {
-            if (!IsSelectionEnabled)
+            if (firstSelectedItem != null)
             {
-                IsSelectionEnabled = true;
-
-                if (firstSelectedItem != null)
+                SelectionItems.Add(firstSelectedItem);
+                SelectionStarted?.Invoke(this, new RequestSelectionStartEventArgs()
                 {
-                    SelectionItems.Add(firstSelectedItem);
-                    SelectionStarted?.Invoke(this, new RequestSelectionStartEventArgs()
-                    {
-                        FirstSelectedItem = firstSelectedItem
-                    });
-                }
+                    FirstSelectedItem = firstSelectedItem
+                });
             }
         }
+    }
 
-        public void EndSelectioin()
-        {
-            IsSelectionEnabled = false;
-            SelectionItems.Clear();
-        }
+    public void EndSelectioin()
+    {
+        IsSelectionEnabled = false;
+        SelectionItems.Clear();
+    }
 
-        public void ToggleSelectAll()
-        {
-            RequestSelectAll?.Invoke(this, new RequestSelectAllEventArgs());
-        }
+    public void ToggleSelectAll()
+    {
+        RequestSelectAll?.Invoke(this, new RequestSelectAllEventArgs());
     }
 }

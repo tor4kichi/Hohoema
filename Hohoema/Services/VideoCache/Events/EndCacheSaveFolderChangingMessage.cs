@@ -1,11 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.Messaging.Messages;
 
-namespace Hohoema.Services.VideoCache.Events
+namespace Hohoema.Services.VideoCache.Events;
+
+public sealed class EndCacheSaveFolderChangingMessage : ValueChangedMessage<long>
 {
-    public sealed class EndCacheSaveFolderChangingMessage : ValueChangedMessage<long>
+    public EndCacheSaveFolderChangingMessage() : base(0)
     {
-        public EndCacheSaveFolderChangingMessage() : base(0)
-        {
-        }
     }
 }

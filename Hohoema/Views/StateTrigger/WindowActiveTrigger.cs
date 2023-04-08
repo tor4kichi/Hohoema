@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml;
 
-namespace Hohoema.Views.StateTrigger
-{
-	public sealed class WindowActiveTrigger : InvertibleStateTrigger, IDisposable
+namespace Hohoema.Views.StateTrigger;
+
+public sealed class WindowActiveTrigger : InvertibleStateTrigger, IDisposable
 	{
 		public WindowActiveTrigger()
 		{
@@ -15,12 +11,12 @@ namespace Hohoema.Views.StateTrigger
 			SetWindowActive(Window.Current.CoreWindow.Visible);
 		}
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
 			Window.Current.Activated -= Current_Activated;
 		}
 
-        private void Current_Activated(object sender, Windows.UI.Core.WindowActivatedEventArgs e)
+    private void Current_Activated(object sender, Windows.UI.Core.WindowActivatedEventArgs e)
 		{
 			var isWindowActive = e.WindowActivationState != Windows.UI.Core.CoreWindowActivationState.Deactivated;
 			SetWindowActive(isWindowActive);
@@ -28,7 +24,6 @@ namespace Hohoema.Views.StateTrigger
 
 		private void SetWindowActive(bool isWindowActive)
 		{
-            SetActiveInvertible(isWindowActive);
+        SetActiveInvertible(isWindowActive);
 		}
 	}
-}

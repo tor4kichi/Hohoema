@@ -1,41 +1,33 @@
-﻿using Hohoema.Models.LocalMylist;
-using Hohoema.Services.LocalMylist;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Hohoema.Services.LocalMylist;
 
-namespace Hohoema.ViewModels.Hohoema.LocalMylist
+namespace Hohoema.ViewModels.Hohoema.LocalMylist;
+
+public sealed class LocalMylistCreateCommand : CommandBase
 {
-    public sealed class LocalMylistCreateCommand : CommandBase
+    private readonly LocalMylistManager _localMylistManager;
+
+    public LocalMylistCreateCommand(LocalMylistManager localMylistManager)
     {
-        private readonly LocalMylistManager _localMylistManager;
+        _localMylistManager = localMylistManager;
+    }
 
-        public LocalMylistCreateCommand(LocalMylistManager localMylistManager)
+    protected override bool CanExecute(object parameter)
+    {
+        if (parameter is string p)
         {
-            _localMylistManager = localMylistManager;
+            return !string.IsNullOrWhiteSpace(p);
         }
-
-        protected override bool CanExecute(object parameter)
+        else
         {
-            if (parameter is string p)
-            {
-                return !string.IsNullOrWhiteSpace(p);
-            }
-            else
-            {
-                return false;
-            }
+            return false;
         }
+    }
 
-        protected override void Execute(object parameter)
+    protected override void Execute(object parameter)
+    {
+        if (parameter is string label)
         {
-            if (parameter is string label)
-            {
-                _localMylistManager.CreatePlaylist(label);
-            }
+            _localMylistManager.CreatePlaylist(label);
         }
     }
 }

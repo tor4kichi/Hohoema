@@ -1,39 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.Devices.Input;
+﻿using Windows.Devices.Input;
 
-namespace Hohoema.Helpers
+namespace Hohoema.Helpers;
+
+public sealed class InputCapabilityHelper
 {
-    public sealed class InputCapabilityHelper
+    public static bool IsMouseCapable
     {
-        public static bool IsMouseCapable
+        get
         {
-            get
-            {
-                MouseCapabilities mouseCapabilities = new Windows.Devices.Input.MouseCapabilities();
-                return mouseCapabilities.NumberOfButtons > 0;
-            }
+            MouseCapabilities mouseCapabilities = new();
+            return mouseCapabilities.NumberOfButtons > 0;
         }
+    }
 
-        public static bool IsTouchCapable
+    public static bool IsTouchCapable
+    {
+        get
         {
-            get
-            {
-                TouchCapabilities touchCapabilities = new Windows.Devices.Input.TouchCapabilities();
-                return touchCapabilities.TouchPresent != 0;
-            }
+            TouchCapabilities touchCapabilities = new();
+            return touchCapabilities.TouchPresent != 0;
         }
+    }
 
-        public static bool IsKeyboardCapable
+    public static bool IsKeyboardCapable
+    {
+        get
         {
-            get
-            {
-                KeyboardCapabilities keyboardCapabilities = new Windows.Devices.Input.KeyboardCapabilities();
-                return keyboardCapabilities.KeyboardPresent != 0;
-            }
+            KeyboardCapabilities keyboardCapabilities = new();
+            return keyboardCapabilities.KeyboardPresent != 0;
         }
     }
 }

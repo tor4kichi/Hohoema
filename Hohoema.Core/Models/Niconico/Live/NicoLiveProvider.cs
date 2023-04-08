@@ -1,58 +1,53 @@
 ﻿using Hohoema.Infra;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NiconicoToolkit.Live.Cas;
+using System.Threading.Tasks;
 
-namespace Hohoema.Models.Niconico.Live
+namespace Hohoema.Models.Niconico.Live;
+
+public sealed class NicoLiveProvider : ProviderBase
 {
-    public sealed class NicoLiveProvider : ProviderBase
+    private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
+
+    public NicoLiveProvider(NiconicoSession niconicoSession,
+        NicoLiveCacheRepository nicoLiveCacheRepository
+        )
+        : base(niconicoSession)
     {
-        private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
+        _nicoLiveCacheRepository = nicoLiveCacheRepository;
+    }
 
-        public NicoLiveProvider(NiconicoSession niconicoSession,
-            NicoLiveCacheRepository nicoLiveCacheRepository
-            )
-            : base(niconicoSession)
+    public async ValueTask<string> ResolveLiveContentNameAsync(string liveId)
+    {
+        NicoLive live = _nicoLiveCacheRepository.Get(liveId);
+        if (live is not null)
         {
-            _nicoLiveCacheRepository = nicoLiveCacheRepository;
+            return live.Title;
         }
 
-        public async ValueTask<string> ResolveLiveContentNameAsync(string liveId)
+        LiveProgramResponse info = await GetLiveInfoAsync(liveId);
+        return info?.Data?.Title;
+    }
+
+
+    public async Task<LiveProgramResponse> GetLiveInfoAsync(string liveId)
+    {
+        LiveProgramResponse res = await _niconicoSession.ToolkitContext.Live.CasApi.GetLiveProgramAsync(liveId);
+
+        if (res.IsSuccess)
         {
-            var live = _nicoLiveCacheRepository.Get(liveId);
-            if (live is not null)
+            if (!_nicoLiveCacheRepository.Exists(x => x.LiveId == liveId))
             {
-                return live.Title;
-            }
-
-            var info = await GetLiveInfoAsync(liveId);
-            return info?.Data?.Title;
-        }
-
-        
-        public async Task<LiveProgramResponse> GetLiveInfoAsync(string liveId)
-        {
-            var res = await _niconicoSession.ToolkitContext.Live.CasApi.GetLiveProgramAsync(liveId);
-
-            if (res.IsSuccess)
-            {
-                if (!_nicoLiveCacheRepository.Exists(x => x.LiveId == liveId))
+                _ = _nicoLiveCacheRepository.CreateItem(new NicoLive()
                 {
-                    _nicoLiveCacheRepository.CreateItem(new NicoLive()
-                    {
-                        LiveId = liveId,
-                        Title = res.Data.Title,
-                        ProviderType = res.Data.ProviderType,
-                        BroadcasterId = res.Data.ProviderId ?? res.Data.SocialGroupId,
-                        ThumbnailUrl = res.Data.ThumbnailUrl.OriginalString,
-                    });
-                }
+                    LiveId = liveId,
+                    Title = res.Data.Title,
+                    ProviderType = res.Data.ProviderType,
+                    BroadcasterId = res.Data.ProviderId ?? res.Data.SocialGroupId,
+                    ThumbnailUrl = res.Data.ThumbnailUrl.OriginalString,
+                });
             }
-
-            return res;
         }
+
+        return res;
     }
 }

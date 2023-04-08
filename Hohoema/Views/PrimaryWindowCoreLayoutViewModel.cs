@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Contracts.Services.Navigations;
 using Hohoema.Models.Application;
 using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Niconico;
@@ -10,7 +9,6 @@ using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
 using Hohoema.Services;
 using Hohoema.Services.LocalMylist;
-using Hohoema.Services.Navigations;
 using Hohoema.Services.Niconico;
 using Hohoema.Services.Niconico.Account;
 using Hohoema.Services.Player;

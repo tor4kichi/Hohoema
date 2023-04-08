@@ -1,17 +1,12 @@
-﻿using Hohoema.Models;
-using Hohoema.Models.Player;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Hohoema.Contracts.Services;
+using Hohoema.Models.Application;
+using Hohoema.Models.Player.Comment;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Hohoema.Models.Application;
-using Hohoema.Models.Player.Comment;
-using CommunityToolkit.Mvvm.ComponentModel;
-using Hohoema.Contracts.Services;
 
 namespace Hohoema.Services.Player.Videos;
 
@@ -28,8 +23,10 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
     private readonly ILocalizeService _localizeService;
     private readonly CommentFliteringRepository _commentFliteringRepository;
+    [Obsolete]
     private readonly AppFlagsRepository _appFlagsRepository;
 
+    [Obsolete]
     public CommentFilteringFacade(
         ILocalizeService localizeService,
         CommentFliteringRepository commentFliteringRepository,
@@ -51,7 +48,8 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
         Initialize();
     }
 
-    void Initialize()
+    [Obsolete]
+    private void Initialize()
     {
         if (!_appFlagsRepository.IsInitializedCommentFilteringCondition)
         {
@@ -71,6 +69,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
         });
     }
 
+    [Obsolete]
     public void AddCenterCommandFiltering()
     {
         AddFilteredCommentCommand("naka");
@@ -81,6 +80,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
     #region ICommentFilter
 
+    [Obsolete]
     public bool IsHiddenComment(IComment comment)
     {
         if (IsHiddenShareNGScore(comment.NGScore))
@@ -88,21 +88,10 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
             return true;
         }
 
-        if (IsEnableFilteringCommentOwnerId
+        return IsEnableFilteringCommentOwnerId
             && IsHiddenCommentOwnerUserId(comment.UserId)
-            )
-        {
-            return true;
-        }
-
-        if (IsEnableFilteringCommentText 
-            && _filteringCommentTextKeywords.IsMatchAny(comment.CommentText)
-            )
-        {
-            return true;
-        }
-
-        return false;
+|| IsEnableFilteringCommentText
+            && _filteringCommentTextKeywords.IsMatchAny(comment.CommentText);
     }
 
 
@@ -111,7 +100,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
         return TranformCommentText(commentText);
     }
 
-    HashSet<string> _ignoreCommands;
+    private readonly HashSet<string> _ignoreCommands;
 
     public bool IsIgnoreCommand(string command)
     {
@@ -120,13 +109,12 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
     #endregion
 
-    RelayCommand<string> _AddFilteredCommentCommandCommand;
-    public RelayCommand<string> AddFilteredCommentCommandCommand => _AddFilteredCommentCommandCommand
-        ?? (_AddFilteredCommentCommandCommand = new RelayCommand<string>((commandText) =>
-        {
-            AddFilteredCommentCommand(commandText);
-        }));
+    private RelayCommand<string> _AddFilteredCommentCommandCommand;
 
+    [Obsolete]
+    public RelayCommand<string> AddFilteredCommentCommandCommand => _AddFilteredCommentCommandCommand ??= new RelayCommand<string>(AddFilteredCommentCommand);
+
+    [Obsolete]
     public void AddFilteredCommentCommand(string commandText)
     {
         if (_ignoreCommands.Contains(commandText))
@@ -134,7 +122,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
             return;
         }
 
-        _ignoreCommands.Add(commandText);
+        _ = _ignoreCommands.Add(commandText);
         _commentFliteringRepository.AddFilteredCommand(commandText);
     }
 
@@ -156,34 +144,28 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
         return _commentTextTransformConditions.ToList();
     }
 
-
-    List<CommentFliteringRepository.CommentTextTransformCondition> _commentTextTransformConditions;
+    private readonly List<CommentFliteringRepository.CommentTextTransformCondition> _commentTextTransformConditions;
 
     public string TranformCommentText(string commentText)
     {
         return _commentTextTransformConditions.TransformCommentText(commentText);
     }
 
-    RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> _AddTextTransformConditionsCommand;
-    public RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> AddTextTransformConditionsCommand => _AddTextTransformConditionsCommand
-        ?? (_AddTextTransformConditionsCommand = new RelayCommand<CommentFliteringRepository.CommentTextTransformCondition>((condition) =>
+    private RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> _AddTextTransformConditionsCommand;
+    public RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> AddTextTransformConditionsCommand => _AddTextTransformConditionsCommand ??= new RelayCommand<CommentFliteringRepository.CommentTextTransformCondition>((condition) =>
         {
             AddTextTransformConditions(condition ?? new CommentFliteringRepository.CommentTextTransformCondition());
-        }));
+        });
 
     public void AddTextTransformConditions(CommentFliteringRepository.CommentTextTransformCondition condition)
     {
-        var added = _commentFliteringRepository.AddCommentTextTransformCondition(condition.RegexPattern, condition.ReplaceText, condition.Description);
+        CommentFliteringRepository.CommentTextTransformCondition added = _commentFliteringRepository.AddCommentTextTransformCondition(condition.RegexPattern, condition.ReplaceText, condition.Description);
         _commentTextTransformConditions.Add(added);
         TransformConditionAdded?.Invoke(this, new CommentTextTranformConditionChangedArgs() { TransformCondition = added });
     }
 
-    RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> _UpdateTextTransformConditionsCommand;
-    public RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> UpdateTextTransformConditionsCommand => _UpdateTextTransformConditionsCommand
-        ?? (_UpdateTextTransformConditionsCommand = new RelayCommand<CommentFliteringRepository.CommentTextTransformCondition>((condition) =>
-        {
-            UpdateTextTransformConditions(condition);
-        }));
+    private RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> _UpdateTextTransformConditionsCommand;
+    public RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> UpdateTextTransformConditionsCommand => _UpdateTextTransformConditionsCommand ??= new RelayCommand<CommentFliteringRepository.CommentTextTransformCondition>(UpdateTextTransformConditions);
 
     public void UpdateTextTransformConditions(CommentFliteringRepository.CommentTextTransformCondition condition)
     {
@@ -193,19 +175,14 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
         TransformConditionUpdated?.Invoke(this, new CommentTextTranformConditionChangedArgs() { TransformCondition = condition });
     }
 
-
-    RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> _RemoveTextTransformConditionsCommand;
-    public RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> RemoveTextTransformConditionsCommand => _RemoveTextTransformConditionsCommand
-        ?? (_RemoveTextTransformConditionsCommand = new RelayCommand<CommentFliteringRepository.CommentTextTransformCondition>((condition) =>
-        {
-            RemoveTextTransformConditions(condition);
-        }));
+    private RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> _RemoveTextTransformConditionsCommand;
+    public RelayCommand<CommentFliteringRepository.CommentTextTransformCondition> RemoveTextTransformConditionsCommand => _RemoveTextTransformConditionsCommand ??= new RelayCommand<CommentFliteringRepository.CommentTextTransformCondition>(RemoveTextTransformConditions);
 
     public void RemoveTextTransformConditions(CommentFliteringRepository.CommentTextTransformCondition condition)
     {
         if (_commentFliteringRepository.RemoveCommentTextTransformCondition(condition))
         {
-            _commentTextTransformConditions.Remove(condition);
+            _ = _commentTextTransformConditions.Remove(condition);
             TransformConditionRemoved?.Invoke(this, new CommentTextTranformConditionChangedArgs() { TransformCondition = condition });
         }
     }
@@ -215,16 +192,19 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
     #region Share NG Score 
 
+    [Obsolete]
     public bool IsHiddenShareNGScore(int score)
     {
         return _commentFliteringRepository.ShareNGScore >= score;
     }
 
     private int _shareNGScore;
+
+    [Obsolete]
     public int ShareNGScore
     {
-        get { return _shareNGScore; }
-        set 
+        get => _shareNGScore;
+        set
         {
             if (SetProperty(ref _shareNGScore, value))
             {
@@ -238,45 +218,44 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
     #region Filtered Comment Owner Id
 
-    HashSet<string> _filteredCommentOwnerIds = new HashSet<string>();
+    private readonly HashSet<string> _filteredCommentOwnerIds = new();
 
+    [Obsolete]
     public bool IsHiddenCommentOwnerUserId(string userId)
     {
-        if (!_commentFliteringRepository.IsFilteringCommentOwnerIdEnabled) { return false; }
-
-        return _filteredCommentOwnerIds.Contains(userId);
+        return _commentFliteringRepository.IsFilteringCommentOwnerIdEnabled && _filteredCommentOwnerIds.Contains(userId);
     }
 
     private bool _IsEnableFilteringCommentOwnerId;
+
+    [Obsolete]
     public bool IsEnableFilteringCommentOwnerId
     {
         get => _commentFliteringRepository.IsFilteringCommentOwnerIdEnabled;
         set
         {
             _commentFliteringRepository.IsFilteringCommentOwnerIdEnabled = value;
-            SetProperty(ref _IsEnableFilteringCommentOwnerId, value);
+            _ = SetProperty(ref _IsEnableFilteringCommentOwnerId, value);
         }
     }
 
 
-   public List<CommentFliteringRepository.FilteringCommentOwnerId> GetFilteringCommentOwnerIdList()
+    public List<CommentFliteringRepository.FilteringCommentOwnerId> GetFilteringCommentOwnerIdList()
     {
         return _commentFliteringRepository.GetAllFilteringCommenOwnerId();
     }
 
-    RelayCommand<IComment> _AddFilteringCommentOwnerIdCommand;
-    public RelayCommand<IComment> AddFilteringCommentOwnerIdCommand => _AddFilteringCommentOwnerIdCommand
-        ?? (_AddFilteringCommentOwnerIdCommand = new RelayCommand<IComment>((comment) => 
+    private RelayCommand<IComment> _AddFilteringCommentOwnerIdCommand;
+    public RelayCommand<IComment> AddFilteringCommentOwnerIdCommand => _AddFilteringCommentOwnerIdCommand ??= new RelayCommand<IComment>((comment) =>
         {
-            AddFilteringCommentOwnerId(comment.UserId, comment.CommentText);
-        }));
+            _ = AddFilteringCommentOwnerId(comment.UserId, comment.CommentText);
+        });
 
-    RelayCommand<IComment> _RemoveFilteringCommentOwnerIdCommand;
-    public RelayCommand<IComment> RemoveFilteringCommentOwnerIdCommand => _RemoveFilteringCommentOwnerIdCommand
-        ?? (_RemoveFilteringCommentOwnerIdCommand = new RelayCommand<IComment>((comment) =>
+    private RelayCommand<IComment> _RemoveFilteringCommentOwnerIdCommand;
+    public RelayCommand<IComment> RemoveFilteringCommentOwnerIdCommand => _RemoveFilteringCommentOwnerIdCommand ??= new RelayCommand<IComment>((comment) =>
         {
-            RemoveFilteringCommentOwnerId(comment.UserId);
-        }));
+            _ = RemoveFilteringCommentOwnerId(comment.UserId);
+        });
 
     public bool AddFilteringCommentOwnerId(string userId, string commentText)
     {
@@ -299,7 +278,7 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
         if (_filteredCommentOwnerIds.Remove(userId))
         {
-            var result = _commentFliteringRepository.RemoveFilteringCommenOwnerId(userId);
+            bool result = _commentFliteringRepository.RemoveFilteringCommenOwnerId(userId);
 
             FilteringCommentOwnerIdRemoved?.Invoke(this, new CommentOwnerIdFilteredEventArgs() { UserId = userId });
 
@@ -308,18 +287,17 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
         else { return false; }
     }
     private RelayCommand _ClearFilteringCommentUserIdCommand;
-    public RelayCommand ClearFilteringCommentUserIdCommand => _ClearFilteringCommentUserIdCommand
-        ?? (_ClearFilteringCommentUserIdCommand = new RelayCommand(() =>
+    public RelayCommand ClearFilteringCommentUserIdCommand => _ClearFilteringCommentUserIdCommand ??= new RelayCommand(() =>
         {
-            foreach (var id in _filteredCommentOwnerIds.ToArray())
+            foreach (string id in _filteredCommentOwnerIds.ToArray())
             {
-                _filteredCommentOwnerIds.Remove(id);
+                _ = _filteredCommentOwnerIds.Remove(id);
 
-                _commentFliteringRepository.RemoveFilteringCommenOwnerId(id);
+                _ = _commentFliteringRepository.RemoveFilteringCommenOwnerId(id);
 
                 FilteringCommentOwnerIdRemoved?.Invoke(this, new CommentOwnerIdFilteredEventArgs() { UserId = id });
             }
-        }));
+        });
 
     #endregion
 
@@ -339,66 +317,52 @@ public sealed class CommentFilteringFacade : ObservableObject, ICommentFilter
 
 
     private bool _IsEnableFilteringCommentText;
+
+    [Obsolete]
     public bool IsEnableFilteringCommentText
     {
         get => _commentFliteringRepository.IsFilteringCommentTextEnabled;
         set
         {
             _commentFliteringRepository.IsFilteringCommentTextEnabled = value;
-            SetProperty(ref _IsEnableFilteringCommentText, value);
+            _ = SetProperty(ref _IsEnableFilteringCommentText, value);
         }
     }
 
-
-    ObservableCollection<CommentFliteringRepository.FilteringCommentTextKeyword> _filteringCommentTextKeywords;
+    private readonly ObservableCollection<CommentFliteringRepository.FilteringCommentTextKeyword> _filteringCommentTextKeywords;
     public IEnumerable<CommentFliteringRepository.FilteringCommentTextKeyword> GetAllFilteringCommentTextCondition()
     {
         return _filteringCommentTextKeywords;
     }
 
-
-
-    RelayCommand<string> _AddFilteringCommentTextConditionCommand;
-    public RelayCommand<string> AddFilteringCommentTextConditionCommand => _AddFilteringCommentTextConditionCommand
-        ?? (_AddFilteringCommentTextConditionCommand = new RelayCommand<string>((keyword) =>
-        {
-            AddFilteringCommentTextKeyword(keyword);
-        }));
+    private RelayCommand<string> _AddFilteringCommentTextConditionCommand;
+    public RelayCommand<string> AddFilteringCommentTextConditionCommand => _AddFilteringCommentTextConditionCommand ??= new RelayCommand<string>(AddFilteringCommentTextKeyword);
 
     public void AddFilteringCommentTextKeyword(string keyword)
     {
-        var added =_commentFliteringRepository.AddFilteringCommentText(keyword);
+        CommentFliteringRepository.FilteringCommentTextKeyword added = _commentFliteringRepository.AddFilteringCommentText(keyword);
         _filteringCommentTextKeywords.Insert(0, added);
         FilterKeywordAdded?.Invoke(this, new FilteringCommentTextKeywordEventArgs() { FilterKeyword = added });
     }
 
-    RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword> _UpdateFilteringCommentTextConditionCommand;
-    public RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword> UpdateFilteringCommentTextConditionCommand => _UpdateFilteringCommentTextConditionCommand
-        ?? (_UpdateFilteringCommentTextConditionCommand = new RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword>((keyword) =>
-        {
-            UpdateFilteringCommentTextKeyword(keyword);
-        }));
+    private RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword> _UpdateFilteringCommentTextConditionCommand;
+    public RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword> UpdateFilteringCommentTextConditionCommand => _UpdateFilteringCommentTextConditionCommand ??= new RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword>(UpdateFilteringCommentTextKeyword);
 
     public void UpdateFilteringCommentTextKeyword(CommentFliteringRepository.FilteringCommentTextKeyword keyword)
     {
         _commentFliteringRepository.UpdateFilteringCommentText(keyword);
-        
+
         FilterKeywordUpdated?.Invoke(this, new FilteringCommentTextKeywordEventArgs() { FilterKeyword = keyword });
     }
 
-
-    RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword> _RemoveFilteringCommentTextConditionCommand;
-    public RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword> RemoveFilteringCommentTextConditionCommand => _RemoveFilteringCommentTextConditionCommand
-        ?? (_RemoveFilteringCommentTextConditionCommand = new RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword>((keyword) =>
-        {
-            RemoveFilteringCommentTextCondition(keyword);
-        }));
+    private RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword> _RemoveFilteringCommentTextConditionCommand;
+    public RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword> RemoveFilteringCommentTextConditionCommand => _RemoveFilteringCommentTextConditionCommand ??= new RelayCommand<CommentFliteringRepository.FilteringCommentTextKeyword>(RemoveFilteringCommentTextCondition);
 
     public void RemoveFilteringCommentTextCondition(CommentFliteringRepository.FilteringCommentTextKeyword keyword)
     {
         if (_commentFliteringRepository.RemoveFilteringCommentText(keyword))
         {
-            _filteringCommentTextKeywords.Remove(keyword);
+            _ = _filteringCommentTextKeywords.Remove(keyword);
             FilterKeywordRemoved?.Invoke(this, new FilteringCommentTextKeywordEventArgs() { FilterKeyword = keyword });
         }
     }

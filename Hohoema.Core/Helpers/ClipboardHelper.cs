@@ -1,77 +1,65 @@
 ﻿using Hohoema.Models.Niconico.Video;
 using NiconicoToolkit;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 
-namespace Hohoema.Helpers
+namespace Hohoema.Helpers;
+
+public static class ClipboardHelper
 {
-
-
-    static public class ClipboardHelper
+    public static void CopyToClipboard(string content)
     {
-        static public void CopyToClipboard(string content)
+        DataPackage datapackage = new();
+        datapackage.SetText(content);
+
+        // アプリのクリップボードチェックアクションをアプリ内部からのコピーでは作動させないようにする
+        SetIgnoreClipboardCheckingOnce(content);
+
+        Clipboard.SetContent(datapackage);
+    }
+
+    public static void CopyToClipboard(NicoVideo video)
+    {
+        CopyToClipboard(Helpers.ShareHelper.MakeShareTextWithTitle(video));
+    }
+
+
+    private static string prevContent = string.Empty;
+    public static void SetIgnoreClipboardCheckingOnce(string ignoredContent)
+    {
+        prevContent = ignoredContent;
+    }
+
+
+    public static async Task<NiconicoId?> CheckClipboard()
+    {
+        DataPackageView dataPackageView = Clipboard.GetContent();
+        if (dataPackageView.Contains(StandardDataFormats.WebLink))
         {
-            var datapackage = new DataPackage();
-            datapackage.SetText(content);
+            Uri uri = await dataPackageView.GetWebLinkAsync();
+            if (uri.OriginalString == prevContent) { return null; }
 
-            // アプリのクリップボードチェックアクションをアプリ内部からのコピーでは作動させないようにする
-            SetIgnoreClipboardCheckingOnce(content);
-
-            Clipboard.SetContent(datapackage);
+            prevContent = uri.OriginalString;
+            return NiconicoUrls.ExtractNicoContentId(uri);
         }
-
-        static public void CopyToClipboard(NicoVideo video)
+        else if (dataPackageView.Contains(StandardDataFormats.Text))
         {
-            CopyToClipboard(Helpers.ShareHelper.MakeShareTextWithTitle(video));
-        }
-
-
-        static private string prevContent = string.Empty;
-        static public void SetIgnoreClipboardCheckingOnce(string ignoredContent)
-        {
-            prevContent = ignoredContent;
-        }
-
-
-        static public async Task<NiconicoId?> CheckClipboard()
-        {
-            DataPackageView dataPackageView = Clipboard.GetContent();
-            if (dataPackageView.Contains(StandardDataFormats.WebLink))
+            string text = await dataPackageView.GetTextAsync();
+            if (prevContent == text) { return null; }
+            prevContent = text;
+            try
             {
-                var uri = await dataPackageView.GetWebLinkAsync();
-                if (uri.OriginalString == prevContent) { return null; }
-
-                prevContent = uri.OriginalString;
-                return NiconicoUrls.ExtractNicoContentId(uri);
+                return Uri.TryCreate(text, UriKind.Absolute, out Uri uri)
+                    ? NiconicoUrls.ExtractNicoContentId(uri)
+                    : NiconicoId.TryCreate(text, out NiconicoId id) ? id : null;
             }
-            else if (dataPackageView.Contains(StandardDataFormats.Text))
+            catch
             {
-                string text = await dataPackageView.GetTextAsync();
-                if (prevContent == text) { return null; }
-                prevContent = text;
-                try
-                {
-                    if (Uri.TryCreate(text, UriKind.Absolute, out var uri))
-                    {
-                        return NiconicoUrls.ExtractNicoContentId(uri);
-                    }
-                    else
-                    {
-                        return NiconicoId.TryCreate(text, out var id) ? id : null;
-                    }
-                }
-                catch
-                {
 
-                }
             }
-
-            return null;
         }
+
+        return null;
     }
 }

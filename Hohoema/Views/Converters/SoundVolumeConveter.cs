@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml.Data;
 
-namespace Hohoema.Views.Converters
-{
-	public class SoundVolumeConveter : IValueConverter
+namespace Hohoema.Views.Converters;
+
+public class SoundVolumeConveter : IValueConverter
 	{
 		public object Convert(object value, Type targetType, object parameter, string language)
 		{
@@ -40,9 +36,9 @@ namespace Hohoema.Views.Converters
 		public object ConvertBack(object value, Type targetType, object parameter, string language)
 		{
 			if (value is double)
-            {
-                return (double)(value) * 0.01;
-            }
+        {
+            return (double)(value) * 0.01;
+        }
 			else if (value is int val)
 			{
 				return val / 100;
@@ -62,10 +58,9 @@ namespace Hohoema.Views.Converters
 					throw new NotSupportedException();
 				}
 			}
-            else
-            {
-                return value;
-            }
+        else
+        {
+            return value;
+        }
 		}
 	}
-}

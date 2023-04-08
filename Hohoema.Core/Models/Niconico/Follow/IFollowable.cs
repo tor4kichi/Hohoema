@@ -1,6 +1,5 @@
-﻿namespace Hohoema.Models.Niconico.Follow
+﻿namespace Hohoema.Models.Niconico.Follow;
+
+public interface IFollowable
 {
-    public interface IFollowable
-    {
-    }
 }

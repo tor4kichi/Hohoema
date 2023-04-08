@@ -1,31 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 
-namespace Hohoema.Views.Converters
-{
-    public sealed class ColorToBrushConverter : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, string language)
-        {
-            if (value is Color color)
-            {
-                return new SolidColorBrush(color);
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
-        }
+namespace Hohoema.Views.Converters;
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+public sealed class ColorToBrushConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, string language)
+    {
+        if (value is Color color)
         {
-            throw new NotImplementedException();
+            return new SolidColorBrush(color);
         }
+        else
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
     }
 }

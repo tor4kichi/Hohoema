@@ -1,16 +1,10 @@
-﻿using Hohoema.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Hohoema.Models.Niconico.Video;
-using System.Text.Json;
+﻿using Hohoema.Models.Niconico.Video;
 using NiconicoToolkit.Video;
+using System.Text.Json;
 
-namespace Hohoema.Services.Navigations
-{
-	public class VideoPlayPayload
+namespace Hohoema.Services.Navigations;
+
+public class VideoPlayPayload
 	{
 		public VideoId VideoId { get; set; }
 		public NicoVideoQuality? Quality { get; set; }
@@ -26,4 +20,3 @@ namespace Hohoema.Services.Navigations
 		}
 
 	}
-}

@@ -1,16 +1,11 @@
 ﻿using Microsoft.Xaml.Interactivity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Input;
 using Windows.UI.Xaml;
 
-namespace Hohoema.Views.Behaviors
+namespace Hohoema.Views.Behaviors;
+
+public class MouseWheelTrigger : Behavior<FrameworkElement>
 {
-	public class MouseWheelTrigger : Behavior<FrameworkElement>
-    {
 		public ActionCollection UpActions 
 		{
 			get
@@ -53,15 +48,15 @@ namespace Hohoema.Views.Behaviors
 				typeof(MouseWheelTrigger),
 				new PropertyMetadata(null));
 
-        protected override void OnAttached()
-        {
-            this.Register();
-        }
+    protected override void OnAttached()
+    {
+        this.Register();
+    }
 
-        protected override void OnDetaching()
-        {
-            this.Unregister();
-        }
+    protected override void OnDetaching()
+    {
+        this.Unregister();
+    }
 
 
 		private void Register()
@@ -87,12 +82,12 @@ namespace Hohoema.Views.Behaviors
 			
 			if (pointer.Properties.MouseWheelDelta > 0)
 			{
-                Microsoft.Xaml.Interactivity.Interaction.ExecuteActions(this, this.UpActions, args);
+            Microsoft.Xaml.Interactivity.Interaction.ExecuteActions(this, this.UpActions, args);
 				args.Handled = true;
 			}
 			else if (pointer.Properties.MouseWheelDelta < 0)
 			{
-                Microsoft.Xaml.Interactivity.Interaction.ExecuteActions(this, this.DownActions, args);
+            Microsoft.Xaml.Interactivity.Interaction.ExecuteActions(this, this.DownActions, args);
 				args.Handled = true;
 			}
 
@@ -105,12 +100,12 @@ namespace Hohoema.Views.Behaviors
 			
 			if (pointer.Properties.MouseWheelDelta > 0)
 			{
-                Microsoft.Xaml.Interactivity.Interaction.ExecuteActions(this, this.UpActions, args);
+            Microsoft.Xaml.Interactivity.Interaction.ExecuteActions(this, this.UpActions, args);
 				args.Handled = true;
 			}
 			else if (pointer.Properties.MouseWheelDelta < 0)
 			{
-                Microsoft.Xaml.Interactivity.Interaction.ExecuteActions(this, this.DownActions, args);
+            Microsoft.Xaml.Interactivity.Interaction.ExecuteActions(this, this.DownActions, args);
 				args.Handled = true;
 			}
 		}
@@ -140,4 +135,3 @@ namespace Hohoema.Views.Behaviors
 			this.Unregister();
 		}
 	}
-}

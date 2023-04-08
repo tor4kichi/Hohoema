@@ -1,46 +1,44 @@
 ﻿using System;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Markup;
 
-namespace I18NPortable.Xaml.Extensions 
+namespace I18NPortable.Xaml.Extensions;
+
+[MarkupExtensionReturnType(ReturnType = typeof(string))]
+public class LocalizeExtension : MarkupExtension
 {
-    [MarkupExtensionReturnType(ReturnType = typeof(string))]
-    public class LocalizeExtension : MarkupExtension
+    public LocalizeExtension() { }
+
+    public LocalizeExtension(string key)
     {
-        public LocalizeExtension() { }
+        Key = key;
+    }
 
-        public LocalizeExtension(string key)
+
+
+    public object Key { get; set; }
+
+    public object[] Parameters { get; set; }
+
+    protected override object ProvideValue()
+    {
+        if (Key is Enum enumValue)
         {
-            Key = key;
+            return enumValue.Translate();
         }
-
-
-
-        public object Key { get; set; }
-
-        public object[] Parameters { get; set; }
-
-        protected override object ProvideValue()
+        else if (Key is string keyStr)
         {
-            if (Key is Enum enumValue)
+            if (Parameters is null)
             {
-                return enumValue.Translate();
-            }
-            else if (Key is string keyStr)
-            {
-                if (Parameters is null)
-                {
-                    return I18N.Current.Translate(keyStr);
-                }
-                else
-                {
-                    return I18N.Current.Translate(keyStr, Parameters);
-                }
+                return I18N.Current.Translate(keyStr);
             }
             else
             {
-                 throw new NotSupportedException("not supported localize Type: " + Key?.GetType().Name);
+                return I18N.Current.Translate(keyStr, Parameters);
             }
+        }
+        else
+        {
+             throw new NotSupportedException("not supported localize Type: " + Key?.GetType().Name);
         }
     }
 }

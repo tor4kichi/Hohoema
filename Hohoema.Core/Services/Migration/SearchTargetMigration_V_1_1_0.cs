@@ -1,19 +1,16 @@
 ﻿using Hohoema.Contracts.Migrations;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico.Search;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Hohoema.Services.Migrations;
 
 public sealed class SearchTargetMigration_V_1_1_0 : IMigrateSync
 {
     private readonly SearchHistoryRepository _searchHistoryRepository;
+    [System.Obsolete]
     private readonly AppFlagsRepository _appFlagsRepository;
 
+    [System.Obsolete]
     public SearchTargetMigration_V_1_1_0(
         SearchHistoryRepository searchHistoryRepository,
         AppFlagsRepository appFlagsRepository
@@ -22,6 +19,8 @@ public sealed class SearchTargetMigration_V_1_1_0 : IMigrateSync
         _searchHistoryRepository = searchHistoryRepository;
         _appFlagsRepository = appFlagsRepository;
     }
+
+    [System.Obsolete]
     public void Migrate()
     {
         if (_appFlagsRepository.IsSearchTargetOmmitMylistAndCommunityMigrated_V_1_1_0) { return; }

@@ -1,32 +1,23 @@
-﻿using Hohoema.Models;
+﻿using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.Models.Application;
+using Hohoema.ViewModels.Pages.Hohoema;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Globalization.NumberFormatting;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using Hohoema.ViewModels.Pages.Hohoema;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
-namespace Hohoema.Views.Pages.Hohoema
-{
-	/// <summary>
-	/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
-	/// </summary>
-	public sealed partial class SettingsPage : Page
+namespace Hohoema.Views.Pages.Hohoema;
+
+/// <summary>
+/// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
+/// </summary>
+public sealed partial class SettingsPage : Page
 	{
 		public SettingsPage()
 		{
@@ -80,27 +71,27 @@ namespace Hohoema.Views.Pages.Hohoema
 
 
 	public sealed class VideoCacheMaxSizeDoubleGigaByte2NullableLongByteConverter : IValueConverter
-    {
+{
 		const double GigaByte = 1000_000_000.0;
 
 
 		public object Convert(object value, Type targetType, object parameter, string language)
-        {
+    {
 			long a = 0;
-            if (value is null or long)
-            {
+        if (value is null or long)
+        {
 				var longValue = ((long?)value);
 				var val = longValue is not null ? ((double)longValue) / GigaByte : double.NaN;
 				return val;
 			}
 
 			throw new NotSupportedException();
-        }
+    }
 
-        public object ConvertBack(object value, Type targetType, object parameter, string language)
+    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        if (value is double)
         {
-            if (value is double)
-            {
 				var doubleValue = (double)value;
 
 				var val = !double.IsNaN(doubleValue) ? (long)Math.Max(doubleValue * GigaByte, 0) : 0;
@@ -108,6 +99,5 @@ namespace Hohoema.Views.Pages.Hohoema
 			}
 
 			throw new NotSupportedException();
-        }
     }
 }

@@ -1,53 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Windows.UI.Xaml;
+﻿using Windows.UI.Xaml;
 
-namespace Hohoema.Views.Extensions
+namespace Hohoema.Views.Extensions;
+
+public sealed partial class FlyoutBase : DependencyObject
 {
-    public sealed partial class FlyoutBase : DependencyObject
+    public static readonly DependencyProperty CustomContextProperty =
+       DependencyProperty.RegisterAttached(
+           "CustomContext",
+           typeof(object),
+           typeof(FlyoutBase),
+           new PropertyMetadata(false, CustomContextPropertyChanged)
+       );
+
+    public static void SetCustomContext(UIElement element, object value)
     {
-        public static readonly DependencyProperty CustomContextProperty =
-           DependencyProperty.RegisterAttached(
-               "CustomContext",
-               typeof(object),
-               typeof(FlyoutBase),
-               new PropertyMetadata(false, CustomContextPropertyChanged)
-           );
-
-        public static void SetCustomContext(UIElement element, object value)
-        {
-            element.SetValue(CustomContextProperty, value);
-        }
-        public static object GetCustomContext(UIElement element)
-        {
-            return (object)element.GetValue(CustomContextProperty);
-        }
+        element.SetValue(CustomContextProperty, value);
+    }
+    public static object GetCustomContext(UIElement element)
+    {
+        return (object)element.GetValue(CustomContextProperty);
+    }
 
 
-        private static void CustomContextPropertyChanged(DependencyObject s, DependencyPropertyChangedEventArgs e)
+    private static void CustomContextPropertyChanged(DependencyObject s, DependencyPropertyChangedEventArgs e)
+    {
+        if (s is Windows.UI.Xaml.Controls.Primitives.FlyoutBase flyout)
         {
-            if (s is Windows.UI.Xaml.Controls.Primitives.FlyoutBase flyout)
+            if (e.NewValue != null)
             {
-                if (e.NewValue != null)
-                {
-                    flyout.Opening += Flyout_Opening;
-                }
-                else
-                {
-                    flyout.Opening -= Flyout_Opening;
-                }
+                flyout.Opening += Flyout_Opening;
+            }
+            else
+            {
+                flyout.Opening -= Flyout_Opening;
             }
         }
+    }
 
-        private static void Flyout_Opening(object sender, object e)
+    private static void Flyout_Opening(object sender, object e)
+    {
+        if (sender is Windows.UI.Xaml.Controls.Primitives.FlyoutBase flyout)
         {
-            if (sender is Windows.UI.Xaml.Controls.Primitives.FlyoutBase flyout)
-            {
 
-            }
         }
     }
 }

@@ -1,33 +1,25 @@
-﻿using Hohoema.Models;
-using Hohoema.Models.Niconico;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Hohoema.Models.Niconico;
 
-namespace Hohoema.ViewModels.Niconico.Account
+namespace Hohoema.ViewModels.Niconico.Account;
+
+public sealed class LogoutFromNiconicoCommand : CommandBase
 {
-    public sealed class LogoutFromNiconicoCommand : CommandBase
+    public LogoutFromNiconicoCommand(
+        NiconicoSession niconicoSession
+        )
     {
-        public LogoutFromNiconicoCommand(
-            NiconicoSession niconicoSession
-            )
-        {
-            NiconicoSession = niconicoSession;
-        }
+        NiconicoSession = niconicoSession;
+    }
 
-        public NiconicoSession NiconicoSession { get; }
+    public NiconicoSession NiconicoSession { get; }
 
-        protected override bool CanExecute(object parameter)
-        {
-            return true;
-        }
+    protected override bool CanExecute(object parameter)
+    {
+        return true;
+    }
 
-        protected override async void Execute(object parameter)
-        {
-            await NiconicoSession.SignOut();
-        }
+    protected override async void Execute(object parameter)
+    {
+        await NiconicoSession.SignOut();
     }
 }

@@ -1,14 +1,13 @@
-﻿namespace Hohoema.Models.Playlist
+﻿namespace Hohoema.Models.Playlist;
+
+public enum PlaylistItemsSourceOrigin
 {
-    public enum PlaylistItemsSourceOrigin
-    {
-        Mylist,
-        Local,
-        ChannelVideos,
-        UserVideos,
-        Series,
-        CommunityVideos,
-        SearchWithKeyword,
-        SearchWithTag,
-    }
+    Mylist,
+    Local,
+    ChannelVideos,
+    UserVideos,
+    Series,
+    CommunityVideos,
+    SearchWithKeyword,
+    SearchWithTag,
 }

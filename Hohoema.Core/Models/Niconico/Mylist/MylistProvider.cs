@@ -1,15 +1,13 @@
-﻿using NiconicoToolkit.Mylist;
-using Hohoema.Models.Niconico.Video;
+﻿using Hohoema.Contracts.Services;
 using Hohoema.Infra;
+using Hohoema.Models.Niconico.Video;
+using NiconicoToolkit.Mylist;
+using NiconicoToolkit.User;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using NiconicoToolkit.Video;
-using NiconicoToolkit.User;
-using Hohoema.Contracts.Services;
 
 namespace Hohoema.Models.Niconico.Mylist;
 
@@ -29,7 +27,7 @@ public sealed class MylistProvider : ProviderBase
         _nicoVideoProvider = nicoVideoProvider;
     }
 
-   
+
 
 
     private async Task<IMylistItem> GetMylistGroupDetail(MylistId mylistId)
@@ -40,8 +38,8 @@ public sealed class MylistProvider : ProviderBase
         }
         else
         {
-            var res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, 0, 1);
-            
+            GetMylistItemsResponse res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, 0, 1);
+
             if (res.Data?.Mylist != null) { return res.Data.Mylist; }
 
             res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetMylistItemsAsync(mylistId, 0, 1);
@@ -54,9 +52,9 @@ public sealed class MylistProvider : ProviderBase
     {
         if (mylistId.IsWatchAfterMylist)
         {
-            var res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync(0, 1);
-            var detail = res.Data.Mylist;
-            var mylist = new MylistPlaylist(mylistId, this)
+            NiconicoToolkit.Mylist.LoginUser.WatchAfterItemsResponse res = await _niconicoSession.ToolkitContext.Mylist.LoginUser.GetWatchAfterItemsAsync(0, 1);
+            NiconicoToolkit.Mylist.LoginUser.WatchAfterMylist detail = res.Data.Mylist;
+            MylistPlaylist mylist = new(mylistId, this)
             {
                 Name = _localizeService.Translate("WatchAfterMylist"),
                 Count = (int)detail.TotalCount,
@@ -67,11 +65,11 @@ public sealed class MylistProvider : ProviderBase
         }
         else
         {
-            var detail = await GetMylistGroupDetail(mylistId);
+            IMylistItem detail = await GetMylistGroupDetail(mylistId);
 
             if (detail == null) { return null; }
 
-            var mylist = new MylistPlaylist(detail.Id.ToString(), this)
+            MylistPlaylist mylist = new(detail.Id.ToString(), this)
             {
                 Name = detail.Name,
                 Count = (int)detail.ItemsCount,
@@ -92,11 +90,11 @@ public sealed class MylistProvider : ProviderBase
 
     public async Task<List<MylistPlaylist>> GetMylistsByUser(UserId userId, int sampleItemCount = 0)
     {
-        var groups = await _niconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId, sampleItemCount);
+        GetUserMylistGroupsResponse groups = await _niconicoSession.ToolkitContext.Mylist.GetUserMylistGroupsAsync(userId, sampleItemCount);
 
         if (groups == null) { return null; }
 
-        var list = groups.Data.MylistGroups.Select((x, i) =>
+        List<MylistPlaylist> list = groups.Data.MylistGroups.Select((x, i) =>
         {
             return new MylistPlaylist(x.Id.ToString(), this)
             {
@@ -121,17 +119,17 @@ public sealed class MylistProvider : ProviderBase
 
     public async Task<MylistItemsGetResult> GetMylistVideoItems(MylistId mylistId, int page, int pageSize, MylistSortKey sortKey, MylistSortOrder sortOrder)
     {
-        var res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, page, pageSize, sortKey, sortOrder);
-        
+        GetMylistItemsResponse res = await _niconicoSession.ToolkitContext.Mylist.GetMylistItemsAsync(mylistId, page, pageSize, sortKey, sortOrder);
+
         if (res.Meta.IsSuccess is false) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }
 
-        var videos = res.Data.Mylist.Items;
-        var resultItems = new List<MylistItem>();
-        var nicoVideoList = new List<NicoVideo>();
+        MylistItem[] videos = res.Data.Mylist.Items;
+        List<MylistItem> resultItems = new();
+        List<NicoVideo> nicoVideoList = new();
 
-        foreach (var item in videos)
+        foreach (MylistItem item in videos)
         {
-            var nicoVideo = _nicoVideoProvider.UpdateCache(item.WatchId, item.Video, item.IsDeleted);
+            NicoVideo nicoVideo = _nicoVideoProvider.UpdateCache(item.WatchId, item.Video, item.IsDeleted);
 
             nicoVideoList.Add(nicoVideo);
             resultItems.Add(item);
@@ -141,7 +139,7 @@ public sealed class MylistProvider : ProviderBase
         {
             IsSuccess = true,
             MylistId = mylistId,
-            HeadPosition = (int)(pageSize * page),
+            HeadPosition = pageSize * page,
             Items = new ReadOnlyCollection<MylistItem>(resultItems),
             NicoVideoItems = new ReadOnlyCollection<NicoVideo>(nicoVideoList),
             TotalCount = (int)res.Data.Mylist.TotalItemCount,

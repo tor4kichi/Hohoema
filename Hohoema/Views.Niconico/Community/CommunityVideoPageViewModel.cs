@@ -1,40 +1,34 @@
-﻿using Hohoema.Models;
-using Hohoema.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-using System.Diagnostics;
-using CommunityToolkit.Mvvm.Input;
-using Hohoema.Contracts.Services.Navigations;
-using Reactive.Bindings.Extensions;
-using System.Reactive.Linq;
-using Hohoema.Services;
-using System.Runtime.CompilerServices;
-using Hohoema.Models.PageNavigation;
-using Hohoema.Contracts.Services.Navigations;
+﻿using CommunityToolkit.Mvvm.Input;
 using Hohoema.Models.Niconico.Community;
-using Hohoema.ViewModels.Community;
-using Hohoema.Models.Pins;
 using Hohoema.Models.Niconico.Follow.LoginUser;
+using Hohoema.Models.PageNavigation;
+using Hohoema.Models.Pins;
+using Hohoema.Models.Playlist;
+using Hohoema.Services;
+using Hohoema.ViewModels.Community;
 using Hohoema.ViewModels.Niconico.Follow;
+using Hohoema.ViewModels.Niconico.Video.Commands;
+using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Community;
-using Hohoema.ViewModels.Niconico.Video.Commands;
-using Hohoema.Models.Playlist;
 using Reactive.Bindings;
-using Microsoft.Extensions.Logging;
+using Reactive.Bindings.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using ZLogger;
 
-namespace Hohoema.ViewModels.Pages.Niconico.Community
-{
-	using CommunityFollowContext = FollowContext<ICommunity>;
+namespace Hohoema.ViewModels.Pages.Niconico.Community;
 
-    
+using CommunityFollowContext = FollowContext<ICommunity>;
 
-    public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>, IPinablePage, ITitleUpdatablePage
+
+
+public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>, IPinablePage, ITitleUpdatablePage
 	{
 		HohoemaPin IPinablePage.GetPin()
 		{
@@ -66,16 +60,16 @@ namespace Hohoema.ViewModels.Pages.Niconico.Community
 			ApplicationLayoutManager applicationLayoutManager,
 			CommunityProvider communityProvider,
 			CommunityFollowProvider communityFollowProvider,
-            PageManager pageManager,
+        PageManager pageManager,
 			VideoPlayWithQueueCommand videoPlayWithQueueCommand
 			)
 			: base(loggerFactory.CreateLogger<CommunityVideoPageViewModel>())
 		{
 			ApplicationLayoutManager = applicationLayoutManager;
 			CommunityProvider = communityProvider;
-            _communityFollowProvider = communityFollowProvider;
-            PageManager = pageManager;
-            VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
+        _communityFollowProvider = communityFollowProvider;
+        PageManager = pageManager;
+        VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
 
 			CurrentPlaylistToken = Observable.CombineLatest(
 				this.ObserveProperty(x => x.CommunityVideoPlaylist),
@@ -87,7 +81,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Community
 		}
 
 
-        public CommunityId? CommunityId { get; private set; }
+    public CommunityId? CommunityId { get; private set; }
 
 		private string _CommunityName;
 		public string CommunityName
@@ -97,12 +91,12 @@ namespace Hohoema.ViewModels.Pages.Niconico.Community
 		}
 
 
-        private bool _CanDownload;
-        public bool CanDownload
-        {
-            get { return _CanDownload; }
-            set { SetProperty(ref _CanDownload, value); }
-        }
+    private bool _CanDownload;
+    public bool CanDownload
+    {
+        get { return _CanDownload; }
+        set { SetProperty(ref _CanDownload, value); }
+    }
 
 
 		private CommunityVideoPlaylist _CommunityVideoPlaylist;
@@ -129,7 +123,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Community
 
 
 		public override async Task OnNavigatedToAsync(INavigationParameters parameters)
-        {
+    {
 			CommunityId? communityId = null;
 			if (parameters.TryGetValue("id", out string strCommunityId))
 			{
@@ -142,12 +136,12 @@ namespace Hohoema.ViewModels.Pages.Niconico.Community
 
 
 			if (communityId == null)
-            {
+        {
 				CommunityId = null;
 				CommunityName = null;
 				FollowContext = CommunityFollowContext.Default;
 				return;
-            }
+        }
 
 			CommunityId = communityId;
 
@@ -184,7 +178,7 @@ namespace Hohoema.ViewModels.Pages.Niconico.Community
 			}
 
 			await base.OnNavigatedToAsync(parameters);
-        }
+    }
 
 
 
@@ -193,10 +187,10 @@ namespace Hohoema.ViewModels.Pages.Niconico.Community
 			return (CommunityVideoIncrementalSource.OneTimeLoadCount, new CommunityVideoIncrementalSource(CommunityId, 1, CommunityVideoPlaylist, SelectedSortOption, CommunityProvider, _logger));
 		}
 
-        private RelayCommand _OpenCommunityPageCommand;
-        private readonly CommunityFollowProvider _communityFollowProvider;
+    private RelayCommand _OpenCommunityPageCommand;
+    private readonly CommunityFollowProvider _communityFollowProvider;
 
-        public RelayCommand OpenCommunityPageCommand
+    public RelayCommand OpenCommunityPageCommand
 		{
 			get
 			{
@@ -210,14 +204,14 @@ namespace Hohoema.ViewModels.Pages.Niconico.Community
 
 		public ApplicationLayoutManager ApplicationLayoutManager { get; }
 		public CommunityProvider CommunityProvider { get; }
-        public PageManager PageManager { get; }
-        public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
-    }
+    public PageManager PageManager { get; }
+    public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
+}
 
 
 	public class CommunityVideoIncrementalSource : IIncrementalSource<CommunityVideoInfoViewModel>
 	{
-        public CommunityProvider CommunityProvider { get; }
+    public CommunityProvider CommunityProvider { get; }
 
 		public string CommunityId { get; private set; }
 		public int VideoCount { get; private set; }
@@ -231,23 +225,23 @@ namespace Hohoema.ViewModels.Pages.Niconico.Community
 			ILogger logger
 			)
 		{
-            CommunityProvider = communityProvider;
-            _logger = logger;
-            CommunityId = communityId;
+        CommunityProvider = communityProvider;
+        _logger = logger;
+        CommunityId = communityId;
 			VideoCount = videoCount;
-            _communityVideoPlaylist = communityVideoPlaylist;
-            _sortOption = sortOption;
-        }
+        _communityVideoPlaylist = communityVideoPlaylist;
+        _sortOption = sortOption;
+    }
 
 		public const int OneTimeLoadCount = 20;
-        private readonly CommunityVideoPlaylist _communityVideoPlaylist;
-        private readonly CommunityVideoPlaylistSortOption _sortOption;
-        private readonly ILogger _logger;
+    private readonly CommunityVideoPlaylist _communityVideoPlaylist;
+    private readonly CommunityVideoPlaylistSortOption _sortOption;
+    private readonly ILogger _logger;
 
-        async Task<IEnumerable<CommunityVideoInfoViewModel>> IIncrementalSource<CommunityVideoInfoViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
-        {
+    async Task<IEnumerable<CommunityVideoInfoViewModel>> IIncrementalSource<CommunityVideoInfoViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
+    {
 			try
-            {
+        {
 				var head = pageIndex * pageSize;
 				var (listRes, itemsRes) = await CommunityProvider.GetCommunityVideoAsync(CommunityId, head, pageSize, sortKey: null, sortOrder: null);
 				if (itemsRes == null || !itemsRes.IsSuccess || itemsRes.Data.Videos == null || itemsRes.Data.Videos.Length == 0)
@@ -257,17 +251,16 @@ namespace Hohoema.ViewModels.Pages.Niconico.Community
 
 				return itemsRes.Data.Videos
 					.Select((x, i) => new CommunityVideoInfoViewModel(x) { PlaylistItemToken = new PlaylistItemToken(_communityVideoPlaylist, _sortOption, new CommunityVideoContent(x))})
-                    .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
-                    ;
+                .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+                ;
 			}
-            catch (Exception e)
-            {
+        catch (Exception e)
+        {
 				_logger.ZLogErrorWithPayload(exception:e, CommunityId, "Community video loading error");
 				return Enumerable.Empty<CommunityVideoInfoViewModel>();
 			}
 		}
-    }
+}
 
 
 	
-}

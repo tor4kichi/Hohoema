@@ -1,12 +1,11 @@
-﻿using Hohoema.Models;
-using System.Runtime.Serialization;
-using Hohoema.Models.PageNavigation;
-using NiconicoToolkit.SearchWithPage.Live;
+﻿using Hohoema.Models.PageNavigation;
 using NiconicoToolkit.Live;
+using NiconicoToolkit.SearchWithPage.Live;
+using System.Runtime.Serialization;
 
-namespace Hohoema.Services.Navigations
-{
-    public class LiveSearchPagePayloadContent : SearchPagePayloadContentBase
+namespace Hohoema.Services.Navigations;
+
+public class LiveSearchPagePayloadContent : SearchPagePayloadContentBase
 	{
 		public override SearchTarget SearchTarget => SearchTarget.Niconama;
 
@@ -18,7 +17,7 @@ namespace Hohoema.Services.Navigations
 		public ProviderType[] Providers { get; set; } = new ProviderType[0];
 
 		[DataMember]
-        public LiveSearchPageSortOrder Sort { get; set; } = LiveSearchPageSortOrder.RecentDesc;
+    public LiveSearchPageSortOrder Sort { get; set; } = LiveSearchPageSortOrder.RecentDesc;
 
 		[DataMember]
 		public LiveStatus LiveStatus { get; set; } = LiveStatus.Onair;
@@ -27,4 +26,3 @@ namespace Hohoema.Services.Navigations
 		public bool IsHideMemberOnly { get; set; }
 
 	}
-}

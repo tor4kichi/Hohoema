@@ -1,81 +1,80 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Hohoema.Models;
-using Hohoema.Models.Player;
 using Reactive.Bindings.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.Media.Playback;
 
-namespace Hohoema.Models.Player
+namespace Hohoema.Models.Player;
+
+public class MediaPlayerSoundVolumeManager : ObservableObject
 {
-    public class MediaPlayerSoundVolumeManager : ObservableObject
+    [Obsolete]
+    public MediaPlayerSoundVolumeManager(
+        PlayerSettings playerSettings,
+        MediaPlayer mediaPlayer
+        )
     {
-        public MediaPlayerSoundVolumeManager(
-            PlayerSettings playerSettings,
-            MediaPlayer mediaPlayer
-            )
+        _playerSettings = playerSettings;
+        _mediaPlayer = mediaPlayer;
+
+        Volume = _playerSettings.SoundVolume;
+        IsLoudnessCorrectionEnabled = _playerSettings.IsLoudnessCorrectionEnabled;
+
+        _ = new[]
         {
-            _playerSettings = playerSettings;
-            _mediaPlayer = mediaPlayer;
-
-            Volume = _playerSettings.SoundVolume;
-            IsLoudnessCorrectionEnabled = _playerSettings.IsLoudnessCorrectionEnabled;
-
-            new[]
-            {
-                this.ObserveProperty(x => x.IsLoudnessCorrectionEnabled).ToUnit(),
-                this.ObserveProperty(x => x.Volume).ToUnit(),
-                this.ObserveProperty(x => x.LoudnessCorrectionValue).ToUnit()
-            }
-            .Merge()
-            .Subscribe(_ => 
-            {
-                _mediaPlayer.Volume = IsLoudnessCorrectionEnabled
-                ? Volume * LoudnessCorrectionValue
-                : Volume
-                ;
-
-                Debug.WriteLine($"LoudnessCorrection: {IsLoudnessCorrectionEnabled} , Volume: {Volume} , LoudnessCorrectionValue: {LoudnessCorrectionValue} , MediaPlayer.Volume: {_mediaPlayer.Volume}");
-            });
-
+            this.ObserveProperty(x => x.IsLoudnessCorrectionEnabled).ToUnit(),
+            this.ObserveProperty(x => x.Volume).ToUnit(),
+            this.ObserveProperty(x => x.LoudnessCorrectionValue).ToUnit()
         }
-        private readonly PlayerSettings _playerSettings;
-        private readonly MediaPlayer _mediaPlayer;
-        private double _Volume;
-        public double Volume
+        .Merge()
+        .Subscribe(_ =>
         {
-            get { return _Volume; }
-            set 
+            _mediaPlayer.Volume = IsLoudnessCorrectionEnabled
+            ? Volume * LoudnessCorrectionValue
+            : Volume
+            ;
+
+            Debug.WriteLine($"LoudnessCorrection: {IsLoudnessCorrectionEnabled} , Volume: {Volume} , LoudnessCorrectionValue: {LoudnessCorrectionValue} , MediaPlayer.Volume: {_mediaPlayer.Volume}");
+        });
+
+    }
+    private readonly PlayerSettings _playerSettings;
+    private readonly MediaPlayer _mediaPlayer;
+    private double _Volume;
+
+    [Obsolete]
+    public double Volume
+    {
+        get => _Volume;
+        set
+        {
+            if (SetProperty(ref _Volume, Math.Clamp(value, 0.0, 1.0)))
             {
-                if (SetProperty(ref _Volume, Math.Clamp(value, 0.0, 1.0)))
-                {
-                    _playerSettings.SoundVolume = _Volume;
-                }
+                _playerSettings.SoundVolume = _Volume;
             }
         }
+    }
 
-        private double _LoudnessCorrectionValue;
-        public double LoudnessCorrectionValue
-        {
-            get { return _LoudnessCorrectionValue; }
-            set { SetProperty(ref _LoudnessCorrectionValue, Math.Clamp(value, 0.1, 1.0)); }
-        }
+    private double _LoudnessCorrectionValue;
+    public double LoudnessCorrectionValue
+    {
+        get => _LoudnessCorrectionValue;
+        set => SetProperty(ref _LoudnessCorrectionValue, Math.Clamp(value, 0.1, 1.0));
+    }
 
-        private bool _isLoudnessCorrectionEnabled;
-        public bool IsLoudnessCorrectionEnabled
+    private bool _isLoudnessCorrectionEnabled;
+
+    [Obsolete]
+    public bool IsLoudnessCorrectionEnabled
+    {
+        get => _isLoudnessCorrectionEnabled;
+        set
         {
-            get { return _isLoudnessCorrectionEnabled; }
-            set
+            if (SetProperty(ref _isLoudnessCorrectionEnabled, value))
             {
-                if (SetProperty(ref _isLoudnessCorrectionEnabled, value))
-                {
-                    _playerSettings.IsLoudnessCorrectionEnabled = value;
-                }        
+                _playerSettings.IsLoudnessCorrectionEnabled = value;
             }
         }
     }

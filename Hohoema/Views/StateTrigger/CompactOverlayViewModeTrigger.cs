@@ -1,47 +1,42 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.Foundation.Metadata;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 
-namespace Hohoema.Views.StateTrigger
+namespace Hohoema.Views.StateTrigger;
+
+public sealed class CompactOverlayViewModeTrigger : InvertibleStateTrigger, IDisposable
 {
-    public sealed class CompactOverlayViewModeTrigger : InvertibleStateTrigger, IDisposable
+    public CompactOverlayViewModeTrigger()
     {
-        public CompactOverlayViewModeTrigger()
+        if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
         {
-            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
-            {
-                Update();                
-                Window.Current.SizeChanged += Current_SizeChanged;
-            }
-            else
-            {
-                SetActiveInvertible(false);
-            }
+            Update();                
+            Window.Current.SizeChanged += Current_SizeChanged;
         }
-
-        public void Dispose()
+        else
         {
-            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
-            {
-                Window.Current.SizeChanged -= Current_SizeChanged;
-            }
+            SetActiveInvertible(false);
         }
+    }
 
-        private void Current_SizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e)
+    public void Dispose()
+    {
+        if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
         {
-            Update();
+            Window.Current.SizeChanged -= Current_SizeChanged;
         }
+    }
 
-        private void Update()
-        {
-            var view = ApplicationView.GetForCurrentView();
+    private void Current_SizeChanged(object sender, Windows.UI.Core.WindowSizeChangedEventArgs e)
+    {
+        Update();
+    }
 
-            SetActiveInvertible(view.ViewMode == ApplicationViewMode.CompactOverlay);
-        }
+    private void Update()
+    {
+        var view = ApplicationView.GetForCurrentView();
+
+        SetActiveInvertible(view.ViewMode == ApplicationViewMode.CompactOverlay);
     }
 }

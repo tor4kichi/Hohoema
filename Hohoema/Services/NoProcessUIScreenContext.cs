@@ -1,16 +1,13 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 
-namespace Hohoema.Services
+namespace Hohoema.Services;
+
+public sealed class NoUIProcessScreenContext : ObservableObject, IDisposable
 {
-    public sealed class NoUIProcessScreenContext : ObservableObject, IDisposable
-    {
 		public NoUIProcessScreenContext()
 		{
 		}
@@ -98,4 +95,3 @@ namespace Hohoema.Services
 			}
 		}
 	}
-}

@@ -1,59 +1,51 @@
-﻿using Hohoema.Models.Playlist;
-using Hohoema.Services.Playlist;
-using CommunityToolkit.Mvvm.Messaging;
-using CommunityToolkit.Mvvm.Input;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Video.Series;
+using Hohoema.Models.Playlist;
 
-namespace Hohoema.ViewModels.Niconico.Video.Commands
+namespace Hohoema.ViewModels.Niconico.Video.Commands;
+
+public sealed class PlaylistPlayAllCommand : CommandBase
 {
-    public sealed class PlaylistPlayAllCommand : CommandBase
+    private readonly IMessenger _messenger;
+
+    public PlaylistPlayAllCommand(IMessenger messenger)
     {
-        private readonly IMessenger _messenger;
+        _messenger = messenger;
+    }
 
-        public PlaylistPlayAllCommand(IMessenger messenger)
+    protected override bool CanExecute(object parameter)
+    {
+        if (parameter is IUserManagedPlaylist userManagedPlaylist)
         {
-            _messenger = messenger;
+            return userManagedPlaylist.TotalCount > 0;
         }
 
-        protected override bool CanExecute(object parameter)
+        if (parameter is PlaylistToken playlistToken)
         {
-            if (parameter is IUserManagedPlaylist userManagedPlaylist)
-            {
-                return userManagedPlaylist.TotalCount > 0;
-            }
-
-            if (parameter is PlaylistToken playlistToken)
-            {
-                return true;
-            }
-
-            if (parameter is ISeries)
-            {
-                return true;
-            }
-
-            return parameter is IPlaylist;
+            return true;
         }
 
-        protected override void Execute(object parameter)
+        if (parameter is ISeries)
         {
-            if (parameter is IPlaylist playlist)
-            {
-                _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(playlist));
-            }
-            else if (parameter is PlaylistToken playlistToken)
-            {
-                _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(playlistToken));
-            }
-            else if (parameter is ISeries series)
-            {
-                _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(series.Id, PlaylistItemsSourceOrigin.Series, null));
-            }
+            return true;
+        }
+
+        return parameter is IPlaylist;
+    }
+
+    protected override void Execute(object parameter)
+    {
+        if (parameter is IPlaylist playlist)
+        {
+            _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(playlist));
+        }
+        else if (parameter is PlaylistToken playlistToken)
+        {
+            _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(playlistToken));
+        }
+        else if (parameter is ISeries series)
+        {
+            _messenger.Send(VideoPlayRequestMessage.PlayPlaylist(series.Id, PlaylistItemsSourceOrigin.Series, null));
         }
     }
 }
