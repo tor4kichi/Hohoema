@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models;
 using Hohoema.Models.Application;
-using Hohoema.Services.Niconico.Player.Comment;
+using Hohoema.Services.Player.Videos;
 using System;
 using System.Collections.Generic;
 using System.Linq;

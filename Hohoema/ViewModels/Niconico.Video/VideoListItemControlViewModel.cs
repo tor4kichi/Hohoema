@@ -7,7 +7,7 @@ using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.Player.Video.Cache;
 using Hohoema.Models.VideoCache;
 using Hohoema.Services.Playlist;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using Hohoema.Services.VideoCache.Events;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.Pages.VideoListPage.Commands;
@@ -24,7 +24,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using Hohoema.Services.Niconico.Player.Events;
+using Hohoema.Services.Player.Events;
 using Hohoema.Models.Playlist;
 using CommunityToolkit.Mvvm.ComponentModel;
 

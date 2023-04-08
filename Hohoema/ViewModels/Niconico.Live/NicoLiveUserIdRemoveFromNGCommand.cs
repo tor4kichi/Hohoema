@@ -1,4 +1,4 @@
-﻿using Hohoema.Services.Niconico.Player.Comment;
+﻿using Hohoema.Services.Player.Videos;
 using CommunityToolkit.Mvvm.Input;
 
 namespace Hohoema.ViewModels.Niconico.Live

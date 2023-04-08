@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Services.Playlist;
-using Hohoema.Services.Hohoema.LocalMylist;
+using Hohoema.Services.LocalMylist;
 using Hohoema.Models.LocalMylist;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands

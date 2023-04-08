@@ -15,7 +15,7 @@ using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Series;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;

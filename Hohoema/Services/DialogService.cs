@@ -12,7 +12,7 @@ using Windows.Web.Http;
 using Hohoema.Views.Dialogs;
 using Hohoema.Models.Application;
 using Hohoema.Services.Playlist;
-using Hohoema.Services.Hohoema.LocalMylist;
+using Hohoema.Services.LocalMylist;
 
 namespace Hohoema.Services
 {

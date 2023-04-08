@@ -7,7 +7,7 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Disposables;
 using Hohoema.Models.Niconico.Follow.LoginUser;
 using CommunityToolkit.Mvvm.Input;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using Hohoema.Services;
 using Microsoft.Extensions.Logging;
 using ZLogger;

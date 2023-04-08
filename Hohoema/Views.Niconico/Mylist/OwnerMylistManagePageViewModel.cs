@@ -8,7 +8,7 @@ using Hohoema.Models.Playlist;
 using Hohoema.Services;
 using Hohoema.Services.Playlist;
 using Hohoema.Services;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using I18NPortable;
 using Microsoft.Toolkit.Uwp.UI;
@@ -26,7 +26,7 @@ using Windows.UI.Popups;
 using Windows.System;
 using Microsoft.Toolkit.Uwp;
 using NiconicoToolkit.Mylist;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Mylist
 {

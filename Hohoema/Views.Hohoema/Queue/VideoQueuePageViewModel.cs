@@ -7,7 +7,7 @@ using Hohoema.ViewModels.VideoListPage;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using CommunityToolkit.Mvvm.Messaging;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;

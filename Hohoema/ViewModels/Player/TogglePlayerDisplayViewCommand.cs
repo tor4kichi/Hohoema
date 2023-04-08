@@ -1,4 +1,4 @@
-﻿using Hohoema.Services.Niconico.Player.Events;
+﻿using Hohoema.Services.Player.Events;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Input;
 

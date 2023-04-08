@@ -1,4 +1,4 @@
-﻿using Hohoema.Services.PageNavigation;
+﻿using Hohoema.Services.Navigations;
 using Hohoema.Services;
 using Hohoema.Services.Playlist;
 using CommunityToolkit.Mvvm.Input;
@@ -24,11 +24,11 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Video;
 using Hohoema.Models.LocalMylist;
-using Hohoema.Services.Hohoema.LocalMylist;
+using Hohoema.Services.LocalMylist;
 using I18NPortable;
 using Reactive.Bindings;
 using Microsoft.Extensions.Logging;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 
 namespace Hohoema.ViewModels.Pages.Hohoema.LocalMylist
 {

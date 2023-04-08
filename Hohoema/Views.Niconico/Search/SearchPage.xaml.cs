@@ -14,7 +14,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Hohoema.ViewModels.Pages.Niconico.Search;
 using Hohoema.ViewModels.Pages.Niconico.VideoRanking;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;

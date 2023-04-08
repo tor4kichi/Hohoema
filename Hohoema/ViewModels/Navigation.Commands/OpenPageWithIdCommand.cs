@@ -1,6 +1,6 @@
 ﻿using Hohoema.Models.PageNavigation;
 using Hohoema.Services;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;

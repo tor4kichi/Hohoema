@@ -3,7 +3,7 @@ using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Live.LoginUser;
 using Hohoema.Helpers;
 using Hohoema.Services;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using I18NPortable;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.SearchWithPage.Live;

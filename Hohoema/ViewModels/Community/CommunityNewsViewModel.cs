@@ -1,5 +1,5 @@
 ﻿using Hohoema.Helpers;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Threading.Tasks;

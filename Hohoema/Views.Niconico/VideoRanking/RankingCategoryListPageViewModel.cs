@@ -3,7 +3,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.Ranking;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Services;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using Hohoema.ViewModels.Niconico.Ranking;
 using Hohoema.ViewModels.Niconico.Ranking.Messages;
 using Hohoema.ViewModels.Pages.Niconico.Video;
@@ -20,7 +20,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Data;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 
 namespace Hohoema.ViewModels.Pages.Niconico.VideoRanking
 {

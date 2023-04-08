@@ -31,7 +31,7 @@
       xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
       xmlns:myExt="using:Hohoema.Views.Extensions"
       xmlns:muxc="using:Microsoft.UI.Xaml" 
-      xmlns:playerModels="using:Hohoema.Services.Niconico.Player" 
+      xmlns:playerModels="using:Hohoema.Services.Player" 
       xmlns:playerUI="using:Hohoema.Views.Player.VideoPlayerUI"
       x:Name="RootLayout"
       NavigationCacheMode="Required"

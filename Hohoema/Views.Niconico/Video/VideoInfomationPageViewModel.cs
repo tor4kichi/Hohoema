@@ -12,7 +12,7 @@ using Hohoema.Helpers;
 using Hohoema.Services;
 using Hohoema.Services.Playlist;
 using Hohoema.Services;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.Subscriptions;
 using Hohoema.ViewModels.VideoListPage;
@@ -45,11 +45,11 @@ using NiconicoToolkit.Video;
 using Hohoema.ViewModels.Niconico.Likes;
 using NiconicoToolkit.Ichiba;
 using AngleSharp.Html.Parser;
-using Hohoema.Services.Hohoema.LocalMylist;
+using Hohoema.Services.LocalMylist;
 using Hohoema.Models.LocalMylist;
 using Microsoft.Extensions.Logging;
 using ZLogger;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Video
 {

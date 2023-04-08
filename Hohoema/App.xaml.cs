@@ -13,11 +13,11 @@ using Hohoema.Models.Subscriptions;
 using Hohoema.Helpers;
 using Hohoema.Services;
 using Hohoema.Services.Migration;
-using Hohoema.Services.Niconico.Player;
+using Hohoema.Services.Player;
 using Hohoema.Services.Subscriptions;
 using Hohoema.Services.VideoCache;
 using Hohoema.Services;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using Hohoema.ViewModels;
 using LiteDB;
 using CommunityToolkit.Mvvm.Messaging;
@@ -55,24 +55,21 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using Microsoft.Extensions.Logging;
 using Hohoema.Infra;
 using Hohoema.Services.Playlist;
-using Hohoema.Services.Niconico.Player.Comment;
+using Hohoema.Services.Player.Videos;
 using Hohoema.Services.Niconico.Video;
 using Hohoema.ViewModels.Niconico.Video;
 using Hohoema.Models.Player.Comment;
 using Hohoema.Models.Playlist;
-using Hohoema.Services.Hohoema.LocalMylist;
+using Hohoema.Services.LocalMylist;
 using DryIoc;
 using ZLogger;
 using Cysharp.Text;
 using Windows.UI.Core;
 using CommunityToolkit.Mvvm.DependencyInjection;
-using DryIoc.Microsoft.DependencyInjection;
-using CommunityToolkit.Mvvm.Input;
-using Hohoema.Navigations;
 
 namespace Hohoema
 {
-    sealed class ViewLocator : Navigations.IViewLocator
+    sealed class ViewLocator : IViewLocator
     {
         public Type ResolveView(string viewName)
         {
@@ -290,7 +287,7 @@ namespace Hohoema
             viewLocator.RegisterForNavigation<Views.Player.LivePlayerPage>();
             viewLocator.RegisterForNavigation<Views.Player.LegacyVideoPlayerPage>();
             viewLocator.RegisterForNavigation<Views.Player.VideoPlayerPage>();
-            container.UseInstance<Navigations.IViewLocator>(viewLocator);
+            container.UseInstance<IViewLocator>(viewLocator);
 
             NavigationService.ViewTypeResolver = (pageName) => viewLocator.ResolveViewType(pageName);
         }

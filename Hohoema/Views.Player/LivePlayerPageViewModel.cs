@@ -9,9 +9,9 @@ using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Player;
 using Hohoema.Helpers;
 using Hohoema.Services;
-using Hohoema.Services.Niconico.Player;
+using Hohoema.Services.Player;
 using Hohoema.Services;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using Hohoema.ViewModels.Player.Commands;
 using Hohoema.ViewModels.Player.PlayerSidePaneContent;
 using Hohoema.Views.Player;
@@ -46,9 +46,9 @@ using NiconicoToolkit.Live.WatchSession.Events;
 using NiconicoToolkit.Live.Timeshift;
 using AngleSharp.Html.Parser;
 using Hohoema.Services.Playlist;
-using Hohoema.Services.Niconico.Player.Comment;
+using Hohoema.Services.Player.Videos;
 using Hohoema.Models.Player.Comment;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 using Hohoema.Models.Niconico.Video;
 
 namespace Hohoema.ViewModels.Player

@@ -4,7 +4,7 @@ using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.User;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.PageNavigation;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using I18NPortable;
 using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Toolkit.Uwp.Notifications;
@@ -23,7 +23,7 @@ using NiconicoToolkit.Video;
 using Hohoema.Models.Niconico;
 using NiconicoToolkit;
 using Hohoema.Services.Playlist;
-using Hohoema.Services.Niconico.Player.Events;
+using Hohoema.Services.Player.Events;
 using Hohoema.Models.Playlist;
 
 namespace Hohoema.Services

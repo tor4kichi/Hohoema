@@ -1,4 +1,4 @@
-﻿using Hohoema.Services.Niconico.Player;
+﻿using Hohoema.Services.Player;
 using System;
 using System.Collections.Generic;
 using System.IO;

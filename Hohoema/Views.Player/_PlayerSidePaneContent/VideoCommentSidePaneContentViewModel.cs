@@ -12,7 +12,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Player.Video.Comment;
-using Hohoema.Services.Niconico.Player.Comment;
+using Hohoema.Services.Player.Videos;
 using System.Collections;
 
 namespace Hohoema.ViewModels.Player.PlayerSidePaneContent

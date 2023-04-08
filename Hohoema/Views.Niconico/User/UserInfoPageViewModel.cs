@@ -1,7 +1,7 @@
 ﻿using I18NPortable;
 using Hohoema.Models;
 using Hohoema.Services;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using Hohoema.Services;
 using Hohoema.Services.Playlist;
 using CommunityToolkit.Mvvm.Input;
@@ -32,7 +32,7 @@ using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Infra;
 using NiconicoToolkit.User;
 using Hohoema.ViewModels.Niconico.Video.Commands;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 using Windows.UI.Xaml.Navigation;
 
 namespace Hohoema.ViewModels.Pages.Niconico.User

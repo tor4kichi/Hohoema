@@ -13,8 +13,8 @@ using System.Threading.Tasks;
 using Hohoema.Models.PageNavigation;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Playlist;
-using Hohoema.Services.PageNavigation;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
+using Hohoema.Services.Navigations;
 
 namespace Hohoema.ViewModels.PrimaryWindowCoreLayout
 {

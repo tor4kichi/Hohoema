@@ -19,7 +19,7 @@ using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Community;
 using Hohoema.Models.Niconico.Channel;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 using CommunityToolkit.Mvvm.DependencyInjection;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください

@@ -8,11 +8,11 @@ using System.Threading;
 using Reactive.Bindings.Extensions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Views.Pages;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 
 namespace Hohoema.ViewModels
 {
-	public abstract class HohoemaPageViewModelBase : Navigations.NavigationAwareViewModelBase, IDisposable
+	public abstract class HohoemaPageViewModelBase : NavigationAwareViewModelBase, IDisposable
 	{
         public HohoemaPageViewModelBase()
         {

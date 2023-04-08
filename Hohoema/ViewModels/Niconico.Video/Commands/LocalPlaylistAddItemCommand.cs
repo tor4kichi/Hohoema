@@ -12,7 +12,7 @@ using I18NPortable;
 using Hohoema.Services;
 using Hohoema.Services.Playlist;
 using Hohoema.Models.LocalMylist;
-using Hohoema.Services.Hohoema.LocalMylist;
+using Hohoema.Services.LocalMylist;
 
 namespace Hohoema.ViewModels.Niconico.Video.Commands
 {

@@ -20,14 +20,14 @@ using Reactive.Bindings.Extensions;
 using Windows.UI;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Hohoema.Models;
-using Hohoema.Services.Niconico.Player;
+using Hohoema.Services.Player;
 using Hohoema.Models.Application;
 using System.Diagnostics;
 using Hohoema.Models.Player;
 using Windows.System;
 using Hohoema.ViewModels.Player;
 using System.Reactive.Disposables;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.ViewModels.PrimaryWindowCoreLayout;
 

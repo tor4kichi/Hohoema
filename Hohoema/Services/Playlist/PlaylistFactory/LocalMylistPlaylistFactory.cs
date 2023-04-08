@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Playlist;
 using Hohoema.Infra;
-using Hohoema.Services.Hohoema.LocalMylist;
+using Hohoema.Services.LocalMylist;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;

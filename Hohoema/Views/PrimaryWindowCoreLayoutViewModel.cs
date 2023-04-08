@@ -6,10 +6,10 @@ using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
 using Hohoema.Models.Playlist;
 using Hohoema.Services;
-using Hohoema.Services.Hohoema.LocalMylist;
+using Hohoema.Services.LocalMylist;
 using Hohoema.Services.Niconico.Account;
-using Hohoema.Services.Niconico.Player;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Player;
+using Hohoema.Services.Navigations;
 using Hohoema.Services.Playlist;
 using Hohoema.Services;
 using Hohoema.ViewModels.Navigation.Commands;
@@ -36,7 +36,7 @@ using System.Windows.Input;
 using Windows.Storage;
 using Windows.System;
 using ZLogger;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 using System.Collections.Generic;
 
 namespace Hohoema.ViewModels

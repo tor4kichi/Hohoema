@@ -6,9 +6,9 @@ using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Player;
 using Hohoema.Helpers;
 using Hohoema.Services;
-using Hohoema.Services.Niconico.Player;
+using Hohoema.Services.Player;
 using Hohoema.Services;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using I18NPortable;
 using Microsoft.Services.Store.Engagement;
 using Microsoft.UI.Xaml.Controls;
@@ -36,13 +36,13 @@ using Windows.UI.Xaml;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.VideoCache;
 using Hohoema.Services.VideoCache;
-using Hohoema.Services.Niconico.Player.Comment;
+using Hohoema.Services.Player.Videos;
 using System.Text;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Xamarin.Essentials;
 using Microsoft.Extensions.Logging;
 using ZLogger;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 
 namespace Hohoema.ViewModels.Pages.Hohoema
 {

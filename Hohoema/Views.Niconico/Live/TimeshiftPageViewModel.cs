@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Live.Timeshift;
 using CommunityToolkit.Mvvm.Input;
-using Hohoema.Navigations;
+using Hohoema.Services.Navigations;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;

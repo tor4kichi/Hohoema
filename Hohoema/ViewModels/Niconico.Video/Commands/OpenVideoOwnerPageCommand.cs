@@ -1,5 +1,5 @@
 ﻿using Hohoema.Models.Niconico.Video;
-using Hohoema.Services.PageNavigation;
+using Hohoema.Services.Navigations;
 using NiconicoToolkit.Video;
 using CommunityToolkit.Mvvm.Input;
 using System;
