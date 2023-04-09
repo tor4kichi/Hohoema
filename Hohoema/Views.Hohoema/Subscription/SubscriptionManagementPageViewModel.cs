@@ -349,6 +349,7 @@ public partial class SubscriptionViewModel : ObservableObject, IDisposable
             _subscriptionManager.UpdateSubscription(_source);
         })
             .AddTo(_disposables);
+        _group = _source.Group;
     }
 
     private readonly CompositeDisposable _disposables = new CompositeDisposable();
@@ -533,12 +534,15 @@ public partial class SubscriptionViewModel : ObservableObject, IDisposable
         _pageViewModel.Subscriptions.Add(this);
     }
 
-    public SubscriptionGroup? Group => _source.Group;
-
+    [ObservableProperty]
+    private SubscriptionGroup? _group;
+    
     [RelayCommand]
     public void ChangeSubscGroup(SubscriptionGroup group)
     {
         _source.Group = group;
         _subscriptionManager.UpdateSubscription(_source);
+
+        Group = group;
     }
 }

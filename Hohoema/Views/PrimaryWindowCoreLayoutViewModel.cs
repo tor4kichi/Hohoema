@@ -1,13 +1,16 @@
 ﻿#nullable enable
+using ColorCode.Common;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.Application;
 using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
+using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
 using Hohoema.Services.LocalMylist;
 using Hohoema.Services.Niconico;
@@ -19,6 +22,7 @@ using Hohoema.ViewModels.Niconico.Live;
 using Hohoema.ViewModels.Niconico.Video;
 using Hohoema.ViewModels.PrimaryWindowCoreLayout;
 using I18NPortable;
+using LiteDB;
 using Microsoft.Extensions.Logging;
 using NiconicoToolkit;
 using NiconicoToolkit.Live;
@@ -59,9 +63,12 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
     public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
     private readonly LoginUserOwnedMylistManager _userMylistManager;
     private readonly LocalMylistManager _localMylistManager;
+    private readonly SubscriptionManager _subscriptionManager;
+
     public OpenLiveContentCommand OpenLiveContentCommand { get; }
 
     private readonly ILogger _logger;
+    private readonly IMessenger _messenger;
     private readonly DialogService _dialogService;
     private readonly NotificationService _notificationService;
 
@@ -76,6 +83,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
     public LocalMylistSubMenuItemViewModel _localMylistMenuSubItemViewModel { get; }
 
     public PrimaryWindowCoreLayoutViewModel(
+        IMessenger messenger,
         ILoggerFactory loggerFactory,
         NiconicoSession niconicoSession,
         PageManager pageManager,
@@ -94,10 +102,12 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
         QueueMenuItemViewModel queueMenuItemViewModel,
         LoginUserOwnedMylistManager userMylistManager,
         LocalMylistManager localMylistManager,
-        OpenLiveContentCommand openLiveContentCommand
+        OpenLiveContentCommand openLiveContentCommand,
+        SubscriptionManager subscriptionManager
         )
     {
         _logger = loggerFactory.CreateLogger<PrimaryWindowCoreLayoutViewModel>();
+        _messenger = messenger;
         NiconicoSession = niconicoSession;
         PageManager = pageManager;
         PinSettings = pinSettings;
@@ -138,6 +148,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
         _userMylistManager = userMylistManager;
         _localMylistManager = localMylistManager;
         OpenLiveContentCommand = openLiveContentCommand;
+        _subscriptionManager = subscriptionManager;
         _pinsMenuSubItemViewModel = new PinsMenuSubItemViewModel("Pin".Translate(), PinSettings, _dialogService, _notificationService, loggerFactory.CreateLogger<PinsMenuSubItemViewModel>());
         _localMylistMenuSubItemViewModel = new LocalMylistSubMenuItemViewModel(_localMylistManager, PageManager.OpenPageCommand);
 
@@ -149,7 +160,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             _queueMenuItemViewModel,
             new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
             new NavigateAwareMenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo, new NavigationParameters("type=Video")),
-            new SubscriptionMenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
+            new SubscriptionMenuItemViewModel(_messenger, _subscriptionManager),
             //new NavigateAwareMenuItemViewModel("WatchAfterMylist".Translate(), HohoemaPageType.Mylist, new NavigationParameters(("id", MylistId.WatchAfterMylistId.ToString()))),
             new MylistSubMenuMenu(_userMylistManager, PageManager.OpenPageCommand),
             _localMylistMenuSubItemViewModel,
@@ -169,7 +180,7 @@ public partial class PrimaryWindowCoreLayoutViewModel : ObservableObject, IRecip
             _queueMenuItemViewModel,
             new NavigateAwareMenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList),
             _localMylistMenuSubItemViewModel,
-            new SubscriptionMenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement),
+            new SubscriptionMenuItemViewModel(_messenger, _subscriptionManager),
             new NavigateAwareMenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement),
         };
 
@@ -997,9 +1008,80 @@ public sealed class LiveContentMenuItemViewModel : HohoemaListingPageItemBase, M
 }
 
 
-public sealed class SubscriptionMenuItemViewModel : NavigateAwareMenuItemViewModel
+public sealed class SubscriptionMenuItemViewModel 
+    : NavigateAwareMenuItemViewModel
+    , IRecipient<SubscriptionGroupCreatedMessage>
+    , IRecipient<SubscriptionGroupDeletedMessage>
+    , IRecipient<SubscriptionGroupReorderedMessage>
+    , IDisposable
 {
-    public SubscriptionMenuItemViewModel(string label, HohoemaPageType pageType, INavigationParameters paramaeter = null) : base(label, pageType, paramaeter)
+    private readonly IMessenger _messenger;
+    private readonly SubscriptionManager _subscriptionManager;
+
+    public ObservableCollection<SubscriptionGroupNavigateAwareMenuItemViewModel> SubscGroups { get; }
+
+    public SubscriptionMenuItemViewModel(IMessenger messenger, SubscriptionManager subscriptionManager) 
+        : base(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement)
     {
+        _messenger = messenger;
+        _subscriptionManager = subscriptionManager;
+        SubscGroups = new (
+            new[] 
+            {
+                new SubscriptionGroup(ObjectId.Empty, "SubscGroup_DefaultGroupName".Translate()),
+            }
+            .Concat(_subscriptionManager.GetSubscGroups())
+            .Select(ToMenuItemVM)
+            );
+
+        _messenger.Register<SubscriptionGroupCreatedMessage>(this);
+        _messenger.Register<SubscriptionGroupDeletedMessage>(this);
+        _messenger.Register<SubscriptionGroupReorderedMessage>(this);
     }
+
+    protected override void OnDispose()
+    {
+        base.OnDispose();
+
+        _messenger.Unregister<SubscriptionGroupCreatedMessage>(this);
+        _messenger.Unregister<SubscriptionGroupDeletedMessage>(this);
+        _messenger.Unregister<SubscriptionGroupReorderedMessage>(this);
+    }
+
+    SubscriptionGroupNavigateAwareMenuItemViewModel ToMenuItemVM(SubscriptionGroup group)
+    {
+        return new SubscriptionGroupNavigateAwareMenuItemViewModel(
+            group.Id, group.Name, HohoemaPageType.SubscVideoList, new NavigationParameters(("SubscGroupId", group.Id.ToString()))
+            );
+    }
+
+    void IRecipient<SubscriptionGroupCreatedMessage>.Receive(SubscriptionGroupCreatedMessage message)
+    {
+        SubscGroups.Add(ToMenuItemVM(message.Value));
+    }
+
+    void IRecipient<SubscriptionGroupDeletedMessage>.Receive(SubscriptionGroupDeletedMessage message)
+    {
+        var groupMenuItem = SubscGroups.First(x => x.GroupId == message.Value.Id);
+        SubscGroups.Remove(groupMenuItem);
+    }
+
+    void IRecipient<SubscriptionGroupReorderedMessage>.Receive(SubscriptionGroupReorderedMessage message)
+    {        
+        SubscGroups.Clear();
+        foreach (var group in message.Value)
+        {
+            SubscGroups.Add(ToMenuItemVM(group));
+        }
+    }
+}
+
+public sealed class SubscriptionGroupNavigateAwareMenuItemViewModel : NavigateAwareMenuItemViewModel
+{
+    public SubscriptionGroupNavigateAwareMenuItemViewModel(ObjectId groupId, string label, HohoemaPageType pageType, INavigationParameters paramaeter = null) : base(label, pageType, paramaeter)
+    {
+        GroupId = groupId;
+    }
+
+    public ObjectId GroupId { get; }
 }

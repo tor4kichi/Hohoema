@@ -32,7 +32,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
     public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 
-    public ObservableCollection<SubscriptionGroup> SubscriptionGroups { get; }
+    public ObservableCollection<SubscriptionGroup?> SubscriptionGroups { get; }
 
     [ObservableProperty]
     private SubscriptionGroup? _selectedSubscGroup;
@@ -67,8 +67,9 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
         ApplicationLayoutManager = applicationLayoutManager;
         SelectionModeToggleCommand = selectionModeToggleCommand;
-        SubscriptionGroups = new(_subscriptionManager.GetSubscGroups());
+        SubscriptionGroups = new (_subscriptionManager.GetSubscGroups());
         _defaultSubscGroup = new SubscriptionGroup(ObjectId.Empty, "SubscGroup_DefaultGroupName".Translate());
+        _selectedSubscGroup = null;
     }
 
     public override void OnNavigatedTo(INavigationParameters parameters)
@@ -76,6 +77,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         base.OnNavigatedTo(parameters);
 
         SubscriptionGroups.Clear();
+        SubscriptionGroups.Add(null);
         SubscriptionGroups.Add(_defaultSubscGroup);
         foreach (var subscGroup in _subscriptionManager.GetSubscGroups())
         {
@@ -87,23 +89,23 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
             if (parameters.TryGetValue("SubscGroupId", out string idStr))
             {
                 ObjectId id = new ObjectId(idStr);
-                if (SubscriptionGroups.FirstOrDefault(x => x.Id == id) is not null and var group)
+                if (SubscriptionGroups.Skip(1).FirstOrDefault(x => x.Id == id) is not null and var group)
                 {
                     SelectedSubscGroup = group;
                 }
                 else
                 {
-                    SelectedSubscGroup = _defaultSubscGroup;
+                    SelectedSubscGroup = null;
                 }
             }
             else
             {
-                SelectedSubscGroup = _defaultSubscGroup;
+                SelectedSubscGroup = null;
             }
         }
         catch 
         {
-            SelectedSubscGroup = _defaultSubscGroup;
+            SelectedSubscGroup = null;
         }
 
         _messenger.Register<SubscFeedVideoValueChangedMessage>(this, (r, m) => 
@@ -176,10 +178,18 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
 
     public Task<IEnumerable<SubscVideoListItemViewModel>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
     {
-        var videos = SubscriptionGroup != null
-            ? _subscriptionManager.GetSubscFeedVideos(SubscriptionGroup, pageIndex * pageSize, pageSize)
-            : _subscriptionManager.GetSubscFeedVideos(pageIndex * pageSize, pageSize)
-            ;
+        IEnumerable<SubscFeedVideo> videos;
+        if (SubscriptionGroup != null)
+        {
+            videos = SubscriptionGroup.Id != ObjectId.Empty
+                ? _subscriptionManager.GetSubscFeedVideos(SubscriptionGroup, pageIndex * pageSize, pageSize)
+                : _subscriptionManager.GetSubscFeedVideos(default(SubscriptionGroup), pageIndex * pageSize, pageSize)
+                ;
+        }
+        else
+        {
+            videos = _subscriptionManager.GetAllSubscFeedVideos(pageIndex * pageSize, pageSize);
+        }
 
         List<SubscVideoListItemViewModel> resultItems = new();
         foreach (var video in videos)

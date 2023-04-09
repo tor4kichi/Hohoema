@@ -287,15 +287,26 @@ public sealed class SubscriptionManager
         return _subscFeedVideoRepository.GetVideos(source.Id, skip, limit);
     }
 
-    public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(int skip = 0, int limit = int.MaxValue)
+    public IEnumerable<SubscFeedVideo> GetAllSubscFeedVideos(int skip = 0, int limit = int.MaxValue)
     {
         return _subscFeedVideoRepository.GetVideos(skip, limit);
     }
 
-    public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(SubscriptionGroup group, int skip = 0, int limit = int.MaxValue)
+    public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(SubscriptionGroup? group, int skip = 0, int limit = int.MaxValue)
     {
-        var subscSources = _subscriptionRegistrationRepository.Find(x => x.Group == group);
-        return _subscFeedVideoRepository.GetVideos(subscSources.Select(x => x.Id), skip, limit);
+        return (group != null
+            ? _subscriptionRegistrationRepository.Find(x => x.Group!.Id == group.Id)
+            : _subscriptionRegistrationRepository.Find(x => x.Group == null)
+            )
+            .SelectMany(subsc => _subscFeedVideoRepository.GetVideos(subsc.Id))
+            .Distinct()
+            .OrderByDescending(x => x.PostAt)
+            .Skip(skip)
+            .Take(limit)
+            ;
+
+        //var subscSources = _subscriptionRegistrationRepository.Find(x => x.Group == group);
+        //return _subscFeedVideoRepository.GetVideos(subscSources.Select(x => x.Id), skip, limit);
     }
 
     public void UpdateFeedVideos(IEnumerable<SubscFeedVideo> videos)
@@ -317,6 +328,8 @@ public sealed class SubscriptionManager
                 SubscriptionSourceType.SearchWithTag => await GetTagSearchFeedResult(entity.SourceParameter, _searchProvider),
                 _ => throw new NotSupportedException(entity.SourceType.ToString())
             };
+
+            _subscFeedVideoRepository.RegisteringVideosIfNotExist(entity.Id, DateTime.Now, videos);
 
             return new SubscriptionFeedUpdateResult()
             {
@@ -360,10 +373,9 @@ public sealed class SubscriptionManager
                 NvapiVideoItem videoItem = item.Essential;
                 NicoVideo video = _nicoVideoProvider.UpdateCache(videoItem.Id, videoItem);
 
-                items.Add(video);
+                items.Add(video);                
             }
         }
-
 
         return items;
     }

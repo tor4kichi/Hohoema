@@ -162,6 +162,9 @@
                     購読更新：<Run Text="{x:Bind LastUpdatedAt, Mode=OneWay, Converter={StaticResource ToRelationalTime}}" />
                   </TextBlock>
 
+                  <TextBlock Opacity="0.6" Visibility="{x:Bind Group, Mode=OneWay, Converter={StaticResource NotNullToVisibility}}">
+                    グループ：<Run Text="{x:Bind Group.Name, Mode=OneWay}" />
+                  </TextBlock>
                 </StackPanel>
               </controls:DockPanel>
 

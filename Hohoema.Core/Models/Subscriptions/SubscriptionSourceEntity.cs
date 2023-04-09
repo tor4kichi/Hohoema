@@ -19,7 +19,7 @@ public sealed class SubscriptionSourceEntity
     public SubscriptionGroup? Group { get; set; }
 }
 
-public sealed class SubscriptionGroup : IComparable<SubscriptionGroup>
+public sealed class SubscriptionGroup : IComparable<SubscriptionGroup>, IEquatable<SubscriptionGroup>
 {
     [BsonId]
     public ObjectId Id { get; }
@@ -44,6 +44,11 @@ public sealed class SubscriptionGroup : IComparable<SubscriptionGroup>
     public int CompareTo(SubscriptionGroup other)
     {
         return this.Id.CompareTo(other.Id);
+    }
+
+    public bool Equals(SubscriptionGroup? other)
+    {        
+        return this.Id.Equals(other.Id);
     }
 }
 

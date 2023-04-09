@@ -45,7 +45,7 @@
                           >
                   <ComboBox.ItemTemplate>
                     <DataTemplate x:DataType="subscModels:SubscriptionGroup">
-                      <TextBlock Text="{x:Bind Name}" />
+                      <TextBlock Text="{Binding Name, FallbackValue={i18nExt:Localize Key=All}}" />
                     </DataTemplate>
                   </ComboBox.ItemTemplate>
                 </ComboBox>

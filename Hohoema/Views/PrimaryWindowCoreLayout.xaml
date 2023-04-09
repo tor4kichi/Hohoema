@@ -396,7 +396,8 @@
       </DataTemplate>
 
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.ViewModels.SubscriptionMenuItemViewModel, Converter={StaticResource StringToType}}" >
-        <muxc:NavigationViewItem 
+        <muxc:NavigationViewItem MenuItemsSource="{Binding SubscGroups}"
+                                 IsExpanded="True"
                                  >
           <winui:ToolTipService.ToolTip>
             <TextBlock Text="{Binding Label}" />

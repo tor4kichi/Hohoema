@@ -300,8 +300,9 @@ public sealed partial class App : Application
         LiteDatabase tempDb = new($"Filename={Path.Combine(ApplicationData.Current.TemporaryFolder.Path, "thumbnail_cache.db")};{listDbUpgradeConnectionStringParam}");
         container.UseInstance<LiteDatabase>(tempDb, serviceKey: "TempDb");
         container.Register<ThumbnailCacheManager>(reuse: new SingletonReuse(), made: Made.Of(() => new ThumbnailCacheManager(tempDb)));
-
+        
         container.RegisterDelegate<NicoVideoCacheRepository>((c) => new NicoVideoCacheRepository(tempDb), new SingletonReuse());
+        container.RegisterDelegate(c => new SubscriptionFeedResultRepository(tempDb));
         container.RegisterDelegate<IPlayerView>(c =>
         {
             AppearanceSettings appearanceSettings = c.Resolve<AppearanceSettings>();

@@ -27,9 +27,9 @@ public sealed class SubscriptionUpdateManager : ObservableObject, IDisposable
     private readonly IMessenger _messenger;
     private readonly SubscriptionManager _subscriptionManager;
     private readonly SubscriptionSettings _subscriptionSettings;
-    AsyncLock _timerLock = new AsyncLock();
+    private readonly AsyncLock _timerLock = new AsyncLock();
 
-    bool _isDisposed;
+    private bool _isDisposed;
     private readonly DispatcherQueue _dispatcherQueue;
     private readonly DispatcherQueueTimer _timer;
 
@@ -213,7 +213,7 @@ public sealed class SubscriptionUpdateManager : ObservableObject, IDisposable
         }
     }
 
-    CancellationTokenSource _timerUpdateCancellationTokenSource;
+    CancellationTokenSource? _timerUpdateCancellationTokenSource;
 
     async void StartOrResetTimer()
     {

@@ -89,7 +89,7 @@ public sealed class SubscFeedVideoRepository
 
     public IEnumerable<SubscFeedVideo> GetVideos(int skip = 0, int limit = int.MaxValue)
     {
-        return _subscFeedVideoRepository.Find(Query.All(nameof(SubscFeedVideo.PostAt), Query.Descending), skip, limit);
+        return _subscFeedVideoRepository.Find(Query.All(nameof(SubscFeedVideo.PostAt), Query.Descending)).Skip(skip).Take(limit);
     }
 
     public DateTime GetLatestTimeOnSubscVideo(ObjectId subscId)

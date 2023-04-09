@@ -45,6 +45,7 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
         _messenger = messenger;
 
         _ = _collection.EnsureIndex(x => x.SortIndex);
+        _collection.EnsureIndex(x => x.Group.Id);
     }
 
     public void ClearAll()
@@ -56,6 +57,11 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
     public bool IsExist(SubscriptionSourceEntity other)
     {
         return _collection.Exists(x => x.SourceType == other.SourceType && x.SourceParameter == other.SourceParameter);
+    }
+
+    public override List<SubscriptionSourceEntity> ReadAllItems()
+    {
+        return _collection.Include(x => x.Group).FindAll().ToList();
     }
 
     public override BsonValue CreateItem(SubscriptionSourceEntity entity)
