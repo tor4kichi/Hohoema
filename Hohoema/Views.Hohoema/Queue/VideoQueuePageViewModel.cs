@@ -116,6 +116,8 @@ public sealed class VideoQueuePageViewModel : HohoemaListingPageViewModelBase<Vi
 
         _messenger.Register<PlaylistItemRemovedMessage, PlaylistId>(this, QueuePlaylist.Id, (r, m) => 
         {
+            if (ItemsView is null) { return; }
+
             foreach (var item in m.Value.RemovedItems)
             {
                 var remove = ItemsView.Cast<IVideoContent>().FirstOrDefault(x => x.VideoId == item.VideoId);
@@ -125,8 +127,7 @@ public sealed class VideoQueuePageViewModel : HohoemaListingPageViewModelBase<Vi
 
         _messenger.Register<PlaylistItemAddedMessage, PlaylistId>(this, QueuePlaylist.Id, (r, m) =>
         {
-            ItemsView.Clear();
-            ItemsView.Refresh();
+            ResetList();
         });
     }
 
