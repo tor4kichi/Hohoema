@@ -209,6 +209,16 @@ public sealed class SubscriptionManager
         return _subscriptionRegistrationRepository.FindById(id);
     }
 
+    public bool TryGetSubscriptionGroup(SubscriptionSourceType sourceType, string id, out SubscriptionGroup? outGroup)
+    {
+        return _subscriptionRegistrationRepository.TryGetSubscriptionGroup(sourceType, id, out outGroup);
+    }
+
+    public bool TryGetSubscriptionGroup(SubscriptionSourceType sourceType, string id, out SubscriptionSourceEntity outSourceEntity, out SubscriptionGroup? outGroup)
+    {
+        return _subscriptionRegistrationRepository.TryGetSubscriptionGroup(sourceType, id, out outSourceEntity, out outGroup);
+    }
+
 
     private static readonly TimeSpan _FeedResultUpdateInterval = TimeSpan.FromMinutes(60);
 
@@ -538,5 +548,5 @@ public sealed class SubscriptionManager
 
 
         return items;
-    }    
+    }
 }

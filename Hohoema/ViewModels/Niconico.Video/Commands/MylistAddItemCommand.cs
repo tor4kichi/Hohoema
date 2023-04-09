@@ -39,12 +39,13 @@ public sealed class MylistAddItemCommand : VideoContentSelectionCommandBase
         var targetMylist = _userMylistManager.Mylists.Any() ?
                 await _dialogService.ShowSingleSelectDialogAsync(
                 _userMylistManager.Mylists.ToList(),
+                null,
                 nameof(LoginUserMylistPlaylist.Name),
-                (mylist, s) => mylist.Name.Contains(s),
                 "SelectMylist".Translate(),
                 "Select".Translate(),
                 "CreateNew".Translate(),
-                () => CreateMylistAsync()
+                () => CreateMylistAsync(),
+                (mylist, s) => mylist.Name.Contains(s)
                 )
                 : await CreateMylistAsync()
                 ;

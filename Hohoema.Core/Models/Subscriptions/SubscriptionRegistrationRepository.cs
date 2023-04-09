@@ -44,13 +44,26 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
     {
         _messenger = messenger;
 
-        _ = _collection.EnsureIndex(x => x.SortIndex);
-        _collection.EnsureIndex(x => x.Group.Id);
+        _collection.EnsureIndex(x => x.SortIndex);
+        _collection.EnsureIndex(x => x.Group!.Id);
     }
 
     public void ClearAll()
     {
-        _ = _collection.DeleteAll();
+        _collection.DeleteAll();
+    }
+
+    public bool TryGetSubscriptionGroup(SubscriptionSourceType sourceType, string id, out SubscriptionGroup? outGroup)
+    {
+        outGroup = _collection.Include(x => x.Group).FindOne(x => x.SourceType == sourceType && x.SourceParameter == id)?.Group;
+        return outGroup != null;
+    }
+
+    public bool TryGetSubscriptionGroup(SubscriptionSourceType sourceType, string id, out SubscriptionSourceEntity outSourceEntity, out SubscriptionGroup? outGroup)
+    {
+        outSourceEntity = _collection.Include(x => x.Group).FindOne(x => x.SourceType == sourceType && x.SourceParameter == id);
+        outGroup = outSourceEntity?.Group;
+        return outGroup != null;
     }
 
 

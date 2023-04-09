@@ -47,12 +47,13 @@ public sealed class MylistMoveItemCommand : VideoContentSelectionCommandBase
             targetMylist = _userMylistManager.Mylists.Any() ?
                 await _dialogService.ShowSingleSelectDialogAsync(
                 _userMylistManager.Mylists.Where(x => x.MylistId != SourceMylist.MylistId).ToList(),
-                nameof(LoginUserMylistPlaylist.Name),
-                (mylist, s) => mylist.Name.Contains(s),
+                null,
+                nameof(LoginUserMylistPlaylist.Name),                
                 "SelectMoveTargetMylist".Translate(),
                 "Select".Translate(),
                 "CreateNew".Translate(),
-                () => CreateMylistAsync()
+                () => CreateMylistAsync(),
+                (mylist, s) => mylist.Name.Contains(s)
                 )
                 : await CreateMylistAsync()
                 ;
