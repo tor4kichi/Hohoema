@@ -1,15 +1,20 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Hohoema.Contracts.Services.Navigations;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
+using I18NPortable;
+using LiteDB;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Video;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +32,22 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
     public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
 
+    public ObservableCollection<SubscriptionGroup> SubscriptionGroups { get; }
+
+    [ObservableProperty]
+    private SubscriptionGroup? _selectedSubscGroup;
+
+    partial void OnSelectedSubscGroupChanged(SubscriptionGroup? value)
+    {
+        if (_lastSelectedSubscGroup != value)
+        {
+            ResetList();
+        }
+        _lastSelectedSubscGroup = value;
+    }
+
+    private SubscriptionGroup _defaultSubscGroup;
+    private SubscriptionGroup? _lastSelectedSubscGroup;
     public SubscVideoListPageViewModel(
         ILogger logger,
         IMessenger messenger,
@@ -46,11 +67,44 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
         VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
         ApplicationLayoutManager = applicationLayoutManager;
         SelectionModeToggleCommand = selectionModeToggleCommand;
+        SubscriptionGroups = new(_subscriptionManager.GetSubscGroups());
+        _defaultSubscGroup = new SubscriptionGroup(ObjectId.Empty, "SubscGroup_DefaultGroupName".Translate());
     }
 
     public override void OnNavigatedTo(INavigationParameters parameters)
     {
         base.OnNavigatedTo(parameters);
+
+        SubscriptionGroups.Clear();
+        SubscriptionGroups.Add(_defaultSubscGroup);
+        foreach (var subscGroup in _subscriptionManager.GetSubscGroups())
+        {
+            SubscriptionGroups.Add(subscGroup);
+        }
+        
+        try
+        {
+            if (parameters.TryGetValue("SubscGroupId", out string idStr))
+            {
+                ObjectId id = new ObjectId(idStr);
+                if (SubscriptionGroups.FirstOrDefault(x => x.Id == id) is not null and var group)
+                {
+                    SelectedSubscGroup = group;
+                }
+                else
+                {
+                    SelectedSubscGroup = _defaultSubscGroup;
+                }
+            }
+            else
+            {
+                SelectedSubscGroup = _defaultSubscGroup;
+            }
+        }
+        catch 
+        {
+            SelectedSubscGroup = _defaultSubscGroup;
+        }
 
         _messenger.Register<SubscFeedVideoValueChangedMessage>(this, (r, m) => 
         {
@@ -88,7 +142,7 @@ public partial class SubscVideoListPageViewModel : HohoemaListingPageViewModelBa
 
     protected override (int PageSize, IIncrementalSource<SubscVideoListItemViewModel> IncrementalSource) GenerateIncrementalSource()
     {
-        return (SubscVideoListIncrementalLoadingSource.PageSize, new SubscVideoListIncrementalLoadingSource(_subscriptionManager, _nicoVideoProvider));
+        return (SubscVideoListIncrementalLoadingSource.PageSize, new SubscVideoListIncrementalLoadingSource(SelectedSubscGroup, _subscriptionManager, _nicoVideoProvider));
     }
 
 
@@ -106,19 +160,26 @@ public sealed class SubscVideoListIncrementalLoadingSource : IIncrementalSource<
     public const int PageSize = 20;
 
     public SubscVideoListIncrementalLoadingSource(
+        SubscriptionGroup? subscriptionGroup,
         SubscriptionManager subscriptionManager,
         NicoVideoProvider nicoVideoProvider
         )
     {
+        SubscriptionGroup = subscriptionGroup;
         _subscriptionManager = subscriptionManager;
         _nicoVideoProvider = nicoVideoProvider;
     }
 
     HashSet<VideoId> _videoIds = new HashSet<VideoId>();
 
+    public SubscriptionGroup? SubscriptionGroup { get; }
+
     public Task<IEnumerable<SubscVideoListItemViewModel>> GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken cancellationToken = default)
     {
-        var videos = _subscriptionManager.GetSubscFeedVideos(pageIndex * pageSize, pageSize);
+        var videos = SubscriptionGroup != null
+            ? _subscriptionManager.GetSubscFeedVideos(SubscriptionGroup, pageIndex * pageSize, pageSize)
+            : _subscriptionManager.GetSubscFeedVideos(pageIndex * pageSize, pageSize)
+            ;
 
         List<SubscVideoListItemViewModel> resultItems = new();
         foreach (var video in videos)

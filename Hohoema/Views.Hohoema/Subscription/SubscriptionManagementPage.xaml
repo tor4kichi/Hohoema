@@ -98,9 +98,15 @@
               >
         <extensions:ListViewBase.ItemContextFlyoutTemplate>
           <DataTemplate>
-            <MenuFlyout Placement="Bottom">
+            <MenuFlyout Placement="Bottom" Opened="MenuFlyout_Opened">
               <MenuFlyoutItem Text="{i18nExt:Localize Key=Refresh}" Command="{Binding UpdateCommand}" IsEnabled="{Binding NowUpdating, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
               <MenuFlyoutItem Text="{i18nExt:Localize Key=OpenSubscriptionSourceVideoList}" Command="{Binding OpenSourceVideoListPageCommand}" />
+              <MenuFlyoutSeparator />
+              <MenuFlyoutSubItem x:Name="SubscriptionGroupMenuSubsItem"
+                                 Text="{i18nExt:Localize Key=SubscGroup_ContextMenuItemTitle}"
+                                 >
+                
+              </MenuFlyoutSubItem>
               <MenuFlyoutSeparator />
               <MenuFlyoutSubItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_Move}">
                 <MenuFlyoutItem Text="{i18nExt:Localize Key=ReorderSubsciprionSource_MovePreview}" Command="{Binding MoveToPreviewCommand}"/>

@@ -1,4 +1,6 @@
 ﻿#nullable enable
+using CommunityToolkit.Mvvm.Messaging;
+using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Search;
@@ -29,6 +31,7 @@ public class SubscriptionFeedUpdateResult
 }
 public sealed class SubscriptionManager
 {
+    private readonly IMessenger _messenger;
     private readonly SubscriptionRegistrationRepository _subscriptionRegistrationRepository;
     private readonly SubscFeedVideoRepository _subscFeedVideoRepository;
     private readonly ChannelProvider _channelProvider;
@@ -38,8 +41,10 @@ public sealed class SubscriptionManager
     private readonly NicoVideoProvider _nicoVideoProvider;
     private readonly SeriesProvider _seriesRepository;
     private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
+    private readonly SubscriptionGroupRepository _subscriptionGroupRepository;
 
     public SubscriptionManager(
+        IMessenger messenger,
         SubscriptionRegistrationRepository subscriptionRegistrationRepository,
         SubscFeedVideoRepository subscFeedVideoRepository,
         ChannelProvider channelProvider,
@@ -48,9 +53,11 @@ public sealed class SubscriptionManager
         MylistProvider mylistProvider,
         NicoVideoProvider nicoVideoProvider,
         SeriesProvider seriesRepository,
-        NicoVideoOwnerCacheRepository nicoVideoOwnerRepository
+        NicoVideoOwnerCacheRepository nicoVideoOwnerRepository,
+        SubscriptionGroupRepository subscriptionGroupRepository
         )
     {
+        _messenger = messenger;
         _subscriptionRegistrationRepository = subscriptionRegistrationRepository;
         _subscFeedVideoRepository = subscFeedVideoRepository;
         _channelProvider = channelProvider;
@@ -60,9 +67,50 @@ public sealed class SubscriptionManager
         _nicoVideoProvider = nicoVideoProvider;
         _seriesRepository = seriesRepository;
         _nicoVideoOwnerRepository = nicoVideoOwnerRepository;
+        _subscriptionGroupRepository = subscriptionGroupRepository;
     }
 
-    public SubscriptionSourceEntity AddSubscription(IVideoContentProvider video)
+    public List<SubscriptionGroup> GetSubscGroups()
+    {
+        return _subscriptionGroupRepository.ReadAllItems();
+    }
+
+    public SubscriptionGroup CreateSubscriptionGroup(string name)
+    {
+        SubscriptionGroup group = new SubscriptionGroup(name);
+        _subscriptionGroupRepository.CreateItem(group);       
+        _messenger.Send(new SubscriptionGroupCreatedMessage(group));
+        return group;
+    }
+
+    public bool DeleteSubscriptionGroup(SubscriptionGroup group)
+    {
+        bool result = _subscriptionGroupRepository.DeleteItem(group.Id);
+
+        if (result) 
+        {
+            _messenger.Send(new SubscriptionGroupDeletedMessage(group));
+        }
+        else
+        {
+
+        }
+
+        return result;
+    }
+
+    public void ReoderSubscriptionGroups(IEnumerable<SubscriptionGroup> groups)
+    {
+        foreach (var (group, index) in groups.Select((x, i) => (x, i)))
+        {
+            group.Order = index;
+        }
+        _subscriptionGroupRepository.UpdateItem(groups);
+
+        _messenger.Send(new SubscriptionGroupReorderedMessage(groups.ToList()));
+    }
+
+    public SubscriptionSourceEntity AddSubscription(IVideoContentProvider video, SubscriptionGroup? group = null)
     {
         NicoVideoOwner owner = _nicoVideoOwnerRepository.Get(video.ProviderId);
         if (owner == null)
@@ -70,31 +118,64 @@ public sealed class SubscriptionManager
             throw new Infra.HohoemaException("cannot resolve name for video provider from local DB.");
         }
 
-        return video.ProviderType == OwnerType.Channel
-            ? AddSubscription_Internal(new SubscriptionSourceEntity() { Label = owner.ScreenName, SourceParameter = video.ProviderId, SourceType = SubscriptionSourceType.Channel })
-            : video.ProviderType == OwnerType.User
-                ? AddSubscription_Internal(new SubscriptionSourceEntity() { Label = owner.ScreenName, SourceParameter = video.ProviderId, SourceType = SubscriptionSourceType.User })
-                : throw new NotSupportedException(video.ProviderType.ToString());
+        var sourceType = video.ProviderType switch
+        {
+            OwnerType.Channel => SubscriptionSourceType.Channel,
+            OwnerType.User => SubscriptionSourceType.User,
+            _ => throw new NotSupportedException(video.ProviderType.ToString())
+        };
+
+        return AddSubscription_Internal(new SubscriptionSourceEntity()
+        {
+            Label = owner.ScreenName,
+            SourceParameter = video.ProviderId,
+            SourceType = sourceType,
+            Group = group
+        });
     }
 
-    public SubscriptionSourceEntity AddSubscription(IMylist mylist)
+    public SubscriptionSourceEntity AddSubscription(IMylist mylist, SubscriptionGroup? group = null)
     {
-        return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = mylist.Name, SourceParameter = mylist.PlaylistId.Id, SourceType = SubscriptionSourceType.Mylist });
+        return AddSubscription_Internal(new SubscriptionSourceEntity()
+        {
+            Label = mylist.Name,
+            SourceParameter = mylist.PlaylistId.Id,
+            SourceType = SubscriptionSourceType.Mylist,
+            Group = group
+        });
     }
 
-    public SubscriptionSourceEntity AddKeywordSearchSubscription(string keyword)
+    public SubscriptionSourceEntity AddKeywordSearchSubscription(string keyword, SubscriptionGroup? group = null)
     {
-        return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = keyword, SourceParameter = keyword, SourceType = SubscriptionSourceType.SearchWithKeyword });
+        return AddSubscription_Internal(new SubscriptionSourceEntity()
+        {
+            Label = keyword,
+            SourceParameter = keyword,
+            SourceType = SubscriptionSourceType.SearchWithKeyword,
+            Group = group,
+        });
     }
-    public SubscriptionSourceEntity AddTagSearchSubscription(string tag)
+    public SubscriptionSourceEntity AddTagSearchSubscription(string tag, SubscriptionGroup? group = null)
     {
-        return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = tag, SourceParameter = tag, SourceType = SubscriptionSourceType.SearchWithTag });
+        return AddSubscription_Internal(new SubscriptionSourceEntity()
+        {
+            Label = tag,
+            SourceParameter = tag,
+            SourceType = SubscriptionSourceType.SearchWithTag,
+            Group = group,
+        });
     }
 
 
-    public SubscriptionSourceEntity AddSubscription(SubscriptionSourceType sourceType, string sourceParameter, string label)
+    public SubscriptionSourceEntity AddSubscription(SubscriptionSourceType sourceType, string sourceParameter, string label, SubscriptionGroup? group = null)
     {
-        return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = label, SourceParameter = sourceParameter, SourceType = sourceType });
+        return AddSubscription_Internal(new SubscriptionSourceEntity()
+        {
+            Label = label,
+            SourceParameter = sourceParameter,
+            SourceType = sourceType,
+            Group = group,
+        });
     }
 
     private SubscriptionSourceEntity AddSubscription_Internal(SubscriptionSourceEntity newEntity)
@@ -203,12 +284,18 @@ public sealed class SubscriptionManager
 
     public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(SubscriptionSourceEntity source, int skip = 0, int limit = int.MaxValue)
     {
-        return _subscFeedVideoRepository.GetVideo(source.Id, skip, limit);
+        return _subscFeedVideoRepository.GetVideos(source.Id, skip, limit);
     }
 
     public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(int skip = 0, int limit = int.MaxValue)
     {
         return _subscFeedVideoRepository.GetVideos(skip, limit);
+    }
+
+    public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(SubscriptionGroup group, int skip = 0, int limit = int.MaxValue)
+    {
+        var subscSources = _subscriptionRegistrationRepository.Find(x => x.Group == group);
+        return _subscFeedVideoRepository.GetVideos(subscSources.Select(x => x.Id), skip, limit);
     }
 
     public void UpdateFeedVideos(IEnumerable<SubscFeedVideo> videos)
@@ -439,6 +526,5 @@ public sealed class SubscriptionManager
 
 
         return items;
-    }
-
+    }    
 }

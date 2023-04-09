@@ -63,7 +63,14 @@ public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<Subsc
         Guard.IsFalse(IsExist(entity), "IsExist(entity)");
 
         entity.Id = ObjectId.NewObjectId();
-        entity.SortIndex = _collection.Max(x => x.SortIndex) + 1;
+        try
+        {
+            entity.SortIndex = _collection.Max(x => x.SortIndex) + 1;
+        }
+        catch
+        {
+            entity.SortIndex = 0;
+        }
         BsonValue result = base.CreateItem(entity);
         _ = _messenger.Send(new NewSubscMessage(entity));
         return result;

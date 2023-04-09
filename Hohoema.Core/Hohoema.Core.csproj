@@ -129,6 +129,7 @@
     <Compile Include="Contracts\Services\IMylistGroupDialogService.cs" />
     <Compile Include="Contracts\Services\INotificationService.cs" />
     <Compile Include="Contracts\Services\ISelectionDialogService.cs" />
+    <Compile Include="Contracts\Subscriptions\SubscriptionGroupMessages.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="MessengerObservableExtensions.cs" />
     <Compile Include="Models\Application\AppearanceSettings.cs" />
@@ -271,6 +272,7 @@
     <Compile Include="Models\Subscriptions\SubscFeedVideoRepository.cs" />
     <Compile Include="Models\Subscriptions\SubscriptionFeedResult.cs" />
     <Compile Include="Models\Subscriptions\SubscriptionFeedResultRepository.cs" />
+    <Compile Include="Models\Subscriptions\SubscriptionGroupRepository.cs" />
     <Compile Include="Models\Subscriptions\SubscriptionManager.cs" />
     <Compile Include="Models\Subscriptions\SubscriptionRegistrationRepository.cs" />
     <Compile Include="Models\Subscriptions\SubscriptionSettings.cs" />

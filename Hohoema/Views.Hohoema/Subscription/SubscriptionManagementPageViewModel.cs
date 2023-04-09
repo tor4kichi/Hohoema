@@ -12,6 +12,7 @@ using Hohoema.Services.Subscriptions;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
 using I18NPortable;
+using LiteDB;
 using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Video;
 using Reactive.Bindings;
@@ -24,6 +25,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
 using ZLogger;
 
@@ -46,6 +48,9 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     public IReadOnlyReactiveProperty<bool> IsAutoUpdateRunning { get; }
     public IReactiveProperty<TimeSpan> AutoUpdateFrequency { get; }
     public IReactiveProperty<bool> IsAutoUpdateEnabled { get; }
+
+    public ObservableCollection<SubscriptionGroup> SubscriptionGroups { get; } = new();
+    private readonly SubscriptionGroup _defaultSubscGroup = new SubscriptionGroup(ObjectId.Empty, "SubscGroup_DefaultGroupName".Translate());
 
     void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
     {
@@ -115,6 +120,13 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
 
     public override void OnNavigatingTo(INavigationParameters parameters)
     {
+        SubscriptionGroups.Clear();
+        SubscriptionGroups.Add(_defaultSubscGroup);
+        foreach (var subscGroup in _subscriptionManager.GetSubscGroups())
+        {
+            SubscriptionGroups.Add(subscGroup);
+        }
+
         Subscriptions.Clear();
         foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionSourceEntities().OrderBy(x => x.SortIndex))
         {
@@ -283,6 +295,24 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     void OpenSubscVideoListPage()
     {
         _pageManager.OpenPage(HohoemaPageType.SubscVideoList);
+    }
+
+    [RelayCommand]
+    async Task AddSubscriptionGroup(SubscriptionViewModel subscVM)
+    {
+        var name =await _dialogService.GetTextAsync(
+            "AddSubscriptionGroup_InputSubscGroupName_Title".Translate(),
+            "AddSubscriptionGroup_InputSubscGroupName_Placeholder".Translate(),
+            "",
+            (s) => !string.IsNullOrWhiteSpace(s)
+            );
+
+        if (string.IsNullOrWhiteSpace(name)) { return; }
+
+        SubscriptionGroup newGroup = _subscriptionManager.CreateSubscriptionGroup(name);
+        SubscriptionGroups.Add(newGroup);
+
+        subscVM.ChangeSubscGroup(newGroup);
     }
 }
 
@@ -503,5 +533,12 @@ public partial class SubscriptionViewModel : ObservableObject, IDisposable
         _pageViewModel.Subscriptions.Add(this);
     }
 
+    public SubscriptionGroup? Group => _source.Group;
 
+    [RelayCommand]
+    public void ChangeSubscGroup(SubscriptionGroup group)
+    {
+        _source.Group = group;
+        _subscriptionManager.UpdateSubscription(_source);
+    }
 }

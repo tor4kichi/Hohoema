@@ -75,9 +75,15 @@ public sealed class SubscFeedVideoRepository
         return _subscFeedVideoRepository.DeleteMany(x => x.SourceSubscId == source.Id);
     }
 
-    public IEnumerable<SubscFeedVideo> GetVideo(ObjectId subscId, int skip = 0, int limit = int.MaxValue)
+    public IEnumerable<SubscFeedVideo> GetVideos(ObjectId subscId, int skip = 0, int limit = int.MaxValue)
     {
         return _subscFeedVideoRepository.Find(Query.All(nameof(SubscFeedVideo.PostAt), Query.Descending)).Where(x => x.SourceSubscId == subscId).Skip(skip).Take(limit);
+    }
+
+    public IEnumerable<SubscFeedVideo> GetVideos(IEnumerable<ObjectId> subscIds, int skip = 0, int limit = int.MaxValue)
+    {
+        HashSet<ObjectId> idHashSet = subscIds.ToHashSet();
+        return _subscFeedVideoRepository.Find(Query.All(nameof(SubscFeedVideo.PostAt), Query.Descending)).Where(x => idHashSet.Contains(x.SourceSubscId)).Skip(skip).Take(limit);
     }
 
 
