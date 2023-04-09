@@ -13,8 +13,7 @@
   xmlns:actions="using:Hohoema.Views.Actions"
   xmlns:livePages="using:Hohoema.Views.Pages.Niconico.Live"
   xmlns:localize="using:I18NPortable.Xaml.Extensions"
-  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"
-  DataContext="{x:Null}"
+  xmlns:behaviors="using:Microsoft.Toolkit.Uwp.UI.Behaviors"  
   NavigationCacheMode="Enabled"
   mc:Ignorable="d"
   d:DesignHeight="300"
@@ -24,7 +23,7 @@
   <Grid>
 
     <ListView x:Name="ItemsList"
-              ItemsSource="{Binding ItemsView, Mode=OneWay}"
+              ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
               IsItemClickEnabled="True"
               IncrementalLoadingTrigger="Edge"
               UseSystemFocusVisuals="True"
@@ -45,11 +44,13 @@
           </mybehavior:KeyboardTrigger.Actions>
         </mybehavior:KeyboardTrigger>
         <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
-        <core:DataTriggerBehavior Binding="{Binding ItemsView, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}">
-          <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" VerticalOffset="{Binding ScrollPosition.Value}" WithAnimation="False" Delay="0:0:0.001" />
+        <!--
+        <core:DataTriggerBehavior Binding="{x:Bind _vm.ItemsView, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}">
+          <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" VerticalOffset="{x:Bind _vm.ScrollPosition.Value}" WithAnimation="False" Delay="0:0:0.001" />
         </core:DataTriggerBehavior>
+        -->
         <core:EventTriggerBehavior EventName="ItemClick">
-          <core:InvokeCommandAction Command="{Binding OpenLiveContentCommand}"
+          <core:InvokeCommandAction Command="{x:Bind _vm.OpenLiveContentCommand}"
                                     InputConverter="{StaticResource ItemClickEventArgsConverter}" />
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
@@ -59,8 +60,8 @@
 
             <uwpcontrols:WrapPanel Orientation="Horizontal">
               <!-- LiveStatus -->
-              <ListView ItemsSource="{Binding LiveStatusItems}" 
-                          SelectedItem="{Binding SelectedLiveStatus.Value, Mode=TwoWay}" 
+              <ListView ItemsSource="{x:Bind _vm.LiveStatusItems}" 
+                          SelectedItem="{x:Bind _vm.SelectedStatus.Value, Mode=TwoWay}" 
                           SelectionMode="Single"
                           ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
                                   >
@@ -75,31 +76,7 @@
 
             <CommandBar Margin="0" VerticalContentAlignment="Center">
               <CommandBar.PrimaryCommands>
-                <AppBarElementContainer VerticalAlignment="Center" VerticalContentAlignment="Center" IsTabStop="False">
-                  <DropDownButton Content="絞り込み" VerticalAlignment="Center">
-                    <DropDownButton.Flyout>
-                      <Flyout Closed="Flyout_Closed">
-                        <StackPanel Spacing="8">
-                          <ToggleSwitch IsOn="{Binding IsTagSearch.Value, Mode=TwoWay}" 
-                                                    Header="{localize:Localize Key=LiveSearchDisplayWithIsTagSearch}"
-                                          />
-
-                          <ToggleSwitch IsOn="{Binding IsTimeshiftAvairable.Value, Mode=TwoWay}" 
-                                                    Header="{localize:Localize Key=LiveSearchDisplayWIthIsTimeshiftAvairable}"  />
-
-                          <ToggleSwitch IsOn="{Binding IsDisableGrouping.Value, Mode=TwoWay}" 
-                                                    Header="{localize:Localize Key=LiveSearchDisplayWithIsDisableGrouping}"  />
-
-                          <ToggleSwitch IsOn="{Binding IsHideMemberOnly.Value, Mode=TwoWay}" 
-                                                    Header="{localize:Localize Key=LiveSearchDisplayWithIsHideMemberOnly}"  />
-                        </StackPanel>
-                      </Flyout>
-                    </DropDownButton.Flyout>
-                  </DropDownButton>
-                </AppBarElementContainer>
-
-                <AppBarSeparator />
-
+                
                 <AppBarButton x:Name="ScrollToTopButton" Label="{localize:Localize Key=ReturnToPageTop}" Icon="Up">
                   <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Click">
@@ -112,18 +89,19 @@
               <CommandBar.Content>
                 <StackPanel Orientation="Horizontal" Margin="0 0 0 0" Spacing="8">
                   <!-- Sort -->
-                  <ComboBox ItemsSource="{Binding SortOptionItems}" 
-                              SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" 
-                              ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
-                            VerticalAlignment="Center"
+                  <ComboBox ItemsSource="{x:Bind _vm.SortOptionItems}" 
+                            SelectedItem="{x:Bind _vm.SelectedSort.Value, Mode=TwoWay}" 
+                            ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
+                            VerticalAlignment="Center"                            
                               >
                   </ComboBox>
 
-                  <ListView ItemsSource="{Binding ProvidersItems}" 
-                            SelectionMode="Multiple"
+                  <ListView ItemsSource="{x:Bind _vm.ProvidersItems}" 
+                            SelectedItem="{x:Bind _vm.SelectedProvider.Value, Mode=TwoWay}"
+                            SelectionMode="Single"
                             IsMultiSelectCheckBoxEnabled="False"
-                            ItemTemplate="{StaticResource LocalizedTextItemTemplate}"
-                            SelectionChanged="ListView_SelectionChanged"
+                            ItemTemplate="{StaticResource LocalizedTextItemTemplate}"                            
+                            SingleSelectionFollowsFocus="False"
                             >
                     <ListView.ItemsPanel>
                       <ItemsPanelTemplate>

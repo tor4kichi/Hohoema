@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Live.Cas;
 using NiconicoToolkit.Live.Timeshift;
+using NiconicoToolkit.Search.Live;
 using NiconicoToolkit.SearchWithPage.Live;
 using System;
 using System.Linq;
@@ -275,6 +276,68 @@ public class LiveInfoListItemViewModel : ObservableObject, ILiveContent, ILiveCo
     }
 
 
+    internal void Setup(LiveSearchItem item)
+    {
+        if (item.Thumbnail is not null and var thumb)
+        {
+            ThumbnailUrl =thumb.Screenshot?.Small?.OriginalString
+                ?? thumb.Screenshot?.Large?.OriginalString
+                ?? thumb.Small?.OriginalString
+                ?? thumb.Huge?.S352X198?.OriginalString
+                ?? thumb.Huge?.S640X360?.OriginalString
+                ?? string.Empty;
+        }
+
+        if (item.ProgramProvider != null)
+        {
+            CommunityThumbnail = item.ProgramProvider.icons?.Uri50x50.OriginalString ?? string.Empty;
+            CommunityGlobalId = item.ProgramProvider.ProgramProviderId;
+            CommunityName = item.ProgramProvider.Name;
+        }
+        else if (item.SocialGroup != null)
+        {
+            CommunityThumbnail = item.SocialGroup.ThumbnailSmall?.OriginalString ?? string.Empty;
+            CommunityGlobalId = item.SocialGroup.SocialGroupId;
+            CommunityName = item.SocialGroup.Name;
+        }
+
+        // サムネが無い場合は放送者の画像を使う
+        ThumbnailUrl ??= CommunityThumbnail;
+
+        CommunityType = item.Program.Provider switch
+        {
+            Provider.COMMUNITY => ProviderType.Community,
+            Provider.CHANNEL => ProviderType.Channel,
+            Provider.OFFICIAL => ProviderType.Official,
+            _ => throw new NotSupportedException(),
+        };
+
+        LiveTitle = item.Program.Title;
+        //ShortDescription = item.ProgramProvider.;
+        ViewCounter = item.Statistics.Viewers;
+        CommentCount = item.Statistics.Comments;
+        StartTime = item.Program.Schedule.OpenTime;
+        EndTime = item.Program.Schedule.EndTime;
+        IsTimeshiftEnabled = item.TimeshiftSetting != null;
+        IsCommunityMemberOnly = item.Features.Enabled.Any(x => x is Feature.MEMBER_ONLY);
+
+
+        if (StartTime > DateTimeOffset.Now)
+        {
+            // 予約
+            LiveStatus = LiveStatus.Reserved;
+        }
+        else if (EndTime > DateTimeOffset.Now)
+        {
+            LiveStatus = LiveStatus.Onair;
+            Duration = DateTimeOffset.Now - StartTime;
+        }
+        else
+        {
+            LiveStatus = LiveStatus.Past;
+            Duration = EndTime.Value - StartTime;
+        }
+    }
 
 
     private RelayCommand _DeleteReservationCommand;

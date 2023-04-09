@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.PageNavigation;
@@ -7,34 +8,41 @@ using Hohoema.Models.Pins;
 using Hohoema.Services;
 using Hohoema.ViewModels.Niconico.Live;
 using I18NPortable;
+using LiteDB;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Collections;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Live.Timeshift;
-using NiconicoToolkit.SearchWithPage.Live;
+using NiconicoToolkit.Search.Live;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Navigation;
 using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
+using LiveStatus = NiconicoToolkit.Search.Live.Status;
+using LiveSort = NiconicoToolkit.Search.Live.Sort;
+using LiveProvider = NiconicoToolkit.Search.Live.Provider;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Diagnostics;
 
 namespace Hohoema.ViewModels.Pages.Niconico.Search;
 
-public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, IPinablePage, ITitleUpdatablePage
+public sealed partial class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, IPinablePage, ITitleUpdatablePage
 {
     HohoemaPin IPinablePage.GetPin()
     {
-        var keyword = (ItemsView.Source as LiveSearchSource)?.Query?.Keyword ?? Keyword;
+        var keyword = (ItemsView?.Source as LiveSearchSource)?.Keyword ?? Keyword;
         return new HohoemaPin()
         {
             Label = keyword,
-            PageType = HohoemaPageType.SearchResultLive,
+            PageType = HohoemaPageType.Search,
             Parameter = $"keyword={System.Net.WebUtility.UrlEncode(keyword)}&target={SearchTarget.Niconama}"
         };
     }
@@ -64,62 +72,39 @@ public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<Liv
         _nicoLiveCacheRepository = nicoLiveCacheRepository;
         OpenLiveContentCommand = openLiveContentCommand;
 
-        SelectedSearchSort = new ReactiveProperty<LiveSearchPageSortOrder>(SortOptionItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
-        SelectedLiveStatus = new ReactiveProperty<LiveStatus>(LiveStatusItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
-        SelectedProviders = new ObservableCollection<ProviderType>();
-
-        IsTagSearch = new ReactiveProperty<bool>(false);
-        IsTimeshiftAvairable = new ReactiveProperty<bool>(false);
-        IsHideMemberOnly = new ReactiveProperty<bool>(false);
-        IsDisableGrouping = new ReactiveProperty<bool>(false);
+        SelectedSort = new ReactiveProperty<LiveSort>(LiveSort.RecentAsc, mode: ReactivePropertyMode.DistinctUntilChanged);
+        SelectedStatus = new ReactiveProperty<LiveStatus>(LiveStatus.ON_AIR, mode: ReactivePropertyMode.DistinctUntilChanged);
+        SelectedProvider = new ReactiveProperty<LiveProvider>(LiveProvider.COMMUNITY, mode: ReactivePropertyMode.DistinctUntilChanged);
 
         Observable.Merge(
-            SelectedSearchSort.ToUnit(),
-            SelectedLiveStatus.ToUnit(),
-            SelectedProviders.CollectionChangedAsObservable().ToUnit()
+            SelectedSort.ToUnit(),
+            SelectedStatus.ToUnit(),
+            SelectedProvider.ToUnit()
             )
-            .Subscribe(async _ =>
+            .Subscribe(_ =>
             {
                 if (_NowNavigatingTo) { return; }
-
-                if (_query is not null)
-                {
-                    if (_query.Keyword == Keyword
-                        && _query.SortOrder == SelectedSearchSort.Value
-                        && _query.LiveStatus == SelectedLiveStatus.Value
-                        && (_query.ProviderTypes?.Any() ?? false)
-                        && SelectedProviders.Count == _query.ProviderTypes.Length
-                        && SelectedProviders.All(x => _query.ProviderTypes.Contains(x))
-                        )
-                    {
-                        return;
-                    }
-                }
 
                 ResetList();
             })
             .AddTo(_CompositeDisposable);
     }
 
-    static public IReadOnlyList<LiveStatus> LiveStatusItems { get; } = new[] { LiveStatus.Onair, LiveStatus.Reserved, LiveStatus.Past };
-    static public IReadOnlyList<LiveSearchPageSortOrder> SortOptionItems { get; } = Enum.GetValues(typeof(LiveSearchPageSortOrder)).Cast<LiveSearchPageSortOrder>().ToArray();
-    static public IReadOnlyList<ProviderType> ProvidersItems { get; } = new[] { ProviderType.Official, ProviderType.Channel, ProviderType.Community };
-
-    public ReactiveProperty<LiveStatus> SelectedLiveStatus { get; private set; }
-    public ReactiveProperty<LiveSearchPageSortOrder> SelectedSearchSort { get; private set; }
-    public ObservableCollection<ProviderType> SelectedProviders { get; private set; }
-    public ReactiveProperty<bool> IsTagSearch { get; private set; }
-    public ReactiveProperty<bool> IsTimeshiftAvairable { get; private set; }
-    public ReactiveProperty<bool> IsDisableGrouping { get; private set; }
-    public ReactiveProperty<bool> IsHideMemberOnly { get; private set; }
+    public IReadOnlyList<LiveStatus> LiveStatusItems { get; } = new[] { LiveStatus.ON_AIR, LiveStatus.RELEASED, LiveStatus.ENDED };
+    public IReadOnlyList<LiveSort> SortOptionItems { get; } = Enum.GetValues(typeof(LiveSort)).Cast<LiveSort>().ToArray();
+    public IReadOnlyList<LiveProvider> ProvidersItems { get; } = new[] { LiveProvider.COMMUNITY, LiveProvider.CHANNEL, LiveProvider.OFFICIAL };
+    
+    public ReactiveProperty<LiveStatus> SelectedStatus { get; private set; }
+    public ReactiveProperty<LiveSort> SelectedSort { get; private set; }
+    public ReactiveProperty<LiveProvider> SelectedProvider { get; private set; }
 
     private readonly SearchHistoryRepository _searchHistoryRepository;
     private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
 
     bool _NowNavigatingTo = false;
 
-    private string _keyword;
-    public string Keyword
+    private string? _keyword;
+    public string? Keyword
     {
         get { return _keyword; }
         set { SetProperty(ref _keyword, value); }
@@ -180,7 +165,7 @@ public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<Liv
 
         if (!string.IsNullOrWhiteSpace(Keyword))
         {
-            _searchHistoryRepository.Searched(Keyword, SearchTarget.Niconama);
+            _searchHistoryRepository.Searched(Keyword!, SearchTarget.Niconama);
         }
 
         await base.OnNavigatedToAsync(parameters);
@@ -193,74 +178,50 @@ public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<Liv
 
 
     protected override (int, IIncrementalSource<LiveInfoListItemViewModel>) GenerateIncrementalSource()
-		{
-        var query = LiveSearchOptionsQuery.Create(Keyword, SelectedLiveStatus.Value);
-        if (SelectedProviders.Any())
-        {
-            query.UseProviderTypes(SelectedProviders);
-        }
+	{
+        Guard.IsNotNullOrEmpty(Keyword, nameof(Keyword));
 
-        query.UseSortOrder(SelectedSearchSort.Value);
-        if (IsTagSearch.Value is true)
-        {
-            query.UseIsTagSearch(true);
-        }
+        return (LiveSearchSource.OneTimeLoadCount, 
+            new LiveSearchSource(Keyword,
+            SelectedStatus.Value, 
+            SelectedSort.Value, 
+            SelectedProvider.Value,
+            _reservation, 
+            SearchProvider, 
+            NiconicoSession, 
+            _nicoLiveCacheRepository)
+            );
+	}
 
-        if (IsTimeshiftAvairable.Value is true)
-        {
-            query.UseTimeshiftIsAvailable(true);
-        }
-
-        if (IsDisableGrouping.Value is true)
-        {
-            query.UseDisableGrouping(true);
-        }
-
-        if (IsHideMemberOnly.Value is true)
-        {
-            query.UseHideMemberOnly(true);
-        }
-        _query = query;
-
-        return (LiveSearchSource.OneTimeLoadCount, new LiveSearchSource(query, _reservation, SearchProvider, NiconicoSession, _nicoLiveCacheRepository));
-		}
-
-    LiveSearchOptionsQuery _query;
-    RelayCommand _SearchOptionsUpdatedCommand;
     private TimeshiftReservationsDetailResponse _reservation;
 
-    public RelayCommand SearchOptionsUpdatedCommand => _SearchOptionsUpdatedCommand ??= new RelayCommand(UpdatedSearchOptions);
 
-
-    public async void UpdatedSearchOptions()
+    [RelayCommand]
+    public void SearchOptionsUpdated()
     {
-        var query = _query;
-        if ((query?.IsTagSearch ?? false) == IsTagSearch.Value
-                && (query?.HideMemberOnly ?? false) == IsHideMemberOnly.Value
-                && (query?.DisableGrouping ?? false) == IsDisableGrouping.Value
-                && (query?.TimeshiftIsAvailable ?? false) == IsTimeshiftAvairable.Value
-                )
-        {
-            return;
-        }
-
         ResetList();
     }
 }
 
 
 
-	public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>
-	{
+public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>
+{
     public LiveSearchSource(
-        LiveSearchOptionsQuery query,
-        TimeshiftReservationsDetailResponse reservation,
+        string keyword,
+        NiconicoToolkit.Search.Live.Status status,
+        NiconicoToolkit.Search.Live.Sort sort,
+        NiconicoToolkit.Search.Live.Provider provider,
+        TimeshiftReservationsDetailResponse? reservation,
         SearchProvider searchProvider,
         NiconicoSession niconicoSession,
         NicoLiveCacheRepository nicoLiveCacheRepository
         )
     {
-        Query = query;
+        Keyword = keyword;
+        Status = status;
+        Sort = sort;
+        Provider = provider;
         _reservation = reservation;
         SearchProvider = searchProvider;
         NiconicoSession = niconicoSession;
@@ -268,62 +229,67 @@ public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<Liv
     }
 
     private HashSet<string> SearchedVideoIdsHash = new HashSet<string>();
-    private TimeshiftReservationsDetailResponse _reservation;
+    private TimeshiftReservationsDetailResponse? _reservation;
 
-    public LiveSearchOptionsQuery Query { get; }
     private readonly NicoLiveCacheRepository _nicoLiveCacheRepository;
+
+    public string Keyword { get; }
+    public LiveStatus Status { get; }
+    public LiveSort Sort { get; }
+    public LiveProvider Provider { get; }
     public SearchProvider SearchProvider { get; }
     public NiconicoSession NiconicoSession { get; }
 
-		public const int OneTimeLoadCount = 40;
+    public const int OneTimeLoadCount = 40;
 
-   		
+
     async Task<IEnumerable<LiveInfoListItemViewModel>> IIncrementalSource<LiveInfoListItemViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
-		{
-        Query.UsePage(pageIndex);
-
-        var res = await SearchProvider.LiveSearchAsync(Query);
+    {
+        var res = await NiconicoSession.ToolkitContext.Search.Live.LiveSearchAsync(Keyword, pageIndex + 1, Status, Sort, Provider, ct);
 
         ct.ThrowIfCancellationRequested();
 
-        using (res.Data)
+        if (res.Meta.Status != (int)HttpStatusCode.OK)
         {
-            List<LiveInfoListItemViewModel> items = new();
-            foreach (var item in res.Data.SearchResultItems)
+            return Enumerable.Empty<LiveInfoListItemViewModel>();
+        }
+
+        List<LiveInfoListItemViewModel> items = new();
+        foreach (var item in res.Items)
+        {
+            if (!SearchedVideoIdsHash.Contains(item.ProgramId))
             {
-                if (!SearchedVideoIdsHash.Contains(item.LiveId))
+                SearchedVideoIdsHash.Add(item.ProgramId);
+                _nicoLiveCacheRepository.AddOrUpdate(new NicoLive()
                 {
-                    SearchedVideoIdsHash.Add(item.LiveId);
-                    _nicoLiveCacheRepository.AddOrUpdate(new NicoLive()
-                    {
-                        LiveId = item.LiveId,
-                        BroadcasterId = item.ProviderName,
-                        Title = item.Title,
-                    });
+                    LiveId = item.ProgramId,
+                    BroadcasterId = item.ProgramProvider?.Name ?? item.SocialGroup?.Name ?? string.Empty,
+                    Title = item.Program.Title,
+                });
 
-                    var liveInfoVM = new LiveInfoListItemViewModel(item.LiveId);
-                    liveInfoVM.Setup(item);
+                var liveInfoVM = new LiveInfoListItemViewModel(item.ProgramId);
+                liveInfoVM.Setup(item);
 
-                    if (_reservation.IsSuccess)
+                if (_reservation?.IsSuccess ?? false)
+                {
+                    var reserve = _reservation?.Data?.Items.FirstOrDefault(reservation => item.ProgramId == reservation.LiveId);
+                    if (reserve != null)
                     {
-                        var reserve = _reservation?.Data?.Items.FirstOrDefault(reservation => item.LiveId == reservation.LiveId);
-                        if (reserve != null)
-                        {
-                            liveInfoVM.SetReservation(reserve);
-                        }
+                        liveInfoVM.SetReservation(reserve);
                     }
-
-                    items.Add(liveInfoVM);
-                }
-                else
-                {
-                    continue;
                 }
 
-                ct.ThrowIfCancellationRequested();
+                items.Add(liveInfoVM);
+            }
+            else
+            {
+                continue;
             }
 
-            return items;
+            ct.ThrowIfCancellationRequested();
         }
+
+        return items;
+
     }
 }

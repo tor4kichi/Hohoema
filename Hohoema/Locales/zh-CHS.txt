@@ -560,7 +560,7 @@ LiveContentPayRequired = 有薪酬的
 LiveContentChannelContent = CH
 LiveContentOfficialContent = 官方的
 LiveContentTimeshiftEnabled = TS
-LiveContentCommunityMemberOnly = 有限的
+LiveContentCommunityMemberOnly = 内部使用
 LiveSearchPageSortOrder.RecentDesc = 最接近的广播日期和时间
 LiveSearchPageSortOrder.RecentAsc = 广播日期和时间按远距离顺序
 LiveSearchPageSortOrder.TimeshiftCountDesc = 预约数量从大到小的时移
@@ -578,6 +578,29 @@ LiveSearchDisplayWithIsHideMemberOnly = 显示不包括社区的程序
 LiveContentThumbnailBadgeReserved = 广播时间表
 LiveContentThumbnailBadgeOnair = 居住
 LiveContentThumbnailBadgePastAndTimeshiftPresent = 时移
+LiveContentThumbnailBadgePastAndTimeshiftNotPresent = 公共端
+
+Status.BEFORE_RELEASE = 开启前
+Status.RELEASED = 广播时间表
+Status.ON_AIR = 正在播出
+Status.ENDED = 过去的广播
+Sort.RecentDesc = 按降序播放日期和时间
+Sort.RecentAsc = 广播日期和时间顺序
+Sort.Popular = 受欢迎程度
+Sort.TimeshiftReservationsDesc = 按TS保留数降序排列
+Sort.TimeshiftReservationsAsc = 按TS保留数降序排列
+Sort.ViewersDesc = 按参观人数降序排列
+Sort.ViewersAsc = 按参观人数降序排列
+Sort.CommentsDesc = 按评论数降序排列
+Sort.CommentsAsc = 按评论数升序排列
+Sort.UserLevelDesc = 按用户级别降序排列
+Sort.UserLevelAsc = 按用户级别升序排列
+Sort.CommunityCreatedDesc = 最早的社区创建
+Sort.CommunityCreatedAsc = 最新社区创建
+Provider.COMMUNITY = 社区
+Provider.CHANNEL = 渠道
+Provider.OFFICIAL = 官方的
+
 
 
 LiveViewCount = 来访

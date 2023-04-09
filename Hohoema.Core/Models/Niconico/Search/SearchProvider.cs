@@ -40,9 +40,4 @@ public sealed class SearchProvider : ProviderBase
     {
         return _niconicoSession.ToolkitContext.SearchWithPage.Live.GetLiveSearchPageScrapingResultAsync(query, CancellationToken.None);
     }
-
-
-
-
-
 }

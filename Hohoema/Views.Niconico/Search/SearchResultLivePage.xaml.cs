@@ -21,20 +21,6 @@ public sealed partial class SearchResultLivePage : Page
 
     private void Flyout_Closed(object sender, object e)
     {
-			(DataContext as SearchResultLivePageViewModel).SearchOptionsUpdatedCommand.Execute(null);
-    }
-
-    private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        var pageVM = DataContext as SearchResultLivePageViewModel;
-        foreach (var added in e.AddedItems.Cast<ProviderType>())
-        {
-            pageVM.SelectedProviders.Add(added);
-        }
-
-        foreach (var removed in e.RemovedItems.Cast<ProviderType>())
-        {
-            pageVM.SelectedProviders.Remove(removed);
-        }
+        (DataContext as SearchResultLivePageViewModel)!.SearchOptionsUpdatedCommand.Execute(null);
     }
 }
