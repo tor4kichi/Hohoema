@@ -15,8 +15,10 @@
   xmlns:subscriptionVM="using:Hohoema.ViewModels.Pages.Hohoema.Subscription"
   xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:extensions="using:Hohoema.Views.Extensions"
+  xmlns:subscModels="using:Hohoema.Models.Subscriptions"
   mc:Ignorable="d"
   NavigationCacheMode="Enabled"
+  x:Name="PageRoot"
   >
 
   <Page.Resources>
@@ -50,7 +52,7 @@
     </myTemplateSelector:ValueDataTemplateSelector>
 
   </Page.Resources>
-  <Grid MaxWidth="800">
+  <Grid>
 
     <controls:DockPanel>
       <Grid Padding="8 0" Background="{ThemeResource ApplicationContentBackgroundBrush}" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}"
@@ -58,7 +60,8 @@
             >
         <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center"
                       XYFocusDownNavigationStrategy="NavigationDirectionDistance"
-                      XYFocusLeftNavigationStrategy="RectilinearDistance"
+                      XYFocusLeftNavigationStrategy="RectilinearDistance"                    
+                    MaxWidth="800"
                       >
           <CommandBar.Content>
             <mycontrols:AppTitleBar Title="{x:Bind _vm.Title, Mode=OneWay}" IsTabStop="False" />
@@ -75,6 +78,46 @@
               </Grid>
             </AppBarElementContainer>
             <AppBarButton Icon="List" Command="{x:Bind _vm.OpenSubscVideoListPageCommand}" Label="{i18nExt:Localize Key=HohoemaPageType.SubscVideoList}" />
+            <AppBarButton Label="グループ管理">
+              <AppBarButton.Flyout>
+                <Flyout x:Name="Flyout_SubscGroup">
+                  <StackPanel Spacing="8">
+
+                    <Button Command="{x:Bind _vm.AddSubscriptionGroupCommand}" HorizontalAlignment="Right">
+                      <StackPanel Orientation="Horizontal" Spacing="8">
+                        <SymbolIcon Symbol="Add" />
+                        <TextBlock Text="{i18nExt:Localize Key=SubscGroup_CreateGroup}" VerticalAlignment="Center" />
+                      </StackPanel>
+                    </Button>
+                    
+                    <ItemsControl ItemsSource="{x:Bind _vm.SubscriptionGroups}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="subscModels:SubscriptionGroup">
+                          <controls:DockPanel Height="40" Margin="0 8">
+                            <StackPanel Orientation="Horizontal" controls:DockPanel.Dock="Right" Spacing="16">
+                              <Button Tapped="Tapped_RenameSubscriptionGroup" IsEnabled="{x:Bind IsInvalidId, Converter={StaticResource BoolNegation}}"
+                                    ToolTipService.ToolTip="{i18nExt:Localize Key=Rename}"
+                                    >
+                                <SymbolIcon Symbol="Edit" />
+                              </Button>
+
+                              <Button Tapped="Tapped_DeleteSubscriptionGroup" IsEnabled="{x:Bind IsInvalidId, Converter={StaticResource BoolNegation}}" Foreground="{ThemeResource SystemErrorTextColor}" 
+                                    ToolTipService.ToolTip="{i18nExt:Localize Key=Delete}"
+                                    >
+                                <SymbolIcon Symbol="Delete" />
+                              </Button>
+
+                            </StackPanel>
+
+                            <TextBlock Text="{x:Bind Name, Mode=OneWay}" MinWidth="120" VerticalAlignment="Center" />
+                          </controls:DockPanel>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </Flyout>
+              </AppBarButton.Flyout>
+            </AppBarButton>
 
             <AppBarElementContainer VerticalContentAlignment="Center" IsTabStop="False">
               <ToggleSwitch IsOn="{x:Bind _vm.IsAutoUpdateEnabled.Value, Mode=TwoWay}" Style="{StaticResource ToggleSwitchNoHeader}" Header="自動更新" VerticalAlignment="Center" />
@@ -94,7 +137,8 @@
                 ReorderMode="Enabled"
                 CanReorderItems="True"
                 SelectionMode="None"
-                AllowDrop="True"
+                AllowDrop="True"          
+                Padding="32 0 32 48"
               >
         <extensions:ListViewBase.ItemContextFlyoutTemplate>
           <DataTemplate>
@@ -126,12 +170,13 @@
             <Setter Property="BorderThickness" Value="0 0 0 1" />
             <Setter Property="BorderBrush" Value="{ThemeResource HohoemaLightBorderBrush}" />
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="MaxWidth" Value="800" />
           </Style>
         </ListView.ItemContainerStyle>
 
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="subscriptionVM:SubscriptionViewModel">
-            <Grid>
+            <Grid MaxWidth="800">
               <controls:DockPanel>
 
                 <Grid controls:DockPanel.Dock="Right" >

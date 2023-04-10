@@ -88,7 +88,19 @@ public sealed partial class SubscriptionManagementPage : Page
                     : subscGroup.Id == ObjectId.Empty
             });
         }        
-    }    
+    }
+
+    private void Tapped_DeleteSubscriptionGroup(object sender, TappedRoutedEventArgs e)
+    {
+        Flyout_SubscGroup.Hide();
+        _vm.DeleteSubscriptionGroupCommand.Execute((sender as FrameworkElement)!.DataContext);
+    }
+
+    private void Tapped_RenameSubscriptionGroup(object sender, TappedRoutedEventArgs e)
+    {
+        Flyout_SubscGroup.Hide();
+        _vm.RenameSubscriptionGroupCommand.Execute((sender as FrameworkElement)!.DataContext);
+    }
 }
 
 

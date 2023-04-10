@@ -85,15 +85,17 @@ public sealed class SubscriptionManager
 
     public bool DeleteSubscriptionGroup(SubscriptionGroup group)
     {
-        bool result = _subscriptionGroupRepository.DeleteItem(group.Id);
+        var sources = _subscriptionRegistrationRepository.Find(x => x.Group!.Id == group.Id);
+        foreach (var source in sources)
+        {
+            source.Group = null;
+            UpdateSubscription(source);
+        }
 
+        bool result = _subscriptionGroupRepository.DeleteItem(group.Id);
         if (result) 
         {
             _messenger.Send(new SubscriptionGroupDeletedMessage(group));
-        }
-        else
-        {
-
         }
 
         return result;
@@ -188,6 +190,11 @@ public sealed class SubscriptionManager
     public void UpdateSubscription(SubscriptionSourceEntity entity)
     {
         _ = _subscriptionRegistrationRepository.UpdateItem(entity);
+    }
+
+    public void UpdateSubscriptionGroup(SubscriptionGroup group)
+    {
+        _subscriptionGroupRepository.UpdateItem(group);
     }
 
     public void RemoveSubscription(SubscriptionSourceEntity entity)

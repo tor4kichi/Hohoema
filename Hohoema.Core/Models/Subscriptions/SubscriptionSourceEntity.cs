@@ -28,6 +28,9 @@ public sealed class SubscriptionGroup : IComparable<SubscriptionGroup>, IEquatab
 
     public int Order { get; set; } = 0;
 
+    [BsonIgnore]
+    public bool IsInvalidId => Id == ObjectId.Empty;
+
     [BsonCtor]
     public SubscriptionGroup(ObjectId _id, string name)
     {

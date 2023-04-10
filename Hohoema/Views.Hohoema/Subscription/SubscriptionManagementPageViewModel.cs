@@ -1,7 +1,9 @@
 ﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.PageNavigation;
@@ -30,6 +32,7 @@ using Windows.UI.Xaml.Controls;
 using ZLogger;
 
 namespace Hohoema.ViewModels.Pages.Hohoema.Subscription;
+
 
 public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelBase, IRecipient<SettingsRestoredMessage>, IDisposable
 {
@@ -175,6 +178,18 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
             }
         });
 
+        _messenger.Register<SubscriptionGroupDeletedMessage>(this, (r, m) => 
+        {
+            var group = m.Value;
+            foreach (var subsc in Subscriptions)
+            {
+                if (subsc.Group?.Id == group.Id)
+                {
+                    subsc.Group = null;
+                }
+            }
+        });
+
         base.OnNavigatingTo(parameters);
     }
 
@@ -183,6 +198,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         _messenger.Unregister<NewSubscMessage>(this);
         _messenger.Unregister<DeleteSubscMessage>(this);
         _messenger.Unregister<UpdateSubscMessage>(this);
+        _messenger.Unregister<SubscriptionGroupDeletedMessage>(this);
 
         base.OnNavigatedFrom(parameters);
     }
@@ -313,6 +329,49 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
         SubscriptionGroups.Add(newGroup);
 
         subscVM.ChangeSubscGroup(newGroup);
+    }
+
+    [RelayCommand]
+    async Task DeleteSubscriptionGroup(SubscriptionGroup group)
+    {
+        bool confirmDelete = await _dialogService.ShowMessageDialog(
+            "SubscGroup_DeleteComfirmDialogContent".Translate(group.Name),
+            "SubscGroup_DeleteComfirmDialogTitle".Translate(),
+            "Delete".Translate(),
+            "Cancel".Translate()
+            );
+
+        if (confirmDelete)
+        {
+            _subscriptionManager.DeleteSubscriptionGroup(group);
+
+            foreach (var subsc in Subscriptions)
+            {
+                if (subsc.Group?.Id == group.Id)
+                {
+                    subsc.Group = null;
+                }
+            }
+        }
+    }
+
+    [RelayCommand]
+    async Task RenameSubscriptionGroup(SubscriptionGroup group)
+    {
+        string? resultName = await _dialogService.GetTextAsync("SubscGroup_Rename".Translate(), "", group.Name, (s) => !string.IsNullOrWhiteSpace(s) && s.Length <= 40);
+        if (resultName is null) { return; }
+
+        group.Name = resultName;
+        _subscriptionManager.UpdateSubscriptionGroup(group);
+
+        foreach (var subsc in Subscriptions)
+        {
+            if (subsc.Group?.Id == group.Id)
+            {
+                subsc.Group = null;
+                subsc.Group = group;
+            }
+        }
     }
 }
 
