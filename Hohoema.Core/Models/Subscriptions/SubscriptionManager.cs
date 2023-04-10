@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -234,42 +235,24 @@ public sealed class SubscriptionManager
         return lastUpdatedAt + _FeedResultUpdateInterval < DateTime.Now;
     }
 
-    public async ValueTask RefreshAllFeedUpdateResultAsync(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<SubscriptionFeedUpdateResult> RefreshAllFeedUpdateResultAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         IList<SubscriptionSourceEntity> entities = _subscriptionRegistrationRepository.ReadAllItems();
         foreach (SubscriptionSourceEntity entity in entities.Where(x => x.IsEnabled).OrderBy(x => x.SortIndex))
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            List<Exception> exceptions = new();
-            try
-            {
-                _ = await RefreshFeedUpdateResultAsync(entity, cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                return;
-            }
-            catch (Exception e)
-            {
-                exceptions.Add(e);
-            }
-
-            if (exceptions.Any())
-            {
-                throw new AggregateException("failed update subscrition.", exceptions);
-            }
+            yield return await RefreshFeedUpdateResultAsync(entity, cancellationToken);
         }
     }
 
 
-    public async ValueTask<bool> RefreshFeedUpdateResultAsync(SubscriptionSourceEntity entity, CancellationToken cancellationToken = default)
+    public async ValueTask<SubscriptionFeedUpdateResult> RefreshFeedUpdateResultAsync(SubscriptionSourceEntity entity, CancellationToken cancellationToken = default)
     {
         if (!IsExpiredFeedResultUpdatedTime(entity.LastUpdateAt))
         {
             // 前回更新から時間経っていない場合はスキップする
             Debug.WriteLine("[FeedUpdate] update skip: " + entity.Label);
-            return false;
+            return new SubscriptionFeedUpdateResult() { IsSuccessed = false };
         }
 
         SubscriptionFeedUpdateResult result = await Task.Run(async () =>
@@ -295,7 +278,7 @@ public sealed class SubscriptionManager
         // 更新を通知する
         Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
 
-        return true;
+        return result;
     }
 
 

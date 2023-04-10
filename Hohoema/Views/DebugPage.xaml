@@ -12,5 +12,6 @@
     <Button Content="内部通知をテスト" Click="TestInAppNotification" />
     <Button Content="例外を発生させる" Click="ForceThrowException" />
     <Button Content="クラッシュレポートをテスト" Click="TestCrashReport_Click" />
+    <Button Content="購読における新着動画通知をテスト" Click="TestSubscriptionUpdateResultNotification" />
   </StackPanel>
 </Page>

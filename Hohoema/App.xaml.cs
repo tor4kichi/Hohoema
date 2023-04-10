@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
 using Cysharp.Text;
 using DryIoc;
+using Hohoema.Contracts.AppLifecycle;
 using Hohoema.Contracts.Maintenances;
 using Hohoema.Contracts.Migrations;
 using Hohoema.Contracts.Services.Player;
@@ -35,6 +36,7 @@ using Hohoema.Views.Pages;
 using LiteDB;
 using Microsoft.Extensions.Logging;
 using Microsoft.Toolkit.Uwp.Helpers;
+using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -49,6 +51,7 @@ using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Background;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation;
+using Windows.Foundation.Collections;
 using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.UI;
@@ -331,6 +334,10 @@ public sealed partial class App : Application
         container.Register<NoUIProcessScreenContext>(reuse: new SingletonReuse());
         container.Register<CurrentActiveWindowUIContextService>(reuse: new SingletonReuse());
         container.Register<ILocalizeService, LocalizeService>();
+        container.Register<SubscriptionUpdateManager>(reuse: new SingletonReuse());
+        container.RegisterMapping<IToastActivationAware, SubscriptionUpdateManager>(ifAlreadyRegistered: IfAlreadyRegistered.AppendNotKeyed);
+        container.Register<NavigationTriggerFromExternal>(reuse: new SingletonReuse());
+        container.RegisterMapping<IToastActivationAware, NavigationTriggerFromExternal>(ifAlreadyRegistered: IfAlreadyRegistered.AppendNotKeyed);
 
         // Models
         container.Register<AppearanceSettings>(reuse: new SingletonReuse());
@@ -369,8 +376,7 @@ public sealed partial class App : Application
         container.Register<IPlaylistFactoryResolver, PlaylistItemsSourceResolver>(reuse: new SingletonReuse());
 
     }
-
-    [Obsolete]
+    
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
         _IsPreLaunch = args.PrelaunchActivated;
@@ -380,8 +386,7 @@ public sealed partial class App : Application
         await EnsureInitializeAsync();
         OnInitialized();
     }
-
-    [Obsolete]
+    
     protected override async void OnActivated(IActivatedEventArgs args)
     {
         // 外部から起動した場合にサインイン動作と排他的動作にさせたい
@@ -394,12 +399,11 @@ public sealed partial class App : Application
             {
                 await Task.Delay(50);
             }
-
-            await Container.Resolve<NavigationTriggerFromExternal>().Process((args as ToastNotificationActivatedEventArgs).Argument);
+            var toastArgs = (args as ToastNotificationActivatedEventArgs)!;
+            await ProcessToastActivation(toastArgs.Argument, toastArgs.UserInput);
         }
     }
 
-    [Obsolete]
     protected override async void OnBackgroundActivated(BackgroundActivatedEventArgs args)
     {
         BackgroundTaskDeferral deferral = args.TaskInstance.GetDeferral();
@@ -413,10 +417,7 @@ public sealed partial class App : Application
                 case "ToastBackgroundTask":
                     if (args.TaskInstance.TriggerDetails is Windows.UI.Notifications.ToastNotificationActionTriggerDetail details)
                     {
-                        string arguments = details.Argument;
-                        Windows.Foundation.Collections.ValueSet userInput = details.UserInput;
-
-                        await Task.Run(() => Container.Resolve<NavigationTriggerFromExternal>().Process(arguments));
+                        await ProcessToastActivation(details.Argument, details.UserInput);
                     }
                     break;
             }
@@ -427,7 +428,20 @@ public sealed partial class App : Application
         }
     }
 
-    [Obsolete]
+
+    private async ValueTask ProcessToastActivation(string arguments, ValueSet userInput)
+    {
+        ToastArguments parsed = ToastArguments.Parse(arguments);
+        foreach (var toastProcesser in Container.ResolveMany<IToastActivationAware>(behavior: ResolveManyBehavior.AsFixedArray))
+        {
+            if (await toastProcesser.TryHandleActivationAsync(parsed, userInput))
+            {
+                break;
+            }
+        }
+    }
+
+
     private async Task EnsureInitializeAsync()
     {
         using IDisposable initializeLock = await InitializeLock.LockAsync();
@@ -601,8 +615,7 @@ public sealed partial class App : Application
             Container.RegisterInstance(Container.Resolve<FollowNotificationAndConfirmListener>());
             Container.RegisterInstance(Container.Resolve<SubscriptionUpdateManager>());
             Container.RegisterInstance(Container.Resolve<SyncWatchHistoryOnLoggedIn>());
-            Container.RegisterInstance(Container.Resolve<NewFeedVideosProcesser>());
-
+            
             Container.RegisterInstance(Container.Resolve<VideoPlayRequestBridgeToPlayer>());
             Container.RegisterInstance(Container.Resolve<CloseToastNotificationWhenPlayStarted>());
             Container.RegisterInstance(Container.Resolve<AutoSkipToPlaylistNextVideoWhenPlayFailed>());

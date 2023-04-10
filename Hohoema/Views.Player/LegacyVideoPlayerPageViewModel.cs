@@ -285,7 +285,7 @@ public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
 
     public VideoSeriesViewModel VideoSeries { get; private set; }
 
-    NotificationService _NotificationService;
+    INotificationService _NotificationService;
     DialogService _HohoemaDialogService;
 
     private readonly VideoStreamingOriginOrchestrator _videoStreamingOriginOrchestrator;

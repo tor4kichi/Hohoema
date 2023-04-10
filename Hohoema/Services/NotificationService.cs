@@ -400,7 +400,18 @@ public sealed class NotificationService : INotificationService
         _prevToastNotification = toast;
     }
 
-    public void ShowToast(string title, string content, ToastDuration duration = ToastDuration.Short, bool isSuppress = false, string luanchContent = null, Action toastActivatedAction = null, params ToastButton[] toastButtons)
+
+    public void ShowToast(
+        string title,
+        string content,
+        ToastDuration duration = ToastDuration.Short,
+        bool isSuppress = false,
+        string? luanchContent = null,
+        Action? toastActivatedAction = null,
+        IToastButton[]? toastButtons = null,
+        IToastInput[]? toastInputs = null,
+        ToastContextMenuItem[]? toastMenuItems = null
+        )
     {
         var toust = new ToastContent();
         toust.Visual = new ToastVisual()
@@ -429,13 +440,30 @@ public sealed class NotificationService : INotificationService
         if (toastButtons.Any())
         {
             var actions = new ToastActionsCustom();
-            foreach (var button in toastButtons)
+            if (toastButtons is not null)
             {
-                actions.Buttons.Add(button);
+                foreach (var button in toastButtons)
+                {
+                    actions.Buttons.Add(button);
+                }
+            }
+            if (toastInputs is not null)
+            {
+                foreach (var input in toastInputs)
+                {
+                    actions.Inputs.Add(input);
+                }
+            }
+            if (toastMenuItems is not null)
+            {
+                foreach (var menuItem in toastMenuItems)
+                {
+                    actions.ContextMenuItems.Add(menuItem);
+                }
             }
             toust.Actions = actions;
-
         }
+
         var toast = new ToastNotification(toust.GetXml());
         toast.SuppressPopup = isSuppress;
 
@@ -447,8 +475,6 @@ public sealed class NotificationService : INotificationService
         _notifier.Show(toast);
         _prevToastNotification = toast;
     }
-
-
 
 
     public void ShowInAppNotification(InAppNotificationPayload payload)

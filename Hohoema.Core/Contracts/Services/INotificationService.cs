@@ -17,6 +17,15 @@ public interface INotificationService
     void ShowLiteInAppNotification_Fail(string content, TimeSpan duration);
     void ShowLiteInAppNotification_Success(string content, DisplayDuration? displayDuration = null);
     void ShowLiteInAppNotification_Success(string content, TimeSpan duration);
-    void ShowToast(string title, string content, ToastDuration duration = ToastDuration.Short, bool isSuppress = false, string luanchContent = null, Action toastActivatedAction = null);
-    void ShowToast(string title, string content, ToastDuration duration = ToastDuration.Short, bool isSuppress = false, string luanchContent = null, Action toastActivatedAction = null, params ToastButton[] toastButtons);
+    void ShowToast(
+       string title,
+       string content,
+       ToastDuration duration = ToastDuration.Short,
+       bool isSuppress = false,
+       string? luanchContent = null,
+       Action? toastActivatedAction = null,
+       IToastButton[]? toastButtons = null,
+       IToastInput[]? toastInputs = null,
+       ToastContextMenuItem[]? toastMenuItems = null
+       );
 }

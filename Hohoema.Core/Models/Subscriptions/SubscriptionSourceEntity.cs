@@ -1,6 +1,7 @@
 ﻿#nullable enable
 using LiteDB;
 using System;
+using System.Collections.Generic;
 
 namespace Hohoema.Models.Subscriptions;
 
@@ -17,6 +18,20 @@ public sealed class SubscriptionSourceEntity
     
     [BsonRef]
     public SubscriptionGroup? Group { get; set; }
+}
+
+public sealed class SubscriptionGroupComparer : IEqualityComparer<SubscriptionGroup>
+{
+    public static readonly SubscriptionGroupComparer Default = new SubscriptionGroupComparer();
+    public bool Equals(SubscriptionGroup x, SubscriptionGroup y)
+    {
+        return x.Id.Equals(y.Id);
+    }
+
+    public int GetHashCode(SubscriptionGroup obj)
+    {
+        return obj.Id.GetHashCode();
+    }
 }
 
 public sealed class SubscriptionGroup : IComparable<SubscriptionGroup>, IEquatable<SubscriptionGroup>

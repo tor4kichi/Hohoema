@@ -22,7 +22,7 @@ public sealed class LoginUserVideoWatchHistoryProvider : ProviderBase
 
     public async Task<VideoWatchHistory.VideoWatchHistoryItem[]> GetHistoryAsync(int page = 0, int pageSize = 100)
     {
-        _ = await _niconicoSession.SigninLock.LockAsync();
+        using var releaser = await _niconicoSession.SigninLock.LockAsync();
 
         if (!_niconicoSession.IsLoggedIn)
         {

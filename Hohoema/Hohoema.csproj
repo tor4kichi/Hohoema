@@ -134,6 +134,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Contracts\AppLifecycle\IToastActivationAware.cs" />
+    <Compile Include="Contracts\Navigations\NavigationMessengerExtension.cs" />
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Hohoema.GlobalUsings.cs" />
@@ -189,7 +191,6 @@
     <Compile Include="ViewModels\Niconico.Video\Commands\PlaylistPlayFromHereCommand.cs" />
     <Compile Include="ViewModels\Niconico.Video\Commands\VideoPlayCommand.cs" />
     <Compile Include="ViewModels\Niconico.Video\VideoItemsSelectionContext.cs" />
-    <Compile Include="Services\Subscriptions\NewFeedVideosProcesser.cs" />
     <Compile Include="Services\Subscriptions\SubscriptionUpdateManager.cs" />
     <Compile Include="Services\VideoCache\VideoCacheDownloadOperationManager.cs" />
     <Compile Include="Services\VideoCache\VideoCacheFolderManager.cs" />
