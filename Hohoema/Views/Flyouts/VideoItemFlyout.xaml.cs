@@ -1,9 +1,9 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Messaging;
+using Hohoema.Contracts.ViewModels;
 using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.Playlist;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Models.VideoCache;

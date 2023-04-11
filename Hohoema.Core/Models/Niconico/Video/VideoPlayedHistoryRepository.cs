@@ -4,24 +4,30 @@ using LiteDB;
 using NiconicoToolkit.Video;
 using System;
 
-namespace Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
+namespace Hohoema.Models.Niconico.Video;
 
-public class VideoPlayedHistoryRepository : LiteDBServiceBase<VideoPlayHistoryEntry>
+public class VideoWatchedRepository : LiteDBServiceBase<VideoWatchedHistory>
 {
-    public VideoPlayedHistoryRepository(LiteDatabase liteDatabase) : base(liteDatabase)
+    public VideoWatchedRepository(LiteDatabase liteDatabase) 
+        : base(liteDatabase, "VideoPlayHistoryEntry" /* 旧名称を残すことで統合処理を省いてる */)
     {
     }
 
-    public VideoPlayHistoryEntry VideoPlayed(VideoId videoId, TimeSpan playedPosition)
+    public void MarkWatched(VideoId videoId)
     {
-        VideoPlayHistoryEntry history = _collection.FindById(videoId.ToString());
+        VideoPlayed(videoId, TimeSpan.Zero);
+    }
+
+    public VideoWatchedHistory VideoPlayed(VideoId videoId, TimeSpan playedPosition)
+    {
+        VideoWatchedHistory history = _collection.FindById(videoId.ToString());
         if (history != null)
         {
             history.PlayCount++;
         }
         else
         {
-            history = new VideoPlayHistoryEntry
+            history = new VideoWatchedHistory
             {
                 VideoId = videoId,
                 PlayCount = 1,
@@ -35,16 +41,16 @@ public class VideoPlayedHistoryRepository : LiteDBServiceBase<VideoPlayHistoryEn
         return history;
     }
 
-    public VideoPlayHistoryEntry VideoPlayedIfNotWatched(VideoId videoId, TimeSpan playedPosition)
+    public VideoWatchedHistory VideoPlayedIfNotWatched(VideoId videoId, TimeSpan playedPosition)
     {
-        VideoPlayHistoryEntry history = _collection.FindById(videoId.ToString());
+        VideoWatchedHistory history = _collection.FindById(videoId.ToString());
         if (history != null)
         {
             return history;
         }
         else
         {
-            history = new VideoPlayHistoryEntry
+            history = new VideoWatchedHistory
             {
                 VideoId = videoId,
                 PlayCount = 1,
@@ -58,7 +64,7 @@ public class VideoPlayedHistoryRepository : LiteDBServiceBase<VideoPlayHistoryEn
         return history;
     }
 
-    public VideoPlayHistoryEntry Get(VideoId videoId)
+    public VideoWatchedHistory Get(VideoId videoId)
     {
         return _collection.FindById(videoId.ToString());
     }
@@ -68,9 +74,9 @@ public class VideoPlayedHistoryRepository : LiteDBServiceBase<VideoPlayHistoryEn
         return _collection.FindById(videoId.ToString())?.PlayCount > 0;
     }
 
-    public bool IsVideoPlayed(VideoId videoId, out VideoPlayHistoryEntry history)
+    public bool IsVideoPlayed(VideoId videoId, out VideoWatchedHistory history)
     {
-        VideoPlayHistoryEntry entry = _collection.FindById(videoId.ToString());
+        VideoWatchedHistory entry = _collection.FindById(videoId.ToString());
         history = entry;
         return entry?.PlayCount > 0;
     }
@@ -81,7 +87,7 @@ public class VideoPlayedHistoryRepository : LiteDBServiceBase<VideoPlayHistoryEn
     }
 }
 
-public class VideoPlayHistoryEntry
+public class VideoWatchedHistory
 {
     [BsonId]
     public string VideoId { get; set; }

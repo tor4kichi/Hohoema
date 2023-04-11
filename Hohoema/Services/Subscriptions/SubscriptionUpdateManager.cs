@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Contracts.AppLifecycle;
 using Hohoema.Contracts.Navigations;
+using Hohoema.Contracts.Subscriptions;
 using Hohoema.Helpers;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico.Video;
@@ -125,7 +126,7 @@ public sealed class SubscriptionUpdateManager
         _subscriptionManager = subscriptionManager;
         _subscriptionSettings = subscriptionSettingsRepository;
 
-        _messenger.Register<NewSubscMessage>(this, async (r, m) => 
+        _messenger.Register<SubscriptionAddedMessage>(this, async (r, m) => 
         {
             using (await _timerLock.LockAsync())
             {
@@ -327,13 +328,13 @@ public sealed class SubscriptionUpdateManager
 
         ToastSelectionBox box = new ToastSelectionBox(ToastArgumentValue_UserInputKey_SubscGroupId)
         {
-            DefaultSelectionBoxItemId = resultByGroupId.First().Key.Id.ToString()
+            DefaultSelectionBoxItemId = resultByGroupId.First().Key.GroupId.ToString()
         };
 
         box.Items.Add(new ToastSelectionBoxItem(ToastArgumentValue_UserInputValue_NoSelectSubscGroupId, "All".Translate()));
         foreach (var group in resultByGroupId)
         {                        
-            box.Items.Add(new ToastSelectionBoxItem(group.Key.Id.ToString(), $"{group.Key.Name} - {group.Sum(x => x.NewVideos.Count)}件"));
+            box.Items.Add(new ToastSelectionBoxItem(group.Key.GroupId.ToString(), $"{group.Key.Name} - {group.Sum(x => x.NewVideos.Count)}件"));
         }
 
         var newVideoOwnersText = $"新着動画 {resultByGroupId.Sum(x => x.Sum(x => x.NewVideos.Count))}件";

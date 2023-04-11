@@ -84,8 +84,8 @@ public sealed partial class SubscriptionManagementPage : Page
                 Command = subscVM.ChangeSubscGroupCommand,
                 CommandParameter = subscGroup,
                 IsChecked = subscVM.Group != null 
-                    ? subscVM.Group.Id == subscGroup.Id 
-                    : subscGroup.Id == ObjectId.Empty
+                    ? subscVM.Group.GroupId == subscGroup.GroupId 
+                    : subscGroup.GroupId == ObjectId.Empty
             });
         }        
     }

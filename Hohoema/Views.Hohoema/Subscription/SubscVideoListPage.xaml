@@ -6,26 +6,44 @@
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:subscModels="using:Hohoema.Models.Subscriptions"
-  xmlns:videolistPage="using:Hohoema.Views.Controls.VideoList"
+  xmlns:videoList="using:Hohoema.Views.Controls.VideoList"
   xmlns:controls="using:Hohoema.Views.Controls" 
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:i18nExt="using:I18NPortable.Xaml.Extensions"
   xmlns:windowsTriggers="using:WindowsStateTriggers" 
-  xmlns:models="using:Hohoema.Models.Application"
-    mc:Ignorable="d"
-
-  >
+  xmlns:models="using:Hohoema.Models.Application" 
+  xmlns:ts="using:Hohoema.Views.TemplateSelector" 
+  xmlns:subscPageVM="using:Hohoema.ViewModels.Pages.Hohoema.Subscription" 
+  xmlns:vm="using:Hohoema.ViewModels.VideoListPage"
+  mc:Ignorable="d"
+  
+ >
+  <Page.Resources>
+    <local:SubscVideoListItemTemplateSelector x:Key="SubscVideoListItemDataTemplateSelector"
+                                              SubscListItem="{StaticResource VideoListItemControlDefaultTemplate}"
+                                              >
+      <local:SubscVideoListItemTemplateSelector.Separator>
+        <DataTemplate x:DataType="subscPageVM:SubscVideoSeparatorListItemViewModel">
+          <Grid HorizontalAlignment="Center">
+            <TextBlock Text="{x:Bind Localize(CheckedDate), Mode=OneWay}" IsHitTestVisible="False" Opacity="0.7" />
+          </Grid>
+        </DataTemplate>
+      </local:SubscVideoListItemTemplateSelector.Separator>
+    </local:SubscVideoListItemTemplateSelector>
+  </Page.Resources>
+  
 
   <Grid>
-    <videolistPage:VideoItemsListView ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
-                                      ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"
-                                      ItemTemplate="{StaticResource VideoListItemControlDefaultTemplate}"
-                                      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
-                                      RefreshCommand="{x:Bind _vm.ResetListCommand}"
-                                      x:Name="VideoItemsListView"
-                                      >
-      <videolistPage:VideoItemsListView.Header>
+    <videoList:VideoItemsListView
+      ItemsSource="{x:Bind _vm.ItemsView, Mode=OneWay}"
+      ItemCommand="{x:Bind _vm.VideoPlayWithQueueCommand}"
+      ItemTemplateSelector="{StaticResource SubscVideoListItemDataTemplateSelector}"
+      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
+      RefreshCommand="{x:Bind _vm.ResetListCommand}"
+      x:Name="VideoItemsListView"
+      >
+      <videoList:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Padding="8 0" BorderThickness="0 0 0 1" BorderBrush="{StaticResource HohoemaLightBorderBrush}">
           <CommandBar DefaultLabelPosition="Right" VerticalContentAlignment="Center">
             <CommandBar.Content>
@@ -34,8 +52,50 @@
 
             <CommandBar.PrimaryCommands>
 
-              <AppBarButton x:Name="OpenSubscManagementPageButton" Icon="Setting" Label="{i18nExt:Localize Key=HohoemaPageType.SubscriptionManagement}" Command="{Binding OpenSubscManagementPageCommand}" />
-
+              <AppBarElementContainer VerticalContentAlignment="Stretch">
+                <DropDownButton Content="チェック済みにマーク">
+                  <DropDownButton.Flyout>
+                    <MenuFlyout Placement="Bottom">
+                      <MenuFlyoutItem Text="全て" Command="{x:Bind _vm.MarkAsCheckedWithDaysCommand}">
+                        <MenuFlyoutItem.CommandParameter>
+                          <x:Int32>0</x:Int32>
+                        </MenuFlyoutItem.CommandParameter>
+                      </MenuFlyoutItem>
+                      <MenuFlyoutItem Text="1日前まで" Command="{x:Bind _vm.MarkAsCheckedWithDaysCommand}">
+                        <MenuFlyoutItem.CommandParameter>
+                          <x:Int32>1</x:Int32>
+                        </MenuFlyoutItem.CommandParameter>
+                      </MenuFlyoutItem>
+                      <MenuFlyoutItem Text="3日前まで" Command="{x:Bind _vm.MarkAsCheckedWithDaysCommand}">
+                        <MenuFlyoutItem.CommandParameter>
+                          <x:Int32>3</x:Int32>
+                        </MenuFlyoutItem.CommandParameter>
+                      </MenuFlyoutItem>
+                      <MenuFlyoutItem Text="7日前まで" Command="{x:Bind _vm.MarkAsCheckedWithDaysCommand}">
+                        <MenuFlyoutItem.CommandParameter>
+                          <x:Int32>7</x:Int32>
+                        </MenuFlyoutItem.CommandParameter>
+                      </MenuFlyoutItem>
+                      <MenuFlyoutItem Text="14日前まで" Command="{x:Bind _vm.MarkAsCheckedWithDaysCommand}">
+                        <MenuFlyoutItem.CommandParameter>
+                          <x:Int32>14</x:Int32>
+                        </MenuFlyoutItem.CommandParameter>
+                      </MenuFlyoutItem>
+                      <MenuFlyoutItem Text="30日前まで" Command="{x:Bind _vm.MarkAsCheckedWithDaysCommand}">
+                        <MenuFlyoutItem.CommandParameter>
+                          <x:Int32>30</x:Int32>
+                        </MenuFlyoutItem.CommandParameter>
+                      </MenuFlyoutItem>
+                      <MenuFlyoutItem Text="90日前まで" Command="{x:Bind _vm.MarkAsCheckedWithDaysCommand}">
+                        <MenuFlyoutItem.CommandParameter>
+                          <x:Int32>90</x:Int32>
+                        </MenuFlyoutItem.CommandParameter>
+                      </MenuFlyoutItem> 
+                    </MenuFlyout>
+                  </DropDownButton.Flyout>
+                </DropDownButton>
+              </AppBarElementContainer>
+             
               <AppBarElementContainer VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" >
                 <ComboBox ItemsSource="{x:Bind _vm.SubscriptionGroups}"
                           SelectedItem="{x:Bind _vm.SelectedSubscGroup, Mode=TwoWay}"
@@ -68,6 +128,10 @@
 
               <AppBarButton x:Name="SelectionToggleButton" Icon="List" Label="{i18nExt:Localize Key=Select}" Command="{Binding SelectionModeToggleCommand}" />
 
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+              <AppBarButton x:Name="OpenSubscManagementPageButton" Icon="Setting" Label="{i18nExt:Localize Key=HohoemaPageType.SubscriptionManagement}" Command="{Binding OpenSubscManagementPageCommand}" />
+
               <AppBarButton x:Name="RefreshButton"
                               Label="{i18nExt:Localize Key=Refresh}" 
                               Icon="Refresh"
@@ -76,13 +140,11 @@
                           >
               </AppBarButton>
 
-            </CommandBar.PrimaryCommands>
-            <CommandBar.SecondaryCommands>
             </CommandBar.SecondaryCommands>
           </CommandBar>
         </Grid>
-      </videolistPage:VideoItemsListView.Header>
-    </videolistPage:VideoItemsListView>
+      </videoList:VideoItemsListView.Header>
+    </videoList:VideoItemsListView>
 
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
       <TextBlock Text="{i18nExt:Localize Key=VideoNoItems}"

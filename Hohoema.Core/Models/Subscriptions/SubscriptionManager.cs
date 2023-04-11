@@ -1,6 +1,9 @@
 ﻿#nullable enable
+using AngleSharp.Dom;
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Contracts.Subscriptions;
+using Hohoema.Infra;
 using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Search;
@@ -25,11 +28,11 @@ namespace Hohoema.Models.Subscriptions;
 public class SubscriptionFeedUpdateResult
 {
     public bool IsSuccessed { get; set; }
-    public SubscriptionSourceEntity Entity { get; set; }
+    public Subscription Entity { get; set; }
     public List<NicoVideo> Videos { get; set; }
     public List<NicoVideo> NewVideos { get; set; }
-
 }
+
 public sealed class SubscriptionManager
 {
     private readonly IMessenger _messenger;
@@ -43,6 +46,7 @@ public sealed class SubscriptionManager
     private readonly SeriesProvider _seriesRepository;
     private readonly NicoVideoOwnerCacheRepository _nicoVideoOwnerRepository;
     private readonly SubscriptionGroupRepository _subscriptionGroupRepository;
+    private readonly SubscriptionUpdateRespository _subscriptionUpdateRespository;
 
     public SubscriptionManager(
         IMessenger messenger,
@@ -55,7 +59,8 @@ public sealed class SubscriptionManager
         NicoVideoProvider nicoVideoProvider,
         SeriesProvider seriesRepository,
         NicoVideoOwnerCacheRepository nicoVideoOwnerRepository,
-        SubscriptionGroupRepository subscriptionGroupRepository
+        SubscriptionGroupRepository subscriptionGroupRepository,
+        SubscriptionUpdateRespository subscriptionUpdateRespository
         )
     {
         _messenger = messenger;
@@ -69,6 +74,7 @@ public sealed class SubscriptionManager
         _seriesRepository = seriesRepository;
         _nicoVideoOwnerRepository = nicoVideoOwnerRepository;
         _subscriptionGroupRepository = subscriptionGroupRepository;
+        _subscriptionUpdateRespository = subscriptionUpdateRespository;
     }
 
     public List<SubscriptionGroup> GetSubscGroups()
@@ -86,14 +92,14 @@ public sealed class SubscriptionManager
 
     public bool DeleteSubscriptionGroup(SubscriptionGroup group)
     {
-        var sources = _subscriptionRegistrationRepository.Find(x => x.Group!.Id == group.Id);
+        var sources = _subscriptionRegistrationRepository.Find(x => x.Group!.GroupId == group.GroupId);
         foreach (var source in sources)
         {
             source.Group = null;
             UpdateSubscription(source);
         }
 
-        bool result = _subscriptionGroupRepository.DeleteItem(group.Id);
+        bool result = _subscriptionGroupRepository.DeleteItem(group.GroupId);
         if (result) 
         {
             _messenger.Send(new SubscriptionGroupDeletedMessage(group));
@@ -113,7 +119,7 @@ public sealed class SubscriptionManager
         _messenger.Send(new SubscriptionGroupReorderedMessage(groups.ToList()));
     }
 
-    public SubscriptionSourceEntity AddSubscription(IVideoContentProvider video, SubscriptionGroup? group = null)
+    public Subscription AddSubscription(IVideoContentProvider video, SubscriptionGroup? group = null)
     {
         NicoVideoOwner owner = _nicoVideoOwnerRepository.Get(video.ProviderId);
         if (owner == null)
@@ -128,7 +134,7 @@ public sealed class SubscriptionManager
             _ => throw new NotSupportedException(video.ProviderType.ToString())
         };
 
-        return AddSubscription_Internal(new SubscriptionSourceEntity()
+        return AddSubscription_Internal(new Subscription()
         {
             Label = owner.ScreenName,
             SourceParameter = video.ProviderId,
@@ -137,9 +143,9 @@ public sealed class SubscriptionManager
         });
     }
 
-    public SubscriptionSourceEntity AddSubscription(IMylist mylist, SubscriptionGroup? group = null)
+    public Subscription AddSubscription(IMylist mylist, SubscriptionGroup? group = null)
     {
-        return AddSubscription_Internal(new SubscriptionSourceEntity()
+        return AddSubscription_Internal(new Subscription()
         {
             Label = mylist.Name,
             SourceParameter = mylist.PlaylistId.Id,
@@ -148,9 +154,9 @@ public sealed class SubscriptionManager
         });
     }
 
-    public SubscriptionSourceEntity AddKeywordSearchSubscription(string keyword, SubscriptionGroup? group = null)
+    public Subscription AddKeywordSearchSubscription(string keyword, SubscriptionGroup? group = null)
     {
-        return AddSubscription_Internal(new SubscriptionSourceEntity()
+        return AddSubscription_Internal(new Subscription()
         {
             Label = keyword,
             SourceParameter = keyword,
@@ -158,9 +164,9 @@ public sealed class SubscriptionManager
             Group = group,
         });
     }
-    public SubscriptionSourceEntity AddTagSearchSubscription(string tag, SubscriptionGroup? group = null)
+    public Subscription AddTagSearchSubscription(string tag, SubscriptionGroup? group = null)
     {
-        return AddSubscription_Internal(new SubscriptionSourceEntity()
+        return AddSubscription_Internal(new Subscription()
         {
             Label = tag,
             SourceParameter = tag,
@@ -170,9 +176,9 @@ public sealed class SubscriptionManager
     }
 
 
-    public SubscriptionSourceEntity AddSubscription(SubscriptionSourceType sourceType, string sourceParameter, string label, SubscriptionGroup? group = null)
+    public Subscription AddSubscription(SubscriptionSourceType sourceType, string sourceParameter, string label, SubscriptionGroup? group = null)
     {
-        return AddSubscription_Internal(new SubscriptionSourceEntity()
+        return AddSubscription_Internal(new Subscription()
         {
             Label = label,
             SourceParameter = sourceParameter,
@@ -181,14 +187,14 @@ public sealed class SubscriptionManager
         });
     }
 
-    private SubscriptionSourceEntity AddSubscription_Internal(SubscriptionSourceEntity newEntity)
+    private Subscription AddSubscription_Internal(Subscription newEntity)
     {
-        _ = _subscriptionRegistrationRepository.CreateItem(newEntity);
-
+        _subscriptionRegistrationRepository.CreateItem(newEntity);         
+        _messenger.Send(new SubscriptionAddedMessage(newEntity));
         return newEntity;
     }
 
-    public void UpdateSubscription(SubscriptionSourceEntity entity)
+    public void UpdateSubscription(Subscription entity)
     {
         _ = _subscriptionRegistrationRepository.UpdateItem(entity);
     }
@@ -198,21 +204,23 @@ public sealed class SubscriptionManager
         _subscriptionGroupRepository.UpdateItem(group);
     }
 
-    public void RemoveSubscription(SubscriptionSourceEntity entity)
+    public void RemoveSubscription(Subscription entity)
     {
         bool registrationRemoved = _subscriptionRegistrationRepository.DeleteItem(entity.Id);
         Debug.WriteLine("[SubscriptionSource Remove] registration removed: " + registrationRemoved);
+
+        _messenger.Send(new SubscriptionDeletedMessage(entity.Id));
 
         bool feedResultRemoved = _subscFeedVideoRepository.DeleteSubsc(entity);
         Debug.WriteLine("[SubscriptionSource Remove] feed result removed: " + feedResultRemoved);
     }
 
-    public IList<SubscriptionSourceEntity> GetAllSubscriptionSourceEntities()
+    public IList<Subscription> GetAllSubscriptionSourceEntities()
     {
         return _subscriptionRegistrationRepository.ReadAllItems();
     }
 
-    public SubscriptionSourceEntity getSubscriptionSourceEntity(ObjectId id)
+    public Subscription getSubscriptionSourceEntity(ObjectId id)
     {
         return _subscriptionRegistrationRepository.FindById(id);
     }
@@ -222,9 +230,36 @@ public sealed class SubscriptionManager
         return _subscriptionRegistrationRepository.TryGetSubscriptionGroup(sourceType, id, out outGroup);
     }
 
-    public bool TryGetSubscriptionGroup(SubscriptionSourceType sourceType, string id, out SubscriptionSourceEntity outSourceEntity, out SubscriptionGroup? outGroup)
+    public bool TryGetSubscriptionGroup(SubscriptionSourceType sourceType, string id, out Subscription outSourceEntity, out SubscriptionGroup? outGroup)
     {
         return _subscriptionRegistrationRepository.TryGetSubscriptionGroup(sourceType, id, out outSourceEntity, out outGroup);
+    }
+
+
+    public DateTime GetLastUpdatedAt(ObjectId subscriptionId)
+    {
+        return _subscriptionUpdateRespository.GetOrAdd(subscriptionId).LastUpdatedAt;
+    }
+
+    public DateTime GetLastCheckedAt(ObjectId subscriptionId)
+    {
+        return _subscriptionUpdateRespository.GetOrAdd(subscriptionId).LastCheckedAt;
+    }
+
+    public void SetUpdatedAt(ObjectId subscriptionId, DateTime? updatedAt = null)
+    {
+        updatedAt ??= DateTime.Now;
+        var update = _subscriptionUpdateRespository.GetOrAdd(subscriptionId);
+        update.LastUpdatedAt = updatedAt.Value;
+        _subscriptionUpdateRespository.UpdateItem(update);
+    }
+
+    public void SetCheckedAt(ObjectId subscriptionId, DateTime? checkedAt = null)
+    {
+        checkedAt ??= DateTime.Now;
+        var update = _subscriptionUpdateRespository.GetOrAdd(subscriptionId);
+        update.LastCheckedAt = checkedAt.Value;
+        _subscriptionUpdateRespository.UpdateItem(update);
     }
 
 
@@ -237,8 +272,8 @@ public sealed class SubscriptionManager
 
     public async IAsyncEnumerable<SubscriptionFeedUpdateResult> RefreshAllFeedUpdateResultAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        IList<SubscriptionSourceEntity> entities = _subscriptionRegistrationRepository.ReadAllItems();
-        foreach (SubscriptionSourceEntity entity in entities.Where(x => x.IsEnabled).OrderBy(x => x.SortIndex))
+        IList<Subscription> entities = _subscriptionRegistrationRepository.ReadAllItems();
+        foreach (Subscription entity in entities.Where(x => x.IsEnabled).OrderBy(x => x.SortIndex))
         {
             cancellationToken.ThrowIfCancellationRequested();
             yield return await RefreshFeedUpdateResultAsync(entity, cancellationToken);
@@ -246,15 +281,17 @@ public sealed class SubscriptionManager
     }
 
 
-    public async ValueTask<SubscriptionFeedUpdateResult> RefreshFeedUpdateResultAsync(SubscriptionSourceEntity entity, CancellationToken cancellationToken = default)
+    public async ValueTask<SubscriptionFeedUpdateResult> RefreshFeedUpdateResultAsync(Subscription entity, CancellationToken cancellationToken = default)
     {
-        if (!IsExpiredFeedResultUpdatedTime(entity.LastUpdateAt))
+        SubscriptionUpdate update = _subscriptionUpdateRespository.GetOrAdd(entity.Id);
+        if (!IsExpiredFeedResultUpdatedTime(update.LastUpdatedAt))
         {
             // 前回更新から時間経っていない場合はスキップする
             Debug.WriteLine("[FeedUpdate] update skip: " + entity.Label);
             return new SubscriptionFeedUpdateResult() { IsSuccessed = false };
         }
 
+        DateTime now = DateTime.Now;
         SubscriptionFeedUpdateResult result = await Task.Run(async () =>
         {
             Debug.WriteLine("[FeedUpdate] start: " + entity.Label);
@@ -262,14 +299,27 @@ public sealed class SubscriptionManager
             // オンラインソースから情報を取得して
             SubscriptionFeedUpdateResult result = await GetFeedResultAsync(entity);
 
+            if (result.IsSuccessed is false)
+            {
+                return result;
+            }
+
+            update.LastUpdatedAt = now;
+            _subscriptionUpdateRespository.UpdateItem(update);
+
             cancellationToken.ThrowIfCancellationRequested();
 
-            DateTime now = DateTime.Now;
-            List<NicoVideo> newVideos = _subscFeedVideoRepository.RegisteringVideosIfNotExist(entity.Id, now, result.Videos).ToList();
-            result.NewVideos = entity.LastUpdateAt != DateTime.MinValue ? newVideos.ToList() : new List<NicoVideo>();
+            List<SubscFeedVideo> newVideos = _subscFeedVideoRepository.RegisteringVideosIfNotExist(entity.Id, now, result.Videos).ToList();
+            var newVideoIds = newVideos.Select(x => x.VideoId).ToHashSet();
+            result.NewVideos = update.LastUpdatedAt != DateTime.MinValue 
+                ? result.Videos.Where(x => newVideoIds.Contains(x.VideoId)).ToList()
+                : new List<NicoVideo>()
+                ;
 
-            entity.LastUpdateAt = now;
-            _ = _subscriptionRegistrationRepository.UpdateItem(entity);
+            foreach (var newVideo in newVideos)
+            {
+                _ = _messenger.Send(new NewSubscFeedVideoMessage(newVideo));
+            }
 
             return result;
 
@@ -282,7 +332,7 @@ public sealed class SubscriptionManager
     }
 
 
-    public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(SubscriptionSourceEntity source, int skip = 0, int limit = int.MaxValue)
+    public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(Subscription source, int skip = 0, int limit = int.MaxValue)
     {
         return _subscFeedVideoRepository.GetVideos(source.Id, skip, limit);
     }
@@ -295,7 +345,7 @@ public sealed class SubscriptionManager
     public IEnumerable<SubscFeedVideo> GetSubscFeedVideos(SubscriptionGroup? group, int skip = 0, int limit = int.MaxValue)
     {
         return (group != null
-            ? _subscriptionRegistrationRepository.Find(x => x.Group!.Id == group.Id)
+            ? _subscriptionRegistrationRepository.Find(x => x.Group!.GroupId == group.GroupId)
             : _subscriptionRegistrationRepository.Find(x => x.Group == null)
             )
             .SelectMany(subsc => _subscFeedVideoRepository.GetVideos(subsc.Id))
@@ -309,12 +359,33 @@ public sealed class SubscriptionManager
         //return _subscFeedVideoRepository.GetVideos(subscSources.Select(x => x.Id), skip, limit);
     }
 
+    public IEnumerable<SubscFeedVideo> GetSubscFeedVideosForMarkAsChecked(DateTime targetPostAt)
+    {
+        return _subscFeedVideoRepository.GetVideosForMarkAsChecked(targetPostAt);
+    }
+
+    public IEnumerable<SubscFeedVideo> GetSubscFeedVideosForMarkAsChecked(SubscriptionGroup? group, DateTime targetPostAt)
+    {
+        Guard.IsNotEqualTo(group.GroupId, ObjectId.Empty);
+
+        var subscIds = group != null
+            ? _subscriptionRegistrationRepository.Find(x => x.Group!.GroupId == group.GroupId).Select(x => x.Id)
+            : _subscriptionRegistrationRepository.Find(Query.All()).Select(x => x.Id)
+            ;
+
+        return _subscFeedVideoRepository.GetVideosForMarkAsChecked(subscIds, targetPostAt);
+    }
+
     public void UpdateFeedVideos(IEnumerable<SubscFeedVideo> videos)
     {
         _subscFeedVideoRepository.UpdateVideos(videos);
+        foreach (SubscFeedVideo video in videos)
+        {
+            _ = _messenger.Send(new SubscFeedVideoValueChangedMessage(video));
+        }
     }
 
-    private async Task<SubscriptionFeedUpdateResult> GetFeedResultAsync(SubscriptionSourceEntity entity)
+    private async Task<SubscriptionFeedUpdateResult> GetFeedResultAsync(Subscription entity)
     {
         try
         {
@@ -538,5 +609,54 @@ public sealed class SubscriptionManager
 
 
         return items;
+    }
+}
+
+public sealed class SubscriptionUpdate
+{
+    [BsonCtor]
+    public SubscriptionUpdate(ObjectId subscriptionSourceId, DateTime lastUpdatedAt, DateTime lastCheckedAt)
+    {
+        SubscriptionSourceId = subscriptionSourceId;
+        LastUpdatedAt = lastUpdatedAt;
+        LastCheckedAt = lastCheckedAt;
+    }
+
+    public SubscriptionUpdate(ObjectId subscriptionSourceId)
+    {
+        SubscriptionSourceId = subscriptionSourceId;
+    }
+
+    [BsonId]
+    public ObjectId SubscriptionSourceId { get; }
+
+    public DateTime LastUpdatedAt { get; set; } = DateTime.MinValue;
+
+    public DateTime LastCheckedAt { get; set; } = DateTime.MinValue;
+
+}
+
+
+public sealed class SubscriptionUpdateRespository : LiteDBServiceBase<SubscriptionUpdate>
+{
+    public SubscriptionUpdateRespository(LiteDatabase liteDatabase) : base(liteDatabase)
+    {
+    }
+
+    new BsonValue CreateItem(SubscriptionUpdate item)
+    {
+        throw new NotSupportedException();
+    }
+
+    internal SubscriptionUpdate GetOrAdd(ObjectId id)
+    {
+        if (_collection.FindById(id) is not null and var update)
+        {
+            return update;
+        }
+
+        var newUpdate = new SubscriptionUpdate(id);
+        _collection.Insert(newUpdate);
+        return newUpdate;
     }
 }

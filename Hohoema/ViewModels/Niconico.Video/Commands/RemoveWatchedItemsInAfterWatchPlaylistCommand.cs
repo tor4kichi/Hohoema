@@ -1,5 +1,5 @@
 ﻿#nullable enable
-using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
+using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
 using System.Linq;
 
@@ -8,15 +8,15 @@ namespace Hohoema.ViewModels.Niconico.Video.Commands;
 public sealed class RemoveWatchedItemsInAfterWatchPlaylistCommand : CommandBase
 {
     private readonly QueuePlaylist _queuePlaylist;
-    private readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
+    private readonly VideoWatchedRepository _videoWatchedRepository;
 
     public RemoveWatchedItemsInAfterWatchPlaylistCommand(
         QueuePlaylist queuePlaylist,
-        VideoPlayedHistoryRepository videoPlayedHistoryRepository
+        VideoWatchedRepository videoWatchedRepository
         )
     {
         _queuePlaylist = queuePlaylist;
-        _videoPlayedHistoryRepository = videoPlayedHistoryRepository;
+        _videoWatchedRepository = videoWatchedRepository;
     }
 
     protected override bool CanExecute(object parameter)
@@ -29,7 +29,7 @@ public sealed class RemoveWatchedItemsInAfterWatchPlaylistCommand : CommandBase
         int count = 0;
         foreach (var item in _queuePlaylist.ToArray())
         {
-            if (_videoPlayedHistoryRepository.IsVideoPlayed(item.VideoId))
+            if (_videoWatchedRepository.IsVideoPlayed(item.VideoId))
             {
                 _queuePlaylist.Remove(item);
                 count++;

@@ -89,7 +89,7 @@ public sealed class AddSubscriptionCommand : CommandBase
                 };
             }
 
-            bool alreadyAdded = _subscriptionManager.TryGetSubscriptionGroup(result.sourceType, result.id, out SubscriptionSourceEntity? alreadySource, out SubscriptionGroup? defaultGroup);
+            bool alreadyAdded = _subscriptionManager.TryGetSubscriptionGroup(result.sourceType, result.id, out Subscription? alreadySource, out SubscriptionGroup? defaultGroup);
 
             var groups = new[] { new SubscriptionGroup(LiteDB.ObjectId.Empty, "SubscGroup_DefaultGroupName".Translate()) }
                 .Concat(_subscriptionManager.GetSubscGroups())                
@@ -105,7 +105,7 @@ public sealed class AddSubscriptionCommand : CommandBase
 
             if (selectedGroup == null) { return; }
 
-            if (selectedGroup.Id == LiteDB.ObjectId.Empty)
+            if (selectedGroup.GroupId == LiteDB.ObjectId.Empty)
             {
                 selectedGroup = null;
             }

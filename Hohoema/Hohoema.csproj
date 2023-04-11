@@ -136,6 +136,7 @@
     </Compile>
     <Compile Include="Contracts\AppLifecycle\IToastActivationAware.cs" />
     <Compile Include="Contracts\Navigations\NavigationMessengerExtension.cs" />
+    <Compile Include="Contracts\ViewModels\IWatchHistory.cs" />
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Hohoema.GlobalUsings.cs" />

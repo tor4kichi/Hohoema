@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.Playlist;
 using Hohoema.Models.VideoCache;
 using Hohoema.Services.Player.Events;
@@ -27,13 +26,13 @@ public interface ISourcePlaylistPresenter
 }
 
 public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItemPlayable, IDisposable, ISourcePlaylistPresenter,
-    IRecipient<VideoPlayedMessage>,
+    IRecipient<VideoWatchedMessage>,
     IRecipient<PlaylistItemAddedMessage>,
     IRecipient<PlaylistItemRemovedMessage>,
     IRecipient<ItemIndexUpdatedMessage>,
     IRecipient<VideoCacheStatusChangedMessage>
 {
-    private static readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
+    private static readonly VideoWatchedRepository _videoWatchedRepository;
     private static readonly VideoCacheManager _cacheManager;
     private static readonly QueuePlaylist _queuePlaylist;
     private static readonly IMessenger _messenger;
@@ -45,7 +44,7 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
         _queuePlaylist = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueuePlaylist>();
         _cacheManager = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoCacheManager>();
         _scheduler = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<IScheduler>();
-        _videoPlayedHistoryRepository = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoPlayedHistoryRepository>();
+        _videoWatchedRepository = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<VideoWatchedRepository>();
         _addWatchAfterCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueAddItemCommand>();
         _removeWatchAfterCommand = CommunityToolkit.Mvvm.DependencyInjection.Ioc.Default.GetService<QueueRemoveItemCommand>();
     }
@@ -96,7 +95,7 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
     {
         if (_subsribedVideoId is not null and VideoId subscribedVideoId)
         {
-            _messenger.Unregister<VideoPlayedMessage, VideoId>(this, subscribedVideoId);
+            _messenger.Unregister<VideoWatchedMessage, VideoId>(this, subscribedVideoId);
             _messenger.Unregister<PlaylistItemAddedMessage, VideoId>(this, subscribedVideoId);
             _messenger.Unregister<PlaylistItemRemovedMessage, VideoId>(this, subscribedVideoId);
             _messenger.Unregister<ItemIndexUpdatedMessage, VideoId>(this, subscribedVideoId);
@@ -104,7 +103,7 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
             _subsribedVideoId = null;
         }
 
-        _messenger.Register<VideoPlayedMessage, VideoId>(this, videoId);
+        _messenger.Register<VideoWatchedMessage, VideoId>(this, videoId);
         _messenger.Register<PlaylistItemAddedMessage, VideoId>(this, videoId);
         _messenger.Register<PlaylistItemRemovedMessage, VideoId>(this, videoId);
         _messenger.Register<ItemIndexUpdatedMessage, VideoId>(this, videoId);
@@ -131,7 +130,7 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
     {
         if (_subsribedVideoId is not null and VideoId subscribedVideoId)
         {
-            _messenger.Unregister<VideoPlayedMessage, VideoId>(this, subscribedVideoId);
+            _messenger.Unregister<VideoWatchedMessage, VideoId>(this, subscribedVideoId);
             _messenger.Unregister<PlaylistItemAddedMessage, VideoId>(this, subscribedVideoId);
             _messenger.Unregister<PlaylistItemRemovedMessage, VideoId>(this, subscribedVideoId);
             _messenger.Unregister<ItemIndexUpdatedMessage, VideoId>(this, subscribedVideoId);
@@ -157,12 +156,12 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
     }
 
 
-    void IRecipient<VideoPlayedMessage>.Receive(VideoPlayedMessage message)
+    void IRecipient<VideoWatchedMessage>.Receive(VideoWatchedMessage message)
     {
         Watched(message.Value);
     }
 
-    void Watched(VideoPlayedMessage.VideoPlayedEventArgs args)
+    void Watched(VideoWatchedMessage.VideoPlayedEventArgs args)
     {
         IsWatched = true;
         LastWatchedPositionInterpolation = Math.Clamp(args.PlayedPosition.TotalSeconds / Length.TotalSeconds, 0.0, 1.0);
@@ -172,13 +171,13 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
     {
         UnsubscriptionWatched(_subsribedVideoId);
 
-        var watched = _videoPlayedHistoryRepository.IsVideoPlayed(videoId, out var hisotory);
+        var watched = _videoWatchedRepository.IsVideoPlayed(videoId, out var hisotory);
         IsWatched = watched;
         if (!watched)
         {
-            if (!_messenger.IsRegistered<VideoPlayedMessage, VideoId>(this, videoId))
+            if (!_messenger.IsRegistered<VideoWatchedMessage, VideoId>(this, videoId))
             {
-                _messenger.Register<VideoPlayedMessage, VideoId>(this, videoId);
+                _messenger.Register<VideoWatchedMessage, VideoId>(this, videoId);
             }
         }
         else
@@ -194,7 +193,7 @@ public class VideoItemViewModel : ObservableObject, IVideoContent, IPlaylistItem
     {
         if (videoId != null)
         {
-            _messenger.Unregister<VideoPlayedMessage, VideoId>(this, videoId.Value);
+            _messenger.Unregister<VideoWatchedMessage, VideoId>(this, videoId.Value);
         }
     }
 

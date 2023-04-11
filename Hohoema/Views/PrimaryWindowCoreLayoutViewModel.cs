@@ -1051,7 +1051,7 @@ public sealed class SubscriptionMenuItemViewModel
     SubscriptionGroupNavigateAwareMenuItemViewModel ToMenuItemVM(SubscriptionGroup group)
     {
         return new SubscriptionGroupNavigateAwareMenuItemViewModel(
-            group.Id, group.Name, HohoemaPageType.SubscVideoList, new NavigationParameters(("SubscGroupId", group.Id.ToString()))
+            group.GroupId, group.Name, HohoemaPageType.SubscVideoList, new NavigationParameters(("SubscGroupId", group.GroupId.ToString()))
             );
     }
 
@@ -1062,7 +1062,7 @@ public sealed class SubscriptionMenuItemViewModel
 
     void IRecipient<SubscriptionGroupDeletedMessage>.Receive(SubscriptionGroupDeletedMessage message)
     {
-        var groupMenuItem = SubscGroups.First(x => x.GroupId == message.Value.Id);
+        var groupMenuItem = SubscGroups.First(x => x.GroupId == message.Value.GroupId);
         SubscGroups.Remove(groupMenuItem);
     }
 

@@ -305,7 +305,7 @@ public sealed partial class App : Application
         container.Register<ThumbnailCacheManager>(reuse: new SingletonReuse(), made: Made.Of(() => new ThumbnailCacheManager(tempDb)));
         
         container.RegisterDelegate<NicoVideoCacheRepository>((c) => new NicoVideoCacheRepository(tempDb), new SingletonReuse());
-        container.RegisterDelegate(c => new SubscriptionFeedResultRepository(tempDb));
+        container.RegisterDelegate(c => new SubscFeedVideoRepository(tempDb));
         container.RegisterDelegate<IPlayerView>(c =>
         {
             AppearanceSettings appearanceSettings = c.Resolve<AppearanceSettings>();
@@ -723,8 +723,7 @@ public sealed partial class App : Application
         Type[] migrateTypes = new Type[]
         {
             typeof(VideoCacheDatabaseMigration_V_0_29_0),
-            typeof(SearchTargetMigration_V_1_1_0),
-            typeof(SubscriptionMigration_1_3_13),
+            typeof(SearchTargetMigration_V_1_1_0),            
         };
 
         async Task TryMigrationAsync(Type migrateType)

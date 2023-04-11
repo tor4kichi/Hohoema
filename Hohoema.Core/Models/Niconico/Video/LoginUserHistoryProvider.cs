@@ -6,18 +6,20 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
+namespace Hohoema.Models.Niconico.Video;
+
+
 
 public sealed class LoginUserVideoWatchHistoryProvider : ProviderBase
 {
-    private readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
+    private readonly VideoWatchedRepository _videoWatchedRepository;
 
     public LoginUserVideoWatchHistoryProvider(NiconicoSession niconicoSession,
-        VideoPlayedHistoryRepository videoPlayedHistoryRepository
+        VideoWatchedRepository videoWatchedRepository
         )
         : base(niconicoSession)
     {
-        _videoPlayedHistoryRepository = videoPlayedHistoryRepository;
+        _videoWatchedRepository = videoWatchedRepository;
     }
 
     public async Task<VideoWatchHistory.VideoWatchHistoryItem[]> GetHistoryAsync(int page = 0, int pageSize = 100)
@@ -35,7 +37,7 @@ public sealed class LoginUserVideoWatchHistoryProvider : ProviderBase
 
         foreach (VideoWatchHistory.VideoWatchHistoryItem history in res.Data.Items)
         {
-            _ = _videoPlayedHistoryRepository.VideoPlayedIfNotWatched(history.WatchId, TimeSpan.MaxValue);
+            _ = _videoWatchedRepository.VideoPlayedIfNotWatched(history.WatchId, TimeSpan.MaxValue);
         }
 
         return res.Data.Items;

@@ -241,7 +241,7 @@ public sealed class BackupManager
     {
         if (backup.SubscriptionItems == null) { return; }
 
-        List<SubscriptionSourceEntity> items = _subscriptionRegistrationRepository.ReadAllItems();
+        List<Subscription> items = _subscriptionRegistrationRepository.ReadAllItems();
         foreach (SubscriptionBackupEntry s in backup.SubscriptionItems)
         {
             SubscriptionSourceType sourceType = s.SourceType switch
@@ -257,7 +257,7 @@ public sealed class BackupManager
 
             if (items.Any(x => x.SourceType == sourceType && x.SourceParameter == s.SourceParameter)) { continue; }
 
-            SubscriptionSourceEntity entity = new()
+            Subscription entity = new()
             {
                 Id = s.Id ?? ObjectId.NewObjectId(),
                 Label = s.Label,

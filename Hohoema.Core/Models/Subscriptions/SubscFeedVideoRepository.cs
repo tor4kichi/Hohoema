@@ -24,22 +24,6 @@ public sealed class SubscFeedVideo
 }
 
 
-public sealed class SubscFeedVideoValueChangedMessage : ValueChangedMessage<SubscFeedVideo>
-{
-    public SubscFeedVideoValueChangedMessage(SubscFeedVideo value) : base(value)
-    {
-
-    }
-}
-
-public sealed class NewSubscFeedVideoMessage : ValueChangedMessage<SubscFeedVideo>
-{
-    public NewSubscFeedVideoMessage(SubscFeedVideo value) : base(value)
-    {
-
-    }
-}
-
 public sealed class SubscFeedVideoRepository
 {
     private class SubscFeedVideoRepository_Internal : LiteDBServiceBase<SubscFeedVideo>
@@ -59,20 +43,16 @@ public sealed class SubscFeedVideoRepository
     }
 
     private readonly SubscFeedVideoRepository_Internal _subscFeedVideoRepository;
-    private readonly IMessenger _messenger;
 
-    public SubscFeedVideoRepository(LiteDatabase liteDatabase,
-        IMessenger messenger
-        )
+    public SubscFeedVideoRepository(LiteDatabase liteDatabase)
     {
         _subscFeedVideoRepository = new SubscFeedVideoRepository_Internal(liteDatabase);
-        _messenger = messenger;
     }
 
 
-    public bool DeleteSubsc(SubscriptionSourceEntity source)
+    public bool DeleteSubsc(Subscription source)
     {
-        return _subscFeedVideoRepository.DeleteMany(x => x.SourceSubscId == source.Id);
+        return _subscFeedVideoRepository.DeleteItem(source.Id);
     }
 
     public IEnumerable<SubscFeedVideo> GetVideos(ObjectId subscId, int skip = 0, int limit = int.MaxValue)
@@ -86,10 +66,20 @@ public sealed class SubscFeedVideoRepository
         return _subscFeedVideoRepository.Find(Query.All(nameof(SubscFeedVideo.PostAt), Query.Descending)).Where(x => idHashSet.Contains(x.SourceSubscId)).Skip(skip).Take(limit);
     }
 
-
     public IEnumerable<SubscFeedVideo> GetVideos(int skip = 0, int limit = int.MaxValue)
     {
         return _subscFeedVideoRepository.Find(Query.All(nameof(SubscFeedVideo.PostAt), Query.Descending)).Skip(skip).Take(limit);
+    }
+
+    public IEnumerable<SubscFeedVideo> GetVideosForMarkAsChecked(DateTime targetDateTime)
+    {
+        return _subscFeedVideoRepository.Find(x => x.PostAt < targetDateTime).OrderByDescending(x => x.PostAt);
+    }
+
+    public IEnumerable<SubscFeedVideo> GetVideosForMarkAsChecked(IEnumerable<ObjectId> subscIds, DateTime targetDateTime)
+    {
+        HashSet<ObjectId> idHashSet = subscIds.ToHashSet();
+        return _subscFeedVideoRepository.Find(x => x.PostAt < targetDateTime).Where(x => idHashSet.Contains(x.SourceSubscId)).OrderByDescending(x => x.PostAt);
     }
 
     public DateTime GetLatestTimeOnSubscVideo(ObjectId subscId)
@@ -100,13 +90,10 @@ public sealed class SubscFeedVideoRepository
     public void UpdateVideos(IEnumerable<SubscFeedVideo> videos)
     {
         _ = _subscFeedVideoRepository.UpdateItem(videos);
-        foreach (SubscFeedVideo video in videos)
-        {
-            _ = _messenger.Send(new SubscFeedVideoValueChangedMessage(video));
-        }
+        
     }
 
-    public IEnumerable<NicoVideo> RegisteringVideosIfNotExist(ObjectId subscId, DateTime updateAt, IEnumerable<NicoVideo> videos)
+    public IEnumerable<SubscFeedVideo> RegisteringVideosIfNotExist(ObjectId subscId, DateTime updateAt, IEnumerable<NicoVideo> videos)
     {
         foreach (NicoVideo video in videos)
         {
@@ -124,25 +111,8 @@ public sealed class SubscFeedVideoRepository
                 };
 
                 _ = _subscFeedVideoRepository.CreateItem(feed);
-                _ = _messenger.Send(new NewSubscFeedVideoMessage(feed));
 
-                yield return video;
-            }
-        }
-    }
-
-    public IEnumerable<SubscFeedVideo> RegisteringVideosIfNotExist(ObjectId subscId, DateTime updateAt, IEnumerable<SubscFeedVideo> videos)
-    {
-        foreach (SubscFeedVideo video in videos)
-        {
-            string videoId = video.VideoId;
-            if (_subscFeedVideoRepository.Exists(x => x.SourceSubscId == subscId && x.VideoId == videoId) is false)
-            {
-                video.FeedUpdateAt = updateAt;
-                _ = _subscFeedVideoRepository.CreateItem(video);
-
-                _ = _messenger.Send(new NewSubscFeedVideoMessage(video));
-                yield return video;
+                yield return feed;
             }
         }
     }

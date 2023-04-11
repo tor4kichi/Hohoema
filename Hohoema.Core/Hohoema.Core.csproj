@@ -129,7 +129,9 @@
     <Compile Include="Contracts\Services\IMylistGroupDialogService.cs" />
     <Compile Include="Contracts\Services\INotificationService.cs" />
     <Compile Include="Contracts\Services\ISelectionDialogService.cs" />
+    <Compile Include="Contracts\Subscriptions\SubscriptionFeedVideoMessages.cs" />
     <Compile Include="Contracts\Subscriptions\SubscriptionGroupMessages.cs" />
+    <Compile Include="Contracts\Subscriptions\SubscriptionMessages.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="MessengerObservableExtensions.cs" />
     <Compile Include="Models\Application\AppearanceSettings.cs" />
@@ -196,9 +198,8 @@
     <Compile Include="Models\Niconico\User\IUser.cs" />
     <Compile Include="Models\Niconico\User\UserNameProvider.cs" />
     <Compile Include="Models\Niconico\User\UserProvider.cs" />
-    <Compile Include="Models\Niconico\Video.WatchHistory.LoginUser\IWatchHistory.cs" />
-    <Compile Include="Models\Niconico\Video.WatchHistory.LoginUser\LoginUserHistoryProvider.cs" />
-    <Compile Include="Models\Niconico\Video.WatchHistory.LoginUser\VideoPlayedHistoryRepository.cs" />
+    <Compile Include="Models\Niconico\Video\LoginUserHistoryProvider.cs" />
+    <Compile Include="Models\Niconico\Video\VideoPlayedHistoryRepository.cs" />
     <Compile Include="Models\Niconico\Video\ITag.cs" />
     <Compile Include="Models\Niconico\Video\IVideoContent.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideo.cs" />
@@ -270,13 +271,10 @@
     <Compile Include="Models\Playlist\VideoPlayRequestMessage.cs" />
     <Compile Include="Models\Purchase\HohoemaPurchase.cs" />
     <Compile Include="Models\Subscriptions\SubscFeedVideoRepository.cs" />
-    <Compile Include="Models\Subscriptions\SubscriptionFeedResult.cs" />
-    <Compile Include="Models\Subscriptions\SubscriptionFeedResultRepository.cs" />
     <Compile Include="Models\Subscriptions\SubscriptionGroupRepository.cs" />
     <Compile Include="Models\Subscriptions\SubscriptionManager.cs" />
-    <Compile Include="Models\Subscriptions\SubscriptionRegistrationRepository.cs" />
+    <Compile Include="Models\Subscriptions\SubscriptionRepository.cs" />
     <Compile Include="Models\Subscriptions\SubscriptionSettings.cs" />
-    <Compile Include="Models\Subscriptions\SubscriptionSourceEntity.cs" />
     <Compile Include="Models\VideoCache\IVideoCacheDownloadOperation.cs" />
     <Compile Include="Models\VideoCache\IVideoCacheDownloadOperationOutput.cs" />
     <Compile Include="Models\VideoCache\NicoVideoCacheQualityHelper.cs" />
@@ -323,7 +321,6 @@
     <Compile Include="Services\Maintenance\VideoThumbnailImageCacheMaintenance.cs" />
     <Compile Include="Services\Migration\CommentFilteringNGScoreZeroFixture.cs" />
     <Compile Include="Services\Migration\SearchTargetMigration_V_1_1_0.cs" />
-    <Compile Include="Services\Migration\SubscriptionMigration_1_3_13.cs" />
     <Compile Include="Services\Niconico\FollowNotificationAndConfirmListener.cs" />
     <Compile Include="Services\Niconico\LoginUserOwnedMylistManager.cs" />
     <Compile Include="Services\Niconico\WatchHistoryManager.cs" />
