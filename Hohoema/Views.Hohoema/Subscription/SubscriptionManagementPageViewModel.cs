@@ -312,7 +312,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     {
         var name =await _dialogService.GetTextAsync(
             "AddSubscriptionGroup_InputSubscGroupName_Title".Translate(),
-            "AddSubscriptionGroup_InputSubscGroupName_Placeholder".Translate(),
+            "",
             "",
             (s) => !string.IsNullOrWhiteSpace(s)
             );

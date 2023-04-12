@@ -220,9 +220,22 @@ Notification_SuccessAddSubscriptionSourceWithLabel = Added "{0}" to the subscrip
 Notification_FailedSubscriptionUpdate = Subscription renewal failed
 Notification_SuccessAddToWatchLaterWithAddedCount = New videos {0} added to See later
 
+SubscGroup_DefaultGroupName = Default
+AddSubscriptionGroup_InputSubscGroupName_Title = Decide on a subscription group name
+SubscGroup_CreateGroup = Create subscription group
+SubscGroup_ContextMenuItemTitle = Change subscription group
+SubscGroup_SelectGroup = Select subscription group
+SubscGroup_Rename = Rename subscription group
+SubscGroup_DeleteComfirmDialogContent = Even if you delete a subscribed group, the subscribed group will be changed to "default", so you can safely delete it. \nAre you sure you want to delete it?
+SubscGroup_DeleteComfirmDialogTitle = Are you sure you want to delete the {0} group?
+
+VideoNoItem = No videos to display
+
+
+
 
 #### Settings ####
-MenuPaneDisplayMode = How to display the menu
+MenuPaneDisplayMode = Menu display position
 NavigationViewPaneDisplayMode.Auto = Automatic
 NavigationViewPaneDisplayMode.Left = Always displayed on the left
 NavigationViewPaneDisplayMode.Top = Always displayed at the top
