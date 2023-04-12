@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
@@ -267,16 +268,24 @@ public sealed class NiconicoSession : ObservableObject
         }
         catch (Exception ex)
         {
-            IsLoggedIn = false;
-            Debug.WriteLine("ユーザーのアイコン取得処理に失敗 + " + _UserId);
-            Debug.WriteLine(ex.ToString());
-#if DEBUG
-            if (Debugger.IsAttached)
+            try
             {
-                Debugger.Break();
+                var res = await context.User.GetUserDetailAsync(UserId.ToString());
+                Guard.IsTrue(res.IsSuccess, nameof(res.IsSuccess));
+                return (res.Data.User.Nickname, res.Data.User.Icons.Small);
             }
+            catch
+            {
+                Debug.WriteLine("ユーザーのアイコン取得処理に失敗 + " + _UserId);
+                Debug.WriteLine(ex.ToString());
+#if DEBUG
+                if (Debugger.IsAttached)
+                {
+                    Debugger.Break();
+                }
 #endif
-            return (string.Empty, default);
+                return (string.Empty, default);
+            }
         }
     }
 
@@ -357,9 +366,16 @@ public sealed class NiconicoSession : ObservableObject
             IsPremiumAccount = e.IsPremiumAccount;
             UserId = e.UserId;
 
-            (string UserName, Uri IconUrl) userInfo = await LoginAfterResolveUserDetailAction(ToolkitContext);
-            UserName = userInfo.UserName;
-            UserIconUrl = userInfo.IconUrl.OriginalString;
+            try
+            {
+                (string UserName, Uri IconUrl) userInfo = await LoginAfterResolveUserDetailAction(ToolkitContext);
+                UserName = userInfo.UserName;
+                UserIconUrl = userInfo.IconUrl.OriginalString;
+            }
+            catch
+            {
+                
+            }
 
             LogIn?.Invoke(this, new NiconicoSessionLoginEventArgs()
             {
