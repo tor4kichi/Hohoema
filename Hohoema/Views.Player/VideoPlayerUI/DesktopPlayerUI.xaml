@@ -371,7 +371,7 @@
             <!-- 左上 -->
             <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Left">
               <!-- 閉じる -->
-              <Button x:Name="CloseButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" UseSystemFocusVisuals="True" MinWidth="48" MinHeight="48"                                
+              <Button x:Name="CloseButton" Command="{x:Bind _vm.PrimaryViewPlayerManager.CloseCommand}" UseSystemFocusVisuals="True" MinWidth="64" MinHeight="64"                                
                       XYFocusDown="{x:Bind LikeToggleButton}"
                       ToolTipService.ToolTip="{i18nExt:Localize Key=Close}"
                       ToolTipService.Placement="Bottom"
