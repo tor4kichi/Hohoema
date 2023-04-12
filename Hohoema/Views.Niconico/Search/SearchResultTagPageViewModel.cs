@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Follow.LoginUser;
 using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.Niconico.Video;
@@ -51,7 +52,6 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
         ILoggerFactory loggerFactory,
         ApplicationLayoutManager applicationLayoutManager,
         NiconicoSession niconicoSession,
-        SearchProvider searchProvider,
         TagFollowProvider tagFollowProvider,
         SubscriptionManager subscriptionManager,
         PageManager pageManager,
@@ -63,8 +63,7 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
         SelectionModeToggleCommand selectionModeToggleCommand
         )
         : base(loggerFactory.CreateLogger<SearchResultTagPageViewModel>())
-    {
-        SearchProvider = searchProvider;
+    {        
         _tagFollowProvider = tagFollowProvider;
         SubscriptionManager = subscriptionManager;
         PageManager = pageManager;
@@ -140,10 +139,10 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
         set { SetProperty(ref _keyword, value); }
     }
 
-		public ReactiveProperty<bool> FailLoading { get; private set; }
+    public ReactiveProperty<bool> FailLoading { get; private set; }
 
     static public TagSearchPagePayloadContent SearchOption { get; private set; }
-		public ReactiveProperty<int> LoadedPage { get; private set; }
+    public ReactiveProperty<int> LoadedPage { get; private set; }
 
 
     static public List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
@@ -185,16 +184,16 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
     private readonly SearchHistoryRepository _searchHistoryRepository;
 
     public RelayCommand ShowSearchHistoryCommand
-		{
-			get
-			{
-				return _ShowSearchHistoryCommand
-					?? (_ShowSearchHistoryCommand = new RelayCommand(() =>
-					{
-						PageManager.OpenPage(HohoemaPageType.Search);
-					}));
-			}
-		}
+    {
+        get
+        {
+            return _ShowSearchHistoryCommand
+                ?? (_ShowSearchHistoryCommand = new RelayCommand(() =>
+                {
+                    PageManager.OpenPage(HohoemaPageType.Search);
+                }));
+        }
+    }
 
     string ITag.Tag => SearchOption.Keyword;
 
@@ -249,18 +248,18 @@ public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<Vide
     #region Implement HohoemaVideListViewModelBase
 
     protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
-		{
+    {
         if (_selectedSortOption is null)
         {
             SelectedSortOption = CeApiSearchVideoPlaylist.DefaultSortOption;
         }
-        return (VideoSearchIncrementalSource.OneTimeLoadingCount, new VideoSearchIncrementalSource(SearchVideoPlaylist, SelectedSortOption, SearchProvider));
+        return (VideoSearchIncrementalSource.OneTimeLoadingCount, new VideoSearchIncrementalSource(NiconicoSession.ToolkitContext.Search, Keyword, isTagSearch: true));
     }
 
-		
-		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode, INavigationParameters parameters)
-		{
-			if (ItemsView?.Source == null) { return true; }
+
+    protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode, INavigationParameters parameters)
+    {
+        if (ItemsView?.Source == null) { return true; }
 
         return base.CheckNeedUpdateOnNavigateTo(mode, parameters);
     }

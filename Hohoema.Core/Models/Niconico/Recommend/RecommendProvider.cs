@@ -21,13 +21,13 @@ public sealed class RecommendProvider : ProviderBase
         _nicoVideoProvider = nicoVideoProvider;
     }
 
-    public async Task<VideoRecommendResponse> GetVideoRecommendAsync(VideoId videoId)
+    public async Task<VideoRecommendResponse?> GetVideoRecommendAsync(VideoId videoId)
     {
-        (NiconicoToolkit.SearchWithCeApi.Video.VideoIdSearchSingleResponse res, NicoVideo nicoVideo) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
+        (var res, NicoVideo nicoVideo) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
         return nicoVideo.ProviderType switch
         {
             OwnerType.User => await _niconicoSession.ToolkitContext.Recommend.GetVideoRecommendForNotChannelAsync(nicoVideo.VideoAliasId),
-            OwnerType.Channel => await _niconicoSession.ToolkitContext.Recommend.GetVideoRecommendForChannelAsync(nicoVideo.VideoAliasId, nicoVideo.ProviderId, res.Tags.TagInfo.Select(x => x.Tag)),
+            OwnerType.Channel => await _niconicoSession.ToolkitContext.Recommend.GetVideoRecommendForChannelAsync(nicoVideo.VideoAliasId, nicoVideo.ProviderId, res.Data.Tags.Tag.Select(x => x.Text)),
             _ => null
         };
     }

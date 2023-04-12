@@ -392,42 +392,6 @@ public class VideoListItemControlViewModel : VideoItemViewModel, IVideoDetail, I
         }
     }
 
-    public VideoListItemControlViewModel(NiconicoToolkit.SearchWithCeApi.Video.VideoItem video, NiconicoToolkit.SearchWithCeApi.Video.ThreadItem thread)            
-        : this(video.Id, video.Title, video.ThumbnailUrl.OriginalString, TimeSpan.FromSeconds(video.LengthInSeconds), video.FirstRetrieve.DateTime)
-    {
-        ViewCount = video.ViewCount;
-        MylistCount = video.MylistCount;
-        CommentCount =thread.NumRes;
-        _IsDeleted = video.Deleted != 0;
-        if (_IsDeleted && Enum.IsDefined(typeof(PrivateReasonType), video.Deleted))
-        {
-            _PrivateReason = (PrivateReasonType)video.Deleted;
-        }
-        
-        _Description = video.Description;
-        
-        if (video.ProviderType == NiconicoToolkit.SearchWithCeApi.Video.VideoProviderType.Channel)
-        {
-            _ProviderId = video.CommunityId;
-            //_ProviderName = video.name;
-            ProviderType = OwnerType.Channel;
-            RegisterVideoOwnerFilteringMessageReceiver(_ProviderId, null);
-        }
-        else if (video.ProviderType == NiconicoToolkit.SearchWithCeApi.Video.VideoProviderType.Regular)
-        {
-            _ProviderId = video.UserId.ToString();
-            ProviderType = OwnerType.User;
-            RegisterVideoOwnerFilteringMessageReceiver(_ProviderId, null);
-        }
-
-        UpdateIsHidenVideoOwner(this);
-
-        if (VideoId != VideoId && VideoId != null)
-        {
-            SubscribeAll(VideoId);
-        }
-    }
-
     public VideoListItemControlViewModel(
        NicoVideo videoItem
        )

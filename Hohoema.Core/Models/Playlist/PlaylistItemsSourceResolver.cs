@@ -14,8 +14,6 @@ public sealed class PlaylistItemsSourceResolver : IPlaylistFactoryResolver
     private readonly Lazy<SeriesVideoPlaylistFactory> _seriesVideoPlaylistFactory;
     private readonly Lazy<ChannelVideoPlaylistFactory> _channelVideoPlaylistFactory;
     private readonly Lazy<UserVideoPlaylistFactory> _userVideoPlaylistFactory;
-    private readonly Lazy<CommunityVideoPlaylistFactory> _communityVideoPlaylistFactory;
-    private readonly Lazy<SearchPlaylistFactory> _searchPlaylistFactory;
     private readonly Lazy<SubscriptionGroupPlaylistFactory> _subscriptionGroupPlaylistFactory;
 
     public PlaylistItemsSourceResolver(
@@ -24,8 +22,6 @@ public sealed class PlaylistItemsSourceResolver : IPlaylistFactoryResolver
         Lazy<SeriesVideoPlaylistFactory> seriesVideoPlaylistFactory,
         Lazy<ChannelVideoPlaylistFactory> channelVideoPlaylistFactory,
         Lazy<UserVideoPlaylistFactory> userVideoPlaylistFactory,
-        Lazy<CommunityVideoPlaylistFactory> communityVideoPlaylistFactory,
-        Lazy<SearchPlaylistFactory> searchPlaylistFactory,
         Lazy<SubscriptionGroupPlaylistFactory> subscriptionGroupPlaylistFactory
         )
     {
@@ -33,9 +29,7 @@ public sealed class PlaylistItemsSourceResolver : IPlaylistFactoryResolver
         _mylistPlaylistFactory = mylistPlaylistFactory;
         _seriesVideoPlaylistFactory = seriesVideoPlaylistFactory;
         _channelVideoPlaylistFactory = channelVideoPlaylistFactory;
-        _userVideoPlaylistFactory = userVideoPlaylistFactory;
-        _communityVideoPlaylistFactory = communityVideoPlaylistFactory;
-        _searchPlaylistFactory = searchPlaylistFactory;
+        _userVideoPlaylistFactory = userVideoPlaylistFactory;        
         _subscriptionGroupPlaylistFactory = subscriptionGroupPlaylistFactory;
     }
 
@@ -47,12 +41,9 @@ public sealed class PlaylistItemsSourceResolver : IPlaylistFactoryResolver
             PlaylistItemsSourceOrigin.Mylist => _mylistPlaylistFactory.Value,
             PlaylistItemsSourceOrigin.Series => _seriesVideoPlaylistFactory.Value,
             PlaylistItemsSourceOrigin.ChannelVideos => _channelVideoPlaylistFactory.Value,
-            PlaylistItemsSourceOrigin.UserVideos => _userVideoPlaylistFactory.Value,
-            PlaylistItemsSourceOrigin.CommunityVideos => _communityVideoPlaylistFactory.Value,
-            PlaylistItemsSourceOrigin.SearchWithKeyword => _searchPlaylistFactory.Value,
-            PlaylistItemsSourceOrigin.SearchWithTag => _searchPlaylistFactory.Value,
+            PlaylistItemsSourceOrigin.UserVideos => _userVideoPlaylistFactory.Value,            
             PlaylistItemsSourceOrigin.SubscriptionGroup => _subscriptionGroupPlaylistFactory.Value,
-            _ => throw new NotSupportedException(origin.ToString()),
+            _ => throw new NotSupportedException($"Not supported to playlist play for {origin}"),
         };
     }
 }

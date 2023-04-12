@@ -1,9 +1,11 @@
 ﻿#nullable enable
 using AngleSharp.Dom;
+using AngleSharp.Media;
 using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Contracts.Subscriptions;
 using Hohoema.Infra;
+using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Mylist;
 using Hohoema.Models.Niconico.Search;
@@ -12,7 +14,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Niconico.Video.Series;
 using LiteDB;
 using NiconicoToolkit.Mylist;
-using NiconicoToolkit.SearchWithCeApi.Video;
+using NiconicoToolkit.Search;
 using NiconicoToolkit.User;
 using NiconicoToolkit.Video;
 using System;
@@ -36,6 +38,7 @@ public class SubscriptionFeedUpdateResult
 public sealed class SubscriptionManager
 {
     private readonly IMessenger _messenger;
+    private readonly NiconicoSession _niconicoSession;
     private readonly SubscriptionRegistrationRepository _subscriptionRegistrationRepository;
     private readonly SubscFeedVideoRepository _subscFeedVideoRepository;
     private readonly ChannelProvider _channelProvider;
@@ -51,6 +54,7 @@ public sealed class SubscriptionManager
 
     public SubscriptionManager(
         IMessenger messenger,
+        NiconicoSession niconicoSession,
         SubscriptionRegistrationRepository subscriptionRegistrationRepository,
         SubscFeedVideoRepository subscFeedVideoRepository,
         ChannelProvider channelProvider,
@@ -66,6 +70,7 @@ public sealed class SubscriptionManager
         )
     {
         _messenger = messenger;
+        _niconicoSession = niconicoSession;
         _subscriptionRegistrationRepository = subscriptionRegistrationRepository;
         _subscFeedVideoRepository = subscFeedVideoRepository;
         _channelProvider = channelProvider;
@@ -414,8 +419,8 @@ public sealed class SubscriptionManager
                 SubscriptionSourceType.User => await GetUserVideosFeedResult(entity.SourceParameter, _userProvider),
                 SubscriptionSourceType.Channel => await GetChannelVideosFeedResult(entity.SourceParameter, _channelProvider, _nicoVideoProvider),
                 SubscriptionSourceType.Series => await GetSeriesVideosFeedResult(entity.SourceParameter, _seriesRepository),
-                SubscriptionSourceType.SearchWithKeyword => await GetKeywordSearchFeedResult(entity.SourceParameter, _searchProvider),
-                SubscriptionSourceType.SearchWithTag => await GetTagSearchFeedResult(entity.SourceParameter, _searchProvider),
+                SubscriptionSourceType.SearchWithKeyword => await GetKeywordSearchFeedResult(entity.SourceParameter, _niconicoSession.ToolkitContext.Search),
+                SubscriptionSourceType.SearchWithTag => await GetTagSearchFeedResult(entity.SourceParameter, _niconicoSession.ToolkitContext.Search),
                 _ => throw new NotSupportedException(entity.SourceType.ToString())
             };
 
@@ -541,91 +546,52 @@ public sealed class SubscriptionManager
         return items;
     }
 
-    private async Task<List<NicoVideo>> GetKeywordSearchFeedResult(string keyword, SearchProvider searchProvider)
+    private async Task<List<NicoVideo>> GetKeywordSearchFeedResult(string keyword, SearchClient searchProvider)
     {
         List<NicoVideo> items = new();
         int page = 0;
         const int itemGetCountPerPage = 50;
 
         int head = page * itemGetCountPerPage;
-        VideoListingResponse res = await searchProvider.GetKeywordSearch(keyword, head, itemGetCountPerPage);
+        var res = await searchProvider.Video.VideoSearchAsync(keyword, isTagSearch: false, sortKey: NiconicoToolkit.Search.Video.SortKey.RegisteredAt, sortOrder: NiconicoToolkit.Search.Video.SortOrder.Desc);
 
-        VideoInfo[] videoItems = res.Videos;
-        int currentItemsCount = videoItems?.Length ?? 0;
-        if (videoItems == null || currentItemsCount == 0)
+        Guard.IsTrue(res.IsSuccess);
+
+        if (res.Data.TotalCount == 0)
         {
-
-        }
-        else
-        {
-            foreach (VideoInfo item in videoItems)
-            {
-                NicoVideo video = _nicoVideoProvider.UpdateCache(item.Video.Id, video =>
-                {
-                    video.VideoAliasId = item.Video.Id;
-                    video.Title = item.Video.Title;
-                    video.PostedAt = item.Video.FirstRetrieve.DateTime;
-                    video.Length = item.Video.Duration;
-                    video.Description = item.Video.Description;
-                    video.ThumbnailUrl = item.Video.ThumbnailUrl.OriginalString;
-
-                    video.Owner ??= item.Video.ProviderType switch
-                    {
-                        VideoProviderType.Channel => new NicoVideoOwner() { OwnerId = item.Video.CommunityId, UserType = OwnerType.Channel },
-                        _ => new NicoVideoOwner() { OwnerId = item.Video.UserId.ToString(), UserType = OwnerType.User }
-                    };
-
-                    return (item.Video.IsDeleted, item.Video.Deleted);
-                });
-
-
-                items.Add(video);
-            }
+            return items;
         }
 
+        foreach (NvapiVideoItem item in res.Data.Items)
+        {
+            NicoVideo video = _nicoVideoProvider.UpdateCache(item.Id, item);
+            items.Add(video);
+        }
 
         return items;
     }
 
-    private async Task<List<NicoVideo>> GetTagSearchFeedResult(string tag, SearchProvider searchProvider)
+    private async Task<List<NicoVideo>> GetTagSearchFeedResult(string tag, SearchClient searchProvider)
     {
         List<NicoVideo> items = new();
         int page = 0;
         const int itemGetCountPerPage = 50;
 
         int head = page * itemGetCountPerPage;
-        VideoListingResponse res = await searchProvider.GetTagSearch(tag, head, itemGetCountPerPage);
+        var res = await searchProvider.Video.VideoSearchAsync(tag, isTagSearch: true, sortKey: NiconicoToolkit.Search.Video.SortKey.RegisteredAt, sortOrder: NiconicoToolkit.Search.Video.SortOrder.Desc);
 
-        VideoInfo[] videoItems = res.Videos;
-        int currentItemsCount = videoItems?.Length ?? 0;
-        if (videoItems == null || currentItemsCount == 0)
+        Guard.IsTrue(res.IsSuccess);
+
+        if (res.Data.TotalCount == 0)
         {
-
-        }
-        else
-        {
-            foreach (VideoInfo item in videoItems)
-            {
-                NicoVideo video = _nicoVideoProvider.UpdateCache(item.Video.Id, video =>
-                {
-                    video.Title = item.Video.Title;
-                    video.PostedAt = item.Video.FirstRetrieve.DateTime;
-                    video.Length = item.Video.Duration;
-                    video.Description = item.Video.Description;
-                    video.ThumbnailUrl = item.Video.ThumbnailUrl.OriginalString;
-                    video.Owner ??= item.Video.ProviderType switch
-                    {
-                        VideoProviderType.Channel => new NicoVideoOwner() { OwnerId = item.Video.CommunityId, UserType = OwnerType.Channel },
-                        _ => new NicoVideoOwner() { OwnerId = item.Video.UserId.ToString(), UserType = OwnerType.User }
-                    };
-
-                    return (item.Video.IsDeleted, default);
-                });
-
-                items.Add(video);
-            }
+            return items;
         }
 
+        foreach (NvapiVideoItem item in res.Data.Items)
+        {
+            NicoVideo video = _nicoVideoProvider.UpdateCache(item.Id, item);
+            items.Add(video);
+        }
 
         return items;
     }

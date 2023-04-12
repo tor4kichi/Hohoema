@@ -560,25 +560,26 @@ public sealed class LiveInfomationPageViewModel : HohoemaPageViewModelBase, IPin
 
                 await RefreshHtmlDescriptionAsync(programInfo.Data.Description);
 
-                if (programInfo.Data.ProviderType == ProviderType.Community)
-                {
-                    var communityInfo = await NiconicoSession.ToolkitContext.Community.GetCommunityInfoAsync(programInfo.Data.SocialGroupId);
-                    if (communityInfo.IsOK)
-                    {
-                        var community = communityInfo.Community;
-                        Community = new LiveCommunityInfo()
-                        {
-                            CommunityId = community.GlobalId,
-                            Name = community.Name,
-                            Thumbnail = community.ThumbnailNonSsl.OriginalString,
-                            Description = community.Description
-                        };
-                    }
-                    else
-                    {
-                        Community = null;
-                    }
-                }
+                // TODO: 生放送情報ページでのコミュニティ情報の取得
+                //if (programInfo.Data.ProviderType == ProviderType.Community)
+                //{
+                //    var communityInfo = await NiconicoSession.ToolkitContext.Community.GetCommunityInfoAsync(programInfo.Data.SocialGroupId);
+                //    if (communityInfo.IsOK)
+                //    {
+                //        var community = communityInfo.Community;
+                //        Community = new LiveCommunityInfo()
+                //        {
+                //            CommunityId = community.GlobalId,
+                //            Name = community.Name,
+                //            Thumbnail = community.ThumbnailNonSsl.OriginalString,
+                //            Description = community.Description
+                //        };
+                //    }
+                //    else
+                //    {
+                //        Community = null;
+                //    }
+                //}
 
                 await RefreshReservationInfo(liveId);
 

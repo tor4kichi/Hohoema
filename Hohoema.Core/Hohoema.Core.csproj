@@ -186,7 +186,6 @@
     <Compile Include="Models\Niconico\NicoRepo\LoginUser\LoginUserNicoRepoProvider.cs" />
     <Compile Include="Models\Niconico\NicoRepo\NicoRepoSettings.cs" />
     <Compile Include="Models\Niconico\Recommend\RecommendProvider.cs" />
-    <Compile Include="Models\Niconico\Search\CeApiSearchVideoContent.cs" />
     <Compile Include="Models\Niconico\Search\CeApiSearchVideoPlaylist.cs" />
     <Compile Include="Models\Niconico\Search\CeApiSearchVideoPlaylistSortOption.cs" />
     <Compile Include="Models\Niconico\Search\SearchHistory.cs" />
@@ -197,10 +196,8 @@
     <Compile Include="Models\Playlist\BufferedPlaylistItemsSource.cs" />
     <Compile Include="Models\Playlist\MylistResolver.cs" />
     <Compile Include="Models\Playlist\PlaylistFactory\ChannelVideoPlaylistFactory.cs" />
-    <Compile Include="Models\Playlist\PlaylistFactory\CommunityVideoPlaylistFactory.cs" />
     <Compile Include="Models\Playlist\PlaylistFactory\LocalMylistPlaylistFactory.cs" />
     <Compile Include="Models\Playlist\PlaylistFactory\MylistPlaylistFactory.cs" />
-    <Compile Include="Models\Playlist\PlaylistFactory\SearchWithKeywordPlaylistFactory.cs" />
     <Compile Include="Models\Playlist\PlaylistFactory\SeriesVideoPlaylistFactory.cs" />
     <Compile Include="Models\Playlist\PlaylistFactory\UserVideoPlaylistFactory.cs" />
     <Compile Include="Models\Playlist\PlaylistItemSortOrder.cs" />
@@ -372,7 +369,7 @@
       <Version>2.7.1-prerelease.211026002</Version>
     </PackageReference>
     <PackageReference Include="NiconicoToolkit">
-      <Version>0.3.2</Version>
+      <Version>0.4.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>7.12.0</Version>

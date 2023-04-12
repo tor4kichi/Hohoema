@@ -139,7 +139,7 @@ public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoListI
 
         try
         {
-            var res = await UserProvider.GetUserDetailAsync(UserId.Value);
+            var (res, _) = await UserProvider.GetUserDetailAsync(UserId.Value);
             if (res.IsSuccess)
             {
                 User = res.Data.User;

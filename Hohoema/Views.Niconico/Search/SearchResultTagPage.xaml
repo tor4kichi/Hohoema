@@ -44,6 +44,8 @@
                           IsEnabled="{x:Bind _vm.NowLoading, Mode=OneWay, Converter={StaticResource BoolNegation}}"
                           VerticalAlignment="Stretch"
                           Margin="0 6"
+                            
+                            Visibility="Collapsed"
                           >
                     <ComboBox.ItemTemplate>
                       <DataTemplate>

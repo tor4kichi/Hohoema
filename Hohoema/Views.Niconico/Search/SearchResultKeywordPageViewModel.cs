@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Search;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Pins;
@@ -42,8 +43,6 @@ public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<
     }
 
     public ApplicationLayoutManager ApplicationLayoutManager { get; }
-    public SearchProvider SearchProvider { get; }
-    public SubscriptionManager SubscriptionManager1 { get; }
     public PageManager PageManager { get; }
     public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
     public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
@@ -77,6 +76,7 @@ public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<
 
     public SearchResultKeywordPageViewModel(
         ILoggerFactory loggerFactory,
+        NiconicoSession niconicoSession,
         ApplicationLayoutManager applicationLayoutManager,
         SearchProvider searchProvider,
         SubscriptionManager subscriptionManager,
@@ -96,10 +96,8 @@ public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<
             .AddTo(_CompositeDisposable);
 
         SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
-
-
+        _niconicoSession = niconicoSession;
         ApplicationLayoutManager = applicationLayoutManager;
-        SearchProvider = searchProvider;
         PageManager = pageManager;
         _searchHistoryRepository = searchHistoryRepository;
         VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
@@ -141,8 +139,8 @@ public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<
 
     public ReactiveProperty<bool> FailLoading { get; private set; }
 
-		static public KeywordSearchPagePayloadContent SearchOption { get; private set; }
-		public ReactiveProperty<int> LoadedPage { get; private set; }
+    static public KeywordSearchPagePayloadContent SearchOption { get; private set; }
+    public ReactiveProperty<int> LoadedPage { get; private set; }
 
     private string _keyword;
     public string Keyword
@@ -155,19 +153,20 @@ public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<
 
 
     private RelayCommand _ShowSearchHistoryCommand;
+    private readonly NiconicoSession _niconicoSession;
     private readonly SearchHistoryRepository _searchHistoryRepository;
 
     public RelayCommand ShowSearchHistoryCommand
-		{
-			get
-			{
-				return _ShowSearchHistoryCommand
-					?? (_ShowSearchHistoryCommand = new RelayCommand(() =>
-					{
-						PageManager.OpenPage(HohoemaPageType.Search);
-					}));
-			}
-		}
+    {
+        get
+        {
+            return _ShowSearchHistoryCommand
+                ?? (_ShowSearchHistoryCommand = new RelayCommand(() =>
+                {
+                    PageManager.OpenPage(HohoemaPageType.Search);
+                }));
+        }
+    }
 
     #endregion
 
@@ -183,7 +182,7 @@ public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<
                 Keyword = Keyword
             };
 
-            SearchVideoPlaylist = new CeApiSearchVideoPlaylist(new PlaylistId() { Id = Keyword, Origin = PlaylistItemsSourceOrigin.SearchWithKeyword }, SearchProvider);
+            SearchVideoPlaylist = new CeApiSearchVideoPlaylist(new PlaylistId() { Id = Keyword, Origin = PlaylistItemsSourceOrigin.SearchWithKeyword }, null);
             SelectedSortOption = CeApiSearchVideoPlaylist.DefaultSortOption;
 
             this.ObserveProperty(x => x.SelectedSortOption)
@@ -204,25 +203,25 @@ public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<
     #region Implement HohoemaVideListViewModelBase
 
     protected override (int, IIncrementalSource<VideoListItemControlViewModel>) GenerateIncrementalSource()
-		{
+    {
         if (_selectedSortOption is null)
         {
             SelectedSortOption = CeApiSearchVideoPlaylist.DefaultSortOption;
         }
 
-        return (VideoSearchIncrementalSource.OneTimeLoadingCount, new VideoSearchIncrementalSource(SearchVideoPlaylist, SelectedSortOption, SearchProvider));
-		}
-		
+        return (VideoSearchIncrementalSource.OneTimeLoadingCount, new VideoSearchIncrementalSource(_niconicoSession.ToolkitContext.Search, Keyword, isTagSearch: false));
+    }
 
-		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode, INavigationParameters parameters)
-		{
-			if (ItemsView?.Source == null) { return true; }
+
+    protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode, INavigationParameters parameters)
+    {
+        if (ItemsView?.Source == null) { return true; }
 
         return base.CheckNeedUpdateOnNavigateTo(mode, parameters);
     }
     #endregion
 
-}    
+}
 
 
 public enum VideoSearchMode

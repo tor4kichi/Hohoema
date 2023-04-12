@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.Contracts.Services;
 using Hohoema.Models.Playlist;
-using NiconicoToolkit.SearchWithCeApi.Video;
 using System.Text.Json;
 
 namespace Hohoema.Models.Niconico.Search;

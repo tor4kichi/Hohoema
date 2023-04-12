@@ -30,237 +30,238 @@ using CommunityFollowContext = FollowContext<ICommunity>;
 
 
 public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>, IPinablePage, ITitleUpdatablePage
+{
+	HohoemaPin IPinablePage.GetPin()
 	{
-		HohoemaPin IPinablePage.GetPin()
+		return new HohoemaPin()
 		{
-			return new HohoemaPin()
-			{
-				Label = CommunityName,
-				PageType = HohoemaPageType.CommunityVideo,
-				Parameter = $"id={CommunityId}"
-			};
-		}
+			Label = CommunityName,
+			PageType = HohoemaPageType.CommunityVideo,
+			Parameter = $"id={CommunityId}"
+		};
+	}
 
-		IObservable<string> ITitleUpdatablePage.GetTitleObservable()
-		{
-			return this.ObserveProperty(x => x.CommunityName);
-		}
+	IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+	{
+		return this.ObserveProperty(x => x.CommunityName);
+	}
 
 
-		// Follow
-		private CommunityFollowContext _followContext = CommunityFollowContext.Default;
-		public CommunityFollowContext FollowContext
-		{
-			get => _followContext;
-			set => SetProperty(ref _followContext, value);
-		}
+	// Follow
+	private CommunityFollowContext _followContext = CommunityFollowContext.Default;
+	public CommunityFollowContext FollowContext
+	{
+		get => _followContext;
+		set => SetProperty(ref _followContext, value);
+	}
 
 
-		public CommunityVideoPageViewModel(
-			ILoggerFactory loggerFactory,
-			ApplicationLayoutManager applicationLayoutManager,
-			CommunityProvider communityProvider,
-			CommunityFollowProvider communityFollowProvider,
-        PageManager pageManager,
-			VideoPlayWithQueueCommand videoPlayWithQueueCommand
+	public CommunityVideoPageViewModel(
+		ILoggerFactory loggerFactory,
+		ApplicationLayoutManager applicationLayoutManager,
+		CommunityProvider communityProvider,
+		CommunityFollowProvider communityFollowProvider,
+	PageManager pageManager,
+		VideoPlayWithQueueCommand videoPlayWithQueueCommand
+		)
+		: base(loggerFactory.CreateLogger<CommunityVideoPageViewModel>())
+	{
+		ApplicationLayoutManager = applicationLayoutManager;
+		CommunityProvider = communityProvider;
+		_communityFollowProvider = communityFollowProvider;
+		PageManager = pageManager;
+		VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
+
+		CurrentPlaylistToken = Observable.CombineLatest(
+			this.ObserveProperty(x => x.CommunityVideoPlaylist),
+			this.ObserveProperty(x => x.SelectedSortOption),
+			(x, y) => new PlaylistToken(x, y)
 			)
-			: base(loggerFactory.CreateLogger<CommunityVideoPageViewModel>())
-		{
-			ApplicationLayoutManager = applicationLayoutManager;
-			CommunityProvider = communityProvider;
-        _communityFollowProvider = communityFollowProvider;
-        PageManager = pageManager;
-        VideoPlayWithQueueCommand = videoPlayWithQueueCommand;
+			.ToReadOnlyReactivePropertySlim()
+			.AddTo(_CompositeDisposable);
+	}
 
-			CurrentPlaylistToken = Observable.CombineLatest(
-				this.ObserveProperty(x => x.CommunityVideoPlaylist),
-				this.ObserveProperty(x => x.SelectedSortOption),
-				(x, y) => new PlaylistToken(x, y)
-				)
-				.ToReadOnlyReactivePropertySlim()
-				.AddTo(_CompositeDisposable);
+
+	public CommunityId? CommunityId { get; private set; }
+
+	private string _CommunityName;
+	public string CommunityName
+	{
+		get { return _CommunityName; }
+		set { SetProperty(ref _CommunityName, value); }
+	}
+
+
+	private bool _CanDownload;
+	public bool CanDownload
+	{
+		get { return _CanDownload; }
+		set { SetProperty(ref _CanDownload, value); }
+	}
+
+
+	private CommunityVideoPlaylist _CommunityVideoPlaylist;
+	public CommunityVideoPlaylist CommunityVideoPlaylist
+	{
+		get { return _CommunityVideoPlaylist; }
+		private set { SetProperty(ref _CommunityVideoPlaylist, value); }
+	}
+
+
+	public CommunityVideoPlaylistSortOption[] SortOptions => CommunityVideoPlaylist.SortOptions;
+
+
+	private CommunityVideoPlaylistSortOption _selectedSortOption;
+	public CommunityVideoPlaylistSortOption SelectedSortOption
+	{
+		get { return _selectedSortOption; }
+		set { SetProperty(ref _selectedSortOption, value); }
+	}
+
+
+	public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
+
+
+
+	public override async Task OnNavigatedToAsync(INavigationParameters parameters)
+	{
+		CommunityId? communityId = null;
+		if (parameters.TryGetValue("id", out string strCommunityId))
+		{
+			communityId = strCommunityId;
+		}
+		else if (parameters.TryGetValue("id", out CommunityId justCommunityId))
+		{
+			communityId = justCommunityId;
 		}
 
 
-    public CommunityId? CommunityId { get; private set; }
-
-		private string _CommunityName;
-		public string CommunityName
+		if (communityId == null)
 		{
-			get { return _CommunityName; }
-			set { SetProperty(ref _CommunityName, value); }
+			CommunityId = null;
+			CommunityName = null;
+			FollowContext = CommunityFollowContext.Default;
+			return;
 		}
 
+		CommunityId = communityId;
 
-    private bool _CanDownload;
-    public bool CanDownload
-    {
-        get { return _CanDownload; }
-        set { SetProperty(ref _CanDownload, value); }
-    }
-
-
-		private CommunityVideoPlaylist _CommunityVideoPlaylist;
-		public CommunityVideoPlaylist CommunityVideoPlaylist
+		try
 		{
-			get { return _CommunityVideoPlaylist; }
-			private set { SetProperty(ref _CommunityVideoPlaylist, value); }
+			//var res = await CommunityProvider.GetCommunityInfo(CommunityId.Value);
+
+			//CommunityName = res.Community.Name;
+
+			CommunityVideoPlaylist = new CommunityVideoPlaylist(CommunityId.Value, new PlaylistId() { Id = communityId, Origin = PlaylistItemsSourceOrigin.CommunityVideos }, "", CommunityProvider);
+			SelectedSortOption = CommunityVideoPlaylist.DefaultSortOption;
+
+			this.ObserveProperty(x => x.SelectedSortOption)
+				.Subscribe(_ => ResetList())
+				.AddTo(_navigationDisposables);
+		}
+		catch
+		{
+			Debug.WriteLine("コミュ情報取得に失敗");
 		}
 
-
-		public CommunityVideoPlaylistSortOption[] SortOptions => CommunityVideoPlaylist.SortOptions;
-
-
-		private CommunityVideoPlaylistSortOption _selectedSortOption;
-		public CommunityVideoPlaylistSortOption SelectedSortOption
+		try
 		{
-			get { return _selectedSortOption; }
-			set { SetProperty(ref _selectedSortOption, value); }
+			FollowContext = CommunityFollowContext.Default;
+			var authority = await _communityFollowProvider.GetCommunityAuthorityAsync(CommunityId.Value);
+			if (!authority.Data.IsOwner)
+			{
+				FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, new CommunityViewModel() { CommunityId = CommunityId.Value, Name = CommunityName });
+			}
+		}
+		catch
+		{
+			FollowContext = CommunityFollowContext.Default;
 		}
 
-
-		public ReadOnlyReactivePropertySlim<PlaylistToken> CurrentPlaylistToken { get; }
-
-
-
-		public override async Task OnNavigatedToAsync(INavigationParameters parameters)
-    {
-			CommunityId? communityId = null;
-			if (parameters.TryGetValue("id", out string strCommunityId))
-			{
-				communityId = strCommunityId;
-			}
-			else if (parameters.TryGetValue("id", out CommunityId justCommunityId))
-			{
-				communityId = justCommunityId;
-			}
+		await base.OnNavigatedToAsync(parameters);
+	}
 
 
-			if (communityId == null)
-        {
-				CommunityId = null;
-				CommunityName = null;
-				FollowContext = CommunityFollowContext.Default;
-				return;
-        }
 
-			CommunityId = communityId;
+	protected override (int, IIncrementalSource<CommunityVideoInfoViewModel>) GenerateIncrementalSource()
+	{
+		return (CommunityVideoIncrementalSource.OneTimeLoadCount, new CommunityVideoIncrementalSource(CommunityId, 1, CommunityVideoPlaylist, SelectedSortOption, CommunityProvider, _logger));
+	}
 
-			try
-			{
-				var res = await CommunityProvider.GetCommunityInfo(CommunityId.Value);
+	private RelayCommand _OpenCommunityPageCommand;
+	private readonly CommunityFollowProvider _communityFollowProvider;
 
-				CommunityName = res.Community.Name;
-
-				CommunityVideoPlaylist = new CommunityVideoPlaylist(CommunityId.Value, new PlaylistId() { Id = communityId, Origin = PlaylistItemsSourceOrigin.CommunityVideos }, res.Community.Name, CommunityProvider);
-				SelectedSortOption = CommunityVideoPlaylist.DefaultSortOption;
-
-				this.ObserveProperty(x => x.SelectedSortOption)
-					.Subscribe(_ => ResetList())
-					.AddTo(_navigationDisposables);
-			}
-			catch
-			{
-				Debug.WriteLine("コミュ情報取得に失敗");
-			}
-
-			try
-			{
-				FollowContext = CommunityFollowContext.Default;
-				var authority = await _communityFollowProvider.GetCommunityAuthorityAsync(CommunityId.Value);
-				if (!authority.Data.IsOwner)
+	public RelayCommand OpenCommunityPageCommand
+	{
+		get
+		{
+			return _OpenCommunityPageCommand
+				?? (_OpenCommunityPageCommand = new RelayCommand(() =>
 				{
-					FollowContext = await CommunityFollowContext.CreateAsync(_communityFollowProvider, new CommunityViewModel() { CommunityId = CommunityId.Value, Name = CommunityName });
-				}
-			}
-			catch
-			{
-				FollowContext = CommunityFollowContext.Default;
-			}
-
-			await base.OnNavigatedToAsync(parameters);
-    }
-
-
-
-		protected override (int, IIncrementalSource<CommunityVideoInfoViewModel>) GenerateIncrementalSource()
-		{
-			return (CommunityVideoIncrementalSource.OneTimeLoadCount, new CommunityVideoIncrementalSource(CommunityId, 1, CommunityVideoPlaylist, SelectedSortOption, CommunityProvider, _logger));
+					PageManager.OpenPageWithId(HohoemaPageType.Community, CommunityId);
+				}));
 		}
+	}
 
-    private RelayCommand _OpenCommunityPageCommand;
-    private readonly CommunityFollowProvider _communityFollowProvider;
-
-    public RelayCommand OpenCommunityPageCommand
-		{
-			get
-			{
-				return _OpenCommunityPageCommand
-					?? (_OpenCommunityPageCommand = new RelayCommand(() => 
-					{
-						PageManager.OpenPageWithId(HohoemaPageType.Community, CommunityId);
-					}));
-			}
-		}
-
-		public ApplicationLayoutManager ApplicationLayoutManager { get; }
-		public CommunityProvider CommunityProvider { get; }
-    public PageManager PageManager { get; }
-    public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
+	public ApplicationLayoutManager ApplicationLayoutManager { get; }
+	public CommunityProvider CommunityProvider { get; }
+	public PageManager PageManager { get; }
+	public VideoPlayWithQueueCommand VideoPlayWithQueueCommand { get; }
 }
 
 
-	public class CommunityVideoIncrementalSource : IIncrementalSource<CommunityVideoInfoViewModel>
+public class CommunityVideoIncrementalSource : IIncrementalSource<CommunityVideoInfoViewModel>
+{
+	public CommunityProvider CommunityProvider { get; }
+
+	public string CommunityId { get; private set; }
+	public int VideoCount { get; private set; }
+
+	public CommunityVideoIncrementalSource(
+		string communityId,
+		int videoCount,
+		CommunityVideoPlaylist communityVideoPlaylist,
+		CommunityVideoPlaylistSortOption sortOption,
+		CommunityProvider communityProvider,
+		ILogger logger
+		)
 	{
-    public CommunityProvider CommunityProvider { get; }
+		CommunityProvider = communityProvider;
+		_logger = logger;
+		CommunityId = communityId;
+		VideoCount = videoCount;
+		_communityVideoPlaylist = communityVideoPlaylist;
+		_sortOption = sortOption;
+	}
 
-		public string CommunityId { get; private set; }
-		public int VideoCount { get; private set; }
+	public const int OneTimeLoadCount = 20;
+	private readonly CommunityVideoPlaylist _communityVideoPlaylist;
+	private readonly CommunityVideoPlaylistSortOption _sortOption;
+	private readonly ILogger _logger;
 
-		public CommunityVideoIncrementalSource(
-			string communityId, 
-			int videoCount, 
-			CommunityVideoPlaylist communityVideoPlaylist, 
-			CommunityVideoPlaylistSortOption sortOption, 
-			CommunityProvider communityProvider,
-			ILogger logger
-			)
+	async Task<IEnumerable<CommunityVideoInfoViewModel>> IIncrementalSource<CommunityVideoInfoViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
+	{
+		try
 		{
-        CommunityProvider = communityProvider;
-        _logger = logger;
-        CommunityId = communityId;
-			VideoCount = videoCount;
-        _communityVideoPlaylist = communityVideoPlaylist;
-        _sortOption = sortOption;
-    }
 
-		public const int OneTimeLoadCount = 20;
-    private readonly CommunityVideoPlaylist _communityVideoPlaylist;
-    private readonly CommunityVideoPlaylistSortOption _sortOption;
-    private readonly ILogger _logger;
-
-    async Task<IEnumerable<CommunityVideoInfoViewModel>> IIncrementalSource<CommunityVideoInfoViewModel>.GetPagedItemsAsync(int pageIndex, int pageSize, CancellationToken ct)
-    {
-			try
-        {
-				var head = pageIndex * pageSize;
-				var (listRes, itemsRes) = await CommunityProvider.GetCommunityVideoAsync(CommunityId, head, pageSize, sortKey: null, sortOrder: null);
-				if (itemsRes == null || !itemsRes.IsSuccess || itemsRes.Data.Videos == null || itemsRes.Data.Videos.Length == 0)
-				{
-					return Enumerable.Empty<CommunityVideoInfoViewModel>();
-				}
-
-				return itemsRes.Data.Videos
-					.Select((x, i) => new CommunityVideoInfoViewModel(x) { PlaylistItemToken = new PlaylistItemToken(_communityVideoPlaylist, _sortOption, new CommunityVideoContent(x))})
-                .ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
-                ;
-			}
-        catch (Exception e)
-        {
-				_logger.ZLogErrorWithPayload(exception:e, CommunityId, "Community video loading error");
+			var head = pageIndex * pageSize;
+			var (listRes, itemsRes) = await CommunityProvider.GetCommunityVideoAsync(CommunityId, head, pageSize, sortKey: null, sortOrder: null);
+			if (itemsRes == null || !itemsRes.IsSuccess || itemsRes.Data.Videos == null || itemsRes.Data.Videos.Length == 0)
+			{
 				return Enumerable.Empty<CommunityVideoInfoViewModel>();
 			}
+
+			return itemsRes.Data.Videos
+				.Select((x, i) => new CommunityVideoInfoViewModel(x) { PlaylistItemToken = new PlaylistItemToken(_communityVideoPlaylist, _sortOption, new CommunityVideoContent(x)) })
+			.ToArray()// Note: IncrementalLoadingSourceが複数回呼び出すためFreezeしたい
+			;
 		}
+		catch (Exception e)
+		{
+			_logger.ZLogErrorWithPayload(exception: e, CommunityId, "Community video loading error");
+			return Enumerable.Empty<CommunityVideoInfoViewModel>();
+		}
+	}
 }
 
 

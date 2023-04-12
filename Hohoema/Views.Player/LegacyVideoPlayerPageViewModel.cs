@@ -26,7 +26,7 @@ using Hohoema.ViewModels.Subscriptions;
 using Hohoema.Views.Player;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
-using NiconicoToolkit.SearchWithCeApi.Video;
+using NiconicoToolkit.Video;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -400,9 +400,9 @@ public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
                         CommentPlayer.ClearCurrentSession();
 
                         // 削除状態をチェック（再生準備より先に行う）
-                        var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(item.VideoId);
+                        (NiconicoToolkit.ExtApi.Video.ThumbInfoResponse res, NicoVideo video) = await NicoVideoProvider.GetVideoInfoAsync(item.VideoId);
                         VideoInfo = video;
-                        CheckDeleted(res);
+                        CheckDeleted(item.VideoId, res);
 
                         VideoId = VideoInfo.VideoId;
 
@@ -465,12 +465,12 @@ public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
 
     
 
-    private void CheckDeleted(VideoIdSearchSingleResponse res)
+    private void CheckDeleted(VideoId videoId, NiconicoToolkit.ExtApi.Video.ThumbInfoResponse res)
     {
         try
         {
             // 動画が削除されていた場合
-            if (res.Video.IsDeleted)
+            if (res.IsOK is false)
             {
                 _logger.ZLogInformation("Video deleted : {0}", VideoId);
 
@@ -479,16 +479,9 @@ public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
                     await Task.Delay(100);
 
                     string toastContent = "";
-                    if (!String.IsNullOrEmpty(res.Video.Title))
-                    {
-                        toastContent = "DeletedVideoNoticeWithTitle".Translate(res.Video.Title);
-                    }
-                    else
-                    {
-                        toastContent = "DeletedVideoNotice".Translate();
-                    }
+                    toastContent = "DeletedVideoNoticeWithTitle".Translate(videoId);
 
-                    _NotificationService.ShowToast("DeletedVideoToastNotificationTitleWithVideoId".Translate(res.Video.Id), toastContent);
+                    _NotificationService.ShowToast("DeletedVideoToastNotificationTitleWithVideoId".Translate(videoId), toastContent);
                 });
 
                 // ローカルプレイリストの場合は勝手に消しておく
@@ -502,7 +495,7 @@ public class LegacyVideoPlayerPageViewModel : HohoemaPageViewModelBase
         }
         catch (Exception ex)
         {
-            _logger.ZLogErrorWithPayload(exception: ex, res.Video.Id, "Video deleted process failed");
+            _logger.ZLogErrorWithPayload(exception: ex, videoId.ToString(), "Video deleted process failed");
             return;
         }
     }

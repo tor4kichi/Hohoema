@@ -28,7 +28,6 @@ using Hohoema.ViewModels.Subscriptions;
 using Hohoema.Views.Player;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
-using NiconicoToolkit.SearchWithCeApi.Video;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Video.Watch;
 using Reactive.Bindings;
@@ -437,26 +436,15 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
                     {
                         CommentPlayer.ClearCurrentSession();
 
-                        try
-                        {
-                            // 削除状態をチェック（再生準備より先に行う）
-                            var (res, video) = await NicoVideoProvider.GetVideoInfoAsync(item.VideoId);
-                            VideoInfo = video;
-                            CheckDeleted(res);
-                        }
-                        catch 
-                        {
-                            VideoInfo = NicoVideoProvider.GetCachedVideoInfo(item.VideoId);
-                        }
-
-                        VideoId = VideoInfo.VideoId;
-
                         MediaPlayer.AutoPlay = true;
+
+                        VideoInfo = NicoVideoProvider.GetCachedVideoInfo(item.VideoId);
+                        VideoId = VideoInfo.VideoId;
 
                         var result = _hohoemaPlaylistPlayer.CurrentPlayingSession;
                         if (!result.IsSuccess)
                         {
-                            Title = VideoInfo.Title;
+                            Title = VideoInfo?.Title ?? "?";
                             IsNotSupportVideoType = true;
                             CannotPlayReason = result.Exception?.Message ?? result.PlayingOrchestrateFailedReason.Translate();
 
@@ -510,47 +498,47 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
 
     
 
-    private void CheckDeleted(VideoIdSearchSingleResponse res)
-    {
-        try
-        {
-            // 動画が削除されていた場合
-            if (res.Video.IsDeleted)
-            {
-                _logger.ZLogInformation("Video deleted : {0}", VideoId);
+    //private void CheckDeleted(VideoIdSearchSingleResponse res)
+    //{
+    //    try
+    //    {
+    //        // 動画が削除されていた場合
+    //        if (res.Video.IsDeleted)
+    //        {
+    //            _logger.ZLogInformation("Video deleted : {0}", VideoId);
 
-                _scheduler.ScheduleAsync(async (scheduler, cancelToken) =>
-                {
-                    await Task.Delay(100);
+    //            _scheduler.ScheduleAsync(async (scheduler, cancelToken) =>
+    //            {
+    //                await Task.Delay(100);
 
-                    string toastContent = "";
-                    if (!String.IsNullOrEmpty(res.Video.Title))
-                    {
-                        toastContent = "DeletedVideoNoticeWithTitle".Translate(res.Video.Title);
-                    }
-                    else
-                    {
-                        toastContent = "DeletedVideoNotice".Translate();
-                    }
+    //                string toastContent = "";
+    //                if (!String.IsNullOrEmpty(res.Video.Title))
+    //                {
+    //                    toastContent = "DeletedVideoNoticeWithTitle".Translate(res.Video.Title);
+    //                }
+    //                else
+    //                {
+    //                    toastContent = "DeletedVideoNotice".Translate();
+    //                }
 
-                    _NotificationService.ShowToast("DeletedVideoToastNotificationTitleWithVideoId".Translate(res.Video.Id), toastContent);
-                });
+    //                _NotificationService.ShowToast("DeletedVideoToastNotificationTitleWithVideoId".Translate(res.Video.Id), toastContent);
+    //            });
 
-                // ローカルプレイリストの場合は勝手に消しておく
-                if (_hohoemaPlaylistPlayer.CurrentPlaylistId == QueuePlaylist.Id
-                    && VideoInfo != null
-                    )
-                {
-                    _queuePlaylist.Remove(VideoInfo.VideoId);
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.ZLogErrorWithPayload(exception: ex, res.Video.Id, "Video deleted process failed");
-            return;
-        }
-    }
+    //            // ローカルプレイリストの場合は勝手に消しておく
+    //            if (_hohoemaPlaylistPlayer.CurrentPlaylistId == QueuePlaylist.Id
+    //                && VideoInfo != null
+    //                )
+    //            {
+    //                _queuePlaylist.Remove(VideoInfo.VideoId);
+    //            }
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        _logger.ZLogErrorWithPayload(exception: ex, res.Video.Id, "Video deleted process failed");
+    //        return;
+    //    }
+    //}
 
 
     public override void OnNavigatedFrom(INavigationParameters parameters)

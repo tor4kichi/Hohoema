@@ -243,14 +243,14 @@ public sealed class VideoCacheManager : IDisposable
         }
     }
 
-    private async Task<(bool IsNumber, string RealVideoId)> GetVideoIdIfNumberVideoIdAsync(string videoId)
+    private async Task<(bool IsNumber, string? RealVideoId)> GetVideoIdIfNumberVideoIdAsync(string videoId)
     {
         if (videoId.All(char.IsDigit))
         {
-            (NiconicoToolkit.SearchWithCeApi.Video.VideoIdSearchSingleResponse res, NicoVideo _) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
-            if (res != null)
+            (var res, NicoVideo _) = await _nicoVideoProvider.GetVideoInfoAsync(videoId);
+            if (res?.IsOK ?? false)
             {
-                return (true, res.Video.Id);
+                return (true, res.Data.VideoId);
             }
         }
 

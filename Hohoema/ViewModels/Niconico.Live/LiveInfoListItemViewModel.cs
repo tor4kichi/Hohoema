@@ -290,7 +290,7 @@ public class LiveInfoListItemViewModel : ObservableObject, ILiveContent, ILiveCo
 
         if (item.ProgramProvider != null)
         {
-            CommunityThumbnail = item.ProgramProvider.icons?.Uri50x50.OriginalString ?? string.Empty;
+            CommunityThumbnail = item.ProgramProvider.Icons?.Uri50x50.OriginalString ?? string.Empty;
             CommunityGlobalId = item.ProgramProvider.ProgramProviderId;
             CommunityName = item.ProgramProvider.Name;
         }

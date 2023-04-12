@@ -51,28 +51,12 @@ public sealed class UserProvider : ProviderBase
 
     public async Task<NicoVideoOwner> GetUserInfoAsync(UserId userId)
     {
-        NicovideoUserResponse userRes = await _niconicoSession.ToolkitContext.User.GetUserInfoAsync(userId);
-
-        NicoVideoOwner owner = _nicoVideoOwnerRepository.Get(userId);
-        if (userRes.IsOK)
-        {
-            UserInfo user = userRes.User;
-            owner ??= new NicoVideoOwner()
-            {
-                OwnerId = userId,
-                UserType = OwnerType.User
-            };
-            owner.ScreenName = user.Nickname;
-            owner.IconUrl = user.ThumbnailUrl.OriginalString;
-
-            _ = _nicoVideoOwnerRepository.UpdateItem(owner);
-        }
-
+        var (_, owner) = await GetUserDetailAsync(userId);
         return owner;
     }
 
 
-    public async Task<UserDetailResponse> GetUserDetailAsync(UserId userId)
+    public async Task<(UserDetailResponse Response, NicoVideoOwner Owner)> GetUserDetailAsync(UserId userId)
     {
         UserDetailResponse detail = await _niconicoSession.ToolkitContext.User.GetUserDetailAsync(userId);
 
@@ -92,7 +76,7 @@ public sealed class UserProvider : ProviderBase
             _ = _nicoVideoOwnerRepository.UpdateItem(owner);
         }
 
-        return detail;
+        return (detail, owner);
     }
 
 

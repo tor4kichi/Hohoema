@@ -1,11 +1,12 @@
 ﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 using Hohoema.Infra;
 using Hohoema.Models.Application;
 using LiteDB;
 using Microsoft.Extensions.Caching.Memory;
-using NiconicoToolkit.SearchWithCeApi.Video;
+using NiconicoToolkit.ExtApi.Video;
 using NiconicoToolkit.Video;
 using NiconicoToolkit.Video.Watch;
 using System;
@@ -129,8 +130,6 @@ public sealed class NicoVideoProvider : ProviderBase
     private static MemoryCache _cache;
     private readonly MemoryCacheEntryOptions _entryOptions;
 
-    private NiconicoToolkit.SearchWithCeApi.Video.VideoSearchSubClient SearchClient => _niconicoSession.ToolkitContext.SearchWithCeApi.Video;
-
     private static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(5);
 
     private readonly Helpers.AsyncLock _ThumbnailAccessLock = new();
@@ -248,18 +247,6 @@ public sealed class NicoVideoProvider : ProviderBase
     }
 
 
-    public async ValueTask<List<NicoVideo>> GetCachedVideoInfoItemsAsync(IEnumerable<VideoId> videoIds, CancellationToken ct = default)
-    {
-        List<NicoVideo> cachedVideos = GetCachedVideoInfoItems(videoIds);
-        IEnumerable<VideoId> ids = cachedVideos.Where(x => x.Owner is null).Select(x => x.VideoId);
-        if (ids.Any())
-        {
-            _ = await GetVideoInfoManyAsync(ids).ToArrayAsync(ct);
-        }
-
-        return cachedVideos;
-    }
-
 
     public async ValueTask<NicoVideo> GetCachedVideoInfoAsync(VideoId videoId, CancellationToken ct = default)
     {
@@ -290,12 +277,6 @@ public sealed class NicoVideoProvider : ProviderBase
     }
 
 
-    public async ValueTask<IDictionary<VideoId, NicoVideoOwner>> ResolveVideoOwnersAsync(IEnumerable<VideoId> videoIds, CancellationToken ct = default)
-    {
-        List<NicoVideo> cachedVideos = await GetCachedVideoInfoItemsAsync(videoIds, ct);
-        return cachedVideos.ToDictionary(x => x.VideoId, x => x.Owner);
-    }
-
     public async ValueTask<NicoVideoOwner> ResolveVideoOwnerAsync(VideoId videoId, CancellationToken ct = default)
     {
         NicoVideo video = GetCachedVideoInfo(videoId);
@@ -308,124 +289,45 @@ public sealed class NicoVideoProvider : ProviderBase
     }
 
 
-
-    /// <summary>
-    /// ニコニコ動画コンテンツの情報を取得します。
-    /// 内部DB、サムネイル、Watchページのアクセス情報から更新されたデータを提供します。
-    /// 
-    /// </summary>
-    /// <param name="rawVideoId"></param>
-    /// <returns></returns>
-    public async Task<(VideoIdSearchSingleResponse Response, NicoVideo NicoVideo)> GetVideoInfoAsync(VideoId rawVideoId, CancellationToken ct = default)
+    public async Task<(ThumbInfoResponse? Response, NicoVideo NicoVideo)> GetVideoInfoAsync(VideoId videoId, CancellationToken ct = default)
     {
-        if (_niconicoSession.ServiceStatus.IsOutOfService())
-        {
-            throw new InvalidOperationException();
-        }
-
-        if (!Helpers.InternetConnection.IsInternet())
-        {
-            throw new InvalidOperationException();
-        }
-
-        Debug.WriteLine("get video from online " + rawVideoId);
-
-        try
-        {
-            VideoIdSearchSingleResponse res = await SearchClient.IdSearchAsync(rawVideoId);
-
-            if (!res.IsOK)
+        var res = await _niconicoSession.ToolkitContext.ExtApiClient.GetVideoInfoAsync(videoId, ct);
+        
+        return (res, UpdateCache(videoId, (video) => 
+        { 
+            if (res.IsOK is false)
             {
-                throw new ArgumentException(rawVideoId);
+                var error = res.Error!;
+                return (error.ErrorCode == NiconicoToolkit.ExtApi.Video.ThumbInfoErrorCode.DELETED, null);
             }
-
-            NicoVideo nicoVideo = UpdateVideo(rawVideoId, res.Video);
-            VideoItem video = res.Video;
-
-            if (res.Video.Deleted != 0)
+            else
             {
-                PublishVideoDeletedEvent(rawVideoId, res.Video.Deleted, res.Video.Title);
-            }
+                var data = res.Data!;
+                video.Title = data.Title;
+                video.Description = data.Description;
+                video.Length = data.Length;
 
-            return (res, nicoVideo);
-        }
-        catch (Exception ex) when (ex.Message.Contains("DELETE") || ex.Message.Contains("NOT_FOUND"))
-        {
-            PublishVideoDeletedEvent(rawVideoId, null, null);
-            throw;
-        }
-    }
-
-    private NicoVideo UpdateVideo(VideoId videoId, VideoItem video)
-    {
-        return UpdateCache(videoId, info =>
-        {
-            info.Title = video.Title;
-            info.VideoAliasId = video.Id;
-            info.Length = TimeSpan.FromSeconds(video.LengthInSeconds);
-            info.PostedAt = video.FirstRetrieve.DateTime;
-            info.ThumbnailUrl = video.ThumbnailUrl.OriginalString;
-            info.Description = video.Description;
-
-            info.Owner = video.ProviderType == VideoProviderType.Channel
-                ? new NicoVideoOwner()
+                var (ProviderType, ProviderId, ProviderName, ProviderIconUrl) = data.GetProviderData();
+                video.Owner = new NicoVideoOwner()
                 {
-                    OwnerId = video.CommunityId,
-                    UserType = OwnerType.Channel,
-                    IconUrl = info.Owner?.IconUrl,
-                    ScreenName = info.Owner?.ScreenName,
-                }
-                : new NicoVideoOwner()
-                {
-                    OwnerId = video.UserId.ToString(),
-                    UserType = video.ProviderType == VideoProviderType.Regular ? OwnerType.User : OwnerType.Channel,
-                    IconUrl = info.Owner?.IconUrl,
-                    ScreenName = info.Owner?.ScreenName,
+                    UserType = ProviderType switch
+                    {
+                        VideoProviderType.User => OwnerType.User,
+                        VideoProviderType.Channel => OwnerType.Channel,
+                        _ => throw new InvalidOperationException(),
+                    },
+                    OwnerId = ProviderId.ToString(),
+                    IconUrl = ProviderIconUrl,
+                    ScreenName = ProviderName,
                 };
+                video.PostedAt = data.PostAt;
+                video.ThumbnailUrl = data.ThumbnailUrl;
 
-            return (video.Deleted != 0, video.Deleted);
-        });
+                return (IsDeleted: false, deleteReason: default);
+            }
+            
+        }));
     }
-
-    public async IAsyncEnumerable<VideoItem> GetVideoInfoManyAsync(IEnumerable<VideoId> idItems, bool isLatestRequired = true, [EnumeratorCancellation] CancellationToken ct = default)
-    {
-        VideoIdSearchResponse res = await Task.Run(async () =>
-        {
-            using (await _ThumbnailAccessLock.LockAsync(ct))
-            {
-                return await SearchClient.IdSearchAsync(idItems);
-            }
-        });
-
-        if (res.IsOK && !res.Videos.Any())
-        {
-            yield break;
-        }
-
-        foreach (VideoId videoId in idItems)
-        {
-            VideoInfo item = res.Videos.FirstOrDefault(x => x.Video.Id == videoId);
-            VideoItem video = item?.Video;
-
-            if (video is null && isLatestRequired)
-            {
-                VideoIdSearchSingleResponse singleRes = await SearchClient.IdSearchAsync(videoId);
-                video = singleRes?.Video;
-            }
-
-            if (video is null)
-            {
-                Debug.WriteLine("動画情報の取得に失敗 VideoId: " + videoId);
-                continue;
-            }
-
-            _ = UpdateVideo(videoId, video);
-
-            yield return video;
-        }
-
-    }
-
 
     public async Task<WatchPageResponse> GetWatchPageResponseAsync(VideoId videoId, bool noHisotry = false)
     {

@@ -350,12 +350,12 @@ public class UserInfoPageViewModel : HohoemaPageViewModelBase, IPinablePage, ITi
         try
         {
             var userInfo = await UserProvider.GetUserDetailAsync(UserId.Value);
-            if (!userInfo.IsSuccess)
+            if (!userInfo.Response.IsSuccess)
             {
                 throw new HohoemaException();
             }
 
-            var user = userInfo.Data;
+            var user = userInfo.Response.Data;
             Nickname = user.User.Nickname;
             IconUrl = user.User.Icons.Small.OriginalString;
 

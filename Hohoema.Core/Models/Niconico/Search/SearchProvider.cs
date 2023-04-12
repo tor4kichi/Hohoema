@@ -1,7 +1,6 @@
 ﻿#nullable enable
 using Hohoema.Infra;
 using Hohoema.Models.Niconico.Mylist;
-using NiconicoToolkit.SearchWithCeApi.Video;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,18 +19,6 @@ public sealed class SearchProvider : ProviderBase
         : base(niconicoSession)
     {
         _mylistProvider = mylistProvider;
-    }
-
-
-
-    public Task<NiconicoToolkit.SearchWithCeApi.Video.VideoListingResponse> GetKeywordSearch(string keyword, int from, int limit, VideoSortKey sort = VideoSortKey.FirstRetrieve, VideoSortOrder order = VideoSortOrder.Desc)
-    {
-        return _niconicoSession.ToolkitContext.SearchWithCeApi.Video.KeywordSearchAsync(keyword, from, limit, sort, order);
-    }
-
-    public Task<NiconicoToolkit.SearchWithCeApi.Video.VideoListingResponse> GetTagSearch(string tag, int from, int limit, VideoSortKey sort = VideoSortKey.FirstRetrieve, VideoSortOrder order = VideoSortOrder.Desc)
-    {
-        return _niconicoSession.ToolkitContext.SearchWithCeApi.Video.TagSearchAsync(tag, from, limit, sort, order);
     }
 
     public Task<NiconicoToolkit.SearchWithPage.Live.LiveSearchPageScrapingResult> LiveSearchAsync(

@@ -13,11 +13,6 @@ public sealed class CommunityProvider : ProviderBase
     {
     }
 
-    public Task<CommunityInfoResponse> GetCommunityInfo(CommunityId communityId)
-    {
-        return _niconicoSession.ToolkitContext.Community.GetCommunityInfoAsync(communityId);
-    }
-
     public async Task<(CommunityVideoResponse, CommunityVideoListItemsResponse)> GetCommunityVideoAsync(
         CommunityId communityId,
         int? offset,

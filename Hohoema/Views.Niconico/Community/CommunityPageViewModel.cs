@@ -191,17 +191,18 @@ public class CommunityPageViewModel : HohoemaPageViewModelBase, IPinablePage, IT
         IsFailed = false;
         try
         {
-            var res = await CommunityProvider.GetCommunityInfo(CommunityId.Value);
+            throw new NotSupportedException();
+            //var res = await CommunityProvider.GetCommunityInfo(CommunityId.Value);
 
-            if (res == null || !res.IsOK) { return; }
+            //if (res == null || !res.IsOK) { return; }
 
-            CommunityInfo = res.Community;
+            //CommunityInfo = res.Community;
 
-            OnPropertyChanged(nameof(CommunityName));
-            OnPropertyChanged(nameof(IsPublic));
-            OnPropertyChanged(nameof(CommunityDescription));
-            OnPropertyChanged(nameof(CommunityLevel));
-            OnPropertyChanged(nameof(ThumbnailUrl));
+            //OnPropertyChanged(nameof(CommunityName));
+            //OnPropertyChanged(nameof(IsPublic));
+            //OnPropertyChanged(nameof(CommunityDescription));
+            //OnPropertyChanged(nameof(CommunityLevel));
+            //OnPropertyChanged(nameof(ThumbnailUrl));
 
             ApplicationTheme appTheme;
             if (_appearanceSettings.ApplicationTheme == ElementTheme.Dark)

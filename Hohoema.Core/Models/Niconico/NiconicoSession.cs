@@ -259,33 +259,25 @@ public sealed class NiconicoSession : ObservableObject
         });
     }
 
-    private async Task<(string UserName, Uri IconUrl)> LoginAfterResolveUserDetailAction(NiconicoToolkit.NiconicoContext context)
-    {
+    private async Task<(string UserName, Uri? IconUrl)> LoginAfterResolveUserDetailAction(NiconicoToolkit.NiconicoContext context)
+    {        
         try
         {
-            NicovideoUserResponse user = await context.User.GetUserInfoAsync(_UserId.ToString());
-            return !user.IsOK ? throw new HohoemaException() : ((string UserName, Uri IconUrl))(user.User.Nickname, user.User.ThumbnailUrl);
+            var res = await context.User.GetUserDetailAsync(UserId.ToString());
+            Guard.IsTrue(res.IsSuccess, nameof(res.IsSuccess));
+            return (res.Data.User.Nickname, res.Data.User.Icons.Small);
         }
         catch (Exception ex)
         {
-            try
-            {
-                var res = await context.User.GetUserDetailAsync(UserId.ToString());
-                Guard.IsTrue(res.IsSuccess, nameof(res.IsSuccess));
-                return (res.Data.User.Nickname, res.Data.User.Icons.Small);
-            }
-            catch
-            {
-                Debug.WriteLine("ユーザーのアイコン取得処理に失敗 + " + _UserId);
-                Debug.WriteLine(ex.ToString());
+            Debug.WriteLine("ユーザーのアイコン取得処理に失敗 + " + _UserId);
+            Debug.WriteLine(ex.ToString());
 #if DEBUG
-                if (Debugger.IsAttached)
-                {
-                    Debugger.Break();
-                }
-#endif
-                return (string.Empty, default);
+            if (Debugger.IsAttached)
+            {
+                Debugger.Break();
             }
+#endif
+            return (string.Empty, default);
         }
     }
 

@@ -114,7 +114,7 @@ public sealed class HohoemaNotificationService
     {
         var (res, nicoVideo) = await NicoVideoProvider.GetVideoInfoAsync(videoId);
 
-        if (res.Video.IsDeleted || string.IsNullOrEmpty(nicoVideo.Title)) { return null; }
+        if (res.IsOK is false || string.IsNullOrEmpty(nicoVideo.Title)) { return null; }
 
         return new InAppNotificationPayload()
         {
@@ -244,34 +244,35 @@ public sealed class HohoemaNotificationService
 
     private async Task<InAppNotificationPayload> SubmitCommunityContentSuggestion(CommunityId communityId)
     {
-        CommunityInfoResponse communityInfo = null;
-        try
-        {
-            communityInfo = await CommunityProvider.GetCommunityInfo(communityId);
-        }
-        catch { }
+        return null;
+        //CommunityInfoResponse communityInfo = null;
+        //try
+        //{
+        //    communityInfo = await CommunityProvider.GetCommunityInfo(communityId);
+        //}
+        //catch { }
 
-        if (communityInfo?.IsOK != true || communityInfo.Community == null) { return null; }
+        //if (communityInfo?.IsOK != true || communityInfo.Community == null) { return null; }
 
-        var community = communityInfo.Community;
-        return new InAppNotificationPayload()
-        {
-            Content = "InAppNotification_ContentDetectedFromClipboard".Translate(community.Name),
-            ShowDuration = DefaultNotificationShowDuration,
-            IsShowDismissButton = true,
-            Commands = {
-                    new InAppNotificationCommand()
-                    {
-                        Label = HohoemaPageType.Community.Translate(),
-                        Command = new RelayCommand(() =>
-                        {
-                            PageManager.OpenPageWithId(HohoemaPageType.Community, communityId);
+        //var community = communityInfo.Community;
+        //return new InAppNotificationPayload()
+        //{
+        //    Content = "InAppNotification_ContentDetectedFromClipboard".Translate(community.Name),
+        //    ShowDuration = DefaultNotificationShowDuration,
+        //    IsShowDismissButton = true,
+        //    Commands = {
+        //            new InAppNotificationCommand()
+        //            {
+        //                Label = HohoemaPageType.Community.Translate(),
+        //                Command = new RelayCommand(() =>
+        //                {
+        //                    PageManager.OpenPageWithId(HohoemaPageType.Community, communityId);
 
-                            NotificationService.DismissInAppNotification();
-                        })
-                    },
-                }
-        };
+        //                    NotificationService.DismissInAppNotification();
+        //                })
+        //            },
+        //        }
+        //};
     }
 
     private async Task<InAppNotificationPayload> SubmitUserSuggestion(UserId userId)
