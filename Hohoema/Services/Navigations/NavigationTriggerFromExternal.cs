@@ -1,21 +1,25 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Messaging;
+using Hohoema.Contracts.AppLifecycle;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.PageNavigation;
 using Hohoema.Models.Playlist;
 using Hohoema.Models.VideoCache;
-using Hohoema.Services.Player.Events;
+using Hohoema.Contracts.Player;
 using Hohoema.Services.Playlist;
+using LiteDB;
 using Microsoft.Toolkit.Uwp.Notifications;
 using NiconicoToolkit.Live;
 using NiconicoToolkit.Video;
 using System;
 using System.Threading.Tasks;
+using Windows.Foundation.Collections;
 
 namespace Hohoema.Services.Navigations;
 
-public sealed class NavigationTriggerFromExternal
+public sealed class NavigationTriggerFromExternal 
+    : IToastActivationAware
 {
     private readonly MylistResolver _mylistResolver;
     private readonly NicoVideoProvider _nicoVideoProvider;
@@ -38,79 +42,82 @@ public sealed class NavigationTriggerFromExternal
         _messenger = messenger;
     }
 
-    public async Task Process(string arguments)
+    async ValueTask<bool> IToastActivationAware.TryHandleActivationAsync(ToastArguments toastArguments, ValueSet userInput)
     {
-        var toastArguments = ToastArguments.Parse(arguments);
-        if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Action, out string actionType))
+        bool isHandled = false;
+        if (toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Action, out string actionType))
         {
-            return;
+            switch (actionType)
+            {
+                case ToastNotificationConstants.ToastArgumentValue_Action_DeleteCache:
+                    isHandled = true;
+                    {
+                        if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
+                        {
+                            throw new Infra.HohoemaException("no id");
+                        }
+
+                        await _videoCacheManager.CancelCacheRequestAsync(id);
+                    }
+                    break;
+                case ToastNotificationConstants.ToastArgumentValue_Action_PlayVideo:
+                    isHandled = true;
+                    {
+                        if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
+                        {
+                            throw new Infra.HohoemaException("no id");
+                        }
+
+                        await PlayVideoFromExternal(id);
+                    }
+                    break;
+                case ToastNotificationConstants.ToastArgumentValue_Action_PlayPlaylist:
+                    isHandled = true;
+                    {
+                        if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PlaylistId, out string playlistId))
+                        {
+                            throw new Infra.HohoemaException("no id");
+                        }
+
+                        if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PlaylistOrigin, out string playlistOrigin)
+                            || !Enum.TryParse<PlaylistItemsSourceOrigin>(playlistOrigin, out var origin)
+                            )
+                        {
+                            throw new Infra.HohoemaException("no id");
+                        }
+
+                        await PlayPlaylistFromExternal(origin, playlistId);
+                    }
+                    break;
+                case ToastNotificationConstants.ToastArgumentValue_Action_OpenPage:
+                    isHandled = true;
+                    {
+                        if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PageType, out string pageTypeStr))
+                        {
+                            throw new Infra.HohoemaException("no pageType");
+                        }
+
+                        if (!Enum.TryParse<HohoemaPageType>(pageTypeStr, out var pageType))
+                        {
+                            throw new Infra.HohoemaException("no supported pageType: " + pageTypeStr);
+                        }
+
+                        if (toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PageParameters, out string parameters))
+                        {
+                            _pageManager.OpenPage(pageType, parameters);
+                        }
+                        else
+                        {
+                            _pageManager.OpenPage(pageType);
+                        }
+                    }
+                    break;
+                
+            }
         }
 
-        switch (actionType)
-        {
-            case ToastNotificationConstants.ToastArgumentValue_Action_DeleteCache:
-                {
-                    if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
-                    {
-                        throw new Infra.HohoemaException("no id");
-                    }
-
-                    await _videoCacheManager.CancelCacheRequestAsync(id);
-                }
-                break;
-            case ToastNotificationConstants.ToastArgumentValue_Action_PlayVideo:
-                {
-                    if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_Id, out string id))
-                    {
-                        throw new Infra.HohoemaException("no id");
-                    }
-
-                    await PlayVideoFromExternal(id);
-                }
-                break;
-            case ToastNotificationConstants.ToastArgumentValue_Action_PlayPlaylist:
-                {
-                    if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PlaylistId, out string playlistId))
-                    {
-                        throw new Infra.HohoemaException("no id");
-                    }
-
-                    if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PlaylistOrigin, out string playlistOrigin)
-                        || !Enum.TryParse<PlaylistItemsSourceOrigin>(playlistOrigin, out var origin)
-                        )
-                    {
-                        throw new Infra.HohoemaException("no id");
-                    }
-
-                    await PlayPlaylistFromExternal(origin, playlistId);
-                }
-                break;
-            case ToastNotificationConstants.ToastArgumentValue_Action_OpenPage:
-                {
-                    if (!toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PageType, out string pageTypeStr))
-                    {
-                        throw new Infra.HohoemaException("no pageType");
-                    }
-
-                    if (!Enum.TryParse<HohoemaPageType>(pageTypeStr, out var pageType))
-                    {
-                        throw new Infra.HohoemaException("no supported pageType: " + pageTypeStr);
-                    }
-
-                    if (toastArguments.TryGetValue(ToastNotificationConstants.ToastArgumentKey_PageParameters, out string parameters))
-                    {
-                        _pageManager.OpenPage(pageType, parameters);
-                    }
-                    else
-                    {
-                        _pageManager.OpenPage(pageType);
-                    }
-                }
-                break;
-        }
+        return isHandled;
     }
-
-
 
     public async Task PlayVideoFromExternal(VideoId videoId)
     {
@@ -129,8 +136,6 @@ public sealed class NavigationTriggerFromExternal
 
     public void PlayLiveVideoFromExternal(LiveId liveId)
     {
-        _messenger.Send(new PlayerPlayLiveRequestMessage(new() { LiveId = liveId }));
+        _messenger.Send(new PlayLiveRequestMessage(liveId));
     }
-
-
 }

@@ -39,5 +39,15 @@ public interface ISelectionDialogService
     Task<List<T>> ShowMultiChoiceDialogAsync<T, X>(string title, IEnumerable<T> selectableItems, IEnumerable<T> selectedItems, Expression<Func<T, X>> memberPathExpression);
     Task<List<T>> ShowMultiChoiceDialogAsync<T>(string title, IEnumerable<T> selectableItems, IEnumerable<T> selectedItems, string memberPathName);
     Task<List<T>> ShowMultiSelectDialogAsync<T>(List<T> sourceItems, string displayMemberPath, Func<T, string, bool> filter, string dialogTitle, string dialogPrimaryButtonText);
-    Task<T> ShowSingleSelectDialogAsync<T>(List<T> sourceItems, string displayMemberPath, Func<T, string, bool> filter, string dialogTitle, string dialogPrimaryButtonText, string dialogSecondaryButtonText = null, Func<Task<T>> SecondaryButtonAction = null);
+    Task<T?> ShowSingleSelectDialogAsync<T>(
+        List<T> sourceItems,
+        T? initialSelectItem,
+        string displayMemberPath,
+        string dialogTitle,
+        string dialogPrimaryButtonText,
+        string? dialogSecondaryButtonText = null,
+        Func<Task<T>>? SecondaryButtonAction = null,
+        Func<T, string, bool>? filter = null
+
+        );
 }

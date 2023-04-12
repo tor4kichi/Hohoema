@@ -71,7 +71,7 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
         HohoemaPlaylistPlayer hohoemaPlaylistPlayer,
         MediaPlayer mediaPlayer,
         VideoTogglePlayPauseCommand videoTogglePlayPauseCommand,
-        NotificationService notificationService,
+        INotificationService notificationService,
         DialogService dialogService,
         AddSubscriptionCommand addSubscriptionCommand,
         LocalPlaylistCreateCommand createLocalMylistCommand,
@@ -310,7 +310,7 @@ public partial class VideoPlayerPageViewModel : HohoemaPageViewModelBase
 
     public VideoSeriesViewModel VideoSeries { get; private set; }
 
-    NotificationService _NotificationService;
+    INotificationService _NotificationService;
     DialogService _HohoemaDialogService;
 
     private readonly VideoStreamingOriginOrchestrator _videoStreamingOriginOrchestrator;

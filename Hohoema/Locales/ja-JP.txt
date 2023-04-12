@@ -220,9 +220,22 @@ Notification_SuccessAddSubscriptionSourceWithLabel = 「{0}」を新着チェッ
 Notification_FailedSubscriptionUpdate = 新着動画の更新に失敗しました
 Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を あとで見る に追加しました
 
+SubscGroup_DefaultGroupName = デフォルト
+AddSubscriptionGroup_InputSubscGroupName_Title = 購読グループ名を決める
+SubscGroup_CreateGroup = 購読グループを作成
+SubscGroup_ContextMenuItemTitle = 購読グループを変更
+SubscGroup_SelectGroup = 購読グループを選択
+SubscGroup_Rename = 購読グループのリネーム
+SubscGroup_DeleteComfirmDialogContent = 購読グループを削除しても、購読に設定しているグループは「デフォルト」に変更されるため安全に削除できます。\n削除してもよろしいですか？
+SubscGroup_DeleteComfirmDialogTitle = {0} のグループを削除してもいい？
+
+VideoNoItem = 表示できる動画はありません
+
+
+
 
 #### Settings ####
-MenuPaneDisplayMode = メニューの表示方法
+MenuPaneDisplayMode = メニューの表示位置
 NavigationViewPaneDisplayMode.Auto = 自動
 NavigationViewPaneDisplayMode.Left = 左に常に表示
 NavigationViewPaneDisplayMode.Top = 上部に常に表示

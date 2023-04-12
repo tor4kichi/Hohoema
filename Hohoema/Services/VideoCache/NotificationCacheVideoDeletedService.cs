@@ -19,7 +19,7 @@ public sealed class NotificationCacheVideoDeletedService : IRecipient<VideoDelet
     public NotificationCacheVideoDeletedService(
         IMessenger messenger,
         VideoCacheManager videoCacheManager,
-        NotificationService notificationService
+        INotificationService notificationService
         
         )
     {
@@ -31,7 +31,7 @@ public sealed class NotificationCacheVideoDeletedService : IRecipient<VideoDelet
     }
 
     public VideoCacheManager VideoCacheManager { get; }
-    public NotificationService NotificationService { get; }
+    public INotificationService NotificationService { get; }
 
     public async void Receive(VideoDeletedMessage message)
     {

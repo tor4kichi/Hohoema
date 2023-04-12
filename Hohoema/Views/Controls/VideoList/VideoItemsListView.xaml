@@ -91,6 +91,7 @@
       <ListView x:Name="ItemsList"
               ItemsSource="{x:Bind ItemsSource, Mode=OneWay}"
               ItemTemplate="{x:Bind ItemTemplate, Mode=OneWay}"
+              ItemTemplateSelector="{x:Bind ItemTemplateSelector, Mode=OneWay}"
               IncrementalLoadingTrigger="Edge"
               UseSystemFocusVisuals="True"
               SelectionMode="None"

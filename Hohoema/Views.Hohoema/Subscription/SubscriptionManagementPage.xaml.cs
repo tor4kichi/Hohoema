@@ -1,7 +1,14 @@
 ﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Input;
+using Hohoema.Contracts.Subscriptions;
+using Hohoema.Models.Subscriptions;
 using Hohoema.ViewModels.Pages.Hohoema.Subscription;
 using Hohoema.Views.Flyouts;
+using I18NPortable;
+using LiteDB;
+using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -51,4 +58,50 @@ public sealed partial class SubscriptionManagementPage : Page
     {
 
     }
+
+    private void MenuFlyout_Opened(object sender, object e)
+    {
+        var menuFlyout = sender as MenuFlyout;
+        var subscriptionGroupMenuItem = menuFlyout!.Items.First(x => x.Name == "SubscriptionGroupMenuSubsItem") as MenuFlyoutSubItem;
+
+        Guard.IsNotNull(subscriptionGroupMenuItem, nameof(subscriptionGroupMenuItem));
+
+        SubscriptionGroupRepository subscGroupRepo = Ioc.Default.GetRequiredService<SubscriptionGroupRepository>();
+
+        var subscVM = (subscriptionGroupMenuItem.DataContext as SubscriptionViewModel)!;
+        subscriptionGroupMenuItem.Items.Clear();
+        subscriptionGroupMenuItem.Items.Add(new MenuFlyoutItem()
+        {
+            Text = "SubscGroup_CreateGroup".Translate(),
+            Command = _vm.AddSubscriptionGroupCommand,
+            CommandParameter = subscVM
+        });
+        subscriptionGroupMenuItem.Items.Add(new MenuFlyoutSeparator());
+        foreach (var subscGroup in _vm.SubscriptionGroups)
+        {
+            subscriptionGroupMenuItem.Items.Add(new ToggleMenuFlyoutItem()
+            {
+                Text = subscGroup.Name,
+                Command = subscVM.ChangeSubscGroupCommand,
+                CommandParameter = subscGroup,
+                IsChecked = subscVM.Group != null 
+                    ? subscVM.Group.GroupId == subscGroup.GroupId 
+                    : subscGroup.GroupId == SubscriptionGroupId.DefaultGroupId
+            });
+        }        
+    }
+
+    private void Tapped_DeleteSubscriptionGroup(object sender, TappedRoutedEventArgs e)
+    {
+        Flyout_SubscGroup.Hide();
+        _vm.DeleteSubscriptionGroupCommand.Execute((sender as FrameworkElement)!.DataContext);
+    }
+
+    private void Tapped_RenameSubscriptionGroup(object sender, TappedRoutedEventArgs e)
+    {
+        Flyout_SubscGroup.Hide();
+        _vm.RenameSubscriptionGroupCommand.Execute((sender as FrameworkElement)!.DataContext);
+    }
 }
+
+

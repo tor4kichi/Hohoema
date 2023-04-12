@@ -33,7 +33,7 @@ public sealed class VideoLikesContext : ObservableObject, IRecipient<LikesChange
 
     private VideoLikesContext() { }
 
-    public VideoLikesContext(INicoVideoDetails video, LikesClient likesClient, NotificationService notificationService)
+    public VideoLikesContext(INicoVideoDetails video, LikesClient likesClient, INotificationService notificationService)
     {
         _video = video;
         _likesClient = likesClient;
@@ -45,7 +45,7 @@ public sealed class VideoLikesContext : ObservableObject, IRecipient<LikesChange
 
     private readonly IVideoDetail _video;
     private readonly LikesClient _likesClient;
-    private readonly NotificationService _notificationService;
+    private readonly INotificationService _notificationService;
 
     private bool _isLikes;
     public bool IsLikes

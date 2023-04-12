@@ -11,9 +11,16 @@ public abstract class LiteDBServiceBase<T>
 {
     protected ILiteCollection<T> _collection;
 
-    public LiteDBServiceBase(LiteDatabase liteDatabase)
+    public LiteDBServiceBase(LiteDatabase liteDatabase, string? collectionName = null)
     {
-        _collection = liteDatabase.GetCollection<T>();
+        if (collectionName != null)
+        {
+            _collection = liteDatabase.GetCollection<T>(collectionName);
+        }
+        else
+        {
+            _collection = liteDatabase.GetCollection<T>();
+        }
     }
 
 

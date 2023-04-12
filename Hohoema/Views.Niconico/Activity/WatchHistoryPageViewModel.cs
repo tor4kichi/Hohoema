@@ -1,7 +1,8 @@
 ﻿#nullable enable
 using CommunityToolkit.Mvvm.Input;
+using Hohoema.Contracts.ViewModels;
 using Hohoema.Models.Niconico;
-using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
+using Hohoema.Models.Niconico.Video;
 using Hohoema.Services;
 using Hohoema.Services.Niconico;
 using Hohoema.ViewModels.Niconico.Video.Commands;
@@ -19,18 +20,18 @@ using ZLogger;
 namespace Hohoema.ViewModels.Pages.Niconico.Activity;
 
 public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
-	{
-		public WatchHistoryPageViewModel(
-        ILoggerFactory loggerFactory,
-        ApplicationLayoutManager applicationLayoutManager,
-        NiconicoSession niconicoSession,
-        WatchHistoryManager watchHistoryManager,
-        PageManager pageManager,
-        VideoPlayWithQueueCommand videoPlayWithQueueCommand,
-        WatchHistoryRemoveAllCommand watchHistoryRemoveAllCommand,
-        SelectionModeToggleCommand selectionModeToggleCommand
-        )
-		{
+{
+    public WatchHistoryPageViewModel(
+    ILoggerFactory loggerFactory,
+    ApplicationLayoutManager applicationLayoutManager,
+    NiconicoSession niconicoSession,
+    WatchHistoryManager watchHistoryManager,
+    PageManager pageManager,
+    VideoPlayWithQueueCommand videoPlayWithQueueCommand,
+    WatchHistoryRemoveAllCommand watchHistoryRemoveAllCommand,
+    SelectionModeToggleCommand selectionModeToggleCommand
+    )
+    {
         _logger = loggerFactory.CreateLogger<WatchHistoryPageViewModel>();
         ApplicationLayoutManager = applicationLayoutManager;
         _niconicoSession = niconicoSession;
@@ -56,7 +57,7 @@ public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
     public SelectionModeToggleCommand SelectionModeToggleCommand { get; }
     public ObservableCollection<HistoryVideoListItemControlViewModel> Histories { get; }
 
-    public ReactivePropertySlim<bool> NowUpdating { get; } 
+    public ReactivePropertySlim<bool> NowUpdating { get; }
 
 
     public override void OnNavigatedTo(INavigationParameters parameters)
@@ -108,7 +109,7 @@ public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
     }
 
     private RelayCommand _RefreshCommand;
-    public RelayCommand RefreshCommand => _RefreshCommand 
+    public RelayCommand RefreshCommand => _RefreshCommand
         ??= new RelayCommand(async () =>
         {
             Histories.Clear();
@@ -171,8 +172,8 @@ public class WatchHistoryPageViewModel : HohoemaPageViewModelBase
 
 public class HistoryVideoListItemControlViewModel : VideoListItemControlViewModel, IWatchHistory
 {
-		public DateTime LastWatchedAt { get; }
-		public uint UserViewCount { get;  }
+    public DateTime LastWatchedAt { get; }
+    public uint UserViewCount { get; }
 
     public HistoryVideoListItemControlViewModel(DateTime lastWatchedAt, uint viewCount, string rawVideoId, string title, string thumbnailUrl, TimeSpan videoLength, DateTime postedAt)
         : base(rawVideoId, title, thumbnailUrl, videoLength, postedAt)

@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Hohoema.Models.Notification;
 using Hohoema.Services;
+using Hohoema.Services.Subscriptions;
 using Hohoema.ViewModels.Pages.Hohoema;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -45,5 +46,13 @@ public sealed partial class DebugPage : Page
                 new InAppNotificationCommand() { Label = "コマンドテスト２" },
             }                
         });        
+    }
+
+
+    private void TestSubscriptionUpdateResultNotification(object sender, RoutedEventArgs e)
+    {
+#if DEBUG
+        Ioc.Default.GetRequiredService<SubscriptionUpdateManager>().TestNotification();
+#endif
     }
 }

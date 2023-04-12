@@ -14,6 +14,7 @@ using Hohoema.Views.Pages.Niconico.Follow;
 using Hohoema.Views.Pages.Niconico.VideoRanking;
 using I18NPortable;
 using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.Uwp;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -136,9 +137,9 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
 
         ContentFrame.Navigated += ContentFrame_Navigated;
 
-        WeakReferenceMessenger.Default.Register<PageNavigationEvent>(this, (r, m) => 
+        WeakReferenceMessenger.Default.Register<NavigationAsyncRequestMessage>(this, (r, m) => 
         {
-            ContentFrameNavigation(m.Value);
+            m.Reply(ContentFrameNavigationAsync(m.NavigationRequest));
         });
 
         // Back Navigation Handling            
@@ -361,13 +362,13 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
 
     NavigationTransitionInfo _contentFrameDefaultTransitionInfo = new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromRight };
     NavigationTransitionInfo _contentFrameTransitionInfo = new DrillInNavigationTransitionInfo() {};
-    void ContentFrameNavigation(PageNavigationEventArgs args)
+    Task<INavigationResult> ContentFrameNavigationAsync(PageNavigationEventArgs args)
     {
         var pageType = args.PageName;
         var parameter = args.Paramter;
         var behavior = args.Behavior;
 
-        _dispatcherQueue.TryEnqueue(async () =>
+        return _dispatcherQueue.EnqueueAsync(async () =>
         {
             // メインウィンドウでウィンドウ全体で再生している場合は
             // 強制的に小窓モードに切り替えてページを表示する
@@ -412,10 +413,13 @@ public sealed partial class PrimaryWindowCoreLayout : UserControl
                 }
 
                 CoreNavigationView.IsBackEnabled = _contentFrameNavigationService.CanGoBack();
+
+                return result;
             }
             catch (Exception e)
             {
                 _logger.ZLogError(e, "ContentFrame Navigation failed: {0}", pageName);
+                throw;
             }
         });
     }

@@ -34,12 +34,13 @@ public sealed class LocalPlaylistAddItemCommand : VideoContentSelectionCommandBa
             playlist = localPlaylistManager.LocalPlaylists.Any() ?
                 await dialogService.ShowSingleSelectDialogAsync(
                 localPlaylistManager.LocalPlaylists.ToList(),
-                nameof(LocalPlaylist.Name),
-                (mylist, s) => mylist.Name.Contains(s),
+                null,
+                nameof(LocalPlaylist.Name),                
                 "SelectLocalMylist".Translate(),
                 "Select".Translate(),
                 "CreateNew".Translate(),
-                () => CreateLocalPlaylist()
+                () => CreateLocalPlaylist(),
+                (mylist, s) => mylist.Name.Contains(s)
                 )
                 : await CreateLocalPlaylist()
                 ;

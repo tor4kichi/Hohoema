@@ -6,7 +6,7 @@ using System;
 
 namespace Hohoema.Models.Playlist;
 
-public class VideoPlayRequestMessage : AsyncRequestMessage<VideoPlayRequestMessageData>
+public sealed class VideoPlayRequestMessage : AsyncRequestMessage<VideoPlayRequestMessageResponse>
 {
 
     public static VideoPlayRequestMessage PlayPlaylist(PlaylistItemToken token)
@@ -14,7 +14,7 @@ public class VideoPlayRequestMessage : AsyncRequestMessage<VideoPlayRequestMessa
         return new VideoPlayRequestMessage()
         {
             Playlist = token.Playlist,
-            SortOptions = token.SortOptions,
+            SortOption = token.SortOptions,
             PlaylistItem = token.Video,
         };
     }
@@ -24,7 +24,7 @@ public class VideoPlayRequestMessage : AsyncRequestMessage<VideoPlayRequestMessa
         return new VideoPlayRequestMessage()
         {
             Playlist = token.Playlist,
-            SortOptions = token.SortOptions,
+            SortOption = token.SortOptions,
         };
     }
 
@@ -62,7 +62,7 @@ public class VideoPlayRequestMessage : AsyncRequestMessage<VideoPlayRequestMessa
         return new VideoPlayRequestMessage()
         {
             Playlist = playlist,
-            SortOptions = sortOption,
+            SortOption = sortOption,
         };
     }
 
@@ -81,7 +81,7 @@ public class VideoPlayRequestMessage : AsyncRequestMessage<VideoPlayRequestMessa
         return new VideoPlayRequestMessage()
         {
             Playlist = playlist,
-            SortOptions = sortOption,
+            SortOption = sortOption,
             PlaylistItem = playlistItem,
             Potision = initialPosition,
         };
@@ -117,17 +117,14 @@ public class VideoPlayRequestMessage : AsyncRequestMessage<VideoPlayRequestMessa
     }
 
     public IVideoContent? PlaylistItem { get; init; }
-    public IPlaylist Playlist { get; init; }
+    public IPlaylist? Playlist { get; init; }
     public bool? PlayWithQueue { get; init; }
     public PlaylistItemsSourceOrigin? PlaylistOrigin { get; init; }
     public string? PlaylistId { get; init; }
     public string? PlaylistSortOptionsAsString { get; init; }
-    public IPlaylistSortOption SortOptions { get; init; }
+    public IPlaylistSortOption? SortOption { get; init; }
     public VideoId? VideoId { get; init; }
     public TimeSpan? Potision { get; init; }
 }
 
-public record VideoPlayRequestMessageData
-{
-    public bool IsSuccess { get; init; }
-}
+public record struct VideoPlayRequestMessageResponse(bool IsSuccess);

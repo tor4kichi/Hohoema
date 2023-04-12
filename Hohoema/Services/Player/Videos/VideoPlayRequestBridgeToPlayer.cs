@@ -6,7 +6,7 @@ using Hohoema.Models.Application;
 using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Playlist;
-using Hohoema.Services.Player.Events;
+using Hohoema.Contracts.Player;
 using Hohoema.Services.Playlist;
 using Microsoft.Toolkit.Diagnostics;
 using Microsoft.Toolkit.Uwp.Helpers;
@@ -23,7 +23,7 @@ namespace Hohoema.Services.Player;
 public sealed class VideoPlayRequestBridgeToPlayer 
     : IDisposable,
     IRecipient<VideoPlayRequestMessage>,
-    IRecipient<PlayerPlayLiveRequestMessage>,
+    IRecipient<PlayLiveRequestMessage>,
     IRecipient<ChangePlayerDisplayViewRequestMessage>
 {
     private readonly IMessenger _messenger;
@@ -65,8 +65,8 @@ public sealed class VideoPlayRequestBridgeToPlayer
         _nicoLiveProvider = nicoLiveProvider;
         _playlistItemsSourceResolver = playlistItemsSourceResolver;
         _applicationLayoutManager = applicationLayoutManager;
-        _messenger.Register<VideoPlayRequestMessage>(this);
-        _messenger.Register<PlayerPlayLiveRequestMessage>(this);
+        _messenger.Register((IRecipient<VideoPlayRequestMessage>)this);
+        _messenger.Register((IRecipient<Contracts.Player.PlayLiveRequestMessage>)this);
         _messenger.Register<ChangePlayerDisplayViewRequestMessage>(this);
     }
 
@@ -105,10 +105,10 @@ public sealed class VideoPlayRequestBridgeToPlayer
     {
         _lastPlayedLive = null;
 
-        async Task<VideoPlayRequestMessageData> ResolvePlay(VideoPlayRequestMessage message)
+        async Task<VideoPlayRequestMessageResponse> ResolvePlay(VideoPlayRequestMessage message)
         {
             IPlaylist playlist = null;
-            IPlaylistSortOption sortOption = message.SortOptions;
+            IPlaylistSortOption sortOption = message.SortOption;
             if (message.PlayWithQueue ?? false)
             {
                 playlist = _queuePlaylist;
@@ -177,7 +177,7 @@ public sealed class VideoPlayRequestBridgeToPlayer
         message.Reply(ResolvePlay(message));
     }
 
-    public async void Receive(PlayerPlayLiveRequestMessage message)
+    public async void Receive(Contracts.Player.PlayLiveRequestMessage message)
     {
         // 生放送視聴した場合には動画視聴の情報をクリア
         _lastPlayedItem = null;
@@ -201,7 +201,7 @@ public sealed class VideoPlayRequestBridgeToPlayer
     // 動画はHohoemaPlaylistPlayerのモデルによって動画コンテンツの読み込み管理を行っているため
     // ViewModelの動画ページへのナビゲーションは一回だけでいい
 
-    private async Task<VideoPlayRequestMessageData> VideoPlayAsync(IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent playlistItem, PlayerDisplayView displayMode, bool nowViewChanging = false)
+    private async Task<VideoPlayRequestMessageResponse> VideoPlayAsync(IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent playlistItem, PlayerDisplayView displayMode, bool nowViewChanging = false)
     {
         static Task<bool> Play(HohoemaPlaylistPlayer player, IPlaylist playlist, IPlaylistSortOption sortOption, IVideoContent playlistItem, TimeSpan? initialPosition)
         {
@@ -297,7 +297,7 @@ public sealed class VideoPlayRequestBridgeToPlayer
             _lastPlaylist = playlist;
             _lastPlaylistSortOption = sortOption;
             _lastPlayedItem = playlistItem;
-            return new VideoPlayRequestMessageData() { IsSuccess = true };
+            return new VideoPlayRequestMessageResponse() { IsSuccess = true };
         }
         else
         {
@@ -305,7 +305,7 @@ public sealed class VideoPlayRequestBridgeToPlayer
             _lastPlaylistSortOption = null;
             _lastPlayedItem = null;
             
-            return new VideoPlayRequestMessageData() { IsSuccess = false };
+            return new VideoPlayRequestMessageResponse() { IsSuccess = false };
         }
     }
 

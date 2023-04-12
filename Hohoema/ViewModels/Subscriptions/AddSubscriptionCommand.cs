@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Channel;
 using Hohoema.Models.Niconico.Mylist;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Video;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Hohoema.ViewModels.Subscriptions;
@@ -24,6 +26,7 @@ public sealed class AddSubscriptionCommand : CommandBase
     private readonly ChannelProvider _channelProvider;
     private readonly NotificationService _notificationService;
     private readonly SeriesProvider _seriesRepository;
+    private readonly ISelectionDialogService _selectionDialogService;
 
     public AddSubscriptionCommand(
         ILogger logger,
@@ -31,7 +34,8 @@ public sealed class AddSubscriptionCommand : CommandBase
         UserProvider userProvider,
         ChannelProvider channelProvider,
         NotificationService notificationService,
-        SeriesProvider seriesRepository
+        SeriesProvider seriesRepository,
+        ISelectionDialogService selectionDialogService
         )
     {
         _logger = logger;
@@ -40,6 +44,7 @@ public sealed class AddSubscriptionCommand : CommandBase
         _channelProvider = channelProvider;
         _notificationService = notificationService;
         _seriesRepository = seriesRepository;
+        _selectionDialogService = selectionDialogService;
     }
 
     protected override bool CanExecute(object parameter)
@@ -56,12 +61,12 @@ public sealed class AddSubscriptionCommand : CommandBase
     {
         try
         {
-            (string id, SubscriptionSourceType sourceType, string label) result = parameter switch
+            (string id, SubscriptionSourceType sourceType, string? label) result = parameter switch
             {
                 IVideoContentProvider videoContent => videoContent.ProviderType switch
                 {
-                    OwnerType.User => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.User, default(string)),
-                    OwnerType.Channel => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.Channel, default(string)),
+                    OwnerType.User => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.User, default(string?)),
+                    OwnerType.Channel => (id: videoContent.ProviderId, sourceType: SubscriptionSourceType.Channel, default(string?)),
                     _ => throw new NotSupportedException()
                 },
                 IMylist mylist => (id: mylist.PlaylistId.Id, sourceType: SubscriptionSourceType.Mylist, mylist.Name),
@@ -85,16 +90,48 @@ public sealed class AddSubscriptionCommand : CommandBase
                 };
             }
 
-            var subscription = _subscriptionManager.AddSubscription(result.sourceType, result.id, result.label);
-            if (subscription != null)
-            {
-                Debug.WriteLine($"subscription added: {subscription.Id} {subscription.Label} {subscription.Id}" );
-                _notificationService.ShowLiteInAppNotification_Success("Notification_SuccessAddSubscriptionSourceWithLabel".Translate(subscription.Label));
+            bool alreadyAdded = _subscriptionManager.TryGetSubscriptionGroup(result.sourceType, result.id, out Subscription? alreadySource, out SubscriptionGroup? defaultGroup);
 
-                //Analytics.TrackEvent("Subscription_Added", new Dictionary<string, string>
-                //    {
-                //        { "SourceType", result.sourceType.ToString() }
-                //    });
+            var groups = new[] { new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate()) }
+                .Concat(_subscriptionManager.GetSubscGroups())                
+                .ToList();
+
+            var selectedGroup = await _selectionDialogService.ShowSingleSelectDialogAsync(
+                groups,
+                defaultGroup,
+                displayMemberPath: nameof(SubscriptionGroup.Name),
+                dialogTitle: "SubscGroup_SelectGroup".Translate(),
+                dialogPrimaryButtonText: "Select".Translate()
+                );
+
+            if (selectedGroup == null) { return; }
+
+            if (selectedGroup.GroupId == SubscriptionGroupId.DefaultGroupId)
+            {
+                selectedGroup = null;
+            }
+
+            if (!alreadyAdded)
+            {
+                var subscription = _subscriptionManager.AddSubscription(result.sourceType, result.id, result.label!, selectedGroup);
+                if (subscription != null)
+                {
+                    Debug.WriteLine($"subscription added: {subscription.SubscriptionId} {subscription.Label} {subscription.SubscriptionId}");
+                    _notificationService.ShowLiteInAppNotification_Success("Notification_SuccessAddSubscriptionSourceWithLabel".Translate(subscription.Label));
+
+                    //Analytics.TrackEvent("Subscription_Added", new Dictionary<string, string>
+                    //    {
+                    //        { "SourceType", result.sourceType.ToString() }
+                    //    });
+                }
+            }
+            else if (alreadySource.Group != selectedGroup)
+            {
+                alreadySource.Group = selectedGroup!;
+                _subscriptionManager.UpdateSubscription(alreadySource);
+
+                Debug.WriteLine($"subscription updated: {alreadySource.SubscriptionId} {alreadySource.Label} {alreadySource.SubscriptionId}");
+                _notificationService.ShowLiteInAppNotification_Success("Notification_SuccessAddSubscriptionSourceWithLabel".Translate(alreadySource.Label));
             }
         }
         catch (Exception e)

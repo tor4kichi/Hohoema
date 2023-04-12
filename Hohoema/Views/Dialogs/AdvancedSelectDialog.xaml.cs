@@ -12,11 +12,11 @@ namespace Hohoema.Views.Dialogs;
 
 public sealed partial class AdvancedSelectDialog : ContentDialog
 {
-    public void SetSourceItems<T>(List<T> source, Func<object, string, bool> filter = null)
+    public void SetSourceItems<T>(List<T> source, Func<object, string, bool>? filter = null, object? initialSelectItem = null)
     {
         ItemsList.ItemsSource = source;
         _advancedCollectionView.Source = source;
-        ItemsList.SelectedItem = source.FirstOrDefault();
+        ItemsList.SelectedItem = initialSelectItem ?? source.FirstOrDefault();
 
         if (filter != null)
         {

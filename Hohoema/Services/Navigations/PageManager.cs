@@ -30,12 +30,25 @@ using ZLogger;
 
 namespace Hohoema.Services.Navigations;
 
-public struct PageNavigationEventArgs
+public readonly struct PageNavigationEventArgs
 {
-    public string PageName { get; set; }
-    public INavigationParameters Paramter { get; set; }
-    public bool IsMainViewTarget { get; set; }
-    public NavigationStackBehavior Behavior { get; set; }
+    public PageNavigationEventArgs(
+        string pageName,
+        INavigationParameters? parameters = null,
+        bool isMainViewTarget = true,
+        NavigationStackBehavior behavior = NavigationStackBehavior.Push
+        )
+    {
+        PageName = pageName;
+        Paramter = parameters;
+        IsMainViewTarget = isMainViewTarget;
+        Behavior = behavior;
+    }
+
+    public readonly string PageName;
+    public readonly INavigationParameters? Paramter;
+    public readonly bool IsMainViewTarget;
+    public readonly NavigationStackBehavior Behavior;
 }
 
 public enum NavigationStackBehavior
@@ -45,11 +58,24 @@ public enum NavigationStackBehavior
     NotRemember,
 }
 
-public class PageNavigationEvent : ValueChangedMessage<PageNavigationEventArgs>
+public class NavigationAsyncRequestMessage : AsyncRequestMessage<INavigationResult>
 {
-    public PageNavigationEvent(PageNavigationEventArgs value) : base(value)
+    public NavigationAsyncRequestMessage(PageNavigationEventArgs navigationRequest)
     {
+        NavigationRequest = navigationRequest;
     }
+
+    public NavigationAsyncRequestMessage(
+        string pageName,
+        INavigationParameters? parameters = null,
+        bool isMainViewTarget = true,
+        NavigationStackBehavior behavior = NavigationStackBehavior.Push
+        )
+    {
+        NavigationRequest = new (pageName, parameters, isMainViewTarget, behavior);
+    }
+
+    public PageNavigationEventArgs NavigationRequest { get; }
 }
 
 
@@ -284,32 +310,32 @@ public class PageManager : ObservableObject
         ));
 
 
-    public INavigationParameters CurrentPageNavigationParameters { get; private set; }
+    public INavigationParameters? CurrentPageNavigationParameters { get; private set; }
     public HohoemaPageType CurrentPageType { get; private set; }
 
     public bool OpenPage(Uri uri)
-		{
-			var path = uri.AbsoluteUri;
-			// is mylist url?
-			if (path.StartsWith("http://www.nicovideo.jp/mylist/") || path.StartsWith("https://www.nicovideo.jp/mylist/"))
-			{
-				var mylistId = uri.AbsolutePath.Split('/').Last();				
+    {
+        var path = uri.AbsoluteUri;
+        // is mylist url?
+        if (path.StartsWith("http://www.nicovideo.jp/mylist/") || path.StartsWith("https://www.nicovideo.jp/mylist/"))
+        {
+            var mylistId = uri.AbsolutePath.Split('/').Last();
             OpenPageWithId(HohoemaPageType.Mylist, mylistId);
-				return true;
-			}
+            return true;
+        }
 
 
-			if (path.StartsWith("http://www.nicovideo.jp/watch/") || path.StartsWith("https://www.nicovideo.jp/watch/"))
-			{
-				// is nico video url?
-				var videoId = uri.AbsolutePath.Split('/').Last();
+        if (path.StartsWith("http://www.nicovideo.jp/watch/") || path.StartsWith("https://www.nicovideo.jp/watch/"))
+        {
+            // is nico video url?
+            var videoId = uri.AbsolutePath.Split('/').Last();
             _messenger.Send(new VideoPlayRequestMessage() { VideoId = videoId });
             return true;
         }
 
-			if (path.StartsWith("http://com.nicovideo.jp/community/") || path.StartsWith("https://com.nicovideo.jp/community/"))
-			{
-				var communityId = uri.AbsolutePath.Split('/').Last();
+        if (path.StartsWith("http://com.nicovideo.jp/community/") || path.StartsWith("https://com.nicovideo.jp/community/"))
+        {
+            var communityId = uri.AbsolutePath.Split('/').Last();
             OpenPageWithId(HohoemaPageType.Community, communityId);
 
             return true;
@@ -346,28 +372,17 @@ public class PageManager : ObservableObject
 
     public void OpenDebugPage()
     {
-        _messenger.Send(new PageNavigationEvent(new ()
-        {
-            PageName = nameof(Views.Pages.Hohoema.DebugPage),
-            IsMainViewTarget = true,
-            Behavior = NavigationStackBehavior.NotRemember,
-        }));
+        _messenger.Send(new NavigationAsyncRequestMessage(new(nameof(Views.Pages.Hohoema.DebugPage), behavior: NavigationStackBehavior.NotRemember)));
     }
 
-		public void OpenPage(HohoemaPageType pageType, INavigationParameters parameter = null, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
-		{
+    public void OpenPage(HohoemaPageType pageType, INavigationParameters? parameter = null, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
+    {
         try
         {
             CurrentPageType = pageType;
             CurrentPageNavigationParameters = parameter;
 
-            _messenger.Send(new PageNavigationEvent(new()
-            {
-                PageName = _pageTypeToName[pageType],
-                Paramter = parameter,
-                IsMainViewTarget = true,
-                Behavior = stackBehavior,
-            }));
+            _messenger.Send(new NavigationAsyncRequestMessage(_pageTypeToName[pageType], parameter, true, stackBehavior));
         }
         catch (Exception e)
         {
@@ -423,21 +438,21 @@ public class PageManager : ObservableObject
     static readonly Dictionary<HohoemaPageType, string> _pageTypeToName = Enum.GetValues(typeof(HohoemaPageType))
         .Cast<HohoemaPageType>().Select(x => (x, x + "Page")).ToDictionary(x => x.x, x => x.Item2);
     public bool IsIgnoreRecordPageType(HohoemaPageType pageType)
-		{
-			return IgnoreRecordNavigationStack.Contains(pageType);
-		}
+    {
+        return IgnoreRecordNavigationStack.Contains(pageType);
+    }
 
-		public void ForgetLastPage()
-		{
+    public void ForgetLastPage()
+    {
         // TODO: ナビゲーション履歴の削除
-			
-		}
+
+    }
 
 
 
-		/// <summary>
-		/// 外部で戻る処理が行われた際にPageManager上での整合性を取ります
-		/// </summary>
+    /// <summary>
+    /// 外部で戻る処理が行われた際にPageManager上での整合性を取ります
+    /// </summary>
     /*
 		public void OnNavigated(INavigationParameters parameters)
 		{
@@ -494,26 +509,26 @@ public class PageManager : ObservableObject
 		}
     */
 
-		/// <summary>
-		/// 画面遷移の履歴を消去します
-		/// </summary>
-		/// <remarks>
-		/// ログイン後にログイン画面の表示履歴を消す時や
-		/// ログアウト後にログイン状態中の画面遷移を消すときに利用します。
-		/// </remarks>
-		public void ClearNavigateHistory()
-		{
+    /// <summary>
+    /// 画面遷移の履歴を消去します
+    /// </summary>
+    /// <remarks>
+    /// ログイン後にログイン画面の表示履歴を消す時や
+    /// ログアウト後にログイン状態中の画面遷移を消すときに利用します。
+    /// </remarks>
+    public void ClearNavigateHistory()
+    {
         Scheduler.Schedule(() =>
         {
             // TODO: ナビゲーションスタックのクリア
         });
-			
-		}
 
-		public string CurrentDefaultPageTitle()
-		{
+    }
+
+    public string CurrentDefaultPageTitle()
+    {
         return CurrentPageType.Translate();
-		}
+    }
 
 
     public void OpenIntroductionPage()
@@ -522,8 +537,8 @@ public class PageManager : ObservableObject
     }
 
 
-		public static string PageTypeToTitle(HohoemaPageType pageType)
-		{
+    public static string PageTypeToTitle(HohoemaPageType pageType)
+    {
         return pageType.Translate();
-		}
+    }
 }

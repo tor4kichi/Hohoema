@@ -1,6 +1,6 @@
 ﻿#nullable enable
 using Hohoema.Models.Niconico;
-using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
+using Hohoema.Models.Niconico.Video;
 using Microsoft.Extensions.Logging;
 using System;
 using ZLogger;

@@ -1,5 +1,6 @@
 ﻿#nullable enable
 using Hohoema.Models.Playlist;
+using Hohoema.Models.Subscriptions;
 using Hohoema.Services.Playlist.PlaylistFactory;
 using System;
 
@@ -15,6 +16,7 @@ public sealed class PlaylistItemsSourceResolver : IPlaylistFactoryResolver
     private readonly Lazy<UserVideoPlaylistFactory> _userVideoPlaylistFactory;
     private readonly Lazy<CommunityVideoPlaylistFactory> _communityVideoPlaylistFactory;
     private readonly Lazy<SearchPlaylistFactory> _searchPlaylistFactory;
+    private readonly Lazy<SubscriptionGroupPlaylistFactory> _subscriptionGroupPlaylistFactory;
 
     public PlaylistItemsSourceResolver(
         Lazy<LocalMylistPlaylistFactory> localMylistPlaylistFactory,
@@ -23,7 +25,8 @@ public sealed class PlaylistItemsSourceResolver : IPlaylistFactoryResolver
         Lazy<ChannelVideoPlaylistFactory> channelVideoPlaylistFactory,
         Lazy<UserVideoPlaylistFactory> userVideoPlaylistFactory,
         Lazy<CommunityVideoPlaylistFactory> communityVideoPlaylistFactory,
-        Lazy<SearchPlaylistFactory> searchPlaylistFactory
+        Lazy<SearchPlaylistFactory> searchPlaylistFactory,
+        Lazy<SubscriptionGroupPlaylistFactory> subscriptionGroupPlaylistFactory
         )
     {
         _localMylistPlaylistFactory = localMylistPlaylistFactory;
@@ -33,6 +36,7 @@ public sealed class PlaylistItemsSourceResolver : IPlaylistFactoryResolver
         _userVideoPlaylistFactory = userVideoPlaylistFactory;
         _communityVideoPlaylistFactory = communityVideoPlaylistFactory;
         _searchPlaylistFactory = searchPlaylistFactory;
+        _subscriptionGroupPlaylistFactory = subscriptionGroupPlaylistFactory;
     }
 
     public IPlaylistFactory Resolve(PlaylistItemsSourceOrigin origin)
@@ -47,6 +51,7 @@ public sealed class PlaylistItemsSourceResolver : IPlaylistFactoryResolver
             PlaylistItemsSourceOrigin.CommunityVideos => _communityVideoPlaylistFactory.Value,
             PlaylistItemsSourceOrigin.SearchWithKeyword => _searchPlaylistFactory.Value,
             PlaylistItemsSourceOrigin.SearchWithTag => _searchPlaylistFactory.Value,
+            PlaylistItemsSourceOrigin.SubscriptionGroup => _subscriptionGroupPlaylistFactory.Value,
             _ => throw new NotSupportedException(origin.ToString()),
         };
     }

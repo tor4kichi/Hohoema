@@ -220,9 +220,22 @@ Notification_SuccessAddSubscriptionSourceWithLabel = 在订阅中添加了“ {0
 Notification_FailedSubscriptionUpdate = 订阅续订失败
 Notification_SuccessAddToWatchLaterWithAddedCount = 已将新视频{0}添加到“稍后查看”
 
+SubscGroup_DefaultGroupName = 默认
+AddSubscriptionGroup_InputSubscGroupName_Title = 确定订阅组名称
+SubscGroup_CreateGroup = 创建订阅组
+SubscGroup_ContextMenuItemTitle = 更改订阅组
+SubscGroup_SelectGroup = 选择订阅组
+SubscGroup_Rename = 重命名订阅组
+SubscGroup_DeleteComfirmDialogContent = 即使您删除订阅的群组，订阅的群组也会更改为“默认”，因此您可以放心删除。 \n你确定要删除它吗？
+SubscGroup_DeleteComfirmDialogTitle = 您确定要删除 {0} 组吗？
+
+VideoNoItem = 没有可显示的视频
+
+
+
 
 #### Settings ####
-MenuPaneDisplayMode = 如何显示菜单
+MenuPaneDisplayMode = 菜单显示位置
 NavigationViewPaneDisplayMode.Auto = 自动
 NavigationViewPaneDisplayMode.Left = 始终显示在左侧
 NavigationViewPaneDisplayMode.Top = 始终显示在顶部

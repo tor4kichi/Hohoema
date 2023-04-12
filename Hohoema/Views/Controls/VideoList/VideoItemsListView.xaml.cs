@@ -1,10 +1,10 @@
 ﻿#nullable enable
+using Hohoema.Contracts.ViewModels;
 using Hohoema.Models.Application;
 using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Mylist.LoginUser;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
 using Hohoema.Models.Playlist;
 using Hohoema.Services.LocalMylist;
 using Hohoema.Services.Niconico;
@@ -43,7 +43,6 @@ public sealed partial class VideoItemsListView : UserControl
         set { SetValue(HeaderProperty, value); }
     }
 
-    // Using a DependencyProperty as the backing store for Header.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty HeaderProperty =
         DependencyProperty.Register("Header", typeof(object), typeof(VideoItemsListView), new PropertyMetadata(null));
 
@@ -55,10 +54,19 @@ public sealed partial class VideoItemsListView : UserControl
         get { return (DataTemplate)GetValue(ItemTemplateProperty); }
         set { SetValue(ItemTemplateProperty, value); }
     }
-
-    // Using a DependencyProperty as the backing store for ItemTemplate.  This enables animation, styling, binding, etc...
+    
     public static readonly DependencyProperty ItemTemplateProperty =
         DependencyProperty.Register("ItemTemplate", typeof(DataTemplate), typeof(VideoItemsListView), new PropertyMetadata(null));
+
+
+    public DataTemplateSelector ItemTemplateSelector
+    {
+        get { return (DataTemplateSelector)GetValue(ItemTemplateSelectorProperty); }
+        set { SetValue(ItemTemplateSelectorProperty, value); }
+    }
+
+    public static readonly DependencyProperty ItemTemplateSelectorProperty =
+        DependencyProperty.Register("ItemTemplateSelector", typeof(DataTemplateSelector), typeof(VideoItemsListView), new PropertyMetadata(null));
 
 
     public DataTemplate ItemContextFlyoutTemplate
@@ -67,7 +75,6 @@ public sealed partial class VideoItemsListView : UserControl
         set { SetValue(ItemContextFlyoutTemplateProperty, value); }
     }
 
-    // Using a DependencyProperty as the backing store for ItemTemplate.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty ItemContextFlyoutTemplateProperty =
         DependencyProperty.Register("ItemContextFlyoutTemplate", typeof(DataTemplate), typeof(VideoItemsListView), new PropertyMetadata(null));
 
@@ -81,7 +88,6 @@ public sealed partial class VideoItemsListView : UserControl
         set { SetValue(ItemCommandProperty, value); }
     }
 
-    // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty ItemCommandProperty =
         DependencyProperty.Register("ItemCommand", typeof(ICommand), typeof(VideoItemsListView), new PropertyMetadata(null));
 
@@ -107,7 +113,6 @@ public sealed partial class VideoItemsListView : UserControl
         set { SetValue(RefreshCommandProperty, value); }
     }
 
-    // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
     public static readonly DependencyProperty RefreshCommandProperty =
         DependencyProperty.Register("RefreshCommand", typeof(ICommand), typeof(VideoItemsListView), new PropertyMetadata(null));
 

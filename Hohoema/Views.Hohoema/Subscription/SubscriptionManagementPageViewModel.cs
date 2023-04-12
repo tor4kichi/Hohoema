@@ -1,7 +1,9 @@
 ﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+using Hohoema.Contracts.Subscriptions;
 using Hohoema.Models.Application;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.PageNavigation;
@@ -12,6 +14,7 @@ using Hohoema.Services.Subscriptions;
 using Hohoema.ViewModels.Niconico.Video.Commands;
 using Hohoema.ViewModels.VideoListPage;
 using I18NPortable;
+using LiteDB;
 using Microsoft.Extensions.Logging;
 using NiconicoToolkit.Video;
 using Reactive.Bindings;
@@ -24,10 +27,12 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
 using ZLogger;
 
 namespace Hohoema.ViewModels.Pages.Hohoema.Subscription;
+
 
 public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelBase, IRecipient<SettingsRestoredMessage>, IDisposable
 {
@@ -46,6 +51,9 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     public IReadOnlyReactiveProperty<bool> IsAutoUpdateRunning { get; }
     public IReactiveProperty<TimeSpan> AutoUpdateFrequency { get; }
     public IReactiveProperty<bool> IsAutoUpdateEnabled { get; }
+
+    public ObservableCollection<SubscriptionGroup> SubscriptionGroups { get; } = new();
+    private readonly SubscriptionGroup _defaultSubscGroup = new SubscriptionGroup(SubscriptionGroupId.DefaultGroupId, "SubscGroup_DefaultGroupName".Translate());
 
     void IRecipient<SettingsRestoredMessage>.Receive(SettingsRestoredMessage message)
     {
@@ -115,20 +123,27 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
 
     public override void OnNavigatingTo(INavigationParameters parameters)
     {
+        SubscriptionGroups.Clear();
+        SubscriptionGroups.Add(_defaultSubscGroup);
+        foreach (var subscGroup in _subscriptionManager.GetSubscGroups())
+        {
+            SubscriptionGroups.Add(subscGroup);
+        }
+
         Subscriptions.Clear();
-        foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionSourceEntities().OrderBy(x => x.SortIndex))
+        foreach (var subscInfo in _subscriptionManager.GetAllSubscriptions().OrderBy(x => x.SortIndex))
         {
             var vm = new SubscriptionViewModel(_logger, _messenger, _queuePlaylist, subscInfo, this, _subscriptionManager, _pageManager, _dialogService, _VideoPlayWithQueueCommand);
-            var latestVideo = _subscriptionManager.GetSubscFeedVideos(subscInfo, 0, 1).FirstOrDefault();
+            var latestVideo = _subscriptionManager.GetSubscFeedVideos(subscInfo, 0, 1).FirstOrDefault();            
             if (latestVideo != null)
             {
                 var items = _nicoVideoProvider.GetCachedVideoInfoItems(new[] { (VideoId)latestVideo.VideoId });
-                vm.UpdateFeedResult(items, subscInfo.LastUpdateAt);
+                vm.UpdateFeedResult(items, _subscriptionManager.GetLastUpdatedAt(subscInfo.SubscriptionId));
             }
             Subscriptions.Add(vm);
         }
 
-        _messenger.Register<NewSubscMessage>(this, (r, m) => 
+        _messenger.Register<SubscriptionAddedMessage>(this, (r, m) => 
         {
             _scheduler.Schedule(() =>
             {
@@ -137,10 +152,10 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
             });
         });
 
-        _messenger.Register<DeleteSubscMessage>(this, (r, m) =>
+        _messenger.Register<SubscriptionDeletedMessage>(this, (r, m) =>
         {
             var entityId = m.Value;
-            var target = Subscriptions.FirstOrDefault(x => x._source.Id == entityId);
+            var target = Subscriptions.FirstOrDefault(x => x._source.SubscriptionId == entityId);
             if (target == null) { return; }
 
             _scheduler.Schedule(() =>
@@ -150,7 +165,7 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
             });
         });
 
-        _messenger.Register<UpdateSubscMessage>(this, (r, m) =>
+        _messenger.Register<SubscriptionUpdatedMessage>(this, (r, m) =>
         {
             var entity = m.Value;
             var vm = Subscriptions.FirstOrDefault(x => x.SourceType == entity.SourceType && x.SourceParameter == entity.SourceParameter);
@@ -163,22 +178,29 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
             }
         });
 
+        _messenger.Register<SubscriptionGroupDeletedMessage>(this, (r, m) => 
+        {
+            var group = m.Value;
+            foreach (var subsc in Subscriptions)
+            {
+                if (subsc.Group?.GroupId == group.GroupId)
+                {
+                    subsc.Group = null;
+                }
+            }
+        });
+
         base.OnNavigatingTo(parameters);
     }
 
     public override void OnNavigatedFrom(INavigationParameters parameters)
     {
-        _messenger.Unregister<NewSubscMessage>(this);
-        _messenger.Unregister<DeleteSubscMessage>(this);
-        _messenger.Unregister<UpdateSubscMessage>(this);
+        _messenger.Unregister<SubscriptionAddedMessage>(this);
+        _messenger.Unregister<SubscriptionDeletedMessage>(this);
+        _messenger.Unregister<SubscriptionUpdatedMessage>(this);
+        _messenger.Unregister<SubscriptionGroupDeletedMessage>(this);
 
         base.OnNavigatedFrom(parameters);
-    }
-
-
-    NicoVideo ToVideoContent(FeedResultVideoItem item)
-    {
-        return _nicoVideoProvider.GetCachedVideoInfo(item.VideoId);
     }
 
 
@@ -284,6 +306,67 @@ public partial class SubscriptionManagementPageViewModel : HohoemaPageViewModelB
     {
         _pageManager.OpenPage(HohoemaPageType.SubscVideoList);
     }
+
+    [RelayCommand]
+    async Task AddSubscriptionGroup(SubscriptionViewModel subscVM)
+    {
+        var name =await _dialogService.GetTextAsync(
+            "AddSubscriptionGroup_InputSubscGroupName_Title".Translate(),
+            "",
+            "",
+            (s) => !string.IsNullOrWhiteSpace(s)
+            );
+
+        if (string.IsNullOrWhiteSpace(name)) { return; }
+
+        SubscriptionGroup newGroup = _subscriptionManager.CreateSubscriptionGroup(name);
+        SubscriptionGroups.Add(newGroup);
+
+        subscVM.ChangeSubscGroup(newGroup);
+    }
+
+    [RelayCommand]
+    async Task DeleteSubscriptionGroup(SubscriptionGroup group)
+    {
+        bool confirmDelete = await _dialogService.ShowMessageDialog(
+            "SubscGroup_DeleteComfirmDialogContent".Translate(group.Name),
+            "SubscGroup_DeleteComfirmDialogTitle".Translate(),
+            "Delete".Translate(),
+            "Cancel".Translate()
+            );
+
+        if (confirmDelete)
+        {
+            _subscriptionManager.DeleteSubscriptionGroup(group);
+
+            foreach (var subsc in Subscriptions)
+            {
+                if (subsc.Group?.GroupId == group.GroupId)
+                {
+                    subsc.Group = null;
+                }
+            }
+        }
+    }
+
+    [RelayCommand]
+    async Task RenameSubscriptionGroup(SubscriptionGroup group)
+    {
+        string? resultName = await _dialogService.GetTextAsync("SubscGroup_Rename".Translate(), "", group.Name, (s) => !string.IsNullOrWhiteSpace(s) && s.Length <= 40);
+        if (resultName is null) { return; }
+
+        group.Name = resultName;
+        _subscriptionManager.UpdateSubscriptionGroup(group);
+
+        foreach (var subsc in Subscriptions)
+        {
+            if (subsc.Group?.GroupId == group.GroupId)
+            {
+                subsc.Group = null;
+                subsc.Group = group;
+            }
+        }
+    }
 }
 
 
@@ -294,7 +377,7 @@ public partial class SubscriptionViewModel : ObservableObject, IDisposable
         ILogger logger,
         IMessenger messenger,
         QueuePlaylist queuePlaylist,
-        SubscriptionSourceEntity source,
+        Models.Subscriptions.Subscription source,
         SubscriptionManagementPageViewModel pageViewModel,
         SubscriptionManager subscriptionManager,
         PageManager pageManager,
@@ -319,13 +402,14 @@ public partial class SubscriptionViewModel : ObservableObject, IDisposable
             _subscriptionManager.UpdateSubscription(_source);
         })
             .AddTo(_disposables);
+        _group = _source.Group;
     }
 
     private readonly CompositeDisposable _disposables = new CompositeDisposable();
     private readonly ILogger _logger;
     private readonly IMessenger _messenger;
     private readonly QueuePlaylist _queuePlaylist;
-    internal readonly SubscriptionSourceEntity _source;
+    internal readonly Models.Subscriptions.Subscription _source;
     private readonly SubscriptionManagementPageViewModel _pageViewModel;
     private readonly SubscriptionManager _subscriptionManager;
     private readonly PageManager _pageManager;
@@ -503,5 +587,15 @@ public partial class SubscriptionViewModel : ObservableObject, IDisposable
         _pageViewModel.Subscriptions.Add(this);
     }
 
+    [ObservableProperty]
+    private SubscriptionGroup? _group;
+    
+    [RelayCommand]
+    public void ChangeSubscGroup(SubscriptionGroup group)
+    {
+        _source.Group = group;
+        _subscriptionManager.UpdateSubscription(_source);
 
+        Group = group;
+    }
 }

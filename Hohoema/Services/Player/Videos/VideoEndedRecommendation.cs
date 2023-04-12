@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using Hohoema.Models.Application;
-using Hohoema.Models.Niconico.Video.WatchHistory.LoginUser;
+using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Player;
 using Hohoema.Models.Player.Video;
 using Hohoema.Models.Playlist;
@@ -37,7 +37,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
         PlayerSettings playerSettings,
         AppearanceSettings appearanceSettings,
         HohoemaPlaylistPlayer hohoemaPlaylistPlayer,
-        VideoPlayedHistoryRepository videoPlayedHistoryRepository
+        VideoWatchedRepository videoWatchedRepository
         )
     {
         _mediaPlayer = mediaPlayer;
@@ -49,7 +49,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
         _playerSettings = playerSettings;
         _appearanceSettings = appearanceSettings;
         _hohoemaPlaylistPlayer = hohoemaPlaylistPlayer;
-        _videoPlayedHistoryRepository = videoPlayedHistoryRepository;
+        _videoWatchedRepository = videoWatchedRepository;
         IsEnded = new ReactiveProperty<bool>(_scheduler);
         HasRecomend = new ReactiveProperty<bool>(_scheduler);
         
@@ -87,7 +87,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
                 // 他のアイテムが再生されたり、プレイヤーが閉じられたタイミングで
                 //
                 //_queuePlaylist.Remove(currentVideoId);
-                _videoPlayedHistoryRepository.VideoPlayed(currentVideoId, sender.Position);
+                _videoWatchedRepository.VideoPlayed(currentVideoId, sender.Position);
 
                 if (_playerSettings.IsPlaylistAutoMoveEnabled && await _hohoemaPlaylistPlayer.CanGoNextAsync())
                 {                        
@@ -190,7 +190,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
 
         var data = message.Value;
         _queuePlaylist.Remove(data.VideoId);
-        _videoPlayedHistoryRepository.VideoPlayed(data.VideoId, data.EndPosition);
+        _videoWatchedRepository.VideoPlayed(data.VideoId, data.EndPosition);
     }
 
 
@@ -250,7 +250,7 @@ public sealed class VideoEndedRecommendation : ObservableObject, IDisposable,
     private readonly PlayerSettings _playerSettings;
     private readonly AppearanceSettings _appearanceSettings;
     private readonly HohoemaPlaylistPlayer _hohoemaPlaylistPlayer;
-    private readonly VideoPlayedHistoryRepository _videoPlayedHistoryRepository;
+    private readonly VideoWatchedRepository _videoWatchedRepository;
 
     public ReactiveProperty<bool> IsEnded { get; }
 

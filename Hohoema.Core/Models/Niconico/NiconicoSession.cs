@@ -304,7 +304,7 @@ public sealed class NiconicoSession : ObservableObject
             _ = await SignOut();
         }
 
-        using (_ = await SigninLock.LockAsync())
+        using (await SigninLock.LockAsync())
         {
             Debug.WriteLine("try login");
 

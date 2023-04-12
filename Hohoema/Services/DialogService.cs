@@ -1,4 +1,5 @@
 ﻿#nullable enable
+using CommunityToolkit.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Hohoema.Dialogs;
 using Hohoema.Models.Application;
@@ -503,14 +504,15 @@ public class DialogService : IDialogService, IMylistGroupDialogService, ISelecti
 
     #region AdvancedSelectDialog
 
-    public async Task<T> ShowSingleSelectDialogAsync<T>(
+    public async Task<T?> ShowSingleSelectDialogAsync<T>(
         List<T> sourceItems,
+        T? initialSelectItem,
         string displayMemberPath,
-        Func<T, string, bool> filter,
         string dialogTitle,
         string dialogPrimaryButtonText,
-        string dialogSecondaryButtonText = null,
-        Func<Task<T>> SecondaryButtonAction = null
+        string? dialogSecondaryButtonText = null,
+        Func<Task<T>>? SecondaryButtonAction = null,
+        Func<T, string, bool>? filter = null
         )
     {
         var advancedSelectDialog = new AdvancedSelectDialog()
@@ -520,7 +522,7 @@ public class DialogService : IDialogService, IMylistGroupDialogService, ISelecti
         advancedSelectDialog.Title = dialogTitle;
         advancedSelectDialog.PrimaryButtonText = dialogPrimaryButtonText;
         advancedSelectDialog.CloseButtonText = "Cancel".Translate();
-        advancedSelectDialog.SetSourceItems(sourceItems, filter != null ? (x, s) => filter((T)x, s) : default(Func<object, string, bool>));
+        advancedSelectDialog.SetSourceItems(sourceItems, filter != null ? (x, s) => filter((T)x, s) : default(Func<object, string, bool>), initialSelectItem);
         advancedSelectDialog.ItemDisplayMemberPath = displayMemberPath;
         advancedSelectDialog.IsMultiSelection = false;
         if (dialogSecondaryButtonText != null)
@@ -535,11 +537,12 @@ public class DialogService : IDialogService, IMylistGroupDialogService, ISelecti
         }
         else if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Secondary)
         {
-            return await SecondaryButtonAction?.Invoke();
+            Guard.IsNotNull(SecondaryButtonAction, nameof(SecondaryButtonAction));
+            return await SecondaryButtonAction.Invoke();
         }
         else
         {
-            return default(T);
+            return default(T?);
         }
     }
 
